@@ -9,6 +9,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.model.turtle.TurtleModel;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
@@ -24,7 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 
-public final class TurtleModelLoader implements IGeometryLoader<TurtleModelLoader.TurtleModel> {
+public final class TurtleModelLoader implements IGeometryLoader<TurtleModelLoader.Unbaked> {
     private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_colour");
 
     public static final TurtleModelLoader INSTANCE = new TurtleModelLoader();
@@ -34,15 +35,15 @@ public final class TurtleModelLoader implements IGeometryLoader<TurtleModelLoade
 
     @Nonnull
     @Override
-    public TurtleModel read(@Nonnull JsonObject modelContents, @Nonnull JsonDeserializationContext deserializationContext) {
+    public Unbaked read(@Nonnull JsonObject modelContents, @Nonnull JsonDeserializationContext deserializationContext) {
         var model = new ResourceLocation(GsonHelper.getAsString(modelContents, "model"));
-        return new TurtleModel(model);
+        return new Unbaked(model);
     }
 
-    public static final class TurtleModel implements IUnbakedGeometry<TurtleModel> {
+    public static final class Unbaked implements IUnbakedGeometry<Unbaked> {
         private final ResourceLocation family;
 
-        private TurtleModel(ResourceLocation family) {
+        private Unbaked(ResourceLocation family) {
             this.family = family;
         }
 
@@ -56,7 +57,7 @@ public final class TurtleModelLoader implements IGeometryLoader<TurtleModelLoade
 
         @Override
         public BakedModel bake(IGeometryBakingContext owner, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState transform, ItemOverrides overrides, ResourceLocation modelLocation) {
-            return new TurtleSmartItemModel(
+            return new TurtleModel(
                 bakery.bake(family, transform, spriteGetter),
                 bakery.bake(COLOUR_TURTLE_MODEL, transform, spriteGetter)
             );

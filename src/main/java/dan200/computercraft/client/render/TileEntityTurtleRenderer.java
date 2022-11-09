@@ -29,7 +29,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.client.model.data.ModelData;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -145,9 +144,9 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
 
     private void renderModel(@Nonnull PoseStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, BakedModel model, int[] tints) {
         random.setSeed(0);
-        renderQuads(transform, renderer, lightmapCoord, overlayLight, model.getQuads(null, null, random, ModelData.EMPTY, null), tints);
+        renderQuads(transform, renderer, lightmapCoord, overlayLight, model.getQuads(null, null, random), tints);
         for (var facing : DirectionUtil.FACINGS) {
-            renderQuads(transform, renderer, lightmapCoord, overlayLight, model.getQuads(null, facing, random, ModelData.EMPTY, null), tints);
+            renderQuads(transform, renderer, lightmapCoord, overlayLight, model.getQuads(null, facing, random), tints);
         }
     }
 

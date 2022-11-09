@@ -6,7 +6,6 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.math.Transformation;
-import dan200.computercraft.api.client.TransformedModel;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
@@ -16,39 +15,41 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.BakedModelWrapper;
 import net.minecraftforge.client.model.QuadTransformers;
 import net.minecraftforge.client.model.data.ModelData;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class TransformedBakedModel extends BakedModelWrapper<BakedModel> {
     private final Transformation transformation;
-    private final boolean isIdentity;
+    private final boolean invert;
+    private @Nullable TransformedQuads cache;
 
     public TransformedBakedModel(BakedModel model, Transformation transformation) {
         super(model);
         this.transformation = transformation;
-        isIdentity = transformation.isIdentity();
+        invert = transformation.getNormalMatrix().determinant() < 0;
     }
 
-    public TransformedBakedModel(TransformedModel model) {
-        this(model.getModel(), model.getMatrix());
-    }
-
-    @Nonnull
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull RandomSource rand) {
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand) {
         return getQuads(state, side, rand, ModelData.EMPTY, null);
     }
 
     @Override
-    public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData extraData, @Nullable RenderType renderType) {
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData extraData, @Nullable RenderType renderType) {
+        var cache = this.cache;
         var quads = originalModel.getQuads(state, side, rand, extraData, renderType);
-        return isIdentity ? quads : QuadTransformers.applying(transformation).process(quads);
+        if (quads.isEmpty()) return List.of();
+
+        // We do some basic caching here to avoid recomputing every frame. Most turtle models don't have culled faces,
+        // so it's not worth being smarter here.
+        if (cache != null && quads.equals(cache.original())) return cache.transformed();
+
+        var transformed = QuadTransformers.applying(transformation).process(quads);
+        this.cache = new TransformedQuads(quads, transformed);
+        return transformed;
     }
 
-    public TransformedBakedModel composeWith(Transformation other) {
-        return new TransformedBakedModel(originalModel, other.compose(transformation));
+    private record TransformedQuads(List<BakedQuad> original, List<BakedQuad> transformed) {
     }
 }

@@ -3,46 +3,51 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.client.render;
+package dan200.computercraft.client.model.turtle;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Transformation;
+import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.model.BakedModelWrapper;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
-public class TurtleSmartItemModel extends BakedModelWrapper<BakedModel> {
+/**
+ * Combines several individual models together to form a turtle.
+ */
+public final class TurtleModelParts {
     private static final Transformation identity, flip;
 
     static {
         var stack = new PoseStack();
-        stack.scale(0, -1, 0);
-        stack.translate(0, 0, 1);
+        stack.translate(0.5f, 0.5f, 0.5f);
+        stack.scale(1, -1, 1);
+        stack.translate(-0.5f, -0.5f, -0.5f);
 
         identity = Transformation.identity();
         flip = new Transformation(stack.last().pose());
     }
 
-    private record TurtleModelCombination(
+    public record Combination(
         boolean colour,
-        ITurtleUpgrade leftUpgrade,
-        ITurtleUpgrade rightUpgrade,
-        ResourceLocation overlay,
+        @Nullable ITurtleUpgrade leftUpgrade,
+        @Nullable ITurtleUpgrade rightUpgrade,
+        @Nullable ResourceLocation overlay,
         boolean christmas,
         boolean flip
     ) {
@@ -50,25 +55,21 @@ public class TurtleSmartItemModel extends BakedModelWrapper<BakedModel> {
 
     private final BakedModel familyModel;
     private final BakedModel colourModel;
+    private final Function<TransformedModel, BakedModel> transformer;
 
-    private final Map<TurtleModelCombination, List<BakedModel>> cachedModels = new HashMap<>();
+    /**
+     * A cache of {@link TransformedModel} to the transformed {@link BakedModel}. This helps us pool the transformed
+     * instances, reducing memory usage and hopefully ensuring their caches are hit more often!
+     */
+    private final Map<TransformedModel, BakedModel> transformCache = new HashMap<>();
 
-    public TurtleSmartItemModel(BakedModel familyModel, BakedModel colourModel) {
-        super(familyModel);
+    public TurtleModelParts(BakedModel familyModel, BakedModel colourModel, ModelTransformer transformer) {
         this.familyModel = familyModel;
         this.colourModel = colourModel;
+        this.transformer = x -> transformer.transform(x.getModel(), x.getMatrix());
     }
 
-    @Nonnull
-    @Override
-    public BakedModel applyTransform(@Nonnull ItemTransforms.TransformType cameraTransformType, @Nonnull PoseStack poseStack, boolean applyLeftHandTransform) {
-        originalModel.applyTransform(cameraTransformType, poseStack, applyLeftHandTransform);
-        return this;
-    }
-
-    @Nonnull
-    @Override
-    public List<BakedModel> getRenderPasses(ItemStack stack, boolean fabulous) {
+    public Combination getCombination(ItemStack stack) {
         var turtle = (ItemTurtle) stack.getItem();
 
         var colour = turtle.getColour(stack);
@@ -79,29 +80,39 @@ public class TurtleSmartItemModel extends BakedModelWrapper<BakedModel> {
         var label = turtle.getLabel(stack);
         var flip = label != null && (label.equals("Dinnerbone") || label.equals("Grumm"));
 
-        var combo = new TurtleModelCombination(colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip);
-        return cachedModels.computeIfAbsent(combo, this::buildModel);
+        return new Combination(colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip);
     }
 
-    private List<BakedModel> buildModel(TurtleModelCombination combo) {
+    public List<BakedModel> buildModel(Combination combo) {
         var mc = Minecraft.getInstance();
         var modelManager = mc.getItemRenderer().getItemModelShaper().getModelManager();
 
         var transformation = combo.flip ? flip : identity;
         var parts = new ArrayList<BakedModel>(4);
-        parts.add(new TransformedBakedModel(combo.colour() ? colourModel : familyModel, transformation));
+        parts.add(transform(combo.colour() ? colourModel : familyModel, transformation));
 
         var overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel(combo.overlay(), combo.christmas());
         if (overlayModelLocation != null) {
-            parts.add(new TransformedBakedModel(modelManager.getModel(overlayModelLocation), transformation));
+            parts.add(transform(modelManager.getModel(overlayModelLocation), transformation));
         }
         if (combo.leftUpgrade() != null) {
-            parts.add(new TransformedBakedModel(TurtleUpgradeModellers.getModel(combo.leftUpgrade(), null, TurtleSide.LEFT)).composeWith(transformation));
+            var model = TurtleUpgradeModellers.getModel(combo.leftUpgrade(), null, TurtleSide.LEFT);
+            parts.add(transform(model.getModel(), transformation.compose(model.getMatrix())));
         }
         if (combo.rightUpgrade() != null) {
-            parts.add(new TransformedBakedModel(TurtleUpgradeModellers.getModel(combo.rightUpgrade(), null, TurtleSide.RIGHT)).composeWith(transformation));
+            var model = TurtleUpgradeModellers.getModel(combo.rightUpgrade(), null, TurtleSide.RIGHT);
+            parts.add(transform(model.getModel(), transformation.compose(model.getMatrix())));
         }
 
         return parts;
+    }
+
+    public BakedModel transform(BakedModel model, Transformation transformation) {
+        if (transformation.equals(Transformation.identity())) return model;
+        return transformCache.computeIfAbsent(new TransformedModel(model, transformation), transformer);
+    }
+
+    public interface ModelTransformer {
+        BakedModel transform(BakedModel model, Transformation transformation);
     }
 }
