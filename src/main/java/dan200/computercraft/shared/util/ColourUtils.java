@@ -5,32 +5,16 @@
  */
 package dan200.computercraft.shared.util;
 
+import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.Tags;
+
+import java.util.List;
 
 public final class ColourUtils {
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static final TagKey<Item>[] DYES = new TagKey[]{
-        Tags.Items.DYES_WHITE,
-        Tags.Items.DYES_ORANGE,
-        Tags.Items.DYES_MAGENTA,
-        Tags.Items.DYES_LIGHT_BLUE,
-        Tags.Items.DYES_YELLOW,
-        Tags.Items.DYES_LIME,
-        Tags.Items.DYES_PINK,
-        Tags.Items.DYES_GRAY,
-        Tags.Items.DYES_LIGHT_GRAY,
-        Tags.Items.DYES_CYAN,
-        Tags.Items.DYES_PURPLE,
-        Tags.Items.DYES_BLUE,
-        Tags.Items.DYES_BROWN,
-        Tags.Items.DYES_GREEN,
-        Tags.Items.DYES_RED,
-        Tags.Items.DYES_BLACK,
-    };
+    private static final List<TagKey<Item>> DYES = PlatformHelper.get().getDyeTags();
 
     private ColourUtils() {
     }
@@ -38,8 +22,8 @@ public final class ColourUtils {
     public static DyeColor getStackColour(ItemStack stack) {
         if (stack.isEmpty()) return null;
 
-        for (var i = 0; i < DYES.length; i++) {
-            var dye = DYES[i];
+        for (var i = 0; i < DYES.size(); i++) {
+            var dye = DYES.get(i);
             if (stack.is(dye)) return DyeColor.byId(i);
         }
 

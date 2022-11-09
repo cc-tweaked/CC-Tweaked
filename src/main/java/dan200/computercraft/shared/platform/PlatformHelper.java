@@ -20,12 +20,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -37,6 +40,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -216,4 +220,19 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      */
     @Deprecated(forRemoval = true)
     IItemHandlerModifiable wrapContainerToItemHandler(Container container);
+
+    /**
+     * Get the {@link RecipeIngredients} for this loader.
+     *
+     * @return The loader-specific recipe ingredients.
+     */
+    RecipeIngredients getRecipeIngredients();
+
+    /**
+     * Get a list of tags representing each Minecraft dye. This should follow the same order as {@linkplain DyeColor
+     * Minecraft's dyes}, starting with white and ending with black.
+     *
+     * @return A list of tags.
+     */
+    List<TagKey<Item>> getDyeTags();
 }

@@ -8,6 +8,7 @@ package dan200.computercraft.shared.media.recipes;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.ItemDisk;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -15,15 +16,18 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
 
 public class DiskRecipe extends CustomRecipe {
+    private final Ingredient redstone;
+
     public DiskRecipe(ResourceLocation id) {
         super(id);
+        redstone = PlatformHelper.get().getRecipeIngredients().redstone();
     }
 
     @Override
@@ -38,7 +42,7 @@ public class DiskRecipe extends CustomRecipe {
                 if (stack.getItem() == Items.PAPER) {
                     if (paperFound) return false;
                     paperFound = true;
-                } else if (stack.is(Tags.Items.DUSTS_REDSTONE)) {
+                } else if (redstone.test(stack)) {
                     if (redstoneFound) return false;
                     redstoneFound = true;
                 } else if (ColourUtils.getStackColour(stack) == null) {
@@ -60,7 +64,7 @@ public class DiskRecipe extends CustomRecipe {
 
             if (stack.isEmpty()) continue;
 
-            if (stack.getItem() != Items.PAPER && !stack.is(Tags.Items.DUSTS_REDSTONE)) {
+            if (stack.getItem() != Items.PAPER && !redstone.test(stack)) {
                 var dye = ColourUtils.getStackColour(stack);
                 if (dye != null) tracker.addColour(dye);
             }

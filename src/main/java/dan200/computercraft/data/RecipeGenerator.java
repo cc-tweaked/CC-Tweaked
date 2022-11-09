@@ -13,23 +13,30 @@ import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.platform.PlatformHelper;
+import dan200.computercraft.shared.platform.RecipeIngredients;
 import dan200.computercraft.shared.platform.Registries;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.common.Tags;
+import net.minecraft.world.level.block.Blocks;
 
 import javax.annotation.Nonnull;
 import java.util.Locale;
@@ -39,6 +46,7 @@ import static dan200.computercraft.api.ComputerCraftTags.Items.COMPUTER;
 import static dan200.computercraft.api.ComputerCraftTags.Items.WIRED_MODEM;
 
 class RecipeGenerator extends RecipeProvider {
+    private final RecipeIngredients ingredients = PlatformHelper.get().getRecipeIngredients();
     private final TurtleUpgradeDataProvider turtleUpgrades;
     private final PocketUpgradeDataProvider pocketUpgrades;
 
@@ -72,8 +80,8 @@ class RecipeGenerator extends RecipeProvider {
         for (var colour : Colour.VALUES) {
             ShapelessRecipeBuilder
                 .shapeless(ModRegistry.Items.DISK.get())
-                .requires(Tags.Items.DUSTS_REDSTONE)
-                .requires(net.minecraft.world.item.Items.PAPER)
+                .requires(ingredients.redstone())
+                .requires(Items.PAPER)
                 .requires(DyeItem.byColor(ofColour(colour)))
                 .group("computercraft:disk")
                 .unlockedBy("has_drive", inventoryChange(ModRegistry.Blocks.DISK_DRIVE.get()))
@@ -156,8 +164,8 @@ class RecipeGenerator extends RecipeProvider {
             .pattern(" # ")
             .pattern("#R#")
             .pattern(" # ")
-            .define('#', Tags.Items.STONE)
-            .define('R', Tags.Items.DUSTS_REDSTONE)
+            .define('#', ingredients.stone())
+            .define('R', ingredients.redstone())
             .unlockedBy("has_computer", inventoryChange(COMPUTER))
             .unlockedBy("has_modem", inventoryChange(WIRED_MODEM))
             .save(add);
@@ -167,10 +175,10 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#R#")
             .pattern("#G#")
-            .define('#', Tags.Items.STONE)
-            .define('R', Tags.Items.DUSTS_REDSTONE)
-            .define('G', Tags.Items.GLASS_PANES)
-            .unlockedBy("has_redstone", inventoryChange(Tags.Items.DUSTS_REDSTONE))
+            .define('#', ingredients.stone())
+            .define('R', ingredients.redstone())
+            .define('G', ingredients.glassPane())
+            .unlockedBy("has_redstone", inventoryChange(itemPredicate(ingredients.redstone())))
             .save(add);
 
         ShapedRecipeBuilder
@@ -178,10 +186,10 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#R#")
             .pattern("#G#")
-            .define('#', Tags.Items.INGOTS_GOLD)
-            .define('R', Tags.Items.DUSTS_REDSTONE)
-            .define('G', Tags.Items.GLASS_PANES)
-            .unlockedBy("has_components", inventoryChange(net.minecraft.world.item.Items.REDSTONE, net.minecraft.world.item.Items.GOLD_INGOT))
+            .define('#', ingredients.goldIngot())
+            .define('R', ingredients.redstone())
+            .define('G', ingredients.glassPane())
+            .unlockedBy("has_components", inventoryChange(itemPredicate(ingredients.redstone()), itemPredicate(ingredients.goldIngot())))
             .save(add);
 
         ShapedRecipeBuilder
@@ -189,9 +197,9 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#C#")
             .pattern("# #")
-            .define('#', Tags.Items.INGOTS_GOLD)
+            .define('#', ingredients.goldIngot())
             .define('C', ModRegistry.Items.COMPUTER_ADVANCED.get())
-            .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.COMPUTER_NORMAL.get()), itemPredicate(Tags.Items.INGOTS_GOLD)))
+            .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.COMPUTER_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
             .save(
                 RecipeWrapper.wrap(ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)),
                 new ResourceLocation(ComputerCraft.MOD_ID, "computer_advanced_upgrade")
@@ -202,10 +210,10 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#R#")
             .pattern("#G#")
-            .define('#', Tags.Items.INGOTS_GOLD)
-            .define('R', net.minecraft.world.level.block.Blocks.COMMAND_BLOCK)
-            .define('G', Tags.Items.GLASS_PANES)
-            .unlockedBy("has_components", inventoryChange(net.minecraft.world.level.block.Blocks.COMMAND_BLOCK))
+            .define('#', ingredients.goldIngot())
+            .define('R', Blocks.COMMAND_BLOCK)
+            .define('G', ingredients.glassPane())
+            .unlockedBy("has_components", inventoryChange(Blocks.COMMAND_BLOCK))
             .save(add);
 
         ShapedRecipeBuilder
@@ -213,9 +221,9 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#C#")
             .pattern("#I#")
-            .define('#', Tags.Items.INGOTS_IRON)
+            .define('#', ingredients.ironIngot())
             .define('C', ModRegistry.Items.COMPUTER_NORMAL.get())
-            .define('I', Tags.Items.CHESTS_WOODEN)
+            .define('I', ingredients.woodenChest())
             .unlockedBy("has_computer", inventoryChange(ModRegistry.Items.COMPUTER_NORMAL.get()))
             .save(RecipeWrapper.wrap(ModRegistry.RecipeSerializers.TURTLE.get(), add).withExtraData(family(ComputerFamily.NORMAL)));
 
@@ -224,9 +232,9 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#C#")
             .pattern("#I#")
-            .define('#', Tags.Items.INGOTS_GOLD)
+            .define('#', ingredients.goldIngot())
             .define('C', ModRegistry.Items.COMPUTER_ADVANCED.get())
-            .define('I', Tags.Items.CHESTS_WOODEN)
+            .define('I', ingredients.woodenChest())
             .unlockedBy("has_computer", inventoryChange(ModRegistry.Items.COMPUTER_NORMAL.get()))
             .save(RecipeWrapper.wrap(ModRegistry.RecipeSerializers.TURTLE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)));
 
@@ -235,10 +243,10 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#C#")
             .pattern(" B ")
-            .define('#', Tags.Items.INGOTS_GOLD)
+            .define('#', ingredients.goldIngot())
             .define('C', ModRegistry.Items.COMPUTER_ADVANCED.get())
-            .define('B', Tags.Items.STORAGE_BLOCKS_GOLD)
-            .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.TURTLE_NORMAL.get()), itemPredicate(Tags.Items.INGOTS_GOLD)))
+            .define('B', ingredients.goldBlock())
+            .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.TURTLE_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
             .save(
                 RecipeWrapper.wrap(ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)),
                 new ResourceLocation(ComputerCraft.MOD_ID, "turtle_advanced_upgrade")
@@ -249,8 +257,8 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#R#")
             .pattern("#R#")
-            .define('#', Tags.Items.STONE)
-            .define('R', Tags.Items.DUSTS_REDSTONE)
+            .define('#', ingredients.stone())
+            .define('R', ingredients.redstone())
             .unlockedBy("has_computer", inventoryChange(COMPUTER))
             .save(add);
 
@@ -259,8 +267,8 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#G#")
             .pattern("###")
-            .define('#', Tags.Items.STONE)
-            .define('G', Tags.Items.GLASS_PANES)
+            .define('#', ingredients.stone())
+            .define('G', ingredients.glassPane())
             .unlockedBy("has_computer", inventoryChange(COMPUTER))
             .save(add);
 
@@ -269,8 +277,8 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#G#")
             .pattern("###")
-            .define('#', Tags.Items.INGOTS_GOLD)
-            .define('G', Tags.Items.GLASS_PANES)
+            .define('#', ingredients.goldIngot())
+            .define('G', ingredients.glassPane())
             .unlockedBy("has_computer", inventoryChange(COMPUTER))
             .save(add);
 
@@ -279,11 +287,11 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#A#")
             .pattern("#G#")
-            .define('#', Tags.Items.STONE)
-            .define('A', net.minecraft.world.item.Items.GOLDEN_APPLE)
-            .define('G', Tags.Items.GLASS_PANES)
+            .define('#', ingredients.stone())
+            .define('A', Items.GOLDEN_APPLE)
+            .define('G', ingredients.glassPane())
             .unlockedBy("has_computer", inventoryChange(COMPUTER))
-            .unlockedBy("has_apple", inventoryChange(net.minecraft.world.item.Items.GOLDEN_APPLE))
+            .unlockedBy("has_apple", inventoryChange(Items.GOLDEN_APPLE))
             .save(add);
 
         ShapedRecipeBuilder
@@ -291,11 +299,11 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#A#")
             .pattern("#G#")
-            .define('#', Tags.Items.INGOTS_GOLD)
-            .define('A', net.minecraft.world.item.Items.GOLDEN_APPLE)
-            .define('G', Tags.Items.GLASS_PANES)
+            .define('#', ingredients.goldIngot())
+            .define('A', Items.GOLDEN_APPLE)
+            .define('G', ingredients.glassPane())
             .unlockedBy("has_computer", inventoryChange(COMPUTER))
-            .unlockedBy("has_apple", inventoryChange(net.minecraft.world.item.Items.GOLDEN_APPLE))
+            .unlockedBy("has_apple", inventoryChange(Items.GOLDEN_APPLE))
             .save(add);
 
         ShapedRecipeBuilder
@@ -303,9 +311,9 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#C#")
             .pattern("# #")
-            .define('#', Tags.Items.INGOTS_GOLD)
+            .define('#', ingredients.goldIngot())
             .define('C', ModRegistry.Items.POCKET_COMPUTER_NORMAL.get())
-            .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get()), itemPredicate(Tags.Items.INGOTS_GOLD)))
+            .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
             .save(
                 RecipeWrapper.wrap(ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)),
                 new ResourceLocation(ComputerCraft.MOD_ID, "pocket_computer_advanced_upgrade")
@@ -316,9 +324,9 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#R#")
             .pattern("#D#")
-            .define('#', Tags.Items.STONE)
-            .define('R', Tags.Items.DUSTS_REDSTONE)
-            .define('D', Tags.Items.DYES)
+            .define('#', ingredients.stone())
+            .define('R', ingredients.redstone())
+            .define('D', ingredients.dye())
             .unlockedBy("has_computer", inventoryChange(COMPUTER))
             .save(add);
 
@@ -327,9 +335,9 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#N#")
             .pattern("#R#")
-            .define('#', Tags.Items.STONE)
-            .define('N', net.minecraft.world.level.block.Blocks.NOTE_BLOCK)
-            .define('R', Tags.Items.DUSTS_REDSTONE)
+            .define('#', ingredients.stone())
+            .define('N', Blocks.NOTE_BLOCK)
+            .define('R', ingredients.redstone())
             .unlockedBy("has_computer", inventoryChange(COMPUTER))
             .save(add);
 
@@ -338,8 +346,8 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#R#")
             .pattern("###")
-            .define('#', Tags.Items.STONE)
-            .define('R', Tags.Items.DUSTS_REDSTONE)
+            .define('#', ingredients.stone())
+            .define('R', ingredients.redstone())
             .unlockedBy("has_computer", inventoryChange(COMPUTER))
             .unlockedBy("has_cable", inventoryChange(ModRegistry.Items.CABLE.get()))
             .save(add);
@@ -360,8 +368,8 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#E#")
             .pattern("###")
-            .define('#', Tags.Items.STONE)
-            .define('E', Tags.Items.ENDER_PEARLS)
+            .define('#', ingredients.stone())
+            .define('E', ingredients.enderPearl())
             .unlockedBy("has_computer", inventoryChange(COMPUTER))
             .save(add);
 
@@ -370,15 +378,15 @@ class RecipeGenerator extends RecipeProvider {
             .pattern("###")
             .pattern("#E#")
             .pattern("###")
-            .define('#', Tags.Items.INGOTS_GOLD)
-            .define('E', net.minecraft.world.item.Items.ENDER_EYE)
+            .define('#', ingredients.goldIngot())
+            .define('E', Items.ENDER_EYE)
             .unlockedBy("has_computer", inventoryChange(COMPUTER))
             .unlockedBy("has_wireless", inventoryChange(ModRegistry.Blocks.WIRELESS_MODEM_NORMAL.get()))
             .save(add);
 
         ShapelessRecipeBuilder
-            .shapeless(net.minecraft.world.item.Items.PLAYER_HEAD)
-            .requires(Tags.Items.HEADS)
+            .shapeless(Items.PLAYER_HEAD)
+            .requires(ingredients.head())
             .requires(ModRegistry.Items.MONITOR_NORMAL.get())
             .unlockedBy("has_monitor", inventoryChange(ModRegistry.Items.MONITOR_NORMAL.get()))
             .save(
@@ -388,8 +396,8 @@ class RecipeGenerator extends RecipeProvider {
             );
 
         ShapelessRecipeBuilder
-            .shapeless(net.minecraft.world.item.Items.PLAYER_HEAD)
-            .requires(Tags.Items.HEADS)
+            .shapeless(Items.PLAYER_HEAD)
+            .requires(ingredients.head())
             .requires(ModRegistry.Items.COMPUTER_ADVANCED.get())
             .unlockedBy("has_computer", inventoryChange(ModRegistry.Items.COMPUTER_ADVANCED.get()))
             .save(
@@ -401,15 +409,15 @@ class RecipeGenerator extends RecipeProvider {
         ShapelessRecipeBuilder
             .shapeless(ModRegistry.Items.PRINTED_PAGES.get())
             .requires(ModRegistry.Items.PRINTED_PAGE.get(), 2)
-            .requires(Tags.Items.STRING)
+            .requires(ingredients.string())
             .unlockedBy("has_printer", inventoryChange(ModRegistry.Blocks.PRINTER.get()))
             .save(RecipeWrapper.wrap(ModRegistry.RecipeSerializers.IMPOSTOR_SHAPELESS.get(), add));
 
         ShapelessRecipeBuilder
             .shapeless(ModRegistry.Items.PRINTED_BOOK.get())
-            .requires(Tags.Items.LEATHER)
+            .requires(ingredients.leather())
             .requires(ModRegistry.Items.PRINTED_PAGE.get(), 1)
-            .requires(Tags.Items.STRING)
+            .requires(ingredients.string())
             .unlockedBy("has_printer", inventoryChange(ModRegistry.Blocks.PRINTER.get()))
             .save(RecipeWrapper.wrap(ModRegistry.RecipeSerializers.IMPOSTOR_SHAPELESS.get(), add));
     }
@@ -436,6 +444,19 @@ class RecipeGenerator extends RecipeProvider {
 
     private static ItemPredicate itemPredicate(TagKey<Item> item) {
         return ItemPredicate.Builder.item().of(item).build();
+    }
+
+    private static ItemPredicate itemPredicate(Ingredient ingredient) {
+        var json = ingredient.toJson();
+        if (!(json instanceof JsonObject object)) throw new IllegalStateException("Unknown ingredient " + json);
+
+        if (object.has("item")) {
+            return itemPredicate(ShapedRecipe.itemFromJson(object));
+        } else if (object.has("tag")) {
+            return itemPredicate(TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation(GsonHelper.getAsString(object, "tag"))));
+        } else {
+            throw new IllegalArgumentException("Unknown ingredient " + json);
+        }
     }
 
     private static CompoundTag playerHead(String name, String uuid) {

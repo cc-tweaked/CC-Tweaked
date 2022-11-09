@@ -26,13 +26,16 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.WorldlyContainerHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -40,6 +43,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.extensions.IForgeMenuType;
@@ -57,6 +61,7 @@ import net.minecraftforge.registries.RegistryObject;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -189,6 +194,46 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public CompoundTag getShareTag(ItemStack item) {
         return item.getShareTag();
+    }
+
+    @Override
+    public RecipeIngredients getRecipeIngredients() {
+        return new RecipeIngredients(
+            Ingredient.of(Tags.Items.DUSTS_REDSTONE),
+            Ingredient.of(Tags.Items.STRING),
+            Ingredient.of(Tags.Items.LEATHER),
+            Ingredient.of(Tags.Items.STONE),
+            Ingredient.of(Tags.Items.GLASS_PANES),
+            Ingredient.of(Tags.Items.INGOTS_GOLD),
+            Ingredient.of(Tags.Items.STORAGE_BLOCKS_GOLD),
+            Ingredient.of(Tags.Items.INGOTS_IRON),
+            Ingredient.of(Tags.Items.HEADS),
+            Ingredient.of(Tags.Items.DYES),
+            Ingredient.of(Tags.Items.ENDER_PEARLS),
+            Ingredient.of(Tags.Items.CHESTS_WOODEN)
+        );
+    }
+
+    @Override
+    public List<TagKey<Item>> getDyeTags() {
+        return List.of(
+            Tags.Items.DYES_WHITE,
+            Tags.Items.DYES_ORANGE,
+            Tags.Items.DYES_MAGENTA,
+            Tags.Items.DYES_LIGHT_BLUE,
+            Tags.Items.DYES_YELLOW,
+            Tags.Items.DYES_LIME,
+            Tags.Items.DYES_PINK,
+            Tags.Items.DYES_GRAY,
+            Tags.Items.DYES_LIGHT_GRAY,
+            Tags.Items.DYES_CYAN,
+            Tags.Items.DYES_PURPLE,
+            Tags.Items.DYES_BLUE,
+            Tags.Items.DYES_BROWN,
+            Tags.Items.DYES_GREEN,
+            Tags.Items.DYES_RED,
+            Tags.Items.DYES_BLACK
+        );
     }
 
     private record RegistryWrapperImpl<T>(

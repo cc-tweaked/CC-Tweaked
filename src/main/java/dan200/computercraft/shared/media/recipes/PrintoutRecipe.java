@@ -7,20 +7,28 @@ package dan200.computercraft.shared.media.recipes;
 
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.ItemPrintout;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
 
 public final class PrintoutRecipe extends CustomRecipe {
+    private final Ingredient leather;
+    private final Ingredient string;
+
     public PrintoutRecipe(ResourceLocation id) {
         super(id);
+
+        var ingredients = PlatformHelper.get().getRecipeIngredients();
+        leather = ingredients.leather();
+        string = ingredients.string();
     }
 
     @Override
@@ -66,9 +74,9 @@ public final class PrintoutRecipe extends CustomRecipe {
                         printouts[numPrintouts] = stack;
                         numPages++;
                         numPrintouts++;
-                    } else if (stack.is(Tags.Items.STRING) && !stringFound) {
+                    } else if (string.test(stack) && !stringFound) {
                         stringFound = true;
-                    } else if (stack.is(Tags.Items.LEATHER) && !leatherFound) {
+                    } else if (leather.test(stack) && !leatherFound) {
                         leatherFound = true;
                     } else {
                         return ItemStack.EMPTY;
