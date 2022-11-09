@@ -5,14 +5,14 @@
  */
 package dan200.computercraft.shared.util;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
 public class CreativeTabMain extends CreativeModeTab {
     public CreativeTabMain() {
-        super(ComputerCraft.MOD_ID);
+        super(ComputerCraftAPI.MOD_ID);
     }
 
     @Override

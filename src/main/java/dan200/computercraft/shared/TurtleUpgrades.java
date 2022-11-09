@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 
@@ -25,7 +25,7 @@ public final class TurtleUpgrades {
 
     public static Stream<ITurtleUpgrade> getVanillaUpgrades() {
         return instance().getUpgradeWrappers().values().stream()
-            .filter(x -> x.modId().equals(ComputerCraft.MOD_ID))
+            .filter(x -> x.modId().equals(ComputerCraftAPI.MOD_ID))
             .map(UpgradeManager.UpgradeWrapper::upgrade);
     }
 }

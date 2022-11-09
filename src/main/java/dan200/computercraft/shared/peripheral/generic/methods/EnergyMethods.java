@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.generic.methods;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralType;
@@ -33,7 +33,7 @@ public class EnergyMethods implements GenericPeripheral {
 
     @Override
     public ResourceLocation id() {
-        return new ResourceLocation(ComputerCraft.MOD_ID, "energy");
+        return new ResourceLocation(ComputerCraftAPI.MOD_ID, "energy");
     }
 
     /**

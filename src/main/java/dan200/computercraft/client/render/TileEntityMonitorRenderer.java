@@ -15,7 +15,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.render.monitor.MonitorRenderState;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
@@ -23,6 +22,7 @@ import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.client.util.DirectBuffers;
 import dan200.computercraft.client.util.DirectVertexBuffer;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.integration.ShaderMod;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
@@ -36,6 +36,8 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
@@ -46,6 +48,8 @@ import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FON
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonitor> {
+    private static final Logger LOG = LoggerFactory.getLogger(TileEntityMonitorRenderer.class);
+
     /**
      * {@link TileMonitor#RENDER_MARGIN}, but a tiny bit of additional padding to ensure that there is no space between
      * the monitor frame and contents.
@@ -254,7 +258,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
     @Override
     public int getViewDistance() {
-        return ComputerCraft.monitorDistance;
+        return Config.monitorDistance;
     }
 
 
@@ -264,19 +268,19 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
      * @return The current renderer. Will not return {@link MonitorRenderer#BEST}.
      */
     public static MonitorRenderer currentRenderer() {
-        var current = ComputerCraft.monitorRenderer;
-        if (current == MonitorRenderer.BEST) current = ComputerCraft.monitorRenderer = bestRenderer();
+        var current = Config.monitorRenderer;
+        if (current == MonitorRenderer.BEST) current = Config.monitorRenderer = bestRenderer();
         return current;
     }
 
     private static MonitorRenderer bestRenderer() {
         if (!GL.getCapabilities().OpenGL31) {
-            ComputerCraft.log.warn("Texture buffers are not supported on your graphics card. Falling back to VBO monitor renderer.");
+            LOG.warn("Texture buffers are not supported on your graphics card. Falling back to VBO monitor renderer.");
             return MonitorRenderer.VBO;
         }
 
         if (ShaderMod.INSTANCE.isShaderMod()) {
-            ComputerCraft.log.warn("Optifine is loaded, assuming shaders are being used. Falling back to VBO monitor renderer.");
+            LOG.warn("Optifine is loaded, assuming shaders are being used. Falling back to VBO monitor renderer.");
             return MonitorRenderer.VBO;
         }
 

@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.integration;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
@@ -38,8 +38,8 @@ import static dan200.computercraft.shared.integration.RecipeModHelpers.MAIN_FAMI
  * @see RecipeModHelpers
  */
 public class UpgradeRecipeGenerator<T> {
-    private static final ResourceLocation TURTLE_UPGRADE = new ResourceLocation(ComputerCraft.MOD_ID, "turtle_upgrade");
-    private static final ResourceLocation POCKET_UPGRADE = new ResourceLocation(ComputerCraft.MOD_ID, "pocket_upgrade");
+    private static final ResourceLocation TURTLE_UPGRADE = new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_upgrade");
+    private static final ResourceLocation POCKET_UPGRADE = new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_upgrade");
 
     private final Function<CraftingRecipe, T> wrap;
 

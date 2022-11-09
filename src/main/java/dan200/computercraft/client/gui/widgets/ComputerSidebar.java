@@ -6,7 +6,7 @@
 package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.computer.core.InputHandler;
 import net.minecraft.ChatFormatting;
@@ -24,7 +24,7 @@ import java.util.function.Consumer;
  * Registers buttons to interact with a computer.
  */
 public final class ComputerSidebar {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(ComputerCraft.MOD_ID, "textures/gui/buttons.png");
+    private static final ResourceLocation TEXTURE = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/buttons.png");
 
     private static final int TEX_SIZE = 64;
 

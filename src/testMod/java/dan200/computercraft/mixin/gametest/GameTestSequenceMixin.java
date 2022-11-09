@@ -37,7 +37,7 @@ class GameTestSequenceMixin {
             parent.fail(e);
         } catch (Exception e) {
             // Fail the test, rather than crashing the server.
-            TestHooks.LOGGER.error("{} threw unexpected exception", parent.getTestName(), e);
+            TestHooks.LOG.error("{} threw unexpected exception", parent.getTestName(), e);
             parent.fail(e);
         }
     }

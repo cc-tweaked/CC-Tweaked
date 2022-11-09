@@ -5,10 +5,7 @@
  */
 package dan200.computercraft.data;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
@@ -21,6 +18,8 @@ import net.minecraft.data.models.model.ModelLocationUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -38,7 +37,7 @@ import java.util.function.Supplier;
  * Please don't sue me Mojang. Or at least make these changes to vanilla before doing so!
  */
 public class ModelProvider implements DataProvider {
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+    private static final Logger LOG = LoggerFactory.getLogger(ModelProvider.class);
 
     private final DataGenerator.PathProvider blockStatePath;
     private final DataGenerator.PathProvider modelPath;
@@ -96,7 +95,7 @@ public class ModelProvider implements DataProvider {
             try {
                 DataProvider.saveStable(output, entry.getValue().get(), path);
             } catch (Exception exception) {
-                ComputerCraft.log.error("Couldn't save {}", path, exception);
+                LOG.error("Couldn't save {}", path, exception);
             }
         }
     }

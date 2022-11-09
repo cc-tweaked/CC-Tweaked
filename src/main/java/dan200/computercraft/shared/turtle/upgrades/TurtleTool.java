@@ -5,10 +5,10 @@
  */
 package dan200.computercraft.shared.turtle.upgrades;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.shared.TurtlePermissions;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
@@ -169,7 +169,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         var turtlePlayer = TurtlePlayer.getWithPosition(turtle, turtlePosition, direction);
         turtlePlayer.loadInventory(item.copy());
 
-        if (ComputerCraft.turtlesObeyBlockProtection) {
+        if (Config.turtlesObeyBlockProtection) {
             // Check spawn protection
             if (MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(world, blockPosition, state, turtlePlayer))) {
                 return TurtleCommandResult.failure("Cannot break protected block");

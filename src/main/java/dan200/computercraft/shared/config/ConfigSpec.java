@@ -3,10 +3,10 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.shared;
+package dan200.computercraft.shared.config;
 
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.http.NetworkUtils;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-public final class Config {
+public final class ConfigSpec {
     private static final int MODEM_MAX_RANGE = 100000;
 
     private static final String TRANSLATION_PREFIX = "gui.computercraft.config.";
@@ -84,7 +84,7 @@ public final class Config {
 
     private static MarkerFilter logFilter = MarkerFilter.createFilter(Logging.COMPUTER_ERROR.getName(), Filter.Result.ACCEPT, Filter.Result.NEUTRAL);
 
-    private Config() {
+    private ConfigSpec() {
     }
 
     static {
@@ -96,12 +96,12 @@ public final class Config {
             computerSpaceLimit = builder
                 .comment("The disk space limit for computers and turtles, in bytes.")
                 .translation(TRANSLATION_PREFIX + "computer_space_limit")
-                .define("computer_space_limit", ComputerCraft.computerSpaceLimit);
+                .define("computer_space_limit", Config.computerSpaceLimit);
 
             floppySpaceLimit = builder
                 .comment("The disk space limit for floppy disks, in bytes.")
                 .translation(TRANSLATION_PREFIX + "floppy_space_limit")
-                .define("floppy_space_limit", ComputerCraft.floppySpaceLimit);
+                .define("floppy_space_limit", Config.floppySpaceLimit);
 
             maximumFilesOpen = builder
                 .comment("Set how many files a computer can have open at the same time. Set to 0 for unlimited.")
@@ -132,7 +132,7 @@ public final class Config {
                 .comment("""
                     Require players to be in creative mode and be opped in order to interact with
                     command computers. This is the default behaviour for vanilla's Command blocks.""")
-                .define("command_require_creative", ComputerCraft.commandRequireCreative);
+                .define("command_require_creative", Config.commandRequireCreative);
         }
 
         {
@@ -147,7 +147,7 @@ public final class Config {
                     computers can run at once, but may induce lag. Please note that some mods may
                     not work with a thread count higher than 1. Use with caution.""")
                 .worldRestart()
-                .defineInRange("computer_threads", ComputerCraft.computerThreads, 1, Integer.MAX_VALUE);
+                .defineInRange("computer_threads", Config.computerThreads, 1, Integer.MAX_VALUE);
 
             maxMainGlobalTime = builder
                 .comment("""
@@ -230,27 +230,27 @@ public final class Config {
 
             commandBlockEnabled = builder
                 .comment("Enable Command Block peripheral support")
-                .define("command_block_enabled", ComputerCraft.enableCommandBlock);
+                .define("command_block_enabled", Config.enableCommandBlock);
 
             modemRange = builder
                 .comment("The range of Wireless Modems at low altitude in clear weather, in meters.")
-                .defineInRange("modem_range", ComputerCraft.modemRange, 0, MODEM_MAX_RANGE);
+                .defineInRange("modem_range", Config.modemRange, 0, MODEM_MAX_RANGE);
 
             modemHighAltitudeRange = builder
                 .comment("The range of Wireless Modems at maximum altitude in clear weather, in meters.")
-                .defineInRange("modem_high_altitude_range", ComputerCraft.modemHighAltitudeRange, 0, MODEM_MAX_RANGE);
+                .defineInRange("modem_high_altitude_range", Config.modemHighAltitudeRange, 0, MODEM_MAX_RANGE);
 
             modemRangeDuringStorm = builder
                 .comment("The range of Wireless Modems at low altitude in stormy weather, in meters.")
-                .defineInRange("modem_range_during_storm", ComputerCraft.modemRangeDuringStorm, 0, MODEM_MAX_RANGE);
+                .defineInRange("modem_range_during_storm", Config.modemRangeDuringStorm, 0, MODEM_MAX_RANGE);
 
             modemHighAltitudeRangeDuringStorm = builder
                 .comment("The range of Wireless Modems at maximum altitude in stormy weather, in meters.")
-                .defineInRange("modem_high_altitude_range_during_storm", ComputerCraft.modemHighAltitudeRangeDuringStorm, 0, MODEM_MAX_RANGE);
+                .defineInRange("modem_high_altitude_range_during_storm", Config.modemHighAltitudeRangeDuringStorm, 0, MODEM_MAX_RANGE);
 
             maxNotesPerTick = builder
                 .comment("Maximum amount of notes a speaker can play at once.")
-                .defineInRange("max_notes_per_tick", ComputerCraft.maxNotesPerTick, 1, Integer.MAX_VALUE);
+                .defineInRange("max_notes_per_tick", Config.maxNotesPerTick, 1, Integer.MAX_VALUE);
 
             monitorBandwidth = builder
                 .comment("""
@@ -262,7 +262,7 @@ public final class Config {
                      - A full sized monitor sends ~25kb of data. So the default (1MB) allows for ~40
                        monitors to be updated in a single tick.
                     Set to 0 to disable.""")
-                .defineInRange("monitor_bandwidth", (int) ComputerCraft.monitorBandwidth, 0, Integer.MAX_VALUE);
+                .defineInRange("monitor_bandwidth", (int) Config.monitorBandwidth, 0, Integer.MAX_VALUE);
 
             builder.pop();
         }
@@ -273,27 +273,27 @@ public final class Config {
 
             turtlesNeedFuel = builder
                 .comment("Set whether Turtles require fuel to move.")
-                .define("need_fuel", ComputerCraft.turtlesNeedFuel);
+                .define("need_fuel", Config.turtlesNeedFuel);
 
             turtleFuelLimit = builder
                 .comment("The fuel limit for Turtles.")
-                .defineInRange("normal_fuel_limit", ComputerCraft.turtleFuelLimit, 0, Integer.MAX_VALUE);
+                .defineInRange("normal_fuel_limit", Config.turtleFuelLimit, 0, Integer.MAX_VALUE);
 
             advancedTurtleFuelLimit = builder
                 .comment("The fuel limit for Advanced Turtles.")
-                .defineInRange("advanced_fuel_limit", ComputerCraft.advancedTurtleFuelLimit, 0, Integer.MAX_VALUE);
+                .defineInRange("advanced_fuel_limit", Config.advancedTurtleFuelLimit, 0, Integer.MAX_VALUE);
 
             turtlesObeyBlockProtection = builder
                 .comment("""
                     If set to true, Turtles will be unable to build, dig, or enter protected areas
                     (such as near the server spawn point).""")
-                .define("obey_block_protection", ComputerCraft.turtlesObeyBlockProtection);
+                .define("obey_block_protection", Config.turtlesObeyBlockProtection);
 
             turtlesCanPush = builder
                 .comment("""
                     If set to true, Turtles will push entities out of the way instead of stopping if
                     there is space to do so.""")
-                .define("can_push", ComputerCraft.turtlesCanPush);
+                .define("can_push", Config.turtlesCanPush);
 
             builder.pop();
         }
@@ -306,18 +306,18 @@ public final class Config {
                 .push("term_sizes");
 
             builder.comment("Terminal size of computers.").push("computer");
-            computerTermWidth = builder.defineInRange("width", ComputerCraft.computerTermWidth, 1, 255);
-            computerTermHeight = builder.defineInRange("height", ComputerCraft.computerTermHeight, 1, 255);
+            computerTermWidth = builder.defineInRange("width", Config.computerTermWidth, 1, 255);
+            computerTermHeight = builder.defineInRange("height", Config.computerTermHeight, 1, 255);
             builder.pop();
 
             builder.comment("Terminal size of pocket computers.").push("pocket_computer");
-            pocketTermWidth = builder.defineInRange("width", ComputerCraft.pocketTermWidth, 1, 255);
-            pocketTermHeight = builder.defineInRange("height", ComputerCraft.pocketTermHeight, 1, 255);
+            pocketTermWidth = builder.defineInRange("width", Config.pocketTermWidth, 1, 255);
+            pocketTermHeight = builder.defineInRange("height", Config.pocketTermHeight, 1, 255);
             builder.pop();
 
             builder.comment("Maximum size of monitors (in blocks).").push("monitor");
-            monitorWidth = builder.defineInRange("width", ComputerCraft.monitorWidth, 1, 32);
-            monitorHeight = builder.defineInRange("height", ComputerCraft.monitorHeight, 1, 32);
+            monitorWidth = builder.defineInRange("width", Config.monitorWidth, 1, 32);
+            monitorHeight = builder.defineInRange("height", Config.monitorHeight, 1, 32);
             builder.pop();
 
             builder.pop();
@@ -339,7 +339,7 @@ public final class Config {
             .defineInRange("monitor_distance", 64, 16, 1024);
         uploadNagDelay = clientBuilder
             .comment("The delay in seconds after which we'll notify about unhandled imports. Set to 0 to disable.")
-            .defineInRange("upload_nag_delay", ComputerCraft.uploadNagDelay, 0, 60);
+            .defineInRange("upload_nag_delay", Config.uploadNagDelay, 0, 60);
 
         clientSpec = clientBuilder.build();
     }
@@ -351,16 +351,16 @@ public final class Config {
 
     private static void syncServer() {
         // General
-        ComputerCraft.computerSpaceLimit = computerSpaceLimit.get();
-        ComputerCraft.floppySpaceLimit = floppySpaceLimit.get();
+        Config.computerSpaceLimit = computerSpaceLimit.get();
+        Config.floppySpaceLimit = floppySpaceLimit.get();
         CoreConfig.maximumFilesOpen = maximumFilesOpen.get();
         CoreConfig.disableLua51Features = disableLua51Features.get();
         CoreConfig.defaultComputerSettings = defaultComputerSettings.get();
-        ComputerCraft.computerThreads = computerThreads.get();
-        ComputerCraft.commandRequireCreative = commandRequireCreative.get();
+        Config.computerThreads = computerThreads.get();
+        Config.commandRequireCreative = commandRequireCreative.get();
 
         // Execution
-        ComputerCraft.computerThreads = computerThreads.get();
+        Config.computerThreads = computerThreads.get();
         CoreConfig.maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos(maxMainGlobalTime.get());
         CoreConfig.maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos(maxMainComputerTime.get());
 
@@ -370,9 +370,9 @@ public final class Config {
             logComputerErrors.get() ? Filter.Result.ACCEPT : Filter.Result.DENY,
             Filter.Result.NEUTRAL
         );
-        if (!logFilter.equals(Config.logFilter)) {
-            LoggerContext.getContext().removeFilter(Config.logFilter);
-            LoggerContext.getContext().addFilter(Config.logFilter = logFilter);
+        if (!logFilter.equals(ConfigSpec.logFilter)) {
+            LoggerContext.getContext().removeFilter(ConfigSpec.logFilter);
+            LoggerContext.getContext().addFilter(ConfigSpec.logFilter = logFilter);
         }
 
         // HTTP
@@ -388,38 +388,38 @@ public final class Config {
         NetworkUtils.reloadConfig();
 
         // Peripheral
-        ComputerCraft.enableCommandBlock = commandBlockEnabled.get();
-        ComputerCraft.maxNotesPerTick = maxNotesPerTick.get();
-        ComputerCraft.modemRange = modemRange.get();
-        ComputerCraft.modemHighAltitudeRange = modemHighAltitudeRange.get();
-        ComputerCraft.modemRangeDuringStorm = modemRangeDuringStorm.get();
-        ComputerCraft.modemHighAltitudeRangeDuringStorm = modemHighAltitudeRangeDuringStorm.get();
-        ComputerCraft.monitorBandwidth = monitorBandwidth.get();
+        Config.enableCommandBlock = commandBlockEnabled.get();
+        Config.maxNotesPerTick = maxNotesPerTick.get();
+        Config.modemRange = modemRange.get();
+        Config.modemHighAltitudeRange = modemHighAltitudeRange.get();
+        Config.modemRangeDuringStorm = modemRangeDuringStorm.get();
+        Config.modemHighAltitudeRangeDuringStorm = modemHighAltitudeRangeDuringStorm.get();
+        Config.monitorBandwidth = monitorBandwidth.get();
 
         // Turtles
-        ComputerCraft.turtlesNeedFuel = turtlesNeedFuel.get();
-        ComputerCraft.turtleFuelLimit = turtleFuelLimit.get();
-        ComputerCraft.advancedTurtleFuelLimit = advancedTurtleFuelLimit.get();
-        ComputerCraft.turtlesObeyBlockProtection = turtlesObeyBlockProtection.get();
-        ComputerCraft.turtlesCanPush = turtlesCanPush.get();
+        Config.turtlesNeedFuel = turtlesNeedFuel.get();
+        Config.turtleFuelLimit = turtleFuelLimit.get();
+        Config.advancedTurtleFuelLimit = advancedTurtleFuelLimit.get();
+        Config.turtlesObeyBlockProtection = turtlesObeyBlockProtection.get();
+        Config.turtlesCanPush = turtlesCanPush.get();
 
         // Terminal size
-        ComputerCraft.computerTermWidth = computerTermWidth.get();
-        ComputerCraft.computerTermHeight = computerTermHeight.get();
-        ComputerCraft.pocketTermWidth = pocketTermWidth.get();
-        ComputerCraft.pocketTermHeight = pocketTermHeight.get();
-        ComputerCraft.monitorWidth = monitorWidth.get();
-        ComputerCraft.monitorHeight = monitorHeight.get();
+        Config.computerTermWidth = computerTermWidth.get();
+        Config.computerTermHeight = computerTermHeight.get();
+        Config.pocketTermWidth = pocketTermWidth.get();
+        Config.pocketTermHeight = pocketTermHeight.get();
+        Config.monitorWidth = monitorWidth.get();
+        Config.monitorHeight = monitorHeight.get();
     }
 
     private static void syncClient() {
-        ComputerCraft.monitorRenderer = monitorRenderer.get();
-        ComputerCraft.monitorDistance = monitorDistance.get();
-        ComputerCraft.uploadNagDelay = uploadNagDelay.get();
+        Config.monitorRenderer = monitorRenderer.get();
+        Config.monitorDistance = monitorDistance.get();
+        Config.uploadNagDelay = uploadNagDelay.get();
     }
 
     public static void sync(ModConfig config) {
-        if (!config.getModId().equals(ComputerCraft.MOD_ID)) return;
+        if (!config.getModId().equals(ComputerCraftAPI.MOD_ID)) return;
         if (config.getType() == ModConfig.Type.SERVER) syncServer();
         if (config.getType() == ModConfig.Type.CLIENT) syncClient();
     }

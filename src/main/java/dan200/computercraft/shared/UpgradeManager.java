@@ -6,7 +6,7 @@
 package dan200.computercraft.shared;
 
 import com.google.gson.*;
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.upgrades.IUpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.shared.platform.PlatformHelper;
@@ -122,7 +122,7 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends 
         // TODO: Can we track which mod this resource came from and use that instead? It's theoretically possible,
         //  but maybe not ideal for datapacks.
         var modId = id.getNamespace();
-        if (modId.equals("minecraft") || modId.equals("")) modId = ComputerCraft.MOD_ID;
+        if (modId.equals("minecraft") || modId.equals("")) modId = ComputerCraftAPI.MOD_ID;
 
         var upgrade = serialiser.fromJson(id, root);
         if (!upgrade.getUpgradeID().equals(id)) {

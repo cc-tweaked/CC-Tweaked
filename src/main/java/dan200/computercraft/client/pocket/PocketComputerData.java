@@ -5,11 +5,11 @@
  */
 package dan200.computercraft.client.pocket;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 
 /**
@@ -28,7 +28,7 @@ public class PocketComputerData {
     private int lightColour = -1;
 
     public PocketComputerData(boolean colour) {
-        terminal = new NetworkedTerminal(ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight, colour);
+        terminal = new NetworkedTerminal(Config.pocketTermWidth, Config.pocketTermHeight, colour);
     }
 
     public int getLightState() {

@@ -7,7 +7,7 @@ package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
@@ -20,8 +20,8 @@ import net.minecraft.world.entity.player.Inventory;
 import static dan200.computercraft.shared.turtle.inventory.ContainerTurtle.*;
 
 public class GuiTurtle extends ComputerScreenBase<ContainerTurtle> {
-    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation(ComputerCraft.MOD_ID, "textures/gui/turtle_normal.png");
-    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation(ComputerCraft.MOD_ID, "textures/gui/turtle_advanced.png");
+    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/turtle_normal.png");
+    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/turtle_advanced.png");
 
     private static final int TEX_WIDTH = 254;
     private static final int TEX_HEIGHT = 217;

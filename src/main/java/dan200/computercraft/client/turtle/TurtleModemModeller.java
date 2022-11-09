@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.client.turtle;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.api.turtle.ITurtleAccess;
@@ -22,15 +22,15 @@ public class TurtleModemModeller implements TurtleUpgradeModeller<TurtleModem> {
 
     public TurtleModemModeller(boolean advanced) {
         if (advanced) {
-            leftOffModel = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_modem_advanced_off_left");
-            rightOffModel = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_modem_advanced_off_right");
-            leftOnModel = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_modem_advanced_on_left");
-            rightOnModel = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_modem_advanced_on_right");
+            leftOffModel = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_advanced_off_left");
+            rightOffModel = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_advanced_off_right");
+            leftOnModel = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_advanced_on_left");
+            rightOnModel = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_advanced_on_right");
         } else {
-            leftOffModel = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_modem_normal_off_left");
-            rightOffModel = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_modem_normal_off_right");
-            leftOnModel = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_modem_normal_on_left");
-            rightOnModel = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_modem_normal_on_right");
+            leftOffModel = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_normal_off_left");
+            rightOffModel = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_normal_off_right");
+            leftOnModel = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_normal_on_left");
+            rightOnModel = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_normal_on_right");
         }
     }
 

@@ -5,12 +5,12 @@
  */
 package dan200.computercraft.shared.turtle.core;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.TurtlePermissions;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -58,7 +58,7 @@ public class TurtleMoveCommand implements ITurtleCommand {
         );
 
         if (!oldWorld.isUnobstructed(null, collision)) {
-            if (!ComputerCraft.turtlesCanPush || this.direction == MoveDirection.UP || this.direction == MoveDirection.DOWN) {
+            if (!Config.turtlesCanPush || this.direction == MoveDirection.UP || this.direction == MoveDirection.DOWN) {
                 return TurtleCommandResult.failure("Movement obstructed");
             }
 
@@ -104,7 +104,7 @@ public class TurtleMoveCommand implements ITurtleCommand {
         if (!world.isInWorldBounds(position)) return TurtleCommandResult.failure("Cannot leave the world");
 
         // Check spawn protection
-        if (ComputerCraft.turtlesObeyBlockProtection && !TurtlePermissions.isBlockEnterable(world, position, turtlePlayer)) {
+        if (Config.turtlesObeyBlockProtection && !TurtlePermissions.isBlockEnterable(world, position, turtlePlayer)) {
             return TurtleCommandResult.failure("Cannot enter protected area");
         }
 

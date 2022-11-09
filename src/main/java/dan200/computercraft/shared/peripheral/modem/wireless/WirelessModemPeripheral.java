@@ -5,9 +5,9 @@
  */
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.IPacketNetwork;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 
@@ -35,11 +35,11 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral {
             var world = getLevel();
             if (world != null) {
                 var position = getPosition();
-                double minRange = ComputerCraft.modemRange;
-                double maxRange = ComputerCraft.modemHighAltitudeRange;
+                double minRange = Config.modemRange;
+                double maxRange = Config.modemHighAltitudeRange;
                 if (world.isRaining() && world.isThundering()) {
-                    minRange = ComputerCraft.modemRangeDuringStorm;
-                    maxRange = ComputerCraft.modemHighAltitudeRangeDuringStorm;
+                    minRange = Config.modemRangeDuringStorm;
+                    maxRange = Config.modemHighAltitudeRangeDuringStorm;
                 }
                 if (position.y > 96.0 && maxRange > minRange) {
                     return minRange + (position.y - 96.0) * ((maxRange - minRange) / ((world.getMaxBuildHeight() - 1) - 96.0));

@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.pocket.core;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
@@ -13,6 +12,7 @@ import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
 import dan200.computercraft.shared.network.client.PocketComputerDeletedClientMessage;
 import dan200.computercraft.shared.platform.PlatformHelper;
@@ -42,7 +42,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     private final Set<ServerPlayer> tracking = new HashSet<>();
 
     public PocketServerComputer(ServerLevel world, BlockPos position, int computerID, @Nullable String label, ComputerFamily family) {
-        super(world, position, computerID, label, family, ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight);
+        super(world, position, computerID, label, family, Config.pocketTermWidth, Config.pocketTermHeight);
     }
 
     @Nullable

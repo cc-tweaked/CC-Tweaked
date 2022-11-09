@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.integration;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -35,7 +35,7 @@ public final class RecipeModHelpers {
      * @return Whether it should be removed.
      */
     public static boolean shouldRemoveRecipe(ResourceLocation id) {
-        if (!id.getNamespace().equals(ComputerCraft.MOD_ID)) return false;
+        if (!id.getNamespace().equals(ComputerCraftAPI.MOD_ID)) return false;
 
         var path = id.getPath();
         return path.startsWith("turtle_normal/") || path.startsWith("turtle_advanced/")

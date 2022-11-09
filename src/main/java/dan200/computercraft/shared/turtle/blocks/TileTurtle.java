@@ -6,7 +6,6 @@
 package dan200.computercraft.shared.turtle.blocks;
 
 import com.mojang.authlib.GameProfile;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
@@ -18,6 +17,7 @@ import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
@@ -80,8 +80,8 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     protected ServerComputer createComputer(int id) {
         var computer = new ServerComputer(
             (ServerLevel) getLevel(), getBlockPos(), id, label,
-            getFamily(), ComputerCraft.turtleTermWidth,
-            ComputerCraft.turtleTermHeight
+            getFamily(), Config.turtleTermWidth,
+            Config.turtleTermHeight
         );
         computer.addAPI(new TurtleAPI(computer.getAPIEnvironment(), getAccess()));
         brain.setupComputer(computer);

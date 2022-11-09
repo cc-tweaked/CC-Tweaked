@@ -22,7 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class TestHooks {
-    public static final Logger LOGGER = LoggerFactory.getLogger(TestHooks.class);
+    public static final Logger LOG = LoggerFactory.getLogger(TestHooks.class);
 
     public static final Path sourceDir = Paths.get(System.getProperty("cctest.sources")).normalize().toAbsolutePath();
 
@@ -39,17 +39,17 @@ public class TestHooks {
         var world = server.getLevel(Level.OVERWORLD);
         if (world != null) world.setDayTime(Times.NOON);
 
-        LOGGER.info("Cleaning up after last run");
+        LOG.info("Cleaning up after last run");
         GameTestRunner.clearAllTests(server.overworld(), new BlockPos(0, -60, 0), GameTestTicker.SINGLETON, 200);
 
         // Delete server context and add one with a mutable machine factory. This allows us to set the factory for
         // specific test batches without having to reset all computers.
         for (var computer : ServerContext.get(server).registry().getComputers()) {
             var label = computer.getLabel() == null ? "#" + computer.getID() : computer.getLabel();
-            LOGGER.warn("Unexpected computer {}", label);
+            LOG.warn("Unexpected computer {}", label);
         }
 
-        LOGGER.info("Importing files");
+        LOG.info("Importing files");
         CCTestCommand.importFiles(server);
     }
 }

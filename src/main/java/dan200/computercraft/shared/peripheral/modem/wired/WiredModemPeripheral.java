@@ -6,7 +6,6 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.collect.ImmutableMap;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.*;
@@ -23,6 +22,8 @@ import dan200.computercraft.core.util.LuaUtil;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import net.minecraft.world.level.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -30,6 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public abstract class WiredModemPeripheral extends ModemPeripheral implements IWiredSender {
+    private static final Logger LOG = LoggerFactory.getLogger(WiredModemPeripheral.class);
+
     private final WiredModemElement modem;
 
     private final Map<IComputerAccess, ConcurrentMap<String, RemotePeripheralWrapper>> peripheralWrappers = new HashMap<>(1);
@@ -334,7 +337,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
 
             synchronized (this) {
                 if (!mounts.isEmpty()) {
-                    ComputerCraft.log.warn("Peripheral {} called mount but did not call unmount for {}", peripheral, mounts);
+                    LOG.warn("Peripheral {} called mount but did not call unmount for {}", peripheral, mounts);
                 }
 
                 for (var mount : mounts) computer.unmount(mount);

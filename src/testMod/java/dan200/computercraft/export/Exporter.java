@@ -14,7 +14,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.gametest.core.TestHooks;
 import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -73,17 +74,17 @@ public class Exporter {
 
         // First find all CC items
         for (var item : Registries.ITEMS) {
-            if (Registries.ITEMS.getKey(item).getNamespace().equals(ComputerCraft.MOD_ID)) items.add(item);
+            if (Registries.ITEMS.getKey(item).getNamespace().equals(ComputerCraftAPI.MOD_ID)) items.add(item);
         }
 
         // Now find all CC recipes.
         for (var recipe : Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(RecipeType.CRAFTING)) {
             var result = recipe.getResultItem();
-            if (!Registries.ITEMS.getKey(result.getItem()).getNamespace().equals(ComputerCraft.MOD_ID)) {
+            if (!Registries.ITEMS.getKey(result.getItem()).getNamespace().equals(ComputerCraftAPI.MOD_ID)) {
                 continue;
             }
             if (result.hasTag()) {
-                ComputerCraft.log.warn("Skipping recipe {} as it has NBT", recipe.getId());
+                TestHooks.LOG.warn("Skipping recipe {} as it has NBT", recipe.getId());
                 continue;
             }
 
@@ -110,7 +111,7 @@ public class Exporter {
 
                 dump.recipes.put(recipe.getId().toString(), converted);
             } else {
-                ComputerCraft.log.info("Don't know how to handle recipe {}", recipe);
+                TestHooks.LOG.info("Don't know how to handle recipe {}", recipe);
             }
         }
 

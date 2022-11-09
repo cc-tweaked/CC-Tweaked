@@ -3,15 +3,16 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.shared;
+package dan200.computercraft.shared.config;
 
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.InMemoryCommentedFormat;
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.apis.http.options.PartialOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
@@ -23,7 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Parses, checks and generates {@link Config}s for {@link AddressRule}.
  */
-public class AddressRuleConfig {
+class AddressRuleConfig {
+    private static final Logger LOG = LoggerFactory.getLogger(AddressRuleConfig.class);
+
     public static UnmodifiableConfig makeRule(String host, Action action) {
         var config = InMemoryCommentedFormat.defaultInstance().createConfig(ConcurrentHashMap::new);
         config.add("host", host);
@@ -85,7 +88,7 @@ public class AddressRuleConfig {
         var value = config.get(field);
         if (value == null || klass.isInstance(value)) return true;
 
-        ComputerCraft.log.warn("HTTP rule's {} is not a {}.", field, klass.getSimpleName());
+        LOG.warn("HTTP rule's {} is not a {}.", field, klass.getSimpleName());
         return false;
     }
 
@@ -94,12 +97,12 @@ public class AddressRuleConfig {
         if (value == null) return true;
 
         if (!(value instanceof String)) {
-            ComputerCraft.log.warn("HTTP rule's {} is not a string", field);
+            LOG.warn("HTTP rule's {} is not a string", field);
             return false;
         }
 
         if (parseEnum(klass, (String) value) == null) {
-            ComputerCraft.log.warn("HTTP rule's {} is not a known option", field);
+            LOG.warn("HTTP rule's {} is not a known option", field);
             return false;
         }
 

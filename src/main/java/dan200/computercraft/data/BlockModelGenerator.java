@@ -6,7 +6,7 @@
 package dan200.computercraft.data;
 
 import com.google.gson.JsonObject;
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
@@ -39,27 +39,27 @@ import static net.minecraft.data.models.model.TextureMapping.getBlockTexture;
 
 class BlockModelGenerator {
     private static final ModelTemplate MONITOR_BASE = new ModelTemplate(
-        Optional.of(new ResourceLocation(ComputerCraft.MOD_ID, "block/monitor_base")),
+        Optional.of(new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/monitor_base")),
         Optional.empty(),
         TextureSlot.FRONT, TextureSlot.SIDE, TextureSlot.TOP, TextureSlot.BACK
     );
     private static final ModelTemplate MODEM = new ModelTemplate(
-        Optional.of(new ResourceLocation(ComputerCraft.MOD_ID, "block/modem")),
+        Optional.of(new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/modem")),
         Optional.empty(),
         TextureSlot.FRONT, TextureSlot.BACK
     );
     private static final ModelTemplate TURTLE = new ModelTemplate(
-        Optional.of(new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_base")),
+        Optional.of(new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_base")),
         Optional.empty(),
         TextureSlot.TEXTURE
     );
     private static final ModelTemplate TURTLE_UPGRADE_LEFT = new ModelTemplate(
-        Optional.of(new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_upgrade_base_left")),
+        Optional.of(new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_upgrade_base_left")),
         Optional.of("_left"),
         TextureSlot.TEXTURE
     );
     private static final ModelTemplate TURTLE_UPGRADE_RIGHT = new ModelTemplate(
-        Optional.of(new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_upgrade_base_right")),
+        Optional.of(new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_upgrade_base_right")),
         Optional.of("_left"),
         TextureSlot.TEXTURE
     );
@@ -181,10 +181,10 @@ class BlockModelGenerator {
         generators.blockStateOutput.accept(MultiVariantGenerator.multiVariant(fullBlock)
             .with(createModelDispatch(BlockWiredModemFull.MODEM_ON, BlockWiredModemFull.PERIPHERAL_ON, (on, peripheral) -> {
                 var suffix = (on ? "_on" : "_off") + (peripheral ? "_peripheral" : "");
-                var faceTexture = new ResourceLocation(ComputerCraft.MOD_ID, "block/wired_modem_face" + (peripheral ? "_peripheral" : "") + (on ? "_on" : ""));
+                var faceTexture = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/wired_modem_face" + (peripheral ? "_peripheral" : "") + (on ? "_on" : ""));
 
                 // TODO: Do this somewhere more elegant!
-                modemModel(generators, new ResourceLocation(ComputerCraft.MOD_ID, "block/wired_modem" + suffix), faceTexture);
+                modemModel(generators, new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/wired_modem" + suffix), faceTexture);
 
                 return ModelTemplates.CUBE_ALL.create(
                     getModelLocation(fullBlock, suffix),
@@ -194,7 +194,7 @@ class BlockModelGenerator {
             })));
 
         generators.delegateItemModel(fullBlock, getModelLocation(fullBlock, "_off"));
-        generators.delegateItemModel(ModRegistry.Items.WIRED_MODEM.get(), new ResourceLocation(ComputerCraft.MOD_ID, "block/wired_modem_off"));
+        generators.delegateItemModel(ModRegistry.Items.WIRED_MODEM.get(), new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/wired_modem_off"));
     }
 
     private static ResourceLocation modemModel(BlockModelGenerators generators, ResourceLocation name, ResourceLocation texture) {
@@ -202,7 +202,7 @@ class BlockModelGenerator {
             name,
             new TextureMapping()
                 .put(TextureSlot.FRONT, texture)
-                .put(TextureSlot.BACK, new ResourceLocation(ComputerCraft.MOD_ID, "block/modem_back")),
+                .put(TextureSlot.BACK, new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/modem_back")),
             generators.modelOutput
         );
     }
@@ -249,7 +249,7 @@ class BlockModelGenerator {
         var generator = MultiPartGenerator.multiPart(ModRegistry.Blocks.CABLE.get());
 
         // When a cable only has a neighbour in a single direction, we redirect the core to face that direction.
-        var coreFacing = new ResourceLocation(ComputerCraft.MOD_ID, "block/cable_core_facing");
+        var coreFacing = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/cable_core_facing");
         // Up/Down
         generator.with(
             Condition.or(
@@ -279,7 +279,7 @@ class BlockModelGenerator {
         );
 
         // Find all other possibilities and emit a "solid" core which doesn't have a facing direction.
-        var core = new ResourceLocation(ComputerCraft.MOD_ID, "block/cable_core_any");
+        var core = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/cable_core_any");
         List<Condition.TerminalCondition> rightAngles = new ArrayList<>();
         for (var i = 0; i < DirectionUtil.FACINGS.length; i++) {
             for (var j = i; j < DirectionUtil.FACINGS.length; j++) {
@@ -293,7 +293,7 @@ class BlockModelGenerator {
         generator.with(Condition.or(rightAngles.toArray(new Condition[0])), Variant.variant().with(VariantProperties.MODEL, core));
 
         // Then emit the actual cable arms
-        var arm = new ResourceLocation(ComputerCraft.MOD_ID, "block/cable_arm");
+        var arm = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/cable_arm");
         for (var direction : DirectionUtil.FACINGS) {
             generator.with(
                 new Condition.TerminalCondition().term(CABLE_DIRECTIONS[direction.ordinal()], true),
@@ -312,7 +312,7 @@ class BlockModelGenerator {
                     generator.with(
                         new Condition.TerminalCondition().term(BlockCable.MODEM, CableModemVariant.from(direction, on, peripheral)),
                         Variant.variant()
-                            .with(VariantProperties.MODEL, new ResourceLocation(ComputerCraft.MOD_ID, "block/wired_modem" + suffix))
+                            .with(VariantProperties.MODEL, new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/wired_modem" + suffix))
                             .with(VariantProperties.X_ROT, toXAngle(direction))
                             .with(VariantProperties.Y_ROT, toYAngle(direction))
                     );
@@ -334,13 +334,13 @@ class BlockModelGenerator {
 
     private static void registerTurtleUpgrade(BlockModelGenerators generators, String name, String texture) {
         TURTLE_UPGRADE_LEFT.create(
-            new ResourceLocation(ComputerCraft.MOD_ID, name + "_left"),
-            TextureMapping.defaultTexture(new ResourceLocation(ComputerCraft.MOD_ID, texture)),
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, name + "_left"),
+            TextureMapping.defaultTexture(new ResourceLocation(ComputerCraftAPI.MOD_ID, texture)),
             generators.modelOutput
         );
         TURTLE_UPGRADE_RIGHT.create(
-            new ResourceLocation(ComputerCraft.MOD_ID, name + "_right"),
-            TextureMapping.defaultTexture(new ResourceLocation(ComputerCraft.MOD_ID, texture)),
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, name + "_right"),
+            TextureMapping.defaultTexture(new ResourceLocation(ComputerCraftAPI.MOD_ID, texture)),
             generators.modelOutput
         );
     }

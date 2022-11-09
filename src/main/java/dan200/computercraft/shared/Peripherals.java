@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
@@ -14,6 +13,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.NonNullConsumer;
+import org.jline.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -23,6 +25,8 @@ import java.util.Objects;
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
 public final class Peripherals {
+    private static final Logger LOG = LoggerFactory.getLogger(Peripherals.class);
+
     private static final Collection<IPeripheralProvider> providers = new LinkedHashSet<>();
 
     private Peripherals() {
@@ -52,7 +56,7 @@ public final class Peripherals {
                 var peripheral = peripheralProvider.getPeripheral(world, pos, side);
                 if (peripheral.isPresent()) return CapabilityUtil.unwrap(peripheral, invalidate);
             } catch (Exception e) {
-                ComputerCraft.log.error("Peripheral provider " + peripheralProvider + " errored.", e);
+                Log.error("Peripheral provider " + peripheralProvider + " errored.", e);
             }
         }
 

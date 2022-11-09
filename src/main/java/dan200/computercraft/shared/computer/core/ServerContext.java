@@ -6,7 +6,6 @@
 package dan200.computercraft.shared.computer.core;
 
 import com.google.common.annotations.VisibleForTesting;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.ComputerCraftAPIImpl;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
@@ -18,11 +17,14 @@ import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.computer.metrics.GlobalMetrics;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.util.IDAssigner;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -41,7 +43,9 @@ import java.util.concurrent.TimeUnit;
  * @see CommonHooks for where the context is created and torn down.
  */
 public final class ServerContext {
-    private static final LevelResource FOLDER = new LevelResource(ComputerCraft.MOD_ID);
+    private static final Logger LOG = LoggerFactory.getLogger(ServerContext.class);
+
+    private static final LevelResource FOLDER = new LevelResource(ComputerCraftAPI.MOD_ID);
 
     @VisibleForTesting
     public static ILuaMachine.Factory luaMachine = CobaltLuaMachine::new;
@@ -63,7 +67,7 @@ public final class ServerContext {
         mainThread = new MainThread();
         context = new ComputerContext(
             new Environment(server),
-            new ComputerThread(ComputerCraft.computerThreads),
+            new ComputerThread(Config.computerThreads),
             mainThread, luaMachine
         );
         idAssigner = new IDAssigner(storageDir.resolve("ids.json"));
@@ -90,10 +94,10 @@ public final class ServerContext {
         instance.registry.close();
         try {
             if (!instance.context.close(1, TimeUnit.SECONDS)) {
-                ComputerCraft.log.error("Failed to stop computers under deadline.");
+                LOG.error("Failed to stop computers under deadline.");
             }
         } catch (InterruptedException e) {
-            ComputerCraft.log.error("Failed to stop computers.", e);
+            LOG.error("Failed to stop computers.", e);
             Thread.currentThread().interrupt();
         }
 
@@ -196,7 +200,7 @@ public final class ServerContext {
 
         @Override
         public String getUserAgent() {
-            return ComputerCraft.MOD_ID + "/" + ComputerCraftAPI.getInstalledVersion();
+            return ComputerCraftAPI.MOD_ID + "/" + ComputerCraftAPI.getInstalledVersion();
         }
     }
 }

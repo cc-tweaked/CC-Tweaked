@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.client.sound;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import io.netty.buffer.ByteBuf;
@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
  * An instance of a speaker, which is either playing a {@link DfpwmStream} stream or a normal sound.
  */
 public class SpeakerInstance {
-    public static final ResourceLocation DFPWM_STREAM = new ResourceLocation(ComputerCraft.MOD_ID, "speaker.dfpwm_fake_audio_should_not_be_played");
+    public static final ResourceLocation DFPWM_STREAM = new ResourceLocation(ComputerCraftAPI.MOD_ID, "speaker.dfpwm_fake_audio_should_not_be_played");
 
     private @Nullable DfpwmStream currentStream;
     private @Nullable SpeakerSound sound;

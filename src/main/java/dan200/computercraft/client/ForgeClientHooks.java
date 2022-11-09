@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.client;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.sound.SpeakerSound;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
@@ -18,7 +18,7 @@ import net.minecraftforge.fml.common.Mod;
 /**
  * Forge-specific dispatch for {@link ClientHooks}.
  */
-@Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, value = Dist.CLIENT)
 public final class ForgeClientHooks {
     private ForgeClientHooks() {
     }

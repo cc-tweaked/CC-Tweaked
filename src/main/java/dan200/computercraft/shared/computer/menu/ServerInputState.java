@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.computer.menu;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.upload.*;
 import dan200.computercraft.shared.network.client.UploadResultMessage;
 import dan200.computercraft.shared.platform.PlatformHelper;
@@ -14,6 +13,8 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -28,6 +29,8 @@ import java.util.stream.Collectors;
  * @param <T> The type of container this server input belongs to.
  */
 public class ServerInputState<T extends AbstractContainerMenu & ComputerMenu> implements ServerInputHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(ServerInputState.class);
+
     private final T owner;
     private final IntSet keysDown = new IntOpenHashSet(4);
 
@@ -118,7 +121,7 @@ public class ServerInputState<T extends AbstractContainerMenu & ComputerMenu> im
     @Override
     public void continueUpload(UUID uploadId, List<FileSlice> slices) {
         if (toUploadId == null || toUpload == null || !toUploadId.equals(uploadId)) {
-            ComputerCraft.log.warn("Invalid continueUpload call, skipping.");
+            LOG.warn("Invalid continueUpload call, skipping.");
             return;
         }
 
@@ -128,7 +131,7 @@ public class ServerInputState<T extends AbstractContainerMenu & ComputerMenu> im
     @Override
     public void finishUpload(ServerPlayer uploader, UUID uploadId) {
         if (toUploadId == null || toUpload == null || toUpload.isEmpty() || !toUploadId.equals(uploadId)) {
-            ComputerCraft.log.warn("Invalid finishUpload call, skipping.");
+            LOG.warn("Invalid finishUpload call, skipping.");
             return;
         }
 
@@ -143,7 +146,7 @@ public class ServerInputState<T extends AbstractContainerMenu & ComputerMenu> im
 
         for (var upload : toUpload) {
             if (!upload.checksumMatches()) {
-                ComputerCraft.log.warn("Checksum failed to match for {}.", upload.getName());
+                LOG.warn("Checksum failed to match for {}.", upload.getName());
                 return UploadResultMessage.error(owner, Component.translatable("gui.computercraft.upload.failed.corrupted"));
             }
         }

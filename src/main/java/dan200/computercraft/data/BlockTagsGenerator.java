@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.data;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BlockTagsProvider;
@@ -16,7 +16,7 @@ import static dan200.computercraft.api.ComputerCraftTags.Blocks.*;
 
 class BlockTagsGenerator extends BlockTagsProvider {
     BlockTagsGenerator(DataGenerator generator, ExistingFileHelper helper) {
-        super(generator, ComputerCraft.MOD_ID, helper);
+        super(generator, ComputerCraftAPI.MOD_ID, helper);
     }
 
     @Override

@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.generic.methods;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.ForgeDetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -41,7 +41,7 @@ public class FluidMethods implements GenericPeripheral {
 
     @Override
     public ResourceLocation id() {
-        return new ResourceLocation(ComputerCraft.MOD_ID, "fluid");
+        return new ResourceLocation(ComputerCraftAPI.MOD_ID, "fluid");
     }
 
     /**

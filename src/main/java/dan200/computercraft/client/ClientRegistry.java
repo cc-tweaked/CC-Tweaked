@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.client;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.ComputerCraftAPIClient;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.client.gui.*;
@@ -57,12 +57,12 @@ public final class ClientRegistry {
      */
     public static void register() {
         ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.SPEAKER.get(), TurtleUpgradeModeller.sided(
-            new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_speaker_left"),
-            new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_speaker_right")
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_left"),
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_right")
         ));
         ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.WORKBENCH.get(), TurtleUpgradeModeller.sided(
-            new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_crafting_table_left"),
-            new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_crafting_table_right")
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_left"),
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_right")
         ));
         ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_NORMAL.get(), new TurtleModemModeller(false));
         ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_ADVANCED.get(), new TurtleModemModeller(true));
@@ -97,7 +97,7 @@ public final class ClientRegistry {
     @SafeVarargs
     @SuppressWarnings("deprecation")
     private static void registerItemProperty(String name, ItemPropertyFunction getter, Supplier<? extends Item>... items) {
-        var id = new ResourceLocation(ComputerCraft.MOD_ID, name);
+        var id = new ResourceLocation(ComputerCraftAPI.MOD_ID, name);
         for (var item : items) ItemProperties.register(item.get(), id, getter);
     }
 
@@ -125,15 +125,10 @@ public final class ClientRegistry {
     };
 
     public static void registerExtraModels(Consumer<ResourceLocation> register) {
-        for (var model : EXTRA_MODELS) register.accept(new ResourceLocation(ComputerCraft.MOD_ID, model));
+        for (var model : EXTRA_MODELS) register.accept(new ResourceLocation(ComputerCraftAPI.MOD_ID, model));
     }
 
     public static void registerItemColours(BiConsumer<ItemColor, ItemLike> register) {
-        if (ModRegistry.Items.DISK == null || ModRegistry.Blocks.TURTLE_NORMAL == null) {
-            ComputerCraft.log.warn("Block/item registration has failed. Skipping registration of item colours.");
-            return;
-        }
-
         register.accept(
             (stack, layer) -> layer == 1 ? ((ItemDisk) stack.getItem()).getColour(stack) : 0xFFFFFF,
             ModRegistry.Items.DISK.get()

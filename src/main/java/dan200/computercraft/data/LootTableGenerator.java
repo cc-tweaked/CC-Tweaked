@@ -6,7 +6,7 @@
 package dan200.computercraft.data;
 
 import com.mojang.datafixers.util.Pair;
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
@@ -115,7 +115,7 @@ class LootTableGenerator extends LootTableProvider {
     private static void computerDrop(BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> block) {
         blockDrop(
             add, block,
-            DynamicLoot.dynamicEntry(new ResourceLocation(ComputerCraft.MOD_ID, "computer")),
+            DynamicLoot.dynamicEntry(new ResourceLocation(ComputerCraftAPI.MOD_ID, "computer")),
             AlternativeLootItemCondition.alternative(
                 BlockNamedEntityLootCondition.BUILDER,
                 HasComputerIdLootCondition.BUILDER,

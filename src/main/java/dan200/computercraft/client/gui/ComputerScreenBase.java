@@ -6,7 +6,6 @@
 package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.DynamicImageButton;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
@@ -17,6 +16,7 @@ import dan200.computercraft.shared.computer.core.InputHandler;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.computer.upload.UploadResult;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.server.UploadFileMessage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -25,6 +25,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -39,6 +41,8 @@ import java.util.concurrent.TimeUnit;
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public abstract class ComputerScreenBase<T extends ContainerComputerBase> extends AbstractContainerScreen<T> {
+    private static final Logger LOG = LoggerFactory.getLogger(ComputerScreenBase.class);
+
     private static final Component OK = Component.translatable("gui.ok");
     private static final Component NO_RESPONSE_TITLE = Component.translatable("gui.computercraft.upload.no_response");
     private static final Component NO_RESPONSE_MSG = Component.translatable("gui.computercraft.upload.no_response.msg",
@@ -178,7 +182,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
 
                 toUpload.add(new FileUpload(name, buffer, digest));
             } catch (IOException e) {
-                ComputerCraft.log.error("Failed uploading files", e);
+                LOG.error("Failed uploading files", e);
                 alert(UploadResult.FAILED_TITLE, Component.translatable("gui.computercraft.upload.failed.generic", "Cannot compute checksum"));
             }
         }
@@ -194,8 +198,8 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     public void uploadResult(UploadResult result, @Nullable Component message) {
         switch (result) {
             case QUEUED -> {
-                if (ComputerCraft.uploadNagDelay > 0) {
-                    uploadNagDeadline = Util.getNanos() + TimeUnit.SECONDS.toNanos(ComputerCraft.uploadNagDelay);
+                if (Config.uploadNagDelay > 0) {
+                    uploadNagDeadline = Util.getNanos() + TimeUnit.SECONDS.toNanos(Config.uploadNagDelay);
                 }
             }
             case CONSUMED -> uploadNagDeadline = Long.MAX_VALUE;

@@ -8,7 +8,8 @@ package dan200.computercraft.shared.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import dan200.computercraft.ComputerCraft;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class IDAssigner {
+    private static final Logger LOG = LoggerFactory.getLogger(IDAssigner.class);
     public static final String COMPUTER = "computer";
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -46,7 +48,7 @@ public final class IDAssigner {
         try (Writer writer = Files.newBufferedWriter(idFile, StandardCharsets.UTF_8)) {
             GSON.toJson(ids, writer);
         } catch (IOException e) {
-            ComputerCraft.log.error("Cannot update ID file '{}'", idFile, e);
+            LOG.error("Cannot update ID file '{}'", idFile, e);
         }
 
         return next;
@@ -57,13 +59,13 @@ public final class IDAssigner {
             try (Reader reader = Files.newBufferedReader(idFile, StandardCharsets.UTF_8)) {
                 return GSON.fromJson(reader, ID_TOKEN);
             } catch (Exception e) {
-                ComputerCraft.log.error("Cannot load id file '" + idFile + "'", e);
+                LOG.error("Cannot load id file '" + idFile + "'", e);
             }
         } else {
             try {
                 Files.createDirectories(idFile.getParent());
             } catch (IOException e) {
-                ComputerCraft.log.error("Cannot create owning directory, IDs will not be persisted", e);
+                LOG.error("Cannot create owning directory, IDs will not be persisted", e);
             }
         }
 

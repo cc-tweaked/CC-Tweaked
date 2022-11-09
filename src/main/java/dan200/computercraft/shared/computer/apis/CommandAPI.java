@@ -7,7 +7,6 @@ package dan200.computercraft.shared.computer.apis;
 
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.*;
@@ -21,6 +20,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -29,6 +30,8 @@ import java.util.*;
  * @cc.since 1.7
  */
 public class CommandAPI implements ILuaAPI {
+    private static final Logger LOG = LoggerFactory.getLogger(CommandAPI.class);
+
     private final TileCommandComputer computer;
 
     public CommandAPI(TileCommandComputer computer) {
@@ -57,7 +60,7 @@ public class CommandAPI implements ILuaAPI {
             var result = commandManager.performPrefixedCommand(computer.getSource(), command);
             return new Object[]{ result > 0, receiver.copyOutput(), result };
         } catch (Throwable t) {
-            ComputerCraft.log.error(Logging.JAVA_ERROR, "Error running command.", t);
+            LOG.error(Logging.JAVA_ERROR, "Error running command.", t);
             return new Object[]{ false, createOutput("Java Exception Thrown: " + t) };
         }
     }

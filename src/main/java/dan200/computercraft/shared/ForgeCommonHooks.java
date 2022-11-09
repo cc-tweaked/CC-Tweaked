@@ -5,10 +5,10 @@
  */
 package dan200.computercraft.shared;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
@@ -134,7 +134,7 @@ public class ForgeCommonHooks {
                 event, INVENTORY, ITEM_HANDLER,
                 s -> s == null ? new InvWrapper(printer) : new SidedInvWrapper(printer, s)
             );
-        } else if (ComputerCraft.enableCommandBlock && blockEntity instanceof CommandBlockEntity commandBlock) {
+        } else if (Config.enableCommandBlock && blockEntity instanceof CommandBlockEntity commandBlock) {
             CapabilityProvider.attach(event, PERIPHERAL, CAPABILITY_PERIPHERAL, () -> new CommandBlockPeripheral(commandBlock));
         }
     }

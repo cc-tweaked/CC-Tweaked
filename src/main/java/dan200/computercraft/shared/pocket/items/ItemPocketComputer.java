@@ -6,7 +6,6 @@
 package dan200.computercraft.shared.pocket.items;
 
 import com.google.common.base.Objects;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
@@ -17,6 +16,7 @@ import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.items.IComputerItem;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.pocket.apis.PocketAPI;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
@@ -185,7 +185,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
             // If we're a non-vanilla, non-CC upgrade then return whichever mod this upgrade
             // belongs to.
             var mod = PocketUpgrades.instance().getOwner(upgrade);
-            if (mod != null && !mod.equals(ComputerCraft.MOD_ID)) return mod;
+            if (mod != null && !mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
         }
 
         return super.getCreatorModId(stack);
@@ -267,7 +267,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     public @Nullable IMount createDataMount(ItemStack stack, Level world) {
         var id = getComputerID(stack);
         if (id >= 0) {
-            return ComputerCraftAPI.createSaveDirMount(world, "computer/" + id, ComputerCraft.computerSpaceLimit);
+            return ComputerCraftAPI.createSaveDirMount(world, "computer/" + id, Config.computerSpaceLimit);
         }
         return null;
     }

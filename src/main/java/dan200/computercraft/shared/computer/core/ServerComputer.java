@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.computer.core;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
@@ -18,6 +17,7 @@ import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
@@ -246,6 +246,6 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
 
     @Override
     public @Nullable IWritableMount createRootMount() {
-        return ComputerCraftAPI.createSaveDirMount(level, "computer/" + computer.getID(), ComputerCraft.computerSpaceLimit);
+        return ComputerCraftAPI.createSaveDirMount(level, "computer/" + computer.getID(), Config.computerSpaceLimit);
     }
 }

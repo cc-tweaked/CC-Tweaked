@@ -6,6 +6,7 @@
 package dan200.computercraft;
 
 import com.google.auto.service.AutoService;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.api.detail.DetailRegistry;
 import dan200.computercraft.api.detail.IDetailProvider;
@@ -80,7 +81,7 @@ public final class ComputerCraftAPIImpl implements ComputerCraftAPIForgeService 
     @Override
     public String getInstalledVersion() {
         if (version != null) return version;
-        return version = ModList.get().getModContainerById(ComputerCraft.MOD_ID)
+        return version = ModList.get().getModContainerById(ComputerCraftAPI.MOD_ID)
             .map(x -> x.getModInfo().getVersion().toString())
             .orElse("unknown");
     }

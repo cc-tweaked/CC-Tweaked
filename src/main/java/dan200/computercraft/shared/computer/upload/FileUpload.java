@@ -5,7 +5,8 @@
  */
 package dan200.computercraft.shared.computer.upload;
 
-import dan200.computercraft.ComputerCraft;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
@@ -14,6 +15,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 public class FileUpload {
+    private static final Logger LOG = LoggerFactory.getLogger(FileUpload.class);
+
     public static final int CHECKSUM_LENGTH = 32;
 
     private final String name;
@@ -57,7 +60,7 @@ public class FileUpload {
             digest.update(bytes.duplicate());
             return digest.digest();
         } catch (NoSuchAlgorithmException e) {
-            ComputerCraft.log.warn("Failed to compute digest ({})", e.toString());
+            LOG.warn("Failed to compute digest ({})", e.toString());
             return null;
         }
     }

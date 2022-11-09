@@ -6,7 +6,7 @@
 package dan200.computercraft.data;
 
 import com.google.gson.JsonObject;
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
 import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
 import dan200.computercraft.core.util.Colour;
@@ -87,7 +87,7 @@ class RecipeGenerator extends RecipeProvider {
                 .save(
                     RecipeWrapper.wrap(ModRegistry.RecipeSerializers.IMPOSTOR_SHAPELESS.get(), add)
                         .withResultTag(x -> x.putInt(IColouredItem.NBT_COLOUR, colour.getHex())),
-                    new ResourceLocation(ComputerCraft.MOD_ID, "disk_" + (colour.ordinal() + 1))
+                    new ResourceLocation(ComputerCraftAPI.MOD_ID, "disk_" + (colour.ordinal() + 1))
                 );
         }
     }
@@ -108,7 +108,7 @@ class RecipeGenerator extends RecipeProvider {
                 var result = TurtleItemFactory.create(-1, null, -1, family, null, upgrade, -1, null);
                 ShapedRecipeBuilder
                     .shaped(result.getItem())
-                    .group(String.format("%s:turtle_%s", ComputerCraft.MOD_ID, nameId))
+                    .group(String.format("%s:turtle_%s", ComputerCraftAPI.MOD_ID, nameId))
                     .pattern("#T")
                     .define('T', base.getItem())
                     .define('#', upgrade.getCraftingItem().getItem())
@@ -116,7 +116,7 @@ class RecipeGenerator extends RecipeProvider {
                         inventoryChange(base.getItem(), upgrade.getCraftingItem().getItem()))
                     .save(
                         RecipeWrapper.wrap(ModRegistry.RecipeSerializers.IMPOSTOR_SHAPED.get(), add).withResultTag(result.getTag()),
-                        new ResourceLocation(ComputerCraft.MOD_ID, String.format("turtle_%s/%s/%s",
+                        new ResourceLocation(ComputerCraftAPI.MOD_ID, String.format("turtle_%s/%s/%s",
                             nameId, upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()
                         ))
                     );
@@ -140,7 +140,7 @@ class RecipeGenerator extends RecipeProvider {
                 var result = PocketComputerItemFactory.create(-1, null, -1, family, upgrade);
                 ShapedRecipeBuilder
                     .shaped(result.getItem())
-                    .group(String.format("%s:pocket_%s", ComputerCraft.MOD_ID, nameId))
+                    .group(String.format("%s:pocket_%s", ComputerCraftAPI.MOD_ID, nameId))
                     .pattern("#")
                     .pattern("P")
                     .define('P', base.getItem())
@@ -149,7 +149,7 @@ class RecipeGenerator extends RecipeProvider {
                         inventoryChange(base.getItem(), upgrade.getCraftingItem().getItem()))
                     .save(
                         RecipeWrapper.wrap(ModRegistry.RecipeSerializers.IMPOSTOR_SHAPED.get(), add).withResultTag(result.getTag()),
-                        new ResourceLocation(ComputerCraft.MOD_ID, String.format("pocket_%s/%s/%s",
+                        new ResourceLocation(ComputerCraftAPI.MOD_ID, String.format("pocket_%s/%s/%s",
                             nameId, upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()
                         ))
                     );
@@ -201,7 +201,7 @@ class RecipeGenerator extends RecipeProvider {
             .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.COMPUTER_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
             .save(
                 RecipeWrapper.wrap(ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)),
-                new ResourceLocation(ComputerCraft.MOD_ID, "computer_advanced_upgrade")
+                new ResourceLocation(ComputerCraftAPI.MOD_ID, "computer_advanced_upgrade")
             );
 
         ShapedRecipeBuilder
@@ -248,7 +248,7 @@ class RecipeGenerator extends RecipeProvider {
             .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.TURTLE_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
             .save(
                 RecipeWrapper.wrap(ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)),
-                new ResourceLocation(ComputerCraft.MOD_ID, "turtle_advanced_upgrade")
+                new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_advanced_upgrade")
             );
 
         ShapedRecipeBuilder
@@ -315,7 +315,7 @@ class RecipeGenerator extends RecipeProvider {
             .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
             .save(
                 RecipeWrapper.wrap(ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)),
-                new ResourceLocation(ComputerCraft.MOD_ID, "pocket_computer_advanced_upgrade")
+                new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_computer_advanced_upgrade")
             );
 
         ShapedRecipeBuilder
@@ -355,12 +355,12 @@ class RecipeGenerator extends RecipeProvider {
             .shapeless(ModRegistry.Blocks.WIRED_MODEM_FULL.get())
             .requires(ModRegistry.Items.WIRED_MODEM.get())
             .unlockedBy("has_modem", inventoryChange(WIRED_MODEM))
-            .save(add, new ResourceLocation(ComputerCraft.MOD_ID, "wired_modem_full_from"));
+            .save(add, new ResourceLocation(ComputerCraftAPI.MOD_ID, "wired_modem_full_from"));
         ShapelessRecipeBuilder
             .shapeless(ModRegistry.Items.WIRED_MODEM.get())
             .requires(ModRegistry.Blocks.WIRED_MODEM_FULL.get())
             .unlockedBy("has_modem", inventoryChange(WIRED_MODEM))
-            .save(add, new ResourceLocation(ComputerCraft.MOD_ID, "wired_modem_full_to"));
+            .save(add, new ResourceLocation(ComputerCraftAPI.MOD_ID, "wired_modem_full_to"));
 
         ShapedRecipeBuilder
             .shaped(ModRegistry.Blocks.WIRELESS_MODEM_NORMAL.get())
@@ -391,7 +391,7 @@ class RecipeGenerator extends RecipeProvider {
             .save(
                 RecipeWrapper.wrap(RecipeSerializer.SHAPELESS_RECIPE, add)
                     .withResultTag(playerHead("Cloudhunter", "6d074736-b1e9-4378-a99b-bd8777821c9c")),
-                new ResourceLocation(ComputerCraft.MOD_ID, "skull_cloudy")
+                new ResourceLocation(ComputerCraftAPI.MOD_ID, "skull_cloudy")
             );
 
         ShapelessRecipeBuilder
@@ -402,7 +402,7 @@ class RecipeGenerator extends RecipeProvider {
             .save(
                 RecipeWrapper.wrap(RecipeSerializer.SHAPELESS_RECIPE, add)
                     .withResultTag(playerHead("dan200", "f3c8d69b-0776-4512-8434-d1b2165909eb")),
-                new ResourceLocation(ComputerCraft.MOD_ID, "skull_dan200")
+                new ResourceLocation(ComputerCraftAPI.MOD_ID, "skull_dan200")
             );
 
         ShapelessRecipeBuilder

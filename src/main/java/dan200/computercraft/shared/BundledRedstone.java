@@ -5,17 +5,20 @@
  */
 package dan200.computercraft.shared;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
 public final class BundledRedstone {
+    private static final Logger LOG = LoggerFactory.getLogger(BundledRedstone.class);
+
     private static final ArrayList<IBundledRedstoneProvider> providers = new ArrayList<>();
 
     private BundledRedstone() {
@@ -42,7 +45,7 @@ public final class BundledRedstone {
                     combinedSignal = combinedSignal < 0 ? signal & 0xffff : combinedSignal | (signal & 0xffff);
                 }
             } catch (Exception e) {
-                ComputerCraft.log.error("Bundled redstone provider " + bundledRedstoneProvider + " errored.", e);
+                LOG.error("Bundled redstone provider " + bundledRedstoneProvider + " errored.", e);
             }
         }
 

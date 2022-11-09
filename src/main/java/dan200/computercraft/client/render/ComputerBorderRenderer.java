@@ -8,17 +8,17 @@ package dan200.computercraft.client.render;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
 public class ComputerBorderRenderer {
-    public static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation(ComputerCraft.MOD_ID, "textures/gui/corners_normal.png");
-    public static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation(ComputerCraft.MOD_ID, "textures/gui/corners_advanced.png");
-    public static final ResourceLocation BACKGROUND_COMMAND = new ResourceLocation(ComputerCraft.MOD_ID, "textures/gui/corners_command.png");
-    public static final ResourceLocation BACKGROUND_COLOUR = new ResourceLocation(ComputerCraft.MOD_ID, "textures/gui/corners_colour.png");
+    public static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_normal.png");
+    public static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_advanced.png");
+    public static final ResourceLocation BACKGROUND_COMMAND = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_command.png");
+    public static final ResourceLocation BACKGROUND_COLOUR = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_colour.png");
 
     /**
      * The margin between the terminal and its border.

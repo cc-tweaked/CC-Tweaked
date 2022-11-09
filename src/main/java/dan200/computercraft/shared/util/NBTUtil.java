@@ -6,9 +6,10 @@
 package dan200.computercraft.shared.util;
 
 import com.google.common.io.BaseEncoding;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.util.Nullability;
 import net.minecraft.nbt.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.DataOutput;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class NBTUtil {
+    private static final Logger LOG = LoggerFactory.getLogger(NBTUtil.class);
     private static final BaseEncoding ENCODING = BaseEncoding.base16().lowerCase();
 
     private NBTUtil() {
@@ -159,7 +161,7 @@ public final class NBTUtil {
             var hash = digest.digest();
             return ENCODING.encode(hash);
         } catch (NoSuchAlgorithmException | IOException e) {
-            ComputerCraft.log.error("Cannot hash NBT", e);
+            LOG.error("Cannot hash NBT", e);
             return null;
         }
     }

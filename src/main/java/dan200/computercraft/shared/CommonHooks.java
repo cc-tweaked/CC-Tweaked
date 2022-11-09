@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.computer.core.ServerContext;
@@ -76,7 +76,7 @@ public final class CommonHooks {
         MonitorWatcher.onWatch(chunk, player);
     }
 
-    public static final ResourceLocation LOOT_TREASURE_DISK = new ResourceLocation(ComputerCraft.MOD_ID, "treasure_disk");
+    public static final ResourceLocation LOOT_TREASURE_DISK = new ResourceLocation(ComputerCraftAPI.MOD_ID, "treasure_disk");
 
     private static final Set<ResourceLocation> TABLES = new HashSet<>(Arrays.asList(
         BuiltInLootTables.SIMPLE_DUNGEON,

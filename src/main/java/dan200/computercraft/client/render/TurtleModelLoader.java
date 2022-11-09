@@ -8,7 +8,7 @@ package dan200.computercraft.client.render;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.model.turtle.TurtleModel;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 public final class TurtleModelLoader implements IGeometryLoader<TurtleModelLoader.Unbaked> {
-    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_colour");
+    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
 
     public static final TurtleModelLoader INSTANCE = new TurtleModelLoader();
 

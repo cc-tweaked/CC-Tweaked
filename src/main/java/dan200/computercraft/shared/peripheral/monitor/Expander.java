@@ -5,9 +5,11 @@
  */
 package dan200.computercraft.shared.peripheral.monitor;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.config.Config;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -15,6 +17,8 @@ import java.util.Objects;
  * Expands a monitor into available space. This tries to expand in each direction until a fixed point is reached.
  */
 class Expander {
+    private static final Logger LOG = LoggerFactory.getLogger(Expander.class);
+
     private final Level level;
     private final Direction down;
     private final Direction right;
@@ -40,13 +44,13 @@ class Expander {
         // if we merge right/down and the next monitor has a width/height of 0. This /should/ never happen - validation
         // will catch it - but I also have a complete lack of faith in the code.
         // As an aside, I think the actual limit is width+height resizes, but again - complete lack of faith.
-        var changeLimit = ComputerCraft.monitorWidth * ComputerCraft.monitorHeight + 1;
+        var changeLimit = Config.monitorWidth * Config.monitorHeight + 1;
         while (expandIn(true, false) || expandIn(true, true) ||
             expandIn(false, false) || expandIn(false, true)
         ) {
             changedCount++;
             if (changedCount > changeLimit) {
-                ComputerCraft.log.error("Monitor has grown too much. This suggests there's an empty monitor in the world.");
+                LOG.error("Monitor has grown too much. This suggests there's an empty monitor in the world.");
                 break;
             }
         }
@@ -73,11 +77,11 @@ class Expander {
         if (useXAxis) {
             if (otherMonitor.getYIndex() != 0 || otherMonitor.getHeight() != height) return false;
             width += otherMonitor.getWidth();
-            if (width > ComputerCraft.monitorWidth) return false;
+            if (width > Config.monitorWidth) return false;
         } else {
             if (otherMonitor.getXIndex() != 0 || otherMonitor.getWidth() != width) return false;
             height += otherMonitor.getHeight();
-            if (height > ComputerCraft.monitorHeight) return false;
+            if (height > Config.monitorHeight) return false;
         }
 
         if (!isPositive) {

@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.integration.jei;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.integration.RecipeModHelpers;
@@ -29,7 +29,7 @@ import java.util.Collections;
 public class JEIComputerCraft implements IModPlugin {
     @Override
     public ResourceLocation getPluginUid() {
-        return new ResourceLocation(ComputerCraft.MOD_ID, "jei");
+        return new ResourceLocation(ComputerCraftAPI.MOD_ID, "jei");
     }
 
     @Override

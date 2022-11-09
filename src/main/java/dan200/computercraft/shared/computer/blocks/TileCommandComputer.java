@@ -5,10 +5,10 @@
  */
 package dan200.computercraft.shared.computer.blocks;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.config.Config;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
@@ -105,7 +105,7 @@ public class TileCommandComputer extends TileComputer {
         if (server == null || !server.isCommandBlockEnabled()) {
             player.displayClientMessage(Component.translatable("advMode.notEnabled"), true);
             return false;
-        } else if (ComputerCraft.commandRequireCreative ? !player.canUseGameMasterBlocks() : !server.getPlayerList().isOp(player.getGameProfile())) {
+        } else if (Config.commandRequireCreative ? !player.canUseGameMasterBlocks() : !server.getPlayerList().isOp(player.getGameProfile())) {
             player.displayClientMessage(Component.translatable("advMode.notAllowed"), true);
             return false;
         }

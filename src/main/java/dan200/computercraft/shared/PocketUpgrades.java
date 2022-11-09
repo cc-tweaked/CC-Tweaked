@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 
@@ -25,7 +25,7 @@ public final class PocketUpgrades {
 
     public static Stream<IPocketUpgrade> getVanillaUpgrades() {
         return instance().getUpgradeWrappers().values().stream()
-            .filter(x -> x.modId().equals(ComputerCraft.MOD_ID))
+            .filter(x -> x.modId().equals(ComputerCraftAPI.MOD_ID))
             .map(UpgradeManager.UpgradeWrapper::upgrade);
     }
 }

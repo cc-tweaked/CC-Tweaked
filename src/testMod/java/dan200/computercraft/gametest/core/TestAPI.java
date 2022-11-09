@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.gametest.core;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.IComputerSystem;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
@@ -37,10 +36,10 @@ public class TestAPI extends ComputerState implements ILuaAPI {
         if (label == null) label = system.getLabel();
         if (label == null) {
             label = "#" + system.getID();
-            ComputerCraft.log.warn("Computer {} has no label", label);
+            TestHooks.LOG.warn("Computer {} has no label", label);
         }
 
-        ComputerCraft.log.info("Computer '{}' has turned on.", label);
+        TestHooks.LOG.info("Computer '{}' has turned on.", label);
         markers.clear();
         error = null;
         lookup.put(label, this);
@@ -48,7 +47,7 @@ public class TestAPI extends ComputerState implements ILuaAPI {
 
     @Override
     public void shutdown() {
-        ComputerCraft.log.info("Computer '{}' has shut down.", label);
+        TestHooks.LOG.info("Computer '{}' has shut down.", label);
         if (lookup.get(label) == this) lookup.remove(label);
     }
 
@@ -59,7 +58,7 @@ public class TestAPI extends ComputerState implements ILuaAPI {
 
     @LuaFunction
     public final void fail(String message) throws LuaException {
-        ComputerCraft.log.error("Computer '{}' failed with {}", label, message);
+        TestHooks.LOG.error("Computer '{}' failed with {}", label, message);
         if (markers.contains(ComputerState.DONE)) throw new LuaException("Cannot call fail/ok multiple times.");
         markers.add(ComputerState.DONE);
         error = message;
@@ -78,6 +77,6 @@ public class TestAPI extends ComputerState implements ILuaAPI {
 
     @LuaFunction
     public final void log(String message) {
-        ComputerCraft.log.info("[Computer '{}'] {}", label, message);
+        TestHooks.LOG.info("[Computer '{}'] {}", label, message);
     }
 }

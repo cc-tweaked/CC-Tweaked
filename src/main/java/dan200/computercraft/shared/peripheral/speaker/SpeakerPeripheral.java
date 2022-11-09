@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.peripheral.speaker;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -13,6 +12,7 @@ import dan200.computercraft.api.lua.LuaTable;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.util.Nullability;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.client.SpeakerAudioClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerMoveClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerPlayClientMessage;
@@ -217,7 +217,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         if (instrument == null) throw new LuaException("Invalid instrument, \"" + instrument + "\"!");
 
         synchronized (pendingNotes) {
-            if (pendingNotes.size() >= ComputerCraft.maxNotesPerTick) return false;
+            if (pendingNotes.size() >= Config.maxNotesPerTick) return false;
             pendingNotes.add(new PendingSound(Registries.SOUND_EVENTS.getKey(instrument.getSoundEvent()), volume, (float) Math.pow(2.0, (pitch - 12.0) / 12.0)));
         }
         return true;

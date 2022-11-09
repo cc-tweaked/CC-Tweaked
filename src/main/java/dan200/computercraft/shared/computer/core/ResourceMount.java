@@ -8,7 +8,6 @@ package dan200.computercraft.shared.computer.core;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.io.ByteStreams;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.core.filesystem.FileSystem;
@@ -18,6 +17,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -29,6 +30,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public final class ResourceMount implements IMount {
+    private static final Logger LOG = LoggerFactory.getLogger(ResourceMount.class);
+
     /**
      * Only cache files smaller than 1MiB.
      */
@@ -100,9 +103,9 @@ public final class ResourceMount implements IMount {
         root = hasAny ? newRoot : null;
 
         if (!hasAny) {
-            ComputerCraft.log.warn("Cannot find any files under /data/{}/{} for resource mount.", namespace, subPath);
+            LOG.warn("Cannot find any files under /data/{}/{} for resource mount.", namespace, subPath);
             if (existingNamespace != null) {
-                ComputerCraft.log.warn("There are files under /data/{}/{} though. Did you get the wrong namespace?", existingNamespace, subPath);
+                LOG.warn("There are files under /data/{}/{} though. Did you get the wrong namespace?", existingNamespace, subPath);
             }
         }
     }
@@ -137,7 +140,7 @@ public final class ResourceMount implements IMount {
                 try {
                     childPath = new ResourceLocation(namespace, subPath + "/" + path);
                 } catch (ResourceLocationException e) {
-                    ComputerCraft.log.warn("Cannot create resource location for {} ({})", part, e.getMessage());
+                    LOG.warn("Cannot create resource location for {} ({})", part, e.getMessage());
                     return;
                 }
                 lastEntry.children.put(part, nextEntry = new FileEntry(childPath));

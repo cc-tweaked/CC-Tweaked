@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.computer.blocks;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -35,7 +35,7 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 
 public abstract class BlockComputerBase<T extends TileComputerBase> extends BlockGeneric implements IBundledRedstoneBlock {
-    private static final ResourceLocation DROP = new ResourceLocation(ComputerCraft.MOD_ID, "computer");
+    private static final ResourceLocation DROP = new ResourceLocation(ComputerCraftAPI.MOD_ID, "computer");
 
     private final ComputerFamily family;
     protected final RegistryEntry<BlockEntityType<T>> type;

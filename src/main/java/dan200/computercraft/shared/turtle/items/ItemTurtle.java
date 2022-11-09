@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.turtle.items;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.TurtleUpgrades;
@@ -97,13 +97,13 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem {
         var left = getUpgrade(stack, TurtleSide.LEFT);
         if (left != null) {
             var mod = TurtleUpgrades.instance().getOwner(left);
-            if (mod != null && !mod.equals(ComputerCraft.MOD_ID)) return mod;
+            if (mod != null && !mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
         }
 
         var right = getUpgrade(stack, TurtleSide.RIGHT);
         if (right != null) {
             var mod = TurtleUpgrades.instance().getOwner(right);
-            if (mod != null && !mod.equals(ComputerCraft.MOD_ID)) return mod;
+            if (mod != null && !mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
         }
 
         return super.getCreatorModId(stack);

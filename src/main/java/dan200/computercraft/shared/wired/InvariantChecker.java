@@ -5,7 +5,8 @@
  */
 package dan200.computercraft.shared.wired;
 
-import dan200.computercraft.ComputerCraft;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Verifies certain elements of a network are "well formed".
@@ -14,6 +15,7 @@ import dan200.computercraft.ComputerCraft;
  * in a development environment.
  */
 public final class InvariantChecker {
+    private static final Logger LOG = LoggerFactory.getLogger(InvariantChecker.class);
     private static final boolean ENABLED = false;
 
     private InvariantChecker() {
@@ -24,17 +26,17 @@ public final class InvariantChecker {
 
         var network = node.network;
         if (network == null) {
-            ComputerCraft.log.error("Node's network is null", new Exception());
+            LOG.error("Node's network is null", new Exception());
             return;
         }
 
         if (network.nodes == null || !network.nodes.contains(node)) {
-            ComputerCraft.log.error("Node's network does not contain node", new Exception());
+            LOG.error("Node's network does not contain node", new Exception());
         }
 
         for (var neighbour : node.neighbours) {
             if (!neighbour.neighbours.contains(node)) {
-                ComputerCraft.log.error("Neighbour is missing node", new Exception());
+                LOG.error("Neighbour is missing node", new Exception());
             }
         }
     }

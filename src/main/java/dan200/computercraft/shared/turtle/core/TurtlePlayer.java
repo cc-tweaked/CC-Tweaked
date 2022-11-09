@@ -6,7 +6,6 @@
 package dan200.computercraft.shared.turtle.core;
 
 import com.mojang.authlib.GameProfile;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.util.DirectionUtil;
@@ -25,12 +24,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.FakePlayer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.OptionalInt;
 import java.util.UUID;
 
 public final class TurtlePlayer extends FakePlayer {
+    private static final Logger LOG = LoggerFactory.getLogger(TurtlePlayer.class);
     private static final GameProfile DEFAULT_PROFILE = new GameProfile(
         UUID.fromString("0d0c4ca0-4ff1-11e4-916c-0800200c9a66"),
         "[ComputerCraft]"
@@ -84,7 +86,7 @@ public final class TurtlePlayer extends FakePlayer {
 
     private void setState(ITurtleAccess turtle) {
         if (containerMenu != inventoryMenu) {
-            ComputerCraft.log.warn("Turtle has open container ({})", containerMenu);
+            LOG.warn("Turtle has open container ({})", containerMenu);
             doCloseContainer();
         }
 

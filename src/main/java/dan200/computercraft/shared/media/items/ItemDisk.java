@@ -5,13 +5,13 @@
  */
 package dan200.computercraft.shared.media.items;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
+import dan200.computercraft.shared.config.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -88,7 +88,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem {
             diskID = ComputerCraftAPI.createUniqueNumberedSaveDir(world, "disk");
             setDiskID(stack, diskID);
         }
-        return ComputerCraftAPI.createSaveDirMount(world, "disk/" + diskID, ComputerCraft.floppySpaceLimit);
+        return ComputerCraftAPI.createSaveDirMount(world, "disk/" + diskID, Config.floppySpaceLimit);
     }
 
     public static int getDiskID(ItemStack stack) {

@@ -5,12 +5,12 @@
  */
 package dan200.computercraft.shared.turtle.core;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.TurtlePermissions;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.InventoryUtil;
@@ -172,7 +172,7 @@ public class TurtlePlaceCommand implements ITurtleCommand {
         var replaceable = state.canBeReplaced(context);
         if (!allowReplaceable && replaceable) return false;
 
-        if (ComputerCraft.turtlesObeyBlockProtection) {
+        if (Config.turtlesObeyBlockProtection) {
             // Check spawn protection
             var editable = replaceable
                 ? TurtlePermissions.isBlockEditable(world, position, player)

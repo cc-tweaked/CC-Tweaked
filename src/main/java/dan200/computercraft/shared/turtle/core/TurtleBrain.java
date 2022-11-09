@@ -7,7 +7,6 @@ package dan200.computercraft.shared.turtle.core;
 
 import com.google.common.base.Objects;
 import com.mojang.authlib.GameProfile;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -17,6 +16,7 @@ import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.util.Holiday;
@@ -387,7 +387,7 @@ public class TurtleBrain implements ITurtleAccess {
 
     @Override
     public boolean isFuelNeeded() {
-        return ComputerCraft.turtlesNeedFuel;
+        return Config.turtlesNeedFuel;
     }
 
     @Override
@@ -404,9 +404,9 @@ public class TurtleBrain implements ITurtleAccess {
     @Override
     public int getFuelLimit() {
         if (owner.getFamily() == ComputerFamily.ADVANCED) {
-            return ComputerCraft.advancedTurtleFuelLimit;
+            return Config.advancedTurtleFuelLimit;
         } else {
-            return ComputerCraft.turtleFuelLimit;
+            return Config.turtleFuelLimit;
         }
     }
 
@@ -681,7 +681,7 @@ public class TurtleBrain implements ITurtleAccess {
         if (animation != TurtleAnimation.NONE) {
             var world = getLevel();
 
-            if (ComputerCraft.turtlesCanPush) {
+            if (Config.turtlesCanPush) {
                 // Advance entity pushing
                 if (animation == TurtleAnimation.MOVE_FORWARD ||
                     animation == TurtleAnimation.MOVE_BACK ||

@@ -7,7 +7,7 @@ package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -63,7 +63,7 @@ public class RenderTypes {
         load.accept(
             new MonitorTextureBufferShader(
                 resources,
-                new ResourceLocation(ComputerCraft.MOD_ID, "monitor_tbo"),
+                new ResourceLocation(ComputerCraftAPI.MOD_ID, "monitor_tbo"),
                 MONITOR_TBO.format()
             ),
             x -> monitorTboShader = (MonitorTextureBufferShader) x

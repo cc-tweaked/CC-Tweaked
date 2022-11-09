@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.computer.blocks;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.ModRegistry;
@@ -13,6 +12,7 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
+import dan200.computercraft.shared.config.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -36,8 +36,8 @@ public class TileComputer extends TileComputerBase {
         var family = getFamily();
         return new ServerComputer(
             (ServerLevel) getLevel(), getBlockPos(), id, label,
-            family, ComputerCraft.computerTermWidth,
-            ComputerCraft.computerTermHeight
+            family, Config.computerTermWidth,
+            Config.computerTermHeight
         );
     }
 

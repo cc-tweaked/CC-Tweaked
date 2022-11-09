@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.data;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.ComputerCraftTags.Blocks;
 import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
@@ -37,7 +37,7 @@ class TurtleUpgradeGenerator extends TurtleUpgradeDataProvider {
     }
 
     private static ResourceLocation id(String id) {
-        return new ResourceLocation(ComputerCraft.MOD_ID, id);
+        return new ResourceLocation(ComputerCraftAPI.MOD_ID, id);
     }
 
     private static ResourceLocation vanilla(String id) {

@@ -6,7 +6,7 @@
 package dan200.computercraft.gametest.core;
 
 import com.mojang.brigadier.CommandDispatcher;
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.mixin.gametest.TestCommandAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -32,7 +32,7 @@ import static net.minecraft.commands.Commands.literal;
  * Helper commands for importing/exporting the computer directory.
  */
 class CCTestCommand {
-    public static final LevelResource LOCATION = new LevelResource(ComputerCraft.MOD_ID);
+    public static final LevelResource LOCATION = new LevelResource(ComputerCraftAPI.MOD_ID);
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(choice("cctest")

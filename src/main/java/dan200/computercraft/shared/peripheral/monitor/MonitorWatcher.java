@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.shared.peripheral.monitor;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.client.MonitorClientMessage;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.server.level.ServerLevel;
@@ -48,7 +48,7 @@ public final class MonitorWatcher {
     public static void onTick() {
         // Find all enqueued monitors and send their contents to all nearby players.
 
-        var limit = ComputerCraft.monitorBandwidth;
+        var limit = Config.monitorBandwidth;
         var obeyLimit = limit > 0;
 
         TileMonitor tile;

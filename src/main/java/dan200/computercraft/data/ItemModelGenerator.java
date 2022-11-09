@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.data;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.data.models.ItemModelGenerators;
 import net.minecraft.data.models.model.ModelTemplate;
@@ -29,7 +29,7 @@ public final class ItemModelGenerator {
 
         registerPocketComputer(generators, getModelLocation(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get()), false);
         registerPocketComputer(generators, getModelLocation(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get()), false);
-        registerPocketComputer(generators, new ResourceLocation(ComputerCraft.MOD_ID, "item/pocket_computer_colour"), true);
+        registerPocketComputer(generators, new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/pocket_computer_colour"), true);
 
         generators.generateFlatItem(ModRegistry.Items.PRINTED_BOOK.get(), ModelTemplates.FLAT_ITEM);
         generators.generateFlatItem(ModRegistry.Items.PRINTED_PAGE.get(), ModelTemplates.FLAT_ITEM);
@@ -38,21 +38,21 @@ public final class ItemModelGenerator {
 
     private static void registerPocketComputer(ItemModelGenerators generators, ResourceLocation id, boolean off) {
         createFlatItem(generators, addSuffix(id, "_blinking"),
-            new ResourceLocation(ComputerCraft.MOD_ID, "item/pocket_computer_blink"),
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/pocket_computer_blink"),
             id,
-            new ResourceLocation(ComputerCraft.MOD_ID, "item/pocket_computer_light")
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/pocket_computer_light")
         );
 
         createFlatItem(generators, addSuffix(id, "_on"),
-            new ResourceLocation(ComputerCraft.MOD_ID, "item/pocket_computer_on"),
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/pocket_computer_on"),
             id,
-            new ResourceLocation(ComputerCraft.MOD_ID, "item/pocket_computer_light")
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/pocket_computer_light")
         );
 
         // Don't emit the default/off state for advanced/normal pocket computers, as they have item overrides.
         if (off) {
             createFlatItem(generators, id,
-                new ResourceLocation(ComputerCraft.MOD_ID, "item/pocket_computer_frame"),
+                new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/pocket_computer_frame"),
                 id
             );
         }
@@ -60,8 +60,8 @@ public final class ItemModelGenerator {
 
     private static void registerDisk(ItemModelGenerators generators, Item item) {
         createFlatItem(generators, item,
-            new ResourceLocation(ComputerCraft.MOD_ID, "item/disk_frame"),
-            new ResourceLocation(ComputerCraft.MOD_ID, "item/disk_colour")
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/disk_frame"),
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/disk_colour")
         );
     }
 

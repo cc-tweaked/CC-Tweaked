@@ -8,7 +8,7 @@ package dan200.computercraft.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -36,8 +36,8 @@ import java.util.List;
 public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle> {
     private static final ModelResourceLocation NORMAL_TURTLE_MODEL = new ModelResourceLocation("computercraft:turtle_normal", "inventory");
     private static final ModelResourceLocation ADVANCED_TURTLE_MODEL = new ModelResourceLocation("computercraft:turtle_advanced", "inventory");
-    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_colour");
-    private static final ResourceLocation ELF_OVERLAY_MODEL = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_elf_overlay");
+    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
+    private static final ResourceLocation ELF_OVERLAY_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_elf_overlay");
 
     private final RandomSource random = RandomSource.create(0);
 

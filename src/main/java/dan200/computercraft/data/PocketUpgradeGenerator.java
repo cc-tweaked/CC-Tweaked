@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.data;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
 import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import net.minecraft.data.DataGenerator;
@@ -29,6 +29,6 @@ class PocketUpgradeGenerator extends PocketUpgradeDataProvider {
     }
 
     private static ResourceLocation id(String id) {
-        return new ResourceLocation(ComputerCraft.MOD_ID, id);
+        return new ResourceLocation(ComputerCraftAPI.MOD_ID, id);
     }
 }

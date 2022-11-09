@@ -6,12 +6,12 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
 import com.google.common.annotations.VisibleForTesting;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,6 +24,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
@@ -31,6 +33,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 public class TileMonitor extends TileGeneric {
+    private static final Logger LOG = LoggerFactory.getLogger(TileMonitor.class);
+
     public static final double RENDER_BORDER = 2.0 / 16.0;
     public static final double RENDER_MARGIN = 0.5 / 16.0;
     public static final double RENDER_PIXEL_SCALE = 1.0 / 64.0;
@@ -251,7 +255,7 @@ public class TileMonitor extends TileGeneric {
 
     public final void read(TerminalState state) {
         if (xIndex != 0 || yIndex != 0) {
-            ComputerCraft.log.warn("Receiving monitor state for non-origin terminal at {}", getBlockPos());
+            LOG.warn("Receiving monitor state for non-origin terminal at {}", getBlockPos());
             return;
         }
 
@@ -462,8 +466,8 @@ public class TileMonitor extends TileGeneric {
     private void validate() {
         if (xIndex == 0 && yIndex == 0 && width == 1 && height == 1) return;
 
-        if (xIndex >= 0 && xIndex <= width && width > 0 && width <= ComputerCraft.monitorWidth &&
-            yIndex >= 0 && yIndex <= height && height > 0 && height <= ComputerCraft.monitorHeight &&
+        if (xIndex >= 0 && xIndex <= width && width > 0 && width <= Config.monitorWidth &&
+            yIndex >= 0 && yIndex <= height && height > 0 && height <= Config.monitorHeight &&
             checkMonitorAt(0, 0) && checkMonitorAt(0, height - 1) &&
             checkMonitorAt(width - 1, 0) && checkMonitorAt(width - 1, height - 1)) {
             return;
@@ -471,7 +475,7 @@ public class TileMonitor extends TileGeneric {
 
         // Something in our monitor is invalid. For now, let's just reset ourselves and then try to integrate ourselves
         // later.
-        ComputerCraft.log.warn("Monitor is malformed, resetting to 1x1.");
+        LOG.warn("Monitor is malformed, resetting to 1x1.");
         resize(1, 1);
         needsUpdate = true;
     }

@@ -5,12 +5,12 @@
  */
 package dan200.computercraft.shared.computer.items;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.config.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
@@ -68,7 +68,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
         if (family != ComputerFamily.COMMAND) {
             var id = getComputerID(stack);
             if (id >= 0) {
-                return ComputerCraftAPI.createSaveDirMount(world, "computer/" + id, ComputerCraft.computerSpaceLimit);
+                return ComputerCraftAPI.createSaveDirMount(world, "computer/" + id, Config.computerSpaceLimit);
             }
         }
         return null;
