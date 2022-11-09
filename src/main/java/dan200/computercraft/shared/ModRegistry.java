@@ -119,6 +119,12 @@ public final class ModRegistry {
             return BlockBehaviour.Properties.of(Material.STONE).strength(2);
         }
 
+        private static BlockBehaviour.Properties computerProperties() {
+            // Computers shouldn't conduct redstone through them, so set isRedstoneConductor to false. This still allows
+            // redstone to connect to computers though as it's a signal source.
+            return properties().isRedstoneConductor((block, level, blockPos) -> false);
+        }
+
         private static BlockBehaviour.Properties turtleProperties() {
             return BlockBehaviour.Properties.of(Material.STONE).strength(2.5f);
         }
@@ -128,12 +134,12 @@ public final class ModRegistry {
         }
 
         public static final RegistryEntry<BlockComputer<TileComputer>> COMPUTER_NORMAL = REGISTRY.register("computer_normal",
-            () -> new BlockComputer<>(properties(), ComputerFamily.NORMAL, BlockEntities.COMPUTER_NORMAL));
+            () -> new BlockComputer<>(computerProperties(), ComputerFamily.NORMAL, BlockEntities.COMPUTER_NORMAL));
         public static final RegistryEntry<BlockComputer<TileComputer>> COMPUTER_ADVANCED = REGISTRY.register("computer_advanced",
-            () -> new BlockComputer<>(properties(), ComputerFamily.ADVANCED, BlockEntities.COMPUTER_ADVANCED));
+            () -> new BlockComputer<>(computerProperties(), ComputerFamily.ADVANCED, BlockEntities.COMPUTER_ADVANCED));
 
         public static final RegistryEntry<BlockComputer<TileCommandComputer>> COMPUTER_COMMAND = REGISTRY.register("computer_command", () -> new BlockComputer<>(
-            BlockBehaviour.Properties.of(Material.STONE).strength(-1, 6000000.0F),
+            computerProperties().strength(-1, 6000000.0F),
             ComputerFamily.COMMAND, BlockEntities.COMPUTER_COMMAND
         ));
 

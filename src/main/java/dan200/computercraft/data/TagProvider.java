@@ -1,0 +1,103 @@
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
+package dan200.computercraft.data;
+
+import dan200.computercraft.api.ComputerCraftTags;
+import dan200.computercraft.shared.ModRegistry;
+import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+
+/**
+ * Generators for block and item tags.
+ * <p>
+ * We cannot trivially extend {@link TagsProvider}, as Forge requires an {@code ExistingFileHelper} as a constructor
+ * argument. Instead, we write our tags to the wrapper interface {@link TagConsumer}.
+ */
+class TagProvider {
+    public static void blockTags(TagConsumer<Block> tags) {
+        tags.tag(ComputerCraftTags.Blocks.COMPUTER).add(
+            ModRegistry.Blocks.COMPUTER_NORMAL.get(),
+            ModRegistry.Blocks.COMPUTER_ADVANCED.get(),
+            ModRegistry.Blocks.COMPUTER_COMMAND.get()
+        );
+        tags.tag(ComputerCraftTags.Blocks.TURTLE).add(ModRegistry.Blocks.TURTLE_NORMAL.get(), ModRegistry.Blocks.TURTLE_ADVANCED.get());
+        tags.tag(ComputerCraftTags.Blocks.WIRED_MODEM).add(ModRegistry.Blocks.CABLE.get(), ModRegistry.Blocks.WIRED_MODEM_FULL.get());
+        tags.tag(ComputerCraftTags.Blocks.MONITOR).add(ModRegistry.Blocks.MONITOR_NORMAL.get(), ModRegistry.Blocks.MONITOR_ADVANCED.get());
+
+        tags.tag(ComputerCraftTags.Blocks.TURTLE_ALWAYS_BREAKABLE).addTag(BlockTags.LEAVES).add(
+            Blocks.BAMBOO, Blocks.BAMBOO_SAPLING // Bamboo isn't instabreak for some odd reason.
+        );
+
+        tags.tag(ComputerCraftTags.Blocks.TURTLE_SHOVEL_BREAKABLE).addTag(BlockTags.MINEABLE_WITH_SHOVEL).add(
+            Blocks.MELON,
+            Blocks.PUMPKIN,
+            Blocks.CARVED_PUMPKIN,
+            Blocks.JACK_O_LANTERN
+        );
+
+        tags.tag(ComputerCraftTags.Blocks.TURTLE_HOE_BREAKABLE).addTag(BlockTags.CROPS).addTag(BlockTags.MINEABLE_WITH_HOE).add(
+            Blocks.CACTUS,
+            Blocks.MELON,
+            Blocks.PUMPKIN,
+            Blocks.CARVED_PUMPKIN,
+            Blocks.JACK_O_LANTERN
+        );
+
+        tags.tag(ComputerCraftTags.Blocks.TURTLE_SWORD_BREAKABLE).addTag(BlockTags.WOOL).add(Blocks.COBWEB);
+
+        // Make all blocks aside from command computer mineable.
+        tags.tag(BlockTags.MINEABLE_WITH_PICKAXE).add(
+            ModRegistry.Blocks.COMPUTER_NORMAL.get(),
+            ModRegistry.Blocks.COMPUTER_ADVANCED.get(),
+            ModRegistry.Blocks.TURTLE_NORMAL.get(),
+            ModRegistry.Blocks.TURTLE_ADVANCED.get(),
+            ModRegistry.Blocks.SPEAKER.get(),
+            ModRegistry.Blocks.DISK_DRIVE.get(),
+            ModRegistry.Blocks.PRINTER.get(),
+            ModRegistry.Blocks.MONITOR_NORMAL.get(),
+            ModRegistry.Blocks.MONITOR_ADVANCED.get(),
+            ModRegistry.Blocks.WIRELESS_MODEM_NORMAL.get(),
+            ModRegistry.Blocks.WIRELESS_MODEM_ADVANCED.get(),
+            ModRegistry.Blocks.WIRED_MODEM_FULL.get(),
+            ModRegistry.Blocks.CABLE.get()
+        );
+    }
+
+    public static void itemTags(ItemTagConsumer tags) {
+        tags.copy(ComputerCraftTags.Blocks.COMPUTER, ComputerCraftTags.Items.COMPUTER);
+        tags.copy(ComputerCraftTags.Blocks.TURTLE, ComputerCraftTags.Items.TURTLE);
+        tags.tag(ComputerCraftTags.Items.WIRED_MODEM).add(ModRegistry.Items.WIRED_MODEM.get(), ModRegistry.Items.WIRED_MODEM_FULL.get());
+        tags.copy(ComputerCraftTags.Blocks.MONITOR, ComputerCraftTags.Items.MONITOR);
+
+        tags.tag(ItemTags.PIGLIN_LOVED).add(
+            ModRegistry.Items.COMPUTER_ADVANCED.get(), ModRegistry.Items.TURTLE_ADVANCED.get(),
+            ModRegistry.Items.WIRELESS_MODEM_ADVANCED.get(), ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get(),
+            ModRegistry.Items.MONITOR_ADVANCED.get()
+        );
+    }
+
+    /**
+     * A wrapper over {@link TagsProvider}.
+     *
+     * @param <T> The type of object we're providing tags for.
+     */
+    public interface TagConsumer<T> {
+        TagsProvider.TagAppender<T> tag(TagKey<T> tag);
+    }
+
+    /**
+     * A wrapper over {@link ItemTagsProvider}.
+     */
+    interface ItemTagConsumer extends TagConsumer<Item> {
+        void copy(TagKey<Block> block, TagKey<Item> item);
+    }
+}

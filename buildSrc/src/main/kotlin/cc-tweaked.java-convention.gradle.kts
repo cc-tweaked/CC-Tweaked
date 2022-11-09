@@ -42,10 +42,11 @@ repositories {
             includeGroup("org.squiddev")
             includeGroup("cc.tweaked")
             // Things we mirror
-            includeGroup("com.blamejared.crafttweaker")
-            includeGroup("commoble.morered")
             includeGroup("maven.modrinth")
+            includeGroup("me.shedaniel")
+            includeGroup("me.shedaniel.cloth")
             includeGroup("mezz.jei")
+            includeModule("net.minecraftforge", "forgeconfigapiport-fabric")
             // Until https://github.com/SpongePowered/Mixin/pull/593 is merged
             includeModule("org.spongepowered", "mixin")
         }

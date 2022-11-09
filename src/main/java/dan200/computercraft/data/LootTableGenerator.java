@@ -15,14 +15,10 @@ import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.LootTables;
-import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.entries.DynamicLoot;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
@@ -36,27 +32,16 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-class LootTableGenerator extends LootTableProvider {
-    LootTableGenerator(DataGenerator generator) {
-        super(generator);
-    }
-
-    @Override
-    public List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> getTables() {
+class LootTableGenerator {
+    public static List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> getTables() {
         return List.of(
             Pair.of(() -> LootTableGenerator::registerBlocks, LootContextParamSets.BLOCK),
             Pair.of(() -> LootTableGenerator::registerGeneric, LootContextParamSets.ALL_PARAMS)
         );
-    }
-
-    @Override
-    protected void validate(Map<ResourceLocation, LootTable> map, ValidationContext validationtracker) {
-        map.forEach((id, table) -> LootTables.validate(validationtracker, id, table));
     }
 
     private static void registerBlocks(BiConsumer<ResourceLocation, LootTable.Builder> add) {

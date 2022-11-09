@@ -21,7 +21,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -29,7 +28,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
@@ -105,14 +103,15 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter world, BlockPos pos, Player player) {
+    @Deprecated
+    public ItemStack getCloneItemStack(BlockGetter world, BlockPos pos, BlockState state) {
         var tile = world.getBlockEntity(pos);
-        if (tile instanceof TileComputerBase) {
-            var result = getItem((TileComputerBase) tile);
+        if (tile instanceof TileComputerBase computer) {
+            var result = getItem(computer);
             if (!result.isEmpty()) return result;
         }
 
-        return super.getCloneItemStack(state, target, world, pos, player);
+        return super.getCloneItemStack(world, pos, state);
     }
 
     @Override
@@ -159,11 +158,6 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
             var label = item.getLabel(stack);
             if (label != null) computer.setLabel(label);
         }
-    }
-
-    @Override
-    public boolean shouldCheckWeakPower(BlockState state, LevelReader world, BlockPos pos, Direction side) {
-        return false;
     }
 
     @Override

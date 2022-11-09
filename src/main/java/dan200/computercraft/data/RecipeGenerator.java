@@ -21,8 +21,10 @@ import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.Registry;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.data.recipes.*;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -44,20 +46,17 @@ import java.util.function.Consumer;
 import static dan200.computercraft.api.ComputerCraftTags.Items.COMPUTER;
 import static dan200.computercraft.api.ComputerCraftTags.Items.WIRED_MODEM;
 
-class RecipeGenerator extends RecipeProvider {
+class RecipeGenerator {
     private final RecipeIngredients ingredients = PlatformHelper.get().getRecipeIngredients();
     private final TurtleUpgradeDataProvider turtleUpgrades;
     private final PocketUpgradeDataProvider pocketUpgrades;
 
-    RecipeGenerator(DataGenerator generator, TurtleUpgradeDataProvider turtleUpgrades, PocketUpgradeDataProvider pocketUpgrades) {
-        super(generator);
-
+    RecipeGenerator(TurtleUpgradeDataProvider turtleUpgrades, PocketUpgradeDataProvider pocketUpgrades) {
         this.turtleUpgrades = turtleUpgrades;
         this.pocketUpgrades = pocketUpgrades;
     }
 
-    @Override
-    protected void buildCraftingRecipes(Consumer<FinishedRecipe> add) {
+    public void addRecipes(Consumer<FinishedRecipe> add) {
         basicRecipes(add);
         diskColours(add);
         pocketUpgrades(add);

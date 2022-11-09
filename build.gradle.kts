@@ -8,9 +8,9 @@ import org.jetbrains.gradle.ext.settings
 
 plugins {
     // Build
-    id("net.minecraftforge.gradle")
+    id("cc-tweaked.forge")
+    id("cc-tweaked.gametest")
     alias(libs.plugins.mixinGradle)
-    id("org.parchmentmc.librarian.forgegradle")
     alias(libs.plugins.shadow)
     // Publishing
     alias(libs.plugins.curseForgeGradle)
@@ -21,7 +21,6 @@ plugins {
     id("org.jetbrains.gradle.plugin.idea-ext")
 
     id("cc-tweaked.illuaminate")
-    id("cc-tweaked.gametest")
     id("cc-tweaked.publishing")
     id("cc-tweaked")
 }
@@ -36,10 +35,6 @@ cct {
 }
 
 sourceSets {
-    // ForgeGradle adds a dep on the clientClasses task, despite forge-api coming from a separate project. Register an
-    // empty one.
-    register("client")
-
     main {
         resources.srcDir("src/generated/resources")
     }
@@ -129,10 +124,6 @@ minecraft {
             property("forge.logging.console.level", "info")
         }
     }
-
-    mappings("parchment", "${libs.versions.parchmentMc.get()}-${libs.versions.parchment.get()}-$mcVersion")
-
-    accessTransformer(file("src/main/resources/META-INF/accesstransformer.cfg"))
 }
 
 mixin {
@@ -151,7 +142,6 @@ configurations {
 }
 
 dependencies {
-    minecraft("net.minecraftforge:forge:$mcVersion-${libs.versions.forge.get()}")
     annotationProcessor("org.spongepowered:mixin:0.8.5-SQUID:processor")
 
     errorprone(project(":lints"))
