@@ -2,6 +2,7 @@
 /classes
 /logs
 /build
+/projects/*/logs
 /projects/*/build
 /buildSrc/build
 /out
@@ -11,6 +12,7 @@
 
 # Runtime directories
 /run
+/projects/*/run
 
 *.ipr
 *.iws
@@ -25,4 +27,4 @@
 /.vscode
 *.launch
 
-/src/generated/resources/.cache
+/projects/*/src/generated/resources/.cache

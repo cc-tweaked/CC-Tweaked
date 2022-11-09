@@ -35,9 +35,9 @@ val illuaminateDocs by tasks.registering(cc.tweaked.gradle.IlluaminateExecToDir:
     // Config files
     inputs.file(rootProject.file("illuaminate.sexp")).withPropertyName("illuaminate config")
     // Sources
-    inputs.files(fileTree("doc")).withPropertyName("docs")
-    inputs.files(fileTree("src/main/resources/data/computercraft/lua")).withPropertyName("lua rom")
-    inputs.files(rootProject.tasks.named("luaJavadoc"))
+    inputs.files(rootProject.fileTree("doc")).withPropertyName("docs")
+    inputs.files(project(":core").fileTree("src/main/resources/data/computercraft/lua")).withPropertyName("lua rom")
+    inputs.files(project(":forge").tasks.named("luaJavadoc"))
     // Additional assets
     inputs.files(rollup)
     inputs.file("src/styles.css").withPropertyName("styles")
@@ -57,7 +57,7 @@ val jsxDocs by tasks.registering(cc.tweaked.gradle.NpxExecToDir::class) {
     inputs.file("tsconfig.json").withPropertyName("Typescript config")
     // Sources
     inputs.files(fileTree("src")).withPropertyName("sources")
-    inputs.file(rootProject.file("src/generated/export/index.json")).withPropertyName("export")
+    inputs.file(file("src/export/index.json")).withPropertyName("export")
     inputs.files(illuaminateDocs)
 
     // Output directory. Also defined in src/transform.tsx
@@ -83,7 +83,7 @@ val docWebsite by tasks.registering(Copy::class) {
     // Grab illuaminate's assets. HTML files are provided by jsxDocs
     from(illuaminateDocs) { exclude("**/*.html") }
     // And item/block images from the data export
-    from(rootProject.file("src/generated/export/items")) { into("images/items") }
+    from(file("src/export/items")) { into("images/items") }
 
     into(buildDir.resolve("site"))
 }

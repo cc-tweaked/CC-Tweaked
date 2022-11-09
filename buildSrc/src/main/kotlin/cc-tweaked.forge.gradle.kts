@@ -19,7 +19,7 @@ minecraft {
     val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
     mappings("parchment", "${libs.findVersion("parchmentMc").get()}-${libs.findVersion("parchment").get()}-$mcVersion")
 
-    accessTransformer(rootProject.file("src/main/resources/META-INF/accesstransformer.cfg"))
+    accessTransformer(project(":forge").file("src/main/resources/META-INF/accesstransformer.cfg"))
 }
 
 MinecraftConfigurations.setup(project)

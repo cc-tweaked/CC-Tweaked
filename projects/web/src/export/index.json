@@ -1,0 +1,400 @@
+{
+  "itemNames": {
+    "computercraft:cable": "Networking Cable",
+    "computercraft:computer_advanced": "Advanced Computer",
+    "computercraft:computer_command": "Command Computer",
+    "computercraft:computer_normal": "Computer",
+    "computercraft:disk": "Floppy Disk",
+    "computercraft:disk_drive": "Disk Drive",
+    "computercraft:monitor_advanced": "Advanced Monitor",
+    "computercraft:monitor_normal": "Monitor",
+    "computercraft:pocket_computer_advanced": "Advanced Pocket Computer",
+    "computercraft:pocket_computer_normal": "Pocket Computer",
+    "computercraft:printed_book": "Printed Book",
+    "computercraft:printed_page": "Printed Page",
+    "computercraft:printed_pages": "Printed Pages",
+    "computercraft:printer": "Printer",
+    "computercraft:speaker": "Speaker",
+    "computercraft:treasure_disk": "Floppy Disk",
+    "computercraft:turtle_advanced": "Advanced Turtle",
+    "computercraft:turtle_normal": "Turtle",
+    "computercraft:wired_modem": "Wired Modem",
+    "computercraft:wired_modem_full": "Wired Modem",
+    "computercraft:wireless_modem_advanced": "Ender Modem",
+    "computercraft:wireless_modem_normal": "Wireless Modem",
+    "minecraft:black_dye": "Black Dye",
+    "minecraft:blue_dye": "Blue Dye",
+    "minecraft:brown_dye": "Brown Dye",
+    "minecraft:chest": "Chest",
+    "minecraft:command_block": "Command Block",
+    "minecraft:cyan_dye": "Cyan Dye",
+    "minecraft:ender_eye": "Eye of Ender",
+    "minecraft:ender_pearl": "Ender Pearl",
+    "minecraft:glass_pane": "Glass Pane",
+    "minecraft:gold_block": "Block of Gold",
+    "minecraft:gold_ingot": "Gold Ingot",
+    "minecraft:golden_apple": "Golden Apple",
+    "minecraft:gray_dye": "Gray Dye",
+    "minecraft:green_dye": "Green Dye",
+    "minecraft:iron_ingot": "Iron Ingot",
+    "minecraft:leather": "Leather",
+    "minecraft:light_blue_dye": "Light Blue Dye",
+    "minecraft:light_gray_dye": "Light Gray Dye",
+    "minecraft:lime_dye": "Lime Dye",
+    "minecraft:magenta_dye": "Magenta Dye",
+    "minecraft:note_block": "Note Block",
+    "minecraft:orange_dye": "Orange Dye",
+    "minecraft:pink_dye": "Pink Dye",
+    "minecraft:purple_dye": "Purple Dye",
+    "minecraft:red_dye": "Red Dye",
+    "minecraft:redstone": "Redstone Dust",
+    "minecraft:stone": "Stone",
+    "minecraft:string": "String",
+    "minecraft:white_dye": "White Dye",
+    "minecraft:yellow_dye": "Yellow Dye"
+  },
+  "recipes": {
+    "computercraft:cable": {
+      "inputs": [
+        null,
+        ["minecraft:stone"],
+        null,
+        ["minecraft:stone"],
+        ["minecraft:redstone"],
+        ["minecraft:stone"],
+        null,
+        ["minecraft:stone"],
+        null
+      ],
+      "output": "computercraft:cable",
+      "count": 6
+    },
+    "computercraft:computer_advanced": {
+      "inputs": [
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:redstone"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:glass_pane"],
+        ["minecraft:gold_ingot"]
+      ],
+      "output": "computercraft:computer_advanced",
+      "count": 1
+    },
+    "computercraft:computer_advanced_upgrade": {
+      "inputs": [
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["computercraft:computer_advanced"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        null,
+        ["minecraft:gold_ingot"]
+      ],
+      "output": "computercraft:computer_advanced",
+      "count": 1
+    },
+    "computercraft:computer_command": {
+      "inputs": [
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:command_block"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:glass_pane"],
+        ["minecraft:gold_ingot"]
+      ],
+      "output": "computercraft:computer_command",
+      "count": 1
+    },
+    "computercraft:computer_normal": {
+      "inputs": [
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:redstone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:glass_pane"],
+        ["minecraft:stone"]
+      ],
+      "output": "computercraft:computer_normal",
+      "count": 1
+    },
+    "computercraft:disk_drive": {
+      "inputs": [
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:redstone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:redstone"],
+        ["minecraft:stone"]
+      ],
+      "output": "computercraft:disk_drive",
+      "count": 1
+    },
+    "computercraft:monitor_advanced": {
+      "inputs": [
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:glass_pane"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"]
+      ],
+      "output": "computercraft:monitor_advanced",
+      "count": 4
+    },
+    "computercraft:monitor_normal": {
+      "inputs": [
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:glass_pane"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"]
+      ],
+      "output": "computercraft:monitor_normal",
+      "count": 1
+    },
+    "computercraft:pocket_computer_advanced": {
+      "inputs": [
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:golden_apple"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:glass_pane"],
+        ["minecraft:gold_ingot"]
+      ],
+      "output": "computercraft:pocket_computer_advanced",
+      "count": 1
+    },
+    "computercraft:pocket_computer_advanced_upgrade": {
+      "inputs": [
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["computercraft:pocket_computer_normal"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        null,
+        ["minecraft:gold_ingot"]
+      ],
+      "output": "computercraft:pocket_computer_advanced",
+      "count": 1
+    },
+    "computercraft:pocket_computer_normal": {
+      "inputs": [
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:golden_apple"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:glass_pane"],
+        ["minecraft:stone"]
+      ],
+      "output": "computercraft:pocket_computer_normal",
+      "count": 1
+    },
+    "computercraft:printed_book": {
+      "inputs": [
+        ["minecraft:leather"],
+        ["computercraft:printed_page"],
+        ["minecraft:string"],
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "output": "computercraft:printed_book",
+      "count": 1
+    },
+    "computercraft:printed_pages": {
+      "inputs": [
+        ["computercraft:printed_page"],
+        ["computercraft:printed_page"],
+        ["minecraft:string"],
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "output": "computercraft:printed_pages",
+      "count": 1
+    },
+    "computercraft:printer": {
+      "inputs": [
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:redstone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        [
+          "minecraft:black_dye",
+          "minecraft:blue_dye",
+          "minecraft:brown_dye",
+          "minecraft:cyan_dye",
+          "minecraft:gray_dye",
+          "minecraft:green_dye",
+          "minecraft:light_blue_dye",
+          "minecraft:light_gray_dye",
+          "minecraft:lime_dye",
+          "minecraft:magenta_dye",
+          "minecraft:orange_dye",
+          "minecraft:pink_dye",
+          "minecraft:purple_dye",
+          "minecraft:red_dye",
+          "minecraft:white_dye",
+          "minecraft:yellow_dye"
+        ],
+        ["minecraft:stone"]
+      ],
+      "output": "computercraft:printer",
+      "count": 1
+    },
+    "computercraft:speaker": {
+      "inputs": [
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:note_block"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:redstone"],
+        ["minecraft:stone"]
+      ],
+      "output": "computercraft:speaker",
+      "count": 1
+    },
+    "computercraft:turtle_advanced": {
+      "inputs": [
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["computercraft:computer_advanced"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:chest"],
+        ["minecraft:gold_ingot"]
+      ],
+      "output": "computercraft:turtle_advanced",
+      "count": 1
+    },
+    "computercraft:turtle_advanced_upgrade": {
+      "inputs": [
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["computercraft:computer_advanced"],
+        ["minecraft:gold_ingot"],
+        null,
+        ["minecraft:gold_block"],
+        null
+      ],
+      "output": "computercraft:turtle_advanced",
+      "count": 1
+    },
+    "computercraft:turtle_normal": {
+      "inputs": [
+        ["minecraft:iron_ingot"],
+        ["minecraft:iron_ingot"],
+        ["minecraft:iron_ingot"],
+        ["minecraft:iron_ingot"],
+        ["computercraft:computer_normal"],
+        ["minecraft:iron_ingot"],
+        ["minecraft:iron_ingot"],
+        ["minecraft:chest"],
+        ["minecraft:iron_ingot"]
+      ],
+      "output": "computercraft:turtle_normal",
+      "count": 1
+    },
+    "computercraft:wired_modem": {
+      "inputs": [
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:redstone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"]
+      ],
+      "output": "computercraft:wired_modem",
+      "count": 1
+    },
+    "computercraft:wired_modem_full_from": {
+      "inputs": [["computercraft:wired_modem"], null, null, null, null, null, null, null, null],
+      "output": "computercraft:wired_modem_full",
+      "count": 1
+    },
+    "computercraft:wired_modem_full_to": {
+      "inputs": [["computercraft:wired_modem_full"], null, null, null, null, null, null, null, null],
+      "output": "computercraft:wired_modem",
+      "count": 1
+    },
+    "computercraft:wireless_modem_advanced": {
+      "inputs": [
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:ender_eye"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"],
+        ["minecraft:gold_ingot"]
+      ],
+      "output": "computercraft:wireless_modem_advanced",
+      "count": 1
+    },
+    "computercraft:wireless_modem_normal": {
+      "inputs": [
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:ender_pearl"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"],
+        ["minecraft:stone"]
+      ],
+      "output": "computercraft:wireless_modem_normal",
+      "count": 1
+    }
+  }
+}

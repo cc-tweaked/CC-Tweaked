@@ -2,7 +2,7 @@
 
 (sources
   /doc/
-  /build/docs/luaJavadoc/
+  /projects/forge/build/docs/luaJavadoc/
   /projects/core/src/main/resources/data/computercraft/lua/bios.lua
   /projects/core/src/main/resources/data/computercraft/lua/rom/
   /projects/core/src/test/resources/test-rom
@@ -16,7 +16,7 @@
 
   (site
     (title "CC: Tweaked")
-    (logo src/main/resources/pack.png)
+    (logo projects/common/src/main/resources/pack.png)
     (url https://tweaked.cc/)
     (source-link https://github.com/cc-tweaked/CC-Tweaked/blob/${commit}/${path}#L${line})
 
@@ -33,7 +33,7 @@
 
   (library-path
     /doc/stub/
-    /build/docs/luaJavadoc/
+    /projects/forge/build/docs/luaJavadoc/
 
     /projects/core/src/main/resources/data/computercraft/lua/rom/apis/
     /projects/core/src/main/resources/data/computercraft/lua/rom/apis/command/
@@ -87,7 +87,7 @@
   (lint (allow-toplevel-global true)))
 
 ;; Silence some variable warnings in documentation stubs.
-(at (/doc/stub/ /build/docs/luaJavadoc/)
+(at (/doc/stub/ /projects/forge/build/docs/luaJavadoc/)
   (linters -var:unused-global)
   (lint (allow-toplevel-global true)))
 

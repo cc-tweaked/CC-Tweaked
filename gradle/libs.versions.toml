@@ -5,6 +5,7 @@
 forge = "43.1.1"
 parchment = "2022.10.16"
 parchmentMc = "1.19.2"
+mixin = "0.8.5"
 
 # Normal dependencies
 asm = "9.3"
@@ -23,8 +24,11 @@ nightConfig = "3.6.5"
 slf4j = "1.7.36"
 
 # Minecraft mods
+forgeConfig = "4.2.6"
+iris = "1.19.x-v1.2.6"
 jei = "11.3.0.262"
 oculus = "1.2.5"
+rei = "9.1.550"
 
 # Testing
 hamcrest = "2.2"
@@ -63,12 +67,16 @@ jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "jsr305" }
 kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
 netty-http = { module = "io.netty:netty-codec-http", version.ref = "netty" }
+nightConfig-core = { module = "com.electronwill.night-config:core", version.ref = "nightConfig" }
+nightConfig-toml = { module = "com.electronwill.night-config:toml", version.ref = "nightConfig" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 # Minecraft mods
+forgeConfig = { module = "net.minecraftforge:forgeconfigapiport-fabric", version.ref = "forgeConfig" }
 jei-api = { module = "mezz.jei:jei-1.19.2-common-api", version.ref = "jei" }
 jei-fabric = { module = "mezz.jei:jei-1.19.2-fabric", version.ref = "jei" }
 jei-forge = { module = "mezz.jei:jei-1.19.2-forge", version.ref = "jei" }
+mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
 oculus = { module = "maven.modrinth:oculus", version.ref = "oculus" }
 
 # Testing
@@ -110,7 +118,7 @@ taskTree = { id = "com.dorongold.task-tree", version.ref = "taskTree" }
 kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 
 # Minecraft
-externalMods-common = ["jei-api"]
+externalMods-common = ["jei-api", "forgeConfig", "nightConfig-core", "nightConfig-toml"]
 externalMods-forge-compile = ["oculus", "jei-api"]
 externalMods-forge-runtime = ["jei-forge"]
 

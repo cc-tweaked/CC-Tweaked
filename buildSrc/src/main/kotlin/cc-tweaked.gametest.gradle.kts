@@ -1,3 +1,6 @@
+import cc.tweaked.gradle.clientClasses
+import cc.tweaked.gradle.commonClasses
+
 /**
  * Sets up the configurations for writing game tests.
  *
@@ -9,12 +12,13 @@ plugins {
     id("cc-tweaked.java-convention")
 }
 
-val main = sourceSets.main.get()
+val main = sourceSets["main"]
+val client = sourceSets["client"]
 
-// Both testMod and testFixtures inherit from the main classpath, just so we have access to Minecraft classes.
+// Both testMod and testFixtures inherit from the main and client classpath, just so we have access to Minecraft classes.
 val testMod by sourceSets.creating {
-    compileClasspath += main.compileClasspath
-    runtimeClasspath += main.runtimeClasspath
+    compileClasspath += main.compileClasspath + client.compileClasspath
+    runtimeClasspath += main.runtimeClasspath + client.runtimeClasspath
 }
 
 configurations {
@@ -30,12 +34,13 @@ configurations {
 // Like the main test configurations, we're safe to depend on source set outputs.
 dependencies {
     add(testMod.implementationConfigurationName, main.output)
+    add(testMod.implementationConfigurationName, client.output)
 }
 
 // Similar to java-test-fixtures, but tries to avoid putting the obfuscated jar on the classpath.
 
 val testFixtures by sourceSets.creating {
-    compileClasspath += main.compileClasspath
+    compileClasspath += main.compileClasspath + client.compileClasspath
 }
 
 java.registerFeature("testFixtures") {
@@ -44,6 +49,12 @@ java.registerFeature("testFixtures") {
 }
 
 dependencies {
-    add(testFixtures.implementationConfigurationName, main.output)
+    val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
+    add(testFixtures.apiConfigurationName, libs.findBundle("test").get())
+    // Consumers of this project already have the common and client classes on the classpath, so it's fine for these
+    // to be compile-only.
+    add(testFixtures.compileOnlyApiConfigurationName, commonClasses(project))
+    add(testFixtures.compileOnlyApiConfigurationName, clientClasses(project))
+
     testImplementation(testFixtures(project))
 }

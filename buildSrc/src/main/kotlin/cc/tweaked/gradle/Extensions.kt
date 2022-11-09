@@ -7,6 +7,9 @@ fun DependencyHandler.annotationProcessorEverywhere(dep: Any) {
     add("compileOnly", dep)
     add("annotationProcessor", dep)
 
+    add("clientCompileOnly", dep)
+    add("clientAnnotationProcessor", dep)
+
     add("testCompileOnly", dep)
     add("testAnnotationProcessor", dep)
 }
