@@ -7,8 +7,8 @@ package dan200.computercraft.shared.computer.inventory;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.container.InvisibleSlot;
+import dan200.computercraft.shared.network.container.ComputerContainerData;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;

@@ -16,25 +16,33 @@ import dan200.computercraft.client.render.monitor.MonitorHighlightRenderer;
 import dan200.computercraft.client.render.monitor.MonitorRenderState;
 import dan200.computercraft.client.sound.SpeakerManager;
 import dan200.computercraft.shared.CommonHooks;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.media.items.PrintoutItem;
+import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
+import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
+import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.PauseAwareTimer;
+import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.client.sounds.SoundEngine;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.function.Consumer;
 
@@ -158,5 +166,25 @@ public final class ClientHooks {
     private static void addTurtleUpgrade(Consumer<String> out, TurtleBlockEntity turtle, TurtleSide side) {
         var upgrade = turtle.getUpgrade(side);
         if (upgrade != null) out.accept(String.format("Upgrade[%s]: %s", side, upgrade.getUpgradeID()));
+    }
+
+    public static @Nullable BlockState getBlockBreakingState(BlockState state, BlockPos pos) {
+        // Only apply to cables which have both a cable and modem
+        if (state.getBlock() != ModRegistry.Blocks.CABLE.get()
+            || !state.getValue(CableBlock.CABLE)
+            || state.getValue(CableBlock.MODEM) == CableModemVariant.None
+        ) {
+            return null;
+        }
+
+        var hit = Minecraft.getInstance().hitResult;
+        if (hit == null || hit.getType() != HitResult.Type.BLOCK) return null;
+        var hitPos = ((BlockHitResult) hit).getBlockPos();
+
+        if (!hitPos.equals(pos)) return null;
+
+        return WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))
+            ? state.getBlock().defaultBlockState().setValue(CableBlock.MODEM, state.getValue(CableBlock.MODEM))
+            : state.setValue(CableBlock.MODEM, CableModemVariant.None);
     }
 }

@@ -55,6 +55,6 @@ public enum UserLevel implements Predicate<CommandSourceStack> {
         var sender = source.getEntity();
         return server.isDedicatedServer()
             ? source.getEntity() == null && source.hasPermission(4) && source.getTextName().equals("Server")
-            : sender instanceof Player player && player.getGameProfile().getName().equalsIgnoreCase(server.getServerModName());
+            : sender instanceof Player player && server.isSingleplayerOwner(player.getGameProfile());
     }
 }

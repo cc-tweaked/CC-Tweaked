@@ -8,7 +8,10 @@ package dan200.computercraft.client;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.sound.SpeakerSound;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.*;
+import net.minecraftforge.client.event.CustomizeGuiOverlayEvent;
+import net.minecraftforge.client.event.RenderHandEvent;
+import net.minecraftforge.client.event.RenderHighlightEvent;
+import net.minecraftforge.client.event.RenderItemInFrameEvent;
 import net.minecraftforge.client.event.sound.PlayStreamingSourceEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.level.LevelEvent;
@@ -44,11 +47,6 @@ public final class ForgeClientHooks {
         if (ClientHooks.drawHighlight(event.getPoseStack(), event.getMultiBufferSource(), event.getCamera(), event.getTarget())) {
             event.setCanceled(true);
         }
-    }
-
-    @SubscribeEvent
-    public static void onClientSendMessage(ClientChatEvent event) {
-        if (ClientHooks.onChatMessage(event.getMessage())) event.setCanceled(true);
     }
 
     @SubscribeEvent

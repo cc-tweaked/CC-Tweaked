@@ -20,7 +20,7 @@ import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import dan200.computercraft.shared.computer.inventory.ViewComputerMenu;
 import dan200.computercraft.shared.media.items.DiskItem;
-import dan200.computercraft.shared.media.items.ItemTreasureDisk;
+import dan200.computercraft.shared.media.items.TreasureDiskItem;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -137,7 +137,7 @@ public final class ClientRegistry {
         );
 
         register.accept(
-            (stack, layer) -> layer == 1 ? ItemTreasureDisk.getColour(stack) : 0xFFFFFF,
+            (stack, layer) -> layer == 1 ? TreasureDiskItem.getColour(stack) : 0xFFFFFF,
             ModRegistry.Items.TREASURE_DISK.get()
         );
 

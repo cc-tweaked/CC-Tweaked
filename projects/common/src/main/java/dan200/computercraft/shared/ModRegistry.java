@@ -34,9 +34,9 @@ import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.details.BlockDetails;
 import dan200.computercraft.shared.details.ItemDetails;
 import dan200.computercraft.shared.media.items.DiskItem;
-import dan200.computercraft.shared.media.items.ItemTreasureDisk;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.media.items.RecordMedia;
+import dan200.computercraft.shared.media.items.TreasureDiskItem;
 import dan200.computercraft.shared.media.recipes.DiskRecipe;
 import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
@@ -227,8 +227,8 @@ public final class ModRegistry {
 
         public static final RegistryEntry<DiskItem> DISK =
             REGISTRY.register("disk", () -> new DiskItem(properties().stacksTo(1)));
-        public static final RegistryEntry<ItemTreasureDisk> TREASURE_DISK =
-            REGISTRY.register("treasure_disk", () -> new ItemTreasureDisk(properties().stacksTo(1)));
+        public static final RegistryEntry<TreasureDiskItem> TREASURE_DISK =
+            REGISTRY.register("treasure_disk", () -> new TreasureDiskItem(properties().stacksTo(1)));
 
         public static final RegistryEntry<PrintoutItem> PRINTED_PAGE = REGISTRY.register("printed_page",
             () -> new PrintoutItem(properties().stacksTo(1), PrintoutItem.Type.PAGE));

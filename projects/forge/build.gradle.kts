@@ -119,7 +119,10 @@ minecraft {
 
 mixin {
     add(sourceSets.main.get(), "computercraft.mixins.refmap.json")
+    add(sourceSets.client.get(), "computercraft-client.mixins.refmap.json")
+
     config("computercraft.mixins.json")
+    config("computercraft-client.mixins.json")
     config("computercraft-client.forge.mixins.json")
 }
 

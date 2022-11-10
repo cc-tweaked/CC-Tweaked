@@ -247,7 +247,9 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      * @deprecated This is only needed for backwards compatibility, and will be removed in 1.19.3.
      */
     @Deprecated(forRemoval = true)
-    IItemHandlerModifiable wrapContainerToItemHandler(Container container);
+    default IItemHandlerModifiable wrapContainerToItemHandler(Container container) {
+        throw new UnsupportedOperationException("Can only create IItemHandlerModifiable on Forge");
+    }
 
     /**
      * Get the {@link RecipeIngredients} for this loader.

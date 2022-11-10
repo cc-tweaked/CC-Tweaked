@@ -11,7 +11,6 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.impl.AbstractComputerCraftAPI;
 import dan200.computercraft.impl.ComputerCraftAPIService;
 import dan200.computercraft.shared.network.NetworkMessage;
@@ -41,7 +40,6 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -50,9 +48,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -235,29 +230,9 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
         throw new UnsupportedOperationException("Cannot create resource mount");
     }
 
-    @Override
-    public void registerPeripheralProvider(IPeripheralProvider provider) {
-        throw new UnsupportedOperationException("Cannot register peripheral provider");
-    }
-
-    @Override
-    public void registerGenericCapability(Capability<?> capability) {
-        throw new UnsupportedOperationException("Cannot register generic capability");
-    }
-
-    @Override
-    public LazyOptional<IWiredElement> getWiredElementAt(BlockGetter world, BlockPos pos, Direction side) {
-        throw new UnsupportedOperationException("Cannot get wired element");
-    }
-
     @Nullable
     @Override
     public <T> T tryGetRegistryObject(ResourceKey<Registry<T>> registry, ResourceLocation id) {
         throw new UnsupportedOperationException("Cannot query registries");
-    }
-
-    @Override
-    public IItemHandlerModifiable wrapContainerToItemHandler(Container container) {
-        throw new UnsupportedOperationException("Cannot wrap item handler ");
     }
 }

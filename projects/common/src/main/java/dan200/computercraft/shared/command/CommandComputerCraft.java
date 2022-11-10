@@ -50,7 +50,7 @@ import static net.minecraft.commands.Commands.literal;
 
 public final class CommandComputerCraft {
     public static final UUID SYSTEM_UUID = new UUID(0, 0);
-    public static final String OPEN_COMPUTER = "/computercraft open-computer ";
+    public static final String OPEN_COMPUTER = "computercraft open-computer ";
 
     private CommandComputerCraft() {
     }
@@ -306,7 +306,7 @@ public final class CommandComputerCraft {
 
         return link(
             text("\u270E"),
-            OPEN_COMPUTER + id,
+            "/" + OPEN_COMPUTER + id,
             translate("commands.computercraft.dump.open_path")
         );
     }

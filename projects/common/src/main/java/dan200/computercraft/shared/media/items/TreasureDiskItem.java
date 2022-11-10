@@ -27,12 +27,12 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
 
-public class ItemTreasureDisk extends Item implements IMedia {
+public class TreasureDiskItem extends Item implements IMedia {
     private static final String NBT_TITLE = "Title";
     private static final String NBT_COLOUR = "Colour";
     private static final String NBT_SUB_PATH = "SubPath";
 
-    public ItemTreasureDisk(Properties settings) {
+    public TreasureDiskItem(Properties settings) {
         super(settings);
     }
 

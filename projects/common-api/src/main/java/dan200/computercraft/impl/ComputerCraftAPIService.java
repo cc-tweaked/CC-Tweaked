@@ -52,14 +52,19 @@ public interface ComputerCraftAPIService {
 
     @Nullable
     IMount createResourceMount(String domain, String subPath);
+    // TODO(1.19.3): Make this take a MinecraftServer argument.
 
     @Deprecated
-    void registerPeripheralProvider(IPeripheralProvider provider);
+    default void registerPeripheralProvider(IPeripheralProvider provider) {
+        throw new UnsupportedOperationException("Can only register peripheral provider on Forge");
+    }
 
     void registerGenericSource(GenericSource source);
 
     @Deprecated
-    void registerGenericCapability(Capability<?> capability);
+    default void registerGenericCapability(Capability<?> capability) {
+        throw new UnsupportedOperationException("Can only register Capability on Forge");
+    }
 
     void registerBundledRedstoneProvider(IBundledRedstoneProvider provider);
 
@@ -76,7 +81,9 @@ public interface ComputerCraftAPIService {
 
     IWiredNode createWiredNodeForElement(IWiredElement element);
 
-    LazyOptional<IWiredElement> getWiredElementAt(BlockGetter world, BlockPos pos, Direction side);
+    default LazyOptional<IWiredElement> getWiredElementAt(BlockGetter world, BlockPos pos, Direction side) {
+        throw new UnsupportedOperationException("Can only call getWiredElementAt on Forge");
+    }
 
     void registerRefuelHandler(TurtleRefuelHandler handler);
 

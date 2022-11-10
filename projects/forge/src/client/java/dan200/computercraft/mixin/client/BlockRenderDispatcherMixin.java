@@ -7,12 +7,7 @@ package dan200.computercraft.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
-import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
-import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
-import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.client.Minecraft;
+import dan200.computercraft.client.ClientHooks;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
@@ -21,8 +16,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.client.model.data.ModelData;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -60,27 +53,15 @@ public class BlockRenderDispatcherMixin {
         BlockState state, BlockPos pos, BlockAndTintGetter world, PoseStack pose, VertexConsumer buffers, ModelData modelData,
         CallbackInfo info
     ) {
-        // Only apply to cables which have both a cable and modem
-        if (state.getBlock() != ModRegistry.Blocks.CABLE.get()
-            || !state.getValue(CableBlock.CABLE)
-            || state.getValue(CableBlock.MODEM) == CableModemVariant.None
-        ) {
-            return;
+        var newState = ClientHooks.getBlockBreakingState(state, pos);
+        if (newState != null) {
+            info.cancel();
+
+            var model = blockModelShaper.getBlockModel(newState);
+            modelRenderer.tesselateBlock(
+                world, model, newState, pos, pose, buffers, true, random, newState.getSeed(pos),
+                OverlayTexture.NO_OVERLAY, modelData, null
+            );
         }
-
-        var hit = Minecraft.getInstance().hitResult;
-        if (hit == null || hit.getType() != HitResult.Type.BLOCK) return;
-        var hitPos = ((BlockHitResult) hit).getBlockPos();
-
-        if (!hitPos.equals(pos)) return;
-
-        info.cancel();
-        var newState = WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))
-            ? state.getBlock().defaultBlockState().setValue(CableBlock.MODEM, state.getValue(CableBlock.MODEM))
-            : state.setValue(CableBlock.MODEM, CableModemVariant.None);
-
-        var model = blockModelShaper.getBlockModel(newState);
-        var seed = newState.getSeed(pos);
-        modelRenderer.tesselateBlock(world, model, newState, pos, pose, buffers, true, random, seed, OverlayTexture.NO_OVERLAY, modelData, null);
     }
 }
