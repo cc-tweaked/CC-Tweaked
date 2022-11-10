@@ -11,7 +11,6 @@ import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.command.text.ChatHelpers;
-import dan200.computercraft.shared.common.GenericTile;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.platform.ComponentAccess;
 import dan200.computercraft.shared.platform.PlatformHelper;
@@ -22,21 +21,20 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
 
-public class CableBlockEntity extends GenericTile {
+public class CableBlockEntity extends BlockEntity {
     private static final String NBT_PERIPHERAL_ENABLED = "PeirpheralAccess";
 
     private class CableElement extends WiredModemElement {
@@ -65,8 +63,6 @@ public class CableBlockEntity extends GenericTile {
     private boolean peripheralAccessAllowed;
     private final WiredModemLocalPeripheral peripheral = new WiredModemLocalPeripheral(this::queueRefreshPeripheral);
     private @Nullable Runnable modemChanged;
-
-    private boolean destroyed = false;
 
     private boolean connectionsFormed = false;
 
@@ -107,23 +103,15 @@ public class CableBlockEntity extends GenericTile {
     }
 
     @Override
-    public void destroy() {
-        if (!destroyed) {
-            destroyed = true;
-            modem.destroy();
-            onRemove();
-        }
-    }
-
-    @Override
     public void setRemoved() {
         super.setRemoved();
+        modem.removed();
         onRemove();
     }
 
     @Override
     public void clearRemoved() {
-        super.clearRemoved(); // TODO: Replace with onLoad
+        super.clearRemoved();
         TickScheduler.schedule(tickToken);
     }
 
@@ -147,8 +135,7 @@ public class CableBlockEntity extends GenericTile {
         return direction == null ? Direction.NORTH : direction;
     }
 
-    @Override
-    public void onNeighbourChange(BlockPos neighbour) {
+    void neighborChanged(BlockPos neighbour) {
         var dir = getDirection();
         if (neighbour.equals(getBlockPos().relative(dir)) && hasModem() && !getBlockState().canSurvive(getLevel(), getBlockPos())) {
             if (hasCable()) {
@@ -167,12 +154,6 @@ public class CableBlockEntity extends GenericTile {
             return;
         }
 
-        onNeighbourTileEntityChange(neighbour);
-    }
-
-    @Override
-    public void onNeighbourTileEntityChange(BlockPos neighbour) {
-        super.onNeighbourTileEntityChange(neighbour);
         if (!level.isClientSide && peripheralAccessAllowed) {
             var facing = getDirection();
             if (getBlockPos().relative(facing).equals(neighbour)) queueRefreshPeripheral();
@@ -192,8 +173,7 @@ public class CableBlockEntity extends GenericTile {
         }
     }
 
-    @Override
-    public InteractionResult onActivate(Player player, InteractionHand hand, BlockHitResult hit) {
+    InteractionResult use(Player player) {
         if (player.isCrouching() || !player.mayBuild()) return InteractionResult.PASS;
         if (!canAttachPeripheral()) return InteractionResult.FAIL;
 
@@ -241,8 +221,7 @@ public class CableBlockEntity extends GenericTile {
         }
     }
 
-    @Override
-    public void blockTick() {
+    void blockTick() {
         if (getLevel().isClientSide) return;
 
         if (invalidPeripheral) refreshPeripheral();
@@ -331,13 +310,11 @@ public class CableBlockEntity extends GenericTile {
 
     @Nullable
     public IWiredElement getWiredElement(@Nullable Direction direction) {
-        if (destroyed) return null;
         return direction == null || CableBlock.canConnectIn(getBlockState(), direction) ? cable : null;
     }
 
     @Nullable
     public IPeripheral getPeripheral(@Nullable Direction direction) {
-        if (destroyed) return null;
         return direction == null || getMaybeDirection() == direction ? modem : null;
     }
 

@@ -3,12 +3,15 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.shared.util;
+package dan200.computercraft.shared.container;
 
 import net.minecraft.world.inventory.ContainerData;
 
+/**
+ * A basic {@link ContainerData} implementation which provides a single value.
+ */
 @FunctionalInterface
-public interface SingleIntArray extends ContainerData {
+public interface SingleContainerData extends ContainerData {
     int get();
 
     @Override

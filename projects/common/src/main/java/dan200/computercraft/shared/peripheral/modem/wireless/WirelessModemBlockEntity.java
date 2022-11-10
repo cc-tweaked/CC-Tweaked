@@ -6,20 +6,20 @@
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.common.GenericTile;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 
-public class WirelessModemBlockEntity extends GenericTile {
+public class WirelessModemBlockEntity extends BlockEntity {
     private static class Peripheral extends WirelessModemPeripheral {
         private final WirelessModemBlockEntity entity;
 
@@ -52,7 +52,6 @@ public class WirelessModemBlockEntity extends GenericTile {
     private final boolean advanced;
 
     private final ModemPeripheral modem;
-    private boolean destroyed = false;
     private @Nullable Runnable modemChanged;
     private final TickScheduler.Token tickToken = new TickScheduler.Token(this);
 
@@ -63,17 +62,15 @@ public class WirelessModemBlockEntity extends GenericTile {
     }
 
     @Override
-    public void clearRemoved() {
-        super.clearRemoved(); // TODO: Replace with onLoad
-        TickScheduler.schedule(tickToken);
+    public void setRemoved() {
+        super.setRemoved();
+        modem.removed();
     }
 
     @Override
-    public void destroy() {
-        if (!destroyed) {
-            modem.destroy();
-            destroyed = true;
-        }
+    public void clearRemoved() {
+        super.clearRemoved();
+        TickScheduler.schedule(tickToken);
     }
 
     @Override
@@ -84,8 +81,7 @@ public class WirelessModemBlockEntity extends GenericTile {
         if (getDirection() != direction && modemChanged != null) modemChanged.run();
     }
 
-    @Override
-    public void blockTick() {
+    void blockTick() {
         if (modem.getModemState().pollChanged()) updateBlockState();
     }
 
@@ -103,7 +99,6 @@ public class WirelessModemBlockEntity extends GenericTile {
 
     @Nullable
     public IPeripheral getPeripheral(@Nullable Direction direction) {
-        if (destroyed) return null;
         return direction == null || getDirection() == direction ? modem : null;
     }
 

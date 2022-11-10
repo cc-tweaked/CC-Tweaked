@@ -29,6 +29,7 @@ import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
 public final class WorldUtil {
+    @SuppressWarnings("UnnecessaryLambda")
     private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && x.isAlive() && x.isPickable();
 
     public static boolean isLiquidBlock(Level world, BlockPos pos) {

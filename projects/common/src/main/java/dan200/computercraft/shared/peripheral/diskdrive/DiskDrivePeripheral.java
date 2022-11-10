@@ -10,7 +10,6 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.util.StringUtil;
-import dan200.computercraft.impl.MediaProviders;
 import dan200.computercraft.shared.media.items.DiskItem;
 
 import javax.annotation.Nullable;
@@ -53,20 +52,20 @@ public class DiskDrivePeripheral implements IPeripheral {
      */
     @LuaFunction
     public final boolean isDiskPresent() {
-        return !diskDrive.getDiskStack().isEmpty();
+        return !diskDrive.getMedia().stack.isEmpty();
     }
 
     /**
      * Returns the label of the disk in the drive if available.
      *
      * @return The label of the disk, or {@code nil} if either no disk is inserted or the disk doesn't have a label.
-     * @cc.treturn string The label of the disk, or {@code nil} if either no disk is inserted or the disk doesn't have a label.
+     * @cc.treturn string|nil The label of the disk, or {@code nil} if either no disk is inserted or the disk doesn't have a label.
      */
+    @Nullable
     @LuaFunction
-    public final @Nullable Object[] getDiskLabel() {
-        var stack = diskDrive.getDiskStack();
-        var media = MediaProviders.get(stack);
-        return media == null ? null : new Object[]{ media.getLabel(stack) };
+    public final Object[] getDiskLabel() {
+        var media = diskDrive.getMedia();
+        return media.media == null ? null : new Object[]{ media.media.getLabel(media.stack) };
     }
 
     /**
@@ -82,11 +81,11 @@ public class DiskDrivePeripheral implements IPeripheral {
      */
     @LuaFunction(mainThread = true)
     public final void setDiskLabel(Optional<String> label) throws LuaException {
-        var stack = diskDrive.getDiskStack();
-        var media = MediaProviders.get(stack);
-        if (media == null) return;
+        var media = diskDrive.getMedia();
+        if (media.media == null) return;
 
-        if (!media.setLabel(stack, label.map(StringUtil::normaliseLabel).orElse(null))) {
+        var stack = media.stack.copy();
+        if (!media.media.setLabel(stack, label.map(StringUtil::normaliseLabel).orElse(null))) {
             throw new LuaException("Disk label cannot be changed");
         }
         diskDrive.setDiskStack(stack);
@@ -122,9 +121,7 @@ public class DiskDrivePeripheral implements IPeripheral {
      */
     @LuaFunction
     public final boolean hasAudio() {
-        var stack = diskDrive.getDiskStack();
-        var media = MediaProviders.get(stack);
-        return media != null && media.getAudio(stack) != null;
+        return diskDrive.getMedia().getAudio() != null;
     }
 
     /**
@@ -136,9 +133,7 @@ public class DiskDrivePeripheral implements IPeripheral {
     @LuaFunction
     @Nullable
     public final Object getAudioTitle() {
-        var stack = diskDrive.getDiskStack();
-        var media = MediaProviders.get(stack);
-        return media != null ? media.getAudioTitle(stack) : false;
+        return diskDrive.getMedia().getAudioTitle();
     }
 
     /**
@@ -171,12 +166,13 @@ public class DiskDrivePeripheral implements IPeripheral {
      * Returns the ID of the disk inserted in the drive.
      *
      * @return The ID of the disk in the drive, or {@code nil} if no disk with an ID is inserted.
-     * @cc.treturn number The The ID of the disk in the drive, or {@code nil} if no disk with an ID is inserted.
+     * @cc.treturn number|nil The ID of the disk in the drive, or {@code nil} if no disk with an ID is inserted.
      * @cc.since 1.4
      */
+    @Nullable
     @LuaFunction
-    public final @Nullable Object[] getDiskID() {
-        var disk = diskDrive.getDiskStack();
+    public final Object[] getDiskID() {
+        var disk = diskDrive.getMedia().stack;
         return disk.getItem() instanceof DiskItem ? new Object[]{ DiskItem.getDiskID(disk) } : null;
     }
 

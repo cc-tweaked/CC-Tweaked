@@ -11,20 +11,16 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.shared.common.GenericTile;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlockEntity;
 import dan200.computercraft.shared.computer.blocks.ComputerPeripheral;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.config.Config;
+import dan200.computercraft.shared.container.BasicContainer;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.inventory.TurtleMenu;
-import dan200.computercraft.shared.util.DefaultInventory;
-import dan200.computercraft.shared.util.DirectionUtil;
-import dan200.computercraft.shared.util.RedstoneUtil;
-import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -43,13 +39,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
 
-public class TurtleBlockEntity extends AbstractComputerBlockEntity implements ITurtleBlockEntity, DefaultInventory {
+public class TurtleBlockEntity extends AbstractComputerBlockEntity implements BasicContainer, ITurtleBlockEntity {
     public static final int INVENTORY_SIZE = 16;
     public static final int INVENTORY_WIDTH = 4;
     public static final int INVENTORY_HEIGHT = 4;
@@ -68,7 +63,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements IT
     private @Nullable IPeripheral peripheral;
     private @Nullable Runnable onMoved;
 
-    public TurtleBlockEntity(BlockEntityType<? extends GenericTile> type, BlockPos pos, BlockState state, ComputerFamily family) {
+    public TurtleBlockEntity(BlockEntityType<? extends TurtleBlockEntity> type, BlockPos pos, BlockState state, ComputerFamily family) {
         super(type, pos, state, family);
     }
 
@@ -89,38 +84,12 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements IT
     }
 
     @Override
-    public void destroy() {
-        if (!hasMoved()) {
-            // Stop computer
-            super.destroy();
-
-            // Drop contents
-            if (!getLevel().isClientSide) {
-                var size = getContainerSize();
-                for (var i = 0; i < size; i++) {
-                    var stack = getItem(i);
-                    if (!stack.isEmpty()) {
-                        WorldUtil.dropItemStack(stack, getLevel(), getBlockPos());
-                    }
-                }
-            }
-        } else {
-            // Just turn off any redstone we had on
-            for (var dir : DirectionUtil.FACINGS) {
-                RedstoneUtil.propagateRedstoneOutput(getLevel(), getBlockPos(), dir);
-            }
-        }
-    }
-
-    @Override
     protected void unload() {
-        if (!hasMoved()) {
-            super.unload();
-        }
+        if (!hasMoved()) super.unload();
     }
 
     @Override
-    public InteractionResult onActivate(Player player, InteractionHand hand, BlockHitResult hit) {
+    public InteractionResult use(Player player, InteractionHand hand) {
         // Apply dye
         var currentItem = player.getItemInHand(hand);
         if (!currentItem.isEmpty()) {
@@ -152,7 +121,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements IT
         }
 
         // Open GUI or whatever
-        return super.onActivate(player, hand, hit);
+        return super.use(player, hand);
     }
 
     @Override
@@ -161,7 +130,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements IT
     }
 
     @Override
-    protected double getInteractRange(Player player) {
+    protected double getInteractRange() {
         return 12.0;
     }
 
@@ -189,13 +158,8 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements IT
     }
 
     @Override
-    public void onNeighbourChange(BlockPos neighbour) {
-        if (moveState == MoveState.NOT_MOVED) super.onNeighbourChange(neighbour);
-    }
-
-    @Override
-    public void onNeighbourTileEntityChange(BlockPos neighbour) {
-        if (moveState == MoveState.NOT_MOVED) super.onNeighbourTileEntityChange(neighbour);
+    public void neighborChanged(BlockPos neighbour) {
+        if (moveState == MoveState.NOT_MOVED) super.neighborChanged(neighbour);
     }
 
     public void notifyMoveStart() {
@@ -208,8 +172,8 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements IT
     }
 
     @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
+    public void loadServer(CompoundTag nbt) {
+        super.loadServer(nbt);
 
         // Read inventory
         var nbttaglist = nbt.getList("Items", Tag.TAG_COMPOUND);
@@ -315,66 +279,8 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements IT
     // IInventory
 
     @Override
-    public int getContainerSize() {
-        return INVENTORY_SIZE;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        for (var stack : inventory) {
-            if (!stack.isEmpty()) return false;
-        }
-        return true;
-    }
-
-    @Override
-    public ItemStack getItem(int slot) {
-        return slot >= 0 && slot < INVENTORY_SIZE ? inventory.get(slot) : ItemStack.EMPTY;
-    }
-
-    @Override
-    public ItemStack removeItemNoUpdate(int slot) {
-        var result = getItem(slot);
-        setItem(slot, ItemStack.EMPTY);
-        return result;
-    }
-
-    @Override
-    public ItemStack removeItem(int slot, int count) {
-        if (count == 0) return ItemStack.EMPTY;
-
-        var stack = getItem(slot);
-        if (stack.isEmpty()) return ItemStack.EMPTY;
-
-        if (stack.getCount() <= count) {
-            setItem(slot, ItemStack.EMPTY);
-            return stack;
-        }
-
-        var part = stack.split(count);
-        onInventoryDefinitelyChanged();
-        return part;
-    }
-
-    @Override
-    public void setItem(int i, ItemStack stack) {
-        if (i >= 0 && i < INVENTORY_SIZE && !ItemStack.matches(stack, inventory.get(i))) {
-            inventory.set(i, stack);
-            onInventoryDefinitelyChanged();
-        }
-    }
-
-    @Override
-    public void clearContent() {
-        var changed = false;
-        for (var i = 0; i < INVENTORY_SIZE; i++) {
-            if (!inventory.get(i).isEmpty()) {
-                inventory.set(i, ItemStack.EMPTY);
-                changed = true;
-            }
-        }
-
-        if (changed) onInventoryDefinitelyChanged();
+    public NonNullList<ItemStack> getContents() {
+        return inventory;
     }
 
     @Override
@@ -395,11 +301,6 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements IT
         return isUsable(player);
     }
 
-    private void onInventoryDefinitelyChanged() {
-        super.setChanged();
-        inventoryChanged = true;
-    }
-
     public void onTileEntityChange() {
         super.setChanged();
     }
@@ -414,8 +315,8 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements IT
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag nbt) {
-        super.handleUpdateTag(nbt);
+    public void loadClient(CompoundTag nbt) {
+        super.loadClient(nbt);
         brain.readDescription(nbt);
     }
 

@@ -106,7 +106,7 @@ public class TurtleInventoryCrafting extends CraftingContainer {
             }
         }
 
-        return results;
+        return Collections.unmodifiableList(results);
     }
 
     @Override

@@ -5,26 +5,23 @@
  */
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
-import dan200.computercraft.shared.common.GenericBlock;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
 import dan200.computercraft.shared.platform.RegistryEntry;
 import dan200.computercraft.shared.util.WaterloggableHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -34,12 +31,15 @@ import javax.annotation.Nullable;
 import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
 import static dan200.computercraft.shared.util.WaterloggableHelpers.getFluidStateForPlacement;
 
-public class WirelessModemBlock extends GenericBlock implements SimpleWaterloggedBlock {
-    public static final DirectionProperty FACING = BlockStateProperties.FACING;
+public class WirelessModemBlock extends DirectionalBlock implements SimpleWaterloggedBlock, EntityBlock {
     public static final BooleanProperty ON = BooleanProperty.create("on");
 
+    private final RegistryEntry<? extends BlockEntityType<? extends WirelessModemBlockEntity>> type;
+
     public WirelessModemBlock(Properties settings, RegistryEntry<? extends BlockEntityType<? extends WirelessModemBlockEntity>> type) {
-        super(settings, type);
+        super(settings);
+        this.type = type;
+
         registerDefaultState(getStateDefinition().any()
             .setValue(FACING, Direction.NORTH)
             .setValue(ON, false)
@@ -97,5 +97,18 @@ public class WirelessModemBlock extends GenericBlock implements SimpleWaterlogge
     @Deprecated
     public BlockState rotate(BlockState state, Rotation rot) {
         return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
+    }
+
+    @Override
+    @Deprecated
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource rand) {
+        var te = level.getBlockEntity(pos);
+        if (te instanceof WirelessModemBlockEntity modem) modem.blockTick();
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return type.get().create(blockPos, blockState);
     }
 }

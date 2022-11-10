@@ -5,34 +5,42 @@
  */
 package dan200.computercraft.shared.computer.blocks;
 
+import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.shared.common.GenericBlock;
 import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.platform.RegistryEntry;
+import dan200.computercraft.shared.util.BlockEntityHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 
-public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntity> extends GenericBlock implements IBundledRedstoneBlock {
+public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntity> extends HorizontalDirectionalBlock implements IBundledRedstoneBlock, EntityBlock {
     private static final ResourceLocation DROP = new ResourceLocation(ComputerCraftAPI.MOD_ID, "computer");
 
     private final ComputerFamily family;
@@ -40,7 +48,7 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
     private final BlockEntityTicker<T> serverTicker = (level, pos, state, computer) -> computer.serverTick();
 
     protected AbstractComputerBlock(Properties settings, ComputerFamily family, RegistryEntry<BlockEntityType<T>> type) {
-        super(settings, type);
+        super(settings);
         this.family = family;
         this.type = type;
     }
@@ -161,8 +169,40 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
     }
 
     @Override
+    @Deprecated
+    public final InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return world.getBlockEntity(pos) instanceof AbstractComputerBlockEntity computer ? computer.use(player, hand) : InteractionResult.PASS;
+    }
+
+    @Override
+    @Deprecated
+    public final void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos, boolean isMoving) {
+        var be = world.getBlockEntity(pos);
+        if (be instanceof AbstractComputerBlockEntity computer) computer.neighborChanged(neighbourPos);
+    }
+
+    @ForgeOverride
+    public final void onNeighborChange(BlockState state, LevelReader world, BlockPos pos, BlockPos neighbour) {
+        var be = world.getBlockEntity(pos);
+        if (be instanceof AbstractComputerBlockEntity computer) computer.neighborChanged(neighbour);
+    }
+
+    @Nullable
+    @Override
+    @Deprecated
+    public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
+        return level.getBlockEntity(pos) instanceof AbstractComputerBlockEntity computer ? computer : null;
+    }
+
+    @Override
     @Nullable
     public <U extends BlockEntity> BlockEntityTicker<U> getTicker(Level level, BlockState state, BlockEntityType<U> type) {
-        return level.isClientSide ? null : BaseEntityBlock.createTickerHelper(type, this.type.get(), serverTicker);
+        return level.isClientSide ? null : BlockEntityHelpers.createTickerHelper(type, this.type.get(), serverTicker);
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return type.get().create(pos, state);
     }
 }

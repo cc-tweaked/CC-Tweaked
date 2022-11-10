@@ -3,7 +3,7 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.shared.util;
+package dan200.computercraft.shared.container;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;

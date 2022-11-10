@@ -108,6 +108,7 @@ public final class WiredNode implements IWiredNode {
         return "WiredNode{@" + element.getPosition() + " (" + element.getClass().getSimpleName() + ")}";
     }
 
+    @SuppressWarnings("LockNotBeforeTry")
     private void acquireReadLock() {
         var currentNetwork = network;
         while (true) {

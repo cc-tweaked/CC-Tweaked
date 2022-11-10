@@ -5,40 +5,34 @@
  */
 package dan200.computercraft.shared.peripheral.diskdrive;
 
+import dan200.computercraft.impl.MediaProviders;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.common.GenericBlock;
+import dan200.computercraft.shared.common.HorizontalContainerBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.stats.Stats;
-import net.minecraft.world.Nameable;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
-public class DiskDriveBlock extends GenericBlock {
-    static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+public class DiskDriveBlock extends HorizontalContainerBlock {
     public static final EnumProperty<DiskDriveState> STATE = EnumProperty.create("state", DiskDriveState.class);
 
     private static final BlockEntityTicker<DiskDriveBlockEntity> serverTicker = (level, pos, state, drive) -> drive.serverTick();
 
     public DiskDriveBlock(Properties settings) {
-        super(settings, ModRegistry.BlockEntities.DISK_DRIVE);
+        super(settings);
         registerDefaultState(getStateDefinition().any()
             .setValue(FACING, Direction.NORTH)
             .setValue(STATE, DiskDriveState.EMPTY));
@@ -52,41 +46,25 @@ public class DiskDriveBlock extends GenericBlock {
 
     @Override
     @Deprecated
-    public BlockState mirror(BlockState state, Mirror mirrorIn) {
-        return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
-    }
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (player.isCrouching() && level.getBlockEntity(pos) instanceof DiskDriveBlockEntity drive) {
+            // Try to put a disk into the drive
+            var disk = player.getItemInHand(hand);
+            if (disk.isEmpty()) return InteractionResult.PASS;
 
-    @Override
-    @Deprecated
-    public BlockState rotate(BlockState state, Rotation rot) {
-        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
+            if (!level.isClientSide && drive.getDiskStack().isEmpty() && MediaProviders.get(disk) != null) {
+                drive.setDiskStack(disk.split(1));
+            }
+            return InteractionResult.sidedSuccess(level.isClientSide);
+        }
+
+        return super.use(state, level, pos, player, hand, hit);
     }
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext placement) {
-        return defaultBlockState().setValue(FACING, placement.getHorizontalDirection().getOpposite());
-    }
-
-    @Override
-    public void playerDestroy(Level world, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity te, ItemStack stack) {
-        if (te instanceof Nameable nameable && nameable.hasCustomName()) {
-            player.awardStat(Stats.BLOCK_MINED.get(this));
-            player.causeFoodExhaustion(0.005F);
-
-            var result = new ItemStack(this);
-            result.setHoverName(nameable.getCustomName());
-            popResource(world, pos, result);
-        } else {
-            super.playerDestroy(world, player, pos, state, te, stack);
-        }
-    }
-
-    @Override
-    public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        if (stack.hasCustomHoverName() && world.getBlockEntity(pos) instanceof DiskDriveBlockEntity drive) {
-            drive.customName = stack.getHoverName();
-        }
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return ModRegistry.BlockEntities.DISK_DRIVE.get().create(pos, state);
     }
 
     @Override

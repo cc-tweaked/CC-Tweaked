@@ -6,8 +6,8 @@
 package dan200.computercraft.shared.peripheral.printer;
 
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.util.SingleIntArray;
-import dan200.computercraft.shared.util.ValidatingSlot;
+import dan200.computercraft.shared.container.SingleContainerData;
+import dan200.computercraft.shared.container.ValidatingSlot;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -58,7 +58,7 @@ public class PrinterMenu extends AbstractContainerMenu {
     }
 
     public PrinterMenu(int id, Inventory player, PrinterBlockEntity printer) {
-        this(id, player, printer, (SingleIntArray) () -> printer.isPrinting() ? 1 : 0);
+        this(id, player, printer, (SingleContainerData) () -> printer.isPrinting() ? 1 : 0);
     }
 
     public boolean isPrinting() {

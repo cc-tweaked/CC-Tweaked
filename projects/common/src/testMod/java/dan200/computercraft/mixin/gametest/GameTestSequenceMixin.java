@@ -35,7 +35,7 @@ class GameTestSequenceMixin {
             // Mimic the original behaviour.
         } catch (AssertionError e) {
             parent.fail(e);
-        } catch (Exception e) {
+        } catch (Exception | LinkageError | VirtualMachineError e) {
             // Fail the test, rather than crashing the server.
             TestHooks.LOG.error("{} threw unexpected exception", parent.getTestName(), e);
             parent.fail(e);

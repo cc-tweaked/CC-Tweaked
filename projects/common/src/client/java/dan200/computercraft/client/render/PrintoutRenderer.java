@@ -107,7 +107,7 @@ public final class PrintoutRenderer {
                 double thisWidth = Math.min(right - borderX, X_SIZE);
                 drawTexture(matrix, buffer, borderX, y - 8, z - 0.02f, 0, COVER_Y, (float) thisWidth, COVER_SIZE, light);
                 drawTexture(matrix, buffer, borderX, y + Y_SIZE - 4, z - 0.02f, 0, COVER_Y + COVER_SIZE, (float) thisWidth, COVER_SIZE, light);
-                borderX += thisWidth;
+                borderX = (float) (borderX + thisWidth);
             }
         }
 

@@ -36,6 +36,7 @@ import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import java.util.*
+import kotlin.time.Duration.Companion.milliseconds
 
 @GameTestHolder
 class Turtle_Test {
@@ -402,7 +403,9 @@ class Turtle_Test {
         val testInfo = (helper as GameTestHelperAccessor).testInfo as GameTestInfoAccessor
 
         val events = mutableListOf<Pair<String, String>>()
+        var running = false
         thenStartComputer("listen") {
+            running = true
             while (true) {
                 val event = pullEvent()
                 TestHooks.LOG.info("[{}] Got event {} at tick {}", testInfo, event[0], testInfo.`computercraft$getTick`())
@@ -411,8 +414,9 @@ class Turtle_Test {
                 }
             }
         }
-        thenIdle(2)
         thenOnComputer("turtle") {
+            while (!running) sleep(10.milliseconds)
+
             turtle.forward().await().assertArrayEquals(true, message = "Moved turtle forward")
             turtle.back().await().assertArrayEquals(true, message = "Moved turtle forward")
             TestHooks.LOG.info("[{}] Finished turtle at {}", testInfo, testInfo.`computercraft$getTick`())

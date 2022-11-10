@@ -15,9 +15,11 @@ import dan200.computercraft.shared.platform.RegistryEntry;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
+import dan200.computercraft.shared.util.BlockEntityHelpers;
 import dan200.computercraft.shared.util.WaterloggableHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.Containers;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
@@ -27,7 +29,9 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -71,18 +75,6 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
 
     @Override
     @Deprecated
-    public BlockState mirror(BlockState state, Mirror mirrorIn) {
-        return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
-    }
-
-    @Override
-    @Deprecated
-    public BlockState rotate(BlockState state, Rotation rot) {
-        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
-    }
-
-    @Override
-    @Deprecated
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.ENTITYBLOCK_ANIMATED;
     }
@@ -114,6 +106,19 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
     public BlockState updateShape(BlockState state, Direction side, BlockState otherState, LevelAccessor world, BlockPos pos, BlockPos otherPos) {
         WaterloggableHelpers.updateShape(state, world, pos);
         return state;
+    }
+
+    @Override
+    @Deprecated
+    public final void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (state.is(newState.getBlock())) return;
+
+        if (level.getBlockEntity(pos) instanceof TurtleBlockEntity turtle) {
+            if (!level.isClientSide) Containers.dropContents(level, pos, turtle);
+            level.updateNeighbourForOutputSignal(pos, this);
+        }
+
+        super.onRemove(state, level, pos, newState, isMoving);
     }
 
     @Override
@@ -161,6 +166,6 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
     @Override
     @Nullable
     public <U extends BlockEntity> BlockEntityTicker<U> getTicker(Level level, BlockState state, BlockEntityType<U> type) {
-        return level.isClientSide ? BaseEntityBlock.createTickerHelper(type, this.type.get(), clientTicker) : super.getTicker(level, state, type);
+        return level.isClientSide ? BlockEntityHelpers.createTickerHelper(type, this.type.get(), clientTicker) : super.getTicker(level, state, type);
     }
 }

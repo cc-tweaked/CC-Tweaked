@@ -63,14 +63,16 @@ public final class RecipeUtil {
         Set<Character> missingKeys = Sets.newHashSet(ingMap.keySet());
         missingKeys.remove(' ');
 
-        var i = 0;
+        var ingredientIdx = 0;
         for (var line : pattern) {
-            for (var chr : line.toCharArray()) {
+            for (var i = 0; i < line.length(); i++) {
+                var chr = line.charAt(i);
+
                 var ing = ingMap.get(chr);
                 if (ing == null) {
                     throw new JsonSyntaxException("Pattern references symbol '" + chr + "' but it's not defined in the key");
                 }
-                ingredients.set(i++, ing);
+                ingredients.set(ingredientIdx++, ing);
                 missingKeys.remove(chr);
             }
         }

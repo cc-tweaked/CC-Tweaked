@@ -10,7 +10,6 @@ import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.command.text.ChatHelpers;
-import dan200.computercraft.shared.common.GenericTile;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.platform.ComponentAccess;
 import dan200.computercraft.shared.platform.PlatformHelper;
@@ -21,13 +20,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
@@ -36,7 +34,7 @@ import java.util.*;
 import static dan200.computercraft.shared.peripheral.modem.wired.WiredModemFullBlock.MODEM_ON;
 import static dan200.computercraft.shared.peripheral.modem.wired.WiredModemFullBlock.PERIPHERAL_ON;
 
-public class WiredModemFullBlockEntity extends GenericTile {
+public class WiredModemFullBlockEntity extends BlockEntity {
     private static final String NBT_PERIPHERAL_ENABLED = "PeripheralAccess";
 
     private static final class FullElement extends WiredModemElement {
@@ -78,7 +76,6 @@ public class WiredModemFullBlockEntity extends GenericTile {
     private boolean peripheralAccessAllowed = false;
     private final WiredModemLocalPeripheral[] peripherals = new WiredModemLocalPeripheral[6];
 
-    private boolean destroyed = false;
     private boolean connectionsFormed = false;
 
     private final TickScheduler.Token tickToken = new TickScheduler.Token(this);
@@ -98,35 +95,16 @@ public class WiredModemFullBlockEntity extends GenericTile {
         }
     }
 
-    private void doRemove() {
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
         if (level == null || !level.isClientSide) {
             node.remove();
             connectionsFormed = false;
         }
     }
 
-    @Override
-    public void destroy() {
-        if (!destroyed) {
-            destroyed = true;
-            doRemove();
-        }
-        super.destroy();
-    }
-
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        doRemove();
-    }
-
-    @Override
-    public void onNeighbourChange(BlockPos neighbour) {
-        onNeighbourTileEntityChange(neighbour);
-    }
-
-    @Override
-    public void onNeighbourTileEntityChange(BlockPos neighbour) {
+    void neighborChanged(BlockPos neighbour) {
         if (!level.isClientSide && peripheralAccessAllowed) {
             for (var facing : DirectionUtil.FACINGS) {
                 if (getBlockPos().relative(facing).equals(neighbour)) queueRefreshPeripheral(facing);
@@ -147,8 +125,7 @@ public class WiredModemFullBlockEntity extends GenericTile {
         }
     }
 
-    @Override
-    public InteractionResult onActivate(Player player, InteractionHand hand, BlockHitResult hit) {
+    public InteractionResult use(Player player) {
         if (player.isCrouching() || !player.mayBuild()) return InteractionResult.PASS;
         if (getLevel().isClientSide) return InteractionResult.SUCCESS;
 
@@ -204,12 +181,11 @@ public class WiredModemFullBlockEntity extends GenericTile {
 
     @Override
     public void clearRemoved() {
-        super.clearRemoved(); // TODO: Replace with onLoad
+        super.clearRemoved();
         TickScheduler.schedule(tickToken);
     }
 
-    @Override
-    public void blockTick() {
+    void blockTick() {
         if (getLevel().isClientSide) return;
 
         if (invalidSides != 0) {
@@ -288,7 +264,7 @@ public class WiredModemFullBlockEntity extends GenericTile {
 
         Map<String, IPeripheral> peripherals = new HashMap<>(6);
         for (var peripheral : this.peripherals) peripheral.extendMap(peripherals);
-        return peripherals;
+        return Collections.unmodifiableMap(peripherals);
     }
 
     private void updateConnectedPeripherals() {

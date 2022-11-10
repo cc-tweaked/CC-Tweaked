@@ -13,7 +13,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.resources.ResourceLocation;
 
-@AutoService(ClientPlatformHelper.class)
+@AutoService(dan200.computercraft.impl.client.ClientPlatformHelper.class)
 public class ClientPlatformHelperImpl implements ClientPlatformHelper {
     @Override
     public BakedModel getModel(ModelManager manager, ResourceLocation location) {

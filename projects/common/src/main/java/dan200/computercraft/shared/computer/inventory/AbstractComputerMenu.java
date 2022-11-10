@@ -14,7 +14,7 @@ import dan200.computercraft.shared.computer.menu.ServerInputState;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
-import dan200.computercraft.shared.util.SingleIntArray;
+import dan200.computercraft.shared.container.SingleContainerData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
@@ -46,7 +46,7 @@ public abstract class AbstractComputerMenu extends AbstractContainerMenu impleme
         super(type, id);
         this.canUse = canUse;
         this.family = family;
-        data = computer == null ? new SimpleContainerData(1) : (SingleIntArray) () -> computer.isOn() ? 1 : 0;
+        data = computer == null ? new SimpleContainerData(1) : (SingleContainerData) () -> computer.isOn() ? 1 : 0;
         addDataSlots(data);
 
         this.computer = computer;

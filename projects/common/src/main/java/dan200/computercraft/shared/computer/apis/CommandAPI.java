@@ -147,7 +147,7 @@ public class CommandAPI implements ILuaAPI {
         for (CommandNode<?> child : node.getChildren()) {
             if (child instanceof LiteralCommandNode<?>) result.add(child.getName());
         }
-        return result;
+        return Collections.unmodifiableList(result);
     }
 
     /**

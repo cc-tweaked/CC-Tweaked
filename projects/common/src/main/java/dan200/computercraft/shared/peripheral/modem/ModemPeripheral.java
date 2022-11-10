@@ -109,7 +109,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
         if (this.network != null) this.network.addReceiver(this);
     }
 
-    public void destroy() {
+    public void removed() {
         setNetwork(null);
     }
 

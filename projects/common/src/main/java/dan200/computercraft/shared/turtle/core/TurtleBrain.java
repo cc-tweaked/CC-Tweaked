@@ -17,11 +17,12 @@ import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.config.Config;
+import dan200.computercraft.shared.container.InventoryDelegate;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
+import dan200.computercraft.shared.util.BlockEntityHelpers;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
-import dan200.computercraft.shared.util.InventoryDelegate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -345,6 +346,8 @@ public class TurtleBrain implements ITurtleAccess {
                     yaw += 360.0f;
                 }
             }
+            default -> {
+            }
         }
         return yaw;
     }
@@ -454,7 +457,7 @@ public class TurtleBrain implements ITurtleAccess {
             animationProgress = 0;
             lastAnimationProgress = 0;
         }
-        owner.updateBlock();
+        BlockEntityHelpers.updateBlock(owner);
     }
 
     public @Nullable ResourceLocation getOverlay() {
@@ -464,7 +467,7 @@ public class TurtleBrain implements ITurtleAccess {
     public void setOverlay(ResourceLocation overlay) {
         if (!Objects.equal(this.overlay, overlay)) {
             this.overlay = overlay;
-            owner.updateBlock();
+            BlockEntityHelpers.updateBlock(owner);
         }
     }
 
@@ -481,7 +484,7 @@ public class TurtleBrain implements ITurtleAccess {
         }
         if (colourHex != newColour) {
             colourHex = newColour;
-            owner.updateBlock();
+            BlockEntityHelpers.updateBlock(owner);
         }
     }
 
@@ -490,11 +493,11 @@ public class TurtleBrain implements ITurtleAccess {
         if (colour >= 0 && colour <= 0xFFFFFF) {
             if (colourHex != colour) {
                 colourHex = colour;
-                owner.updateBlock();
+                BlockEntityHelpers.updateBlock(owner);
             }
         } else if (colourHex != -1) {
             colourHex = -1;
-            owner.updateBlock();
+            BlockEntityHelpers.updateBlock(owner);
         }
     }
 
@@ -525,7 +528,7 @@ public class TurtleBrain implements ITurtleAccess {
         // This is a separate function to avoid updating the block when reading the NBT. We don't need to do this as
         // either the block is newly placed (and so won't have changed) or is being updated with /data, which calls
         // updateBlock for us.
-        owner.updateBlock();
+        BlockEntityHelpers.updateBlock(owner);
 
         // Recompute peripherals in case an upgrade being removed has exposed a new peripheral.
         // TODO: Only update peripherals, or even only two sides?
@@ -568,7 +571,7 @@ public class TurtleBrain implements ITurtleAccess {
 
     @Override
     public void updateUpgradeNBTData(TurtleSide side) {
-        owner.updateBlock();
+        BlockEntityHelpers.updateBlock(owner);
     }
 
     public Vec3 getRenderOffset(float f) {

@@ -34,11 +34,11 @@ public class ServerMonitor {
 
         var textScale = this.textScale * 0.5;
         var termWidth = (int) Math.max(
-            Math.round((origin.getWidth() - 2.0 * (MonitorBlockEntity.RENDER_BORDER + MonitorBlockEntity.RENDER_MARGIN)) / (textScale * 6.0 * MonitorBlockEntity.RENDER_PIXEL_SCALE)),
+            (double) Math.round((origin.getWidth() - 2.0 * (MonitorBlockEntity.RENDER_BORDER + MonitorBlockEntity.RENDER_MARGIN)) / (textScale * 6.0 * MonitorBlockEntity.RENDER_PIXEL_SCALE)),
             1.0
         );
         var termHeight = (int) Math.max(
-            Math.round((origin.getHeight() - 2.0 * (MonitorBlockEntity.RENDER_BORDER + MonitorBlockEntity.RENDER_MARGIN)) / (textScale * 9.0 * MonitorBlockEntity.RENDER_PIXEL_SCALE)),
+            (double) Math.round((origin.getHeight() - 2.0 * (MonitorBlockEntity.RENDER_BORDER + MonitorBlockEntity.RENDER_MARGIN)) / (textScale * 9.0 * MonitorBlockEntity.RENDER_PIXEL_SCALE)),
             1.0
         );
 

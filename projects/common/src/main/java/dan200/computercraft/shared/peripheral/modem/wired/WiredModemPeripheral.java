@@ -219,6 +219,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     }
 
     @Override
+    @SuppressWarnings("UnsynchronizedOverridesSynchronized")
     public void attach(IComputerAccess computer) {
         super.attach(computer);
 
@@ -236,6 +237,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     }
 
     @Override
+    @SuppressWarnings("UnsynchronizedOverridesSynchronized")
     public void detach(IComputerAccess computer) {
         Map<String, RemotePeripheralWrapper> wrappers;
         synchronized (peripheralWrappers) {

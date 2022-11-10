@@ -6,34 +6,26 @@
 package dan200.computercraft.shared.peripheral.printer;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.shared.common.GenericTile;
+import dan200.computercraft.shared.common.AbstractContainerBlockEntity;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
+import dan200.computercraft.shared.container.BasicWorldlyContainer;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.util.ColourUtils;
-import dan200.computercraft.shared.util.DefaultSidedInventory;
-import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.*;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 
-public final class PrinterBlockEntity extends GenericTile implements DefaultSidedInventory, Nameable, MenuProvider {
-    private static final String NBT_NAME = "CustomName";
+public final class PrinterBlockEntity extends AbstractContainerBlockEntity implements BasicWorldlyContainer {
     private static final String NBT_PRINTING = "Printing";
     private static final String NBT_PAGE_TITLE = "PageTitle";
 
@@ -43,12 +35,8 @@ public final class PrinterBlockEntity extends GenericTile implements DefaultSide
     private static final int[] TOP_SLOTS = new int[]{ 1, 2, 3, 4, 5, 6 };
     private static final int[] SIDE_SLOTS = new int[]{ 0 };
 
-    @Nullable
-    Component customName;
-    private LockCode lockCode = LockCode.NO_LOCK;
-
+    private final PrinterPeripheral peripheral = new PrinterPeripheral(this);
     private final NonNullList<ItemStack> inventory = NonNullList.withSize(SLOTS, ItemStack.EMPTY);
-    private @Nullable IPeripheral peripheral;
 
     private final NetworkedTerminal page = new NetworkedTerminal(PrintoutItem.LINE_MAX_LENGTH, PrintoutItem.LINES_PER_PAGE, true);
     private String pageTitle = "";
@@ -58,29 +46,13 @@ public final class PrinterBlockEntity extends GenericTile implements DefaultSide
         super(type, pos, state);
     }
 
-    @Override
-    public void destroy() {
-        ejectContents();
-    }
-
-    @Override
-    public boolean isUsable(Player player) {
-        return super.isUsable(player) && BaseContainerBlockEntity.canUnlock(player, lockCode, getDisplayName());
-    }
-
-    @Override
-    public InteractionResult onActivate(Player player, InteractionHand hand, BlockHitResult hit) {
-        if (player.isCrouching()) return InteractionResult.PASS;
-
-        if (!getLevel().isClientSide && isUsable(player)) player.openMenu(this);
-        return InteractionResult.SUCCESS;
+    public IPeripheral peripheral() {
+        return peripheral;
     }
 
     @Override
     public void load(CompoundTag nbt) {
         super.load(nbt);
-
-        customName = nbt.contains(NBT_NAME) ? Component.Serializer.fromJson(nbt.getString(NBT_NAME)) : null;
 
         // Read page
         synchronized (page) {
@@ -91,91 +63,35 @@ public final class PrinterBlockEntity extends GenericTile implements DefaultSide
 
         // Read inventory
         ContainerHelper.loadAllItems(nbt, inventory);
-
-        lockCode = LockCode.fromTag(nbt);
     }
 
     @Override
-    public void saveAdditional(CompoundTag nbt) {
-        if (customName != null) nbt.putString(NBT_NAME, Component.Serializer.toJson(customName));
-
+    public void saveAdditional(CompoundTag tag) {
         // Write page
         synchronized (page) {
-            nbt.putBoolean(NBT_PRINTING, printing);
-            nbt.putString(NBT_PAGE_TITLE, pageTitle);
-            page.writeToNBT(nbt);
+            tag.putBoolean(NBT_PRINTING, printing);
+            tag.putString(NBT_PAGE_TITLE, pageTitle);
+            page.writeToNBT(tag);
         }
 
         // Write inventory
-        ContainerHelper.saveAllItems(nbt, inventory);
+        ContainerHelper.saveAllItems(tag, inventory);
 
-        lockCode.addToTag(nbt);
-
-        super.saveAdditional(nbt);
+        super.saveAdditional(tag);
     }
 
     boolean isPrinting() {
         return printing;
     }
 
-    // IInventory implementation
     @Override
-    public int getContainerSize() {
-        return inventory.size();
+    public NonNullList<ItemStack> getContents() {
+        return inventory;
     }
 
     @Override
-    public boolean isEmpty() {
-        for (var stack : inventory) {
-            if (!stack.isEmpty()) return false;
-        }
-        return true;
-    }
-
-    @Override
-    public ItemStack getItem(int slot) {
-        return inventory.get(slot);
-    }
-
-    @Override
-    public ItemStack removeItemNoUpdate(int slot) {
-        var result = inventory.get(slot);
-        inventory.set(slot, ItemStack.EMPTY);
-        setChanged();
-        updateBlockState();
-        return result;
-    }
-
-    @Override
-    public ItemStack removeItem(int slot, int count) {
-        var stack = inventory.get(slot);
-        if (stack.isEmpty()) return ItemStack.EMPTY;
-
-        if (stack.getCount() <= count) {
-            setItem(slot, ItemStack.EMPTY);
-            return stack;
-        }
-
-        var part = stack.split(count);
-        if (inventory.get(slot).isEmpty()) {
-            inventory.set(slot, ItemStack.EMPTY);
-            updateBlockState();
-        }
-        setChanged();
-        return part;
-    }
-
-    @Override
-    public void setItem(int slot, ItemStack stack) {
-        inventory.set(slot, stack);
-        setChanged();
-        updateBlockState();
-    }
-
-    @Override
-    public void clearContent() {
-        for (var i = 0; i < inventory.size(); i++) inventory.set(i, ItemStack.EMPTY);
-        setChanged();
+    public void setChanged() {
+        super.setChanged();
         updateBlockState();
     }
 
@@ -191,23 +107,16 @@ public final class PrinterBlockEntity extends GenericTile implements DefaultSide
     }
 
     @Override
-    public boolean stillValid(Player playerEntity) {
-        return isUsable(playerEntity);
-    }
-
-    // ISidedInventory implementation
-
-    @Override
     public int[] getSlotsForFace(Direction side) {
         return switch (side) {
-            case DOWN -> BOTTOM_SLOTS; // Out tray
-            case UP -> TOP_SLOTS; // In tray
-            default -> SIDE_SLOTS; // Ink
+            case DOWN -> BOTTOM_SLOTS; // Bottom (Out tray)
+            case UP -> TOP_SLOTS; // Top (In tray)
+            default -> SIDE_SLOTS; // Sides (Ink)
         };
     }
 
     @Nullable
-    Terminal getCurrentPage() {
+    NetworkedTerminal getCurrentPage() {
         synchronized (page) {
             return printing ? page : null;
         }
@@ -325,19 +234,6 @@ public final class PrinterBlockEntity extends GenericTile implements DefaultSide
         return false;
     }
 
-    private void ejectContents() {
-        for (var i = 0; i < 13; i++) {
-            var stack = inventory.get(i);
-            if (!stack.isEmpty()) {
-                // Remove the stack from the inventory
-                setItem(i, ItemStack.EMPTY);
-
-                // Spawn the item in the world
-                WorldUtil.dropItemStack(stack, getLevel(), Vec3.atLowerCornerOf(getBlockPos()).add(0.5, 0.75, 0.5));
-            }
-        }
-    }
-
     private void updateBlockState() {
         boolean top = false, bottom = false;
         for (var i = 1; i < 7; i++) {
@@ -367,34 +263,8 @@ public final class PrinterBlockEntity extends GenericTile implements DefaultSide
         getLevel().setBlockAndUpdate(getBlockPos(), state.setValue(PrinterBlock.TOP, top).setValue(PrinterBlock.BOTTOM, bottom));
     }
 
-    public IPeripheral peripheral() {
-        if (peripheral == null) peripheral = new PrinterPeripheral(this);
-        return peripheral;
-    }
-
     @Override
-    public boolean hasCustomName() {
-        return customName != null;
-    }
-
-    @Nullable
-    @Override
-    public Component getCustomName() {
-        return customName;
-    }
-
-    @Override
-    public Component getName() {
-        return customName != null ? customName : Component.translatable(getBlockState().getBlock().getDescriptionId());
-    }
-
-    @Override
-    public Component getDisplayName() {
-        return Nameable.super.getDisplayName();
-    }
-
-    @Override
-    public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
+    protected AbstractContainerMenu createMenu(int id, Inventory inventory) {
         return new PrinterMenu(id, inventory, this);
     }
 }

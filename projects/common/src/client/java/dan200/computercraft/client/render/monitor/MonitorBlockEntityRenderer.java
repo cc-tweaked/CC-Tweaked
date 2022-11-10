@@ -229,6 +229,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
 
                 RenderSystem.setInverseViewRotationMatrix(oldInverseRotation);
             }
+            case BEST -> throw new IllegalStateException("Impossible: Should never use BEST renderer");
         }
     }
 

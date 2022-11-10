@@ -10,21 +10,18 @@ import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.shared.common.GenericTile;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.config.Config;
+import dan200.computercraft.shared.util.BlockEntityHelpers;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +30,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class MonitorBlockEntity extends GenericTile {
+public class MonitorBlockEntity extends BlockEntity {
     private static final Logger LOG = LoggerFactory.getLogger(MonitorBlockEntity.class);
 
     public static final double RENDER_BORDER = 2.0 / 16.0;
@@ -79,17 +76,14 @@ public class MonitorBlockEntity extends GenericTile {
     }
 
     @Override
-    public void clearRemoved() { // TODO: Switch back to onLood
+    public void clearRemoved() {
         super.clearRemoved();
         needsValidating = true; // Same, tbh
         TickScheduler.schedule(tickToken);
     }
 
-    @Override
-    public void destroy() {
+    void destroy() {
         // TODO: Call this before using the block
-        if (destroyed) return;
-        destroyed = true;
         if (!getLevel().isClientSide) contractNeighbours();
     }
 
@@ -97,22 +91,6 @@ public class MonitorBlockEntity extends GenericTile {
     public void setRemoved() {
         super.setRemoved();
         if (clientMonitor != null && xIndex == 0 && yIndex == 0) clientMonitor.destroy();
-    }
-
-    @Override
-    public InteractionResult onActivate(Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!player.isCrouching() && getFront() == hit.getDirection()) {
-            if (!getLevel().isClientSide) {
-                monitorTouched(
-                    (float) (hit.getLocation().x - hit.getBlockPos().getX()),
-                    (float) (hit.getLocation().y - hit.getBlockPos().getY()),
-                    (float) (hit.getLocation().z - hit.getBlockPos().getZ())
-                );
-            }
-            return InteractionResult.SUCCESS;
-        }
-
-        return InteractionResult.PASS;
     }
 
     @Override
@@ -128,14 +106,18 @@ public class MonitorBlockEntity extends GenericTile {
     public void load(CompoundTag nbt) {
         super.load(nbt);
 
+        var oldXIndex = xIndex;
+        var oldYIndex = yIndex;
+
         xIndex = nbt.getInt(NBT_X);
         yIndex = nbt.getInt(NBT_Y);
         width = nbt.getInt(NBT_WIDTH);
         height = nbt.getInt(NBT_HEIGHT);
+
+        if (level != null && level.isClientSide) onClientLoad(oldXIndex, oldYIndex);
     }
 
-    @Override
-    public void blockTick() {
+    void blockTick() {
         if (needsValidating) {
             needsValidating = false;
             validate();
@@ -223,18 +205,7 @@ public class MonitorBlockEntity extends GenericTile {
         return nbt;
     }
 
-    @Override
-    public final void handleUpdateTag(CompoundTag nbt) {
-        super.handleUpdateTag(nbt);
-
-        var oldXIndex = xIndex;
-        var oldYIndex = yIndex;
-
-        xIndex = nbt.getInt(NBT_X);
-        yIndex = nbt.getInt(NBT_Y);
-        width = nbt.getInt(NBT_WIDTH);
-        height = nbt.getInt(NBT_HEIGHT);
-
+    private void onClientLoad(int oldXIndex, int oldYIndex) {
         if (oldXIndex != xIndex || oldYIndex != yIndex) {
             // If our index has changed then it's possible the origin monitor has changed. Thus
             // we'll clear our cache. If we're the origin then we'll need to remove the glList as well.
@@ -401,7 +372,7 @@ public class MonitorBlockEntity extends GenericTile {
                 monitor.serverMonitor = serverMonitor;
                 monitor.needsUpdate = monitor.needsValidating = false;
                 monitor.updateBlockState();
-                monitor.updateBlock();
+                BlockEntityHelpers.updateBlock(monitor);
             }
         }
     }
@@ -476,7 +447,7 @@ public class MonitorBlockEntity extends GenericTile {
     }
     // endregion
 
-    private void monitorTouched(float xPos, float yPos, float zPos) {
+    void monitorTouched(float xPos, float yPos, float zPos) {
         if (!advanced) return;
 
         var pair = XYPair

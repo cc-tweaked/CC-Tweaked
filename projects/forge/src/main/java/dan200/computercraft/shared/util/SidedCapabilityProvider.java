@@ -7,6 +7,8 @@ package dan200.computercraft.shared.util;
 
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
@@ -14,6 +16,7 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
 
 /**
  * A {@link ICapabilityProvider} which provides a different single capability, with different instances for each
@@ -28,15 +31,21 @@ import java.util.Objects;
 public final class SidedCapabilityProvider<T> implements ICapabilityProvider {
     private final Capability<T> cap;
     private final Provider<T> supplier;
+    private final BooleanSupplier isRemoved;
     private @Nullable LazyOptional<T>[] instances;
 
-    private SidedCapabilityProvider(Capability<T> cap, Provider<T> supplier) {
+    private SidedCapabilityProvider(Capability<T> cap, Provider<T> supplier, BooleanSupplier isRemoved) {
         this.cap = Objects.requireNonNull(cap, "Capability cannot be null");
         this.supplier = supplier;
+        this.isRemoved = isRemoved;
     }
 
     public static <T> SidedCapabilityProvider<T> attach(AttachCapabilitiesEvent<?> event, ResourceLocation id, Capability<T> cap, Provider<T> supplier) {
-        var provider = new SidedCapabilityProvider<>(cap, supplier);
+        BooleanSupplier isRemoved
+            = event.getObject() instanceof BlockEntity be ? be::isRemoved
+            : event.getObject() instanceof Entity entity ? entity::isRemoved
+            : () -> true;
+        var provider = new SidedCapabilityProvider<>(cap, supplier, isRemoved);
         event.addCapability(id, provider);
         event.addListener(provider::invalidate);
         return provider;
@@ -49,7 +58,7 @@ public final class SidedCapabilityProvider<T> implements ICapabilityProvider {
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <U> LazyOptional<U> getCapability(Capability<U> cap, @Nullable Direction side) {
-        if (cap != this.cap) return LazyOptional.empty();
+        if (cap != this.cap || isRemoved.getAsBoolean()) return LazyOptional.empty();
 
         var instances = this.instances;
         if (instances == null) instances = this.instances = new LazyOptional[6];

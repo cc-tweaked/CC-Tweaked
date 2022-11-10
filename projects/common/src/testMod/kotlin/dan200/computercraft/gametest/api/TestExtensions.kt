@@ -11,6 +11,7 @@ import dan200.computercraft.mixin.gametest.GameTestSequenceAccessor
 import dan200.computercraft.shared.platform.PlatformHelper
 import dan200.computercraft.shared.platform.Registries
 import dan200.computercraft.test.core.computer.LuaTaskContext
+import dan200.computercraft.test.shared.ItemStackMatcher.isStack
 import net.minecraft.commands.arguments.blocks.BlockInput
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -24,6 +25,8 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.properties.Property
+import org.hamcrest.Matchers
+import org.hamcrest.StringDescription
 
 /**
  * Globally usable structures.
@@ -200,6 +203,16 @@ fun GameTestHelper.assertNoPeripheral(pos: BlockPos, direction: Direction = Dire
     val peripheral = PlatformHelper.get().createPeripheralAccess { }
         .get(level, absolutePos(pos).relative(direction), direction.opposite)
     if (peripheral != null) fail("Expected no peripheral, got a ${peripheral.type}", pos)
+}
+
+fun GameTestHelper.assertExactlyItems(vararg expected: ItemStack, message: String? = null) {
+    val actual = getEntities(EntityType.ITEM).map { it.item }
+    val matcher = Matchers.containsInAnyOrder(expected.map { isStack(it) })
+    if (!matcher.matches(actual)) {
+        val description = StringDescription()
+        matcher.describeMismatch(actual, description)
+        fail(if (message.isNullOrEmpty()) description.toString() else "$message: $description")
+    }
 }
 
 private fun getName(type: BlockEntityType<*>): ResourceLocation = Registries.BLOCK_ENTITY_TYPES.getKey(type)!!

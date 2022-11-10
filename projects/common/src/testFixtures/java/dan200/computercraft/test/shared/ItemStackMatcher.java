@@ -24,7 +24,7 @@ public class ItemStackMatcher extends TypeSafeMatcher<ItemStack> {
 
     @Override
     public void describeTo(Description description) {
-        description.appendValue(stack);
+        description.appendValue(stack).appendValue(stack.getTag());
     }
 
     public static Matcher<ItemStack> isStack(ItemStack stack) {

@@ -117,6 +117,7 @@ internal class IdeaRunConfigurations(project: Project) {
 
             if (newClasses.any { it.startsWith("cctest%%") }) {
                 appendUnique(forgeModEntry("cctest", "core", "testFixtures"))
+                appendUnique(forgeModEntry("cctest", "common", "testFixtures"))
                 appendUnique(forgeModEntry("cctest", "common", "testMod"))
             }
 

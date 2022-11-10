@@ -10,7 +10,6 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.impl.BundledRedstone;
-import dan200.computercraft.shared.common.GenericTile;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -18,6 +17,7 @@ import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.platform.ComponentAccess;
 import dan200.computercraft.shared.platform.PlatformHelper;
+import dan200.computercraft.shared.util.BlockEntityHelpers;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.RedstoneUtil;
@@ -32,14 +32,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public abstract class AbstractComputerBlockEntity extends GenericTile implements IComputerBlockEntity, Nameable, MenuProvider {
+public abstract class AbstractComputerBlockEntity extends BlockEntity implements IComputerBlockEntity, Nameable, MenuProvider {
     private static final String NBT_ID = "ComputerId";
     private static final String NBT_LABEL = "Label";
     private static final String NBT_ON = "On";
@@ -58,7 +58,7 @@ public abstract class AbstractComputerBlockEntity extends GenericTile implements
 
     private final ComputerFamily family;
 
-    public AbstractComputerBlockEntity(BlockEntityType<? extends GenericTile> type, BlockPos pos, BlockState state, ComputerFamily family) {
+    public AbstractComputerBlockEntity(BlockEntityType<? extends AbstractComputerBlockEntity> type, BlockPos pos, BlockState state, ComputerFamily family) {
         super(type, pos, state);
         this.family = family;
     }
@@ -72,30 +72,25 @@ public abstract class AbstractComputerBlockEntity extends GenericTile implements
     }
 
     @Override
-    public void destroy() {
-        unload();
-        for (var dir : DirectionUtil.FACINGS) {
-            RedstoneUtil.propagateRedstoneOutput(getLevel(), getBlockPos(), dir);
-        }
-    }
-
-    @Override
     public void setRemoved() {
-        unload();
         super.setRemoved();
+        unload();
     }
 
     protected boolean canNameWithTag(Player player) {
         return false;
     }
 
-    @Override
-    public boolean isUsable(Player player) {
-        return super.isUsable(player) && BaseContainerBlockEntity.canUnlock(player, lockCode, getDisplayName());
+    protected double getInteractRange() {
+        return BlockEntityHelpers.DEFAULT_INTERACT_RANGE;
     }
 
-    @Override
-    public InteractionResult onActivate(Player player, InteractionHand hand, BlockHitResult hit) {
+    public boolean isUsable(Player player) {
+        return BaseContainerBlockEntity.canUnlock(player, lockCode, getDisplayName())
+            && BlockEntityHelpers.isUsable(this, player, getInteractRange());
+    }
+
+    public InteractionResult use(Player player, InteractionHand hand) {
         var currentItem = player.getItemInHand(hand);
         if (!currentItem.isEmpty() && currentItem.getItem() == Items.NAME_TAG && canNameWithTag(player) && currentItem.hasCustomHoverName()) {
             // Label to rename computer
@@ -120,13 +115,7 @@ public abstract class AbstractComputerBlockEntity extends GenericTile implements
         return InteractionResult.PASS;
     }
 
-    @Override
-    public void onNeighbourChange(BlockPos neighbour) {
-        updateInputAt(neighbour);
-    }
-
-    @Override
-    public void onNeighbourTileEntityChange(BlockPos neighbour) {
+    public void neighborChanged(BlockPos neighbour) {
         updateInputAt(neighbour);
     }
 
@@ -179,9 +168,16 @@ public abstract class AbstractComputerBlockEntity extends GenericTile implements
     }
 
     @Override
-    public void load(CompoundTag nbt) {
+    public final void load(CompoundTag nbt) {
         super.load(nbt);
+        if (level != null && level.isClientSide) {
+            loadClient(nbt);
+        } else {
+            loadServer(nbt);
+        }
+    }
 
+    protected void loadServer(CompoundTag nbt) {
         // Load ID, label and power state
         computerID = nbt.contains(NBT_ID) ? nbt.getInt(NBT_ID) : -1;
         label = nbt.contains(NBT_LABEL) ? nbt.getString(NBT_LABEL) : null;
@@ -268,7 +264,7 @@ public abstract class AbstractComputerBlockEntity extends GenericTile implements
      * Update the block's state and propagate redstone output.
      */
     public void updateOutput() {
-        updateBlock();
+        BlockEntityHelpers.updateBlock(this);
         for (var dir : DirectionUtil.FACINGS) {
             RedstoneUtil.propagateRedstoneOutput(getLevel(), getBlockPos(), dir);
         }
@@ -319,7 +315,7 @@ public abstract class AbstractComputerBlockEntity extends GenericTile implements
         if (computer == null) {
             if (computerID < 0) {
                 computerID = ComputerCraftAPI.createUniqueNumberedSaveDir(level, IDAssigner.COMPUTER);
-                updateBlock();
+                BlockEntityHelpers.updateBlock(this);
             }
 
             computer = createComputer(computerID);
@@ -353,8 +349,7 @@ public abstract class AbstractComputerBlockEntity extends GenericTile implements
         return nbt;
     }
 
-    @Override
-    public void handleUpdateTag(CompoundTag nbt) {
+    protected void loadClient(CompoundTag nbt) {
         label = nbt.contains(NBT_LABEL) ? nbt.getString(NBT_LABEL) : null;
         computerID = nbt.contains(NBT_ID) ? nbt.getInt(NBT_ID) : -1;
     }
@@ -368,7 +363,7 @@ public abstract class AbstractComputerBlockEntity extends GenericTile implements
             on = copy.on;
             startOn = copy.startOn;
             lockCode = copy.lockCode;
-            updateBlock();
+            BlockEntityHelpers.updateBlock(this);
         }
         copy.instanceID = -1;
     }

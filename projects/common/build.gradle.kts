@@ -32,5 +32,6 @@ dependencies {
     testRuntimeOnly(libs.bundles.testRuntime)
 
     testModImplementation(testFixtures(project(":core")))
+    testModImplementation(testFixtures(project(":common")))
     testModImplementation(libs.bundles.kotlin)
 }

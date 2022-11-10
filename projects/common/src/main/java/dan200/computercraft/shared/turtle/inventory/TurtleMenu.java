@@ -12,7 +12,7 @@ import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
-import dan200.computercraft.shared.util.SingleIntArray;
+import dan200.computercraft.shared.container.SingleContainerData;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -65,7 +65,7 @@ public final class TurtleMenu extends AbstractComputerMenu {
         return new TurtleMenu(
             // Laziness in turtle.getOwner() is important here!
             id, p -> turtle.getOwner().stillValid(p), turtle.getFamily(), turtle.getOwner().createServerComputer(), null,
-            player, turtle.getInventory(), (SingleIntArray) turtle::getSelectedSlot
+            player, turtle.getInventory(), (SingleContainerData) turtle::getSelectedSlot
         );
     }
 

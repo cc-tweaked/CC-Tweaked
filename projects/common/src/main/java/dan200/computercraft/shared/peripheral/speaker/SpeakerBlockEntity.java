@@ -7,17 +7,17 @@ package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.util.Nullability;
-import dan200.computercraft.shared.common.GenericTile;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 
-public class SpeakerBlockEntity extends GenericTile {
+public class SpeakerBlockEntity extends BlockEntity {
     private final SpeakerPeripheral peripheral;
 
     public SpeakerBlockEntity(BlockEntityType<SpeakerBlockEntity> type, BlockPos pos, BlockState state) {

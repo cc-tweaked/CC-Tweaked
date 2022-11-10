@@ -27,11 +27,8 @@ public class TurtleScreen extends AbstractComputerScreen<TurtleMenu> {
     private static final int TEX_WIDTH = 254;
     private static final int TEX_HEIGHT = 217;
 
-    private final ComputerFamily family;
-
     public TurtleScreen(TurtleMenu container, Inventory player, Component title) {
         super(container, player, title, BORDER);
-        family = container.getFamily();
 
         imageWidth = TEX_WIDTH + AbstractComputerMenu.SIDEBAR_WIDTH;
         imageHeight = TEX_HEIGHT;

@@ -8,24 +8,30 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.common.GenericBlock;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.WaterloggableHelpers;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -36,7 +42,7 @@ import java.util.EnumMap;
 import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
 import static dan200.computercraft.shared.util.WaterloggableHelpers.getFluidStateForPlacement;
 
-public class CableBlock extends GenericBlock implements SimpleWaterloggedBlock {
+public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityBlock {
     public static final EnumProperty<CableModemVariant> MODEM = EnumProperty.create("modem", CableModemVariant.class);
     public static final BooleanProperty CABLE = BooleanProperty.create("cable");
 
@@ -55,7 +61,7 @@ public class CableBlock extends GenericBlock implements SimpleWaterloggedBlock {
             .build());
 
     public CableBlock(Properties settings) {
-        super(settings, ModRegistry.BlockEntities.CABLE);
+        super(settings);
 
         registerDefaultState(getStateDefinition().any()
             .setValue(MODEM, CableModemVariant.None)
@@ -217,5 +223,34 @@ public class CableBlock extends GenericBlock implements SimpleWaterloggedBlock {
                 .setValue(NORTH, false).setValue(SOUTH, false).setValue(EAST, false)
                 .setValue(WEST, false).setValue(UP, false).setValue(DOWN, false);
         }
+    }
+
+    @Override
+    @Deprecated
+    public final InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return world.getBlockEntity(pos) instanceof CableBlockEntity modem ? modem.use(player) : InteractionResult.PASS;
+    }
+
+    @Override
+    @Deprecated
+    public final void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos, boolean isMoving) {
+        if (world.getBlockEntity(pos) instanceof CableBlockEntity modem) modem.neighborChanged(neighbourPos);
+    }
+
+    @ForgeOverride
+    public final void onNeighborChange(BlockState state, LevelReader world, BlockPos pos, BlockPos neighbour) {
+        if (world.getBlockEntity(pos) instanceof CableBlockEntity modem) modem.neighborChanged(neighbour);
+    }
+
+    @Override
+    @Deprecated
+    public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
+        if (world.getBlockEntity(pos) instanceof CableBlockEntity modem) modem.blockTick();
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return ModRegistry.BlockEntities.CABLE.get().create(pos, state);
     }
 }

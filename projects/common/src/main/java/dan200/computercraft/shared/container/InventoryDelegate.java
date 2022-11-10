@@ -3,7 +3,7 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.shared.util;
+package dan200.computercraft.shared.container;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * Provides a delegate over inventories.
@@ -96,5 +97,10 @@ public interface InventoryDelegate extends Container {
     @Override
     default boolean hasAnyOf(Set<Item> set) {
         return getInventory().hasAnyOf(set);
+    }
+
+    @Override
+    default boolean hasAnyMatching(Predicate<ItemStack> predicate) {
+        return getInventory().hasAnyMatching(predicate);
     }
 }
