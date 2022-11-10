@@ -6,12 +6,11 @@ See https://github.com/actions/toolkit/blob/master/docs/problem-matchers.md and
 https://github.com/actions/toolkit/blob/master/docs/commands.md.
 """
 
-from typing import Optional, Tuple
-import pathlib
-import xml.etree.ElementTree as ET
-import re
 import os.path
-
+import pathlib
+import re
+import xml.etree.ElementTree as ET
+from typing import Optional, Tuple
 
 LUA_ERROR_LOCATION = re.compile(r"^\s+(/[\w./-]+):(\d+):", re.MULTILINE)
 JAVA_LUA_ERROR_LOCATION = re.compile(r"^java.lang.IllegalStateException: (/[\w./-]+):(\d+):")
@@ -28,12 +27,12 @@ SOURCE_LOCATIONS = [
 ]
 
 PROJECT_LOCATIONS = [
-    ".",
     "projects/core-api",
     "projects/core",
-    "projects/common",
     "projects/common-api",
+    "projects/common",
     "projects/forge-api",
+    "projects/forge",
 ]
 
 TEST_REPORTS = []

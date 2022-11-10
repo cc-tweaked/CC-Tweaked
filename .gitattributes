@@ -1,6 +1,6 @@
 # Ignore changes in generated files
-src/generated/** linguist-generated
-src/testMod/server-files/structures linguist-generated
+projects/*/src/generated/** linguist-generated
+projects/common/src/testMod/resources/data/cctest/structures/* linguist-generated
 
 * text=auto
 

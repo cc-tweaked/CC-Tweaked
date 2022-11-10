@@ -37,7 +37,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: CC-Tweaked
-        path: build/libs
+        path: projects/forge/build/libs
 
     - name: Upload coverage
       uses: codecov/codecov-action@v2

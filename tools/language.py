@@ -10,10 +10,11 @@ Note, this is not intended to be a fool-proof tool, rather a quick way to
 ensure language files are mostly correct.
 """
 
-import pathlib, sys, json
+import json
+import pathlib
 from collections import OrderedDict
 
-root = pathlib.Path("src/main/resources/assets/computercraft/lang")
+root = pathlib.Path("projects/common/src/main/resources/assets/computercraft/lang")
 
 with (root / "en_us.json").open(encoding="utf-8") as file:
     en_us = json.load(file, object_hook=OrderedDict)
