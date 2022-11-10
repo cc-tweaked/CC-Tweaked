@@ -155,6 +155,31 @@ abstract class CCTweakedExtension(
         if (isIdeSync) project.dependencies.add(sourceSet.apiConfigurationName, sourceSet.output)
     }
 
+    fun linters(@Suppress("UNUSED_PARAMETER") vararg unused: UseNamedArgs, minecraft: Boolean, loader: String?) {
+        val java = project.extensions.getByType(JavaPluginExtension::class.java)
+        val sourceSets = java.sourceSets
+
+        project.dependencies.run { add("errorprone", project(mapOf("path" to ":lints"))) }
+        sourceSets.all {
+            val name = name
+            project.tasks.named(compileJavaTaskName, JavaCompile::class.java) {
+                options.errorprone {
+                    // Only the main source set should run the side checker
+                    check("SideChecker", if (minecraft && name == "main") CheckSeverity.DEFAULT else CheckSeverity.OFF)
+
+                    // The MissingLoaderOverride check superseeds the MissingOverride one, so disable that.
+                    if (loader != null) {
+                        check("MissingOverride", CheckSeverity.OFF)
+                        option("ModLoader", loader)
+                    } else {
+                        check("LoaderOverride", CheckSeverity.OFF)
+                        check("MissingLoaderOverride", CheckSeverity.OFF)
+                    }
+                }
+            }
+        }
+    }
+
     fun jacoco(task: NamedDomainObjectProvider<JavaExec>) {
         val classDump = project.buildDir.resolve("jacocoClassDump/${task.name}")
         val reportTaskName = "jacoco${task.name.capitalized()}Report"

@@ -25,3 +25,7 @@ dependencies {
 }
 
 MinecraftConfigurations.setup(project)
+
+extensions.configure(CCTweakedExtension::class.java) {
+    linters(minecraft = true, loader = null)
+}

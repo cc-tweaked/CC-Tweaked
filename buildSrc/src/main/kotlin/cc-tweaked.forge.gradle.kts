@@ -24,6 +24,10 @@ minecraft {
 
 MinecraftConfigurations.setup(project)
 
+extensions.configure(CCTweakedExtension::class.java) {
+    linters(minecraft = true, loader = "forge")
+}
+
 dependencies {
     val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
     "minecraft"("net.minecraftforge:forge:$mcVersion-${libs.findVersion("forge").get()}")

@@ -1,0 +1,3 @@
+cc.tweaked.linter.LoaderOverride
+cc.tweaked.linter.MissingLoaderOverride
+cc.tweaked.linter.SideChecker

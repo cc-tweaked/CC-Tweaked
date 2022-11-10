@@ -138,8 +138,6 @@ configurations {
 dependencies {
     annotationProcessor("org.spongepowered:mixin:0.8.5-SQUID:processor")
 
-    errorprone(project(":lints"))
-
     compileOnly(libs.jetbrainsAnnotations)
     annotationProcessorEverywhere(libs.autoService)
 

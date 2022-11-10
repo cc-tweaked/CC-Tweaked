@@ -31,8 +31,6 @@ dependencies {
     testImplementation(project(":forge-stubs"))
     testRuntimeOnly(libs.bundles.testRuntime)
 
-    errorprone(project(":lints"))
-
     testModImplementation(testFixtures(project(":core")))
     testModImplementation(libs.bundles.kotlin)
 }

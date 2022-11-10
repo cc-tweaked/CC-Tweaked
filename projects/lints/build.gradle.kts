@@ -16,6 +16,12 @@ dependencies {
     implementation(libs.kotlin.stdlib)
     implementation(libs.errorProne.api)
     implementation(libs.nullAway)
+
+    testImplementation(libs.bundles.test)
+    testImplementation(libs.errorProne.testHelpers)
+    testImplementation(libs.forgeSpi)
+    testCompileOnly(project(":core-api"))
+    testRuntimeOnly(libs.bundles.testRuntime)
 }
 
 tasks.test {
