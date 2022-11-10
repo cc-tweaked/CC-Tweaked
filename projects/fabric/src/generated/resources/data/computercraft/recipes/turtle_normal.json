@@ -1,0 +1,11 @@
+{
+  "type": "computercraft:turtle",
+  "family": "NORMAL",
+  "key": {
+    "#": {"tag": "c:iron_ingots"},
+    "C": {"item": "computercraft:computer_normal"},
+    "I": {"tag": "c:wooden_chests"}
+  },
+  "pattern": ["###", "#C#", "#I#"],
+  "result": {"item": "computercraft:turtle_normal"}
+}

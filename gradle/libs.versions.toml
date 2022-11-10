@@ -2,11 +2,13 @@
 
 # Minecraft
 # MC version is specified in gradle.properties, as we need that in settings.gradle.
+fabric-api = "0.66.0+1.19.2"
+fabric-loader = "0.14.10"
 forge = "43.1.1"
 forgeSpi = "6.0.0"
+mixin = "0.8.5"
 parchment = "2022.10.16"
 parchmentMc = "1.19.2"
-mixin = "0.8.5"
 
 # Normal dependencies
 asm = "9.3"
@@ -32,6 +34,7 @@ oculus = "1.2.5"
 rei = "9.1.550"
 
 # Testing
+byteBuddy = "1.12.18"
 hamcrest = "2.2"
 jqwik = "1.7.0"
 junit = "5.9.1"
@@ -42,6 +45,7 @@ checkstyle = "10.3.4"
 curseForgeGradle = "1.0.11"
 errorProne-core = "2.14.0"
 errorProne-plugin = "2.0.2"
+fabric-loom = "1.0-SNAPSHOT"
 forgeGradle = "5.1.+"
 githubRelease = "2.2.12"
 ideaExt = "1.1.6"
@@ -50,6 +54,7 @@ librarian = "1.+"
 minotaur = "2.+"
 mixinGradle = "0.7.+"
 nullAway = "0.9.9"
+quiltflower = "1.7.3"
 shadow = "7.1.2"
 spotless = "6.8.0"
 taskTree = "2.1.0"
@@ -74,14 +79,21 @@ nightConfig-toml = { module = "com.electronwill.night-config:toml", version.ref 
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 # Minecraft mods
+fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
+fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
 forgeConfig = { module = "net.minecraftforge:forgeconfigapiport-fabric", version.ref = "forgeConfig" }
+iris = { module = "maven.modrinth:iris", version.ref = "iris" }
 jei-api = { module = "mezz.jei:jei-1.19.2-common-api", version.ref = "jei" }
 jei-fabric = { module = "mezz.jei:jei-1.19.2-fabric", version.ref = "jei" }
 jei-forge = { module = "mezz.jei:jei-1.19.2-forge", version.ref = "jei" }
 mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
 oculus = { module = "maven.modrinth:oculus", version.ref = "oculus" }
+rei-api = { module = "me.shedaniel:RoughlyEnoughItems-api", version.ref = "rei" }
+rei-builtin = { module = "me.shedaniel:RoughlyEnoughItems-default-plugin", version.ref = "rei" }
+rei-fabric = { module = "me.shedaniel:RoughlyEnoughItems-fabric", version.ref = "rei" }
 
 # Testing
+byteBuddyAgent = { module ="net.bytebuddy:byte-buddy-agent", version.ref = "byteBuddy" }
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
 jqwik-api = { module = "net.jqwik:jqwik-api", version.ref = "jqwik" }
 jqwik-engine = { module = "net.jqwik:jqwik-engine", version.ref = "jqwik" }
@@ -97,10 +109,12 @@ errorProne-api = { module = "com.google.errorprone:error_prone_check_api", versi
 errorProne-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorProne-core" }
 errorProne-plugin = { module = "net.ltgt.gradle:gradle-errorprone-plugin", version.ref = "errorProne-plugin" }
 errorProne-testHelpers = { module = "com.google.errorprone:error_prone_test_helpers", version.ref = "errorProne-core" }
+fabric-loom = { module = "net.fabricmc:fabric-loom", version.ref = "fabric-loom" }
 forgeGradle = { module = "net.minecraftforge.gradle:ForgeGradle", version.ref = "forgeGradle" }
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 librarian = { module = "org.parchmentmc:librarian", version.ref = "librarian" }
 nullAway = { module = "com.uber.nullaway:nullaway", version.ref = "nullAway" }
+quiltflower = { module = "io.github.juuxel:loom-quiltflower", version.ref = "quiltflower" }
 spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 vanillaGradle = { module = "org.spongepowered:vanillagradle", version.ref = "vanillaGradle" }
 
@@ -123,6 +137,9 @@ kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 externalMods-common = ["jei-api", "forgeConfig", "nightConfig-core", "nightConfig-toml"]
 externalMods-forge-compile = ["oculus", "jei-api"]
 externalMods-forge-runtime = ["jei-forge"]
+externalMods-fabric = ["fabric-loader", "fabric-api", "forgeConfig", "nightConfig-core", "nightConfig-toml"]
+externalMods-fabric-compile = ["iris", "jei-api", "rei-api", "rei-builtin"]
+externalMods-fabric-runtime = ["jei-fabric"]
 
 # Testing
 test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]

@@ -1,0 +1,7 @@
+{
+  "type": "computercraft:impostor_shaped",
+  "group": "computercraft:turtle_advanced",
+  "key": {"#": {"item": "minecraft:diamond_sword"}, "T": {"item": "computercraft:turtle_advanced"}},
+  "pattern": ["#T"],
+  "result": {"item": "computercraft:turtle_advanced", "nbt": "{RightUpgrade:\"minecraft:diamond_sword\"}"}
+}

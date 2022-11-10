@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {"#": {"item": "minecraft:stone"}, "D": {"tag": "c:dyes"}, "R": {"tag": "c:redstone_dusts"}},
+  "pattern": ["###", "#R#", "#D#"],
+  "result": {"item": "computercraft:printer"}
+}

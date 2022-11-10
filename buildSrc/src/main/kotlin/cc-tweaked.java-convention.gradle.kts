@@ -42,6 +42,7 @@ repositories {
             includeGroup("org.squiddev")
             includeGroup("cc.tweaked")
             // Things we mirror
+            includeGroup("dev.architectury")
             includeGroup("maven.modrinth")
             includeGroup("me.shedaniel")
             includeGroup("me.shedaniel.cloth")

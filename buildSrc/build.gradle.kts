@@ -34,6 +34,13 @@ repositories {
             includeGroup("org.spongepowered")
         }
     }
+
+    maven("https://maven.fabricmc.net/") {
+        name = "Fabric"
+        content {
+            includeGroup("net.fabricmc")
+        }
+    }
 }
 
 dependencies {
@@ -41,9 +48,11 @@ dependencies {
     implementation(libs.kotlin.plugin)
     implementation(libs.spotless)
 
-    implementation(libs.vanillaGradle)
+    implementation(libs.fabric.loom)
     implementation(libs.forgeGradle)
     implementation(libs.librarian)
+    implementation(libs.quiltflower)
+    implementation(libs.vanillaGradle)
 }
 
 gradlePlugin {

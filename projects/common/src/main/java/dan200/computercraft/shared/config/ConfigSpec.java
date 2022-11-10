@@ -18,6 +18,8 @@ import net.minecraftforge.fml.config.ModConfig;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.filter.MarkerFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +27,8 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public final class ConfigSpec {
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigSpec.class);
+
     private static final int MODEM_MAX_RANGE = 100000;
 
     private static final String TRANSLATION_PREFIX = "gui.computercraft.config.";
@@ -337,6 +341,8 @@ public final class ConfigSpec {
     }
 
     private static void syncServer() {
+        if (!serverSpec.isLoaded()) return;
+
         // General
         Config.computerSpaceLimit = computerSpaceLimit.get();
         Config.floppySpaceLimit = floppySpaceLimit.get();
@@ -399,6 +405,8 @@ public final class ConfigSpec {
     }
 
     private static void syncClient() {
+        if (!clientSpec.isLoaded()) return;
+
         Config.monitorRenderer = monitorRenderer.get();
         Config.monitorDistance = monitorDistance.get();
         Config.uploadNagDelay = uploadNagDelay.get();
@@ -406,7 +414,17 @@ public final class ConfigSpec {
 
     public static void sync(ModConfig config) {
         if (!config.getModId().equals(ComputerCraftAPI.MOD_ID)) return;
-        if (config.getType() == ModConfig.Type.SERVER) syncServer();
-        if (config.getType() == ModConfig.Type.CLIENT) syncClient();
+
+        try {
+            if (config.getType() == ModConfig.Type.SERVER) syncServer();
+            if (config.getType() == ModConfig.Type.CLIENT) syncClient();
+        } catch (IllegalStateException e) {
+            // TODO: Remove when https://github.com/Fuzss/forgeconfigapiport-fabric/issues/26 is fixed.
+            if (e.getMessage() != null && e.getMessage().startsWith("Cannot get config value before config is loaded.")) {
+                return;
+            }
+
+            throw e;
+        }
     }
 }

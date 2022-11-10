@@ -1,0 +1,7 @@
+{
+  "type": "computercraft:computer_upgrade",
+  "family": "ADVANCED",
+  "key": {"#": {"tag": "c:gold_ingots"}, "C": {"item": "computercraft:computer_advanced"}},
+  "pattern": ["###", "#C#", "# #"],
+  "result": {"item": "computercraft:computer_advanced"}
+}
