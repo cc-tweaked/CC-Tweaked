@@ -3,11 +3,6 @@ plugins {
     `kotlin-dsl`
 }
 
-repositories {
-    mavenCentral()
-    gradlePluginPortal()
-}
-
 // Duplicated in settings.gradle.kts
 repositories {
     mavenCentral()

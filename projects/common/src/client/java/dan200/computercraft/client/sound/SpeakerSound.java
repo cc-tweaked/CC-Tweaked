@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.client.sound;
 
+import dan200.computercraft.annotations.FabricOverride;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.client.resources.sounds.AbstractSoundInstance;
@@ -64,7 +65,12 @@ public class SpeakerSound extends AbstractSoundInstance implements TickableSound
 
     @ForgeOverride
     public CompletableFuture<AudioStream> getStream(SoundBufferLibrary soundBuffers, Sound sound, boolean looping) {
-        return stream != null ? CompletableFuture.completedFuture(stream) : soundBuffers.getStream(sound.getPath(), looping);
+        return getAudioStream(soundBuffers, sound.getPath(), looping);
+    }
+
+    @FabricOverride
+    public CompletableFuture<AudioStream> getAudioStream(SoundBufferLibrary soundBuffers, ResourceLocation sound, boolean looping) {
+        return stream != null ? CompletableFuture.completedFuture(stream) : soundBuffers.getStream(sound, looping);
     }
 
     public @Nullable AudioStream getStream() {

@@ -1,3 +1,4 @@
+import cc.tweaked.gradle.CCTweakedExtension
 import cc.tweaked.gradle.CCTweakedPlugin
 import cc.tweaked.gradle.LicenseHeader
 import com.diffplug.gradle.spotless.FormatExtension
@@ -21,10 +22,7 @@ val mcVersion: String by extra
 group = "cc.tweaked"
 version = modVersion
 
-base.archivesName.convention(
-    // TODO: Remove this (and the one below) once we've no longer got a root project!
-    if (project.path == rootProject.path) "cc-tweaked-$mcVersion" else "cc-tweaked-$mcVersion-${project.name}",
-)
+base.archivesName.convention("cc-tweaked-$mcVersion-${project.name}")
 
 java {
     toolchain {
@@ -104,6 +102,8 @@ tasks.withType(JavaCompile::class.java).configureEach {
 tasks.withType(AbstractArchiveTask::class.java).configureEach {
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true
+    dirMode = Integer.valueOf("755", 8)
+    fileMode = Integer.valueOf("664", 8)
 }
 
 tasks.jar {
@@ -112,7 +112,7 @@ tasks.jar {
             "Specification-Title" to "computercraft",
             "Specification-Vendor" to "SquidDev",
             "Specification-Version" to "1",
-            "Implementation-Title" to (if (project.path == rootProject.path) "cctweaked" else "cctweaked-${project.name}"),
+            "Implementation-Title" to "cctweaked-${project.name}",
             "Implementation-Version" to modVersion,
             "Implementation-Vendor" to "SquidDev",
         )
@@ -139,6 +139,14 @@ tasks.test {
 tasks.withType(JacocoReport::class.java).configureEach {
     reports.xml.required.set(true)
     reports.html.required.set(true)
+}
+
+project.plugins.withType(CCTweakedPlugin::class.java) {
+    // Set up jacoco to read from /all/ our source directories.
+    val cct = project.extensions.getByType<CCTweakedExtension>()
+    project.tasks.named("jacocoTestReport", JacocoReport::class.java) {
+        for (ref in cct.sourceSets.get()) sourceDirectories.from(ref.allSource.sourceDirectories)
+    }
 }
 
 spotless {

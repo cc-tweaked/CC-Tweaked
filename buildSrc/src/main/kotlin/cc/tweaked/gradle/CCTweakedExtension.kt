@@ -87,16 +87,17 @@ abstract class CCTweakedExtension(
 
     init {
         sourceDirectories.finalizeValueOnRead()
+        project.afterEvaluate { sourceDirectories.disallowChanges() }
     }
 
     /**
-     * Mark this project as consuming another project. Its [sourceDirectories] are added, ensuring tasks are set up
-     * correctly.
+     * Mark this project as consuming another project. Its [sourceDirectories] are added, allowing easier configuration
+     * of run configurations and other tasks which consume sources/classes.
      */
     fun externalSources(project: Project) {
         val otherCct = project.extensions.getByType(CCTweakedExtension::class.java)
-        for (sourceSet in otherCct.sourceSets.get()) {
-            sourceDirectories.add(SourceSetReference.external(sourceSet))
+        for (sourceSet in otherCct.sourceDirectories.get()) {
+            sourceDirectories.add(SourceSetReference(sourceSet.sourceSet, classes = sourceSet.classes, external = true))
         }
     }
 

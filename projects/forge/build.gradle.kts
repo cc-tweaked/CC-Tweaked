@@ -1,6 +1,4 @@
 import cc.tweaked.gradle.*
-import groovy.util.Node
-import groovy.util.NodeList
 import net.darkhax.curseforgegradle.TaskPublishCurseForge
 import net.minecraftforge.gradle.common.util.RunConfig
 
@@ -12,7 +10,6 @@ plugins {
     alias(libs.plugins.shadow)
     // Publishing
     alias(libs.plugins.curseForgeGradle)
-    alias(libs.plugins.githubRelease)
     alias(libs.plugins.minotaur)
 
     id("cc-tweaked.illuaminate")
@@ -20,7 +17,7 @@ plugins {
     id("cc-tweaked")
 }
 
-val isStable = true
+val isUnstable = project.properties["isUnstable"] == "true"
 val modVersion: String by extra
 val mcVersion: String by extra
 
@@ -41,10 +38,6 @@ minecraft {
         // configureEach would be better, but we need to eagerly configure configs or otherwise the run task doesn't
         // get set up properly.
         all {
-            lazyToken("minecraft_classpath") {
-                configurations["shade"].copyRecursive().resolve().joinToString(File.pathSeparator) { it.absolutePath }
-            }
-
             property("forge.logging.markers", "REGISTRIES")
             property("forge.logging.console.level", "debug")
 
@@ -78,7 +71,7 @@ minecraft {
         }
 
         fun RunConfig.configureForGameTest() {
-            val old = lazyTokens.get("minecraft_classpath")
+            val old = lazyTokens["minecraft_classpath"]
             lazyToken("minecraft_classpath") {
                 // We do some terrible hacks here to basically find all things not already on the runtime classpath
                 // and add them. /Except/ for our source sets, as those need to load inside the Minecraft classpath.
@@ -89,7 +82,9 @@ minecraft {
                     .filter { it.isFile && !it.name.endsWith("-test-fixtures.jar") }
                     .map { it.absolutePath }
                     .joinToString(File.pathSeparator)
-                if (old == null) new else old.get() + File.pathSeparator + new
+
+                val oldVal = old?.get()
+                if (oldVal.isNullOrEmpty()) new else oldVal + File.pathSeparator + new
             }
 
             property("cctest.sources", project(":common").file("src/testMod/resources/data/cctest").absolutePath)
@@ -131,8 +126,6 @@ reobf {
 }
 
 configurations {
-    val shade by registering { isTransitive = false }
-    implementation { extendsFrom(shade.get()) }
     register("cctJavadoc")
 }
 
@@ -145,11 +138,14 @@ dependencies {
     libs.bundles.externalMods.forge.compile.get().map { compileOnly(fg.deobf(it)) }
     libs.bundles.externalMods.forge.runtime.get().map { runtimeOnly(fg.deobf(it)) }
 
+    // Depend on our other projects. By using the api configuration, shadow jar will correctly
+    // preserve all files from forge-api/core-api.
+    api(commonClasses(project(":forge-api")))
+    api(clientClasses(project(":forge-api")))
     implementation(project(":core"))
-    implementation(commonClasses(project(":forge-api")))
-    implementation(clientClasses(project(":forge-api")))
-    "shade"(libs.cobalt)
-    "shade"(libs.netty.http)
+
+    minecraftLibrary(libs.cobalt)
+    minecraftLibrary(libs.netty.http) { isTransitive = false }
 
     testFixturesApi(libs.bundles.test)
     testFixturesApi(libs.bundles.kotlin)
@@ -206,19 +202,27 @@ tasks.jar {
     finalizedBy("reobfJar")
     archiveClassifier.set("slim")
 
-    from(allProjects.map { zipTree(it.tasks.jar.get().archiveFile) })
+    for (source in cct.sourceDirectories.get()) {
+        if (source.classes && source.external) from(source.sourceSet.output)
+    }
+}
+
+tasks.sourcesJar {
+    for (source in cct.sourceDirectories.get()) from(source.sourceSet.allSource)
 }
 
 tasks.shadowJar {
     finalizedBy("reobfShadowJar")
     archiveClassifier.set("")
 
-    from(allProjects.map { zipTree(it.tasks.jar.get().archiveFile) })
-
-    configurations = listOf(project.configurations["shade"])
+    dependencies {
+        include(dependency("cc.tweaked:"))
+        include(dependency(libs.cobalt.get()))
+        include(dependency(libs.netty.http.get()))
+    }
     relocate("org.squiddev.cobalt", "cc.tweaked.internal.cobalt")
     relocate("io.netty.handler", "cc.tweaked.internal.netty")
-    // TODO: minimize(): Would be good to support once our build scripts are stabilised.
+    minimize()
 }
 
 tasks.assemble { dependsOn("shadowJar") }
@@ -276,7 +280,7 @@ val publishCurseForge by tasks.registering(TaskPublishCurseForge::class) {
     mainFile.changelog =
         "Release notes can be found on the [GitHub repository](https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v$mcVersion-$modVersion)."
     mainFile.changelogType = "markdown"
-    mainFile.releaseType = if (isStable) "release" else "alpha"
+    mainFile.releaseType = if (isUnstable) "alpha" else "release"
     mainFile.gameVersions.add(mcVersion)
 }
 
@@ -287,7 +291,7 @@ modrinth {
     projectId.set("gu7yAYhd")
     versionNumber.set("$mcVersion-$modVersion")
     versionName.set(modVersion)
-    versionType.set(if (isStable) "release" else "alpha")
+    versionType.set(if (isUnstable) "alpha" else "release")
     uploadFile.set(tasks.shadowJar as Any)
     gameVersions.add(mcVersion)
     changelog.set("Release notes can be found on the [GitHub repository](https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v$mcVersion-$modVersion).")
@@ -296,27 +300,6 @@ modrinth {
 }
 
 tasks.publish { dependsOn(tasks.modrinth) }
-
-githubRelease {
-    token(findProperty("githubApiKey") as String? ?: "")
-    owner.set("cc-tweaked")
-    repo.set("CC-Tweaked")
-    targetCommitish.set(cct.gitBranch)
-
-    tagName.set("v$mcVersion-$modVersion")
-    releaseName.set("[$mcVersion] $modVersion")
-    body.set(
-        provider {
-            "## " + file("src/main/resources/data/computercraft/lua/rom/help/whatsnew.md")
-                .readLines()
-                .takeWhile { it != "Type \"help changelog\" to see the full version history." }
-                .joinToString("\n").trim()
-        },
-    )
-    prerelease.set(!isStable)
-}
-
-tasks.publish { dependsOn(tasks.githubRelease) }
 
 // Don't publish the slim jar
 for (cfg in listOf(configurations.apiElements, configurations.runtimeElements)) {
@@ -327,11 +310,9 @@ publishing {
     publications {
         named("maven", MavenPublication::class) {
             fg.component(this)
-            // Remove all dependencies: they're shaded anyway! This is very ugly, but not found a better way :(.
-            pom.withXml {
-                for (node in asNode().get("dependencies") as NodeList) {
-                    asNode().remove(node as Node)
-                }
+            mavenDependencies {
+                exclude(dependencies.create("cc.tweaked:"))
+                exclude(libs.jei.forge.get())
             }
         }
     }

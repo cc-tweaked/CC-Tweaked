@@ -1,11 +1,13 @@
 import cc.tweaked.gradle.annotationProcessorEverywhere
 import cc.tweaked.gradle.clientClasses
 import cc.tweaked.gradle.commonClasses
+import cc.tweaked.gradle.mavenDependencies
 import net.fabricmc.loom.configuration.ide.RunConfigSettings
 
 plugins {
     id("cc-tweaked.fabric")
     id("cc-tweaked.gametest")
+    id("cc-tweaked.publishing")
 }
 
 val modVersion: String by extra
@@ -35,10 +37,15 @@ dependencies {
     include(libs.nightConfig.toml)
 
     // Pull in our other projects. See comments in MinecraftConfigurations on this nastiness.
+    api(commonClasses(project(":fabric-api")))
+    clientApi(clientClasses(project(":fabric-api")))
     implementation(project(":core"))
+    // These are transitive deps of :core, so we don't need these deps. However, we want them to appear as runtime deps
+    // in our POM, and this is the easiest way.
+    runtimeOnly(libs.cobalt)
+    runtimeOnly(libs.netty.http)
+
     compileOnly(project(":forge-stubs"))
-    implementation(commonClasses(project(":fabric-api")))
-    clientImplementation(clientClasses(project(":fabric-api")))
 
     annotationProcessorEverywhere(libs.autoService)
 
@@ -137,7 +144,13 @@ tasks.processResources {
 }
 
 tasks.jar {
-    from(allProjects.map { zipTree(it.tasks.jar.get().archiveFile) })
+    for (source in cct.sourceDirectories.get()) {
+        if (source.classes && source.external) from(source.sourceSet.output)
+    }
+}
+
+tasks.sourcesJar {
+    for (source in cct.sourceDirectories.get()) from(source.sourceSet.allSource)
 }
 
 val validateMixinNames by tasks.registering(net.fabricmc.loom.task.ValidateMixinNameTask::class) {
@@ -153,3 +166,15 @@ val runGametest = tasks.named<JavaExec>("runGametest")
 cct.jacoco(runGametest)
 
 tasks.check { dependsOn(validateMixinNames, runGametest) }
+
+tasks.withType(GenerateModuleMetadata::class).configureEach { isEnabled = false }
+publishing {
+    publications {
+        named("maven", MavenPublication::class) {
+            mavenDependencies {
+                exclude(dependencies.create("cc.tweaked:"))
+                exclude(libs.jei.fabric.get())
+            }
+        }
+    }
+}

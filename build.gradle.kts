@@ -2,9 +2,37 @@ import org.jetbrains.gradle.ext.compiler
 import org.jetbrains.gradle.ext.settings
 
 plugins {
+    publishing
     alias(libs.plugins.taskTree)
+    alias(libs.plugins.githubRelease)
     id("org.jetbrains.gradle.plugin.idea-ext")
+    id("cc-tweaked")
 }
+
+val isUnstable = project.properties["isUnstable"] == "true"
+val modVersion: String by extra
+val mcVersion: String by extra
+
+githubRelease {
+    token(findProperty("githubApiKey") as String? ?: "")
+    owner.set("cc-tweaked")
+    repo.set("CC-Tweaked")
+    targetCommitish.set(cct.gitBranch)
+
+    tagName.set("v$mcVersion-$modVersion")
+    releaseName.set("[$mcVersion] $modVersion")
+    body.set(
+        provider {
+            "## " + project(":core").file("src/main/resources/data/computercraft/lua/rom/help/whatsnew.md")
+                .readLines()
+                .takeWhile { it != "Type \"help changelog\" to see the full version history." }
+                .joinToString("\n").trim()
+        },
+    )
+    prerelease.set(isUnstable)
+}
+
+tasks.publish { dependsOn(tasks.githubRelease) }
 
 idea.project.settings.compiler.javac {
     // We want ErrorProne to be present when compiling via IntelliJ, as it offers some helpful warnings

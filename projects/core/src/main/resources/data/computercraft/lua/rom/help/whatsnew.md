@@ -1,7 +1,5 @@
-New features in CC: Tweaked 1.101.1
+New features in CC: Tweaked 1.102.0-SNAPSHOT
 
-Several bug fixes:
-* Improve validation of rednet messages (Ale32bit)
-* Fix `turtle.refuel()` always failing.
+No user-facing changes.
 
 Type "help changelog" to see the full version history.
