@@ -420,7 +420,7 @@ class Turtle_Test {
             turtle.back().await().assertArrayEquals(true, message = "Moved turtle forward")
             TestHooks.LOG.info("[{}] Finished turtle at {}", testInfo, testInfo.`computercraft$getTick`())
         }
-        thenIdle(2) // Should happen immediately, but computers might be slow.
+        thenIdle(4) // Should happen immediately, but computers might be slow.
         thenExecute {
             assertEquals(
                 listOf(
