@@ -6,7 +6,6 @@ import org.w3c.dom.Attr
 import org.w3c.dom.Document
 import org.w3c.dom.Node
 import org.xml.sax.InputSource
-import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import javax.xml.parsers.DocumentBuilderFactory
@@ -36,7 +35,7 @@ internal class IdeaRunConfigurations(project: Project) {
         val ideaMisc = ideaDir.resolve("misc.xml")
 
         try {
-            val doc = Files.newBufferedReader(ideaMisc.toPath(), StandardCharsets.UTF_8).use {
+            val doc = Files.newBufferedReader(ideaMisc.toPath()).use {
                 documentBuilder.parse(InputSource(it))
             }
             val node =

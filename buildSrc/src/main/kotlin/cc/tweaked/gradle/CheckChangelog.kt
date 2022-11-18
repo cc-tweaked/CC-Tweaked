@@ -6,7 +6,6 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.language.base.plugins.LifecycleBasePlugin
-import java.nio.charset.StandardCharsets
 
 /**
  * Checks the `changelog.md` and `whatsnew.md` files are well-formed.

@@ -5,7 +5,6 @@ import com.diffplug.spotless.FormatterStep
 import com.diffplug.spotless.generic.LicenseHeaderStep
 import java.io.File
 import java.io.Serializable
-import java.nio.charset.StandardCharsets
 
 /**
  * Similar to [LicenseHeaderStep], but supports multiple licenses.

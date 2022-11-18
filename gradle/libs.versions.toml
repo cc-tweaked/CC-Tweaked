@@ -28,10 +28,12 @@ slf4j = "1.7.36"
 
 # Minecraft mods
 forgeConfig = "4.2.6"
-iris = "1.19.x-v1.2.6"
+iris = "1.19.x-v1.4.0"
 jei = "11.3.0.262"
 oculus = "1.2.5"
 rei = "9.1.550"
+rubidium = "0.6.1"
+sodium = "mc1.19.2-0.4.4"
 
 # Testing
 byteBuddy = "1.12.18"
@@ -91,6 +93,8 @@ oculus = { module = "maven.modrinth:oculus", version.ref = "oculus" }
 rei-api = { module = "me.shedaniel:RoughlyEnoughItems-api", version.ref = "rei" }
 rei-builtin = { module = "me.shedaniel:RoughlyEnoughItems-default-plugin", version.ref = "rei" }
 rei-fabric = { module = "me.shedaniel:RoughlyEnoughItems-fabric", version.ref = "rei" }
+rubidium = { module = "maven.modrinth:rubidium", version.ref = "rubidium" }
+sodium = { module = "maven.modrinth:sodium", version.ref = "sodium" }
 
 # Testing
 byteBuddyAgent = { module ="net.bytebuddy:byte-buddy-agent", version.ref = "byteBuddy" }

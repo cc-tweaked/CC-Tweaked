@@ -31,6 +31,8 @@ PROJECT_LOCATIONS = [
     "projects/core",
     "projects/common-api",
     "projects/common",
+    "projects/fabric-api",
+    "projects/fabric",
     "projects/forge-api",
     "projects/forge",
 ]
@@ -73,18 +75,16 @@ def find_location(message: str) -> Optional[Tuple[str, str]]:
 
 
 def _parse_junit_file(path: pathlib.Path):
-    for testcase in ET.parse(path).getroot():
-        if testcase.tag != "testcase":
-            continue
-
+    for testcase in ET.parse(path).findall(".//testcase"):
         for result in testcase:
-            if result.tag != "failure":
+            if result.tag == "skipped":
                 continue
 
             name = f'{testcase.attrib["classname"]}.{testcase.attrib["name"]}'
             message = result.attrib.get("message")
+            full_message = result.text or message
 
-            location = find_location(result.text)
+            location = find_location(full_message)
             error = ERROR_MESSAGE.match(message)
             if error:
                 error = error[1]
@@ -97,7 +97,7 @@ def _parse_junit_file(path: pathlib.Path):
                 print(f"::error::{name} failed")
 
             print("::group::Full error message")
-            print(result.text)
+            print(full_message)
             print("::endgroup")
 
 
@@ -110,6 +110,9 @@ def parse_junit() -> None:
 
     for project in PROJECT_LOCATIONS:
         for path in pathlib.Path(os.path.join(project, "build/test-results/test")).glob("TEST-*.xml"):
+            _parse_junit_file(path)
+
+        for path in pathlib.Path(os.path.join(project, "build/test-results")).glob("run*.xml"):
             _parse_junit_file(path)
 
     print("::remove-matcher owner=junit::")

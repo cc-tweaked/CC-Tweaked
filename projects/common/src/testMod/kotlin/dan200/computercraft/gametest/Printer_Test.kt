@@ -1,6 +1,9 @@
 package dan200.computercraft.gametest
 
-import dan200.computercraft.gametest.api.*
+import dan200.computercraft.gametest.api.assertBlockHas
+import dan200.computercraft.gametest.api.assertExactlyItems
+import dan200.computercraft.gametest.api.getBlockEntity
+import dan200.computercraft.gametest.api.sequence
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.peripheral.printer.PrinterBlock
 import net.minecraft.core.BlockPos
@@ -11,7 +14,6 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.RedStoneWireBlock
 
-@GameTestHolder
 class Printer_Test {
     /**
      * Check comparators can read the contents of the disk drive

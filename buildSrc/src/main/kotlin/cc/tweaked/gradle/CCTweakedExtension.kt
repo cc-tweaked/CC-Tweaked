@@ -4,22 +4,21 @@ import net.ltgt.gradle.errorprone.CheckSeverity
 import net.ltgt.gradle.errorprone.errorprone
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.attributes.TestSuiteType
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.reporting.ReportingExtension
-import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.SourceSet
-import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.configurationcache.extensions.capitalized
-import org.gradle.kotlin.dsl.get
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.gradle.language.jvm.tasks.ProcessResources
+import org.gradle.process.JavaForkOptions
 import org.gradle.testing.jacoco.plugins.JacocoCoverageReport
 import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
@@ -27,8 +26,11 @@ import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.BufferedWriter
+import java.io.File
 import java.io.IOException
 import java.io.OutputStreamWriter
+import java.net.URI
+import java.net.URL
 import java.util.regex.Pattern
 
 abstract class CCTweakedExtension(
@@ -79,8 +81,7 @@ abstract class CCTweakedExtension(
     /**
      * References to other sources
      */
-    val sourceDirectories: SetProperty<SourceSetReference> =
-        project.objects.setProperty(SourceSetReference::class.java)
+    val sourceDirectories: SetProperty<SourceSetReference> = project.objects.setProperty(SourceSetReference::class.java)
 
     /** All source sets referenced by this project. */
     val sourceSets = sourceDirectories.map { x -> x.map { it.sourceSet } }
@@ -181,7 +182,7 @@ abstract class CCTweakedExtension(
         }
     }
 
-    fun jacoco(task: NamedDomainObjectProvider<JavaExec>) {
+    fun <T> jacoco(task: NamedDomainObjectProvider<T>) where T : Task, T : JavaForkOptions {
         val classDump = project.buildDir.resolve("jacocoClassDump/${task.name}")
         val reportTaskName = "jacoco${task.name.capitalized()}Report"
 
@@ -210,8 +211,7 @@ abstract class CCTweakedExtension(
             classDirectories.from(classDump)
 
             // Don't want to use sourceSets(...) here as we have a custom class directory.
-            val sourceSets = project.extensions.getByType(SourceSetContainer::class.java)
-            sourceDirectories.from(sourceSets["main"].allSource.sourceDirectories)
+            for (ref in sourceSets.get()) sourceDirectories.from(ref.allSource.sourceDirectories)
         }
 
         project.extensions.configure(ReportingExtension::class.java) {
@@ -219,6 +219,41 @@ abstract class CCTweakedExtension(
                 testType.set(TestSuiteType.INTEGRATION_TEST)
             }
         }
+    }
+
+    /**
+     * Download a file by creating a dummy Ivy repository.
+     *
+     * This should only be used for one-off downloads. Using a more conventional Ivy or Maven repository is preferred
+     * where possible.
+     */
+    fun downloadFile(label: String, url: String): File {
+        val url = URL(url)
+        val path = File(url.path)
+
+        project.repositories.ivy {
+            name = label
+            setUrl(URI(url.protocol, url.userInfo, url.host, url.port, path.parent, null, null))
+            patternLayout {
+                artifact("[artifact].[ext]")
+            }
+            metadataSources {
+                artifact()
+            }
+            content {
+                includeModule("cc.tweaked.internal", path.nameWithoutExtension)
+            }
+        }
+
+        return project.configurations.detachedConfiguration(
+            project.dependencies.create(
+                mapOf(
+                    "group" to "cc.tweaked.internal",
+                    "name" to path.nameWithoutExtension,
+                    "ext" to path.extension,
+                ),
+            ),
+        ).resolve().single()
     }
 
     companion object {
@@ -238,7 +273,7 @@ abstract class CCTweakedExtension(
             }
         }
 
-        internal val isIdeSync: Boolean
+        private val isIdeSync: Boolean
             get() = java.lang.Boolean.parseBoolean(System.getProperty("idea.sync.active", "false"))
     }
 }

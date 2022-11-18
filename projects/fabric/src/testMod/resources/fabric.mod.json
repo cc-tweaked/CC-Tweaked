@@ -8,17 +8,6 @@
         ],
         "client": [
             "dan200.computercraft.gametest.core.TestMod"
-        ],
-        "fabric-gametest": [
-            "dan200.computercraft.gametest.Computer_Test",
-            "dan200.computercraft.gametest.CraftOs_Test",
-            "dan200.computercraft.gametest.Disk_Drive_Test",
-            "dan200.computercraft.gametest.Loot_Test",
-            "dan200.computercraft.gametest.Modem_Test",
-            "dan200.computercraft.gametest.Monitor_Test",
-            "dan200.computercraft.gametest.Printer_Test",
-            "dan200.computercraft.gametest.Recipe_Test",
-            "dan200.computercraft.gametest.Turtle_Test"
         ]
     },
     "mixins": [

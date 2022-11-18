@@ -1,7 +1,9 @@
 package cc.tweaked.gradle
 
 import org.codehaus.groovy.runtime.ProcessGroovyMethods
+import org.gradle.api.GradleException
 import java.io.BufferedReader
+import java.io.File
 import java.io.IOException
 import java.io.InputStreamReader
 
@@ -31,4 +33,14 @@ internal object ProcessHelpers {
         if (process.waitFor() != 0) throw IOException("Command exited with a non-0 status")
         return out
     }
+
+    fun onPath(name: String): Boolean {
+        val path = System.getenv("PATH") ?: return false
+        return path.splitToSequence(File.pathSeparator).any { File(it, name).exists() }
+    }
+}
+
+internal fun Process.waitForOrThrow(message: String) {
+    val ret = waitFor()
+    if (ret != 0) throw GradleException("$message (exited with $ret)")
 }

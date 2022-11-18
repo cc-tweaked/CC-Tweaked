@@ -1,8 +1,6 @@
-import cc.tweaked.gradle.annotationProcessorEverywhere
-import cc.tweaked.gradle.clientClasses
-import cc.tweaked.gradle.commonClasses
-import cc.tweaked.gradle.mavenDependencies
+import cc.tweaked.gradle.*
 import net.fabricmc.loom.configuration.ide.RunConfigSettings
+import java.util.*
 
 plugins {
     id("cc-tweaked.fabric")
@@ -19,6 +17,23 @@ cct {
     allProjects.forEach { externalSources(it) }
 }
 
+fun addRemappedConfiguration(name: String) {
+    val original = configurations.create(name) {
+        isCanBeConsumed = false
+        isCanBeResolved = true
+    }
+    val capitalName = name.capitalize(Locale.ROOT)
+    loom.addRemapConfiguration("mod$capitalName") {
+        onCompileClasspath.set(false)
+        onRuntimeClasspath.set(false)
+        targetConfigurationName.set(name)
+    }
+    original.extendsFrom(configurations["mod${capitalName}Mapped"])
+}
+
+addRemappedConfiguration("testWithSodium")
+addRemappedConfiguration("testWithIris")
+
 dependencies {
     modImplementation(libs.bundles.externalMods.fabric)
     modCompileOnly(libs.bundles.externalMods.fabric.compile) {
@@ -29,6 +44,10 @@ dependencies {
         exclude("net.fabricmc", "fabric-loader")
         exclude("net.fabricmc.fabric-api")
     }
+
+    "modTestWithSodium"(libs.sodium)
+    "modTestWithIris"(libs.iris)
+    "modTestWithIris"(libs.sodium)
 
     include(libs.cobalt)
     include(libs.netty.http) // It might be better to shadowJar this, as we don't use half of it.
@@ -120,6 +139,7 @@ loom {
             configureForGameTest(this)
 
             runDir("run/testClient")
+            property("cctest.tags", "client,common")
         }
 
         register("gametest") {
@@ -128,7 +148,7 @@ loom {
             configureForGameTest(this)
 
             property("fabric-api.gametest")
-            property("fabric-api.gametest.report-file", project.buildDir.resolve("test-results/gametest/gametest.xml").absolutePath)
+            property("fabric-api.gametest.report-file", project.buildDir.resolve("test-results/runGametest.xml").absolutePath)
             runDir("run/gametest")
         }
     }
@@ -158,14 +178,57 @@ val validateMixinNames by tasks.registering(net.fabricmc.loom.task.ValidateMixin
     source(sourceSets.client.get().output)
     source(sourceSets.testMod.get().output)
 }
+tasks.check { dependsOn(validateMixinNames) }
 
 tasks.test { dependsOn(tasks.generateDLIConfig) }
 
-val runGametest = tasks.named<JavaExec>("runGametest")
-
+val runGametest = tasks.named<JavaExec>("runGametest") {
+    usesService(MinecraftRunnerService.get(gradle))
+}
 cct.jacoco(runGametest)
+tasks.check { dependsOn(runGametest) }
 
-tasks.check { dependsOn(validateMixinNames, runGametest) }
+val runGametestClient by tasks.registering(ClientJavaExec::class) {
+    description = "Runs client-side gametests with no mods"
+    copyFrom("runTestClient")
+
+    tags("client")
+}
+cct.jacoco(runGametestClient)
+
+val runGametestClientWithSodium by tasks.registering(ClientJavaExec::class) {
+    description = "Runs client-side gametests with Sodium"
+    copyFrom("runTestClient")
+
+    tags("sodium")
+    classpath += configurations["testWithSodium"]
+}
+cct.jacoco(runGametestClientWithSodium)
+
+val runGametestClientWithIris by tasks.registering(ClientJavaExec::class) {
+    description = "Runs client-side gametests with Iris"
+    copyFrom("runTestClient")
+
+    tags("iris")
+    classpath += configurations["testWithIris"]
+
+    withFileFrom(workingDir.resolve("shaderpacks/ComplementaryShaders_v4.6.zip")) {
+        cct.downloadFile("Complementary Shaders", "https://edge.forgecdn.net/files/3951/170/ComplementaryShaders_v4.6.zip")
+    }
+    withFileContents(workingDir.resolve("config/iris.properties")) {
+        """
+        enableShaders=true
+        shaderPack=ComplementaryShaders_v4.6.zip
+        """.trimIndent()
+    }
+}
+cct.jacoco(runGametestClientWithIris)
+
+tasks.register("checkClient") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Runs all client-only checks."
+    dependsOn(runGametestClient, runGametestClientWithSodium, runGametestClientWithIris)
+}
 
 tasks.withType(GenerateModuleMetadata::class).configureEach { isEnabled = false }
 publishing {

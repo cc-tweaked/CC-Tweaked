@@ -5,14 +5,12 @@
  */
 package dan200.computercraft.gametest
 
-import dan200.computercraft.gametest.api.GameTestHolder
 import dan200.computercraft.gametest.api.Timeouts
 import dan200.computercraft.gametest.api.sequence
 import dan200.computercraft.gametest.api.thenComputerOk
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 
-@GameTestHolder
 class CraftOs_Test {
     /**
      * Sends a rednet message to another a computer and back again.

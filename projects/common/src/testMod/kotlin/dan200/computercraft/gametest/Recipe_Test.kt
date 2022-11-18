@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.gametest
 
-import dan200.computercraft.gametest.api.GameTestHolder
 import dan200.computercraft.gametest.api.Structures
 import dan200.computercraft.gametest.api.sequence
 import dan200.computercraft.shared.ModRegistry
@@ -24,7 +23,6 @@ import net.minecraft.world.item.crafting.RecipeType
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.*
 
-@GameTestHolder
 class Recipe_Test {
     /**
      * Test that crafting results contain NBT data.

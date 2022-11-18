@@ -20,7 +20,6 @@ import net.minecraft.gametest.framework.GameTestHelper
 import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.time.Duration.Companion.milliseconds
 
-@GameTestHolder
 class Modem_Test {
     @GameTest
     fun Have_peripherals(helper: GameTestHelper) = helper.sequence {
