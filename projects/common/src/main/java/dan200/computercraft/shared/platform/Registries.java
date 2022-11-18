@@ -10,6 +10,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -31,6 +32,7 @@ public final class Registries {
     public static final RegistryWrapper<ArgumentTypeInfo<?, ?>> COMMAND_ARGUMENT_TYPES = PlatformHelper.get().wrap(Registry.COMMAND_ARGUMENT_TYPE_REGISTRY);
     public static final RegistryWrapper<SoundEvent> SOUND_EVENTS = PlatformHelper.get().wrap(Registry.SOUND_EVENT_REGISTRY);
     public static final RegistryWrapper<RecipeSerializer<?>> RECIPE_SERIALIZERS = PlatformHelper.get().wrap(Registry.RECIPE_SERIALIZER_REGISTRY);
+    public static final RegistryWrapper<MenuType<?>> MENU = PlatformHelper.get().wrap(Registry.MENU_REGISTRY);
 
     public interface RegistryWrapper<T> extends Iterable<T> {
         int getId(T object);

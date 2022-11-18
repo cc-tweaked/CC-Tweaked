@@ -12,6 +12,8 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.gametest.api.ComputerState;
 import dan200.computercraft.gametest.api.TestExtensionsKt;
 import net.minecraft.gametest.framework.GameTestSequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -24,6 +26,8 @@ import java.util.Optional;
  * @see TestExtensionsKt#thenComputerOk(GameTestSequence, String, String)   To check tests on the computer have passed.
  */
 public class TestAPI extends ComputerState implements ILuaAPI {
+    private static final Logger LOG = LoggerFactory.getLogger(TestAPI.class);
+
     private final IComputerSystem system;
     private @Nullable String label;
 
@@ -36,10 +40,10 @@ public class TestAPI extends ComputerState implements ILuaAPI {
         if (label == null) label = system.getLabel();
         if (label == null) {
             label = "#" + system.getID();
-            TestHooks.LOG.warn("Computer {} has no label", label);
+            LOG.warn("Computer {} has no label", label);
         }
 
-        TestHooks.LOG.info("Computer '{}' has turned on.", label);
+        LOG.info("Computer '{}' has turned on.", label);
         markers.clear();
         error = null;
         lookup.put(label, this);
@@ -47,7 +51,7 @@ public class TestAPI extends ComputerState implements ILuaAPI {
 
     @Override
     public void shutdown() {
-        TestHooks.LOG.info("Computer '{}' has shut down.", label);
+        LOG.info("Computer '{}' has shut down.", label);
         if (lookup.get(label) == this) lookup.remove(label);
     }
 
@@ -58,7 +62,7 @@ public class TestAPI extends ComputerState implements ILuaAPI {
 
     @LuaFunction
     public final void fail(String message) throws LuaException {
-        TestHooks.LOG.error("Computer '{}' failed with {}", label, message);
+        LOG.error("Computer '{}' failed with {}", label, message);
         if (markers.contains(ComputerState.DONE)) throw new LuaException("Cannot call fail/ok multiple times.");
         markers.add(ComputerState.DONE);
         error = message;
@@ -77,6 +81,6 @@ public class TestAPI extends ComputerState implements ILuaAPI {
 
     @LuaFunction
     public final void log(String message) {
-        TestHooks.LOG.info("[Computer '{}'] {}", label, message);
+        LOG.info("[Computer '{}'] {}", label, message);
     }
 }

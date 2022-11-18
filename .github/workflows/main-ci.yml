@@ -33,6 +33,9 @@ jobs:
         ./gradlew downloadAssets || ./gradlew downloadAssets
         ./gradlew build
 
+    - name: Run client tests
+      run: ./gradlew runGametestClient # Not checkClient, as no point running rendering tests.
+
     - name: Upload Jar
       uses: actions/upload-artifact@v2
       with:

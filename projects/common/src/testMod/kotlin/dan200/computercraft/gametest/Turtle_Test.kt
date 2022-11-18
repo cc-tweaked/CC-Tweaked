@@ -38,7 +38,6 @@ import org.junit.jupiter.api.Assertions.assertNotEquals
 import java.util.*
 import kotlin.time.Duration.Companion.milliseconds
 
-@GameTestHolder
 class Turtle_Test {
     @GameTest
     fun Unequip_refreshes_peripheral(helper: GameTestHelper) = helper.sequence {

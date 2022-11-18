@@ -101,6 +101,8 @@ minecraft {
             workingDirectory(file("run/testClient"))
             parent(client.get())
             configureForGameTest()
+
+            property("cctest.tags", "client,common")
         }
 
         val gameTestServer by registering {
@@ -260,11 +262,24 @@ val runGametest by tasks.registering(JavaExec::class) {
     val exec = tasks.getByName<JavaExec>("runGameTestServer")
     dependsOn(exec.dependsOn)
     exec.copyToFull(this)
+
+    systemProperty("cctest.gametest-report", project.buildDir.resolve("test-results/$name/$name.xml").absolutePath)
 }
-
 cct.jacoco(runGametest)
-
 tasks.check { dependsOn(runGametest) }
+
+val runGametestClient by tasks.registering(ClientJavaExec::class) {
+    description = "Runs client-side gametests with no mods"
+    copyFrom("runTestClient")
+    tags("client")
+}
+cct.jacoco(runGametestClient)
+
+tasks.register("checkClient") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Runs all client-only checks."
+    dependsOn(runGametestClient)
+}
 
 // Upload tasks
 

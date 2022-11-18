@@ -105,7 +105,7 @@ class CCTestCommand {
     }
 
     private static Path getSourceComputerPath() {
-        return TestHooks.sourceDir.resolve("computer");
+        return TestHooks.getSourceDir().resolve("computer");
     }
 
     private static int error(CommandSourceStack source, String message) {

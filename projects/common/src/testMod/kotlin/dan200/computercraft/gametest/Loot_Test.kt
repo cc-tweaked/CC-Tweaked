@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.gametest
 
-import dan200.computercraft.gametest.api.GameTestHolder
 import dan200.computercraft.gametest.api.Structures
 import dan200.computercraft.gametest.api.sequence
 import dan200.computercraft.shared.ModRegistry
@@ -16,7 +15,6 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.entity.ChestBlockEntity
 import net.minecraft.world.level.storage.loot.BuiltInLootTables
 
-@GameTestHolder
 class Loot_Test {
     /**
      * Test that the loot tables will spawn in treasure disks.

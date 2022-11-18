@@ -21,7 +21,6 @@ import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.RedStoneWireBlock
 import org.junit.jupiter.api.Assertions.assertEquals
 
-@GameTestHolder
 class Disk_Drive_Test {
     /**
      * Ensure audio disks exist and we can play them.
