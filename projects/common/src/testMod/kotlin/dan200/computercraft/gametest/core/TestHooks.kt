@@ -101,6 +101,13 @@ object TestHooks {
         }
     }
 
+    private val isCi = System.getenv("CI") != null
+
+    /**
+     * Adjust the timeout of a test. This makes it 1.5 times longer when run under CI.
+     */
+    private fun adjustTimeout(timeout: Int): Int = if (isCi) (timeout + (timeout shr 1)) else timeout
+
     private fun registerTest(testClass: Class<*>, method: Method, fallbackRegister: Consumer<Method>) {
         val className = testClass.simpleName.lowercase()
         val testName = className + "." + method.name.lowercase()
@@ -111,7 +118,9 @@ object TestHooks {
             GameTestRegistry.getAllTestFunctions().add(
                 TestFunction(
                     testInfo.batch, testName, testInfo.template.ifEmpty { testName },
-                    StructureUtils.getRotationForRotationSteps(testInfo.rotationSteps), testInfo.timeoutTicks, testInfo.setupTicks,
+                    StructureUtils.getRotationForRotationSteps(testInfo.rotationSteps),
+                    adjustTimeout(testInfo.timeoutTicks),
+                    testInfo.setupTicks,
                     testInfo.required, testInfo.requiredSuccesses, testInfo.attempts,
                 ) { value -> safeInvoke(method, value) },
             )
@@ -127,7 +136,7 @@ object TestHooks {
                     testName,
                     testName,
                     testInfo.template.ifEmpty { testName },
-                    testInfo.timeoutTicks,
+                    adjustTimeout(testInfo.timeoutTicks),
                     0,
                     true,
                 ) { value -> safeInvoke(method, value) },
