@@ -12,8 +12,10 @@ import org.spongepowered.asm.mixin.Overwrite;
 @Mixin(SharedConstants.class)
 class SharedConstantsMixin {
     /**
+     * Disable DFU initialisation.
+     *
      * @author SquidDev
-     * @reason Disable DFU initialisation. This doesn't have any impact on gameplay, and slightly speeds up tests.
+     * @reason This doesn't have any impact on gameplay, and slightly speeds up tests.
      */
     @Overwrite
     public static void enableDataFixerOptimizations() {

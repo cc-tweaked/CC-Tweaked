@@ -26,16 +26,15 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         var phase = new ResourceLocation(ComputerCraftAPI.MOD_ID, "test_mod");
         ServerLifecycleEvents.SERVER_STARTED.addPhaseOrdering(Event.DEFAULT_PHASE, phase);
         ServerLifecycleEvents.SERVER_STARTED.register(phase, TestHooks::onServerStarted);
-        ServerTickEvents.START_SERVER_TICK.register(ClientTestHooks::onServerTick);
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> CCTestCommand.register(dispatcher));
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> Exporter.register(dispatcher));
-        ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> ClientTestHooks.onOpenScreen(screen));
 
         TestHooks.loadTests(GameTestRegistry::register);
     }
 
     @Override
     public void onInitializeClient() {
+        ServerTickEvents.START_SERVER_TICK.register(ClientTestHooks::onServerTick);
+        ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> ClientTestHooks.onOpenScreen(screen));
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> Exporter.register(dispatcher));
     }
 }
