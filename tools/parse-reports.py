@@ -80,11 +80,12 @@ def _parse_junit_file(path: pathlib.Path):
         if testcase.tag != "testcase":
             continue
 
+        print("- " + str(testcase.attrib["name"]))
         for result in testcase:
             if result.tag == "skipped":
                 continue
 
-            print(result)
+            print("* " + str(result))
 
             name = f'{testcase.attrib["classname"]}.{testcase.attrib["name"]}'
             message = result.attrib.get("message")
