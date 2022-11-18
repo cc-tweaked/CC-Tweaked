@@ -256,6 +256,7 @@ val runGametest by tasks.registering(JavaExec::class) {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Runs tests on a temporary Minecraft instance."
     dependsOn("cleanRunGametest")
+    usesService(MinecraftRunnerService.get(gradle))
 
     // Copy from runGameTestServer. We do it in this slightly odd way as runGameTestServer
     // isn't created until the task is configured (which is no good for us).

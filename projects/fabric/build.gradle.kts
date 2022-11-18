@@ -182,7 +182,9 @@ tasks.check { dependsOn(validateMixinNames) }
 
 tasks.test { dependsOn(tasks.generateDLIConfig) }
 
-val runGametest = tasks.named<JavaExec>("runGametest")
+val runGametest = tasks.named<JavaExec>("runGametest") {
+    usesService(MinecraftRunnerService.get(gradle))
+}
 cct.jacoco(runGametest)
 tasks.check { dependsOn(runGametest) }
 

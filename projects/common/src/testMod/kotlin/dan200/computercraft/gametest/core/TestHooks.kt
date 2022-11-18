@@ -104,9 +104,10 @@ object TestHooks {
     private val isCi = System.getenv("CI") != null
 
     /**
-     * Adjust the timeout of a test. This makes it 1.5 times longer when run under CI.
+     * Adjust the timeout of a test. This makes it 1.5 times longer when run under CI, as CI servers are less powerful
+     * than our own.
      */
-    private fun adjustTimeout(timeout: Int): Int = if (isCi) (timeout + (timeout shr 1)) else timeout
+    private fun adjustTimeout(timeout: Int): Int = if (isCi) timeout + (timeout / 2) else timeout
 
     private fun registerTest(testClass: Class<*>, method: Method, fallbackRegister: Consumer<Method>) {
         val className = testClass.simpleName.lowercase()

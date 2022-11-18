@@ -17,11 +17,11 @@ import javax.inject.Inject
 import kotlin.random.Random
 
 /**
- * A [JavaExec] task for client-tests. This sets some common setup, and uses [ClientRunnerService] to ensure only one
+ * A [JavaExec] task for client-tests. This sets some common setup, and uses [MinecraftRunnerService] to ensure only one
  * test runs at once.
  */
 abstract class ClientJavaExec : JavaExec() {
-    private val clientRunner: Provider<ClientRunnerService> = ClientRunnerService.get(project.gradle)
+    private val clientRunner: Provider<MinecraftRunnerService> = MinecraftRunnerService.get(project.gradle)
 
     init {
         group = LifecycleBasePlugin.VERIFICATION_GROUP
@@ -105,7 +105,7 @@ abstract class ClientJavaExec : JavaExec() {
         fsOperations.delete { delete(workingDir.resolve("screenshots")) }
 
         if (useFramebuffer) {
-            clientRunner.get().wrapCommand(this) { super.exec() }
+            clientRunner.get().wrapClient(this) { super.exec() }
         } else {
             super.exec()
         }
@@ -120,12 +120,18 @@ abstract class ClientJavaExec : JavaExec() {
     protected abstract val fsOperations: FileSystemOperations
 }
 
-abstract class ClientRunnerService : BuildService<BuildServiceParameters.None> {
+/**
+ * A service for [JavaExec] tasks which start Minecraft.
+ *
+ * Tasks may run `usesService(MinecraftRunnerService.get(gradle))` to ensure that only one Minecraft-related task runs
+ * at once.
+ */
+abstract class MinecraftRunnerService : BuildService<BuildServiceParameters.None> {
     private val hasXvfb = lazy {
         System.getProperty("os.name", "").equals("linux", ignoreCase = true) && ProcessHelpers.onPath("xvfb-run")
     }
 
-    fun wrapCommand(exec: JavaExec, run: () -> Unit) = when {
+    internal fun wrapClient(exec: JavaExec, run: () -> Unit) = when {
         hasXvfb.value -> runXvfb(exec, run)
         else -> run()
     }
@@ -188,8 +194,8 @@ abstract class ClientRunnerService : BuildService<BuildServiceParameters.None> {
     protected abstract val fsOperations: FileSystemOperations
 
     companion object {
-        fun get(gradle: Gradle): Provider<ClientRunnerService> =
-            gradle.sharedServices.registerIfAbsent("cc.tweaked.gradle.ClientJavaExec", ClientRunnerService::class.java) {
+        fun get(gradle: Gradle): Provider<MinecraftRunnerService> =
+            gradle.sharedServices.registerIfAbsent("cc.tweaked.gradle.ClientJavaExec", MinecraftRunnerService::class.java) {
                 maxParallelUsages.set(1)
             }
     }
