@@ -7,6 +7,7 @@ package dan200.computercraft.gametest.api
 
 import dan200.computercraft.gametest.core.ManagedComputers
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
+import dan200.computercraft.mixin.gametest.GameTestInfoAccessor
 import dan200.computercraft.mixin.gametest.GameTestSequenceAccessor
 import dan200.computercraft.shared.platform.PlatformHelper
 import dan200.computercraft.shared.platform.Registries
@@ -94,11 +95,18 @@ fun GameTestSequence.thenStartComputer(name: String? = null, action: suspend Lua
  * Run a task on a computer and wait for it to finish.
  */
 fun GameTestSequence.thenOnComputer(name: String? = null, action: suspend LuaTaskContext.() -> Unit): GameTestSequence {
-    val test = (this as GameTestSequenceAccessor).parent
+    val self = (this as GameTestSequenceAccessor)
+    val test = self.parent
+
     val label = test.testName + (if (name == null) "" else ".$name")
     var monitor: ManagedComputers.Monitor? = null
     thenExecuteFailFast { monitor = ManagedComputers.enqueue(test, label, action) }
-    thenWaitUntil { if (!monitor!!.isFinished) throw GameTestAssertException("Computer '$label' has not finished yet.") }
+    thenWaitUntil {
+        if (!monitor!!.isFinished) {
+            val runningFor = (test as GameTestInfoAccessor).`computercraft$getTick`() - self.lastTick
+            throw GameTestAssertException("Computer '$label' has not finished yet (running for $runningFor ticks).")
+        }
+    }
     thenExecuteFailFast { monitor!!.check() }
     return this
 }

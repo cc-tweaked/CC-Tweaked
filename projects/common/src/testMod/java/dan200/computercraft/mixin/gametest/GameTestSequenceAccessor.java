@@ -14,4 +14,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface GameTestSequenceAccessor {
     @Accessor
     GameTestInfo getParent();
+
+    @Accessor
+    long getLastTick();
 }
