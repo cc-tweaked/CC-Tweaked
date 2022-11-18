@@ -20,12 +20,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * Attempt to guess whether all chunks have been rendered.
  */
-fun Minecraft.isRenderingStable(): Boolean = level != null && try {
-    // Sodium patches this method so there's no trivial way to check this won't throw.
+fun Minecraft.isRenderingStable(): Boolean = level != null && player != null &&
+    levelRenderer.isChunkCompiled(player!!.blockPosition()) && levelRenderer.countRenderedChunks() > 10 &&
     levelRenderer.hasRenderedAllChunks()
-} catch (ignored: RuntimeException) {
-    false
-}
 
 /**
  * Run a task on the client.
