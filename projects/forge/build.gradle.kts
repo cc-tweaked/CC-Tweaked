@@ -263,7 +263,7 @@ val runGametest by tasks.registering(JavaExec::class) {
     dependsOn(exec.dependsOn)
     exec.copyToFull(this)
 
-    systemProperty("cctest.gametest-report", project.buildDir.resolve("test-results/$name/$name.xml").absolutePath)
+    systemProperty("cctest.gametest-report", project.buildDir.resolve("test-results/$name.xml").absolutePath)
 }
 cct.jacoco(runGametest)
 tasks.check { dependsOn(runGametest) }

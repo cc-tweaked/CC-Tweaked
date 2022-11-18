@@ -31,6 +31,8 @@ PROJECT_LOCATIONS = [
     "projects/core",
     "projects/common-api",
     "projects/common",
+    "projects/fabric-api",
+    "projects/fabric",
     "projects/forge-api",
     "projects/forge",
 ]
@@ -110,6 +112,9 @@ def parse_junit() -> None:
 
     for project in PROJECT_LOCATIONS:
         for path in pathlib.Path(os.path.join(project, "build/test-results/test")).glob("TEST-*.xml"):
+            _parse_junit_file(path)
+
+        for path in pathlib.Path(os.path.join(project, "build/test-results")).glob("run*.xml"):
             _parse_junit_file(path)
 
     print("::remove-matcher owner=junit::")
