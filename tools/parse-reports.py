@@ -75,9 +75,7 @@ def find_location(message: str) -> Optional[Tuple[str, str]]:
 
 
 def _parse_junit_file(path: pathlib.Path):
-    print(f"Found tests in {path}")
     for testcase in ET.parse(path).findall("//testcase"):
-        print("- " + str(testcase.attrib["name"]))
         for result in testcase:
             if result.tag == "skipped":
                 continue
