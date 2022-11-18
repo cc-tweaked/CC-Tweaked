@@ -75,15 +75,16 @@ def find_location(message: str) -> Optional[Tuple[str, str]]:
 
 
 def _parse_junit_file(path: pathlib.Path):
-    for testcase in ET.parse(path).findall("//testcase"):
+    for testcase in ET.parse(path).findall(".//testcase"):
         for result in testcase:
             if result.tag == "skipped":
                 continue
 
             name = f'{testcase.attrib["classname"]}.{testcase.attrib["name"]}'
             message = result.attrib.get("message")
+            full_message = result.text or message
 
-            location = find_location(result.text)
+            location = find_location(full_message)
             error = ERROR_MESSAGE.match(message)
             if error:
                 error = error[1]
@@ -96,7 +97,7 @@ def _parse_junit_file(path: pathlib.Path):
                 print(f"::error::{name} failed")
 
             print("::group::Full error message")
-            print(result.text)
+            print(full_message)
             print("::endgroup")
 
 
