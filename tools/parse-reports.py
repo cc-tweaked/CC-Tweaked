@@ -85,8 +85,6 @@ def _parse_junit_file(path: pathlib.Path):
             if result.tag == "skipped":
                 continue
 
-            print("* " + str(result))
-
             name = f'{testcase.attrib["classname"]}.{testcase.attrib["name"]}'
             message = result.attrib.get("message")
 
@@ -119,6 +117,8 @@ def parse_junit() -> None:
             _parse_junit_file(path)
 
         for path in pathlib.Path(os.path.join(project, "build/test-results")).glob("run*.xml"):
+            with open(path, "r") as h:
+                print(f">> {path} <<\n{h.read()}")
             _parse_junit_file(path)
 
     print("::remove-matcher owner=junit::")
