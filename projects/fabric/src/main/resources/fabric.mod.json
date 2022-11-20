@@ -5,7 +5,7 @@
     "version": "${version}",
     "description": "CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles and more to Minecraft.",
     "license": "ComputerCraft Public License (https://raw.githubusercontent.com/dan200/ComputerCraft/master/LICENSE)",
-    "icon": "assets/computercraft/pack.png",
+    "icon": "pack.png",
     "contact": {
         "homepage": "https://tweaked.cc/",
         "issues": "https://github.com/cc-tweaked/cc-tweaked/issues"
