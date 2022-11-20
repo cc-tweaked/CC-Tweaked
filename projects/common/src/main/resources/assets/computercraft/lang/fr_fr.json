@@ -28,7 +28,7 @@
     "commands.computercraft.dump.action": "Voir plus d'informations à propos de cet ordinateur",
     "commands.computercraft.dump.desc": "Affiche les statuts de tous les ordinateurs, ou des information spécifiques sur un ordinateur. Vous pouvez spécifier l'identifiant d'instance (ex. 123), l'identifiant d'ordinateur (ex. #123) ou son nom (ex. \"@Mon Ordinateur\").",
     "commands.computercraft.dump.open_path": "Voir les fichiers de cet ordinateur",
-    "commands.computercraft.dump.synopsis": "Affiche le statut des ordinateurs.",
+    "commands.computercraft.dump.synopsis": "Affiche le l'état des ordinateurs.",
     "commands.computercraft.generic.additional_rows": "%d lignes supplémentaires…",
     "commands.computercraft.generic.exception": "Exception non gérée (%s)",
     "commands.computercraft.generic.no": "N",

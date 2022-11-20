@@ -114,5 +114,6 @@
     "upgrade.minecraft.diamond_hoe.adjective": "Возделывающая",
     "upgrade.minecraft.diamond_pickaxe.adjective": "Добывающая",
     "upgrade.minecraft.diamond_shovel.adjective": "Копающая",
-    "upgrade.minecraft.diamond_sword.adjective": "Боевая"
+    "upgrade.minecraft.diamond_sword.adjective": "Боевая",
+    "gui.computercraft.pocket_computer_overlay": "Карманный компьютер открыт. Чтобы закрыть, нажми ESC."
 }
