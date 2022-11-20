@@ -16,7 +16,7 @@ from collections import OrderedDict
 
 root = pathlib.Path("projects/common/src/main/resources/assets/computercraft/lang")
 
-with (root / "en_us.json").open(encoding="utf-8") as file:
+with open("projects/fabric/src/generated/resources/assets/computercraft/lang/en_us.json", encoding="utf-8") as file:
     en_us = json.load(file, object_hook=OrderedDict)
 
 for path in root.glob("*.json"):

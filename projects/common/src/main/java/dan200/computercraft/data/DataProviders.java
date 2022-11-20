@@ -48,6 +48,8 @@ public final class DataProviders {
         }
 
         generator.addProvider(includeClient, generators.models(BlockModelProvider::addBlockModels, ItemModelProvider::addItemModels));
+
+        generator.addProvider(includeServer, new LanguageProvider(generator, turtleUpgrades, pocketUpgrades));
     }
 
     interface GeneratorFactory {

@@ -19,6 +19,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
 
 import javax.annotation.Nullable;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Mimics {@link Registry} but using {@link PlatformHelper}'s recipe abstractions.
@@ -45,6 +47,10 @@ public final class Registries {
         T tryGet(ResourceLocation location);
 
         T get(int id);
+
+        default Stream<T> stream() {
+            return StreamSupport.stream(spliterator(), false);
+        }
     }
 
     private Registries() {

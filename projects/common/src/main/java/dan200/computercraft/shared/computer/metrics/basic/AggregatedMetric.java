@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * @param aggregate The aggregate to use.
  */
 public record AggregatedMetric(Metric metric, Aggregate aggregate) {
-    private static final String TRANSLATION_PREFIX = "tracking_field.computercraft.";
+    public static final String TRANSLATION_PREFIX = "tracking_field.computercraft.";
 
     public static Stream<AggregatedMetric> aggregatedMetrics() {
         Metrics.init();

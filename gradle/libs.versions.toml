@@ -30,6 +30,7 @@ slf4j = "1.7.36"
 forgeConfig = "4.2.6"
 iris = "1.19.x-v1.4.0"
 jei = "11.3.0.262"
+modmenu = "4.1.0"
 oculus = "1.2.5"
 rei = "9.1.550"
 rubidium = "0.6.1"
@@ -89,6 +90,7 @@ jei-api = { module = "mezz.jei:jei-1.19.2-common-api", version.ref = "jei" }
 jei-fabric = { module = "mezz.jei:jei-1.19.2-fabric", version.ref = "jei" }
 jei-forge = { module = "mezz.jei:jei-1.19.2-forge", version.ref = "jei" }
 mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
+modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
 oculus = { module = "maven.modrinth:oculus", version.ref = "oculus" }
 rei-api = { module = "me.shedaniel:RoughlyEnoughItems-api", version.ref = "rei" }
 rei-builtin = { module = "me.shedaniel:RoughlyEnoughItems-default-plugin", version.ref = "rei" }
@@ -143,7 +145,7 @@ externalMods-forge-compile = ["oculus", "jei-api"]
 externalMods-forge-runtime = ["jei-forge"]
 externalMods-fabric = ["fabric-loader", "fabric-api", "forgeConfig", "nightConfig-core", "nightConfig-toml"]
 externalMods-fabric-compile = ["iris", "jei-api", "rei-api", "rei-builtin"]
-externalMods-fabric-runtime = ["jei-fabric"]
+externalMods-fabric-runtime = ["jei-fabric", "modmenu"]
 
 # Testing
 test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]

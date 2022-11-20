@@ -18,71 +18,67 @@ import net.minecraftforge.fml.config.ModConfig;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.filter.MarkerFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 public final class ConfigSpec {
-    private static final Logger LOG = LoggerFactory.getLogger(ConfigSpec.class);
-
     private static final int MODEM_MAX_RANGE = 100000;
 
     private static final String TRANSLATION_PREFIX = "gui.computercraft.config.";
 
-    private static final ConfigValue<Integer> computerSpaceLimit;
-    private static final ConfigValue<Integer> floppySpaceLimit;
-    private static final ConfigValue<Integer> maximumFilesOpen;
-    private static final ConfigValue<Boolean> disableLua51Features;
-    private static final ConfigValue<String> defaultComputerSettings;
-    private static final ConfigValue<Boolean> logComputerErrors;
-    private static final ConfigValue<Boolean> commandRequireCreative;
-
-    private static final ConfigValue<Integer> computerThreads;
-    private static final ConfigValue<Integer> maxMainGlobalTime;
-    private static final ConfigValue<Integer> maxMainComputerTime;
-
-    private static final ConfigValue<Boolean> httpEnabled;
-    private static final ConfigValue<Boolean> httpWebsocketEnabled;
-    private static final ConfigValue<List<? extends UnmodifiableConfig>> httpRules;
-
-    private static final ConfigValue<Integer> httpMaxRequests;
-    private static final ConfigValue<Integer> httpMaxWebsockets;
-
-    private static final ConfigValue<Integer> httpDownloadBandwidth;
-    private static final ConfigValue<Integer> httpUploadBandwidth;
-
-    private static final ConfigValue<Boolean> commandBlockEnabled;
-    private static final ConfigValue<Integer> modemRange;
-    private static final ConfigValue<Integer> modemHighAltitudeRange;
-    private static final ConfigValue<Integer> modemRangeDuringStorm;
-    private static final ConfigValue<Integer> modemHighAltitudeRangeDuringStorm;
-    private static final ConfigValue<Integer> maxNotesPerTick;
-    private static final ConfigValue<Integer> monitorBandwidth;
-
-    private static final ConfigValue<Boolean> turtlesNeedFuel;
-    private static final ConfigValue<Integer> turtleFuelLimit;
-    private static final ConfigValue<Integer> advancedTurtleFuelLimit;
-    private static final ConfigValue<Boolean> turtlesCanPush;
-
-    private static final ConfigValue<Integer> computerTermWidth;
-    private static final ConfigValue<Integer> computerTermHeight;
-
-    private static final ConfigValue<Integer> pocketTermWidth;
-    private static final ConfigValue<Integer> pocketTermHeight;
-
-    private static final ConfigValue<Integer> monitorWidth;
-    private static final ConfigValue<Integer> monitorHeight;
-
-    private static final ConfigValue<MonitorRenderer> monitorRenderer;
-    private static final ConfigValue<Integer> monitorDistance;
-    private static final ConfigValue<Integer> uploadNagDelay;
-
     public static final ForgeConfigSpec serverSpec;
+
+    public static final ConfigValue<Integer> computerSpaceLimit;
+    public static final ConfigValue<Integer> floppySpaceLimit;
+    public static final ConfigValue<Integer> maximumFilesOpen;
+    public static final ConfigValue<Boolean> disableLua51Features;
+    public static final ConfigValue<String> defaultComputerSettings;
+    public static final ConfigValue<Boolean> logComputerErrors;
+    public static final ConfigValue<Boolean> commandRequireCreative;
+
+    public static final ConfigValue<Integer> computerThreads;
+    public static final ConfigValue<Integer> maxMainGlobalTime;
+    public static final ConfigValue<Integer> maxMainComputerTime;
+
+    public static final ConfigValue<Boolean> httpEnabled;
+    public static final ConfigValue<Boolean> httpWebsocketEnabled;
+    public static final ConfigValue<List<? extends UnmodifiableConfig>> httpRules;
+
+    public static final ConfigValue<Integer> httpMaxRequests;
+    public static final ConfigValue<Integer> httpMaxWebsockets;
+
+    public static final ConfigValue<Integer> httpDownloadBandwidth;
+    public static final ConfigValue<Integer> httpUploadBandwidth;
+
+    public static final ConfigValue<Boolean> commandBlockEnabled;
+    public static final ConfigValue<Integer> modemRange;
+    public static final ConfigValue<Integer> modemHighAltitudeRange;
+    public static final ConfigValue<Integer> modemRangeDuringStorm;
+    public static final ConfigValue<Integer> modemHighAltitudeRangeDuringStorm;
+    public static final ConfigValue<Integer> maxNotesPerTick;
+    public static final ConfigValue<Integer> monitorBandwidth;
+
+    public static final ConfigValue<Boolean> turtlesNeedFuel;
+    public static final ConfigValue<Integer> turtleFuelLimit;
+    public static final ConfigValue<Integer> advancedTurtleFuelLimit;
+    public static final ConfigValue<Boolean> turtlesCanPush;
+
+    public static final ConfigValue<Integer> computerTermWidth;
+    public static final ConfigValue<Integer> computerTermHeight;
+
+    public static final ConfigValue<Integer> pocketTermWidth;
+    public static final ConfigValue<Integer> pocketTermHeight;
+
+    public static final ConfigValue<Integer> monitorWidth;
+    public static final ConfigValue<Integer> monitorHeight;
+
     public static final ForgeConfigSpec clientSpec;
+
+    public static final ConfigValue<MonitorRenderer> monitorRenderer;
+    public static final ConfigValue<Integer> monitorDistance;
+    public static final ConfigValue<Integer> uploadNagDelay;
 
     private static MarkerFilter logFilter = MarkerFilter.createFilter(Logging.COMPUTER_ERROR.getName(), Filter.Result.ACCEPT, Filter.Result.NEUTRAL);
 
@@ -92,22 +88,19 @@ public final class ConfigSpec {
     static {
         LoggerContext.getContext().addFilter(logFilter);
 
-        var builder = new ForgeConfigSpec.Builder();
+        var builder = new TranslatingBuilder();
 
         { // General computers
             computerSpaceLimit = builder
                 .comment("The disk space limit for computers and turtles, in bytes.")
-                .translation(TRANSLATION_PREFIX + "computer_space_limit")
                 .define("computer_space_limit", Config.computerSpaceLimit);
 
             floppySpaceLimit = builder
                 .comment("The disk space limit for floppy disks, in bytes.")
-                .translation(TRANSLATION_PREFIX + "floppy_space_limit")
                 .define("floppy_space_limit", Config.floppySpaceLimit);
 
             maximumFilesOpen = builder
                 .comment("Set how many files a computer can have open at the same time. Set to 0 for unlimited.")
-                .translation(TRANSLATION_PREFIX + "maximum_open_files")
                 .defineInRange("maximum_open_files", CoreConfig.maximumFilesOpen, 0, Integer.MAX_VALUE);
 
             disableLua51Features = builder
@@ -321,7 +314,7 @@ public final class ConfigSpec {
 
         serverSpec = builder.build();
 
-        var clientBuilder = new ForgeConfigSpec.Builder();
+        var clientBuilder = new TranslatingBuilder();
         monitorRenderer = clientBuilder
             .comment("""
                 The renderer to use for monitors. Generally this should be kept at "best" - if
@@ -425,6 +418,73 @@ public final class ConfigSpec {
             }
 
             throw e;
+        }
+    }
+
+    /**
+     * A {@link ForgeConfigSpec.Builder} which adds translation keys to every entry.
+     */
+    private static class TranslatingBuilder {
+        private final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+        private final Deque<String> groupStack = new ArrayDeque<>();
+
+        private void translation(String name) {
+            var key = new StringBuilder(TRANSLATION_PREFIX);
+            for (var group : groupStack) key.append(group).append('.');
+            key.append(name);
+            builder.translation(key.toString());
+        }
+
+        public TranslatingBuilder comment(String comment) {
+            builder.comment(comment);
+            return this;
+        }
+
+        public TranslatingBuilder push(String name) {
+            translation(name);
+            builder.push(name);
+            groupStack.addLast(name);
+            return this;
+        }
+
+        public TranslatingBuilder pop() {
+            builder.pop();
+            groupStack.removeLast();
+            return this;
+        }
+
+        public ForgeConfigSpec build() {
+            return builder.build();
+        }
+
+        public TranslatingBuilder worldRestart() {
+            builder.worldRestart();
+            return this;
+        }
+
+        public <T> ConfigValue<T> define(String path, T defaultValue) {
+            translation(path);
+            return builder.define(path, defaultValue);
+        }
+
+        public ConfigValue<Boolean> define(String path, boolean defaultValue) {
+            translation(path);
+            return builder.define(path, defaultValue);
+        }
+
+        public ConfigValue<Integer> defineInRange(String path, int defaultValue, int min, int max) {
+            translation(path);
+            return builder.defineInRange(path, defaultValue, min, max);
+        }
+
+        public <T> ConfigValue<List<? extends T>> defineList(String path, List<? extends T> defaultValue, Predicate<Object> elementValidator) {
+            translation(path);
+            return builder.defineList(path, defaultValue, elementValidator);
+        }
+
+        public <V extends Enum<V>> ConfigValue<V> defineEnum(String path, V defaultValue) {
+            translation(path);
+            return builder.defineEnum(path, defaultValue);
         }
     }
 }

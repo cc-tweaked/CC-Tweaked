@@ -78,9 +78,9 @@ and preview it yourself before submitting a PR.
 
 You'll first need to [set up a development environment as above](#setting-up-a-development-environment).
 
-Once this is set up, you can now run `./gradlew :web:site`. This generates documentation from our Lua and Java code,
+Once this is set up, you can now run `./gradlew docWebsite`. This generates documentation from our Lua and Java code,
 writing the resulting HTML into `./projects/web/build/site`, which can then be opened in a browser. When iterating on
-documentation, you can instead run `./gradlew :web:site -t`, which will rebuild documentation every time you change a
+documentation, you can instead run `./gradlew docWebsite -t`, which will rebuild documentation every time you change a
 file.
 
 Documentation is built using [illuaminate] which, while not currently documented (somewhat ironic), is largely the same
