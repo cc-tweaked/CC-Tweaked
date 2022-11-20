@@ -109,6 +109,27 @@ public interface ContainerTransferContract {
         assertNoOverlap(source, destination);
     }
 
+    @Test
+    default void testNoMoveReject() {
+        var destination = new SimpleContainer(4) {
+            @Override
+            public boolean canPlaceItem(int slot, ItemStack item) {
+                return false;
+            }
+        };
+
+        var source = new SimpleContainer(4);
+        source.setItem(0, new ItemStack(Items.DIRT, 64));
+
+        var move = wrap(source).moveTo(wrap(destination), 64);
+        assertEquals(ContainerTransfer.NO_SPACE, move);
+
+        assertThat(source.getItem(0), isStack(new ItemStack(Items.DIRT, 64)));
+        assertThat(destination.getItem(0), isStack(ItemStack.EMPTY));
+
+        assertNoOverlap(source, destination);
+    }
+
     static void assertNoOverlap(Container... containers) {
         Set<ItemStack> stacks = Collections.newSetFromMap(new IdentityHashMap<>());
         for (var container : containers) {

@@ -74,6 +74,7 @@ object TestHooks {
         Computer_Test::class.java,
         CraftOs_Test::class.java,
         Disk_Drive_Test::class.java,
+        Inventory_Test::class.java,
         Loot_Test::class.java,
         Modem_Test::class.java,
         Monitor_Test::class.java,
