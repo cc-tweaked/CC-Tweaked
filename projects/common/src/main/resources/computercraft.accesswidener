@@ -27,8 +27,5 @@ accessible method net/minecraft/client/renderer/ItemInHandRenderer renderPlayerA
 accessible method com/mojang/blaze3d/audio/Channel pumpBuffers (I)V
 accessible field net/minecraft/client/sounds/SoundEngine executor Lnet/minecraft/client/sounds/SoundEngineExecutor;
 
-# Data generators
-accessible field net/minecraft/data/models/ItemModelGenerators output Ljava/util/function/BiConsumer;
-
 # Turtle model
 accessible method net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V

@@ -2,7 +2,7 @@
 
 # Minecraft
 # MC version is specified in gradle.properties, as we need that in settings.gradle.
-fabric-api = "0.66.0+1.19.2"
+fabric-api = "0.67.0+1.19.2"
 fabric-loader = "0.14.10"
 forge = "43.1.1"
 forgeSpi = "6.0.0"

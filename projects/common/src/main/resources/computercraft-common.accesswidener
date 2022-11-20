@@ -18,6 +18,7 @@ accessible field net/minecraft/data/models/BlockModelGenerators modelOutput Ljav
 accessible method net/minecraft/data/models/BlockModelGenerators delegateItemModel (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/resources/ResourceLocation;)V
 accessible method net/minecraft/data/models/BlockModelGenerators delegateItemModel (Lnet/minecraft/world/item/Item;Lnet/minecraft/resources/ResourceLocation;)V
 accessible method net/minecraft/data/models/BlockModelGenerators createHorizontallyRotatedBlock (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/data/models/model/TexturedModel$Provider;)V
+accessible field net/minecraft/data/models/ItemModelGenerators output Ljava/util/function/BiConsumer;
 accessible method net/minecraft/data/models/ItemModelGenerators generateFlatItem (Lnet/minecraft/world/item/Item;Lnet/minecraft/data/models/model/ModelTemplate;)V
 accessible method net/minecraft/data/models/ItemModelGenerators generateFlatItem (Lnet/minecraft/world/item/Item;Ljava/lang/String;Lnet/minecraft/data/models/model/ModelTemplate;)V
 accessible method net/minecraft/data/models/model/TextureSlot create (Ljava/lang/String;)Lnet/minecraft/data/models/model/TextureSlot;

@@ -269,7 +269,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public ItemStack getCraftingRemainingItem(ItemStack stack) {
-        return new ItemStack(stack.getItem().getCraftingRemainingItem());
+        return stack.getRecipeRemainder();
     }
 
     @Override
