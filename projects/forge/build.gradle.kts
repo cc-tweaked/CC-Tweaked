@@ -247,6 +247,7 @@ val lintLua by tasks.registering(IlluaminateExec::class) {
     inputs.files(luaJavadoc)
 
     args = listOf("lint")
+    workingDir = rootProject.projectDir
 
     doFirst { if (System.getenv("GITHUB_ACTIONS") != null) println("::add-matcher::.github/matchers/illuaminate.json") }
     doLast { if (System.getenv("GITHUB_ACTIONS") != null) println("::remove-matcher owner=illuaminate::") }
