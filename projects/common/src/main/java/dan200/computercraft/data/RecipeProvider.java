@@ -196,7 +196,7 @@ class RecipeProvider {
             .pattern("#C#")
             .pattern("# #")
             .define('#', ingredients.goldIngot())
-            .define('C', ModRegistry.Items.COMPUTER_ADVANCED.get())
+            .define('C', ModRegistry.Items.COMPUTER_NORMAL.get())
             .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.COMPUTER_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
             .save(
                 RecipeWrapper.wrap(ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)),
@@ -242,7 +242,7 @@ class RecipeProvider {
             .pattern("#C#")
             .pattern(" B ")
             .define('#', ingredients.goldIngot())
-            .define('C', ModRegistry.Items.COMPUTER_ADVANCED.get())
+            .define('C', ModRegistry.Items.TURTLE_NORMAL.get())
             .define('B', ingredients.goldBlock())
             .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.TURTLE_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
             .save(
