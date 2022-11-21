@@ -49,9 +49,9 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
     private static final String NBT_UPGRADE = "Upgrade";
     private static final String NBT_UPGRADE_INFO = "UpgradeInfo";
     public static final String NBT_LIGHT = "Light";
-    private static final String NBT_ON = "On";
+    public static final String NBT_ON = "On";
 
-    private static final String NBT_INSTANCE = "Instanceid";
+    private static final String NBT_INSTANCE = "InstanceId";
     private static final String NBT_SESSION = "SessionId";
 
     private final ComputerFamily family;

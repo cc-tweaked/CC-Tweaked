@@ -2,13 +2,13 @@
 """
 Combines screenshots from the Forge and Fabric tests into a single HTML page.
 """
-import os
-import os.path
-from dataclasses import dataclass
-from typing import TextIO
-from textwrap import dedent
-import webbrowser
 import argparse
+import pathlib
+import webbrowser
+from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
+from textwrap import dedent
+from typing import TextIO
 
 PROJECT_LOCATIONS = [
     "projects/fabric",
@@ -68,7 +68,7 @@ def write_images(io: TextIO, images: list[Image]):
             <div class="image">
                 <img src="../{image.path}" />
                 <span class="desc">
-                    <span class="desc-prefix">{" » ".join(image.name[:-2])} »</span>
+                    <span class="desc-prefix">{" » ".join(image.name[:-1])} »</span>
                     <span class="desc-main">{image.name[-1]}</span>
                 </span>
             </div>
@@ -77,6 +77,22 @@ def write_images(io: TextIO, images: list[Image]):
         )
 
     io.write("</div></body></html>")
+
+
+def _normalise_id(name: str) -> str:
+    """Normalise a test ID so it's more readable."""
+    return name[0].upper() + name[1:].replace("_", " ")
+
+
+def _format_timedelta(delta: timedelta) -> str:
+    if delta.days > 0:
+        return f"{delta.days} days ago"
+    elif delta.seconds >= 60 * 60 * 2:
+        return f"{delta.seconds // (60 * 60)} hours ago"
+    elif delta.seconds >= 60 * 2:
+        return f"{delta.seconds // 60} minutes ago"
+    else:
+        return f"{delta.seconds} seconds ago"
 
 
 def main():
@@ -96,10 +112,17 @@ def main():
         "Forge": "projects/forge",
         "Fabric": "projects/fabric",
     }.items():
-        dir = os.path.join(dir, "build", "testScreenshots")
-        for file in sorted(os.listdir(dir)):
-            name = [project, *os.path.splitext(file)[0].split(".")]
-            images.append(Image(name, os.path.join(dir, file)))
+        for file in sorted(pathlib.Path(dir).glob("build/gametest/*/screenshots/*.png")):
+            name = [project, *(_normalise_id(x) for x in file.stem.split("."))]
+
+            mtime = datetime.fromtimestamp(file.stat().st_mtime, tz=timezone.utc)
+            delta = datetime.now(tz=timezone.utc) - mtime
+
+            print(
+                f"""{" » ".join(name[:-1]):>50} » \x1b[1m{name[-1]:25} \x1b[0;33m({_format_timedelta(delta)})\x1b[0m"""
+            )
+
+            images.append(Image(name, str(file)))
 
     out_file = "build/screenshots.html"
     with open(out_file, encoding="utf-8", mode="w") as out:

@@ -1,5 +1,6 @@
 package dan200.computercraft.gametest.api
 
+import dan200.computercraft.gametest.core.MinecraftExtensions
 import dan200.computercraft.mixin.gametest.GameTestSequenceAccessor
 import dan200.computercraft.shared.platform.Registries
 import net.minecraft.client.Minecraft
@@ -20,9 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * Attempt to guess whether all chunks have been rendered.
  */
-fun Minecraft.isRenderingStable(): Boolean = level != null && player != null &&
-    levelRenderer.isChunkCompiled(player!!.blockPosition()) && levelRenderer.countRenderedChunks() > 10 &&
-    levelRenderer.hasRenderedAllChunks()
+fun Minecraft.isRenderingStable(): Boolean = (this as MinecraftExtensions).`computercraft$isRenderingStable`()
 
 /**
  * Run a task on the client.
@@ -44,7 +43,7 @@ fun GameTestSequence.thenOnClient(task: ClientTestHelper.() -> Unit): GameTestSe
 /**
  * Take a screenshot of the current game state.
  */
-fun GameTestSequence.thenScreenshot(name: String? = null): GameTestSequence {
+fun GameTestSequence.thenScreenshot(name: String? = null, showGui: Boolean = false): GameTestSequence {
     val suffix = if (name == null) "" else "-$name"
     val test = (this as GameTestSequenceAccessor).parent
     val fullName = "${test.testName}$suffix"
@@ -63,7 +62,7 @@ fun GameTestSequence.thenScreenshot(name: String? = null): GameTestSequence {
 
     // Now disable the GUI, take a screenshot and reenable it. Sleep a little afterwards to ensure the render thread
     // has caught up.
-    thenOnClient { minecraft.options.hideGui = true }
+    thenOnClient { minecraft.options.hideGui = !showGui }
     thenIdle(2)
 
     // Take a screenshot and wait for it to have finished.
@@ -96,12 +95,12 @@ fun GameTestHelper.positionAtArmorStand() {
 /**
  * Position the player at a given coordinate.
  */
-fun GameTestHelper.positionAt(pos: BlockPos) {
+fun GameTestHelper.positionAt(pos: BlockPos, yRot: Float = 0.0f, xRot: Float = 0.0f) {
     val absolutePos = absolutePos(pos)
     val player = level.randomPlayer ?: throw GameTestAssertException("Player does not exist")
 
     player.setupForTest()
-    player.connection.teleport(absolutePos.x + 0.5, absolutePos.y + 0.5, absolutePos.z + 0.5, 0.0f, 0.0f)
+    player.connection.teleport(absolutePos.x + 0.5, absolutePos.y + 0.5, absolutePos.z + 0.5, yRot, xRot)
 }
 
 /**

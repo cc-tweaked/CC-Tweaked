@@ -78,6 +78,7 @@ object TestHooks {
         Loot_Test::class.java,
         Modem_Test::class.java,
         Monitor_Test::class.java,
+        Pocket_Computer_Test::class.java,
         Printer_Test::class.java,
         Recipe_Test::class.java,
         Turtle_Test::class.java,

@@ -13,5 +13,8 @@
         "GameTestSequenceMixin",
         "SharedConstantsMixin",
         "TestCommandAccessor"
+    ],
+    "client": [
+        "client.MinecraftMixin"
     ]
 }

@@ -41,12 +41,6 @@ abstract class ClientJavaExec : JavaExec() {
     val useFramebuffer get() = !clientDebug && !project.hasProperty("clientNoFramebuffer")
 
     /**
-     * The folder screenshots are written to.
-     */
-    @get:OutputDirectory
-    val screenshots = project.layout.buildDirectory.dir("testScreenshots")
-
-    /**
      * The path test results are written to.
      */
     @get:OutputFile
@@ -108,11 +102,6 @@ abstract class ClientJavaExec : JavaExec() {
             clientRunner.get().wrapClient(this) { super.exec() }
         } else {
             super.exec()
-        }
-
-        fsOperations.copy {
-            from(workingDir.resolve("screenshots"))
-            into(screenshots)
         }
     }
 

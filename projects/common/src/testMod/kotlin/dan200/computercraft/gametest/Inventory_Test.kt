@@ -44,7 +44,7 @@ class Inventory_Test {
     /**
      * Ensures inventory methods check an item is valid before moving it.
      *
-     * @see <https://github.com/cc-tweaked/cc-restitched/issues/121>
+     * @see <https://github.com/cc-tweaked/cc-restitched/issues/122>
      */
     @GameTest
     fun Fails_on_full(helper: GameTestHelper) = helper.sequence {
