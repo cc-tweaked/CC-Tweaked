@@ -32,11 +32,6 @@ public class SubMount implements IMount {
     }
 
     @Override
-    public boolean isReadOnly(String path) throws IOException {
-        return parent.isReadOnly(getFullPath(path));
-    }
-
-    @Override
     public void list(String path, List<String> contents) throws IOException {
         parent.list(getFullPath(path), contents);
     }

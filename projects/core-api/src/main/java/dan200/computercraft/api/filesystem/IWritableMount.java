@@ -78,4 +78,15 @@ public interface IWritableMount extends IMount {
     default OptionalLong getCapacity() {
         return OptionalLong.empty();
     }
+
+    /**
+     * Returns whether a file with a given path is read-only or not.
+     *
+     * @param path A file path in normalised format, relative to the mount location. ie: "programs/myprograms".
+     * @return If the file exists and is read-only.
+     * @throws IOException If an error occurs when checking whether the file is read-only.
+     */
+    default boolean isReadOnly(String path) throws IOException {
+        return true;
+    }
 }
