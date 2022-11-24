@@ -87,6 +87,6 @@ public interface IWritableMount extends IMount {
      * @throws IOException If an error occurs when checking whether the file is read-only.
      */
     default boolean isReadOnly(String path) throws IOException {
-        return true;
+        return false;
     }
 }
