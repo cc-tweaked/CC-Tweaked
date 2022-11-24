@@ -146,16 +146,11 @@ public class FileMount implements IWritableMount {
     @Override
     public boolean isReadOnly(String path) throws IOException {
         var file = getRealPath(path);
-        if (file.exists()) {
-            return !file.canWrite();
+        while (true) {
+            if (file.exists()) return !file.canWrite();
+            if (file.equals(rootPath)) return false;
+            file = file.getParentFile();
         }
-
-        var parent = file.getParentFile();
-        while (!parent.exists() && parent != rootPath) {
-            parent = parent.getParentFile();
-        }
-
-        return !parent.canWrite();
     }
 
     @Override
