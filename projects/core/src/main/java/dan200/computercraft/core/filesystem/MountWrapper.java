@@ -61,8 +61,12 @@ class MountWrapper {
         return writableMount == null ? OptionalLong.empty() : writableMount.getCapacity();
     }
 
-    public boolean isReadOnly(String path) {
-        return writableMount == null;
+    public boolean isReadOnly(String path) throws FileSystemException {
+        try {
+            return writableMount == null || writableMount.isReadOnly(path);
+        } catch (IOException e) {
+            throw localExceptionOf(path, e);
+        }
     }
 
     public boolean exists(String path) throws FileSystemException {

@@ -95,6 +95,15 @@ public class FileSystemWrapperMount implements IFileSystem {
     }
 
     @Override
+    public boolean isReadOnly(String path) throws IOException {
+        try {
+            return filesystem.isReadOnly(path);
+        } catch (FileSystemException e) {
+            throw new IOException(e.getMessage());
+        }
+    }
+
+    @Override
     public void list(String path, List<String> contents) throws IOException {
         try {
             Collections.addAll(contents, filesystem.list(path));

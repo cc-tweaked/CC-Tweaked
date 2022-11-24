@@ -144,6 +144,14 @@ public class FileMount implements IWritableMount {
     }
 
     @Override
+    public boolean isReadOnly(String path) throws IOException {
+        if (!created()) return path.isEmpty();
+
+        var file = getRealPath(path);
+        return file.exists() && !file.canWrite();
+    }
+
+    @Override
     public void list(String path, List<String> contents) throws IOException {
         if (!created()) {
             if (!path.isEmpty()) throw new FileOperationException(path, "Not a directory");
