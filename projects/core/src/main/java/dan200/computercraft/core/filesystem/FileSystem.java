@@ -429,7 +429,9 @@ public class FileSystem {
 
         // Collapse the string into its component parts, removing ..'s
         var outputParts = new ArrayDeque<String>();
-        for (var part : Splitter.on('/').split(path)) {
+        for (var fullPart : Splitter.on('/').split(path)) {
+            var part = fullPart.strip();
+
             if (part.isEmpty() || part.equals(".") || threeDotsPattern.matcher(part).matches()) {
                 // . is redundant
                 // ... and more are treated as .
@@ -450,7 +452,7 @@ public class FileSystem {
                 }
             } else if (part.length() >= 255) {
                 // If part length > 255 and it is the last part
-                outputParts.addLast(part.substring(0, 255));
+                outputParts.addLast(part.substring(0, 255).strip());
             } else {
                 // Anything else we add to the stack
                 outputParts.addLast(part);
