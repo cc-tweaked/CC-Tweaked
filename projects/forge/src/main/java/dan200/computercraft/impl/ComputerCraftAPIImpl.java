@@ -8,9 +8,8 @@ package dan200.computercraft.impl;
 import com.google.auto.service.AutoService;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.DetailRegistry;
-import dan200.computercraft.api.detail.IDetailProvider;
-import dan200.computercraft.api.filesystem.IMount;
-import dan200.computercraft.api.network.wired.IWiredElement;
+import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.impl.detail.DetailRegistryImpl;
 import dan200.computercraft.shared.computer.core.ResourceMount;
@@ -18,6 +17,7 @@ import dan200.computercraft.shared.details.FluidData;
 import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
@@ -44,7 +44,7 @@ public final class ComputerCraftAPIImpl extends AbstractComputerCraftAPI impleme
     }
 
     @Override
-    public @Nullable IMount createResourceMount(String domain, String subPath) {
+    public @Nullable Mount createResourceMount(MinecraftServer server, String domain, String subPath) {
         var manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
         var mount = ResourceMount.get(domain, subPath, manager);
         return mount.exists("") ? mount : null;
@@ -61,18 +61,7 @@ public final class ComputerCraftAPIImpl extends AbstractComputerCraftAPI impleme
     }
 
     @Override
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    public <T> void registerDetailProvider(Class<T> type, IDetailProvider<T> provider) {
-        if (type == FluidStack.class) {
-            fluidStackDetails.addProvider((IDetailProvider<FluidStack>) provider);
-        } else {
-            super.registerDetailProvider(type, provider);
-        }
-    }
-
-    @Override
-    public LazyOptional<IWiredElement> getWiredElementAt(BlockGetter world, BlockPos pos, Direction side) {
+    public LazyOptional<WiredElement> getWiredElementAt(BlockGetter world, BlockPos pos, Direction side) {
         var tile = world.getBlockEntity(pos);
         return tile == null ? LazyOptional.empty() : tile.getCapability(CAPABILITY_WIRED_ELEMENT, side);
     }

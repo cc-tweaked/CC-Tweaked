@@ -314,7 +314,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         var computer = ServerContext.get(server).registry().get(instanceID);
         if (computer == null) {
             if (computerID < 0) {
-                computerID = ComputerCraftAPI.createUniqueNumberedSaveDir(level, IDAssigner.COMPUTER);
+                computerID = ComputerCraftAPI.createUniqueNumberedSaveDir(server, IDAssigner.COMPUTER);
                 BlockEntityHelpers.updateBlock(this);
             }
 

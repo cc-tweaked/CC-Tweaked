@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.diskdrive;
 
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.impl.MediaProviders;
 import net.minecraft.server.level.ServerLevel;
@@ -24,7 +24,7 @@ class MediaStack {
     final @Nullable IMedia media;
 
     @Nullable
-    private IMount mount;
+    private Mount mount;
 
     MediaStack(ItemStack stack) {
         this.stack = stack;
@@ -42,7 +42,7 @@ class MediaStack {
     }
 
     @Nullable
-    public IMount getMount(ServerLevel level) {
+    public Mount getMount(ServerLevel level) {
         if (media == null) return null;
 
         if (mount == null) mount = media.createDataMount(stack, level);

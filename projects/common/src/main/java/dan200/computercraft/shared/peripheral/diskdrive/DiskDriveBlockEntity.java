@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.peripheral.diskdrive;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.AbstractContainerBlockEntity;
@@ -205,7 +205,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
     private void mountDisk(IComputerAccess computer, MountInfo info, MediaStack disk) {
         var mount = disk.getMount((ServerLevel) getLevel());
         if (mount != null) {
-            if (mount instanceof IWritableMount writable) {
+            if (mount instanceof WritableMount writable) {
                 // Try mounting at the lowest numbered "disk" name we can
                 var n = 1;
                 while (info.mountPath == null) {

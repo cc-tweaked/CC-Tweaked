@@ -5,31 +5,26 @@
  */
 package dan200.computercraft.api;
 
-import dan200.computercraft.api.detail.BlockReference;
-import dan200.computercraft.api.detail.DetailRegistry;
-import dan200.computercraft.api.detail.IDetailProvider;
-import dan200.computercraft.api.filesystem.IMount;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.GenericSource;
+import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.api.media.IMedia;
-import dan200.computercraft.api.media.IMediaProvider;
-import dan200.computercraft.api.network.IPacketNetwork;
-import dan200.computercraft.api.network.wired.IWiredElement;
-import dan200.computercraft.api.network.wired.IWiredNode;
+import dan200.computercraft.api.media.MediaProvider;
+import dan200.computercraft.api.network.PacketNetwork;
+import dan200.computercraft.api.network.wired.WiredElement;
+import dan200.computercraft.api.network.wired.WiredNode;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IPeripheralProvider;
-import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
+import dan200.computercraft.api.redstone.BundledRedstoneProvider;
+import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleRefuelHandler;
 import dan200.computercraft.impl.ComputerCraftAPIService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nullable;
 
@@ -51,16 +46,16 @@ public final class ComputerCraftAPI {
      * <p>
      * Use in conjunction with createSaveDirMount() to create a unique place for your peripherals or media items to store files.
      *
-     * @param world         The world for which the save dir should be created. This should be the server side world object.
+     * @param server        The server for which the save dir should be created.
      * @param parentSubPath The folder path within the save directory where the new directory should be created. eg: "computercraft/disk"
      * @return The numerical value of the name of the new folder, or -1 if the folder could not be created for some reason.
      * <p>
      * eg: if createUniqueNumberedSaveDir( world, "computer/disk" ) was called returns 42, then "computer/disk/42" is now
      * available for writing.
-     * @see #createSaveDirMount(Level, String, long)
+     * @see #createSaveDirMount(MinecraftServer, String, long)
      */
-    public static int createUniqueNumberedSaveDir(Level world, String parentSubPath) {
-        return getInstance().createUniqueNumberedSaveDir(world, parentSubPath);
+    public static int createUniqueNumberedSaveDir(MinecraftServer server, String parentSubPath) {
+        return getInstance().createUniqueNumberedSaveDir(server, parentSubPath);
     }
 
     /**
@@ -69,21 +64,21 @@ public final class ComputerCraftAPI {
      * Use in conjunction with IComputerAccess.mount() or IComputerAccess.mountWritable() to mount a folder from the
      * users save directory onto a computers file system.
      *
-     * @param world    The world for which the save dir can be found. This should be the server side world object.
+     * @param server   The server which the save dir can be found.
      * @param subPath  The folder path within the save directory that the mount should map to. eg: "computer/disk/42".
      *                 Use createUniqueNumberedSaveDir() to create a new numbered folder to use.
      * @param capacity The amount of data that can be stored in the directory before it fills up, in bytes.
      * @return The mount, or null if it could be created for some reason. Use IComputerAccess.mount() or IComputerAccess.mountWritable()
      * to mount this on a Computers' file system.
-     * @see #createUniqueNumberedSaveDir(Level, String)
-     * @see IComputerAccess#mount(String, IMount)
-     * @see IComputerAccess#mountWritable(String, IWritableMount)
-     * @see IMount
-     * @see IWritableMount
+     * @see #createUniqueNumberedSaveDir(MinecraftServer, String)
+     * @see IComputerAccess#mount(String, Mount)
+     * @see IComputerAccess#mountWritable(String, WritableMount)
+     * @see Mount
+     * @see WritableMount
      */
     @Nullable
-    public static IWritableMount createSaveDirMount(Level world, String subPath, long capacity) {
-        return getInstance().createSaveDirMount(world, subPath, capacity);
+    public static WritableMount createSaveDirMount(MinecraftServer server, String subPath, long capacity) {
+        return getInstance().createSaveDirMount(server, subPath, capacity);
     }
 
     /**
@@ -97,29 +92,17 @@ public final class ComputerCraftAPI {
      * "/data/computercraft/lua/rom". We construct a mount for that with
      * {@code createResourceMount("computercraft", "lua/rom")}.
      *
+     * @param server  The current Minecraft server, from which to read resources from.
      * @param domain  The domain under which to look for resources. eg: "mymod".
      * @param subPath The subPath under which to look for resources. eg: "lua/myfiles".
      * @return The mount, or {@code null} if it could be created for some reason.
-     * @see IComputerAccess#mount(String, IMount)
-     * @see IComputerAccess#mountWritable(String, IWritableMount)
-     * @see IMount
+     * @see IComputerAccess#mount(String, Mount)
+     * @see IComputerAccess#mountWritable(String, WritableMount)
+     * @see Mount
      */
     @Nullable
-    public static IMount createResourceMount(String domain, String subPath) {
-        return getInstance().createResourceMount(domain, subPath);
-    }
-
-    /**
-     * Registers a peripheral provider to convert blocks into {@link IPeripheral} implementations.
-     *
-     * @param provider The peripheral provider to register.
-     * @see IPeripheral
-     * @see IPeripheralProvider
-     * @deprecated Use {@code dan200.computercraft.api.ForgeComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)} instead.
-     */
-    @Deprecated(forRemoval = true)
-    public static void registerPeripheralProvider(IPeripheralProvider provider) {
-        getInstance().registerPeripheralProvider(provider);
+    public static Mount createResourceMount(MinecraftServer server, String domain, String subPath) {
+        return getInstance().createResourceMount(server, domain, subPath);
     }
 
     /**
@@ -133,24 +116,12 @@ public final class ComputerCraftAPI {
     }
 
     /**
-     * Registers a capability that can be used by generic peripherals.
-     *
-     * @param capability The capability to register.
-     * @see GenericSource
-     * @deprecated Use {@code dan200.computercraft.api.ForgeComputerCraftAPI} instead.
-     */
-    @Deprecated(forRemoval = true)
-    public static void registerGenericCapability(Capability<?> capability) {
-        getInstance().registerGenericCapability(capability);
-    }
-
-    /**
      * Registers a bundled redstone provider to provide bundled redstone output for blocks.
      *
      * @param provider The bundled redstone provider to register.
-     * @see IBundledRedstoneProvider
+     * @see BundledRedstoneProvider
      */
-    public static void registerBundledRedstoneProvider(IBundledRedstoneProvider provider) {
+    public static void registerBundledRedstoneProvider(BundledRedstoneProvider provider) {
         getInstance().registerBundledRedstoneProvider(provider);
     }
 
@@ -162,7 +133,7 @@ public final class ComputerCraftAPI {
      * @param side  The side to extract the bundled redstone output from.
      * @return If there is a block capable of emitting bundled redstone at the location, it's signal (0-65535) will be returned.
      * If there is no block capable of emitting bundled redstone at the location, -1 will be returned.
-     * @see IBundledRedstoneProvider
+     * @see BundledRedstoneProvider
      */
     public static int getBundledRedstoneOutput(Level world, BlockPos pos, Direction side) {
         return getInstance().getBundledRedstoneOutput(world, pos, side);
@@ -172,38 +143,33 @@ public final class ComputerCraftAPI {
      * Registers a media provider to provide {@link IMedia} implementations for Items.
      *
      * @param provider The media provider to register.
-     * @see IMediaProvider
+     * @see MediaProvider
      */
-    public static void registerMediaProvider(IMediaProvider provider) {
+    public static void registerMediaProvider(MediaProvider provider) {
         getInstance().registerMediaProvider(provider);
     }
 
     /**
      * Attempt to get the game-wide wireless network.
      *
+     * @param server The current Minecraft server.
      * @return The global wireless network, or {@code null} if it could not be fetched.
      */
-    public static IPacketNetwork getWirelessNetwork() {
-        return getInstance().getWirelessNetwork();
-    }
-
-    public static void registerAPIFactory(ILuaAPIFactory factory) {
-        getInstance().registerAPIFactory(factory);
+    public static PacketNetwork getWirelessNetwork(MinecraftServer server) {
+        return getInstance().getWirelessNetwork(server);
     }
 
     /**
-     * Registers a detail provider to provide additional details for blocks, fluids and items when inspected by methods
-     * such as {@code turtle.getItemDetail()} or {@code turtle.inspect()}.
+     * Register a custom {@link ILuaAPI}, which may be added onto all computers without requiring a peripheral.
+     * <p>
+     * Before implementing this interface, consider alternative methods of providing methods. It is generally preferred
+     * to use peripherals to provide functionality to users.
      *
-     * @param type     The type of object that this provider can provide details for. Should be {@link BlockReference},
-     *                 {@code net.minecraftforge.fluids.FluidStack} or {@link ItemStack}.
-     * @param provider The detail provider to register.
-     * @param <T>      The type of object that this provider can provide details for.
-     * @deprecated Use {@link DetailRegistry#addProvider(IDetailProvider)} to register your provider.
+     * @param factory The factory for your API subclass.
+     * @see ILuaAPIFactory
      */
-    @Deprecated(forRemoval = true)
-    public static <T> void registerDetailProvider(Class<T> type, IDetailProvider<T> provider) {
-        getInstance().registerDetailProvider(type, provider);
+    public static void registerAPIFactory(ILuaAPIFactory factory) {
+        getInstance().registerAPIFactory(factory);
     }
 
     /**
@@ -211,27 +177,19 @@ public final class ComputerCraftAPI {
      *
      * @param element The element to construct it for
      * @return The element's node
-     * @see IWiredElement#getNode()
+     * @see WiredElement#getNode()
      */
-    public static IWiredNode createWiredNodeForElement(IWiredElement element) {
+    public static WiredNode createWiredNodeForElement(WiredElement element) {
         return getInstance().createWiredNodeForElement(element);
     }
 
     /**
-     * Get the wired network element for a block in world.
+     * Register a refuel handler for turtles. This may be used to provide alternative fuel sources, such as consuming RF
+     * batteries.
      *
-     * @param world The world the block exists in
-     * @param pos   The position the block exists in
-     * @param side  The side to extract the network element from
-     * @return The element's node
-     * @see IWiredElement#getNode()
-     * @deprecated Use {@code dan200.computercraft.api.ForgeComputerCraftAPI#getWiredElementAt(BlockGetter, BlockPos, Direction)}
+     * @param handler The turtle refuel handler.
+     * @see TurtleRefuelHandler#refuel(ITurtleAccess, ItemStack, int, int)
      */
-    @Deprecated(forRemoval = true)
-    public static LazyOptional<IWiredElement> getWiredElementAt(BlockGetter world, BlockPos pos, Direction side) {
-        return getInstance().getWiredElementAt(world, pos, side);
-    }
-
     public static void registerRefuelHandler(TurtleRefuelHandler handler) {
         getInstance().registerRefuelHandler(handler);
     }

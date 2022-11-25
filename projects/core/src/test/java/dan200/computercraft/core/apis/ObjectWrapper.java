@@ -50,7 +50,7 @@ public class ObjectWrapper implements ILuaContext {
     }
 
     @Override
-    public long issueMainThreadTask(ILuaTask task) {
+    public long issueMainThreadTask(LuaTask task) {
         throw new IllegalStateException("Method should never queue events");
     }
 }

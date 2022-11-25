@@ -6,13 +6,13 @@
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.ITurtleCommand;
+import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
-public class TurtleCompareCommand implements ITurtleCommand {
+public class TurtleCompareCommand implements TurtleCommand {
     private final InteractDirection direction;
 
     public TurtleCompareCommand(InteractDirection direction) {

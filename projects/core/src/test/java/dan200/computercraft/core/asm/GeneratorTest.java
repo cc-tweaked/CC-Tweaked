@@ -240,7 +240,7 @@ public class GeneratorTest {
 
     private static final ILuaContext CONTEXT = new ILuaContext() {
         @Override
-        public long issueMainThreadTask(ILuaTask task) {
+        public long issueMainThreadTask(LuaTask task) {
             return 0;
         }
     };

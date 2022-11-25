@@ -6,8 +6,8 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.base.Objects;
-import dan200.computercraft.api.network.wired.IWiredElement;
-import dan200.computercraft.api.network.wired.IWiredNode;
+import dan200.computercraft.api.network.wired.WiredElement;
+import dan200.computercraft.api.network.wired.WiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
@@ -81,9 +81,9 @@ public class WiredModemFullBlockEntity extends BlockEntity {
     private final TickScheduler.Token tickToken = new TickScheduler.Token(this);
     private final ModemState modemState = new ModemState(() -> TickScheduler.schedule(tickToken));
     private final WiredModemElement element = new FullElement(this);
-    private final IWiredNode node = element.getNode();
+    private final WiredNode node = element.getNode();
 
-    private final ComponentAccess<IWiredElement> connectedElements = PlatformHelper.get().createWiredElementAccess(x -> connectionsChanged());
+    private final ComponentAccess<WiredElement> connectedElements = PlatformHelper.get().createWiredElementAccess(x -> connectionsChanged());
 
     private int invalidSides = 0;
 
@@ -278,7 +278,7 @@ public class WiredModemFullBlockEntity extends BlockEntity {
         node.updatePeripherals(peripherals);
     }
 
-    public IWiredElement getElement() {
+    public WiredElement getElement() {
         return element;
     }
 

@@ -8,14 +8,14 @@ package dan200.computercraft.impl;
 import com.google.auto.service.AutoService;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.DetailRegistry;
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.impl.detail.DetailRegistryImpl;
-import dan200.computercraft.shared.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.details.FluidDetails;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
 
@@ -35,9 +35,8 @@ public final class ComputerCraftAPIImpl extends AbstractComputerCraftAPI impleme
 
     @Nullable
     @Override
-    public IMount createResourceMount(String domain, String subPath) {
-        if (ComputerCraft.server == null) return null;
-        var mount = ResourceMount.get(domain, subPath, ComputerCraft.server.getResourceManager());
+    public Mount createResourceMount(MinecraftServer server, String domain, String subPath) {
+        var mount = ResourceMount.get(domain, subPath, server.getResourceManager());
         return mount.exists("") ? mount : null;
     }
 

@@ -6,7 +6,7 @@
 package dan200.computercraft.impl.upgrades;
 
 import com.google.gson.JsonObject;
-import dan200.computercraft.api.upgrades.IUpgradeBase;
+import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -22,7 +22,7 @@ import java.util.function.Function;
  * @param <T> The upgrade that this class can serialise and deserialise.
  */
 @ApiStatus.Internal
-public abstract class SimpleSerialiser<T extends IUpgradeBase> implements UpgradeSerialiser<T> {
+public abstract class SimpleSerialiser<T extends UpgradeBase> implements UpgradeSerialiser<T> {
     private final Function<ResourceLocation, T> constructor;
 
     public SimpleSerialiser(Function<ResourceLocation, T> constructor) {

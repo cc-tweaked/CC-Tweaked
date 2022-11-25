@@ -51,7 +51,7 @@ public @interface LuaFunction {
      * Minecraft in a thread-unsafe manner.
      *
      * @return Whether this function should be run on the main thread.
-     * @see ILuaContext#issueMainThreadTask(ILuaTask)
+     * @see ILuaContext#issueMainThreadTask(LuaTask)
      */
     boolean mainThread() default false;
 

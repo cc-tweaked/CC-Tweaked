@@ -6,7 +6,7 @@
 package dan200.computercraft.test.core.filesystem;
 
 import dan200.computercraft.api.filesystem.FileOperationException;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 
 import java.io.ByteArrayOutputStream;
@@ -21,7 +21,7 @@ import java.util.*;
 /**
  * In-memory file mounts.
  */
-public class MemoryMount implements IWritableMount {
+public class MemoryMount implements WritableMount {
     private final Map<String, byte[]> files = new HashMap<>();
     private final Set<String> directories = new HashSet<>();
 

@@ -6,7 +6,7 @@
 package dan200.computercraft.api.pocket;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.upgrades.IUpgradeBase;
+import dan200.computercraft.api.upgrades.UpgradeBase;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
  *
  * @see PocketUpgradeSerialiser For how to register a pocket computer upgrade.
  */
-public interface IPocketUpgrade extends IUpgradeBase {
+public interface IPocketUpgrade extends UpgradeBase {
     /**
      * Creates a peripheral for the pocket computer.
      * <p>

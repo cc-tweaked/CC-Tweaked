@@ -7,7 +7,7 @@ package dan200.computercraft.core.filesystem;
 
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
@@ -39,11 +39,11 @@ public class FileMountTest {
         return path;
     }
 
-    private IWritableMount getExisting(long capacity) throws IOException {
+    private WritableMount getExisting(long capacity) throws IOException {
         return new FileMount(createRoot().toFile(), capacity);
     }
 
-    private IWritableMount getNotExisting(long capacity) throws IOException {
+    private WritableMount getNotExisting(long capacity) throws IOException {
         return new FileMount(createRoot().resolve("mount").toFile(), capacity);
     }
 

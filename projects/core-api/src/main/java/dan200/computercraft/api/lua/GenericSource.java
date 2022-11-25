@@ -7,7 +7,6 @@ package dan200.computercraft.api.lua;
 
 import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.resources.ResourceLocation;
 
 /**
  * A generic source of {@link LuaFunction} functions.
@@ -44,10 +43,10 @@ public interface GenericSource {
     /**
      * A unique identifier for this generic source.
      * <p>
-     * This is currently unused, but may be used in the future to allow disabling specific sources. It is recommended
-     * to return an identifier using your mod's ID.
+     * While this can return an arbitrary string, it's recommended that this is formatted the same was as Minecraft's
+     * resource locations/identifiers, so is of the form {@code "mod_id:source_id"}.
      *
      * @return This source's identifier.
      */
-    ResourceLocation id();
+    String id();
 }

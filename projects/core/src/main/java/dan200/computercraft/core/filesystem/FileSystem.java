@@ -7,9 +7,8 @@ package dan200.computercraft.core.filesystem;
 
 import com.google.common.base.Splitter;
 import com.google.common.io.ByteStreams;
-import dan200.computercraft.api.filesystem.IFileSystem;
-import dan200.computercraft.api.filesystem.IMount;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.util.IoUtil;
 
@@ -36,17 +35,16 @@ public class FileSystem {
      */
     private static final int MAX_COPY_DEPTH = 128;
 
-    private final FileSystemWrapperMount wrapper = new FileSystemWrapperMount(this);
     private final Map<String, MountWrapper> mounts = new HashMap<>();
 
     private final HashMap<WeakReference<FileSystemWrapper<?>>, ChannelWrapper<?>> openFiles = new HashMap<>();
     private final ReferenceQueue<FileSystemWrapper<?>> openFileQueue = new ReferenceQueue<>();
 
-    public FileSystem(String rootLabel, IMount rootMount) throws FileSystemException {
+    public FileSystem(String rootLabel, Mount rootMount) throws FileSystemException {
         mount(rootLabel, "", rootMount);
     }
 
-    public FileSystem(String rootLabel, IWritableMount rootMount) throws FileSystemException {
+    public FileSystem(String rootLabel, WritableMount rootMount) throws FileSystemException {
         mountWritable(rootLabel, "", rootMount);
     }
 
@@ -59,14 +57,14 @@ public class FileSystem {
         }
     }
 
-    public synchronized void mount(String label, String location, IMount mount) throws FileSystemException {
+    public synchronized void mount(String label, String location, Mount mount) throws FileSystemException {
         Objects.requireNonNull(mount, "mount cannot be null");
         location = sanitizePath(location);
         if (location.contains("..")) throw new FileSystemException("Cannot mount below the root");
         mount(new MountWrapper(label, location, mount));
     }
 
-    public synchronized void mountWritable(String label, String location, IWritableMount mount) throws FileSystemException {
+    public synchronized void mountWritable(String label, String location, WritableMount mount) throws FileSystemException {
         Objects.requireNonNull(mount, "mount cannot be null");
 
         location = sanitizePath(location);
@@ -397,10 +395,6 @@ public class FileSystem {
             throw new FileSystemException("/" + path + ": Invalid Path");
         }
         return match;
-    }
-
-    public IFileSystem getMountWrapper() {
-        return wrapper;
     }
 
     private static String sanitizePath(String path) {

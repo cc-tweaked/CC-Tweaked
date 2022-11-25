@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.core;
 
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -85,7 +85,7 @@ public class ComputerTestDelegate {
         if (Files.deleteIfExists(REPORT_PATH)) LOG.info("Deleted previous coverage report.");
 
         var term = new Terminal(80, 100, true);
-        IWritableMount mount = new FileMount(TestFiles.get("mount").toFile(), 10_000_000);
+        WritableMount mount = new FileMount(TestFiles.get("mount").toFile(), 10_000_000);
 
         // Remove any existing files
         List<String> children = new ArrayList<>();

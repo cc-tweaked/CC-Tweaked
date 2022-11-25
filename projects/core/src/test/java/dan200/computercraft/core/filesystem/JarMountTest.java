@@ -6,7 +6,7 @@
 package dan200.computercraft.core.filesystem;
 
 import com.google.common.io.ByteStreams;
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.core.TestFiles;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -45,21 +45,21 @@ public class JarMountTest {
 
     @Test
     public void mountsDir() throws IOException {
-        IMount mount = new JarMount(ZIP_FILE, "dir");
+        Mount mount = new JarMount(ZIP_FILE, "dir");
         assertTrue(mount.isDirectory(""), "Root should be directory");
         assertTrue(mount.exists("file.lua"), "File should exist");
     }
 
     @Test
     public void mountsFile() throws IOException {
-        IMount mount = new JarMount(ZIP_FILE, "dir/file.lua");
+        Mount mount = new JarMount(ZIP_FILE, "dir/file.lua");
         assertTrue(mount.exists(""), "Root should exist");
         assertFalse(mount.isDirectory(""), "Root should be a file");
     }
 
     @Test
     public void opensFileFromFile() throws IOException {
-        IMount mount = new JarMount(ZIP_FILE, "dir/file.lua");
+        Mount mount = new JarMount(ZIP_FILE, "dir/file.lua");
         byte[] contents;
         try (var stream = mount.openForRead("")) {
             contents = ByteStreams.toByteArray(Channels.newInputStream(stream));
@@ -70,7 +70,7 @@ public class JarMountTest {
 
     @Test
     public void opensFileFromDir() throws IOException {
-        IMount mount = new JarMount(ZIP_FILE, "dir");
+        Mount mount = new JarMount(ZIP_FILE, "dir");
         byte[] contents;
         try (var stream = mount.openForRead("file.lua")) {
             contents = ByteStreams.toByteArray(Channels.newInputStream(stream));

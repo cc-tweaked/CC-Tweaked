@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.core.computer;
 
-import dan200.computercraft.api.filesystem.IMount;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.CoreConfig;
@@ -150,7 +150,7 @@ final class ComputerExecutor {
      */
     private boolean closed;
 
-    private @Nullable IWritableMount rootMount;
+    private @Nullable WritableMount rootMount;
 
     /**
      * The thread the executor is running on. This is non-null when performing work. We use this to ensure we're only
@@ -323,12 +323,12 @@ final class ComputerExecutor {
     }
 
     @Nullable
-    private IMount getRomMount() {
+    private Mount getRomMount() {
         return computer.getGlobalEnvironment().createResourceMount("computercraft", "lua/rom");
     }
 
     @Nullable
-    private IWritableMount getRootMount() {
+    private WritableMount getRootMount() {
         if (rootMount == null) rootMount = computerEnvironment.createRootMount();
         return rootMount;
     }

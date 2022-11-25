@@ -5,9 +5,9 @@
  */
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
-import dan200.computercraft.api.network.IPacketNetwork;
-import dan200.computercraft.api.network.IPacketReceiver;
 import dan200.computercraft.api.network.Packet;
+import dan200.computercraft.api.network.PacketNetwork;
+import dan200.computercraft.api.network.PacketReceiver;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class WirelessNetwork implements IPacketNetwork {
+public class WirelessNetwork implements PacketNetwork {
     // TODO: Move this to ServerContext.
     private static @Nullable WirelessNetwork universalNetwork = null;
 
@@ -28,16 +28,16 @@ public class WirelessNetwork implements IPacketNetwork {
         universalNetwork = null;
     }
 
-    private final Set<IPacketReceiver> receivers = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Set<PacketReceiver> receivers = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     @Override
-    public void addReceiver(IPacketReceiver receiver) {
+    public void addReceiver(PacketReceiver receiver) {
         Objects.requireNonNull(receiver, "device cannot be null");
         receivers.add(receiver);
     }
 
     @Override
-    public void removeReceiver(IPacketReceiver receiver) {
+    public void removeReceiver(PacketReceiver receiver) {
         Objects.requireNonNull(receiver, "device cannot be null");
         receivers.remove(receiver);
     }
@@ -54,7 +54,7 @@ public class WirelessNetwork implements IPacketNetwork {
         for (var device : receivers) tryTransmit(device, packet, 0, true);
     }
 
-    private static void tryTransmit(IPacketReceiver receiver, Packet packet, double range, boolean interdimensional) {
+    private static void tryTransmit(PacketReceiver receiver, Packet packet, double range, boolean interdimensional) {
         var sender = packet.sender();
         if (receiver.getLevel() == sender.getLevel()) {
             var receiveRange = Math.max(range, receiver.getRange()); // Ensure range is symmetrical

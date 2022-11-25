@@ -5,11 +5,14 @@
  */
 package dan200.computercraft.api.media;
 
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.api.filesystem.WritableMount;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 
@@ -17,7 +20,7 @@ import javax.annotation.Nullable;
  * Represents an item that can be placed in a disk drive and used by a Computer.
  * <p>
  * Implement this interface on your {@link Item} class to allow it to be used in the drive. Alternatively, register
- * a {@link IMediaProvider}.
+ * a {@link MediaProvider}.
  */
 public interface IMedia {
     /**
@@ -68,16 +71,16 @@ public interface IMedia {
      * be mounted onto the filesystem of the computer while the media is in the disk drive.
      *
      * @param stack The {@link ItemStack} to modify.
-     * @param world The world in which the item and disk drive reside.
+     * @param level The world in which the item and disk drive reside.
      * @return The mount, or null if this item does not represent an item with data. If the mount returned also
-     * implements {@link dan200.computercraft.api.filesystem.IWritableMount}, it will mounted using mountWritable()
-     * @see IMount
-     * @see dan200.computercraft.api.filesystem.IWritableMount
-     * @see dan200.computercraft.api.ComputerCraftAPI#createSaveDirMount(Level, String, long)
-     * @see dan200.computercraft.api.ComputerCraftAPI#createResourceMount(String, String)
+     * implements {@link WritableMount}, it will mounted using mountWritable()
+     * @see Mount
+     * @see WritableMount
+     * @see ComputerCraftAPI#createSaveDirMount(MinecraftServer, String, long)
+     * @see ComputerCraftAPI#createResourceMount(MinecraftServer, String, String)
      */
     @Nullable
-    default IMount createDataMount(ItemStack stack, Level world) {
+    default Mount createDataMount(ItemStack stack, ServerLevel level) {
         return null;
     }
 }

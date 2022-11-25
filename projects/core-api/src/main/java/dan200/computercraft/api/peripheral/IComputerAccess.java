@@ -5,11 +5,11 @@
  */
 package dan200.computercraft.api.peripheral;
 
-import dan200.computercraft.api.filesystem.IMount;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.ILuaTask;
+import dan200.computercraft.api.lua.LuaTask;
 import dan200.computercraft.api.lua.MethodResult;
 
 import javax.annotation.Nullable;
@@ -29,13 +29,13 @@ public interface IComputerAccess {
      * @return The location on the computer's file system where you the mount mounted, or {@code null} if there was already a
      * file in the desired location. Store this value if you wish to unmount the mount later.
      * @throws NotAttachedException If the peripheral has been detached.
-     * @see #mount(String, IMount, String)
-     * @see #mountWritable(String, IWritableMount)
+     * @see #mount(String, Mount, String)
+     * @see #mountWritable(String, WritableMount)
      * @see #unmount(String)
-     * @see IMount
+     * @see Mount
      */
     @Nullable
-    default String mount(String desiredLocation, IMount mount) {
+    default String mount(String desiredLocation, Mount mount) {
         return mount(desiredLocation, mount, getAttachmentName());
     }
 
@@ -48,13 +48,13 @@ public interface IComputerAccess {
      * @return The location on the computer's file system where you the mount mounted, or {@code null} if there was already a
      * file in the desired location. Store this value if you wish to unmount the mount later.
      * @throws NotAttachedException If the peripheral has been detached.
-     * @see #mount(String, IMount)
-     * @see #mountWritable(String, IWritableMount)
+     * @see #mount(String, Mount)
+     * @see #mountWritable(String, WritableMount)
      * @see #unmount(String)
-     * @see IMount
+     * @see Mount
      */
     @Nullable
-    String mount(String desiredLocation, IMount mount, String driveName);
+    String mount(String desiredLocation, Mount mount, String driveName);
 
     /**
      * Mount a mount onto the computer's file system in a writable mode.
@@ -64,12 +64,12 @@ public interface IComputerAccess {
      * @return The location on the computer's file system where you the mount mounted, or null if there was already a
      * file in the desired location. Store this value if you wish to unmount the mount later.
      * @throws NotAttachedException If the peripheral has been detached.
-     * @see #mount(String, IMount)
+     * @see #mount(String, Mount)
      * @see #unmount(String)
-     * @see IMount
+     * @see Mount
      */
     @Nullable
-    default String mountWritable(String desiredLocation, IWritableMount mount) {
+    default String mountWritable(String desiredLocation, WritableMount mount) {
         return mountWritable(desiredLocation, mount, getAttachmentName());
     }
 
@@ -82,16 +82,16 @@ public interface IComputerAccess {
      * @return The location on the computer's file system where you the mount mounted, or null if there was already a
      * file in the desired location. Store this value if you wish to unmount the mount later.
      * @throws NotAttachedException If the peripheral has been detached.
-     * @see #mount(String, IMount)
+     * @see #mount(String, Mount)
      * @see #unmount(String)
-     * @see IMount
+     * @see Mount
      */
     @Nullable
-    String mountWritable(String desiredLocation, IWritableMount mount, String driveName);
+    String mountWritable(String desiredLocation, WritableMount mount, String driveName);
 
     /**
-     * Unmounts a directory previously mounted onto the computers file system by {@link #mount(String, IMount)}
-     * or {@link #mountWritable(String, IWritableMount)}.
+     * Unmounts a directory previously mounted onto the computers file system by {@link #mount(String, Mount)}
+     * or {@link #mountWritable(String, WritableMount)}.
      * <p>
      * When a directory is unmounted, it will disappear from the computers file system, and the user will no longer be
      * able to access it. All directories mounted by a mount or mountWritable are automatically unmounted when the
@@ -100,12 +100,12 @@ public interface IComputerAccess {
      * Note that you cannot unmount another peripheral's mounts.
      *
      * @param location The desired location in the computers file system of the directory to unmount.
-     *                 This must be the location of a directory previously mounted by {@link #mount(String, IMount)} or
-     *                 {@link #mountWritable(String, IWritableMount)}, as indicated by their return value.
+     *                 This must be the location of a directory previously mounted by {@link #mount(String, Mount)} or
+     *                 {@link #mountWritable(String, WritableMount)}, as indicated by their return value.
      * @throws NotAttachedException  If the peripheral has been detached.
      * @throws IllegalStateException If the mount does not exist, or was mounted by another peripheral.
-     * @see #mount(String, IMount)
-     * @see #mountWritable(String, IWritableMount)
+     * @see #mount(String, Mount)
+     * @see #mountWritable(String, WritableMount)
      */
     void unmount(@Nullable String location);
 
@@ -175,11 +175,11 @@ public interface IComputerAccess {
     IPeripheral getAvailablePeripheral(String name);
 
     /**
-     * Get a {@link IWorkMonitor} for tasks your peripheral might execute on the main (server) thread.
+     * Get a {@link WorkMonitor} for tasks your peripheral might execute on the main (server) thread.
      * <p>
      * This should be used to ensure your peripheral integrates with ComputerCraft's monitoring and limiting of how much
      * server time each computer consumes. You should not need to use this if you use
-     * {@link ILuaContext#issueMainThreadTask(ILuaTask)} - this is intended for mods with their own system for running
+     * {@link ILuaContext#issueMainThreadTask(LuaTask)} - this is intended for mods with their own system for running
      * work on the main thread.
      * <p>
      * Please note that the returned implementation is <em>not</em> thread-safe, and should only be used from the main
@@ -188,5 +188,5 @@ public interface IComputerAccess {
      * @return The work monitor for the main thread, or {@code null} if this computer does not have one.
      * @throws NotAttachedException If the peripheral has been detached.
      */
-    IWorkMonitor getMainThreadMonitor();
+    WorkMonitor getMainThreadMonitor();
 }

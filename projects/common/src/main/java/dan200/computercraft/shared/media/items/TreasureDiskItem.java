@@ -7,7 +7,7 @@ package dan200.computercraft.shared.media.items;
 
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.core.filesystem.SubMount;
 import dan200.computercraft.core.util.Colour;
@@ -15,6 +15,7 @@ import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -57,8 +58,8 @@ public class TreasureDiskItem extends Item implements IMedia {
     }
 
     @Override
-    public @Nullable IMount createDataMount(ItemStack stack, Level world) {
-        var rootTreasure = getTreasureMount();
+    public @Nullable Mount createDataMount(ItemStack stack, ServerLevel level) {
+        var rootTreasure = ComputerCraftAPI.createResourceMount(level.getServer(), "computercraft", "lua/treasure");
         if (rootTreasure == null) return null;
 
         var subPath = getSubPath(stack);
@@ -91,10 +92,6 @@ public class TreasureDiskItem extends Item implements IMedia {
         nbt.putInt(NBT_COLOUR, Colour.values()[colourIndex].getHex());
 
         return result;
-    }
-
-    private static @Nullable IMount getTreasureMount() {
-        return ComputerCraftAPI.createResourceMount("computercraft", "lua/treasure");
     }
 
     private static String getTitle(ItemStack stack) {

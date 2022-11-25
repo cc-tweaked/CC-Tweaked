@@ -34,7 +34,7 @@ final class TaskCallback implements ILuaCallback {
         }
     }
 
-    static MethodResult make(ILuaContext context, ILuaTask func) throws LuaException {
+    static MethodResult make(ILuaContext context, LuaTask func) throws LuaException {
         var task = context.issueMainThreadTask(func);
         return new TaskCallback(task).pull;
     }

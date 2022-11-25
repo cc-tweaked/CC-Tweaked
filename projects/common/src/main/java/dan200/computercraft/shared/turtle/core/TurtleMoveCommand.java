@@ -6,8 +6,8 @@
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
+import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -18,7 +18,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class TurtleMoveCommand implements ITurtleCommand {
+public class TurtleMoveCommand implements TurtleCommand {
     private final MoveDirection direction;
 
     public TurtleMoveCommand(MoveDirection direction) {

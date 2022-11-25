@@ -7,8 +7,8 @@ package dan200.computercraft.shared.turtle.core;
 
 import com.google.common.base.Splitter;
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
+import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.TurtleUtil;
@@ -36,7 +36,7 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 
-public class TurtlePlaceCommand implements ITurtleCommand {
+public class TurtlePlaceCommand implements TurtleCommand {
     private final InteractDirection direction;
     private final Object[] extraArguments;
 

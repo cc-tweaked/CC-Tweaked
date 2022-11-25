@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.api.pocket;
 
-import dan200.computercraft.api.upgrades.IUpgradeBase;
+import dan200.computercraft.api.upgrades.UpgradeBase;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -27,7 +27,7 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade {
     }
 
     protected AbstractPocketUpgrade(ResourceLocation id, ItemStack stack) {
-        this(id, IUpgradeBase.getDefaultAdjective(id), stack);
+        this(id, UpgradeBase.getDefaultAdjective(id), stack);
     }
 
     @Override

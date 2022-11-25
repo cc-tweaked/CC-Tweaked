@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.core.computer.mainthread;
 
-import dan200.computercraft.api.peripheral.IWorkMonitor;
+import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.metrics.MetricsObserver;
 
 import java.util.OptionalLong;
@@ -28,7 +28,7 @@ public interface MainThreadScheduler {
     /**
      * An {@link Executor} is responsible for managing scheduled tasks for a single computer.
      */
-    interface Executor extends IWorkMonitor {
+    interface Executor extends WorkMonitor {
         /**
          * Schedule a task to be run on the main thread. This can be called from any thread.
          *

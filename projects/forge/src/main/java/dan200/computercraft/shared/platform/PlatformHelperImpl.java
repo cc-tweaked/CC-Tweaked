@@ -9,7 +9,7 @@ import com.google.auto.service.AutoService;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.network.wired.IWiredElement;
+import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.impl.Peripherals;
 import dan200.computercraft.shared.Capabilities;
@@ -62,7 +62,6 @@ import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import net.minecraftforge.network.NetworkHooks;
@@ -173,7 +172,7 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public ComponentAccess<IWiredElement> createWiredElementAccess(Consumer<Direction> invalidate) {
+    public ComponentAccess<WiredElement> createWiredElementAccess(Consumer<Direction> invalidate) {
         return new CapabilityAccess<>(Capabilities.CAPABILITY_WIRED_ELEMENT, invalidate);
     }
 
@@ -209,12 +208,6 @@ public class PlatformHelperImpl implements PlatformHelper {
 
         var entity = InventoryUtil.getEntityContainer(level, pos, side);
         return entity == null ? null : new ForgeContainerTransfer(new InvWrapper(entity));
-    }
-
-    @Override
-    @Deprecated(forRemoval = true)
-    public IItemHandlerModifiable wrapContainerToItemHandler(Container container) {
-        return new InvWrapper(container);
     }
 
     @Nullable

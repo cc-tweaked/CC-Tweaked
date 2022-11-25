@@ -5,13 +5,13 @@
  */
 package dan200.computercraft.shared.common;
 
-import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
+import dan200.computercraft.api.redstone.BundledRedstoneProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 
 
-public class DefaultBundledRedstoneProvider implements IBundledRedstoneProvider {
+public class DefaultBundledRedstoneProvider implements BundledRedstoneProvider {
     @Override
     public int getBundledRedstoneOutput(Level world, BlockPos pos, Direction side) {
         return getDefaultBundledRedstoneOutput(world, pos, side);

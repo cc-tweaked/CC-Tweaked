@@ -37,7 +37,7 @@ import java.util.function.Function;
  * @param <T> The base class of upgrades.
  * @param <R> The upgrade serialiser to register for.
  */
-public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends UpgradeSerialiser<? extends T>> implements DataProvider {
+public abstract class UpgradeDataProvider<T extends UpgradeBase, R extends UpgradeSerialiser<? extends T>> implements DataProvider {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final DataGenerator generator;

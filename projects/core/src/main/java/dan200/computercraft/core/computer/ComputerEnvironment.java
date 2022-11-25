@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.core.computer;
 
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.metrics.MetricsObserver;
 
@@ -41,5 +41,5 @@ public interface ComputerEnvironment {
      * @see FileMount
      */
     @Nullable
-    IWritableMount createRootMount();
+    WritableMount createRootMount();
 }

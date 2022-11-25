@@ -6,7 +6,8 @@
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.network.IPacketNetwork;
+import dan200.computercraft.api.network.PacketNetwork;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
@@ -51,7 +52,7 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral {
     }
 
     @Override
-    protected IPacketNetwork getNetwork() {
-        return ComputerCraftAPI.getWirelessNetwork();
+    protected PacketNetwork getNetwork() {
+        return ComputerCraftAPI.getWirelessNetwork(Nullability.assertNonNull(getLevel().getServer()));
     }
 }

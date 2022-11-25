@@ -7,7 +7,7 @@ package dan200.computercraft.shared.computer.core;
 
 import com.google.common.annotations.VisibleForTesting;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.computer.ComputerThread;
 import dan200.computercraft.core.computer.GlobalEnvironment;
@@ -21,7 +21,6 @@ import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.util.IDAssigner;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,7 +155,7 @@ public final class ServerContext {
      *
      * @param kind The kind we're assigning an ID for, for instance {@code "computer"} or {@code "peripheral.monitor"}.
      * @return The next available ID.
-     * @see ComputerCraftAPI#createUniqueNumberedSaveDir(Level, String)
+     * @see ComputerCraftAPI#createUniqueNumberedSaveDir(MinecraftServer, String)
      */
     public int getNextId(String kind) {
         return idAssigner.getNextId(kind);
@@ -183,8 +182,8 @@ public final class ServerContext {
 
     private record Environment(MinecraftServer server) implements GlobalEnvironment {
         @Override
-        public @Nullable IMount createResourceMount(String domain, String subPath) {
-            return ComputerCraftAPI.createResourceMount(domain, subPath);
+        public @Nullable Mount createResourceMount(String domain, String subPath) {
+            return ComputerCraftAPI.createResourceMount(server, domain, subPath);
         }
 
         @Override

@@ -7,7 +7,7 @@ package dan200.computercraft.shared.platform;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
-import dan200.computercraft.api.network.wired.IWiredElement;
+import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
@@ -45,7 +45,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -204,7 +203,7 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      *                   include all changes, and so block updates should still be listened to.
      * @return The peripheral component access.
      */
-    ComponentAccess<IWiredElement> createWiredElementAccess(Consumer<Direction> invalidate);
+    ComponentAccess<WiredElement> createWiredElementAccess(Consumer<Direction> invalidate);
 
     /**
      * Determine if there is a wired element in the given direction. This is equivalent to
@@ -238,18 +237,6 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      */
     @Nullable
     ContainerTransfer getContainer(ServerLevel level, BlockPos pos, Direction side);
-
-    /**
-     * Wrap a vanilla Minecraft {@link Container} into Forge's {@link IItemHandlerModifiable}.
-     *
-     * @param container The container to wrap.
-     * @return The item handler.
-     * @deprecated This is only needed for backwards compatibility, and will be removed in 1.19.3.
-     */
-    @Deprecated(forRemoval = true)
-    default IItemHandlerModifiable wrapContainerToItemHandler(Container container) {
-        throw new UnsupportedOperationException("Can only create IItemHandlerModifiable on Forge");
-    }
 
     /**
      * Get the {@link RecipeIngredients} for this loader.

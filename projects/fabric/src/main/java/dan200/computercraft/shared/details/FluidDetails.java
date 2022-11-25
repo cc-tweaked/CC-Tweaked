@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.shared.details;
 
+import dan200.computercraft.api.detail.DetailProvider;
 import dan200.computercraft.api.detail.FabricDetailRegistries;
-import dan200.computercraft.api.detail.IDetailProvider;
 import dan200.computercraft.shared.platform.Registries;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
@@ -14,7 +14,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import java.util.Map;
 
 /**
- * {@link IDetailProvider} support for fluids.
+ * {@link DetailProvider} support for fluids.
  *
  * @see FabricDetailRegistries#FLUID_VARIANT
  */

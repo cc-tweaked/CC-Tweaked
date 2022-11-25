@@ -21,7 +21,7 @@ public final class InvariantChecker {
     private InvariantChecker() {
     }
 
-    public static void checkNode(WiredNode node) {
+    public static void checkNode(WiredNodeImpl node) {
         if (!ENABLED) return;
 
         var network = node.network;
@@ -41,7 +41,7 @@ public final class InvariantChecker {
         }
     }
 
-    public static void checkNetwork(WiredNetwork network) {
+    public static void checkNetwork(WiredNetworkImpl network) {
         if (!ENABLED) return;
 
         for (var node : network.nodes) checkNode(node);

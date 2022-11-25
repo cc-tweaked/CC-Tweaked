@@ -22,13 +22,13 @@ import net.minecraft.resources.ResourceLocation;
  * @see TurtleUpgradeSerialiser
  * @see PocketUpgradeSerialiser
  */
-public interface UpgradeSerialiser<T extends IUpgradeBase> {
+public interface UpgradeSerialiser<T extends UpgradeBase> {
     /**
      * Read this upgrade from a JSON file in a datapack.
      *
      * @param id     The ID of this upgrade.
      * @param object The JSON object to load this upgrade from.
-     * @return The constructed upgrade, with a {@link IUpgradeBase#getUpgradeID()} equal to {@code id}.
+     * @return The constructed upgrade, with a {@link UpgradeBase#getUpgradeID()} equal to {@code id}.
      * @see net.minecraft.util.GsonHelper For additional JSON helper methods.
      */
     T fromJson(ResourceLocation id, JsonObject object);
@@ -38,7 +38,7 @@ public interface UpgradeSerialiser<T extends IUpgradeBase> {
      *
      * @param id     The ID of this upgrade.
      * @param buffer The buffer object to read this upgrade from.
-     * @return The constructed upgrade, with a {@link IUpgradeBase#getUpgradeID()} equal to {@code id}.
+     * @return The constructed upgrade, with a {@link UpgradeBase#getUpgradeID()} equal to {@code id}.
      */
     T fromNetwork(ResourceLocation id, FriendlyByteBuf buffer);
 

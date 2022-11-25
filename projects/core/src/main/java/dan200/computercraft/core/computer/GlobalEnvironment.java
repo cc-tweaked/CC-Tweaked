@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.core.computer;
 
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.Mount;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -38,7 +38,7 @@ public interface GlobalEnvironment {
      * @return The created mount or {@code null} if it could not be created.
      */
     @Nullable
-    IMount createResourceMount(String domain, String subPath);
+    Mount createResourceMount(String domain, String subPath);
 
     /**
      * Open a single mod-provided file.

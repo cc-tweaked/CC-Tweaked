@@ -8,7 +8,7 @@ package dan200.computercraft.shared.turtle.apis;
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.ITurtleCommand;
+import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.core.apis.IAPIEnvironment;
@@ -82,7 +82,7 @@ public class TurtleAPI implements ILuaAPI {
         return new String[]{ "turtle" };
     }
 
-    private MethodResult trackCommand(ITurtleCommand command) {
+    private MethodResult trackCommand(TurtleCommand command) {
         environment.observe(Metrics.TURTLE_OPS);
         return turtle.executeCommand(command);
     }

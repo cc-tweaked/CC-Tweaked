@@ -10,7 +10,7 @@ import dan200.computercraft.api.turtle.*;
 import javax.annotation.Nullable;
 import java.util.Locale;
 
-public class TurtleToolCommand implements ITurtleCommand {
+public class TurtleToolCommand implements TurtleCommand {
     private final TurtleVerb verb;
     private final InteractDirection direction;
     private final @Nullable TurtleSide side;

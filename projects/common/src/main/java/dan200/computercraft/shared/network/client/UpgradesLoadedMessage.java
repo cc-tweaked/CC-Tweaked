@@ -9,7 +9,7 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
-import dan200.computercraft.api.upgrades.IUpgradeBase;
+import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
@@ -42,7 +42,7 @@ public class UpgradesLoadedMessage implements NetworkMessage<ClientNetworkContex
         pocketUpgrades = fromBytes(buf, PocketUpgradeSerialiser.REGISTRY_ID);
     }
 
-    private <R extends UpgradeSerialiser<? extends T>, T extends IUpgradeBase> Map<String, UpgradeManager.UpgradeWrapper<R, T>> fromBytes(
+    private <R extends UpgradeSerialiser<? extends T>, T extends UpgradeBase> Map<String, UpgradeManager.UpgradeWrapper<R, T>> fromBytes(
         FriendlyByteBuf buf, ResourceKey<Registry<R>> registryKey
     ) {
         var registry = PlatformHelper.get().wrap(registryKey);
@@ -71,7 +71,7 @@ public class UpgradesLoadedMessage implements NetworkMessage<ClientNetworkContex
         toBytes(buf, PocketUpgradeSerialiser.REGISTRY_ID, pocketUpgrades);
     }
 
-    private <R extends UpgradeSerialiser<? extends T>, T extends IUpgradeBase> void toBytes(
+    private <R extends UpgradeSerialiser<? extends T>, T extends UpgradeBase> void toBytes(
         FriendlyByteBuf buf, ResourceKey<Registry<R>> registryKey, Map<String, UpgradeManager.UpgradeWrapper<R, T>> upgrades
     ) {
         var registry = PlatformHelper.get().wrap(registryKey);

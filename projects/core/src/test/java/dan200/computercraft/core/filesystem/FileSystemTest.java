@@ -6,7 +6,7 @@
 package dan200.computercraft.core.filesystem;
 
 import com.google.common.io.Files;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.TestFiles;
 import dan200.computercraft.core.apis.ObjectWrapper;
@@ -27,7 +27,7 @@ public class FileSystemTest {
     private static final long CAPACITY = 1000000;
 
     private static FileSystem mkFs() throws FileSystemException {
-        IWritableMount writableMount = new FileMount(ROOT, CAPACITY);
+        WritableMount writableMount = new FileMount(ROOT, CAPACITY);
         return new FileSystem("hdd", writableMount);
 
     }
@@ -65,7 +65,7 @@ public class FileSystemTest {
     @Test
     public void testUnmountCloses() throws FileSystemException {
         var fs = mkFs();
-        IWritableMount mount = new FileMount(new File(ROOT, "child"), CAPACITY);
+        WritableMount mount = new FileMount(new File(ROOT, "child"), CAPACITY);
         fs.mountWritable("disk", "disk", mount);
 
         var writer = fs.openForWrite("disk/out.txt", false, EncodedWritableHandle::openUtf8);

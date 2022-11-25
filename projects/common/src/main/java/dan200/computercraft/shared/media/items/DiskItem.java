@@ -7,7 +7,7 @@ package dan200.computercraft.shared.media.items;
 
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
@@ -17,6 +17,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -83,13 +84,13 @@ public class DiskItem extends Item implements IMedia, IColouredItem {
     }
 
     @Override
-    public @Nullable IMount createDataMount(ItemStack stack, Level world) {
+    public @Nullable Mount createDataMount(ItemStack stack, ServerLevel level) {
         var diskID = getDiskID(stack);
         if (diskID < 0) {
-            diskID = ComputerCraftAPI.createUniqueNumberedSaveDir(world, "disk");
+            diskID = ComputerCraftAPI.createUniqueNumberedSaveDir(level.getServer(), "disk");
             setDiskID(stack, diskID);
         }
-        return ComputerCraftAPI.createSaveDirMount(world, "disk/" + diskID, Config.floppySpaceLimit);
+        return ComputerCraftAPI.createSaveDirMount(level.getServer(), "disk/" + diskID, Config.floppySpaceLimit);
     }
 
     public static int getDiskID(ItemStack stack) {

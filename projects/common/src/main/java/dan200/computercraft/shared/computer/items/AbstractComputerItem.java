@@ -6,13 +6,14 @@
 package dan200.computercraft.shared.computer.items;
 
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlock;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.config.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -63,12 +64,12 @@ public abstract class AbstractComputerItem extends BlockItem implements ICompute
     }
 
     @Override
-    public @Nullable IMount createDataMount(ItemStack stack, Level world) {
+    public @Nullable Mount createDataMount(ItemStack stack, ServerLevel level) {
         var family = getFamily();
         if (family != ComputerFamily.COMMAND) {
             var id = getComputerID(stack);
             if (id >= 0) {
-                return ComputerCraftAPI.createSaveDirMount(world, "computer/" + id, Config.computerSpaceLimit);
+                return ComputerCraftAPI.createSaveDirMount(level.getServer(), "computer/" + id, Config.computerSpaceLimit);
             }
         }
         return null;

@@ -6,7 +6,7 @@
 package dan200.computercraft.api.pocket;
 
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.upgrades.IUpgradeBase;
+import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.impl.upgrades.SerialiserWithCraftingItem;
 import dan200.computercraft.impl.upgrades.SimpleSerialiser;
@@ -15,8 +15,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryManager;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -36,18 +34,6 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
      * The ID for the associated registry.
      */
     ResourceKey<Registry<PocketUpgradeSerialiser<?>>> REGISTRY_ID = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_upgrade_serialiser"));
-
-    /**
-     * The associated registry.
-     *
-     * @return The registry for pocket upgrade serialisers.
-     * @see #REGISTRY_ID
-     * @deprecated Use {@link #REGISTRY_ID} directly.
-     */
-    @Deprecated(forRemoval = true)
-    static IForgeRegistry<PocketUpgradeSerialiser<?>> registry() {
-        return RegistryManager.ACTIVE.getRegistry(REGISTRY_ID);
-    }
 
     /**
      * Create an upgrade serialiser for a simple upgrade. This is similar to a {@link SimpleRecipeSerializer}, but for
@@ -73,7 +59,7 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
      * Create an upgrade serialiser for a simple upgrade whose crafting item can be specified.
      *
      * @param factory Generate a new upgrade with a specific ID and crafting item. The returned upgrade's
-     *                {@link IUpgradeBase#getCraftingItem()} <strong>MUST</strong> equal the provided item.
+     *                {@link UpgradeBase#getCraftingItem()} <strong>MUST</strong> equal the provided item.
      * @param <T>     The type of the generated upgrade.
      * @return The serialiser for this upgrade.
      * @see #simple(Function)  For upgrades whose crafting stack should not vary.

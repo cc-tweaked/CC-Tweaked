@@ -6,8 +6,8 @@
 package dan200.computercraft.core.filesystem;
 
 import dan200.computercraft.api.filesystem.FileOperationException;
-import dan200.computercraft.api.filesystem.IMount;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.api.filesystem.WritableMount;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -22,17 +22,17 @@ class MountWrapper {
     private final String label;
     private final String location;
 
-    private final IMount mount;
-    private final @Nullable IWritableMount writableMount;
+    private final Mount mount;
+    private final @Nullable WritableMount writableMount;
 
-    MountWrapper(String label, String location, IMount mount) {
+    MountWrapper(String label, String location, Mount mount) {
         this.label = label;
         this.location = location;
         this.mount = mount;
         writableMount = null;
     }
 
-    MountWrapper(String label, String location, IWritableMount mount) {
+    MountWrapper(String label, String location, WritableMount mount) {
         this.label = label;
         this.location = location;
         this.mount = mount;

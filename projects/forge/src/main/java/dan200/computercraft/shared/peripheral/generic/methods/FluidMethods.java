@@ -13,7 +13,6 @@ import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.PeripheralType;
 import dan200.computercraft.shared.platform.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -40,8 +39,8 @@ public class FluidMethods implements GenericPeripheral {
     }
 
     @Override
-    public ResourceLocation id() {
-        return new ResourceLocation(ComputerCraftAPI.MOD_ID, "fluid");
+    public String id() {
+        return ComputerCraftAPI.MOD_ID + ":fluid";
     }
 
     /**

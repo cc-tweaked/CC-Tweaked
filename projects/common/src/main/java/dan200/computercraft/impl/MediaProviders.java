@@ -6,7 +6,7 @@
 package dan200.computercraft.impl;
 
 import dan200.computercraft.api.media.IMedia;
-import dan200.computercraft.api.media.IMediaProvider;
+import dan200.computercraft.api.media.MediaProvider;
 import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +19,12 @@ import java.util.Set;
 public final class MediaProviders {
     private static final Logger LOG = LoggerFactory.getLogger(MediaProviders.class);
 
-    private static final Set<IMediaProvider> providers = new LinkedHashSet<>();
+    private static final Set<MediaProvider> providers = new LinkedHashSet<>();
 
     private MediaProviders() {
     }
 
-    public static synchronized void register(IMediaProvider provider) {
+    public static synchronized void register(MediaProvider provider) {
         Objects.requireNonNull(provider, "provider cannot be null");
         providers.add(provider);
     }

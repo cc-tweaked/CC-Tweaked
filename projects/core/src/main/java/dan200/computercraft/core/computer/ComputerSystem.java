@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.core.computer;
 
-import dan200.computercraft.api.filesystem.IFileSystem;
 import dan200.computercraft.api.lua.IComputerSystem;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.api.peripheral.IComputerAccess;
@@ -35,13 +34,6 @@ public class ComputerSystem extends ComputerAccess implements IComputerSystem {
     @Override
     public String getAttachmentName() {
         return "computer";
-    }
-
-    @Nullable
-    @Override
-    public IFileSystem getFileSystem() {
-        var fs = environment.getFileSystem();
-        return fs == null ? null : fs.getMountWrapper();
     }
 
     @Nullable

@@ -21,14 +21,12 @@ dependencies {
     clientImplementation(clientClasses(project(":common-api")))
 
     compileOnly(libs.bundles.externalMods.common)
-    compileOnly(project(":forge-stubs"))
 
     compileOnly(libs.mixin)
     annotationProcessorEverywhere(libs.autoService)
 
     testImplementation(testFixtures(project(":core")))
     testImplementation(libs.bundles.test)
-    testImplementation(project(":forge-stubs"))
     testRuntimeOnly(libs.bundles.testRuntime)
 
     testModImplementation(testFixtures(project(":core")))

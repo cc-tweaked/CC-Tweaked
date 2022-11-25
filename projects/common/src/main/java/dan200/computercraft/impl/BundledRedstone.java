@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.impl;
 
-import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
+import dan200.computercraft.api.redstone.BundledRedstoneProvider;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,12 +19,12 @@ import java.util.Objects;
 public final class BundledRedstone {
     private static final Logger LOG = LoggerFactory.getLogger(BundledRedstone.class);
 
-    private static final ArrayList<IBundledRedstoneProvider> providers = new ArrayList<>();
+    private static final ArrayList<BundledRedstoneProvider> providers = new ArrayList<>();
 
     private BundledRedstone() {
     }
 
-    public static synchronized void register(IBundledRedstoneProvider provider) {
+    public static synchronized void register(BundledRedstoneProvider provider) {
         Objects.requireNonNull(provider, "provider cannot be null");
         if (!providers.contains(provider)) providers.add(provider);
     }

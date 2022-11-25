@@ -8,8 +8,8 @@ package dan200.computercraft;
 import com.google.auto.service.AutoService;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
-import dan200.computercraft.api.filesystem.IMount;
-import dan200.computercraft.api.network.wired.IWiredElement;
+import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.impl.AbstractComputerCraftAPI;
 import dan200.computercraft.impl.ComputerCraftAPIService;
@@ -139,7 +139,7 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     }
 
     @Override
-    public ComponentAccess<IWiredElement> createWiredElementAccess(Consumer<Direction> invalidate) {
+    public ComponentAccess<WiredElement> createWiredElementAccess(Consumer<Direction> invalidate) {
         throw new UnsupportedOperationException("Cannot interact with the world inside tests");
     }
 
@@ -226,7 +226,7 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
 
     @Nullable
     @Override
-    public IMount createResourceMount(String domain, String subPath) {
+    public Mount createResourceMount(MinecraftServer server, String domain, String subPath) {
         throw new UnsupportedOperationException("Cannot create resource mount");
     }
 

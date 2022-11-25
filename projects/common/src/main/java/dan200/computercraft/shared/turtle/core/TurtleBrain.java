@@ -18,7 +18,6 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.container.InventoryDelegate;
-import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import dan200.computercraft.shared.util.Holiday;
@@ -39,7 +38,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -383,12 +381,6 @@ public class TurtleBrain implements ITurtleAccess {
     }
 
     @Override
-    @Deprecated(forRemoval = true)
-    public IItemHandlerModifiable getItemHandler() {
-        return PlatformHelper.get().wrapContainerToItemHandler(inventory);
-    }
-
-    @Override
     public boolean isFuelNeeded() {
         return Config.turtlesNeedFuel;
     }
@@ -436,7 +428,7 @@ public class TurtleBrain implements ITurtleAccess {
     }
 
     @Override
-    public MethodResult executeCommand(ITurtleCommand command) {
+    public MethodResult executeCommand(TurtleCommand command) {
         if (getLevel().isClientSide) throw new UnsupportedOperationException("Cannot run commands on the client");
         if (commandQueue.size() > 16) return MethodResult.of(false, "Too many ongoing turtle commands");
 

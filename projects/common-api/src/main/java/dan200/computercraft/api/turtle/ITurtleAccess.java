@@ -15,7 +15,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nullable;
 
@@ -43,7 +42,7 @@ public interface ITurtleAccess {
     /**
      * Determine if this turtle has been removed.
      * <p>
-     * It's possible for a turtle to be removed while a {@link ITurtleCommand} is executed, for instance if interacting
+     * It's possible for a turtle to be removed while a {@link TurtleCommand} is executed, for instance if interacting
      * with a block causes the turtle to be blown up. It's recommended you check the turtle is still present before
      * trying to interact with it again.
      * <p>
@@ -156,22 +155,8 @@ public interface ITurtleAccess {
      * Note: this inventory should only be accessed and modified on the server thread.
      *
      * @return This turtle's inventory
-     * @see #getItemHandler()
      */
     Container getInventory();
-
-    /**
-     * Get the inventory of this turtle as an {@link IItemHandlerModifiable}.
-     * <p>
-     * Note: this inventory should only be accessed and modified on the server thread.
-     *
-     * @return This turtle's inventory
-     * @see #getInventory()
-     * @see IItemHandlerModifiable
-     * @deprecated Use {@link #getInventory()} directly.
-     */
-    @Deprecated(forRemoval = true)
-    IItemHandlerModifiable getItemHandler();
 
     /**
      * Determine whether this turtle will require fuel when performing actions.
@@ -239,10 +224,10 @@ public interface ITurtleAccess {
      * @return The objects the command returned when executed. you should probably return these to the player
      * unchanged if called from a peripheral method.
      * @throws UnsupportedOperationException When attempting to execute a command on the client side.
-     * @see ITurtleCommand
+     * @see TurtleCommand
      * @see MethodResult#pullEvent(String, ILuaCallback)
      */
-    MethodResult executeCommand(ITurtleCommand command);
+    MethodResult executeCommand(TurtleCommand command);
 
     /**
      * Start playing a specific animation. This will prevent other turtle commands from executing until

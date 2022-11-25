@@ -6,7 +6,7 @@
 package dan200.computercraft.api.turtle;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.upgrades.IUpgradeBase;
+import dan200.computercraft.api.upgrades.UpgradeBase;
 import net.minecraft.core.Direction;
 
 import javax.annotation.Nullable;
@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
  *
  * @see TurtleUpgradeSerialiser For how to register a turtle upgrade.
  */
-public interface ITurtleUpgrade extends IUpgradeBase {
+public interface ITurtleUpgrade extends UpgradeBase {
     /**
      * Return whether this turtle adds a tool or a peripheral to the turtle.
      *

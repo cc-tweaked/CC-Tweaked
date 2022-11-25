@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.core.computer.mainthread;
 
-import dan200.computercraft.api.peripheral.IWorkMonitor;
+import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.metrics.Metrics;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  * time-frame or the global time frame has expired.
  * <p>
  * Then, when other objects (such as block entities or entities) are ticked, we update how much time we've used via
- * {@link IWorkMonitor#trackWork(long, TimeUnit)}.
+ * {@link WorkMonitor#trackWork(long, TimeUnit)}.
  * <p>
  * Now, if anywhere during this period, we use more than our allocated time slice, the executor is marked as
  * {@link State#HOT}. This means it will no longer be able to execute {@link MainThread} tasks (though will still
@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
  * second, but one task source will not prevent others from executing.
  *
  * @see MainThread
- * @see IWorkMonitor
+ * @see WorkMonitor
  * @see Computer#getMainThreadMonitor()
  * @see Computer#queueMainThread(Runnable)
  */

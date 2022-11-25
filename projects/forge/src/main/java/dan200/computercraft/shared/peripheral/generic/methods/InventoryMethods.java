@@ -14,7 +14,6 @@ import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.PeripheralType;
 import dan200.computercraft.shared.platform.ForgeContainerTransfer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -42,8 +41,8 @@ public class InventoryMethods implements GenericPeripheral {
     }
 
     @Override
-    public ResourceLocation id() {
-        return new ResourceLocation(ComputerCraftAPI.MOD_ID, "inventory");
+    public String id() {
+        return ComputerCraftAPI.MOD_ID + ":inventory";
     }
 
     /**

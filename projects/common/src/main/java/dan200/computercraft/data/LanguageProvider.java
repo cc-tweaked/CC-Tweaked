@@ -11,7 +11,7 @@ import com.google.gson.JsonObject;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
 import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
-import dan200.computercraft.api.upgrades.IUpgradeBase;
+import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.shared.ModRegistry;
@@ -272,8 +272,8 @@ public final class LanguageProvider implements DataProvider {
             Registries.ITEMS.stream()
                 .filter(x -> Registries.ITEMS.getKey(x).getNamespace().equals(ComputerCraftAPI.MOD_ID))
                 .map(Item::getDescriptionId),
-            turtleUpgrades.getGeneratedUpgrades().stream().map(IUpgradeBase::getUnlocalisedAdjective),
-            pocketUpgrades.getGeneratedUpgrades().stream().map(IUpgradeBase::getUnlocalisedAdjective),
+            turtleUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),
+            pocketUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),
             Metric.metrics().values().stream().map(x -> AggregatedMetric.TRANSLATION_PREFIX + x.name() + ".name"),
             getConfigKeys(ConfigSpec.serverSpec),
             getConfigKeys(ConfigSpec.clientSpec)

@@ -9,7 +9,6 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralType;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.energy.IEnergyStorage;
 
 /**
@@ -32,8 +31,8 @@ public class EnergyMethods implements GenericPeripheral {
     }
 
     @Override
-    public ResourceLocation id() {
-        return new ResourceLocation(ComputerCraftAPI.MOD_ID, "energy");
+    public String id() {
+        return ComputerCraftAPI.MOD_ID + ":energy";
     }
 
     /**

@@ -6,11 +6,11 @@
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
+import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 
-public class TurtleTurnCommand implements ITurtleCommand {
+public class TurtleTurnCommand implements TurtleCommand {
     private final TurnDirection direction;
 
     public TurtleTurnCommand(TurnDirection direction) {

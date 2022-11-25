@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * An {@link IOException} which occurred on a specific file.
  * <p>
- * This may be thrown from a {@link IMount} or {@link IWritableMount} to give more information about a failure.
+ * This may be thrown from a {@link Mount} or {@link WritableMount} to give more information about a failure.
  */
 public class FileOperationException extends IOException {
     @Serial

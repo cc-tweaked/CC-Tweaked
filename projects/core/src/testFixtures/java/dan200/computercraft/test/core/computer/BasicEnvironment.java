@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.test.core.computer;
 
-import dan200.computercraft.api.filesystem.IMount;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.GlobalEnvironment;
@@ -29,18 +29,18 @@ import java.net.URL;
  * will only run a single computer.
  */
 public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment, MetricsObserver {
-    private final IWritableMount mount;
+    private final WritableMount mount;
 
     public BasicEnvironment() {
         this(new MemoryMount());
     }
 
-    public BasicEnvironment(IWritableMount mount) {
+    public BasicEnvironment(WritableMount mount) {
         this.mount = mount;
     }
 
     @Override
-    public IWritableMount createRootMount() {
+    public WritableMount createRootMount() {
         return mount;
     }
 
@@ -70,7 +70,7 @@ public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment,
     }
 
     @Override
-    public IMount createResourceMount(String domain, String subPath) {
+    public Mount createResourceMount(String domain, String subPath) {
         return createMount(ComputerContext.class, "data/" + domain + "/" + subPath, "main");
     }
 
@@ -79,7 +79,7 @@ public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment,
         return ComputerContext.class.getClassLoader().getResourceAsStream("data/" + domain + "/" + subPath);
     }
 
-    public static IMount createMount(Class<?> klass, String path, String fallback) {
+    public static Mount createMount(Class<?> klass, String path, String fallback) {
         var file = getContainingFile(klass);
 
         if (file.isFile()) {
