@@ -35,6 +35,8 @@ jobs:
 
     - name: Run client tests
       run: ./gradlew runGametestClient # Not checkClient, as no point running rendering tests.
+      # These are a little flaky on GH actions: its useful to run them, but don't break the build.
+      continue-on-error: true
 
     - name: Upload Jar
       uses: actions/upload-artifact@v2
