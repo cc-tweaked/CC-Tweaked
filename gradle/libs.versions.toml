@@ -43,7 +43,7 @@ jqwik = "1.7.0"
 junit = "5.9.1"
 
 # Build tools
-cctJavadoc = "1.5.2"
+cctJavadoc = "1.5.3"
 checkstyle = "10.3.4"
 curseForgeGradle = "1.0.11"
 errorProne-core = "2.14.0"

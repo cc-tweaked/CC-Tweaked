@@ -180,9 +180,11 @@ val luaJavadoc by tasks.registering(Javadoc::class) {
     setDestinationDir(buildDir.resolve("docs/luaJavadoc"))
     classpath = sourceSets.main.get().compileClasspath
 
+    val options = options as StandardJavadocDocletOptions
     options.docletpath = configurations["cctJavadoc"].files.toList()
     options.doclet = "cc.tweaked.javadoc.LuaDoclet"
-    (options as StandardJavadocDocletOptions).noTimestamp(false)
+    options.addStringOption("project-root", rootProject.file(".").absolutePath)
+    options.noTimestamp(false)
 
     javadocTool.set(
         javaToolchains.javadocToolFor {
