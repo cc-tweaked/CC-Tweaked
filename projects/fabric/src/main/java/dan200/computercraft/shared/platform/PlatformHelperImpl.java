@@ -9,7 +9,7 @@ import com.google.auto.service.AutoService;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.network.wired.IWiredElement;
+import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.node.wired.WiredElementLookup;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralLookup;
@@ -192,7 +192,7 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public ComponentAccess<IWiredElement> createWiredElementAccess(Consumer<Direction> invalidate) {
+    public ComponentAccess<WiredElement> createWiredElementAccess(Consumer<Direction> invalidate) {
         return new ComponentAccessImpl<>(WiredElementLookup.get());
     }
 

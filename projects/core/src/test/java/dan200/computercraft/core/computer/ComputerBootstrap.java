@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.core.computer;
 
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
@@ -45,7 +45,7 @@ public class ComputerBootstrap {
         }, maxTimes);
     }
 
-    public static void run(IWritableMount mount, Consumer<Computer> setup, int maxTicks) {
+    public static void run(WritableMount mount, Consumer<Computer> setup, int maxTicks) {
         CoreConfig.maxMainComputerTime = CoreConfig.maxMainGlobalTime = Integer.MAX_VALUE;
 
         var term = new Terminal(51, 19, true);

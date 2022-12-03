@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.computer.core;
 
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.Mount;
 import net.minecraft.Util;
 import net.minecraft.server.packs.FolderPackResources;
 import net.minecraft.server.packs.PackType;
@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ResourceMountTest {
-    private IMount mount;
+    private Mount mount;
 
     @BeforeEach
     public void before() {

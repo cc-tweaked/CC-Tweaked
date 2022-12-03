@@ -6,8 +6,8 @@
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.ILuaTask;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaTask;
 import dan200.computercraft.core.Logging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,7 @@ class LuaContext implements ILuaContext {
     }
 
     @Override
-    public long issueMainThreadTask(final ILuaTask task) throws LuaException {
+    public long issueMainThreadTask(final LuaTask task) throws LuaException {
         // Issue command
         final var taskID = computer.getUniqueTaskId();
         final Runnable iTask = () -> {

@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 /**
  * Used to indicate the result of executing a turtle command.
  *
- * @see ITurtleCommand#execute(ITurtleAccess)
+ * @see TurtleCommand#execute(ITurtleAccess)
  * @see ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, TurtleVerb, Direction)
  */
 public final class TurtleCommandResult {

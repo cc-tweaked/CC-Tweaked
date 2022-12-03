@@ -8,7 +8,7 @@ package dan200.computercraft.shared.pocket.items;
 import com.google.common.base.Objects;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.core.computer.ComputerSide;
@@ -192,21 +192,19 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         return ComputerCraftAPI.MOD_ID;
     }
 
-    public PocketServerComputer createServerComputer(ServerLevel world, Entity entity, @Nullable Container inventory, ItemStack stack) {
-        if (world.isClientSide) throw new IllegalStateException("Cannot call createServerComputer on the client");
-
+    public PocketServerComputer createServerComputer(ServerLevel level, Entity entity, @Nullable Container inventory, ItemStack stack) {
         var sessionID = getSessionID(stack);
 
-        var registry = ServerContext.get(world.getServer()).registry();
+        var registry = ServerContext.get(level.getServer()).registry();
         var computer = (PocketServerComputer) registry.get(sessionID, getInstanceID(stack));
         if (computer == null) {
             var computerID = getComputerID(stack);
             if (computerID < 0) {
-                computerID = ComputerCraftAPI.createUniqueNumberedSaveDir(world, IDAssigner.COMPUTER);
+                computerID = ComputerCraftAPI.createUniqueNumberedSaveDir(level.getServer(), IDAssigner.COMPUTER);
                 setComputerID(stack, computerID);
             }
 
-            computer = new PocketServerComputer(world, entity.blockPosition(), getComputerID(stack), getLabel(stack), getFamily());
+            computer = new PocketServerComputer(level, entity.blockPosition(), getComputerID(stack), getLabel(stack), getFamily());
 
             setInstanceID(stack, computer.register());
             setSessionID(stack, registry.getSessionID());
@@ -219,7 +217,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
 
             if (inventory != null) inventory.setChanged();
         }
-        computer.setLevel(world);
+        computer.setLevel(level);
         return computer;
     }
 
@@ -265,10 +263,10 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
     }
 
     @Override
-    public @Nullable IMount createDataMount(ItemStack stack, Level world) {
+    public @Nullable Mount createDataMount(ItemStack stack, ServerLevel level) {
         var id = getComputerID(stack);
         if (id >= 0) {
-            return ComputerCraftAPI.createSaveDirMount(world, "computer/" + id, Config.computerSpaceLimit);
+            return ComputerCraftAPI.createSaveDirMount(level.getServer(), "computer/" + id, Config.computerSpaceLimit);
         }
         return null;
     }

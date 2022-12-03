@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.api.turtle;
 
-import dan200.computercraft.api.upgrades.IUpgradeBase;
+import dan200.computercraft.api.upgrades.UpgradeBase;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -29,7 +29,7 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade {
     }
 
     protected AbstractTurtleUpgrade(ResourceLocation id, TurtleUpgradeType type, ItemStack stack) {
-        this(id, type, IUpgradeBase.getDefaultAdjective(id), stack);
+        this(id, type, UpgradeBase.getDefaultAdjective(id), stack);
     }
 
     @Override

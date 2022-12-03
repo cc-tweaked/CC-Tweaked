@@ -6,11 +6,11 @@
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.ITurtleCommand;
+import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import net.minecraft.world.item.ItemStack;
 
-public class TurtleCompareToCommand implements ITurtleCommand {
+public class TurtleCompareToCommand implements TurtleCommand {
     private final int slot;
 
     public TurtleCompareToCommand(int slot) {

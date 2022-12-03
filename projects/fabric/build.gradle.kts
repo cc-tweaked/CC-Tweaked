@@ -64,8 +64,6 @@ dependencies {
     runtimeOnly(libs.cobalt)
     runtimeOnly(libs.netty.http)
 
-    compileOnly(project(":forge-stubs"))
-
     annotationProcessorEverywhere(libs.autoService)
 
     testModImplementation(testFixtures(project(":core")))

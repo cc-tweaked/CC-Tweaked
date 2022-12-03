@@ -19,7 +19,6 @@ import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -42,8 +41,8 @@ public class InventoryMethods implements GenericPeripheral {
     }
 
     @Override
-    public ResourceLocation id() {
-        return new ResourceLocation(ComputerCraftAPI.MOD_ID, "inventory");
+    public String id() {
+        return ComputerCraftAPI.MOD_ID + ":inventory";
     }
 
     @LuaFunction(mainThread = true)

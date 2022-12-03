@@ -6,7 +6,7 @@
 package dan200.computercraft.test.core.apis;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IWorkMonitor;
+import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
@@ -42,7 +42,7 @@ public abstract class BasicApiEnvironment implements IAPIEnvironment {
     }
 
     @Override
-    public IWorkMonitor getMainThreadMonitor() {
+    public WorkMonitor getMainThreadMonitor() {
         throw new IllegalStateException("Main thread monitor not available");
     }
 

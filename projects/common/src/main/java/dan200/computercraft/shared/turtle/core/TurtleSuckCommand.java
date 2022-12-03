@@ -6,8 +6,8 @@
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
+import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.platform.ContainerTransfer;
 import dan200.computercraft.shared.platform.PlatformHelper;
@@ -20,7 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.phys.AABB;
 
-public class TurtleSuckCommand implements ITurtleCommand {
+public class TurtleSuckCommand implements TurtleCommand {
     private final InteractDirection direction;
     private final int quantity;
 

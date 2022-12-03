@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.computer.core;
 
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.IAPIEnvironment;
@@ -245,7 +245,7 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
     }
 
     @Override
-    public @Nullable IWritableMount createRootMount() {
-        return ComputerCraftAPI.createSaveDirMount(level, "computer/" + computer.getID(), Config.computerSpaceLimit);
+    public @Nullable WritableMount createRootMount() {
+        return ComputerCraftAPI.createSaveDirMount(level.getServer(), "computer/" + computer.getID(), Config.computerSpaceLimit);
     }
 }

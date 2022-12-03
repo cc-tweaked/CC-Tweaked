@@ -5,10 +5,10 @@
  */
 package dan200.computercraft.core.apis;
 
-import dan200.computercraft.api.filesystem.IMount;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.api.peripheral.IWorkMonitor;
+import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public abstract class ComputerAccess implements IComputerAccess {
 
     @Nullable
     @Override
-    public synchronized String mount(String desiredLoc, IMount mount, String driveName) {
+    public synchronized String mount(String desiredLoc, Mount mount, String driveName) {
         Objects.requireNonNull(desiredLoc, "desiredLocation cannot be null");
         Objects.requireNonNull(mount, "mount cannot be null");
         Objects.requireNonNull(driveName, "driveName cannot be null");
@@ -68,7 +68,7 @@ public abstract class ComputerAccess implements IComputerAccess {
 
     @Nullable
     @Override
-    public synchronized String mountWritable(String desiredLoc, IWritableMount mount, String driveName) {
+    public synchronized String mountWritable(String desiredLoc, WritableMount mount, String driveName) {
         Objects.requireNonNull(desiredLoc, "desiredLocation cannot be null");
         Objects.requireNonNull(mount, "mount cannot be null");
         Objects.requireNonNull(driveName, "driveName cannot be null");
@@ -113,7 +113,7 @@ public abstract class ComputerAccess implements IComputerAccess {
     }
 
     @Override
-    public IWorkMonitor getMainThreadMonitor() {
+    public WorkMonitor getMainThreadMonitor() {
         return environment.getMainThreadMonitor();
     }
 

@@ -11,7 +11,7 @@ import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 
 /**
- * A simple version of {@link BasicFileAttributes}, which provides what information a {@link IMount} already exposes.
+ * A simple version of {@link BasicFileAttributes}, which provides what information a {@link Mount} already exposes.
  *
  * @param isDirectory Whether this filesystem entry is a directory.
  * @param size        The size of the file.

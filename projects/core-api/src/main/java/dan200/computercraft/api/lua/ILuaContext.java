@@ -23,7 +23,7 @@ public interface ILuaContext {
      * @throws LuaException If the task could not be queued.
      * @see LuaFunction#mainThread() To run functions on the main thread and return their results synchronously.
      */
-    long issueMainThreadTask(ILuaTask task) throws LuaException;
+    long issueMainThreadTask(LuaTask task) throws LuaException;
 
     /**
      * Queue a task to be executed on the main server thread at the beginning of next tick, waiting for it to complete.
@@ -36,7 +36,7 @@ public interface ILuaContext {
      * @return The objects returned by {@code task}.
      * @throws LuaException If the task could not be queued, or if the task threw an exception.
      */
-    default MethodResult executeMainThreadTask(ILuaTask task) throws LuaException {
+    default MethodResult executeMainThreadTask(LuaTask task) throws LuaException {
         return TaskCallback.make(this, task);
     }
 }

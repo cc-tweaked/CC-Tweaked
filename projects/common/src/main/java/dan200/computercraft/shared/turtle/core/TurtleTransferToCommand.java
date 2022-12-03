@@ -6,12 +6,12 @@
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
+import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.util.InventoryUtil;
 
-public class TurtleTransferToCommand implements ITurtleCommand {
+public class TurtleTransferToCommand implements TurtleCommand {
     private final int slot;
     private final int quantity;
 

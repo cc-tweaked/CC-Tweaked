@@ -6,7 +6,7 @@
 package dan200.computercraft.api.network;
 
 /**
- * Represents a packet which may be sent across a {@link IPacketNetwork}.
+ * Represents a packet which may be sent across a {@link PacketNetwork}.
  *
  * @param channel      The channel to send the packet along. Receiving devices should only process packets from on
  *                     channels they are listening to.
@@ -14,16 +14,16 @@ package dan200.computercraft.api.network;
  * @param payload      The contents of this packet. This should be a "valid" Lua object, safe for queuing as an
  *                     event or returning from a peripheral call.
  * @param sender       The object which sent this packet.
- * @see IPacketSender
- * @see IPacketNetwork#transmitSameDimension(Packet, double)
- * @see IPacketNetwork#transmitInterdimensional(Packet)
- * @see IPacketReceiver#receiveDifferentDimension(Packet)
- * @see IPacketReceiver#receiveSameDimension(Packet, double)
+ * @see PacketSender
+ * @see PacketNetwork#transmitSameDimension(Packet, double)
+ * @see PacketNetwork#transmitInterdimensional(Packet)
+ * @see PacketReceiver#receiveDifferentDimension(Packet)
+ * @see PacketReceiver#receiveSameDimension(Packet, double)
  */
 public record Packet(
     int channel,
     int replyChannel,
     Object payload,
-    IPacketSender sender
+    PacketSender sender
 ) {
 }

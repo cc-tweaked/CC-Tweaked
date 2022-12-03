@@ -33,7 +33,6 @@ import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -43,13 +42,10 @@ import net.minecraftforge.api.ModLoadingContext;
 import net.minecraftforge.api.fml.event.config.ModConfigEvents;
 import net.minecraftforge.fml.config.ModConfig;
 
-import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 public class ComputerCraft {
-    public static @Nullable MinecraftServer server;
-
     public static void init() {
         NetworkHandler.init();
         FabricRegistryBuilder.createSimple(TurtleUpgradeSerialiser.class, TurtleUpgradeSerialiser.REGISTRY_ID.location()).buildAndRegister();
@@ -82,14 +78,8 @@ public class ComputerCraft {
         CommandRegistrationCallback.EVENT.register((dispatcher, context, environment) -> CommandComputerCraft.register(dispatcher));
 
         // Register hooks
-        ServerLifecycleEvents.SERVER_STARTING.register(s -> {
-            server = s;
-            CommonHooks.onServerStarting(s);
-        });
-        ServerLifecycleEvents.SERVER_STOPPED.register(s -> {
-            server = s;
-            CommonHooks.onServerStopped();
-        });
+        ServerLifecycleEvents.SERVER_STARTING.register(CommonHooks::onServerStarting);
+        ServerLifecycleEvents.SERVER_STOPPED.register(s -> CommonHooks.onServerStopped());
         ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> PlatformHelper.get().sendToPlayer(new UpgradesLoadedMessage(), player));
 
         ServerTickEvents.START_SERVER_TICK.register(CommonHooks::onServerTickStart);

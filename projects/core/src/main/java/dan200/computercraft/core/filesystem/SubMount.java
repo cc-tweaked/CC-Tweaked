@@ -5,18 +5,18 @@
  */
 package dan200.computercraft.core.filesystem;
 
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.Mount;
 
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
-public class SubMount implements IMount {
-    private final IMount parent;
+public class SubMount implements Mount {
+    private final Mount parent;
     private final String subPath;
 
-    public SubMount(IMount parent, String subPath) {
+    public SubMount(Mount parent, String subPath) {
         this.parent = parent;
         this.subPath = subPath;
     }

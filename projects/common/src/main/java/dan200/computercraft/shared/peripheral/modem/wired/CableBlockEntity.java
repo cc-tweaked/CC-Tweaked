@@ -6,8 +6,8 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.base.Objects;
-import dan200.computercraft.api.network.wired.IWiredElement;
-import dan200.computercraft.api.network.wired.IWiredNode;
+import dan200.computercraft.api.network.wired.WiredElement;
+import dan200.computercraft.api.network.wired.WiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.command.text.ChatHelpers;
@@ -67,7 +67,7 @@ public class CableBlockEntity extends BlockEntity {
     private boolean connectionsFormed = false;
 
     private final WiredModemElement cable = new CableElement();
-    private final IWiredNode node = cable.getNode();
+    private final WiredNode node = cable.getNode();
     private final TickScheduler.Token tickToken = new TickScheduler.Token(this);
     private final WiredModemPeripheral modem = new WiredModemPeripheral(
         new ModemState(() -> TickScheduler.schedule(tickToken)),
@@ -89,7 +89,7 @@ public class CableBlockEntity extends BlockEntity {
         }
     };
 
-    private final ComponentAccess<IWiredElement> connectedElements = PlatformHelper.get().createWiredElementAccess(x -> connectionsChanged());
+    private final ComponentAccess<WiredElement> connectedElements = PlatformHelper.get().createWiredElementAccess(x -> connectionsChanged());
 
     public CableBlockEntity(BlockEntityType<? extends CableBlockEntity> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -309,7 +309,7 @@ public class CableBlockEntity extends BlockEntity {
     }
 
     @Nullable
-    public IWiredElement getWiredElement(@Nullable Direction direction) {
+    public WiredElement getWiredElement(@Nullable Direction direction) {
         return direction == null || CableBlock.canConnectIn(getBlockState(), direction) ? cable : null;
     }
 

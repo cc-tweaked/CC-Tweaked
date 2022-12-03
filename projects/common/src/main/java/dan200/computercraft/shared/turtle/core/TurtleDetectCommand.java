@@ -6,11 +6,11 @@
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.ITurtleCommand;
+import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.util.WorldUtil;
 
-public class TurtleDetectCommand implements ITurtleCommand {
+public class TurtleDetectCommand implements TurtleCommand {
     private final InteractDirection direction;
 
     public TurtleDetectCommand(InteractDirection direction) {

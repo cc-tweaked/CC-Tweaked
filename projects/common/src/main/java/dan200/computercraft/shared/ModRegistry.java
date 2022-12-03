@@ -7,7 +7,7 @@ package dan200.computercraft.shared;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.detail.IDetailProvider;
+import dan200.computercraft.api.detail.DetailProvider;
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
@@ -98,7 +98,7 @@ import java.util.function.Function;
 
 /**
  * Registers ComputerCraft's registry entries and additional objects, such as {@link CauldronInteraction}s and
- * {@link IDetailProvider}s
+ * {@link DetailProvider}s
  * <p>
  * The functions in this class should be called from a loader-specific class.
  */

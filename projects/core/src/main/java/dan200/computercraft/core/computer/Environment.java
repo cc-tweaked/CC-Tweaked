@@ -7,7 +7,7 @@ package dan200.computercraft.core.computer;
 
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IWorkMonitor;
+import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.metrics.Metric;
@@ -83,7 +83,7 @@ public final class Environment implements IAPIEnvironment {
     }
 
     @Override
-    public IWorkMonitor getMainThreadMonitor() {
+    public WorkMonitor getMainThreadMonitor() {
         return computer.getMainThreadMonitor();
     }
 

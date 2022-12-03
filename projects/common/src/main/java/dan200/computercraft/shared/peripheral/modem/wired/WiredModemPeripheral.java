@@ -6,16 +6,16 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.collect.ImmutableMap;
-import dan200.computercraft.api.filesystem.IMount;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.*;
-import dan200.computercraft.api.network.IPacketNetwork;
-import dan200.computercraft.api.network.wired.IWiredNode;
-import dan200.computercraft.api.network.wired.IWiredSender;
+import dan200.computercraft.api.network.PacketNetwork;
+import dan200.computercraft.api.network.wired.WiredNode;
+import dan200.computercraft.api.network.wired.WiredSender;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.api.peripheral.NotAttachedException;
+import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.apis.PeripheralAPI;
 import dan200.computercraft.core.asm.PeripheralMethod;
 import dan200.computercraft.core.util.LuaUtil;
@@ -30,7 +30,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public abstract class WiredModemPeripheral extends ModemPeripheral implements IWiredSender {
+public abstract class WiredModemPeripheral extends ModemPeripheral implements WiredSender {
     private static final Logger LOG = LoggerFactory.getLogger(WiredModemPeripheral.class);
 
     private final WiredModemElement modem;
@@ -54,7 +54,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     }
 
     @Override
-    protected IPacketNetwork getNetwork() {
+    protected PacketNetwork getNetwork() {
         return modem.getNode();
     }
 
@@ -261,7 +261,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     //endregion
 
     @Override
-    public IWiredNode getNode() {
+    public WiredNode getNode() {
         return modem.getNode();
     }
 
@@ -368,7 +368,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         // IComputerAccess implementation
 
         @Override
-        public synchronized @Nullable String mount(String desiredLocation, IMount mount) {
+        public synchronized @Nullable String mount(String desiredLocation, Mount mount) {
             if (!attached) throw new NotAttachedException();
             var mounted = computer.mount(desiredLocation, mount, name);
             mounts.add(mounted);
@@ -376,7 +376,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         }
 
         @Override
-        public synchronized @Nullable String mount(String desiredLocation, IMount mount, String driveName) {
+        public synchronized @Nullable String mount(String desiredLocation, Mount mount, String driveName) {
             if (!attached) throw new NotAttachedException();
             var mounted = computer.mount(desiredLocation, mount, driveName);
             mounts.add(mounted);
@@ -384,7 +384,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         }
 
         @Override
-        public synchronized @Nullable String mountWritable(String desiredLocation, IWritableMount mount) {
+        public synchronized @Nullable String mountWritable(String desiredLocation, WritableMount mount) {
             if (!attached) throw new NotAttachedException();
             var mounted = computer.mountWritable(desiredLocation, mount, name);
             mounts.add(mounted);
@@ -392,7 +392,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         }
 
         @Override
-        public synchronized @Nullable String mountWritable(String desiredLocation, IWritableMount mount, String driveName) {
+        public synchronized @Nullable String mountWritable(String desiredLocation, WritableMount mount, String driveName) {
             if (!attached) throw new NotAttachedException();
             var mounted = computer.mountWritable(desiredLocation, mount, driveName);
             mounts.add(mounted);
@@ -419,7 +419,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         }
 
         @Override
-        public IWorkMonitor getMainThreadMonitor() {
+        public WorkMonitor getMainThreadMonitor() {
             if (!attached) throw new NotAttachedException();
             return computer.getMainThreadMonitor();
         }

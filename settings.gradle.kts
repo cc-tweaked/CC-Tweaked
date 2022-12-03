@@ -51,8 +51,6 @@ rootProject.name = "cc-tweaked-$mcVersion"
 include(":core-api")
 include(":core")
 
-include(":mc-stubs")
-include(":forge-stubs")
 include(":common-api")
 include(":common")
 include(":fabric-api")

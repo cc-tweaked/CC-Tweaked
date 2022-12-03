@@ -7,7 +7,7 @@ package dan200.computercraft.core.filesystem;
 
 import com.google.common.collect.Sets;
 import dan200.computercraft.api.filesystem.FileOperationException;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.OptionalLong;
 import java.util.Set;
 
-public class FileMount implements IWritableMount {
+public class FileMount implements WritableMount {
     private static final Logger LOG = LoggerFactory.getLogger(FileMount.class);
     private static final long MINIMUM_FILE_SIZE = 500;
     private static final Set<OpenOption> READ_OPTIONS = Collections.singleton(StandardOpenOption.READ);

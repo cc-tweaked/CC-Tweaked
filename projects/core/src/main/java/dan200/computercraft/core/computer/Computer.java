@@ -8,8 +8,8 @@ package dan200.computercraft.core.computer;
 import com.google.common.base.Objects;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.ILuaTask;
-import dan200.computercraft.api.peripheral.IWorkMonitor;
+import dan200.computercraft.api.lua.LuaTask;
+import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.computer.mainthread.MainThreadScheduler;
@@ -47,9 +47,9 @@ public class Computer {
     private final MainThreadScheduler.Executor serverExecutor;
 
     /**
-     * An internal counter for {@link ILuaTask} ids.
+     * An internal counter for {@link LuaTask} ids.
      *
-     * @see ILuaContext#issueMainThreadTask(ILuaTask)
+     * @see ILuaContext#issueMainThreadTask(LuaTask)
      * @see #getUniqueTaskId()
      */
     private final AtomicLong lastTaskId = new AtomicLong();
@@ -127,7 +127,7 @@ public class Computer {
         return serverExecutor.enqueue(runnable);
     }
 
-    public IWorkMonitor getMainThreadMonitor() {
+    public WorkMonitor getMainThreadMonitor() {
         return serverExecutor;
     }
 

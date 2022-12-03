@@ -10,7 +10,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.io.ByteStreams;
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import dan200.computercraft.api.filesystem.FileOperationException;
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.core.util.IoUtil;
 
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class JarMount implements IMount {
+public class JarMount implements Mount {
     /**
      * Only cache files smaller than 1MiB.
      */

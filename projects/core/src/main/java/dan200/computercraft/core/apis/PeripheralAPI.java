@@ -5,13 +5,13 @@
  */
 package dan200.computercraft.core.apis;
 
-import dan200.computercraft.api.filesystem.IMount;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.api.peripheral.NotAttachedException;
+import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.asm.LuaMethod;
 import dan200.computercraft.core.asm.PeripheralMethod;
 import dan200.computercraft.core.computer.ComputerSide;
@@ -101,14 +101,14 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
 
         @Nullable
         @Override
-        public synchronized String mount(String desiredLoc, IMount mount, String driveName) {
+        public synchronized String mount(String desiredLoc, Mount mount, String driveName) {
             if (!attached) throw new NotAttachedException();
             return super.mount(desiredLoc, mount, driveName);
         }
 
         @Nullable
         @Override
-        public synchronized String mountWritable(String desiredLoc, IWritableMount mount, String driveName) {
+        public synchronized String mountWritable(String desiredLoc, WritableMount mount, String driveName) {
             if (!attached) throw new NotAttachedException();
             return super.mountWritable(desiredLoc, mount, driveName);
         }
@@ -165,7 +165,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         }
 
         @Override
-        public IWorkMonitor getMainThreadMonitor() {
+        public WorkMonitor getMainThreadMonitor() {
             if (!attached) throw new NotAttachedException();
             return super.getMainThreadMonitor();
         }

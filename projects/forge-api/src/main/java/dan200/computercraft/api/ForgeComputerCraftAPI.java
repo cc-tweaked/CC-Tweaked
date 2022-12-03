@@ -6,7 +6,7 @@
 package dan200.computercraft.api;
 
 import dan200.computercraft.api.lua.GenericSource;
-import dan200.computercraft.api.network.wired.IWiredElement;
+import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.impl.ComputerCraftAPIForgeService;
@@ -20,8 +20,6 @@ import net.minecraftforge.common.util.LazyOptional;
  * The forge-specific entrypoint for ComputerCraft's API.
  */
 public final class ForgeComputerCraftAPI {
-    // TODO(1.19.3): Rename me to ComputerCraftAPIForge
-
     private ForgeComputerCraftAPI() {
     }
 
@@ -53,9 +51,9 @@ public final class ForgeComputerCraftAPI {
      * @param pos   The position the block exists in
      * @param side  The side to extract the network element from
      * @return The element's node
-     * @see IWiredElement#getNode()
+     * @see WiredElement#getNode()
      */
-    public static LazyOptional<IWiredElement> getWiredElementAt(BlockGetter world, BlockPos pos, Direction side) {
+    public static LazyOptional<WiredElement> getWiredElementAt(BlockGetter world, BlockPos pos, Direction side) {
         return getInstance().getWiredElementAt(world, pos, side);
     }
 

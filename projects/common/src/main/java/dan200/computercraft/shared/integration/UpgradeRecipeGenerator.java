@@ -9,7 +9,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.upgrades.IUpgradeBase;
+import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
@@ -245,7 +245,7 @@ public class UpgradeRecipeGenerator<T> {
         final Ingredient ingredient;
         final @Nullable ITurtleUpgrade turtle;
         final @Nullable IPocketUpgrade pocket;
-        final IUpgradeBase upgrade;
+        final UpgradeBase upgrade;
         private @Nullable ArrayList<T> recipes;
 
         UpgradeInfo(ItemStack stack, ITurtleUpgrade turtle) {

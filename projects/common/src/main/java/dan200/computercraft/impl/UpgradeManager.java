@@ -7,7 +7,7 @@ package dan200.computercraft.impl;
 
 import com.google.gson.*;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.upgrades.IUpgradeBase;
+import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.core.Registry;
@@ -36,11 +36,11 @@ import java.util.stream.Collectors;
  * @see TurtleUpgrades
  * @see PocketUpgrades
  */
-public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends IUpgradeBase> extends SimpleJsonResourceReloadListener {
+public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends UpgradeBase> extends SimpleJsonResourceReloadListener {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
-    public record UpgradeWrapper<R extends UpgradeSerialiser<? extends T>, T extends IUpgradeBase>(
+    public record UpgradeWrapper<R extends UpgradeSerialiser<? extends T>, T extends UpgradeBase>(
         String id, T upgrade, R serialiser, String modId
     ) {
     }

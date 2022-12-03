@@ -7,7 +7,7 @@ package dan200.computercraft.shared.turtle.upgrades;
 
 import com.google.gson.JsonObject;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
-import dan200.computercraft.api.upgrades.IUpgradeBase;
+import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -25,7 +25,7 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
 
     @Override
     public TurtleTool fromJson(ResourceLocation id, JsonObject object) {
-        var adjective = GsonHelper.getAsString(object, "adjective", IUpgradeBase.getDefaultAdjective(id));
+        var adjective = GsonHelper.getAsString(object, "adjective", UpgradeBase.getDefaultAdjective(id));
         var toolItem = GsonHelper.getAsItem(object, "item");
         var craftingItem = GsonHelper.getAsItem(object, "craftingItem", toolItem);
         var damageMultiplier = GsonHelper.getAsFloat(object, "damageMultiplier", 3.0f);

@@ -8,7 +8,7 @@ package dan200.computercraft.shared.computer.core;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.io.ByteStreams;
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.util.IoUtil;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public final class ResourceMount implements IMount {
+public final class ResourceMount implements Mount {
     private static final Logger LOG = LoggerFactory.getLogger(ResourceMount.class);
 
     /**

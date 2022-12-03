@@ -10,7 +10,7 @@ import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 import net.minecraft.world.item.ItemStack;
 
-public class TurtleEquipCommand implements ITurtleCommand {
+public class TurtleEquipCommand implements TurtleCommand {
     private final TurtleSide side;
 
     public TurtleEquipCommand(TurtleSide side) {

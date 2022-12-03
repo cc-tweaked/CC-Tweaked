@@ -8,10 +8,10 @@ package dan200.computercraft.impl.network.wired;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.network.wired.IWiredElement;
-import dan200.computercraft.api.network.wired.IWiredNetwork;
-import dan200.computercraft.api.network.wired.IWiredNetworkChange;
-import dan200.computercraft.api.network.wired.IWiredNode;
+import dan200.computercraft.api.network.wired.WiredElement;
+import dan200.computercraft.api.network.wired.WiredNetwork;
+import dan200.computercraft.api.network.wired.WiredNetworkChange;
+import dan200.computercraft.api.network.wired.WiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.core.BlockPos;
@@ -36,7 +36,7 @@ public class NetworkTest {
             bE = new NetworkElement(null, null, "b"),
             cE = new NetworkElement(null, null, "c");
 
-        IWiredNode
+        WiredNode
             aN = aE.getNode(),
             bN = bE.getNode(),
             cN = cE.getNode();
@@ -76,7 +76,7 @@ public class NetworkTest {
             bE = new NetworkElement(null, null, "b"),
             cE = new NetworkElement(null, null, "c");
 
-        IWiredNode
+        WiredNode
             aN = aE.getNode(),
             bN = bE.getNode(),
             cN = cE.getNode();
@@ -103,7 +103,7 @@ public class NetworkTest {
             bE = new NetworkElement(null, null, "b"),
             cE = new NetworkElement(null, null, "c");
 
-        IWiredNode
+        WiredNode
             aN = aE.getNode(),
             bN = bE.getNode(),
             cN = cE.getNode();
@@ -131,7 +131,7 @@ public class NetworkTest {
             bE = new NetworkElement(null, null, "b"),
             bbE = new NetworkElement(null, null, "b_");
 
-        IWiredNode
+        WiredNode
             aN = aE.getNode(),
             aaN = aaE.getNode(),
             bN = bE.getNode(),
@@ -172,7 +172,7 @@ public class NetworkTest {
             bE = new NetworkElement(null, null, "b"),
             cE = new NetworkElement(null, null, "c");
 
-        IWiredNode
+        WiredNode
             aN = aE.getNode(),
             bN = bE.getNode(),
             cN = cE.getNode();
@@ -203,7 +203,7 @@ public class NetworkTest {
             bbE = new NetworkElement(null, null, "b_"),
             cE = new NetworkElement(null, null, "c");
 
-        IWiredNode
+        WiredNode
             aN = aE.getNode(),
             aaN = aaE.getNode(),
             bN = bE.getNode(),
@@ -238,7 +238,7 @@ public class NetworkTest {
     @Test
     @Disabled("Takes a long time to run, mostly for stress testing")
     public void testLarge() {
-        var grid = new Grid<IWiredNode>(BRUTE_SIZE);
+        var grid = new Grid<WiredNode>(BRUTE_SIZE);
         grid.map((existing, pos) -> new NetworkElement(null, null, "n_" + pos).getNode());
 
         // Test connecting
@@ -297,11 +297,11 @@ public class NetworkTest {
         }
     }
 
-    private static final class NetworkElement implements IWiredElement {
+    private static final class NetworkElement implements WiredElement {
         private final Level world;
         private final Vec3 position;
         private final String id;
-        private final IWiredNode node;
+        private final WiredNode node;
         private final Map<String, IPeripheral> localPeripherals = Maps.newHashMap();
         private final Map<String, IPeripheral> remotePeripherals = Maps.newHashMap();
 
@@ -334,12 +334,12 @@ public class NetworkTest {
         }
 
         @Override
-        public IWiredNode getNode() {
+        public WiredNode getNode() {
             return node;
         }
 
         @Override
-        public void networkChanged(IWiredNetworkChange change) {
+        public void networkChanged(WiredNetworkChange change) {
             remotePeripherals.keySet().removeAll(change.peripheralsRemoved().keySet());
             remotePeripherals.putAll(change.peripheralsAdded());
         }
@@ -406,11 +406,11 @@ public class NetworkTest {
         }
     }
 
-    private static Set<WiredNode> nodes(IWiredNetwork network) {
-        return ((WiredNetwork) network).nodes;
+    private static Set<WiredNodeImpl> nodes(WiredNetwork network) {
+        return ((WiredNetworkImpl) network).nodes;
     }
 
-    private static Set<WiredNode> neighbours(IWiredNode node) {
-        return ((WiredNode) node).neighbours;
+    private static Set<WiredNodeImpl> neighbours(WiredNode node) {
+        return ((WiredNodeImpl) node).neighbours;
     }
 }

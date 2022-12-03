@@ -10,7 +10,6 @@ java {
 
 dependencies {
     api(project(":core-api"))
-    compileOnly(project(":forge-stubs"))
 }
 
 tasks.javadoc {

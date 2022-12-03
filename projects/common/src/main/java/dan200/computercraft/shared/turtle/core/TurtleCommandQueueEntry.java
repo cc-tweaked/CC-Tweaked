@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.turtle.core;
 
-import dan200.computercraft.api.turtle.ITurtleCommand;
+import dan200.computercraft.api.turtle.TurtleCommand;
 
-public record TurtleCommandQueueEntry(int callbackID, ITurtleCommand command) {
+public record TurtleCommandQueueEntry(int callbackID, TurtleCommand command) {
 }

@@ -7,10 +7,10 @@ package dan200.computercraft.shared.peripheral.modem;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.api.network.IPacketNetwork;
-import dan200.computercraft.api.network.IPacketReceiver;
-import dan200.computercraft.api.network.IPacketSender;
 import dan200.computercraft.api.network.Packet;
+import dan200.computercraft.api.network.PacketNetwork;
+import dan200.computercraft.api.network.PacketReceiver;
+import dan200.computercraft.api.network.PacketSender;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
@@ -83,8 +83,8 @@ import java.util.Set;
  *     <mc-recipe recipe="computercraft:wired_modem_full_from"></mc-recipe>
  * </div>
  */
-public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPacketReceiver {
-    private @Nullable IPacketNetwork network;
+public abstract class ModemPeripheral implements IPeripheral, PacketSender, PacketReceiver {
+    private @Nullable PacketNetwork network;
     private final Set<IComputerAccess> computers = new HashSet<>(1);
     private final ModemState state;
 
@@ -96,7 +96,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
         return state;
     }
 
-    private synchronized void setNetwork(@Nullable IPacketNetwork network) {
+    private synchronized void setNetwork(@Nullable PacketNetwork network) {
         if (this.network == network) return;
 
         // Leave old network
@@ -137,7 +137,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
         }
     }
 
-    protected abstract IPacketNetwork getNetwork();
+    protected abstract PacketNetwork getNetwork();
 
     @Override
     public String getType() {

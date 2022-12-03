@@ -7,21 +7,20 @@ package dan200.computercraft.impl;
 
 import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.api.detail.DetailRegistry;
-import dan200.computercraft.api.detail.IDetailProvider;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
-import dan200.computercraft.api.media.IMediaProvider;
-import dan200.computercraft.api.network.IPacketNetwork;
-import dan200.computercraft.api.network.wired.IWiredElement;
-import dan200.computercraft.api.network.wired.IWiredNode;
-import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
+import dan200.computercraft.api.media.MediaProvider;
+import dan200.computercraft.api.network.PacketNetwork;
+import dan200.computercraft.api.network.wired.WiredElement;
+import dan200.computercraft.api.network.wired.WiredNode;
+import dan200.computercraft.api.redstone.BundledRedstoneProvider;
 import dan200.computercraft.api.turtle.TurtleRefuelHandler;
 import dan200.computercraft.core.apis.ApiFactories;
 import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.impl.detail.DetailRegistryImpl;
-import dan200.computercraft.impl.network.wired.WiredNode;
+import dan200.computercraft.impl.network.wired.WiredNodeImpl;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.details.BlockDetails;
 import dan200.computercraft.shared.details.ItemDetails;
@@ -54,19 +53,15 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     }
 
     @Override
-    public final int createUniqueNumberedSaveDir(Level world, String parentSubPath) {
-        var server = world.getServer();
-        if (server == null) throw new IllegalArgumentException("Cannot find server from provided level");
+    public final int createUniqueNumberedSaveDir(MinecraftServer server, String parentSubPath) {
         return ServerContext.get(server).getNextId(parentSubPath);
     }
 
     @Override
-    public final @Nullable IWritableMount createSaveDirMount(Level world, String subPath, long capacity) {
-        var server = world.getServer();
-        if (server == null) throw new IllegalArgumentException("Cannot find server from provided level");
-
+    public final @Nullable WritableMount createSaveDirMount(MinecraftServer server, String subPath, long capacity) {
+        var root = ServerContext.get(server).storageDir().toFile();
         try {
-            return new FileMount(new File(ServerContext.get(server).storageDir().toFile(), subPath), capacity);
+            return new FileMount(new File(root, subPath), capacity);
         } catch (Exception e) {
             return null;
         }
@@ -78,7 +73,7 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     }
 
     @Override
-    public final void registerBundledRedstoneProvider(IBundledRedstoneProvider provider) {
+    public final void registerBundledRedstoneProvider(BundledRedstoneProvider provider) {
         BundledRedstone.register(provider);
     }
 
@@ -88,12 +83,12 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     }
 
     @Override
-    public final void registerMediaProvider(IMediaProvider provider) {
+    public final void registerMediaProvider(MediaProvider provider) {
         MediaProviders.register(provider);
     }
 
     @Override
-    public final IPacketNetwork getWirelessNetwork() {
+    public final PacketNetwork getWirelessNetwork(MinecraftServer server) {
         return WirelessNetwork.getUniversal();
     }
 
@@ -102,12 +97,10 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
         ApiFactories.register(factory);
     }
 
-
     @Override
-    public final IWiredNode createWiredNodeForElement(IWiredElement element) {
-        return new WiredNode(element);
+    public final WiredNode createWiredNodeForElement(WiredElement element) {
+        return new WiredNodeImpl(element);
     }
-
 
     @Override
     public void registerRefuelHandler(TurtleRefuelHandler handler) {
@@ -122,18 +115,5 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     @Override
     public final DetailRegistry<BlockReference> getBlockInWorldDetailRegistry() {
         return blockDetails;
-    }
-
-    @Override
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    public <T> void registerDetailProvider(Class<T> type, IDetailProvider<T> provider) {
-        if (type == ItemStack.class) {
-            itemStackDetails.addProvider((IDetailProvider<ItemStack>) provider);
-        } else if (type == BlockReference.class) {
-            blockDetails.addProvider((IDetailProvider<BlockReference>) provider);
-        } else {
-            throw new IllegalArgumentException("Unknown detail provider " + type);
-        }
     }
 }

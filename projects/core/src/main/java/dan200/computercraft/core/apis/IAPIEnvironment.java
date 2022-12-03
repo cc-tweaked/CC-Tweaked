@@ -6,7 +6,7 @@
 package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IWorkMonitor;
+import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.computer.GlobalEnvironment;
@@ -30,7 +30,7 @@ public interface IAPIEnvironment {
 
     GlobalEnvironment getGlobalEnvironment();
 
-    IWorkMonitor getMainThreadMonitor();
+    WorkMonitor getMainThreadMonitor();
 
     Terminal getTerminal();
 

@@ -8,10 +8,10 @@ package dan200.computercraft.shared.turtle.core;
 import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.ITurtleCommand;
+import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 
-public class TurtleInspectCommand implements ITurtleCommand {
+public class TurtleInspectCommand implements TurtleCommand {
     private final InteractDirection direction;
 
     public TurtleInspectCommand(InteractDirection direction) {
