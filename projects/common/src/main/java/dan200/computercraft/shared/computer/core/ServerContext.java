@@ -8,6 +8,7 @@ package dan200.computercraft.shared.computer.core;
 import com.google.common.annotations.VisibleForTesting;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.api.network.PacketNetwork;
 import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.computer.ComputerThread;
 import dan200.computercraft.core.computer.GlobalEnvironment;
@@ -18,6 +19,7 @@ import dan200.computercraft.impl.AbstractComputerCraftAPI;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.computer.metrics.GlobalMetrics;
 import dan200.computercraft.shared.config.Config;
+import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.util.IDAssigner;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.MinecraftServer;
@@ -58,6 +60,7 @@ public final class ServerContext {
     private final ComputerContext context;
     private final MainThread mainThread;
     private final IDAssigner idAssigner;
+    private final WirelessNetwork wirelessNetwork = new WirelessNetwork();
     private final Path storageDir;
 
     private ServerContext(MinecraftServer server) {
@@ -178,6 +181,17 @@ public final class ServerContext {
      */
     public GlobalMetrics metrics() {
         return metrics;
+    }
+
+    /**
+     * Get the global wireless network.
+     * <p>
+     * Use {@link ComputerCraftAPI#getWirelessNetwork(MinecraftServer)} instead of this method.
+     *
+     * @return The wireless network.
+     */
+    public PacketNetwork wirelessNetwork() {
+        return wirelessNetwork;
     }
 
     private record Environment(MinecraftServer server) implements GlobalEnvironment {

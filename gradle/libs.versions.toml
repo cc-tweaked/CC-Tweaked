@@ -27,7 +27,7 @@ nightConfig = "3.6.5"
 slf4j = "1.7.36"
 
 # Minecraft mods
-forgeConfig = "4.2.6"
+forgeConfig = "4.2.7"
 iris = "1.19.x-v1.4.0"
 jei = "11.3.0.262"
 modmenu = "4.1.0"

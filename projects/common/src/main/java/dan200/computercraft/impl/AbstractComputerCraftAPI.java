@@ -24,7 +24,6 @@ import dan200.computercraft.impl.network.wired.WiredNodeImpl;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.details.BlockDetails;
 import dan200.computercraft.shared.details.ItemDetails;
-import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -89,7 +88,7 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
 
     @Override
     public final PacketNetwork getWirelessNetwork(MinecraftServer server) {
-        return WirelessNetwork.getUniversal();
+        return ServerContext.get(server).wirelessNetwork();
     }
 
     @Override

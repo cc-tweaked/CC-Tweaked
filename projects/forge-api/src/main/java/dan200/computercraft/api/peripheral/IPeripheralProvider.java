@@ -5,12 +5,12 @@
  */
 package dan200.computercraft.api.peripheral;
 
+import dan200.computercraft.api.ForgeComputerCraftAPI;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.util.LazyOptional;
-
 
 /**
  * This interface is used to create peripheral implementations for blocks.
@@ -18,13 +18,11 @@ import net.minecraftforge.common.util.LazyOptional;
  * If you have a {@link BlockEntity} which acts as a peripheral, you may alternatively expose the {@link IPeripheral}
  * capability.
  * <p>
- * {@code dan200.computercraft.api.ForgeComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)} should be used
- * to register a peripheral provider.
+ * {@link ForgeComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)} should be used to register a peripheral
+ * provider.
  */
 @FunctionalInterface
 public interface IPeripheralProvider {
-    // TODO(1.19.3): Move to Forge and fix link above.
-
     /**
      * Produce an peripheral implementation from a block location.
      *

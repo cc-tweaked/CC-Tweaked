@@ -391,7 +391,7 @@ public final class ComputerThread {
      */
     long scaledPeriod() {
         // FIXME: We access this on other threads (in TimeoutState), so their reads won't be consistent. This isn't
-        //  "criticial" behaviour, so not clear if it matters too much.
+        //  "critical" behaviour, so not clear if it matters too much.
 
         // +1 to include the current task
         var count = 1 + computerQueue.size();

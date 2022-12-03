@@ -12,7 +12,6 @@ import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.metrics.ComputerMBean;
-import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.peripheral.monitor.MonitorWatcher;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.TickScheduler;
@@ -70,7 +69,6 @@ public final class CommonHooks {
 
     private static void resetState() {
         ServerContext.close();
-        WirelessNetwork.resetNetworks();
         NetworkUtils.reset();
     }
 

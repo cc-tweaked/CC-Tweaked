@@ -408,17 +408,8 @@ public final class ConfigSpec {
     public static void sync(ModConfig config) {
         if (!config.getModId().equals(ComputerCraftAPI.MOD_ID)) return;
 
-        try {
-            if (config.getType() == ModConfig.Type.SERVER) syncServer();
-            if (config.getType() == ModConfig.Type.CLIENT) syncClient();
-        } catch (IllegalStateException e) {
-            // TODO: Remove when https://github.com/Fuzss/forgeconfigapiport-fabric/issues/26 is fixed.
-            if (e.getMessage() != null && e.getMessage().startsWith("Cannot get config value before config is loaded.")) {
-                return;
-            }
-
-            throw e;
-        }
+        if (config.getType() == ModConfig.Type.SERVER) syncServer();
+        if (config.getType() == ModConfig.Type.CLIENT) syncClient();
     }
 
     /**

@@ -33,11 +33,7 @@ public class ByteBufferChannel implements SeekableByteChannel {
 
         var remaining = Math.min(backing.limit() - position, destination.remaining());
 
-        // TODO: Switch to Java 17 methods on 1.18.x
-        var slice = backing.slice();
-        slice.position(position);
-        slice.limit(position + remaining);
-        destination.put(slice);
+        destination.put(position, backing, position, remaining);
         position += remaining;
         return remaining;
     }

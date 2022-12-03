@@ -9,25 +9,12 @@ import dan200.computercraft.api.network.Packet;
 import dan200.computercraft.api.network.PacketNetwork;
 import dan200.computercraft.api.network.PacketReceiver;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WirelessNetwork implements PacketNetwork {
-    // TODO: Move this to ServerContext.
-    private static @Nullable WirelessNetwork universalNetwork = null;
-
-    public static WirelessNetwork getUniversal() {
-        if (universalNetwork == null) universalNetwork = new WirelessNetwork();
-        return universalNetwork;
-    }
-
-    public static void resetNetworks() {
-        universalNetwork = null;
-    }
-
     private final Set<PacketReceiver> receivers = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     @Override
