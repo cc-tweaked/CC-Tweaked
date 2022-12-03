@@ -104,7 +104,6 @@ public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment,
         }
     }
 
-
     private static File getContainingFile(Class<?> klass) {
         var path = klass.getProtectionDomain().getCodeSource().getLocation().getPath();
         var bangIndex = path.indexOf("!");

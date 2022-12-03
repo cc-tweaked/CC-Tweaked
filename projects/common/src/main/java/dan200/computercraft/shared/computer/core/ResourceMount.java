@@ -5,56 +5,31 @@
  */
 package dan200.computercraft.shared.computer.core;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.io.ByteStreams;
-import dan200.computercraft.api.filesystem.Mount;
-import dan200.computercraft.core.apis.handles.ArrayByteChannel;
+import dan200.computercraft.core.filesystem.ArchiveMount;
 import dan200.computercraft.core.filesystem.FileSystem;
-import dan200.computercraft.core.util.IoUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-public final class ResourceMount implements Mount {
+/**
+ * A mount backed by Minecraft's {@link ResourceManager}.
+ *
+ * @see dan200.computercraft.api.ComputerCraftAPI#createResourceMount(MinecraftServer, String, String)
+ */
+public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
     private static final Logger LOG = LoggerFactory.getLogger(ResourceMount.class);
 
-    /**
-     * Only cache files smaller than 1MiB.
-     */
-    private static final int MAX_CACHED_SIZE = 1 << 20;
-
-    /**
-     * Limit the entire cache to 64MiB.
-     */
-    private static final int MAX_CACHE_SIZE = 64 << 20;
-
     private static final byte[] TEMP_BUFFER = new byte[8192];
-
-    /**
-     * We maintain a cache of the contents of all files in the mount. This allows us to allow
-     * seeking within ROM files, and reduces the amount we need to access disk for computer startup.
-     */
-    private static final Cache<FileEntry, byte[]> CONTENTS_CACHE = CacheBuilder.newBuilder()
-        .concurrencyLevel(4)
-        .expireAfterAccess(60, TimeUnit.SECONDS)
-        .maximumWeight(MAX_CACHE_SIZE)
-        .weakKeys()
-        .<FileEntry, byte[]>weigher((k, v) -> v.length)
-        .build();
 
     /**
      * Maintain a cache of currently loaded resource mounts. This cache is invalidated when currentManager changes.
@@ -64,9 +39,6 @@ public final class ResourceMount implements Mount {
     private final String namespace;
     private final String subPath;
     private ResourceManager manager;
-
-    @Nullable
-    private FileEntry root;
 
     public static ResourceMount get(String namespace, String subPath, ResourceManager manager) {
         var path = new ResourceLocation(namespace, subPath);
@@ -110,21 +82,6 @@ public final class ResourceMount implements Mount {
         }
     }
 
-    private @Nullable FileEntry get(String path) {
-        var lastEntry = root;
-        var lastIndex = 0;
-
-        while (lastEntry != null && lastIndex < path.length()) {
-            var nextIndex = path.indexOf('/', lastIndex);
-            if (nextIndex < 0) nextIndex = path.length();
-
-            lastEntry = lastEntry.children == null ? null : lastEntry.children.get(path.substring(lastIndex, nextIndex));
-            lastIndex = nextIndex + 1;
-        }
-
-        return lastEntry;
-    }
-
     private void create(FileEntry lastEntry, String path) {
         var lastIndex = 0;
         while (lastIndex < path.length()) {
@@ -152,95 +109,38 @@ public final class ResourceMount implements Mount {
     }
 
     @Override
-    public boolean exists(String path) {
-        return get(path) != null;
-    }
+    public long getSize(FileEntry file) {
+        var resource = manager.getResource(file.identifier).orElse(null);
+        if (resource == null) return 0;
 
-    @Override
-    public boolean isDirectory(String path) {
-        var file = get(path);
-        return file != null && file.isDirectory();
-    }
+        try (var stream = resource.open()) {
+            int total = 0, read = 0;
+            do {
+                total += read;
+                read = stream.read(TEMP_BUFFER);
+            } while (read > 0);
 
-    @Override
-    public void list(String path, List<String> contents) throws IOException {
-        var file = get(path);
-        if (file == null || !file.isDirectory()) throw new IOException("/" + path + ": Not a directory");
-
-        file.list(contents);
-    }
-
-    @Override
-    public long getSize(String path) throws IOException {
-        var file = get(path);
-        if (file != null) {
-            if (file.size != -1) return file.size;
-            if (file.isDirectory()) return file.size = 0;
-
-            var contents = CONTENTS_CACHE.getIfPresent(file);
-            if (contents != null) return file.size = contents.length;
-
-            var resource = manager.getResource(file.identifier).orElse(null);
-            if (resource == null) return file.size = 0;
-
-            try (var s = resource.open()) {
-                int total = 0, read = 0;
-                do {
-                    total += read;
-                    read = s.read(TEMP_BUFFER);
-                } while (read > 0);
-
-                return file.size = total;
-            } catch (IOException e) {
-                return file.size = 0;
-            }
+            return total;
+        } catch (IOException e) {
+            return 0;
         }
-
-        throw new IOException("/" + path + ": No such file");
     }
 
     @Override
-    public ReadableByteChannel openForRead(String path) throws IOException {
-        var file = get(path);
-        if (file != null && !file.isDirectory()) {
-            var contents = CONTENTS_CACHE.getIfPresent(file);
-            if (contents != null) return new ArrayByteChannel(contents);
+    public byte[] getContents(FileEntry file) throws IOException {
+        var resource = manager.getResource(file.identifier).orElse(null);
+        if (resource == null) throw new FileNotFoundException(NO_SUCH_FILE);
 
-            var resource = manager.getResource(file.identifier).orElse(null);
-            if (resource != null) {
-                var stream = resource.open();
-                if (stream.available() > MAX_CACHED_SIZE) return Channels.newChannel(stream);
-
-                try {
-                    contents = ByteStreams.toByteArray(stream);
-                } finally {
-                    IoUtil.closeQuietly(stream);
-                }
-
-                CONTENTS_CACHE.put(file, contents);
-                return new ArrayByteChannel(contents);
-            }
+        try (var stream = resource.open()) {
+            return stream.readAllBytes();
         }
-
-        throw new IOException("/" + path + ": No such file");
     }
 
-    private static class FileEntry {
+    protected static class FileEntry extends ArchiveMount.FileEntry<FileEntry> {
         final ResourceLocation identifier;
-        @Nullable
-        Map<String, FileEntry> children;
-        long size = -1;
 
         FileEntry(ResourceLocation identifier) {
             this.identifier = identifier;
-        }
-
-        boolean isDirectory() {
-            return children != null;
-        }
-
-        void list(List<String> contents) {
-            if (children != null) contents.addAll(children.keySet());
         }
     }
 
@@ -254,7 +154,6 @@ public final class ResourceMount implements Mount {
             profiler.push("Reloading ComputerCraft mounts");
             try {
                 for (var mount : MOUNT_CACHE.values()) mount.load(manager);
-                CONTENTS_CACHE.invalidateAll();
             } finally {
                 profiler.pop();
             }

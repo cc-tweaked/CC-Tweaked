@@ -16,7 +16,7 @@ import java.time.Instant;
  * @param isDirectory Whether this filesystem entry is a directory.
  * @param size        The size of the file.
  */
-record FileAttributes(boolean isDirectory, long size) implements BasicFileAttributes {
+public record FileAttributes(boolean isDirectory, long size) implements BasicFileAttributes {
     private static final FileTime EPOCH = FileTime.from(Instant.EPOCH);
 
     @Override
