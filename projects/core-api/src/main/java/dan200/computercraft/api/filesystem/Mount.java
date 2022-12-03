@@ -8,7 +8,7 @@ package dan200.computercraft.api.filesystem;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 
 import java.io.IOException;
-import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
@@ -60,15 +60,13 @@ public interface Mount {
     long getSize(String path) throws IOException;
 
     /**
-     * Opens a file with a given path, and returns an {@link ReadableByteChannel} representing its contents.
+     * Opens a file with a given path, and returns a {@link SeekableByteChannel} representing its contents.
      *
      * @param path A file path in normalised format, relative to the mount location. ie: "programs/myprogram".
-     * @return A channel representing the contents of the file. If the channel implements
-     * {@link java.nio.channels.SeekableByteChannel}, one will be able to seek to arbitrary positions when using binary
-     * mode.
+     * @return A channel representing the contents of the file.
      * @throws IOException If the file does not exist, or could not be opened.
      */
-    ReadableByteChannel openForRead(String path) throws IOException;
+    SeekableByteChannel openForRead(String path) throws IOException;
 
     /**
      * Get attributes about the given file.

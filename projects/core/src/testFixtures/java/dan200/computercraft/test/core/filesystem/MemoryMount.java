@@ -13,7 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -111,7 +111,7 @@ public class MemoryMount implements WritableMount {
     }
 
     @Override
-    public ReadableByteChannel openForRead(String path) throws FileOperationException {
+    public SeekableByteChannel openForRead(String path) throws FileOperationException {
         var file = files.get(path);
         if (file == null) throw new FileOperationException(path, "File not found");
         return new ArrayByteChannel(file);

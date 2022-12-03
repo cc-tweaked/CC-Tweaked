@@ -8,13 +8,11 @@ package dan200.computercraft.core.apis.handles;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.filesystem.TrackingCloseable;
-import dan200.computercraft.core.util.Nullability;
 
 import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,22 +27,19 @@ import java.util.Optional;
 public class BinaryReadableHandle extends HandleGeneric {
     private static final int BUFFER_SIZE = 8192;
 
-    private final ReadableByteChannel reader;
-    final @Nullable SeekableByteChannel seekable;
+    private final SeekableByteChannel channel;
     private final ByteBuffer single = ByteBuffer.allocate(1);
 
-    BinaryReadableHandle(ReadableByteChannel reader, @Nullable SeekableByteChannel seekable, TrackingCloseable closeable) {
+    BinaryReadableHandle(SeekableByteChannel channel, TrackingCloseable closeable) {
         super(closeable);
-        this.reader = reader;
-        this.seekable = seekable;
+        this.channel = channel;
     }
 
-    public static BinaryReadableHandle of(ReadableByteChannel channel, TrackingCloseable closeable) {
-        var seekable = asSeekable(channel);
-        return seekable == null ? new BinaryReadableHandle(channel, null, closeable) : new Seekable(seekable, closeable);
+    public static BinaryReadableHandle of(SeekableByteChannel channel, TrackingCloseable closeable) {
+        return new BinaryReadableHandle(channel, closeable);
     }
 
-    public static BinaryReadableHandle of(ReadableByteChannel channel) {
+    public static BinaryReadableHandle of(SeekableByteChannel channel) {
         return of(channel, new TrackingCloseable.Impl(channel));
     }
 
@@ -69,21 +64,19 @@ public class BinaryReadableHandle extends HandleGeneric {
             if (countArg.isPresent()) {
                 int count = countArg.get();
                 if (count < 0) throw new LuaException("Cannot read a negative number of bytes");
-                if (count == 0 && seekable != null) {
-                    return seekable.position() >= seekable.size() ? null : new Object[]{ "" };
-                }
+                if (count == 0) return channel.position() >= channel.size() ? null : new Object[]{ "" };
 
                 if (count <= BUFFER_SIZE) {
                     var buffer = ByteBuffer.allocate(count);
 
-                    var read = reader.read(buffer);
+                    var read = channel.read(buffer);
                     if (read < 0) return null;
                     buffer.flip();
                     return new Object[]{ buffer };
                 } else {
                     // Read the initial set of characters, failing if none are read.
                     var buffer = ByteBuffer.allocate(BUFFER_SIZE);
-                    var read = reader.read(buffer);
+                    var read = channel.read(buffer);
                     if (read < 0) return null;
 
                     // If we failed to read "enough" here, let's just abort
@@ -99,7 +92,7 @@ public class BinaryReadableHandle extends HandleGeneric {
                     parts.add(buffer);
                     while (read >= BUFFER_SIZE && totalRead < count) {
                         buffer = ByteBuffer.allocate(Math.min(BUFFER_SIZE, count - totalRead));
-                        read = reader.read(buffer);
+                        read = channel.read(buffer);
                         if (read < 0) break;
 
                         totalRead += read;
@@ -117,7 +110,7 @@ public class BinaryReadableHandle extends HandleGeneric {
                 }
             } else {
                 single.clear();
-                var b = reader.read(single);
+                var b = channel.read(single);
                 return b == -1 ? null : new Object[]{ single.get(0) & 0xFF };
             }
         } catch (IOException e) {
@@ -139,14 +132,14 @@ public class BinaryReadableHandle extends HandleGeneric {
         checkOpen();
         try {
             var expected = 32;
-            if (seekable != null) expected = Math.max(expected, (int) (seekable.size() - seekable.position()));
+            expected = Math.max(expected, (int) (channel.size() - channel.position()));
             var stream = new ByteArrayOutputStream(expected);
 
             var buf = ByteBuffer.allocate(8192);
             var readAnything = false;
             while (true) {
                 buf.clear();
-                var r = reader.read(buf);
+                var r = channel.read(buf);
                 if (r == -1) break;
 
                 readAnything = true;
@@ -179,7 +172,7 @@ public class BinaryReadableHandle extends HandleGeneric {
             boolean readAnything = false, readRc = false;
             while (true) {
                 single.clear();
-                var read = reader.read(single);
+                var read = channel.read(single);
                 if (read <= 0) {
                     // Nothing else to read, and we saw no \n. Return the array. If we saw a \r, then add it
                     // back.
@@ -211,35 +204,29 @@ public class BinaryReadableHandle extends HandleGeneric {
         }
     }
 
-    public static class Seekable extends BinaryReadableHandle {
-        Seekable(SeekableByteChannel seekable, TrackingCloseable closeable) {
-            super(seekable, seekable, closeable);
-        }
-
-        /**
-         * Seek to a new position within the file, changing where bytes are written to. The new position is an offset
-         * given by {@code offset}, relative to a start position determined by {@code whence}:
-         * <p>
-         * - {@code "set"}: {@code offset} is relative to the beginning of the file.
-         * - {@code "cur"}: Relative to the current position. This is the default.
-         * - {@code "end"}: Relative to the end of the file.
-         * <p>
-         * In case of success, {@code seek} returns the new file position from the beginning of the file.
-         *
-         * @param whence Where the offset is relative to.
-         * @param offset The offset to seek to.
-         * @return The new position.
-         * @throws LuaException If the file has been closed.
-         * @cc.treturn [1] number The new position.
-         * @cc.treturn [2] nil If seeking failed.
-         * @cc.treturn string The reason seeking failed.
-         * @cc.since 1.80pr1.9
-         */
-        @Nullable
-        @LuaFunction
-        public final Object[] seek(Optional<String> whence, Optional<Long> offset) throws LuaException {
-            checkOpen();
-            return handleSeek(Nullability.assertNonNull(seekable), whence, offset);
-        }
+    /**
+     * Seek to a new position within the file, changing where bytes are written to. The new position is an offset
+     * given by {@code offset}, relative to a start position determined by {@code whence}:
+     * <p>
+     * - {@code "set"}: {@code offset} is relative to the beginning of the file.
+     * - {@code "cur"}: Relative to the current position. This is the default.
+     * - {@code "end"}: Relative to the end of the file.
+     * <p>
+     * In case of success, {@code seek} returns the new file position from the beginning of the file.
+     *
+     * @param whence Where the offset is relative to.
+     * @param offset The offset to seek to.
+     * @return The new position.
+     * @throws LuaException If the file has been closed.
+     * @cc.treturn [1] number The new position.
+     * @cc.treturn [2] nil If seeking failed.
+     * @cc.treturn string The reason seeking failed.
+     * @cc.since 1.80pr1.9
+     */
+    @Nullable
+    @LuaFunction
+    public final Object[] seek(Optional<String> whence, Optional<Long> offset) throws LuaException {
+        checkOpen();
+        return handleSeek(channel, whence, offset);
     }
 }

@@ -182,7 +182,7 @@ public class FileMount implements WritableMount {
     }
 
     @Override
-    public ReadableByteChannel openForRead(String path) throws IOException {
+    public SeekableByteChannel openForRead(String path) throws IOException {
         if (created()) {
             var file = getRealPath(path);
             if (file.exists() && !file.isDirectory()) return FileChannel.open(file.toPath(), READ_OPTIONS);

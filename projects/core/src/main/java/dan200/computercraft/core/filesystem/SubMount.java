@@ -8,7 +8,7 @@ package dan200.computercraft.core.filesystem;
 import dan200.computercraft.api.filesystem.Mount;
 
 import java.io.IOException;
-import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class SubMount implements Mount {
     }
 
     @Override
-    public ReadableByteChannel openForRead(String path) throws IOException {
+    public SeekableByteChannel openForRead(String path) throws IOException {
         return parent.openForRead(getFullPath(path));
     }
 

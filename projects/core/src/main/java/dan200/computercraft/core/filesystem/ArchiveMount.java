@@ -14,7 +14,7 @@ import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Map;
@@ -110,7 +110,7 @@ public abstract class ArchiveMount<T extends ArchiveMount.FileEntry<T>> implemen
     protected abstract long getSize(T file) throws IOException;
 
     @Override
-    public ReadableByteChannel openForRead(String path) throws IOException {
+    public SeekableByteChannel openForRead(String path) throws IOException {
         var file = get(path);
         if (file == null || file.isDirectory()) throw new FileOperationException(path, NO_SUCH_FILE);
 

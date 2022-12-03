@@ -11,7 +11,7 @@ import dan200.computercraft.api.filesystem.WritableMount;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -120,7 +120,7 @@ class MountWrapper {
         }
     }
 
-    public ReadableByteChannel openForRead(String path) throws FileSystemException {
+    public SeekableByteChannel openForRead(String path) throws FileSystemException {
         path = toLocal(path);
         try {
             if (mount.exists(path) && !mount.isDirectory(path)) {
