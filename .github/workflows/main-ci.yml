@@ -39,13 +39,13 @@ jobs:
       continue-on-error: true
 
     - name: Upload Jar
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: CC-Tweaked
         path: projects/forge/build/libs
 
     - name: Upload coverage
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
 
     - name: Parse test reports
       run: ./tools/parse-reports.py
@@ -53,3 +53,40 @@ jobs:
 
     - name: Run linters
       uses: pre-commit/action@v3.0.0
+
+  build-core:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - name: Windows
+          uses: windows-latest
+
+        - name: macOS
+          uses: macos-latest
+
+    name: Test on ${{ matrix.name }}
+    runs-on: ${{ matrix.uses }}
+
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v3
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+      with:
+        cache-read-only: ${{ !startsWith(github.ref, 'refs/heads/mc-') }}
+
+    - name: Run tests
+      run: |
+        ./gradlew --configure-on-demand :core:test
+
+    - name: Parse test reports
+      run: python ./tools/parse-reports.py
+      if: ${{ failure() }}
