@@ -1,4 +1,8 @@
 describe("The fs library", function()
+    local test_root = "/test-files/fs"
+    local function test_file(path) return fs.combine(test_root, path) end
+    before_each(function() fs.delete(test_root) end)
+
     describe("fs.complete", function()
         it("validates arguments", function()
             fs.complete("", "")
@@ -139,7 +143,7 @@ describe("The fs library", function()
             end)
 
             it("errors when closing twice", function()
-                local handle = fs.open("test-files/out.txt", "w")
+                local handle = fs.open(test_file "out.txt", "w")
                 handle.close()
                 expect.error(handle.close):eq("attempt to use a closed file")
             end)
@@ -216,6 +220,48 @@ describe("The fs library", function()
             expect.error(fs.move, "test-files", "rom/move"):eq("Access denied")
             expect.error(fs.move, "rom", "test-files"):eq("Access denied")
         end)
+
+        it("fails if source does not exist", function()
+            expect.error(fs.move, test_file "src", test_file "dest"):eq("No such file")
+        end)
+
+        it("fails if destination exists", function()
+            fs.open(test_file "src", "w").close()
+            fs.open(test_file "dest", "w").close()
+
+            expect.error(fs.move, test_file "src", test_file "dest"):eq("File exists")
+        end)
+
+        it("fails to move a directory inside itself", function()
+            fs.open(test_file "file", "w").close()
+            expect.error(fs.move, test_root, test_file "child"):eq("Can't move a directory inside itself")
+            expect.error(fs.move, "", "child"):eq("Can't move a directory inside itself")
+        end)
+
+        it("files can be renamed", function()
+            fs.open(test_file "src", "w").close()
+            fs.move(test_file "src",  test_file" dest")
+
+            expect(fs.exists(test_file "src")):eq(false)
+            expect(fs.exists(test_file "dest")):eq(true)
+        end)
+
+        it("directories can be renamed", function()
+            fs.open(test_file "src/some/file", "w").close()
+            fs.move(test_file "src",  test_file" dest")
+
+            expect(fs.exists(test_file "src")):eq(false)
+            expect(fs.exists(test_file "dest")):eq(true)
+            expect(fs.exists(test_file "dest/some/file")):eq(true)
+        end)
+
+        it("creates directories before renaming", function()
+            fs.open(test_file "src", "w").close()
+            fs.move(test_file "src", test_file "dest/file")
+
+            expect(fs.exists(test_file "src")):eq(false)
+            expect(fs.exists(test_file "dest/file")):eq(true)
+        end)
     end)
 
     describe("fs.getCapacity", function()
@@ -240,12 +286,11 @@ describe("The fs library", function()
         it("returns information about files", function()
             local now = os.epoch("utc")
 
-            fs.delete("/tmp/basic-file")
-            local h = fs.open("/tmp/basic-file", "w")
+            local h = fs.open(test_file "basic-file", "w")
             h.write("A reasonably sized string")
             h.close()
 
-            local attributes = fs.attributes("tmp/basic-file")
+            local attributes = fs.attributes(test_file "basic-file")
             expect(attributes):matches { isDir = false, size = 25, isReadOnly = false }
 
             if attributes.created - now >= 1000 then

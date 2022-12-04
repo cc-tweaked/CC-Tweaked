@@ -29,7 +29,6 @@ public class MemoryMount implements WritableMount {
         directories.add("");
     }
 
-
     @Override
     public void makeDirectory(String path) {
         var file = new File(path);
@@ -54,6 +53,11 @@ public class MemoryMount implements WritableMount {
             var parent = new File(path).getParentFile();
             if (parent != null) delete(parent.getPath());
         }
+    }
+
+    @Override
+    public void rename(String source, String dest) throws IOException {
+        throw new IOException("Not supported");
     }
 
     @Override
@@ -108,6 +112,11 @@ public class MemoryMount implements WritableMount {
     @Override
     public long getSize(String path) {
         throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public long getCapacity() {
+        return Long.MAX_VALUE;
     }
 
     @Override

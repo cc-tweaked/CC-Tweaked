@@ -10,22 +10,14 @@ import com.google.common.io.RecursiveDeleteOption;
 import dan200.computercraft.api.filesystem.WritableMount;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.PosixFileAttributeView;
-import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-public class FileMountTest {
-    private static final long CAPACITY = 1_000_000;
+public class FileMountTest implements WritableMountContract {
     private final List<Path> cleanup = new ArrayList<>();
 
     @AfterEach
@@ -33,43 +25,42 @@ public class FileMountTest {
         for (var mount : cleanup) MoreFiles.deleteRecursively(mount, RecursiveDeleteOption.ALLOW_INSECURE);
     }
 
-    private Path createRoot() throws IOException {
+    @Override
+    public MountAccess createMount(long capacity) throws IOException {
         var path = Files.createTempDirectory("cctweaked-test");
         cleanup.add(path);
-        return path;
+        return new MountAccessImpl(path.resolve("mount"), capacity);
     }
 
-    private WritableMount getExisting(long capacity) throws IOException {
-        return new FileMount(createRoot().toFile(), capacity);
-    }
+    private static final class MountAccessImpl implements MountAccess {
+        private final Path root;
+        private final long capacity;
+        private final WritableMount mount;
 
-    private WritableMount getNotExisting(long capacity) throws IOException {
-        return new FileMount(createRoot().resolve("mount").toFile(), capacity);
-    }
+        private MountAccessImpl(Path root, long capacity) {
+            this.root = root;
+            this.capacity = capacity;
+            mount = new FileMount(root.toFile(), capacity);
+        }
 
-    @Test
-    public void testRootWritable() throws IOException {
-        assertFalse(getExisting(CAPACITY).isReadOnly("/"));
-        assertFalse(getNotExisting(CAPACITY).isReadOnly("/"));
-    }
+        @Override
+        public WritableMount mount() {
+            return mount;
+        }
 
-    @Test
-    public void testMissingDirWritable() throws IOException {
-        assertFalse(getExisting(CAPACITY).isReadOnly("/foo/bar/baz/qux"));
-    }
+        @Override
+        public void makeReadOnly(String path) {
+            Assumptions.assumeTrue(root.resolve(path).toFile().setReadOnly(), "Change file to read-only");
+        }
 
-    @Test
-    public void testDirReadOnly() throws IOException {
-        var root = createRoot();
-        var mount = new FileMount(root.toFile(), CAPACITY);
-        mount.makeDirectory("read-only");
+        @Override
+        public void ensuresExist() throws IOException {
+            Files.createDirectories(root);
+        }
 
-        var attributes = Files.getFileAttributeView(root.resolve("read-only"), PosixFileAttributeView.class);
-        Assumptions.assumeTrue(attributes != null, "POSIX attributes are not available.");
-
-        assertFalse(mount.isReadOnly("read-only"), "Directory should not be read-only yet");
-        attributes.setPermissions(Set.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_EXECUTE));
-        assertTrue(mount.isReadOnly("read-only"), "Directory should not be read-only yet");
-        assertTrue(mount.isReadOnly("read-only/child"), "Child should be read-only");
+        @Override
+        public long computeRemainingSpace() {
+            return new FileMount(root.toFile(), capacity).getRemainingSpace();
+        }
     }
 }

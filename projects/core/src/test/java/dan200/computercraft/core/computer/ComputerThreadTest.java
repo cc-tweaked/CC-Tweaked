@@ -17,10 +17,12 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Timeout(value = 15)
@@ -94,7 +96,9 @@ public class ComputerThreadTest {
             assertEquals(budget, TimeUnit.MILLISECONDS.toNanos(25), "Budget should be 25ms");
 
             var delay = ConcurrentHelpers.waitUntil(timeout::isPaused);
-            assertThat("Paused within 25ms", delay * 1e-9, closeTo(0.025, 0.025));
+            // Linux appears to have much more accurate timing than Windows/OSX. Or at least on CI!
+            var time = System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("linux") ? 0.05 : 0.3;
+            assertThat("Paused within a short time", delay * 1e-9, lessThanOrEqualTo(time));
 
             computer.shutdown();
             return MachineResult.OK;

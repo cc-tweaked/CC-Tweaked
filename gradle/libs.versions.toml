@@ -106,6 +106,7 @@ jqwik-engine = { module = "net.jqwik:jqwik-engine", version.ref = "jqwik" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
 # Build tools
 cctJavadoc = { module = "cc.tweaked:cct-javadoc", version.ref = "cctJavadoc" }

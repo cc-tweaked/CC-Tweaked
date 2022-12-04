@@ -25,6 +25,7 @@ dependencies {
 
     testImplementation(libs.bundles.test)
     testRuntimeOnly(libs.bundles.testRuntime)
+    testRuntimeOnly(libs.logback)
 }
 
 tasks.processResources {

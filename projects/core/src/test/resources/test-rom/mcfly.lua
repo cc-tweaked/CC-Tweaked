@@ -417,6 +417,9 @@ end
 --- The stack of "describe"s.
 local test_stack = { n = 0 }
 
+--- The stack of setup functions.
+local before_each_fns = { n = 0 }
+
 --- Whether we're now running tests, and so cannot run any more.
 local tests_locked = false
 
@@ -455,7 +458,13 @@ local function describe(name, body)
     local n = test_stack.n + 1
     test_stack[n], test_stack.n = name, n
 
+    local old_before, new_before = before_each_fns, { n = before_each_fns.n }
+    for i = 1, old_before.n do new_before[i] = old_before[i] end
+    before_each_fns = new_before
+
     local ok, err = try(body)
+
+    before_each_fns = old_before
 
     -- We count errors as a (failing) test.
     if not ok then do_test { error = err, definition = format_loc(debug.getinfo(2, "Sl")) } end
@@ -477,7 +486,11 @@ local function it(name, body)
     local n = test_stack.n + 1
     test_stack[n], test_stack.n, tests_locked = name, n, true
 
-    do_test { action = body, definition = format_loc(debug.getinfo(2, "Sl")) }
+    do_test {
+        action = body,
+        before = before_each_fns,
+        definition = format_loc(debug.getinfo(2, "Sl")),
+    }
 
     -- Pop the test from the stack
     test_stack.n, tests_locked = n - 1, false
@@ -496,6 +509,13 @@ local function pending(name)
     test_stack[n], test_stack.n = name, n
     do_test { pending = true, trace = trace, definition = trace }
     test_stack.n = n - 1
+end
+
+local function before_each(body)
+    check('it', 1, 'function', body)
+
+    local n = before_each_fns.n + 1
+    before_each_fns[n], before_each_fns.n = body, n
 end
 
 local native_co_create, native_loadfile = coroutine.create, loadfile
@@ -568,7 +588,7 @@ do
     end
 
     -- When declaring tests, you shouldn't be able to use test methods
-    set_env { describe = describe, it = it, pending = pending }
+    set_env { describe = describe, it = it, pending = pending, before_each = before_each }
 
     local suffix = "_spec.lua"
     local function run_in(sub_dir)
@@ -630,8 +650,13 @@ local function do_run(test)
         -- Flush the event queue and ensure we're running with 0 timeout.
         os.queueEvent("start_test") os.pullEvent("start_test")
 
-        local ok
-        ok, err = try(test.action)
+        local ok = true
+        for i = 1, test.before.n do
+            if not ok then break end
+            ok, err = try(test.before[i])
+        end
+        if ok then ok, err = try(test.action) end
+
         status = ok and "pass" or (err.fail and "fail" or "error")
 
         pop_state(state)

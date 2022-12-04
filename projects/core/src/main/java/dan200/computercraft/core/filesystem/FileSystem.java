@@ -248,20 +248,19 @@ public class FileSystem {
     public synchronized void move(String sourcePath, String destPath) throws FileSystemException {
         sourcePath = sanitizePath(sourcePath);
         destPath = sanitizePath(destPath);
-        if (isReadOnly(sourcePath) || isReadOnly(destPath)) {
-            throw new FileSystemException("Access denied");
+
+        if (isReadOnly(sourcePath) || isReadOnly(destPath)) throw new FileSystemException("Access denied");
+        if (!exists(sourcePath)) throw new FileSystemException("No such file");
+        if (exists(destPath)) throw new FileSystemException("File exists");
+        if (contains(sourcePath, destPath)) throw new FileSystemException("Can't move a directory inside itself");
+
+        var mount = getMount(sourcePath);
+        if (mount == getMount(destPath)) {
+            mount.rename(sourcePath, destPath);
+        } else {
+            copy(sourcePath, destPath);
+            delete(sourcePath);
         }
-        if (!exists(sourcePath)) {
-            throw new FileSystemException("No such file");
-        }
-        if (exists(destPath)) {
-            throw new FileSystemException("File exists");
-        }
-        if (contains(sourcePath, destPath)) {
-            throw new FileSystemException("Can't move a directory inside itself");
-        }
-        copy(sourcePath, destPath);
-        delete(sourcePath);
     }
 
     public synchronized void copy(String sourcePath, String destPath) throws FileSystemException {

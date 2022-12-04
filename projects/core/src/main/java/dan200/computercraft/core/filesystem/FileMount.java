@@ -14,12 +14,14 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.*;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.NonReadableChannelException;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.List;
-import java.util.OptionalLong;
 import java.util.Set;
 
 public class FileMount implements WritableMount {
@@ -185,7 +187,7 @@ public class FileMount implements WritableMount {
     public SeekableByteChannel openForRead(String path) throws IOException {
         if (created()) {
             var file = getRealPath(path);
-            if (file.exists() && !file.isDirectory()) return FileChannel.open(file.toPath(), READ_OPTIONS);
+            if (file.exists() && !file.isDirectory()) return Files.newByteChannel(file.toPath(), READ_OPTIONS);
         }
 
         throw new FileOperationException(path, "No such file");
@@ -260,6 +262,22 @@ public class FileMount implements WritableMount {
     }
 
     @Override
+    public void rename(String source, String dest) throws IOException {
+        var sourceFile = getRealPath(source);
+        var destFile = getRealPath(dest);
+        if (!sourceFile.exists()) throw new FileOperationException(source, "No such file");
+        if (destFile.exists()) throw new FileOperationException(dest, "File exists");
+
+        var sourcePath = sourceFile.toPath();
+        var destPath = destFile.toPath();
+        if (destPath.startsWith(sourcePath)) {
+            throw new FileOperationException(source, "Cannot move a directory inside itself");
+        }
+
+        Files.move(sourcePath, destPath);
+    }
+
+    @Override
     public WritableByteChannel openForWrite(String path) throws IOException {
         create();
         var file = getRealPath(path);
@@ -298,8 +316,8 @@ public class FileMount implements WritableMount {
     }
 
     @Override
-    public OptionalLong getCapacity() {
-        return OptionalLong.of(capacity - MINIMUM_FILE_SIZE);
+    public long getCapacity() {
+        return capacity - MINIMUM_FILE_SIZE;
     }
 
     private File getRealPath(String path) {

@@ -88,5 +88,5 @@ jobs:
         ./gradlew --configure-on-demand :core:test
 
     - name: Parse test reports
-      run: python ./tools/parse-reports.py
+      run: python3 ./tools/parse-reports.py
       if: ${{ failure() }}

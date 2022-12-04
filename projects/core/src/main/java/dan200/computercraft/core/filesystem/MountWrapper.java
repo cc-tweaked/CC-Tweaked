@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.OptionalLong;
@@ -58,7 +60,7 @@ class MountWrapper {
     }
 
     public OptionalLong getCapacity() {
-        return writableMount == null ? OptionalLong.empty() : writableMount.getCapacity();
+        return writableMount == null ? OptionalLong.empty() : OptionalLong.of(writableMount.getCapacity());
     }
 
     public boolean isReadOnly(String path) throws FileSystemException {
@@ -163,6 +165,25 @@ class MountWrapper {
         }
     }
 
+    public void rename(String source, String dest) throws FileSystemException {
+        if (writableMount == null) throw exceptionOf(source, "Access denied");
+
+        source = toLocal(source);
+        dest = toLocal(dest);
+        try {
+            if (!dest.isEmpty()) {
+                var destParent = FileSystem.getDirectory(dest);
+                if (!destParent.isEmpty() && !mount.exists(destParent)) writableMount.makeDirectory(destParent);
+            }
+
+            writableMount.rename(source, dest);
+        } catch (AccessDeniedException e) {
+            throw new FileSystemException("Access denied");
+        } catch (IOException e) {
+            throw localExceptionOf(source, e);
+        }
+    }
+
     public WritableByteChannel openForWrite(String path) throws FileSystemException {
         if (writableMount == null) throw exceptionOf(path, "Access denied");
 
@@ -223,7 +244,7 @@ class MountWrapper {
         if (e instanceof java.nio.file.FileSystemException ex) {
             // This error will contain the absolute path, leaking information about where MC is installed. We drop that,
             // just taking the reason. We assume that the error refers to the input path.
-            var message = ex.getReason().trim();
+            var message = getReason(ex);
             return localPath == null ? new FileSystemException(message) : localExceptionOf(localPath, message);
         }
 
@@ -237,5 +258,16 @@ class MountWrapper {
 
     private static FileSystemException exceptionOf(String path, String message) {
         return new FileSystemException("/" + path + ": " + message);
+    }
+
+    private static String getReason(java.nio.file.FileSystemException e) {
+        var reason = e.getReason();
+        if (reason != null) return reason.trim();
+
+        if (e instanceof FileAlreadyExistsException) return "File exists";
+        if (e instanceof NoSuchFileException) return "No such file";
+        if (e instanceof AccessDeniedException) return "Access denied";
+
+        return "Operation failed";
     }
 }

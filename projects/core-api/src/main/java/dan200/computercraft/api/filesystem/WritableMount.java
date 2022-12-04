@@ -10,7 +10,6 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.WritableByteChannel;
-import java.util.OptionalLong;
 
 /**
  * Represents a part of a virtual filesystem that can be mounted onto a computer using {@link IComputerAccess#mount(String, Mount)}
@@ -39,6 +38,17 @@ public interface WritableMount extends Mount {
      * @throws IOException If the file does not exist or could not be deleted.
      */
     void delete(String path) throws IOException;
+
+    /**
+     * Rename a file or directory, moving it from one path to another.
+     * <p>
+     * The destination path should not exist. The parent of the destination should exist and be a directory. If source
+     * and destination are the same, this method should do nothing.
+     *
+     * @param source The source file or directory to move.
+     * @param dest   The destination path.
+     */
+    void rename(String source, String dest) throws IOException;
 
     /**
      * Opens a file with a given path, and returns an {@link OutputStream} for writing to it.
@@ -75,9 +85,7 @@ public interface WritableMount extends Mount {
      *
      * @return The capacity of this mount, in bytes.
      */
-    default OptionalLong getCapacity() {
-        return OptionalLong.empty();
-    }
+    long getCapacity();
 
     /**
      * Returns whether a file with a given path is read-only or not.

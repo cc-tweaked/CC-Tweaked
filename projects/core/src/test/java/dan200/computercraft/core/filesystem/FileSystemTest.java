@@ -8,8 +8,8 @@ package dan200.computercraft.core.filesystem;
 import com.google.common.io.Files;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.ObjectArguments;
 import dan200.computercraft.core.TestFiles;
-import dan200.computercraft.core.apis.ObjectWrapper;
 import dan200.computercraft.core.apis.handles.EncodedWritableHandle;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -45,18 +45,18 @@ public class FileSystemTest {
 
         {
             var writer = fs.openForWrite("out.txt", false, EncodedWritableHandle::openUtf8);
-            var wrapper = new ObjectWrapper(new EncodedWritableHandle(writer.get(), writer));
-            wrapper.call("write", "This is a long line");
-            wrapper.call("close");
+            var handle = new EncodedWritableHandle(writer.get(), writer);
+            handle.write(new ObjectArguments("This is a long line"));
+            handle.doClose();
         }
 
         assertEquals("This is a long line", Files.asCharSource(new File(ROOT, "out.txt"), StandardCharsets.UTF_8).read());
 
         {
             var writer = fs.openForWrite("out.txt", false, EncodedWritableHandle::openUtf8);
-            var wrapper = new ObjectWrapper(new EncodedWritableHandle(writer.get(), writer));
-            wrapper.call("write", "Tiny line");
-            wrapper.call("close");
+            var handle = new EncodedWritableHandle(writer.get(), writer);
+            handle.write(new ObjectArguments("Tiny line"));
+            handle.doClose();
         }
 
         assertEquals("Tiny line", Files.asCharSource(new File(ROOT, "out.txt"), StandardCharsets.UTF_8).read());
@@ -69,11 +69,11 @@ public class FileSystemTest {
         fs.mountWritable("disk", "disk", mount);
 
         var writer = fs.openForWrite("disk/out.txt", false, EncodedWritableHandle::openUtf8);
-        var wrapper = new ObjectWrapper(new EncodedWritableHandle(writer.get(), writer));
+        var handle = new EncodedWritableHandle(writer.get(), writer);
 
         fs.unmount("disk");
 
-        var err = assertThrows(LuaException.class, () -> wrapper.call("write", "Tiny line"));
+        var err = assertThrows(LuaException.class, () -> handle.write(new ObjectArguments("Tiny line")));
         assertEquals("attempt to use a closed file", err.getMessage());
     }
 
