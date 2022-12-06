@@ -47,7 +47,7 @@ final class LuaDateTime {
                         case 'g' -> formatter.appendValueReduced(IsoFields.WEEK_BASED_YEAR, 2, 2, 0);
                         case 'G' -> formatter.appendValue(IsoFields.WEEK_BASED_YEAR);
                         case 'H' -> formatter.appendValue(ChronoField.HOUR_OF_DAY, 2);
-                        case 'I' -> formatter.appendValue(ChronoField.HOUR_OF_AMPM, 2);
+                        case 'I' -> formatter.appendValue(ChronoField.CLOCK_HOUR_OF_AMPM, 2);
                         case 'j' -> formatter.appendValue(ChronoField.DAY_OF_YEAR, 3);
                         case 'm' -> formatter.appendValue(ChronoField.MONTH_OF_YEAR, 2);
                         case 'M' -> formatter.appendValue(ChronoField.MINUTE_OF_HOUR, 2);
