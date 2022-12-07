@@ -193,13 +193,15 @@ function request(_url, _post, _headers, _binary)
         expect(2, _post, "string", "nil")
         expect(3, _headers, "table", "nil")
         expect(4, _binary, "boolean", "nil")
-        url = _url.url
+        url = _url
     end
 
     local ok, err = nativeHTTPRequest(_url, _post, _headers, _binary)
     if not ok then
         os.queueEvent("http_failure", url, err)
     end
+
+    -- Return true/false for legacy reasons. Undocumented, as it shouldn't be relied on.
     return ok, err
 end
 
@@ -257,6 +259,32 @@ end
 
 local nativeWebsocket = native.websocket
 
+
+--[[- Asynchronously open a websocket.
+
+This returns immediately, a @{websocket_success} or @{websocket_failure}
+will be queued once the request has completed.
+
+@tparam string url The websocket url to connect to. This should have the
+`ws://` or `wss://` protocol.
+@tparam[opt] { [string] = string } headers Additional headers to send as part
+of the initial websocket connection.
+@since 1.80pr1.3
+@changed 1.95.3 Added User-Agent to default headers.
+]]
+function websocketAsync(url, headers)
+    expect(1, url, "string")
+    expect(2, headers, "table", "nil")
+
+    local ok, err = nativeWebsocket(url, headers)
+    if not ok then
+        os.queueEvent("websocket_failure", url, err)
+    end
+
+    -- Return true/false for legacy reasons. Undocumented, as it shouldn't be relied on.
+    return ok, err
+end
+
 --[[- Open a websocket.
 
 @tparam string url The websocket url to connect to. This should have the
@@ -269,20 +297,6 @@ of the initial websocket connection.
 @treturn string An error message describing why the connection failed.
 @since 1.80pr1.1
 @changed 1.80pr1.3 No longer asynchronous.
-@changed 1.95.3 Added User-Agent to default headers.
-]]
-websocketAsync = nativeWebsocket
-
---[[- Asynchronously open a websocket.
-
-This returns immediately, a @{websocket_success} or @{websocket_failure}
-will be queued once the request has completed.
-
-@tparam string url The websocket url to connect to. This should have the
-`ws://` or `wss://` protocol.
-@tparam[opt] { [string] = string } headers Additional headers to send as part
-of the initial websocket connection.
-@since 1.80pr1.3
 @changed 1.95.3 Added User-Agent to default headers.
 ]]
 function websocket(_url, _headers)

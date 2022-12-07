@@ -70,8 +70,25 @@ local function with_window_lines(width, height, fn)
     return out
 end
 
+local function timeout(time, fn)
+    local timer = os.startTimer(time)
+    local co = coroutine.create(fn)
+    local ok, result, event = true, nil, { n = 0 }
+    while coroutine.status(co) ~= "dead" do
+        if event[1] == "timer" and event[2] == timer then error("Timeout", 2) end
+
+        if result == nil or event[1] == result or event[1] == "terminated" then
+            ok, result = coroutine.resume(co, table.unpack(event, 1, event.n))
+            if not ok then error(result, 0) end
+        end
+
+        event = table.pack(coroutine.yield())
+    end
+end
+
 return {
     capture_program = capture_program,
     with_window = with_window,
     with_window_lines = with_window_lines,
+    timeout = timeout,
 }
