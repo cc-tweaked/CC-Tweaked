@@ -30,7 +30,8 @@ public class LuaException extends Exception {
     }
 
     /**
-     * Whether a level was explicitly specified when constructing. This is used to determine
+     * Whether a level was explicitly specified when constructing. If a level is not provided, the Lua runtime may
+     * attempt to pick the most suitable one.
      *
      * @return Whether this has an explicit level.
      */
