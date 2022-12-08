@@ -1,5 +1,6 @@
 {
   "type": "computercraft:computer_upgrade",
+  "category": "redstone",
   "family": "ADVANCED",
   "key": {
     "#": {"tag": "c:gold_ingots"},

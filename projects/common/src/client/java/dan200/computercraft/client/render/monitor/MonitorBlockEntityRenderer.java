@@ -12,9 +12,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.integration.ShaderMod;
 import dan200.computercraft.client.render.RenderTypes;
@@ -28,10 +26,11 @@ import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.util.DirectionUtil;
-import net.minecraft.Util;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -56,7 +55,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
      */
     private static final float MARGIN = (float) (MonitorBlockEntity.RENDER_MARGIN * 1.1);
 
-    private static final Matrix3f IDENTITY_NORMAL = Util.make(new Matrix3f(), Matrix3f::setIdentity);
+    private static final Matrix3f IDENTITY_NORMAL = new Matrix3f().identity();
 
     private static @Nullable ByteBuffer backingBuffer;
 
@@ -100,8 +99,8 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
             originPos.getZ() - monitorPos.getZ() + 0.5
         );
 
-        transform.mulPose(Vector3f.YN.rotationDegrees(yaw));
-        transform.mulPose(Vector3f.XP.rotationDegrees(pitch));
+        transform.mulPose(Axis.YN.rotationDegrees(yaw));
+        transform.mulPose(Axis.XP.rotationDegrees(pitch));
         transform.translate(
             -0.5 + MonitorBlockEntity.RENDER_BORDER + MonitorBlockEntity.RENDER_MARGIN,
             origin.getHeight() - 0.5 - (MonitorBlockEntity.RENDER_BORDER + MonitorBlockEntity.RENDER_MARGIN) + 0,

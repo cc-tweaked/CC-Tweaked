@@ -71,6 +71,7 @@ dependencies {
     testModImplementation(testFixtures(project(":core")))
     testModImplementation(testFixtures(project(":fabric")))
 
+    testImplementation(libs.byteBuddy)
     testImplementation(libs.byteBuddyAgent)
     testImplementation(libs.bundles.test)
     testRuntimeOnly(libs.bundles.testRuntime)

@@ -6,8 +6,7 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.util.Colour;
@@ -15,6 +14,7 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Matrix4f;
 
 import static dan200.computercraft.client.render.ComputerBorderRenderer.*;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
@@ -43,8 +43,8 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
         // Setup various transformations. Note that these are partially adapted from the corresponding method
         // in ItemRenderer
         transform.pushPose();
-        transform.mulPose(Vector3f.YP.rotationDegrees(180f));
-        transform.mulPose(Vector3f.ZP.rotationDegrees(180f));
+        transform.mulPose(Axis.YP.rotationDegrees(180f));
+        transform.mulPose(Axis.ZP.rotationDegrees(180f));
         transform.scale(0.5f, 0.5f, 0.5f);
 
         var scale = 0.75f / Math.max(width + BORDER * 2, height + BORDER * 2 + LIGHT_HEIGHT);

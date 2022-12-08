@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -21,8 +22,8 @@ public final class PrintoutRecipe extends CustomRecipe {
     private final Ingredient leather;
     private final Ingredient string;
 
-    public PrintoutRecipe(ResourceLocation id) {
-        super(id);
+    public PrintoutRecipe(ResourceLocation id, CraftingBookCategory category) {
+        super(id, category);
 
         var ingredients = PlatformHelper.get().getRecipeIngredients();
         leather = ingredients.leather();

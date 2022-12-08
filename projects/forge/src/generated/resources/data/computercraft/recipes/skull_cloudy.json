@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
+  "category": "misc",
   "ingredients": [{"tag": "forge:heads"}, {"item": "computercraft:monitor_normal"}],
   "result": {
     "item": "minecraft:player_head",

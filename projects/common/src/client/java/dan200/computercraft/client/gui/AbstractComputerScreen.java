@@ -77,17 +77,10 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
     @Override
     protected void init() {
         super.init();
-        minecraft.keyboardHandler.setSendRepeatsToGui(true);
 
         terminal = addRenderableWidget(createTerminal());
-        ComputerSidebar.addButtons(this, menu::isOn, input, this::addRenderableWidget, leftPos, topPos + sidebarYOffset);
+        ComputerSidebar.addButtons(menu::isOn, input, this::addRenderableWidget, leftPos, topPos + sidebarYOffset);
         setFocused(terminal);
-    }
-
-    @Override
-    public void removed() {
-        super.removed();
-        minecraft.keyboardHandler.setSendRepeatsToGui(false);
     }
 
     @Override

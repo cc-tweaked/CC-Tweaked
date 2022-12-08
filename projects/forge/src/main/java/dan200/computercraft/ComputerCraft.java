@@ -19,8 +19,10 @@ import dan200.computercraft.shared.peripheral.generic.methods.EnergyMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.platform.NetworkHandler;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -57,6 +59,11 @@ public final class ComputerCraft {
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.register(WiredElement.class);
         event.register(IPeripheral.class);
+    }
+
+    @SubscribeEvent
+    public static void registerCreativeTab(CreativeModeTabEvent.Register event) {
+        event.registerCreativeModeTab(new ResourceLocation(ComputerCraftAPI.MOD_ID, "tab"), ModRegistry::registerCreativeTab);
     }
 
     @SubscribeEvent

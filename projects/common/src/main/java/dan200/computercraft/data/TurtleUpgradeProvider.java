@@ -9,7 +9,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.ComputerCraftTags.Blocks;
 import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Consumer;
@@ -18,8 +18,8 @@ import static dan200.computercraft.shared.ModRegistry.Items;
 import static dan200.computercraft.shared.ModRegistry.TurtleSerialisers;
 
 class TurtleUpgradeProvider extends TurtleUpgradeDataProvider {
-    TurtleUpgradeProvider(DataGenerator generator) {
-        super(generator);
+    TurtleUpgradeProvider(PackOutput output) {
+        super(output);
     }
 
     @Override

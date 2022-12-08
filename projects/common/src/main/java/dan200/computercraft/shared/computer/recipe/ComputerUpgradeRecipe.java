@@ -11,12 +11,13 @@ import dan200.computercraft.shared.computer.items.IComputerItem;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
 public final class ComputerUpgradeRecipe extends ComputerFamilyRecipe {
-    private ComputerUpgradeRecipe(ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family) {
-        super(identifier, group, width, height, ingredients, result, family);
+    private ComputerUpgradeRecipe(ResourceLocation identifier, String group, CraftingBookCategory category, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family) {
+        super(identifier, group, category, width, height, ingredients, result, family);
     }
 
     @Override
@@ -31,8 +32,8 @@ public final class ComputerUpgradeRecipe extends ComputerFamilyRecipe {
 
     public static class Serializer extends ComputerFamilyRecipe.Serializer<ComputerUpgradeRecipe> {
         @Override
-        protected ComputerUpgradeRecipe create(ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family) {
-            return new ComputerUpgradeRecipe(identifier, group, width, height, ingredients, result, family);
+        protected ComputerUpgradeRecipe create(ResourceLocation identifier, String group, CraftingBookCategory category, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family) {
+            return new ComputerUpgradeRecipe(identifier, group, category, width, height, ingredients, result, family);
         }
     }
 }

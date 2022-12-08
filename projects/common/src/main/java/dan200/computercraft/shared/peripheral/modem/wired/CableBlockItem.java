@@ -6,15 +6,12 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.platform.Registries;
+import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -52,14 +49,9 @@ public abstract class CableBlockItem extends BlockItem {
     }
 
     @Override
-    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> list) {
-        if (allowedIn(group)) list.add(new ItemStack(this));
-    }
-
-    @Override
     public String getDescriptionId() {
         if (translationKey == null) {
-            translationKey = Util.makeDescriptionId("block", Registries.ITEMS.getKey(this));
+            translationKey = Util.makeDescriptionId("block", RegistryWrappers.ITEMS.getKey(this));
         }
         return translationKey;
     }

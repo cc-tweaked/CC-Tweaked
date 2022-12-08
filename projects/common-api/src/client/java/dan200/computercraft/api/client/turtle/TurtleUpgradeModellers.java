@@ -5,13 +5,11 @@
  */
 package dan200.computercraft.api.client.turtle;
 
-import com.mojang.math.Matrix4f;
 import com.mojang.math.Transformation;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-
-import java.nio.FloatBuffer;
+import org.joml.Matrix4f;
 
 class TurtleUpgradeModellers {
     private static final Transformation leftTransform = getMatrixFor(-0.40625f);
@@ -19,12 +17,12 @@ class TurtleUpgradeModellers {
 
     private static Transformation getMatrixFor(float offset) {
         var matrix = new Matrix4f();
-        matrix.load(FloatBuffer.wrap(new float[]{
+        matrix.set(new float[]{
             0.0f, 0.0f, -1.0f, 1.0f + offset,
             1.0f, 0.0f, 0.0f, 0.0f,
             0.0f, -1.0f, 0.0f, 1.0f,
             0.0f, 0.0f, 0.0f, 1.0f,
-        }));
+        });
         matrix.transpose();
         return new Transformation(matrix);
     }

@@ -14,6 +14,7 @@ import dan200.computercraft.shared.computer.core.InputHandler;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -26,6 +27,8 @@ import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FON
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 
 public class TerminalWidget extends AbstractWidget {
+    private static final Component DESCRIPTION = Component.translatable("gui.computercraft.terminal");
+
     private static final float TERMINATE_TIME = 0.5f;
 
     private final Terminal terminal;
@@ -48,7 +51,7 @@ public class TerminalWidget extends AbstractWidget {
     private final BitSet keysDown = new BitSet(256);
 
     public TerminalWidget(Terminal terminal, InputHandler computer, int x, int y) {
-        super(x, y, terminal.getWidth() * FONT_WIDTH + MARGIN * 2, terminal.getHeight() * FONT_HEIGHT + MARGIN * 2, Component.empty());
+        super(x, y, terminal.getWidth() * FONT_WIDTH + MARGIN * 2, terminal.getHeight() * FONT_HEIGHT + MARGIN * 2, DESCRIPTION);
 
         this.terminal = terminal;
         this.computer = computer;
@@ -278,8 +281,8 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput output) {
-        // I'm not sure what the right option is here.
+    protected void updateWidgetNarration(NarrationElementOutput output) {
+        output.add(NarratedElementType.TITLE, getMessage());
     }
 
     public static int getWidth(int termWidth) {

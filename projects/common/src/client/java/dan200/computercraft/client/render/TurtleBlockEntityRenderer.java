@@ -7,8 +7,8 @@ package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import com.mojang.math.Transformation;
-import com.mojang.math.Vector3f;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.client.platform.ClientPlatformHelper;
@@ -37,8 +37,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBlockEntity> {
-    private static final ModelResourceLocation NORMAL_TURTLE_MODEL = new ModelResourceLocation("computercraft:turtle_normal", "inventory");
-    private static final ModelResourceLocation ADVANCED_TURTLE_MODEL = new ModelResourceLocation("computercraft:turtle_advanced", "inventory");
+    private static final ModelResourceLocation NORMAL_TURTLE_MODEL = new ModelResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_normal", "inventory");
+    private static final ModelResourceLocation ADVANCED_TURTLE_MODEL = new ModelResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_advanced", "inventory");
     private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
     private static final ResourceLocation ELF_OVERLAY_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_elf_overlay");
 
@@ -96,7 +96,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         transform.translate(offset.x, offset.y, offset.z);
 
         transform.translate(0.5f, 0.5f, 0.5f);
-        transform.mulPose(Vector3f.YP.rotationDegrees(180.0f - yaw));
+        transform.mulPose(Axis.YP.rotationDegrees(180.0f - yaw));
         if (label != null && (label.equals("Dinnerbone") || label.equals("Grumm"))) {
             // Flip the model
             transform.scale(1.0f, -1.0f, 1.0f);
@@ -131,7 +131,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
 
         var toolAngle = turtle.getToolRenderAngle(side, f);
         transform.translate(0.0f, 0.5f, 0.5f);
-        transform.mulPose(Vector3f.XN.rotationDegrees(toolAngle));
+        transform.mulPose(Axis.XN.rotationDegrees(toolAngle));
         transform.translate(0.0f, -0.5f, -0.5f);
 
         var model = TurtleUpgradeModellers.getModel(upgrade, turtle.getAccess(), side);

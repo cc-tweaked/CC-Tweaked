@@ -7,7 +7,7 @@ package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveBlockEntity;
-import dan200.computercraft.shared.platform.Registries;
+import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundEvent;
@@ -41,14 +41,14 @@ public class PlayRecordClientMessage implements NetworkMessage<ClientNetworkCont
 
     public PlayRecordClientMessage(FriendlyByteBuf buf) {
         pos = buf.readBlockPos();
-        soundEvent = buf.readBoolean() ? Registries.readKey(buf, Registries.SOUND_EVENTS) : null;
+        soundEvent = buf.readBoolean() ? RegistryWrappers.readKey(buf, RegistryWrappers.SOUND_EVENTS) : null;
         name = buf.readBoolean() ? buf.readUtf(Short.MAX_VALUE) : null;
     }
 
     @Override
     public void toBytes(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
-        writeOptional(buf, soundEvent, (b, e) -> Registries.writeKey(b, Registries.SOUND_EVENTS, e));
+        writeOptional(buf, soundEvent, (b, e) -> RegistryWrappers.writeKey(b, RegistryWrappers.SOUND_EVENTS, e));
         writeOptional(buf, name, FriendlyByteBuf::writeUtf);
     }
 

@@ -18,35 +18,35 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.metrics.basic.Aggregate;
 import dan200.computercraft.shared.computer.metrics.basic.AggregatedMetric;
 import dan200.computercraft.shared.config.ConfigSpec;
-import dan200.computercraft.shared.platform.Registries;
+import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.ForgeConfigSpec;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 public final class LanguageProvider implements DataProvider {
-    private final DataGenerator generator;
+    private final PackOutput output;
     private final TurtleUpgradeDataProvider turtleUpgrades;
     private final PocketUpgradeDataProvider pocketUpgrades;
 
     private final Map<String, String> translations = new HashMap<>();
 
-    public LanguageProvider(DataGenerator generator, TurtleUpgradeDataProvider turtleUpgrades, PocketUpgradeDataProvider pocketUpgrades) {
-        this.generator = generator;
+    public LanguageProvider(PackOutput output, TurtleUpgradeDataProvider turtleUpgrades, PocketUpgradeDataProvider pocketUpgrades) {
+        this.output = output;
         this.turtleUpgrades = turtleUpgrades;
         this.pocketUpgrades = pocketUpgrades;
     }
 
     @Override
-    public void run(CachedOutput cachedOutput) throws IOException {
+    public CompletableFuture<?> run(CachedOutput cachedOutput) {
         addTranslations();
         getExpectedKeys().forEach(x -> {
             if (!translations.containsKey(x)) throw new IllegalStateException("No translation for " + x);
@@ -54,7 +54,7 @@ public final class LanguageProvider implements DataProvider {
 
         var json = new JsonObject();
         for (var pair : translations.entrySet()) json.addProperty(pair.getKey(), pair.getValue());
-        DataProvider.saveStable(cachedOutput, json, generator.getOutputFolder().resolve("assets/" + ComputerCraftAPI.MOD_ID + "/lang/en_us.json"));
+        return DataProvider.saveStable(cachedOutput, json, output.getOutputFolder().resolve("assets/" + ComputerCraftAPI.MOD_ID + "/lang/en_us.json"));
     }
 
     @Override
@@ -190,6 +190,7 @@ public final class LanguageProvider implements DataProvider {
         add(AggregatedMetric.TRANSLATION_PREFIX + Aggregate.COUNT.id(), "%s (count)");
 
         // Additional UI elements
+        add("gui.computercraft.terminal", "Computer terminal");
         add("gui.computercraft.tooltip.copy", "Copy to clipboard");
         add("gui.computercraft.tooltip.computer_id", "Computer ID: %s");
         add("gui.computercraft.tooltip.disk_id", "Disk ID: %s");
@@ -266,11 +267,11 @@ public final class LanguageProvider implements DataProvider {
 
     private Stream<String> getExpectedKeys() {
         return Stream.of(
-            Registries.BLOCKS.stream()
-                .filter(x -> Registries.BLOCKS.getKey(x).getNamespace().equals(ComputerCraftAPI.MOD_ID))
+            RegistryWrappers.BLOCKS.stream()
+                .filter(x -> RegistryWrappers.BLOCKS.getKey(x).getNamespace().equals(ComputerCraftAPI.MOD_ID))
                 .map(Block::getDescriptionId),
-            Registries.ITEMS.stream()
-                .filter(x -> Registries.ITEMS.getKey(x).getNamespace().equals(ComputerCraftAPI.MOD_ID))
+            RegistryWrappers.ITEMS.stream()
+                .filter(x -> RegistryWrappers.ITEMS.getKey(x).getNamespace().equals(ComputerCraftAPI.MOD_ID))
                 .map(Item::getDescriptionId),
             turtleUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),
             pocketUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),

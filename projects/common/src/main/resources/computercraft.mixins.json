@@ -8,7 +8,6 @@
     },
     "mixins": [
         "CacheUpdaterMixin",
-        "CreativeModeTabAccessor",
         "ExplosionAccessor"
     ],
     "refmap": "computercraft.refmap.json"

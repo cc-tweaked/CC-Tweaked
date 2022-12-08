@@ -7,20 +7,19 @@ package dan200.computercraft.client.model.turtle;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.util.Pair;
 import dan200.computercraft.api.ComputerCraftAPI;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.*;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
 import net.minecraftforge.client.model.geometry.IGeometryLoader;
 import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.function.Function;
 
 public final class TurtleModelLoader implements IGeometryLoader<TurtleModelLoader.Unbaked> {
@@ -45,15 +44,7 @@ public final class TurtleModelLoader implements IGeometryLoader<TurtleModelLoade
         }
 
         @Override
-        public Collection<Material> getMaterials(IGeometryBakingContext context, Function<ResourceLocation, UnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors) {
-            Set<Material> materials = new HashSet<>();
-            materials.addAll(modelGetter.apply(family).getMaterials(modelGetter, missingTextureErrors));
-            materials.addAll(modelGetter.apply(COLOUR_TURTLE_MODEL).getMaterials(modelGetter, missingTextureErrors));
-            return materials;
-        }
-
-        @Override
-        public BakedModel bake(IGeometryBakingContext owner, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState transform, ItemOverrides overrides, ResourceLocation modelLocation) {
+        public BakedModel bake(IGeometryBakingContext owner, ModelBaker bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState transform, ItemOverrides overrides, ResourceLocation modelLocation) {
             var mainModel = bakery.bake(family, transform, spriteGetter);
             if (mainModel == null) throw new NullPointerException(family + " failed to bake");
 

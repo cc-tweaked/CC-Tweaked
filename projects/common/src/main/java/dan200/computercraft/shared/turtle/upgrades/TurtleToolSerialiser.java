@@ -8,8 +8,8 @@ package dan200.computercraft.shared.turtle.upgrades;
 import com.google.gson.JsonObject;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.api.upgrades.UpgradeBase;
-import dan200.computercraft.shared.platform.Registries;
-import net.minecraft.core.Registry;
+import dan200.computercraft.shared.platform.RegistryWrappers;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -33,7 +33,7 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
         TagKey<Block> breakable = null;
         if (object.has("breakable")) {
             var tag = new ResourceLocation(GsonHelper.getAsString(object, "breakable"));
-            breakable = TagKey.create(Registry.BLOCK_REGISTRY, tag);
+            breakable = TagKey.create(Registries.BLOCK, tag);
         }
 
         return new TurtleTool(id, adjective, craftingItem, new ItemStack(toolItem), damageMultiplier, breakable);
@@ -42,20 +42,20 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
     @Override
     public TurtleTool fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
         var adjective = buffer.readUtf();
-        var craftingItem = Registries.readId(buffer, Registries.ITEMS);
+        var craftingItem = RegistryWrappers.readId(buffer, RegistryWrappers.ITEMS);
         var toolItem = buffer.readItem();
         // damageMultiplier and breakable aren't used by the client, but we need to construct the upgrade exactly
         // as otherwise syncing on an SP world will overwrite the (shared) upgrade registry with an invalid upgrade!
         var damageMultiplier = buffer.readFloat();
 
-        var breakable = buffer.readBoolean() ? TagKey.create(Registry.BLOCK_REGISTRY, buffer.readResourceLocation()) : null;
+        var breakable = buffer.readBoolean() ? TagKey.create(Registries.BLOCK, buffer.readResourceLocation()) : null;
         return new TurtleTool(id, adjective, craftingItem, toolItem, damageMultiplier, breakable);
     }
 
     @Override
     public void toNetwork(FriendlyByteBuf buffer, TurtleTool upgrade) {
         buffer.writeUtf(upgrade.getUnlocalisedAdjective());
-        Registries.writeId(buffer, Registries.ITEMS, upgrade.getCraftingItem().getItem());
+        RegistryWrappers.writeId(buffer, RegistryWrappers.ITEMS, upgrade.getCraftingItem().getItem());
         buffer.writeItem(upgrade.item);
         buffer.writeFloat(upgrade.damageMulitiplier);
         buffer.writeBoolean(upgrade.breakable != null);

@@ -46,18 +46,11 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
         KeyMapping.releaseAll();
 
         super.init();
-        minecraft.keyboardHandler.setSendRepeatsToGui(true);
 
         terminal = addWidget(new TerminalWidget(terminalData, new ClientInputHandler(menu), 0, 0));
         terminal.visible = false;
         terminal.active = false;
         setFocused(terminal);
-    }
-
-    @Override
-    public final void removed() {
-        super.removed();
-        minecraft.keyboardHandler.setSendRepeatsToGui(false);
     }
 
     @Override

@@ -10,18 +10,16 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.TitleScreen
 import net.minecraft.client.tutorial.TutorialSteps
 import net.minecraft.core.BlockPos
-import net.minecraft.core.Registry
-import net.minecraft.core.RegistryAccess
 import net.minecraft.gametest.framework.*
 import net.minecraft.server.MinecraftServer
 import net.minecraft.sounds.SoundSource
-import net.minecraft.util.RandomSource
 import net.minecraft.world.Difficulty
-import net.minecraft.world.level.DataPackConfig
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.GameType
 import net.minecraft.world.level.LevelSettings
+import net.minecraft.world.level.WorldDataConfiguration
 import net.minecraft.world.level.block.Rotation
+import net.minecraft.world.level.levelgen.WorldOptions
 import net.minecraft.world.level.levelgen.presets.WorldPresets
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -73,8 +71,8 @@ object ClientTestHooks {
         minecraft.options.tutorialStep = TutorialSteps.NONE
         minecraft.options.renderDistance().set(6)
         minecraft.options.gamma().set(1.0)
-        minecraft.options.setSoundCategoryVolume(SoundSource.MUSIC, 0.0f)
-        minecraft.options.setSoundCategoryVolume(SoundSource.AMBIENT, 0.0f)
+        minecraft.options.getSoundSourceOptionInstance(SoundSource.MUSIC).set(0.0)
+        minecraft.options.getSoundSourceOptionInstance(SoundSource.AMBIENT).set(0.0)
 
         if (minecraft.levelSource.levelExists(LEVEL_NAME)) {
             LOG.info("World already exists, opening.")
@@ -86,16 +84,11 @@ object ClientTestHooks {
             rules.getRule(GameRules.RULE_DAYLIGHT).set(false, null)
             rules.getRule(GameRules.RULE_WEATHER_CYCLE).set(false, null)
 
-            val registries = RegistryAccess.builtinCopy().freeze()
             minecraft.createWorldOpenFlows().createFreshLevel(
                 LEVEL_NAME,
-                LevelSettings("Test Level", GameType.CREATIVE, false, Difficulty.EASY, true, rules, DataPackConfig.DEFAULT),
-                registries,
-                registries
-                    .registryOrThrow(Registry.WORLD_PRESET_REGISTRY)
-                    .getHolderOrThrow(WorldPresets.FLAT).value()
-                    .createWorldGenSettings(RandomSource.create().nextLong(), false, false),
-            )
+                LevelSettings("Test Level", GameType.CREATIVE, false, Difficulty.EASY, true, rules, WorldDataConfiguration.DEFAULT),
+                WorldOptions(WorldOptions.randomSeed(), false, false),
+            ) { WorldPresets.createNormalWorldDimensions(it) }
         }
     }
 

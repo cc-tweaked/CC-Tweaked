@@ -14,7 +14,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
+import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -36,8 +36,8 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
     ResourceKey<Registry<PocketUpgradeSerialiser<?>>> REGISTRY_ID = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_upgrade_serialiser"));
 
     /**
-     * Create an upgrade serialiser for a simple upgrade. This is similar to a {@link SimpleRecipeSerializer}, but for
-     * upgrades.
+     * Create an upgrade serialiser for a simple upgrade. This is similar to a {@link SimpleCraftingRecipeSerializer},
+     * but for upgrades.
      * <p>
      * If you might want to vary the item, it's suggested you use {@link #simpleWithCustomItem(BiFunction)} instead.
      *

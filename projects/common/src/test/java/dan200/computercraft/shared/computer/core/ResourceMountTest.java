@@ -7,15 +7,15 @@ package dan200.computercraft.shared.computer.core;
 
 import dan200.computercraft.api.filesystem.Mount;
 import net.minecraft.Util;
-import net.minecraft.server.packs.FolderPackResources;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.util.Unit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -32,7 +32,7 @@ public class ResourceMountTest {
         var manager = new ReloadableResourceManager(PackType.SERVER_DATA);
         var done = new CompletableFuture<Unit>();
         manager.createReload(Util.backgroundExecutor(), Util.backgroundExecutor(), done, List.of(
-            new FolderPackResources(new File("../core/src/main/resources"))
+            new PathPackResources("resources", Path.of("../core/src/main/resources"), false)
         ));
 
         mount = ResourceMount.get("computercraft", "lua/rom", manager);

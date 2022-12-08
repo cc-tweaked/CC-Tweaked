@@ -27,10 +27,10 @@ public class SpeakerPlayClientMessage implements NetworkMessage<ClientNetworkCon
     private final float volume;
     private final float pitch;
 
-    public SpeakerPlayClientMessage(UUID source, SpeakerPosition pos, ResourceLocation event, float volume, float pitch) {
+    public SpeakerPlayClientMessage(UUID source, SpeakerPosition pos, ResourceLocation sound, float volume, float pitch) {
         this.source = source;
         this.pos = pos.asMessage();
-        sound = event;
+        this.sound = sound;
         this.volume = volume;
         this.pitch = pitch;
     }

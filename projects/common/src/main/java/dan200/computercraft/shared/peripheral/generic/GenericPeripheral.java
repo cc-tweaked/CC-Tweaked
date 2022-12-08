@@ -12,7 +12,7 @@ import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.platform.Registries;
+import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nullable;
@@ -26,7 +26,7 @@ class GenericPeripheral implements IDynamicPeripheral {
     private final List<SaturatedMethod> methods;
 
     GenericPeripheral(BlockEntity tile, @Nullable String name, Set<String> additionalTypes, List<SaturatedMethod> methods) {
-        var type = Registries.BLOCK_ENTITY_TYPES.getKey(tile.getType());
+        var type = RegistryWrappers.BLOCK_ENTITY_TYPES.getKey(tile.getType());
         this.tile = tile;
         this.type = name != null ? name : type.toString();
         this.additionalTypes = additionalTypes;

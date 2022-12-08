@@ -13,7 +13,6 @@ import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.impl.Peripherals;
 import dan200.computercraft.shared.Capabilities;
-import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
@@ -52,6 +51,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.CreativeModeTabRegistry;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.ToolActions;
@@ -65,10 +65,9 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistry;
+import net.minecraftforge.registries.RegisterEvent;
 import net.minecraftforge.registries.RegistryManager;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -79,18 +78,6 @@ import java.util.function.Supplier;
 
 @AutoService(dan200.computercraft.impl.PlatformHelper.class)
 public class PlatformHelperImpl implements PlatformHelper {
-    private final CreativeModeTab tab = new CreativeModeTab(ComputerCraftAPI.MOD_ID) {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(ModRegistry.Blocks.COMPUTER_NORMAL.get());
-        }
-    };
-
-    @Override
-    public CreativeModeTab getCreativeTab() {
-        return tab;
-    }
-
     @Override
     public <T> ResourceLocation getRegistryKey(ResourceKey<Registry<T>> registry, T object) {
         var key = RegistryManager.ACTIVE.getRegistry(registry).getKey(object);
@@ -106,13 +93,13 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public <T> Registries.RegistryWrapper<T> wrap(ResourceKey<Registry<T>> key) {
+    public <T> RegistryWrappers.RegistryWrapper<T> wrap(ResourceKey<Registry<T>> key) {
         return new RegistryWrapperImpl<>(key.location(), RegistryManager.ACTIVE.getRegistry(key));
     }
 
     @Override
     public <T> RegistrationHelper<T> createRegistrationHelper(ResourceKey<Registry<T>> registry) {
-        return new RegistrationHelperImpl<>(DeferredRegister.create(registry, ComputerCraftAPI.MOD_ID));
+        return new RegistrationHelperImpl<>(registry);
     }
 
     @Nullable
@@ -261,9 +248,10 @@ public class PlatformHelperImpl implements PlatformHelper {
         return ForgeHooks.getBurnTime(stack, null);
     }
 
+    @Nullable
     @Override
-    public Collection<CreativeModeTab> getCreativeTabs(ItemStack stack) {
-        return stack.getItem().getCreativeTabs();
+    public ResourceLocation getCreativeTabId(CreativeModeTab tab) {
+        return CreativeModeTabRegistry.getName(tab);
     }
 
     @Override
@@ -337,7 +325,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     private record RegistryWrapperImpl<T>(
         ResourceLocation name, ForgeRegistry<T> registry
-    ) implements Registries.RegistryWrapper<T> {
+    ) implements RegistryWrappers.RegistryWrapper<T> {
         @Override
         public int getId(T object) {
             var id = registry.getID(object);
@@ -378,27 +366,55 @@ public class PlatformHelperImpl implements PlatformHelper {
         }
     }
 
-    private record RegistrationHelperImpl<T>(DeferredRegister<T> registry) implements RegistrationHelper<T> {
+    // TODO: Switch back to using a DeferredRegistry: Right now it's broken for some registry types.
+    private static final class RegistrationHelperImpl<T> implements RegistrationHelper<T> {
+        private final ResourceKey<Registry<T>> registry;
+        private final List<RegistryEntryImpl<? extends T>> entries = new ArrayList<>();
+
+        private RegistrationHelperImpl(ResourceKey<Registry<T>> registry) {
+            this.registry = registry;
+        }
+
         @Override
         public <U extends T> RegistryEntry<U> register(String name, Supplier<U> create) {
-            return new RegistryEntryImpl<>(registry.register(name, create));
+            var entry = new RegistryEntryImpl<>(new ResourceLocation(ComputerCraftAPI.MOD_ID, name), create);
+            entries.add(entry);
+            return entry;
         }
 
         @Override
         public void register() {
-            registry.register(FMLJavaModLoadingContext.get().getModEventBus());
+            FMLJavaModLoadingContext.get().getModEventBus().addListener((RegisterEvent event) -> {
+                event.register(registry, helper -> {
+                    for (var object : entries) object.register(helper);
+                });
+            });
         }
     }
 
-    private record RegistryEntryImpl<T>(RegistryObject<T> object) implements RegistryEntry<T> {
+    private static final class RegistryEntryImpl<T> implements RegistryEntry<T> {
+        private final ResourceLocation id;
+        private final Supplier<T> supplier;
+        private @Nullable T instance;
+
+        RegistryEntryImpl(ResourceLocation id, Supplier<T> supplier) {
+            this.id = id;
+            this.supplier = supplier;
+        }
+
+        void register(RegisterEvent.RegisterHelper<? super T> registry) {
+            registry.register(id, instance = supplier.get());
+        }
+
         @Override
         public ResourceLocation id() {
-            return object().getId();
+            return id;
         }
 
         @Override
         public T get() {
-            return object.get();
+            if (instance == null) throw new IllegalStateException(id + " has not been constructed yet");
+            return instance;
         }
     }
 

@@ -21,7 +21,7 @@ import java.util.OptionalInt;
 
 final class FakePlayer extends ServerPlayer {
     private FakePlayer(ServerLevel serverLevel, GameProfile gameProfile) {
-        super(serverLevel.getServer(), serverLevel, gameProfile, null);
+        super(serverLevel.getServer(), serverLevel, gameProfile);
         connection = new FakeNetHandler(this);
     }
 

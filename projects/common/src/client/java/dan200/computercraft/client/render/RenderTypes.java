@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceProvider;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -60,7 +60,7 @@ public class RenderTypes {
         return Objects.requireNonNull(GameRenderer.getRendertypeTextShader(), "Text shader has not been registered");
     }
 
-    public static void registerShaders(ResourceManager resources, BiConsumer<ShaderInstance, Consumer<ShaderInstance>> load) throws IOException {
+    public static void registerShaders(ResourceProvider resources, BiConsumer<ShaderInstance, Consumer<ShaderInstance>> load) throws IOException {
         load.accept(
             new MonitorTextureBufferShader(
                 resources,

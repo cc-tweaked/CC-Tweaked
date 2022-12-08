@@ -6,13 +6,13 @@
 package dan200.computercraft.shared.details;
 
 import com.google.gson.JsonParseException;
-import dan200.computercraft.mixin.CreativeModeTabAccessor;
 import dan200.computercraft.shared.platform.PlatformHelper;
-import dan200.computercraft.shared.platform.Registries;
+import dan200.computercraft.shared.platform.RegistryWrappers;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -25,7 +25,7 @@ import java.util.*;
  */
 public class ItemDetails {
     public static <T extends Map<? super String, Object>> T fillBasicSafe(T data, ItemStack stack) {
-        data.put("name", DetailHelpers.getId(Registries.ITEMS, stack.getItem()));
+        data.put("name", DetailHelpers.getId(RegistryWrappers.ITEMS, stack.getItem()));
         data.put("count", stack.getCount());
         return data;
     }
@@ -98,14 +98,15 @@ public class ItemDetails {
     private static List<Map<String, Object>> getItemGroups(ItemStack stack) {
         List<Map<String, Object>> groups = new ArrayList<>(1);
 
-        for (var group : PlatformHelper.get().getCreativeTabs(stack)) {
-            if (group == null) continue;
-
+        CreativeModeTabs.tabs().stream().filter(x -> x.contains(stack)).forEach(group -> {
             Map<String, Object> groupData = new HashMap<>(2);
-            groupData.put("id", ((CreativeModeTabAccessor) group).computercraft$langId());
+
+            var id = PlatformHelper.get().getCreativeTabId(group);
+            if (id != null) groupData.put("id", id.toString());
+
             groupData.put("displayName", group.getDisplayName().getString());
             groups.add(groupData);
-        }
+        });
 
         return groups;
     }
@@ -152,7 +153,7 @@ public class ItemDetails {
             var enchantment = entry.getKey();
             var level = entry.getValue();
             var enchant = new HashMap<String, Object>(3);
-            enchant.put("name", DetailHelpers.getId(Registries.ENCHANTMENTS, enchantment));
+            enchant.put("name", DetailHelpers.getId(RegistryWrappers.ENCHANTMENTS, enchantment));
             enchant.put("level", level);
             enchant.put("displayName", enchantment.getFullname(level).getString());
             enchants.add(enchant);

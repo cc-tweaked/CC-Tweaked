@@ -10,7 +10,7 @@ import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.mixin.gametest.GameTestInfoAccessor
 import dan200.computercraft.mixin.gametest.GameTestSequenceAccessor
 import dan200.computercraft.shared.platform.PlatformHelper
-import dan200.computercraft.shared.platform.Registries
+import dan200.computercraft.shared.platform.RegistryWrappers
 import dan200.computercraft.test.core.computer.LuaTaskContext
 import dan200.computercraft.test.shared.ItemStackMatcher.isStack
 import net.minecraft.commands.arguments.blocks.BlockInput
@@ -154,7 +154,7 @@ fun GameTestHelper.assertBlockIs(pos: BlockPos, predicate: (BlockState) -> Boole
 fun <T : Comparable<T>> GameTestHelper.assertBlockHas(pos: BlockPos, property: Property<T>, value: T, message: String = "") {
     val state = getBlockState(pos)
     if (!state.hasProperty(property)) {
-        val id = Registries.BLOCKS.getKey(state.block)
+        val id = RegistryWrappers.BLOCKS.getKey(state.block)
         fail(message, "block $id does not have property ${property.name}", pos)
     } else if (state.getValue(property) != value) {
         fail(message, "${property.name} is ${state.getValue(property)}, expected $value", pos)
@@ -227,7 +227,7 @@ fun GameTestHelper.assertExactlyItems(vararg expected: ItemStack, message: Strin
     }
 }
 
-private fun getName(type: BlockEntityType<*>): ResourceLocation = Registries.BLOCK_ENTITY_TYPES.getKey(type)!!
+private fun getName(type: BlockEntityType<*>): ResourceLocation = RegistryWrappers.BLOCK_ENTITY_TYPES.getKey(type)!!
 
 /**
  * Get a [BlockEntity] of a specific type.

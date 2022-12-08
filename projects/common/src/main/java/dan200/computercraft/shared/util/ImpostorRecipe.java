@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
@@ -21,8 +22,8 @@ import net.minecraft.world.level.Level;
 public final class ImpostorRecipe extends ShapedRecipe {
     private final String group;
 
-    private ImpostorRecipe(ResourceLocation id, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result) {
-        super(id, group, width, height, ingredients, result);
+    private ImpostorRecipe(ResourceLocation id, String group, CraftingBookCategory category, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result) {
+        super(id, group, category, width, height, ingredients, result);
         this.group = group;
     }
 
@@ -50,9 +51,10 @@ public final class ImpostorRecipe extends ShapedRecipe {
         @Override
         public ImpostorRecipe fromJson(ResourceLocation identifier, JsonObject json) {
             var group = GsonHelper.getAsString(json, "group", "");
+            var category = CraftingBookCategory.CODEC.byName(GsonHelper.getAsString(json, "category", null), CraftingBookCategory.MISC);
             var recipe = RecipeSerializer.SHAPED_RECIPE.fromJson(identifier, json);
             var result = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
-            return new ImpostorRecipe(identifier, group, recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), result);
+            return new ImpostorRecipe(identifier, group, category, recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), result);
         }
 
         @Override
@@ -60,10 +62,11 @@ public final class ImpostorRecipe extends ShapedRecipe {
             var width = buf.readVarInt();
             var height = buf.readVarInt();
             var group = buf.readUtf(Short.MAX_VALUE);
+            var category = buf.readEnum(CraftingBookCategory.class);
             var items = NonNullList.withSize(width * height, Ingredient.EMPTY);
             for (var k = 0; k < items.size(); k++) items.set(k, Ingredient.fromNetwork(buf));
             var result = buf.readItem();
-            return new ImpostorRecipe(identifier, group, width, height, items, result);
+            return new ImpostorRecipe(identifier, group, category, width, height, items, result);
         }
 
         @Override
@@ -71,6 +74,7 @@ public final class ImpostorRecipe extends ShapedRecipe {
             buf.writeVarInt(recipe.getWidth());
             buf.writeVarInt(recipe.getHeight());
             buf.writeUtf(recipe.getGroup());
+            buf.writeEnum(recipe.category());
             for (var ingredient : recipe.getIngredients()) ingredient.toNetwork(buf);
             buf.writeItem(recipe.getResultItem());
         }

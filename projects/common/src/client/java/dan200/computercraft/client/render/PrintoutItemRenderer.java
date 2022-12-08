@@ -6,7 +6,7 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.EntityType;
@@ -30,7 +30,7 @@ public final class PrintoutItemRenderer extends ItemMapLikeRenderer {
 
     @Override
     protected void renderItem(PoseStack transform, MultiBufferSource render, ItemStack stack, int light) {
-        transform.mulPose(Vector3f.XP.rotationDegrees(180f));
+        transform.mulPose(Axis.XP.rotationDegrees(180f));
         transform.scale(0.42f, 0.42f, -0.42f);
         transform.translate(-0.5f, -0.48f, 0.0f);
 
@@ -42,7 +42,7 @@ public final class PrintoutItemRenderer extends ItemMapLikeRenderer {
 
         // Move a little bit forward to ensure we're not clipping with the frame
         transform.translate(0.0f, 0.0f, -0.001f);
-        transform.mulPose(Vector3f.ZP.rotationDegrees(180f));
+        transform.mulPose(Axis.ZP.rotationDegrees(180f));
         transform.scale(0.95f, 0.95f, -0.95f);
         transform.translate(-0.5f, -0.5f, 0.0f);
 

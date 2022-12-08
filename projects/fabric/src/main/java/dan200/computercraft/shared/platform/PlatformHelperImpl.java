@@ -14,8 +14,6 @@ import dan200.computercraft.api.node.wired.WiredElementLookup;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralLookup;
 import dan200.computercraft.mixin.ArgumentTypeInfosAccessor;
-import dan200.computercraft.mixin.CreativeModeTabAccessor;
-import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
@@ -36,6 +34,7 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -72,7 +71,10 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -80,27 +82,9 @@ import java.util.function.Supplier;
 
 @AutoService(dan200.computercraft.impl.PlatformHelper.class)
 public class PlatformHelperImpl implements PlatformHelper {
-    private static final CreativeModeTab creativeTab;
-
-    static {
-        // Fabric's API for this forces us to use "computercraft.xyz", so roll our own.
-        CreativeModeTabAccessor.computercraft$setTabs(Arrays.copyOf(CreativeModeTab.TABS, CreativeModeTab.TABS.length + 1));
-        creativeTab = new CreativeModeTab(CreativeModeTab.TABS.length - 1, ComputerCraftAPI.MOD_ID) {
-            @Override
-            public ItemStack makeIcon() {
-                return new ItemStack(ModRegistry.Items.COMPUTER_NORMAL.get());
-            }
-        };
-    }
-
-    @Override
-    public CreativeModeTab getCreativeTab() {
-        return creativeTab;
-    }
-
     @SuppressWarnings("unchecked")
     private static <T> Registry<T> getRegistry(ResourceKey<Registry<T>> id) {
-        var registry = (Registry<T>) Registry.REGISTRY.get(id.location());
+        var registry = (Registry<T>) BuiltInRegistries.REGISTRY.get(id.location());
         if (registry == null) throw new IllegalArgumentException("Unknown registry " + id);
         return registry;
     }
@@ -120,7 +104,7 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public <T> Registries.RegistryWrapper<T> wrap(ResourceKey<Registry<T>> registry) {
+    public <T> RegistryWrappers.RegistryWrapper<T> wrap(ResourceKey<Registry<T>> registry) {
         return new RegistryWrapperImpl<>(registry.location(), getRegistry(registry));
     }
 
@@ -261,10 +245,10 @@ public class PlatformHelperImpl implements PlatformHelper {
         return AbstractFurnaceBlockEntity.getFuel().getOrDefault(stack.getItem(), 0);
     }
 
+    @Nullable
     @Override
-    public List<CreativeModeTab> getCreativeTabs(ItemStack stack) {
-        var category = stack.getItem().getItemCategory();
-        return category == null ? List.of() : List.of(category);
+    public ResourceLocation getCreativeTabId(CreativeModeTab tab) {
+        return tab.getId();
     }
 
     @Override
@@ -320,7 +304,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     private record RegistryWrapperImpl<T>(
         ResourceLocation name, Registry<T> registry
-    ) implements Registries.RegistryWrapper<T> {
+    ) implements RegistryWrappers.RegistryWrapper<T> {
         @Override
         public int getId(T object) {
             var id = registry.getId(object);

@@ -6,7 +6,7 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -66,7 +66,7 @@ public abstract class ItemMapLikeRenderer {
         // If the player is not invisible then render a single arm
         if (!minecraft.player.isInvisible()) {
             transform.pushPose();
-            transform.mulPose(Vector3f.ZP.rotationDegrees(offset * 10f));
+            transform.mulPose(Axis.ZP.rotationDegrees(offset * 10f));
             minecraft.getEntityRenderDispatcher().getItemInHandRenderer().renderPlayerArm(transform, render, combinedLight, equipProgress, swingProgress, side);
             transform.popPose();
         }
@@ -81,8 +81,8 @@ public abstract class ItemMapLikeRenderer {
         var f4 = 0.4f * Mth.sin(f1 * ((float) Math.PI * 2f));
         var f5 = -0.3f * Mth.sin(swingProgress * (float) Math.PI);
         transform.translate(offset * f3, f4 - 0.3f * f2, f5);
-        transform.mulPose(Vector3f.XP.rotationDegrees(f2 * -45f));
-        transform.mulPose(Vector3f.YP.rotationDegrees(offset * f2 * -30f));
+        transform.mulPose(Axis.XP.rotationDegrees(f2 * -45f));
+        transform.mulPose(Axis.YP.rotationDegrees(offset * f2 * -30f));
 
         renderItem(transform, render, stack, combinedLight);
 
@@ -114,17 +114,17 @@ public abstract class ItemMapLikeRenderer {
 
         var pitchAngle = renderer.calculateMapTilt(pitch);
         transform.translate(0, 0.04F + equipProgress * -1.2f + pitchAngle * -0.5f, -0.72f);
-        transform.mulPose(Vector3f.XP.rotationDegrees(pitchAngle * -85.0f));
+        transform.mulPose(Axis.XP.rotationDegrees(pitchAngle * -85.0f));
         if (!minecraft.player.isInvisible()) {
             transform.pushPose();
-            transform.mulPose(Vector3f.YP.rotationDegrees(90.0F));
+            transform.mulPose(Axis.YP.rotationDegrees(90.0F));
             renderer.renderMapHand(transform, render, combinedLight, HumanoidArm.RIGHT);
             renderer.renderMapHand(transform, render, combinedLight, HumanoidArm.LEFT);
             transform.popPose();
         }
 
         var rX = Mth.sin(swingRt * (float) Math.PI);
-        transform.mulPose(Vector3f.XP.rotationDegrees(rX * 20.0F));
+        transform.mulPose(Axis.XP.rotationDegrees(rX * 20.0F));
         transform.scale(2.0F, 2.0F, 2.0F);
 
         renderItem(transform, render, stack, combinedLight);

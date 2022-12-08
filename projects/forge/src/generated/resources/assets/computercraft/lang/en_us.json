@@ -166,6 +166,7 @@
   "gui.computercraft.config.upload_nag_delay": "Upload nag delay",
   "gui.computercraft.config.upload_nag_delay.tooltip": "The delay in seconds after which we'll notify about unhandled imports. Set to 0 to disable.\nRange: 0 ~ 60",
   "gui.computercraft.pocket_computer_overlay": "Pocket computer open. Press ESC to close.",
+  "gui.computercraft.terminal": "Computer terminal",
   "gui.computercraft.tooltip.computer_id": "Computer ID: %s",
   "gui.computercraft.tooltip.copy": "Copy to clipboard",
   "gui.computercraft.tooltip.disk_id": "Disk ID: %s",

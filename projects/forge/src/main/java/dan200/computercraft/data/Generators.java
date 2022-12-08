@@ -5,96 +5,73 @@
  */
 package dan200.computercraft.data;
 
-import com.mojang.datafixers.util.Pair;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.shared.platform.RegistryWrappers;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.data.models.BlockModelGenerators;
 import net.minecraft.data.models.ItemModelGenerators;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.LootTables;
-import net.minecraft.world.level.storage.loot.ValidationContext;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Generators {
     @SubscribeEvent
     public static void gather(GatherDataEvent event) {
         var generator = event.getGenerator();
-        DataProviders.add(
-            generator, new GeneratorFactoryImpl(generator, event.getExistingFileHelper()),
-            event.includeServer(), event.includeClient()
-        );
+        DataProviders.add(new GeneratorFactoryImpl(generator.getVanillaPack(true), event.getExistingFileHelper(), event.getLookupProvider()));
     }
 
     private record GeneratorFactoryImpl(
-        DataGenerator generator, ExistingFileHelper existingFiles
-    ) implements DataProviders.GeneratorFactory {
+        DataGenerator.PackGenerator generator,
+        ExistingFileHelper existingFiles,
+        CompletableFuture<HolderLookup.Provider> registries
+    ) implements DataProviders.GeneratorSink {
         @Override
-        public DataProvider recipes(Consumer<Consumer<FinishedRecipe>> recipes) {
-            return new RecipeProvider(generator) {
-                @Override
-                protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
-                    recipes.accept(consumer);
-                }
-            };
+        public <T extends DataProvider> T add(DataProvider.Factory<T> factory) {
+            return generator.addProvider(factory);
         }
 
         @Override
-        public List<DataProvider> lootTable(List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> tables) {
-            return List.of(new LootTableProvider(generator) {
-                @Override
-                protected List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> getTables() {
-                    return tables;
-                }
+        public void lootTable(List<LootTableProvider.SubProviderEntry> tables) {
+            add(out -> new LootTableProvider(out, Set.of(), tables));
+        }
 
+        @Override
+        public TagsProvider<Block> blockTags(Consumer<TagProvider.TagConsumer<Block>> tags) {
+            return add(out -> new BlockTagsProvider(out, registries, ComputerCraftAPI.MOD_ID, existingFiles) {
                 @Override
-                protected void validate(Map<ResourceLocation, LootTable> map, ValidationContext tracker) {
-                    map.forEach((id, table) -> LootTables.validate(tracker, id, table));
+                protected void addTags(HolderLookup.Provider registries) {
+                    tags.accept(x -> new TagProvider.TagAppender<>(RegistryWrappers.BLOCKS, getOrCreateRawBuilder(x)));
                 }
             });
         }
 
         @Override
-        public TagsProvider<Block> blockTags(Consumer<TagProvider.TagConsumer<Block>> tags) {
-            return new BlockTagsProvider(generator, ComputerCraftAPI.MOD_ID, existingFiles) {
-                @Override
-                protected void addTags() {
-                    tags.accept(this::tag);
-                }
-            };
-        }
-
-        @Override
         public TagsProvider<Item> itemTags(Consumer<TagProvider.ItemTagConsumer> tags, TagsProvider<Block> blocks) {
-            return new ItemTagsProvider(generator, (BlockTagsProvider) blocks, ComputerCraftAPI.MOD_ID, existingFiles) {
+            return add(out -> new ItemTagsProvider(out, registries, blocks, ComputerCraftAPI.MOD_ID, existingFiles) {
                 @Override
-                protected void addTags() {
+                protected void addTags(HolderLookup.Provider registries) {
                     var self = this;
                     tags.accept(new TagProvider.ItemTagConsumer() {
                         @Override
-                        public TagAppender<Item> tag(TagKey<Item> tag) {
-                            return self.tag(tag);
+                        public TagProvider.TagAppender<Item> tag(TagKey<Item> tag) {
+                            return new TagProvider.TagAppender<>(RegistryWrappers.ITEMS, getOrCreateRawBuilder(tag));
                         }
 
                         @Override
@@ -103,12 +80,12 @@ public class Generators {
                         }
                     });
                 }
-            };
+            });
         }
 
         @Override
-        public DataProvider models(Consumer<BlockModelGenerators> blocks, Consumer<ItemModelGenerators> items) {
-            return new ModelProvider(generator, blocks, items);
+        public void models(Consumer<BlockModelGenerators> blocks, Consumer<ItemModelGenerators> items) {
+            add(out -> new ModelProvider(out, blocks, items));
         }
     }
 }

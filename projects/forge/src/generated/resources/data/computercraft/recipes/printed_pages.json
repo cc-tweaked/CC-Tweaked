@@ -1,5 +1,6 @@
 {
   "type": "computercraft:impostor_shapeless",
+  "category": "redstone",
   "ingredients": [
     {"item": "computercraft:printed_page"},
     {"item": "computercraft:printed_page"},

@@ -8,7 +8,7 @@ package dan200.computercraft.mixin.client;
 import dan200.computercraft.client.ClientRegistry;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceProvider;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,7 +29,7 @@ class GameRendererMixin {
 
     @Inject(method = "reloadShaders", at = @At(value = "TAIL"))
     @SuppressWarnings("UnusedMethod")
-    private void onReloadShaders(ResourceManager resourceManager, CallbackInfo ci) {
+    private void onReloadShaders(ResourceProvider resourceManager, CallbackInfo ci) {
         try {
             ClientRegistry.registerShaders(resourceManager, (shader, callback) -> {
                 shaders.put(shader.getName(), shader);

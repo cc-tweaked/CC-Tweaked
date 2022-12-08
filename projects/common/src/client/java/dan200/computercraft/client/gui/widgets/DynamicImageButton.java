@@ -7,12 +7,13 @@ package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.List;
+import javax.annotation.Nullable;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
@@ -21,42 +22,39 @@ import java.util.function.Supplier;
  * dynamically.
  */
 public class DynamicImageButton extends Button {
-    private final Screen screen;
     private final ResourceLocation texture;
     private final IntSupplier xTexStart;
     private final int yTexStart;
     private final int yDiffTex;
     private final int textureWidth;
     private final int textureHeight;
-    private final Supplier<List<Component>> tooltip;
+    private final Supplier<HintedMessage> message;
 
     public DynamicImageButton(
-        Screen screen, int x, int y, int width, int height, int xTexStart, int yTexStart, int yDiffTex,
+        int x, int y, int width, int height, int xTexStart, int yTexStart, int yDiffTex,
         ResourceLocation texture, int textureWidth, int textureHeight,
-        OnPress onPress, List<Component> tooltip
+        OnPress onPress, HintedMessage message
     ) {
         this(
-            screen, x, y, width, height, () -> xTexStart, yTexStart, yDiffTex,
+            x, y, width, height, () -> xTexStart, yTexStart, yDiffTex,
             texture, textureWidth, textureHeight,
-            onPress, () -> tooltip
+            onPress, () -> message
         );
     }
 
-
     public DynamicImageButton(
-        Screen screen, int x, int y, int width, int height, IntSupplier xTexStart, int yTexStart, int yDiffTex,
+        int x, int y, int width, int height, IntSupplier xTexStart, int yTexStart, int yDiffTex,
         ResourceLocation texture, int textureWidth, int textureHeight,
-        OnPress onPress, Supplier<List<Component>> tooltip
+        OnPress onPress, Supplier<HintedMessage> message
     ) {
-        super(x, y, width, height, Component.empty(), onPress);
-        this.screen = screen;
+        super(x, y, width, height, Component.empty(), onPress, DEFAULT_NARRATION);
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;
         this.xTexStart = xTexStart;
         this.yTexStart = yTexStart;
         this.yDiffTex = yDiffTex;
         this.texture = texture;
-        this.tooltip = tooltip;
+        this.message = message;
     }
 
     @Override
@@ -67,23 +65,29 @@ public class DynamicImageButton extends Button {
         var yTex = yTexStart;
         if (isHoveredOrFocused()) yTex += yDiffTex;
 
-        blit(stack, x, y, xTexStart.getAsInt(), yTex, width, height, textureWidth, textureHeight);
+        blit(stack, getX(), getY(), xTexStart.getAsInt(), yTex, width, height, textureWidth, textureHeight);
         RenderSystem.enableDepthTest();
-
-        if (isHovered) renderToolTip(stack, mouseX, mouseY);
     }
 
     @Override
     public Component getMessage() {
-        var tooltip = this.tooltip.get();
-        return tooltip.isEmpty() ? Component.empty() : tooltip.get(0);
+        return message.get().message;
     }
 
     @Override
-    public void renderToolTip(PoseStack stack, int mouseX, int mouseY) {
-        var tooltip = this.tooltip.get();
-        if (!tooltip.isEmpty()) {
-            screen.renderComponentTooltip(stack, tooltip, mouseX, mouseY);
+    public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
+        setTooltip(message.get().tooltip());
+        super.render(stack, mouseX, mouseY, partialTicks);
+    }
+
+    public record HintedMessage(Component message, Tooltip tooltip) {
+        public HintedMessage(Component message, @Nullable Component hint) {
+            this(
+                message,
+                hint == null
+                    ? Tooltip.create(message)
+                    : Tooltip.create(Component.empty().append(message).append("\n").append(hint.copy().withStyle(ChatFormatting.GRAY)), hint)
+            );
         }
     }
 }

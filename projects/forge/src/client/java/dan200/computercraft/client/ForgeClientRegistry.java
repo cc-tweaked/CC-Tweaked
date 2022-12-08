@@ -38,7 +38,7 @@ public final class ForgeClientRegistry {
 
     @SubscribeEvent
     public static void registerShaders(RegisterShadersEvent event) throws IOException {
-        ClientRegistry.registerShaders(event.getResourceManager(), event::registerShader);
+        ClientRegistry.registerShaders(event.getResourceProvider(), event::registerShader);
     }
 
     @SubscribeEvent

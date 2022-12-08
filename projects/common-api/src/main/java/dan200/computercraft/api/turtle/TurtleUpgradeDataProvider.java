@@ -9,8 +9,9 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.upgrades.UpgradeDataProvider;
 import dan200.computercraft.impl.PlatformHelper;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -23,16 +24,17 @@ import java.util.function.Consumer;
 /**
  * A data provider to generate turtle upgrades.
  * <p>
- * This should be subclassed and registered to a {@link DataGenerator}. Override the {@link #addUpgrades(Consumer)} function,
- * construct each upgrade, and pass them off to the provided consumer to generate them.
+ * This should be subclassed and registered to a {@link DataGenerator.PackGenerator}. Override the
+ * {@link #addUpgrades(Consumer)} function, construct each upgrade, and pass them off to the provided consumer to
+ * generate them.
  *
  * @see TurtleUpgradeSerialiser
  */
 public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITurtleUpgrade, TurtleUpgradeSerialiser<?>> {
     private static final ResourceLocation TOOL_ID = new ResourceLocation(ComputerCraftAPI.MOD_ID, "tool");
 
-    public TurtleUpgradeDataProvider(DataGenerator generator) {
-        super(generator, "Turtle Upgrades", "computercraft/turtle_upgrades", TurtleUpgradeSerialiser.REGISTRY_ID);
+    public TurtleUpgradeDataProvider(PackOutput output) {
+        super(output, "Turtle Upgrades", "computercraft/turtle_upgrades", TurtleUpgradeSerialiser.REGISTRY_ID);
     }
 
     /**
@@ -124,10 +126,10 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
          */
         public void add(Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> add) {
             add.accept(new Upgrade<>(id, serialiser, s -> {
-                s.addProperty("item", PlatformHelper.get().getRegistryKey(Registry.ITEM_REGISTRY, toolItem).toString());
+                s.addProperty("item", PlatformHelper.get().getRegistryKey(Registries.ITEM, toolItem).toString());
                 if (adjective != null) s.addProperty("adjective", adjective);
                 if (craftingItem != null) {
-                    s.addProperty("craftItem", PlatformHelper.get().getRegistryKey(Registry.ITEM_REGISTRY, craftingItem).toString());
+                    s.addProperty("craftItem", PlatformHelper.get().getRegistryKey(Registries.ITEM, craftingItem).toString());
                 }
                 if (damageMultiplier != null) s.addProperty("damageMultiplier", damageMultiplier);
                 if (breakable != null) s.addProperty("breakable", breakable.location().toString());

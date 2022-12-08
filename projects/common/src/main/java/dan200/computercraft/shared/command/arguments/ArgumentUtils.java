@@ -9,7 +9,7 @@ import com.google.gson.JsonObject;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import dan200.computercraft.shared.platform.Registries;
+import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -25,7 +25,7 @@ public class ArgumentUtils {
     public static <A extends ArgumentType<?>> JsonObject serializeToJson(ArgumentTypeInfo.Template<A> template) {
         var object = new JsonObject();
         object.addProperty("type", "argument");
-        object.addProperty("parser", Registries.COMMAND_ARGUMENT_TYPES.getKey(template.type()).toString());
+        object.addProperty("parser", RegistryWrappers.COMMAND_ARGUMENT_TYPES.getKey(template.type()).toString());
 
         var properties = new JsonObject();
         serializeToJson(properties, template.type(), template);
@@ -45,12 +45,12 @@ public class ArgumentUtils {
 
     @SuppressWarnings("unchecked")
     private static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>> void serializeToNetwork(FriendlyByteBuf buffer, ArgumentTypeInfo<A, T> type, ArgumentTypeInfo.Template<A> template) {
-        Registries.writeId(buffer, Registries.COMMAND_ARGUMENT_TYPES, type);
+        RegistryWrappers.writeId(buffer, RegistryWrappers.COMMAND_ARGUMENT_TYPES, type);
         type.serializeToNetwork((T) template, buffer);
     }
 
     public static ArgumentTypeInfo.Template<?> deserialize(FriendlyByteBuf buffer) {
-        var type = Registries.readId(buffer, Registries.COMMAND_ARGUMENT_TYPES);
+        var type = RegistryWrappers.readId(buffer, RegistryWrappers.COMMAND_ARGUMENT_TYPES);
         Objects.requireNonNull(type, "Unknown argument type");
         return type.deserializeFromNetwork(buffer);
     }

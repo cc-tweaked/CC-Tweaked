@@ -68,20 +68,13 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     }
 
     /**
-     * Get ComputerCraft's creative tab all its items should appear under.
-     *
-     * @return The creative tab.
-     */
-    CreativeModeTab getCreativeTab();
-
-    /**
      * Wrap a Minecraft registry in our own abstraction layer.
      *
      * @param registry The registry to wrap.
      * @param <T>      The type of object stored in this registry.
      * @return The wrapped registry.
      */
-    <T> Registries.RegistryWrapper<T> wrap(ResourceKey<Registry<T>> registry);
+    <T> RegistryWrappers.RegistryWrapper<T> wrap(ResourceKey<Registry<T>> registry);
 
     /**
      * Create a registration helper for a specific registry.
@@ -262,12 +255,13 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     int getBurnTime(ItemStack stack);
 
     /**
-     * Get the creative tabs this stack belongs to.
+     * Get a unique identifier for this creative tab.
      *
-     * @param stack The current item.
-     * @return The creative tabs the item belongs to.
+     * @param tab The tab to get
+     * @return The unique identifier, or {@code null} if not available.
      */
-    Collection<CreativeModeTab> getCreativeTabs(ItemStack stack);
+    @Nullable
+    ResourceLocation getCreativeTabId(CreativeModeTab tab);
 
     /**
      * Get the "container" item to be returned after crafting. For instance, crafting with a lava bucket should return

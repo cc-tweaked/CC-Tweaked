@@ -14,13 +14,14 @@ import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 public final class PocketComputerUpgradeRecipe extends CustomRecipe {
-    public PocketComputerUpgradeRecipe(ResourceLocation identifier) {
-        super(identifier);
+    public PocketComputerUpgradeRecipe(ResourceLocation identifier, CraftingBookCategory category) {
+        super(identifier, category);
     }
 
     @Override

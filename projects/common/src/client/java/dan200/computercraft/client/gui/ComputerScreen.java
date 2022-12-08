@@ -34,7 +34,7 @@ public final class ComputerScreen<T extends AbstractComputerMenu> extends Abstra
         // Draw a border around the terminal
         var terminal = getTerminal();
         ComputerBorderRenderer.render(
-            stack.last().pose(), ComputerBorderRenderer.getTexture(family), terminal.x, terminal.y, getBlitOffset(),
+            stack.last().pose(), ComputerBorderRenderer.getTexture(family), terminal.getX(), terminal.getY(), getBlitOffset(),
             FULL_BRIGHT_LIGHTMAP, terminal.getWidth(), terminal.getHeight()
         );
         ComputerSidebar.renderBackground(stack, leftPos, topPos + sidebarYOffset);

@@ -18,13 +18,14 @@ import dan200.computercraft.shared.network.client.SpeakerMoveClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerPlayClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
 import dan200.computercraft.shared.platform.PlatformHelper;
-import dan200.computercraft.shared.platform.Registries;
 import dan200.computercraft.shared.util.PauseAwareTimer;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
+import net.minecraft.core.Holder;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 
@@ -64,11 +65,11 @@ public abstract class SpeakerPeripheral implements IPeripheral {
 
     private long lastPlayTime;
 
-    private final List<PendingSound> pendingNotes = new ArrayList<>();
+    private final List<PendingSound<Holder<SoundEvent>>> pendingNotes = new ArrayList<>();
 
     private final Object lock = new Object();
     private boolean shouldStop;
-    private @Nullable PendingSound pendingSound = null;
+    private @Nullable PendingSound<ResourceLocation> pendingSound = null;
     private @Nullable DfpwmState dfpwmState;
 
     public void update() {
@@ -85,7 +86,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
                 lastPlayTime = clock;
                 server.getPlayerList().broadcast(
                     null, pos.x, pos.y, pos.z, sound.volume * 16, level.dimension(),
-                    new ClientboundCustomSoundPacket(sound.location, SoundSource.RECORDS, pos, sound.volume, sound.pitch, level.getRandom().nextLong())
+                    new ClientboundSoundPacket(sound.sound, SoundSource.RECORDS, pos.x, pos.y, pos.z, sound.volume, sound.pitch, level.getRandom().nextLong())
                 );
             }
             pendingNotes.clear();
@@ -96,7 +97,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         // dfpwmState will only ever transition from having a buffer to not having a buffer on the main thread (so this
         // method), so we don't need to bother locking that.
         boolean shouldStop;
-        PendingSound sound;
+        PendingSound<ResourceLocation> sound;
         DfpwmState dfpwmState;
         synchronized (lock) {
             sound = pendingSound;
@@ -122,7 +123,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         if (sound != null) {
             lastPlayTime = clock;
             PlatformHelper.get().sendToAllAround(
-                new SpeakerPlayClientMessage(getSource(), position, sound.location, sound.volume, sound.pitch),
+                new SpeakerPlayClientMessage(getSource(), position, sound.sound, sound.volume, sound.pitch),
                 (ServerLevel) level, pos, sound.volume * 16
             );
             syncedPosition(position);
@@ -218,7 +219,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
 
         synchronized (pendingNotes) {
             if (pendingNotes.size() >= Config.maxNotesPerTick) return false;
-            pendingNotes.add(new PendingSound(Registries.SOUND_EVENTS.getKey(instrument.getSoundEvent()), volume, (float) Math.pow(2.0, (pitch - 12.0) / 12.0)));
+            pendingNotes.add(new PendingSound<>(instrument.getSoundEvent(), volume, (float) Math.pow(2.0, (pitch - 12.0) / 12.0)));
         }
         return true;
     }
@@ -260,7 +261,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         synchronized (lock) {
             if (dfpwmState != null && dfpwmState.isPlaying()) return false;
             dfpwmState = null;
-            pendingSound = new PendingSound(identifier, volume, pitch);
+            pendingSound = new PendingSound<>(identifier, volume, pitch);
             return true;
         }
     }
@@ -360,6 +361,6 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         }
     }
 
-    private record PendingSound(ResourceLocation location, float volume, float pitch) {
+    private record PendingSound<T>(T sound, float volume, float pitch) {
     }
 }

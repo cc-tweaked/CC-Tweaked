@@ -8,7 +8,7 @@ package dan200.computercraft.data;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
 import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Consumer;
@@ -17,8 +17,8 @@ import static dan200.computercraft.shared.ModRegistry.Items;
 import static dan200.computercraft.shared.ModRegistry.PocketUpgradeSerialisers;
 
 class PocketUpgradeProvider extends PocketUpgradeDataProvider {
-    PocketUpgradeProvider(DataGenerator generator) {
-        super(generator);
+    PocketUpgradeProvider(PackOutput output) {
+        super(output);
     }
 
     @Override

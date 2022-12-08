@@ -12,6 +12,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.function.Predicate;
+
 /**
  * Don't throw when using a Minecraft tag inside {@link TagsProvider}.
  * <p>
@@ -19,8 +21,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Mixin(TagsProvider.class)
 class TagsProviderMixin {
-    @Inject(at = @At("HEAD"), method = "method_33130", cancellable = true)
-    public void onVerifyPresent(TagEntry tag, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(at = @At("HEAD"), method = "method_46834", cancellable = true)
+    public void onVerifyPresent(Predicate<?> predicate, TagEntry tag, CallbackInfoReturnable<Boolean> cir) {
         var element = ((TagEntryAccessor) tag).computercraft$elementOrTag();
         if (element.tag() && element.id().getNamespace().equals("minecraft")) cir.setReturnValue(false);
     }

@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.client.model.turtle;
 
-import com.mojang.datafixers.util.Pair;
 import dan200.computercraft.api.ComputerCraftAPI;
 import net.fabricmc.fabric.api.client.model.ModelProviderException;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -16,7 +15,9 @@ import net.minecraft.util.GsonHelper;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 public final class TurtleModelLoader {
@@ -57,15 +58,13 @@ public final class TurtleModelLoader {
         }
 
         @Override
-        public Collection<Material> getMaterials(Function<ResourceLocation, UnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors) {
-            Set<Material> materials = new HashSet<>();
-            materials.addAll(modelGetter.apply(model).getMaterials(modelGetter, missingTextureErrors));
-            materials.addAll(modelGetter.apply(COLOUR_TURTLE_MODEL).getMaterials(modelGetter, missingTextureErrors));
-            return materials;
+        public void resolveParents(Function<ResourceLocation, UnbakedModel> function) {
+            function.apply(model).resolveParents(function);
+            function.apply(COLOUR_TURTLE_MODEL).resolveParents(function);
         }
 
         @Override
-        public BakedModel bake(ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState transform, ResourceLocation location) {
+        public BakedModel bake(ModelBaker bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState transform, ResourceLocation location) {
             var mainModel = bakery.bake(model, transform);
             if (mainModel == null) throw new NullPointerException(model + " failed to bake");
 

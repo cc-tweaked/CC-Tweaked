@@ -6,10 +6,11 @@
 package dan200.computercraft.data;
 
 import com.google.gson.JsonElement;
-import dan200.computercraft.shared.platform.Registries;
+import dan200.computercraft.shared.platform.RegistryWrappers;
+import net.minecraft.Util;
 import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraft.data.models.BlockModelGenerators;
 import net.minecraft.data.models.ItemModelGenerators;
 import net.minecraft.data.models.blockstates.BlockStateGenerator;
@@ -18,14 +19,10 @@ import net.minecraft.data.models.model.ModelLocationUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -37,24 +34,22 @@ import java.util.function.Supplier;
  * Please don't sue me Mojang. Or at least make these changes to vanilla before doing so!
  */
 public class ModelProvider implements DataProvider {
-    private static final Logger LOG = LoggerFactory.getLogger(ModelProvider.class);
-
-    private final DataGenerator.PathProvider blockStatePath;
-    private final DataGenerator.PathProvider modelPath;
+    private final PackOutput.PathProvider blockStatePath;
+    private final PackOutput.PathProvider modelPath;
 
     private final Consumer<BlockModelGenerators> blocks;
     private final Consumer<ItemModelGenerators> items;
 
-    public ModelProvider(DataGenerator generator, Consumer<BlockModelGenerators> blocks, Consumer<ItemModelGenerators> items) {
-        blockStatePath = generator.createPathProvider(DataGenerator.Target.RESOURCE_PACK, "blockstates");
-        modelPath = generator.createPathProvider(DataGenerator.Target.RESOURCE_PACK, "models");
+    public ModelProvider(PackOutput output, Consumer<BlockModelGenerators> blocks, Consumer<ItemModelGenerators> items) {
+        blockStatePath = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "blockstates");
+        modelPath = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "models");
 
         this.blocks = blocks;
         this.items = items;
     }
 
     @Override
-    public void run(CachedOutput output) {
+    public CompletableFuture<?> run(CachedOutput output) {
         Map<Block, BlockStateGenerator> blockStates = new HashMap<>();
         Consumer<BlockStateGenerator> addBlockState = generator -> {
             var block = generator.getBlock();
@@ -73,7 +68,7 @@ public class ModelProvider implements DataProvider {
         blocks.accept(new BlockModelGenerators(addBlockState, addModel, explicitItems::add));
         items.accept(new ItemModelGenerators(addModel));
 
-        for (var block : Registries.BLOCKS) {
+        for (var block : RegistryWrappers.BLOCKS) {
             if (!blockStates.containsKey(block)) continue;
 
             var item = Item.BY_BLOCK.get(block);
@@ -85,18 +80,17 @@ public class ModelProvider implements DataProvider {
             }
         }
 
-        saveCollection(output, blockStates, x -> blockStatePath.json(Registries.BLOCKS.getKey(x)));
-        saveCollection(output, models, modelPath::json);
+        List<CompletableFuture<?>> futures = new ArrayList<>();
+        saveCollection(output, futures, blockStates, x -> blockStatePath.json(RegistryWrappers.BLOCKS.getKey(x)));
+        saveCollection(output, futures, models, modelPath::json);
+        return Util.sequenceFailFast(futures);
     }
 
-    private <T> void saveCollection(CachedOutput output, Map<T, ? extends Supplier<JsonElement>> items, Function<T, Path> getLocation) {
+    private <T> void saveCollection(CachedOutput output, List<CompletableFuture<?>> futures, Map<T, ? extends Supplier<JsonElement>> items, Function<T, Path> getLocation) {
         for (Map.Entry<T, ? extends Supplier<JsonElement>> entry : items.entrySet()) {
             var path = getLocation.apply(entry.getKey());
-            try {
-                DataProvider.saveStable(output, entry.getValue().get(), path);
-            } catch (Exception exception) {
-                LOG.error("Couldn't save {}", path, exception);
-            }
+
+            futures.add(DataProvider.saveStable(output, entry.getValue().get(), path));
         }
     }
 

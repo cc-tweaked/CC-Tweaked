@@ -7,14 +7,14 @@ package dan200.computercraft.client.render.text;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
 import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
@@ -197,13 +197,13 @@ public final class FixedWidthFontRenderer {
         // Render the foreground with a slight offset. By calling .translate() on the matrix itself, we're translating
         // in screen space, rather than in model/view space.
         // It's definitely not perfect, but better than z fighting!
-        var transformBackup = emitter.poseMatrix().copy();
+        var transformBackup = new Matrix4f(emitter.poseMatrix());
         emitter.poseMatrix().translate(new Vector3f(0, 0, Z_OFFSET));
 
         drawTerminalForeground(emitter, x, y, terminal);
         drawCursor(emitter, x, y, terminal);
 
-        emitter.poseMatrix().load(transformBackup);
+        emitter.poseMatrix().set(transformBackup);
     }
 
     public static void drawEmptyTerminal(QuadEmitter emitter, float x, float y, float width, float height) {

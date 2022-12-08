@@ -7,17 +7,15 @@ package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.client.gui.widgets.DynamicImageButton.HintedMessage;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.computer.core.InputHandler;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
@@ -44,29 +42,29 @@ public final class ComputerSidebar {
     private ComputerSidebar() {
     }
 
-    public static void addButtons(Screen screen, BooleanSupplier isOn, InputHandler input, Consumer<AbstractWidget> add, int x, int y) {
+    public static void addButtons(BooleanSupplier isOn, InputHandler input, Consumer<AbstractWidget> add, int x, int y) {
         x += CORNERS_BORDER + 1;
         y += CORNERS_BORDER + ICON_MARGIN;
 
+        var turnOn = new HintedMessage(
+            Component.translatable("gui.computercraft.tooltip.turn_off"),
+            Component.translatable("gui.computercraft.tooltip.turn_off.key")
+        );
+        var turnOff = new HintedMessage(Component.translatable("gui.computercraft.tooltip.turn_on"), (Component) null);
         add.accept(new DynamicImageButton(
-            screen, x, y, ICON_WIDTH, ICON_HEIGHT, () -> isOn.getAsBoolean() ? 15 : 1, 1, ICON_TEX_Y_DIFF,
+            x, y, ICON_WIDTH, ICON_HEIGHT, () -> isOn.getAsBoolean() ? 15 : 1, 1, ICON_TEX_Y_DIFF,
             TEXTURE, TEX_SIZE, TEX_SIZE, b -> toggleComputer(isOn, input),
-            () -> isOn.getAsBoolean() ? Arrays.asList(
-                Component.translatable("gui.computercraft.tooltip.turn_off"),
-                Component.translatable("gui.computercraft.tooltip.turn_off.key").withStyle(ChatFormatting.GRAY)
-            ) : Collections.singletonList(
-                Component.translatable("gui.computercraft.tooltip.turn_on")
-            )
+            () -> isOn.getAsBoolean() ? turnOff : turnOn
         ));
 
         y += ICON_HEIGHT + ICON_MARGIN * 2;
 
         add.accept(new DynamicImageButton(
-            screen, x, y, ICON_WIDTH, ICON_HEIGHT, 29, 1, ICON_TEX_Y_DIFF,
+            x, y, ICON_WIDTH, ICON_HEIGHT, 29, 1, ICON_TEX_Y_DIFF,
             TEXTURE, TEX_SIZE, TEX_SIZE, b -> input.queueEvent("terminate"),
-            Arrays.asList(
+            new HintedMessage(
                 Component.translatable("gui.computercraft.tooltip.terminate"),
-                Component.translatable("gui.computercraft.tooltip.terminate.key").withStyle(ChatFormatting.GRAY)
+                Component.translatable("gui.computercraft.tooltip.terminate.key")
             )
         ));
     }

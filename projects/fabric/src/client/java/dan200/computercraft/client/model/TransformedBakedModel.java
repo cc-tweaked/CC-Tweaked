@@ -8,14 +8,14 @@ package dan200.computercraft.client.model;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
-import com.mojang.math.Matrix4f;
 import com.mojang.math.Transformation;
-import com.mojang.math.Vector4f;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -64,8 +64,7 @@ public class TransformedBakedModel extends CustomBakedModel {
 
             // Transform the position
             var pos = new Vector4f(x, y, z, 1);
-            pos.transform(transformation);
-            pos.perspectiveDivide();
+            transformation.transformProject(pos);
 
             vertexData[start] = Float.floatToRawIntBits(pos.x());
             vertexData[start + 1] = Float.floatToRawIntBits(pos.y());

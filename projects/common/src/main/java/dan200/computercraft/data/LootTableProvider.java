@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.data;
 
-import com.mojang.datafixers.util.Pair;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.ModRegistry;
@@ -15,6 +14,7 @@ import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
+import net.minecraft.data.loot.LootTableProvider.SubProviderEntry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -23,7 +23,6 @@ import net.minecraft.world.level.storage.loot.entries.DynamicLoot;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.predicates.AlternativeLootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
@@ -33,14 +32,13 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 class LootTableProvider {
-    public static List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> getTables() {
+    public static List<SubProviderEntry> getTables() {
         return List.of(
-            Pair.of(() -> LootTableProvider::registerBlocks, LootContextParamSets.BLOCK),
-            Pair.of(() -> LootTableProvider::registerGeneric, LootContextParamSets.ALL_PARAMS)
+            new SubProviderEntry(() -> LootTableProvider::registerBlocks, LootContextParamSets.BLOCK),
+            new SubProviderEntry(() -> LootTableProvider::registerGeneric, LootContextParamSets.ALL_PARAMS)
         );
     }
 

@@ -7,10 +7,12 @@ package dan200.computercraft.data;
 
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagBuilder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -91,7 +93,25 @@ class TagProvider {
      * @param <T> The type of object we're providing tags for.
      */
     public interface TagConsumer<T> {
-        TagsProvider.TagAppender<T> tag(TagKey<T> tag);
+        TagAppender<T> tag(TagKey<T> tag);
+    }
+
+    public record TagAppender<T>(RegistryWrappers.RegistryWrapper<T> registry, TagBuilder builder) {
+        public TagAppender<T> add(T object) {
+            builder.addElement(registry.getKey(object));
+            return this;
+        }
+
+        @SafeVarargs
+        public final TagAppender<T> add(T... objects) {
+            for (var object : objects) add(object);
+            return this;
+        }
+
+        public TagAppender<T> addTag(TagKey<T> tag) {
+            builder.addTag(tag.location());
+            return this;
+        }
     }
 
     /**

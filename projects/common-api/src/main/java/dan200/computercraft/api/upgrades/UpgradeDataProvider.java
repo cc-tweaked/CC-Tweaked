@@ -11,10 +11,12 @@ import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.impl.PlatformHelper;
 import dan200.computercraft.impl.upgrades.SerialiserWithCraftingItem;
 import dan200.computercraft.impl.upgrades.SimpleSerialiser;
+import net.minecraft.Util;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -22,11 +24,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -40,15 +42,15 @@ import java.util.function.Function;
 public abstract class UpgradeDataProvider<T extends UpgradeBase, R extends UpgradeSerialiser<? extends T>> implements DataProvider {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    private final DataGenerator generator;
+    private final PackOutput output;
     private final String name;
     private final String folder;
     private final ResourceKey<Registry<R>> registry;
 
     private @Nullable List<T> upgrades;
 
-    protected UpgradeDataProvider(DataGenerator generator, String name, String folder, ResourceKey<Registry<R>> registry) {
-        this.generator = generator;
+    protected UpgradeDataProvider(PackOutput output, String name, String folder, ResourceKey<Registry<R>> registry) {
+        this.output = output;
         this.name = name;
         this.folder = folder;
         this.registry = registry;
@@ -84,7 +86,7 @@ public abstract class UpgradeDataProvider<T extends UpgradeBase, R extends Upgra
         }
 
         return new Upgrade<>(id, serialiser, s ->
-            s.addProperty("item", PlatformHelper.get().getRegistryKey(Registry.ITEM_REGISTRY, item).toString())
+            s.addProperty("item", PlatformHelper.get().getRegistryKey(Registries.ITEM, item).toString())
         );
     }
 
@@ -103,11 +105,12 @@ public abstract class UpgradeDataProvider<T extends UpgradeBase, R extends Upgra
     protected abstract void addUpgrades(Consumer<Upgrade<R>> addUpgrade);
 
     @Override
-    public final void run(CachedOutput cache) throws IOException {
-        var base = generator.getOutputFolder().resolve("data");
+    public final CompletableFuture<?> run(CachedOutput cache) {
+        var base = output.getOutputFolder().resolve("data");
 
         Set<ResourceLocation> seen = new HashSet<>();
         List<T> upgrades = new ArrayList<>();
+        List<CompletableFuture<?>> futures = new ArrayList<>();
         addUpgrades(upgrade -> {
             if (!seen.add(upgrade.id())) throw new IllegalStateException("Duplicate upgrade " + upgrade.id());
 
@@ -115,11 +118,7 @@ public abstract class UpgradeDataProvider<T extends UpgradeBase, R extends Upgra
             json.addProperty("type", PlatformHelper.get().getRegistryKey(registry, upgrade.serialiser()).toString());
             upgrade.serialise().accept(json);
 
-            try {
-                DataProvider.saveStable(cache, json, base.resolve(upgrade.id().getNamespace() + "/" + folder + "/" + upgrade.id().getPath() + ".json"));
-            } catch (IOException e) {
-                LOGGER.error("Failed to save {} {}", name, upgrade.id(), e);
-            }
+            futures.add(DataProvider.saveStable(cache, json, base.resolve(upgrade.id().getNamespace() + "/" + folder + "/" + upgrade.id().getPath() + ".json")));
 
             try {
                 var result = upgrade.serialiser().fromJson(upgrade.id(), json);
@@ -130,6 +129,7 @@ public abstract class UpgradeDataProvider<T extends UpgradeBase, R extends Upgra
         });
 
         this.upgrades = upgrades;
+        return Util.sequenceFailFast(futures);
     }
 
     @Override

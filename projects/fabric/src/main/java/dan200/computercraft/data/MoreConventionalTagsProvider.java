@@ -6,21 +6,24 @@
 package dan200.computercraft.data;
 
 import dan200.computercraft.shared.platform.MoreConventionalTags;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.Items;
 
+import java.util.concurrent.CompletableFuture;
+
 public class MoreConventionalTagsProvider extends FabricTagProvider.ItemTagProvider {
-    public MoreConventionalTagsProvider(FabricDataGenerator dataGenerator) {
-        super(dataGenerator);
+    public MoreConventionalTagsProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> providers) {
+        super(output, providers);
     }
 
     @Override
-    protected void generateTags() {
-        tag(MoreConventionalTags.SKULLS).add(
+    protected void addTags(HolderLookup.Provider arg) {
+        getOrCreateTagBuilder(MoreConventionalTags.SKULLS).add(
             Items.CREEPER_HEAD, Items.DRAGON_HEAD, Items.PLAYER_HEAD, Items.SKELETON_SKULL, Items.WITHER_SKELETON_SKULL,
             Items.ZOMBIE_HEAD
         );
-        tag(MoreConventionalTags.WOODEN_CHESTS).add(Items.CHEST, Items.TRAPPED_CHEST);
+        getOrCreateTagBuilder(MoreConventionalTags.WOODEN_CHESTS).add(Items.CHEST, Items.TRAPPED_CHEST);
     }
 }

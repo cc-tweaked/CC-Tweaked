@@ -9,6 +9,7 @@ import com.google.auto.service.AutoService;
 import com.google.common.base.Splitter;
 import com.google.common.io.ByteStreams;
 import net.bytebuddy.agent.ByteBuddyAgent;
+import net.bytebuddy.dynamic.loading.ClassInjector;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.impl.FabricLoaderImpl;
 import net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider;
@@ -20,6 +21,9 @@ import net.fabricmc.loader.impl.transformer.FabricTransformer;
 import net.fabricmc.loader.impl.util.LoaderUtil;
 import net.fabricmc.loader.impl.util.log.Log;
 import org.junit.jupiter.api.extension.Extension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.transformer.IMixinTransformer;
 
 import javax.annotation.Nullable;
@@ -35,6 +39,7 @@ import java.nio.file.Paths;
 import java.security.ProtectionDomain;
 import java.util.*;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 
 /**
  * Loads Fabric mods as part of this test run.
@@ -46,6 +51,8 @@ import java.util.jar.Manifest;
  */
 @AutoService(Extension.class)
 public class FabricBootstrap implements Extension {
+    private static final Logger LOG = LoggerFactory.getLogger(FabricBootstrap.class);
+
     public FabricBootstrap() throws ReflectiveOperationException, IOException {
         Log.init(new Slf4jLogHandler());
 
@@ -191,12 +198,51 @@ public class FabricBootstrap implements Extension {
         }
     }
 
-    private record ClassTransformer(IMixinTransformer transformer) implements ClassFileTransformer {
+    private static final class ClassTransformer implements ClassFileTransformer {
+        private final IMixinTransformer transformer;
+        private final Set<String> definedClasses = new HashSet<>();
+        private final Set<String> generatedClasses;
+
+        private ClassTransformer(IMixinTransformer transformer) {
+            this.transformer = transformer;
+
+            try {
+                // As we can't hook into classloading itself, we need to track all the classes Mixin has generated. Yes,
+                // this is nasty.
+                var syntheticRegistryField = transformer.getClass().getDeclaredField("syntheticClassRegistry");
+                syntheticRegistryField.setAccessible(true);
+                var syntheticRegistry = syntheticRegistryField.get(transformer);
+
+                var classesField = syntheticRegistry.getClass().getDeclaredField("classes");
+                classesField.setAccessible(true);
+                @SuppressWarnings("unchecked") var classes = (Map<String, ?>) classesField.get(syntheticRegistry);
+                generatedClasses = classes.keySet();
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         @Override
-        public @Nullable byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] bytes) throws IllegalClassFormatException {
+        public synchronized @Nullable byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] bytes) throws IllegalClassFormatException {
             var name = className.replace('/', '.');
             var transformed = FabricTransformer.transform(true, EnvType.CLIENT, name, bytes);
             transformed = transformer.transformClassBytes(name, name, transformed);
+
+            // Keep track of all generated classes that we've seen, and define any new ones. We use ByteBuddy to inject
+            // the new class definitions, as doing it ourselves is hard.
+            if (generatedClasses.size() > definedClasses.size()) {
+                var toDefine = generatedClasses.stream().filter(definedClasses::add).collect(Collectors.toUnmodifiableMap(
+                    genName -> genName.replace('/', '.'),
+                    genName -> transformer.generateClass(MixinEnvironment.getDefaultEnvironment(), genName)
+                ));
+
+                LOG.info("Defining {}", toDefine.keySet());
+                try {
+                    new ClassInjector.UsingReflection(loader).injectRaw(toDefine);
+                } catch (Exception e) {
+                    LOG.error("Failed to define {}", className, e);
+                }
+            }
 
             return transformed == bytes ? null : transformed;
         }

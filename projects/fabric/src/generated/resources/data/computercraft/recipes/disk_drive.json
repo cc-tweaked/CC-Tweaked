@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "key": {"#": {"item": "minecraft:stone"}, "R": {"tag": "c:redstone_dusts"}},
   "pattern": ["###", "#R#", "#R#"],
   "result": {"item": "computercraft:disk_drive"}

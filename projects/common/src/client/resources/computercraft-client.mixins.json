@@ -7,7 +7,7 @@
         "defaultRequire": 1
     },
     "client": [
-        "LocalPlayerMixin"
+        "ClientPacketListenerMixin"
     ],
     "refmap": "client-computercraft.refmap.json"
 }

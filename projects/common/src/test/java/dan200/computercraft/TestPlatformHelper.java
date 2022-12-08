@@ -59,7 +59,7 @@ import java.util.function.Function;
 @AutoService({ PlatformHelper.class, dan200.computercraft.impl.PlatformHelper.class, ComputerCraftAPIService.class })
 public class TestPlatformHelper extends AbstractComputerCraftAPI implements PlatformHelper {
     @Override
-    public <T> Registries.RegistryWrapper<T> wrap(ResourceKey<Registry<T>> registry) {
+    public <T> RegistryWrappers.RegistryWrapper<T> wrap(ResourceKey<Registry<T>> registry) {
         throw new UnsupportedOperationException("Cannot query registry inside tests");
     }
 
@@ -114,11 +114,6 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     }
 
     @Override
-    public CreativeModeTab getCreativeTab() {
-        throw new UnsupportedOperationException("Cannot get creative tab inside tests");
-    }
-
-    @Override
     public List<TagKey<Item>> getDyeTags() {
         throw new UnsupportedOperationException("Cannot query tags inside tests");
     }
@@ -153,9 +148,11 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
         throw new UnsupportedOperationException("Cannot interact with the world inside tests");
     }
 
+
+    @Nullable
     @Override
-    public Collection<CreativeModeTab> getCreativeTabs(ItemStack stack) {
-        throw new UnsupportedOperationException("Cannot get creative tabs inside tests");
+    public ResourceLocation getCreativeTabId(CreativeModeTab tab) {
+        return null;
     }
 
     @Override

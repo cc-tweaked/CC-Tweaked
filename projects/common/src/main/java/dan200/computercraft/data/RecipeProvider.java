@@ -15,16 +15,14 @@ import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.RecipeIngredients;
-import dan200.computercraft.shared.platform.Registries;
+import dan200.computercraft.shared.platform.RegistryWrappers;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.core.Registry;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
-import net.minecraft.data.recipes.SpecialRecipeBuilder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.PackOutput;
+import net.minecraft.data.recipes.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -36,7 +34,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
+import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 
@@ -46,17 +44,19 @@ import java.util.function.Consumer;
 import static dan200.computercraft.api.ComputerCraftTags.Items.COMPUTER;
 import static dan200.computercraft.api.ComputerCraftTags.Items.WIRED_MODEM;
 
-class RecipeProvider {
+class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     private final RecipeIngredients ingredients = PlatformHelper.get().getRecipeIngredients();
     private final TurtleUpgradeDataProvider turtleUpgrades;
     private final PocketUpgradeDataProvider pocketUpgrades;
 
-    RecipeProvider(TurtleUpgradeDataProvider turtleUpgrades, PocketUpgradeDataProvider pocketUpgrades) {
+    RecipeProvider(PackOutput output, TurtleUpgradeDataProvider turtleUpgrades, PocketUpgradeDataProvider pocketUpgrades) {
+        super(output);
         this.turtleUpgrades = turtleUpgrades;
         this.pocketUpgrades = pocketUpgrades;
     }
 
-    public void addRecipes(Consumer<FinishedRecipe> add) {
+    @Override
+    public void buildRecipes(Consumer<FinishedRecipe> add) {
         basicRecipes(add);
         diskColours(add);
         pocketUpgrades(add);
@@ -77,7 +77,7 @@ class RecipeProvider {
     private void diskColours(Consumer<FinishedRecipe> add) {
         for (var colour : Colour.VALUES) {
             ShapelessRecipeBuilder
-                .shapeless(ModRegistry.Items.DISK.get())
+                .shapeless(RecipeCategory.REDSTONE, ModRegistry.Items.DISK.get())
                 .requires(ingredients.redstone())
                 .requires(Items.PAPER)
                 .requires(DyeItem.byColor(ofColour(colour)))
@@ -106,7 +106,7 @@ class RecipeProvider {
             for (var upgrade : turtleUpgrades.getGeneratedUpgrades()) {
                 var result = TurtleItemFactory.create(-1, null, -1, family, null, upgrade, -1, null);
                 ShapedRecipeBuilder
-                    .shaped(result.getItem())
+                    .shaped(RecipeCategory.REDSTONE, result.getItem())
                     .group(String.format("%s:turtle_%s", ComputerCraftAPI.MOD_ID, nameId))
                     .pattern("#T")
                     .define('T', base.getItem())
@@ -138,7 +138,7 @@ class RecipeProvider {
             for (var upgrade : pocketUpgrades.getGeneratedUpgrades()) {
                 var result = PocketComputerItemFactory.create(-1, null, -1, family, upgrade);
                 ShapedRecipeBuilder
-                    .shaped(result.getItem())
+                    .shaped(RecipeCategory.REDSTONE, result.getItem())
                     .group(String.format("%s:pocket_%s", ComputerCraftAPI.MOD_ID, nameId))
                     .pattern("#")
                     .pattern("P")
@@ -158,7 +158,7 @@ class RecipeProvider {
 
     private void basicRecipes(Consumer<FinishedRecipe> add) {
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Items.CABLE.get(), 6)
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Items.CABLE.get(), 6)
             .pattern(" # ")
             .pattern("#R#")
             .pattern(" # ")
@@ -169,7 +169,7 @@ class RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Blocks.COMPUTER_NORMAL.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Blocks.COMPUTER_NORMAL.get())
             .pattern("###")
             .pattern("#R#")
             .pattern("#G#")
@@ -180,7 +180,7 @@ class RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Blocks.COMPUTER_ADVANCED.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Blocks.COMPUTER_ADVANCED.get())
             .pattern("###")
             .pattern("#R#")
             .pattern("#G#")
@@ -191,7 +191,7 @@ class RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Items.COMPUTER_ADVANCED.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Items.COMPUTER_ADVANCED.get())
             .pattern("###")
             .pattern("#C#")
             .pattern("# #")
@@ -204,7 +204,7 @@ class RecipeProvider {
             );
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Blocks.COMPUTER_COMMAND.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Blocks.COMPUTER_COMMAND.get())
             .pattern("###")
             .pattern("#R#")
             .pattern("#G#")
@@ -215,7 +215,7 @@ class RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Blocks.TURTLE_NORMAL.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Blocks.TURTLE_NORMAL.get())
             .pattern("###")
             .pattern("#C#")
             .pattern("#I#")
@@ -226,7 +226,7 @@ class RecipeProvider {
             .save(RecipeWrapper.wrap(ModRegistry.RecipeSerializers.TURTLE.get(), add).withExtraData(family(ComputerFamily.NORMAL)));
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Blocks.TURTLE_ADVANCED.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Blocks.TURTLE_ADVANCED.get())
             .pattern("###")
             .pattern("#C#")
             .pattern("#I#")
@@ -237,7 +237,7 @@ class RecipeProvider {
             .save(RecipeWrapper.wrap(ModRegistry.RecipeSerializers.TURTLE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)));
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Blocks.TURTLE_ADVANCED.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Blocks.TURTLE_ADVANCED.get())
             .pattern("###")
             .pattern("#C#")
             .pattern(" B ")
@@ -251,7 +251,7 @@ class RecipeProvider {
             );
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Blocks.DISK_DRIVE.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Blocks.DISK_DRIVE.get())
             .pattern("###")
             .pattern("#R#")
             .pattern("#R#")
@@ -261,7 +261,7 @@ class RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Blocks.MONITOR_NORMAL.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Blocks.MONITOR_NORMAL.get())
             .pattern("###")
             .pattern("#G#")
             .pattern("###")
@@ -271,7 +271,7 @@ class RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Blocks.MONITOR_ADVANCED.get(), 4)
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Blocks.MONITOR_ADVANCED.get(), 4)
             .pattern("###")
             .pattern("#G#")
             .pattern("###")
@@ -281,7 +281,7 @@ class RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Items.POCKET_COMPUTER_NORMAL.get())
             .pattern("###")
             .pattern("#A#")
             .pattern("#G#")
@@ -293,7 +293,7 @@ class RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get())
             .pattern("###")
             .pattern("#A#")
             .pattern("#G#")
@@ -305,7 +305,7 @@ class RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get())
             .pattern("###")
             .pattern("#C#")
             .pattern("# #")
@@ -318,7 +318,7 @@ class RecipeProvider {
             );
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Blocks.PRINTER.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Blocks.PRINTER.get())
             .pattern("###")
             .pattern("#R#")
             .pattern("#D#")
@@ -329,7 +329,7 @@ class RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Blocks.SPEAKER.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Blocks.SPEAKER.get())
             .pattern("###")
             .pattern("#N#")
             .pattern("#R#")
@@ -340,7 +340,7 @@ class RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Items.WIRED_MODEM.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Items.WIRED_MODEM.get())
             .pattern("###")
             .pattern("#R#")
             .pattern("###")
@@ -351,18 +351,18 @@ class RecipeProvider {
             .save(add);
 
         ShapelessRecipeBuilder
-            .shapeless(ModRegistry.Blocks.WIRED_MODEM_FULL.get())
+            .shapeless(RecipeCategory.REDSTONE, ModRegistry.Blocks.WIRED_MODEM_FULL.get())
             .requires(ModRegistry.Items.WIRED_MODEM.get())
             .unlockedBy("has_modem", inventoryChange(WIRED_MODEM))
             .save(add, new ResourceLocation(ComputerCraftAPI.MOD_ID, "wired_modem_full_from"));
         ShapelessRecipeBuilder
-            .shapeless(ModRegistry.Items.WIRED_MODEM.get())
+            .shapeless(RecipeCategory.REDSTONE, ModRegistry.Items.WIRED_MODEM.get())
             .requires(ModRegistry.Blocks.WIRED_MODEM_FULL.get())
             .unlockedBy("has_modem", inventoryChange(WIRED_MODEM))
             .save(add, new ResourceLocation(ComputerCraftAPI.MOD_ID, "wired_modem_full_to"));
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Blocks.WIRELESS_MODEM_NORMAL.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Blocks.WIRELESS_MODEM_NORMAL.get())
             .pattern("###")
             .pattern("#E#")
             .pattern("###")
@@ -372,7 +372,7 @@ class RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(ModRegistry.Blocks.WIRELESS_MODEM_ADVANCED.get())
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Blocks.WIRELESS_MODEM_ADVANCED.get())
             .pattern("###")
             .pattern("#E#")
             .pattern("###")
@@ -383,7 +383,7 @@ class RecipeProvider {
             .save(add);
 
         ShapelessRecipeBuilder
-            .shapeless(Items.PLAYER_HEAD)
+            .shapeless(RecipeCategory.DECORATIONS, Items.PLAYER_HEAD)
             .requires(ingredients.head())
             .requires(ModRegistry.Items.MONITOR_NORMAL.get())
             .unlockedBy("has_monitor", inventoryChange(ModRegistry.Items.MONITOR_NORMAL.get()))
@@ -394,7 +394,7 @@ class RecipeProvider {
             );
 
         ShapelessRecipeBuilder
-            .shapeless(Items.PLAYER_HEAD)
+            .shapeless(RecipeCategory.DECORATIONS, Items.PLAYER_HEAD)
             .requires(ingredients.head())
             .requires(ModRegistry.Items.COMPUTER_ADVANCED.get())
             .unlockedBy("has_computer", inventoryChange(ModRegistry.Items.COMPUTER_ADVANCED.get()))
@@ -405,14 +405,14 @@ class RecipeProvider {
             );
 
         ShapelessRecipeBuilder
-            .shapeless(ModRegistry.Items.PRINTED_PAGES.get())
+            .shapeless(RecipeCategory.REDSTONE, ModRegistry.Items.PRINTED_PAGES.get())
             .requires(ModRegistry.Items.PRINTED_PAGE.get(), 2)
             .requires(ingredients.string())
             .unlockedBy("has_printer", inventoryChange(ModRegistry.Blocks.PRINTER.get()))
             .save(RecipeWrapper.wrap(ModRegistry.RecipeSerializers.IMPOSTOR_SHAPELESS.get(), add));
 
         ShapelessRecipeBuilder
-            .shapeless(ModRegistry.Items.PRINTED_BOOK.get())
+            .shapeless(RecipeCategory.REDSTONE, ModRegistry.Items.PRINTED_BOOK.get())
             .requires(ingredients.leather())
             .requires(ModRegistry.Items.PRINTED_PAGE.get(), 1)
             .requires(ingredients.string())
@@ -451,7 +451,7 @@ class RecipeProvider {
         if (object.has("item")) {
             return itemPredicate(ShapedRecipe.itemFromJson(object));
         } else if (object.has("tag")) {
-            return itemPredicate(TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation(GsonHelper.getAsString(object, "tag"))));
+            return itemPredicate(TagKey.create(Registries.ITEM, new ResourceLocation(GsonHelper.getAsString(object, "tag"))));
         } else {
             throw new IllegalArgumentException("Unknown ingredient " + json);
         }
@@ -471,7 +471,7 @@ class RecipeProvider {
         return json -> json.addProperty("family", family.toString());
     }
 
-    private static void addSpecial(Consumer<FinishedRecipe> add, SimpleRecipeSerializer<?> special) {
-        SpecialRecipeBuilder.special(special).save(add, Registries.RECIPE_SERIALIZERS.getKey(special).toString());
+    private static void addSpecial(Consumer<FinishedRecipe> add, SimpleCraftingRecipeSerializer<?> special) {
+        SpecialRecipeBuilder.special(special).save(add, RegistryWrappers.RECIPE_SERIALIZERS.getKey(special).toString());
     }
 }

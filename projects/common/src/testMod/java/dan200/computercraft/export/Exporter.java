@@ -17,7 +17,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.data.PrettyJsonWriter;
 import dan200.computercraft.gametest.core.TestHooks;
-import dan200.computercraft.shared.platform.Registries;
+import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -74,14 +74,14 @@ public class Exporter {
         Set<Item> items = new HashSet<>();
 
         // First find all CC items
-        for (var item : Registries.ITEMS) {
-            if (Registries.ITEMS.getKey(item).getNamespace().equals(ComputerCraftAPI.MOD_ID)) items.add(item);
+        for (var item : RegistryWrappers.ITEMS) {
+            if (RegistryWrappers.ITEMS.getKey(item).getNamespace().equals(ComputerCraftAPI.MOD_ID)) items.add(item);
         }
 
         // Now find all CC recipes.
         for (var recipe : Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(RecipeType.CRAFTING)) {
             var result = recipe.getResultItem();
-            if (!Registries.ITEMS.getKey(result.getItem()).getNamespace().equals(ComputerCraftAPI.MOD_ID)) {
+            if (!RegistryWrappers.ITEMS.getKey(result.getItem()).getNamespace().equals(ComputerCraftAPI.MOD_ID)) {
                 continue;
             }
             if (result.hasTag()) {
@@ -122,7 +122,7 @@ public class Exporter {
         renderer.setupState();
         for (var item : items) {
             var stack = new ItemStack(item);
-            var location = Registries.ITEMS.getKey(item);
+            var location = RegistryWrappers.ITEMS.getKey(item);
 
             dump.itemNames.put(location.toString(), stack.getHoverName().getString());
             renderer.captureRender(itemDir.resolve(location.getNamespace()).resolve(location.getPath() + ".png"),

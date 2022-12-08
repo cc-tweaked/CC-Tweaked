@@ -5,14 +5,14 @@
  */
 package dan200.computercraft.shared.details;
 
-import dan200.computercraft.shared.platform.Registries;
+import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.Map;
 
 public class FluidData {
     public static void fillBasic(Map<? super String, Object> data, FluidStack stack) {
-        data.put("name", DetailHelpers.getId(Registries.FLUIDS, stack.getFluid()));
+        data.put("name", DetailHelpers.getId(RegistryWrappers.FLUIDS, stack.getFluid()));
         data.put("amount", stack.getAmount());
     }
 

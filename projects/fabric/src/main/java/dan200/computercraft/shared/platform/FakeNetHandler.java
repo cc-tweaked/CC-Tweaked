@@ -170,7 +170,7 @@ class FakeNetHandler extends ServerGamePacketListenerImpl {
     }
 
     @Override
-    public void handleChatPreview(ServerboundChatPreviewPacket serverboundChatPreviewPacket) {
+    public void handleChatSessionUpdate(ServerboundChatSessionUpdatePacket serverboundChatSessionUpdatePacket) {
     }
 
     @Override

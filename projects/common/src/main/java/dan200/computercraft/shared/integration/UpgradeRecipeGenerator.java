@@ -20,6 +20,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipe;
@@ -233,11 +234,11 @@ public class UpgradeRecipeGenerator<T> {
     }
 
     private T pocket(Ingredient upgrade, Ingredient pocketComputer, ItemStack result) {
-        return wrap.apply(new ShapedRecipe(POCKET_UPGRADE, "", 1, 2, NonNullList.of(Ingredient.EMPTY, upgrade, pocketComputer), result));
+        return wrap.apply(new ShapedRecipe(POCKET_UPGRADE, "", CraftingBookCategory.MISC, 1, 2, NonNullList.of(Ingredient.EMPTY, upgrade, pocketComputer), result));
     }
 
     private T turtle(Ingredient left, Ingredient right, ItemStack result) {
-        return wrap.apply(new ShapedRecipe(TURTLE_UPGRADE, "", 2, 1, NonNullList.of(Ingredient.EMPTY, left, right), result));
+        return wrap.apply(new ShapedRecipe(TURTLE_UPGRADE, "", CraftingBookCategory.MISC, 2, 1, NonNullList.of(Ingredient.EMPTY, left, right), result));
     }
 
     private class UpgradeInfo {

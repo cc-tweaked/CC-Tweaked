@@ -8,9 +8,9 @@ package dan200.computercraft.export;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
+import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL12;
 
 import javax.annotation.Nullable;
@@ -37,7 +37,7 @@ public class ImageRenderer implements AutoCloseable {
 
     public void setupState() {
         projectionMatrix = RenderSystem.getProjectionMatrix();
-        RenderSystem.setProjectionMatrix(Matrix4f.orthographic(0, 16, 0, 16, 1000, 3000));
+        RenderSystem.setProjectionMatrix(new Matrix4f().identity().ortho(0, 16, 0, 16, 1000, 3000));
 
         var transform = RenderSystem.getModelViewStack();
         transform.pushPose();

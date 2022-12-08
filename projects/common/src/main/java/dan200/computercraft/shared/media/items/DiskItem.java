@@ -15,11 +15,9 @@ import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.config.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -42,14 +40,6 @@ public class DiskItem extends Item implements IMedia, IColouredItem {
         ModRegistry.Items.DISK.get().setLabel(stack, label);
         IColouredItem.setColourBasic(stack, colour);
         return stack;
-    }
-
-    @Override
-    public void fillItemCategory(CreativeModeTab tabs, NonNullList<ItemStack> list) {
-        if (!allowedIn(tabs)) return;
-        for (var colour = 0; colour < 16; colour++) {
-            list.add(createFromIDAndColour(-1, null, Colour.VALUES[colour].getHex()));
-        }
     }
 
     @Override
