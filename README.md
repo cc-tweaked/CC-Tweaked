@@ -26,16 +26,25 @@ on is present.
 ```groovy
 repositories {
   maven {
-    url 'https://squiddev.cc/maven/'
+    url "https://squiddev.cc/maven/"
     content {
-      includeGroup 'org.squiddev'
+      includeGroup("cc.tweaked")
+      includeModule("org.squiddev", "Cobalt")
     }
   }
 }
 
 dependencies {
-  compileOnly fg.deobf("org.squiddev:cc-tweaked-${mc_version}:${cct_version}:api")
-  runtimeOnly fg.deobf("org.squiddev:cc-tweaked-${mc_version}:${cct_version}")
+  // Vanilla (i.e. for multi-loader systems)
+  compileOnly("cc.tweaked:cc-tweaked-$mcVersion-common-api")
+
+  // Forge Gradle
+  compileOnly fg.deobf("cc-tweaked:cc-tweaked-$mcVersion-forge-api:$cctVersion")
+  runtimeOnly fg.deobf("cc-tweaked:cc-tweaked-$mcVersion-forge:$cctVersion")
+
+  // Fabric Loom
+  modCompileOnly("cc-tweaked:cc-tweaked-$mcVersion-fabric-api:$cctVersion")
+  modRuntimeOnly("cc-tweaked:cc-tweaked-$mcVersion-fabric:$cctVersion")
 }
 ```
 
