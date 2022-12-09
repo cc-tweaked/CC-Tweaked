@@ -5,370 +5,141 @@
  */
 package dan200.computercraft.core.filesystem;
 
-import com.google.common.collect.Sets;
+import dan200.computercraft.api.filesystem.FileAttributes;
 import dan200.computercraft.api.filesystem.FileOperationException;
-import dan200.computercraft.api.filesystem.WritableMount;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import dan200.computercraft.api.filesystem.Mount;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.NonReadableChannelException;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.channels.WritableByteChannel;
+import java.nio.file.FileSystemException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public class FileMount implements WritableMount {
-    private static final Logger LOG = LoggerFactory.getLogger(FileMount.class);
-    private static final long MINIMUM_FILE_SIZE = 500;
+/**
+ * A {@link Mount} implementation which provides read-only access to a directory.
+ */
+public class FileMount implements Mount {
     private static final Set<OpenOption> READ_OPTIONS = Collections.singleton(StandardOpenOption.READ);
-    private static final Set<OpenOption> WRITE_OPTIONS = Sets.newHashSet(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-    private static final Set<OpenOption> APPEND_OPTIONS = Sets.newHashSet(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 
-    private class WritableCountingChannel implements WritableByteChannel {
+    protected final Path root;
 
-        private final WritableByteChannel inner;
-        long ignoredBytesLeft;
-
-        WritableCountingChannel(WritableByteChannel inner, long bytesToIgnore) {
-            this.inner = inner;
-            ignoredBytesLeft = bytesToIgnore;
-        }
-
-        @Override
-        public int write(ByteBuffer b) throws IOException {
-            count(b.remaining());
-            return inner.write(b);
-        }
-
-        void count(long n) throws IOException {
-            ignoredBytesLeft -= n;
-            if (ignoredBytesLeft < 0) {
-                var newBytes = -ignoredBytesLeft;
-                ignoredBytesLeft = 0;
-
-                var bytesLeft = capacity - usedSpace;
-                if (newBytes > bytesLeft) throw new IOException("Out of space");
-                usedSpace += newBytes;
-            }
-        }
-
-        @Override
-        public boolean isOpen() {
-            return inner.isOpen();
-        }
-
-        @Override
-        public void close() throws IOException {
-            inner.close();
-        }
+    public FileMount(Path root) {
+        this.root = root;
     }
 
-    private class SeekableCountingChannel extends WritableCountingChannel implements SeekableByteChannel {
-        private final SeekableByteChannel inner;
-
-        SeekableCountingChannel(SeekableByteChannel inner, long bytesToIgnore) {
-            super(inner, bytesToIgnore);
-            this.inner = inner;
-        }
-
-        @Override
-        public SeekableByteChannel position(long newPosition) throws IOException {
-            if (!isOpen()) throw new ClosedChannelException();
-            if (newPosition < 0) {
-                throw new IllegalArgumentException("Cannot seek before the beginning of the stream");
-            }
-
-            var delta = newPosition - inner.position();
-            if (delta < 0) {
-                ignoredBytesLeft -= delta;
-            } else {
-                count(delta);
-            }
-
-            return inner.position(newPosition);
-        }
-
-        @Override
-        public SeekableByteChannel truncate(long size) throws IOException {
-            throw new IOException("Not yet implemented");
-        }
-
-        @Override
-        public int read(ByteBuffer dst) throws ClosedChannelException {
-            if (!inner.isOpen()) throw new ClosedChannelException();
-            throw new NonReadableChannelException();
-        }
-
-        @Override
-        public long position() throws IOException {
-            return inner.position();
-        }
-
-        @Override
-        public long size() throws IOException {
-            return inner.size();
-        }
+    /**
+     * Resolve a mount-relative path to one on the file system.
+     *
+     * @param path The path to resolve.
+     * @return The resolved path.
+     */
+    protected Path resolvePath(String path) {
+        return root.resolve(path);
     }
 
-    private final File rootPath;
-    private final long capacity;
-    private long usedSpace;
-
-    public FileMount(File rootPath, long capacity) {
-        this.rootPath = rootPath;
-        this.capacity = capacity + MINIMUM_FILE_SIZE;
-        usedSpace = created() ? measureUsedSpace(this.rootPath) : MINIMUM_FILE_SIZE;
+    protected boolean created() {
+        return Files.exists(root);
     }
-
-    // IMount implementation
 
     @Override
     public boolean exists(String path) {
-        if (!created()) return path.isEmpty();
-
-        var file = getRealPath(path);
-        return file.exists();
+        return path.isEmpty() || Files.exists(resolvePath(path));
     }
 
     @Override
     public boolean isDirectory(String path) {
-        if (!created()) return path.isEmpty();
-
-        var file = getRealPath(path);
-        return file.exists() && file.isDirectory();
+        return path.isEmpty() || Files.isDirectory(resolvePath(path));
     }
 
     @Override
-    public boolean isReadOnly(String path) throws IOException {
-        var file = getRealPath(path);
-        while (true) {
-            if (file.exists()) return !file.canWrite();
-            if (file.equals(rootPath)) return false;
-            file = file.getParentFile();
+    public void list(String path, List<String> contents) throws FileOperationException {
+        if (path.isEmpty() && !created()) return;
+
+        try (var stream = Files.newDirectoryStream(resolvePath(path))) {
+            stream.forEach(x -> contents.add(x.getFileName().toString()));
+        } catch (IOException e) {
+            throw remapException(path, e);
         }
     }
 
     @Override
-    public void list(String path, List<String> contents) throws IOException {
-        if (!created()) {
-            if (!path.isEmpty()) throw new FileOperationException(path, "Not a directory");
-            return;
-        }
-
-        var file = getRealPath(path);
-        if (!file.exists() || !file.isDirectory()) throw new FileOperationException(path, "Not a directory");
-
-        var paths = file.list();
-        for (var subPath : paths) {
-            if (new File(file, subPath).exists()) contents.add(subPath);
-        }
+    public long getSize(String path) throws FileOperationException {
+        var attributes = getAttributes(path);
+        return attributes.isDirectory() ? 0 : attributes.size();
     }
 
     @Override
-    public long getSize(String path) throws IOException {
-        if (!created()) {
-            if (path.isEmpty()) return 0;
-        } else {
-            var file = getRealPath(path);
-            if (file.exists()) return file.isDirectory() ? 0 : file.length();
-        }
-
-        throw new FileOperationException(path, "No such file");
-    }
-
-    @Override
-    public SeekableByteChannel openForRead(String path) throws IOException {
-        if (created()) {
-            var file = getRealPath(path);
-            if (file.exists() && !file.isDirectory()) return Files.newByteChannel(file.toPath(), READ_OPTIONS);
-        }
-
-        throw new FileOperationException(path, "No such file");
-    }
-
-    @Override
-    public BasicFileAttributes getAttributes(String path) throws IOException {
-        if (created()) {
-            var file = getRealPath(path);
-            if (file.exists()) return Files.readAttributes(file.toPath(), BasicFileAttributes.class);
-        }
-
-        throw new FileOperationException(path, "No such file");
-    }
-
-    // IWritableMount implementation
-
-    @Override
-    public void makeDirectory(String path) throws IOException {
-        create();
-        var file = getRealPath(path);
-        if (file.exists()) {
-            if (!file.isDirectory()) throw new FileOperationException(path, "File exists");
-            return;
-        }
-
-        var dirsToCreate = 1;
-        var parent = file.getParentFile();
-        while (!parent.exists()) {
-            ++dirsToCreate;
-            parent = parent.getParentFile();
-        }
-
-        if (getRemainingSpace() < dirsToCreate * MINIMUM_FILE_SIZE) {
-            throw new FileOperationException(path, "Out of space");
-        }
-
-        if (file.mkdirs()) {
-            usedSpace += dirsToCreate * MINIMUM_FILE_SIZE;
-        } else {
-            throw new FileOperationException(path, "Access denied");
-        }
-    }
-
-    @Override
-    public void delete(String path) throws IOException {
-        if (path.isEmpty()) throw new FileOperationException(path, "Access denied");
-
-        if (created()) {
-            var file = getRealPath(path);
-            if (file.exists()) deleteRecursively(file);
-        }
-    }
-
-    private void deleteRecursively(File file) throws IOException {
-        // Empty directories first
-        if (file.isDirectory()) {
-            var children = file.list();
-            for (var aChildren : children) {
-                deleteRecursively(new File(file, aChildren));
-            }
-        }
-
-        // Then delete
-        var fileSize = file.isDirectory() ? 0 : file.length();
-        var success = file.delete();
-        if (success) {
-            usedSpace -= Math.max(MINIMUM_FILE_SIZE, fileSize);
-        } else {
-            throw new IOException("Access denied");
-        }
-    }
-
-    @Override
-    public void rename(String source, String dest) throws IOException {
-        var sourceFile = getRealPath(source);
-        var destFile = getRealPath(dest);
-        if (!sourceFile.exists()) throw new FileOperationException(source, "No such file");
-        if (destFile.exists()) throw new FileOperationException(dest, "File exists");
-
-        var sourcePath = sourceFile.toPath();
-        var destPath = destFile.toPath();
-        if (destPath.startsWith(sourcePath)) {
-            throw new FileOperationException(source, "Cannot move a directory inside itself");
-        }
-
-        Files.move(sourcePath, destPath);
-    }
-
-    @Override
-    public WritableByteChannel openForWrite(String path) throws IOException {
-        create();
-        var file = getRealPath(path);
-        if (file.exists() && file.isDirectory()) throw new FileOperationException(path, "Cannot write to directory");
-
-        if (file.exists()) {
-            usedSpace -= Math.max(file.length(), MINIMUM_FILE_SIZE);
-        } else if (getRemainingSpace() < MINIMUM_FILE_SIZE) {
-            throw new FileOperationException(path, "Out of space");
-        }
-        usedSpace += MINIMUM_FILE_SIZE;
-
-        return new SeekableCountingChannel(Files.newByteChannel(file.toPath(), WRITE_OPTIONS), MINIMUM_FILE_SIZE);
-    }
-
-    @Override
-    public WritableByteChannel openForAppend(String path) throws IOException {
-        if (!created()) {
-            throw new FileOperationException(path, "No such file");
-        }
-
-        var file = getRealPath(path);
-        if (!file.exists()) throw new FileOperationException(path, "No such file");
-        if (file.isDirectory()) throw new FileOperationException(path, "Cannot write to directory");
-
-        // Allowing seeking when appending is not recommended, so we use a separate channel.
-        return new WritableCountingChannel(
-            Files.newByteChannel(file.toPath(), APPEND_OPTIONS),
-            Math.max(MINIMUM_FILE_SIZE - file.length(), 0)
-        );
-    }
-
-    @Override
-    public long getRemainingSpace() {
-        return Math.max(capacity - usedSpace, 0);
-    }
-
-    @Override
-    public long getCapacity() {
-        return capacity - MINIMUM_FILE_SIZE;
-    }
-
-    private File getRealPath(String path) {
-        return new File(rootPath, path);
-    }
-
-    private boolean created() {
-        return rootPath.exists();
-    }
-
-    private void create() throws IOException {
-        if (!rootPath.exists()) {
-            var success = rootPath.mkdirs();
-            if (!success) {
-                throw new IOException("Access denied");
-            }
-        }
-    }
-
-    private static class Visitor extends SimpleFileVisitor<Path> {
-        long size;
-
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-            size += MINIMUM_FILE_SIZE;
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-            size += Math.max(attrs.size(), MINIMUM_FILE_SIZE);
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc) {
-            LOG.error("Error computing file size for {}", file, exc);
-            return FileVisitResult.CONTINUE;
-        }
-    }
-
-    private static long measureUsedSpace(File file) {
-        if (!file.exists()) return 0;
+    public BasicFileAttributes getAttributes(String path) throws FileOperationException {
+        if (path.isEmpty() && !created()) return new FileAttributes(true, 0);
 
         try {
-            var visitor = new Visitor();
-            Files.walkFileTree(file.toPath(), visitor);
-            return visitor.size;
+            return Files.readAttributes(resolvePath(path), BasicFileAttributes.class);
         } catch (IOException e) {
-            LOG.error("Error computing file size for {}", file, e);
-            return 0;
+            throw remapException(path, e);
         }
+    }
+
+    @Override
+    public SeekableByteChannel openForRead(String path) throws FileOperationException {
+        var file = resolvePath(path);
+        if (!Files.isRegularFile(file)) throw new FileOperationException(path, "No such file");
+
+        try {
+            return Files.newByteChannel(file, READ_OPTIONS);
+        } catch (IOException e) {
+            throw remapException(path, e);
+        }
+    }
+
+    /**
+     * Remap a {@link IOException} to a friendlier {@link FileOperationException}.
+     *
+     * @param fallbackPath The path currently being operated on. This is used in errors when we cannot determine a more accurate path.
+     * @param exn          The exception that occurred.
+     * @return The wrapped exception.
+     */
+    protected FileOperationException remapException(String fallbackPath, IOException exn) {
+        return exn instanceof FileSystemException fsExn
+            ? remapException(fallbackPath, fsExn)
+            : new FileOperationException(fallbackPath, exn.getMessage() == null ? "Operation failed" : exn.getMessage());
+    }
+
+    /**
+     * Remap a {@link FileSystemException} to a friendlier {@link FileOperationException}, attempting to remap the path
+     * provided.
+     *
+     * @param fallbackPath The path currently being operated on. This is used in errors when we cannot determine a more accurate path.
+     * @param exn          The exception that occurred.
+     * @return The wrapped exception.
+     */
+    protected FileOperationException remapException(String fallbackPath, FileSystemException exn) {
+        var reason = getReason(exn);
+
+        var failedFile = exn.getFile();
+        if (failedFile == null) return new FileOperationException(fallbackPath, reason);
+
+        var failedPath = Path.of(failedFile);
+        return failedPath.startsWith(root)
+            ? new FileOperationException(root.relativize(failedPath).toString(), reason)
+            : new FileOperationException(fallbackPath, reason);
+    }
+
+    /**
+     * Get the user-friendly reason for a {@link FileSystemException}.
+     *
+     * @param exn The exception that occurred.
+     * @return The friendly reason for this exception.
+     */
+    protected String getReason(FileSystemException exn) {
+        if (exn instanceof FileAlreadyExistsException) return "File exists";
+        if (exn instanceof NoSuchFileException) return "No such file";
+        if (exn instanceof NotDirectoryException) return "Not a directory";
+        if (exn instanceof AccessDeniedException) return "Access denied";
+
+        var reason = exn.getReason();
+        return reason != null ? reason.trim() : "Operation failed";
     }
 }

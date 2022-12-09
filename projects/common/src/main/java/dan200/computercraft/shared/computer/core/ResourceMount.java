@@ -5,6 +5,8 @@
  */
 package dan200.computercraft.shared.computer.core;
 
+import com.google.common.annotations.VisibleForTesting;
+import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.core.filesystem.ArchiveMount;
 import dan200.computercraft.core.filesystem.FileSystem;
 import net.minecraft.ResourceLocationException;
@@ -16,7 +18,6 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +50,8 @@ public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
         }
     }
 
-    private ResourceMount(String namespace, String subPath, ResourceManager manager) {
+    @VisibleForTesting
+    ResourceMount(String namespace, String subPath, ResourceManager manager) {
         this.namespace = namespace;
         this.subPath = subPath;
         load(manager);
@@ -59,7 +61,7 @@ public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
         var hasAny = false;
         String existingNamespace = null;
 
-        var newRoot = new FileEntry(new ResourceLocation(namespace, subPath));
+        var newRoot = new FileEntry("", new ResourceLocation(namespace, subPath));
         for (var file : manager.listResources(subPath, s -> true).keySet()) {
             existingNamespace = file.getNamespace();
 
@@ -100,7 +102,7 @@ public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
                     LOG.warn("Cannot create resource location for {} ({})", part, e.getMessage());
                     return;
                 }
-                lastEntry.children.put(part, nextEntry = new FileEntry(childPath));
+                lastEntry.children.put(part, nextEntry = new FileEntry(path, childPath));
             }
 
             lastEntry = nextEntry;
@@ -129,7 +131,7 @@ public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
     @Override
     public byte[] getContents(FileEntry file) throws IOException {
         var resource = manager.getResource(file.identifier).orElse(null);
-        if (resource == null) throw new FileNotFoundException(NO_SUCH_FILE);
+        if (resource == null) throw new FileOperationException(file.path, NO_SUCH_FILE);
 
         try (var stream = resource.open()) {
             return stream.readAllBytes();
@@ -139,7 +141,8 @@ public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
     protected static class FileEntry extends ArchiveMount.FileEntry<FileEntry> {
         final ResourceLocation identifier;
 
-        FileEntry(ResourceLocation identifier) {
+        FileEntry(String path, ResourceLocation identifier) {
+            super(path);
             this.identifier = identifier;
         }
     }

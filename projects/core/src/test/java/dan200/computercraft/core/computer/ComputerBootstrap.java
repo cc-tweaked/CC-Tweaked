@@ -16,6 +16,7 @@ import dan200.computercraft.core.computer.mainthread.MainThread;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.test.core.computer.BasicEnvironment;
 import dan200.computercraft.test.core.filesystem.MemoryMount;
+import dan200.computercraft.test.core.filesystem.ReadOnlyWritableMount;
 import org.junit.jupiter.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class ComputerBootstrap {
             .addFile("test.lua", program)
             .addFile("startup.lua", "assertion.assert(pcall(loadfile('test.lua', nil, _ENV))) os.shutdown()");
 
-        run(mount, setup, maxTimes);
+        run(new ReadOnlyWritableMount(mount), setup, maxTimes);
     }
 
     public static void run(String program, int maxTimes) {

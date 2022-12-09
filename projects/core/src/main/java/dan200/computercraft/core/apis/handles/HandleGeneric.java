@@ -12,7 +12,6 @@ import dan200.computercraft.core.util.IoUtil;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.nio.channels.Channel;
 import java.nio.channels.SeekableByteChannel;
 import java.util.Optional;
 
@@ -72,18 +71,6 @@ public abstract class HandleGeneric {
         } catch (IllegalArgumentException e) {
             return new Object[]{ null, "Position is negative" };
         } catch (IOException e) {
-            return null;
-        }
-    }
-
-    @Nullable
-    protected static SeekableByteChannel asSeekable(Channel channel) {
-        if (!(channel instanceof SeekableByteChannel seekable)) return null;
-
-        try {
-            seekable.position(seekable.position());
-            return seekable;
-        } catch (IOException | UnsupportedOperationException e) {
             return null;
         }
     }

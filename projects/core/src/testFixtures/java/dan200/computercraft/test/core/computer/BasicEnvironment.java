@@ -15,6 +15,7 @@ import dan200.computercraft.core.filesystem.JarMount;
 import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.test.core.filesystem.MemoryMount;
+import dan200.computercraft.test.core.filesystem.ReadOnlyWritableMount;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment,
     private final WritableMount mount;
 
     public BasicEnvironment() {
-        this(new MemoryMount());
+        this(new ReadOnlyWritableMount(new MemoryMount()));
     }
 
     public BasicEnvironment(WritableMount mount) {
@@ -100,7 +101,7 @@ public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment,
 
             if (!wholeFile.exists()) throw new IllegalStateException("Cannot find ROM mount at " + file);
 
-            return new FileMount(wholeFile, 0);
+            return new FileMount(wholeFile.toPath());
         }
     }
 

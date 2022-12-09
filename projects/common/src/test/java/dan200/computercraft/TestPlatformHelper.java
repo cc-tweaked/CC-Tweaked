@@ -8,7 +8,6 @@ package dan200.computercraft;
 import com.google.auto.service.AutoService;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
-import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.impl.AbstractComputerCraftAPI;
@@ -219,12 +218,6 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     @Override
     public String getInstalledVersion() {
         return "1.0";
-    }
-
-    @Nullable
-    @Override
-    public Mount createResourceMount(MinecraftServer server, String domain, String subPath) {
-        throw new UnsupportedOperationException("Cannot create resource mount");
     }
 
     @Nullable

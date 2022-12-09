@@ -61,22 +61,25 @@ public final class ComputerCraftAPI {
     /**
      * Creates a file system mount that maps to a subfolder of the save directory for a given world, and returns it.
      * <p>
-     * Use in conjunction with IComputerAccess.mount() or IComputerAccess.mountWritable() to mount a folder from the
-     * users save directory onto a computers file system.
+     * Use in conjunction with Use {@link IComputerAccess#mount(String, Mount)} or {@link IComputerAccess#mountWritable(String, WritableMount)}
+     * to mount this on a computer's file system.
+     * <p>
+     * If the same folder may be mounted on multiple computers at once (for instance, if you provide a network file share),
+     * the same mount instance should be used for all computers. You should NOT have multiple mount instances for the
+     * same folder.
      *
      * @param server   The server which the save dir can be found.
-     * @param subPath  The folder path within the save directory that the mount should map to. eg: "computer/disk/42".
-     *                 Use createUniqueNumberedSaveDir() to create a new numbered folder to use.
+     * @param subPath  The folder path within the save directory that the mount should map to. eg: "disk/42".
+     *                 Use {@link #createUniqueNumberedSaveDir(MinecraftServer, String)} to create a new numbered folder
+     *                 to use.
      * @param capacity The amount of data that can be stored in the directory before it fills up, in bytes.
-     * @return The mount, or null if it could be created for some reason. Use IComputerAccess.mount() or IComputerAccess.mountWritable()
-     * to mount this on a Computers' file system.
+     * @return The newly created mount.
      * @see #createUniqueNumberedSaveDir(MinecraftServer, String)
      * @see IComputerAccess#mount(String, Mount)
      * @see IComputerAccess#mountWritable(String, WritableMount)
      * @see Mount
      * @see WritableMount
      */
-    @Nullable
     public static WritableMount createSaveDirMount(MinecraftServer server, String subPath, long capacity) {
         return getInstance().createSaveDirMount(server, subPath, capacity);
     }

@@ -13,8 +13,8 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.computer.mainthread.NoWorkMainThreadScheduler;
-import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.FileSystemException;
+import dan200.computercraft.core.filesystem.WritableFileMount;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.test.core.computer.BasicEnvironment;
 import org.junit.jupiter.api.*;
@@ -85,7 +85,7 @@ public class ComputerTestDelegate {
         if (Files.deleteIfExists(REPORT_PATH)) LOG.info("Deleted previous coverage report.");
 
         var term = new Terminal(80, 100, true);
-        WritableMount mount = new FileMount(TestFiles.get("mount").toFile(), 10_000_000);
+        WritableMount mount = new WritableFileMount(TestFiles.get("mount").toFile(), 10_000_000);
 
         // Remove any existing files
         List<String> children = new ArrayList<>();

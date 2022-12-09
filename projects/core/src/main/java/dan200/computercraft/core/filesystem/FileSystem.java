@@ -19,7 +19,6 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.nio.channels.Channel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
@@ -354,7 +353,7 @@ public class FileSystem {
         return openFile(mount, channel, open.apply(channel));
     }
 
-    public synchronized <T extends Closeable> FileSystemWrapper<T> openForWrite(String path, boolean append, Function<WritableByteChannel, T> open) throws FileSystemException {
+    public synchronized <T extends Closeable> FileSystemWrapper<T> openForWrite(String path, boolean append, Function<SeekableByteChannel, T> open) throws FileSystemException {
         cleanup();
 
         path = sanitizePath(path);

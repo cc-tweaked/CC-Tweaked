@@ -27,7 +27,7 @@ public class FileSystemTest {
     private static final long CAPACITY = 1000000;
 
     private static FileSystem mkFs() throws FileSystemException {
-        WritableMount writableMount = new FileMount(ROOT, CAPACITY);
+        WritableMount writableMount = new WritableFileMount(ROOT, CAPACITY);
         return new FileSystem("hdd", writableMount);
 
     }
@@ -65,7 +65,7 @@ public class FileSystemTest {
     @Test
     public void testUnmountCloses() throws FileSystemException {
         var fs = mkFs();
-        WritableMount mount = new FileMount(new File(ROOT, "child"), CAPACITY);
+        WritableMount mount = new WritableFileMount(new File(ROOT, "child"), CAPACITY);
         fs.mountWritable("disk", "disk", mount);
 
         var writer = fs.openForWrite("disk/out.txt", false, EncodedWritableHandle::openUtf8);

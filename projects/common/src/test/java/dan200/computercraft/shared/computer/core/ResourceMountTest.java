@@ -5,73 +5,59 @@
  */
 package dan200.computercraft.shared.computer.core;
 
+import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
 import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.test.core.CloseScope;
+import dan200.computercraft.test.core.filesystem.MountContract;
 import net.minecraft.Util;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.util.Unit;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
-import static org.junit.jupiter.api.Assertions.*;
+public class ResourceMountTest implements MountContract {
+    private final CloseScope toClose = new CloseScope();
 
-public class ResourceMountTest {
-    private Mount mount;
+    @Override
+    public Mount createSkeleton() throws IOException {
+        var path = Files.createTempDirectory("cctweaked-test");
+        toClose.add(() -> MoreFiles.deleteRecursively(path, RecursiveDeleteOption.ALLOW_INSECURE));
 
-    @BeforeEach
-    public void before() {
+        Files.createDirectories(path.resolve("data/computercraft/rom/dir"));
+        try (var writer = Files.newBufferedWriter(path.resolve("data/computercraft/rom/dir/file.lua"))) {
+            writer.write("print('testing')");
+        }
+        Files.newBufferedWriter(path.resolve("data/computercraft/rom/f.lua")).close();
+
         var manager = new ReloadableResourceManager(PackType.SERVER_DATA);
-        var done = new CompletableFuture<Unit>();
-        manager.createReload(Util.backgroundExecutor(), Util.backgroundExecutor(), done, List.of(
-            new PathPackResources("resources", Path.of("../core/src/main/resources"), false)
+        var reload = manager.createReload(Util.backgroundExecutor(), Util.backgroundExecutor(), CompletableFuture.completedFuture(Unit.INSTANCE), List.of(
+            new PathPackResources("resources", path, false)
         ));
 
-        mount = ResourceMount.get("computercraft", "lua/rom", manager);
+        try {
+            reload.done().get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException("Failed to load resources", e);
+        }
+
+        return new ResourceMount("computercraft", "rom", manager);
     }
 
-    @Test
-    public void testList() throws IOException {
-        List<String> files = new ArrayList<>();
-        mount.list("", files);
-        files.sort(Comparator.naturalOrder());
-
-        assertEquals(
-            Arrays.asList("apis", "autorun", "help", "modules", "motd.txt", "programs", "startup.lua"),
-            files
-        );
+    @Override
+    public boolean hasFileTimes() {
+        return false;
     }
 
-    @Test
-    public void testExists() throws IOException {
-        assertTrue(mount.exists(""));
-        assertTrue(mount.exists("startup.lua"));
-        assertTrue(mount.exists("programs/fun/advanced/paint.lua"));
-
-        assertFalse(mount.exists("programs/fun/advance/paint.lua"));
-        assertFalse(mount.exists("programs/fun/advanced/paint.lu"));
-    }
-
-    @Test
-    public void testIsDir() throws IOException {
-        assertTrue(mount.isDirectory(""));
-    }
-
-    @Test
-    public void testIsFile() throws IOException {
-        assertFalse(mount.isDirectory("startup.lua"));
-    }
-
-    @Test
-    public void testSize() throws IOException {
-        assertNotEquals(mount.getSize("startup.lua"), 0);
+    @AfterEach
+    public void after() throws Exception {
+        toClose.close();
     }
 }

@@ -10,14 +10,12 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.LuaValues;
 import dan200.computercraft.core.filesystem.TrackingCloseable;
-import dan200.computercraft.core.util.Nullability;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.util.Optional;
 
 /**
@@ -27,23 +25,16 @@ import java.util.Optional;
  * @cc.module fs.BinaryWriteHandle
  */
 public class BinaryWritableHandle extends HandleGeneric {
-    private final WritableByteChannel writer;
-    final @Nullable SeekableByteChannel seekable;
+    final SeekableByteChannel channel;
     private final ByteBuffer single = ByteBuffer.allocate(1);
 
-    protected BinaryWritableHandle(WritableByteChannel writer, @Nullable SeekableByteChannel seekable, TrackingCloseable closeable) {
+    protected BinaryWritableHandle(SeekableByteChannel channel, TrackingCloseable closeable) {
         super(closeable);
-        this.writer = writer;
-        this.seekable = seekable;
+        this.channel = channel;
     }
 
-    public static BinaryWritableHandle of(WritableByteChannel channel, TrackingCloseable closeable) {
-        var seekable = asSeekable(channel);
-        return seekable == null ? new BinaryWritableHandle(channel, null, closeable) : new Seekable(seekable, closeable);
-    }
-
-    public static BinaryWritableHandle of(WritableByteChannel channel) {
-        return of(channel, new TrackingCloseable.Impl(channel));
+    public static BinaryWritableHandle of(SeekableByteChannel channel, TrackingCloseable closeable, boolean canSeek) {
+        return canSeek ? new Seekable(channel, closeable) : new BinaryWritableHandle(channel, closeable);
     }
 
     /**
@@ -66,9 +57,9 @@ public class BinaryWritableHandle extends HandleGeneric {
                 single.put((byte) number);
                 single.flip();
 
-                writer.write(single);
+                channel.write(single);
             } else if (arg instanceof String) {
-                writer.write(arguments.getBytes(0));
+                channel.write(arguments.getBytes(0));
             } else {
                 throw LuaValues.badArgumentOf(0, "string or number", arg);
             }
@@ -87,15 +78,15 @@ public class BinaryWritableHandle extends HandleGeneric {
         checkOpen();
         try {
             // Technically this is not needed
-            if (writer instanceof FileChannel channel) channel.force(false);
+            if (channel instanceof FileChannel channel) channel.force(false);
         } catch (IOException e) {
             throw new LuaException(e.getMessage());
         }
     }
 
     public static class Seekable extends BinaryWritableHandle {
-        public Seekable(SeekableByteChannel seekable, TrackingCloseable closeable) {
-            super(seekable, seekable, closeable);
+        public Seekable(SeekableByteChannel channel, TrackingCloseable closeable) {
+            super(channel, closeable);
         }
 
         /**
@@ -121,7 +112,7 @@ public class BinaryWritableHandle extends HandleGeneric {
         @LuaFunction
         public final Object[] seek(Optional<String> whence, Optional<Long> offset) throws LuaException {
             checkOpen();
-            return handleSeek(Nullability.assertNonNull(seekable), whence, offset);
+            return handleSeek(channel, whence, offset);
         }
     }
 }

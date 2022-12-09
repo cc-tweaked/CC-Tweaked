@@ -24,6 +24,7 @@ dependencies {
 
     compileOnly(libs.mixin)
     annotationProcessorEverywhere(libs.autoService)
+    testFixturesAnnotationProcessor(libs.autoService)
 
     testImplementation(testFixtures(project(":core")))
     testImplementation(libs.bundles.test)

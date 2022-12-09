@@ -391,12 +391,12 @@ public class FSAPI implements ILuaAPI {
                 case "wb" -> {
                     // Open the file for binary writing, then create a wrapper around the writer
                     var writer = getFileSystem().openForWrite(path, false, Function.identity());
-                    return new Object[]{ BinaryWritableHandle.of(writer.get(), writer) };
+                    return new Object[]{ BinaryWritableHandle.of(writer.get(), writer, true) };
                 }
                 case "ab" -> {
                     // Open the file for binary appending, then create a wrapper around the reader
                     var writer = getFileSystem().openForWrite(path, true, Function.identity());
-                    return new Object[]{ BinaryWritableHandle.of(writer.get(), writer) };
+                    return new Object[]{ BinaryWritableHandle.of(writer.get(), writer, false) };
                 }
                 default -> throw new LuaException("Unsupported mode");
             }

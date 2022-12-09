@@ -202,6 +202,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
         ejectQueued.set(true);
     }
 
+    @GuardedBy("this")
     private void mountDisk(IComputerAccess computer, MountInfo info, MediaStack disk) {
         var mount = disk.getMount((ServerLevel) getLevel());
         if (mount != null) {

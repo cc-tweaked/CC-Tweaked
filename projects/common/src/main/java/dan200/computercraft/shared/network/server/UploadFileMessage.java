@@ -25,6 +25,7 @@ import static dan200.computercraft.core.util.Nullability.assertNonNull;
 public class UploadFileMessage extends ComputerServerMessage {
     public static final int MAX_SIZE = 512 * 1024;
     static final int MAX_PACKET_SIZE = 30 * 1024; // Max packet size is 32767.
+    private static final int HEADER_SIZE = 16 + 1; // 16 bytes for the UUID, 4 for the flag.
 
     public static final int MAX_FILES = 32;
     public static final int MAX_FILE_NAME = 128;
@@ -120,8 +121,8 @@ public class UploadFileMessage extends ComputerServerMessage {
     public static void send(AbstractContainerMenu container, List<FileUpload> files, Consumer<UploadFileMessage> send) {
         var uuid = UUID.randomUUID();
 
-        var remaining = MAX_PACKET_SIZE;
-        for (var file : files) remaining -= file.getName().length() * 4 + FileUpload.CHECKSUM_LENGTH;
+        var remaining = MAX_PACKET_SIZE - HEADER_SIZE;
+        for (var file : files) remaining -= 4 + file.getName().length() * 4 + FileUpload.CHECKSUM_LENGTH;
 
         var first = true;
         List<FileSlice> slices = new ArrayList<>(files.size());
@@ -137,7 +138,7 @@ public class UploadFileMessage extends ComputerServerMessage {
                         ? new UploadFileMessage(container, uuid, FLAG_FIRST, files, new ArrayList<>(slices))
                         : new UploadFileMessage(container, uuid, 0, null, new ArrayList<>(slices)));
                     slices.clear();
-                    remaining = MAX_PACKET_SIZE;
+                    remaining = MAX_PACKET_SIZE - HEADER_SIZE;
                     first = false;
                 }
 

@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.core.filesystem;
 
+import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.core.util.Nullability;
 
 import javax.annotation.Nullable;
@@ -42,7 +43,7 @@ public class JarMount extends ArchiveMount<JarMount.FileEntry> implements Closea
         }
 
         // Read in all the entries
-        root = new FileEntry();
+        root = new FileEntry("");
         var zipEntries = zip.entries();
         while (zipEntries.hasMoreElements()) {
             var entry = zipEntries.nextElement();
@@ -68,7 +69,7 @@ public class JarMount extends ArchiveMount<JarMount.FileEntry> implements Closea
 
             var nextEntry = lastEntry.children.get(part);
             if (nextEntry == null || !nextEntry.isDirectory()) {
-                lastEntry.children.put(part, nextEntry = new FileEntry());
+                lastEntry.children.put(part, nextEntry = new FileEntry(localPath.substring(0, nextIndex)));
             }
 
             lastEntry = nextEntry;
@@ -79,26 +80,26 @@ public class JarMount extends ArchiveMount<JarMount.FileEntry> implements Closea
     }
 
     @Override
-    protected long getSize(FileEntry file) throws IOException {
-        if (file.zipEntry == null) throw new FileNotFoundException(NO_SUCH_FILE);
+    protected long getSize(FileEntry file) throws FileOperationException {
+        if (file.zipEntry == null) throw new FileOperationException(file.path, NO_SUCH_FILE);
         return file.zipEntry.getSize();
     }
 
     @Override
-    protected byte[] getContents(FileEntry file) throws IOException {
-        if (file.zipEntry == null) throw new FileNotFoundException(NO_SUCH_FILE);
+    protected byte[] getContents(FileEntry file) throws FileOperationException {
+        if (file.zipEntry == null) throw new FileOperationException(file.path, NO_SUCH_FILE);
 
         try (var stream = zip.getInputStream(file.zipEntry)) {
             return stream.readAllBytes();
         } catch (IOException e) {
             // Mask other IO exceptions as a non-existent file.
-            throw new FileNotFoundException(NO_SUCH_FILE);
+            throw new FileOperationException(file.path, NO_SUCH_FILE);
         }
     }
 
     @Override
-    public BasicFileAttributes getAttributes(FileEntry file) throws IOException {
-        if (file.zipEntry == null) throw new FileNotFoundException(NO_SUCH_FILE);
+    public BasicFileAttributes getAttributes(FileEntry file) throws FileOperationException {
+        if (file.zipEntry == null) throw new FileOperationException(file.path, NO_SUCH_FILE);
         return new ZipEntryAttributes(file.zipEntry);
     }
 
@@ -110,6 +111,10 @@ public class JarMount extends ArchiveMount<JarMount.FileEntry> implements Closea
     protected static class FileEntry extends ArchiveMount.FileEntry<FileEntry> {
         @Nullable
         ZipEntry zipEntry;
+
+        protected FileEntry(String path) {
+            super(path);
+        }
 
         void setup(ZipEntry entry) {
             zipEntry = entry;

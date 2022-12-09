@@ -7,6 +7,7 @@ package dan200.computercraft.impl;
 
 import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.api.detail.DetailRegistry;
+import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
@@ -18,9 +19,10 @@ import dan200.computercraft.api.redstone.BundledRedstoneProvider;
 import dan200.computercraft.api.turtle.TurtleRefuelHandler;
 import dan200.computercraft.core.apis.ApiFactories;
 import dan200.computercraft.core.asm.GenericMethod;
-import dan200.computercraft.core.filesystem.FileMount;
+import dan200.computercraft.core.filesystem.WritableFileMount;
 import dan200.computercraft.impl.detail.DetailRegistryImpl;
 import dan200.computercraft.impl.network.wired.WiredNodeImpl;
+import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.details.BlockDetails;
 import dan200.computercraft.shared.details.ItemDetails;
@@ -57,13 +59,15 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     }
 
     @Override
-    public final @Nullable WritableMount createSaveDirMount(MinecraftServer server, String subPath, long capacity) {
+    public final WritableMount createSaveDirMount(MinecraftServer server, String subPath, long capacity) {
         var root = ServerContext.get(server).storageDir().toFile();
-        try {
-            return new FileMount(new File(root, subPath), capacity);
-        } catch (Exception e) {
-            return null;
-        }
+        return new WritableFileMount(new File(root, subPath), capacity);
+    }
+
+    @Override
+    public final @Nullable Mount createResourceMount(MinecraftServer server, String domain, String subPath) {
+        var mount = ResourceMount.get(domain, subPath, server.getResourceManager());
+        return mount.exists("") ? mount : null;
     }
 
     @Override

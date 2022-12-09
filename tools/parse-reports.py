@@ -98,7 +98,7 @@ def _parse_junit_file(path: pathlib.Path):
 
             print("::group::Full error message")
             print(full_message)
-            print("::endgroup")
+            print("::endgroup::")
 
 
 def parse_junit() -> None:

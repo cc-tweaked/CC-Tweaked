@@ -8,22 +8,18 @@ package dan200.computercraft.impl;
 import com.google.auto.service.AutoService;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.DetailRegistry;
-import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.impl.detail.DetailRegistryImpl;
-import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.details.FluidData;
 import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
 
@@ -41,13 +37,6 @@ public final class ComputerCraftAPIImpl extends AbstractComputerCraftAPI impleme
         return version = ModList.get().getModContainerById(ComputerCraftAPI.MOD_ID)
             .map(x -> x.getModInfo().getVersion().toString())
             .orElse("unknown");
-    }
-
-    @Override
-    public @Nullable Mount createResourceMount(MinecraftServer server, String domain, String subPath) {
-        var manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
-        var mount = ResourceMount.get(domain, subPath, manager);
-        return mount.exists("") ? mount : null;
     }
 
     @Override

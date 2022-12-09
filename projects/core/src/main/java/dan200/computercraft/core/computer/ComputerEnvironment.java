@@ -6,7 +6,7 @@
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.api.filesystem.WritableMount;
-import dan200.computercraft.core.filesystem.FileMount;
+import dan200.computercraft.core.filesystem.WritableFileMount;
 import dan200.computercraft.core.metrics.MetricsObserver;
 
 import javax.annotation.Nullable;
@@ -38,7 +38,7 @@ public interface ComputerEnvironment {
      * Construct the mount for this computer's user-writable data.
      *
      * @return The constructed mount or {@code null} if the mount could not be created.
-     * @see FileMount
+     * @see WritableFileMount
      */
     @Nullable
     WritableMount createRootMount();

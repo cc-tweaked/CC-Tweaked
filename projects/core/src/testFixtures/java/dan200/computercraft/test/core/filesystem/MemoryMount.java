@@ -6,90 +6,22 @@
 package dan200.computercraft.test.core.filesystem;
 
 import dan200.computercraft.api.filesystem.FileOperationException;
-import dan200.computercraft.api.filesystem.WritableMount;
+import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.nio.channels.Channels;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- * In-memory file mounts.
+ * A read-only mount {@link Mount} which provides a list of in-memory set of files.
  */
-public class MemoryMount implements WritableMount {
+public class MemoryMount implements Mount {
     private final Map<String, byte[]> files = new HashMap<>();
     private final Set<String> directories = new HashSet<>();
 
     public MemoryMount() {
         directories.add("");
-    }
-
-    @Override
-    public void makeDirectory(String path) {
-        var file = new File(path);
-        while (file != null) {
-            directories.add(file.getPath());
-            file = file.getParentFile();
-        }
-    }
-
-    @Override
-    public void delete(String path) {
-        if (files.containsKey(path)) {
-            files.remove(path);
-        } else {
-            directories.remove(path);
-            for (var file : files.keySet().toArray(new String[0])) {
-                if (file.startsWith(path)) {
-                    files.remove(file);
-                }
-            }
-
-            var parent = new File(path).getParentFile();
-            if (parent != null) delete(parent.getPath());
-        }
-    }
-
-    @Override
-    public void rename(String source, String dest) throws IOException {
-        throw new IOException("Not supported");
-    }
-
-    @Override
-    public WritableByteChannel openForWrite(final String path) {
-        return Channels.newChannel(new ByteArrayOutputStream() {
-            @Override
-            public void close() throws IOException {
-                super.close();
-                files.put(path, toByteArray());
-            }
-        });
-    }
-
-    @Override
-    public WritableByteChannel openForAppend(final String path) throws IOException {
-        var stream = new ByteArrayOutputStream() {
-            @Override
-            public void close() throws IOException {
-                super.close();
-                files.put(path, toByteArray());
-            }
-        };
-
-        var current = files.get(path);
-        if (current != null) stream.write(current);
-
-        return Channels.newChannel(stream);
-    }
-
-    @Override
-    public long getRemainingSpace() {
-        return 1000000L;
     }
 
     @Override
@@ -112,11 +44,6 @@ public class MemoryMount implements WritableMount {
     @Override
     public long getSize(String path) {
         throw new RuntimeException("Not implemented");
-    }
-
-    @Override
-    public long getCapacity() {
-        return Long.MAX_VALUE;
     }
 
     @Override

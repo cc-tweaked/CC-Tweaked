@@ -43,7 +43,6 @@ public interface ComputerCraftAPIService {
 
     int createUniqueNumberedSaveDir(MinecraftServer server, String parentSubPath);
 
-    @Nullable
     WritableMount createSaveDirMount(MinecraftServer server, String subPath, long capacity);
 
     @Nullable

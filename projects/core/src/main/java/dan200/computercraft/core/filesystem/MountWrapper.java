@@ -12,10 +12,6 @@ import dan200.computercraft.api.filesystem.WritableMount;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.channels.WritableByteChannel;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.OptionalLong;
@@ -158,8 +154,6 @@ class MountWrapper {
             if (mount.exists(path)) {
                 writableMount.delete(path);
             }
-        } catch (AccessDeniedException e) {
-            throw new FileSystemException("Access denied");
         } catch (IOException e) {
             throw localExceptionOf(path, e);
         }
@@ -177,14 +171,12 @@ class MountWrapper {
             }
 
             writableMount.rename(source, dest);
-        } catch (AccessDeniedException e) {
-            throw new FileSystemException("Access denied");
         } catch (IOException e) {
             throw localExceptionOf(source, e);
         }
     }
 
-    public WritableByteChannel openForWrite(String path) throws FileSystemException {
+    public SeekableByteChannel openForWrite(String path) throws FileSystemException {
         if (writableMount == null) throw exceptionOf(path, "Access denied");
 
         path = toLocal(path);
@@ -200,14 +192,12 @@ class MountWrapper {
                 }
                 return writableMount.openForWrite(path);
             }
-        } catch (AccessDeniedException e) {
-            throw new FileSystemException("Access denied");
         } catch (IOException e) {
             throw localExceptionOf(path, e);
         }
     }
 
-    public WritableByteChannel openForAppend(String path) throws FileSystemException {
+    public SeekableByteChannel openForAppend(String path) throws FileSystemException {
         if (writableMount == null) throw exceptionOf(path, "Access denied");
 
         path = toLocal(path);
@@ -225,8 +215,6 @@ class MountWrapper {
             } else {
                 return writableMount.openForAppend(path);
             }
-        } catch (AccessDeniedException e) {
-            throw new FileSystemException("Access denied");
         } catch (IOException e) {
             throw localExceptionOf(path, e);
         }
@@ -244,7 +232,8 @@ class MountWrapper {
         if (e instanceof java.nio.file.FileSystemException ex) {
             // This error will contain the absolute path, leaking information about where MC is installed. We drop that,
             // just taking the reason. We assume that the error refers to the input path.
-            var message = getReason(ex);
+            var message = ex.getReason();
+            if (message == null) message = "Failed";
             return localPath == null ? new FileSystemException(message) : localExceptionOf(localPath, message);
         }
 
@@ -258,16 +247,5 @@ class MountWrapper {
 
     private static FileSystemException exceptionOf(String path, String message) {
         return new FileSystemException("/" + path + ": " + message);
-    }
-
-    private static String getReason(java.nio.file.FileSystemException e) {
-        var reason = e.getReason();
-        if (reason != null) return reason.trim();
-
-        if (e instanceof FileAlreadyExistsException) return "File exists";
-        if (e instanceof NoSuchFileException) return "No such file";
-        if (e instanceof AccessDeniedException) return "Access denied";
-
-        return "Operation failed";
     }
 }

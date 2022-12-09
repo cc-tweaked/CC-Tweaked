@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class ArchiveMount<T extends ArchiveMount.FileEntry<T>> implements Mount {
     protected static final String NO_SUCH_FILE = "No such file";
+
     /**
      * Limit the entire cache to 64MiB.
      */
@@ -103,7 +104,7 @@ public abstract class ArchiveMount<T extends ArchiveMount.FileEntry<T>> implemen
      * <p>
      * This should only be called once per file, as the result is cached in {@link #getSize(String)}.
      *
-     * @param file The file to compute the size of.
+     * @param file The file to compute the size of. This will not be a directory.
      * @return The size of the file.
      * @throws IOException If the size could not be read.
      */
@@ -125,7 +126,7 @@ public abstract class ArchiveMount<T extends ArchiveMount.FileEntry<T>> implemen
     /**
      * Read the entirety of a file into memory.
      *
-     * @param file The file to read into memory.
+     * @param file The file to read into memory. This will not be a directory.
      * @return The contents of the file.
      */
     protected abstract byte[] getContents(T file) throws IOException;
@@ -141,7 +142,7 @@ public abstract class ArchiveMount<T extends ArchiveMount.FileEntry<T>> implemen
     /**
      * Get all attributes of the file.
      *
-     * @param file The file to compute attributes for.
+     * @param file The file to compute attributes for. This will not be a directory.
      * @return The file's attributes.
      * @throws IOException If the attributes could not be read.
      */
@@ -150,10 +151,15 @@ public abstract class ArchiveMount<T extends ArchiveMount.FileEntry<T>> implemen
     }
 
     protected static class FileEntry<T extends ArchiveMount.FileEntry<T>> {
+        public final String path;
         @Nullable
         public Map<String, T> children;
 
         long size = -1;
+
+        protected FileEntry(String path) {
+            this.path = path;
+        }
 
         protected boolean isDirectory() {
             return children != null;
