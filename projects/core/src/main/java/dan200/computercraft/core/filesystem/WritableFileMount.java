@@ -183,7 +183,7 @@ public class WritableFileMount extends FileMount implements WritableMount {
     }
 
     @Override
-    public SeekableByteChannel openForAppend(String path) throws IOException {
+    public SeekableByteChannel openForAppend(String path) throws FileOperationException {
         create();
 
         var file = resolvePath(path);

@@ -79,7 +79,7 @@ class MountWrapper {
     public boolean isDirectory(String path) throws FileSystemException {
         path = toLocal(path);
         try {
-            return mount.exists(path) && mount.isDirectory(path);
+            return mount.isDirectory(path);
         } catch (IOException e) {
             throw localExceptionOf(path, e);
         }
@@ -101,8 +101,7 @@ class MountWrapper {
     public long getSize(String path) throws FileSystemException {
         path = toLocal(path);
         try {
-            if (!mount.exists(path)) throw localExceptionOf(path, "No such file");
-            return mount.isDirectory(path) ? 0 : mount.getSize(path);
+            return mount.getSize(path);
         } catch (IOException e) {
             throw localExceptionOf(path, e);
         }
@@ -111,7 +110,6 @@ class MountWrapper {
     public BasicFileAttributes getAttributes(String path) throws FileSystemException {
         path = toLocal(path);
         try {
-            if (!mount.exists(path)) throw localExceptionOf(path, "No such file");
             return mount.getAttributes(path);
         } catch (IOException e) {
             throw localExceptionOf(path, e);
@@ -121,11 +119,7 @@ class MountWrapper {
     public SeekableByteChannel openForRead(String path) throws FileSystemException {
         path = toLocal(path);
         try {
-            if (mount.exists(path) && !mount.isDirectory(path)) {
-                return mount.openForRead(path);
-            } else {
-                throw localExceptionOf(path, "No such file");
-            }
+            return mount.openForRead(path);
         } catch (IOException e) {
             throw localExceptionOf(path, e);
         }
@@ -136,11 +130,7 @@ class MountWrapper {
 
         path = toLocal(path);
         try {
-            if (mount.exists(path)) {
-                if (!mount.isDirectory(path)) throw localExceptionOf(path, "File exists");
-            } else {
-                writableMount.makeDirectory(path);
-            }
+            writableMount.makeDirectory(path);
         } catch (IOException e) {
             throw localExceptionOf(path, e);
         }
@@ -151,9 +141,7 @@ class MountWrapper {
 
         path = toLocal(path);
         try {
-            if (mount.exists(path)) {
-                writableMount.delete(path);
-            }
+            writableMount.delete(path);
         } catch (IOException e) {
             throw localExceptionOf(path, e);
         }
@@ -224,8 +212,8 @@ class MountWrapper {
         return FileSystem.toLocal(path, location);
     }
 
-    private FileSystemException localExceptionOf(@Nullable String localPath, IOException e) {
-        if (!location.isEmpty() && e instanceof FileOperationException ex) {
+    private FileSystemException localExceptionOf(String localPath, IOException e) {
+        if (e instanceof FileOperationException ex) {
             if (ex.getFilename() != null) return localExceptionOf(ex.getFilename(), FileSystemException.getMessage(ex));
         }
 
@@ -233,8 +221,8 @@ class MountWrapper {
             // This error will contain the absolute path, leaking information about where MC is installed. We drop that,
             // just taking the reason. We assume that the error refers to the input path.
             var message = ex.getReason();
-            if (message == null) message = "Failed";
-            return localPath == null ? new FileSystemException(message) : localExceptionOf(localPath, message);
+            if (message == null) message = "Access denied";
+            return localExceptionOf(localPath, message);
         }
 
         return FileSystemException.of(e);

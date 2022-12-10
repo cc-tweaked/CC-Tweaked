@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.core.filesystem;
 
+import com.google.common.base.Joiner;
 import dan200.computercraft.api.filesystem.FileAttributes;
 import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.Mount;
@@ -104,7 +105,7 @@ public class FileMount implements Mount {
     protected FileOperationException remapException(String fallbackPath, IOException exn) {
         return exn instanceof FileSystemException fsExn
             ? remapException(fallbackPath, fsExn)
-            : new FileOperationException(fallbackPath, exn.getMessage() == null ? "Operation failed" : exn.getMessage());
+            : new FileOperationException(fallbackPath, exn.getMessage() == null ? "Access denied" : exn.getMessage());
     }
 
     /**
@@ -123,7 +124,7 @@ public class FileMount implements Mount {
 
         var failedPath = Path.of(failedFile);
         return failedPath.startsWith(root)
-            ? new FileOperationException(root.relativize(failedPath).toString(), reason)
+            ? new FileOperationException(Joiner.on('/').join(root.relativize(failedPath)), reason)
             : new FileOperationException(fallbackPath, reason);
     }
 

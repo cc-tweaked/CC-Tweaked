@@ -32,7 +32,8 @@ public interface WritableMount extends Mount {
     void makeDirectory(String path) throws IOException;
 
     /**
-     * Deletes a directory at a given path inside the virtual file system.
+     * Deletes a directory at a given path inside the virtual file system. If the file does not exist, this method
+     * should do nothing.
      *
      * @param path A file path in normalised format, relative to the mount location. ie: "programs/myoldprograms".
      * @throws IOException If the file does not exist or could not be deleted.
