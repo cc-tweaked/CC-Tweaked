@@ -35,9 +35,7 @@ addRemappedConfiguration("testWithSodium")
 addRemappedConfiguration("testWithIris")
 
 dependencies {
-    modImplementation(libs.bundles.externalMods.fabric) {
-        exclude("curse.maven", "configured-fabric-667378") // Added by Forge Config API
-    }
+    modImplementation(libs.bundles.externalMods.fabric)
     modCompileOnly(libs.bundles.externalMods.fabric.compile) {
         exclude("net.fabricmc", "fabric-loader")
         exclude("net.fabricmc.fabric-api")
@@ -238,6 +236,7 @@ publishing {
             mavenDependencies {
                 exclude(dependencies.create("cc.tweaked:"))
                 exclude(libs.jei.fabric.get())
+                exclude(libs.modmenu.get())
             }
         }
     }

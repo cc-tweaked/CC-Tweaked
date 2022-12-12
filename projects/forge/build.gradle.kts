@@ -115,8 +115,8 @@ minecraft {
 }
 
 mixin {
-    add(sourceSets.main.get(), "computercraft.mixins.refmap.json")
-    add(sourceSets.client.get(), "computercraft-client.mixins.refmap.json")
+    add(sourceSets.main.get(), "computercraft.refmap.json")
+    add(sourceSets.client.get(), "client-computercraft.refmap.json")
 
     config("computercraft.mixins.json")
     config("computercraft-client.mixins.json")
@@ -133,6 +133,7 @@ configurations {
 
 dependencies {
     annotationProcessor("org.spongepowered:mixin:0.8.5-SQUID:processor")
+    clientAnnotationProcessor("org.spongepowered:mixin:0.8.5-SQUID:processor")
 
     compileOnly(libs.jetbrainsAnnotations)
     annotationProcessorEverywhere(libs.autoService)
@@ -219,13 +220,15 @@ tasks.shadowJar {
     finalizedBy("reobfShadowJar")
     archiveClassifier.set("")
 
+    from(sourceSets.client.get().output)
+
     dependencies {
         include(dependency("cc.tweaked:"))
         include(dependency(libs.cobalt.get()))
         include(dependency(libs.netty.http.get()))
     }
     relocate("org.squiddev.cobalt", "cc.tweaked.internal.cobalt")
-    relocate("io.netty.handler", "cc.tweaked.internal.netty")
+    relocate("io.netty.handler.codec.http", "cc.tweaked.internal.netty.codec.http")
     minimize()
 }
 
