@@ -22,6 +22,6 @@ dependencies {
 }
 
 tasks.javadoc {
-    // Depend on
-    classpath += docApi
+    // Depend on the common API when publishing javadoc
+    classpath += docApi.get()
 }

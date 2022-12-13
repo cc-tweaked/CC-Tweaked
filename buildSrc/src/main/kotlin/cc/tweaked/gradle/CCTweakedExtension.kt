@@ -2,6 +2,7 @@ package cc.tweaked.gradle
 
 import net.ltgt.gradle.errorprone.CheckSeverity
 import net.ltgt.gradle.errorprone.errorprone
+import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -25,10 +26,8 @@ import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.io.BufferedWriter
 import java.io.File
 import java.io.IOException
-import java.io.OutputStreamWriter
 import java.net.URI
 import java.net.URL
 import java.util.regex.Pattern
@@ -39,43 +38,30 @@ abstract class CCTweakedExtension(
 ) {
     /** Get the hash of the latest git commit. */
     val gitHash: Provider<String> = gitProvider(project, "<no git hash>") {
-        ProcessHelpers.captureOut("git", "-C", project.projectDir.absolutePath, "rev-parse", "HEAD").trim()
+        ProcessHelpers.captureOut("git", "-C", project.rootProject.projectDir.absolutePath, "rev-parse", "HEAD").trim()
     }
 
     /** Get the current git branch. */
     val gitBranch: Provider<String> = gitProvider(project, "<no git branch>") {
-        ProcessHelpers.captureOut("git", "-C", project.projectDir.absolutePath, "rev-parse", "--abbrev-ref", "HEAD")
+        ProcessHelpers.captureOut("git", "-C", project.rootProject.projectDir.absolutePath, "rev-parse", "--abbrev-ref", "HEAD")
             .trim()
     }
 
     /** Get a list of all contributors to the project. */
     val gitContributors: Provider<List<String>> = gitProvider(project, listOf()) {
-        val authors: Set<String> = HashSet(
-            ProcessHelpers.captureLines(
-                "git", "-C", project.projectDir.absolutePath, "log",
-                "--format=tformat:%an <%ae>%n%cn <%ce>%n%(trailers:key=Co-authored-by,valueonly)",
-            ),
+        ProcessHelpers.captureLines(
+            "git", "-C", project.rootProject.projectDir.absolutePath, "shortlog", "-ns",
+            "--group=author", "--group=trailer:co-authored-by", "HEAD",
         )
-        val process = ProcessHelpers.startProcess("git", "check-mailmap", "--stdin")
-        BufferedWriter(OutputStreamWriter(process.outputStream)).use { writer ->
-            for (authorName in authors) {
-                var author = authorName
-
-                if (author.isEmpty()) continue
-                if (!author.endsWith(">")) author += ">" // Some commits have broken Co-Authored-By lines!
-                writer.write(author)
-                writer.newLine()
+            .asSequence()
+            .map {
+                val matcher = COMMIT_COUNTS.matcher(it)
+                matcher.find()
+                matcher.group(1)
             }
-        }
-        val contributors: MutableSet<String> = HashSet()
-        for (authorLine in ProcessHelpers.captureLines(process)) {
-            val matcher = EMAIL.matcher(authorLine)
-            matcher.find()
-            val name = matcher.group(1)
-            if (!IGNORED_USERS.contains(name)) contributors.add(name)
-        }
-
-        contributors.sortedWith(String.CASE_INSENSITIVE_ORDER)
+            .filter { !IGNORED_USERS.contains(it) }
+            .toList()
+            .sortedWith(String.CASE_INSENSITIVE_ORDER)
     }
 
     /**
@@ -257,7 +243,7 @@ abstract class CCTweakedExtension(
     }
 
     companion object {
-        private val EMAIL = Pattern.compile("^([^<]+) <.+>$")
+        private val COMMIT_COUNTS = Pattern.compile("""^\s*[0-9]+\s+(.*)$""")
         private val IGNORED_USERS = setOf(
             "GitHub", "Daniel Ratcliffe", "Weblate",
         )
@@ -267,6 +253,9 @@ abstract class CCTweakedExtension(
                 try {
                     supplier()
                 } catch (e: IOException) {
+                    project.logger.error("Cannot read Git repository: ${e.message}")
+                    default
+                } catch (e: GradleException) {
                     project.logger.error("Cannot read Git repository: ${e.message}")
                     default
                 }
