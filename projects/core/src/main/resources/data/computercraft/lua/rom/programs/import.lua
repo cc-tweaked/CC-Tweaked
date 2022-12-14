@@ -18,7 +18,7 @@ if #files == 0 then
   return
 end
 
-package.path = package.path .. "/rom/modules/internal/?.lua"
+package.path = package.path .. ";/rom/modules/internal/?.lua"
 
 local ok, err = require("cc.import")(files)
 if not ok and err then printError(err) end
