@@ -9,7 +9,7 @@ a public API (i.e `core-api`) and the actual implementation (i.e. `core`).
 
  - `core`: This contains the core "computer" part of ComputerCraft, such as the Lua VM, filesystem and builtin APIs.
    This is also where the Lua ROM is located (`projects/core/src/main/resources/data/computercraft/lua`). Notably this
-   project does _not_ depend on Minecraft, making it possible to use it emulators and other tooling.
+   project does _not_ depend on Minecraft, making it possible to use it in emulators and other tooling.
 
  - `common`: This contains all non mod-loader-specific Minecraft code. This is where computers, turtles and peripherals
    are defined (and everything else Minecraft-related!).
@@ -31,7 +31,7 @@ implementation.
 flowchart LR
 subgraph Common
     platform(PlatformHelper)
-    impl[AbstractComputerCraftAPIImpl]
+    impl[AbstractComputerCraftAPI]
 end
 subgraph API
     api(ComputerCraft API) --> impl
@@ -119,7 +119,7 @@ This is done by starting a Lua VM with all of ComputerCraft's APIs loaded, then 
 tests which are then in turn run on the computer again. This allows the tests to integrate with existing Java testing
 tooling (for instance, XML test reports and IDE integration).
 
-There's a slightly more detailed description of the process at `CraftOsLuaTest.java`.
+There's a slightly more detailed description of the process at `ComputerTestDelegate.java`.
 
 ### Game tests
 CC: Tweaked also runs several tests in-game using Minecraft's [gametest framework][mc-test]. These work by starting
