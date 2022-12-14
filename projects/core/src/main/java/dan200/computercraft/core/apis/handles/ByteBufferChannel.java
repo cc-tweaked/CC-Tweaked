@@ -33,7 +33,9 @@ public class ByteBufferChannel implements SeekableByteChannel {
 
         var remaining = Math.min(backing.limit() - position, destination.remaining());
 
-        destination.put(position, backing, position, remaining);
+        var destPos = destination.position();
+        destination.put(destPos, backing, position, remaining);
+        destination.position(destPos + remaining);
         position += remaining;
         return remaining;
     }
