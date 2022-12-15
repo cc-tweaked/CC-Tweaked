@@ -93,8 +93,9 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
 
             if (method == null) throw new LuaException("No such method " + methodName);
 
-            environment.observe(Metrics.PERIPHERAL_OPS);
-            return method.apply(peripheral, context, this, arguments);
+            try (var ignored = environment.time(Metrics.PERIPHERAL_OPS)) {
+                return method.apply(peripheral, context, this, arguments);
+            }
         }
 
         // IComputerAccess implementation

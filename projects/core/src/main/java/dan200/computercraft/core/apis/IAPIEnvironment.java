@@ -11,7 +11,9 @@ import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
+import dan200.computercraft.core.metrics.OperationTimer;
 import dan200.computercraft.core.metrics.Metric;
+import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.core.terminal.Terminal;
 
 import javax.annotation.Nullable;
@@ -68,7 +70,17 @@ public interface IAPIEnvironment {
 
     void cancelTimer(int id);
 
-    void observe(Metric.Event event, long change);
+    MetricsObserver metrics();
 
-    void observe(Metric.Counter counter);
+    default void observe(Metric.Event event, long change) {
+        metrics().observe(event, change);
+    }
+
+    default void observe(Metric.Counter counter) {
+        metrics().observe(counter);
+    }
+
+    default OperationTimer time(Metric.Event event) {
+        return OperationTimer.start(metrics(), event);
+    }
 }

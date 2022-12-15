@@ -12,7 +12,7 @@ import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
-import dan200.computercraft.core.metrics.Metric;
+import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.test.core.computer.BasicEnvironment;
 
@@ -123,10 +123,7 @@ public abstract class BasicApiEnvironment implements IAPIEnvironment {
     }
 
     @Override
-    public void observe(Metric.Event summary, long value) {
-    }
-
-    @Override
-    public void observe(Metric.Counter counter) {
+    public MetricsObserver metrics() {
+        return environment.getMetrics();
     }
 }

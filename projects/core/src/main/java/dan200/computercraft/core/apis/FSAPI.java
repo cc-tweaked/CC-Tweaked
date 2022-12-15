@@ -102,8 +102,7 @@ public class FSAPI implements ILuaAPI {
      */
     @LuaFunction
     public final String[] list(String path) throws LuaException {
-        environment.observe(Metrics.FS_OPS);
-        try {
+        try (var ignored = environment.time(Metrics.FS_OPS)) {
             return getFileSystem().list(path);
         } catch (FileSystemException e) {
             throw new LuaException(e.getMessage());
@@ -184,7 +183,7 @@ public class FSAPI implements ILuaAPI {
      */
     @LuaFunction
     public final long getSize(String path) throws LuaException {
-        try {
+        try (var ignored = environment.time(Metrics.FS_OPS)) {
             return getFileSystem().getSize(path);
         } catch (FileSystemException e) {
             throw new LuaException(e.getMessage());
@@ -199,7 +198,7 @@ public class FSAPI implements ILuaAPI {
      */
     @LuaFunction
     public final boolean exists(String path) {
-        try {
+        try (var ignored = environment.time(Metrics.FS_OPS)) {
             return getFileSystem().exists(path);
         } catch (FileSystemException e) {
             return false;
@@ -214,7 +213,7 @@ public class FSAPI implements ILuaAPI {
      */
     @LuaFunction
     public final boolean isDir(String path) {
-        try {
+        try (var ignored = environment.time(Metrics.FS_OPS)) {
             return getFileSystem().isDir(path);
         } catch (FileSystemException e) {
             return false;
@@ -229,7 +228,7 @@ public class FSAPI implements ILuaAPI {
      */
     @LuaFunction
     public final boolean isReadOnly(String path) {
-        try {
+        try (var ignored = environment.time(Metrics.FS_OPS)) {
             return getFileSystem().isReadOnly(path);
         } catch (FileSystemException e) {
             return false;
@@ -244,8 +243,7 @@ public class FSAPI implements ILuaAPI {
      */
     @LuaFunction
     public final void makeDir(String path) throws LuaException {
-        try {
-            environment.observe(Metrics.FS_OPS);
+        try (var ignored = environment.time(Metrics.FS_OPS)) {
             getFileSystem().makeDir(path);
         } catch (FileSystemException e) {
             throw new LuaException(e.getMessage());
@@ -263,8 +261,7 @@ public class FSAPI implements ILuaAPI {
      */
     @LuaFunction
     public final void move(String path, String dest) throws LuaException {
-        try {
-            environment.observe(Metrics.FS_OPS);
+        try (var ignored = environment.time(Metrics.FS_OPS)) {
             getFileSystem().move(path, dest);
         } catch (FileSystemException e) {
             throw new LuaException(e.getMessage());
@@ -282,8 +279,7 @@ public class FSAPI implements ILuaAPI {
      */
     @LuaFunction
     public final void copy(String path, String dest) throws LuaException {
-        try {
-            environment.observe(Metrics.FS_OPS);
+        try (var ignored = environment.time(Metrics.FS_OPS)) {
             getFileSystem().copy(path, dest);
         } catch (FileSystemException e) {
             throw new LuaException(e.getMessage());
@@ -301,8 +297,7 @@ public class FSAPI implements ILuaAPI {
      */
     @LuaFunction
     public final void delete(String path) throws LuaException {
-        try {
-            environment.observe(Metrics.FS_OPS);
+        try (var ignored = environment.time(Metrics.FS_OPS)) {
             getFileSystem().delete(path);
         } catch (FileSystemException e) {
             throw new LuaException(e.getMessage());
@@ -365,8 +360,7 @@ public class FSAPI implements ILuaAPI {
      */
     @LuaFunction
     public final Object[] open(String path, String mode) throws LuaException {
-        environment.observe(Metrics.FS_OPS);
-        try {
+        try (var ignored = environment.time(Metrics.FS_OPS)) {
             switch (mode) {
                 case "r" -> {
                     // Open the file for reading, then create a wrapper around the reader
@@ -465,8 +459,7 @@ public class FSAPI implements ILuaAPI {
      */
     @LuaFunction
     public final String[] find(String path) throws LuaException {
-        try {
-            environment.observe(Metrics.FS_OPS);
+        try (var ignored = environment.time(Metrics.FS_OPS)) {
             return getFileSystem().find(path);
         } catch (FileSystemException e) {
             throw new LuaException(e.getMessage());
@@ -516,7 +509,7 @@ public class FSAPI implements ILuaAPI {
      */
     @LuaFunction
     public final Map<String, Object> attributes(String path) throws LuaException {
-        try {
+        try (var ignored = environment.time(Metrics.FS_OPS)) {
             var attributes = getFileSystem().getAttributes(path);
             Map<String, Object> result = new HashMap<>();
             result.put("modification", getFileTime(attributes.lastModifiedTime()));

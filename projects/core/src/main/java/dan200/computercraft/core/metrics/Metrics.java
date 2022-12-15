@@ -12,11 +12,11 @@ public final class Metrics {
     private Metrics() {
     }
 
-    public static final Metric.Event COMPUTER_TASKS = new Metric.Event("computer_tasks", "ms", Metric::formatTime);
-    public static final Metric.Event SERVER_TASKS = new Metric.Event("server_tasks", "ms", Metric::formatTime);
+    public static final Metric.Event COMPUTER_TASKS = new Metric.Event("computer_tasks", "ns", Metric::formatTime);
+    public static final Metric.Event SERVER_TASKS = new Metric.Event("server_tasks", "ns", Metric::formatTime);
 
-    public static final Metric.Counter PERIPHERAL_OPS = new Metric.Counter("peripheral");
-    public static final Metric.Counter FS_OPS = new Metric.Counter("fs");
+    public static final Metric.Event PERIPHERAL_OPS = new Metric.Event("peripheral", "ns", Metric::formatTime);
+    public static final Metric.Event FS_OPS = new Metric.Event("fs", "ns", Metric::formatTime);
 
     public static final Metric.Counter HTTP_REQUESTS = new Metric.Counter("http_requests");
     public static final Metric.Event HTTP_UPLOAD = new Metric.Event("http_upload", "bytes", Metric::formatBytes);

@@ -10,7 +10,6 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
-import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.core.terminal.Terminal;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -313,13 +312,8 @@ public final class Environment implements IAPIEnvironment {
     }
 
     @Override
-    public void observe(Metric.Event event, long change) {
-        metrics.observe(event, change);
-    }
-
-    @Override
-    public void observe(Metric.Counter counter) {
-        metrics.observe(counter);
+    public MetricsObserver metrics() {
+        return metrics;
     }
 
     private static class Timer {

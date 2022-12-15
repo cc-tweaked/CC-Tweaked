@@ -150,7 +150,7 @@ public class ComputerTestDelegate {
         lock.lockInterruptibly();
         try {
             var remaining = TIMEOUT;
-            while (remaining > 0 & tests == null) {
+            while (remaining > 0 && tests == null) {
                 tick();
                 if (hasTests.awaitNanos(TICK_TIME) > 0) break;
                 remaining -= TICK_TIME;
