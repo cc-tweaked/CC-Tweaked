@@ -13,9 +13,9 @@ import org.spongepowered.asm.mixin.Overwrite;
 @Mixin(WorldOpenFlows.class)
 public class WorldOpenFlowsMixin {
     /**
-     * Never prompt for backup/experimental options when running tests
+     * Never prompt for backup/experimental options when running tests.
      *
-     * @param screen     The current menu
+     * @param screen     The current menu.
      * @param level      The level to load.
      * @param customised Whether this rule uses legacy customised worldgen options.
      * @param action     The action run to load the world.
