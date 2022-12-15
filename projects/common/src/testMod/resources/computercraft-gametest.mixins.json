@@ -15,6 +15,7 @@
         "TestCommandAccessor"
     ],
     "client": [
-        "client.MinecraftMixin"
+        "client.MinecraftMixin",
+        "client.WorldOpenFlowsMixin"
     ]
 }

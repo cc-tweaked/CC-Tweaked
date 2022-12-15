@@ -208,8 +208,8 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
                 backgroundBuffer.drawWithShader(matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader());
 
                 // Render foreground geometry with glPolygonOffset enabled.
-                GL11.glPolygonOffset(-1.0f, -10.0f);
-                GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
+                RenderSystem.polygonOffset(-1.0f, -10.0f);
+                RenderSystem.enablePolygonOffset();
 
                 foregroundBuffer.bind();
                 foregroundBuffer.drawWithShader(
@@ -221,8 +221,8 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
                 );
 
                 // Clear state
-                GL11.glPolygonOffset(0.0f, -0.0f);
-                GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
+                RenderSystem.polygonOffset(0.0f, -0.0f);
+                RenderSystem.disablePolygonOffset();
                 RenderTypes.TERMINAL.clearRenderState();
                 VertexBuffer.unbind();
 
