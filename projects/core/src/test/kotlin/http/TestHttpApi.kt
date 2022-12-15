@@ -21,7 +21,7 @@ class TestHttpApi {
         @JvmStatic
         @BeforeAll
         fun before() {
-            CoreConfig.httpRules = listOf(AddressRule.parse("*", null, Action.ALLOW.toPartial()))
+            CoreConfig.httpRules = listOf(AddressRule.parse("*", OptionalInt.empty(), Action.ALLOW.toPartial()))
         }
 
         @JvmStatic
@@ -29,8 +29,8 @@ class TestHttpApi {
         fun after() {
             CoreConfig.httpRules = Collections.unmodifiableList(
                 listOf(
-                    AddressRule.parse("\$private", null, Action.DENY.toPartial()),
-                    AddressRule.parse("*", null, Action.ALLOW.toPartial()),
+                    AddressRule.parse("\$private", OptionalInt.empty(), Action.DENY.toPartial()),
+                    AddressRule.parse("*", OptionalInt.empty(), Action.ALLOW.toPartial()),
                 ),
             )
         }

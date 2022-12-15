@@ -4,7 +4,7 @@
 # MC version is specified in gradle.properties, as we need that in settings.gradle.
 fabric-api = "0.68.1+1.19.3"
 fabric-loader = "0.14.11"
-forge = "44.0.0"
+forge = "44.0.18"
 forgeSpi = "6.0.0"
 mixin = "0.8.5"
 parchment = "2022.11.27"
@@ -15,14 +15,13 @@ asm = "9.3"
 autoService = "1.0.1"
 checkerFramework = "3.12.0"
 cobalt = "0.5.8"
-fastutil = "8.5.6"
-guava = "31.0.1-jre"
+fastutil = "8.5.9"
+guava = "31.1-jre"
 jetbrainsAnnotations = "23.0.0"
 jsr305 = "3.0.2"
 kotlin = "1.7.10"
 kotlin-coroutines = "1.6.0"
-logback = "1.2.11"
-netty = "4.1.77.Final"
+netty = "4.1.82.Final"
 nightConfig = "3.6.5"
 slf4j = "1.7.36"
 
@@ -107,7 +106,7 @@ jqwik-engine = { module = "net.jqwik:jqwik-engine", version.ref = "jqwik" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
-logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 
 # Build tools
 cctJavadoc = { module = "cc.tweaked:cct-javadoc", version.ref = "cctJavadoc" }

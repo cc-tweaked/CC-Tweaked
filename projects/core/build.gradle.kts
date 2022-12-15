@@ -25,7 +25,7 @@ dependencies {
 
     testImplementation(libs.bundles.test)
     testRuntimeOnly(libs.bundles.testRuntime)
-    testRuntimeOnly(libs.logback)
+    testRuntimeOnly(libs.slf4j.simple)
 }
 
 tasks.processResources {
