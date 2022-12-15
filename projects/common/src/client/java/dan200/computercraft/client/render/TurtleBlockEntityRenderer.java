@@ -67,6 +67,12 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
 
     @Override
     public void render(TurtleBlockEntity turtle, float partialTicks, PoseStack transform, MultiBufferSource buffers, int lightmapCoord, int overlayLight) {
+        transform.pushPose();
+
+        // Translate the turtle first, so the label moves with it.
+        var offset = turtle.getRenderOffset(partialTicks);
+        transform.translate(offset.x, offset.y, offset.z);
+
         // Render the label
         var label = turtle.getLabel();
         var hit = renderer.cameraHitResult;
@@ -88,17 +94,11 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
             transform.popPose();
         }
 
-        transform.pushPose();
-
-        // Setup the transform.
-        var offset = turtle.getRenderOffset(partialTicks);
-        var yaw = turtle.getRenderYaw(partialTicks);
-        transform.translate(offset.x, offset.y, offset.z);
-
+        // Then apply rotation and flip if needed.
         transform.translate(0.5f, 0.5f, 0.5f);
+        var yaw = turtle.getRenderYaw(partialTicks);
         transform.mulPose(Axis.YP.rotationDegrees(180.0f - yaw));
         if (label != null && (label.equals("Dinnerbone") || label.equals("Grumm"))) {
-            // Flip the model
             transform.scale(1.0f, -1.0f, 1.0f);
         }
         transform.translate(-0.5f, -0.5f, -0.5f);
