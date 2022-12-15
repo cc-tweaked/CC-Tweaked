@@ -33,6 +33,11 @@ public class MethodTest {
     }
 
     @Test
+    public void testMainThreadReturnObject() {
+        ComputerBootstrap.run("assert(type(main_thread.complex().go) == \"function\")", x -> x.addApi(new MainThread()), 50);
+    }
+
+    @Test
     public void testDynamic() {
         ComputerBootstrap.run(
             "assert(dynamic.foo() == 123, 'foo: ' .. tostring(dynamic.foo()))\n" +
@@ -96,6 +101,11 @@ public class MethodTest {
         public final int go() {
             assertThat(Thread.currentThread().getName(), is(thread));
             return 123;
+        }
+
+        @LuaFunction(mainThread = true)
+        public final Object complex() {
+            return this;
         }
 
         @Override
