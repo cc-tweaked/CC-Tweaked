@@ -66,9 +66,11 @@ class IlluaminatePlugin : Plugin<Project> {
 
         val osArch = System.getProperty("os.arch").toLowerCase()
         val arch = when {
+            // On macOS the x86_64 binary will work for both ARM and Intel Macs through Rosetta.
+            os == "macos" -> "x86_64"
             osArch == "arm" || osArch.startsWith("aarch") -> error("Unsupported architecture '$osArch' for illuaminate")
             osArch.contains("64") -> "x86_64"
-            else -> error("Unsupported architecture $osArch for illuaminate")
+            else -> error("Unsupported architecture '$osArch' for illuaminate")
         }
 
         return project.dependencies.create(
