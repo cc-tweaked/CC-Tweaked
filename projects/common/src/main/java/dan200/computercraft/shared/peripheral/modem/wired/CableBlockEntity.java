@@ -193,7 +193,7 @@ public class CableBlockEntity extends BlockEntity {
             }
         }
 
-        return InteractionResult.SUCCESS;
+        return InteractionResult.CONSUME;
     }
 
     @Override

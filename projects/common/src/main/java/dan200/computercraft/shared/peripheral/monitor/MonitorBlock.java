@@ -110,7 +110,7 @@ public class MonitorBlock extends HorizontalDirectionalBlock implements EntityBl
             );
         }
 
-        return InteractionResult.SUCCESS;
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Override

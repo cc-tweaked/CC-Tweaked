@@ -78,7 +78,7 @@ public abstract class CableBlockItem extends BlockItem {
                     .setValue(CONNECTIONS.get(side), existingState.getValue(CABLE));
                 if (placeAt(world, pos, newState)) {
                     stack.shrink(1);
-                    return InteractionResult.SUCCESS;
+                    return InteractionResult.sidedSuccess(world.isClientSide);
                 }
             }
 
@@ -105,7 +105,7 @@ public abstract class CableBlockItem extends BlockItem {
             if (insideState.getBlock() == ModRegistry.Blocks.CABLE.get() && !insideState.getValue(CableBlock.CABLE)
                 && placeAtCorrected(world, insidePos, insideState.setValue(CableBlock.CABLE, true))) {
                 stack.shrink(1);
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(world.isClientSide);
             }
 
             // Try to add a cable to a modem adjacent to this block
@@ -113,7 +113,7 @@ public abstract class CableBlockItem extends BlockItem {
             if (existingState.getBlock() == ModRegistry.Blocks.CABLE.get() && !existingState.getValue(CableBlock.CABLE)
                 && placeAtCorrected(world, pos, existingState.setValue(CableBlock.CABLE, true))) {
                 stack.shrink(1);
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(world.isClientSide);
             }
 
             return super.place(context);

@@ -141,7 +141,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
                 new ComputerContainerData(computer, stack).open(player, new PocketComputerMenuProvider(computer, stack, this, hand, isTypingOnly));
             }
         }
-        return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
+        return new InteractionResultHolder<>(InteractionResult.sidedSuccess(world.isClientSide), stack);
     }
 
     @Override
