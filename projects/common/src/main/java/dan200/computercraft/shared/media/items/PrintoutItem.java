@@ -56,7 +56,7 @@ public class PrintoutItem extends Item {
             new HeldItemContainerData(hand)
                 .open(player, new HeldItemMenu.Factory(ModRegistry.Menus.PRINTOUT.get(), player.getItemInHand(hand), hand));
         }
-        return new InteractionResultHolder<>(InteractionResult.SUCCESS, player.getItemInHand(hand));
+        return new InteractionResultHolder<>(InteractionResult.sidedSuccess(world.isClientSide), player.getItemInHand(hand));
     }
 
     private ItemStack createFromTitleAndText(@Nullable String title, @Nullable String[] text, @Nullable String[] colours) {

@@ -104,7 +104,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
                         }
                     }
                 }
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(getLevel().isClientSide);
             } else if (currentItem.getItem() == Items.WATER_BUCKET && brain.getColour() != -1) {
                 // Water to remove turtle colour
                 if (!getLevel().isClientSide) {
@@ -116,7 +116,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
                         }
                     }
                 }
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(getLevel().isClientSide);
             }
         }
 

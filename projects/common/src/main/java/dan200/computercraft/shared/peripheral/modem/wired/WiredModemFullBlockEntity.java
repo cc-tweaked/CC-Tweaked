@@ -139,7 +139,7 @@ public class WiredModemFullBlockEntity extends BlockEntity {
             sendPeripheralChanges(player, "chat.computercraft.wired_modem.peripheral_connected", periphNames);
         }
 
-        return InteractionResult.SUCCESS;
+        return InteractionResult.CONSUME;
     }
 
     private static void sendPeripheralChanges(Player player, String kind, Collection<String> peripherals) {

@@ -98,7 +98,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
                 setLabel(currentItem.getHoverName().getString());
                 currentItem.shrink(1);
             }
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(getLevel().isClientSide);
         } else if (!player.isCrouching()) {
             // Regular right click to activate computer
             if (!getLevel().isClientSide && isUsable(player)) {
@@ -110,7 +110,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
                     : ItemStack.EMPTY;
                 new ComputerContainerData(computer, stack).open(player, this);
             }
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(getLevel().isClientSide);
         }
         return InteractionResult.PASS;
     }
