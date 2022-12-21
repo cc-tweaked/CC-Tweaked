@@ -14,7 +14,7 @@ parchmentMc = "1.19.2"
 asm = "9.3"
 autoService = "1.0.1"
 checkerFramework = "3.12.0"
-cobalt = "0.5.8"
+cobalt = "0.5.9"
 fastutil = "8.5.9"
 guava = "31.1-jre"
 jetbrainsAnnotations = "23.0.0"
@@ -26,7 +26,7 @@ nightConfig = "3.6.5"
 slf4j = "1.7.36"
 
 # Minecraft mods
-forgeConfig = "4.2.9"
+forgeConfig = "4.2.10-alpha.0+12b01da6-squiddev" # No official build for 1.19.3, so we ship our own.
 iris = "1.19.3-v1.4.6"
 jei = "11.3.0.262"
 modmenu = "5.0.1"
