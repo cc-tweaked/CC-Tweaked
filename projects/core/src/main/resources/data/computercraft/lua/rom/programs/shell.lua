@@ -410,7 +410,7 @@ end
 -- @see shell.setCompletionFunction
 -- @see shell.getCompletionInfo
 -- @since 1.74
-function shell.complete(sLine)
+function shell.complete(sLine, bFull)
     expect(1, sLine, "string")
     if #sLine > 0 then
         local tWords = tokenise(sLine)
@@ -432,6 +432,17 @@ function shell.complete(sLine)
                         tResults[n] = sResult .. " "
                     end
                 end
+
+                if bFull then
+                    for i = 1, #tResults do
+                        tResults[i] = sLine..tResults[i] -- Make it the full name instead of suffix
+    
+                        if string.find(tResults[i], " ") then
+                            tResults[i] = '"'..tResults[i]..'"' -- Add quotes if space in name
+                        end
+                    end
+                end
+
                 return tResults
             end
 
