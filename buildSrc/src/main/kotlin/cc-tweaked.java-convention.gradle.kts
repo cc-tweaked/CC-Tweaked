@@ -46,7 +46,7 @@ repositories {
             includeGroup("me.shedaniel.cloth")
             includeGroup("mezz.jei")
             includeModule("com.terraformersmc", "modmenu")
-            includeModule("net.minecraftforge", "forgeconfigapiport-fabric")
+            includeModule("fuzs.forgeconfigapiport", "forgeconfigapiport-fabric")
             // Until https://github.com/SpongePowered/Mixin/pull/593 is merged
             includeModule("org.spongepowered", "mixin")
         }

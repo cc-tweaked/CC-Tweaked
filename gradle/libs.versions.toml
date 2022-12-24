@@ -26,7 +26,7 @@ nightConfig = "3.6.5"
 slf4j = "1.7.36"
 
 # Minecraft mods
-forgeConfig = "4.2.10-alpha.0+12b01da6-squiddev" # No official build for 1.19.3, so we ship our own.
+forgeConfig = "5.0.3"
 iris = "1.19.3-v1.4.6"
 jei = "11.3.0.262"
 modmenu = "5.0.1"
@@ -83,7 +83,7 @@ slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 # Minecraft mods
 fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
-forgeConfig = { module = "net.minecraftforge:forgeconfigapiport-fabric", version.ref = "forgeConfig" }
+forgeConfig = { module = "fuzs.forgeconfigapiport:forgeconfigapiport-fabric", version.ref = "forgeConfig" }
 iris = { module = "maven.modrinth:iris", version.ref = "iris" }
 jei-api = { module = "mezz.jei:jei-1.19.2-common-api", version.ref = "jei" }
 jei-fabric = { module = "mezz.jei:jei-1.19.2-fabric", version.ref = "jei" }
