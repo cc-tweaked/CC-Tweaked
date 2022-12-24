@@ -30,6 +30,7 @@ repositories {
     content {
       includeGroup("cc.tweaked")
       includeModule("org.squiddev", "Cobalt")
+      includeModule("fuzs.forgeconfigapiport", "forgeconfigapiport-fabric")
     }
   }
 }
