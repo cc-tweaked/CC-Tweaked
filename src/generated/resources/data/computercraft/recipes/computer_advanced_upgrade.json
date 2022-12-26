@@ -10,7 +10,7 @@
       "tag": "forge:ingots/gold"
     },
     "C": {
-      "item": "computercraft:computer_advanced"
+      "item": "computercraft:computer_normal"
     }
   },
   "result": {
