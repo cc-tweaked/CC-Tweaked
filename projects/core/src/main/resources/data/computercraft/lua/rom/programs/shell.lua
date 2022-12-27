@@ -54,6 +54,71 @@ else
     bgColour = colours.black
 end
 
+local function tokenise(...)
+    local sLine = table.concat({ ... }, " ")
+    local tWords = {}
+    local bQuoted = false
+    for match in string.gmatch(sLine .. "\"", "(.-)\"") do
+        if bQuoted then
+            table.insert(tWords, match)
+        else
+            for m in string.gmatch(match, "[^ \t]+") do
+                table.insert(tWords, m)
+            end
+        end
+        bQuoted = not bQuoted
+    end
+    return tWords
+end
+
+-- Execute a program using os.run, unless a shebang is present.
+-- In that case, execute the program using the interpreter specified in the hashbang.
+-- This may occur recursively, up to the maximum number of times specified by remainingRecursion
+-- Returns the same type as os.run, which is a boolean indicating whether the program exited successfully.
+local function executeProgram(remainingRecursion, path, args)
+    local file, err = fs.open(path, "r")
+    if not file then
+        printError(err)
+        return false
+    end
+
+    -- First check if the file begins with a #!
+    local contents = file.readLine()
+    file.close()
+
+    if contents:sub(1, 2) == "#!" then
+        remainingRecursion = remainingRecursion - 1
+        if remainingRecursion == 0 then
+            printError("Hashbang recursion depth limit reached when loading file: " .. path)
+            return false
+        end
+
+        -- Load the specified hashbang program instead
+        local hashbangArgs = tokenise(contents:sub(3))
+        local originalHashbangPath = table.remove(hashbangArgs, 1)
+        local resolvedHashbangProgram = shell.resolveProgram(originalHashbangPath)
+        if not resolvedHashbangProgram then
+            printError("Hashbang program not found: " .. originalHashbangPath)
+            return false
+        end
+
+        -- Add the path and any arguments to the interpreter's arguments
+        table.insert(hashbangArgs, path)
+        for _, v in ipairs(args) do
+            table.insert(hashbangArgs, v)
+        end
+
+        hashbangArgs[0] = originalHashbangPath
+        return executeProgram(remainingRecursion, resolvedHashbangProgram, hashbangArgs)
+    end
+
+    local dir = fs.getDir(path)
+    local env = createShellEnv(dir)
+    env.arg = args
+
+    return os.run(env, path, table.unpack(args))
+end
+
 --- Run a program with the supplied arguments.
 --
 -- Unlike @{shell.run}, each argument is passed to the program verbatim. While
@@ -84,10 +149,7 @@ function shell.execute(command, ...)
             multishell.setTitle(multishell.getCurrent(), sTitle)
         end
 
-        local sDir = fs.getDir(sPath)
-        local env = createShellEnv(sDir)
-        env.arg = { [0] = command, ... }
-        local result = os.run(env, sPath, ...)
+        local result = executeProgram(100, sPath, { [0] = command, ... })
 
         tProgramStack[#tProgramStack] = nil
         if multishell then
@@ -106,23 +168,6 @@ function shell.execute(command, ...)
         printError("No such program")
         return false
     end
-end
-
-local function tokenise(...)
-    local sLine = table.concat({ ... }, " ")
-    local tWords = {}
-    local bQuoted = false
-    for match in string.gmatch(sLine .. "\"", "(.-)\"") do
-        if bQuoted then
-            table.insert(tWords, match)
-        else
-            for m in string.gmatch(match, "[^ \t]+") do
-                table.insert(tWords, m)
-            end
-        end
-        bQuoted = not bQuoted
-    end
-    return tWords
 end
 
 -- Install shell API
