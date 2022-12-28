@@ -71,10 +71,7 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -242,7 +239,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public int getBurnTime(ItemStack stack) {
-        return FuelRegistry.INSTANCE.get(stack.getItem());
+        return Optional.ofNullable(FuelRegistry.INSTANCE.get(stack.getItem())).orElse(0);
     }
 
     @Nullable
