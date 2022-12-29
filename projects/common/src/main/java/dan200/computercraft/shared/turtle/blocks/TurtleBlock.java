@@ -114,7 +114,7 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
         if (state.is(newState.getBlock())) return;
 
         if (level.getBlockEntity(pos) instanceof TurtleBlockEntity turtle) {
-            if (!level.isClientSide) Containers.dropContents(level, pos, turtle);
+            if (!level.isClientSide && !turtle.hasMoved()) Containers.dropContents(level, pos, turtle);
             level.updateNeighbourForOutputSignal(pos, this);
         }
 
