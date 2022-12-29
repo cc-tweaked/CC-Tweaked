@@ -242,7 +242,8 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public int getBurnTime(ItemStack stack) {
-        return FuelRegistry.INSTANCE.get(stack.getItem());
+        @Nullable var fuel = FuelRegistry.INSTANCE.get(stack.getItem());
+        return fuel == null ? 0 : fuel;
     }
 
     @Nullable

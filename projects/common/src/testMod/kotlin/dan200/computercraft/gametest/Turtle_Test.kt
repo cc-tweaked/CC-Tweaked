@@ -290,6 +290,23 @@ class Turtle_Test {
     }
 
     /**
+     * Test calling `turtle.refuel` on non-fuels
+     */
+    @GameTest
+    fun Refuel_fail(helper: GameTestHelper) = helper.sequence {
+        val turtlePos = BlockPos(2, 2, 2)
+
+        thenOnComputer {
+            assertEquals(0, turtle.fuelLevel)
+            turtle.refuel(Optional.empty()).await().assertArrayEquals(false, "Items not combustible")
+            assertEquals(0, turtle.fuelLevel)
+        }
+        thenExecute {
+            helper.assertContainerExactly(turtlePos, listOf(ItemStack(Items.DIRT, 32)))
+        }
+    }
+
+    /**
      * Test calling `turtle.refuel` with a bucket of lava
      */
     @GameTest
