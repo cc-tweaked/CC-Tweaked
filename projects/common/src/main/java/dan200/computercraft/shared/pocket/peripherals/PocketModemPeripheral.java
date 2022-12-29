@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.pocket.peripherals;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
 import net.minecraft.world.level.Level;
@@ -17,13 +18,17 @@ public class PocketModemPeripheral extends WirelessModemPeripheral {
     private @Nullable Level level = null;
     private Vec3 position = Vec3.ZERO;
 
-    public PocketModemPeripheral(boolean advanced) {
+    public PocketModemPeripheral(boolean advanced, IPocketAccess access) {
         super(new ModemState(), advanced);
+        setLocation(access);
     }
 
-    void setLocation(Level level, Vec3 position) {
-        this.position = position;
-        this.level = level;
+    void setLocation(IPocketAccess access) {
+        var entity = access.getEntity();
+        if (entity != null) {
+            level = entity.getCommandSenderWorld();
+            position = entity.getEyePosition(1);
+        }
     }
 
     @Override
