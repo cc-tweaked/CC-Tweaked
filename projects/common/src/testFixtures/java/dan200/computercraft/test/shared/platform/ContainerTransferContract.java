@@ -130,6 +130,22 @@ public interface ContainerTransferContract {
         assertNoOverlap(source, destination);
     }
 
+    @Test
+    default void testMoveRotateWraps() {
+        var source = new SimpleContainer(1);
+        source.setItem(0, new ItemStack(Items.COBBLESTONE, 32));
+
+        var destination = new SimpleContainer(9);
+        destination.setItem(0, new ItemStack(Items.DIRT));
+        for (var slot = 4; slot < 9; slot++) destination.setItem(slot, new ItemStack(Items.DIRT));
+
+        var move = wrap(source).moveTo(wrap(destination).rotate(4), 64);
+        assertEquals(32, move);
+
+        assertThat("Source is empty", source.getItem(0), isStack(ItemStack.EMPTY));
+        assertThat("Was inserted into slot", destination.getItem(1), isStack(new ItemStack(Items.COBBLESTONE, 32)));
+    }
+
     static void assertNoOverlap(Container... containers) {
         Set<ItemStack> stacks = Collections.newSetFromMap(new IdentityHashMap<>());
         for (var container : containers) {
