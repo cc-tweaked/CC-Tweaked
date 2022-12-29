@@ -219,7 +219,7 @@ public class WiredModemFullBlockEntity extends BlockEntity {
             if (!world.isLoaded(offset)) continue;
 
             var element = connectedElements.get((ServerLevel) getLevel(), getBlockPos(), facing);
-            if (element == null) return;
+            if (element == null) continue;
 
             node.connectTo(element.getNode());
         }
