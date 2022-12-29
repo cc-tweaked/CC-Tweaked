@@ -21,7 +21,9 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -120,6 +122,12 @@ public class InventoryMethods implements GenericPeripheral {
         return moveItem(from, fromSlot - 1, to, toSlot.orElse(0) - 1, actualLimit);
     }
 
+    public static @Nullable Container extractContainer(Container container) {
+        return container instanceof ChestBlockEntity chest && chest.getBlockState().getBlock() instanceof ChestBlock chestBlock
+            ? ChestBlock.getContainer(chestBlock, chest.getBlockState(), chest.getLevel(), chest.getBlockPos(), true)
+            : container;
+    }
+
     @Nullable
     private static InventoryStorage extractHandler(IPeripheral peripheral) {
         var object = peripheral.getTarget();
@@ -128,7 +136,9 @@ public class InventoryMethods implements GenericPeripheral {
         if (object instanceof BlockEntity blockEntity && blockEntity.isRemoved()) return null;
 
         if (object instanceof InventoryStorage storage) return storage;
-        if (object instanceof Container container) return InventoryStorage.of(container, null);
+        if (object instanceof Container container && (container = extractContainer(container)) != null) {
+            return InventoryStorage.of(container, null);
+        }
 
         if (object instanceof BlockEntity blockEntity && direction != null) {
             var found = ItemStorage.SIDED.find(blockEntity.getLevel(), blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);

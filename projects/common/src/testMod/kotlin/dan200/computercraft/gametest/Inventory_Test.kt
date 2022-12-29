@@ -66,4 +66,19 @@ class Inventory_Test {
             helper.assertContainerExactly(BlockPos(3, 2, 2), NonNullList.withSize(27, ItemStack(Items.POLISHED_ANDESITE)))
         }
     }
+
+    /**
+     * Ensures inventory methods see a complete double chest
+     *
+     * @see <https://github.com/cc-tweaked/CC-Tweaked/issues/1279>
+     */
+    @GameTest
+    fun Double_chest_size(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer {
+            getApi<PeripheralAPI>().call(context, ObjectArguments("left", "size")).await()
+                .assertArrayEquals(54, message = "Has 54 slots")
+            getApi<PeripheralAPI>().call(context, ObjectArguments("left", "pushItems", "right", 1)).await()
+                .assertArrayEquals(32, message = "Moved 32 items into a double chest")
+        }
+    }
 }

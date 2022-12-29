@@ -8,6 +8,7 @@ package dan200.computercraft.shared.peripheral.generic;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.asm.NamedMethod;
 import dan200.computercraft.core.asm.PeripheralMethod;
+import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.core.BlockPos;
@@ -32,7 +33,10 @@ public class GenericPeripheralProvider {
     private static final List<Lookup<?>> lookups = List.of(
         (world, pos, state, blockEntity, context) -> {
             // Try to avoid using the sided version of InventoryStorage where possible.
-            if (blockEntity instanceof Container container) return InventoryStorage.of(container, null);
+            if (blockEntity instanceof Container container && (container = InventoryMethods.extractContainer(container)) != null) {
+                return InventoryStorage.of(container, null);
+            }
+
             return ItemStorage.SIDED.find(world, pos, state, blockEntity, context);
         }
     );
