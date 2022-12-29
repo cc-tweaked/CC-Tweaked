@@ -105,6 +105,16 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
         return super.keyPressed(key, scancode, modifiers);
     }
 
+    @Override
+    public boolean mouseReleased(double x, double y, int button) {
+        // Reimplement ContainerEventHandler.mouseReleased, as it's not called in vanilla (it is in Forge, but that
+        // shouldn't matter).
+        setDragging(false);
+        var child = getChildAt(x, y);
+        if (child.isPresent() && child.get().mouseReleased(x, y, button)) return true;
+
+        return super.mouseReleased(x, y, button);
+    }
 
     @Override
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {

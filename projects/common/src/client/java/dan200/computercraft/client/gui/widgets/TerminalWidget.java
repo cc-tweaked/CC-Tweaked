@@ -184,7 +184,7 @@ public class TerminalWidget extends AbstractWidget {
         lastMouseX = charX;
         lastMouseY = charY;
 
-        return false;
+        return true;
     }
 
     @Override
@@ -203,7 +203,7 @@ public class TerminalWidget extends AbstractWidget {
             lastMouseY = charY;
         }
 
-        return false;
+        return true;
     }
 
     @Override
