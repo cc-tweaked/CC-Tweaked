@@ -97,43 +97,44 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     @ForgeOverride
     public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         playerWillDestroy(world, pos, state, player);
-        return onDestroyedByPlayer(state, world, pos, player, fluid);
-    }
-
-    public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, FluidState fluid) {
-        if (state.getValue(CABLE) && state.getValue(MODEM).getFacing() != null) {
-            var hit = world.clip(new ClipContext(
-                WorldUtil.getRayStart(player), WorldUtil.getRayEnd(player),
-                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player
-            ));
-            if (hit.getType() == HitResult.Type.BLOCK) {
-                var tile = world.getBlockEntity(pos);
-                if (tile instanceof CableBlockEntity cable && tile.hasLevel()) {
-                    ItemStack item;
-                    BlockState newState;
-
-                    if (WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))) {
-                        newState = state.setValue(MODEM, CableModemVariant.None);
-                        item = new ItemStack(ModRegistry.Items.WIRED_MODEM.get());
-                    } else {
-                        newState = state.setValue(CABLE, false);
-                        item = new ItemStack(ModRegistry.Items.CABLE.get());
-                    }
-
-                    world.setBlock(pos, correctConnections(world, pos, newState), 3);
-
-                    cable.modemChanged();
-                    cable.connectionsChanged();
-                    if (!world.isClientSide && !player.getAbilities().instabuild) {
-                        Block.popResource(world, pos, item);
-                    }
-
-                    return false;
-                }
-            }
+        if (onCustomDestroyBlock(state, world, pos, player)) {
+            return false;
         }
 
         return world.setBlock(pos, fluid.createLegacyBlock(), world.isClientSide ? UPDATE_ALL_IMMEDIATE : UPDATE_ALL);
+    }
+
+    public boolean onCustomDestroyBlock(BlockState state, Level world, BlockPos pos, Player player) {
+        if (!state.getValue(CABLE) || state.getValue(MODEM).getFacing() == null) return false;
+
+        var hit = world.clip(new ClipContext(
+            WorldUtil.getRayStart(player), WorldUtil.getRayEnd(player),
+            ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player
+        ));
+        if (hit.getType() != HitResult.Type.BLOCK) return false;
+
+        var tile = world.getBlockEntity(pos);
+        if (!(tile instanceof CableBlockEntity cable) || !tile.hasLevel()) return false;
+
+        ItemStack item;
+        BlockState newState;
+        if (WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))) {
+            newState = state.setValue(MODEM, CableModemVariant.None);
+            item = new ItemStack(ModRegistry.Items.WIRED_MODEM.get());
+        } else {
+            newState = state.setValue(CABLE, false);
+            item = new ItemStack(ModRegistry.Items.CABLE.get());
+        }
+
+        world.setBlock(pos, correctConnections(world, pos, newState), 3);
+
+        cable.modemChanged();
+        cable.connectionsChanged();
+        if (!world.isClientSide && !player.getAbilities().instabuild) {
+            Block.popResource(world, pos, item);
+        }
+
+        return true;
     }
 
     @Override

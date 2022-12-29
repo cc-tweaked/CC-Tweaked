@@ -1,5 +1,5 @@
 {
-    DataVersion: 2975,
+    DataVersion: 3218,
     size: [5, 5, 5],
     data: [
         {pos: [0, 0, 0], state: "minecraft:polished_andesite"},
@@ -39,8 +39,8 @@
         {pos: [1, 1, 4], state: "minecraft:air"},
         {pos: [2, 1, 0], state: "minecraft:air"},
         {pos: [2, 1, 1], state: "minecraft:air"},
-        {pos: [2, 1, 2], state: "computercraft:turtle_normal{facing:south,waterlogged:false}", nbt: {ComputerId: 1, Label: "turtle_test.move_preserves_state", Fuel: 80, Items: [{Count: 32b, Slot: 0b, id: "minecraft:dirt"}], On: 1b, Owner: {LowerId: -6876936588741668278L, Name: "Dev", UpperId: 4039158846114182220L}, Slot: 0, id: "computercraft:turtle_normal"}},
-        {pos: [2, 1, 3], state: "minecraft:air"},
+        {pos: [2, 1, 2], state: "computercraft:turtle_normal{facing:south,waterlogged:false}", nbt: {ComputerId: 1, Fuel: 80, Items: [], Label: "turtle_test.break_cable", LeftUpgrade: "minecraft:diamond_pickaxe", On: 1b, Owner: {LowerId: -6876936588741668278L, Name: "Dev", UpperId: 4039158846114182220L}, Slot: 0, id: "computercraft:turtle_normal"}},
+        {pos: [2, 1, 3], state: "computercraft:cable{cable:true,down:true,east:false,modem:down_off,north:false,south:false,up:false,waterlogged:false,west:false}", nbt: {PeirpheralAccess: 0b, id: "computercraft:cable"}},
         {pos: [2, 1, 4], state: "minecraft:air"},
         {pos: [3, 1, 0], state: "minecraft:air"},
         {pos: [3, 1, 1], state: "minecraft:air"},
@@ -132,6 +132,7 @@
     palette: [
         "minecraft:polished_andesite",
         "minecraft:air",
-        "computercraft:turtle_normal{facing:south,waterlogged:false}"
+        "computercraft:turtle_normal{facing:south,waterlogged:false}",
+        "computercraft:cable{cable:true,down:true,east:false,modem:down_off,north:false,south:false,up:false,waterlogged:false,west:false}"
     ]
 }

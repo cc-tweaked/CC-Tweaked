@@ -34,13 +34,8 @@ public class FabricCommonHooks {
     private static final Gson GSON = new GsonBuilder().create();
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricCommonHooks.class);
 
-    public static boolean onBlockDestroy(Level world, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity) {
-        if (!(state.getBlock() instanceof CableBlock cable)) return true;
-        if (cable.onDestroyedByPlayer(state, world, pos, player, state.getFluidState())) {
-            state.getBlock().destroy(world, pos, state);
-        }
-
-        return false;
+    public static boolean onBlockDestroy(Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity) {
+        return !(state.getBlock() instanceof CableBlock cable) || !cable.onCustomDestroyBlock(state, level, pos, player);
     }
 
     /**

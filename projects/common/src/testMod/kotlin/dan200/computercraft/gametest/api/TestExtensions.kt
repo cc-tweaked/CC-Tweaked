@@ -143,7 +143,12 @@ private fun GameTestHelper.fail(message: String?, detail: String, pos: BlockPos)
 /**
  * A version of [GameTestHelper.assertBlockState] which also includes the current block state.
  */
-fun GameTestHelper.assertBlockIs(pos: BlockPos, predicate: (BlockState) -> Boolean, message: String = "") {
+fun GameTestHelper.assertBlockIs(pos: BlockPos, predicate: (BlockState) -> Boolean) = assertBlockIs(pos, predicate, "")
+
+/**
+ * A version of [GameTestHelper.assertBlockState] which also includes the current block state.
+ */
+fun GameTestHelper.assertBlockIs(pos: BlockPos, predicate: (BlockState) -> Boolean, message: String) {
     val state = getBlockState(pos)
     if (!predicate(state)) fail(message, state.toString(), pos)
 }
