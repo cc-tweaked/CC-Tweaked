@@ -308,6 +308,26 @@ class Turtle_Test {
     }
 
     /**
+     * Test moving a turtle forwards preserves the turtle's inventory.
+     *
+     * @see [#1276](https://github.com/cc-tweaked/CC-Tweaked/pull/1276)
+     */
+    @GameTest
+    fun Move_preserves_state(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer { turtle.forward().await().assertArrayEquals(true, message = "Turtle moved forward") }
+        thenExecute {
+            helper.assertContainerExactly(BlockPos(2, 2, 3), listOf(ItemStack(Items.DIRT, 32)))
+
+            val turtle = helper.getBlockEntity(BlockPos(2, 2, 3), ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            assertEquals(1, turtle.computerID)
+            assertEquals("turtle_test.move_preserves_state", turtle.label)
+            assertEquals(79, turtle.access.fuelLevel)
+
+            helper.assertEntityNotPresent(EntityType.ITEM)
+        }
+    }
+
+    /**
      * Test turtles are not obstructed by plants and instead replace them.
      */
     @GameTest

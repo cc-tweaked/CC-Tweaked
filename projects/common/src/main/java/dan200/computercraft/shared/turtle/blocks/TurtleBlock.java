@@ -113,9 +113,8 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
     public final void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (state.is(newState.getBlock())) return;
 
-        if (level.getBlockEntity(pos) instanceof TurtleBlockEntity turtle) {
-            if (!level.isClientSide && !turtle.hasMoved()) Containers.dropContents(level, pos, turtle);
-            level.updateNeighbourForOutputSignal(pos, this);
+        if (!level.isClientSide && level.getBlockEntity(pos) instanceof TurtleBlockEntity turtle && !turtle.hasMoved()) {
+            Containers.dropContents(level, pos, turtle);
         }
 
         super.onRemove(state, level, pos, newState, isMoving);

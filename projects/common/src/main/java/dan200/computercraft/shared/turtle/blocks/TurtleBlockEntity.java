@@ -67,7 +67,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
         super(type, pos, state, family);
     }
 
-    protected boolean hasMoved() {
+    boolean hasMoved() {
         return moveState == MoveState.MOVED;
     }
 
