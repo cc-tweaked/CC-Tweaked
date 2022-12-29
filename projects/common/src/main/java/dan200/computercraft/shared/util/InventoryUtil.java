@@ -51,14 +51,12 @@ public final class InventoryUtil {
     }
 
     private static ItemStack storeItemsImpl(Container container, ItemStack stack, int offset, int slotCount) {
-        var limit = container.getMaxStackSize();
         var maxSize = Math.min(stack.getMaxStackSize(), container.getMaxStackSize());
         if (maxSize <= 0) return stack;
 
         for (var i = 0; i < slotCount; i++) {
             var slot = i + offset;
-            if (slot > limit) slot -= limit;
-
+            if (slot >= slotCount) slot -= slotCount;
             var currentStack = container.getItem(slot);
             if (currentStack.isEmpty()) {
                 // If the current slot is empty and we can place them item then there's two cases:
