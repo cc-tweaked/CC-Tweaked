@@ -21,6 +21,7 @@ import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
@@ -61,6 +62,12 @@ public final class CommonHooks {
         resetState();
         ServerContext.create(server);
         ComputerMBean.start(server);
+    }
+
+    public static void onServerStarted(MinecraftServer server) {
+        // ItemDetails requires creative tabs to be populated, however by default this is done lazily on the client and
+        // not at all on the server! We instead do this once on server startup.
+        CreativeModeTabs.tryRebuildTabContents(server.getWorldData().enabledFeatures(), false);
     }
 
     public static void onServerStopped() {

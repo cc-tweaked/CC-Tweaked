@@ -29,6 +29,7 @@ import net.minecraftforge.event.*;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.level.ChunkWatchEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -56,6 +57,11 @@ public class ForgeCommonHooks {
     @SubscribeEvent
     public static void onServerStarting(ServerStartingEvent event) {
         CommonHooks.onServerStarting(event.getServer());
+    }
+
+    @SubscribeEvent
+    public static void onServerStarted(ServerStartedEvent event) {
+        CommonHooks.onServerStarted(event.getServer());
     }
 
     @SubscribeEvent

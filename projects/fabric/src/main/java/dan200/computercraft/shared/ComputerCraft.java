@@ -82,6 +82,7 @@ public class ComputerCraft {
 
         // Register hooks
         ServerLifecycleEvents.SERVER_STARTING.register(CommonHooks::onServerStarting);
+        ServerLifecycleEvents.SERVER_STARTED.register(CommonHooks::onServerStarted);
         ServerLifecycleEvents.SERVER_STOPPED.register(s -> CommonHooks.onServerStopped());
         ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> PlatformHelper.get().sendToPlayer(new UpgradesLoadedMessage(), player));
 
