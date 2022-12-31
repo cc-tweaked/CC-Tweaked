@@ -12,6 +12,7 @@ import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
@@ -96,19 +97,18 @@ public class ItemDetails {
      * @return A filled list that contains pairs of item group IDs and their display names.
      */
     private static List<Map<String, Object>> getItemGroups(ItemStack stack) {
-        List<Map<String, Object>> groups = new ArrayList<>(1);
+        return CreativeModeTabs.allTabs().stream()
+            .filter(x -> x.shouldDisplay() && x.getType() == CreativeModeTab.Type.CATEGORY && x.contains(stack))
+            .map(group -> {
+                Map<String, Object> groupData = new HashMap<>(2);
 
-        CreativeModeTabs.tabs().stream().filter(x -> x.contains(stack)).forEach(group -> {
-            Map<String, Object> groupData = new HashMap<>(2);
+                var id = PlatformHelper.get().getCreativeTabId(group);
+                if (id != null) groupData.put("id", id.toString());
 
-            var id = PlatformHelper.get().getCreativeTabId(group);
-            if (id != null) groupData.put("id", id.toString());
-
-            groupData.put("displayName", group.getDisplayName().getString());
-            groups.add(groupData);
-        });
-
-        return groups;
+                groupData.put("displayName", group.getDisplayName().getString());
+                return groupData;
+            })
+            .toList();
     }
 
     /**
