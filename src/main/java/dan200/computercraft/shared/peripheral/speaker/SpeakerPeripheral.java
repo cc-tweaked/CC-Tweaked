@@ -25,6 +25,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
@@ -222,7 +223,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
     @LuaFunction
     public final boolean playNote( ILuaContext context, String instrumentA, Optional<Double> volumeA, Optional<Double> pitchA ) throws LuaException
     {
-        float volume = (float) checkFinite( 1, volumeA.orElse( 1.0 ) );
+        float volume = (float) clampVolume( checkFinite( 1, volumeA.orElse( 1.0 ) ) );
         float pitch = (float) checkFinite( 2, pitchA.orElse( 1.0 ) );
 
         NoteBlockInstrument instrument = null;
@@ -271,7 +272,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
     @LuaFunction
     public final boolean playSound( ILuaContext context, String name, Optional<Double> volumeA, Optional<Double> pitchA ) throws LuaException
     {
-        float volume = (float) checkFinite( 1, volumeA.orElse( 1.0 ) );
+        float volume = (float) clampVolume( checkFinite( 1, volumeA.orElse( 1.0 ) ) );
         float pitch = (float) checkFinite( 2, pitchA.orElse( 1.0 ) );
 
         ResourceLocation identifier;
@@ -394,6 +395,11 @@ public abstract class SpeakerPeripheral implements IPeripheral
         {
             computers.remove( computer );
         }
+    }
+
+    static double clampVolume( double volume )
+    {
+        return MathHelper.clamp( volume, 0, 3 );
     }
 
     private static final class PendingSound

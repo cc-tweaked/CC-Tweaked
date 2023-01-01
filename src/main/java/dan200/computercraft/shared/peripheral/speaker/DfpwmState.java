@@ -8,7 +8,6 @@ package dan200.computercraft.shared.peripheral.speaker;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaTable;
 import dan200.computercraft.shared.util.PauseAwareTimer;
-import net.minecraft.util.math.MathHelper;
 
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
@@ -16,6 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral.SAMPLE_RATE;
+import static dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral.clampVolume;
 
 /**
  * Internal state of the DFPWM decoder and the state of playback.
@@ -87,7 +87,7 @@ class DfpwmState
         buffer.flip();
 
         pendingAudio = buffer;
-        pendingVolume = MathHelper.clamp( volume.orElse( (double) pendingVolume ).floatValue(), 0.0f, 3.0f );
+        pendingVolume = (float) clampVolume( volume.orElse( (double) pendingVolume ) );
         return true;
     }
 
