@@ -27,6 +27,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 
 import javax.annotation.Nullable;
@@ -203,7 +204,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
      */
     @LuaFunction
     public final boolean playNote(ILuaContext context, String instrumentA, Optional<Double> volumeA, Optional<Double> pitchA) throws LuaException {
-        var volume = (float) checkFinite(1, volumeA.orElse(1.0));
+        var volume = (float) clampVolume(checkFinite(1, volumeA.orElse(1.0)));
         var pitch = (float) checkFinite(2, pitchA.orElse(1.0));
 
         NoteBlockInstrument instrument = null;
@@ -248,7 +249,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
      */
     @LuaFunction
     public final boolean playSound(ILuaContext context, String name, Optional<Double> volumeA, Optional<Double> pitchA) throws LuaException {
-        var volume = (float) checkFinite(1, volumeA.orElse(1.0));
+        var volume = (float) clampVolume(checkFinite(1, volumeA.orElse(1.0)));
         var pitch = (float) checkFinite(2, pitchA.orElse(1.0));
 
         ResourceLocation identifier;
@@ -359,6 +360,10 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         synchronized (computers) {
             computers.remove(computer);
         }
+    }
+
+    static double clampVolume(double volume) {
+        return Mth.clamp(volume, 0, 3);
     }
 
     private record PendingSound<T>(T sound, float volume, float pitch) {
