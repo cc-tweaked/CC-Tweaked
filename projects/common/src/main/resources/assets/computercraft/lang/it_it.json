@@ -139,5 +139,9 @@
     "upgrade.minecraft.diamond_hoe.adjective": "Contadina",
     "upgrade.minecraft.diamond_pickaxe.adjective": "Minatrice",
     "upgrade.minecraft.diamond_shovel.adjective": "Scavatrice",
-    "upgrade.minecraft.diamond_sword.adjective": "Da Combattimento"
+    "upgrade.minecraft.diamond_sword.adjective": "Da Combattimento",
+    "gui.computercraft.config.term_sizes.computer.width.tooltip": "Intervallo: 1 ~ 255",
+    "gui.computercraft.config.turtle.need_fuel.tooltip": "Imposta se la Tartaruga richiede del carburante per muoversi.",
+    "gui.computercraft.config.command_require_creative": "Il computer Comando richiede la modalità creativa",
+    "tracking_field.computercraft.http_requests.name": "Richieste HTTP"
 }
