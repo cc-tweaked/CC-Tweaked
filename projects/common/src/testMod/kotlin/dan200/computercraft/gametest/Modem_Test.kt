@@ -70,6 +70,20 @@ class Modem_Test {
                 .assertArrayEquals("modem_message", "left", 12, 34, "Hello", 4, message = "Modem message")
         }
     }
+
+    /**
+     * Assert that full block modems act like cables.
+     *
+     * @see [#1278](https://github.com/cc-tweaked/CC-Tweaked/issues/1278)
+     */
+    @GameTest
+    fun Full_modems_form_networks(helper: GameTestHelper) = helper.sequence {
+        thenExecute {
+            val modem1 = helper.getBlockEntity(BlockPos(1, 2, 1), ModRegistry.BlockEntities.WIRED_MODEM_FULL.get())
+            val modem2 = helper.getBlockEntity(BlockPos(3, 2, 1), ModRegistry.BlockEntities.WIRED_MODEM_FULL.get())
+            assertEquals(modem1.element.node.network, modem2.element.node.network, "On the same network")
+        }
+    }
 }
 
 private fun LuaTaskContext.findPeripheral(type: String): String? {
