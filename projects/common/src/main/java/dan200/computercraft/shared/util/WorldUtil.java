@@ -8,6 +8,8 @@ package dan200.computercraft.shared.util;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Position;
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -118,11 +120,21 @@ public final class WorldUtil {
         return getRayStart(player).add(look.x * reach, look.y * reach, look.z * reach);
     }
 
-    public static void dropItemStack(ItemStack stack, Level world, BlockPos pos) {
-        dropItemStack(stack, world, pos, null);
-    }
+    private static final double DROP_SPEED = 0.0172275 * 6;
 
-    public static void dropItemStack(ItemStack stack, Level world, BlockPos pos, @Nullable Direction direction) {
+    /**
+     * Drop an item stack into the world from a block.
+     * <p>
+     * This behaves similarly to {@link DefaultDispenseItemBehavior#spawnItem(Level, ItemStack, int, Direction, Position)},
+     * though supports a {@code null} direction (in which case the item will have no velocity) and produces a slightly
+     * different arc.
+     *
+     * @param level     The level to drop the item in.
+     * @param pos       The position to drop the stack from.
+     * @param direction The direction to drop in, or {@code null}.
+     * @param stack     The stack to drop.
+     */
+    public static void dropItemStack(Level level, BlockPos pos, @Nullable Direction direction, ItemStack stack) {
         double xDir;
         double yDir;
         double zDir;
@@ -136,25 +148,20 @@ public final class WorldUtil {
             zDir = 0.0;
         }
 
-        var xPos = pos.getX() + 0.5 + xDir * 0.4;
-        var yPos = pos.getY() + 0.5 + yDir * 0.4;
-        var zPos = pos.getZ() + 0.5 + zDir * 0.4;
-        dropItemStack(stack, world, new Vec3(xPos, yPos, zPos), xDir, yDir, zDir);
-    }
+        var xPos = pos.getX() + 0.5 + xDir * 0.7;
+        var yPos = pos.getY() + 0.5 + yDir * 0.7;
+        var zPos = pos.getZ() + 0.5 + zDir * 0.7;
 
-    public static void dropItemStack(ItemStack stack, Level world, Vec3 pos) {
-        dropItemStack(stack, world, pos, 0.0, 0.0, 0.0);
-    }
-
-    public static void dropItemStack(ItemStack stack, Level world, Vec3 pos, double xDir, double yDir, double zDir) {
-        var item = new ItemEntity(world, pos.x, pos.y, pos.z, stack.copy());
+        var item = new ItemEntity(level, xPos, yPos, zPos, stack.copy());
+        var baseSpeed = level.random.nextDouble() * 0.1 + 0.2;
         item.setDeltaMovement(
-            xDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1,
-            yDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1,
-            zDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1
+            level.random.triangle(xDir * baseSpeed, DROP_SPEED),
+            // Vanilla ignores the yDir and does a constant 0.2, but that gives the item a higher arc than we want.
+            level.random.triangle(yDir * baseSpeed, DROP_SPEED),
+            level.random.triangle(zDir * baseSpeed, DROP_SPEED)
         );
         item.setDefaultPickUpDelay();
-        world.addFreshEntity(item);
+        level.addFreshEntity(item);
     }
 
     /**

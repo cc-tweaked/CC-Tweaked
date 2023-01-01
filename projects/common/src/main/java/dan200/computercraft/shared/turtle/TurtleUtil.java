@@ -46,7 +46,7 @@ public class TurtleUtil {
     public static void storeItemOrDrop(ITurtleAccess turtle, ItemStack stack) {
         if (stack.isEmpty()) return;
         if (turtle.isRemoved()) {
-            WorldUtil.dropItemStack(stack, turtle.getLevel(), turtle.getPosition(), null);
+            WorldUtil.dropItemStack(turtle.getLevel(), turtle.getPosition(), null, stack);
             return;
         }
 
@@ -54,7 +54,7 @@ public class TurtleUtil {
         var remainder = InventoryUtil.storeItemsFromOffset(turtle.getInventory(), stack, turtle.getSelectedSlot());
         if (remainder.isEmpty()) return;
 
-        WorldUtil.dropItemStack(remainder, turtle.getLevel(), turtle.getPosition(), turtle.getDirection().getOpposite());
+        WorldUtil.dropItemStack(turtle.getLevel(), turtle.getPosition(), turtle.getDirection().getOpposite(), remainder);
     }
 
     public static Function<ItemStack, ItemStack> dropConsumer(ITurtleAccess turtle) {

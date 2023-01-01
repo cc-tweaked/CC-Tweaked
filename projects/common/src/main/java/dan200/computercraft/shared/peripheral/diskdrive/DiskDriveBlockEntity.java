@@ -251,7 +251,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
         if (stack.isEmpty()) return;
         setDiskStack(ItemStack.EMPTY);
 
-        WorldUtil.dropItemStack(stack, getLevel(), getBlockPos(), getDirection());
+        WorldUtil.dropItemStack(getLevel(), getBlockPos(), getDirection(), stack);
         getLevel().levelEvent(LevelEvent.SOUND_DISPENSER_DISPENSE, getBlockPos(), 0);
     }
 

@@ -58,7 +58,7 @@ public class TurtleDropCommand implements TurtleCommand {
                 turtle.getInventory().setChanged();
                 transferred = stack.getCount();
 
-                WorldUtil.dropItemStack(stack, world, oldPosition, direction);
+                WorldUtil.dropItemStack(world, oldPosition, direction, stack);
                 world.globalLevelEvent(LevelEvent.SOUND_DISPENSER_DISPENSE, newPosition, 0);
             }
         }

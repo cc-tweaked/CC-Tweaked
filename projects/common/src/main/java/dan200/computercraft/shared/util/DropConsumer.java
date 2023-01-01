@@ -61,7 +61,7 @@ public final class DropConsumer {
 
     public static void clearAndDrop(Level world, BlockPos pos, @Nullable Direction direction) {
         var remainingDrops = clear();
-        for (var remaining : remainingDrops) WorldUtil.dropItemStack(remaining, world, pos, direction);
+        for (var remaining : remainingDrops) WorldUtil.dropItemStack(world, pos, direction, remaining);
     }
 
     private static void handleDrops(ItemStack stack) {
