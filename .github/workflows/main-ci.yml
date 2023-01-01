@@ -38,11 +38,17 @@ jobs:
       # These are a little flaky on GH actions: its useful to run them, but don't break the build.
       continue-on-error: true
 
+    - name: Prepare Jars
+      run: |
+        # Find the main jar and append the git hash onto it.
+        mkdir -p jars
+        find projects/forge/build/libs projects/fabric/build/libs -type f -regex '.*[0-9.]+\(-SNAPSHOT\)?\.jar$' -exec bash -c 'cp {} "jars/$(basename {} .jar)-$(git rev-parse HEAD).jar"' \;
+
     - name: Upload Jar
       uses: actions/upload-artifact@v3
       with:
         name: CC-Tweaked
-        path: projects/forge/build/libs
+        path: ./jars
 
     - name: Upload coverage
       uses: codecov/codecov-action@v3
