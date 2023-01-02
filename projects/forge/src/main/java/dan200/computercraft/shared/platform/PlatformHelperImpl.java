@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.platform;
 
 import com.google.auto.service.AutoService;
+import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.ComputerCraftAPI;
@@ -57,6 +58,7 @@ import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -107,6 +109,11 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public <K> K tryGetRegistryObject(ResourceKey<Registry<K>> registry, ResourceLocation id) {
         return RegistryManager.ACTIVE.getRegistry(registry).getValue(id);
+    }
+
+    @Override
+    public boolean shouldLoadResource(JsonObject object) {
+        return ICondition.shouldRegisterEntry(object);
     }
 
     @Override

@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.platform;
 
 import com.google.auto.service.AutoService;
+import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.ComputerCraftAPI;
@@ -26,6 +27,7 @@ import net.fabricmc.fabric.api.lookup.v1.block.BlockApiCache;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.fabricmc.fabric.api.tag.convention.v1.ConventionalItemTags;
@@ -117,6 +119,11 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public <T> T tryGetRegistryObject(ResourceKey<Registry<T>> registry, ResourceLocation id) {
         return getRegistry(registry).get(id);
+    }
+
+    @Override
+    public boolean shouldLoadResource(JsonObject object) {
+        return ResourceConditions.objectMatchesConditions(object);
     }
 
     @Override

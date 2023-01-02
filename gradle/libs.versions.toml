@@ -4,7 +4,7 @@
 # MC version is specified in gradle.properties, as we need that in settings.gradle.
 fabric-api = "0.68.1+1.19.3"
 fabric-loader = "0.14.11"
-forge = "44.0.18"
+forge = "44.1.0"
 forgeSpi = "6.0.0"
 mixin = "0.8.5"
 parchment = "2022.11.27"

@@ -6,6 +6,7 @@
 package dan200.computercraft;
 
 import com.google.auto.service.AutoService;
+import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.network.wired.WiredElement;
@@ -75,6 +76,17 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     @Override
     public <K> K getRegistryObject(ResourceKey<Registry<K>> registry, ResourceLocation id) {
         throw new UnsupportedOperationException("Cannot query registry inside tests");
+    }
+
+    @Nullable
+    @Override
+    public <T> T tryGetRegistryObject(ResourceKey<Registry<T>> registry, ResourceLocation id) {
+        throw new UnsupportedOperationException("Cannot query registries");
+    }
+
+    @Override
+    public boolean shouldLoadResource(JsonObject object) {
+        throw new UnsupportedOperationException("Cannot use loot conditions");
     }
 
     @Override
@@ -218,11 +230,5 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     @Override
     public String getInstalledVersion() {
         return "1.0";
-    }
-
-    @Nullable
-    @Override
-    public <T> T tryGetRegistryObject(ResourceKey<Registry<T>> registry, ResourceLocation id) {
-        throw new UnsupportedOperationException("Cannot query registries");
     }
 }

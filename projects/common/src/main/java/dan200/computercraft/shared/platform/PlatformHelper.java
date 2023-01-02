@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.platform;
 
+import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.network.wired.WiredElement;
@@ -95,6 +96,16 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      */
     @Nullable
     <T> T tryGetRegistryObject(ResourceKey<Registry<T>> registry, ResourceLocation id);
+
+    /**
+     * Determine if this resource should be loaded, based on platform-specific loot conditions.
+     * <p>
+     * This should only be called from the {@code apply} stage of a reload listener.
+     *
+     * @param object The root JSON object of this resource.
+     * @return If this resource should be loaded.
+     */
+    boolean shouldLoadResource(JsonObject object);
 
     /**
      * Create a new block entity type which serves a particular block.

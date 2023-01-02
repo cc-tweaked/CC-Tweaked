@@ -114,8 +114,9 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends 
 
     private void loadUpgrade(Map<String, UpgradeWrapper<R, T>> current, ResourceLocation id, JsonElement json) {
         var root = GsonHelper.convertToJsonObject(json, "top element");
-        var serialiserId = new ResourceLocation(GsonHelper.getAsString(root, "type"));
+        if (!PlatformHelper.get().shouldLoadResource(root)) return;
 
+        var serialiserId = new ResourceLocation(GsonHelper.getAsString(root, "type"));
         var serialiser = PlatformHelper.get().tryGetRegistryObject(registry, serialiserId);
         if (serialiser == null) throw new JsonSyntaxException("Unknown upgrade type '" + serialiserId + "'");
 
