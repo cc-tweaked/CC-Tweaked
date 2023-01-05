@@ -1,8 +1,16 @@
--- Internal module for handling file uploads. This has NO stability guarantees,
--- and so SHOULD NOT be relyed on in user code.
+--[[- Upload a list of files, as received by the @{event!file_transfer} event.
+
+:::warning
+This is an internal module and SHOULD NOT be used in your own code. It may
+be removed or changed at any time.
+:::
+
+@local
+]]
 
 local completion = require "cc.completion"
 
+--- @tparam { file_transfer.TransferredFile ...} files The files to upload.
 return function(files)
     local overwrite = {}
     for _, file in pairs(files) do

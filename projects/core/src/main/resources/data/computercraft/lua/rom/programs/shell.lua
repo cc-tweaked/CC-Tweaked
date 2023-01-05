@@ -37,7 +37,7 @@ end
 -- Set up a dummy require based on the current shell, for loading some of our internal dependencies.
 local require
 do
-    local env = setmetatable(createShellEnv("/rom/modules/internal"), { __index = _ENV })
+    local env = setmetatable(createShellEnv("/rom/programs"), { __index = _ENV })
     require = env.require
 end
 local expect = require("cc.expect").expect
@@ -655,7 +655,7 @@ else
                 term.setCursorBlink(false)
 
                 -- Run the import script with the provided files
-                local ok, err = require("cc.import")(event[2].getFiles())
+                local ok, err = require("cc.internal.import")(event[2].getFiles())
                 if not ok and err then printError(err) end
 
                 -- And attempt to restore the prompt.
