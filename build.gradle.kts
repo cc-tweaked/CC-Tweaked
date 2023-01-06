@@ -187,7 +187,7 @@ tasks.processResources {
     inputs.property("forgeVersion", libs.versions.forge.get())
     inputs.property("gitHash", cct.gitHash)
 
-    filesMatching("data/computercraft/lua/rom/help/credits.txt") {
+    filesMatching("data/computercraft/lua/rom/help/credits.md") {
         expand(mapOf("gitContributors" to cct.gitContributors.get().joinToString("\n")))
     }
 
