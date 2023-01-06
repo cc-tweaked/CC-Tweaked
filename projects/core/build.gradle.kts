@@ -31,7 +31,7 @@ dependencies {
 tasks.processResources {
     inputs.property("gitHash", cct.gitHash)
 
-    filesMatching("data/computercraft/lua/rom/help/credits.txt") {
+    filesMatching("data/computercraft/lua/rom/help/credits.md") {
         expand(mapOf("gitContributors" to cct.gitContributors.map { it.joinToString("\n") }.get()))
     }
 }
