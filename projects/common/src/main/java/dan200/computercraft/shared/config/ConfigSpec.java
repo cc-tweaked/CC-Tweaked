@@ -142,7 +142,7 @@ public final class ConfigSpec {
                     computers can run at once, but may induce lag. Please note that some mods may
                     not work with a thread count higher than 1. Use with caution.""")
                 .worldRestart()
-                .defineInRange("computer_threads", Config.computerThreads, 1, Integer.MAX_VALUE);
+                .defineInRange("computer_threads", 1, 1, Integer.MAX_VALUE);
 
             maxMainGlobalTime = builder
                 .comment("""
@@ -342,11 +342,9 @@ public final class ConfigSpec {
         CoreConfig.maximumFilesOpen = maximumFilesOpen.get();
         CoreConfig.disableLua51Features = disableLua51Features.get();
         CoreConfig.defaultComputerSettings = defaultComputerSettings.get();
-        Config.computerThreads = computerThreads.get();
         Config.commandRequireCreative = commandRequireCreative.get();
 
         // Execution
-        Config.computerThreads = computerThreads.get();
         CoreConfig.maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos(maxMainGlobalTime.get());
         CoreConfig.maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos(maxMainComputerTime.get());
 
