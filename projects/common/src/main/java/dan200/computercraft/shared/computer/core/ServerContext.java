@@ -18,7 +18,7 @@ import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.impl.AbstractComputerCraftAPI;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.computer.metrics.GlobalMetrics;
-import dan200.computercraft.shared.config.Config;
+import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.util.IDAssigner;
 import net.minecraft.SharedConstants;
@@ -69,7 +69,7 @@ public final class ServerContext {
         mainThread = new MainThread();
         context = new ComputerContext(
             new Environment(server),
-            new ComputerThread(Config.computerThreads),
+            new ComputerThread(ConfigSpec.computerThreads.get()),
             mainThread, luaMachine
         );
         idAssigner = new IDAssigner(storageDir.resolve("ids.json"));

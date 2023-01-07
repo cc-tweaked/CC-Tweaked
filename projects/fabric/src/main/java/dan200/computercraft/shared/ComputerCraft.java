@@ -23,6 +23,8 @@ import dan200.computercraft.shared.peripheral.modem.wired.WiredModemFullBlockEnt
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemBlockEntity;
 import dan200.computercraft.shared.platform.NetworkHandler;
 import dan200.computercraft.shared.platform.PlatformHelper;
+import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
+import fuzs.forgeconfigapiport.api.config.v2.ModConfigEvents;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -39,8 +41,6 @@ import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.api.ModLoadingContext;
-import net.minecraftforge.api.fml.event.config.ModConfigEvents;
 import net.minecraftforge.fml.config.ModConfig;
 
 import java.util.concurrent.CompletableFuture;
@@ -99,8 +99,8 @@ public class ComputerCraft {
         CommonHooks.onDatapackReload((name, listener) -> ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new ReloadListener(name, listener)));
 
         // Config loading
-        ModLoadingContext.registerConfig(ComputerCraftAPI.MOD_ID, ModConfig.Type.SERVER, ConfigSpec.serverSpec);
-        ModLoadingContext.registerConfig(ComputerCraftAPI.MOD_ID, ModConfig.Type.CLIENT, ConfigSpec.clientSpec);
+        ForgeConfigRegistry.INSTANCE.register(ComputerCraftAPI.MOD_ID, ModConfig.Type.SERVER, ConfigSpec.serverSpec);
+        ForgeConfigRegistry.INSTANCE.register(ComputerCraftAPI.MOD_ID, ModConfig.Type.CLIENT, ConfigSpec.clientSpec);
         ModConfigEvents.loading(ComputerCraftAPI.MOD_ID).register(ConfigSpec::sync);
         ModConfigEvents.reloading(ComputerCraftAPI.MOD_ID).register(ConfigSpec::sync);
 

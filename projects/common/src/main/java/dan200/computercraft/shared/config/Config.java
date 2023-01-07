@@ -17,8 +17,6 @@ public final class Config {
     public static int floppySpaceLimit = 125 * 1000;
     public static boolean commandRequireCreative = true;
 
-    public static int computerThreads = 1;
-
     public static boolean enableCommandBlock = false;
     public static int modemRange = 64;
     public static int modemHighAltitudeRange = 384;
