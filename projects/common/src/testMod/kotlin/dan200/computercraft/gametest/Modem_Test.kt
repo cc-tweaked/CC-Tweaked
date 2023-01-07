@@ -76,7 +76,7 @@ class Modem_Test {
      *
      * @see [#1278](https://github.com/cc-tweaked/CC-Tweaked/issues/1278)
      */
-    @GameTest
+    @GameTest(setupTicks = 1)
     fun Full_modems_form_networks(helper: GameTestHelper) = helper.sequence {
         thenExecute {
             val modem1 = helper.getBlockEntity(BlockPos(1, 2, 1), ModRegistry.BlockEntities.WIRED_MODEM_FULL.get())

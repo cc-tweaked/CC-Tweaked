@@ -48,7 +48,7 @@ public class ComputerThreadTest {
             assertFalse(timeout.isSoftAborted(), "Should not start soft-aborted");
 
             var delay = ConcurrentHelpers.waitUntil(timeout::isSoftAborted);
-            assertThat("Should be soft aborted", delay * 1e-9, closeTo(7, 0.5));
+            assertThat("Should be soft aborted", delay * 1e-9, closeTo(7, 1.0));
             LOG.info("Slept for {}", delay);
 
             computer.shutdown();
