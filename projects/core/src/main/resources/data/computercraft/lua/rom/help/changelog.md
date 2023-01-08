@@ -13,6 +13,7 @@ Several bug fixes:
 * Fix speakers playing too loudly.
 * Change where turtles drop items from, reducing the chance that items clip through blocks.
 * Fix the `computer_threads` config option not applying under Fabric.
+* Fix stack overflow in logging code.
 
 # New features in CC: Tweaked 1.102.0
 

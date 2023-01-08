@@ -18,7 +18,7 @@ public final class Logging {
 
     static {
         HTTP_ERROR.add(COMPUTER_ERROR);
-        JAVA_ERROR.add(JAVA_ERROR);
+        JAVA_ERROR.add(COMPUTER_ERROR);
     }
 
     private Logging() {

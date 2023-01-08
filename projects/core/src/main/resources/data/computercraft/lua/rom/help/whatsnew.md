@@ -13,5 +13,6 @@ Several bug fixes:
 * Fix speakers playing too loudly.
 * Change where turtles drop items from, reducing the chance that items clip through blocks.
 * Fix the `computer_threads` config option not applying under Fabric.
+* Fix stack overflow in logging code.
 
 Type "help changelog" to see the full version history.
