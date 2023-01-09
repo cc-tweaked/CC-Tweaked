@@ -25,6 +25,9 @@ class ItemFrameRendererMixin {
     )
     @SuppressWarnings("UnusedMethod")
     private void render(ItemFrame entity, float yaw, float partialTicks, PoseStack pose, MultiBufferSource buffers, int light, CallbackInfo ci) {
-        if (ClientHooks.onRenderItemFrame(pose, buffers, entity, entity.getItem(), light)) ci.cancel();
+        if (ClientHooks.onRenderItemFrame(pose, buffers, entity, entity.getItem(), light)) {
+            ci.cancel();
+            pose.popPose();
+        }
     }
 }

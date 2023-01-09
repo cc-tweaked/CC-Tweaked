@@ -80,6 +80,7 @@ object TestHooks {
         Monitor_Test::class.java,
         Pocket_Computer_Test::class.java,
         Printer_Test::class.java,
+        Printout_Test::class.java,
         Recipe_Test::class.java,
         Turtle_Test::class.java,
     )

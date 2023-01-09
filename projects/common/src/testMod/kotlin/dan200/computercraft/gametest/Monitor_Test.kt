@@ -63,7 +63,7 @@ class Monitor_Test {
     }
 
     /**
-     * Test
+     * Test monitors render correctly
      */
     @GameTestGenerator
     fun Render_monitor_tests(): List<TestFunction> {
@@ -72,7 +72,7 @@ class Monitor_Test {
         fun addTest(label: String, renderer: MonitorRenderer, time: Long = Times.NOON, tag: String = TestTags.CLIENT) {
             if (!TestTags.isEnabled(tag)) return
 
-            val className = Monitor_Test::class.java.simpleName.lowercase()
+            val className = this::class.java.simpleName.lowercase()
             val testName = "$className.render_monitor"
 
             tests.add(
