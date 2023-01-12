@@ -26,6 +26,7 @@ class LuaCoverage {
     private static final Path ROOT = new File("src/main/resources/data/computercraft/lua").toPath();
     private static final Path BIOS = ROOT.resolve("bios.lua");
     private static final Path APIS = ROOT.resolve("rom/apis");
+    private static final Path STARTUP = ROOT.resolve("rom/startup.lua");
     private static final Path SHELL = ROOT.resolve("rom/programs/shell.lua");
     private static final Path MULTISHELL = ROOT.resolve("rom/programs/advanced/multishell.lua");
     private static final Path TREASURE = ROOT.resolve("treasure");
@@ -56,6 +57,7 @@ class LuaCoverage {
             var possiblePaths = Stream.of(
                 coverage.remove("/" + full),
                 path.equals(BIOS) ? coverage.remove("bios.lua") : null,
+                path.equals(STARTUP) ? coverage.remove("startup.lua") : null,
                 path.equals(SHELL) ? coverage.remove("shell.lua") : null,
                 path.equals(MULTISHELL) ? coverage.remove("multishell.lua") : null,
                 path.startsWith(APIS) ? coverage.remove(path.getFileName().toString()) : null

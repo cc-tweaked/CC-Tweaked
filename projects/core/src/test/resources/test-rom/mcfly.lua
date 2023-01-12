@@ -518,7 +518,7 @@ local function before_each(body)
     before_each_fns[n], before_each_fns.n = body, n
 end
 
-local native_co_create, native_loadfile = coroutine.create, loadfile
+local native_loadfile = loadfile
 local line_counts = {}
 if cct_test then
     local expect = require "cc.expect".expect
@@ -717,8 +717,6 @@ end
 term.setTextColour(colours.white) io.write(info .. "\n")
 
 -- Restore hook stubs
-debug.sethook(nil, "l")
-coroutine.create = native_co_create
 _G.loadfile = native_loadfile
 
 if cct_test then cct_test.finish(line_counts) end
