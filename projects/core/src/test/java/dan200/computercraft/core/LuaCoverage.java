@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.core;
 
-import com.google.common.base.Strings;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.slf4j.Logger;
@@ -30,20 +30,20 @@ class LuaCoverage {
     private static final Path MULTISHELL = ROOT.resolve("rom/programs/advanced/multishell.lua");
     private static final Path TREASURE = ROOT.resolve("treasure");
 
-    private final Map<String, Map<Double, Double>> coverage;
+    private final Map<String, Int2IntMap> coverage;
     private final String blank;
     private final String zero;
     private final String countFormat;
 
-    LuaCoverage(Map<String, Map<Double, Double>> coverage) {
+    LuaCoverage(Map<String, Int2IntMap> coverage) {
         this.coverage = coverage;
 
-        var max = (int) coverage.values().stream()
-            .flatMapToDouble(x -> x.values().stream().mapToDouble(y -> y))
+        var max = coverage.values().stream()
+            .flatMapToInt(x -> x.values().intStream())
             .max().orElse(0);
         var maxLen = Math.max(1, (int) Math.ceil(Math.log10(max)));
-        blank = Strings.repeat(" ", maxLen + 1);
-        zero = Strings.repeat("*", maxLen) + "0";
+        blank = " ".repeat(maxLen + 1);
+        zero = "*".repeat(maxLen) + "0";
         countFormat = "%" + (maxLen + 1) + "d";
     }
 
@@ -62,8 +62,8 @@ class LuaCoverage {
             );
             var files = possiblePaths
                 .filter(Objects::nonNull)
-                .flatMap(x -> x.entrySet().stream())
-                .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue, Double::sum));
+                .flatMap(x -> x.int2IntEntrySet().stream())
+                .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum));
 
             try {
                 writeCoverageFor(out, path, files);
@@ -78,7 +78,7 @@ class LuaCoverage {
         }
     }
 
-    private void writeCoverageFor(Writer out, Path fullName, Map<Double, Double> visitedLines) throws IOException {
+    private void writeCoverageFor(Writer out, Path fullName, Map<Integer, Integer> visitedLines) throws IOException {
         if (!Files.exists(fullName)) {
             LOG.error("Cannot locate file {}", fullName);
             return;
@@ -96,9 +96,9 @@ class LuaCoverage {
             var lineNo = 0;
             while ((line = reader.readLine()) != null) {
                 lineNo++;
-                var count = visitedLines.get((double) lineNo);
+                var count = visitedLines.get(lineNo);
                 if (count != null) {
-                    out.write(String.format(countFormat, count.intValue()));
+                    out.write(String.format(countFormat, count));
                 } else if (activeLines.contains(lineNo)) {
                     out.write(zero);
                 } else {

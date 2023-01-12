@@ -12,20 +12,32 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.core.computer.ComputerThread;
 import dan200.computercraft.core.computer.mainthread.NoWorkMainThreadScheduler;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.filesystem.WritableFileMount;
+import dan200.computercraft.core.lua.CobaltLuaMachine;
+import dan200.computercraft.core.lua.MachineEnvironment;
+import dan200.computercraft.core.lua.MachineResult;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.test.core.computer.BasicEnvironment;
+import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.function.Executable;
 import org.opentest4j.AssertionFailedError;
+import org.opentest4j.TestAbortedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.squiddev.cobalt.*;
+import org.squiddev.cobalt.debug.DebugFrame;
+import org.squiddev.cobalt.debug.DebugHook;
+import org.squiddev.cobalt.debug.DebugState;
+import org.squiddev.cobalt.function.OneArgFunction;
 
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
@@ -36,6 +48,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -78,7 +91,7 @@ public class ComputerTestDelegate {
 
     private final Condition hasFinished = lock.newCondition();
     private boolean finished = false;
-    private Map<String, Map<Double, Double>> finishedWith;
+    private final Map<LuaString, Int2IntArrayMap> coverage = new HashMap<>();
 
     @BeforeEach
     public void before() throws IOException {
@@ -99,7 +112,7 @@ public class ComputerTestDelegate {
         }
 
         var environment = new BasicEnvironment(mount);
-        context = new ComputerContext(environment, 1, new NoWorkMainThreadScheduler());
+        context = new ComputerContext(environment, new ComputerThread(1), new NoWorkMainThreadScheduler(), CoverageLuaMachine::new);
         computer = new Computer(context, environment, term, 0);
         computer.getEnvironment().setPeripheral(ComputerSide.TOP, new FakeModem());
         computer.getEnvironment().setPeripheral(ComputerSide.BOTTOM, new FakePeripheralHub());
@@ -137,10 +150,12 @@ public class ComputerTestDelegate {
             computer.shutdown();
         }
 
-        if (finishedWith != null) {
+        if (!coverage.isEmpty()) {
             Files.createDirectories(REPORT_PATH.getParent());
             try (var writer = Files.newBufferedWriter(REPORT_PATH)) {
-                new LuaCoverage(finishedWith).write(writer);
+                new LuaCoverage(coverage.entrySet().stream().collect(Collectors.toMap(
+                    x -> x.getKey().substring(1).toString(), Map.Entry::getValue
+                ))).write(writer);
             }
         }
     }
@@ -414,7 +429,9 @@ public class ComputerTestDelegate {
 
                 switch (status) {
                     case "ok":
+                        break;
                     case "pending":
+                        runResult = new TestAbortedException("Test is pending");
                         break;
                     case "fail":
                         runResult = new AssertionFailedError(wholeMessage.toString());
@@ -432,9 +449,7 @@ public class ComputerTestDelegate {
         }
 
         @LuaFunction
-        public final void finish(Optional<Map<?, ?>> result) {
-            @SuppressWarnings("unchecked")
-            var finishedResult = (Map<String, Map<Double, Double>>) result.orElse(null);
+        public final void finish() {
             LOG.info("Finished");
 
             // Signal to after that execution has finished
@@ -445,12 +460,80 @@ public class ComputerTestDelegate {
             }
             try {
                 finished = true;
-                if (finishedResult != null) finishedWith = finishedResult;
 
                 hasFinished.signal();
             } finally {
                 lock.unlock();
             }
+        }
+    }
+
+    /**
+     * A subclass of {@link CobaltLuaMachine} which tracks coverage for executed files.
+     * <p>
+     * This is a super nasty hack, but is also an order of magnitude faster than tracking this in Lua.
+     */
+    private class CoverageLuaMachine extends CobaltLuaMachine {
+        CoverageLuaMachine(MachineEnvironment environment) {
+            super(environment);
+        }
+
+        @Override
+        public MachineResult loadBios(InputStream bios) {
+            var result = super.loadBios(bios);
+            if (result != MachineResult.OK) return result;
+
+            LuaTable globals;
+            LuaThread mainRoutine;
+            try {
+                var globalField = CobaltLuaMachine.class.getDeclaredField("globals");
+                globalField.setAccessible(true);
+                globals = (LuaTable) globalField.get(this);
+
+                var threadField = CobaltLuaMachine.class.getDeclaredField("mainRoutine");
+                threadField.setAccessible(true);
+                mainRoutine = (LuaThread) threadField.get(this);
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException("Cannot get internal Cobalt state", e);
+            }
+
+            var coverage = ComputerTestDelegate.this.coverage;
+            var hook = new DebugHook() {
+                @Override
+                public void onCall(LuaState state, DebugState ds, DebugFrame frame) {
+                }
+
+                @Override
+                public void onReturn(LuaState state, DebugState ds, DebugFrame frame) {
+                }
+
+                @Override
+                public void onCount(LuaState state, DebugState ds, DebugFrame frame) {
+                }
+
+                @Override
+                public void onLine(LuaState state, DebugState ds, DebugFrame frame, int newLine) {
+                    if (frame.closure == null) return;
+
+                    var proto = frame.closure.getPrototype();
+                    if (!proto.source.startsWith('@')) return;
+
+                    var map = coverage.computeIfAbsent(proto.source, x -> new Int2IntArrayMap());
+                    map.put(newLine, map.get(newLine) + 1);
+                }
+            };
+
+            ((LuaTable) globals.rawget("coroutine")).rawset("create", new OneArgFunction() {
+                @Override
+                public LuaValue call(LuaState state, LuaValue arg) throws LuaError {
+                    var thread = new LuaThread(state, arg.checkFunction(), state.getCurrentThread().getfenv());
+                    thread.getDebugState().setHook(hook, false, true, false, 0);
+                    return thread;
+                }
+            });
+            mainRoutine.getDebugState().setHook(hook, false, true, false, 0);
+
+            return MachineResult.OK;
         }
     }
 }
