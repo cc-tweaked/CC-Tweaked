@@ -1,14 +1,39 @@
---- The shell API provides access to CraftOS's command line interface.
---
--- It allows you to @{run|start programs}, @{setCompletionFunction|add
--- completion for a program}, and much more.
---
--- @{shell} is not a "true" API. Instead, it is a standard program, which injects its
--- API into the programs that it launches. This allows for multiple shells to
--- run at the same time, but means that the API is not available in the global
--- environment, and so is unavailable to other @{os.loadAPI|APIs}.
---
--- @module[module] shell
+--[[- The shell API provides access to CraftOS's command line interface.
+
+It allows you to @{run|start programs}, @{setCompletionFunction|add completion
+for a program}, and much more.
+
+@{shell} is not a "true" API. Instead, it is a standard program, which injects
+its API into the programs that it launches. This allows for multiple shells to
+run at the same time, but means that the API is not available in the global
+environment, and so is unavailable to other @{os.loadAPI|APIs}.
+
+## Programs and the program path
+When you run a command with the shell, either from the prompt or
+@{shell.run|from Lua code}, the shell API performs several steps to work out
+which program to run:
+
+ 1. Firstly, the shell attempts to resolve @{shell.aliases|aliases}. This allows
+    us to use multiple names for a single command. For example, the `list`
+    program has two aliases: `ls` and `dir`. When you write `ls /rom`, that's
+    expanded to `list /rom`.
+
+ 2. Next, the shell attempts to find where the program actually is. For this, it
+    uses the @{shell.path|program path}. This is a colon separated list of
+    directories, each of which is checked to see if it contains the program.
+
+    `list` or `list.lua` doesn't exist in `.` (the current directory), so she
+    shell now looks in `/rom/programs`, where `list.lua` can be found!
+
+ 3. Finally, the shell reads the file and checks if the file starts with a
+    `#!`. This is a [hashbang][], which says that this file shouldn't be treated
+    as Lua, but instead passed to _another_ program, the name of which should
+    follow the `#!`.
+
+[hashbang]: https://en.wikipedia.org/wiki/Shebang_(Unix)
+
+@module[module] shell
+]]
 
 local make_package = dofile("rom/modules/main/cc/require.lua").make
 
@@ -86,7 +111,7 @@ local function executeProgram(remainingRecursion, path, args)
     local contents = file.readLine()
     file.close()
 
-    if contents:sub(1, 2) == "#!" then
+    if contents and contents:sub(1, 2) == "#!" then
         remainingRecursion = remainingRecursion - 1
         if remainingRecursion == 0 then
             printError("Hashbang recursion depth limit reached when loading file: " .. path)
@@ -586,8 +611,8 @@ end
 --- Get the current aliases for this shell.
 --
 -- Aliases are used to allow multiple commands to refer to a single program. For
--- instance, the `list` program is aliased `dir` or `ls`. Running `ls`, `dir` or
--- `list` in the shell will all run the `list` program.
+-- instance, the `list` program is aliased to `dir` or `ls`. Running `ls`, `dir`
+-- or `list` in the shell will all run the `list` program.
 --
 -- @treturn { [string] = string } A table, where the keys are the names of
 -- aliases, and the values are the path to the program.
