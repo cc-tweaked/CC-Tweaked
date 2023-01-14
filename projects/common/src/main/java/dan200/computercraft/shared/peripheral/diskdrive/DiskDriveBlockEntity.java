@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.peripheral.diskdrive;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -47,11 +48,14 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
     private final NonNullList<ItemStack> inventory = NonNullList.withSize(1, ItemStack.EMPTY);
 
     private MediaStack media = MediaStack.EMPTY;
+    private @Nullable Mount mount;
+
     private boolean recordPlaying = false;
     // In order to avoid main-thread calls in the peripheral, we set flags to mark which operation should be performed,
     // then read them when ticking.
     private final AtomicReference<RecordCommand> recordQueued = new AtomicReference<>(null);
     private final AtomicBoolean ejectQueued = new AtomicBoolean(false);
+    private final AtomicBoolean mountQueued = new AtomicBoolean(false);
 
     public DiskDriveBlockEntity(BlockEntityType<DiskDriveBlockEntity> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -109,6 +113,12 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
                 }
             }
         }
+
+        if (mountQueued.get()) {
+            synchronized (this) {
+                mountAll();
+            }
+        }
     }
 
     @Override
@@ -124,9 +134,9 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
 
     private void updateItem() {
         var newDisk = getDiskStack();
-        if (ItemStack.isSame(newDisk, media.stack)) return;
+        if (ItemStack.isSameItemSameTags(newDisk, media.stack)) return;
 
-        var media = new MediaStack(newDisk.copy());
+        var media = MediaStack.of(newDisk);
 
         if (newDisk.isEmpty()) {
             updateBlockState(DiskDriveState.EMPTY);
@@ -146,12 +156,10 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
                 recordPlaying = false;
             }
 
+            mount = null;
             this.media = media;
 
-            // Mount new disk
-            if (!this.media.stack.isEmpty()) {
-                for (var computer : computers.entrySet()) mountDisk(computer.getKey(), computer.getValue(), this.media);
-            }
+            mountAll();
         }
     }
 
@@ -163,9 +171,28 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
         return media;
     }
 
+    /**
+     * Set the current disk stack, mounting/unmounting if needed.
+     *
+     * @param stack The new disk stack.
+     */
     void setDiskStack(ItemStack stack) {
         setItem(0, stack);
         setChanged();
+    }
+
+    /**
+     * Update the current disk stack, assuming the underlying item does not change. Unlike
+     * {@link #setDiskStack(ItemStack)} this will not change any mounts.
+     *
+     * @param stack The new disk stack.
+     */
+    void updateDiskStack(ItemStack stack) {
+        setItem(0, stack);
+        if (!ItemStack.isSameItemSameTags(stack, media.stack)) {
+            media = MediaStack.of(stack);
+            super.setChanged();
+        }
     }
 
     @Nullable
@@ -176,15 +203,21 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
         }
     }
 
-    void mount(IComputerAccess computer) {
+    /**
+     * Attach a computer to this disk drive. This sets up the {@link MountInfo} map and flags us to mount next tick. We
+     * don't mount here, as that might require mutating the current stack.
+     *
+     * @param computer The computer to attach.
+     */
+    void attach(IComputerAccess computer) {
         synchronized (this) {
             var info = new MountInfo();
             computers.put(computer, info);
-            mountDisk(computer, info, media);
+            mountQueued.set(true);
         }
     }
 
-    void unmount(IComputerAccess computer) {
+    void detach(IComputerAccess computer) {
         synchronized (this) {
             unmountDisk(computer, computers.remove(computer));
         }
@@ -202,10 +235,35 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
         ejectQueued.set(true);
     }
 
+    /**
+     * Add our mount to all computers.
+     */
     @GuardedBy("this")
-    private void mountDisk(IComputerAccess computer, MountInfo info, MediaStack disk) {
-        var mount = disk.getMount((ServerLevel) getLevel());
-        if (mount != null) {
+    private void mountAll() {
+        doMountAll();
+        mountQueued.set(false);
+    }
+
+    /**
+     * The worker for {@link #mountAll()}. This is responsible for creating the mount and placing it on all computers.
+     */
+    @GuardedBy("this")
+    private void doMountAll() {
+        if (computers.isEmpty() || media.media == null) return;
+
+        if (mount == null) {
+            var stack = getDiskStack();
+            mount = media.media.createDataMount(stack, (ServerLevel) level);
+            setDiskStack(stack);
+        }
+
+        if (mount == null) return;
+
+        for (var entry : computers.entrySet()) {
+            var computer = entry.getKey();
+            var info = entry.getValue();
+            if (info.mountPath != null) continue;
+
             if (mount instanceof WritableMount writable) {
                 // Try mounting at the lowest numbered "disk" name we can
                 var n = 1;
@@ -221,11 +279,9 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
                     n++;
                 }
             }
-        } else {
-            info.mountPath = null;
-        }
 
-        computer.queueEvent("disk", computer.getAttachmentName());
+            computer.queueEvent("disk", computer.getAttachmentName());
+        }
     }
 
     private static void unmountDisk(IComputerAccess computer, MountInfo info) {

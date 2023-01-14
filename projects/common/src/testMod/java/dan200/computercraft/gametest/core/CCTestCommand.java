@@ -8,6 +8,7 @@ package dan200.computercraft.gametest.core;
 import com.mojang.brigadier.CommandDispatcher;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.mixin.gametest.TestCommandAccessor;
+import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.gametest.framework.GameTestRegistry;
@@ -80,6 +81,27 @@ class CCTestCommand {
                 armorStand.setCustomName(Component.literal(info.getTestName()));
                 player.getLevel().addFreshEntity(armorStand);
                 return 0;
+            }))
+
+            .then(literal("give-computer").executes(context -> {
+                var player = context.getSource().getPlayerOrException();
+                var pos = StructureUtils.findNearestStructureBlock(player.blockPosition(), 15, player.getLevel());
+                if (pos == null) return error(context.getSource(), "No nearby test");
+
+                var structureBlock = (StructureBlockEntity) player.getLevel().getBlockEntity(pos);
+                if (structureBlock == null) return error(context.getSource(), "No nearby structure block");
+                var info = GameTestRegistry.getTestFunction(structureBlock.getStructurePath());
+
+                var item = ModRegistry.Items.COMPUTER_ADVANCED.get().create(1, info.getTestName());
+                if (!player.getInventory().add(item)) {
+                    var itemEntity = player.drop(item, false);
+                    if (itemEntity != null) {
+                        itemEntity.setNoPickUpDelay();
+                        itemEntity.setOwner(player.getUUID());
+                    }
+                }
+
+                return 1;
             }))
         );
     }

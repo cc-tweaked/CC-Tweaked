@@ -84,11 +84,12 @@ public class DiskDrivePeripheral implements IPeripheral {
         var media = diskDrive.getMedia();
         if (media.media == null) return;
 
-        var stack = media.stack.copy();
+        // We're on the main thread so the stack and media should be in sync.
+        var stack = diskDrive.getDiskStack();
         if (!media.media.setLabel(stack, label.map(StringUtil::normaliseLabel).orElse(null))) {
             throw new LuaException("Disk label cannot be changed");
         }
-        diskDrive.setDiskStack(stack);
+        diskDrive.updateDiskStack(stack);
     }
 
     /**
@@ -178,12 +179,12 @@ public class DiskDrivePeripheral implements IPeripheral {
 
     @Override
     public void attach(IComputerAccess computer) {
-        diskDrive.mount(computer);
+        diskDrive.attach(computer);
     }
 
     @Override
     public void detach(IComputerAccess computer) {
-        diskDrive.unmount(computer);
+        diskDrive.detach(computer);
     }
 
     @Override

@@ -8,6 +8,7 @@ package dan200.computercraft.gametest
 import dan200.computercraft.core.apis.FSAPI
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.shared.ModRegistry
+import dan200.computercraft.shared.media.items.DiskItem
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveBlock
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveState
 import dan200.computercraft.test.core.assertArrayEquals
@@ -45,15 +46,31 @@ class Disk_Drive_Test {
         thenWaitUntil { helper.assertItemEntityPresent(Items.MUSIC_DISC_13, stackAt, 0.0) }
     }
 
+    /**
+     * A mount is initially attached, and then removed when the disk is ejected.
+     */
     @GameTest
     fun Adds_removes_mount(helper: GameTestHelper) = helper.sequence {
-        thenIdle(2)
-        thenOnComputer {
+        thenOnComputer { } // Wait for the computer to start up
+        thenIdle(2) // Let the disk drive tick once to create the mount
+        thenOnComputer { // Then actually assert things!
             getApi<FSAPI>().getDrive("disk").assertArrayEquals("right")
             callPeripheral("right", "ejectDisk")
         }
         thenIdle(2)
         thenOnComputer { assertEquals(null, getApi<FSAPI>().getDrive("disk")) }
+    }
+
+    /**
+     * When creating a new mount, the item is with a new disk ID.
+     */
+    @GameTest
+    fun Creates_disk_id(helper: GameTestHelper) = helper.sequence {
+        val drivePos = BlockPos(2, 2, 2)
+        thenWaitUntil {
+            val drive = helper.getBlockEntity(drivePos, ModRegistry.BlockEntities.DISK_DRIVE.get())
+            if (DiskItem.getDiskID(drive.getItem(0)) == -1) helper.fail("Disk has no item", drivePos)
+        }
     }
 
     /**

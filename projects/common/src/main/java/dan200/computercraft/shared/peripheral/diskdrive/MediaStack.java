@@ -5,10 +5,8 @@
  */
 package dan200.computercraft.shared.peripheral.diskdrive;
 
-import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.impl.MediaProviders;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.ItemStack;
 
@@ -17,18 +15,22 @@ import javax.annotation.Nullable;
 /**
  * An immutable snapshot of the current disk. This allows us to read the stack in a thread-safe manner.
  */
-class MediaStack {
-    static final MediaStack EMPTY = new MediaStack(ItemStack.EMPTY);
+final class MediaStack {
+    static final MediaStack EMPTY = new MediaStack(ItemStack.EMPTY, null);
 
     final ItemStack stack;
     final @Nullable IMedia media;
 
-    @Nullable
-    private Mount mount;
-
-    MediaStack(ItemStack stack) {
+    private MediaStack(ItemStack stack, @Nullable IMedia media) {
         this.stack = stack;
-        media = MediaProviders.get(stack);
+        this.media = media;
+    }
+
+    public static MediaStack of(ItemStack stack) {
+        if (stack.isEmpty()) return EMPTY;
+
+        var freshStack = stack.copy();
+        return new MediaStack(freshStack, MediaProviders.get(freshStack));
     }
 
     @Nullable
@@ -39,13 +41,5 @@ class MediaStack {
     @Nullable
     String getAudioTitle() {
         return media != null ? media.getAudioTitle(stack) : null;
-    }
-
-    @Nullable
-    public Mount getMount(ServerLevel level) {
-        if (media == null) return null;
-
-        if (mount == null) mount = media.createDataMount(stack, level);
-        return mount;
     }
 }
