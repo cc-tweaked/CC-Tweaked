@@ -17,6 +17,67 @@ describe("The shell", function()
 
             expect(args):same { [0] = "/test-rom/data/dump-args", "arg1", "arg 2" }
         end)
+
+        local function make_hashbang_file(target, filename)
+            local tmp = fs.open(filename or "test-files/out.lua", "w")
+            tmp.write("#!" .. target)
+            tmp.close()
+        end
+
+        it("supports hashbangs", function()
+            make_hashbang_file("/test-rom/data/dump-args")
+            shell.execute("test-files/out.lua", "arg1", "arg2")
+
+            local args = _G.__arg
+            _G.__arg = nil
+
+            expect(args):same {
+                [0] = "/test-rom/data/dump-args",
+                "test-files/out.lua",
+                "arg1",
+                "arg2",
+            }
+        end)
+
+        it("supports arguments", function()
+            make_hashbang_file("/test-rom/data/dump-args \"iArg1 iArg1-2\" iArg2")
+            shell.execute("test-files/out.lua", "arg1", "arg2")
+
+            local args = _G.__arg
+            _G.__arg = nil
+
+            expect(args):same {
+                [0] = "/test-rom/data/dump-args",
+                "iArg1 iArg1-2",
+                "iArg2",
+                "test-files/out.lua",
+                "arg1",
+                "arg2",
+            }
+        end)
+
+        it("supports recursion", function()
+            make_hashbang_file("/test-rom/data/dump-args")
+            make_hashbang_file("test-files/out.lua", "test-files/out2.lua")
+
+            shell.execute("test-files/out2.lua", "arg1", "arg2")
+
+            local args = _G.__arg
+            _G.__arg = nil
+
+            expect(args):same {
+                [0] = "/test-rom/data/dump-args",
+                "test-files/out.lua",
+                "test-files/out2.lua",
+                "arg1",
+                "arg2",
+            }
+        end)
+
+        it("returns error for infinite recursion", function()
+            make_hashbang_file("test-files/out.lua")
+            expect(shell.execute("test-files/out.lua")):eq(false)
+        end)
     end)
 
     describe("shell.run", function()
