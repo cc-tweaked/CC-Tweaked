@@ -212,8 +212,8 @@ public class TurtleAPI implements ILuaAPI {
      * Place a block or item into the world in front of the turtle.
      * <p>
      * "Placing" an item allows it to interact with blocks and entities in front of the turtle. For instance, buckets
-     * can pick up and place down fluids, and wheat can be used to breed cows. However, you cannot use {@link #place} to
-     * perform arbitrary block interactions, such as clicking buttons or flipping levers.
+     * can pick up and place down fluids, and wheat can be used to breed cows. You can use {@link #place} to
+     * perform arbitrary block interactions (such as clicking buttons or flipping levers) if the turtle is holding a bucket or bottle.
      *
      * @param args Arguments to place.
      * @return The turtle command result.
