@@ -8,6 +8,9 @@ This event is normally handled by @{os.pullEvent}, and will not be returned. How
 
 @{terminate} will be sent even when a filter is provided to @{os.pullEventRaw}. When using @{os.pullEventRaw} with a filter, make sure to check that the event is not @{terminate}.
 
+## Return values
+1. @{string}: The event name.
+
 ## Example
 Prints a message when Ctrl-T is held:
 ```lua
