@@ -10,7 +10,7 @@ This event is normally handled inside @{http.get} and @{http.post}, but it can s
 ## Return Values
 1. @{string}: The event name.
 2. @{string}: The URL of the site requested.
-3. @{http.Response}: The handle for the response text.
+3. @{http.Response}: The successful HTTP response.
 
 ## Example
 Prints the content of a website (this may fail if the request fails):

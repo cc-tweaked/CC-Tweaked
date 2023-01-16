@@ -555,7 +555,7 @@ public class TurtleAPI implements ILuaAPI {
      * @throws LuaException If the refuel count is out of range.
      * @cc.treturn [1] true If the turtle was refuelled.
      * @cc.treturn [2] false If the turtle was not refuelled.
-     * @cc.treturn [2] string The reason the turtle was not refuelled (
+     * @cc.treturn [2] string The reason the turtle was not refuelled.
      * @cc.usage Refuel a turtle from the currently selected slot.
      * <pre>{@code
      * local level = turtle.getFuelLevel()

@@ -11,4 +11,4 @@ This event is normally handled inside @{http.checkURL}, but it can still be seen
 1. @{string}: The event name.
 2. @{string}: The URL requested to be checked.
 3. @{boolean}: Whether the check succeeded.
-4. @{string|nil}: If the check failed, a reason explaining why the check failed.
+4. <span class="type">@{string}|@{nil}</span>: If the check failed, a reason explaining why the check failed.

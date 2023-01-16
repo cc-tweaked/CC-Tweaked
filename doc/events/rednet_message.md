@@ -14,7 +14,7 @@ This event is usually handled by @{rednet.receive}, but it can also be pulled ma
 1. @{string}: The event name.
 2. @{number}: The ID of the sending computer.
 3. @{any}: The message sent.
-4. @{string|nil}: The protocol of the message, if provided.
+4. <span class="type">@{string}|@{nil}</span>: The protocol of the message, if provided.
 
 ## Example
 Prints a message when one is sent:

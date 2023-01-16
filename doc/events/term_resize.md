@@ -10,7 +10,8 @@ When this event fires, some parts of the terminal may have been moved or deleted
 not using @{term.setCursorPos}) can ignore this event, but more complex GUI programs should redraw the entire screen.
 
 ## Example
-Prints :
+Print a message each time the terminal is resized.
+
 ```lua
 while true do
   os.pullEvent("term_resize")

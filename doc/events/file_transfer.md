@@ -5,9 +5,9 @@ since: 1.101.0
 
 The @{file_transfer} event is queued when a user drags-and-drops a file on an open computer.
 
-This event contains a single argument, that in turn has a single method @{TransferredFiles.getFiles|getFiles}. This
-returns the list of files that are being transferred. Each file is a @{fs.BinaryReadHandle|binary file handle} with an
-additional @{TransferredFile.getName|getName} method.
+This event contains a single argument of type @{TransferredFiles}, which can be used to @{TransferredFiles.getFiles|get
+the files to be transferred}. Each file returned is a @{fs.BinaryReadHandle|binary file handle} with an additional
+@{TransferredFile.getName|getName} method.
 
 ## Return values
 1. @{string}: The event name

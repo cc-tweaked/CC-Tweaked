@@ -11,7 +11,8 @@ This event is normally handled inside @{http.get} and @{http.post}, but it can s
 1. @{string}: The event name.
 2. @{string}: The URL of the site requested.
 3. @{string}: An error describing the failure.
-4. @{http.Response|nil}: A response handle if the connection succeeded, but the server's response indicated failure.
+4. <span class="type">@{http.Response}|@{nil}</span>: A response handle if the connection succeeded, but the server's
+   response indicated failure.
 
 ## Example
 Prints an error why the website cannot be contacted:

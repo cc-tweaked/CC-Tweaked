@@ -6,10 +6,11 @@ The @{monitor_resize} event is fired when an adjacent or networked monitor's siz
 
 ## Return Values
 1. @{string}: The event name.
-2. @{string}: The side or network ID of the monitor that resized.
+2. @{string}: The side or network ID of the monitor that was resized.
 
 ## Example
 Prints a message when a monitor is resized:
+
 ```lua
 while true do
   local event, side = os.pullEvent("monitor_resize")
