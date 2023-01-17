@@ -19,8 +19,8 @@ fastutil = "8.5.9"
 guava = "31.1-jre"
 jetbrainsAnnotations = "23.0.0"
 jsr305 = "3.0.2"
-kotlin = "1.7.10"
-kotlin-coroutines = "1.6.0"
+kotlin = "1.8.0"
+kotlin-coroutines = "1.6.4"
 netty = "4.1.82.Final"
 nightConfig = "3.6.5"
 slf4j = "1.7.36"
@@ -74,7 +74,7 @@ guava = { module = "com.google.guava:guava", version.ref = "guava" }
 jetbrainsAnnotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsAnnotations" }
 jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "jsr305" }
 kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
-kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 netty-http = { module = "io.netty:netty-codec-http", version.ref = "netty" }
 nightConfig-core = { module = "com.electronwill.night-config:core", version.ref = "nightConfig" }
 nightConfig-toml = { module = "com.electronwill.night-config:toml", version.ref = "nightConfig" }
