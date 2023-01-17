@@ -10,7 +10,7 @@ The @{task_complete} event is fired when an asynchronous task completes. This is
 2. @{number}: The ID of the task that completed.
 3. @{boolean}: Whether the command succeeded.
 4. @{string}: If the command failed, an error message explaining the failure. (This is not present if the command succeeded.)
-...: Any parameters returned from the command.
+5. <abbr title="Variable number of arguments">&hellip;</abbr>: Any parameters returned from the command.
 
 ## Example
 Prints the results of an asynchronous command:
