@@ -83,6 +83,7 @@ public class CobaltLuaMachine implements ILuaMachine {
                     }
                 });
             })
+            .errorReporter(e -> LOG.error(Logging.VM_ERROR, "Error occurred in the Lua runtime. Computer will continue to execute.", e))
             .build();
 
         globals = new LuaTable();
