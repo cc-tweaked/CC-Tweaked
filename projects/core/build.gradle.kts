@@ -20,6 +20,7 @@ dependencies {
     implementation(libs.asm)
 
     testFixturesImplementation(libs.slf4j)
+    testFixturesApi(platform(libs.kotlin.platform))
     testFixturesApi(libs.bundles.test)
     testFixturesApi(libs.bundles.kotlin)
 
