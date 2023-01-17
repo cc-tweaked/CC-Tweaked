@@ -6,7 +6,7 @@ The @{computer_command} event is fired when the `/computercraft queue` command i
 
 ## Return Values
 1. @{string}: The event name.
-<br>... @{string}: The arguments passed to the command.
+2. @{string}<abbr title="Variable number of arguments">&hellip;</abbr>: The arguments passed to the command.
 
 ## Example
 Prints the contents of messages sent:
