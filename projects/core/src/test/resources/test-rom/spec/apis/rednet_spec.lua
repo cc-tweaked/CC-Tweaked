@@ -37,6 +37,14 @@ describe("The rednet library", function()
             expect.error(rednet.send, nil):eq("bad argument #1 (expected number, got nil)")
             expect.error(rednet.send, 1, nil, false):eq("bad argument #3 (expected string, got boolean)")
         end)
+
+        it("queues an event on the current computer", function()
+            rednet.send(os.getComputerID(), "Test message")
+            local id, message = rednet.receive(1.0)
+
+            expect(id):eq(os.getComputerID())
+            expect(message):eq("Test message")
+        end)
     end)
 
     describe("rednet.broadcast", function()
