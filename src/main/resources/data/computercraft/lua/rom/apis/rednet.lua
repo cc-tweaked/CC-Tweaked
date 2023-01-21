@@ -193,7 +193,7 @@ function send(recipient, message, protocol)
     local sent = false
     if recipient == os.getComputerID() then
         -- Loopback to ourselves
-        os.queueEvent("rednet_message", os.getComputerID(), message_wrapper, protocol)
+        os.queueEvent("rednet_message", os.getComputerID(), message, protocol)
         sent = true
     else
         -- Send on all open modems, to the target and to repeaters
