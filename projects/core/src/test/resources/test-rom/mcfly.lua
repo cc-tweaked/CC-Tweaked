@@ -182,8 +182,12 @@ end
 -- @treturn string The formatted value
 local function format(value)
     -- TODO: Look into something like mbs's pretty printer.
-    local ok, res = pcall(textutils.serialise, value)
-    if ok then return res else return tostring(value) end
+    if type(value) == "string" and value:find("\n") then
+        return "<<<\n" .. value .. "\n>>>"
+    else
+        local ok, res = pcall(textutils.serialise, value)
+        if ok then return res else return tostring(value) end
+    end
 end
 
 local expect_mt = {}

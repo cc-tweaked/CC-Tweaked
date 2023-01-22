@@ -86,9 +86,24 @@ local function timeout(time, fn)
     end
 end
 
+--- Extract a series of tests from a markdown file.
+local function find_golden_tests(contents)
+    local pos = 1
+    return function()
+        local _, lua_end, extra, lua = contents:find("```lua([^\n]*)\n(.-)\n```\n?", pos)
+        if not lua_end then return end
+
+        local _, txt_end, txt = contents:find("^\n*```txt\n(.-)\n```\n?", lua_end + 1)
+        pos = (txt_end or lua_end) + 1
+
+        return extra, lua, txt
+    end
+end
+
 return {
     capture_program = capture_program,
     with_window = with_window,
     with_window_lines = with_window_lines,
     timeout = timeout,
+    find_golden_tests = find_golden_tests,
 }
