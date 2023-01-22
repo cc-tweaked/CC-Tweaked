@@ -7,7 +7,7 @@ be removed or changed at any time.
 
 This provides a list of factory methods which take source positions and produce
 appropriate error messages targeting that location. These error messages can
-then be displayed to the user via @{cc.internal.syntax.report}.
+then be displayed to the user via @{cc.internal.error_printer}.
 
 @local
 ]]

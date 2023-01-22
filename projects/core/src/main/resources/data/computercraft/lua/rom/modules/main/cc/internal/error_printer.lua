@@ -1,4 +1,4 @@
---[[- A pretty-printer for syntax errors.
+--[[- A pretty-printer for Lua errors.
 
 :::warning
 This is an internal module and SHOULD NOT be used in your own code. It may

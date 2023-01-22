@@ -12,15 +12,11 @@ local expect = require "cc.expect".expect
 
 local lex_one = require "cc.internal.syntax.lexer".lex_one
 local parser = require "cc.internal.syntax.parser"
-local report = require "cc.internal.syntax.report"
+local error_printer = require "cc.internal.error_printer"
 
---[[- Parse an input string, printing syntax errors to the terminal.
-
-@tparam string input The string to parse.
-@treturn boolean Whether the string was successfully parsed.
-]]
-local function parse(input)
+local function parse(input, start_symbol)
     expect(1, input, "string")
+    expect(2, start_symbol, "number")
 
     -- Lazy-load the parser.
     local parse, tokens, last_token = parser.parse, parser.tokens, parser.tokens.COMMENT
@@ -39,12 +35,12 @@ local function parse(input)
         error("Position is <= 0", 2)
     end
 
-    local function report_impl(msg)
-        report(input, get_pos, msg)
+    local function report(msg)
+        error_printer(input, get_pos, msg)
         error(error_sentinel)
     end
 
-    local context = { line = line, get_pos = get_pos, report = report_impl }
+    local context = { line = line, get_pos = get_pos, report = report }
 
     local pos = 1
     local ok, err = pcall(parse, context, function()
@@ -60,7 +56,7 @@ local function parse(input)
                 error(error_sentinel)
             end
         end
-    end)
+    end, start_symbol)
 
     if ok then
         return true
@@ -71,4 +67,22 @@ local function parse(input)
     end
 end
 
-return { parse = parse }
+--[[- Parse a Lua program, printing syntax errors to the terminal.
+
+@tparam string input The string to parse.
+@treturn boolean Whether the string was successfully parsed.
+]]
+local function parse_program(input) return parse(input, parser.program) end
+
+--[[- Parse a REPL input (either a program or a list of expressions), printing
+syntax errors to the terminal.
+
+@tparam string input The string to parse.
+@treturn boolean Whether the string was successfully parsed.
+]]
+local function parse_repl(input) return parse(input, parser.repl_exprs) end
+
+return {
+    parse_program = parse_program,
+    parse_repl = parse_repl,
+}

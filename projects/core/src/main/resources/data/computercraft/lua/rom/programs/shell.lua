@@ -151,7 +151,7 @@ local function executeProgram(remainingRecursion, path, args)
         -- the file is "small enough", otherwise report the original error.
         if #contents < 1024 * 128 then
             local parser = require "cc.internal.syntax"
-            if parser.parse(contents) then printError(err) end
+            if parser.parse_program(contents) then printError(err) end
         else
             printError(contents)
         end
