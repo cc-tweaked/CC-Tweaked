@@ -242,7 +242,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
      * @throws LuaException If the sound name was invalid.
      * @cc.usage Play a creeper hiss with the speaker.
      *
-     * <pre>{@code
+     * <pre data-peripheral="speaker">{@code
      * local speaker = peripheral.find("speaker")
      * speaker.playSound("entity.creeper.primed")
      * }</pre>
@@ -294,7 +294,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
      * @cc.since 1.100
      * @cc.usage Read an audio file, decode it using @{cc.audio.dfpwm}, and play it using the speaker.
      *
-     * <pre>{@code
+     * <pre data-peripheral="speaker">{@code
      * local dfpwm = require("cc.audio.dfpwm")
      * local speaker = peripheral.find("speaker")
      *
