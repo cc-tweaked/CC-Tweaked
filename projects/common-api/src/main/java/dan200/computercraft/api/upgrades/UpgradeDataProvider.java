@@ -144,7 +144,7 @@ public abstract class UpgradeDataProvider<T extends UpgradeBase, R extends Upgra
     }
 
     public List<T> getGeneratedUpgrades() {
-        if (upgrades == null) throw new IllegalStateException("Upgrades have not beeen generated yet");
+        if (upgrades == null) throw new IllegalStateException("Upgrades have not been generated yet");
         return upgrades;
     }
 

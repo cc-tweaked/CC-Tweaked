@@ -261,7 +261,7 @@ And several bug fixes:
 
 And several bug fixes:
 * Fix NPE when using a treasure disk when no treasure disks are available.
-* Prevent command computers discarding command ouput when certain game rules are off.
+* Prevent command computers discarding command output when certain game rules are off.
 * Fix turtles not updating peripherals when upgrades are unequipped (Ronan-H).
 * Fix computers not shutting down on fatal errors within the Lua VM.
 * Speakers now correctly stop playing when broken, and sound follows noisy turtles and pocket computers.
@@ -270,32 +270,6 @@ And several bug fixes:
 * Fix coloured pocket computers using the wrong texture.
 * Correctly render the transparent background on pocket/normal computers.
 * Don't apply CraftTweaker actions twice on single-player worlds.
-
-# New features in CC: Tweaked 1.97.0
-
-* Update several translations (Anavrins, Jummit, Naheulf).
-* Add button to view a computer's folder to `/computercraft dump`.
-* Allow cleaning dyed turtles in a cauldron.
-* Add scale subcommand to `monitor` program (MCJack123).
-* Add option to make `textutils.serialize` not write an indent (magiczocker10).
-* Allow comparing vectors using `==` (fatboychummy).
-* Improve HTTP error messages for SSL failures.
-* Allow `craft` program to craft unlimited items (fatboychummy).
-* Impose some limits on various command queues.
-* Add buttons to shutdown and terminate to computer GUIs.
-* Add program subcompletion to several programs (Wojbie).
-* Update the `help` program to accept and (partially) highlight markdown files.
-* Remove config option for the debug API.
-* Allow setting the subprotocol header for websockets.
-
-And several bug fixes:
-* Fix NPE when using a treasure disk when no treasure disks are available.
-* Prevent command computers discarding command ouput when certain game rules are off.
-* Fix turtles not updating peripherals when upgrades are unequipped (Ronan-H).
-* Fix computers not shutting down on fatal errors within the Lua VM.
-* Speakers now correctly stop playing when broken, and sound follows noisy turtles and pocket computers.
-* Update the `wget` to be more resiliant in the face of user-errors.
-* Fix exiting `paint` typing "e" in the shell.
 
 # New features in CC: Tweaked 1.96.0
 
@@ -348,7 +322,7 @@ Several bug fixes:
 # New features in CC: Tweaked 1.95.0
 
 * Optimise the paint program's initial render.
-* Several documentation improvments (Gibbo3771, MCJack123).
+* Several documentation improvements (Gibbo3771, MCJack123).
 * `fs.combine` now accepts multiple arguments.
 * Add a setting (`bios.strict_globals`) to error when accidentally declaring a global. (Lupus590).
 * Add an improved help viewer which allows scrolling up and down (MCJack123).
@@ -388,7 +362,7 @@ And several bug fixes:
 
 * Update Swedish translations (Granddave).
 * Printers use item tags to check dyes.
-* HTTP rules may now be targetted for a specific port.
+* HTTP rules may now be targeted for a specific port.
 * Don't propagate adjacent redstone signals through computers.
 
 And several bug fixes:
@@ -508,7 +482,7 @@ And several bug fixes:
   - Add `utf8` lib.
   - Mirror Lua's behaviour of tail calls more closely. Native functions are no longer tail called, and tail calls are displayed in the stack trace.
   - `table.unpack` now uses `__len` and `__index` metamethods.
-  - Parser errors now include the token where the error occured.
+  - Parser errors now include the token where the error occurred.
 * Add `textutils.unserializeJSON`. This can be used to decode standard JSON and stringified-NBT.
 * The `settings` API now allows "defining" settings. This allows settings to specify a default value and description.
 * Enable the motd on non-pocket computers.
@@ -516,7 +490,7 @@ And several bug fixes:
 * Add Danish and Korean translations (ChristianLW, mindy15963)
 * Fire `mouse_up` events in the monitor program.
 * Allow specifying a timeout to `websocket.receive`.
-* Increase the maximimum limit for websocket messages.
+* Increase the maximum limit for websocket messages.
 * Optimise capacity checking of computer/disk folders.
 
 And several bug fixes:

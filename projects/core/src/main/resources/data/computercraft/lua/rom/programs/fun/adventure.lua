@@ -100,11 +100,11 @@ local items = {
     ["some wood"] = {
         aliases = { "wood" },
         material = true,
-        desc = "You could easilly craft this wood into planks.",
+        desc = "You could easily craft this wood into planks.",
     },
     ["some planks"] = {
         aliases = { "planks", "wooden planks", "wood planks" },
-        desc = "You could easilly craft these planks into sticks.",
+        desc = "You could easily craft these planks into sticks.",
     },
     ["some sticks"] = {
         aliases = { "sticks", "wooden sticks", "wood sticks" },
@@ -255,7 +255,7 @@ local items = {
     ["some pork"] = {
         aliases = { "pork", "porkchops" },
         food = true,
-        desc = "Delicious and nutricious.",
+        desc = "Delicious and nutritious.",
     },
     ["some chicken"] = {
         aliases = { "chicken" },
@@ -1144,7 +1144,7 @@ function commands.help()
     local sText =
         "Welcome to adventure, the greatest text adventure game on CraftOS. " ..
         "To get around the world, type actions, and the adventure will " ..
-        "be read back to you. The actions availiable to you are go, look, inspect, inventory, " ..
+        "be read back to you. The actions available to you are go, look, inspect, inventory, " ..
         "take, drop, place, punch, attack, mine, dig, craft, build, eat and exit."
     print(sText)
 end

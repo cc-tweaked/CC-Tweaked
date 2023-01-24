@@ -25,7 +25,7 @@ single-player or multiplayer. Look for lines that look like this:
 ```
 
 On 1.95.0 and later, this will be a single entry with `host = "$private"`. On earlier versions, this will be a number of
-`[[http.rules]]` with various IP addresses. You will want to remove all of the `[[http.rules]]` entires that have
+`[[http.rules]]` with various IP addresses. You will want to remove all of the `[[http.rules]]` entries that have
 `action = "deny"`. Then save the file and relaunch Minecraft (Server).
 
 Here's what it should look like after removing:
@@ -54,7 +54,7 @@ like this:
 ```toml
 #A list of wildcards for domains or IP ranges that cannot be accessed through the "http" API on Computers.
 #If this is empty then all whitelisted domains will be accessible. Example: "*.github.com" will block access to all subdomains of github.com.
-#You can use domain names ("pastebin.com"), wilcards ("*.pastebin.com") or CIDR notation ("127.0.0.0/8").
+#You can use domain names ("pastebin.com"), wildcards ("*.pastebin.com") or CIDR notation ("127.0.0.0/8").
 blacklist = ["127.0.0.0/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "fd00::/8"]
 ```
 
@@ -65,7 +65,7 @@ Here's what it should look like after removing:
 ```toml
 #A list of wildcards for domains or IP ranges that cannot be accessed through the "http" API on Computers.
 #If this is empty then all whitelisted domains will be accessible. Example: "*.github.com" will block access to all subdomains of github.com.
-#You can use domain names ("pastebin.com"), wilcards ("*.pastebin.com") or CIDR notation ("127.0.0.0/8").
+#You can use domain names ("pastebin.com"), wildcards ("*.pastebin.com") or CIDR notation ("127.0.0.0/8").
 blacklist = []
 ```
 

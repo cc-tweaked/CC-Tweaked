@@ -178,8 +178,8 @@ public final class WorldUtil {
         }
 
         @Override
-        public VoxelShape getBlockShape(BlockState state, BlockGetter levle, BlockPos pos) {
-            return block.get(state, levle, pos, CollisionContext.empty());
+        public VoxelShape getBlockShape(BlockState state, BlockGetter level, BlockPos pos) {
+            return block.get(state, level, pos, CollisionContext.empty());
         }
     }
 }

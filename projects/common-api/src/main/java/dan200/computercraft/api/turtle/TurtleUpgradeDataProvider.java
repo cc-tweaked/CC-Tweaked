@@ -98,7 +98,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
          * get the final damage.
          *
          * @param damageMultiplier The damage multiplier.
-         * @return The tool builder, for futher use.
+         * @return The tool builder, for further use.
          */
         public ToolBuilder damageMultiplier(float damageMultiplier) {
             this.damageMultiplier = damageMultiplier;

@@ -51,7 +51,7 @@ public class EncodedWritableHandle extends HandleGeneric {
     }
 
     /**
-     * Write a string of characters to the file, follwing them with a new line character.
+     * Write a string of characters to the file, following them with a new line character.
      *
      * @param args The value to write.
      * @throws LuaException If the file has been closed.
