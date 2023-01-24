@@ -448,6 +448,23 @@ function errors.expected_then(if_start, if_end, token_pos)
 
 end
 
+--[[- `end` was expected
+
+@tparam number block_start The start position of the block.
+@tparam number block_end The end position of the block.
+@tparam number token The current token position.
+@tparam number token_start The current token position.
+@tparam number token_end The current token position.
+@return The resulting parse error.
+]]
+function errors.expected_end(block_start, block_end, token, token_start, token_end)
+    return {
+        "Unexpected " .. token_names[token] .. ". Expected " .. code("end") .. " or another statement.",
+        annotate(block_start, block_end, "Block started here."),
+        annotate(token_start, token_end, "Expected end of block here."),
+    }
+end
+
 --------------------------------------------------------------------------------
 -- Generic parsing errors
 --------------------------------------------------------------------------------

@@ -158,3 +158,107 @@ Unexpected symbol after variable.
    |           ^ Expected something before the end of the line.
 Tip: Use () to call with no arguments.
 ```
+
+## If statements
+For if statements, we say when we expected the `then` keyword.
+
+```lua
+if 0
+```
+
+```txt
+Expected then after if condition.
+   |
+ 1 | if 0
+   | ^^ If statement started here.
+   |
+ 1 | if 0
+   |     ^ Expected then before here.
+```
+
+```lua
+if 0 then
+elseif 0
+```
+
+```txt
+Expected then after if condition.
+   |
+ 2 | elseif 0
+   | ^^^^^^ If statement started here.
+   |
+ 2 | elseif 0
+   |         ^ Expected then before here.
+```
+
+## Expecting and unexpected `end`
+
+We provide errors for missing `end`s.
+
+```lua
+if true then
+  print("Hello")
+```
+
+```txt
+Unexpected end of file. Expected end or another statement.
+   |
+ 1 | if true then
+   | ^^ Block started here.
+   |
+ 2 |   print("Hello")
+   |                 ^ Expected end of block here.
+```
+
+```lua
+while true do
+  print("Hello")
+```
+
+```txt
+Unexpected end of file. Expected end or another statement.
+   |
+ 1 | while true do
+   | ^^^^^ Block started here.
+   |
+ 2 |   print("Hello")
+   |                 ^ Expected end of block here.
+```
+
+While we typically see these errors at the end of the file, there are some cases
+where it may occur before then:
+
+```lua
+return (function()
+  if true then
+)()
+```
+
+```txt
+Unexpected ). Expected end or another statement.
+   |
+ 2 |   if true then
+   |   ^^ Block started here.
+   |
+ 3 | )()
+   | ^ Expected end of block here.
+```
+
+Note we do not currently attempt to identify mismatched `end`s. This might be
+something to do in the future.
+
+```lua
+if true then
+  while true do
+end
+```
+
+```txt
+Unexpected end of file. Expected end or another statement.
+   |
+ 1 | if true then
+   | ^^ Block started here.
+   |
+ 3 | end
+   |    ^ Expected end of block here.
+```
