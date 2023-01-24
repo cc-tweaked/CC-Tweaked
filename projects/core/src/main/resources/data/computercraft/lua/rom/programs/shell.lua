@@ -153,7 +153,7 @@ local function executeProgram(remainingRecursion, path, args)
             local parser = require "cc.internal.syntax"
             if parser.parse_program(contents) then printError(err) end
         else
-            printError(contents)
+            printError(err)
         end
 
         return false
