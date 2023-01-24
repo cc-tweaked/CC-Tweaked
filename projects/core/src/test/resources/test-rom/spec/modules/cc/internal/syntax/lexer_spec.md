@@ -1,9 +1,11 @@
 We provide a lexer for Lua source code. Here we test that the lexer returns the
 correct tokens and positions, and that it can report sensible error messages.
 
-## Lexes comments
+# Comments
 
+## Single-line comments
 We can lex some basic comments:
+
 ```lua
 -- A basic singleline comment comment
 --[ Not a multiline comment
@@ -26,6 +28,7 @@ It's also useful to test empty comments (including no trailing newline) separate
 1:1-1:2 COMMENT --
 ```
 
+## Multi-line comments
 Multiline/long-string-style comments are also supported:
 
 ```lua
@@ -75,14 +78,15 @@ Nested comments are rejected, just as Lua 5.1 does:
 1:1-1:10 COMMENT --[[ [[ ]]
 ```
 
-## Lexes strings
+# Strings
 
 We can lex basic strings:
 
 ```lua
 return "abc", "abc\"", 'abc', 'abc\z
 
-'
+', "abc\
+continued"
 ```
 
 ```txt
@@ -94,6 +98,8 @@ return "abc", "abc\"", 'abc', 'abc\z
 1:24-1:28 STRING 'abc'
 1:29-1:29 COMMA ,
 1:31-3:1 STRING 'abc\z<NL><NL>'
+3:2-3:2 COMMA ,
+3:4-4:10 STRING "abc\<NL>continued"
 ```
 
 We also can lex unterminated strings, including those where there's no closing
@@ -152,6 +158,7 @@ This string is not finished.
 1:8-1:12 STRING "abc\
 ```
 
+## Multi-line/long strings
 We can also handle long strings fine
 
 ```lua
@@ -197,10 +204,10 @@ Tip: If you wanted to start a long string here, add an extra [ here.
 1:8-1:10 ERROR [=
 ```
 
-## Lexes numbers
+# Numbers
 
 ```lua
-return 0, 0.0, 0e1, .23, 0x23
+return 0, 0.0, 0e1, .23, 0x23, 23e-2, 23e+2
 ```
 
 ```txt
@@ -214,6 +221,10 @@ return 0, 0.0, 0e1, .23, 0x23
 1:21-1:23 NUMBER .23
 1:24-1:24 COMMA ,
 1:26-1:29 NUMBER 0x23
+1:30-1:30 COMMA ,
+1:32-1:36 NUMBER 23e-2
+1:37-1:37 COMMA ,
+1:39-1:43 NUMBER 23e+2
 ```
 
 We also handle malformed numbers:
@@ -239,7 +250,7 @@ Numbers must be in one of the following formats: 123, 3.14, 23e35, 0x01AF.
 1:14-1:18 NUMBER 2eee2
 ```
 
-## Unknown tokens
+# Unknown tokens
 
 We can suggest alternatives for possible errors:
 
@@ -253,11 +264,11 @@ if a || b then end
 ```txt
 1:1-1:2 IF if
 1:4-1:4 IDENT a
-Lua uses ~= to check if two values are not equal.
+Unexpected character.
    |
  1 | if a != b then end
    |      ^^
-Tip: Replace this with ~=.
+Tip: Replace this with ~= to check if two values are not equal.
 1:6-1:7 NE !=
 1:9-1:9 IDENT b
 1:11-1:14 THEN then
@@ -270,22 +281,22 @@ Tip: Replace this with ~=.
 2:16-2:18 END end
 3:1-3:2 IF if
 3:4-3:4 IDENT a
-Lua uses and instead of &&.
+Unexpected character.
    |
  3 | if a && b then end
    |      ^^
-Tip: Replace this with and.
+Tip: Replace this with and to check if both values are true.
 3:6-3:7 AND &&
 3:9-3:9 IDENT b
 3:11-3:14 THEN then
 3:16-3:18 END end
 4:1-4:2 IF if
 4:4-4:4 IDENT a
-Lua uses or instead of ||.
+Unexpected character.
    |
  4 | if a || b then end
    |      ^^
-Tip: Replace this with or.
+Tip: Replace this with or to check if either value is true.
 4:6-4:7 OR ||
 4:9-4:9 IDENT b
 4:11-4:14 THEN then
@@ -304,5 +315,5 @@ Unexpected character.
    |
  1 | return $*&(*)xyz
    |        ^ This character isn't usable in Lua code.
-1:8-1:13 ERROR $*&(*)
+1:8-1:10 ERROR $*&
 ```

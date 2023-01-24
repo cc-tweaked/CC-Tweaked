@@ -5,14 +5,16 @@ This is an internal module and SHOULD NOT be used in your own code. It may
 be removed or changed at any time.
 :::
 
-This consumes errors produced by @{cc.internal.syntax.errors} and the
-accompanying source code, and displays the error to the terminal.
+This consumes a list of messages and "annotations" and displays the error to the
+terminal.
 
+@see cc.internal.syntax.errors For errors produced by the parser.
 @local
 ]]
 
 local pretty = require "cc.pretty"
-local expect = require "cc.expect".expect
+local expect = require "cc.expect"
+local expect, field = expect.expect, expect.field
 local wrap = require "cc.strings".wrap
 
 --- Write a message to the screen.
@@ -48,7 +50,6 @@ local function display_here(msg, preamble)
             newline()
             term.write(lines[i])
         end
-        print()
     else
         local def_colour = term.getTextColour()
         local function display_impl(doc)
@@ -80,6 +81,7 @@ local function display_here(msg, preamble)
         end
         display_impl(msg)
     end
+    print()
 end
 
 --- A list of colours we can use for error messages.
@@ -89,14 +91,19 @@ local error_colours = { colours.red, colours.green, colours.magenta, colours.ora
 local code_accent = pretty.text("\x95", colours.cyan)
 
 --[[-
-@tparam string input The input string.
-@tparam function get_pos A function to resolve a position to a line and column.
+@tparam { get_pos = function, get_line = function } context
+    The context where the error was reported. This effectively acts as a view
+    over the underlying source, exposing the following functions:
+    - `get_pos`: Get the line and column of an opaque position.
+    - `get_line`: Get the source code for an opaque position.
 @tparam table message The message to display, as produced by @{cc.internal.syntax.errors}.
 ]]
-return function(input, get_pos, message)
-    expect(1, input, "string")
-    expect(2, get_pos, "function")
-    expect(3, message, "table")
+return function(context, message)
+    expect(1, context, "table")
+    expect(2, message, "table")
+    field(context, "get_pos", "function")
+    field(context, "get_line", "function")
+
     if #message == 0 then error("Message is empty", 2) end
 
     local error_colour = 1
@@ -108,15 +115,23 @@ return function(input, get_pos, message)
 
         local msg = message[msg_idx]
         if type(msg) == "table" and msg.tag == "annotate" then
-            local current_line, first_col, current_bol = get_pos(msg.start_pos)
-            local contents = input:match("[^\r\n]*", current_bol)
+            local current_line, first_col = context.get_pos(msg.start_pos)
+            local contents = context.get_line(msg.start_pos)
 
             -- Find the highest minimum column we could possibly start from, and thus
             -- the last column we could bundle into this line.
             local min_col = math.max(contents:find("%S") or 1, first_col - 5)
-            -- TODO: If the screen is less than 35(?) characters, swap over to numbered
-            -- messages.
-            local max_col = min_col + (width - 25)
+
+            -- Then find the maximum column we can fit on this line, leaving
+            -- ~20 characters for the error message. If the screen is too narrow
+            -- for that, then fall back to a more compact representation.
+            local compact_messages = width < 35
+            local max_col
+            if compact_messages then
+                max_col = min_col + width - 2
+            else
+                max_col = min_col + width - 25
+            end
 
             -- Gather all annotations that we can fit on this line.
             local annotations = {}
@@ -124,17 +139,29 @@ return function(input, get_pos, message)
                 local msg = message[msg_idx]
                 if type(msg) ~= "table" or msg.tag ~= "annotate" then break end
 
-                local line, col = get_pos(msg.start_pos)
+                local line, col = context.get_pos(msg.start_pos)
                 if line ~= current_line or col > max_col then break end
 
-                local end_line, end_col = get_pos(msg.end_pos)
-                annotations[#annotations + 1] = {
-                    msg = msg.msg, colour = colours.toBlit(error_colours[error_colour]),
-                    col = col, end_line = end_line, end_col = end_col,
-                }
+                local end_line, end_col = context.get_pos(msg.end_pos)
+
+                local annotation_colour = error_colours[error_colour]
                 error_colour = (error_colour % #error_colours) + 1
 
+                local annotation = {
+                    msg = msg.msg, colour = colours.toBlit(annotation_colour),
+                    col = col, end_line = end_line, end_col = end_col,
+                }
+                annotations[#annotations + 1] = annotation
+
                 msg_idx = msg_idx + 1
+
+                -- If we're displaying compact messages, we only print one
+                -- annotation per source line, putting the message below instead.
+                if compact_messages then
+                    annotation.extra_msg = annotation.msg
+                    annotation.msg = ""
+                    break
+                end
             end
 
             -- Now find the appropriate region of our line to display.
@@ -199,7 +226,8 @@ return function(input, get_pos, message)
             end
             print()
 
-            -- Print the message for each annotation.
+            -- Print the message for each annotation, rendering a connector to this
+            -- message.
             local last_col = annotations[#annotations].indicator_col
             for i, annotation in ipairs(annotations) do
                 if annotation.msg ~= "" then
@@ -228,6 +256,18 @@ return function(input, get_pos, message)
                                 term.blit("\x95", "f", annotation.colour)
                             end
                         end
+                    end)
+                end
+            end
+
+            -- Render additional messages for each annotation. This is used by
+            -- the compact view to display the annotation message.
+            for _, annotation in ipairs(annotations) do
+                if annotation.extra_msg and annotation.extra_msg ~= "" then
+                    term.blit("\x95", annotation.colour, "f")
+                    display_here(annotation.extra_msg, function(y)
+                        term.setCursorPos(1, y)
+                        term.blit("\x95", annotation.colour, "f")
                     end)
                 end
             end

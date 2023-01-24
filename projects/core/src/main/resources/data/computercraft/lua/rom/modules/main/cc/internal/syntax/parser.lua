@@ -69,10 +69,14 @@ setmetatable(tokens, { __index = function(_, name) error("No such token " .. tos
 
 -- Error handling code. This is composed of a list of error handling functions (error_messages), and a DFA which matches
 -- the current LR(1) stack (error_transitions, error_states).
-local function line_end_position(context, previous, token)
+local function is_same_line(context, previous, token)
     local prev_line = context.get_pos(previous)
     local tok_line = context.get_pos(token.s)
-    if tok_line == prev_line then
+    return prev_line == tok_line and token.v ~= tokens.EOF
+end
+
+local function line_end_position(context, previous, token)
+    if is_same_line(context, previous, token) then
         return token.s
     else
         return previous + 1
@@ -81,26 +85,16 @@ end
 
 local error_messages = {
     function(context, stack, stack_n, regs, token)
-        -- parse_errors.mlyl, line 17
+        -- parse_errors.mlyl, line 21
         if token.v == tokens.EQUALS then
         return errors.table_key_equals(token.s, token.e)
     end
     end,
     function(context, stack, stack_n, regs, token)
-        -- parse_errors.mlyl, line 25
+        -- parse_errors.mlyl, line 29
         if token.v == tokens.EQUALS then
         return errors.use_double_equals(token.s, token.e)
     end
-    end,
-    function(context, stack, stack_n, regs, token)
-        local lp = { s = stack[regs[2] + 1], e = stack[regs[2] + 2] }
-        -- parse_errors.mlyl, line 33
-        return (errors.unclosed_brackets(lp.s, lp.e, token.s))
-    end,
-    function(context, stack, stack_n, regs, token)
-        local lp = { s = stack[regs[2] + 1], e = stack[regs[2] + 2] }
-        -- parse_errors.mlyl, line 35
-        return (errors.unclosed_brackets(lp.s, lp.e, token.s))
     end,
     function(context, stack, stack_n, regs, token)
         local lp = { s = stack[regs[2] + 1], e = stack[regs[2] + 2] }
@@ -108,27 +102,30 @@ local error_messages = {
         return (errors.unclosed_brackets(lp.s, lp.e, token.s))
     end,
     function(context, stack, stack_n, regs, token)
+        local lp = { s = stack[regs[2] + 1], e = stack[regs[2] + 2] }
+        -- parse_errors.mlyl, line 39
+        return (errors.unclosed_brackets(lp.s, lp.e, token.s))
+    end,
+    function(context, stack, stack_n, regs, token)
+        local lp = { s = stack[regs[2] + 1], e = stack[regs[2] + 2] }
+        -- parse_errors.mlyl, line 41
+        return (errors.unclosed_brackets(lp.s, lp.e, token.s))
+    end,
+    function(context, stack, stack_n, regs, token)
         local loc = { s = stack[regs[2] + 1], e = stack[regs[2] + 2] }
-        -- parse_errors.mlyl, line 42
+        -- parse_errors.mlyl, line 46
         if token.v == tokens.DOT then
         return errors.local_function_dot(loc.s, loc.e, token.s, token.e)
     end
     end,
     function(context, stack, stack_n, regs, token)
-        -- parse_errors.mlyl, line 50
+        -- parse_errors.mlyl, line 54
         local end_pos = stack[stack_n + 2] -- Hack to get the last position
-    local end_line = context.get_pos(end_pos)
-    local tok_line = context.get_pos(token.s)
-    if token ~= tokens.EOF and tok_line == end_line then
-      return errors.standalone_name(token.s)
+    if is_same_line(context, end_pos, token) then
+        return errors.standalone_name(token.s)
     else
-      return errors.standalone_name_call(end_pos)
+        return errors.standalone_name_call(end_pos)
     end
-    end,
-    function(context, stack, stack_n, regs, token)
-        local start = { s = stack[regs[2] + 1], e = stack[regs[2] + 2] }
-        -- parse_errors.mlyl, line 69
-        return errors.expected_then(start.s, start.e, line_end_position(context, stack[stack_n + 2], token))
     end,
     function(context, stack, stack_n, regs, token)
         local start = { s = stack[regs[2] + 1], e = stack[regs[2] + 2] }
@@ -136,13 +133,18 @@ local error_messages = {
         return errors.expected_then(start.s, start.e, line_end_position(context, stack[stack_n + 2], token))
     end,
     function(context, stack, stack_n, regs, token)
-        -- parse_errors.mlyl, line 75
+        local start = { s = stack[regs[2] + 1], e = stack[regs[2] + 2] }
+        -- parse_errors.mlyl, line 73
+        return errors.expected_then(start.s, start.e, line_end_position(context, stack[stack_n + 2], token))
+    end,
+    function(context, stack, stack_n, regs, token)
+        -- parse_errors.mlyl, line 77
         if token ~= tokens.EOF then
         return errors.expected_statement(token.v, token.s, token.e)
     end
     end,
     function(context, stack, stack_n, regs, token)
-        -- parse_errors.mlyl, line 83
+        -- parse_errors.mlyl, line 85
         return errors.expected_expression(token.v, token.s, token.e)
     end,
 }

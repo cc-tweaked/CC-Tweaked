@@ -32,31 +32,21 @@ describe("cc.internal.syntax", function()
 
     -- We specify most of the parser's behaviour as golden tests. A little nasty
     -- (it's more of an end-to-end test), but much easier to write!
-    local function make_golden(path, print_tokens)
-        local file = fs.open("test-rom/spec/modules/cc/internal/syntax/" .. path, "r")
-        local contents = file.readAll()
-        file.close()
-
-        local i = 1
-        for extra, lua, text in helpers.find_golden_tests(contents) do
-            it("test #" .. i, function()
-                local start = nil
-                if #extra > 0 then
-                    start = parser[extra:match("^{([a-z_]+)}$")]
-                    if not start then
-                        fail("Cannot extract start symbol " .. extra)
-                    end
+    local function describe_golden(name, path, print_tokens)
+        helpers.describe_golden(name, "test-rom/spec/modules/cc/internal/syntax/" .. path, function(lua, extra)
+            local start = nil
+            if #extra > 0 then
+                start = parser[extra:match("^{([a-z_]+)}$")]
+                if not start then
+                    fail("Cannot extract start symbol " .. extra)
                 end
+            end
 
-                expect(syntax_helpers.capture_parser(lua, print_tokens, start))
-                    :describe("For input string <<<\n" .. lua .. "\n>>>")
-                    :eq(text)
-            end)
-            i = i + 1
-        end
+            return syntax_helpers.capture_parser(lua, print_tokens, start)
+        end)
     end
 
-    describe("the lexer", function() make_golden("lexer_spec.md", true) end)
-    describe("the parser", function() make_golden("parser_spec.md", false) end)
-    describe("the parser (all states)", function() make_golden("parser_exhaustive_spec.md", false) end)
+    describe_golden("the lexer", "lexer_spec.md", true)
+    describe_golden("the parser", "parser_spec.md", false)
+    describe_golden("the parser (all states)", "parser_exhaustive_spec.md", false)
 end)

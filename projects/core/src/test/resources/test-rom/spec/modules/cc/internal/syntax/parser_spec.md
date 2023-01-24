@@ -1,6 +1,8 @@
 We provide a parser for Lua source code. Here we test that the parser reports
 sensible syntax errors in specific cases.
 
+# Expressions
+
 ## Invalid equals
 We correct the user if they type `=` instead of `==`.
 
@@ -42,22 +44,6 @@ Unexpected = in expression.
  1 | return { x = "abc" = }
    |                    ^
 Tip: Replace this with == to check if two values are equal.
-```
-
-## Local functions with table identifiers
-
-```lua
-local function x.f() end
-```
-
-```txt
-Cannot use local function with tables.
-   |
- 1 | local function x.f() end
-   |                 ^ . appears here.
-   |
- 1 | local function x.f() end
-   | ^^^^^ Tip: Try removing this local keyword.
 ```
 
 ## Unclosed parenthesis
@@ -109,9 +95,28 @@ Brackets were not closed.
    |                   ^ Expected to be closed before here.
 ```
 
-## Standalone identifiers
+# Statements
 
-We suggest function calls:
+## Local functions with table identifiers
+We provide a custom error for using `.` inside a `local function` name.
+
+```lua
+local function x.f() end
+```
+
+```txt
+Cannot use local function with a table key.
+   |
+ 1 | local function x.f() end
+   |                 ^ . appears here.
+   |
+ 1 | local function x.f() end
+   | ^^^^^ Tip: Try removing this local keyword.
+```
+
+## Standalone identifiers
+A common error is a user forgetting to use `()` to call a function. We provide
+a custom error for this case:
 
 ```lua
 term.clear
@@ -126,7 +131,7 @@ Unexpected symbol after variable.
 Tip: Use () to call with no arguments.
 ```
 
-And assigns/calls:
+If the next symbol is on the same line we provide a slightly different error:
 
 ```lua
 x 1
@@ -138,4 +143,18 @@ Unexpected symbol after name.
  1 | x 1
    |   ^
 Did you mean to assign this or call it as a function?
+```
+
+An EOF token is treated as a new line.
+
+```lua
+term.clear
+```
+
+```txt
+Unexpected symbol after variable.
+   |
+ 1 | term.clear
+   |           ^ Expected something before the end of the line.
+Tip: Use () to call with no arguments.
 ```

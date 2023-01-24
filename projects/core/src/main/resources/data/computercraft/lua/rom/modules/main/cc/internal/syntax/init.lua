@@ -23,24 +23,36 @@ local function parse(input, start_symbol)
 
     local error_sentinel = {}
 
-    local lines = { 1 }
-    local function line(pos) lines[#lines + 1] = pos end
+    local context = {}
 
-    local function get_pos(pos)
+    local lines = { 1 }
+    function context.line(pos) lines[#lines + 1] = pos end
+
+    function context.get_pos(pos)
+        expect(1, pos, "number")
         for i = #lines, 1, -1 do
             local start = lines[i]
-            if pos >= start then return i, pos - start + 1, start end
+            if pos >= start then return i, pos - start + 1 end
         end
 
         error("Position is <= 0", 2)
     end
 
-    local function report(msg)
-        error_printer(input, get_pos, msg)
-        error(error_sentinel)
+    function context.get_line(pos)
+        expect(1, pos, "number")
+        for i = #lines, 1, -1 do
+            local start = lines[i]
+            if pos >= start then return input:match("[^\r\n]*", start) end
+        end
+
+        error("Position is <= 0", 2)
     end
 
-    local context = { line = line, get_pos = get_pos, report = report }
+    function context.report(msg)
+        expect(1, msg, "table")
+        error_printer(context, msg)
+        error(error_sentinel)
+    end
 
     local pos = 1
     local ok, err = pcall(parse, context, function()

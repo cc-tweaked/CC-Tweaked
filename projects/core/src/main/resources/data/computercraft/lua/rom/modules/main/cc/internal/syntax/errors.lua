@@ -91,6 +91,7 @@ local token_names = setmetatable({
     [tokens.WHILE] = code("while"),
 }, { __index = function(_, name) error("No such token " .. tostring(name), 2) end })
 
+--- Similar to token_names, but prefixed with "this"/"the".
 local this_token_name = setmetatable({
     [tokens.IDENT] = "this identifier",
     [tokens.NUMBER] = "this number",
@@ -99,6 +100,10 @@ local this_token_name = setmetatable({
 }, { __index = token_names })
 
 local errors = {}
+
+--------------------------------------------------------------------------------
+-- Lexer errors
+--------------------------------------------------------------------------------
 
 --[[- A string which ends without a closing quote.
 
@@ -139,7 +144,6 @@ function errors.unfinished_string_escape(start_pos, end_pos, quote)
         annotate(end_pos, "An escape sequence was started here, but with nothing following it."),
     }
 end
-
 
 --[[- A long string was never finished.
 
@@ -243,9 +247,9 @@ function errors.wrong_and(start_pos, end_pos)
     expect(2, end_pos, "number")
 
     return {
-        "Lua uses " .. code('and') ..  " instead of " .. code('&&') .. ".",
+        "Unexpected character.",
         annotate(start_pos, end_pos),
-        "Tip: Replace this with " .. code("and") .. ".",
+        "Tip: Replace this with " .. code("and") .. " to check if both values are true.",
     }
 end
 
@@ -260,9 +264,9 @@ function errors.wrong_or(start_pos, end_pos)
     expect(2, end_pos, "number")
 
     return {
-        "Lua uses " .. code('or') ..  " instead of " .. code('||') .. ".",
+        "Unexpected character.",
         annotate(start_pos, end_pos),
-        "Tip: Replace this with " .. code("or") .. ".",
+        "Tip: Replace this with " .. code("or") .. " to check if either value is true.",
     }
 end
 
@@ -277,9 +281,9 @@ function errors.wrong_ne(start_pos, end_pos)
     expect(2, end_pos, "number")
 
     return {
-        "Lua uses " .. code("~=") .. " to check if two values are not equal.",
+        "Unexpected character.",
         annotate(start_pos, end_pos),
-        "Tip: Replace this with " .. code("~=") .. ".",
+        "Tip: Replace this with " .. code("~=") .. " to check if two values are not equal.",
     }
 end
 
@@ -293,6 +297,27 @@ function errors.unexpected_character(pos)
     return {
         "Unexpected character.",
         annotate(pos, "This character isn't usable in Lua code."),
+    }
+end
+
+--------------------------------------------------------------------------------
+-- Expression parsing errors
+--------------------------------------------------------------------------------
+
+--[[- A fallback error when we expected an expression but received another token.
+
+@tparam number token The token id.
+@tparam number start_pos The start position of the token.
+@tparam number end_pos The end position of the token.
+@return The resulting parse error.
+]]
+function errors.expected_expression(token, start_pos, end_pos)
+    expect(1, token, "number")
+    expect(2, start_pos, "number")
+    expect(3, end_pos, "number")
+    return {
+        "Expected an expression near " .. this_token_name[token] .. ".",
+        annotate(start_pos, end_pos),
     }
 end
 
@@ -330,6 +355,27 @@ function errors.table_key_equals(start_pos, end_pos)
     }
 end
 
+--------------------------------------------------------------------------------
+-- Statement parsing errors
+--------------------------------------------------------------------------------
+
+--[[- A fallback error when we expected a statement but received another token.
+
+@tparam number token The token id.
+@tparam number start_pos The start position of the token.
+@tparam number end_pos The end position of the token.
+@return The resulting parse error.
+]]
+function errors.expected_statement(token, start_pos, end_pos)
+    expect(1, token, "number")
+    expect(2, start_pos, "number")
+    expect(3, end_pos, "number")
+    return {
+        "Expected a statement near " .. this_token_name[token] .. ".",
+        annotate(start_pos, end_pos),
+    }
+end
+
 --[[- `local function` was used with a table identifier.
 
 @tparam number local_start The start position of the `local` token.
@@ -345,29 +391,9 @@ function errors.local_function_dot(local_start, local_end, dot_start, dot_end)
     expect(4, dot_end, "number")
 
     return {
-        "Cannot use " .. code("local function") .. " with tables.",
+        "Cannot use " .. code("local function") .. " with a table key.",
         annotate(dot_start, dot_end, code(".") .. " appears here."),
-        annotate(local_start, local_end, "Tip: " .. "Try removing this " .. code("local") .. " keyword."), -- TODO: Include the position?
-    }
-end
-
---[[- A parenthesised expression was started but not closed.
-
-@tparam number open_start The start position of the opening bracket.
-@tparam number open_end The end position of the opening bracket.
-@tparam number tok_start The start position of the opening bracket.
-@return The resulting parse error.
-]]
-function errors.unclosed_brackets(open_start, open_end, tok_start)
-    expect(1, open_start, "number")
-    expect(2, open_end, "number")
-    expect(3, tok_start, "number")
-
-    -- TODO: Do we want to be smarter here with where we report the error?
-    return {
-        "Brackets were not closed.",
-        annotate(open_start, open_end, "Brackets were opened here."),
-        annotate(tok_start, "Expected to be closed before here."),
+        annotate(local_start, local_end, "Tip: " .. "Try removing this " .. code("local") .. " keyword."),
     }
 end
 
@@ -422,39 +448,9 @@ function errors.expected_then(if_start, if_end, token_pos)
 
 end
 
---[[- A fallback error when we expected an expression but received another token.
-
-@tparam number token The token id.
-@tparam number start_pos The start position of the token.
-@tparam number end_pos The end position of the token.
-@return The resulting parse error.
-]]
-function errors.expected_expression(token, start_pos, end_pos)
-    expect(1, token, "number")
-    expect(2, start_pos, "number")
-    expect(3, end_pos, "number")
-    return {
-        "Expected an expression near " .. this_token_name[token] .. ".",
-        annotate(start_pos, end_pos),
-    }
-end
-
---[[- A fallback error when we expected a statement but received another token.
-
-@tparam number token The token id.
-@tparam number start_pos The start position of the token.
-@tparam number end_pos The end position of the token.
-@return The resulting parse error.
-]]
-function errors.expected_statement(token, start_pos, end_pos)
-    expect(1, token, "number")
-    expect(2, start_pos, "number")
-    expect(3, end_pos, "number")
-    return {
-        "Expected a statement near " .. this_token_name[token] .. ".",
-        annotate(start_pos, end_pos),
-    }
-end
+--------------------------------------------------------------------------------
+-- Generic parsing errors
+--------------------------------------------------------------------------------
 
 --[[- A fallback error when we can't produce anything more useful.
 
@@ -471,6 +467,26 @@ function errors.unexpected_token(token, start_pos, end_pos)
     return {
         "Unexpected " .. token_names[token] .. ".",
         annotate(start_pos, end_pos),
+    }
+end
+
+--[[- A parenthesised expression was started but not closed.
+
+@tparam number open_start The start position of the opening bracket.
+@tparam number open_end The end position of the opening bracket.
+@tparam number tok_start The start position of the opening bracket.
+@return The resulting parse error.
+]]
+function errors.unclosed_brackets(open_start, open_end, tok_start)
+    expect(1, open_start, "number")
+    expect(2, open_end, "number")
+    expect(3, tok_start, "number")
+
+    -- TODO: Do we want to be smarter here with where we report the error?
+    return {
+        "Brackets were not closed.",
+        annotate(open_start, open_end, "Brackets were opened here."),
+        annotate(tok_start, "Expected to be closed before here."),
     }
 end
 

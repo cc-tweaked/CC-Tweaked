@@ -76,14 +76,14 @@ local function lex_number(context, str, start)
 
     while true do
         local c = sub(str, pos, pos)
-        if (c >= "0" and c <= "9") or (c >= "a" and c <= "f") or (c >= "A" and c <= "F") or c == "." then
-            pos = pos + 1
-        elseif c == exp_low or c == exp_high then
+        if c == exp_low or c == exp_high then
             pos = pos + 1
             c = sub(str, pos, pos)
             if c == "+" or c == "-" then
                 pos = pos + 1
             end
+        elseif (c >= "0" and c <= "9") or (c >= "a" and c <= "f") or (c >= "A" and c <= "F") or c == "." then
+            pos = pos + 1
         else
             break
         end
@@ -119,7 +119,7 @@ local function lex_string(context, str, start_pos, quote)
         elseif c == "\\" then
             c = sub(str, pos + 1, pos + 1)
             if c == "\n" or c == "\r" then
-                pos = newline(context, str, pos, c)
+                pos = newline(context, str, pos + 1, c)
             elseif c == "" then
                 context.report(errors.unfinished_string_escape(start_pos, pos, quote))
                 return tokens.STRING, pos
@@ -307,7 +307,7 @@ local function lex_token(context, str, pos)
     elseif c == "^" then return tokens.POW, pos
     elseif c == "+" then return tokens.ADD, pos
     else
-        local end_pos = find(str, "[%s%w]", pos)
+        local end_pos = find(str, "[%s%w(){}%[%]]", pos)
         if end_pos then end_pos = end_pos - 1 else end_pos = #str end
 
         if end_pos - pos <= 3 then
