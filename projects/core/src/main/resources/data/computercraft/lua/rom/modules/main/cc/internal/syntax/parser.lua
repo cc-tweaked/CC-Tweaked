@@ -147,178 +147,107 @@ local error_messages = {
     end,
 }
 local error_transitions = {
-    { [1] = 47, [4] = 47, [5] = 48, [6] = 27, [7] = 48, [8] = 27, [9] = 48, [11] = 48, [12] = 27, [13] = 48, [14] = 27, [15] = 48, [16] = 40, [19] = 2, [20] = 2, [21] = 3, [23] = 4, [24] = 49, [25] = 5, [26] = 3, [27] = 47, [29] = 28, [30] = 27, [31] = 27, [32] = 54, [33] = 27, [34] = 29, [35] = 30, [36] = 48, [37] = 29, [38] = 31, [39] = 48, [40] = 32, [41] = 29, [42] = 33, [43] = 68, [44] = 48, [45] = 61, [46] = 48, [47] = 62, [48] = 48, [49] = 62, [50] = 48, [51] = 62, [52] = 48, [53] = 63, [54] = 48, [55] = 64, [56] = 48, [57] = 61, [58] = 48, [59] = 61, [60] = 48, [61] = 64, [62] = 48, [63] = 64, [64] = 48, [65] = 64, [66] = 48, [67] = 64, [68] = 48, [69] = 64, [70] = 48, [71] = 65, [72] = 41, [74] = 26, [75] = 48, [76] = 59, [77] = 49, [78] = 34, [79] = 60, [81] = 42, [84] = 30, [85] = 35, [86] = 36, [87] = 37, [88] = 37, [89] = 68, [91] = 48, [92] = 56, [93] = 43, [94] = 48, [95] = 57, [96] = 6, [97] = 7, [98] = 7, [99] = 8, [100] = 9, [101] = 66, [102] = 50, [103] = 38, [104] = 67, [105] = 39, [106] = 37, [107] = 55, [108] = 47, [110] = 10, [111] = 11, [112] = 12, [113] = 13, [114] = 47, [116] = 48, [117] = 58, [120] = 51, [121] = 47, [123] = 14, [124] = 52, [125] = 15, [127] = 16, [129] = 53, [130] = 17, [131] = 48, [132] = 55, [133] = 47, [136] = 51, [142] = 47, [144] = 10, [146] = 51, [147] = 48, [148] = 55, [149] = 48, [150] = 55, [151] = 48, [152] = 55, [154] = 47, [156] = 18, [160] = 47, [162] = 19, [163] = 47, [165] = 17, [166] = 11, [167] = 12, [168] = 20, [169] = 21, [171] = 46, [173] = 17, [175] = 22, [176] = 23, [177] = 47, [180] = 48, [181] = 55, [182] = 47, [184] = 47, [187] = 24, [189] = 25, [191] = 47 },
-    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
-    {}, {}, {}, {}, {}, {}, {},
-    { [5] = 75, [7] = 27, [13] = 27, [15] = 27, [39] = 37, [44] = 83, [46] = 84, [48] = 84, [50] = 84, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [191] = 75 },
+    { [1] = 47, [4] = 47, [5] = 48, [6] = 27, [7] = 48, [8] = 27, [9] = 48, [10] = 45, [11] = 48, [12] = 27, [13] = 48, [14] = 27, [15] = 48, [16] = 40, [18] = 44, [19] = 2, [20] = 2, [21] = 3, [23] = 4, [24] = 49, [25] = 5, [26] = 3, [27] = 47, [29] = 28, [30] = 27, [31] = 27, [32] = 54, [33] = 27, [34] = 29, [35] = 30, [36] = 48, [37] = 29, [38] = 31, [39] = 48, [40] = 32, [41] = 29, [42] = 33, [43] = 68, [44] = 48, [45] = 61, [46] = 48, [47] = 62, [48] = 48, [49] = 62, [50] = 48, [51] = 62, [52] = 48, [53] = 63, [54] = 48, [55] = 64, [56] = 48, [57] = 61, [58] = 48, [59] = 61, [60] = 48, [61] = 64, [62] = 48, [63] = 64, [64] = 48, [65] = 64, [66] = 48, [67] = 64, [68] = 48, [69] = 64, [70] = 48, [71] = 65, [72] = 41, [73] = 44, [74] = 26, [75] = 48, [76] = 59, [77] = 49, [78] = 34, [79] = 60, [81] = 42, [84] = 30, [85] = 35, [86] = 36, [87] = 37, [88] = 37, [89] = 68, [91] = 48, [92] = 56, [93] = 43, [94] = 48, [95] = 57, [96] = 6, [97] = 7, [98] = 7, [99] = 8, [100] = 9, [101] = 66, [102] = 50, [103] = 38, [104] = 67, [105] = 39, [106] = 37, [107] = 55, [108] = 47, [110] = 10, [111] = 11, [112] = 12, [113] = 13, [114] = 47, [116] = 48, [117] = 58, [120] = 51, [121] = 47, [123] = 14, [124] = 52, [125] = 15, [127] = 16, [129] = 53, [130] = 17, [131] = 48, [132] = 55, [133] = 47, [136] = 51, [142] = 47, [144] = 10, [146] = 51, [147] = 48, [148] = 55, [149] = 48, [150] = 55, [151] = 48, [152] = 55, [154] = 47, [156] = 18, [160] = 47, [162] = 19, [163] = 47, [165] = 17, [166] = 11, [167] = 12, [168] = 20, [169] = 21, [171] = 46, [173] = 17, [175] = 22, [176] = 23, [177] = 47, [180] = 48, [181] = 55, [182] = 47, [184] = 47, [187] = 24, [189] = 25, [191] = 47 },
+    { [18] = 44, [22] = 69 }, {}, {}, {}, { [10] = 45, [99] = 8 }, {}, {},
+    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+    { [73] = 44, [111] = 11 },
+    { [5] = 75, [7] = 27, [9] = 89, [10] = 92, [11] = 90, [13] = 27, [15] = 27, [36] = 90, [39] = 37, [44] = 83, [46] = 84, [48] = 84, [50] = 84, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [73] = 89, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [180] = 91, [191] = 75 },
     {},
-    { [5] = 75, [7] = 29, [13] = 29, [15] = 29, [39] = 37, [44] = 83, [46] = 84, [48] = 84, [50] = 84, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [191] = 75 },
+    { [5] = 75, [7] = 29, [9] = 89, [10] = 92, [11] = 90, [13] = 29, [15] = 29, [36] = 90, [39] = 37, [44] = 83, [46] = 84, [48] = 84, [50] = 84, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [73] = 89, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [180] = 91, [191] = 75 },
     { [34] = 95, [83] = 94, [170] = 95 },
-    { [5] = 75, [44] = 83, [46] = 84, [48] = 84, [50] = 84, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [191] = 75 },
+    { [5] = 75, [9] = 89, [10] = 92, [11] = 90, [36] = 90, [44] = 83, [46] = 84, [48] = 84, [50] = 84, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [73] = 89, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [180] = 91, [191] = 75 },
     {},
-    { [5] = 75, [7] = 33, [13] = 33, [15] = 33, [39] = 37, [44] = 83, [46] = 84, [48] = 84, [50] = 84, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [191] = 75 },
+    { [5] = 75, [7] = 33, [9] = 89, [10] = 92, [11] = 90, [13] = 33, [15] = 33, [36] = 90, [39] = 37, [44] = 83, [46] = 84, [48] = 84, [50] = 84, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [73] = 89, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [180] = 91, [191] = 75 },
     {}, {}, {}, {}, {}, {},
-    { [4] = 46, [5] = 75, [7] = 29, [13] = 29, [15] = 29, [22] = 69, [39] = 37, [44] = 83, [46] = 84, [48] = 84, [50] = 84, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [75] = 82, [91] = 76, [94] = 77, [111] = 78, [116] = 79, [118] = 25, [126] = 80, [128] = 99, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [174] = 74, [191] = 75 },
-    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
-    { [4] = 46, [5] = 75, [7] = 29, [13] = 29, [15] = 29, [39] = 37, [44] = 83, [46] = 84, [48] = 84, [50] = 84, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [174] = 74, [191] = 75 },
-    {}, {}, {}, {}, {}, { [111] = 11, [126] = 71, [172] = 15 }, {}, {}, {},
-    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
-    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
-    { [4] = 73, [5] = 75, [7] = 29, [13] = 29, [15] = 29, [39] = 37, [44] = 83, [46] = 84, [48] = 84, [50] = 84, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [191] = 75 },
-    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
-    { [111] = 11, [126] = 71, [172] = 15 },
-    { [5] = 75, [52] = 85, [54] = 86, [56] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [191] = 75 },
-    { [5] = 75, [44] = 83, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [191] = 75 },
-    { [5] = 75, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [191] = 75 },
-    { [5] = 75, [52] = 85, [70] = 87, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [191] = 75 },
-    { [5] = 75, [52] = 85, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [191] = 75 },
+    { [4] = 46, [5] = 75, [7] = 29, [9] = 89, [11] = 90, [13] = 29, [15] = 29, [18] = 44, [22] = 69, [36] = 90, [39] = 37, [44] = 83, [46] = 84, [48] = 84, [50] = 84, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [73] = 89, [75] = 82, [91] = 76, [94] = 77, [111] = 78, [116] = 79, [118] = 25, [126] = 80, [128] = 99, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [174] = 74, [180] = 91, [191] = 75 },
+    {}, {}, { [10] = 92, [99] = 88 }, {}, {}, {}, {}, {}, {}, {},
+    { [17] = 101, [119] = 101, [135] = 101 }, {}, {},
+    { [4] = 46, [5] = 75, [7] = 29, [9] = 89, [10] = 92, [11] = 90, [13] = 29, [15] = 29, [36] = 90, [39] = 37, [44] = 83, [46] = 84, [48] = 84, [50] = 84, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [73] = 89, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [174] = 74, [180] = 91, [191] = 75 },
+    { [131] = 102, [180] = 103 }, {}, {}, {}, {},
+    { [73] = 44, [111] = 11, [126] = 71, [172] = 15 }, {}, {}, {}, {}, {},
+    { [10] = 45, [99] = 8 }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+    { [4] = 73, [5] = 75, [7] = 29, [9] = 89, [10] = 92, [11] = 90, [13] = 29, [15] = 29, [36] = 90, [39] = 37, [44] = 83, [46] = 84, [48] = 84, [50] = 84, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [73] = 89, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [180] = 91, [191] = 75 },
+    {}, {}, {}, {}, {}, { [118] = 122 }, {}, {}, {}, {}, {}, {}, {}, {}, {},
+    {}, {}, {}, { [73] = 44, [111] = 11, [126] = 71, [172] = 15 },
+    { [5] = 75, [9] = 89, [10] = 92, [11] = 90, [36] = 90, [52] = 85, [54] = 86, [56] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [73] = 89, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [180] = 91, [191] = 75 },
+    { [5] = 75, [9] = 89, [10] = 92, [11] = 90, [36] = 90, [44] = 83, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [73] = 89, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [180] = 91, [191] = 75 },
+    { [5] = 75, [9] = 89, [10] = 92, [11] = 90, [36] = 90, [73] = 89, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [180] = 91, [191] = 75 },
+    { [5] = 75, [9] = 89, [10] = 92, [11] = 90, [36] = 90, [52] = 85, [70] = 87, [73] = 89, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [180] = 91, [191] = 75 },
+    { [5] = 75, [9] = 89, [10] = 92, [11] = 90, [36] = 90, [52] = 85, [73] = 89, [75] = 82, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [172] = 81, [180] = 91, [191] = 75 },
     {},
-    { [5] = 75, [7] = 27, [13] = 27, [15] = 27, [34] = 95, [39] = 37, [44] = 83, [46] = 84, [48] = 84, [50] = 84, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [75] = 82, [83] = 94, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [170] = 95, [172] = 81, [191] = 75 },
+    { [5] = 75, [7] = 27, [9] = 89, [10] = 92, [11] = 90, [13] = 27, [15] = 27, [34] = 95, [36] = 90, [39] = 37, [44] = 83, [46] = 84, [48] = 84, [50] = 84, [52] = 85, [54] = 86, [56] = 83, [58] = 83, [60] = 86, [62] = 86, [64] = 86, [66] = 86, [68] = 86, [70] = 87, [73] = 89, [75] = 82, [83] = 94, [91] = 76, [94] = 77, [99] = 88, [111] = 78, [116] = 79, [126] = 80, [131] = 75, [147] = 75, [149] = 75, [151] = 75, [158] = 75, [170] = 95, [172] = 81, [180] = 91, [191] = 75 },
     {},
 }
 local error_states
+local function error_jump(state)
+    return function(stack, idx, regs, out)
+        return error_states[state](stack, idx - 3, regs, out)
+    end
+end
 error_states = {
     function(stack, idx, regs, out) -- State 1
         local top = stack[idx]
-        if top == 10 then
-            regs[1] = idx
-            return error_states[45](stack, idx - 3, regs, out)
-        elseif top == 18 or top == 73 then
-            regs[1] = idx
-            return error_states[44](stack, idx - 3, regs, out)
-        end
+        if top == 10 or top == 18 or top == 73 then regs[1] = idx end
         local next = error_transitions[1][top]
         if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
     function(stack, idx, regs, out) -- State 2
         local top = stack[idx]
-        if top == 18 then
-            regs[1] = idx
-            return error_states[44](stack, idx - 3, regs, out)
-        elseif top == 22 then
-            return error_states[69](stack, idx - 3, regs, out)
-        end
+        if top == 18 then regs[1] = idx end
+        local next = error_transitions[2][top]
+        if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
     function(stack, idx, regs, out) -- State 3
         regs[1] = idx
         return error_states[44](stack, idx - 3, regs, out)
     end,
-    function(stack, idx, regs, out) -- State 4
-        return error_states[69](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 5
-        return error_states[70](stack, idx - 3, regs, out)
-    end,
+    error_jump(69), -- State 4
+    error_jump(70), -- State 5
     function(stack, idx, regs, out) -- State 6
         local top = stack[idx]
-        if top == 10 then
-            regs[1] = idx
-            return error_states[45](stack, idx - 3, regs, out)
-        elseif top == 99 then
-            return error_states[8](stack, idx - 3, regs, out)
-        end
+        if top == 10 then regs[1] = idx end
+        local next = error_transitions[6][top]
+        if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
-    function(stack, idx, regs, out) -- State 7
-        return error_states[6](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 8
-        return error_states[6](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 9
-        return error_states[8](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 10
-        return error_states[24](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 11
-        return error_states[47](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 12
-        return error_states[11](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 13
-        return error_states[12](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 14
-        return error_states[10](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 15
-        return error_states[25](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 16
-        return error_states[71](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 17
-        return error_states[15](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 18
-        return error_states[72](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 19
-        return error_states[14](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 20
-        return error_states[73](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 21
-        return error_states[20](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 22
-        return error_states[74](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 23
-        return error_states[46](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 24
-        return error_states[17](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 25
-        return error_states[73](stack, idx - 3, regs, out)
-    end,
+    error_jump(6), -- State 7
+    error_jump(6), -- State 8
+    error_jump(8), -- State 9
+    error_jump(24), -- State 10
+    error_jump(47), -- State 11
+    error_jump(11), -- State 12
+    error_jump(12), -- State 13
+    error_jump(10), -- State 14
+    error_jump(25), -- State 15
+    error_jump(71), -- State 16
+    error_jump(15), -- State 17
+    error_jump(72), -- State 18
+    error_jump(14), -- State 19
+    error_jump(73), -- State 20
+    error_jump(20), -- State 21
+    error_jump(74), -- State 22
+    error_jump(46), -- State 23
+    error_jump(17), -- State 24
+    error_jump(73), -- State 25
     function(stack, idx, regs, out) -- State 26
         local top = stack[idx]
-        if top == 73 then
-            regs[1] = idx
-            return error_states[44](stack, idx - 3, regs, out)
-        elseif top == 111 then
-            return error_states[11](stack, idx - 3, regs, out)
-        end
+        if top == 73 then regs[1] = idx end
+        local next = error_transitions[26][top]
+        if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
     function(stack, idx, regs, out) -- State 27
         local top = stack[idx]
-        if top == 9 or top == 73 then
+        if (top >= 9 and top <= 11) or top == 36 or top == 73 or top == 180 then
             regs[1] = idx
-            return error_states[89](stack, idx - 3, regs, out)
-        elseif top == 10 then
-            regs[1] = idx
-            return error_states[92](stack, idx - 3, regs, out)
-        elseif top == 11 or top == 36 then
-            regs[1] = idx
-            return error_states[90](stack, idx - 3, regs, out)
-        elseif top == 180 then
-            regs[1] = idx
-            return error_states[91](stack, idx - 3, regs, out)
         end
         local next = error_transitions[27][top]
         if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
-    function(stack, idx, regs, out) -- State 28
-        return error_states[93](stack, idx - 3, regs, out)
-    end,
+    error_jump(93), -- State 28
     function(stack, idx, regs, out) -- State 29
         local top = stack[idx]
-        if top == 9 or top == 73 then
+        if (top >= 9 and top <= 11) or top == 36 or top == 73 or top == 180 then
             regs[1] = idx
-            return error_states[89](stack, idx - 3, regs, out)
-        elseif top == 10 then
-            regs[1] = idx
-            return error_states[92](stack, idx - 3, regs, out)
-        elseif top == 11 or top == 36 then
-            regs[1] = idx
-            return error_states[90](stack, idx - 3, regs, out)
-        elseif top == 180 then
-            regs[1] = idx
-            return error_states[91](stack, idx - 3, regs, out)
         end
         local next = error_transitions[29][top]
         if next then return error_states[next](stack, idx - 3, regs, out) end
@@ -330,93 +259,42 @@ error_states = {
     end,
     function(stack, idx, regs, out) -- State 31
         local top = stack[idx]
-        if top == 9 or top == 73 then
+        if (top >= 9 and top <= 11) or top == 36 or top == 73 or top == 180 then
             regs[1] = idx
-            return error_states[89](stack, idx - 3, regs, out)
-        elseif top == 10 then
-            regs[1] = idx
-            return error_states[92](stack, idx - 3, regs, out)
-        elseif top == 11 or top == 36 then
-            regs[1] = idx
-            return error_states[90](stack, idx - 3, regs, out)
-        elseif top == 180 then
-            regs[1] = idx
-            return error_states[91](stack, idx - 3, regs, out)
         end
         local next = error_transitions[31][top]
         if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
-    function(stack, idx, regs, out) -- State 32
-        return error_states[37](stack, idx - 3, regs, out)
-    end,
+    error_jump(37), -- State 32
     function(stack, idx, regs, out) -- State 33
         local top = stack[idx]
-        if top == 9 or top == 73 then
+        if (top >= 9 and top <= 11) or top == 36 or top == 73 or top == 180 then
             regs[1] = idx
-            return error_states[89](stack, idx - 3, regs, out)
-        elseif top == 10 then
-            regs[1] = idx
-            return error_states[92](stack, idx - 3, regs, out)
-        elseif top == 11 or top == 36 then
-            regs[1] = idx
-            return error_states[90](stack, idx - 3, regs, out)
-        elseif top == 180 then
-            regs[1] = idx
-            return error_states[91](stack, idx - 3, regs, out)
         end
         local next = error_transitions[33][top]
         if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
-    function(stack, idx, regs, out) -- State 34
-        return error_states[96](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 35
-        return error_states[94](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 36
-        return error_states[95](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 37
-        return error_states[33](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 38
-        return error_states[97](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 39
-        return error_states[98](stack, idx - 3, regs, out)
-    end,
+    error_jump(96), -- State 34
+    error_jump(94), -- State 35
+    error_jump(95), -- State 36
+    error_jump(33), -- State 37
+    error_jump(97), -- State 38
+    error_jump(98), -- State 39
     function(stack, idx, regs, out) -- State 40
         local top = stack[idx]
-        if top == 9 or top == 73 then
+        if top == 9 or top == 11 or top == 18 or top == 36 or top == 73 or top == 180 then
             regs[1] = idx
-            return error_states[89](stack, idx - 3, regs, out)
-        elseif top == 11 or top == 36 then
-            regs[1] = idx
-            return error_states[90](stack, idx - 3, regs, out)
-        elseif top == 18 then
-            regs[1] = idx
-            return error_states[44](stack, idx - 3, regs, out)
-        elseif top == 180 then
-            regs[1] = idx
-            return error_states[91](stack, idx - 3, regs, out)
         end
         local next = error_transitions[40][top]
         if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
-    function(stack, idx, regs, out) -- State 41
-        return error_states[42](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 42
-        return error_states[100](stack, idx - 3, regs, out)
-    end,
+    error_jump(42), -- State 41
+    error_jump(100), -- State 42
     function(stack, idx, regs, out) -- State 43
         local top = stack[idx]
-        if top == 10 then
-            regs[1] = idx
-            return error_states[92](stack, idx - 3, regs, out)
-        elseif top == 99 then
-            return error_states[88](stack, idx - 3, regs, out)
-        end
+        if top == 10 then regs[1] = idx end
+        local next = error_transitions[43][top]
+        if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
     function(stack, idx, regs, out) -- State 44
         out[#out + 1] = { 3, regs[1] }
@@ -443,30 +321,15 @@ error_states = {
     end,
     function(stack, idx, regs, out) -- State 51
         local top = stack[idx]
-        if top == 17 or top == 119 or top == 135 then
-            return error_states[101](stack, idx - 3, regs, out)
-        end
+        local next = error_transitions[51][top]
+        if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
-    function(stack, idx, regs, out) -- State 52
-        return error_states[25](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 53
-        return error_states[99](stack, idx - 3, regs, out)
-    end,
+    error_jump(25), -- State 52
+    error_jump(99), -- State 53
     function(stack, idx, regs, out) -- State 54
         local top = stack[idx]
-        if top == 9 or top == 73 then
+        if (top >= 9 and top <= 11) or top == 36 or top == 73 or top == 180 then
             regs[1] = idx
-            return error_states[89](stack, idx - 3, regs, out)
-        elseif top == 10 then
-            regs[1] = idx
-            return error_states[92](stack, idx - 3, regs, out)
-        elseif top == 11 or top == 36 then
-            regs[1] = idx
-            return error_states[90](stack, idx - 3, regs, out)
-        elseif top == 180 then
-            regs[1] = idx
-            return error_states[91](stack, idx - 3, regs, out)
         end
         local next = error_transitions[54][top]
         if next then return error_states[next](stack, idx - 3, regs, out) end
@@ -474,13 +337,9 @@ error_states = {
     function(stack, idx, regs, out) -- State 55
         out[#out + 1] = { 2 }
         local top = stack[idx]
-        if top == 131 then
-            regs[1] = idx
-            return error_states[102](stack, idx - 3, regs, out)
-        elseif top == 180 then
-            regs[1] = idx
-            return error_states[103](stack, idx - 3, regs, out)
-        end
+        if top == 131 or top == 180 then regs[1] = idx end
+        local next = error_transitions[55][top]
+        if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
     function(stack, idx, regs, out) -- State 56
         out[#out + 1] = { 2 }
@@ -501,10 +360,7 @@ error_states = {
     function(stack, idx, regs, out) -- State 60
         out[#out + 1] = { 2 }
         local top = stack[idx]
-        if top == 73 then
-            regs[1] = idx
-            return error_states[44](stack, idx - 3, regs, out)
-        end
+        if top == 73 then regs[1] = idx end
         local next = error_transitions[60][top]
         if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
@@ -532,12 +388,9 @@ error_states = {
         out[#out + 1] = { 2 }
         out[#out + 1] = { 1 }
         local top = stack[idx]
-        if top == 10 then
-            regs[1] = idx
-            return error_states[45](stack, idx - 3, regs, out)
-        elseif top == 99 then
-            return error_states[8](stack, idx - 3, regs, out)
-        end
+        if top == 10 then regs[1] = idx end
+        local next = error_transitions[66][top]
+        if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
     function(stack, idx, regs, out) -- State 67
         out[#out + 1] = { 2 }
@@ -549,24 +402,12 @@ error_states = {
         regs[1] = idx
         return error_states[111](stack, idx - 3, regs, out)
     end,
-    function(stack, idx, regs, out) -- State 69
-        return error_states[3](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 70
-        return error_states[112](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 71
-        return error_states[15](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 72
-        return error_states[113](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 73
-        return error_states[47](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 74
-        return error_states[23](stack, idx - 3, regs, out)
-    end,
+    error_jump(3), -- State 69
+    error_jump(112), -- State 70
+    error_jump(15), -- State 71
+    error_jump(113), -- State 72
+    error_jump(47), -- State 73
+    error_jump(23), -- State 74
     function(stack, idx, regs, out) -- State 75
         out[#out + 1] = { 2 }
     end,
@@ -640,51 +481,26 @@ error_states = {
         out[#out + 1] = { 2 }
         out[#out + 1] = { 1 }
     end,
-    function(stack, idx, regs, out) -- State 93
-        return error_states[120](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 94
-        return error_states[36](stack, idx - 3, regs, out)
-    end,
+    error_jump(120), -- State 93
+    error_jump(36), -- State 94
     function(stack, idx, regs, out) -- State 95
         local top = stack[idx]
-        if top == 9 or top == 73 then
+        if (top >= 9 and top <= 11) or top == 36 or top == 73 or top == 180 then
             regs[1] = idx
-            return error_states[89](stack, idx - 3, regs, out)
-        elseif top == 10 then
-            regs[1] = idx
-            return error_states[92](stack, idx - 3, regs, out)
-        elseif top == 11 or top == 36 then
-            regs[1] = idx
-            return error_states[90](stack, idx - 3, regs, out)
-        elseif top == 180 then
-            regs[1] = idx
-            return error_states[91](stack, idx - 3, regs, out)
         end
         local next = error_transitions[95][top]
         if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
-    function(stack, idx, regs, out) -- State 96
-        return error_states[30](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 97
-        return error_states[121](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 98
-        return error_states[29](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 99
-        return error_states[52](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 100
-        return error_states[54](stack, idx - 3, regs, out)
-    end,
+    error_jump(30), -- State 96
+    error_jump(121), -- State 97
+    error_jump(29), -- State 98
+    error_jump(52), -- State 99
+    error_jump(54), -- State 100
     function(stack, idx, regs, out) -- State 101
         local top = stack[idx]
-        if top == 118 then
-            regs[1] = idx
-            return error_states[122](stack, idx - 3, regs, out)
-        end
+        if top == 118 then regs[1] = idx end
+        local next = error_transitions[101][top]
+        if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
     function(stack, idx, regs, out) -- State 102
         out[#out + 1] = { 8, regs[1] }
@@ -692,152 +508,69 @@ error_states = {
     function(stack, idx, regs, out) -- State 103
         out[#out + 1] = { 9, regs[1] }
     end,
-    function(stack, idx, regs, out) -- State 104
-        return error_states[9](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 105
-        return error_states[114](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 106
-        return error_states[115](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 107
-        return error_states[116](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 108
-        return error_states[117](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 109
-        return error_states[118](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 110
-        return error_states[119](stack, idx - 3, regs, out)
-    end,
+    error_jump(9), -- State 104
+    error_jump(114), -- State 105
+    error_jump(115), -- State 106
+    error_jump(116), -- State 107
+    error_jump(117), -- State 108
+    error_jump(118), -- State 109
+    error_jump(119), -- State 110
     function(stack, idx, regs, out) -- State 111
         out[#out + 1] = { 5, regs[1] }
     end,
-    function(stack, idx, regs, out) -- State 112
-        return error_states[47](stack, idx - 3, regs, out)
-    end,
-    function(stack, idx, regs, out) -- State 113
-        return error_states[19](stack, idx - 3, regs, out)
-    end,
+    error_jump(47), -- State 112
+    error_jump(19), -- State 113
     function(stack, idx, regs, out) -- State 114
         local top = stack[idx]
-        if top == 73 then
-            regs[1] = idx
-            return error_states[44](stack, idx - 3, regs, out)
-        end
+        if top == 73 then regs[1] = idx end
         local next = error_transitions[114][top]
         if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
     function(stack, idx, regs, out) -- State 115
         local top = stack[idx]
-        if top == 9 or top == 73 then
+        if (top >= 9 and top <= 11) or top == 36 or top == 73 or top == 180 then
             regs[1] = idx
-            return error_states[89](stack, idx - 3, regs, out)
-        elseif top == 10 then
-            regs[1] = idx
-            return error_states[92](stack, idx - 3, regs, out)
-        elseif top == 11 or top == 36 then
-            regs[1] = idx
-            return error_states[90](stack, idx - 3, regs, out)
-        elseif top == 180 then
-            regs[1] = idx
-            return error_states[91](stack, idx - 3, regs, out)
         end
         local next = error_transitions[115][top]
         if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
     function(stack, idx, regs, out) -- State 116
         local top = stack[idx]
-        if top == 9 or top == 73 then
+        if (top >= 9 and top <= 11) or top == 36 or top == 73 or top == 180 then
             regs[1] = idx
-            return error_states[89](stack, idx - 3, regs, out)
-        elseif top == 10 then
-            regs[1] = idx
-            return error_states[92](stack, idx - 3, regs, out)
-        elseif top == 11 or top == 36 then
-            regs[1] = idx
-            return error_states[90](stack, idx - 3, regs, out)
-        elseif top == 180 then
-            regs[1] = idx
-            return error_states[91](stack, idx - 3, regs, out)
         end
         local next = error_transitions[116][top]
         if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
     function(stack, idx, regs, out) -- State 117
         local top = stack[idx]
-        if top == 9 or top == 73 then
+        if (top >= 9 and top <= 11) or top == 36 or top == 73 or top == 180 then
             regs[1] = idx
-            return error_states[89](stack, idx - 3, regs, out)
-        elseif top == 10 then
-            regs[1] = idx
-            return error_states[92](stack, idx - 3, regs, out)
-        elseif top == 11 or top == 36 then
-            regs[1] = idx
-            return error_states[90](stack, idx - 3, regs, out)
-        elseif top == 180 then
-            regs[1] = idx
-            return error_states[91](stack, idx - 3, regs, out)
         end
         local next = error_transitions[117][top]
         if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
     function(stack, idx, regs, out) -- State 118
         local top = stack[idx]
-        if top == 9 or top == 73 then
+        if (top >= 9 and top <= 11) or top == 36 or top == 73 or top == 180 then
             regs[1] = idx
-            return error_states[89](stack, idx - 3, regs, out)
-        elseif top == 10 then
-            regs[1] = idx
-            return error_states[92](stack, idx - 3, regs, out)
-        elseif top == 11 or top == 36 then
-            regs[1] = idx
-            return error_states[90](stack, idx - 3, regs, out)
-        elseif top == 180 then
-            regs[1] = idx
-            return error_states[91](stack, idx - 3, regs, out)
         end
         local next = error_transitions[118][top]
         if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
     function(stack, idx, regs, out) -- State 119
         local top = stack[idx]
-        if top == 9 or top == 73 then
+        if (top >= 9 and top <= 11) or top == 36 or top == 73 or top == 180 then
             regs[1] = idx
-            return error_states[89](stack, idx - 3, regs, out)
-        elseif top == 10 then
-            regs[1] = idx
-            return error_states[92](stack, idx - 3, regs, out)
-        elseif top == 11 or top == 36 then
-            regs[1] = idx
-            return error_states[90](stack, idx - 3, regs, out)
-        elseif top == 180 then
-            regs[1] = idx
-            return error_states[91](stack, idx - 3, regs, out)
         end
         local next = error_transitions[119][top]
         if next then return error_states[next](stack, idx - 3, regs, out) end
     end,
-    function(stack, idx, regs, out) -- State 120
-        return error_states[27](stack, idx - 3, regs, out)
-    end,
+    error_jump(27), -- State 120
     function(stack, idx, regs, out) -- State 121
         local top = stack[idx]
-        if top == 9 or top == 73 then
+        if (top >= 9 and top <= 11) or top == 36 or top == 73 or top == 180 then
             regs[1] = idx
-            return error_states[89](stack, idx - 3, regs, out)
-        elseif top == 10 then
-            regs[1] = idx
-            return error_states[92](stack, idx - 3, regs, out)
-        elseif top == 11 or top == 36 then
-            regs[1] = idx
-            return error_states[90](stack, idx - 3, regs, out)
-        elseif top == 180 then
-            regs[1] = idx
-            return error_states[91](stack, idx - 3, regs, out)
         end
         local next = error_transitions[121][top]
         if next then return error_states[next](stack, idx - 3, regs, out) end

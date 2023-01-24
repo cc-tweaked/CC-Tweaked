@@ -12,9 +12,8 @@ accompanying source code, and displays the error to the terminal.
 ]]
 
 local pretty = require "cc.pretty"
-local expect = require "cc.expect"
+local expect = require "cc.expect".expect
 local wrap = require "cc.strings".wrap
-local expect, field = expect.expect, expect.field
 
 --- Write a message to the screen.
 -- @tparam cc.pretty.Doc|string msg The message to write.
@@ -163,7 +162,7 @@ return function(input, get_pos, message)
             -- Print the annotations' underlines.
             local _, y = term.getCursorPos()
             pretty.write(code_accent)
-            for i, annotation in ipairs(annotations) do
+            for _, annotation in ipairs(annotations) do
                 local indicator_end = annotation.end_col
                 if current_line ~= annotation.end_line or annotation.end_col > str_end then
                     indicator_end = str_end
@@ -210,7 +209,7 @@ return function(input, get_pos, message)
                     -- Start off by drawing our connector all the way to the right.
                     local indicator_col = annotation.indicator_col
                     local len = last_col - indicator_col + 2
-                    local indicator = "\x8a" .. ("\x8c"):rep(len - 2) .. ("\x84")
+                    local indicator = "\x8a" .. ("\x8c"):rep(len - 2) .. "\x84"
                     local indicator_bg = ("f"):rep(len)
                     local indicator_fg = annotation.colour:rep(len)
                     term.setCursorPos(indicator_col, y)
