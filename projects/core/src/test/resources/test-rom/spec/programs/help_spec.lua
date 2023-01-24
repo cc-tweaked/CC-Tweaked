@@ -20,7 +20,7 @@ describe("The help program", function()
     end
 
     it("errors when there is no such help file", function()
-        expect(capture(stub, "help nothing"))
+        expect(capture("help nothing"))
             :matches { ok = true, error = "No help available\n", output = "" }
     end)
 

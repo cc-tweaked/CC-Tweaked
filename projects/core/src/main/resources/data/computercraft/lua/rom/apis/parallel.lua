@@ -1,6 +1,6 @@
 --[[- A simple way to run several functions at once.
 
-Functions are not actually executed simultaniously, but rather this API will
+Functions are not actually executed simultaneously, but rather this API will
 automatically switch between them whenever they yield (e.g. whenever they call
 @{coroutine.yield}, or functions that call that - such as @{os.pullEvent} - or
 functions that call that, etc - basically, anything that causes the function

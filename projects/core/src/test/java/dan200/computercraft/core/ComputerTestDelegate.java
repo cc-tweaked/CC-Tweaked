@@ -213,7 +213,11 @@ public class ComputerTestDelegate {
 
         void runs(String name, String uri, Executable executor) {
             if (this.executor != null) throw new IllegalStateException(name + " is leaf node");
-            if (children.containsKey(name)) throw new IllegalStateException("Duplicate key for " + name);
+            if (children.containsKey(name)) {
+                var i = 1;
+                while (children.containsKey(name + i)) i++;
+                name = name + i;
+            }
 
             children.put(name, new DynamicNodeBuilder(name, uri, executor));
         }

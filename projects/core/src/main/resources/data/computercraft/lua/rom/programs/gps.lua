@@ -66,7 +66,7 @@ elseif sCommand == "host" then
     print("Opening channel on modem " .. sModemSide)
     modem.open(gps.CHANNEL_GPS)
 
-    -- Serve requests indefinately
+    -- Serve requests indefinitely
     local nServed = 0
     while true do
         local e, p1, p2, p3, p4, p5 = os.pullEvent("modem_message")

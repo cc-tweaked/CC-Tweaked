@@ -34,7 +34,7 @@ abstract class CheckChangelog : DefaultTask() {
 
         var ok = true
 
-        // Check we're targetting the current version
+        // Check we're targeting the current version
         var whatsNew = whatsNew.get().asFile.readLines()
         if (whatsNew[0] != "New features in CC: Tweaked $version") {
             ok = false

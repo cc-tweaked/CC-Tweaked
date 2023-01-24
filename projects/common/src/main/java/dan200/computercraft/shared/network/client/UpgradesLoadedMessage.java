@@ -82,10 +82,10 @@ public class UpgradesLoadedMessage implements NetworkMessage<ClientNetworkContex
 
             var serialiser = entry.getValue().serialiser();
             @SuppressWarnings("unchecked")
-            var unwrapedSerialiser = (UpgradeSerialiser<T>) serialiser;
+            var unwrappedSerialiser = (UpgradeSerialiser<T>) serialiser;
 
             buf.writeResourceLocation(Objects.requireNonNull(registry.getKey(serialiser), "Serialiser is not registered!"));
-            unwrapedSerialiser.toNetwork(buf, entry.getValue().upgrade());
+            unwrappedSerialiser.toNetwork(buf, entry.getValue().upgrade());
 
             buf.writeUtf(entry.getValue().modId());
         }

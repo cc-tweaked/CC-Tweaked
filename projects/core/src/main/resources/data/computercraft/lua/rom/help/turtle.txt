@@ -1,4 +1,4 @@
-turtle is an api availiable on Turtles, which controls their movement.
+turtle is an api available on Turtles, which controls their movement.
 Functions in the Turtle API:
 turtle.forward()
 turtle.back()

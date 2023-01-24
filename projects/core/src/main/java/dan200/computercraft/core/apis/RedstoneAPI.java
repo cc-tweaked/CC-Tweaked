@@ -117,7 +117,7 @@ public class RedstoneAPI implements ILuaAPI {
      *
      * @param side  The side to set.
      * @param value The signal strength between 0 and 15.
-     * @throws LuaException If {@code value} is not betwene 0 and 15.
+     * @throws LuaException If {@code value} is not between 0 and 15.
      * @cc.since 1.51
      */
     @LuaFunction({ "setAnalogOutput", "setAnalogueOutput" })

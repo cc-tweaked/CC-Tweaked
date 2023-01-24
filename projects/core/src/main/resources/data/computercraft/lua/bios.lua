@@ -700,7 +700,7 @@ settings.define("motd.path", {
 
 settings.define("lua.warn_against_use_of_local", {
     default = true,
-    description = [[Print a message when input in the Lua REPL starts with the word 'local'. Local variables defined in the Lua REPL are be inaccessable on the next input.]],
+    description = [[Print a message when input in the Lua REPL starts with the word 'local'. Local variables defined in the Lua REPL are be inaccessible on the next input.]],
     type = "boolean",
 })
 settings.define("lua.function_args", {

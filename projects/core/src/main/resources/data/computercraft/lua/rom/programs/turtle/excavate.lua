@@ -93,13 +93,13 @@ local function collect()
     return true
 end
 
-function refuel(ammount)
+function refuel(amount)
     local fuelLevel = turtle.getFuelLevel()
     if fuelLevel == "unlimited" then
         return true
     end
 
-    local needed = ammount or xPos + zPos + depth + 2
+    local needed = amount or xPos + zPos + depth + 2
     if turtle.getFuelLevel() < needed then
         for n = 1, 16 do
             if turtle.getItemCount(n) > 0 then

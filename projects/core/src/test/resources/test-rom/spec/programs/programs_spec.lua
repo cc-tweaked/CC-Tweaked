@@ -5,7 +5,7 @@ describe("The programs program", function()
         local programs = stub(shell, "programs", function() return { "some", "programs" } end)
         local pagedTabulate = stub(textutils, "pagedTabulate", function(x) print(table.unpack(x)) end)
 
-        expect(capture(stub, "/rom/programs/programs.lua"))
+        expect(capture("/rom/programs/programs.lua"))
             :matches { ok = true, output = "some programs\n", error = "" }
 
         expect(programs):called_with(false)

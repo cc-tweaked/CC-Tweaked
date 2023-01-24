@@ -517,6 +517,7 @@ end
 
 local function before_each(body)
     check('it', 1, 'function', body)
+    if tests_locked then error("Cannot define before_each while running tests", 2) end
 
     local n = before_each_fns.n + 1
     before_each_fns[n], before_each_fns.n = body, n
@@ -564,16 +565,11 @@ end
 package.path = ("/%s/?.lua;/%s/?/init.lua;%s"):format(root_dir, root_dir, package.path)
 
 do
-    -- Load in the tests from all our files
-    local env = setmetatable({}, { __index = _ENV })
-
-    local function set_env(tbl)
-        for k in pairs(env) do env[k] = nil end
-        for k, v in pairs(tbl) do env[k] = v end
-    end
-
-    -- When declaring tests, you shouldn't be able to use test methods
-    set_env { describe = describe, it = it, pending = pending, before_each = before_each }
+    -- Add our new functions to the current environment.
+    for k, v in pairs {
+        describe = describe, it = it, pending = pending, before_each = before_each,
+        expect = expect, fail = fail,
+    } do _ENV[k] = v end
 
     local suffix = "_spec.lua"
     local function run_in(sub_dir)
@@ -582,7 +578,7 @@ do
             if fs.isDir(file) then
                 run_in(file)
             elseif file:sub(-#suffix) == suffix then
-                local fun, err = loadfile(file, nil, env)
+                local fun, err = loadfile(file, nil, _ENV)
                 if not fun then
                     do_test { name = file:sub(#root_dir + 2), error = { message = err } }
                 else
@@ -595,8 +591,8 @@ do
 
     run_in(root_dir)
 
-    -- When running tests, you shouldn't be able to declare new ones.
-    set_env { expect = expect, fail = fail, stub = stub }
+    -- Add stub later on, so its not available when running tests
+    _ENV.stub = stub
 end
 
 -- Error if we've found no tests

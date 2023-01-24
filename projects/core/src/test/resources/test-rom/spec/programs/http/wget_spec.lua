@@ -23,7 +23,7 @@ describe("The wget program", function()
         fs.delete("/example.com")
         setup_request(default_contents)
 
-        capture(stub, "wget", "https://example.com")
+        capture("wget", "https://example.com")
 
         expect(fs.exists("/example.com")):eq(true)
     end)
@@ -32,7 +32,7 @@ describe("The wget program", function()
         fs.delete("/test-files/download")
         setup_request(default_contents)
 
-        capture(stub, "wget", "https://example.com /test-files/download")
+        capture("wget", "https://example.com /test-files/download")
 
         expect(fs.exists("/test-files/download")):eq(true)
     end)
@@ -41,7 +41,7 @@ describe("The wget program", function()
         fs.delete("/test-files/download")
         setup_request(nil)
 
-        capture(stub, "wget", "https://example.com", "/test-files/download")
+        capture("wget", "https://example.com", "/test-files/download")
 
         expect(fs.exists("/test-files/download")):eq(true)
         expect(fs.getSize("/test-files/download")):eq(0)
@@ -50,7 +50,7 @@ describe("The wget program", function()
     it("cannot save to rom", function()
         setup_request(default_contents)
 
-        expect(capture(stub, "wget", "https://example.com", "/rom/a-file.txt")):matches {
+        expect(capture("wget", "https://example.com", "/rom/a-file.txt")):matches {
             ok = true,
             output = "Connecting to https://example.com... Success.\n",
             error = "Cannot save file: /rom/a-file.txt: Access denied\n",
@@ -60,14 +60,14 @@ describe("The wget program", function()
     it("runs a program from the internet", function()
         setup_request(default_contents)
 
-        expect(capture(stub, "wget", "run", "http://test.com", "a", "b", "c"))
+        expect(capture("wget", "run", "http://test.com", "a", "b", "c"))
             :matches { ok = true, output = "Connecting to http://test.com... Success.\nHello a b c\n", error = "" }
     end)
 
     it("displays its usage when given no arguments", function()
         setup_request(default_contents)
 
-        expect(capture(stub, "wget"))
+        expect(capture("wget"))
             :matches { ok = true, output = "Usage:\nwget <url> [filename]\nwget run <url>\n", error = "" }
     end)
 

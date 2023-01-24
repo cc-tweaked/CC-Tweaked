@@ -136,7 +136,7 @@ public class TurtleAPI implements ILuaAPI {
     }
 
     /**
-     * Rotate the turtle 90 degress to the left.
+     * Rotate the turtle 90 degrees to the left.
      *
      * @return The turtle command result.
      * @cc.treturn boolean Whether the turtle could successfully turn.
@@ -148,7 +148,7 @@ public class TurtleAPI implements ILuaAPI {
     }
 
     /**
-     * Rotate the turtle 90 degress to the right.
+     * Rotate the turtle 90 degrees to the right.
      *
      * @return The turtle command result.
      * @cc.treturn boolean Whether the turtle could successfully turn.
@@ -652,7 +652,7 @@ public class TurtleAPI implements ILuaAPI {
      * previous upgrade is removed and placed into the turtle's inventory. If there is no item in the slot, the previous
      * upgrade is removed, but no new one is equipped.
      *
-     * @return Whether an item was equiped or not.
+     * @return Whether an item was equipped or not.
      * @cc.treturn [1] true If the item was equipped.
      * @cc.treturn [2] false If we could not equip the item.
      * @cc.treturn [2] string The reason equipping this item failed.
@@ -671,7 +671,7 @@ public class TurtleAPI implements ILuaAPI {
      * previous upgrade is removed and placed into the turtle's inventory. If there is no item in the slot, the previous
      * upgrade is removed, but no new one is equipped.
      *
-     * @return Whether an item was equiped or not.
+     * @return Whether an item was equipped or not.
      * @cc.treturn [1] true If the item was equipped.
      * @cc.treturn [2] false If we could not equip the item.
      * @cc.treturn [2] string The reason equipping this item failed.
