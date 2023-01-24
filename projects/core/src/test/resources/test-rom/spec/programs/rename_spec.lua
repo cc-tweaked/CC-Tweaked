@@ -15,36 +15,36 @@ describe("The rename program", function()
     end)
 
     it("fails when renaming a file which doesn't exist", function()
-        expect(capture(stub, "rename nothing destination"))
+        expect(capture("rename nothing destination"))
             :matches { ok = true, output = "", error = "No matching files\n" }
     end)
 
     it("fails when overwriting an existing file", function()
         touch("/test-files/rename/c.txt")
 
-        expect(capture(stub, "rename /test-files/rename/c.txt /test-files/rename/c.txt"))
+        expect(capture("rename /test-files/rename/c.txt /test-files/rename/c.txt"))
             :matches { ok = true, output = "", error = "Destination exists\n" }
     end)
 
     it("fails when renaming to read-only locations", function()
         touch("/test-files/rename/d.txt")
 
-        expect(capture(stub, "rename /test-files/rename/d.txt /rom/test.txt"))
+        expect(capture("rename /test-files/rename/d.txt /rom/test.txt"))
             :matches { ok = true, output = "", error = "Destination is read-only\n" }
     end)
 
     it("fails when renaming from read-only locations", function()
-        expect(capture(stub, "rename /rom/startup.lua /test-files/rename/d.txt"))
+        expect(capture("rename /rom/startup.lua /test-files/rename/d.txt"))
             :matches { ok = true, output = "", error = "Source is read-only\n" }
     end)
 
     it("fails when renaming mounts", function()
-        expect(capture(stub, "rename /rom /test-files/rename/rom"))
+        expect(capture("rename /rom /test-files/rename/rom"))
             :matches { ok = true, output = "", error = "Can't rename mounts\n" }
     end)
 
     it("displays the usage when given no arguments", function()
-        expect(capture(stub, "rename"))
+        expect(capture("rename"))
             :matches { ok = true, output = "Usage: rename <source> <destination>\n", error = "" }
     end)
 end)

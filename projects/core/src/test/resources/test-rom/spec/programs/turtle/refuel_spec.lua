@@ -24,39 +24,39 @@ describe("The refuel program", function()
     it("errors when not a turtle", function()
         stub(_G, "turtle", nil)
 
-        expect(capture(stub, "/rom/programs/turtle/refuel.lua"))
+        expect(capture("/rom/programs/turtle/refuel.lua"))
             :matches { ok = true, output = "", error = "Requires a Turtle\n" }
     end)
 
 
     it("displays its usage when given too many argument", function()
         setup_turtle(0, 5, 0)
-        expect(capture(stub, "/rom/programs/turtle/refuel.lua a b"))
+        expect(capture("/rom/programs/turtle/refuel.lua a b"))
             :matches { ok = true, output = "Usage: /rom/programs/turtle/refuel.lua [number]\n", error = "" }
     end)
 
     it("requires a numeric argument", function()
        setup_turtle(0, 0, 0)
-       expect(capture(stub, "/rom/programs/turtle/refuel.lua nothing"))
+       expect(capture("/rom/programs/turtle/refuel.lua nothing"))
            :matches { ok = true, output = "Invalid limit, expected a number or \"all\"\n", error = "" }
     end)
 
     it("refuels the turtle", function()
        setup_turtle(0, 10, 5)
 
-       expect(capture(stub, "/rom/programs/turtle/refuel.lua 5"))
+       expect(capture("/rom/programs/turtle/refuel.lua 5"))
            :matches { ok = true, output = "Fuel level is 5\n", error = "" }
     end)
 
     it("reports when the fuel limit is reached", function()
        setup_turtle(0, 5, 5)
-       expect(capture(stub, "/rom/programs/turtle/refuel.lua 5"))
+       expect(capture("/rom/programs/turtle/refuel.lua 5"))
            :matches { ok = true, output = "Fuel level is 5\nFuel limit reached\n", error = "" }
     end)
 
     it("reports when the fuel level is unlimited", function()
        setup_turtle("unlimited", 5, 5)
-       expect(capture(stub, "/rom/programs/turtle/refuel.lua 5"))
+       expect(capture("/rom/programs/turtle/refuel.lua 5"))
            :matches { ok = true, output = "Fuel level is unlimited\n", error = "" }
     end)
 end)

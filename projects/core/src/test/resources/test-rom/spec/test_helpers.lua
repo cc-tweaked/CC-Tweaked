@@ -5,7 +5,7 @@
 -- @tparam string ... Arguments to this program.
 -- @treturn { ok = boolean, output = string, error = string, combined = string }
 -- Whether this program terminated successfully, and the various output streams.
-local function capture_program(stub, program, ...)
+local function capture_program(program, ...)
     local output, error, combined = {}, {}, {}
 
     local function out(stream, msg)

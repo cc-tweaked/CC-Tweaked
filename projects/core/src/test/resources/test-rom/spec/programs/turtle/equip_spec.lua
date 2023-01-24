@@ -4,7 +4,7 @@ describe("The turtle equip program", function()
     it("errors when not a turtle", function()
         stub(_G, "turtle", nil)
 
-        expect(capture(stub, "/rom/programs/turtle/equip.lua"))
+        expect(capture("/rom/programs/turtle/equip.lua"))
             :matches { ok = true, output = "", error = "Requires a Turtle\n" }
     end)
 
@@ -12,7 +12,7 @@ describe("The turtle equip program", function()
     it("displays its usage when given no arguments", function()
         stub(_G, "turtle", {})
 
-        expect(capture(stub, "/rom/programs/turtle/equip.lua"))
+        expect(capture("/rom/programs/turtle/equip.lua"))
             :matches { ok = true, output = "Usage: /rom/programs/turtle/equip.lua <slot> <side>\n", error = "" }
     end)
 
@@ -22,9 +22,9 @@ describe("The turtle equip program", function()
             getItemCount = function() return 0 end,
         })
 
-        expect(capture(stub, "/rom/programs/turtle/equip.lua 1 left"))
+        expect(capture("/rom/programs/turtle/equip.lua 1 left"))
             :matches { ok = true, output = "Nothing to equip\n", error = "" }
-        expect(capture(stub, "/rom/programs/turtle/equip.lua 1 right"))
+        expect(capture("/rom/programs/turtle/equip.lua 1 right"))
             :matches { ok = true, output = "Nothing to equip\n", error = "" }
     end)
 
@@ -36,9 +36,9 @@ describe("The turtle equip program", function()
             equipRight = function() return true end,
         })
 
-        expect(capture(stub, "/rom/programs/turtle/equip.lua 1 left"))
+        expect(capture("/rom/programs/turtle/equip.lua 1 left"))
             :matches { ok = true, output = "Items swapped\n", error = "" }
-        expect(capture(stub, "/rom/programs/turtle/equip.lua 1 right"))
+        expect(capture("/rom/programs/turtle/equip.lua 1 right"))
             :matches { ok = true, output = "Items swapped\n", error = "" }
     end)
 
@@ -61,13 +61,13 @@ describe("The turtle equip program", function()
 
         it("on the left", function()
             setup()
-            expect(capture(stub, "/rom/programs/turtle/equip.lua 1 left"))
+            expect(capture("/rom/programs/turtle/equip.lua 1 left"))
                 :matches { ok = true, output = "Item equipped\n", error = "" }
         end)
 
         it("on the right", function()
             setup()
-            expect(capture(stub, "/rom/programs/turtle/equip.lua 1 right"))
+            expect(capture("/rom/programs/turtle/equip.lua 1 right"))
                 :matches { ok = true, output = "Item equipped\n", error = "" }
         end)
     end)
@@ -80,9 +80,9 @@ describe("The turtle equip program", function()
             equipRight = function() return false end,
         })
 
-        expect(capture(stub, "/rom/programs/turtle/equip.lua 1 left"))
+        expect(capture("/rom/programs/turtle/equip.lua 1 left"))
             :matches { ok = true, output = "Item not equippable\n", error = "" }
-        expect(capture(stub, "/rom/programs/turtle/equip.lua 1 right"))
+        expect(capture("/rom/programs/turtle/equip.lua 1 right"))
             :matches { ok = true, output = "Item not equippable\n", error = "" }
     end)
 
