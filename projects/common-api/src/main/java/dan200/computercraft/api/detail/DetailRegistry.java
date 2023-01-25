@@ -32,6 +32,8 @@ public interface DetailRegistry<T> {
     /**
      * Compute basic details about an object. This is cheaper than computing all details operation, and so is suitable
      * for when you need to compute the details for a large number of values.
+     * <p>
+     * This method <em>MAY</em> be thread safe: consult the instance's documentation for details.
      *
      * @param object The object to get details for.
      * @return The basic details.
@@ -40,6 +42,8 @@ public interface DetailRegistry<T> {
 
     /**
      * Compute all details about an object, using {@link #getBasicDetails(Object)} and any registered providers.
+     * <p>
+     * This method is <em>NOT</em> thread safe. It should only be called from the computer thread.
      *
      * @param object The object to get details for.
      * @return The computed details.

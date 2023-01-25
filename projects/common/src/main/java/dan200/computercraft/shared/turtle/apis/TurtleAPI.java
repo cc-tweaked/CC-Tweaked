@@ -7,16 +7,13 @@ package dan200.computercraft.shared.turtle.apis;
 
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.*;
-import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.metrics.Metrics;
-import dan200.computercraft.shared.details.ItemDetails;
 import dan200.computercraft.shared.turtle.core.*;
 
-import java.util.HashMap;
 import java.util.Optional;
 
 /**
@@ -70,9 +67,9 @@ import java.util.Optional;
  */
 public class TurtleAPI implements ILuaAPI {
     private final IAPIEnvironment environment;
-    private final ITurtleAccess turtle;
+    private final TurtleAccessInternal turtle;
 
-    public TurtleAPI(IAPIEnvironment environment, ITurtleAccess turtle) {
+    public TurtleAPI(IAPIEnvironment environment, TurtleAccessInternal turtle) {
         this.environment = environment;
         this.turtle = turtle;
     }
@@ -760,20 +757,15 @@ public class TurtleAPI implements ILuaAPI {
     @LuaFunction
     public final MethodResult getItemDetail(ILuaContext context, Optional<Integer> slot, Optional<Boolean> detailed) throws LuaException {
         int actualSlot = checkSlot(slot).orElse(turtle.getSelectedSlot());
-        return detailed.orElse(false)
-            ? context.executeMainThreadTask(() -> getItemDetail(actualSlot, true))
-            : MethodResult.of(getItemDetail(actualSlot, false));
-    }
-
-    private Object[] getItemDetail(int slot, boolean detailed) {
-        var stack = turtle.getInventory().getItem(slot);
-        if (stack.isEmpty()) return new Object[]{ null };
-
-        var table = detailed
-            ? VanillaDetailRegistries.ITEM_STACK.getDetails(stack)
-            : ItemDetails.fillBasicSafe(new HashMap<>(), stack);
-
-        return new Object[]{ table };
+        if (detailed.orElse(false)) {
+            return context.executeMainThreadTask(() -> {
+                var stack = turtle.getInventory().getItem(actualSlot);
+                return new Object[]{ stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(stack) };
+            });
+        } else {
+            var stack = turtle.getItemSnapshot(actualSlot);
+            return MethodResult.of(stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getBasicDetails(stack));
+        }
     }
 
 

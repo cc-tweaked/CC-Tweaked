@@ -10,7 +10,10 @@ import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.turtle.*;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.api.turtle.TurtleAnimation;
+import dan200.computercraft.api.turtle.TurtleCommand;
+import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.impl.TurtleUpgrades;
@@ -34,6 +37,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
@@ -47,7 +51,7 @@ import java.util.function.Predicate;
 import static dan200.computercraft.shared.common.IColouredItem.NBT_COLOUR;
 import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
 
-public class TurtleBrain implements ITurtleAccess {
+public class TurtleBrain implements TurtleAccessInternal {
     public static final String NBT_RIGHT_UPGRADE = "RightUpgrade";
     public static final String NBT_RIGHT_UPGRADE_DATA = "RightUpgradeNbt";
     public static final String NBT_LEFT_UPGRADE = "LeftUpgrade";
@@ -456,7 +460,7 @@ public class TurtleBrain implements ITurtleAccess {
         return overlay;
     }
 
-    public void setOverlay(ResourceLocation overlay) {
+    public void setOverlay(@Nullable ResourceLocation overlay) {
         if (!Objects.equal(this.overlay, overlay)) {
             this.overlay = overlay;
             BlockEntityHelpers.updateBlock(owner);
@@ -766,6 +770,11 @@ public class TurtleBrain implements ITurtleAccess {
         var next = (float) animationProgress / ANIM_DURATION;
         var previous = (float) lastAnimationProgress / ANIM_DURATION;
         return previous + (next - previous) * f;
+    }
+
+    @Override
+    public ItemStack getItemSnapshot(int slot) {
+        return owner.getItemSnapshot(slot);
     }
 
     private static final class CommandCallback implements ILuaCallback {

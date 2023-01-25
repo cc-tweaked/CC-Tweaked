@@ -25,14 +25,9 @@ import java.util.*;
  * Data providers for items.
  */
 public class ItemDetails {
-    public static <T extends Map<? super String, Object>> T fillBasicSafe(T data, ItemStack stack) {
+    public static void fillBasic(Map<? super String, Object> data, ItemStack stack) {
         data.put("name", DetailHelpers.getId(RegistryWrappers.ITEMS, stack.getItem()));
         data.put("count", stack.getCount());
-        return data;
-    }
-
-    public static void fillBasic(Map<? super String, Object> data, ItemStack stack) {
-        fillBasicSafe(data, stack);
         var hash = NBTUtil.getNBTHash(stack.getTag());
         if (hash != null) data.put("nbt", hash);
     }

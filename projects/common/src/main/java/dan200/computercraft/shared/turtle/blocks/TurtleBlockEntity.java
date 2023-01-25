@@ -56,7 +56,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     }
 
     private final NonNullList<ItemStack> inventory = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
-    private final NonNullList<ItemStack> previousInventory = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> inventorySnapshot = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
     private boolean inventoryChanged = false;
     private TurtleBrain brain = new TurtleBrain(this);
     private MoveState moveState = MoveState.NOT_MOVED;
@@ -78,7 +78,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
             getFamily(), Config.turtleTermWidth,
             Config.turtleTermHeight
         );
-        computer.addAPI(new TurtleAPI(computer.getAPIEnvironment(), getAccess()));
+        computer.addAPI(new TurtleAPI(computer.getAPIEnvironment(), brain));
         brain.setupComputer(computer);
         return computer;
     }
@@ -141,11 +141,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
         if (inventoryChanged) {
             var computer = getServerComputer();
             if (computer != null) computer.queueEvent("turtle_inventory");
-
             inventoryChanged = false;
-            for (var n = 0; n < getContainerSize(); n++) {
-                previousInventory.set(n, getItem(n).copy());
-            }
         }
     }
 
@@ -178,13 +174,13 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
         // Read inventory
         var nbttaglist = nbt.getList("Items", Tag.TAG_COMPOUND);
         inventory.clear();
-        previousInventory.clear();
+        inventorySnapshot.clear();
         for (var i = 0; i < nbttaglist.size(); i++) {
             var tag = nbttaglist.getCompound(i);
             var slot = tag.getByte("Slot") & 0xff;
             if (slot < getContainerSize()) {
                 inventory.set(slot, ItemStack.of(tag));
-                previousInventory.set(slot, inventory.get(slot).copy());
+                inventorySnapshot.set(slot, inventory.get(slot).copy());
             }
         }
 
@@ -273,7 +269,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
 
     void setOwningPlayer(GameProfile player) {
         brain.setOwningPlayer(player);
-        setChanged();
+        onTileEntityChange();
     }
 
     // IInventory
@@ -283,16 +279,20 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
         return inventory;
     }
 
+    public ItemStack getItemSnapshot(int slot) {
+        return slot >= 0 && slot < inventorySnapshot.size() ? inventorySnapshot.get(slot) : ItemStack.EMPTY;
+    }
+
     @Override
     public void setChanged() {
         super.setChanged();
-        if (!inventoryChanged) {
-            for (var n = 0; n < getContainerSize(); n++) {
-                if (!ItemStack.matches(getItem(n), previousInventory.get(n))) {
-                    inventoryChanged = true;
-                    break;
-                }
-            }
+
+        for (var slot = 0; slot < getContainerSize(); slot++) {
+            var item = getItem(slot);
+            if (ItemStack.matches(item, inventorySnapshot.get(slot))) continue;
+
+            inventoryChanged = true;
+            inventorySnapshot.set(slot, item.copy());
         }
     }
 
@@ -340,7 +340,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     public void transferStateFrom(TurtleBlockEntity copy) {
         super.transferStateFrom(copy);
         Collections.copy(inventory, copy.inventory);
-        Collections.copy(previousInventory, copy.previousInventory);
+        Collections.copy(inventorySnapshot, copy.inventorySnapshot);
         inventoryChanged = copy.inventoryChanged;
         brain = copy.brain;
         brain.setOwner(this);

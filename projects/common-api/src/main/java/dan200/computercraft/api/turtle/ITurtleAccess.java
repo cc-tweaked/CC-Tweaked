@@ -15,6 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
 
@@ -24,6 +25,7 @@ import javax.annotation.Nullable;
  * This should not be implemented by your classes. Do not interact with turtles except via this interface and
  * {@link ITurtleUpgrade}.
  */
+@ApiStatus.NonExtendable
 public interface ITurtleAccess {
     /**
      * Returns the world in which the turtle resides.
