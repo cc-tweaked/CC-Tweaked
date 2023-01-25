@@ -86,9 +86,52 @@ local function timeout(time, fn)
     end
 end
 
+--- Extract a series of tests from a markdown file.
+local function describe_golden(name, file, generate)
+    describe(name, function()
+        local handle = assert(fs.open(file, "r"))
+        local contents = "\n" .. handle.readAll()
+        handle.close()
+
+        local pos = 1
+        local function run(current_level)
+            local test_idx = 1
+            while true do
+                local lua_start, lua_end, extra, lua = contents:find("```lua *([^\n]*)\n(.-)\n```\n?", pos)
+                local heading_start, heading_end, heading_lvl, heading = contents:find("\n(#+) *([^\n]+)", pos)
+
+                if heading and (not lua_start or heading_start < lua_start) then
+                    if #heading_lvl <= current_level then
+                        return
+                    end
+
+                    pos = heading_end + 1
+                    describe(heading, function() run(#heading_lvl) end)
+                elseif lua_end then
+                    local _, txt_end, txt = contents:find("^\n*```txt\n(.-)\n```\n?", lua_end + 1)
+
+                    it("test #" .. test_idx, function()
+                        expect(generate(lua, extra))
+                            :describe("For input string <<<\n" .. lua .. "\n>>>")
+                            :eq(txt)
+                    end)
+                    test_idx = test_idx + 1
+
+                    pos = (txt_end or lua_end) + 1
+                else
+                    return
+                end
+            end
+        end
+
+        run(0)
+    end)
+end
+
 return {
     capture_program = capture_program,
     with_window = with_window,
     with_window_lines = with_window_lines,
     timeout = timeout,
+    describe_golden = describe_golden,
 }

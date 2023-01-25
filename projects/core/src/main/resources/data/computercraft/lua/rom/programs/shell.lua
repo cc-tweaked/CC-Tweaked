@@ -108,10 +108,11 @@ local function executeProgram(remainingRecursion, path, args)
     end
 
     -- First check if the file begins with a #!
-    local contents = file.readLine()
-    file.close()
+    local contents = file.readLine() or ""
 
-    if contents and contents:sub(1, 2) == "#!" then
+    if contents:sub(1, 2) == "#!" then
+        file.close()
+
         remainingRecursion = remainingRecursion - 1
         if remainingRecursion == 0 then
             printError("Hashbang recursion depth limit reached when loading file: " .. path)
@@ -137,11 +138,40 @@ local function executeProgram(remainingRecursion, path, args)
         return executeProgram(remainingRecursion, resolvedHashbangProgram, hashbangArgs)
     end
 
+    contents = contents .. "\n" .. (file.readAll() or "")
+    file.close()
+
     local dir = fs.getDir(path)
-    local env = createShellEnv(dir)
+    local env = setmetatable(createShellEnv(dir), { __index = _G })
     env.arg = args
 
-    return os.run(env, path, table.unpack(args))
+    local func, err = load(contents, "@" .. fs.getName(path), nil, env)
+    if not func then
+        -- We had a syntax error. Attempt to run it through our own parser if
+        -- the file is "small enough", otherwise report the original error.
+        if #contents < 1024 * 128 then
+            local parser = require "cc.internal.syntax"
+            if parser.parse_program(contents) then printError(err) end
+        else
+            printError(err)
+        end
+
+        return false
+    end
+
+    if settings.get("bios.strict_globals", false) then
+        getmetatable(env).__newindex = function(_, name)
+            error("Attempt to create global " .. tostring(name), 2)
+        end
+    end
+
+    local ok, err = pcall(func, table.unpack(args))
+    if ok then
+        return true
+    else
+        if err and err ~= "" then printError(err) end
+        return false
+    end
 end
 
 --- Run a program with the supplied arguments.

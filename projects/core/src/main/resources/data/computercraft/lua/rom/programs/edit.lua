@@ -51,14 +51,20 @@ end
 
 local runHandler = [[multishell.setTitle(multishell.getCurrent(), %q)
 local current = term.current()
-local ok, err = load(%q, %q, nil, _ENV)
-if ok then ok, err = pcall(ok, ...) end
-term.redirect(current)
-term.setTextColor(term.isColour() and colours.yellow or colours.white)
-term.setBackgroundColor(colours.black)
-term.setCursorBlink(false)
-if not ok then
-    printError(err)
+local contents = %q
+local fn, err = load(contents, %q, nil, _ENV)
+if fn then
+    local ok, err = pcall(fn, ...)
+
+    term.redirect(current)
+    term.setTextColor(term.isColour() and colours.yellow or colours.white)
+    term.setBackgroundColor(colours.black)
+    term.setCursorBlink(false)
+
+    if not ok then printError(err) end
+else
+    local parser = require "cc.internal.syntax"
+    if parser.parse_program(contents) then printError(err) end
 end
 
 local message = "Press any key to continue."

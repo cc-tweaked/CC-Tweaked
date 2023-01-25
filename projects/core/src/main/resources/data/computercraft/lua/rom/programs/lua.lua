@@ -51,7 +51,7 @@ while bRunning do
     write("lua> ")
     --term.setTextColour( colours.white )
 
-    local s = read(nil, tCommandHistory, function(sLine)
+    local input = read(nil, tCommandHistory, function(sLine)
         if settings.get("lua.autocomplete") then
             local nStartPos = string.find(sLine, "[a-zA-Z0-9_%.:]+$")
             if nStartPos then
@@ -63,10 +63,10 @@ while bRunning do
         end
         return nil
     end)
-    if s:match("%S") and tCommandHistory[#tCommandHistory] ~= s then
-        table.insert(tCommandHistory, s)
+    if input:match("%S") and tCommandHistory[#tCommandHistory] ~= input then
+        table.insert(tCommandHistory, input)
     end
-    if settings.get("lua.warn_against_use_of_local") and s:match("^%s*local%s+") then
+    if settings.get("lua.warn_against_use_of_local") and input:match("^%s*local%s+") then
         if term.isColour() then
             term.setTextColour(colours.yellow)
         end
@@ -75,12 +75,12 @@ while bRunning do
     end
 
     local nForcePrint = 0
-    local func, e = load(s, "=lua", "t", tEnv)
-    local func2 = load("return _echo(" .. s .. ");", "=lua", "t", tEnv)
+    local func, err = load(input, "=lua", "t", tEnv)
+    local func2 = load("return _echo(" .. input .. ");", "=lua", "t", tEnv)
     if not func then
         if func2 then
             func = func2
-            e = nil
+            err = nil
             nForcePrint = 1
         end
     else
@@ -110,7 +110,8 @@ while bRunning do
             printError(tResults[2])
         end
     else
-        printError(e)
+        local parser = require "cc.internal.syntax"
+        if parser.parse_repl(input) then printError(err) end
     end
 
 end
