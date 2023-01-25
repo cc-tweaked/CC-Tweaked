@@ -97,7 +97,7 @@ local function describe_golden(name, file, generate)
         local function run(current_level)
             local test_idx = 1
             while true do
-                local lua_start, lua_end, extra, lua = contents:find("```lua([^\n]*)\n(.-)\n```\n?", pos)
+                local lua_start, lua_end, extra, lua = contents:find("```lua *([^\n]*)\n(.-)\n```\n?", pos)
                 local heading_start, heading_end, heading_lvl, heading = contents:find("\n(#+) *([^\n]+)", pos)
 
                 if heading and (not lua_start or heading_start < lua_start) then

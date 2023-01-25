@@ -54,13 +54,13 @@ return (2
 ```
 
 ```txt
-Brackets were not closed.
+Unexpected end of file. Are you missing a closing bracket?
    |
  1 | return (2
    |        ^ Brackets were opened here.
    |
  1 | return (2
-   |          ^ Expected to be closed before here.
+   |          ^ Unexpected end of file here.
 ```
 
 Function calls:
@@ -70,13 +70,13 @@ return f(2
 ```
 
 ```txt
-Brackets were not closed.
+Unexpected end of file. Are you missing a closing bracket?
    |
  1 | return f(2
    |         ^ Brackets were opened here.
    |
  1 | return f(2
-   |           ^ Expected to be closed before here.
+   |           ^ Unexpected end of file here.
 ```
 
 and function definitions:
@@ -86,13 +86,13 @@ local function f(a
 ```
 
 ```txt
-Brackets were not closed.
+Unexpected end of file. Are you missing a closing bracket?
    |
  1 | local function f(a
    |                 ^ Brackets were opened here.
    |
  1 | local function f(a
-   |                   ^ Expected to be closed before here.
+   |                   ^ Unexpected end of file here.
 ```
 
 # Statements
@@ -191,8 +191,7 @@ Expected then after if condition.
    |         ^ Expected then before here.
 ```
 
-## Expecting and unexpected `end`
-
+## Expecting `end`
 We provide errors for missing `end`s.
 
 ```lua
@@ -261,4 +260,35 @@ Unexpected end of file. Expected end or another statement.
    |
  3 | end
    |    ^ Expected end of block here.
+```
+
+## Unexpected `end`
+We also print when there's more `end`s than expected.
+
+```lua
+if true then
+end
+end
+```
+
+```txt
+Unexpected end.
+   |
+ 3 | end
+   | ^^^
+```
+
+```lua
+repeat
+  if true then
+  end
+  end
+until true
+```
+
+```txt
+Unexpected end.
+   |
+ 4 |   end
+   |   ^^^
 ```

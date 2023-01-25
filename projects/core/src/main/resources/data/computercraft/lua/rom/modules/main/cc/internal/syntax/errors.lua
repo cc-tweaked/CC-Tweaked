@@ -91,14 +91,6 @@ local token_names = setmetatable({
     [tokens.WHILE] = code("while"),
 }, { __index = function(_, name) error("No such token " .. tostring(name), 2) end })
 
---- Similar to token_names, but prefixed with "this"/"the".
-local this_token_name = setmetatable({
-    [tokens.IDENT] = "this identifier",
-    [tokens.NUMBER] = "this number",
-    [tokens.STRING] = "this string",
-    [tokens.EOF] = "the end of the file",
-}, { __index = token_names })
-
 local errors = {}
 
 --------------------------------------------------------------------------------
@@ -316,7 +308,24 @@ function errors.expected_expression(token, start_pos, end_pos)
     expect(2, start_pos, "number")
     expect(3, end_pos, "number")
     return {
-        "Expected an expression near " .. this_token_name[token] .. ".",
+        "Unexpected " .. token_names[token] .. ". Expected an expression.",
+        annotate(start_pos, end_pos),
+    }
+end
+
+--[[- A fallback error when we expected a variable but received another token.
+
+@tparam number token The token id.
+@tparam number start_pos The start position of the token.
+@tparam number end_pos The end position of the token.
+@return The resulting parse error.
+]]
+function errors.expected_var(token, start_pos, end_pos)
+    expect(1, token, "number")
+    expect(2, start_pos, "number")
+    expect(3, end_pos, "number")
+    return {
+        "Unexpected " .. token_names[token] .. ". Expected a variable name.",
         annotate(start_pos, end_pos),
     }
 end
@@ -371,7 +380,7 @@ function errors.expected_statement(token, start_pos, end_pos)
     expect(2, start_pos, "number")
     expect(3, end_pos, "number")
     return {
-        "Expected a statement near " .. this_token_name[token] .. ".",
+        "Unexpected " .. token_names[token] .. ". Expected a statement.",
         annotate(start_pos, end_pos),
     }
 end
@@ -465,6 +474,22 @@ function errors.expected_end(block_start, block_end, token, token_start, token_e
     }
 end
 
+--[[- An unexpected `end` in a statement.
+
+@tparam number start_pos The start position of the token.
+@tparam number end_pos The end position of the token.
+@return The resulting parse error.
+]]
+function errors.unexpected_end(start_pos, end_pos)
+    return {
+        "Unexpected " .. code("end") .. ".",
+        annotate(start_pos, end_pos),
+        "Your program contains more " .. code("end") .. "s than needed. Check " ..
+        "each block (" .. code("if") .. ", " .. code("for") .. ", " ..
+        code("function") .. ", ...) only has one " .. code("end") .. ".",
+    }
+end
+
 --------------------------------------------------------------------------------
 -- Generic parsing errors
 --------------------------------------------------------------------------------
@@ -494,16 +519,33 @@ end
 @tparam number tok_start The start position of the opening bracket.
 @return The resulting parse error.
 ]]
-function errors.unclosed_brackets(open_start, open_end, tok_start)
+function errors.unclosed_brackets(open_start, open_end, token, start_pos, end_pos)
     expect(1, open_start, "number")
     expect(2, open_end, "number")
-    expect(3, tok_start, "number")
+    expect(3, token, "number")
+    expect(4, start_pos, "number")
+    expect(5, end_pos, "number")
 
     -- TODO: Do we want to be smarter here with where we report the error?
     return {
-        "Brackets were not closed.",
+        "Unexpected " .. token_names[token] .. ". Are you missing a closing bracket?",
         annotate(open_start, open_end, "Brackets were opened here."),
-        annotate(tok_start, "Expected to be closed before here."),
+        annotate(start_pos, end_pos, "Unexpected " .. token_names[token] .. " here."),
+
+    }
+end
+
+--[[- Expected `(` to open our function arguments.
+
+@tparam number token The token id.
+@tparam number start_pos The start position of the token.
+@tparam number end_pos The end position of the token.
+@return The resulting parse error.
+]]
+function errors.expected_function_args(token, start_pos, end_pos)
+    return {
+        "Unexpected " .. token_names[token] .. ". Expected " .. code("(") .. " to start function arguments.",
+        annotate(start_pos, end_pos),
     }
 end
 

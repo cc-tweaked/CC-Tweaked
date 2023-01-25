@@ -2,8 +2,9 @@ An exhaustive list of all error states in the parser, and the error messages we
 generate for each one. This is _not_ a complete collection of all possible
 errors, but is a useful guide for where we might be providing terrible messages.
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 break until
+-- Line 1: <eof> expected near 'until' (repl_exprs)
 ```
 
 ```txt
@@ -16,10 +17,11 @@ Unexpected until.
 
 ```lua
 break while
+-- Line 1: unexpected symbol near <eof> (program)
 ```
 
 ```txt
-Expected a statement near while.
+Unexpected while. Expected a statement.
    |
  1 | break while
    |       ^^^^^
@@ -28,10 +30,11 @@ Expected a statement near while.
 
 ```lua
 do end true
+-- Line 1: unexpected symbol near 'true' (program)
 ```
 
 ```txt
-Expected a statement near true.
+Unexpected true. Expected a statement.
    |
  1 | do end true
    |        ^^^^
@@ -40,6 +43,7 @@ Expected a statement near true.
 
 ```lua
 do until
+-- Line 1: 'end' expected near 'until' (program)
 ```
 
 ```txt
@@ -53,8 +57,9 @@ Unexpected until. Expected end or another statement.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 ... true
+-- Line 1: <eof> expected near 'true' (repl_exprs)
 ```
 
 ```txt
@@ -67,6 +72,7 @@ Unexpected true.
 
 ```lua
 for xyz , xyz while
+-- Line 1: 'in' expected near 'while' (program)
 ```
 
 ```txt
@@ -79,10 +85,11 @@ Unexpected while.
 
 ```lua
 for xyz , while
+-- Line 1: <name> expected near 'while' (program)
 ```
 
 ```txt
-Unexpected while.
+Unexpected while. Expected a variable name.
    |
  1 | for xyz , while
    |           ^^^^^
@@ -91,6 +98,7 @@ Unexpected while.
 
 ```lua
 for xyz = xyz , xyz , xyz while
+-- Line 1: 'do' expected near 'while' (program)
 ```
 
 ```txt
@@ -103,10 +111,11 @@ Unexpected while.
 
 ```lua
 for xyz = xyz , xyz , while
+-- Line 1: unexpected symbol near 'while' (program)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | for xyz = xyz , xyz , while
    |                       ^^^^^
@@ -115,6 +124,7 @@ Expected an expression near while.
 
 ```lua
 for xyz = xyz , xyz do until
+-- Line 1: 'end' expected near 'until' (program)
 ```
 
 ```txt
@@ -130,6 +140,7 @@ Unexpected until. Expected end or another statement.
 
 ```lua
 for xyz = xyz , xyz while
+-- Line 1: 'do' expected near 'while' (program)
 ```
 
 ```txt
@@ -142,10 +153,11 @@ Unexpected while.
 
 ```lua
 for xyz = xyz , while
+-- Line 1: unexpected symbol near 'while' (program)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | for xyz = xyz , while
    |                 ^^^^^
@@ -154,6 +166,7 @@ Expected an expression near while.
 
 ```lua
 for xyz = xyz while
+-- Line 1: ',' expected near 'while' (program)
 ```
 
 ```txt
@@ -166,10 +179,11 @@ Unexpected while.
 
 ```lua
 for xyz = while
+-- Line 1: unexpected symbol near 'while' (program)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | for xyz = while
    |           ^^^^^
@@ -178,6 +192,7 @@ Expected an expression near while.
 
 ```lua
 for xyz in xyz do until
+-- Line 1: 'end' expected near 'until' (program)
 ```
 
 ```txt
@@ -193,6 +208,7 @@ Unexpected until. Expected end or another statement.
 
 ```lua
 for xyz in xyz while
+-- Line 1: 'do' expected near 'while' (program)
 ```
 
 ```txt
@@ -205,10 +221,11 @@ Unexpected while.
 
 ```lua
 for xyz in while
+-- Line 1: unexpected symbol near 'while' (program)
 ```
 
 ```txt
-Unexpected while.
+Unexpected while. Expected an expression.
    |
  1 | for xyz in while
    |            ^^^^^
@@ -217,6 +234,7 @@ Unexpected while.
 
 ```lua
 for xyz while
+-- Line 1: '=' or 'in' expected near 'while' (program)
 ```
 
 ```txt
@@ -229,10 +247,11 @@ Unexpected while.
 
 ```lua
 for while
+-- Line 1: <name> expected near 'while' (program)
 ```
 
 ```txt
-Unexpected while.
+Unexpected while. Expected a variable name.
    |
  1 | for while
    |     ^^^^^
@@ -241,6 +260,7 @@ Unexpected while.
 
 ```lua
 function xyz : while
+-- Line 1: <name> expected near 'while' (program)
 ```
 
 ```txt
@@ -253,6 +273,7 @@ Unexpected while.
 
 ```lua
 function xyz . while
+-- Line 1: <name> expected near 'while' (program)
 ```
 
 ```txt
@@ -265,10 +286,11 @@ Unexpected while.
 
 ```lua
 function xyz ( ) until
+-- Line 1: 'end' expected near 'until' (program)
 ```
 
 ```txt
-Expected a statement near until.
+Unexpected until. Expected a statement.
    |
  1 | function xyz ( ) until
    |                  ^^^^^
@@ -277,6 +299,7 @@ Expected a statement near until.
 
 ```lua
 function xyz while
+-- Line 1: '(' expected near 'while' (program)
 ```
 
 ```txt
@@ -287,20 +310,22 @@ Unexpected while.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 function ( ) until
+-- Line 1: 'end' expected near 'until' (repl_exprs)
 ```
 
 ```txt
-Expected a statement near until.
+Unexpected until. Expected a statement.
    |
  1 | function ( ) until
    |              ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 function ( xyz , while
+-- Line 1: <name> or '...' expected near 'while' (repl_exprs)
 ```
 
 ```txt
@@ -311,86 +336,93 @@ Unexpected while.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 function ( xyz while
+-- Line 1: ')' expected near 'while' (repl_exprs)
 ```
 
 ```txt
-Brackets were not closed.
+Unexpected while. Are you missing a closing bracket?
    |
  1 | function ( xyz while
    |          ^ Brackets were opened here.
    |
  1 | function ( xyz while
-   |                ^ Expected to be closed before here.
+   |                ^^^^^ Unexpected while here.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 function ( while
+-- Line 1: <name> or '...' expected near 'while' (repl_exprs)
 ```
 
 ```txt
-Brackets were not closed.
+Unexpected while. Are you missing a closing bracket?
    |
  1 | function ( while
    |          ^ Brackets were opened here.
    |
  1 | function ( while
-   |            ^ Expected to be closed before here.
+   |            ^^^^^ Unexpected while here.
 ```
 
 
 ```lua
 function while
+-- Line 1: <name> expected near 'while' (program)
 ```
 
 ```txt
-Unexpected while.
+Unexpected while. Expected a variable name.
    |
  1 | function while
    |          ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 function while
+-- Line 1: <name> expected near 'while' (repl_exprs)
 ```
 
 ```txt
-Unexpected while.
+Unexpected while. Expected ( to start function arguments.
    |
  1 | function while
    |          ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz + while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz + while
    |       ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz and while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz and while
    |         ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz : xyz while
+-- Line 1: function arguments expected near 'while' (repl_exprs)
 ```
 
 ```txt
@@ -401,8 +433,9 @@ Unexpected while.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz : while
+-- Line 1: <name> expected near 'while' (repl_exprs)
 ```
 
 ```txt
@@ -413,8 +446,9 @@ Unexpected while.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz , xyz then
+-- Line 1: '=' expected near 'then' (repl_exprs)
 ```
 
 ```txt
@@ -427,6 +461,7 @@ Unexpected then.
 
 ```lua
 xyz , xyz while
+-- Line 1: '=' expected near 'while' (program)
 ```
 
 ```txt
@@ -440,54 +475,59 @@ Did you mean to assign this or call it as a function?
 
 ```lua
 xyz , while
+-- Line 1: unexpected symbol near 'while' (program)
 ```
 
 ```txt
-Unexpected while.
+Unexpected while. Expected a variable name.
    |
  1 | xyz , while
    |       ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz , while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz , while
    |       ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz .. while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz .. while
    |        ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz / while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz / while
    |       ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz . while
+-- Line 1: <name> expected near 'while' (repl_exprs)
 ```
 
 ```txt
@@ -498,12 +538,13 @@ Unexpected while.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz == while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz == while
    |        ^^^^^
@@ -512,10 +553,11 @@ Expected an expression near while.
 
 ```lua
 xyz = xyz )
+-- Line 1: unexpected symbol near ')' (program)
 ```
 
 ```txt
-Expected a statement near ).
+Unexpected ). Expected a statement.
    |
  1 | xyz = xyz )
    |           ^
@@ -524,175 +566,189 @@ Expected a statement near ).
 
 ```lua
 xyz = while
+-- Line 1: unexpected symbol near 'while' (program)
 ```
 
 ```txt
-Unexpected while.
+Unexpected while. Expected an expression.
    |
  1 | xyz = while
    |       ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz >= while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz >= while
    |        ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz > while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz > while
    |       ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz <= while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz <= while
    |        ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz < while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz < while
    |       ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz % while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz % while
    |       ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz * while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz * while
    |       ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz ~= while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz ~= while
    |        ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz ( xyz until
+-- Line 1: ')' expected near 'until' (repl_exprs)
 ```
 
 ```txt
-Brackets were not closed.
+Unexpected until. Are you missing a closing bracket?
    |
  1 | xyz ( xyz until
    |     ^ Brackets were opened here.
    |
  1 | xyz ( xyz until
-   |           ^ Expected to be closed before here.
+   |           ^^^^^ Unexpected until here.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz ( while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Brackets were not closed.
+Unexpected while. Are you missing a closing bracket?
    |
  1 | xyz ( while
    |     ^ Brackets were opened here.
    |
  1 | xyz ( while
-   |       ^ Expected to be closed before here.
+   |       ^^^^^ Unexpected while here.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz or while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz or while
    |        ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz [ xyz while
+-- Line 1: ']' expected near 'while' (repl_exprs)
 ```
 
 ```txt
-Brackets were not closed.
+Unexpected while. Are you missing a closing bracket?
    |
  1 | xyz [ xyz while
    |     ^ Brackets were opened here.
    |
  1 | xyz [ xyz while
-   |           ^ Expected to be closed before here.
+   |           ^^^^^ Unexpected while here.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz [ while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz [ while
    |       ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz ^ while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz ^ while
    |       ^^^^^
@@ -701,30 +757,33 @@ Expected an expression near while.
 
 ```lua
 xyz 'abc' true
+-- Line 1: unexpected symbol near 'true' (program)
 ```
 
 ```txt
-Expected a statement near true.
+Unexpected true. Expected a statement.
    |
  1 | xyz 'abc' true
    |           ^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz - while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | xyz - while
    |       ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz then
+-- Line 1: syntax error near 'then' (repl_exprs)
 ```
 
 ```txt
@@ -735,8 +794,9 @@ Unexpected then.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz true
+-- Line 1: syntax error near 'true' (repl_exprs)
 ```
 
 ```txt
@@ -749,6 +809,7 @@ Unexpected true.
 
 ```lua
 xyz while
+-- Line 1: syntax error near 'while' (program)
 ```
 
 ```txt
@@ -760,8 +821,9 @@ Did you mean to assign this or call it as a function?
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 xyz while
+-- Line 1: syntax error near 'while' (repl_exprs)
 ```
 
 ```txt
@@ -774,6 +836,7 @@ Unexpected while.
 
 ```lua
 if xyz then else until
+-- Line 1: 'end' expected near 'until' (program)
 ```
 
 ```txt
@@ -789,6 +852,7 @@ Unexpected until. Expected end or another statement.
 
 ```lua
 if xyz then elseif xyz while
+-- Line 1: 'then' expected near 'while' (program)
 ```
 
 ```txt
@@ -804,10 +868,11 @@ Expected then after if condition.
 
 ```lua
 if xyz then elseif while
+-- Line 1: unexpected symbol near 'while' (program)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | if xyz then elseif while
    |                    ^^^^^
@@ -816,6 +881,7 @@ Expected an expression near while.
 
 ```lua
 if xyz then until
+-- Line 1: 'end' expected near 'until' (program)
 ```
 
 ```txt
@@ -831,6 +897,7 @@ Unexpected until. Expected end or another statement.
 
 ```lua
 if xyz while
+-- Line 1: 'then' expected near 'while' (program)
 ```
 
 ```txt
@@ -846,22 +913,24 @@ Expected then after if condition.
 
 ```lua
 if while
+-- Line 1: unexpected symbol near 'while' (program)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | if while
    |    ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 # while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | # while
    |   ^^^^^
@@ -870,10 +939,11 @@ Expected an expression near while.
 
 ```lua
 local function xyz ( ) until
+-- Line 1: 'end' expected near 'until' (program)
 ```
 
 ```txt
-Expected a statement near until.
+Unexpected until. Expected a statement.
    |
  1 | local function xyz ( ) until
    |                        ^^^^^
@@ -882,10 +952,11 @@ Expected a statement near until.
 
 ```lua
 local function xyz while
+-- Line 1: '(' expected near 'while' (program)
 ```
 
 ```txt
-Unexpected while.
+Unexpected while. Expected ( to start function arguments.
    |
  1 | local function xyz while
    |                    ^^^^^
@@ -894,10 +965,11 @@ Unexpected while.
 
 ```lua
 local function while
+-- Line 1: <name> expected near 'while' (program)
 ```
 
 ```txt
-Unexpected while.
+Unexpected while. Expected a variable name.
    |
  1 | local function while
    |                ^^^^^
@@ -906,10 +978,11 @@ Unexpected while.
 
 ```lua
 local xyz = xyz )
+-- Line 1: unexpected symbol near ')' (program)
 ```
 
 ```txt
-Expected a statement near ).
+Unexpected ). Expected a statement.
    |
  1 | local xyz = xyz )
    |                 ^
@@ -918,10 +991,11 @@ Expected a statement near ).
 
 ```lua
 local xyz = while
+-- Line 1: unexpected symbol near 'while' (program)
 ```
 
 ```txt
-Unexpected while.
+Unexpected while. Expected an expression.
    |
  1 | local xyz = while
    |             ^^^^^
@@ -930,10 +1004,11 @@ Unexpected while.
 
 ```lua
 local xyz true
+-- Line 1: unexpected symbol near 'true' (program)
 ```
 
 ```txt
-Expected a statement near true.
+Unexpected true. Expected a statement.
    |
  1 | local xyz true
    |           ^^^^
@@ -942,6 +1017,7 @@ Expected a statement near true.
 
 ```lua
 local while
+-- Line 1: <name> expected near 'while' (program)
 ```
 
 ```txt
@@ -952,104 +1028,112 @@ Unexpected while.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 not while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | not while
    |     ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 { xyz , while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Brackets were not closed.
+Unexpected while. Are you missing a closing bracket?
    |
  1 | { xyz , while
    | ^ Brackets were opened here.
    |
  1 | { xyz , while
-   |         ^ Expected to be closed before here.
+   |         ^^^^^ Unexpected while here.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 { xyz = xyz while
+-- Line 1: '}' expected near 'while' (repl_exprs)
 ```
 
 ```txt
-Brackets were not closed.
+Unexpected while. Are you missing a closing bracket?
    |
  1 | { xyz = xyz while
    | ^ Brackets were opened here.
    |
  1 | { xyz = xyz while
-   |             ^ Expected to be closed before here.
+   |             ^^^^^ Unexpected while here.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 { xyz = while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | { xyz = while
    |         ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 { xyz while
+-- Line 1: '}' expected near 'while' (repl_exprs)
 ```
 
 ```txt
-Brackets were not closed.
+Unexpected while. Are you missing a closing bracket?
    |
  1 | { xyz while
    | ^ Brackets were opened here.
    |
  1 | { xyz while
-   |       ^ Expected to be closed before here.
+   |       ^^^^^ Unexpected while here.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 { [ xyz ] = xyz while
+-- Line 1: '}' expected near 'while' (repl_exprs)
 ```
 
 ```txt
-Brackets were not closed.
+Unexpected while. Are you missing a closing bracket?
    |
  1 | { [ xyz ] = xyz while
    | ^ Brackets were opened here.
    |
  1 | { [ xyz ] = xyz while
-   |                 ^ Expected to be closed before here.
+   |                 ^^^^^ Unexpected while here.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 { [ xyz ] = while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | { [ xyz ] = while
    |             ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 { [ xyz ] while
+-- Line 1: '=' expected near 'while' (repl_exprs)
 ```
 
 ```txt
@@ -1060,50 +1144,54 @@ Unexpected while.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 { [ xyz while
+-- Line 1: ']' expected near 'while' (repl_exprs)
 ```
 
 ```txt
-Brackets were not closed.
+Unexpected while. Are you missing a closing bracket?
    |
  1 | { [ xyz while
    |   ^ Brackets were opened here.
    |
  1 | { [ xyz while
-   |         ^ Expected to be closed before here.
+   |         ^^^^^ Unexpected while here.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 { [ while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | { [ while
    |     ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 { while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Brackets were not closed.
+Unexpected while. Are you missing a closing bracket?
    |
  1 | { while
    | ^ Brackets were opened here.
    |
  1 | { while
-   |   ^ Expected to be closed before here.
+   |   ^^^^^ Unexpected while here.
 ```
 
 
 ```lua
 ( xyz ) while
+-- Line 1: syntax error near 'while' (program)
 ```
 
 ```txt
@@ -1114,27 +1202,29 @@ Unexpected while.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 ( xyz while
+-- Line 1: ')' expected near 'while' (repl_exprs)
 ```
 
 ```txt
-Brackets were not closed.
+Unexpected while. Are you missing a closing bracket?
    |
  1 | ( xyz while
    | ^ Brackets were opened here.
    |
  1 | ( xyz while
-   |       ^ Expected to be closed before here.
+   |       ^^^^^ Unexpected while here.
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 ( while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | ( while
    |   ^^^^^
@@ -1143,22 +1233,25 @@ Expected an expression near while.
 
 ```lua
 repeat end
+-- Line 1: 'until' expected near 'end' (program)
 ```
 
 ```txt
-Expected a statement near end.
+Unexpected end.
    |
  1 | repeat end
    |        ^^^
+Your program contains more ends than needed. Check each block (if, for, function, ...) only has one end.
 ```
 
 
 ```lua
 repeat until xyz then
+-- Line 1: unexpected symbol near 'then' (program)
 ```
 
 ```txt
-Expected a statement near then.
+Unexpected then. Expected a statement.
    |
  1 | repeat until xyz then
    |                  ^^^^
@@ -1167,10 +1260,11 @@ Expected a statement near then.
 
 ```lua
 repeat until while
+-- Line 1: unexpected symbol near 'while' (program)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | repeat until while
    |              ^^^^^
@@ -1179,10 +1273,11 @@ Expected an expression near while.
 
 ```lua
 return xyz )
+-- Line 1: <eof> expected near ')' (program)
 ```
 
 ```txt
-Expected a statement near ).
+Unexpected ). Expected a statement.
    |
  1 | return xyz )
    |            ^
@@ -1191,10 +1286,11 @@ Expected a statement near ).
 
 ```lua
 return xyz while
+-- Line 1: <eof> expected near 'while' (program)
 ```
 
 ```txt
-Expected a statement near while.
+Unexpected while. Expected a statement.
    |
  1 | return xyz while
    |            ^^^^^
@@ -1203,22 +1299,24 @@ Expected a statement near while.
 
 ```lua
 return while
+-- Line 1: unexpected symbol near 'while' (program)
 ```
 
 ```txt
-Expected a statement near while.
+Unexpected while. Expected a statement.
    |
  1 | return while
    |        ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 - while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | - while
    |   ^^^^^
@@ -1227,10 +1325,11 @@ Expected an expression near while.
 
 ```lua
 true
+-- Line 1: unexpected symbol near 'true' (program)
 ```
 
 ```txt
-Expected a statement near true.
+Unexpected true. Expected a statement.
    |
  1 | true
    | ^^^^
@@ -1239,22 +1338,24 @@ Expected a statement near true.
 
 ```lua
 until
+-- Line 1: <eof> expected near 'until' (program)
 ```
 
 ```txt
-Expected a statement near until.
+Unexpected until. Expected a statement.
    |
  1 | until
    | ^^^^^
 ```
 
 
-```lua{repl_exprs}
+```lua {repl_exprs}
 until
+-- Line 1: <eof> expected near 'until' (repl_exprs)
 ```
 
 ```txt
-Expected a statement near until.
+Unexpected until. Expected a statement.
    |
  1 | until
    | ^^^^^
@@ -1263,6 +1364,7 @@ Expected a statement near until.
 
 ```lua
 while xyz do until
+-- Line 1: 'end' expected near 'until' (program)
 ```
 
 ```txt
@@ -1278,6 +1380,7 @@ Unexpected until. Expected end or another statement.
 
 ```lua
 while xyz while
+-- Line 1: 'do' expected near 'while' (program)
 ```
 
 ```txt
@@ -1290,10 +1393,11 @@ Unexpected while.
 
 ```lua
 while while
+-- Line 1: unexpected symbol near 'while' (program)
 ```
 
 ```txt
-Expected an expression near while.
+Unexpected while. Expected an expression.
    |
  1 | while while
    |       ^^^^^
