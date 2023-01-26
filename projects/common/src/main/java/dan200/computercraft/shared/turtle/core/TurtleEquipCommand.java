@@ -8,7 +8,6 @@ package dan200.computercraft.shared.turtle.core;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.turtle.TurtleUtil;
-import net.minecraft.world.item.ItemStack;
 
 public class TurtleEquipCommand implements TurtleCommand {
     private final TurtleSide side;
@@ -19,32 +18,22 @@ public class TurtleEquipCommand implements TurtleCommand {
 
     @Override
     public TurtleCommandResult execute(ITurtleAccess turtle) {
+        // Determine the upgrade to replace
+        var oldUpgrade = turtle.getUpgrade(side);
+
         // Determine the upgrade to equipLeft
         ITurtleUpgrade newUpgrade;
-        ItemStack newUpgradeStack;
         var selectedStack = turtle.getInventory().getItem(turtle.getSelectedSlot());
         if (!selectedStack.isEmpty()) {
-            newUpgradeStack = selectedStack.copy();
-            newUpgrade = TurtleUpgrades.instance().get(newUpgradeStack);
+            newUpgrade = TurtleUpgrades.instance().get(selectedStack);
             if (newUpgrade == null) return TurtleCommandResult.failure("Not a valid upgrade");
         } else {
-            newUpgradeStack = null;
             newUpgrade = null;
         }
 
-        // Determine the upgrade to replace
-        ItemStack oldUpgradeStack;
-        var oldUpgrade = turtle.getUpgrade(side);
-        if (oldUpgrade != null) {
-            var craftingItem = oldUpgrade.getCraftingItem();
-            oldUpgradeStack = !craftingItem.isEmpty() ? craftingItem.copy() : null;
-        } else {
-            oldUpgradeStack = null;
-        }
-
         // Do the swapping:
-        if (newUpgradeStack != null) turtle.getInventory().removeItem(turtle.getSelectedSlot(), 1);
-        if (oldUpgradeStack != null) TurtleUtil.storeItemOrDrop(turtle, oldUpgradeStack);
+        if (newUpgrade != null) turtle.getInventory().removeItem(turtle.getSelectedSlot(), 1);
+        if (oldUpgrade != null) TurtleUtil.storeItemOrDrop(turtle, oldUpgrade.getCraftingItem().copy());
         turtle.setUpgrade(side, newUpgrade);
 
         // Animate

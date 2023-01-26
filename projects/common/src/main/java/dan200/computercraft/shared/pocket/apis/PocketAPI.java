@@ -69,7 +69,7 @@ public class PocketAPI implements ILuaAPI {
         if (newUpgrade == null) return new Object[]{ false, "Cannot find a valid upgrade" };
 
         // Remove the current upgrade
-        if (previousUpgrade != null) storeItem(player, previousUpgrade.getCraftingItem());
+        if (previousUpgrade != null) storeItem(player, previousUpgrade.getCraftingItem().copy());
 
         // Set the new upgrade
         computer.setUpgrade(newUpgrade);
@@ -88,14 +88,13 @@ public class PocketAPI implements ILuaAPI {
     public final Object[] unequipBack() {
         var entity = computer.getEntity();
         if (!(entity instanceof Player player)) return new Object[]{ false, "Cannot find player" };
-        var inventory = player.getInventory();
         var previousUpgrade = computer.getUpgrade();
 
         if (previousUpgrade == null) return new Object[]{ false, "Nothing to unequip" };
 
         computer.setUpgrade(null);
 
-        storeItem(player, previousUpgrade.getCraftingItem());
+        storeItem(player, previousUpgrade.getCraftingItem().copy());
 
         return new Object[]{ true };
     }
