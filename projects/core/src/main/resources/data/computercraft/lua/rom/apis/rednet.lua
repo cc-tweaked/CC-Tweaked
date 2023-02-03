@@ -319,7 +319,7 @@ different, or if they only join a given network after "registering" themselves
 before doing so (eg while offline or part of a different network).
 
 @tparam string protocol The protocol this computer provides.
-@tparam string hostname The name this protocol exposes for the given protocol.
+@tparam string hostname The name this computer exposes for the given protocol.
 @throws If trying to register a hostname which is reserved, or currently in use.
 @see rednet.unhost
 @see rednet.lookup
