@@ -52,6 +52,15 @@ import java.util.Set;
  * <li><strong>Wired modems:</strong> These send messages to other any other wired modems connected to the same network
  * (using <em>Networking Cable</em>). They also can be used to attach additional peripherals to a computer.</li></ul>
  *
+ * ## Recipes
+ * <div class="recipe-container">
+ *     <mc-recipe recipe="computercraft:wireless_modem_normal"></mc-recipe>
+ *     <mc-recipe recipe="computercraft:wireless_modem_advanced"></mc-recipe>
+ *     <mc-recipe recipe="computercraft:wired_modem"></mc-recipe>
+ *     <mc-recipe recipe="computercraft:cable"></mc-recipe>
+ *     <mc-recipe recipe="computercraft:wired_modem_full_from"></mc-recipe>
+ * </div>
+ *
  * @cc.module modem
  * @cc.see modem_message Queued when a modem receives a message on an {@link #open(int) open channel}.
  * @cc.see rednet A networking API built on top of the modem peripheral.
@@ -74,14 +83,6 @@ import java.util.Set;
  * print("Received a reply: " .. tostring(message))
  * }</pre>
  * <p>
- * ## Recipes
- * <div class="recipe-container">
- *     <mc-recipe recipe="computercraft:wireless_modem_normal"></mc-recipe>
- *     <mc-recipe recipe="computercraft:wireless_modem_advanced"></mc-recipe>
- *     <mc-recipe recipe="computercraft:wired_modem"></mc-recipe>
- *     <mc-recipe recipe="computercraft:cable"></mc-recipe>
- *     <mc-recipe recipe="computercraft:wired_modem_full_from"></mc-recipe>
- * </div>
  */
 public abstract class ModemPeripheral implements IPeripheral, PacketSender, PacketReceiver {
     private @Nullable PacketNetwork network;

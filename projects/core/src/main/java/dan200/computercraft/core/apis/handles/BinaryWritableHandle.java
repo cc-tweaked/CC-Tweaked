@@ -42,8 +42,8 @@ public class BinaryWritableHandle extends HandleGeneric {
      *
      * @param arguments The value to write.
      * @throws LuaException If the file has been closed.
-     * @cc.tparam [1] number The byte to write.
-     * @cc.tparam [2] string The string to write.
+     * @cc.tparam [1] number charcode The byte to write.
+     * @cc.tparam [2] string contents The string to write.
      * @cc.changed 1.80pr1 Now accepts a string to write multiple bytes.
      */
     @LuaFunction
