@@ -8,7 +8,7 @@ break until
 ```
 
 ```txt
-Unexpected until.
+Unexpected until. Expected a statement.
    |
  1 | break until
    |       ^^^^^
@@ -76,7 +76,7 @@ for xyz , xyz while
 ```
 
 ```txt
-Unexpected while.
+Unexpected while. Expected a statement.
    |
  1 | for xyz , xyz while
    |               ^^^^^
@@ -93,6 +93,22 @@ Unexpected while. Expected a variable name.
    |
  1 | for xyz , while
    |           ^^^^^
+```
+
+
+```lua
+for xyz = xyz , xyz , xyz do until
+-- Line 1: 'end' expected near 'until' (program)
+```
+
+```txt
+Unexpected until. Expected end or another statement.
+   |
+ 1 | for xyz = xyz , xyz , xyz do until
+   | ^^^ Block started here.
+   |
+ 1 | for xyz = xyz , xyz , xyz do until
+   |                              ^^^^^ Expected end of block here.
 ```
 
 
@@ -290,10 +306,13 @@ function xyz ( ) until
 ```
 
 ```txt
-Unexpected until. Expected a statement.
+Unexpected until. Expected end or another statement.
    |
  1 | function xyz ( ) until
-   |                  ^^^^^
+   | ^^^^^^^^ Block started here.
+   |
+ 1 | function xyz ( ) until
+   |                  ^^^^^ Expected end of block here.
 ```
 
 
@@ -303,7 +322,7 @@ function xyz while
 ```
 
 ```txt
-Unexpected while.
+Unexpected while. Expected ( to start function arguments.
    |
  1 | function xyz while
    |              ^^^^^
@@ -316,10 +335,13 @@ function ( ) until
 ```
 
 ```txt
-Unexpected until. Expected a statement.
+Unexpected until. Expected end or another statement.
    |
  1 | function ( ) until
-   |              ^^^^^
+   | ^^^^^^^^ Block started here.
+   |
+ 1 | function ( ) until
+   |              ^^^^^ Expected end of block here.
 ```
 
 
@@ -843,7 +865,7 @@ if xyz then else until
 Unexpected until. Expected end or another statement.
    |
  1 | if xyz then else until
-   | ^^ Block started here.
+   |             ^^^^ Block started here.
    |
  1 | if xyz then else until
    |                  ^^^^^ Expected end of block here.
@@ -943,10 +965,13 @@ local function xyz ( ) until
 ```
 
 ```txt
-Unexpected until. Expected a statement.
+Unexpected until. Expected end or another statement.
    |
  1 | local function xyz ( ) until
-   |                        ^^^^^
+   | ^^^^^^^^^^^^^^ Block started here.
+   |
+ 1 | local function xyz ( ) until
+   |                        ^^^^^ Expected end of block here.
 ```
 
 

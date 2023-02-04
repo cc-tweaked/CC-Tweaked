@@ -210,6 +210,38 @@ Unexpected end of file. Expected end or another statement.
 ```
 
 ```lua
+if true then
+else
+  print("Hello")
+```
+
+```txt
+Unexpected end of file. Expected end or another statement.
+   |
+ 2 | else
+   | ^^^^ Block started here.
+   |
+ 3 |   print("Hello")
+   |                 ^ Expected end of block here.
+```
+
+```lua
+if true then
+elseif true then
+  print("Hello")
+```
+
+```txt
+Unexpected end of file. Expected end or another statement.
+   |
+ 2 | elseif true then
+   | ^^^^^^ Block started here.
+   |
+ 3 |   print("Hello")
+   |                 ^ Expected end of block here.
+```
+
+```lua
 while true do
   print("Hello")
 ```
@@ -222,6 +254,48 @@ Unexpected end of file. Expected end or another statement.
    |
  2 |   print("Hello")
    |                 ^ Expected end of block here.
+```
+
+```lua
+local function f()
+```
+
+```txt
+Unexpected end of file. Expected end or another statement.
+   |
+ 1 | local function f()
+   | ^^^^^^^^^^^^^^ Block started here.
+   |
+ 1 | local function f()
+   |                   ^ Expected end of block here.
+```
+
+```lua
+function f()
+```
+
+```txt
+Unexpected end of file. Expected end or another statement.
+   |
+ 1 | function f()
+   | ^^^^^^^^ Block started here.
+   |
+ 1 | function f()
+   |             ^ Expected end of block here.
+```
+
+```lua
+return function()
+```
+
+```txt
+Unexpected end of file. Expected end or another statement.
+   |
+ 1 | return function()
+   |        ^^^^^^^^ Block started here.
+   |
+ 1 | return function()
+   |                  ^ Expected end of block here.
 ```
 
 While we typically see these errors at the end of the file, there are some cases
@@ -276,6 +350,7 @@ Unexpected end.
    |
  3 | end
    | ^^^
+Your program contains more ends than needed. Check each block (if, for, function, ...) only has one end.
 ```
 
 ```lua
@@ -291,4 +366,5 @@ Unexpected end.
    |
  4 |   end
    |   ^^^
+Your program contains more ends than needed. Check each block (if, for, function, ...) only has one end.
 ```
