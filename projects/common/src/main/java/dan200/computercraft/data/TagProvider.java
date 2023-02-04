@@ -15,6 +15,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagBuilder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
@@ -85,6 +86,10 @@ class TagProvider {
             ModRegistry.Items.WIRELESS_MODEM_ADVANCED.get(), ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get(),
             ModRegistry.Items.MONITOR_ADVANCED.get()
         );
+
+        tags.tag(ComputerCraftTags.Items.TURTLE_CAN_PLACE)
+            .add(Items.GLASS_BOTTLE)
+            .addTag(ItemTags.BOATS);
     }
 
     /**

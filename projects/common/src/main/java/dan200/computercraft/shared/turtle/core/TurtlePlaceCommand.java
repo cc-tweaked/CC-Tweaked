@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.turtle.core;
 
 import com.google.common.base.Splitter;
+import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommand;
@@ -21,9 +22,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SignItem;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -209,7 +208,7 @@ public class TurtlePlaceCommand implements TurtleCommand {
 
         // We special case some items which we allow to place "normally". Yes, this is very ugly.
         var item = stack.getItem();
-        if (item.getUseDuration(stack) == 0) {
+        if (item instanceof BucketItem || item instanceof PlaceOnWaterBlockItem || stack.is(ComputerCraftTags.Items.TURTLE_CAN_PLACE)) {
             return turtlePlayer.player().gameMode.useItem(turtlePlayer.player(), turtlePlayer.player().level, stack, InteractionHand.MAIN_HAND);
         }
 

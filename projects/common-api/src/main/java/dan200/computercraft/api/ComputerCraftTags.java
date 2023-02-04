@@ -8,7 +8,11 @@ package dan200.computercraft.api;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
 /**
@@ -20,6 +24,15 @@ public class ComputerCraftTags {
         public static final TagKey<Item> TURTLE = make("turtle");
         public static final TagKey<Item> WIRED_MODEM = make("wired_modem");
         public static final TagKey<Item> MONITOR = make("monitor");
+
+        /**
+         * Items which can be {@linkplain Item#use(Level, Player, InteractionHand) used} when calling
+         * {@code turtle.place()}.
+         * <p>
+         * This does not cover items who handle placing inside {@link Item#useOn(UseOnContext)}, as that is always
+         * called.
+         */
+        public static final TagKey<Item> TURTLE_CAN_PLACE = make("turtle_can_place");
 
         private static TagKey<Item> make(String name) {
             return TagKey.create(Registries.ITEM, new ResourceLocation(ComputerCraftAPI.MOD_ID, name));
