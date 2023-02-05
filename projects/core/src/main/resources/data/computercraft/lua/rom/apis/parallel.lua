@@ -37,6 +37,8 @@ parallel.waitForAny(do_sleep(), rednet.receive)
 @since 1.2
 ]]
 
+local exception
+
 local function create(...)
     local tFns = table.pack(...)
     local tCos = {}
@@ -66,7 +68,8 @@ local function runUntilLimit(_routines, _limit)
                 if tFilters[r] == nil or tFilters[r] == eventData[1] or eventData[1] == "terminate" then
                     local ok, param = coroutine.resume(r, table.unpack(eventData, 1, eventData.n))
                     if not ok then
-                        error(param, 0)
+                        if exception == nil then exception = dofile("rom/modules/main/cc/exception.lua") end
+                        error(exception.wrap_error(param, r), 0)
                     else
                         tFilters[r] = param
                     end

@@ -33,6 +33,7 @@ java {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven("https://squiddev.cc/maven") {
         name = "SquidDev"

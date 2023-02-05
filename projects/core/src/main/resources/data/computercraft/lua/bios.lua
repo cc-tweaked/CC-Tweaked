@@ -467,7 +467,7 @@ function loadfile(filename, mode, env)
     local file = fs.open(filename, "r")
     if not file then return nil, "File not found" end
 
-    local func, err = load(file.readAll(), "@" .. fs.getName(filename), mode, env)
+    local func, err = load(file.readAll(), "@/" .. fs.combine(filename), mode, env)
     file.close()
     return func, err
 end
