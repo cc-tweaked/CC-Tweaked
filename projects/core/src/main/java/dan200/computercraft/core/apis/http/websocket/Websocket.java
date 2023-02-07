@@ -133,7 +133,7 @@ public class Websocket extends Resource<Websocket> {
                         }
 
                         var subprotocol = headers.get(HttpHeaderNames.SEC_WEBSOCKET_PROTOCOL);
-                        WebSocketClientHandshaker handshaker = new NoOriginWebSocketHanshakder(
+                        WebSocketClientHandshaker handshaker = new NoOriginWebSocketHandshaker(
                             uri, WebSocketVersion.V13, subprotocol, true, headers,
                             options.websocketMessage <= 0 ? MAX_MESSAGE_SIZE : options.websocketMessage
                         );
