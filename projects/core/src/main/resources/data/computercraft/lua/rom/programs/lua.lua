@@ -76,7 +76,7 @@ while running do
        term.setTextColour(colours.white)
     end
 
-    local name = "=lua[" .. chunk_idx .. "]"
+    local name, offset = "=lua[" .. chunk_idx .. "]", 0
 
     local force_print = 0
     local func, err = load(input, name, "t", tEnv)
@@ -85,14 +85,16 @@ while running do
     if not func then
         if expr_func then
             func = expr_func
+            offset = 13
             force_print = 1
         end
     elseif expr_func then
         func = expr_func
+        offset = 13
     end
 
     if func then
-        chunk_map[name] = input -- FIXME: We should remap columns here somehow!
+        chunk_map[name] = { contents = input, offset = offset }
         chunk_idx = chunk_idx + 1
 
         local results = table.pack(exception.try(func))

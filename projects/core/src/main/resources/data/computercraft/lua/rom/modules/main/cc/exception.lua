@@ -1,5 +1,65 @@
---[[- Utilities for capturing stack traces from errors.
+--[[- Capture stack traces from errors.
 
+When a Lua program crashes, either due to a bug or an explicit call to @{error},
+the only information returned to the user is a string representation of the
+error message. This can make it difficult to accurately capture information
+about the original error, such as the stack trace of the error.
+
+This module provides a more structured way of working with errors, allowing the
+original context of an error to be inspected.
+
+## A motivating example
+Let's start with a basic program which does nothing but crash. When you run
+this, ComputerCraft's shell is able to show you exactly where the error
+occurred.
+
+```lua
+error("I hit a problem")
+```
+
+However, imagine that we want to run some code and then do some cleanup
+afterwards, such as closing a file or clearing the terminal. To do this, we
+might use @{pcall} to catch an error, and then report it to the user afterwards.
+
+```lua
+local ok, err = pcall(function()
+    error("I hit a problem")
+end)
+
+if not ok then
+    print("Program crashed!")
+    error(err)
+end
+```
+
+If we run this, the error is now reported in the wrong place - any information
+about the original error has been lost! To avoid this, we can replace our call
+to @{pcall} with one to @{try}. This converts our original error into an
+@{Exception}, meaning the context of the original error is not lost.
+
+```lua
+local exception = require "cc.exception"
+local ok, err = exception.try(function() -- Use try instead of pcall
+    error("I hit a problem")
+end)
+
+if not ok then
+    print("Program crashed!")
+    error(err)
+end
+```
+
+## Non-string errors
+While Lua's built-in errors are represented as strings, other programs or
+libraries can throw non-string errors (indeed, that's exactly what
+@{cc.exception} does).
+
+These errors are _not_ wrapped into an @{Exception} by the functions in this
+library (i.e. @{try} and @{wrap_error}) and instead are returned
+untransformed. You should always use @{is_exception} to check if an error is a
+valid exception before inspecting it.
+
+@since 1.103.0
 ]]
 
 local expect = require and require "cc.expect".expect or function() end

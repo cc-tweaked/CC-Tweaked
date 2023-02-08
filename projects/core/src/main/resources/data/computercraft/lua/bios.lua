@@ -7,7 +7,7 @@ local expect
 
 do
     local h = fs.open("rom/modules/main/cc/expect.lua", "r")
-    local f, err = loadstring(h.readAll(), "@expect.lua")
+    local f, err = loadstring(h.readAll(), "@/rom/modules/main/cc/expect.lua")
     h.close()
 
     if not f then error(err) end

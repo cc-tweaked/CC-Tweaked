@@ -61,7 +61,7 @@ if fn then
     term.setBackgroundColor(colours.black)
     term.setCursorBlink(false)
 
-    if not ok then require "cc.internal.execption".report(err, { [name] = contents }) end
+    if not ok then require "cc.internal.exception".report(err, { [name] = contents }) end
 else
     local parser = require "cc.internal.syntax"
     if parser.parse_program(contents) then printError(err) end

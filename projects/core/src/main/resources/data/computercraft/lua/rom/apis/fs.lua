@@ -52,7 +52,7 @@ This table also accepts the following options:
         return fs.complete(str, "", {
             include_files = true,
             include_dirs = false,
-            included_hidden = false,
+            include_hidden = false,
         })
     end)
 ]]

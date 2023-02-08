@@ -45,6 +45,14 @@ local function report(err, source_map)
     if source_map and source_map[frame.source] then
         -- File exists in the source map.
         local pos, contents = 1, source_map[frame.source]
+        -- Try to remap our position. The interface for this only makes sense
+        -- for single line sources, but that's sufficient for where we need it
+        -- (the REPL).
+        if type(contents) == "table" then
+            column = column - contents.offset
+            contents = contents.contents
+        end
+
         for _ = 1, line - 1 do
             local next_pos = contents:find("\n", pos)
             if not next_pos then return end

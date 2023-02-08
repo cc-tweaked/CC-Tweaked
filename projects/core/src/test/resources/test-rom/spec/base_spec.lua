@@ -28,8 +28,6 @@ describe("The Lua base library", function()
     end)
 
     describe("loadfile", function()
-        local loadfile = _G.native_loadfile or loadfile
-
         local function make_file()
             local tmp = fs.open("test-files/out.lua", "w")
             tmp.write("return _ENV")
@@ -48,7 +46,7 @@ describe("The Lua base library", function()
 
         it("prefixes the filename with @", function()
             local info = debug.getinfo(loadfile("/rom/startup.lua"), "S")
-            expect(info):matches { short_src = "startup.lua", source = "@startup.lua" }
+            expect(info):matches { short_src = "/rom/startup.lua", source = "@/rom/startup.lua" }
         end)
 
         it("loads a file with the global environment", function()

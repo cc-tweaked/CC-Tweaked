@@ -6,6 +6,7 @@
 package dan200.computercraft.core;
 
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntMaps;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.slf4j.Logger;
@@ -17,19 +18,14 @@ import org.squiddev.cobalt.compiler.LuaC;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Queue;
 
 class LuaCoverage {
     private static final Logger LOG = LoggerFactory.getLogger(LuaCoverage.class);
     private static final Path ROOT = new File("src/main/resources/data/computercraft/lua").toPath();
-    private static final Path BIOS = ROOT.resolve("bios.lua");
-    private static final Path APIS = ROOT.resolve("rom/apis");
-    private static final Path STARTUP = ROOT.resolve("rom/startup.lua");
-    private static final Path SHELL = ROOT.resolve("rom/programs/shell.lua");
-    private static final Path MULTISHELL = ROOT.resolve("rom/programs/advanced/multishell.lua");
-    private static final Path TREASURE = ROOT.resolve("treasure");
 
     private final Map<String, Int2IntMap> coverage;
     private final String blank;
@@ -49,26 +45,20 @@ class LuaCoverage {
     }
 
     void write(Writer out) throws IOException {
-        Files.find(ROOT, Integer.MAX_VALUE, (path, attr) -> attr.isRegularFile() && !path.startsWith(TREASURE)).forEach(path -> {
+        Files.find(ROOT, Integer.MAX_VALUE, (path, attr) -> attr.isRegularFile()).forEach(path -> {
             var relative = ROOT.relativize(path);
             var full = relative.toString().replace('\\', '/');
             if (!full.endsWith(".lua")) return;
 
-            var possiblePaths = Stream.of(
-                coverage.remove("/" + full),
-                path.equals(BIOS) ? coverage.remove("bios.lua") : null,
-                path.equals(STARTUP) ? coverage.remove("startup.lua") : null,
-                path.equals(SHELL) ? coverage.remove("shell.lua") : null,
-                path.equals(MULTISHELL) ? coverage.remove("multishell.lua") : null,
-                path.startsWith(APIS) ? coverage.remove(path.getFileName().toString()) : null
-            );
-            var files = possiblePaths
-                .filter(Objects::nonNull)
-                .flatMap(x -> x.int2IntEntrySet().stream())
-                .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum));
+            var possiblePaths = coverage.remove("/" + full);
+            if (possiblePaths == null) possiblePaths = coverage.remove(full);
+            if (possiblePaths == null) {
+                possiblePaths = Int2IntMaps.EMPTY_MAP;
+                LOG.warn("{} has no coverage data", full);
+            }
 
             try {
-                writeCoverageFor(out, path, files);
+                writeCoverageFor(out, path, possiblePaths);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -116,22 +106,24 @@ class LuaCoverage {
 
     private static IntSet getActiveLines(File file) throws IOException {
         IntSet activeLines = new IntOpenHashSet();
+        Queue<Prototype> queue = new ArrayDeque<>();
+
         try (InputStream stream = new FileInputStream(file)) {
             var proto = LuaC.compile(stream, "@" + file.getPath());
-            Queue<Prototype> queue = new ArrayDeque<>();
             queue.add(proto);
-
-            while ((proto = queue.poll()) != null) {
-                var lines = proto.lineinfo;
-                if (lines != null) {
-                    for (var line : lines) {
-                        activeLines.add(line);
-                    }
-                }
-                if (proto.p != null) Collections.addAll(queue, proto.p);
-            }
         } catch (CompileException e) {
             throw new IllegalStateException("Cannot compile", e);
+        }
+
+        Prototype proto;
+        while ((proto = queue.poll()) != null) {
+            var lines = proto.lineInfo;
+            if (lines != null) {
+                for (var line : lines) {
+                    activeLines.add(line);
+                }
+            }
+            if (proto.children != null) Collections.addAll(queue, proto.children);
         }
 
         return activeLines;
