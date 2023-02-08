@@ -19,6 +19,7 @@ import dan200.computercraft.shared.command.arguments.ComputerArgumentType;
 import dan200.computercraft.shared.command.arguments.ComputersArgumentType;
 import dan200.computercraft.shared.command.arguments.RepeatArgumentType;
 import dan200.computercraft.shared.command.arguments.TrackingFieldArgumentType;
+import dan200.computercraft.shared.common.ClearColourRecipe;
 import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import dan200.computercraft.shared.common.HeldItemMenu;
@@ -351,6 +352,7 @@ public final class ModRegistry {
         }
 
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<ColourableRecipe>> DYEABLE_ITEM = simple("colour", ColourableRecipe::new);
+        public static final RegistryEntry<SimpleCraftingRecipeSerializer<ClearColourRecipe>> DYEABLE_ITEM_CLEAR = simple("clear_colour", ClearColourRecipe::new);
         public static final RegistryEntry<TurtleRecipe.Serializer> TURTLE = REGISTRY.register("turtle", TurtleRecipe.Serializer::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<TurtleUpgradeRecipe>> TURTLE_UPGRADE = simple("turtle_upgrade", TurtleUpgradeRecipe::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<PocketComputerUpgradeRecipe>> POCKET_COMPUTER_UPGRADE = simple("pocket_computer_upgrade", PocketComputerUpgradeRecipe::new);

@@ -65,6 +65,7 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         addSpecial(add, ModRegistry.RecipeSerializers.PRINTOUT.get());
         addSpecial(add, ModRegistry.RecipeSerializers.DISK.get());
         addSpecial(add, ModRegistry.RecipeSerializers.DYEABLE_ITEM.get());
+        addSpecial(add, ModRegistry.RecipeSerializers.DYEABLE_ITEM_CLEAR.get());
         addSpecial(add, ModRegistry.RecipeSerializers.TURTLE_UPGRADE.get());
         addSpecial(add, ModRegistry.RecipeSerializers.POCKET_COMPUTER_UPGRADE.get());
     }
