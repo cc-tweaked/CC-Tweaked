@@ -29,14 +29,10 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -86,42 +82,6 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     @Override
     protected void unload() {
         if (!hasMoved()) super.unload();
-    }
-
-    @Override
-    public InteractionResult use(Player player, InteractionHand hand) {
-        // Apply dye
-        var currentItem = player.getItemInHand(hand);
-        if (!currentItem.isEmpty()) {
-            if (currentItem.getItem() instanceof DyeItem dyeItem) {
-                // Dye to change turtle colour
-                if (!getLevel().isClientSide) {
-                    var dye = dyeItem.getDyeColor();
-                    if (brain.getDyeColour() != dye) {
-                        brain.setDyeColour(dye);
-                        if (!player.isCreative()) {
-                            currentItem.shrink(1);
-                        }
-                    }
-                }
-                return InteractionResult.sidedSuccess(getLevel().isClientSide);
-            } else if (currentItem.getItem() == Items.WATER_BUCKET && brain.getColour() != -1) {
-                // Water to remove turtle colour
-                if (!getLevel().isClientSide) {
-                    if (brain.getColour() != -1) {
-                        brain.setColour(-1);
-                        if (!player.isCreative()) {
-                            player.setItemInHand(hand, new ItemStack(Items.BUCKET));
-                            player.getInventory().setChanged();
-                        }
-                    }
-                }
-                return InteractionResult.sidedSuccess(getLevel().isClientSide);
-            }
-        }
-
-        // Open GUI or whatever
-        return super.use(player, hand);
     }
 
     @Override
