@@ -17,12 +17,13 @@ You can list the names of all peripherals with the `peripherals` program, or the
 @{peripheral.getNames} function.
 
 It's also possible to use peripherals which are further away from your computer
-through the use of @{modem|Wired Modems}. Place one modem against your computer,
-run Networking Cable to your peripheral, and then place another modem against
-that block. You can then right click the modem to use (or *attach*) the
-peripheral. This will print a peripheral name to chat, which can then be used
-just like a direction name to access the peripheral. You can click on the message
-to copy the name to your clipboard.
+through the use of @{modem|Wired Modems}. Place one modem against your computer
+(you may need to sneak and right click), run Networking Cable to your
+peripheral, and then place another modem against that block. You can then right
+click the modem to use (or *attach*) the peripheral. This will print a
+peripheral name to chat, which can then be used just like a direction name to
+access the peripheral. You can click on the message to copy the name to your
+clipboard.
 
 ## Using peripherals
 

@@ -17,8 +17,8 @@ import java.net.URI;
  * A version of {@link WebSocketClientHandshaker13} which doesn't add the {@link HttpHeaderNames#ORIGIN} header to the
  * original HTTP request.
  */
-public class NoOriginWebSocketHanshakder extends WebSocketClientHandshaker13 {
-    public NoOriginWebSocketHanshakder(URI webSocketURL, WebSocketVersion version, String subprotocol, boolean allowExtensions, HttpHeaders customHeaders, int maxFramePayloadLength) {
+public class NoOriginWebSocketHandshaker extends WebSocketClientHandshaker13 {
+    public NoOriginWebSocketHandshaker(URI webSocketURL, WebSocketVersion version, String subprotocol, boolean allowExtensions, HttpHeaders customHeaders, int maxFramePayloadLength) {
         super(webSocketURL, version, subprotocol, allowExtensions, customHeaders, maxFramePayloadLength);
     }
 
