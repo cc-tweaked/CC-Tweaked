@@ -76,7 +76,7 @@ for xyz , xyz while
 ```
 
 ```txt
-Unexpected while. Expected a statement.
+Unexpected while.
    |
  1 | for xyz , xyz while
    |               ^^^^^
