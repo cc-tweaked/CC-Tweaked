@@ -67,6 +67,7 @@ do
     require = env.require
 end
 local expect = require("cc.expect").expect
+local exception = require "cc.internal.exception"
 
 -- Colours
 local promptColour, textColour, bgColour
@@ -146,7 +147,7 @@ local function executeProgram(remainingRecursion, path, args)
     local env = setmetatable(createShellEnv(dir), { __index = _G })
     env.arg = args
 
-    local func, err = load(contents, "@" .. fs.getName(path), nil, env)
+    local func, err = load(contents, "@/" .. path, nil, env)
     if not func then
         -- We had a syntax error. Attempt to run it through our own parser if
         -- the file is "small enough", otherwise report the original error.
@@ -166,13 +167,16 @@ local function executeProgram(remainingRecursion, path, args)
         end
     end
 
-    local ok, err = pcall(func, table.unpack(args))
-    if ok then
-        return true
-    else
-        if err and err ~= "" then printError(err) end
-        return false
+    local ok, err, co = exception.try(func, table.unpack(args, 1, args.n))
+
+    if ok then return true end
+
+    if err and err ~= "" then
+        printError(err)
+        exception.report(err, co)
     end
+
+    return false
 end
 
 --- Run a program with the supplied arguments.

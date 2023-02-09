@@ -51,17 +51,21 @@ end
 
 local runHandler = [[multishell.setTitle(multishell.getCurrent(), %q)
 local current = term.current()
-local contents = %q
-local fn, err = load(contents, %q, nil, _ENV)
+local contents, name = %q, %q
+local fn, err = load(contents, name, nil, _ENV)
 if fn then
-    local ok, err = pcall(fn, ...)
+    local exception = require "cc.internal.exception"
+    local ok, err, co = exception.try(fn, ...)
 
     term.redirect(current)
     term.setTextColor(term.isColour() and colours.yellow or colours.white)
     term.setBackgroundColor(colours.black)
     term.setCursorBlink(false)
 
-    if not ok then printError(err) end
+    if not ok then
+        printError(err)
+        exception.report(err, co, { [name] = contents })
+    end
 else
     local parser = require "cc.internal.syntax"
     if parser.parse_program(contents) then printError(err) end
@@ -452,7 +456,7 @@ local tMenuFuncs = {
             return
         end
         local ok = save(sTempPath, function(file)
-            file.write(runHandler:format(sTitle, table.concat(tLines, "\n"), "@" .. fs.getName(sPath)))
+            file.write(runHandler:format(sTitle, table.concat(tLines, "\n"), "@/" .. sPath))
         end)
         if ok then
             local nTask = shell.openTab("/" .. sTempPath)

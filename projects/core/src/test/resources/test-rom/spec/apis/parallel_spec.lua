@@ -39,7 +39,9 @@ describe("The parallel library", function()
         end)
 
         it("passes errors to the caller", function()
-            expect.error(parallel.waitForAny, function() error("Test error") end):str_match("Test error$")
+            local ok, err = pcall(parallel.waitForAny, function() error("Test error") end)
+            if ok then fail("Expected function to error") end
+            expect(tostring(err)):str_match("Test error$")
         end)
 
         it("returns the number of the function that exited first", function()
@@ -98,7 +100,9 @@ describe("The parallel library", function()
         end)
 
         it("passes errors to the caller", function()
-            expect.error(parallel.waitForAll, function() error("Test error") end):str_match("Test error$")
+            local ok, err = pcall(parallel.waitForAll, function() error("Test error") end)
+            if ok then fail("Expected function to error") end
+            expect(tostring(err)):str_match("Test error$")
         end)
 
         it("completes all functions before exiting", function()
