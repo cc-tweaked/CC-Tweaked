@@ -33,6 +33,7 @@ which program to run:
 [hashbang]: https://en.wikipedia.org/wiki/Shebang_(Unix)
 
 @module[module] shell
+@changed 1.103.0 Added support for hashbangs.
 ]]
 
 local make_package = dofile("rom/modules/main/cc/require.lua").make
@@ -347,6 +348,7 @@ end
 -- @treturn string|nil The absolute path to the program, or @{nil} if it could
 -- not be found.
 -- @since 1.2
+-- @changed 1.80pr1 Now searches for files with and without the `.lua` extension.
 -- @usage Locate the `hello` program.
 --
 --      shell.resolveProgram("hello")
