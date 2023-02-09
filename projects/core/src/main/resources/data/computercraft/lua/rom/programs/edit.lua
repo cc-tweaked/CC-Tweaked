@@ -54,14 +54,18 @@ local current = term.current()
 local contents, name = %q, %q
 local fn, err = load(contents, name, nil, _ENV)
 if fn then
-    local ok, err = require "cc.exception".try(fn, ...)
+    local exception = require "cc.internal.exception"
+    local ok, err, co = exception.try(fn, ...)
 
     term.redirect(current)
     term.setTextColor(term.isColour() and colours.yellow or colours.white)
     term.setBackgroundColor(colours.black)
     term.setCursorBlink(false)
 
-    if not ok then require "cc.internal.exception".report(err, { [name] = contents }) end
+    if not ok then
+        printError(err)
+        exception.report(err, co, { [name] = contents })
+    end
 else
     local parser = require "cc.internal.syntax"
     if parser.parse_program(contents) then printError(err) end

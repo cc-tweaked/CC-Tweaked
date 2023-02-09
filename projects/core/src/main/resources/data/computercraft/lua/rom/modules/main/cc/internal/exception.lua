@@ -9,7 +9,6 @@ be removed or changed at any time.
 ]]
 
 local expect = require "cc.expect".expect
-local exception = require "cc.exception"
 local error_printer = require "cc.internal.error_printer"
 
 local function find_frame(thread, file, line)
@@ -24,20 +23,51 @@ local function find_frame(thread, file, line)
     end
 end
 
+--[[- Attempt to call the provided function `func` with the provided arguments.
+
+@tparam function func The function to call.
+@param ... Arguments to this function.
+
+@treturn[1] true If the function ran successfully.
+
+@treturn[2] false If the function failed.
+@return[2] The error message
+@treturn[2] coroutine The thread where the error occurred.
+]]
+local function try(func, ...)
+    expect(1, func, "function")
+
+    local co = coroutine.create(func)
+    local ok, result = coroutine.resume(co, ...)
+
+    while coroutine.status(co) ~= "dead" do
+        local event = table.pack(os.pullEventRaw(result))
+        if result == nil or event[1] == result or event[1] == "terminate" then
+            ok, result = coroutine.resume(co, table.unpack(event, 1, event.n))
+        end
+    end
+
+    if not ok then return false, result, co end
+    return true
+end
+
 --[[- Report additional context about an error.
 
-@param err The error to report, possibly a @{cc.exception.Exception}.
+@param err The error to report.
+@tparam coroutine thread The coroutine where the error occurred.
 @tparam[opt] { [string] = string } source_map Map of chunk names to their contents.
 ]]
-local function report(err, source_map)
-    expect(2, source_map, "table", "nil")
-    if not exception.is_exception(err) then return end
+local function report(err, thread, source_map)
+    expect(2, thread, "thread")
+    expect(3, source_map, "table", "nil")
 
-    local file, line = err.message:match("^([^:]+):(%d+):")
+    if type(err) ~= "string" then return end
+
+    local file, line = err:match("^([^:]+):(%d+):")
     if not file then return end
     line = tonumber(line)
 
-    local frame = find_frame(err.root_cause.thread, file, line)
+    local frame = find_frame(thread, file, line)
     if not frame or not frame.currentcolumn then return end
 
     local column = frame.currentcolumn
@@ -84,5 +114,6 @@ end
 
 
 return {
+    try = try,
     report = report,
 }

@@ -6,7 +6,7 @@ if #tArgs > 0 then
 end
 
 local pretty = require "cc.pretty"
-local exception = require "cc.exception"
+local exception = require "cc.internal.exception"
 
 local running = true
 local tCommandHistory = {}
@@ -115,7 +115,7 @@ while running do
             end
         else
             printError(results[2])
-            require "cc.internal.exception".report(results[2], chunk_map)
+            require "cc.internal.exception".report(results[2], results[3], chunk_map)
         end
     else
         local parser = require "cc.internal.syntax"

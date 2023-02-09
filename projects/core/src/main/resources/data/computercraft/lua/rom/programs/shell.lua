@@ -67,7 +67,7 @@ do
     require = env.require
 end
 local expect = require("cc.expect").expect
-local exception = require "cc.exception"
+local exception = require "cc.internal.exception"
 
 -- Colours
 local promptColour, textColour, bgColour
@@ -167,13 +167,13 @@ local function executeProgram(remainingRecursion, path, args)
         end
     end
 
-    local ok, err = exception.try(func, table.unpack(args, 1, args.n))
+    local ok, err, co = exception.try(func, table.unpack(args, 1, args.n))
 
     if ok then return true end
 
     if err and err ~= "" then
         printError(err)
-        require "cc.internal.exception".report(err)
+        exception.report(err, co)
     end
 
     return false
