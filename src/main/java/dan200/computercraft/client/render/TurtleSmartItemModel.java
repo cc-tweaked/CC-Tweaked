@@ -111,6 +111,9 @@ public class TurtleSmartItemModel implements IBakedModel
             @Override
             public IBakedModel resolve( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity )
             {
+                // Should never happen, but just in case!
+                if ( !(stack.getItem() instanceof ItemTurtle) ) return familyModel;
+
                 ItemTurtle turtle = (ItemTurtle) stack.getItem();
                 int colour = turtle.getColour( stack );
                 ITurtleUpgrade leftUpgrade = turtle.getUpgrade( stack, TurtleSide.LEFT );
