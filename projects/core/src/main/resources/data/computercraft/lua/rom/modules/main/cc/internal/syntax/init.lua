@@ -14,15 +14,9 @@ local lex_one = require "cc.internal.syntax.lexer".lex_one
 local parser = require "cc.internal.syntax.parser"
 local error_printer = require "cc.internal.error_printer"
 
-local function parse(input, start_symbol)
-    expect(1, input, "string")
-    expect(2, start_symbol, "number")
+local error_sentinel = {}
 
-    -- Lazy-load the parser.
-    local parse, tokens, last_token = parser.parse, parser.tokens, parser.tokens.COMMENT
-
-    local error_sentinel = {}
-
+local function make_context(input)
     local context = {}
 
     local lines = { 1 }
@@ -48,14 +42,13 @@ local function parse(input, start_symbol)
         error("Position is <= 0", 2)
     end
 
-    function context.report(msg)
-        expect(1, msg, "table")
-        error_printer(context, msg)
-        error(error_sentinel)
-    end
+    return context
+end
 
+local function make_lexer(input, context)
+    local tokens, last_token = parser.tokens, parser.tokens.COMMENT
     local pos = 1
-    local ok, err = pcall(parse, context, function()
+    return function()
         while true do
             local token, start, finish = lex_one(context, input, pos)
             if not token then return tokens.EOF, #input + 1, #input + 1 end
@@ -68,7 +61,21 @@ local function parse(input, start_symbol)
                 error(error_sentinel)
             end
         end
-    end, start_symbol)
+    end
+end
+
+local function parse(input, start_symbol)
+    expect(1, input, "string")
+    expect(2, start_symbol, "number")
+
+    local context = make_context(input)
+    function context.report(msg)
+        expect(1, msg, "table")
+        error_printer(context, msg)
+        error(error_sentinel)
+    end
+
+    local ok, err = pcall(parser.parse, context, make_lexer(input, context), start_symbol)
 
     if ok then
         return true
@@ -92,7 +99,55 @@ syntax errors to the terminal.
 @tparam string input The string to parse.
 @treturn boolean Whether the string was successfully parsed.
 ]]
-local function parse_repl(input) return parse(input, parser.repl_exprs) end
+local function parse_repl(input)
+    expect(1, input, "string")
+
+
+    local context = make_context(input)
+
+    local last_error = nil
+    function context.report(msg)
+        expect(1, msg, "table")
+        last_error = msg
+        error(error_sentinel)
+    end
+
+    local lexer = make_lexer(input, context)
+
+    local parsers = {}
+    for i, start_code in ipairs { parser.repl_exprs, parser.program } do
+        parsers[i] = coroutine.create(parser.parse)
+        assert(coroutine.resume(parsers[i], context, coroutine.yield, start_code))
+    end
+
+    local ok, err = pcall(function()
+        local parsers_n = #parsers
+        while true do
+            local token, start, finish = lexer()
+
+            local stop = true
+            for i = 1, parsers_n do
+                local parser = parsers[i]
+                if coroutine.status(parser) ~= "dead" then
+                    stop = false
+                    local ok, err = coroutine.resume(parser, token, start, finish)
+                    if not ok and err ~= error_sentinel then error(err, 0) end
+                end
+            end
+
+            if stop then error(error_sentinel) end
+        end
+    end)
+
+    if ok then
+        return true
+    elseif err == error_sentinel then
+        error_printer(context, last_error)
+        return false
+    else
+        error(err, 0)
+    end
+end
 
 return {
     parse_program = parse_program,

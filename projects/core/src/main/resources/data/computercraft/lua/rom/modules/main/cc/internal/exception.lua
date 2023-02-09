@@ -29,6 +29,7 @@ end
 @param ... Arguments to this function.
 
 @treturn[1] true If the function ran successfully.
+    @return[1] ... The return values of the function.
 
 @treturn[2] false If the function failed.
 @return[2] The error message
@@ -38,17 +39,17 @@ local function try(func, ...)
     expect(1, func, "function")
 
     local co = coroutine.create(func)
-    local ok, result = coroutine.resume(co, ...)
+    local result = table.pack(coroutine.resume(co, ...))
 
     while coroutine.status(co) ~= "dead" do
-        local event = table.pack(os.pullEventRaw(result))
-        if result == nil or event[1] == result or event[1] == "terminate" then
-            ok, result = coroutine.resume(co, table.unpack(event, 1, event.n))
+        local event = table.pack(os.pullEventRaw(result[2]))
+        if result[2] == nil or event[1] == result[2] or event[1] == "terminate" then
+            result = table.pack(coroutine.resume(co, table.unpack(event, 1, event.n)))
         end
     end
 
-    if not ok then return false, result, co end
-    return true
+    if not result[1] then return false, result[2], co end
+    return table.unpack(result, 1, result.n)
 end
 
 --[[- Report additional context about an error.

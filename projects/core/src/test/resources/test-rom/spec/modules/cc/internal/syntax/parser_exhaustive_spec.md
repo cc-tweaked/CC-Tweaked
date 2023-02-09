@@ -2,19 +2,6 @@ An exhaustive list of all error states in the parser, and the error messages we
 generate for each one. This is _not_ a complete collection of all possible
 errors, but is a useful guide for where we might be providing terrible messages.
 
-```lua {repl_exprs}
-break until
--- Line 1: <eof> expected near 'until' (repl_exprs)
-```
-
-```txt
-Unexpected until. Expected a statement.
-   |
- 1 | break until
-   |       ^^^^^
-```
-
-
 ```lua
 break while
 -- Line 1: unexpected symbol near <eof> (program)
@@ -1257,16 +1244,15 @@ Unexpected while. Expected an expression.
 
 
 ```lua
-repeat end
--- Line 1: 'until' expected near 'end' (program)
+repeat --[[eof]]
+-- Line 1: 'until' expected near <eof> (program)
 ```
 
 ```txt
-Unexpected end.
+Unexpected end of file. Expected a statement.
    |
- 1 | repeat end
-   |        ^^^
-Your program contains more ends than needed. Check each block (if, for, function, ...) only has one end.
+ 2 | -- Line 1: 'until' expected near <eof> (program)
+   |                                                 ^
 ```
 
 
@@ -1375,14 +1361,14 @@ Unexpected until. Expected a statement.
 
 
 ```lua {repl_exprs}
-until
--- Line 1: <eof> expected near 'until' (repl_exprs)
+while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
 ```
 
 ```txt
-Unexpected until. Expected a statement.
+Unexpected while.
    |
- 1 | until
+ 1 | while
    | ^^^^^
 ```
 
