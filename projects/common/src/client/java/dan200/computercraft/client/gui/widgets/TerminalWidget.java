@@ -30,6 +30,7 @@ public class TerminalWidget extends AbstractWidget {
     private static final Component DESCRIPTION = Component.translatable("gui.computercraft.terminal");
 
     private static final float TERMINATE_TIME = 0.5f;
+    private static final float KEY_SUPPRESS_DELAY = 0.2f;
 
     private final Terminal terminal;
     private final InputHandler computer;
@@ -79,15 +80,12 @@ public class TerminalWidget extends AbstractWidget {
             switch (key) {
                 case GLFW.GLFW_KEY_T -> {
                     if (terminateTimer < 0) terminateTimer = 0;
-                    return true;
                 }
                 case GLFW.GLFW_KEY_S -> {
                     if (shutdownTimer < 0) shutdownTimer = 0;
-                    return true;
                 }
                 case GLFW.GLFW_KEY_R -> {
                     if (rebootTimer < 0) rebootTimer = 0;
-                    return true;
                 }
                 case GLFW.GLFW_KEY_V -> {
                     // Ctrl+V for paste
@@ -118,7 +116,7 @@ public class TerminalWidget extends AbstractWidget {
             }
         }
 
-        if (key >= 0 && terminateTimer < 0 && rebootTimer < 0 && shutdownTimer < 0) {
+        if (key >= 0 && terminateTimer < KEY_SUPPRESS_DELAY && rebootTimer < KEY_SUPPRESS_DELAY && shutdownTimer < KEY_SUPPRESS_DELAY) {
             // Queue the "key" event and add to the down set
             var repeat = keysDown.get(key);
             keysDown.set(key);
