@@ -17,7 +17,6 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.Holiday;
-import dan200.computercraft.shared.util.HolidayUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -112,7 +111,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         renderModel(transform, buffer, lightmapCoord, overlayLight, getTurtleModel(family, colour != -1), colour == -1 ? null : new int[]{ colour });
 
         // Render the overlay
-        var overlayModel = getTurtleOverlayModel(overlay, HolidayUtil.getCurrentHoliday() == Holiday.CHRISTMAS);
+        var overlayModel = getTurtleOverlayModel(overlay, Holiday.getCurrent() == Holiday.CHRISTMAS);
         if (overlayModel != null) {
             renderModel(transform, buffer, lightmapCoord, overlayLight, overlayModel, null);
         }

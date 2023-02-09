@@ -15,7 +15,6 @@ import dan200.computercraft.client.render.TurtleBlockEntityRenderer;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import dan200.computercraft.shared.util.Holiday;
-import dan200.computercraft.shared.util.HolidayUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
@@ -71,13 +70,16 @@ public final class TurtleModelParts {
     }
 
     public Combination getCombination(ItemStack stack) {
-        var turtle = (TurtleItem) stack.getItem();
+        var christmas = Holiday.getCurrent() == Holiday.CHRISTMAS;
+
+        if (!(stack.getItem() instanceof TurtleItem turtle)) {
+            return new Combination(false, null, null, null, christmas, false);
+        }
 
         var colour = turtle.getColour(stack);
         var leftUpgrade = turtle.getUpgrade(stack, TurtleSide.LEFT);
         var rightUpgrade = turtle.getUpgrade(stack, TurtleSide.RIGHT);
         var overlay = turtle.getOverlay(stack);
-        var christmas = HolidayUtil.getCurrentHoliday() == Holiday.CHRISTMAS;
         var label = turtle.getLabel(stack);
         var flip = label != null && (label.equals("Dinnerbone") || label.equals("Grumm"));
 

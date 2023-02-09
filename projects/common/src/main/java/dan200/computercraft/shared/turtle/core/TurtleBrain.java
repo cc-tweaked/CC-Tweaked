@@ -24,7 +24,6 @@ import dan200.computercraft.shared.container.InventoryDelegate;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import dan200.computercraft.shared.util.Holiday;
-import dan200.computercraft.shared.util.HolidayUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -739,7 +738,7 @@ public class TurtleBrain implements TurtleAccessInternal {
             // Advance valentines day easter egg
             if (world.isClientSide && animation == TurtleAnimation.MOVE_FORWARD && animationProgress == 4) {
                 // Spawn love pfx if valentines day
-                var currentHoliday = HolidayUtil.getCurrentHoliday();
+                var currentHoliday = Holiday.getCurrent();
                 if (currentHoliday == Holiday.VALENTINES) {
                     var position = getVisualPosition(1.0f);
                     if (position != null) {
