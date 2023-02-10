@@ -1,7 +1,7 @@
 # New features in CC: Tweaked 1.103.1
 
 Several bug fixes:
-* Fix values not being printed in the REPL
+* Fix values not being printed in the REPL.
 * Fix `function f()` providing suboptimal parse errors in the REPL.
 
 # New features in CC: Tweaked 1.103.0
@@ -14,7 +14,7 @@ Several bug fixes:
 * Turtles can no longer be dyed/undyed by right clicking.
 
 Several bug fixes:
-* Several documentation improvements and fixes (ouroborus, LelouBil)
+* Several documentation improvements and fixes (ouroborus, LelouBil).
 * Fix rednet queueing the wrong message when sending a message to the current computer.
 * Fix the Lua VM crashing when a `__len` metamethod yields.
 * `pocket.{un,}equipBack` now correctly copies the stack when unequipping an upgrade.
@@ -23,7 +23,7 @@ Several bug fixes:
 # New features in CC: Tweaked 1.102.2
 
 Several bug fixes:
-* Fix printouts crashing in item frames
+* Fix printouts crashing in item frames.
 * Fix disks not being assigned an ID when placed in a disk drive.
 
 # New features in CC: Tweaked 1.102.1
@@ -34,7 +34,7 @@ Several bug fixes:
 * Fix turtles dropping their inventory when moving (emmachase).
 * Fix crash when inserting items into a full inventory (emmachase).
 * Simplify wired cable breaking code, fixing items sometimes not dropping.
-* Correctly handle double chests being treated as single threads under Fabric.
+* Correctly handle double chests being treated as single chests under Fabric.
 * Fix `mouse_up` not being fired under Fabric.
 * Fix full-block Wired modems not connecting to adjacent cables when placed.
 * Hide the search tab from the `itemGroups` item details.
@@ -56,14 +56,10 @@ Several bug fixes:
 * Fix duplicated swing animations on high-ping servers (emmachase).
 * Fix several issues with sparse Lua tables (Shiranuit).
 
-# New features in CC: Tweaked 1.102.0-SNAPSHOT
-
-No user-facing changes.
-
 # New features in CC: Tweaked 1.101.1
 
 Several bug fixes:
-* Improve validation of rednet messages (Ale32bit)
+* Improve validation of rednet messages (Ale32bit).
 * Fix `turtle.refuel()` always failing.
 
 # New features in CC: Tweaked 1.101.0
@@ -72,15 +68,13 @@ Several bug fixes:
 * Better reporting of fatal computer timeouts in the server log.
 * Convert detail providers into a registry, allowing peripheral mods to read item/block details.
 * Redesign the metrics system. `/computercraft track` now allows computing aggregates (total, max, avg) on any metric, not just computer time.
-* File drag-and-drop now queues a `file_transfer` event on the computer. The
-  built-in shell or the `import` program must now be running to upload files.
+* File drag-and-drop now queues a `file_transfer` event on the computer. The built-in shell or the `import` program must now be running to upload files.
 * The `peripheral` now searches for remote peripherals using any peripheral with the `peripheral_hub` type, not just wired modems.
-* Add `include_hidden` option to `fs.complete`, which can be used to prevent hidden files showing up in autocomplete results. (IvoLeal72)
+* Add `include_hidden` option to `fs.complete`, which can be used to prevent hidden files showing up in autocomplete results. (IvoLeal72).
 * Add `shell.autocomplete_hidden` setting. (IvoLeal72)
 
 Several bug fixes:
-* Prevent `edit`'s "Run" command scrolling the terminal output on smaller
-  screens.
+* Prevent `edit`'s "Run" command scrolling the terminal output on smaller screens.
 * Remove some non-determinism in computing item's `nbt` hash.
 * Don't set the `Origin` header on outgoing websocket requests.
 
@@ -230,8 +224,7 @@ And several bug fixes:
 
 Several bug fixes:
 * Fix volume speaker sounds are played at.
-* Fix several rendering issues when holding pocket computers and printouts in
-  hand.
+* Fix several rendering issues when holding pocket computers and printouts in hand.
 * Ensure wired modems and cables join the wired network on chunk load.
 * Fix stack overflow when using wired networks.
 
@@ -255,8 +248,7 @@ And several bug fixes:
 * Prevent `parallel.*` from hanging when no arguments are given.
 * Prevent issue in rednet when the message ID is NaN.
 * Fix `help` program crashing when terminal changes width.
-* Ensure monitors are well-formed when placed, preventing graphical glitches
-  when using Carry On or Quark.
+* Ensure monitors are well-formed when placed, preventing graphical glitches when using Carry On or Quark.
 * Accept several more extensions in the websocket client.
 * Prevent `wget` crashing when given an invalid URL and no filename.
 * Correctly wrap string within `textutils.slowWrite`.
@@ -408,7 +400,7 @@ And several bug fixes:
 # New features in CC: Tweaked 1.91.0
 
 * [Generic peripherals] Expose NBT hashes of items to inventory methods.
-* Bump Cobalt version
+* Bump Cobalt version:
   * Optimise handling of string concatenation.
   * Add string.{pack,unpack,packsize} (MCJack123)
 * Update to 1.16.2
@@ -524,13 +516,12 @@ And several bug fixes:
 
 # New features in CC: Tweaked 1.86.2
 
-* Fix peripheral.getMethods returning an empty table
-* Update to Minecraft 1.15.2. This is currently alpha-quality and so is missing
-  missing features and may be unstable.
+* Fix peripheral.getMethods returning an empty table.
+* Update to Minecraft 1.15.2. This is currently alpha-quality and so is missing missing features and may be unstable.
 
 # New features in CC: Tweaked 1.86.1
 
-* Add a help message to the Lua REPL's exit function
+* Add a help message to the Lua REPL's exit function.
 * Add more MOTD messages. (osmarks)
 * GPS requests are now made anonymously (osmarks)
 * Minor memory usage improvements to Cobalt VM.
