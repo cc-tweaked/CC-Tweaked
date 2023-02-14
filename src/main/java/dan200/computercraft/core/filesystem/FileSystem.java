@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.core.filesystem;
 
+import com.google.common.base.Splitter;
 import com.google.common.io.ByteStreams;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IFileSystem;
@@ -515,10 +516,11 @@ public class FileSystem
         path = cleanName.toString();
 
         // Collapse the string into its component parts, removing ..'s
-        String[] parts = path.split( "/" );
-        Stack<String> outputParts = new Stack<>();
-        for( String part : parts )
+        ArrayDeque<String> outputParts = new ArrayDeque<>();
+        for( String fullPart : Splitter.on( '/' ).split( path ) )
         {
+            String part = fullPart.trim();
+
             if( part.isEmpty() || part.equals( "." ) || threeDotsPattern.matcher( part ).matches() )
             {
                 // . is redundant
@@ -529,32 +531,32 @@ public class FileSystem
             if( part.equals( ".." ) )
             {
                 // .. can cancel out the last folder entered
-                if( !outputParts.empty() )
+                if( !outputParts.isEmpty() )
                 {
-                    String top = outputParts.peek();
+                    String top = outputParts.peekLast();
                     if( !top.equals( ".." ) )
                     {
-                        outputParts.pop();
+                        outputParts.removeLast();
                     }
                     else
                     {
-                        outputParts.push( ".." );
+                        outputParts.addLast( ".." );
                     }
                 }
                 else
                 {
-                    outputParts.push( ".." );
+                    outputParts.addLast( ".." );
                 }
             }
             else if( part.length() >= 255 )
             {
                 // If part length > 255 and it is the last part
-                outputParts.push( part.substring( 0, 255 ) );
+                outputParts.addLast( part.substring( 0, 255 ).trim() );
             }
             else
             {
                 // Anything else we add to the stack
-                outputParts.push( part );
+                outputParts.addLast( part );
             }
         }
 

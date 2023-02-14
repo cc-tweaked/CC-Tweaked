@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.core;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
@@ -15,22 +14,30 @@ import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.FileSystemException;
+import dan200.computercraft.core.lua.CobaltLuaMachine;
+import dan200.computercraft.core.lua.MachineEnvironment;
+import dan200.computercraft.core.lua.MachineResult;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.support.TestFiles;
 import dan200.computercraft.test.core.computer.BasicEnvironment;
 import dan200.computercraft.test.core.computer.FakeMainThreadScheduler;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.function.Executable;
 import org.opentest4j.AssertionFailedError;
+import org.opentest4j.TestAbortedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.squiddev.cobalt.*;
+import org.squiddev.cobalt.debug.DebugFrame;
+import org.squiddev.cobalt.debug.DebugHook;
+import org.squiddev.cobalt.debug.DebugState;
+import org.squiddev.cobalt.function.OneArgFunction;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
@@ -43,6 +50,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -60,7 +68,7 @@ public class ComputerTestDelegate
 {
     private static final Path REPORT_PATH = TestFiles.get( "luacov.report.out" );
 
-    private static final Logger LOG = LogManager.getLogger( ComputerTestDelegate.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ComputerTestDelegate.class );
 
     private static final long TICK_TIME = TimeUnit.MILLISECONDS.toNanos( 50 );
 
@@ -86,14 +94,12 @@ public class ComputerTestDelegate
 
     private final Condition hasFinished = lock.newCondition();
     private boolean finished = false;
-    private Map<String, Map<Double, Double>> finishedWith;
+    private final Map<LuaString, Int2IntArrayMap> coverage = new HashMap<>();
 
     @BeforeEach
     public void before() throws IOException
     {
-        ComputerCraft.logComputerErrors = true;
-
-        if( Files.deleteIfExists( REPORT_PATH ) ) ComputerCraft.log.info( "Deleted previous coverage report." );
+        if( Files.deleteIfExists( REPORT_PATH ) ) LOG.info( "Deleted previous coverage report." );
 
         Terminal term = new Terminal( 80, 100, true );
         IWritableMount mount = new FileMount( TestFiles.get( "mount" ).toFile(), 10_000_000 );
@@ -157,12 +163,14 @@ public class ComputerTestDelegate
             computer.shutdown();
         }
 
-        if( finishedWith != null )
+        if( !coverage.isEmpty() )
         {
             Files.createDirectories( REPORT_PATH.getParent() );
             try( BufferedWriter writer = Files.newBufferedWriter( REPORT_PATH ) )
             {
-                new LuaCoverage( finishedWith ).write( writer );
+                new LuaCoverage( coverage.entrySet().stream().collect( Collectors.toMap(
+                    x -> x.getKey().substring( 1 ).toString(), Map.Entry::getValue
+                ) ) ).write( writer );
             }
         }
     }
@@ -174,7 +182,7 @@ public class ComputerTestDelegate
         try
         {
             long remaining = TIMEOUT;
-            while( remaining > 0 & tests == null )
+            while( remaining > 0 && tests == null )
             {
                 tick();
                 if( hasTests.awaitNanos( TICK_TIME ) > 0 ) break;
@@ -231,7 +239,12 @@ public class ComputerTestDelegate
         void runs( String name, String uri, Executable executor )
         {
             if( this.executor != null ) throw new IllegalStateException( name + " is leaf node" );
-            if( children.containsKey( name ) ) throw new IllegalStateException( "Duplicate key for " + name );
+            if( children.containsKey( name ) )
+            {
+                int i = 1;
+                while( children.containsKey( name + i ) ) i++;
+                name = name + i;
+            }
 
             children.put( name, new DynamicNodeBuilder( name, uri, executor ) );
         }
@@ -290,7 +303,6 @@ public class ComputerTestDelegate
 
     public static class FakeModem implements IPeripheral
     {
-        @Nonnull
         @Override
         public String getType()
         {
@@ -312,7 +324,6 @@ public class ComputerTestDelegate
 
     public static class FakePeripheralHub implements IPeripheral
     {
-        @Nonnull
         @Override
         public String getType()
         {
@@ -464,10 +475,6 @@ public class ComputerTestDelegate
         {
             //  Submit the result of a test, allowing the test executor to continue
             String name = (String) tbl.get( "name" );
-            if( name == null )
-            {
-                ComputerCraft.log.error( "Oh no: {}", tbl );
-            }
             String status = (String) tbl.get( "status" );
             String message = (String) tbl.get( "message" );
             String trace = (String) tbl.get( "trace" );
@@ -502,7 +509,9 @@ public class ComputerTestDelegate
                 switch( status )
                 {
                     case "ok":
+                        break;
                     case "pending":
+                        runResult = new TestAbortedException( "Test is pending" );
                         break;
                     case "fail":
                         runResult = new AssertionFailedError( wholeMessage.toString() );
@@ -522,10 +531,8 @@ public class ComputerTestDelegate
         }
 
         @LuaFunction
-        public final void finish( Optional<Map<?, ?>> result )
+        public final void finish()
         {
-            @SuppressWarnings( "unchecked" )
-            Map<String, Map<Double, Double>> finishedResult = (Map<String, Map<Double, Double>>) result.orElse( null );
             LOG.info( "Finished" );
 
             // Signal to after that execution has finished
@@ -540,7 +547,6 @@ public class ComputerTestDelegate
             try
             {
                 finished = true;
-                if( finishedResult != null ) finishedWith = finishedResult;
 
                 hasFinished.signal();
             }
@@ -548,6 +554,88 @@ public class ComputerTestDelegate
             {
                 lock.unlock();
             }
+        }
+    }
+
+    /**
+     * A subclass of {@link CobaltLuaMachine} which tracks coverage for executed files.
+     * <p>
+     * This is a super nasty hack, but is also an order of magnitude faster than tracking this in Lua.
+     */
+    private class CoverageLuaMachine extends CobaltLuaMachine
+    {
+        CoverageLuaMachine( MachineEnvironment environment )
+        {
+            super( environment );
+        }
+
+        @Override
+        public MachineResult loadBios( InputStream bios )
+        {
+            MachineResult result = super.loadBios( bios );
+            if( result != MachineResult.OK ) return result;
+
+            LuaTable globals;
+            LuaThread mainRoutine;
+            try
+            {
+                Field globalField = CobaltLuaMachine.class.getDeclaredField( "globals" );
+                globalField.setAccessible( true );
+                globals = (LuaTable) globalField.get( this );
+
+                Field threadField = CobaltLuaMachine.class.getDeclaredField( "mainRoutine" );
+                threadField.setAccessible( true );
+                mainRoutine = (LuaThread) threadField.get( this );
+            }
+            catch( ReflectiveOperationException e )
+            {
+                throw new RuntimeException( "Cannot get internal Cobalt state", e );
+            }
+
+            Map<LuaString, Int2IntArrayMap> coverage = ComputerTestDelegate.this.coverage;
+            DebugHook hook = new DebugHook()
+            {
+                @Override
+                public void onCall( LuaState state, DebugState ds, DebugFrame frame )
+                {
+                }
+
+                @Override
+                public void onReturn( LuaState state, DebugState ds, DebugFrame frame )
+                {
+                }
+
+                @Override
+                public void onCount( LuaState state, DebugState ds, DebugFrame frame )
+                {
+                }
+
+                @Override
+                public void onLine( LuaState state, DebugState ds, DebugFrame frame, int newLine )
+                {
+                    if( frame.closure == null ) return;
+
+                    Prototype proto = frame.closure.getPrototype();
+                    if( !proto.source.startsWith( '@' ) ) return;
+
+                    Int2IntMap map = coverage.computeIfAbsent( proto.source, x -> new Int2IntArrayMap() );
+                    map.put( newLine, map.get( newLine ) + 1 );
+                }
+            };
+
+            ((LuaTable) globals.rawget( "coroutine" )).rawset( "create", new OneArgFunction()
+            {
+                @Override
+                public LuaValue call( LuaState state, LuaValue arg ) throws LuaError
+                {
+                    LuaThread thread = new LuaThread( state, arg.checkFunction(), state.getCurrentThread().getfenv() );
+                    thread.getDebugState().setHook( hook, false, true, false, 0 );
+                    return thread;
+                }
+            } );
+            mainRoutine.getDebugState().setHook( hook, false, true, false, 0 );
+
+            return MachineResult.OK;
         }
     }
 }

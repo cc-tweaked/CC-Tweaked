@@ -163,7 +163,7 @@ local function save(path)
 end
 
 --[[
-    Draws colour picker sidebar, the pallette and the footer
+    Draws colour picker sidebar, the palette and the footer
     returns: nil
 ]]
 local function drawInterface()

@@ -34,7 +34,7 @@ describe("The pastebin program", function()
 
     it("downloads one file", function()
         setup_request()
-        capture(stub, "pastebin", "get", "abcde", "testdown")
+        capture("pastebin", "get", "abcde", "testdown")
 
         expect(fs.exists("/testdown")):eq(true)
     end)
@@ -42,7 +42,7 @@ describe("The pastebin program", function()
     it("runs a program from the internet", function()
         setup_request()
 
-        expect(capture(stub, "pastebin", "run", "abcde", "a", "b", "c"))
+        expect(capture("pastebin", "run", "abcde", "a", "b", "c"))
             :matches { ok = true, output = "Connecting to pastebin.com... Success.\nHello a b c\n", error = "" }
     end)
 
@@ -52,21 +52,21 @@ describe("The pastebin program", function()
         local file = fs.open("testup", "w")
         file.close()
 
-        expect(capture(stub, "pastebin", "put", "testup"))
+        expect(capture("pastebin", "put", "testup"))
             :matches { ok = true, output = "Connecting to pastebin.com... Success.\nUploaded as https://pastebin.com/abcde\nRun \"pastebin get abcde\" to download anywhere\n", error = "" }
     end)
 
     it("upload a not existing program to pastebin", function()
         setup_request()
 
-        expect(capture(stub, "pastebin", "put", "nothing"))
+        expect(capture("pastebin", "put", "nothing"))
             :matches { ok = true, output = "No such file\n", error = "" }
     end)
 
     it("displays its usage when given no arguments", function()
         setup_request()
 
-        expect(capture(stub, "pastebin"))
+        expect(capture("pastebin"))
             :matches { ok = true, output = "Usages:\npastebin put <filename>\npastebin get <code> <filename>\npastebin run <code> <arguments>\n", error = "" }
     end)
 

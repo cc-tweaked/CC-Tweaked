@@ -157,7 +157,7 @@ function pagedPrint(text, free_lines)
     -- Removed the redirector
     term.redirect(oldTerm)
 
-    -- Propogate errors
+    -- Propagate errors
     if not ok then
         error(err, 0)
     end

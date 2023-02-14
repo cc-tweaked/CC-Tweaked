@@ -182,8 +182,12 @@ end
 -- @treturn string The formatted value
 local function format(value)
     -- TODO: Look into something like mbs's pretty printer.
-    local ok, res = pcall(textutils.serialise, value)
-    if ok then return res else return tostring(value) end
+    if type(value) == "string" and value:find("\n") then
+        return "<<<\n" .. value .. "\n>>>"
+    else
+        local ok, res = pcall(textutils.serialise, value)
+        if ok then return res else return tostring(value) end
+    end
 end
 
 local expect_mt = {}
@@ -417,6 +421,9 @@ end
 --- The stack of "describe"s.
 local test_stack = { n = 0 }
 
+--- The stack of setup functions.
+local before_each_fns = { n = 0 }
+
 --- Whether we're now running tests, and so cannot run any more.
 local tests_locked = false
 
@@ -455,7 +462,13 @@ local function describe(name, body)
     local n = test_stack.n + 1
     test_stack[n], test_stack.n = name, n
 
+    local old_before, new_before = before_each_fns, { n = before_each_fns.n }
+    for i = 1, old_before.n do new_before[i] = old_before[i] end
+    before_each_fns = new_before
+
     local ok, err = try(body)
+
+    before_each_fns = old_before
 
     -- We count errors as a (failing) test.
     if not ok then do_test { error = err, definition = format_loc(debug.getinfo(2, "Sl")) } end
@@ -477,7 +490,11 @@ local function it(name, body)
     local n = test_stack.n + 1
     test_stack[n], test_stack.n, tests_locked = name, n, true
 
-    do_test { action = body, definition = format_loc(debug.getinfo(2, "Sl")) }
+    do_test {
+        action = body,
+        before = before_each_fns,
+        definition = format_loc(debug.getinfo(2, "Sl")),
+    }
 
     -- Pop the test from the stack
     test_stack.n, tests_locked = n - 1, false
@@ -498,26 +515,17 @@ local function pending(name)
     test_stack.n = n - 1
 end
 
-local native_co_create, native_loadfile = coroutine.create, loadfile
+local function before_each(body)
+    check('it', 1, 'function', body)
+    if tests_locked then error("Cannot define before_each while running tests", 2) end
+
+    local n = before_each_fns.n + 1
+    before_each_fns[n], before_each_fns.n = body, n
+end
+
+local native_loadfile = loadfile
 local line_counts = {}
 if cct_test then
-    local string_sub, debug_getinfo = string.sub, debug.getinfo
-    local function debug_hook(_, line_nr)
-        local name = debug_getinfo(2, "S").source
-        if string_sub(name, 1, 1) ~= "@" then return end
-        name = string_sub(name, 2)
-
-        local file = line_counts[name]
-        if not file then file = {} line_counts[name] = file end
-        file[line_nr] = (file[line_nr] or 0) + 1
-    end
-
-    coroutine.create = function(...)
-        local co = native_co_create(...)
-        debug.sethook(co, debug_hook, "l")
-        return co
-    end
-
     local expect = require "cc.expect".expect
     _G.native_loadfile = native_loadfile
     _G.loadfile = function(filename, mode, env)
@@ -537,8 +545,6 @@ if cct_test then
         file.close()
         return func, err
     end
-
-    debug.sethook(debug_hook, "l")
 end
 
 local arg = ...
@@ -559,16 +565,11 @@ end
 package.path = ("/%s/?.lua;/%s/?/init.lua;%s"):format(root_dir, root_dir, package.path)
 
 do
-    -- Load in the tests from all our files
-    local env = setmetatable({}, { __index = _ENV })
-
-    local function set_env(tbl)
-        for k in pairs(env) do env[k] = nil end
-        for k, v in pairs(tbl) do env[k] = v end
-    end
-
-    -- When declaring tests, you shouldn't be able to use test methods
-    set_env { describe = describe, it = it, pending = pending }
+    -- Add our new functions to the current environment.
+    for k, v in pairs {
+        describe = describe, it = it, pending = pending, before_each = before_each,
+        expect = expect, fail = fail,
+    } do _ENV[k] = v end
 
     local suffix = "_spec.lua"
     local function run_in(sub_dir)
@@ -577,7 +578,7 @@ do
             if fs.isDir(file) then
                 run_in(file)
             elseif file:sub(-#suffix) == suffix then
-                local fun, err = loadfile(file, nil, env)
+                local fun, err = loadfile(file, nil, _ENV)
                 if not fun then
                     do_test { name = file:sub(#root_dir + 2), error = { message = err } }
                 else
@@ -590,8 +591,8 @@ do
 
     run_in(root_dir)
 
-    -- When running tests, you shouldn't be able to declare new ones.
-    set_env { expect = expect, fail = fail, stub = stub }
+    -- Add stub later on, so its not available when running tests
+    _ENV.stub = stub
 end
 
 -- Error if we've found no tests
@@ -630,8 +631,13 @@ local function do_run(test)
         -- Flush the event queue and ensure we're running with 0 timeout.
         os.queueEvent("start_test") os.pullEvent("start_test")
 
-        local ok
-        ok, err = try(test.action)
+        local ok = true
+        for i = 1, test.before.n do
+            if not ok then break end
+            ok, err = try(test.before[i])
+        end
+        if ok then ok, err = try(test.action) end
+
         status = ok and "pass" or (err.fail and "fail" or "error")
 
         pop_state(state)
@@ -711,8 +717,6 @@ end
 term.setTextColour(colours.white) io.write(info .. "\n")
 
 -- Restore hook stubs
-debug.sethook(nil, "l")
-coroutine.create = native_co_create
 _G.loadfile = native_loadfile
 
 if cct_test then cct_test.finish(line_counts) end

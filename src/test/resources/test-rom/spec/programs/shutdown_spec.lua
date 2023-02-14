@@ -6,7 +6,7 @@ describe("The shutdown program", function()
         local sleep = stub(_G, "sleep")
         local shutdown = stub(os, "shutdown")
 
-        expect(capture(stub, "shutdown"))
+        expect(capture("shutdown"))
             :matches { ok = true, output = "Goodbye\n", error = "" }
 
         expect(sleep):called_with(1)

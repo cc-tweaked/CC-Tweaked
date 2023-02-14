@@ -218,9 +218,9 @@ channel. The message will be received by every device listening to rednet.
 
 @param message The message to send. This should not contain coroutines or
 functions, as they will be converted to @{nil}.
-@tparam[opt] string protocol The "protocol" to send this message under.
-When using @{rednet.receive} one can filter to only receive messages sent
-under a particular protocol.
+@tparam[opt] string protocol The "protocol" to send this message under. When
+using @{rednet.receive} one can filter to only receive messages sent under a
+particular protocol.
 @see rednet.receive
 @changed 1.6 Added protocol parameter.
 @usage Broadcast the words "Hello, world!" to every computer using rednet.
@@ -319,7 +319,7 @@ different, or if they only join a given network after "registering" themselves
 before doing so (eg while offline or part of a different network).
 
 @tparam string protocol The protocol this computer provides.
-@tparam string hostname The name this protocol exposes for the given protocol.
+@tparam string hostname The name this computer exposes for the given protocol.
 @throws If trying to register a hostname which is reserved, or currently in use.
 @see rednet.unhost
 @see rednet.lookup
@@ -464,6 +464,7 @@ function run()
             if channel == id_as_channel() or channel == CHANNEL_BROADCAST then
                 if type(message) == "table" and type(message.nMessageID) == "number"
                     and message.nMessageID == message.nMessageID and not received_messages[message.nMessageID]
+                    and (type(message.nSender) == "nil" or (type(message.nSender) == "number" and message.nSender == message.nSender))
                     and ((message.nRecipient and message.nRecipient == os.getComputerID()) or channel == CHANNEL_BROADCAST)
                     and isOpen(modem)
                 then
