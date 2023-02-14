@@ -6,7 +6,7 @@ end
 
 --- The builtin turtle API, without any generated helper functions.
 --
--- @deprecated Historically this table behaved differently to the main turtle API, but this is no longer the base. You
+-- @deprecated Historically this table behaved differently to the main turtle API, but this is no longer the case. You
 -- should not need to use it.
 native = turtle.native or turtle
 

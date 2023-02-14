@@ -1,19 +1,16 @@
-New features in CC: Tweaked 1.101.0
+New features in CC: Tweaked 1.101.2
 
-* Improve Dutch translation (Quezler)
-* Better reporting of fatal computer timeouts in the server log.
-* Convert detail providers into a registry, allowing peripheral mods to read item/block details.
-* Redesign the metrics system. `/computercraft track` now allows computing aggregates (total, max, avg) on any metric, not just computer time.
-* File drag-and-drop now queues a `file_transfer` event on the computer. The
-  built-in shell or the `import` program must now be running to upload files.
-* The `peripheral` now searches for remote peripherals using any peripheral with the `peripheral_hub` type, not just wired modems.
-* Add `include_hidden` option to `fs.complete`, which can be used to prevent hidden files showing up in autocomplete results. (IvoLeal72)
-* Add `shell.autocomplete_hidden` setting. (IvoLeal72)
+* Error messages in `edit` are now displayed in red on advanced computers.
+* Improvements to the display of errors in the shell and REPL.
 
 Several bug fixes:
-* Prevent `edit`'s "Run" command scrolling the terminal output on smaller
-  screens.
-* Remove some non-determinism in computing item's `nbt` hash.
-* Don't set the `Origin` header on outgoing websocket requests.
+* Fix `import.lua` failing to upload a file.
+* Fix several issues with sparse Lua tables (Shiranuit).
+* Computer upgrades now accept normal computers, rather than uselessly allowing you to upgrade an advanced computer to an advanced computer!
+* Correctly clamp speaker volume.
+* Fix rednet queueing the wrong message when sending a message to the current computer.
+* Fix the Lua VM crashing when a `__len` metamethod yields.
+* Trim spaces from filesystem paths.
+* Correctly format 12AM/PM with `%I`.
 
 Type "help changelog" to see the full version history.

@@ -36,17 +36,17 @@ describe("The rm program", function()
     end)
 
     it("displays the usage with no arguments", function()
-        expect(capture(stub, "rm"))
+        expect(capture("rm"))
             :matches { ok = true, output = "Usage: rm <paths>\n", error = "" }
     end)
 
     it("errors when trying to delete a read-only file", function()
-        expect(capture(stub, "rm /rom/startup.lua"))
+        expect(capture("rm /rom/startup.lua"))
             :matches { ok = true, output = "", error = "Cannot delete read-only file /rom/startup.lua\n" }
     end)
 
     it("errors when trying to delete the root mount", function()
-        expect(capture(stub, "rm /")):matches {
+        expect(capture("rm /")):matches {
             ok = true,
             output = "To delete its contents run rm /*\n",
             error = "Cannot delete mount /\n",
@@ -54,7 +54,7 @@ describe("The rm program", function()
     end)
 
     it("errors when a glob fails to match", function()
-        expect(capture(stub, "rm", "never-existed"))
+        expect(capture("rm", "never-existed"))
             :matches { ok = true, output = "", error = "never-existed: No matching files\n" }
     end)
 end)

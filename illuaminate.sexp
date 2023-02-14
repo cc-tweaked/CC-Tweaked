@@ -111,6 +111,6 @@
   (lint
     (globals
       :max sleep write
-      cct_test describe expect howlci fail it pending stub)))
+      cct_test describe expect howlci fail it pending stub before_each)))
 
 (at /src/web/mount/expr_template.lua (lint (globals :max __expr__)))

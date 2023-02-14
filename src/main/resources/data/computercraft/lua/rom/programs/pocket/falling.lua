@@ -446,7 +446,7 @@ local function playGame()
           end
         end
       end
-      --now remove the rows and drop everythign else
+      --now remove the rows and drop everything else
       term.setBackgroundColor(colors.black)
       for r = 1, #rows do
         r = rows[r]

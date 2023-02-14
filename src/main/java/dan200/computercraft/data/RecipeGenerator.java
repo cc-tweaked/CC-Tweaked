@@ -209,7 +209,7 @@ class RecipeGenerator extends RecipeProvider
             .pattern( "#C#" )
             .pattern( "# #" )
             .define( '#', Tags.Items.INGOTS_GOLD )
-            .define( 'C', Registry.ModItems.COMPUTER_ADVANCED.get() )
+            .define( 'C', Registry.ModItems.COMPUTER_NORMAL.get() )
             .unlockedBy( "has_components", inventoryChange( itemPredicate( Registry.ModItems.COMPUTER_NORMAL.get() ), itemPredicate( Tags.Items.INGOTS_GOLD ) ) )
             .save(
                 RecipeWrapper.wrap( ComputerUpgradeRecipe.SERIALIZER, add ).withExtraData( family( ComputerFamily.ADVANCED ) ),
@@ -255,7 +255,7 @@ class RecipeGenerator extends RecipeProvider
             .pattern( "#C#" )
             .pattern( " B " )
             .define( '#', Tags.Items.INGOTS_GOLD )
-            .define( 'C', Registry.ModItems.COMPUTER_ADVANCED.get() )
+            .define( 'C', Registry.ModItems.TURTLE_NORMAL.get() )
             .define( 'B', Tags.Items.STORAGE_BLOCKS_GOLD )
             .unlockedBy( "has_components", inventoryChange( itemPredicate( Registry.ModItems.TURTLE_NORMAL.get() ), itemPredicate( Tags.Items.INGOTS_GOLD ) ) )
             .save(

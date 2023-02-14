@@ -10,7 +10,7 @@
       "tag": "forge:ingots/gold"
     },
     "C": {
-      "item": "computercraft:computer_advanced"
+      "item": "computercraft:turtle_normal"
     },
     "B": {
       "tag": "forge:storage_blocks/gold"

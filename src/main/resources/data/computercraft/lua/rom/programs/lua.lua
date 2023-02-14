@@ -6,13 +6,14 @@ if #tArgs > 0 then
 end
 
 local pretty = require "cc.pretty"
+local exception = require "cc.internal.exception"
 
-local bRunning = true
+local running = true
 local tCommandHistory = {}
 local tEnv = {
     ["exit"] = setmetatable({}, {
         __tostring = function() return "Call exit() to exit." end,
-        __call = function() bRunning = false end,
+        __call = function() running = false end,
     }),
     ["_echo"] = function(...)
         return ...
@@ -44,14 +45,15 @@ print("Interactive Lua prompt.")
 print("Call exit() to exit.")
 term.setTextColour(colours.white)
 
-while bRunning do
+local chunk_idx, chunk_map = 1, {}
+while running do
     --if term.isColour() then
     --    term.setTextColour( colours.yellow )
     --end
     write("lua> ")
     --term.setTextColour( colours.white )
 
-    local s = read(nil, tCommandHistory, function(sLine)
+    local input = read(nil, tCommandHistory, function(sLine)
         if settings.get("lua.autocomplete") then
             local nStartPos = string.find(sLine, "[a-zA-Z0-9_%.:]+$")
             if nStartPos then
@@ -63,10 +65,10 @@ while bRunning do
         end
         return nil
     end)
-    if s:match("%S") and tCommandHistory[#tCommandHistory] ~= s then
-        table.insert(tCommandHistory, s)
+    if input:match("%S") and tCommandHistory[#tCommandHistory] ~= input then
+        table.insert(tCommandHistory, input)
     end
-    if settings.get("lua.warn_against_use_of_local") and s:match("^%s*local%s+") then
+    if settings.get("lua.warn_against_use_of_local") and input:match("^%s*local%s+") then
         if term.isColour() then
             term.setTextColour(colours.yellow)
         end
@@ -74,27 +76,32 @@ while bRunning do
        term.setTextColour(colours.white)
     end
 
-    local nForcePrint = 0
-    local func, e = load(s, "=lua", "t", tEnv)
-    local func2 = load("return _echo(" .. s .. ");", "=lua", "t", tEnv)
+    local name, offset = "=lua[" .. chunk_idx .. "]", 0
+
+    local force_print = 0
+    local func, err = load(input, name, "t", tEnv)
+
+    local expr_func = load("return _echo(" .. input .. ");", name, "t", tEnv)
     if not func then
-        if func2 then
-            func = func2
-            e = nil
-            nForcePrint = 1
+        if expr_func then
+            func = expr_func
+            offset = 13
+            force_print = 1
         end
-    else
-        if func2 then
-            func = func2
-        end
+    elseif expr_func then
+        func = expr_func
+        offset = 13
     end
 
     if func then
-        local tResults = table.pack(pcall(func))
-        if tResults[1] then
+        chunk_map[name] = { contents = input, offset = offset }
+        chunk_idx = chunk_idx + 1
+
+        local results = table.pack(exception.try(func))
+        if results[1] then
             local n = 1
-            while n < tResults.n or n <= nForcePrint do
-                local value = tResults[n + 1]
+            while n < results.n or n <= force_print do
+                local value = results[n + 1]
                 local ok, serialised = pcall(pretty.pretty, value, {
                     function_args = settings.get("lua.function_args"),
                     function_source = settings.get("lua.function_source"),
@@ -107,10 +114,12 @@ while bRunning do
                 n = n + 1
             end
         else
-            printError(tResults[2])
+            printError(results[2])
+            require "cc.internal.exception".report(results[2], results[3], chunk_map)
         end
     else
-        printError(e)
+        local parser = require "cc.internal.syntax"
+        if parser.parse_repl(input) then printError(err) end
     end
 
 end

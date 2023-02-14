@@ -78,6 +78,11 @@ local function launchProcess(bFocus, tProgramEnv, sProgramPath, ...)
     else
         tProcess.window = window.create(parentTerm, 1, 1, w, h, false)
     end
+
+    -- Restrict the public view of the window to normal redirect functions.
+    tProcess.terminal = {}
+    for k in pairs(term.native()) do tProcess.terminal[k] = tProcess.window[k] end
+
     tProcess.co = coroutine.create(function()
         os.run(tProgramEnv, sProgramPath, table.unpack(tProgramArgs, 1, tProgramArgs.n))
         if not tProcess.bInteracted then
@@ -87,7 +92,6 @@ local function launchProcess(bFocus, tProgramEnv, sProgramPath, ...)
         end
     end)
     tProcess.sFilter = nil
-    tProcess.terminal = tProcess.window
     tProcess.bInteracted = false
     tProcesses[nProcess] = tProcess
     if bFocus then

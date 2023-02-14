@@ -1,18 +1,31 @@
+# New features in CC: Tweaked 1.101.2
+
+* Error messages in `edit` are now displayed in red on advanced computers.
+* Improvements to the display of errors in the shell and REPL.
+
+Several bug fixes:
+* Fix `import.lua` failing to upload a file.
+* Fix several issues with sparse Lua tables (Shiranuit).
+* Computer upgrades now accept normal computers, rather than uselessly allowing you to upgrade an advanced computer to an advanced computer!
+* Correctly clamp speaker volume.
+* Fix rednet queueing the wrong message when sending a message to the current computer.
+* Fix the Lua VM crashing when a `__len` metamethod yields.
+* Trim spaces from filesystem paths.
+* Correctly format 12AM/PM with `%I`.
+
 # New features in CC: Tweaked 1.101.0
 
 * Improve Dutch translation (Quezler)
 * Better reporting of fatal computer timeouts in the server log.
 * Convert detail providers into a registry, allowing peripheral mods to read item/block details.
 * Redesign the metrics system. `/computercraft track` now allows computing aggregates (total, max, avg) on any metric, not just computer time.
-* File drag-and-drop now queues a `file_transfer` event on the computer. The
-  built-in shell or the `import` program must now be running to upload files.
+* File drag-and-drop now queues a `file_transfer` event on the computer. The built-in shell or the `import` program must now be running to upload files.
 * The `peripheral` now searches for remote peripherals using any peripheral with the `peripheral_hub` type, not just wired modems.
-* Add `include_hidden` option to `fs.complete`, which can be used to prevent hidden files showing up in autocomplete results. (IvoLeal72)
+* Add `include_hidden` option to `fs.complete`, which can be used to prevent hidden files showing up in autocomplete results. (IvoLeal72).
 * Add `shell.autocomplete_hidden` setting. (IvoLeal72)
 
 Several bug fixes:
-* Prevent `edit`'s "Run" command scrolling the terminal output on smaller
-  screens.
+* Prevent `edit`'s "Run" command scrolling the terminal output on smaller screens.
 * Remove some non-determinism in computing item's `nbt` hash.
 * Don't set the `Origin` header on outgoing websocket requests.
 
@@ -182,8 +195,7 @@ And several bug fixes:
 * Prevent `parallel.*` from hanging when no arguments are given.
 * Prevent issue in rednet when the message ID is NaN.
 * Fix `help` program crashing when terminal changes width.
-* Ensure monitors are well-formed when placed, preventing graphical glitches
-  when using Carry On or Quark.
+* Ensure monitors are well-formed when placed, preventing graphical glitches when using Carry On or Quark.
 * Accept several more extensions in the websocket client.
 * Prevent `wget` crashing when given an invalid URL and no filename.
 * Correctly wrap string within `textutils.slowWrite`.
@@ -210,7 +222,7 @@ And several bug fixes:
 
 And several bug fixes:
 * Fix NPE when using a treasure disk when no treasure disks are available.
-* Prevent command computers discarding command ouput when certain game rules are off.
+* Prevent command computers discarding command output when certain game rules are off.
 * Fix turtles not updating peripherals when upgrades are unequipped (Ronan-H).
 * Fix computers not shutting down on fatal errors within the Lua VM.
 * Speakers now correctly stop playing when broken, and sound follows noisy turtles and pocket computers.
@@ -219,32 +231,6 @@ And several bug fixes:
 * Fix coloured pocket computers using the wrong texture.
 * Correctly render the transparent background on pocket/normal computers.
 * Don't apply CraftTweaker actions twice on single-player worlds.
-
-# New features in CC: Tweaked 1.97.0
-
-* Update several translations (Anavrins, Jummit, Naheulf).
-* Add button to view a computer's folder to `/computercraft dump`.
-* Allow cleaning dyed turtles in a cauldron.
-* Add scale subcommand to `monitor` program (MCJack123).
-* Add option to make `textutils.serialize` not write an indent (magiczocker10).
-* Allow comparing vectors using `==` (fatboychummy).
-* Improve HTTP error messages for SSL failures.
-* Allow `craft` program to craft unlimited items (fatboychummy).
-* Impose some limits on various command queues.
-* Add buttons to shutdown and terminate to computer GUIs.
-* Add program subcompletion to several programs (Wojbie).
-* Update the `help` program to accept and (partially) highlight markdown files.
-* Remove config option for the debug API.
-* Allow setting the subprotocol header for websockets.
-
-And several bug fixes:
-* Fix NPE when using a treasure disk when no treasure disks are available.
-* Prevent command computers discarding command ouput when certain game rules are off.
-* Fix turtles not updating peripherals when upgrades are unequipped (Ronan-H).
-* Fix computers not shutting down on fatal errors within the Lua VM.
-* Speakers now correctly stop playing when broken, and sound follows noisy turtles and pocket computers.
-* Update the `wget` to be more resiliant in the face of user-errors.
-* Fix exiting `paint` typing "e" in the shell.
 
 # New features in CC: Tweaked 1.96.0
 
@@ -297,7 +283,7 @@ Several bug fixes:
 # New features in CC: Tweaked 1.95.0
 
 * Optimise the paint program's initial render.
-* Several documentation improvments (Gibbo3771, MCJack123).
+* Several documentation improvements (Gibbo3771, MCJack123).
 * `fs.combine` now accepts multiple arguments.
 * Add a setting (`bios.strict_globals`) to error when accidentally declaring a global. (Lupus590).
 * Add an improved help viewer which allows scrolling up and down (MCJack123).
@@ -337,7 +323,7 @@ And several bug fixes:
 
 * Update Swedish translations (Granddave).
 * Printers use item tags to check dyes.
-* HTTP rules may now be targetted for a specific port.
+* HTTP rules may now be targeted for a specific port.
 * Don't propagate adjacent redstone signals through computers.
 
 And several bug fixes:
@@ -361,7 +347,7 @@ And several bug fixes:
 # New features in CC: Tweaked 1.91.0
 
 * [Generic peripherals] Expose NBT hashes of items to inventory methods.
-* Bump Cobalt version
+* Bump Cobalt version:
   * Optimise handling of string concatenation.
   * Add string.{pack,unpack,packsize} (MCJack123)
 * Update to 1.16.2
@@ -457,7 +443,7 @@ And several bug fixes:
   - Add `utf8` lib.
   - Mirror Lua's behaviour of tail calls more closely. Native functions are no longer tail called, and tail calls are displayed in the stack trace.
   - `table.unpack` now uses `__len` and `__index` metamethods.
-  - Parser errors now include the token where the error occured.
+  - Parser errors now include the token where the error occurred.
 * Add `textutils.unserializeJSON`. This can be used to decode standard JSON and stringified-NBT.
 * The `settings` API now allows "defining" settings. This allows settings to specify a default value and description.
 * Enable the motd on non-pocket computers.
@@ -465,7 +451,7 @@ And several bug fixes:
 * Add Danish and Korean translations (ChristianLW, mindy15963)
 * Fire `mouse_up` events in the monitor program.
 * Allow specifying a timeout to `websocket.receive`.
-* Increase the maximimum limit for websocket messages.
+* Increase the maximum limit for websocket messages.
 * Optimise capacity checking of computer/disk folders.
 
 And several bug fixes:
@@ -477,13 +463,12 @@ And several bug fixes:
 
 # New features in CC: Tweaked 1.86.2
 
-* Fix peripheral.getMethods returning an empty table
-* Update to Minecraft 1.15.2. This is currently alpha-quality and so is missing
-  missing features and may be unstable.
+* Fix peripheral.getMethods returning an empty table.
+* Update to Minecraft 1.15.2. This is currently alpha-quality and so is missing missing features and may be unstable.
 
 # New features in CC: Tweaked 1.86.1
 
-* Add a help message to the Lua REPL's exit function
+* Add a help message to the Lua REPL's exit function.
 * Add more MOTD messages. (osmarks)
 * GPS requests are now made anonymously (osmarks)
 * Minor memory usage improvements to Cobalt VM.

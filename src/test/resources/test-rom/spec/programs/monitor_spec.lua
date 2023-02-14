@@ -2,7 +2,7 @@ local capture = require "test_helpers".capture_program
 
 describe("The monitor program", function()
     it("displays its usage when given no arguments", function()
-        expect(capture(stub, "monitor"))
+        expect(capture("monitor"))
             :matches {
                 ok = true,
                 output =
@@ -17,7 +17,7 @@ describe("The monitor program", function()
         local r = 1
         stub(peripheral, "call", function(s, f, t) r = t end)
         stub(peripheral, "getType", function() return "monitor" end)
-        expect(capture(stub, "monitor", "scale", "left", "0.5"))
+        expect(capture("monitor", "scale", "left", "0.5"))
             :matches { ok = true, output = "", error = "" }
         expect(r):equals(0.5)
     end)
@@ -26,7 +26,7 @@ describe("The monitor program", function()
         local r = 1
         stub(peripheral, "call", function(s, f, t) r = t end)
         stub(peripheral, "getType", function(side) return side == "left" and "monitor" or nil end)
-        expect(capture(stub, "monitor", "scale", "left"))
+        expect(capture("monitor", "scale", "left"))
             :matches {
                 ok = true,
                 output =
@@ -35,9 +35,9 @@ describe("The monitor program", function()
                     "  monitor scale <name> <scale>\n",
                 error = "",
             }
-        expect(capture(stub, "monitor", "scale", "top", "0.5"))
+        expect(capture("monitor", "scale", "top", "0.5"))
             :matches { ok = true, output = "No monitor named top\n", error = "" }
-        expect(capture(stub, "monitor", "scale", "left", "aaa"))
+        expect(capture("monitor", "scale", "left", "aaa"))
             :matches { ok = true, output = "Invalid scale: aaa\n", error = "" }
         expect(r):equals(1)
     end)

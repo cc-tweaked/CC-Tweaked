@@ -16,7 +16,7 @@ function path()
     return sPath
 end
 
---- Sets the colon-seperated list of directories where help files are searched
+--- Sets the colon-separated list of directories where help files are searched
 -- for to `newPath`
 --
 -- @tparam string newPath The new path to use.
