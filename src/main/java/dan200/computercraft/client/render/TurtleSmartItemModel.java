@@ -76,6 +76,7 @@ public class TurtleSmartItemModel extends BakedModelWrapper<BakedModel>
     @Override
     public List<BakedModel> getRenderPasses( ItemStack stack, boolean fabulous )
     {
+        if ( !(stack.getItem() instanceof ItemTurtle) ) return familyModel.getRenderPasses( stack, fabulous );
         ItemTurtle turtle = (ItemTurtle) stack.getItem();
 
         int colour = turtle.getColour( stack );

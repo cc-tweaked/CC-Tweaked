@@ -120,7 +120,7 @@ describe("The shell", function()
         local function create_files(files) return { getFiles = function() return files end } end
 
         it("suspends the read prompt", function()
-            fs.delete("tmp.txt")
+            fs.delete("transfer.txt")
 
             local win = with_window(32, 5, function()
                 local queue = {

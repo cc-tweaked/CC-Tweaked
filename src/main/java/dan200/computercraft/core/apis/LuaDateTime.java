@@ -89,7 +89,7 @@ final class LuaDateTime
                             formatter.appendValue( ChronoField.HOUR_OF_DAY, 2 );
                             break;
                         case 'I':
-                            formatter.appendValue( ChronoField.HOUR_OF_AMPM, 2 );
+                            formatter.appendValue( ChronoField.CLOCK_HOUR_OF_AMPM, 2 );
                             break;
                         case 'j':
                             formatter.appendValue( ChronoField.DAY_OF_YEAR, 3 );

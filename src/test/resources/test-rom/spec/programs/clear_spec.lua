@@ -5,7 +5,7 @@ describe("The clear program", function()
         local clear = stub(term, "clear")
         local setCursorPos = stub(term, "setCursorPos")
 
-        capture(stub, "clear")
+        capture("clear")
 
         expect(clear):called(1)
         expect(setCursorPos):called_with(1, 1)

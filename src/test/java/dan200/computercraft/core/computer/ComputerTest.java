@@ -29,7 +29,7 @@ public class ComputerTest
             }
             catch( AssertionError e )
             {
-                if( e.getMessage().equals( "test.lua:1: Too long without yielding" ) ) return;
+                if( e.getMessage().equals( "/test.lua:1: Too long without yielding" ) ) return;
                 throw e;
             }
 

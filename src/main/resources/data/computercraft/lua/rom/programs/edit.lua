@@ -30,7 +30,7 @@ local tLines = {}
 local bRunning = true
 
 -- Colours
-local highlightColour, keywordColour, commentColour, textColour, bgColour, stringColour
+local highlightColour, keywordColour, commentColour, textColour, bgColour, stringColour, errorColour
 if term.isColour() then
     bgColour = colours.black
     textColour = colours.white
@@ -38,6 +38,7 @@ if term.isColour() then
     keywordColour = colours.yellow
     commentColour = colours.green
     stringColour = colours.red
+    errorColour = colours.red
 else
     bgColour = colours.black
     textColour = colours.white
@@ -45,18 +46,29 @@ else
     keywordColour = colours.white
     commentColour = colours.white
     stringColour = colours.white
+    errorColour = colours.white
 end
 
 local runHandler = [[multishell.setTitle(multishell.getCurrent(), %q)
 local current = term.current()
-local ok, err = load(%q, %q, nil, _ENV)
-if ok then ok, err = pcall(ok, ...) end
-term.redirect(current)
-term.setTextColor(term.isColour() and colours.yellow or colours.white)
-term.setBackgroundColor(colours.black)
-term.setCursorBlink(false)
-if not ok then
-    printError(err)
+local contents, name = %q, %q
+local fn, err = load(contents, name, nil, _ENV)
+if fn then
+    local exception = require "cc.internal.exception"
+    local ok, err, co = exception.try(fn, ...)
+
+    term.redirect(current)
+    term.setTextColor(term.isColour() and colours.yellow or colours.white)
+    term.setBackgroundColor(colours.black)
+    term.setCursorBlink(false)
+
+    if not ok then
+        printError(err)
+        exception.report(err, co, { [name] = contents })
+    end
+else
+    local parser = require "cc.internal.syntax"
+    if parser.parse_program(contents) then printError(err) end
 end
 
 local message = "Press any key to continue."
@@ -89,14 +101,27 @@ if peripheral.find("printer") then
 end
 table.insert(tMenuItems, "Exit")
 
-local sStatus
-if term.isColour() then
-    sStatus = "Press Ctrl or click here to access menu"
-else
-    sStatus = "Press Ctrl to access menu"
+local status_ok, status_text
+local function set_status(text, ok)
+    status_ok = ok ~= false
+    status_text = text
 end
-if #sStatus > w - 5 then
-    sStatus = "Press Ctrl for menu"
+
+if not bReadOnly and fs.getFreeSpace(sPath) < 1024 then
+    set_status("Disk is low on space", false)
+else
+    local message
+    if term.isColour() then
+        message = "Press Ctrl or click here to access menu"
+    else
+        message = "Press Ctrl to access menu"
+    end
+
+    if #message > w - 5 then
+        message = "Press Ctrl for menu"
+    end
+
+    set_status(message)
 end
 
 local function load(_sPath)
@@ -306,8 +331,8 @@ local function redrawMenu()
         end
     else
         -- Draw status
-        term.setTextColour(highlightColour)
-        term.write(sStatus)
+        term.setTextColour(status_ok and highlightColour or errorColour)
+        term.write(status_text)
         term.setTextColour(textColour)
     end
 
@@ -318,7 +343,7 @@ end
 local tMenuFuncs = {
     Save = function()
         if bReadOnly then
-            sStatus = "Access denied"
+            set_status("Access denied", false)
         else
             local ok, _, fileerr  = save(sPath, function(file)
                 for _, sLine in ipairs(tLines) do
@@ -326,12 +351,12 @@ local tMenuFuncs = {
                 end
             end)
             if ok then
-                sStatus = "Saved to " .. sPath
+                set_status("Saved to " .. sPath)
             else
                 if fileerr then
-                    sStatus = "Error saving to " .. fileerr
+                    set_status("Error saving: " .. fileerr, false)
                 else
-                    sStatus = "Error saving to " .. sPath
+                    set_status("Error saving to " .. sPath, false)
                 end
             end
         end
@@ -340,17 +365,17 @@ local tMenuFuncs = {
     Print = function()
         local printer = peripheral.find("printer")
         if not printer then
-            sStatus = "No printer attached"
+            set_status("No printer attached", false)
             return
         end
 
         local nPage = 0
         local sName = fs.getName(sPath)
         if printer.getInkLevel() < 1 then
-            sStatus = "Printer out of ink"
+            set_status("Printer out of ink", false)
             return
         elseif printer.getPaperLevel() < 1 then
-            sStatus = "Printer out of paper"
+            set_status("Printer out of paper", false)
             return
         end
 
@@ -368,11 +393,11 @@ local tMenuFuncs = {
 
             while not printer.newPage() do
                 if printer.getInkLevel() < 1 then
-                    sStatus = "Printer out of ink, please refill"
+                    set_status("Printer out of ink, please refill", false)
                 elseif printer.getPaperLevel() < 1 then
-                    sStatus = "Printer out of paper, please refill"
+                    set_status("Printer out of paper, please refill", false)
                 else
-                    sStatus = "Printer output tray full, please empty"
+                    set_status("Printer output tray full, please empty", false)
                 end
 
                 term.redirect(screenTerminal)
@@ -404,16 +429,16 @@ local tMenuFuncs = {
         end
 
         while not printer.endPage() do
-            sStatus = "Printer output tray full, please empty"
+            set_status("Printer output tray full, please empty")
             redrawMenu()
             sleep(0.5)
         end
         bMenu = true
 
         if nPage > 1 then
-            sStatus = "Printed " .. nPage .. " Pages"
+            set_status("Printed " .. nPage .. " Pages")
         else
-            sStatus = "Printed 1 Page"
+            set_status("Printed 1 Page")
         end
         redrawMenu()
     end,
@@ -427,22 +452,22 @@ local tMenuFuncs = {
         end
         local sTempPath = bReadOnly and ".temp." .. sTitle or fs.combine(fs.getDir(sPath), ".temp." .. sTitle)
         if fs.exists(sTempPath) then
-            sStatus = "Error saving to " .. sTempPath
+            set_status("Error saving to " .. sTempPath, false)
             return
         end
         local ok = save(sTempPath, function(file)
-            file.write(runHandler:format(sTitle, table.concat(tLines, "\n"), "@" .. fs.getName(sPath)))
+            file.write(runHandler:format(sTitle, table.concat(tLines, "\n"), "@/" .. sPath))
         end)
         if ok then
             local nTask = shell.openTab("/" .. sTempPath)
             if nTask then
                 shell.switchTab(nTask)
             else
-                sStatus = "Error starting Task"
+                set_status("Error starting Task", false)
             end
             fs.delete(sTempPath)
         else
-            sStatus = "Error saving to " .. sTempPath
+            set_status("Error saving to " .. sTempPath, false)
         end
         redrawMenu()
     end,

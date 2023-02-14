@@ -12,6 +12,8 @@ import dan200.computercraft.core.apis.ObjectWrapper;
 import dan200.computercraft.core.apis.handles.EncodedWritableHandle;
 import dan200.computercraft.support.TestFiles;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -78,5 +80,24 @@ public class FileSystemTest
 
         LuaException err = assertThrows( LuaException.class, () -> wrapper.call( "write", "Tiny line" ) );
         assertEquals( "attempt to use a closed file", err.getMessage() );
+    }
+
+    @ParameterizedTest( name = "{0}" )
+    @MethodSource( "sanitiseCases" )
+    public void testSanitize( String input, String output )
+    {
+        assertEquals( output, FileSystem.sanitizePath( input, false ) );
+    }
+
+    public static String[][] sanitiseCases()
+    {
+        return new String[][] {
+            new String[] { "a//b", "a/b" },
+            new String[] { "a/./b", "a/b" },
+            new String[] { "a/../b", "b" },
+            new String[] { "a/.../b", "a/b" },
+            new String[] { " a ", "a" },
+            new String[] { "a b c", "a b c" },
+        };
     }
 }

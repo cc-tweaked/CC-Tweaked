@@ -21,7 +21,7 @@ describe("The move program", function()
         touch("/test-files/move/a.txt")
         fs.makeDir("/test-files/move/a")
 
-        expect(capture(stub, "move /test-files/move/a.txt /test-files/move/a"))
+        expect(capture("move /test-files/move/a.txt /test-files/move/a"))
             :matches { ok = true }
 
         expect(fs.exists("/test-files/move/a.txt")):eq(false)
@@ -29,7 +29,7 @@ describe("The move program", function()
     end)
 
     it("fails when moving a file which doesn't exist", function()
-        expect(capture(stub, "move nothing destination"))
+        expect(capture("move nothing destination"))
             :matches { ok = true, output = "", error = "No matching files\n" }
     end)
 
@@ -37,7 +37,7 @@ describe("The move program", function()
         cleanup()
         touch("/test-files/move/a.txt")
 
-        expect(capture(stub, "move /test-files/move/a.txt /test-files/move/a.txt"))
+        expect(capture("move /test-files/move/a.txt /test-files/move/a.txt"))
             :matches { ok = true, output = "", error = "Destination exists\n" }
     end)
 
@@ -45,17 +45,17 @@ describe("The move program", function()
         cleanup()
         touch("/test-files/move/a.txt")
 
-        expect(capture(stub, "move /test-files/move/a.txt /rom/test.txt"))
+        expect(capture("move /test-files/move/a.txt /rom/test.txt"))
             :matches { ok = true, output = "", error = "Destination is read-only\n" }
     end)
 
     it("fails when moving from read-only locations", function()
-        expect(capture(stub, "move /rom/startup.lua /test-files/move/not-exist.txt"))
+        expect(capture("move /rom/startup.lua /test-files/move/not-exist.txt"))
             :matches { ok = true, output = "", error = "Cannot move read-only file /rom/startup.lua\n" }
     end)
 
     it("fails when moving mounts", function()
-        expect(capture(stub, "move /rom /test-files/move/rom"))
+        expect(capture("move /rom /test-files/move/rom"))
             :matches { ok = true, output = "", error = "Cannot move mount /rom\n" }
     end)
 
@@ -63,12 +63,12 @@ describe("The move program", function()
         cleanup()
         touch("/test-files/move/a.txt")
         touch("/test-files/move/b.txt")
-        expect(capture(stub, "move /test-files/move/*.txt /test-files/move/c.txt"))
+        expect(capture("move /test-files/move/*.txt /test-files/move/c.txt"))
             :matches { ok = true, output = "", error = "Cannot overwrite file multiple times\n" }
     end)
 
     it("displays the usage with no arguments", function()
-        expect(capture(stub, "move"))
+        expect(capture("move"))
             :matches { ok = true, output = "Usage: move <source> <destination>\n", error = "" }
     end)
 end)

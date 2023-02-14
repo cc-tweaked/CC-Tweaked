@@ -1,7 +1,7 @@
 {
   "type": "computercraft:computer_upgrade",
   "family": "ADVANCED",
-  "key": {"#": {"tag": "forge:ingots/gold"}, "C": {"item": "computercraft:computer_advanced"}},
+  "key": {"#": {"tag": "forge:ingots/gold"}, "C": {"item": "computercraft:computer_normal"}},
   "pattern": ["###", "#C#", "# #"],
   "result": {"item": "computercraft:computer_advanced"}
 }
