@@ -189,8 +189,13 @@ describe("The settings library", function()
             expect(settings.get("test.defined")):eq(nil)
         end)
 
-        it("skips unserializable values", function()
+        it("skips unserializable values (functions)", function()
             expect(setup_with "{ test = function() end }"):eq(true)
+            expect(settings.get("test")):eq(nil)
+        end)
+
+        it("skips unserializable values (recursive tables)", function()
+            expect(setup_with "{ test = (function() local x = {} x.x = x return x end)() }"):eq(true)
             expect(settings.get("test")):eq(nil)
         end)
 
