@@ -528,7 +528,7 @@ function errors.unclosed_brackets(open_start, open_end, token, start_pos, end_po
 
     -- TODO: Do we want to be smarter here with where we report the error?
     return {
-        "Unexpected " .. token_names[token] .. ". Are you missing a closing bracket?",
+        "Unexpected " .. token_names[token] .. ". Are you missing a comma or a closing bracket?",
         annotate(open_start, open_end, "Brackets were opened here."),
         annotate(start_pos, end_pos, "Unexpected " .. token_names[token] .. " here."),
 
