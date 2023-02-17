@@ -34,11 +34,6 @@ public class IrisShaderMod implements ShaderMod.Provider {
         }
 
         @Override
-        public boolean isShaderMod() {
-            return true;
-        }
-
-        @Override
         public DirectFixedWidthFontRenderer.QuadEmitter getQuadEmitter(int vertexCount, IntFunction<ByteBuffer> makeBuffer) {
             return IrisApi.getInstance().getMinorApiRevision() >= 1
                 ? new IrisQuadEmitter(vertexCount, makeBuffer)

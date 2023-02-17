@@ -31,12 +31,9 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
@@ -47,8 +44,6 @@ import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FON
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBlockEntity> {
-    private static final Logger LOG = LoggerFactory.getLogger(MonitorBlockEntityRenderer.class);
-
     /**
      * {@link MonitorBlockEntity#RENDER_MARGIN}, but a tiny bit of additional padding to ensure that there is no space between
      * the monitor frame and contents.
@@ -58,6 +53,8 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
     private static final Matrix3f IDENTITY_NORMAL = new Matrix3f().identity();
 
     private static @Nullable ByteBuffer backingBuffer;
+
+    private static long lastFrame = -1;
 
     public MonitorBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -80,6 +77,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
             return;
         }
 
+        lastFrame = renderFrame;
         renderState.lastRenderFrame = renderFrame;
         renderState.lastRenderPos = monitorPos;
 
@@ -261,6 +259,14 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
         return Config.monitorDistance;
     }
 
+    /**
+     * Determine if any monitors were rendered this frame.
+     *
+     * @return Whether any monitors were rendered.
+     */
+    public static boolean hasRenderedThisFrame() {
+        return FrameInfo.getRenderFrame() == lastFrame;
+    }
 
     /**
      * Get the current renderer to use.
@@ -274,16 +280,6 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
     }
 
     private static MonitorRenderer bestRenderer() {
-        if (!GL.getCapabilities().OpenGL31) {
-            LOG.warn("Texture buffers are not supported on your graphics card. Falling back to VBO monitor renderer.");
-            return MonitorRenderer.VBO;
-        }
-
-        if (ShaderMod.get().isShaderMod()) {
-            LOG.warn("A shader mod is loaded, assuming shaders are being used. Falling back to VBO monitor renderer.");
-            return MonitorRenderer.VBO;
-        }
-
-        return MonitorRenderer.TBO;
+        return MonitorRenderer.VBO;
     }
 }

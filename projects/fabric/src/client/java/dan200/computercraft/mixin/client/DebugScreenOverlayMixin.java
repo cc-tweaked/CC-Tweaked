@@ -18,7 +18,13 @@ import java.util.List;
 class DebugScreenOverlayMixin {
     @Inject(method = "getSystemInformation", at = @At("RETURN"))
     @SuppressWarnings("UnusedMethod")
-    private void appendDebugInfo(CallbackInfoReturnable<List<String>> cir) {
-        ClientHooks.addDebugInfo(cir.getReturnValue()::add);
+    private void appendBlockDebugInfo(CallbackInfoReturnable<List<String>> cir) {
+        ClientHooks.addBlockDebugInfo(cir.getReturnValue()::add);
+    }
+
+    @Inject(method = "getGameInformation", at = @At("RETURN"))
+    @SuppressWarnings("UnusedMethod")
+    private void appendGameDebugInfo(CallbackInfoReturnable<List<String>> cir) {
+        ClientHooks.addGameDebugInfo(cir.getReturnValue()::add);
     }
 }

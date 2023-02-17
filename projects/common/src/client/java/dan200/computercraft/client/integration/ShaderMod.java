@@ -23,15 +23,6 @@ public class ShaderMod {
     }
 
     /**
-     * Determine if shaders may be used in the current session.
-     *
-     * @return Whether a shader mod is loaded.
-     */
-    public boolean isShaderMod() {
-        return Optifine.isLoaded();
-    }
-
-    /**
      * Check whether we're currently rendering shadows. Rendering may fall back to a faster but less detailed pass.
      *
      * @return Whether we're rendering shadows.

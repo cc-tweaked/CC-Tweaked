@@ -12,6 +12,7 @@ import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.render.CableHighlightRenderer;
 import dan200.computercraft.client.render.PocketItemRenderer;
 import dan200.computercraft.client.render.PrintoutItemRenderer;
+import dan200.computercraft.client.render.monitor.MonitorBlockEntityRenderer;
 import dan200.computercraft.client.render.monitor.MonitorHighlightRenderer;
 import dan200.computercraft.client.render.monitor.MonitorRenderState;
 import dan200.computercraft.client.sound.SpeakerManager;
@@ -142,7 +143,7 @@ public final class ClientHooks {
      *
      * @param addText A callback which adds a single line of text.
      */
-    public static void addDebugInfo(Consumer<String> addText) {
+    public static void addBlockDebugInfo(Consumer<String> addText) {
         var minecraft = Minecraft.getInstance();
         if (!minecraft.options.renderDebug || minecraft.level == null) return;
         if (minecraft.hitResult == null || minecraft.hitResult.getType() != HitResult.Type.BLOCK) return;
@@ -166,6 +167,17 @@ public final class ClientHooks {
     private static void addTurtleUpgrade(Consumer<String> out, TurtleBlockEntity turtle, TurtleSide side) {
         var upgrade = turtle.getUpgrade(side);
         if (upgrade != null) out.accept(String.format("Upgrade[%s]: %s", side, upgrade.getUpgradeID()));
+    }
+
+    /**
+     * Add additional information about the game to the debug screen.
+     *
+     * @param addText A callback which adds a single line of text.
+     */
+    public static void addGameDebugInfo(Consumer<String> addText) {
+        if (MonitorBlockEntityRenderer.hasRenderedThisFrame()) {
+            addText.accept("[CC:T] Monitor renderer: " + MonitorBlockEntityRenderer.currentRenderer());
+        }
     }
 
     public static @Nullable BlockState getBlockBreakingState(BlockState state, BlockPos pos) {

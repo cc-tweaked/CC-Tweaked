@@ -51,7 +51,8 @@ public final class ForgeClientHooks {
 
     @SubscribeEvent
     public static void onRenderText(CustomizeGuiOverlayEvent.DebugText event) {
-        ClientHooks.addDebugInfo(event.getRight()::add);
+        ClientHooks.addGameDebugInfo(event.getLeft()::add);
+        ClientHooks.addBlockDebugInfo(event.getRight()::add);
     }
 
     @SubscribeEvent
