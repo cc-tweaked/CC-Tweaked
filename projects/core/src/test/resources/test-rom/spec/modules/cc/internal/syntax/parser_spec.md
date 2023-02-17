@@ -95,6 +95,48 @@ Unexpected end of file. Are you missing a closing bracket?
    |                   ^ Unexpected end of file here.
 ```
 
+## Missing commas in tables
+
+```lua
+return { 1 2 }
+```
+
+```txt
+Unexpected number in table.
+   |
+ 1 | return { 1 2 }
+   |            ^
+   |
+ 1 | return { 1 2 }
+   |           ^ Are you missing a comma here?
+```
+```lua
+return { 1, 2 3 }
+```
+
+```txt
+Unexpected number in table.
+   |
+ 1 | return { 1, 2 3 }
+   |               ^
+   |
+ 1 | return { 1, 2 3 }
+   |              ^ Are you missing a comma here?
+```
+```lua
+print({ 1, )
+```
+
+```txt
+Unexpected ). Are you missing a closing bracket?
+   |
+ 1 | print({ 1, )
+   |       ^ Brackets were opened here.
+   |
+ 1 | print({ 1, )
+   |            ^ Unexpected ) here.
+```
+
 # Statements
 
 ## Local functions with table identifiers
@@ -367,4 +409,36 @@ Unexpected end.
  4 |   end
    |   ^^^
 Your program contains more ends than needed. Check each block (if, for, function, ...) only has one end.
+```
+
+# Function calls
+
+## Additional commas
+We suggest the user removes additional trailing commas on function calls:
+
+```lua
+f(2, )
+```
+
+```txt
+Unexpected ) in function call.
+   |
+ 1 | f(2, )
+   |      ^
+   |
+ 1 | f(2, )
+   |    ^ Tip: Try removing this ,.
+```
+```lua
+f(2, 3, )
+```
+
+```txt
+Unexpected ) in function call.
+   |
+ 1 | f(2, 3, )
+   |         ^
+   |
+ 1 | f(2, 3, )
+   |       ^ Tip: Try removing this ,.
 ```
