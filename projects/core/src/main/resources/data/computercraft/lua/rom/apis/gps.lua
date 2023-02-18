@@ -154,7 +154,7 @@ function locate(_nTimeout, _bDebug)
                         pos1, pos2 = tFix.vPosition, nil
                     else
                         local duplicate = false
-                        for _,older in pairs(tFixes) do
+                        for _, older in pairs(tFixes) do
                             if older.vPosition:equals(tFix.vPosition) then
                                 older.nDistance = tFix.nDistance
                                 duplicate = true
