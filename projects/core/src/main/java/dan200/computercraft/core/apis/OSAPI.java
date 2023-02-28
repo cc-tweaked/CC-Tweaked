@@ -167,6 +167,7 @@ public class OSAPI implements ILuaAPI {
      *
      * @param token The ID of the timer to cancel.
      * @see #startTimer To start a timer.
+     * @cc.since 1.6
      */
     @LuaFunction
     public final void cancelTimer(int token) {
@@ -201,7 +202,7 @@ public class OSAPI implements ILuaAPI {
      * alarm from firing.
      *
      * @param token The ID of the alarm to cancel.
-     * @cc.since 1.2
+     * @cc.since 1.6
      * @see #setAlarm To set an alarm.
      */
     @LuaFunction
