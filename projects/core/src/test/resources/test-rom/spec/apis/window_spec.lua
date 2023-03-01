@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 describe("The window library", function()
     local function mk()
         return window.create(term.current(), 1, 1, 5, 5, false)

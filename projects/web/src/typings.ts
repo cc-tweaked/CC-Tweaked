@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 declare module "*.lua" {
     const contents: string;
     export default contents;
@@ -19,7 +23,7 @@ declare module "*.settings" {
     export default contents;
 }
 
-declare module "*.LICENSE" {
+declare module "*.license" {
     const contents: string;
     export default contents;
 }

@@ -4,6 +4,12 @@ see: modem_message For raw modem messages sent outside of Rednet.
 see: rednet.receive To wait for a Rednet message with an optional timeout and protocol filter.
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: LicenseRef-CCPL
+-->
+
 The @{rednet_message} event is fired when a message is sent over Rednet.
 
 This event is usually handled by @{rednet.receive}, but it can also be pulled manually.

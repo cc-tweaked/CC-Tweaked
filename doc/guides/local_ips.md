@@ -2,6 +2,12 @@
 module: [kind=guide] local_ips
 ---
 
+<!--
+SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 # Allowing access to local IPs
 By default, ComputerCraft blocks access to local IP addresses for security. This means you can't normally access any
 HTTP server running on your computer. However, this may be useful for testing programs without having a remote

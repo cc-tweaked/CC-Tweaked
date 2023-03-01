@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --- Multishell allows multiple programs to be run at the same time.
 --
 -- When multiple programs are running, it displays a tab bar at the top of the

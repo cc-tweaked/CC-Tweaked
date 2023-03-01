@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2023 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 local expect = require "cc.expect".expect
 local lex_one = require "cc.internal.syntax.lexer".lex_one
 local parser = require "cc.internal.syntax.parser"

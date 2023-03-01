@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --[[- Craft a recipe based on the turtle's inventory.
 
 The turtle's inventory should set up like a crafting grid. For instance, to

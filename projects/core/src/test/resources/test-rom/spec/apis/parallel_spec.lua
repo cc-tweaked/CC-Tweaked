@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 describe("The parallel library", function()
     describe("parallel.waitForAny", function()
         it("validates arguments", function()

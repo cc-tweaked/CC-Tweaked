@@ -2,6 +2,12 @@
 module: [kind=guide] using_require
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 # Reusing code with require
 A library is a collection of useful functions and other definitions which is stored separately to your main program. You
 might want to create a library because you have some functions which are used in multiple programs, or just to split

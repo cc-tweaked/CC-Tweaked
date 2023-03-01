@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --- A very basic test framework for ComputerCraft
 --
 -- Like Busted (http://olivinelabs.com/busted/), but more memorable.

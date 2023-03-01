@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --- Constants for all keyboard "key codes", as queued by the @{key} event.
 --
 -- These values are not guaranteed to remain the same between versions. It is

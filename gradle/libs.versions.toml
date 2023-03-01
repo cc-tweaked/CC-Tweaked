@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+
 [versions]
 
 # Minecraft
@@ -51,7 +55,7 @@ fabric-loom = "1.0-SNAPSHOT"
 forgeGradle = "5.1.+"
 githubRelease = "2.2.12"
 ideaExt = "1.1.6"
-illuaminate = "0.1.0-20-g8c483a4"
+illuaminate = "0.1.0-23-gef0df36"
 librarian = "1.+"
 minotaur = "2.+"
 mixinGradle = "0.7.+"

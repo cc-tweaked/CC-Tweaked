@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 describe("cc.expect", function()
     local e = require("cc.expect")
 
@@ -27,7 +31,7 @@ describe("cc.expect", function()
                 worker()
             end
 
-            expect.error(trampoline):str_match("^[^:]*expect_spec.lua:27: bad argument #1 to 'worker' %(expected string, got nil%)$")
+            expect.error(trampoline):str_match("^[^:]*expect_spec.lua:31: bad argument #1 to 'worker' %(expected string, got nil%)$")
         end)
     end)
 

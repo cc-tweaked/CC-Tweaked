@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --- Read and draw nbt ("Nitrogen Fingers Text") images.
 --
 -- nft ("Nitrogen Fingers Text") is a file format for drawing basic images.

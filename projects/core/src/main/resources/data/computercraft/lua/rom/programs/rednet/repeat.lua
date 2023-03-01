@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 -- Find modems
 local tModems = {}
 for _, sModem in ipairs(peripheral.getNames()) do

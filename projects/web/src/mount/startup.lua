@@ -1,6 +1,10 @@
+-- SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 -- Print out license information if needed
 if fs.exists("data/example.dfpwm") then
-    local h = io.open("data/example.dfpwm.LICENSE")
+    local h = io.open("data/example.dfpwm.license")
     local contents = h:read("*a")
     h:close()
 

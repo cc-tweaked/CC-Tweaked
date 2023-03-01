@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 local tPeripherals = peripheral.getNames()
 print("Attached Peripherals:")
 if #tPeripherals > 0 then

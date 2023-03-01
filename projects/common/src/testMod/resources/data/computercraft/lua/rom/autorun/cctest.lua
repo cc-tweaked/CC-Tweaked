@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 --- Extend the test API with some convenience functions.
 --
 -- It's much easier to declare these in Lua rather than Java.

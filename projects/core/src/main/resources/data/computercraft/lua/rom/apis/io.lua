@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --- Emulates Lua's standard [io library][io].
 --
 -- [io]: https://www.lua.org/manual/5.1/manual.html#5.7

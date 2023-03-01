@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: LicenseRef-CCPL
+
 package cc.tweaked.gradle
 
 import org.gradle.api.DefaultTask

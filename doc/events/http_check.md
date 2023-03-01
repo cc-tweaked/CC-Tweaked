@@ -3,6 +3,12 @@ module: [kind=event] http_check
 see: http.checkURLAsync To check a URL asynchronously.
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: LicenseRef-CCPL
+-->
+
 The @{http_check} event is fired when a URL check finishes.
 
 This event is normally handled inside @{http.checkURL}, but it can still be seen when using @{http.checkURLAsync}.

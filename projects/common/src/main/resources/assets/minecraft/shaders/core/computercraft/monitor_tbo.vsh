@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: LicenseRef-CCPL
+
 #version 150
 
 #moj_import <fog.glsl>

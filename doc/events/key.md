@@ -2,6 +2,12 @@
 module: [kind=event] key
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: LicenseRef-CCPL
+-->
+
 This event is fired when any key is pressed while the terminal is focused.
 
 This event returns a numerical "key code" (for instance, <kbd>F1</kbd> is 290). This value may vary between versions and

@@ -3,6 +3,12 @@ module: [kind=event] char
 see: key To listen to any key press.
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: LicenseRef-CCPL
+-->
+
 The @{char} event is fired when a character is typed on the keyboard.
 
 The @{char} event is different to a key press. Sometimes multiple key presses may result in one character being

@@ -3,6 +3,12 @@ module: [kind=event] websocket_success
 see: http.websocketAsync To open a WebSocket asynchronously.
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: LicenseRef-CCPL
+-->
+
 The @{websocket_success} event is fired when a WebSocket connection request returns successfully.
 
 This event is normally handled inside @{http.websocket}, but it can still be seen when using @{http.websocketAsync}.

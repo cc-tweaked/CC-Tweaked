@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2017 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: CC0-1.0
+
 # Build directories
 /classes
 /logs

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: LicenseRef-CCPL
+
 image:
   file: config/gitpod/Dockerfile
 

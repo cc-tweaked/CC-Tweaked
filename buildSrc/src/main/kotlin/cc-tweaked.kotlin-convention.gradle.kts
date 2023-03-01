@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 import cc.tweaked.gradle.CCTweakedPlugin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 

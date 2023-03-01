@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 local capture = require "test_helpers".capture_program
 local with_window_lines = require "test_helpers".with_window_lines
 

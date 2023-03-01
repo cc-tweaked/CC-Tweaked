@@ -1,8 +1,7 @@
-/*
- * This file is part of the public ComputerCraft API - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. This API may be redistributed unmodified and in full only.
- * For help using the API, and posting your mods, visit the forums at computercraft.info.
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.api.peripheral;
 
 import dan200.computercraft.api.ComputerCraftAPI;

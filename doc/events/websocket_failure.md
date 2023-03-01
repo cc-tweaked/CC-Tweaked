@@ -3,6 +3,12 @@ module: [kind=event] websocket_failure
 see: http.websocketAsync To send an HTTP request.
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: LicenseRef-CCPL
+-->
+
 The @{websocket_failure} event is fired when a WebSocket connection request fails.
 
 This event is normally handled inside @{http.websocket}, but it can still be seen when using @{http.websocketAsync}.
