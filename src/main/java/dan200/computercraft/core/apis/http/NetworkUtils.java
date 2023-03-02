@@ -26,6 +26,7 @@ import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import javax.annotation.Nonnull;
 import javax.net.ssl.*;
 import java.io.ByteArrayInputStream;
+import java.lang.System;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.security.KeyStore;
@@ -115,28 +116,36 @@ public final class NetworkUtils
             TrustManagerFactory tmf = null;
             try
             {
-                Certificate ca = CertificateFactory.getInstance( "X.509" )
-                    .generateCertificate( new ByteArrayInputStream( letsEncryptRootCert.getBytes() ) );
-
-                KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
-                ks.load( null, null );
-                ks.setCertificateEntry( Integer.toString( 1 ), ca );
-
-                TrustManagerFactory additional = TrustManagerFactory.getInstance( TrustManagerFactory.getDefaultAlgorithm() );
-                additional.init( ks );
-
-                // Get hold of the extension trust manager
-                X509TrustManager x509tm = null;
-                for ( TrustManager tm : additional.getTrustManagers() )
+                String version = System.getProperty( "java.version" );
+                if ( version.regionMatches( 0, "1.8.0_", 0, 6 ) && version.length() == 8 ) // 1.8.0_xx (xx < 100)
                 {
-                    if ( tm instanceof X509TrustManager )
-                    {
-                        x509tm = (X509TrustManager) tm;
-                        break;
-                    }
-                }
+                    Certificate ca = CertificateFactory.getInstance( "X.509" )
+                        .generateCertificate( new ByteArrayInputStream( letsEncryptRootCert.getBytes() ) );
 
-                tmf = new MergedTrustManagerFactory( TrustManagerFactory.getInstance( TrustManagerFactory.getDefaultAlgorithm() ), x509tm );
+                    KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
+                    ks.load( null, null );
+                    ks.setCertificateEntry( Integer.toString( 1 ), ca );
+
+                    TrustManagerFactory additional = TrustManagerFactory.getInstance( TrustManagerFactory.getDefaultAlgorithm() );
+                    additional.init( ks );
+
+                    // Get hold of the extension trust manager
+                    X509TrustManager x509tm = null;
+                    for ( TrustManager tm : additional.getTrustManagers() )
+                    {
+                        if ( tm instanceof X509TrustManager )
+                        {
+                            x509tm = (X509TrustManager) tm;
+                            break;
+                        }
+                    }
+
+                    tmf = new MergedTrustManagerFactory( TrustManagerFactory.getInstance( TrustManagerFactory.getDefaultAlgorithm() ), x509tm );
+                }
+                else
+                {
+                    tmf = TrustManagerFactory.getInstance( TrustManagerFactory.getDefaultAlgorithm() );
+                }
                 tmf.init( (KeyStore) null );
             }
             catch( Exception e )
