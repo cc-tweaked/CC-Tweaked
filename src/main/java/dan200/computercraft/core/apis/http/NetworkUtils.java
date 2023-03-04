@@ -26,7 +26,6 @@ import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import javax.annotation.Nonnull;
 import javax.net.ssl.*;
 import java.io.ByteArrayInputStream;
-import java.lang.System;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.security.KeyStore;
