@@ -28,10 +28,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.TrustManagerFactory;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.security.KeyStore;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -65,46 +63,29 @@ public final class NetworkUtils {
     }
 
     private static final Object sslLock = new Object();
-    private static @Nullable TrustManagerFactory trustManager;
     private static @Nullable SslContext sslContext;
     private static boolean triedSslContext = false;
 
     @Nullable
-    private static TrustManagerFactory getTrustManager() {
-        if (trustManager != null) return trustManager;
+    private static SslContext makeSslContext() {
+        if (triedSslContext) return sslContext;
         synchronized (sslLock) {
-            if (trustManager != null) return trustManager;
+            if (triedSslContext) return sslContext;
 
-            TrustManagerFactory tmf = null;
+            triedSslContext = true;
             try {
-                tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                tmf.init((KeyStore) null);
-            } catch (Exception e) {
-                LOG.error("Cannot setup trust manager", e);
+                return sslContext = SslContextBuilder.forClient().build();
+            } catch (SSLException e) {
+                LOG.error("Cannot construct SSL context", e);
+                return sslContext = null;
             }
-
-            return trustManager = tmf;
         }
     }
 
-    @Nullable
     public static SslContext getSslContext() throws HTTPRequestException {
-        if (sslContext != null || triedSslContext) return sslContext;
-        synchronized (sslLock) {
-            if (sslContext != null || triedSslContext) return sslContext;
-            try {
-                return sslContext = SslContextBuilder
-                    .forClient()
-                    .trustManager(getTrustManager())
-                    .build();
-            } catch (SSLException e) {
-                LOG.error("Cannot construct SSL context", e);
-                triedSslContext = true;
-                sslContext = null;
-
-                throw new HTTPRequestException("Cannot create a secure connection");
-            }
-        }
+        var ssl = makeSslContext();
+        if (ssl == null) throw new HTTPRequestException("Could not create a secure connection");
+        return ssl;
     }
 
     public static void reloadConfig() {
