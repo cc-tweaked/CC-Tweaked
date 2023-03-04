@@ -185,7 +185,7 @@ class Turtle_Test {
      *
      * Currently not required as turtles can no longer right-click cauldrons.
      */
-    @GameTest(required = false)
+    @GameTest
     fun Cleaned_with_cauldrons(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
             val details = getTurtleItemDetail(1, true)

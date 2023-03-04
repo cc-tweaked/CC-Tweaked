@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @AutoService({ PlatformHelper.class, dan200.computercraft.impl.PlatformHelper.class, ComputerCraftAPIService.class })
 public class TestPlatformHelper extends AbstractComputerCraftAPI implements PlatformHelper {
@@ -202,7 +203,7 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     }
 
     @Override
-    public InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit) {
+    public InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit, Predicate<BlockState> canUseBlock) {
         throw new UnsupportedOperationException("Cannot interact with the world inside tests");
     }
 

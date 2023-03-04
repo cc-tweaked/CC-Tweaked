@@ -77,10 +77,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 @AutoService(dan200.computercraft.impl.PlatformHelper.class)
 public class PlatformHelperImpl implements PlatformHelper {
@@ -303,9 +300,15 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit) {
+    public InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit, Predicate<BlockState> canUseBlock) {
         var result = UseBlockCallback.EVENT.invoker().interact(player, player.level, InteractionHand.MAIN_HAND, hit);
         if (result != InteractionResult.PASS) return result;
+
+        var block = player.level.getBlockState(hit.getBlockPos());
+        if (!block.isAir() && canUseBlock.test(block)) {
+            var useResult = block.use(player.level, player, InteractionHand.MAIN_HAND, hit);
+            if (useResult.consumesAction()) return useResult;
+        }
 
         return stack.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
     }
