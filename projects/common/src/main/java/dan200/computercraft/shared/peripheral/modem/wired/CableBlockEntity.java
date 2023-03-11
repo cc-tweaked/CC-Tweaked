@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 
 public class CableBlockEntity extends BlockEntity {
-    private static final String NBT_PERIPHERAL_ENABLED = "PeirpheralAccess";
+    private static final String NBT_PERIPHERAL_ENABLED = "PeripheralAccess";
 
     private class CableElement extends WiredModemElement {
         @Override
