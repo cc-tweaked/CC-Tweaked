@@ -200,7 +200,7 @@ public class CableBlockEntity extends BlockEntity {
     public void load(CompoundTag nbt) {
         super.load(nbt);
         // Fallback to the previous (incorrect) key
-        peripheralAccessAllowed = nbt.getBoolean(NBT_PERIPHERAL_ENABLED) || nbt.getBoolean("PeripheralAccess");
+        peripheralAccessAllowed = nbt.getBoolean(NBT_PERIPHERAL_ENABLED) || nbt.getBoolean("PeirpheralAccess");
         peripheral.read(nbt, "");
     }
 
