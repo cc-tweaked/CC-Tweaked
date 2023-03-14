@@ -15,6 +15,7 @@ import dan200.computercraft.api.node.wired.WiredElementLookup;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralLookup;
 import dan200.computercraft.mixin.ArgumentTypeInfosAccessor;
+import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
@@ -81,6 +82,11 @@ import java.util.function.*;
 
 @AutoService(dan200.computercraft.impl.PlatformHelper.class)
 public class PlatformHelperImpl implements PlatformHelper {
+    @Override
+    public ConfigFile.Builder createConfigBuilder() {
+        return new FabricConfigFile.Builder();
+    }
+
     @SuppressWarnings("unchecked")
     private static <T> Registry<T> getRegistry(ResourceKey<Registry<T>> id) {
         var registry = (Registry<T>) BuiltInRegistries.REGISTRY.get(id.location());

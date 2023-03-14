@@ -10,6 +10,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
@@ -68,6 +69,13 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     static PlatformHelper get() {
         return (PlatformHelper) dan200.computercraft.impl.PlatformHelper.get();
     }
+
+    /**
+     * Create a new config builder.
+     *
+     * @return The newly created config builder.
+     */
+    ConfigFile.Builder createConfigBuilder();
 
     /**
      * Wrap a Minecraft registry in our own abstraction layer.

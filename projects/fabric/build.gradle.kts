@@ -49,8 +49,7 @@ dependencies {
     "modTestWithIris"(libs.sodium)
 
     include(libs.cobalt)
-    include(libs.netty.http) // It might be better to shadowJar this, as we don't use half of it.
-    include(libs.forgeConfig)
+    include(libs.netty.http)
     include(libs.nightConfig.core)
     include(libs.nightConfig.toml)
 

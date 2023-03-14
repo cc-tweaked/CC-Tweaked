@@ -14,6 +14,7 @@ import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.impl.Peripherals;
 import dan200.computercraft.shared.Capabilities;
+import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
@@ -78,6 +79,11 @@ import java.util.function.*;
 
 @AutoService(dan200.computercraft.impl.PlatformHelper.class)
 public class PlatformHelperImpl implements PlatformHelper {
+    @Override
+    public ConfigFile.Builder createConfigBuilder() {
+        return new ForgeConfigFile.Builder();
+    }
+
     @Override
     public <T> ResourceLocation getRegistryKey(ResourceKey<Registry<T>> registry, T object) {
         var key = RegistryManager.ACTIVE.getRegistry(registry).getKey(object);
