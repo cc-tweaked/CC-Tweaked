@@ -58,7 +58,7 @@ public class DynamicImageButton extends Button {
     }
 
     @Override
-    public void renderButton(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
         RenderSystem.setShaderTexture(0, texture);
         RenderSystem.disableDepthTest();
 

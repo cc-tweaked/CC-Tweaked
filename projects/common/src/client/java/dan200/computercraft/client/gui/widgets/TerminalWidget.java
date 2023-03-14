@@ -245,7 +245,9 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     @Override
-    public void onFocusedChanged(boolean focused) {
+    public void setFocused(boolean focused) {
+        super.setFocused(focused);
+
         if (!focused) {
             // When blurring, we should make all keys go up
             for (var key = 0; key < keysDown.size(); key++) {
@@ -264,7 +266,7 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     @Override
-    public void render(PoseStack transform, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(PoseStack transform, int mouseX, int mouseY, float partialTicks) {
         if (!visible) return;
 
         var bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());

@@ -133,7 +133,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
             // free again.
             PlatformHelper.get().sendToAllTracking(
                 new SpeakerAudioClientMessage(getSource(), position, dfpwmState.getVolume(), dfpwmState.pullPending(now)),
-                level.getChunkAt(new BlockPos(pos))
+                level.getChunkAt(BlockPos.containing(pos))
             );
             syncedPosition(position);
 
@@ -152,7 +152,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
             // TODO: What to do when entities move away? How do we notify people left behind that they're gone.
             PlatformHelper.get().sendToAllTracking(
                 new SpeakerMoveClientMessage(getSource(), position),
-                level.getChunkAt(new BlockPos(pos))
+                level.getChunkAt(BlockPos.containing(pos))
             );
             syncedPosition(position);
         }
@@ -241,7 +241,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
      * @return Whether the sound could be played.
      * @throws LuaException If the sound name was invalid.
      * @cc.usage Play a creeper hiss with the speaker.
-     *
+     * <p>
      * <pre data-peripheral="speaker">{@code
      * local speaker = peripheral.find("speaker")
      * speaker.playSound("entity.creeper.primed")
@@ -293,18 +293,18 @@ public abstract class SpeakerPeripheral implements IPeripheral {
      * given to {@link #playAudio}.
      * @cc.since 1.100
      * @cc.usage Read an audio file, decode it using @{cc.audio.dfpwm}, and play it using the speaker.
-     *
+     * <p>
      * <pre data-peripheral="speaker">{@code
      * local dfpwm = require("cc.audio.dfpwm")
      * local speaker = peripheral.find("speaker")
-     *
+     * <p>
      * local decoder = dfpwm.make_decoder()
      * for chunk in io.lines("data/example.dfpwm", 16 * 1024) do
-     *     local buffer = decoder(chunk)
-     *
-     *     while not speaker.playAudio(buffer) do
-     *         os.pullEvent("speaker_audio_empty")
-     *     end
+     * local buffer = decoder(chunk)
+     * <p>
+     * while not speaker.playAudio(buffer) do
+     * os.pullEvent("speaker_audio_empty")
+     * end
      * end
      * }</pre>
      * @cc.see cc.audio.dfpwm Provides utilities for decoding DFPWM audio files into a format which can be played by

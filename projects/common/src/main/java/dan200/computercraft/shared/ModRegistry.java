@@ -82,6 +82,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.CustomRecipe;
@@ -295,10 +296,10 @@ public final class ModRegistry {
             () -> ContainerData.toType(ComputerContainerData::new, TurtleMenu::ofMenuData));
 
         public static final RegistryEntry<MenuType<DiskDriveMenu>> DISK_DRIVE = REGISTRY.register("disk_drive",
-            () -> new MenuType<>(DiskDriveMenu::new));
+            () -> new MenuType<>(DiskDriveMenu::new, FeatureFlags.VANILLA_SET));
 
         public static final RegistryEntry<MenuType<PrinterMenu>> PRINTER = REGISTRY.register("printer",
-            () -> new MenuType<>(PrinterMenu::new));
+            () -> new MenuType<>(PrinterMenu::new, FeatureFlags.VANILLA_SET));
 
         public static final RegistryEntry<MenuType<HeldItemMenu>> PRINTOUT = REGISTRY.register("printout",
             () -> ContainerData.toType(HeldItemContainerData::new, HeldItemMenu::createPrintout));
@@ -409,10 +410,10 @@ public final class ModRegistry {
         return builder
             .icon(() -> new ItemStack(Items.COMPUTER_NORMAL.get()))
             .title(Component.translatable("itemGroup.computercraft"))
-            .displayItems((flags, out, isOp) -> {
+            .displayItems((context, out) -> {
                 out.accept(new ItemStack(Items.COMPUTER_NORMAL.get()));
                 out.accept(new ItemStack(Items.COMPUTER_ADVANCED.get()));
-                if (isOp) out.accept(new ItemStack(Items.COMPUTER_COMMAND.get()));
+                if (context.hasPermissions()) out.accept(new ItemStack(Items.COMPUTER_COMMAND.get()));
                 addTurtle(out, Items.TURTLE_NORMAL.get());
                 addTurtle(out, Items.TURTLE_ADVANCED.get());
                 addPocket(out, Items.POCKET_COMPUTER_NORMAL.get());

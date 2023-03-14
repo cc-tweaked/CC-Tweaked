@@ -55,11 +55,11 @@ include(":common-api")
 include(":common")
 include(":fabric-api")
 include(":fabric")
-include(":forge-api")
-include(":forge")
+// include(":forge-api")
+// include(":forge")
 
 include(":lints")
-include(":web")
+// include(":web")
 
 for (project in rootProject.children) {
     project.projectDir = file("projects/${project.name}")

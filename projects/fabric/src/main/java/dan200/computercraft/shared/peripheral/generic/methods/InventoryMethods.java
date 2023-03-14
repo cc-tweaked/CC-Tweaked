@@ -18,12 +18,14 @@ import dan200.computercraft.shared.platform.FabricContainerTransfer;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
-import net.minecraft.world.Container;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -122,10 +124,15 @@ public class InventoryMethods implements GenericPeripheral {
         return moveItem(from, fromSlot - 1, to, toSlot.orElse(0) - 1, actualLimit);
     }
 
-    public static @Nullable Container extractContainer(Container container) {
-        return container instanceof ChestBlockEntity chest && chest.getBlockState().getBlock() instanceof ChestBlock chestBlock
-            ? ChestBlock.getContainer(chestBlock, chest.getBlockState(), chest.getLevel(), chest.getBlockPos(), true)
-            : container;
+    @SuppressWarnings("NullAway") // FIXME: Doesn't cope with @Nullable type parameter.
+    public static @Nullable Storage<ItemVariant> extractContainer(Level level, BlockPos pos, @Nullable BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
+        var internal = ItemStorage.SIDED.find(level, pos, state, blockEntity, null);
+        if (internal instanceof InventoryStorage || direction == null) return internal;
+
+        var external = ItemStorage.SIDED.find(level, pos, state, blockEntity, direction);
+        if (external instanceof InventoryStorage) return external;
+
+        return internal != null ? internal : external;
     }
 
     @Nullable
@@ -136,12 +143,9 @@ public class InventoryMethods implements GenericPeripheral {
         if (object instanceof BlockEntity blockEntity && blockEntity.isRemoved()) return null;
 
         if (object instanceof InventoryStorage storage) return storage;
-        if (object instanceof Container container && (container = extractContainer(container)) != null) {
-            return InventoryStorage.of(container, null);
-        }
 
-        if (object instanceof BlockEntity blockEntity && direction != null) {
-            var found = ItemStorage.SIDED.find(blockEntity.getLevel(), blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
+        if (object instanceof BlockEntity blockEntity) {
+            var found = extractContainer(blockEntity.getLevel(), blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
             if (found instanceof InventoryStorage storage) return storage;
         }
 

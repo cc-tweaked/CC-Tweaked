@@ -11,7 +11,6 @@
         "GameTestInfoAccessor",
         "GameTestSequenceAccessor",
         "GameTestSequenceMixin",
-        "SharedConstantsMixin",
         "TestCommandAccessor"
     ],
     "client": [

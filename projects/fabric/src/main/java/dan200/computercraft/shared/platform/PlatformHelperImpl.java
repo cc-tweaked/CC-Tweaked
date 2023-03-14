@@ -47,6 +47,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
@@ -201,7 +202,7 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    @SuppressWarnings("UnstableApiUsage")
+    @SuppressWarnings({ "UnstableApiUsage", "NullAway" }) // FIXME: SIDED is treated as nullable by NullAway
     public @Nullable ContainerTransfer getContainer(ServerLevel level, BlockPos pos, Direction side) {
         var storage = ItemStorage.SIDED.find(level, pos, side);
         if (storage != null) return FabricContainerTransfer.of(storage);
@@ -289,8 +290,8 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public boolean hasToolUsage(ItemStack stack) {
         var item = stack.getItem();
-        return item instanceof ShovelItem || stack.is(ConventionalItemTags.SHOVELS) ||
-            item instanceof HoeItem || stack.is(ConventionalItemTags.HOES);
+        return item instanceof ShovelItem || stack.is(ItemTags.SHOVELS) ||
+            item instanceof HoeItem || stack.is(ItemTags.HOES);
     }
 
     @Override
