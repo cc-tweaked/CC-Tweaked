@@ -9,6 +9,7 @@ import net.minecraft.SharedConstants;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
+// TODO(1.19.4): Remove this
 @Mixin(SharedConstants.class)
 class SharedConstantsMixin {
     /**

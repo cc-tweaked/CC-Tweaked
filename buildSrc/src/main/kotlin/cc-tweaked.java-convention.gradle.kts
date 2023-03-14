@@ -172,7 +172,7 @@ spotless {
     }
 
     val ktlintConfig = mapOf(
-        "disabled_rules" to "no-wildcard-imports",
+        "ktlint_standard_no-wildcard-imports" to "disabled",
         "ij_kotlin_allow_trailing_comma" to "true",
         "ij_kotlin_allow_trailing_comma_on_call_site" to "true",
     )

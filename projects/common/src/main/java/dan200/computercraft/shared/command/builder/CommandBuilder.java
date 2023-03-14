@@ -70,7 +70,7 @@ public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>> {
         return argMany(name, RepeatArgumentType.someFlat(type, ARGUMENT_EXPECTED), empty);
     }
 
-    private <T, U> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argMany(String name, RepeatArgumentType<T, ?> type, Supplier<List<T>> empty) {
+    private <T> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argMany(String name, RepeatArgumentType<T, ?> type, Supplier<List<T>> empty) {
         if (args.isEmpty()) throw new IllegalStateException("Cannot have empty arg chain builder");
 
         return command -> {

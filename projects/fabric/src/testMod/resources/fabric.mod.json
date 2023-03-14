@@ -11,8 +11,7 @@
         ]
     },
     "mixins": [
-        "computercraft-gametest.mixins.json",
-        "computercraft-gametest.fabric.mixins.json"
+        "computercraft-gametest.mixins.json"
     ],
     "depends": {
         "computercraft": "*"

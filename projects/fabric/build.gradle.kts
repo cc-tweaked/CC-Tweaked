@@ -18,7 +18,7 @@ cct {
 }
 
 fun addRemappedConfiguration(name: String) {
-    val original = configurations.create(name) {
+    configurations.create(name) {
         isCanBeConsumed = false
         isCanBeResolved = true
     }
@@ -28,7 +28,6 @@ fun addRemappedConfiguration(name: String) {
         onRuntimeClasspath.set(false)
         targetConfigurationName.set(name)
     }
-    original.extendsFrom(configurations["mod${capitalName}Mapped"])
 }
 
 addRemappedConfiguration("testWithSodium")

@@ -49,8 +49,8 @@ import java.util.concurrent.Executor;
 public class ComputerCraft {
     public static void init() {
         NetworkHandler.init();
-        FabricRegistryBuilder.createSimple(TurtleUpgradeSerialiser.class, TurtleUpgradeSerialiser.REGISTRY_ID.location()).buildAndRegister();
-        FabricRegistryBuilder.createSimple(PocketUpgradeSerialiser.class, PocketUpgradeSerialiser.REGISTRY_ID.location()).buildAndRegister();
+        FabricRegistryBuilder.createSimple(TurtleUpgradeSerialiser.REGISTRY_ID).buildAndRegister();
+        FabricRegistryBuilder.createSimple(PocketUpgradeSerialiser.REGISTRY_ID).buildAndRegister();
         ModRegistry.register();
         ModRegistry.registerMainThread();
         ModRegistry.registerCreativeTab(FabricItemGroup.builder(new ResourceLocation(ComputerCraftAPI.MOD_ID, "tab"))).build();
