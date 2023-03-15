@@ -10,6 +10,7 @@
 /projects/*/build
 /buildSrc/build
 /out
+/jars
 /doc/out/
 /node_modules
 .jqwik-database
