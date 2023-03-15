@@ -39,7 +39,7 @@ class Recipe_Test {
                 .getRecipeFor(RecipeType.CRAFTING, container, context.level)
             if (!recipe.isPresent) throw GameTestAssertException("No recipe matches")
 
-            val result = recipe.get().assemble(container)
+            val result = recipe.get().assemble(container, context.level.registryAccess())
 
             val owner = CompoundTag()
             owner.putString("Name", "dan200")

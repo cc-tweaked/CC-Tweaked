@@ -22,6 +22,7 @@ import net.minecraft.gametest.framework.GameTestSequence
 import org.apache.logging.log4j.LogManager
 import java.io.InputStream
 import java.util.*
+import java.util.concurrent.CancellationException
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.atomic.AtomicReference
 
@@ -45,7 +46,7 @@ object ManagedComputers : ILuaMachine.Factory {
                 task()
                 monitor.result.set(Result.success(Unit))
             } catch (e: Throwable) {
-                if (e !is AssertionError) LOGGER.error("Computer $label failed", e)
+                if (e !is AssertionError && e !is CancellationException) LOGGER.error("Computer $label failed", e)
                 monitor.result.set(Result.failure(e))
                 throw e
             } finally {

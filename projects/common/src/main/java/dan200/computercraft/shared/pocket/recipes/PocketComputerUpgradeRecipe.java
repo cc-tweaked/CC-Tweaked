@@ -10,6 +10,7 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
@@ -29,17 +30,17 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack getResultItem() {
+    public ItemStack getResultItem(RegistryAccess registryAccess) {
         return PocketComputerItemFactory.create(-1, null, -1, ComputerFamily.NORMAL, null);
     }
 
     @Override
     public boolean matches(CraftingContainer inventory, Level world) {
-        return !assemble(inventory).isEmpty();
+        return !assemble(inventory, world.registryAccess()).isEmpty();
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inventory) {
+    public ItemStack assemble(CraftingContainer inventory, RegistryAccess registryAccess) {
         // Scan the grid for a pocket computer
         var computer = ItemStack.EMPTY;
         var computerX = -1;

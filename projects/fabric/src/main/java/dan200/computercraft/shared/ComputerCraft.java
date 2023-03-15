@@ -20,10 +20,9 @@ import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlockEntity;
 import dan200.computercraft.shared.peripheral.modem.wired.WiredModemFullBlockEntity;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemBlockEntity;
+import dan200.computercraft.shared.platform.FabricConfigFile;
 import dan200.computercraft.shared.platform.NetworkHandler;
 import dan200.computercraft.shared.platform.PlatformHelper;
-import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
-import fuzs.forgeconfigapiport.api.config.v2.ModConfigEvents;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -34,22 +33,25 @@ import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.fml.config.ModConfig;
+import net.minecraft.world.level.storage.LevelResource;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 public class ComputerCraft {
+    private static final LevelResource SERVERCONFIG = new LevelResource("serverconfig");
+
     public static void init() {
         NetworkHandler.init();
-        FabricRegistryBuilder.createSimple(TurtleUpgradeSerialiser.class, TurtleUpgradeSerialiser.REGISTRY_ID.location()).buildAndRegister();
-        FabricRegistryBuilder.createSimple(PocketUpgradeSerialiser.class, PocketUpgradeSerialiser.REGISTRY_ID.location()).buildAndRegister();
+        FabricRegistryBuilder.createSimple(TurtleUpgradeSerialiser.REGISTRY_ID).buildAndRegister();
+        FabricRegistryBuilder.createSimple(PocketUpgradeSerialiser.REGISTRY_ID).buildAndRegister();
         ModRegistry.register();
         ModRegistry.registerMainThread();
         ModRegistry.registerCreativeTab(FabricItemGroup.builder(new ResourceLocation(ComputerCraftAPI.MOD_ID, "tab"))).build();
@@ -80,8 +82,14 @@ public class ComputerCraft {
         CommandRegistrationCallback.EVENT.register((dispatcher, context, environment) -> CommandComputerCraft.register(dispatcher));
 
         // Register hooks
-        ServerLifecycleEvents.SERVER_STARTING.register(CommonHooks::onServerStarting);
-        ServerLifecycleEvents.SERVER_STOPPED.register(s -> CommonHooks.onServerStopped());
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+            ((FabricConfigFile) ConfigSpec.serverSpec).load(server.getWorldPath(SERVERCONFIG).resolve(ComputerCraftAPI.MOD_ID + "-server.toml"));
+            CommonHooks.onServerStarting(server);
+        });
+        ServerLifecycleEvents.SERVER_STOPPED.register(s -> {
+            CommonHooks.onServerStopped();
+            ((FabricConfigFile) ConfigSpec.serverSpec).unload();
+        });
         ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> PlatformHelper.get().sendToPlayer(new UpgradesLoadedMessage(), player));
 
         ServerTickEvents.START_SERVER_TICK.register(CommonHooks::onServerTickStart);
@@ -97,11 +105,7 @@ public class ComputerCraft {
 
         CommonHooks.onDatapackReload((name, listener) -> ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new ReloadListener(name, listener)));
 
-        // Config loading
-        ForgeConfigRegistry.INSTANCE.register(ComputerCraftAPI.MOD_ID, ModConfig.Type.SERVER, ConfigSpec.serverSpec);
-        ForgeConfigRegistry.INSTANCE.register(ComputerCraftAPI.MOD_ID, ModConfig.Type.CLIENT, ConfigSpec.clientSpec);
-        ModConfigEvents.loading(ComputerCraftAPI.MOD_ID).register(ConfigSpec::sync);
-        ModConfigEvents.reloading(ComputerCraftAPI.MOD_ID).register(ConfigSpec::sync);
+        ((FabricConfigFile) ConfigSpec.clientSpec).load(FabricLoader.getInstance().getConfigDir().resolve(ComputerCraftAPI.MOD_ID + "-client.toml"));
 
         FabricDetailRegistries.FLUID_VARIANT.addProvider(FluidDetails::fill);
 

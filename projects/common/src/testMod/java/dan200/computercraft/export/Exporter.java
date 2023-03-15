@@ -9,6 +9,7 @@ import com.google.common.io.RecursiveDeleteOption;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -78,8 +79,9 @@ public class Exporter {
         }
 
         // Now find all CC recipes.
-        for (var recipe : Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(RecipeType.CRAFTING)) {
-            var result = recipe.getResultItem();
+        var level = Minecraft.getInstance().level;
+        for (var recipe : level.getRecipeManager().getAllRecipesFor(RecipeType.CRAFTING)) {
+            var result = recipe.getResultItem(level.registryAccess());
             if (!RegistryWrappers.ITEMS.getKey(result.getItem()).getNamespace().equals(ComputerCraftAPI.MOD_ID)) {
                 continue;
             }
@@ -119,13 +121,16 @@ public class Exporter {
         if (Files.exists(itemDir)) MoreFiles.deleteRecursively(itemDir, RecursiveDeleteOption.ALLOW_INSECURE);
 
         renderer.setupState();
+        var transform = new PoseStack();
+        transform.setIdentity();
+
         for (var item : items) {
             var stack = new ItemStack(item);
             var location = RegistryWrappers.ITEMS.getKey(item);
 
             dump.itemNames.put(location.toString(), stack.getHoverName().getString());
             renderer.captureRender(itemDir.resolve(location.getNamespace()).resolve(location.getPath() + ".png"),
-                () -> Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(stack, 0, 0)
+                () -> Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(transform, stack, 0, 0)
             );
         }
         renderer.clearState();

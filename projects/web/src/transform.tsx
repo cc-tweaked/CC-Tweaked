@@ -11,7 +11,7 @@
  * Yes, this would be so much nicer with next.js.
  */
 import * as fs from "fs/promises";
-import globModule from "glob";
+import glob from "glob";
 import * as path from "path";
 import { createElement, createElement as h, Fragment } from 'react';
 import { renderToStaticMarkup } from "react-dom/server";
@@ -19,13 +19,10 @@ import rehypeHighlight from "rehype-highlight";
 import rehypeParse from 'rehype-parse';
 import rehypeReact from 'rehype-react';
 import { unified } from 'unified';
-import { promisify } from "util";
 // Our components
 import Recipe from "./components/Recipe.js";
 import { noChildren } from "./components/support.js";
 import { DataExport, WithExport } from "./components/WithExport.js";
-
-const glob = promisify(globModule);
 
 (async () => {
     const base = "build/illuaminate";

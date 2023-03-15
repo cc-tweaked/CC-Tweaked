@@ -23,6 +23,4 @@ tasks.jar {
     manifest {
         attributes["Fabric-Loom-Remap"] = "true"
     }
-
-    from("src/main/modJson") // TODO: Remove once Loom 1.1 is out.
 }

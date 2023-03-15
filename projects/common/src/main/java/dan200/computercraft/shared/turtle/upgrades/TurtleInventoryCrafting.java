@@ -73,7 +73,7 @@ public class TurtleInventoryCrafting extends CraftingContainer {
 
         var results = new ArrayList<ItemStack>();
         for (var i = 0; i < maxCount && recipe.matches(this, world); i++) {
-            var result = recipe.assemble(this);
+            var result = recipe.assemble(this, world.registryAccess());
             if (result.isEmpty()) break;
             results.add(result);
 

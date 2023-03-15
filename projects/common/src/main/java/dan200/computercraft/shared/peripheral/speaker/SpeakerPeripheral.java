@@ -132,7 +132,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
             // free again.
             PlatformHelper.get().sendToAllTracking(
                 new SpeakerAudioClientMessage(getSource(), position, dfpwmState.getVolume(), dfpwmState.pullPending(now)),
-                level.getChunkAt(new BlockPos(pos))
+                level.getChunkAt(BlockPos.containing(pos))
             );
             syncedPosition(position);
 
@@ -151,7 +151,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
             // TODO: What to do when entities move away? How do we notify people left behind that they're gone.
             PlatformHelper.get().sendToAllTracking(
                 new SpeakerMoveClientMessage(getSource(), position),
-                level.getChunkAt(new BlockPos(pos))
+                level.getChunkAt(BlockPos.containing(pos))
             );
             syncedPosition(position);
         }

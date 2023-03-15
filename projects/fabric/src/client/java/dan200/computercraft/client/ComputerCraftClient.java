@@ -13,7 +13,6 @@ import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback;
@@ -34,7 +33,6 @@ public class ComputerCraftClient {
 
         ClientRegistry.register();
         ClientRegistry.registerItemColours(ColorProviderRegistry.ITEM::register);
-        ClientRegistry.registerBlockEntityRenderers(BlockEntityRendererRegistry::register);
         ClientRegistry.registerMainThread();
 
 

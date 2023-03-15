@@ -6,8 +6,8 @@ package dan200.computercraft.client.model.turtle;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.client.model.TransformedBakedModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.model.BakedModelWrapper;
 
@@ -25,8 +25,8 @@ public class TurtleModel extends BakedModelWrapper<BakedModel> {
     }
 
     @Override
-    public BakedModel applyTransform(ItemTransforms.TransformType cameraTransformType, PoseStack poseStack, boolean applyLeftHandTransform) {
-        originalModel.applyTransform(cameraTransformType, poseStack, applyLeftHandTransform);
+    public BakedModel applyTransform(ItemDisplayContext transform, PoseStack poseStack, boolean applyLeftHandTransform) {
+        originalModel.applyTransform(transform, poseStack, applyLeftHandTransform);
         return this;
     }
 

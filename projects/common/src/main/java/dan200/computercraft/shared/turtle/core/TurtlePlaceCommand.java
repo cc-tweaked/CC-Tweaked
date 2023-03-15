@@ -21,6 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
@@ -28,6 +29,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -152,7 +154,7 @@ public class TurtlePlaceCommand implements TurtleCommand {
 
     private static boolean deployOnBlock(
         ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, BlockPos position, Direction side,
-        @Nullable Object[] extraArguments, boolean allowReplace, @Nullable ErrorMessage outErrorMessage
+        @Nullable Object[] extraArguments, boolean adjacent, @Nullable ErrorMessage outErrorMessage
     ) {
         // Re-orient the fake player
         var playerDir = side.getOpposite();
@@ -168,14 +170,14 @@ public class TurtlePlaceCommand implements TurtleCommand {
         // Check if there's something suitable to place onto
         var hit = new BlockHitResult(new Vec3(hitX, hitY, hitZ), side, position, false);
         var context = new UseOnContext(turtlePlayer.player(), InteractionHand.MAIN_HAND, hit);
-        if (!canDeployOnBlock(new BlockPlaceContext(context), turtle, turtlePlayer, position, side, allowReplace, outErrorMessage)) {
+        if (!canDeployOnBlock(new BlockPlaceContext(context), turtle, turtlePlayer, position, side, adjacent, outErrorMessage)) {
             return false;
         }
 
         var item = stack.getItem();
         var existingTile = turtle.getLevel().getBlockEntity(position);
 
-        var placed = doDeployOnBlock(stack, turtlePlayer, hit).consumesAction();
+        var placed = doDeployOnBlock(stack, turtlePlayer, hit, adjacent).consumesAction();
 
         // Set text on signs
         if (placed && item instanceof SignItem && extraArguments != null && extraArguments.length >= 1 && extraArguments[0] instanceof String message) {
@@ -197,18 +199,23 @@ public class TurtlePlaceCommand implements TurtleCommand {
      * @param stack        The stack the player is using.
      * @param turtlePlayer The player which represents the turtle
      * @param hit          Where the block we're placing against was clicked.
+     * @param adjacent     If the block is directly adjacent to the turtle, and so can be interacted with via
+     *                     {@link BlockState#use(Level, Player, InteractionHand, BlockHitResult)}.
      * @return If this item was deployed.
      */
-    private static InteractionResult doDeployOnBlock(
-        ItemStack stack, TurtlePlayer turtlePlayer, BlockHitResult hit
-    ) {
-        var result = PlatformHelper.get().useOn(turtlePlayer.player(), stack, hit);
+    private static InteractionResult doDeployOnBlock(ItemStack stack, TurtlePlayer turtlePlayer, BlockHitResult hit, boolean adjacent) {
+        var result = PlatformHelper.get().useOn(
+            turtlePlayer.player(), stack, hit,
+            adjacent ? x -> x.is(ComputerCraftTags.Blocks.TURTLE_CAN_USE) : x -> false
+        );
         if (result != InteractionResult.PASS) return result;
+
+        var level = turtlePlayer.player().level;
 
         // We special case some items which we allow to place "normally". Yes, this is very ugly.
         var item = stack.getItem();
         if (item instanceof BucketItem || item instanceof PlaceOnWaterBlockItem || stack.is(ComputerCraftTags.Items.TURTLE_CAN_PLACE)) {
-            return turtlePlayer.player().gameMode.useItem(turtlePlayer.player(), turtlePlayer.player().level, stack, InteractionHand.MAIN_HAND);
+            return turtlePlayer.player().gameMode.useItem(turtlePlayer.player(), level, stack, InteractionHand.MAIN_HAND);
         }
 
         return InteractionResult.PASS;

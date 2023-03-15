@@ -6,6 +6,7 @@ package dan200.computercraft.shared.common;
 
 import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
@@ -47,7 +48,7 @@ public final class ClearColourRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inv) {
+    public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess) {
         var colourable = ItemStack.EMPTY;
 
         for (var i = 0; i < inv.getContainerSize(); i++) {

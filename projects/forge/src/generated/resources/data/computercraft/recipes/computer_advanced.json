@@ -7,5 +7,6 @@
     "R": {"tag": "forge:dusts/redstone"}
   },
   "pattern": ["###", "#R#", "#G#"],
-  "result": {"item": "computercraft:computer_advanced"}
+  "result": {"item": "computercraft:computer_advanced"},
+  "show_notification": true
 }

@@ -7,6 +7,7 @@ package dan200.computercraft.client.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.network.chat.Component;
@@ -83,7 +84,7 @@ public class ItemToast implements Toast {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         if (width == 160 && message.size() <= 1) {
-            component.blit(transform, 0, 0, 0, 64, width, height());
+            GuiComponent.blit(transform, 0, 0, 0, 64, width, height());
         } else {
 
             var height = height();
@@ -101,7 +102,7 @@ public class ItemToast implements Toast {
         var textX = MARGIN;
         if (!stack.isEmpty()) {
             textX += MARGIN + IMAGE_SIZE;
-            component.getMinecraft().getItemRenderer().renderAndDecorateFakeItem(stack, MARGIN, MARGIN + height() / 2 - IMAGE_SIZE);
+            component.getMinecraft().getItemRenderer().renderAndDecorateFakeItem(transform, stack, MARGIN, MARGIN + height() / 2 - IMAGE_SIZE);
         }
 
         component.getMinecraft().font.draw(transform, title, textX, MARGIN, 0xff500050);
@@ -116,11 +117,11 @@ public class ItemToast implements Toast {
         var leftOffset = 5;
         var rightOffset = Math.min(60, x - leftOffset);
 
-        component.blit(transform, 0, y, 0, 32 + u, leftOffset, height);
+        GuiComponent.blit(transform, 0, y, 0, 32 + u, leftOffset, height);
         for (var k = leftOffset; k < x - rightOffset; k += 64) {
-            component.blit(transform, k, y, 32, 32 + u, Math.min(64, x - k - rightOffset), height);
+            GuiComponent.blit(transform, k, y, 32, 32 + u, Math.min(64, x - k - rightOffset), height);
         }
 
-        component.blit(transform, x - rightOffset, y, 160 - rightOffset, 32 + u, rightOffset, height);
+        GuiComponent.blit(transform, x - rightOffset, y, 160 - rightOffset, 32 + u, rightOffset, height);
     }
 }

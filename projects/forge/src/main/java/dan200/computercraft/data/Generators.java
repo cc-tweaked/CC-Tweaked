@@ -63,7 +63,7 @@ public class Generators {
 
         @Override
         public TagsProvider<Item> itemTags(Consumer<TagProvider.ItemTagConsumer> tags, TagsProvider<Block> blocks) {
-            return add(out -> new ItemTagsProvider(out, registries, blocks, ComputerCraftAPI.MOD_ID, existingFiles) {
+            return add(out -> new ItemTagsProvider(out, registries, blocks.contentsGetter(), ComputerCraftAPI.MOD_ID, existingFiles) {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
                     var self = this;

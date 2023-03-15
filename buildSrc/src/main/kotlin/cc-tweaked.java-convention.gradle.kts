@@ -49,7 +49,6 @@ repositories {
             includeGroup("me.shedaniel.cloth")
             includeGroup("mezz.jei")
             includeModule("com.terraformersmc", "modmenu")
-            includeModule("fuzs.forgeconfigapiport", "forgeconfigapiport-fabric")
             // Until https://github.com/SpongePowered/Mixin/pull/593 is merged
             includeModule("org.spongepowered", "mixin")
         }
@@ -169,7 +168,7 @@ spotless {
     }
 
     val ktlintConfig = mapOf(
-        "disabled_rules" to "no-wildcard-imports",
+        "ktlint_standard_no-wildcard-imports" to "disabled",
         "ij_kotlin_allow_trailing_comma" to "true",
         "ij_kotlin_allow_trailing_comma_on_call_site" to "true",
     )

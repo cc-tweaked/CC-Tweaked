@@ -124,22 +124,35 @@ local function parse_repl(input)
         assert(coroutine.resume(parsers[i], context, coroutine.yield, start_code))
     end
 
+    -- Run all parsers together in parallel, feeding them one token at a time.
+    -- Once all parsers have failed, report the last failure (corresponding to
+    -- the longest parse).
     local ok, err = pcall(function()
         local parsers_n = #parsers
         while true do
             local token, start, finish = lexer()
 
-            local stop = true
+            local all_failed = true
             for i = 1, parsers_n do
                 local parser = parsers[i]
-                if coroutine.status(parser) ~= "dead" then
-                    stop = false
+                if parser then
                     local ok, err = coroutine.resume(parser, token, start, finish)
-                    if not ok and err ~= error_sentinel then error(err, 0) end
+                    if ok then
+                        -- This parser accepted our input, succeed immediately.
+                        if coroutine.status(parser) == "dead" then return end
+
+                        all_failed = false -- Otherwise continue parsing.
+                    elseif err ~= error_sentinel then
+                        -- An internal error occurred: propagate it.
+                        error(err, 0)
+                    else
+                        -- The parser failed, stub it out so we don't try to continue using it.
+                        parsers[i] = false
+                    end
                 end
             end
 
-            if stop then error(error_sentinel) end
+            if all_failed then error(error_sentinel) end
         end
     end)
 

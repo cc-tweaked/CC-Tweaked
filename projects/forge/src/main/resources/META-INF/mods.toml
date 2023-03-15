@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 modLoader="javafml"
-loaderVersion="[44,45)"
+loaderVersion="[45,46)"
 
 issueTrackerURL="https://github.com/cc-tweaked/CC-Tweaked/issues"
 logoFile="pack.png"
@@ -25,6 +25,6 @@ CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles a
 [[dependencies.computercraft]]
     modId="forge"
     mandatory=true
-    versionRange="[${forgeVersion},45)"
+    versionRange="[${forgeVersion},46)"
     ordering="NONE"
     side="BOTH"

@@ -1,9 +1,0 @@
-{
-    "schemaVersion": 1,
-    "id": "computercraft_api_stub",
-    "version": "1.0",
-    "name": "ComputerCraft API",
-    "description": "A placeholder mod to ensure Loom deobfuscates the API jar.",
-    "license": "ComputerCraft Public License (https://raw.githubusercontent.com/dan200/ComputerCraft/master/LICENSE)",
-    "environment": "*"
-}

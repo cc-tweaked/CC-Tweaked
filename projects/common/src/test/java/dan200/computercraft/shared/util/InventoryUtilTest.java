@@ -21,7 +21,7 @@ public class InventoryUtilTest {
 
         var remainder = InventoryUtil.storeItemsFromOffset(container, new ItemStack(Items.COBBLESTONE, 32), 4);
         assertThat("Remainder is empty", remainder, isStack(ItemStack.EMPTY));
-        assertThat("Was inserted into slot", container.getItem(4), isStack(new ItemStack(Items.COBBLESTONE, 32)));
+        assertThat("Was inserted into slot", container.getItem(4), isStack(Items.COBBLESTONE, 32));
     }
 
     @Test
@@ -32,6 +32,6 @@ public class InventoryUtilTest {
 
         var remainder = InventoryUtil.storeItemsFromOffset(container, new ItemStack(Items.COBBLESTONE, 32), 4);
         assertThat("Remainder is empty", remainder, isStack(ItemStack.EMPTY));
-        assertThat("Was inserted into slot", container.getItem(1), isStack(new ItemStack(Items.COBBLESTONE, 32)));
+        assertThat("Was inserted into slot", container.getItem(1), isStack(Items.COBBLESTONE, 32));
     }
 }

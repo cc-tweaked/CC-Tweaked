@@ -36,7 +36,6 @@ repositories {
     content {
       includeGroup("cc.tweaked")
       includeModule("org.squiddev", "Cobalt")
-      includeModule("fuzs.forgeconfigapiport", "forgeconfigapiport-fabric")
     }
   }
 }
@@ -46,6 +45,7 @@ dependencies {
   compileOnly("cc.tweaked:cc-tweaked-$mcVersion-common-api")
 
   // Forge Gradle
+  compileOnly("cc.tweaked:cc-tweaked-$mcVersion-core-api:$cctVersion")
   compileOnly(fg.deobf("cc.tweaked:cc-tweaked-$mcVersion-forge-api:$cctVersion"))
   runtimeOnly(fg.deobf("cc.tweaked:cc-tweaked-$mcVersion-forge:$cctVersion"))
 

@@ -25,6 +25,7 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
@@ -33,8 +34,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -69,6 +68,11 @@ public final class ClientRegistry {
         ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_NORMAL.get(), new TurtleModemModeller(false));
         ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_ADVANCED.get(), new TurtleModemModeller(true));
         ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.TOOL.get(), TurtleUpgradeModeller.flatItem());
+
+        BlockEntityRenderers.register(ModRegistry.BlockEntities.MONITOR_NORMAL.get(), MonitorBlockEntityRenderer::new);
+        BlockEntityRenderers.register(ModRegistry.BlockEntities.MONITOR_ADVANCED.get(), MonitorBlockEntityRenderer::new);
+        BlockEntityRenderers.register(ModRegistry.BlockEntities.TURTLE_NORMAL.get(), TurtleBlockEntityRenderer::new);
+        BlockEntityRenderers.register(ModRegistry.BlockEntities.TURTLE_ADVANCED.get(), TurtleBlockEntityRenderer::new);
     }
 
     /**
@@ -163,17 +167,6 @@ public final class ClientRegistry {
 
     private static int getTurtleColour(ItemStack stack, int layer) {
         return layer == 0 ? ((IColouredItem) stack.getItem()).getColour(stack) : 0xFFFFFF;
-    }
-
-    public static void registerBlockEntityRenderers(BlockEntityRenderRegistry register) {
-        register.register(ModRegistry.BlockEntities.MONITOR_NORMAL.get(), MonitorBlockEntityRenderer::new);
-        register.register(ModRegistry.BlockEntities.MONITOR_ADVANCED.get(), MonitorBlockEntityRenderer::new);
-        register.register(ModRegistry.BlockEntities.TURTLE_NORMAL.get(), TurtleBlockEntityRenderer::new);
-        register.register(ModRegistry.BlockEntities.TURTLE_ADVANCED.get(), TurtleBlockEntityRenderer::new);
-    }
-
-    public interface BlockEntityRenderRegistry {
-        <T extends BlockEntity> void register(BlockEntityType<? extends T> type, BlockEntityRendererProvider<T> provider);
     }
 
     public static void registerShaders(ResourceProvider resources, BiConsumer<ShaderInstance, Consumer<ShaderInstance>> load) throws IOException {

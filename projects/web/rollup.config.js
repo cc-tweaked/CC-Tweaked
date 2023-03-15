@@ -7,7 +7,7 @@ import path from "path";
 
 import typescript from "@rollup/plugin-typescript";
 import url from '@rollup/plugin-url';
-import { terser } from "rollup-plugin-terser";
+import terser from "@rollup/plugin-terser";
 
 const input = "src";
 const requirejs = readFileSync("../../node_modules/requirejs/require.js");
@@ -29,7 +29,10 @@ export default {
             });
         `,
         format: "amd",
-        preferConst: true,
+        generatedCode: {
+            preset: "es2015",
+            constBindings: true,
+        },
         amd: {
             define: "require",
         }

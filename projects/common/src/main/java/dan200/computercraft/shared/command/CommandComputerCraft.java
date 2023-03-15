@@ -22,9 +22,9 @@ import dan200.computercraft.shared.network.container.ComputerContainerData;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -66,7 +66,7 @@ public final class CommandComputerCraft {
 
                     // Unless we're on a server, limit the number of rows we can send.
                     Level world = source.getLevel();
-                    var pos = new BlockPos(source.getPosition());
+                    var pos = BlockPos.containing(source.getPosition());
 
                     computers.sort((a, b) -> {
                         if (a.getLevel() == b.getLevel() && a.getLevel() == world) {
@@ -157,7 +157,7 @@ public final class CommandComputerCraft {
                     if (player.getCommandSenderWorld() == world) {
                         player.connection.teleport(
                             pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0,
-                            EnumSet.noneOf(ClientboundPlayerPositionPacket.RelativeArgument.class)
+                            EnumSet.noneOf(RelativeMovement.class)
                         );
                     } else {
                         player.teleportTo(world,

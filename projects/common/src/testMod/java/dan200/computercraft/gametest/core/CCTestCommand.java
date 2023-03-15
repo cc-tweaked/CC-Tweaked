@@ -96,7 +96,7 @@ class CCTestCommand {
                     var itemEntity = player.drop(item, false);
                     if (itemEntity != null) {
                         itemEntity.setNoPickUpDelay();
-                        itemEntity.setOwner(player.getUUID());
+                        itemEntity.setThrower(player.getUUID());
                     }
                 }
 

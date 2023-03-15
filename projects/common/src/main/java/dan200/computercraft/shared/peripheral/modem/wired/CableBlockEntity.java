@@ -34,7 +34,7 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 
 public class CableBlockEntity extends BlockEntity {
-    private static final String NBT_PERIPHERAL_ENABLED = "PeirpheralAccess";
+    private static final String NBT_PERIPHERAL_ENABLED = "PeripheralAccess";
 
     private class CableElement extends WiredModemElement {
         @Override
@@ -198,7 +198,8 @@ public class CableBlockEntity extends BlockEntity {
     @Override
     public void load(CompoundTag nbt) {
         super.load(nbt);
-        peripheralAccessAllowed = nbt.getBoolean(NBT_PERIPHERAL_ENABLED);
+        // Fallback to the previous (incorrect) key
+        peripheralAccessAllowed = nbt.getBoolean(NBT_PERIPHERAL_ENABLED) || nbt.getBoolean("PeirpheralAccess");
         peripheral.read(nbt, "");
     }
 

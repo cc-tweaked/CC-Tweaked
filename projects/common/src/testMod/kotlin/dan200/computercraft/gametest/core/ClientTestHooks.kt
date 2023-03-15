@@ -10,6 +10,7 @@ import dan200.computercraft.gametest.api.setupForTest
 import net.minecraft.client.CloudStatus
 import net.minecraft.client.Minecraft
 import net.minecraft.client.ParticleStatus
+import net.minecraft.client.gui.screens.AccessibilityOnboardingScreen
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.TitleScreen
 import net.minecraft.client.tutorial.TutorialSteps
@@ -53,7 +54,7 @@ object ClientTestHooks {
 
     @JvmStatic
     fun onOpenScreen(screen: Screen): Boolean = when {
-        enabled && !loadedWorld && screen is TitleScreen -> {
+        enabled && !loadedWorld && (screen is TitleScreen || screen is AccessibilityOnboardingScreen) -> {
             loadedWorld = true
             openWorld()
             true

@@ -4,8 +4,6 @@
 
 package dan200.computercraft.data;
 
-import com.electronwill.nightconfig.core.UnmodifiableConfig;
-import com.google.common.base.Splitter;
 import com.google.gson.JsonObject;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
@@ -16,6 +14,7 @@ import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.metrics.basic.Aggregate;
 import dan200.computercraft.shared.computer.metrics.basic.AggregatedMetric;
+import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.data.CachedOutput;
@@ -23,7 +22,6 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -210,58 +208,58 @@ public final class LanguageProvider implements DataProvider {
         add("gui.computercraft.pocket_computer_overlay", "Pocket computer open. Press ESC to close.");
 
         // Config options
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.computerSpaceLimit, "Computer space limit (bytes)");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.floppySpaceLimit, "Floppy Disk space limit (bytes)");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.maximumFilesOpen, "Maximum files open per computer");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.disableLua51Features, "Disable Lua 5.1 features");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.defaultComputerSettings, "Default Computer settings");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.logComputerErrors, "Log computer errors");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.commandRequireCreative, "Command computers require creative");
+        addConfigEntry(ConfigSpec.computerSpaceLimit, "Computer space limit (bytes)");
+        addConfigEntry(ConfigSpec.floppySpaceLimit, "Floppy Disk space limit (bytes)");
+        addConfigEntry(ConfigSpec.maximumFilesOpen, "Maximum files open per computer");
+        addConfigEntry(ConfigSpec.disableLua51Features, "Disable Lua 5.1 features");
+        addConfigEntry(ConfigSpec.defaultComputerSettings, "Default Computer settings");
+        addConfigEntry(ConfigSpec.logComputerErrors, "Log computer errors");
+        addConfigEntry(ConfigSpec.commandRequireCreative, "Command computers require creative");
 
         addConfigGroup(ConfigSpec.serverSpec, "execution", "Execution");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.computerThreads, "Computer threads");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.maxMainGlobalTime, "Server tick global time limit");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.maxMainComputerTime, "Server tick computer time limit");
+        addConfigEntry(ConfigSpec.computerThreads, "Computer threads");
+        addConfigEntry(ConfigSpec.maxMainGlobalTime, "Server tick global time limit");
+        addConfigEntry(ConfigSpec.maxMainComputerTime, "Server tick computer time limit");
 
         addConfigGroup(ConfigSpec.serverSpec, "http", "HTTP");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.httpEnabled, "Enable the HTTP API");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.httpWebsocketEnabled, "Enable websockets");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.httpRules, "Allow/deny rules");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.httpMaxRequests, "Maximum concurrent requests");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.httpMaxWebsockets, "Maximum concurrent websockets");
+        addConfigEntry(ConfigSpec.httpEnabled, "Enable the HTTP API");
+        addConfigEntry(ConfigSpec.httpWebsocketEnabled, "Enable websockets");
+        addConfigEntry(ConfigSpec.httpRules, "Allow/deny rules");
+        addConfigEntry(ConfigSpec.httpMaxRequests, "Maximum concurrent requests");
+        addConfigEntry(ConfigSpec.httpMaxWebsockets, "Maximum concurrent websockets");
         addConfigGroup(ConfigSpec.serverSpec, "http.bandwidth", "Bandwidth");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.httpDownloadBandwidth, "Global download limit");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.httpUploadBandwidth, "Global upload limit");
+        addConfigEntry(ConfigSpec.httpDownloadBandwidth, "Global download limit");
+        addConfigEntry(ConfigSpec.httpUploadBandwidth, "Global upload limit");
 
         addConfigGroup(ConfigSpec.serverSpec, "peripheral", "Peripherals");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.commandBlockEnabled, "Enable command block peripheral");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.modemRange, "Modem range (default)");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.modemHighAltitudeRange, "Modem range (high-altitude)");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.modemRangeDuringStorm, "Modem range (bad weather)");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.modemHighAltitudeRangeDuringStorm, "Modem range (high-altitude, bad weather)");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.maxNotesPerTick, "Maximum notes that a computer can play at once");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.monitorBandwidth, "Monitor bandwidth");
+        addConfigEntry(ConfigSpec.commandBlockEnabled, "Enable command block peripheral");
+        addConfigEntry(ConfigSpec.modemRange, "Modem range (default)");
+        addConfigEntry(ConfigSpec.modemHighAltitudeRange, "Modem range (high-altitude)");
+        addConfigEntry(ConfigSpec.modemRangeDuringStorm, "Modem range (bad weather)");
+        addConfigEntry(ConfigSpec.modemHighAltitudeRangeDuringStorm, "Modem range (high-altitude, bad weather)");
+        addConfigEntry(ConfigSpec.maxNotesPerTick, "Maximum notes that a computer can play at once");
+        addConfigEntry(ConfigSpec.monitorBandwidth, "Monitor bandwidth");
 
         addConfigGroup(ConfigSpec.serverSpec, "turtle", "Turtles");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.turtlesNeedFuel, "Enable fuel");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.turtleFuelLimit, "Turtle fuel limit");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.advancedTurtleFuelLimit, "Advanced Turtle fuel limit");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.turtlesCanPush, "Turtles can push entities");
+        addConfigEntry(ConfigSpec.turtlesNeedFuel, "Enable fuel");
+        addConfigEntry(ConfigSpec.turtleFuelLimit, "Turtle fuel limit");
+        addConfigEntry(ConfigSpec.advancedTurtleFuelLimit, "Advanced Turtle fuel limit");
+        addConfigEntry(ConfigSpec.turtlesCanPush, "Turtles can push entities");
 
         addConfigGroup(ConfigSpec.serverSpec, "term_sizes", "Terminal sizes");
         addConfigGroup(ConfigSpec.serverSpec, "term_sizes.computer", "Computer");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.computerTermWidth, "Terminal width");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.computerTermHeight, "Terminal height");
+        addConfigEntry(ConfigSpec.computerTermWidth, "Terminal width");
+        addConfigEntry(ConfigSpec.computerTermHeight, "Terminal height");
         addConfigGroup(ConfigSpec.serverSpec, "term_sizes.pocket_computer", "Pocket Computer");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.pocketTermWidth, "Terminal width");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.pocketTermHeight, "Terminal height");
+        addConfigEntry(ConfigSpec.pocketTermWidth, "Terminal width");
+        addConfigEntry(ConfigSpec.pocketTermHeight, "Terminal height");
         addConfigGroup(ConfigSpec.serverSpec, "term_sizes.monitor", "Monitor");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.monitorWidth, "Max monitor width");
-        addConfigValue(ConfigSpec.serverSpec, ConfigSpec.monitorHeight, "Max monitor height");
+        addConfigEntry(ConfigSpec.monitorWidth, "Max monitor width");
+        addConfigEntry(ConfigSpec.monitorHeight, "Max monitor height");
 
-        addConfigValue(ConfigSpec.clientSpec, ConfigSpec.monitorRenderer, "Monitor renderer");
-        addConfigValue(ConfigSpec.clientSpec, ConfigSpec.monitorDistance, "Monitor distance");
-        addConfigValue(ConfigSpec.clientSpec, ConfigSpec.uploadNagDelay, "Upload nag delay");
+        addConfigEntry(ConfigSpec.monitorRenderer, "Monitor renderer");
+        addConfigEntry(ConfigSpec.monitorDistance, "Monitor distance");
+        addConfigEntry(ConfigSpec.uploadNagDelay, "Upload nag delay");
     }
 
     private Stream<String> getExpectedKeys() {
@@ -275,21 +273,9 @@ public final class LanguageProvider implements DataProvider {
             turtleUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),
             pocketUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),
             Metric.metrics().values().stream().map(x -> AggregatedMetric.TRANSLATION_PREFIX + x.name() + ".name"),
-            getConfigKeys(ConfigSpec.serverSpec),
-            getConfigKeys(ConfigSpec.clientSpec)
+            getConfigEntries(ConfigSpec.serverSpec).map(ConfigFile.Entry::translationKey),
+            getConfigEntries(ConfigSpec.clientSpec).map(ConfigFile.Entry::translationKey)
         ).flatMap(x -> x);
-    }
-
-    private Stream<String> getConfigKeys(UnmodifiableConfig spec) {
-        return spec.entrySet().stream().flatMap(x -> {
-            if (x.getValue() instanceof ForgeConfigSpec.ValueSpec valueSpec) {
-                return Stream.of(valueSpec.getTranslationKey());
-            } else if (x.getValue() instanceof UnmodifiableConfig config) {
-                return getConfigKeys(config);
-            } else {
-                return Stream.empty();
-            }
-        });
     }
 
     private void add(String id, String text) {
@@ -308,15 +294,26 @@ public final class LanguageProvider implements DataProvider {
         add(AggregatedMetric.TRANSLATION_PREFIX + metric.name() + ".name", text);
     }
 
-    private void addConfigGroup(ForgeConfigSpec spec, String path, String text) {
-        var pathList = Splitter.on('.').splitToList(path);
-        add(spec.getLevelTranslationKey(pathList), text);
-        add(spec.getLevelTranslationKey(pathList) + ".tooltip", spec.getLevelComment(pathList));
+    private void addConfigGroup(ConfigFile spec, String path, String text) {
+        var entry = spec.getEntry(path);
+        if (!(entry instanceof ConfigFile.Group)) throw new IllegalArgumentException("Cannot find group " + path);
+        addConfigEntry(entry, text);
     }
 
-    private void addConfigValue(ForgeConfigSpec spec, ForgeConfigSpec.ConfigValue<?> value, String text) {
-        ForgeConfigSpec.ValueSpec valueSpec = spec.getSpec().get(value.getPath());
-        add(valueSpec.getTranslationKey(), text);
-        add(valueSpec.getTranslationKey() + ".tooltip", valueSpec.getComment());
+    private void addConfigEntry(ConfigFile.Entry value, String text) {
+        add(value.translationKey(), text);
+        add(value.translationKey() + ".tooltip", value.comment());
+    }
+
+    private static Stream<ConfigFile.Entry> getConfigEntries(ConfigFile spec) {
+        return spec.entries().flatMap(LanguageProvider::getConfigEntries);
+    }
+
+    private static Stream<ConfigFile.Entry> getConfigEntries(ConfigFile.Entry entry) {
+        if (entry instanceof ConfigFile.Value<?>) return Stream.of(entry);
+        if (entry instanceof ConfigFile.Group group) {
+            return Stream.concat(Stream.of(entry), group.children().flatMap(LanguageProvider::getConfigEntries));
+        }
+        throw new IllegalStateException("Invalid config entry " + entry);
     }
 }

@@ -13,6 +13,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 /**
  * Tags provided by ComputerCraft.
@@ -63,6 +65,12 @@ public class ComputerCraftTags {
          * Blocks which can be broken with the default hoe tool.
          */
         public static final TagKey<Block> TURTLE_HOE_BREAKABLE = make("turtle_hoe_harvestable");
+
+        /**
+         * Block which can be {@linkplain BlockState#use(Level, Player, InteractionHand, BlockHitResult) used} when
+         * calling {@code turtle.place()}.
+         */
+        public static final TagKey<Block> TURTLE_CAN_USE = make("turtle_can_use");
 
         private static TagKey<Block> make(String name) {
             return TagKey.create(Registries.BLOCK, new ResourceLocation(ComputerCraftAPI.MOD_ID, name));
