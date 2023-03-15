@@ -7,7 +7,6 @@ package dan200.computercraft.client;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.model.turtle.TurtleModelLoader;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
@@ -49,8 +48,6 @@ public final class ForgeClientRegistry {
     @SubscribeEvent
     public static void setupClient(FMLClientSetupEvent event) {
         ClientRegistry.register();
-        ClientRegistry.registerBlockEntityRenderers(BlockEntityRenderers::register);
-
         event.enqueueWork(ClientRegistry::registerMainThread);
     }
 }
