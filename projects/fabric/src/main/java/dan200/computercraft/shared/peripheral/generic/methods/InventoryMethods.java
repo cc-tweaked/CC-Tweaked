@@ -24,7 +24,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
@@ -125,7 +127,13 @@ public class InventoryMethods implements GenericPeripheral {
     }
 
     @SuppressWarnings("NullAway") // FIXME: Doesn't cope with @Nullable type parameter.
-    public static @Nullable Storage<ItemVariant> extractContainer(Level level, BlockPos pos, @Nullable BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
+    public static @Nullable Storage<ItemVariant> extractContainer(Level level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
+        // ItemStorage returns a CombinedStorage rather than an InventoryStorage for double chests.
+        if (blockEntity instanceof ChestBlockEntity && state.getBlock() instanceof ChestBlock chestBlock) {
+            var inventory = ChestBlock.getContainer(chestBlock, state, level, pos, true);
+            return inventory == null ? null : InventoryStorage.of(inventory, null);
+        }
+
         var internal = ItemStorage.SIDED.find(level, pos, state, blockEntity, null);
         if (internal instanceof InventoryStorage || direction == null) return internal;
 

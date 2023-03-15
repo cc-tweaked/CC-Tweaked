@@ -3,5 +3,6 @@
   "category": "redstone",
   "key": {"#": {"item": "minecraft:stone"}, "D": {"tag": "c:dyes"}, "R": {"tag": "c:redstone_dusts"}},
   "pattern": ["###", "#R#", "#D#"],
-  "result": {"item": "computercraft:printer"}
+  "result": {"item": "computercraft:printer"},
+  "show_notification": true
 }

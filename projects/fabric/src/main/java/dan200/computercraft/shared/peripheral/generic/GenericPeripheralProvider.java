@@ -24,7 +24,7 @@ import java.util.Set;
 public class GenericPeripheralProvider {
     interface Lookup<T> {
         @Nullable
-        T find(Level world, BlockPos pos, @Nullable BlockState state, @Nullable BlockEntity blockEntity, Direction context);
+        T find(Level world, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, Direction context);
     }
 
     private static final List<Lookup<?>> lookups = List.of(

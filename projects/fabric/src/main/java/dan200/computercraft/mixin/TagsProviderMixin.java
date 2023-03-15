@@ -21,8 +21,9 @@ import java.util.function.Predicate;
  */
 @Mixin(TagsProvider.class)
 class TagsProviderMixin {
-    @Inject(at = @At("HEAD"), method = "method_46834", cancellable = true)
-    public void onVerifyPresent(Predicate<?> predicate, TagEntry tag, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(at = @At("HEAD"), method = "method_49658", cancellable = true)
+    @SuppressWarnings("UnusedMethod")
+    private static void onVerifyPresent(Predicate<?> predicate1, Predicate<?> predicate2, TagEntry tag, CallbackInfoReturnable<Boolean> cir) {
         var element = ((TagEntryAccessor) tag).computercraft$elementOrTag();
         if (element.tag() && element.id().getNamespace().equals("minecraft")) cir.setReturnValue(false);
     }
