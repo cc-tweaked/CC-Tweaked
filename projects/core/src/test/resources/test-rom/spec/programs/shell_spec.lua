@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 local with_window = require "test_helpers".with_window
 
 describe("The shell", function()

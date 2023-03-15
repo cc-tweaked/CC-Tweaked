@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --[[- A @{term.Redirect|terminal redirect} occupying a smaller area of an
 existing terminal. This allows for easy definition of spaces within the display
 that can be written/drawn to, then later redrawn/repositioned/etc as need

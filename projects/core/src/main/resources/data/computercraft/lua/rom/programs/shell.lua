@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --[[- The shell API provides access to CraftOS's command line interface.
 
 It allows you to @{run|start programs}, @{setCompletionFunction|add completion

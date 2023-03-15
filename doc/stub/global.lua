@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --[[-
 Functions in the global environment, defined in `bios.lua`. This does not
 include standard Lua functions.

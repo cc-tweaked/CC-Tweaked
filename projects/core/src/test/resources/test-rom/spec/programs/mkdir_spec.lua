@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 describe("The mkdir program", function()
     it("creates a directory", function()
         fs.delete("/test-files")

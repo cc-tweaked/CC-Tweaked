@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --[[- Make HTTP requests, sending and receiving data to a remote web server.
 
 @module http

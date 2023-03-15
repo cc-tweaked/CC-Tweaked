@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 describe("The VM", function()
     it("allows unpacking a large number of values", function()
         -- We don't allow arbitrarily many values, half a meg is probably fine.

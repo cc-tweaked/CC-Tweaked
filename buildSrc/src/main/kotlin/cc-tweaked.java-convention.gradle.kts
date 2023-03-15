@@ -1,6 +1,9 @@
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 import cc.tweaked.gradle.CCTweakedExtension
 import cc.tweaked.gradle.CCTweakedPlugin
-import cc.tweaked.gradle.LicenseHeader
 import com.diffplug.gradle.spotless.FormatExtension
 import com.diffplug.spotless.LineEnding
 import net.ltgt.gradle.errorprone.CheckSeverity
@@ -159,14 +162,8 @@ spotless {
         indentWithSpaces(4)
     }
 
-    val licenser = LicenseHeader.create(
-        api = rootProject.file("config/license/api.txt"),
-        main = rootProject.file("config/license/main.txt"),
-    )
-
     java {
         defaults()
-        addStep(licenser)
         removeUnusedImports()
     }
 

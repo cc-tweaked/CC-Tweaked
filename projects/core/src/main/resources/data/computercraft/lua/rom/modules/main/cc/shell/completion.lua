@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --[[- A collection of helper methods for working with shell completion.
 
 Most programs may be completed using the @{build} helper method, rather than

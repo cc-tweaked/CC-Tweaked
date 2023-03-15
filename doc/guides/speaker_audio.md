@@ -4,6 +4,12 @@ see: speaker.playAudio Play PCM audio using a speaker.
 see: cc.audio.dfpwm Provides utilities for encoding and decoding DFPWM files.
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 # Playing audio with speakers
 CC: Tweaked's speaker peripheral provides a powerful way to play any audio you like with the @{speaker.playAudio}
 method. However, for people unfamiliar with digital audio, it's not the most intuitive thing to use. This guide provides

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 import cc.tweaked.gradle.annotationProcessorEverywhere
 import cc.tweaked.gradle.clientClasses
 import cc.tweaked.gradle.commonClasses

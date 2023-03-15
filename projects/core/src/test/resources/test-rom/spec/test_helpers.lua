@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 --- Run a program and capture its output
 --
 -- @tparam function(tbl:table, var:string, value:string) stub The active stub function.

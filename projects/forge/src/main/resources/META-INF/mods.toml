@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+
 modLoader="javafml"
 loaderVersion="[45,46)"
 

@@ -2,6 +2,12 @@
 module: [kind=reference] feature_compat
 ---
 
+<!--
+SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+
+SPDX-License-Identifier: LicenseRef-CCPL
+-->
+
 # Lua 5.2/5.3 features in CC: Tweaked
 CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However, Cobalt and CC:T implement additional features from Lua 5.2 and 5.3 (as well as some deprecated 5.0 features) that are not available in base 5.1. This page lists all of the compatibility for these newer versions.
 

@@ -3,6 +3,12 @@ module: [kind=event] file_transfer
 since: 1.101.0
 ---
 
+<!--
+SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 The @{file_transfer} event is queued when a user drags-and-drops a file on an open computer.
 
 This event contains a single argument of type @{TransferredFiles}, which can be used to @{TransferredFiles.getFiles|get

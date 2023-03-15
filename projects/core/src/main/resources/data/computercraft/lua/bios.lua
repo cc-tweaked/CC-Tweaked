@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 -- Load in expect from the module path.
 --
 -- Ideally we'd use require, but that is part of the shell, and so is not

@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --- @module term
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect

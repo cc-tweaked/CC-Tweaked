@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 describe("The fs library", function()
     local test_root = "/test-files/fs"
     local function test_file(path) return fs.combine(test_root, path) end

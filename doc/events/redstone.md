@@ -2,6 +2,12 @@
 module: [kind=event] redstone
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: LicenseRef-CCPL
+-->
+
 The @{event!redstone} event is fired whenever any redstone inputs on the computer change.
 
 ## Return values

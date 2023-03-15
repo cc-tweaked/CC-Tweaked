@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --- A basic 3D vector type and some common vector operations. This may be useful
 -- when working with coordinates in Minecraft's world (such as those from the
 -- @{gps} API).

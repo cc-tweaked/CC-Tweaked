@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2017 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 # ![CC: Tweaked](doc/logo.png)
 [![Current build status](https://github.com/cc-tweaked/CC-Tweaked/workflows/Build/badge.svg)](https://github.com/cc-tweaked/CC-Tweaked/actions "Current build status") [![Download CC: Tweaked on CurseForge](http://cf.way2muchnoise.eu/title/cc-tweaked.svg)][CurseForge]
 

@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 local function getupvalue(fn, name)
     for i = 1, debug.getinfo(fn, "u").nups do
         local up_name, value = debug.getupvalue(fn, i)

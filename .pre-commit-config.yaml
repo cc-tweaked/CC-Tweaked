@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: CC0-1.0
+
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
@@ -21,6 +25,11 @@ repos:
   - id: editorconfig-checker
     args: ['-disable-indentation']
     exclude: "^(.*\\.(bat)|LICENSE)$"
+
+- repo: https://github.com/fsfe/reuse-tool
+  rev: v1.1.0
+  hooks:
+  - id: reuse
 
 - repo: local
   hooks:

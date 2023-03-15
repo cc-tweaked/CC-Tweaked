@@ -2,6 +2,12 @@
 module: [kind=event] mouse_scroll
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: LicenseRef-CCPL
+-->
+
 This event is fired when a mouse wheel is scrolled in the terminal.
 
 ## Return values

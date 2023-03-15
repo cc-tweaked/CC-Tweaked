@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 --- Tests the io library is (mostly) consistent with PUC Lua.
 --
 -- These tests are based on the tests for Lua 5.1 and 5.3

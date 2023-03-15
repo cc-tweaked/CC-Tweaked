@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2023 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 --[[- The error messages reported by our lexer and parser.
 
 :::warning

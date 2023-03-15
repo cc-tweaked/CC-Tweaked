@@ -3,6 +3,12 @@ module: [kind=event] key_up
 see: keys For a lookup table of the given keys.
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: LicenseRef-CCPL
+-->
+
 Fired whenever a key is released (or the terminal is closed while a key was being pressed).
 
 This event returns a numerical "key code" (for instance, <kbd>F1</kbd> is 290). This value may vary between versions and

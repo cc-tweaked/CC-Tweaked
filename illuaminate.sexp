@@ -1,5 +1,9 @@
 ; -*- mode: Lisp;-*-
 
+; SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+;
+; SPDX-License-Identifier: LicenseRef-CCPL
+
 (sources
   /doc/
   /projects/forge/build/docs/luaJavadoc/

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 # Architecture
 CC: Tweaked has a rather complex project layout, as there's several use-cases we want to support (multiple mod loaders,
 usable outside of Minecraft). As such, it can be tricky to understand how the code is structured and how the various

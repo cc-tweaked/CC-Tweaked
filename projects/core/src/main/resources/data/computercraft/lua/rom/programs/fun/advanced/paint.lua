@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 -- Paint created by nitrogenfingers (edited by dan200)
 -- http://www.youtube.com/user/NitrogenFingers
 

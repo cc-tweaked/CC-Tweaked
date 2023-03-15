@@ -3,6 +3,12 @@ module: [kind=event] mouse_drag
 see: mouse_click For when a mouse button is initially pressed.
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: LicenseRef-CCPL
+-->
+
 This event is fired every time the mouse is moved while a mouse button is being held.
 
 ## Return values

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 import { createElement as h, useContext, createContext, FunctionComponent, ReactNode } from "react";
 
 export type DataExport = {

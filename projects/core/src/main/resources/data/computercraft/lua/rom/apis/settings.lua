@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --- Read and write configuration options for CraftOS and your programs.
 --
 -- By default, the settings API will load its configuration from the

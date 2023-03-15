@@ -2,6 +2,12 @@
 module: [kind=guide] gps_setup
 ---
 
+<!--
+SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+
+SPDX-License-Identifier: LicenseRef-CCPL
+-->
+
 # Setting up GPS
 The @{gps} API allows computers and turtles to find their current position using wireless modems.
 

@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --- @module fs
 
 local expect = dofile("rom/modules/main/cc/expect.lua")

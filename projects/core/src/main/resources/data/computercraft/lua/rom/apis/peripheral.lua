@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --[[- Find and control peripherals attached to this computer.
 
 Peripherals are blocks (or turtle and pocket computer upgrades) which can

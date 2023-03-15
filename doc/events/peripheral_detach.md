@@ -3,6 +3,12 @@ module: [kind=event] peripheral_detach
 see: peripheral For the event fired when a peripheral is attached.
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: LicenseRef-CCPL
+-->
+
 The @{peripheral_detach} event is fired when a peripheral is detached from a side or from a modem.
 
 ## Return Values

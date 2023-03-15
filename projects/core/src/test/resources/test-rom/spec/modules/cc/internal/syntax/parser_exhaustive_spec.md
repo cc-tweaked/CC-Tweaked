@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 An exhaustive list of all error states in the parser, and the error messages we
 generate for each one. This is _not_ a complete collection of all possible
 errors, but is a useful guide for where we might be providing terrible messages.
