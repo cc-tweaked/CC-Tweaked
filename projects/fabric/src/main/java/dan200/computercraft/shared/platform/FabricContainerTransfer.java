@@ -111,7 +111,7 @@ public class FabricContainerTransfer implements ContainerTransfer {
 
             long transferred = 0;
             for (var i = 0; i < size; i++) {
-                transferred += slots.get(wrap(i, size)).insert(resource, maxAmount, transaction);
+                transferred += slots.get(wrap(i, size)).insert(resource, maxAmount - transferred, transaction);
                 if (transferred >= maxAmount) break;
             }
 
@@ -125,7 +125,7 @@ public class FabricContainerTransfer implements ContainerTransfer {
 
             long transferred = 0;
             for (var i = 0; i < size; i++) {
-                transferred += slots.get(wrap(i, size)).extract(resource, maxAmount, transaction);
+                transferred += slots.get(wrap(i, size)).extract(resource, maxAmount - transferred, transaction);
                 if (transferred >= maxAmount) break;
             }
 
