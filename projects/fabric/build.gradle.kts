@@ -9,11 +9,10 @@ import java.util.*
 plugins {
     id("cc-tweaked.fabric")
     id("cc-tweaked.gametest")
-    id("cc-tweaked.publishing")
+    id("cc-tweaked.mod-publishing")
 }
 
 val modVersion: String by extra
-val mcVersion: String by extra
 
 val allProjects = listOf(":core-api", ":core", ":fabric-api").map { evaluationDependsOn(it) }
 cct {
@@ -229,6 +228,10 @@ tasks.register("checkClient") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Runs all client-only checks."
     dependsOn(runGametestClient, runGametestClientWithSodium, runGametestClientWithIris)
+}
+
+modPublishing {
+    output.set(tasks.remapJar)
 }
 
 tasks.withType(GenerateModuleMetadata::class).configureEach { isEnabled = false }

@@ -115,6 +115,7 @@ slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 # Build tools
 cctJavadoc = { module = "cc.tweaked:cct-javadoc", version.ref = "cctJavadoc" }
 checkstyle = { module = "com.puppycrawl.tools:checkstyle", version.ref = "checkstyle" }
+curseForgeGradle = { module = "net.darkhax.curseforgegradle:CurseForgeGradle", version.ref = "curseForgeGradle" }
 errorProne-annotations = { module = "com.google.errorprone:error_prone_annotations", version.ref = "errorProne-core" }
 errorProne-api = { module = "com.google.errorprone:error_prone_check_api", version.ref = "errorProne-core" }
 errorProne-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorProne-core" }
@@ -124,19 +125,18 @@ fabric-loom = { module = "net.fabricmc:fabric-loom", version.ref = "fabric-loom"
 forgeGradle = { module = "net.minecraftforge.gradle:ForgeGradle", version.ref = "forgeGradle" }
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 librarian = { module = "org.parchmentmc:librarian", version.ref = "librarian" }
+minotaur = { module = "com.modrinth.minotaur:Minotaur", version.ref = "minotaur" }
 nullAway = { module = "com.uber.nullaway:nullaway", version.ref = "nullAway" }
 quiltflower = { module = "io.github.juuxel:loom-quiltflower", version.ref = "quiltflower" }
 spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 vanillaGradle = { module = "org.spongepowered:vanillagradle", version.ref = "vanillaGradle" }
 
 [plugins]
-curseForgeGradle = { id = "net.darkhax.curseforgegradle", version.ref = "curseForgeGradle" }
 forgeGradle = { id = "net.minecraftforge.gradle", version.ref = "forgeGradle" }
 githubRelease = { id = "com.github.breadmoirai.github-release", version.ref = "githubRelease" }
 ideaExt = { id = "org.jetbrains.gradle.plugin.idea-ext", version.ref = "ideaExt" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 librarian = { id = "org.parchmentmc.librarian.forgegradle", version.ref = "librarian" }
-minotaur = { id = "com.modrinth.minotaur", version.ref = "minotaur" }
 mixinGradle = { id = "org.spongepowered.mixin", version.ref = "mixinGradle" }
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
 taskTree = { id = "com.dorongold.task-tree", version.ref = "taskTree" }

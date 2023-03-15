@@ -7,8 +7,6 @@ plugins {
     id("cc-tweaked.publishing")
 }
 
-val mcVersion: String by extra
-
 java {
     withJavadocJar()
 }

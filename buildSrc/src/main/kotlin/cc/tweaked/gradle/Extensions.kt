@@ -5,6 +5,8 @@
 package cc.tweaked.gradle
 
 import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.JavaExec
 import org.gradle.process.BaseExecSpec
 import org.gradle.process.JavaExecSpec
@@ -119,3 +121,6 @@ class CloseScope : AutoCloseable {
         }
     }
 }
+
+/** Proxy method to avoid overload ambiguity. */
+fun <T> Property<T>.setProvider(provider: Provider<out T>) = set(provider)

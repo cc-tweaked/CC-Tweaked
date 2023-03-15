@@ -3,27 +3,18 @@
 // SPDX-License-Identifier: MPL-2.0
 
 import cc.tweaked.gradle.*
-import net.darkhax.curseforgegradle.TaskPublishCurseForge
 import net.minecraftforge.gradle.common.util.RunConfig
 
 plugins {
-    // Build
     id("cc-tweaked.forge")
     id("cc-tweaked.gametest")
     alias(libs.plugins.mixinGradle)
     alias(libs.plugins.shadow)
-    // Publishing
-    alias(libs.plugins.curseForgeGradle)
-    alias(libs.plugins.minotaur)
-
     id("cc-tweaked.illuaminate")
-    id("cc-tweaked.publishing")
-    id("cc-tweaked")
+    id("cc-tweaked.mod-publishing")
 }
 
-val isUnstable = project.properties["isUnstable"] == "true"
 val modVersion: String by extra
-val mcVersion: String by extra
 
 val allProjects = listOf(":core-api", ":core", ":forge-api").map { evaluationDependsOn(it) }
 cct {
@@ -293,38 +284,9 @@ tasks.register("checkClient") {
 
 // Upload tasks
 
-val publishCurseForge by tasks.registering(TaskPublishCurseForge::class) {
-    group = PublishingPlugin.PUBLISH_TASK_GROUP
-    description = "Upload artifacts to CurseForge"
-
-    apiToken = findProperty("curseForgeApiKey") ?: ""
-    enabled = apiToken != ""
-
-    val mainFile = upload("282001", tasks.shadowJar.get().archiveFile)
-    dependsOn(tasks.shadowJar) // Ughr.
-    mainFile.changelog =
-        "Release notes can be found on the [GitHub repository](https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v$mcVersion-$modVersion)."
-    mainFile.changelogType = "markdown"
-    mainFile.releaseType = if (isUnstable) "alpha" else "release"
-    mainFile.gameVersions.add(mcVersion)
+modPublishing {
+    output.set(tasks.shadowJar)
 }
-
-tasks.publish { dependsOn(publishCurseForge) }
-
-modrinth {
-    token.set(findProperty("modrinthApiKey") as String? ?: "")
-    projectId.set("gu7yAYhd")
-    versionNumber.set("$mcVersion-$modVersion")
-    versionName.set(modVersion)
-    versionType.set(if (isUnstable) "alpha" else "release")
-    uploadFile.set(tasks.shadowJar as Any)
-    gameVersions.add(mcVersion)
-    changelog.set("Release notes can be found on the [GitHub repository](https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v$mcVersion-$modVersion).")
-
-    syncBodyFrom.set(provider { file("doc/mod-page.md").readText() })
-}
-
-tasks.publish { dependsOn(tasks.modrinth) }
 
 // Don't publish the slim jar
 for (cfg in listOf(configurations.apiElements, configurations.runtimeElements)) {
