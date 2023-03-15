@@ -118,6 +118,15 @@ describe("The textutils library", function()
             expect(textutils.serialise({ 1, 2, 3, a = 1, [false] = {} }, { compact = true }))
                 :eq("{1,2,3,a=1,[false]={},}")
         end)
+
+        it("ignores metatables", function()
+            local actual = { "a", true, x = 2 }
+            expect(textutils.serialise(setmetatable({}, { __index = actual }))):eq("{}")
+            expect(textutils.serialise(setmetatable({}, { __pairs = function() return pairs(actual) end }))):eq("{}")
+
+            expect(textutils.serialise(setmetatable({ 1 }, { __index = actual }))):eq("{\n  1,\n}")
+            expect(textutils.serialise(setmetatable({ 1 }, { __pairs = function() return pairs(actual) end }))):eq("{\n  1,\n}")
+        end)
     end)
 
     describe("textutils.unserialise", function()
