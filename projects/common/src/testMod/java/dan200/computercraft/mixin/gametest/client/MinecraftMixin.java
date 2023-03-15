@@ -39,6 +39,7 @@ class MinecraftMixin implements MinecraftExtensions {
     private final AtomicBoolean isStable = new AtomicBoolean(false);
 
     @Inject(method = "runTick", at = @At("TAIL"))
+    @SuppressWarnings("UnusedMethod")
     private void updateStable(boolean render, CallbackInfo ci) {
         isStable.set(
             level != null && player != null &&

@@ -7,5 +7,6 @@
     "G": {"tag": "forge:glass_panes"}
   },
   "pattern": ["###", "#A#", "#G#"],
-  "result": {"item": "computercraft:pocket_computer_advanced"}
+  "result": {"item": "computercraft:pocket_computer_advanced"},
+  "show_notification": true
 }

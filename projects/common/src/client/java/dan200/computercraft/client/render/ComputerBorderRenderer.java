@@ -72,9 +72,9 @@ public class ComputerBorderRenderer {
         return RenderType.text(location);
     }
 
-    public static void render(Matrix4f transform, ResourceLocation location, int x, int y, int z, int light, int width, int height) {
+    public static void render(Matrix4f transform, ResourceLocation location, int x, int y, int light, int width, int height) {
         var source = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        render(transform, source.getBuffer(getRenderType(location)), x, y, z, light, width, height, false, 1, 1, 1);
+        render(transform, source.getBuffer(getRenderType(location)), x, y, 1, light, width, height, false, 1, 1, 1);
         source.endBatch();
     }
 

@@ -87,7 +87,7 @@ public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
         RenderSystem.enableDepthTest();
 
         var renderer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        drawBorder(transform, renderer, leftPos, topPos, getBlitOffset(), page, pages, book, FULL_BRIGHT_LIGHTMAP);
+        drawBorder(transform, renderer, leftPos, topPos, 0, page, pages, book, FULL_BRIGHT_LIGHTMAP);
         drawText(transform, renderer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, PrintoutItem.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours);
         renderer.endBatch();
     }
@@ -95,9 +95,10 @@ public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
     @Override
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
         // We must take the background further back in order to not overlap with our printed pages.
-        setBlitOffset(getBlitOffset() - 1);
+        stack.pushPose();
+        stack.translate(0, 0, -1);
         renderBackground(stack);
-        setBlitOffset(getBlitOffset() + 1);
+        stack.popPose();
 
         super.render(stack, mouseX, mouseY, partialTicks);
     }

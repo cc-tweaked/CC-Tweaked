@@ -11,6 +11,7 @@ import dan200.computercraft.shared.media.items.DiskItem;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
@@ -54,7 +55,7 @@ public class DiskRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inv) {
+    public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess) {
         var tracker = new ColourTracker();
 
         for (var i = 0; i < inv.getContainerSize(); i++) {
@@ -77,7 +78,7 @@ public class DiskRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack getResultItem() {
+    public ItemStack getResultItem(RegistryAccess registryAccess) {
         return DiskItem.createFromIDAndColour(-1, null, Colour.BLUE.getHex());
     }
 

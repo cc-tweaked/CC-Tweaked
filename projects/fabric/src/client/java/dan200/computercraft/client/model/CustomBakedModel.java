@@ -33,11 +33,11 @@ public abstract class CustomBakedModel extends ForwardingBakedModel {
 
     @Override
     public final void emitBlockQuads(BlockAndTintGetter blockView, BlockState state, BlockPos pos, Supplier<RandomSource> randomSupplier, RenderContext context) {
-        context.fallbackConsumer().accept(this);
+        context.bakedModelConsumer().accept(this);
     }
 
     @Override
     public final void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context) {
-        context.fallbackConsumer().accept(this);
+        context.bakedModelConsumer().accept(this);
     }
 }

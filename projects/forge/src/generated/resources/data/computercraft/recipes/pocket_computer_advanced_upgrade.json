@@ -4,5 +4,6 @@
   "family": "ADVANCED",
   "key": {"#": {"tag": "forge:ingots/gold"}, "C": {"item": "computercraft:pocket_computer_normal"}},
   "pattern": ["###", "#C#", "# #"],
-  "result": {"item": "computercraft:pocket_computer_advanced"}
+  "result": {"item": "computercraft:pocket_computer_advanced"},
+  "show_notification": true
 }

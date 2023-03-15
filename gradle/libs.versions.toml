@@ -3,9 +3,9 @@
 # Minecraft
 # MC version is specified in gradle.properties, as we need that in settings.gradle.
 # Remember to update corresponding versions in fabric.mod.json/mods.toml
-fabric-api = "0.75.1+1.19.3"
+fabric-api = "0.75.3+1.19.4"
 fabric-loader = "0.14.17"
-forge = "44.1.0"
+forge = "45.0.6"
 forgeSpi = "6.0.0"
 mixin = "0.8.5"
 parchment = "2023.03.12"
@@ -27,13 +27,13 @@ nightConfig = "3.6.5"
 slf4j = "1.7.36"
 
 # Minecraft mods
-iris = "1.19.3-v1.4.6"
+iris = "1.5.2+1.19.4"
 jei = "11.3.0.262"
-modmenu = "5.0.1"
+modmenu = "6.1.0-rc.1"
 oculus = "1.2.5"
 rei = "10.0.578"
 rubidium = "0.6.1"
-sodium = "mc1.19.3-0.4.6"
+sodium = "mc1.19.4-0.4.10"
 
 # Testing
 byteBuddy = "1.14.2"

@@ -8,5 +8,6 @@
     "I": {"tag": "c:wooden_chests"}
   },
   "pattern": ["###", "#C#", "#I#"],
-  "result": {"item": "computercraft:turtle_normal"}
+  "result": {"item": "computercraft:turtle_normal"},
+  "show_notification": true
 }

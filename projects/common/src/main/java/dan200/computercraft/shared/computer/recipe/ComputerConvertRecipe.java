@@ -7,6 +7,7 @@ package dan200.computercraft.shared.computer.recipe;
 
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
@@ -20,10 +21,16 @@ import net.minecraft.world.level.Level;
  */
 public abstract class ComputerConvertRecipe extends ShapedRecipe {
     private final String group;
+    private final ItemStack result;
 
     public ComputerConvertRecipe(ResourceLocation identifier, String group, CraftingBookCategory category, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result) {
         super(identifier, group, category, width, height, ingredients, result);
         this.group = group;
+        this.result = result;
+    }
+
+    public ItemStack getResultItem() {
+        return result;
     }
 
     protected abstract ItemStack convert(IComputerItem item, ItemStack stack);
@@ -40,7 +47,7 @@ public abstract class ComputerConvertRecipe extends ShapedRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inventory) {
+    public ItemStack assemble(CraftingContainer inventory, RegistryAccess registryAccess) {
         // Find our computer item and convert it.
         for (var i = 0; i < inventory.getContainerSize(); i++) {
             var stack = inventory.getItem(i);

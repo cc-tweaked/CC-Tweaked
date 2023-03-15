@@ -19,7 +19,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -127,7 +126,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
             } else if (result == InteractionResult.PASS && hitEntity.isAttackable() && !hitEntity.skipAttackInteraction(player)) {
                 var damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE) * damageMulitiplier;
                 if (damage > 0.0f) {
-                    var source = DamageSource.playerAttack(player);
+                    var source = player.damageSources().playerAttack(player);
                     if (hitEntity instanceof ArmorStand) {
                         // Special case for armor stands: attack twice to guarantee destroy
                         hitEntity.hurt(source, damage);

@@ -7,5 +7,6 @@
     "R": {"tag": "forge:dusts/redstone"}
   },
   "pattern": ["###", "#N#", "#R#"],
-  "result": {"item": "computercraft:speaker"}
+  "result": {"item": "computercraft:speaker"},
+  "show_notification": true
 }
