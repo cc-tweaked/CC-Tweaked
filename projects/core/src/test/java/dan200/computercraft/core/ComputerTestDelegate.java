@@ -17,7 +17,7 @@ import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.filesystem.WritableFileMount;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.MachineEnvironment;
-import dan200.computercraft.core.lua.MachineResult;
+import dan200.computercraft.core.lua.MachineException;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.test.core.computer.BasicEnvironment;
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
@@ -477,14 +477,8 @@ public class ComputerTestDelegate {
      * This is a super nasty hack, but is also an order of magnitude faster than tracking this in Lua.
      */
     private class CoverageLuaMachine extends CobaltLuaMachine {
-        CoverageLuaMachine(MachineEnvironment environment) {
-            super(environment);
-        }
-
-        @Override
-        public MachineResult loadBios(InputStream bios) {
-            var result = super.loadBios(bios);
-            if (result != MachineResult.OK) return result;
+        CoverageLuaMachine(MachineEnvironment environment, InputStream bios) throws MachineException, IOException {
+            super(environment, bios);
 
             LuaTable globals;
             LuaThread mainRoutine;
@@ -535,8 +529,6 @@ public class ComputerTestDelegate {
                 }
             });
             mainRoutine.getDebugState().setHook(hook, false, true, false, 0);
-
-            return MachineResult.OK;
         }
     }
 }

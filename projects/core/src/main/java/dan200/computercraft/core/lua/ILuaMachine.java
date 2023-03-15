@@ -4,10 +4,8 @@
 
 package dan200.computercraft.core.lua;
 
-import dan200.computercraft.api.lua.IDynamicLuaObject;
-import dan200.computercraft.api.lua.ILuaAPI;
-
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -17,32 +15,8 @@ import java.io.InputStream;
  * There should only be one concrete implementation at any one time, which is currently {@link CobaltLuaMachine}. If
  * external mod authors are interested in registering their own machines, we can look into how we can provide some
  * mechanism for registering these.
- * <p>
- * This should provide implementations of {@link dan200.computercraft.api.lua.ILuaContext}, and the ability to convert
- * {@link IDynamicLuaObject}s into something the VM understands, as well as handling method calls.
  */
 public interface ILuaMachine {
-    /**
-     * Inject an API into the global environment of this machine. This should construct an object, as it would for any
-     * {@link IDynamicLuaObject} and set it to all names in {@link ILuaAPI#getNames()}.
-     * <p>
-     * Called before {@link #loadBios(InputStream)}.
-     *
-     * @param api The API to register.
-     */
-    void addAPI(ILuaAPI api);
-
-    /**
-     * Create a function from the provided program, and set it up to run when {@link #handleEvent(String, Object[])} is
-     * called.
-     * <p>
-     * This should destroy the machine if it failed to load the bios.
-     *
-     * @param bios The stream containing the boot program.
-     * @return The result of loading this machine. Will either be OK, or the error message when loading the bios.
-     */
-    MachineResult loadBios(InputStream bios);
-
     /**
      * Resume the machine, either starting or resuming the coroutine.
      * <p>
@@ -71,6 +45,16 @@ public interface ILuaMachine {
     void close();
 
     interface Factory {
-        ILuaMachine create(MachineEnvironment environment);
+        /**
+         * Attempt to create a Lua machine.
+         *
+         * @param environment The environment under which to create the machine.
+         * @param bios        The {@link InputStream} which contains the initial function to run. This should be used to
+         *                    load the initial function - it should <em>NOT</em> be executed.
+         * @return The successfully created machine, or an error.
+         * @throws IOException      If reading the underlying {@link InputStream} failed.
+         * @throws MachineException An error occurred while creating the machine.
+         */
+        ILuaMachine create(MachineEnvironment environment, InputStream bios) throws IOException, MachineException;
     }
 }

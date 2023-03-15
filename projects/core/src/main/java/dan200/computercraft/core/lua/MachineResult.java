@@ -7,14 +7,12 @@ package dan200.computercraft.core.lua;
 import dan200.computercraft.core.computer.TimeoutState;
 
 import javax.annotation.Nullable;
-import java.io.InputStream;
 
 /**
  * The result of executing an action on a machine.
  * <p>
  * Errors should halt the machine and display the error to the user.
  *
- * @see ILuaMachine#loadBios(InputStream)
  * @see ILuaMachine#handleEvent(String, Object[])
  */
 public final class MachineResult {

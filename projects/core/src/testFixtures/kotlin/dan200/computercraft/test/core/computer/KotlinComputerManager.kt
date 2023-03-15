@@ -31,7 +31,7 @@ class KotlinComputerManager : AutoCloseable {
         BasicEnvironment(),
         ComputerThread(1),
         NoWorkMainThreadScheduler(),
-    ) { DummyLuaMachine(it) }
+    ) { env, _ -> DummyLuaMachine(env) }
     private val errorLock: Lock = ReentrantLock()
     private val hasError = errorLock.newCondition()
 
@@ -153,15 +153,11 @@ class KotlinComputerManager : AutoCloseable {
     }
 
     private inner class DummyLuaMachine(private val environment: MachineEnvironment) : KotlinLuaMachine(environment) {
-        private var tasks: Queue<FakeComputerTask>? = null
-        override fun addAPI(api: ILuaAPI) {
-            super.addAPI(api)
-            if (api is QueuePassingAPI) tasks = api.tasks
-        }
+        private val tasks: Queue<FakeComputerTask> =
+            environment.apis.asSequence().filterIsInstance(QueuePassingAPI::class.java).first().tasks
 
         override fun getTask(): (suspend KotlinLuaMachine.() -> Unit)? {
             try {
-                val tasks = this.tasks ?: throw NullPointerException("Not received tasks yet")
                 val task = tasks.remove()
                 return {
                     try {

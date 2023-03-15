@@ -4,13 +4,11 @@
 
 package dan200.computercraft.test.core.computer
 
-import dan200.computercraft.api.lua.ILuaAPI
 import dan200.computercraft.api.lua.ILuaContext
 import dan200.computercraft.core.lua.ILuaMachine
 import dan200.computercraft.core.lua.MachineEnvironment
 import dan200.computercraft.core.lua.MachineResult
 import kotlinx.coroutines.*
-import java.io.InputStream
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -19,9 +17,9 @@ import kotlin.coroutines.CoroutineContext
 abstract class KotlinLuaMachine(environment: MachineEnvironment) : ILuaMachine, AbstractLuaTaskContext() {
     override val context: ILuaContext = environment.context
 
-    override fun addAPI(api: ILuaAPI) = addApi(api)
-
-    override fun loadBios(bios: InputStream): MachineResult = MachineResult.OK
+    init {
+        for (api in environment.apis) addApi(api)
+    }
 
     override fun handleEvent(eventName: String?, arguments: Array<out Any>?): MachineResult {
         if (hasEventListeners) {

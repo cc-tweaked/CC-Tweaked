@@ -14,6 +14,7 @@ import dan200.computercraft.core.asm.LuaMethod;
 import dan200.computercraft.core.asm.ObjectSource;
 import dan200.computercraft.core.computer.TimeoutState;
 import dan200.computercraft.core.metrics.Metrics;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.core.util.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ import org.squiddev.cobalt.lib.*;
 import org.squiddev.cobalt.lib.platform.VoidResourceManipulator;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serial;
 import java.nio.ByteBuffer;
@@ -62,7 +64,7 @@ public class CobaltLuaMachine implements ILuaMachine {
     private @Nullable LuaThread mainRoutine = null;
     private @Nullable String eventFilter = null;
 
-    public CobaltLuaMachine(MachineEnvironment environment) {
+    public CobaltLuaMachine(MachineEnvironment environment, InputStream bios) throws MachineException, IOException {
         timeout = environment.timeout();
         context = environment.context();
         debug = new TimeoutDebugHandler();
@@ -115,10 +117,20 @@ public class CobaltLuaMachine implements ILuaMachine {
         if (CoreConfig.disableLua51Features) {
             globals.rawset("_CC_DISABLE_LUA51_FEATURES", Constants.TRUE);
         }
+
+        // Add default APIs
+        for (var api : environment.apis()) addAPI(api);
+
+        // And load the BIOS
+        try {
+            var value = LoadState.load(state, bios, "@bios.lua", globals);
+            mainRoutine = new LuaThread(state, value, globals);
+        } catch (CompileException e) {
+            throw new MachineException(Nullability.assertNonNull(e.getMessage()));
+        }
     }
 
-    @Override
-    public void addAPI(ILuaAPI api) {
+    private void addAPI(ILuaAPI api) {
         if (globals == null) throw new IllegalStateException("Machine has been closed");
 
         // Add the methods of an API to the global table
@@ -130,25 +142,6 @@ public class CobaltLuaMachine implements ILuaMachine {
 
         var names = api.getNames();
         for (var name : names) globals.rawset(name, table);
-    }
-
-    @Override
-    public MachineResult loadBios(InputStream bios) {
-        if (mainRoutine != null) throw new IllegalStateException("Already set up the machine");
-        if (state == null || globals == null) throw new IllegalStateException("Machine has been destroyed.");
-
-        try {
-            var value = LoadState.load(state, bios, "@bios.lua", globals);
-            mainRoutine = new LuaThread(state, value, globals);
-            return MachineResult.OK;
-        } catch (CompileException e) {
-            close();
-            return MachineResult.error(e);
-        } catch (Exception e) {
-            LOG.warn("Could not load bios.lua", e);
-            close();
-            return MachineResult.GENERIC_ERROR;
-        }
     }
 
     @Override

@@ -4,12 +4,10 @@
 
 package dan200.computercraft.gametest.core
 
-import dan200.computercraft.api.lua.ILuaAPI
 import dan200.computercraft.core.apis.OSAPI
 import dan200.computercraft.core.lua.CobaltLuaMachine
 import dan200.computercraft.core.lua.ILuaMachine
 import dan200.computercraft.core.lua.MachineEnvironment
-import dan200.computercraft.core.lua.MachineResult
 import dan200.computercraft.gametest.api.thenOnComputer
 import dan200.computercraft.mixin.gametest.GameTestInfoAccessor
 import dan200.computercraft.shared.computer.core.ServerContext
@@ -60,51 +58,17 @@ object ManagedComputers : ILuaMachine.Factory {
         return monitor
     }
 
-    override fun create(environment: MachineEnvironment): ILuaMachine = DelegateMachine(environment)
-
-    private class DelegateMachine(private val environment: MachineEnvironment) : ILuaMachine {
-        private val apis = mutableListOf<ILuaAPI>()
-        private var delegate: ILuaMachine? = null
-
-        override fun addAPI(api: ILuaAPI) {
-            val delegate = this.delegate
-            if (delegate != null) return delegate.addAPI(api)
-
-            apis.add(api)
-
-            if (api is OSAPI) {
-                val id = api.computerID
-                val label = api.computerLabel
-                val newMachine = when {
-                    id != 1 -> CobaltLuaMachine(environment)
-                    label != null && label[0] != null -> KotlinMachine(environment, label[0] as String)
-                    else -> {
-                        LOGGER.error("Kotlin Lua machine must have a label")
-                        CobaltLuaMachine(environment)
-                    }
-                }
-
-                this.delegate = newMachine
-                for (api in apis) newMachine.addAPI(api)
+    override fun create(environment: MachineEnvironment, bios: InputStream): ILuaMachine {
+        val os = environment.apis.asSequence().filterIsInstance(OSAPI::class.java).first()
+        val id = os.computerID
+        val label = os.computerLabel
+        return when {
+            id != 1 -> CobaltLuaMachine(environment, bios)
+            label != null && label[0] != null -> KotlinMachine(environment, label[0] as String)
+            else -> {
+                LOGGER.error("Kotlin Lua machine must have a label")
+                CobaltLuaMachine(environment, bios)
             }
-        }
-
-        override fun loadBios(bios: InputStream): MachineResult {
-            val delegate = this.delegate ?: return MachineResult.error("Computer not created")
-            return delegate.loadBios(bios)
-        }
-
-        override fun handleEvent(eventName: String?, arguments: Array<out Any>?): MachineResult {
-            val delegate = this.delegate ?: return MachineResult.error("Computer not created")
-            return delegate.handleEvent(eventName, arguments)
-        }
-
-        override fun printExecutionState(out: StringBuilder) {
-            delegate?.printExecutionState(out)
-        }
-
-        override fun close() {
-            delegate?.close()
         }
     }
 
