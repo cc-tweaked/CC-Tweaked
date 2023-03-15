@@ -5,7 +5,7 @@
 # Remember to update corresponding versions in fabric.mod.json/mods.toml
 fabric-api = "0.75.3+1.19.4"
 fabric-loader = "0.14.17"
-forge = "45.0.4"
+forge = "45.0.6"
 forgeSpi = "6.0.0"
 mixin = "0.8.5"
 parchment = "2023.03.12"
