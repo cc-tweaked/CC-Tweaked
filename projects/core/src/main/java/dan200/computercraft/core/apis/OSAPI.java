@@ -345,12 +345,20 @@ public class OSAPI implements ILuaAPI {
     /**
      * Returns the number of milliseconds since an epoch depending on the locale.
      * <p>
-     * * If called with {@code ingame}, returns the number of milliseconds since the
+     * * If called with {@code ingame}, returns the number of *in-game* milliseconds since the
      * world was created. This is the default.
      * * If called with {@code utc}, returns the number of milliseconds since 1
      * January 1970 in the UTC timezone.
      * * If called with {@code local}, returns the number of milliseconds since 1
      * January 1970 in the server's local timezone.
+     *
+     * :::info
+     * The {@code ingame} time zone assumes that one Minecraft day consists of 86,400,000
+     * milliseconds. Since one in-game day is much faster than a real day (20 minutes), this
+     * will change quicker than real time - one real second is equal to 72000 in-game
+     * milliseconds. If you wish to convert this value to real time, divide by 72000; to
+     * convert to ticks (where a day is 24000 ticks), divide by 3600.
+     * :::
      *
      * @param args The locale to get the milliseconds for. Defaults to {@code ingame} if not set.
      * @return The milliseconds since the epoch depending on the selected locale.
