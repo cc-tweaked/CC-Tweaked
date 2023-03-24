@@ -37,6 +37,12 @@ import { DataExport, WithExport } from "./components/WithExport.js";
             components: {
                 ['mc-recipe']: noChildren(Recipe),
                 ['mcrecipe']: noChildren(Recipe),
+                // Wrap example snippets in a <div class="lua-example">...</div>, so we can inject a
+                // Run button into them.
+                ['pre']: (args: JSX.IntrinsicElements["pre"] & { "data-lua-kind"?: undefined }) => {
+                    const element = <pre {...args} />;
+                    return args["data-lua-kind"] ? <div className="lua-example">{element}</div> : element
+                }
             } as any
         });
 
