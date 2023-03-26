@@ -187,6 +187,10 @@ public final class NBTUtil {
             for (var key : keys) writeTag(output, key, Nullability.assertNonNull(compound.get(key)));
 
             output.writeByte(0);
+        } else if (tag instanceof ListTag list) {
+            output.writeInt(list.size());
+            output.writeByte(list.getElementType());
+            for (var value : list) writeTag(output, "", value);
         } else {
             tag.write(output);
         }
