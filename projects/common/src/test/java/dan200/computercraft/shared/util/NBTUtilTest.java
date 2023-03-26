@@ -5,13 +5,22 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.test.shared.WithMinecraft;
+import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtIo;
 import org.junit.jupiter.api.Test;
 
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
 import static dan200.computercraft.shared.util.NBTUtil.getNBTHash;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @WithMinecraft
 public class NBTUtilTest {
@@ -43,17 +52,38 @@ public class NBTUtilTest {
         assertEquals(hash1, hash2, "NBT hashes should be equal");
     }
 
-    private static CompoundTag makeCompoundTag(boolean reverse) {
+    @Test
+    public void testTagsHaveDifferentOrders() {
+        var nbt1 = makeCompoundTag(false);
+        var nbt2 = makeCompoundTag(true);
+        assertNotEquals(
+            List.copyOf(nbt1.getAllKeys()), List.copyOf(nbt2.getAllKeys()),
+            "Expected makeCompoundTag to return keys with different orders."
+        );
+    }
+
+    @Test
+    public void testHashEquivalentForBasicValues() {
+        var nbt = new CompoundTag();
+        nbt.put("list", Util.make(new ListTag(), list -> {
+            list.add(Util.make(new CompoundTag(), t -> t.putBoolean("key", true)));
+            list.add(Util.make(new CompoundTag(), t -> t.putInt("key", 23)));
+        }));
+
+        assertEquals(getNBTHash(nbt), getNBTHashDefault(nbt));
+    }
+
+    private static CompoundTag makeCompoundTag(boolean grow) {
         var nbt = new CompoundTag();
 
-        if (reverse) {
-            nbt.putString("c", "c");
-            nbt.putString("b", "b");
-            nbt.putString("a", "a");
-        } else {
-            nbt.putString("a", "a");
-            nbt.putString("b", "b");
-            nbt.putString("c", "c");
+        nbt.putString("Slot", "Slot 1");
+        nbt.putString("Count", "64");
+        nbt.putString("id", "123");
+
+        // Grow the map to cause a rehash and (hopefully) change the order around a little bit.
+        if (grow) {
+            for (var i = 0; i < 64; i++) nbt.putBoolean("x" + i, true);
+            for (var i = 0; i < 64; i++) nbt.remove("x" + i);
         }
 
         return nbt;
@@ -62,10 +92,28 @@ public class NBTUtilTest {
     private static ListTag makeListTag(boolean reverse) {
         var list = new ListTag();
 
-        for (int i = 0; i < 3; i++) {
+        for (var i = 0; i < 3; i++) {
             list.add(makeCompoundTag(reverse));
         }
 
         return list;
+    }
+
+    /**
+     * Equivalent to {@link NBTUtil#getNBTHash(CompoundTag)}, but using the default {@link NbtIo#write(CompoundTag, File)} method.
+     *
+     * @param tag The tag to hash.
+     * @return The resulting hash.
+     */
+    private static String getNBTHashDefault(CompoundTag tag) {
+        try {
+            var digest = MessageDigest.getInstance("MD5");
+            DataOutput output = new DataOutputStream(new NBTUtil.DigestOutputStream(digest));
+            NbtIo.write(tag, output);
+            var hash = digest.digest();
+            return NBTUtil.ENCODING.encode(hash);
+        } catch (NoSuchAlgorithmException | IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }
