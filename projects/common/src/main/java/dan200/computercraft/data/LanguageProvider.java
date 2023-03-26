@@ -178,8 +178,6 @@ public final class LanguageProvider implements DataProvider {
         add(Metrics.HTTP_DOWNLOAD, "HTTP download");
         add(Metrics.WEBSOCKET_INCOMING, "Websocket incoming");
         add(Metrics.WEBSOCKET_OUTGOING, "Websocket outgoing");
-        add(Metrics.COROUTINES_CREATED, "Coroutines created");
-        add(Metrics.COROUTINES_DISPOSED, "Coroutines disposed");
         add(Metrics.TURTLE_OPS, "Turtle operations");
 
         add(AggregatedMetric.TRANSLATION_PREFIX + Aggregate.MAX.id(), "%s (max)");

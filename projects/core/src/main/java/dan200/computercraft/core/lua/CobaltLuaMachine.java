@@ -13,19 +13,15 @@ import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.asm.LuaMethod;
 import dan200.computercraft.core.asm.ObjectSource;
 import dan200.computercraft.core.computer.TimeoutState;
-import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.util.Nullability;
-import dan200.computercraft.core.util.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squiddev.cobalt.*;
 import org.squiddev.cobalt.compiler.CompileException;
 import org.squiddev.cobalt.compiler.LoadState;
-import org.squiddev.cobalt.debug.DebugFrame;
-import org.squiddev.cobalt.debug.DebugHandler;
-import org.squiddev.cobalt.debug.DebugState;
-import org.squiddev.cobalt.lib.*;
-import org.squiddev.cobalt.lib.platform.VoidResourceManipulator;
+import org.squiddev.cobalt.interrupt.InterruptAction;
+import org.squiddev.cobalt.lib.Bit32Lib;
+import org.squiddev.cobalt.lib.CoreLibraries;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -33,56 +29,41 @@ import java.io.InputStream;
 import java.io.Serial;
 import java.nio.ByteBuffer;
 import java.util.*;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import static org.squiddev.cobalt.ValueFactory.valueOf;
 import static org.squiddev.cobalt.ValueFactory.varargsOf;
-import static org.squiddev.cobalt.debug.DebugFrame.FLAG_HOOKED;
-import static org.squiddev.cobalt.debug.DebugFrame.FLAG_HOOKYIELD;
 
 public class CobaltLuaMachine implements ILuaMachine {
     private static final Logger LOG = LoggerFactory.getLogger(CobaltLuaMachine.class);
 
-    private static final ThreadPoolExecutor COROUTINES = new ThreadPoolExecutor(
-        0, Integer.MAX_VALUE,
-        5L, TimeUnit.MINUTES,
-        new SynchronousQueue<>(),
-        ThreadUtils.factory("Coroutine")
-    );
-
     private static final LuaMethod FUNCTION_METHOD = (target, context, args) -> ((ILuaFunction) target).call(args);
 
     private final TimeoutState timeout;
-    private final TimeoutDebugHandler debug;
+    private final Runnable timeoutListener = this::updateTimeout;
     private final ILuaContext context;
 
-    private @Nullable LuaState state;
-    private @Nullable LuaTable globals;
+    private final LuaState state;
+    private final LuaThread mainRoutine;
 
-    private @Nullable LuaThread mainRoutine = null;
+    private volatile boolean isDisposed = false;
+    private boolean thrownSoftAbort;
+
     private @Nullable String eventFilter = null;
 
     public CobaltLuaMachine(MachineEnvironment environment, InputStream bios) throws MachineException, IOException {
         timeout = environment.timeout();
         context = environment.context();
-        debug = new TimeoutDebugHandler();
 
         // Create an environment to run in
-        var metrics = environment.metrics();
         var state = this.state = LuaState.builder()
-            .resourceManipulator(new VoidResourceManipulator())
-            .debug(debug)
-            .coroutineExecutor(command -> {
-                metrics.observe(Metrics.COROUTINES_CREATED);
-                COROUTINES.execute(() -> {
-                    try {
-                        command.run();
-                    } finally {
-                        metrics.observe(Metrics.COROUTINES_DISPOSED);
-                    }
-                });
+            .interruptHandler(() -> {
+                if (timeout.isHardAborted() || isDisposed) throw new HardAbortError();
+                if (timeout.isSoftAborted() && !thrownSoftAbort) {
+                    thrownSoftAbort = true;
+                    throw new LuaError(TimeoutState.ABORT_MESSAGE);
+                }
+
+                return timeout.isPaused() ? InterruptAction.SUSPEND : InterruptAction.CONTINUE;
             })
             .errorReporter((e, msg) -> {
                 if (LOG.isErrorEnabled(Logging.VM_ERROR)) {
@@ -91,35 +72,16 @@ public class CobaltLuaMachine implements ILuaMachine {
             })
             .build();
 
-        globals = new LuaTable();
-        state.setupThread(globals);
-
-        // Add basic libraries
-        globals.load(state, new BaseLib());
-        globals.load(state, new TableLib());
-        globals.load(state, new StringLib());
-        globals.load(state, new MathLib());
-        globals.load(state, new CoroutineLib());
-        globals.load(state, new Bit32Lib());
-        globals.load(state, new Utf8Lib());
-        globals.load(state, new DebugLib());
-
-        // Remove globals we don't want to expose
-        globals.rawset("collectgarbage", Constants.NIL);
-        globals.rawset("dofile", Constants.NIL);
-        globals.rawset("loadfile", Constants.NIL);
-        globals.rawset("print", Constants.NIL);
-
-        // Add version globals
-        globals.rawset("_VERSION", valueOf("Lua 5.1"));
+        // Set up our global table.
+        var globals = state.getMainThread().getfenv();
+        CoreLibraries.debugGlobals(state);
+        Bit32Lib.add(state, globals);
         globals.rawset("_HOST", valueOf(environment.hostString()));
         globals.rawset("_CC_DEFAULT_SETTINGS", valueOf(CoreConfig.defaultComputerSettings));
-        if (CoreConfig.disableLua51Features) {
-            globals.rawset("_CC_DISABLE_LUA51_FEATURES", Constants.TRUE);
-        }
+        if (CoreConfig.disableLua51Features) globals.rawset("_CC_DISABLE_LUA51_FEATURES", Constants.TRUE);
 
         // Add default APIs
-        for (var api : environment.apis()) addAPI(api);
+        for (var api : environment.apis()) addAPI(globals, api);
 
         // And load the BIOS
         try {
@@ -128,11 +90,11 @@ public class CobaltLuaMachine implements ILuaMachine {
         } catch (CompileException e) {
             throw new MachineException(Nullability.assertNonNull(e.getMessage()));
         }
+
+        timeout.addListener(timeoutListener);
     }
 
-    private void addAPI(ILuaAPI api) {
-        if (globals == null) throw new IllegalStateException("Machine has been closed");
-
+    private void addAPI(LuaTable globals, ILuaAPI api) {
         // Add the methods of an API to the global table
         var table = wrapLuaObject(api);
         if (table == null) {
@@ -144,42 +106,41 @@ public class CobaltLuaMachine implements ILuaMachine {
         for (var name : names) globals.rawset(name, table);
     }
 
+    private void updateTimeout() {
+        if (isDisposed) return;
+        if (!timeout.isSoftAborted()) thrownSoftAbort = false;
+        if (timeout.isSoftAborted() || timeout.isPaused()) state.interrupt();
+    }
+
     @Override
     public MachineResult handleEvent(@Nullable String eventName, @Nullable Object[] arguments) {
-        if (mainRoutine == null || state == null) throw new IllegalStateException("Machine has been closed");
+        if (isDisposed) throw new IllegalStateException("Machine has been closed");
 
         if (eventFilter != null && eventName != null && !eventName.equals(eventFilter) && !eventName.equals("terminate")) {
             return MachineResult.OK;
         }
 
-        // If the soft abort has been cleared then we can reset our flag.
-        timeout.refresh();
-        if (!timeout.isSoftAborted()) debug.thrownSoftAbort = false;
-
         try {
-            Varargs resumeArgs = Constants.NONE;
-            if (eventName != null) {
-                resumeArgs = varargsOf(valueOf(eventName), toValues(arguments));
-            }
+            var resumeArgs = eventName == null ? Constants.NONE : varargsOf(valueOf(eventName), toValues(arguments));
 
             // Resume the current thread, or the main one when first starting off.
             var thread = state.getCurrentThread();
             if (thread == null || thread == state.getMainThread()) thread = mainRoutine;
 
             var results = LuaThread.run(thread, resumeArgs);
-            if (timeout.isHardAborted()) throw HardAbortError.INSTANCE;
+            if (timeout.isHardAborted()) throw new HardAbortError();
             if (results == null) return MachineResult.PAUSE;
 
             var filter = results.first();
             eventFilter = filter.isString() ? filter.toString() : null;
 
-            if (mainRoutine.getStatus().equals("dead")) {
+            if (!mainRoutine.isAlive()) {
                 close();
                 return MachineResult.GENERIC_ERROR;
             } else {
                 return MachineResult.OK;
             }
-        } catch (HardAbortError | InterruptedException e) {
+        } catch (HardAbortError e) {
             close();
             return MachineResult.TIMEOUT;
         } catch (LuaError e) {
@@ -191,23 +152,13 @@ public class CobaltLuaMachine implements ILuaMachine {
 
     @Override
     public void printExecutionState(StringBuilder out) {
-        var state = this.state;
-        if (state == null) {
-            out.append("CobaltLuaMachine is terminated\n");
-        } else {
-            state.printExecutionState(out);
-        }
     }
 
     @Override
     public void close() {
-        var state = this.state;
-        if (state == null) return;
-
-        state.abandon();
-        mainRoutine = null;
-        this.state = null;
-        globals = null;
+        isDisposed = true;
+        state.interrupt();
+        timeout.removeListener(timeoutListener);
     }
 
     @Nullable
@@ -228,7 +179,7 @@ public class CobaltLuaMachine implements ILuaMachine {
                 : new ResultInterpreterFunction(this, method.getMethod(), instance, context, method.getName())));
 
         try {
-            if (table.keyCount() == 0) return null;
+            if (table.next(Constants.NIL).first().isNil()) return null;
         } catch (LuaError ignored) {
             // next should never throw on nil.
         }
@@ -241,9 +192,7 @@ public class CobaltLuaMachine implements ILuaMachine {
         if (object instanceof Number num) return valueOf(num.doubleValue());
         if (object instanceof Boolean bool) return valueOf(bool);
         if (object instanceof String str) return valueOf(str);
-        if (object instanceof byte[] b) {
-            return valueOf(Arrays.copyOf(b, b.length));
-        }
+        if (object instanceof byte[] b) return valueOf(Arrays.copyOf(b, b.length));
         if (object instanceof ByteBuffer b) {
             var bytes = new byte[b.remaining()];
             b.get(bytes);
@@ -317,25 +266,19 @@ public class CobaltLuaMachine implements ILuaMachine {
 
     @Nullable
     static Object toObject(LuaValue value, @Nullable IdentityHashMap<LuaValue, Object> objects) {
-        switch (value.type()) {
-            case Constants.TNIL:
-            case Constants.TNONE:
-                return null;
-            case Constants.TINT:
-            case Constants.TNUMBER:
-                return value.toDouble();
-            case Constants.TBOOLEAN:
-                return value.toBoolean();
-            case Constants.TSTRING:
-                return value.toString();
-            case Constants.TTABLE: {
+        return switch (value.type()) {
+            case Constants.TNIL -> null;
+            case Constants.TINT, Constants.TNUMBER -> value.toDouble();
+            case Constants.TBOOLEAN -> value.toBoolean();
+            case Constants.TSTRING -> value.toString();
+            case Constants.TTABLE -> {
                 // Table:
                 // Start remembering stuff
                 if (objects == null) {
                     objects = new IdentityHashMap<>(1);
                 } else {
                     var existing = objects.get(value);
-                    if (existing != null) return existing;
+                    if (existing != null) yield existing;
                 }
                 Map<Object, Object> table = new HashMap<>();
                 objects.put(value, table);
@@ -361,11 +304,10 @@ public class CobaltLuaMachine implements ILuaMachine {
                         table.put(keyObject, valueObject);
                     }
                 }
-                return table;
+                yield table;
             }
-            default:
-                return null;
-        }
+            default -> null;
+        };
     }
 
     static Object[] toObjects(Varargs values) {
@@ -375,83 +317,12 @@ public class CobaltLuaMachine implements ILuaMachine {
         return objects;
     }
 
-    /**
-     * A {@link DebugHandler} which observes the {@link TimeoutState} and responds accordingly.
-     */
-    private class TimeoutDebugHandler extends DebugHandler {
-        private final TimeoutState timeout;
-        private int count = 0;
-        boolean thrownSoftAbort;
-
-        private boolean isPaused;
-        private int oldFlags;
-        private boolean oldInHook;
-
-        TimeoutDebugHandler() {
-            timeout = CobaltLuaMachine.this.timeout;
-        }
-
-        @Override
-        public void onInstruction(DebugState ds, DebugFrame di, int pc) throws LuaError, UnwindThrowable {
-            di.pc = pc;
-
-            if (isPaused) resetPaused(ds, di);
-
-            // We check our current pause/abort state every 128 instructions.
-            if ((count = (count + 1) & 127) == 0) {
-                if (timeout.isHardAborted() || state == null) throw HardAbortError.INSTANCE;
-                if (timeout.isPaused()) handlePause(ds, di);
-                if (timeout.isSoftAborted()) handleSoftAbort();
-            }
-
-            super.onInstruction(ds, di, pc);
-        }
-
-        @Override
-        public void poll() throws LuaError {
-            var state = CobaltLuaMachine.this.state;
-            if (timeout.isHardAborted() || state == null) throw HardAbortError.INSTANCE;
-            if (timeout.isPaused()) LuaThread.suspendBlocking(state);
-            if (timeout.isSoftAborted()) handleSoftAbort();
-        }
-
-        private void resetPaused(DebugState ds, DebugFrame di) {
-            // Restore the previous paused state
-            isPaused = false;
-            ds.inhook = oldInHook;
-            di.flags = oldFlags;
-        }
-
-        private void handleSoftAbort() throws LuaError {
-            // If we already thrown our soft abort error then don't do it again.
-            if (thrownSoftAbort) return;
-
-            thrownSoftAbort = true;
-            throw new LuaError(TimeoutState.ABORT_MESSAGE);
-        }
-
-        private void handlePause(DebugState ds, DebugFrame di) throws LuaError, UnwindThrowable {
-            // Preserve the current state
-            isPaused = true;
-            oldInHook = ds.inhook;
-            oldFlags = di.flags;
-
-            // Suspend the state. This will probably throw, but we need to handle the case where it won't.
-            di.flags |= FLAG_HOOKYIELD | FLAG_HOOKED;
-            LuaThread.suspend(ds.getLuaState());
-            resetPaused(ds, di);
-        }
-    }
-
     private static final class HardAbortError extends Error {
         @Serial
         private static final long serialVersionUID = 7954092008586367501L;
 
-        @SuppressWarnings("StaticAssignmentOfThrowable")
-        static final HardAbortError INSTANCE = new HardAbortError();
-
         private HardAbortError() {
-            super("Hard Abort", null, true, false);
+            super("Hard Abort");
         }
     }
 }

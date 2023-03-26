@@ -27,11 +27,7 @@ class TableImpl implements dan200.computercraft.api.lua.LuaTable<Object, Object>
     @Override
     public int size() {
         checkValid();
-        try {
-            return table.keyCount();
-        } catch (LuaError e) {
-            throw new IllegalStateException(e);
-        }
+        return table.size();
     }
 
     @Override

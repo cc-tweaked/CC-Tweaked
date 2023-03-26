@@ -4,9 +4,13 @@
 
 package dan200.computercraft.core.computer;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.lua.MachineResult;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -48,6 +52,8 @@ public final class TimeoutState {
     public static final String ABORT_MESSAGE = "Too long without yielding";
 
     private final ComputerThread scheduler;
+    @GuardedBy("this")
+    private final List<Runnable> listeners = new ArrayList<>(0);
 
     private boolean paused;
     private boolean softAbort;
@@ -92,8 +98,15 @@ public final class TimeoutState {
         // Important: The weird arithmetic here is important, as nanoTime may return negative values, and so we
         // need to handle overflow.
         var now = System.nanoTime();
-        if (!paused) paused = currentDeadline - now <= 0 && scheduler.hasPendingWork(); // now >= currentDeadline
-        if (!softAbort) softAbort = now - cumulativeStart - TIMEOUT >= 0; // now - cumulativeStart >= TIMEOUT
+        var changed = false;
+        if (!paused && (paused = currentDeadline - now <= 0 && scheduler.hasPendingWork())) { // now >= currentDeadline
+            changed = true;
+        }
+        if (!softAbort && (softAbort = now - cumulativeStart - TIMEOUT >= 0)) { // now - cumulativeStart >= TIMEOUT
+            changed = true;
+        }
+
+        if (changed) updateListeners();
     }
 
     /**
@@ -131,6 +144,9 @@ public final class TimeoutState {
      */
     void hardAbort() {
         softAbort = hardAbort = true;
+        synchronized (this) {
+            updateListeners();
+        }
     }
 
     /**
@@ -153,6 +169,7 @@ public final class TimeoutState {
         // We set the cumulative time to difference between current time and "nominal start time".
         cumulativeElapsed = System.nanoTime() - cumulativeStart;
         paused = false;
+        updateListeners();
     }
 
     /**
@@ -161,5 +178,22 @@ public final class TimeoutState {
     synchronized void stopTimer() {
         cumulativeElapsed = 0;
         paused = softAbort = hardAbort = false;
+        updateListeners();
+    }
+
+    @GuardedBy("this")
+    private void updateListeners() {
+        for (var listener : listeners) listener.run();
+    }
+
+    public synchronized void addListener(Runnable listener) {
+        Objects.requireNonNull(listener, "listener cannot be null");
+        listeners.add(listener);
+        listener.run();
+    }
+
+    public synchronized void removeListener(Runnable listener) {
+        Objects.requireNonNull(listener, "listener cannot be null");
+        listeners.remove(listener);
     }
 }

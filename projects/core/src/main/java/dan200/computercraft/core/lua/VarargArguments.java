@@ -73,20 +73,16 @@ final class VarargArguments implements IArguments {
     @Override
     public ByteBuffer getBytes(int index) throws LuaException {
         var value = varargs.arg(index + 1);
-        if (!(value instanceof LuaBaseString)) throw LuaValues.badArgument(index, "string", value.typeName());
-
-        var str = ((LuaBaseString) value).strvalue();
-        return ByteBuffer.wrap(str.bytes, str.offset, str.length).asReadOnlyBuffer();
+        if (!(value instanceof LuaString str)) throw LuaValues.badArgument(index, "string", value.typeName());
+        return str.toBuffer();
     }
 
     @Override
     public Optional<ByteBuffer> optBytes(int index) throws LuaException {
         var value = varargs.arg(index + 1);
         if (value.isNil()) return Optional.empty();
-        if (!(value instanceof LuaBaseString)) throw LuaValues.badArgument(index, "string", value.typeName());
-
-        var str = ((LuaBaseString) value).strvalue();
-        return Optional.of(ByteBuffer.wrap(str.bytes, str.offset, str.length).asReadOnlyBuffer());
+        if (!(value instanceof LuaString str)) throw LuaValues.badArgument(index, "string", value.typeName());
+        return Optional.of(str.toBuffer());
     }
 
     @Override

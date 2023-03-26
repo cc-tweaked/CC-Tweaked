@@ -21,7 +21,7 @@ CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However,
 | Hex literal fractional/exponent parts                         | ✔          |                                                                   |
 | Empty statements                                              | ❌         |                                                                   |
 | `__len` metamethod                                            | ✔          |                                                                   |
-| `__ipairs` metamethod                                         | ❌         |                                                                   |
+| `__ipairs` metamethod                                         | ❌         | Deprecated in Lua 5.3. `ipairs` uses `__len`/`__index` instead.   |
 | `__pairs` metamethod                                          | ✔          |                                                                   |
 | `bit32` library                                               | ✔          |                                                                   |
 | `collectgarbage` isrunning, generational, incremental options | ❌         | `collectgarbage` does not exist in CC:T.                          |
@@ -32,8 +32,8 @@ CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However,
 | `rawlen` function                                             | ✔          |                                                                   |
 | Negative index to `select`                                    | ✔          |                                                                   |
 | Removed `unpack`                                              | 🔶         | Only if `disable_lua51_features` is enabled in the configuration. |
-| Arguments to `xpcall`                                         | ❌         |                                                                   |
-| Second return value from `coroutine.running`                  | ❌         |                                                                   |
+| Arguments to `xpcall`                                         | ✔         |                                                                   |
+| Second return value from `coroutine.running`                  | ✔          |                                                                   |
 | Removed `module`                                              | ✔          |                                                                   |
 | `package.loaders` -> `package.searchers`                      | ❌         |                                                                   |
 | Second argument to loader functions                           | ✔          |                                                                   |
@@ -41,7 +41,7 @@ CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However,
 | `package.searchpath`                                          | ✔          |                                                                   |
 | Removed `package.seeall`                                      | ✔          |                                                                   |
 | `string.dump` on functions with upvalues (blanks them out)    | ✔          |                                                                   |
-| `string.rep` separator                                        | ❌         |                                                                   |
+| `string.rep` separator                                        | ✔         |                                                                   |
 | `%g` match group                                              | ❌         |                                                                   |
 | Removal of `%z` match group                                   | ❌         |                                                                   |
 | Removed `table.maxn`                                          | 🔶         | Only if `disable_lua51_features` is enabled in the configuration. |
@@ -64,7 +64,7 @@ CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However,
 | Removal of ambiguity error                                    | ❌         |                                                                   |
 | Identifiers may no longer use locale-dependent letters        | ✔          |                                                                   |
 | Ephemeron tables                                              | ❌         |                                                                   |
-| Identical functions may be reused                             | ❌         |                                                                   |
+| Identical functions may be reused                             | ❌         | Removed in Lua 5.4                                                |
 | Generational garbage collector                                | ❌         | Cobalt uses the built-in Java garbage collector.                  |
 
 ## Lua 5.3
@@ -75,10 +75,10 @@ CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However,
 | `\u{XXX}` escape sequence                                                             | ✔          |                           |
 | `utf8` library                                                                        | ✔          |                           |
 | removed `__ipairs` metamethod                                                         | ✔          |                           |
-| `coroutine.isyieldable`                                                               | ❌         |                           |
+| `coroutine.isyieldable`                                                               | ✔          |                           |
 | `string.dump` strip argument                                                          | ✔          |                           |
 | `string.pack`/`string.unpack`/`string.packsize`                                       | ✔          |                           |
-| `table.move`                                                                          | ❌         |                           |
+| `table.move`                                                                          | ✔          |                           |
 | `math.atan2` -> `math.atan`                                                           | ❌         |                           |
 | Removed `math.frexp`, `math.ldexp`, `math.pow`, `math.cosh`, `math.sinh`, `math.tanh` | ❌         |                           |
 | `math.maxinteger`/`math.mininteger`                                                   | ❌         |                           |
@@ -87,7 +87,7 @@ CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However,
 | `math.ult`                                                                            | ❌         |                           |
 | Removed `bit32` library                                                               | ❌         |                           |
 | Remove `*` from `file:read` modes                                                     | ✔          |                           |
-| Metamethods respected in `table.*`, `ipairs`                                          | 🔶         | Only `__lt` is respected. |
+| Metamethods respected in `table.*`, `ipairs`                                          | ✔          |                           |
 
 ## Lua 5.0
 | Feature                          | Supported? | Notes                                            |
