@@ -21,14 +21,16 @@ describe("The shell", function()
 
             expect(args):same { [0] = "/test-rom/data/dump-args", "arg1", "arg 2" }
         end)
+    end)
 
+    describe("hashbangs", function()
         local function make_hashbang_file(target, filename)
             local tmp = fs.open(filename or "test-files/out.lua", "w")
             tmp.write("#!" .. target)
             tmp.close()
         end
 
-        it("supports hashbangs", function()
+        it("has basic support", function()
             make_hashbang_file("/test-rom/data/dump-args")
             shell.execute("test-files/out.lua", "arg1", "arg2")
 
@@ -81,6 +83,16 @@ describe("The shell", function()
         it("returns error for infinite recursion", function()
             make_hashbang_file("test-files/out.lua")
             expect(shell.execute("test-files/out.lua")):eq(false)
+        end)
+
+        it("returns error for using the shell", function()
+            make_hashbang_file("shell")
+            expect(shell.execute("test-files/out.lua")):eq(false)
+        end)
+
+        it("allows running a shell with arguments", function()
+            make_hashbang_file("shell /test-rom/data/dump-args")
+            expect(shell.execute("test-files/out.lua")):eq(true)
         end)
     end)
 
