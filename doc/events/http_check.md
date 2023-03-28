@@ -6,7 +6,7 @@ see: http.checkURLAsync To check a URL asynchronously.
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 The @{http_check} event is fired when a URL check finishes.

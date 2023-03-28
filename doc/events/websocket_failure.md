@@ -6,7 +6,7 @@ see: http.websocketAsync To send an HTTP request.
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 The @{websocket_failure} event is fired when a WebSocket connection request fails.

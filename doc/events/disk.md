@@ -6,7 +6,7 @@ see: disk_eject For the event sent when a disk is removed.
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 The @{disk} event is fired when a disk is inserted into an adjacent or networked disk drive.

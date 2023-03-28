@@ -5,7 +5,7 @@ module: [kind=event] paste
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 The @{paste} event is fired when text is pasted into the computer through Ctrl-V (or ⌘V on Mac).

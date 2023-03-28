@@ -6,7 +6,7 @@ see: http.request To send an HTTP request.
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 The @{http_failure} event is fired when an HTTP request fails.

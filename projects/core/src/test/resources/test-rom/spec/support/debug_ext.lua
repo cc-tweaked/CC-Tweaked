@@ -1,6 +1,6 @@
 -- SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 --
--- SPDX-License-Identifier: LicenseRef-CCPL
+-- SPDX-License-Identifier: MPL-2.0
 
 local function getupvalue(fn, name)
     for i = 1, debug.getinfo(fn, "u").nups do

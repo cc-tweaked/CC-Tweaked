@@ -1,6 +1,6 @@
 -- SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 --
--- SPDX-License-Identifier: LicenseRef-CCPL
+-- SPDX-License-Identifier: MPL-2.0
 
 describe("The parallel library", function()
     describe("parallel.waitForAny", function()

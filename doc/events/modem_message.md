@@ -5,7 +5,7 @@ module: [kind=event] modem_message
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 The @{modem_message} event is fired when a message is received on an open channel on any @{modem}.

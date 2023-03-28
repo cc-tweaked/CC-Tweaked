@@ -7,7 +7,7 @@ see: rednet.receive To wait for a Rednet message with an optional timeout and pr
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 The @{rednet_message} event is fired when a message is sent over Rednet.

@@ -6,7 +6,7 @@ see: http.websocketAsync To open a WebSocket asynchronously.
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 The @{websocket_success} event is fired when a WebSocket connection request returns successfully.

@@ -1,9 +1,8 @@
 -- SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
 --
--- SPDX-License-Identifier: LicenseRef-CCPL
+-- SPDX-License-Identifier: MPL-2.0
 
 --[[- Craft a recipe based on the turtle's inventory.
-
 The turtle's inventory should set up like a crafting grid. For instance, to
 craft sticks, slots 1 and 5 should contain planks. _All_ other slots should be
 empty, including those outside the crafting "grid".

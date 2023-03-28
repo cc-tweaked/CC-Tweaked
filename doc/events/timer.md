@@ -6,7 +6,7 @@ see: os.startTimer To start a timer.
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 The @{timer} event is fired when a timer started with @{os.startTimer} completes.
