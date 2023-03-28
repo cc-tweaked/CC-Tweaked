@@ -47,7 +47,7 @@ local function create(...)
     for i = 1, tFns.n, 1 do
         local fn = tFns[i]
         if type(fn) ~= "function" then
-            error("bad argument #" .. i .. " (expected function, got " .. type(fn) .. ")", 3)
+            error("bad argument #" .. i .. " (function expected, got " .. type(fn) .. ")", 3)
         end
 
         tCos[i] = coroutine.create(fn)

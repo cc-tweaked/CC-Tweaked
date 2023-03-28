@@ -157,7 +157,7 @@ handleMetatable = {
                         error("bad argument #" .. i .. " (invalid format)", 2)
                     end
                 else
-                    error("bad argument #" .. i .. " (expected string, got " .. type_of(arg) .. ")", 2)
+                    error("bad argument #" .. i .. " (string expected, got " .. type_of(arg) .. ")", 2)
                 end
 
                 output[i] = res

@@ -79,9 +79,9 @@ local function expect(index, value, ...)
 
     local type_names = get_type_names(...)
     if name then
-        error(("bad argument #%d to '%s' (expected %s, got %s)"):format(index, name, type_names, t), 3)
+        error(("bad argument #%d to '%s' (%s expected, got %s)"):format(index, name, type_names, t), 3)
     else
-        error(("bad argument #%d (expected %s, got %s)"):format(index, type_names, t), 3)
+        error(("bad argument #%d (%s expected, got %s)"):format(index, type_names, t), 3)
     end
 end
 
@@ -107,7 +107,7 @@ local function field(tbl, index, ...)
     if value == nil then
         error(("field '%s' missing from table"):format(index), 3)
     else
-        error(("bad field '%s' (expected %s, got %s)"):format(index, get_type_names(...), t), 3)
+        error(("bad field '%s' (%s expected, got %s)"):format(index, get_type_names(...), t), 3)
     end
 end
 

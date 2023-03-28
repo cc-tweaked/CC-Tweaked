@@ -167,7 +167,7 @@ local function build(...)
             end
 
             if type(arg[1]) ~= "function" then
-                error(("Bad table entry #1 at argument #%d (expected function, got %s)"):format(i, type(arg[1])), 2)
+                error(("Bad table entry #1 at argument #%d (function expected, got %s)"):format(i, type(arg[1])), 2)
             end
 
             if arg.many and i < arguments.n then

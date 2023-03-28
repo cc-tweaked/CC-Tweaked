@@ -25,7 +25,7 @@ local function checkKey(options, key, ty, opt)
     local valueTy = type(value)
 
     if (value ~= nil or not opt) and valueTy ~= ty then
-        error(("bad field '%s' (expected %s, got %s"):format(key, ty, valueTy), 4)
+        error(("bad field '%s' (%s expected, got %s"):format(key, ty, valueTy), 4)
     end
 end
 

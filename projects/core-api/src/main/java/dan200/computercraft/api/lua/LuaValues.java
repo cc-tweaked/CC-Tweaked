@@ -64,15 +64,15 @@ public final class LuaValues {
     }
 
     /**
-     * Construct a "bad argument" exception, from an expected type and the actual value provided.
+     * Construct a "bad argument" exception, from an {@link IArguments} argument and an expected type.
      *
-     * @param index    The argument number, starting from 0.
-     * @param expected The expected type for this argument.
-     * @param actual   The actual value provided for this argument.
+     * @param arguments The current arguments.
+     * @param index     The argument number, starting from 0.
+     * @param expected  The expected type for this argument.
      * @return The constructed exception, which should be thrown immediately.
      */
-    public static LuaException badArgumentOf(int index, String expected, @Nullable Object actual) {
-        return badArgument(index, expected, getType(actual));
+    public static LuaException badArgumentOf(IArguments arguments, int index, String expected) {
+        return badArgument(index, expected, arguments.getType(index));
     }
 
     /**

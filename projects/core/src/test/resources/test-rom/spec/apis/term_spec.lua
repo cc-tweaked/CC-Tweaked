@@ -5,7 +5,7 @@
 describe("The term library", function()
     describe("term.redirect", function()
         it("validates arguments", function()
-            expect.error(term.redirect, nil):eq("bad argument #1 (expected table, got nil)")
+            expect.error(term.redirect, nil):eq("bad argument #1 (table expected, got nil)")
         end)
 
         it("prevents redirecting to term", function()

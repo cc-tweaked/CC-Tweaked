@@ -60,7 +60,7 @@ public class BinaryWritableHandle extends HandleGeneric {
             } else if (arg instanceof String) {
                 channel.write(arguments.getBytes(0));
             } else {
-                throw LuaValues.badArgumentOf(0, "string or number", arg);
+                throw LuaValues.badArgumentOf(arguments, 0, "string or number");
             }
         } catch (IOException e) {
             throw new LuaException(e.getMessage());

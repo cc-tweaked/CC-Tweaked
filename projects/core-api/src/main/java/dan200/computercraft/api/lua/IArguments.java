@@ -40,6 +40,20 @@ public interface IArguments {
     Object get(int index);
 
     /**
+     * Get the type name of the argument at the specific index.
+     * <p>
+     * This method is meant to be used in error reporting (namely with {@link LuaValues#badArgumentOf(IArguments, int, String)}),
+     * and should not be used to determine the actual type of an argument.
+     *
+     * @param index The argument number.
+     * @return The name of this type.
+     * @see LuaValues#getType(Object)
+     */
+    default String getType(int index) {
+        return LuaValues.getType(get(index));
+    }
+
+    /**
      * Drop a number of arguments. The returned arguments instance will access arguments at position {@code i + count},
      * rather than {@code i}. However, errors will still use the given argument index.
      *
@@ -64,7 +78,7 @@ public interface IArguments {
      */
     default double getDouble(int index) throws LuaException {
         var value = get(index);
-        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(index, "number", value);
+        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(this, index, "number");
         return number.doubleValue();
     }
 
@@ -88,7 +102,7 @@ public interface IArguments {
      */
     default long getLong(int index) throws LuaException {
         var value = get(index);
-        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(index, "number", value);
+        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(this, index, "number");
         return LuaValues.checkFiniteNum(index, number).longValue();
     }
 
@@ -112,7 +126,7 @@ public interface IArguments {
      */
     default boolean getBoolean(int index) throws LuaException {
         var value = get(index);
-        if (!(value instanceof Boolean bool)) throw LuaValues.badArgumentOf(index, "boolean", value);
+        if (!(value instanceof Boolean bool)) throw LuaValues.badArgumentOf(this, index, "boolean");
         return bool;
     }
 
@@ -125,7 +139,7 @@ public interface IArguments {
      */
     default String getString(int index) throws LuaException {
         var value = get(index);
-        if (!(value instanceof String string)) throw LuaValues.badArgumentOf(index, "string", value);
+        if (!(value instanceof String string)) throw LuaValues.badArgumentOf(this, index, "string");
         return string;
     }
 
@@ -162,7 +176,7 @@ public interface IArguments {
      */
     default Map<?, ?> getTable(int index) throws LuaException {
         var value = get(index);
-        if (!(value instanceof Map)) throw LuaValues.badArgumentOf(index, "table", value);
+        if (!(value instanceof Map)) throw LuaValues.badArgumentOf(this, index, "table");
         return (Map<?, ?>) value;
     }
 
@@ -192,7 +206,7 @@ public interface IArguments {
     default Optional<Double> optDouble(int index) throws LuaException {
         var value = get(index);
         if (value == null) return Optional.empty();
-        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(index, "number", value);
+        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(this, index, "number");
         return Optional.of(number.doubleValue());
     }
 
@@ -217,7 +231,7 @@ public interface IArguments {
     default Optional<Long> optLong(int index) throws LuaException {
         var value = get(index);
         if (value == null) return Optional.empty();
-        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(index, "number", value);
+        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(this, index, "number");
         return Optional.of(LuaValues.checkFiniteNum(index, number).longValue());
     }
 
@@ -244,7 +258,7 @@ public interface IArguments {
     default Optional<Boolean> optBoolean(int index) throws LuaException {
         var value = get(index);
         if (value == null) return Optional.empty();
-        if (!(value instanceof Boolean bool)) throw LuaValues.badArgumentOf(index, "boolean", value);
+        if (!(value instanceof Boolean bool)) throw LuaValues.badArgumentOf(this, index, "boolean");
         return Optional.of(bool);
     }
 
@@ -258,7 +272,7 @@ public interface IArguments {
     default Optional<String> optString(int index) throws LuaException {
         var value = get(index);
         if (value == null) return Optional.empty();
-        if (!(value instanceof String string)) throw LuaValues.badArgumentOf(index, "string", value);
+        if (!(value instanceof String string)) throw LuaValues.badArgumentOf(this, index, "string");
         return Optional.of(string);
     }
 
@@ -297,7 +311,7 @@ public interface IArguments {
     default Optional<Map<?, ?>> optTable(int index) throws LuaException {
         var value = get(index);
         if (value == null) return Optional.empty();
-        if (!(value instanceof Map)) throw LuaValues.badArgumentOf(index, "map", value);
+        if (!(value instanceof Map)) throw LuaValues.badArgumentOf(this, index, "map");
         return Optional.of((Map<?, ?>) value);
     }
 
@@ -316,7 +330,7 @@ public interface IArguments {
     default Optional<LuaTable<?, ?>> optTableUnsafe(int index) throws LuaException {
         var value = get(index);
         if (value == null) return Optional.empty();
-        if (!(value instanceof Map)) throw LuaValues.badArgumentOf(index, "map", value);
+        if (!(value instanceof Map)) throw LuaValues.badArgumentOf(this, index, "map");
         return Optional.of(new ObjectLuaTable((Map<?, ?>) value));
     }
 

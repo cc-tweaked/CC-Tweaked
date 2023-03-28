@@ -10,17 +10,17 @@ describe("cc.expect", function()
             expect(e.expect(1, "test", "string")):eq("test")
             expect(e.expect(1, 2, "number")):eq(2)
 
-            expect.error(e.expect, 1, nil, "string"):eq("bad argument #1 (expected string, got nil)")
-            expect.error(e.expect, 2, 1, "nil"):eq("bad argument #2 (expected nil, got number)")
+            expect.error(e.expect, 1, nil, "string"):eq("bad argument #1 (string expected, got nil)")
+            expect.error(e.expect, 2, 1, "nil"):eq("bad argument #2 (nil expected, got number)")
         end)
 
         it("checks multiple types", function()
             expect(e.expect(1, "test", "string", "number")):eq("test")
             expect(e.expect(1, 2, "string", "number")):eq(2)
 
-            expect.error(e.expect, 1, nil, "string", "number"):eq("bad argument #1 (expected string or number, got nil)")
+            expect.error(e.expect, 1, nil, "string", "number"):eq("bad argument #1 (string or number expected, got nil)")
             expect.error(e.expect, 2, false, "string", "table", "number", "nil")
-                :eq("bad argument #2 (expected string, table or number, got boolean)")
+                :eq("bad argument #2 (string, table or number expected, got boolean)")
         end)
 
         it("includes the function name", function()
@@ -31,13 +31,13 @@ describe("cc.expect", function()
                 worker()
             end
 
-            expect.error(trampoline):str_match("^[^:]*expect_spec.lua:31: bad argument #1 to 'worker' %(expected string, got nil%)$")
+            expect.error(trampoline):str_match("^[^:]*expect_spec.lua:31: bad argument #1 to 'worker' %(string expected, got nil%)$")
         end)
 
         it("supports custom type names", function()
             local value = setmetatable({}, { __name = "some type" })
 
-            expect.error(e.expect, 1, value, "string"):eq("bad argument #1 (expected string, got some type)")
+            expect.error(e.expect, 1, value, "string"):eq("bad argument #1 (string expected, got some type)")
         end)
     end)
 
@@ -47,7 +47,7 @@ describe("cc.expect", function()
             expect(e.field({ k = 2 }, "k", "number")):eq(2)
 
             expect.error(e.field, { k = nil }, "k", "string"):eq("field 'k' missing from table")
-            expect.error(e.field, { l = 1 }, "l", "nil"):eq("bad field 'l' (expected nil, got number)")
+            expect.error(e.field, { l = 1 }, "l", "nil"):eq("bad field 'l' (nil expected, got number)")
         end)
 
         it("checks multiple types", function()
@@ -57,7 +57,7 @@ describe("cc.expect", function()
             expect.error(e.field, { k = nil }, "k", "string", "number")
                 :eq("field 'k' missing from table")
             expect.error(e.field, { l = false }, "l", "string", "table", "number", "nil")
-                :eq("bad field 'l' (expected string, table or number, got boolean)")
+                :eq("bad field 'l' (string, table or number expected, got boolean)")
         end)
     end)
 

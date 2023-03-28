@@ -13,6 +13,8 @@ import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
+import static org.squiddev.cobalt.Constants.NAME;
+
 final class VarargArguments implements IArguments {
     private static final VarargArguments EMPTY = new VarargArguments(Constants.NONE);
 
@@ -47,6 +49,17 @@ final class VarargArguments implements IArguments {
         }
 
         return cache[index] = CobaltLuaMachine.toObject(varargs.arg(index + 1), null);
+    }
+
+    @Override
+    public String getType(int index) {
+        var value = varargs.arg(index + 1);
+        if (value instanceof LuaTable || value instanceof LuaUserdata) {
+            var metatable = value.getMetatable(null);
+            if (metatable != null && metatable.rawget(NAME) instanceof LuaString s) return s.toString();
+        }
+
+        return value.typeName();
     }
 
     @Override

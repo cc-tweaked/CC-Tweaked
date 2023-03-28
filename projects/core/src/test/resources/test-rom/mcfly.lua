@@ -27,7 +27,7 @@ local function check(func, idx, ty, val)
             error(('%s: bad argument #%d (got nil)'):format(func, idx), 3)
         end
     elseif type(val) ~= ty then
-        return error(('%s: bad argument #%d (expected %s, got %s)'):format(func, idx, ty, type(val)), 3)
+        return error(('%s: bad argument #%d (%s expected, got %s)'):format(func, idx, ty, type(val)), 3)
     end
 end
 
