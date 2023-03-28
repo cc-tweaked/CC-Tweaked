@@ -33,6 +33,12 @@ describe("cc.expect", function()
 
             expect.error(trampoline):str_match("^[^:]*expect_spec.lua:31: bad argument #1 to 'worker' %(expected string, got nil%)$")
         end)
+
+        it("supports custom type names", function()
+            local value = setmetatable({}, { __name = "some type" })
+
+            expect.error(e.expect, 1, value, "string"):eq("bad argument #1 (expected string, got some type)")
+        end)
     end)
 
     describe("field", function()

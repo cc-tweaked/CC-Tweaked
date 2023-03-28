@@ -42,6 +42,21 @@ local function get_type_names(...)
         return table.concat(types, ", ", 1, #types - 1) .. " or " .. types[#types]
     end
 end
+
+
+local function get_display_type(value, t)
+    -- Lua is somewhat inconsistent in whether it obeys __name just for values which
+    -- have a per-instance metatable (so tables/userdata) or for everything. We follow
+    -- Cobalt and only read the metatable for tables/userdata.
+    if t ~= "table" and t ~= "userdata" then return t end
+
+    local metatable = debug.getmetatable(value)
+    if not metatable then return t end
+
+    local name = rawget(metatable, "__name")
+    if type(name) == "string" then return name else return t end
+end
+
 --- Expect an argument to have a specific type.
 --
 -- @tparam number index The 1-based argument index.
@@ -59,6 +74,8 @@ local function expect(index, value, ...)
     local name
     local ok, info = pcall(debug.getinfo, 3, "nS")
     if ok and info.name and info.name ~= "" and info.what ~= "C" then name = info.name end
+
+    t = get_display_type(value, t)
 
     local type_names = get_type_names(...)
     if name then
@@ -84,6 +101,8 @@ local function field(tbl, index, ...)
     for i = 1, native_select("#", ...) do
         if t == native_select(i, ...) then return value end
     end
+
+    t = get_display_type(value, t)
 
     if value == nil then
         error(("field '%s' missing from table"):format(index), 3)
