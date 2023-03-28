@@ -6,7 +6,6 @@ package dan200.computercraft.client.pocket;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.computer.items.ComputerItem;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -46,7 +45,7 @@ public final class ClientPocketComputers {
     }
 
     public static PocketComputerData get(ItemStack stack) {
-        var family = stack.getItem() instanceof ComputerItem computer ? computer.getFamily() : ComputerFamily.NORMAL;
+        var family = stack.getItem() instanceof PocketComputerItem computer ? computer.getFamily() : ComputerFamily.NORMAL;
         return get(PocketComputerItem.getInstanceID(stack), family != ComputerFamily.NORMAL);
     }
 }
