@@ -30,6 +30,12 @@ local function pcm_decoder(chunk)
     return buffer
 end
 
+local function report_invalid_format(format)
+    printError(("The speaker cannot play %s files."):format(format))
+    local pp = require "cc.pretty"
+    pp.print("Run '" .. pp.text("help speaker", colours.lightGrey) .. "' for information on supported formats.")
+end
+
 
 local cmd = ...
 if cmd == "stop" then
@@ -97,6 +103,10 @@ elseif cmd == "play" then
 
         handle.read(4)
         start = nil
+    -- Detect several other common audio files.
+    elseif start == "OggS" then return report_invalid_format("Ogg")
+    elseif start == "fLaC" then return report_invalid_format("FLAC")
+    elseif start:sub(1, 3) == "ID3" then return report_invalid_format("MP3")
     end
 
     print("Playing " .. file)
