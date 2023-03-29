@@ -1,4 +1,4 @@
-// Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
+// SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
 //
 // SPDX-License-Identifier: LicenseRef-CCPL
 

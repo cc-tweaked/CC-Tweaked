@@ -1,8 +1,6 @@
 -- SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
 --
--- SPDX-License-Identifier: LicenseRef-CCPL
-
--- Defined in bios.lua
+-- SPDX-License-Identifier: MPL-2.0
 
 --[[- Loads the given API into the global environment.
 

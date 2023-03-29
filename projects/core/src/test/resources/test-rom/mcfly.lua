@@ -1,6 +1,6 @@
 -- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
 --
--- SPDX-License-Identifier: LicenseRef-CCPL
+-- SPDX-License-Identifier: MPL-2.0
 
 --- A very basic test framework for ComputerCraft
 --

@@ -1,5 +1,5 @@
-// SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
-
+// Copyright Daniel Ratcliffe, 2011-2022. This API may be redistributed unmodified and in full only.
+//
 // SPDX-License-Identifier: LicenseRef-CCPL
 
 package dan200.computercraft.api.lua;

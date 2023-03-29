@@ -6,7 +6,7 @@ see: commands.execAsync To run a command which fires a task_complete event.
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 The @{task_complete} event is fired when an asynchronous task completes. This is usually handled inside the function call that queued the task; however, functions such as @{commands.execAsync} return immediately so the user can wait for completion.

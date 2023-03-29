@@ -5,7 +5,7 @@ module: [kind=event] term_resize
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 The @{term_resize} event is fired when the main terminal is resized. For instance:

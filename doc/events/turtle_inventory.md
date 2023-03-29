@@ -5,7 +5,7 @@ module: [kind=event] turtle_inventory
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 The @{turtle_inventory} event is fired when a turtle's inventory is changed.

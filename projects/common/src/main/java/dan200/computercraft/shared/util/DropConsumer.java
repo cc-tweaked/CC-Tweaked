@@ -1,6 +1,6 @@
-// Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
+// SPDX-FileCopyrightText: 2018 The CC: Tweaked Developers
 //
-// SPDX-License-Identifier: LicenseRef-CCPL
+// SPDX-License-Identifier: MPL-2.0
 
 package dan200.computercraft.shared.util;
 

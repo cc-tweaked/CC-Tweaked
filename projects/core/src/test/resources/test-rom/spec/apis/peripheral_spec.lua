@@ -1,6 +1,6 @@
 -- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
 --
--- SPDX-License-Identifier: LicenseRef-CCPL
+-- SPDX-License-Identifier: MPL-2.0
 
 describe("The peripheral library", function()
     local it_modem = peripheral.getType("top") == "modem" and it or pending

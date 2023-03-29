@@ -1,6 +1,6 @@
 -- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
 --
--- SPDX-License-Identifier: LicenseRef-CCPL
+-- SPDX-License-Identifier: MPL-2.0
 
 --[[- The @{cc.expect} library provides helper functions for verifying that
 function arguments are well-formed and of the correct type.

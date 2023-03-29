@@ -9,6 +9,8 @@ Files:
   projects/common/src/testMod/resources/data/cctest/structures/*
   projects/fabric/src/generated/*
   projects/forge/src/generated/*
+  projects/web/src/export/index.json
+  projects/web/src/export/items/minecraft/*
 Comment: Generated/data files are CC0.
 Copyright: The CC: Tweaked Developers
 License: CC0-1.0
@@ -41,7 +43,6 @@ License: MPL-2.0
 Files:
   doc/images/*
   doc/logo.png
-  projects/common/src/main/resources/assets/computercraft/lang/*
   projects/common/src/main/resources/assets/computercraft/models/*
   projects/common/src/main/resources/assets/computercraft/textures/*
   projects/common/src/main/resources/pack.mcmeta
@@ -53,9 +54,15 @@ Files:
   projects/core/src/main/resources/data/computercraft/lua/rom/modules/turtle/.ignoreme
   projects/core/src/main/resources/data/computercraft/lua/rom/motd.txt
   projects/core/src/main/resources/data/computercraft/lua/rom/programs/fun/advanced/levels/*
-  projects/web/src/export/*
+  projects/web/src/export/items/computercraft/*
 Comment: Bulk-license original assets as CCPL.
 Copyright: 2011 Daniel Ratcliffe
+License: LicenseRef-CCPL
+
+Files:
+  projects/common/src/main/resources/assets/computercraft/lang/*
+Comment: Community-contributed license files
+Copyright: 2017 The CC: Tweaked Developers
 License: LicenseRef-CCPL
 
 Files:

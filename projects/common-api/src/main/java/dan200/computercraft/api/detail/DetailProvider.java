@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
 //
-// SPDX-License-Identifier: LicenseRef-CCPL
+// SPDX-License-Identifier: MPL-2.0
 
 package dan200.computercraft.api.detail;
 
