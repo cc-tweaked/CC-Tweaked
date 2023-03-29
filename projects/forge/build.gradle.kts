@@ -9,7 +9,6 @@ plugins {
     id("cc-tweaked.forge")
     id("cc-tweaked.gametest")
     alias(libs.plugins.mixinGradle)
-    alias(libs.plugins.shadow)
     id("cc-tweaked.illuaminate")
     id("cc-tweaked.mod-publishing")
 }
@@ -118,10 +117,6 @@ mixin {
     config("computercraft-client.forge.mixins.json")
 }
 
-reobf {
-    register("shadowJar")
-}
-
 configurations {
     register("cctJavadoc")
 }
@@ -136,14 +131,21 @@ dependencies {
     libs.bundles.externalMods.forge.compile.get().map { compileOnly(fg.deobf(it)) }
     libs.bundles.externalMods.forge.runtime.get().map { runtimeOnly(fg.deobf(it)) }
 
-    // Depend on our other projects. By using the api configuration, shadow jar will correctly
-    // preserve all files from forge-api/core-api.
+    // Depend on our other projects.
     api(commonClasses(project(":forge-api")))
     api(clientClasses(project(":forge-api")))
     implementation(project(":core"))
 
-    minecraftLibrary(libs.cobalt)
-    minecraftLibrary(libs.netty.http) { isTransitive = false }
+    minecraftEmbed(libs.cobalt) {
+        jarJar.ranged(this, "[${libs.versions.cobalt.asProvider().get()},${libs.versions.cobalt.next.get()})")
+    }
+    minecraftEmbed(libs.jzlib) {
+        jarJar.ranged(this, "[${libs.versions.jzlib.get()},)")
+    }
+    minecraftEmbed(libs.netty.http) {
+        jarJar.ranged(this, "[${libs.versions.netty.get()},)")
+        isTransitive = false
+    }
 
     testFixturesApi(libs.bundles.test)
     testFixturesApi(libs.bundles.kotlin)
@@ -210,23 +212,16 @@ tasks.sourcesJar {
     for (source in cct.sourceDirectories.get()) from(source.sourceSet.allSource)
 }
 
-tasks.shadowJar {
-    finalizedBy("reobfShadowJar")
+tasks.jarJar {
+    finalizedBy("reobfJarJar")
     archiveClassifier.set("")
 
-    from(sourceSets.client.get().output)
-
-    dependencies {
-        include(dependency("cc.tweaked:"))
-        include(dependency(libs.cobalt.get()))
-        include(dependency(libs.netty.http.get()))
+    for (source in cct.sourceDirectories.get()) {
+        if (source.classes) from(source.sourceSet.output)
     }
-    relocate("org.squiddev.cobalt", "cc.tweaked.internal.cobalt")
-    relocate("io.netty.handler.codec.http", "cc.tweaked.internal.netty.codec.http")
-    minimize()
 }
 
-tasks.assemble { dependsOn("shadowJar") }
+tasks.assemble { dependsOn("jarJar") }
 
 // Check tasks
 
@@ -285,7 +280,7 @@ tasks.register("checkClient") {
 // Upload tasks
 
 modPublishing {
-    output.set(tasks.shadowJar)
+    output.set(tasks.jarJar)
 }
 
 // Don't publish the slim jar
@@ -297,6 +292,10 @@ publishing {
     publications {
         named("maven", MavenPublication::class) {
             fg.component(this)
+            // jarJar.component is broken (https://github.com/MinecraftForge/ForgeGradle/issues/914), so declare the
+            // artifact explicitly.
+            artifact(tasks.jarJar)
+
             mavenDependencies {
                 exclude(dependencies.create("cc.tweaked:"))
                 exclude(libs.jei.forge.get())

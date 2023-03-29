@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.cobalt)
     implementation(libs.fastutil)
     implementation(libs.guava)
+    implementation(libs.jzlib)
     implementation(libs.netty.http)
     implementation(libs.slf4j)
     implementation(libs.asm)

@@ -52,6 +52,7 @@ dependencies {
     "modTestWithIris"(libs.sodium)
 
     include(libs.cobalt)
+    include(libs.jzlib)
     include(libs.netty.http)
     include(libs.nightConfig.core)
     include(libs.nightConfig.toml)

@@ -20,10 +20,12 @@ asm = "9.3"
 autoService = "1.0.1"
 checkerFramework = "3.32.0"
 cobalt = "0.7.0"
+cobalt-next = "0.7.1" # Not a real version, used to constrain the version we accept.
 fastutil = "8.5.9"
 guava = "31.1-jre"
 jetbrainsAnnotations = "24.0.1"
 jsr305 = "3.0.2"
+jzlib = "1.1.3"
 kotlin = "1.8.10"
 kotlin-coroutines = "1.6.4"
 netty = "4.1.82.Final"
@@ -61,7 +63,6 @@ minotaur = "2.+"
 mixinGradle = "0.7.+"
 nullAway = "0.9.9"
 quiltflower = "1.8.0"
-shadow = "7.1.2"
 spotless = "6.17.0"
 taskTree = "2.1.1"
 vanillaGradle = "0.2.1-SNAPSHOT"
@@ -77,8 +78,9 @@ forgeSpi = { module = "net.minecraftforge:forgespi", version.ref = "forgeSpi" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 jetbrainsAnnotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsAnnotations" }
 jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "jsr305" }
-kotlin-platform = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
+jzlib = { module = "com.jcraft:jzlib", version.ref = "jzlib" }
 kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
+kotlin-platform = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 netty-http = { module = "io.netty:netty-codec-http", version.ref = "netty" }
 nightConfig-core = { module = "com.electronwill.night-config:core", version.ref = "nightConfig" }
@@ -102,8 +104,8 @@ rubidium = { module = "maven.modrinth:rubidium", version.ref = "rubidium" }
 sodium = { module = "maven.modrinth:sodium", version.ref = "sodium" }
 
 # Testing
-byteBuddyAgent = { module ="net.bytebuddy:byte-buddy-agent", version.ref = "byteBuddy" }
-byteBuddy = { module ="net.bytebuddy:byte-buddy", version.ref = "byteBuddy" }
+byteBuddyAgent = { module = "net.bytebuddy:byte-buddy-agent", version.ref = "byteBuddy" }
+byteBuddy = { module = "net.bytebuddy:byte-buddy", version.ref = "byteBuddy" }
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
 jqwik-api = { module = "net.jqwik:jqwik-api", version.ref = "jqwik" }
 jqwik-engine = { module = "net.jqwik:jqwik-engine", version.ref = "jqwik" }
@@ -138,7 +140,6 @@ ideaExt = { id = "org.jetbrains.gradle.plugin.idea-ext", version.ref = "ideaExt"
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 librarian = { id = "org.parchmentmc.librarian.forgegradle", version.ref = "librarian" }
 mixinGradle = { id = "org.spongepowered.mixin", version.ref = "mixinGradle" }
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
 taskTree = { id = "com.dorongold.task-tree", version.ref = "taskTree" }
 
 [bundles]
