@@ -119,6 +119,7 @@ mixin {
 
 configurations {
     register("cctJavadoc")
+    minecraftLibrary { extendsFrom(minecraftEmbed.get()) }
 }
 
 dependencies {
