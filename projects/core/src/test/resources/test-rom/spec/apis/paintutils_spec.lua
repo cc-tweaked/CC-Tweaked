@@ -1,6 +1,6 @@
 -- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
 --
--- SPDX-License-Identifier: LicenseRef-CCPL
+-- SPDX-License-Identifier: MPL-2.0
 
 local with_window = require "test_helpers".with_window
 
