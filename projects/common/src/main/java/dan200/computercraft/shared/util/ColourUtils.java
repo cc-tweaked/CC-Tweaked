@@ -19,6 +19,10 @@ public final class ColourUtils {
     private ColourUtils() {
     }
 
+    public static TagKey<Item> getDyeTag(DyeColor color) {
+        return DYES.get(color.getId());
+    }
+
     public static @Nullable DyeColor getStackColour(ItemStack stack) {
         if (stack.isEmpty()) return null;
 

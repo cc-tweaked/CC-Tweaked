@@ -102,6 +102,10 @@ tasks.withType(JavaCompile::class.java).configureEach {
     options.encoding = "UTF-8"
 }
 
+tasks.processResources {
+    exclude("**/*.license")
+}
+
 tasks.withType(AbstractArchiveTask::class.java).configureEach {
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true

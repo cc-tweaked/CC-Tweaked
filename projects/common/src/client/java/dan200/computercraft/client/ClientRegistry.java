@@ -127,6 +127,8 @@ public final class ClientRegistry {
         // Turtle block renderer
         "block/turtle_colour",
         "block/turtle_elf_overlay",
+        "block/turtle_rainbow_overlay",
+        "block/turtle_trans_overlay",
     };
 
     public static void registerExtraModels(Consumer<ResourceLocation> register) {
