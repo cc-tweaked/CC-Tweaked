@@ -118,7 +118,7 @@ public class ComputerBootstrap {
         }
 
         @LuaFunction
-        public final void log(IArguments arguments) {
+        public final void log(IArguments arguments) throws LuaException {
             LOG.info("[Computer] {}", Arrays.toString(arguments.getAll()));
         }
 

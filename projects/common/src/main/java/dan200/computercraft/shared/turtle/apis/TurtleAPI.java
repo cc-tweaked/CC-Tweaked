@@ -219,7 +219,7 @@ public class TurtleAPI implements ILuaAPI {
      * @cc.since 1.4
      */
     @LuaFunction
-    public final MethodResult place(IArguments args) {
+    public final MethodResult place(IArguments args) throws LuaException {
         return trackCommand(new TurtlePlaceCommand(InteractDirection.FORWARD, args.getAll()));
     }
 
@@ -235,7 +235,7 @@ public class TurtleAPI implements ILuaAPI {
      * @see #place For more information about placing items.
      */
     @LuaFunction
-    public final MethodResult placeUp(IArguments args) {
+    public final MethodResult placeUp(IArguments args) throws LuaException {
         return trackCommand(new TurtlePlaceCommand(InteractDirection.UP, args.getAll()));
     }
 
@@ -251,7 +251,7 @@ public class TurtleAPI implements ILuaAPI {
      * @see #place For more information about placing items.
      */
     @LuaFunction
-    public final MethodResult placeDown(IArguments args) {
+    public final MethodResult placeDown(IArguments args) throws LuaException {
         return trackCommand(new TurtlePlaceCommand(InteractDirection.DOWN, args.getAll()));
     }
 

@@ -136,7 +136,7 @@ public class OSAPI implements ILuaAPI {
      * @cc.see os.pullEvent To pull the event queued
      */
     @LuaFunction
-    public final void queueEvent(String name, IArguments args) {
+    public final void queueEvent(String name, IArguments args) throws LuaException {
         apiEnvironment.queueEvent(name, args.drop(1).getAll());
     }
 
@@ -165,8 +165,8 @@ public class OSAPI implements ILuaAPI {
      * timer from firing.
      *
      * @param token The ID of the timer to cancel.
-     * @see #startTimer To start a timer.
      * @cc.since 1.6
+     * @see #startTimer To start a timer.
      */
     @LuaFunction
     public final void cancelTimer(int token) {
@@ -351,7 +351,7 @@ public class OSAPI implements ILuaAPI {
      * January 1970 in the UTC timezone.
      * * If called with {@code local}, returns the number of milliseconds since 1
      * January 1970 in the server's local timezone.
-     *
+     * <p>
      * :::info
      * The {@code ingame} time zone assumes that one Minecraft day consists of 86,400,000
      * milliseconds. Since one in-game day is much faster than a real day (20 minutes), this

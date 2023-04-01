@@ -52,6 +52,11 @@ public final class ObjectArguments implements IArguments {
     }
 
     @Override
+    public String getType(int index) {
+        return LuaValues.getType(get(index));
+    }
+
+    @Override
     public Object[] getAll() {
         return args.toArray();
     }

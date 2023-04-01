@@ -15,7 +15,7 @@ import java.util.Arrays;
 
 public interface PeripheralMethod {
     Generator<PeripheralMethod> GENERATOR = new Generator<>(PeripheralMethod.class, Arrays.asList(ILuaContext.class, IComputerAccess.class),
-        m -> (target, context, computer, args) -> context.executeMainThreadTask(() -> ResultHelpers.checkNormalResult(m.apply(target, context, computer, args)))
+        m -> (target, context, computer, args) -> context.executeMainThreadTask(() -> ResultHelpers.checkNormalResult(m.apply(target, context, computer, args.escapes())))
     );
 
     IntCache<PeripheralMethod> DYNAMIC = new IntCache<>(

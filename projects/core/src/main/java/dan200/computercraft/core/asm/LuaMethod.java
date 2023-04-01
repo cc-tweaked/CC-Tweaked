@@ -10,7 +10,7 @@ import java.util.Collections;
 
 public interface LuaMethod {
     Generator<LuaMethod> GENERATOR = new Generator<>(LuaMethod.class, Collections.singletonList(ILuaContext.class),
-        m -> (target, context, args) -> context.executeMainThreadTask(() -> ResultHelpers.checkNormalResult(m.apply(target, context, args)))
+        m -> (target, context, args) -> context.executeMainThreadTask(() -> ResultHelpers.checkNormalResult(m.apply(target, context, args.escapes())))
     );
 
     IntCache<LuaMethod> DYNAMIC = new IntCache<>(
