@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2017 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.api.lua.ILuaContext;
@@ -133,7 +132,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
             // free again.
             PlatformHelper.get().sendToAllTracking(
                 new SpeakerAudioClientMessage(getSource(), position, dfpwmState.getVolume(), dfpwmState.pullPending(now)),
-                level.getChunkAt(new BlockPos(pos))
+                level.getChunkAt(BlockPos.containing(pos))
             );
             syncedPosition(position);
 
@@ -152,7 +151,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
             // TODO: What to do when entities move away? How do we notify people left behind that they're gone.
             PlatformHelper.get().sendToAllTracking(
                 new SpeakerMoveClientMessage(getSource(), position),
-                level.getChunkAt(new BlockPos(pos))
+                level.getChunkAt(BlockPos.containing(pos))
             );
             syncedPosition(position);
         }

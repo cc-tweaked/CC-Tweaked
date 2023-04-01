@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+
 FROM gitpod/workspace-base
 
 USER gitpod

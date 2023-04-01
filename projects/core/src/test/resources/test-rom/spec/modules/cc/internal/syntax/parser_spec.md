@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 We provide a parser for Lua source code. Here we test that the parser reports
 sensible syntax errors in specific cases.
 

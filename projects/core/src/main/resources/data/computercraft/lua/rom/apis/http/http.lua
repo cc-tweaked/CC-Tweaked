@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --[[- Make HTTP requests, sending and receiving data to a remote web server.
 
 @module http
@@ -21,7 +25,7 @@ local function checkKey(options, key, ty, opt)
     local valueTy = type(value)
 
     if (value ~= nil or not opt) and valueTy ~= ty then
-        error(("bad field '%s' (expected %s, got %s"):format(key, ty, valueTy), 4)
+        error(("bad field '%s' (%s expected, got %s"):format(key, ty, valueTy), 4)
     end
 end
 

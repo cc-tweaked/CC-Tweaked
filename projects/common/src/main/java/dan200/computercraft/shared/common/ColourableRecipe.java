@@ -1,13 +1,13 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2017 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.shared.common;
 
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
@@ -43,7 +43,7 @@ public final class ColourableRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inv) {
+    public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess) {
         var colourable = ItemStack.EMPTY;
 
         var tracker = new ColourTracker();

@@ -2,6 +2,12 @@
 module: [kind=event] computer_command
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 The @{computer_command} event is fired when the `/computercraft queue` command is run for the current computer.
 
 ## Return Values

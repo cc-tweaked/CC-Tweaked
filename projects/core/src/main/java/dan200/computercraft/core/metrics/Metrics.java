@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.core.metrics;
 
 /**
@@ -24,9 +23,6 @@ public final class Metrics {
 
     public static final Metric.Event WEBSOCKET_INCOMING = new Metric.Event("websocket_incoming", "bytes", Metric::formatBytes);
     public static final Metric.Event WEBSOCKET_OUTGOING = new Metric.Event("websocket_outgoing", "bytes", Metric::formatBytes);
-
-    public static final Metric.Counter COROUTINES_CREATED = new Metric.Counter("coroutines_created");
-    public static final Metric.Counter COROUTINES_DISPOSED = new Metric.Counter("coroutines_dead");
 
     public static final Metric.Counter TURTLE_OPS = new Metric.Counter("turtle_ops");
 

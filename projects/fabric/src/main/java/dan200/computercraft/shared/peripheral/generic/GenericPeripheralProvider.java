@@ -1,19 +1,15 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.shared.peripheral.generic;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.asm.NamedMethod;
 import dan200.computercraft.core.asm.PeripheralMethod;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.Container;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,18 +23,11 @@ import java.util.Set;
 public class GenericPeripheralProvider {
     interface Lookup<T> {
         @Nullable
-        T find(Level world, BlockPos pos, @Nullable BlockState state, @Nullable BlockEntity blockEntity, Direction context);
+        T find(Level world, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, Direction context);
     }
 
     private static final List<Lookup<?>> lookups = List.of(
-        (world, pos, state, blockEntity, context) -> {
-            // Try to avoid using the sided version of InventoryStorage where possible.
-            if (blockEntity instanceof Container container && (container = InventoryMethods.extractContainer(container)) != null) {
-                return InventoryStorage.of(container, null);
-            }
-
-            return ItemStorage.SIDED.find(world, pos, state, blockEntity, context);
-        }
+        InventoryMethods::extractContainer
     );
 
     @Nullable

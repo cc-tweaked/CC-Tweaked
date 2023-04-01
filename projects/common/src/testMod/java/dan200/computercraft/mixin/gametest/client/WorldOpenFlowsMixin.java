@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.mixin.gametest.client;
 
 import net.minecraft.client.gui.screens.Screen;
@@ -23,6 +22,7 @@ public class WorldOpenFlowsMixin {
      * @reason Makes it easier to run tests. We can switch to an @Inject if this becomes a problem.
      */
     @Overwrite
+    @SuppressWarnings("UnusedMethod")
     private void askForBackup(Screen screen, String level, boolean customised, Runnable action) {
         action.run();
     }

@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 local date = os.date("*t")
 if date.month == 1 and date.day == 1 then
     print("Happy new year!")

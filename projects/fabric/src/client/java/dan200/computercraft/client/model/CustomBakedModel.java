@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.client.model;
 
 import net.fabricmc.fabric.api.renderer.v1.model.ForwardingBakedModel;
@@ -33,11 +32,11 @@ public abstract class CustomBakedModel extends ForwardingBakedModel {
 
     @Override
     public final void emitBlockQuads(BlockAndTintGetter blockView, BlockState state, BlockPos pos, Supplier<RandomSource> randomSupplier, RenderContext context) {
-        context.fallbackConsumer().accept(this);
+        context.bakedModelConsumer().accept(this);
     }
 
     @Override
     public final void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context) {
-        context.fallbackConsumer().accept(this);
+        context.bakedModelConsumer().accept(this);
     }
 }

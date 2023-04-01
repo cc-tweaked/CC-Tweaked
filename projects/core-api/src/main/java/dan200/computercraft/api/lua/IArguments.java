@@ -1,8 +1,7 @@
-/*
- * This file is part of the public ComputerCraft API - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. This API may be redistributed unmodified and in full only.
- * For help using the API, and posting your mods, visit the forums at computercraft.info.
- */
+// SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.api.lua;
 
 import org.jetbrains.annotations.Contract;
@@ -36,9 +35,27 @@ public interface IArguments {
      *
      * @param index The argument number.
      * @return The argument's value, or {@code null} if not present.
+     * @throws LuaException          If the argument cannot be converted to Java. This should be thrown in extraneous
+     *                               circumstances (if the conversion would allocate too much memory) and should
+     *                               <em>not</em> be thrown if the original argument is not present or is an unsupported
+     *                               data type (such as a function or userdata).
+     * @throws IllegalStateException If accessing these arguments outside the scope of the original function. See
+     *                               {@link #escapes()}.
      */
     @Nullable
-    Object get(int index);
+    Object get(int index) throws LuaException;
+
+    /**
+     * Get the type name of the argument at the specific index.
+     * <p>
+     * This method is meant to be used in error reporting (namely with {@link LuaValues#badArgumentOf(IArguments, int, String)}),
+     * and should not be used to determine the actual type of an argument.
+     *
+     * @param index The argument number.
+     * @return The name of this type.
+     * @see LuaValues#getType(Object)
+     */
+    String getType(int index);
 
     /**
      * Drop a number of arguments. The returned arguments instance will access arguments at position {@code i + count},
@@ -49,7 +66,14 @@ public interface IArguments {
      */
     IArguments drop(int count);
 
-    default Object[] getAll() {
+    /**
+     * Get an array containing all as {@link Object}s.
+     *
+     * @return All arguments.
+     * @throws LuaException If an error occurred while fetching an argument.
+     * @see #get(int) To get a single argument.
+     */
+    default Object[] getAll() throws LuaException {
         var result = new Object[count()];
         for (var i = 0; i < result.length; i++) result[i] = get(i);
         return result;
@@ -65,7 +89,7 @@ public interface IArguments {
      */
     default double getDouble(int index) throws LuaException {
         var value = get(index);
-        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(index, "number", value);
+        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(this, index, "number");
         return number.doubleValue();
     }
 
@@ -89,7 +113,7 @@ public interface IArguments {
      */
     default long getLong(int index) throws LuaException {
         var value = get(index);
-        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(index, "number", value);
+        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(this, index, "number");
         return LuaValues.checkFiniteNum(index, number).longValue();
     }
 
@@ -113,7 +137,7 @@ public interface IArguments {
      */
     default boolean getBoolean(int index) throws LuaException {
         var value = get(index);
-        if (!(value instanceof Boolean bool)) throw LuaValues.badArgumentOf(index, "boolean", value);
+        if (!(value instanceof Boolean bool)) throw LuaValues.badArgumentOf(this, index, "boolean");
         return bool;
     }
 
@@ -126,7 +150,7 @@ public interface IArguments {
      */
     default String getString(int index) throws LuaException {
         var value = get(index);
-        if (!(value instanceof String string)) throw LuaValues.badArgumentOf(index, "string", value);
+        if (!(value instanceof String string)) throw LuaValues.badArgumentOf(this, index, "string");
         return string;
     }
 
@@ -163,7 +187,7 @@ public interface IArguments {
      */
     default Map<?, ?> getTable(int index) throws LuaException {
         var value = get(index);
-        if (!(value instanceof Map)) throw LuaValues.badArgumentOf(index, "table", value);
+        if (!(value instanceof Map)) throw LuaValues.badArgumentOf(this, index, "table");
         return (Map<?, ?>) value;
     }
 
@@ -193,7 +217,7 @@ public interface IArguments {
     default Optional<Double> optDouble(int index) throws LuaException {
         var value = get(index);
         if (value == null) return Optional.empty();
-        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(index, "number", value);
+        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(this, index, "number");
         return Optional.of(number.doubleValue());
     }
 
@@ -218,7 +242,7 @@ public interface IArguments {
     default Optional<Long> optLong(int index) throws LuaException {
         var value = get(index);
         if (value == null) return Optional.empty();
-        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(index, "number", value);
+        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(this, index, "number");
         return Optional.of(LuaValues.checkFiniteNum(index, number).longValue());
     }
 
@@ -245,7 +269,7 @@ public interface IArguments {
     default Optional<Boolean> optBoolean(int index) throws LuaException {
         var value = get(index);
         if (value == null) return Optional.empty();
-        if (!(value instanceof Boolean bool)) throw LuaValues.badArgumentOf(index, "boolean", value);
+        if (!(value instanceof Boolean bool)) throw LuaValues.badArgumentOf(this, index, "boolean");
         return Optional.of(bool);
     }
 
@@ -259,7 +283,7 @@ public interface IArguments {
     default Optional<String> optString(int index) throws LuaException {
         var value = get(index);
         if (value == null) return Optional.empty();
-        if (!(value instanceof String string)) throw LuaValues.badArgumentOf(index, "string", value);
+        if (!(value instanceof String string)) throw LuaValues.badArgumentOf(this, index, "string");
         return Optional.of(string);
     }
 
@@ -298,7 +322,7 @@ public interface IArguments {
     default Optional<Map<?, ?>> optTable(int index) throws LuaException {
         var value = get(index);
         if (value == null) return Optional.empty();
-        if (!(value instanceof Map)) throw LuaValues.badArgumentOf(index, "map", value);
+        if (!(value instanceof Map)) throw LuaValues.badArgumentOf(this, index, "map");
         return Optional.of((Map<?, ?>) value);
     }
 
@@ -317,7 +341,7 @@ public interface IArguments {
     default Optional<LuaTable<?, ?>> optTableUnsafe(int index) throws LuaException {
         var value = get(index);
         if (value == null) return Optional.empty();
-        if (!(value instanceof Map)) throw LuaValues.badArgumentOf(index, "map", value);
+        if (!(value instanceof Map)) throw LuaValues.badArgumentOf(this, index, "map");
         return Optional.of(new ObjectLuaTable((Map<?, ?>) value));
     }
 
@@ -407,5 +431,27 @@ public interface IArguments {
     @Contract("_, !null -> !null")
     default Map<?, ?> optTable(int index, @Nullable Map<Object, Object> def) throws LuaException {
         return optTable(index).orElse(def);
+    }
+
+    /**
+     * Create a version of these arguments which escapes the scope of the current function call.
+     * <p>
+     * Some {@link IArguments} implementations provide a view over the underlying Lua data structures, allowing for
+     * zero-copy implementations of some methods (such as {@link #getTableUnsafe(int)} or {@link #getBytes(int)}).
+     * However, this means the arguments can only be accessed inside the current function call.
+     * <p>
+     * If the arguments escape the scope of the current call (for instance, are later accessed on the main server
+     * thread), then these arguments must be marked as "escaping", which may choose to perform a copy of the underlying
+     * arguments.
+     * <p>
+     * If you are using {@link LuaFunction#mainThread()}, this will be done automatically. However, if you call
+     * {@link ILuaContext#issueMainThreadTask(LuaTask)} (or similar), then you will need to mark arguments as escaping
+     * yourself.
+     *
+     * @return An {@link IArguments} instance which can escape the current scope. May be {@code this}.
+     * @throws LuaException For the same reasons as {@link #get(int)}.
+     */
+    default IArguments escapes() throws LuaException {
+        return this;
     }
 }

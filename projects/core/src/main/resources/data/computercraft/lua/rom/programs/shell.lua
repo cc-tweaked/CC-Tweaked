@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --[[- The shell API provides access to CraftOS's command line interface.
 
 It allows you to @{run|start programs}, @{setCompletionFunction|add completion
@@ -127,6 +131,13 @@ local function executeProgram(remainingRecursion, path, args)
         local resolvedHashbangProgram = shell.resolveProgram(originalHashbangPath)
         if not resolvedHashbangProgram then
             printError("Hashbang program not found: " .. originalHashbangPath)
+            return false
+        elseif resolvedHashbangProgram == "rom/programs/shell.lua" and #hashbangArgs == 0 then
+            -- If we try to launch the shell then our shebang expands to "shell <program>", which just does a
+            -- shell.run("<program>") again, resulting in an infinite loop. This may still happen (if the user
+            -- has a custom shell), but this reduces the risk.
+            -- It's a little ugly special-casing this, but it's probably worth warning about.
+            printError("Cannot use the shell as a hashbang program")
             return false
         end
 

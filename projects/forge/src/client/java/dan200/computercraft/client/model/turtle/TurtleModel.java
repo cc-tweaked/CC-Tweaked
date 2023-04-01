@@ -1,14 +1,13 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.client.model.turtle;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.client.model.TransformedBakedModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.model.BakedModelWrapper;
 
@@ -26,8 +25,8 @@ public class TurtleModel extends BakedModelWrapper<BakedModel> {
     }
 
     @Override
-    public BakedModel applyTransform(ItemTransforms.TransformType cameraTransformType, PoseStack poseStack, boolean applyLeftHandTransform) {
-        originalModel.applyTransform(cameraTransformType, poseStack, applyLeftHandTransform);
+    public BakedModel applyTransform(ItemDisplayContext transform, PoseStack poseStack, boolean applyLeftHandTransform) {
+        originalModel.applyTransform(transform, poseStack, applyLeftHandTransform);
         return this;
     }
 

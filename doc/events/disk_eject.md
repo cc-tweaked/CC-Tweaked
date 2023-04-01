@@ -3,6 +3,12 @@ module: [kind=event] disk_eject
 see: disk For the event sent when a disk is inserted.
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 The @{disk_eject} event is fired when a disk is removed from an adjacent or networked disk drive.
 
 ## Return Values

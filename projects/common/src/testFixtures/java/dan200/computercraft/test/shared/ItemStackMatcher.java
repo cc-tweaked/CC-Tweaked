@@ -1,10 +1,10 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.test.shared;
 
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -29,5 +29,9 @@ public class ItemStackMatcher extends TypeSafeMatcher<ItemStack> {
 
     public static Matcher<ItemStack> isStack(ItemStack stack) {
         return new ItemStackMatcher(stack);
+    }
+
+    public static Matcher<ItemStack> isStack(Item item, int size) {
+        return new ItemStackMatcher(new ItemStack(item, size));
     }
 }

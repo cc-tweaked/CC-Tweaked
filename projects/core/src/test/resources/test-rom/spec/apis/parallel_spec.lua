@@ -1,8 +1,12 @@
+-- SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 describe("The parallel library", function()
     describe("parallel.waitForAny", function()
         it("validates arguments", function()
-            expect.error(parallel.waitForAny, ""):eq("bad argument #1 (expected function, got string)")
-            expect.error(parallel.waitForAny, function() end, 2):eq("bad argument #2 (expected function, got number)")
+            expect.error(parallel.waitForAny, ""):eq("bad argument #1 (function expected, got string)")
+            expect.error(parallel.waitForAny, function() end, 2):eq("bad argument #2 (function expected, got number)")
         end)
 
         it("returns immediately with no arguments", function()
@@ -62,8 +66,8 @@ describe("The parallel library", function()
 
     describe("parallel.waitForAll", function()
         it("validates arguments", function()
-            expect.error(parallel.waitForAll, ""):eq("bad argument #1 (expected function, got string)")
-            expect.error(parallel.waitForAll, function() end, 2):eq("bad argument #2 (expected function, got number)")
+            expect.error(parallel.waitForAll, ""):eq("bad argument #1 (function expected, got string)")
+            expect.error(parallel.waitForAll, function() end, 2):eq("bad argument #2 (function expected, got number)")
         end)
 
         it("returns immediately with no arguments", function()

@@ -3,5 +3,6 @@
   "category": "redstone",
   "key": {"#": {"tag": "c:gold_ingots"}, "G": {"tag": "c:glass_panes"}},
   "pattern": ["###", "#G#", "###"],
-  "result": {"count": 4, "item": "computercraft:monitor_advanced"}
+  "result": {"count": 4, "item": "computercraft:monitor_advanced"},
+  "show_notification": true
 }

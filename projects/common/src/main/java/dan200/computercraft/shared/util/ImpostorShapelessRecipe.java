@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
+//
+// SPDX-License-Identifier: LicenseRef-CCPL
+
 package dan200.computercraft.shared.util;
 
 import com.google.gson.JsonArray;
@@ -10,6 +9,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -20,15 +20,21 @@ import net.minecraft.world.level.Level;
 
 public final class ImpostorShapelessRecipe extends ShapelessRecipe {
     private final String group;
+    private final ItemStack result;
 
     private ImpostorShapelessRecipe(ResourceLocation id, String group, CraftingBookCategory category, ItemStack result, NonNullList<Ingredient> ingredients) {
         super(id, group, category, result, ingredients);
         this.group = group;
+        this.result = result;
     }
 
     @Override
     public String getGroup() {
         return group;
+    }
+
+    ItemStack getResultItem() {
+        return result;
     }
 
     @Override
@@ -37,7 +43,7 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inventory) {
+    public ItemStack assemble(CraftingContainer inventory, RegistryAccess access) {
         return ItemStack.EMPTY;
     }
 

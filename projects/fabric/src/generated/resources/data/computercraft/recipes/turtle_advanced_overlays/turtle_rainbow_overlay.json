@@ -1,0 +1,17 @@
+{
+  "type": "computercraft:turtle_overlay",
+  "category": "redstone",
+  "group": "computercraft:turtle_advanced_overlay",
+  "ingredients": [
+    {"tag": "c:red_dyes"},
+    {"tag": "c:orange_dyes"},
+    {"tag": "c:yellow_dyes"},
+    {"tag": "c:green_dyes"},
+    {"tag": "c:blue_dyes"},
+    {"tag": "c:purple_dyes"},
+    {"item": "minecraft:stick"},
+    {"item": "computercraft:turtle_advanced"}
+  ],
+  "overlay": "computercraft:block/turtle_rainbow_overlay",
+  "result": {"item": "computercraft:turtle_advanced"}
+}

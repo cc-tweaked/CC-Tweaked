@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --- Emulates Lua's standard [io library][io].
 --
 -- [io]: https://www.lua.org/manual/5.1/manual.html#5.7
@@ -153,7 +157,7 @@ handleMetatable = {
                         error("bad argument #" .. i .. " (invalid format)", 2)
                     end
                 else
-                    error("bad argument #" .. i .. " (expected string, got " .. type_of(arg) .. ")", 2)
+                    error("bad argument #" .. i .. " (string expected, got " .. type_of(arg) .. ")", 2)
                 end
 
                 output[i] = res

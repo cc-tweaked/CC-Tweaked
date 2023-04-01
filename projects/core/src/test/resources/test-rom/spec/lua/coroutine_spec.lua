@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 describe("Coroutines", function()
     local function assert_resume(ok, ...)
         if ok then return table.pack(...) end

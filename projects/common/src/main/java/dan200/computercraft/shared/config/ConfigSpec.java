@@ -1,84 +1,79 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
+//
+// SPDX-License-Identifier: LicenseRef-CCPL
+
 package dan200.computercraft.shared.config;
 
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
-import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-import net.minecraftforge.fml.config.ModConfig;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.filter.MarkerFilter;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 public final class ConfigSpec {
     private static final int MODEM_MAX_RANGE = 100000;
 
-    private static final String TRANSLATION_PREFIX = "gui.computercraft.config.";
+    public static final ConfigFile serverSpec;
 
-    public static final ForgeConfigSpec serverSpec;
+    public static final ConfigFile.Value<Integer> computerSpaceLimit;
+    public static final ConfigFile.Value<Integer> floppySpaceLimit;
+    public static final ConfigFile.Value<Integer> maximumFilesOpen;
+    public static final ConfigFile.Value<Boolean> disableLua51Features;
+    public static final ConfigFile.Value<String> defaultComputerSettings;
+    public static final ConfigFile.Value<Boolean> logComputerErrors;
+    public static final ConfigFile.Value<Boolean> commandRequireCreative;
 
-    public static final ConfigValue<Integer> computerSpaceLimit;
-    public static final ConfigValue<Integer> floppySpaceLimit;
-    public static final ConfigValue<Integer> maximumFilesOpen;
-    public static final ConfigValue<Boolean> disableLua51Features;
-    public static final ConfigValue<String> defaultComputerSettings;
-    public static final ConfigValue<Boolean> logComputerErrors;
-    public static final ConfigValue<Boolean> commandRequireCreative;
+    public static final ConfigFile.Value<Integer> computerThreads;
+    public static final ConfigFile.Value<Integer> maxMainGlobalTime;
+    public static final ConfigFile.Value<Integer> maxMainComputerTime;
 
-    public static final ConfigValue<Integer> computerThreads;
-    public static final ConfigValue<Integer> maxMainGlobalTime;
-    public static final ConfigValue<Integer> maxMainComputerTime;
+    public static final ConfigFile.Value<Boolean> httpEnabled;
+    public static final ConfigFile.Value<Boolean> httpWebsocketEnabled;
+    public static final ConfigFile.Value<List<? extends UnmodifiableConfig>> httpRules;
 
-    public static final ConfigValue<Boolean> httpEnabled;
-    public static final ConfigValue<Boolean> httpWebsocketEnabled;
-    public static final ConfigValue<List<? extends UnmodifiableConfig>> httpRules;
+    public static final ConfigFile.Value<Integer> httpMaxRequests;
+    public static final ConfigFile.Value<Integer> httpMaxWebsockets;
 
-    public static final ConfigValue<Integer> httpMaxRequests;
-    public static final ConfigValue<Integer> httpMaxWebsockets;
+    public static final ConfigFile.Value<Integer> httpDownloadBandwidth;
+    public static final ConfigFile.Value<Integer> httpUploadBandwidth;
 
-    public static final ConfigValue<Integer> httpDownloadBandwidth;
-    public static final ConfigValue<Integer> httpUploadBandwidth;
+    public static final ConfigFile.Value<Boolean> commandBlockEnabled;
+    public static final ConfigFile.Value<Integer> modemRange;
+    public static final ConfigFile.Value<Integer> modemHighAltitudeRange;
+    public static final ConfigFile.Value<Integer> modemRangeDuringStorm;
+    public static final ConfigFile.Value<Integer> modemHighAltitudeRangeDuringStorm;
+    public static final ConfigFile.Value<Integer> maxNotesPerTick;
+    public static final ConfigFile.Value<Integer> monitorBandwidth;
 
-    public static final ConfigValue<Boolean> commandBlockEnabled;
-    public static final ConfigValue<Integer> modemRange;
-    public static final ConfigValue<Integer> modemHighAltitudeRange;
-    public static final ConfigValue<Integer> modemRangeDuringStorm;
-    public static final ConfigValue<Integer> modemHighAltitudeRangeDuringStorm;
-    public static final ConfigValue<Integer> maxNotesPerTick;
-    public static final ConfigValue<Integer> monitorBandwidth;
+    public static final ConfigFile.Value<Boolean> turtlesNeedFuel;
+    public static final ConfigFile.Value<Integer> turtleFuelLimit;
+    public static final ConfigFile.Value<Integer> advancedTurtleFuelLimit;
+    public static final ConfigFile.Value<Boolean> turtlesCanPush;
 
-    public static final ConfigValue<Boolean> turtlesNeedFuel;
-    public static final ConfigValue<Integer> turtleFuelLimit;
-    public static final ConfigValue<Integer> advancedTurtleFuelLimit;
-    public static final ConfigValue<Boolean> turtlesCanPush;
+    public static final ConfigFile.Value<Integer> computerTermWidth;
+    public static final ConfigFile.Value<Integer> computerTermHeight;
 
-    public static final ConfigValue<Integer> computerTermWidth;
-    public static final ConfigValue<Integer> computerTermHeight;
+    public static final ConfigFile.Value<Integer> pocketTermWidth;
+    public static final ConfigFile.Value<Integer> pocketTermHeight;
 
-    public static final ConfigValue<Integer> pocketTermWidth;
-    public static final ConfigValue<Integer> pocketTermHeight;
+    public static final ConfigFile.Value<Integer> monitorWidth;
+    public static final ConfigFile.Value<Integer> monitorHeight;
 
-    public static final ConfigValue<Integer> monitorWidth;
-    public static final ConfigValue<Integer> monitorHeight;
+    public static final ConfigFile clientSpec;
 
-    public static final ForgeConfigSpec clientSpec;
-
-    public static final ConfigValue<MonitorRenderer> monitorRenderer;
-    public static final ConfigValue<Integer> monitorDistance;
-    public static final ConfigValue<Integer> uploadNagDelay;
+    public static final ConfigFile.Value<MonitorRenderer> monitorRenderer;
+    public static final ConfigFile.Value<Integer> monitorDistance;
+    public static final ConfigFile.Value<Integer> uploadNagDelay;
 
     private static MarkerFilter logFilter = MarkerFilter.createFilter(Logging.COMPUTER_ERROR.getName(), Filter.Result.ACCEPT, Filter.Result.NEUTRAL);
 
@@ -88,7 +83,7 @@ public final class ConfigSpec {
     static {
         LoggerContext.getContext().addFilter(logFilter);
 
-        var builder = new TranslatingBuilder();
+        var builder = PlatformHelper.get().createConfigBuilder();
 
         { // General computers
             computerSpaceLimit = builder
@@ -312,9 +307,9 @@ public final class ConfigSpec {
             builder.pop();
         }
 
-        serverSpec = builder.build();
+        serverSpec = builder.build(ConfigSpec::syncServer);
 
-        var clientBuilder = new TranslatingBuilder();
+        var clientBuilder = PlatformHelper.get().createConfigBuilder();
         monitorRenderer = clientBuilder
             .comment("""
                 The renderer to use for monitors. Generally this should be kept at "best" - if
@@ -330,12 +325,10 @@ public final class ConfigSpec {
             .comment("The delay in seconds after which we'll notify about unhandled imports. Set to 0 to disable.")
             .defineInRange("upload_nag_delay", Config.uploadNagDelay, 0, 60);
 
-        clientSpec = clientBuilder.build();
+        clientSpec = clientBuilder.build(ConfigSpec::syncClient);
     }
 
-    private static void syncServer() {
-        if (!serverSpec.isLoaded()) return;
-
+    public static void syncServer() {
         // General
         Config.computerSpaceLimit = computerSpaceLimit.get();
         Config.floppySpaceLimit = floppySpaceLimit.get();
@@ -395,85 +388,9 @@ public final class ConfigSpec {
         Config.monitorHeight = monitorHeight.get();
     }
 
-    private static void syncClient() {
-        if (!clientSpec.isLoaded()) return;
-
+    public static void syncClient() {
         Config.monitorRenderer = monitorRenderer.get();
         Config.monitorDistance = monitorDistance.get();
         Config.uploadNagDelay = uploadNagDelay.get();
-    }
-
-    public static void sync(ModConfig config) {
-        if (!config.getModId().equals(ComputerCraftAPI.MOD_ID)) return;
-
-        if (config.getType() == ModConfig.Type.SERVER) syncServer();
-        if (config.getType() == ModConfig.Type.CLIENT) syncClient();
-    }
-
-    /**
-     * A {@link ForgeConfigSpec.Builder} which adds translation keys to every entry.
-     */
-    private static class TranslatingBuilder {
-        private final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-        private final Deque<String> groupStack = new ArrayDeque<>();
-
-        private void translation(String name) {
-            var key = new StringBuilder(TRANSLATION_PREFIX);
-            for (var group : groupStack) key.append(group).append('.');
-            key.append(name);
-            builder.translation(key.toString());
-        }
-
-        public TranslatingBuilder comment(String comment) {
-            builder.comment(comment);
-            return this;
-        }
-
-        public TranslatingBuilder push(String name) {
-            translation(name);
-            builder.push(name);
-            groupStack.addLast(name);
-            return this;
-        }
-
-        public TranslatingBuilder pop() {
-            builder.pop();
-            groupStack.removeLast();
-            return this;
-        }
-
-        public ForgeConfigSpec build() {
-            return builder.build();
-        }
-
-        public TranslatingBuilder worldRestart() {
-            builder.worldRestart();
-            return this;
-        }
-
-        public <T> ConfigValue<T> define(String path, T defaultValue) {
-            translation(path);
-            return builder.define(path, defaultValue);
-        }
-
-        public ConfigValue<Boolean> define(String path, boolean defaultValue) {
-            translation(path);
-            return builder.define(path, defaultValue);
-        }
-
-        public ConfigValue<Integer> defineInRange(String path, int defaultValue, int min, int max) {
-            translation(path);
-            return builder.defineInRange(path, defaultValue, min, max);
-        }
-
-        public <T> ConfigValue<List<? extends T>> defineList(String path, List<? extends T> defaultValue, Predicate<Object> elementValidator) {
-            translation(path);
-            return builder.defineList(path, defaultValue, elementValidator);
-        }
-
-        public <V extends Enum<V>> ConfigValue<V> defineEnum(String path, V defaultValue) {
-            translation(path);
-            return builder.defineEnum(path, defaultValue);
-        }
     }
 }

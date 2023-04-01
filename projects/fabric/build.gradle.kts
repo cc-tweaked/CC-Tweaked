@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 import cc.tweaked.gradle.*
 import net.fabricmc.loom.configuration.ide.RunConfigSettings
 import java.util.*
@@ -5,11 +9,10 @@ import java.util.*
 plugins {
     id("cc-tweaked.fabric")
     id("cc-tweaked.gametest")
-    id("cc-tweaked.publishing")
+    id("cc-tweaked.mod-publishing")
 }
 
 val modVersion: String by extra
-val mcVersion: String by extra
 
 val allProjects = listOf(":core-api", ":core", ":fabric-api").map { evaluationDependsOn(it) }
 cct {
@@ -18,7 +21,7 @@ cct {
 }
 
 fun addRemappedConfiguration(name: String) {
-    val original = configurations.create(name) {
+    configurations.create(name) {
         isCanBeConsumed = false
         isCanBeResolved = true
     }
@@ -28,7 +31,6 @@ fun addRemappedConfiguration(name: String) {
         onRuntimeClasspath.set(false)
         targetConfigurationName.set(name)
     }
-    original.extendsFrom(configurations["mod${capitalName}Mapped"])
 }
 
 addRemappedConfiguration("testWithSodium")
@@ -50,8 +52,8 @@ dependencies {
     "modTestWithIris"(libs.sodium)
 
     include(libs.cobalt)
-    include(libs.netty.http) // It might be better to shadowJar this, as we don't use half of it.
-    include(libs.forgeConfig)
+    include(libs.jzlib)
+    include(libs.netty.http)
     include(libs.nightConfig.core)
     include(libs.nightConfig.toml)
 
@@ -227,6 +229,10 @@ tasks.register("checkClient") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Runs all client-only checks."
     dependsOn(runGametestClient, runGametestClientWithSodium, runGametestClientWithIris)
+}
+
+modPublishing {
+    output.set(tasks.remapJar)
 }
 
 tasks.withType(GenerateModuleMetadata::class).configureEach { isEnabled = false }

@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 local with_window = require "test_helpers".with_window
 
 describe("cc.pretty", function()
@@ -17,8 +21,8 @@ describe("cc.pretty", function()
         end)
 
         it("validates arguments", function()
-            expect.error(pp.text, 123):eq("bad argument #1 (expected string, got number)")
-            expect.error(pp.text, "", ""):eq("bad argument #2 (expected number, got string)")
+            expect.error(pp.text, 123):eq("bad argument #1 (string expected, got number)")
+            expect.error(pp.text, "", ""):eq("bad argument #2 (number expected, got string)")
         end)
 
         it("produces text documents", function()
@@ -58,8 +62,8 @@ describe("cc.pretty", function()
         end)
 
         it("validates arguments", function()
-            expect.error(pp.concat, 123):eq("bad argument #1 (expected document, got number)")
-            expect.error(pp.concat, "", {}):eq("bad argument #2 (expected document, got table)")
+            expect.error(pp.concat, 123):eq("bad argument #1 (document expected, got number)")
+            expect.error(pp.concat, "", {}):eq("bad argument #2 (document expected, got table)")
         end)
 
         it("can be used as an operator", function()

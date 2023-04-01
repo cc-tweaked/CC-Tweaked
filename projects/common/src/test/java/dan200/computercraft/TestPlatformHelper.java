@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft;
 
 import com.google.auto.service.AutoService;
@@ -13,6 +12,7 @@ import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.impl.AbstractComputerCraftAPI;
 import dan200.computercraft.impl.ComputerCraftAPIService;
+import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
@@ -55,9 +55,15 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @AutoService({ PlatformHelper.class, dan200.computercraft.impl.PlatformHelper.class, ComputerCraftAPIService.class })
 public class TestPlatformHelper extends AbstractComputerCraftAPI implements PlatformHelper {
+    @Override
+    public ConfigFile.Builder createConfigBuilder() {
+        throw new UnsupportedOperationException("Cannot create config file inside tests");
+    }
+
     @Override
     public <T> RegistryWrappers.RegistryWrapper<T> wrap(ResourceKey<Registry<T>> registry) {
         throw new UnsupportedOperationException("Cannot query registry inside tests");
@@ -202,7 +208,7 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     }
 
     @Override
-    public InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit) {
+    public InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit, Predicate<BlockState> canUseBlock) {
         throw new UnsupportedOperationException("Cannot interact with the world inside tests");
     }
 

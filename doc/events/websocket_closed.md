@@ -2,6 +2,12 @@
 module: [kind=event] websocket_closed
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 The @{websocket_closed} event is fired when an open WebSocket connection is closed.
 
 ## Return Values

@@ -1,8 +1,7 @@
-/*
- * This file is part of the public ComputerCraft API - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. This API may be redistributed unmodified and in full only.
- * For help using the API, and posting your mods, visit the forums at computercraft.info.
- */
+// SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.api.lua;
 
 import javax.annotation.Nullable;
@@ -65,15 +64,15 @@ public final class LuaValues {
     }
 
     /**
-     * Construct a "bad argument" exception, from an expected type and the actual value provided.
+     * Construct a "bad argument" exception, from an {@link IArguments} argument and an expected type.
      *
-     * @param index    The argument number, starting from 0.
-     * @param expected The expected type for this argument.
-     * @param actual   The actual value provided for this argument.
+     * @param arguments The current arguments.
+     * @param index     The argument number, starting from 0.
+     * @param expected  The expected type for this argument.
      * @return The constructed exception, which should be thrown immediately.
      */
-    public static LuaException badArgumentOf(int index, String expected, @Nullable Object actual) {
-        return badArgument(index, expected, getType(actual));
+    public static LuaException badArgumentOf(IArguments arguments, int index, String expected) {
+        return badArgument(index, expected, arguments.getType(index));
     }
 
     /**

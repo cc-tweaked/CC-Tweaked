@@ -1,9 +1,11 @@
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 plugins {
     id("cc-tweaked.fabric")
     id("cc-tweaked.publishing")
 }
-
-val mcVersion: String by extra
 
 java {
     withJavadocJar()
@@ -19,6 +21,4 @@ tasks.jar {
     manifest {
         attributes["Fabric-Loom-Remap"] = "true"
     }
-
-    from("src/main/modJson") // TODO: Remove once Loom 1.1 is out.
 }

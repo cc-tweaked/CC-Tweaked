@@ -1,9 +1,13 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 local helpers = require "test_helpers"
 
 describe("The textutils library", function()
     describe("textutils.slowWrite", function()
         it("validates arguments", function()
-            expect.error(textutils.slowWrite, nil, false):eq("bad argument #2 (expected number, got boolean)")
+            expect.error(textutils.slowWrite, nil, false):eq("bad argument #2 (number expected, got boolean)")
         end)
 
         it("wraps text correctly", function()
@@ -24,8 +28,8 @@ describe("The textutils library", function()
         it("validates arguments", function()
             textutils.formatTime(0)
             textutils.formatTime(0, false)
-            expect.error(textutils.formatTime, nil):eq("bad argument #1 (expected number, got nil)")
-            expect.error(textutils.formatTime, 1, 1):eq("bad argument #2 (expected boolean, got number)")
+            expect.error(textutils.formatTime, nil):eq("bad argument #1 (number expected, got nil)")
+            expect.error(textutils.formatTime, 1, 1):eq("bad argument #2 (boolean expected, got number)")
         end)
 
         it("correctly formats 12 o'clock", function()
@@ -39,7 +43,7 @@ describe("The textutils library", function()
 
     describe("textutils.pagedPrint", function()
         it("validates arguments", function()
-            expect.error(textutils.pagedPrint, nil, false):eq("bad argument #2 (expected number, got boolean)")
+            expect.error(textutils.pagedPrint, nil, false):eq("bad argument #2 (number expected, got boolean)")
         end)
     end)
 
@@ -51,9 +55,9 @@ describe("The textutils library", function()
             textutils.tabulate({ "test", 1 })
             textutils.tabulate(colors.white)
 
-            expect.error(textutils.tabulate, nil):eq("bad argument #1 (expected number or table, got nil)")
-            expect.error(textutils.tabulate, { "test" }, nil):eq("bad argument #2 (expected number or table, got nil)")
-            expect.error(textutils.tabulate, { false }):eq("bad argument #1.1 (expected string, got boolean)")
+            expect.error(textutils.tabulate, nil):eq("bad argument #1 (number or table expected, got nil)")
+            expect.error(textutils.tabulate, { "test" }, nil):eq("bad argument #2 (number or table expected, got nil)")
+            expect.error(textutils.tabulate, { false }):eq("bad argument #1.1 (string expected, got boolean)")
         end)
     end)
 
@@ -65,8 +69,8 @@ describe("The textutils library", function()
             textutils.pagedTabulate({ "test" })
             textutils.pagedTabulate(colors.white)
 
-            expect.error(textutils.pagedTabulate, nil):eq("bad argument #1 (expected number or table, got nil)")
-            expect.error(textutils.pagedTabulate, { "test" }, nil):eq("bad argument #2 (expected number or table, got nil)")
+            expect.error(textutils.pagedTabulate, nil):eq("bad argument #1 (number or table expected, got nil)")
+            expect.error(textutils.pagedTabulate, { "test" }, nil):eq("bad argument #2 (number or table expected, got nil)")
         end)
     end)
 
@@ -114,12 +118,21 @@ describe("The textutils library", function()
             expect(textutils.serialise({ 1, 2, 3, a = 1, [false] = {} }, { compact = true }))
                 :eq("{1,2,3,a=1,[false]={},}")
         end)
+
+        it("ignores metatables", function()
+            local actual = { "a", true, x = 2 }
+            expect(textutils.serialise(setmetatable({}, { __index = actual }))):eq("{}")
+            expect(textutils.serialise(setmetatable({}, { __pairs = function() return pairs(actual) end }))):eq("{}")
+
+            expect(textutils.serialise(setmetatable({ 1 }, { __index = actual }))):eq("{\n  1,\n}")
+            expect(textutils.serialise(setmetatable({ 1 }, { __pairs = function() return pairs(actual) end }))):eq("{\n  1,\n}")
+        end)
     end)
 
     describe("textutils.unserialise", function()
         it("validates arguments", function()
             textutils.unserialise("")
-            expect.error(textutils.unserialise, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(textutils.unserialise, nil):eq("bad argument #1 (string expected, got nil)")
         end)
     end)
 
@@ -130,8 +143,8 @@ describe("The textutils library", function()
             textutils.serialiseJSON({})
             textutils.serialiseJSON(false)
             textutils.serialiseJSON("", true)
-            expect.error(textutils.serialiseJSON, nil):eq("bad argument #1 (expected table, string, number or boolean, got nil)")
-            expect.error(textutils.serialiseJSON, "", 1):eq("bad argument #2 (expected boolean, got number)")
+            expect.error(textutils.serialiseJSON, nil):eq("bad argument #1 (table, string, number or boolean expected, got nil)")
+            expect.error(textutils.serialiseJSON, "", 1):eq("bad argument #2 (boolean expected, got number)")
         end)
 
         it("serializes empty arrays", function()
@@ -244,7 +257,7 @@ describe("The textutils library", function()
     describe("textutils.urlEncode", function()
         it("validates arguments", function()
             textutils.urlEncode("")
-            expect.error(textutils.urlEncode, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(textutils.urlEncode, nil):eq("bad argument #1 (string expected, got nil)")
         end)
     end)
 
@@ -252,8 +265,8 @@ describe("The textutils library", function()
         it("validates arguments", function()
             textutils.complete("pri")
             textutils.complete("pri", _G)
-            expect.error(textutils.complete, nil):eq("bad argument #1 (expected string, got nil)")
-            expect.error(textutils.complete, "", false):eq("bad argument #2 (expected table, got boolean)")
+            expect.error(textutils.complete, nil):eq("bad argument #1 (string expected, got nil)")
+            expect.error(textutils.complete, "", false):eq("bad argument #2 (table expected, got boolean)")
         end)
     end)
 end)

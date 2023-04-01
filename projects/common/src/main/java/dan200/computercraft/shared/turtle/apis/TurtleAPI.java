@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
+//
+// SPDX-License-Identifier: LicenseRef-CCPL
+
 package dan200.computercraft.shared.turtle.apis;
 
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
@@ -220,7 +219,7 @@ public class TurtleAPI implements ILuaAPI {
      * @cc.since 1.4
      */
     @LuaFunction
-    public final MethodResult place(IArguments args) {
+    public final MethodResult place(IArguments args) throws LuaException {
         return trackCommand(new TurtlePlaceCommand(InteractDirection.FORWARD, args.getAll()));
     }
 
@@ -236,7 +235,7 @@ public class TurtleAPI implements ILuaAPI {
      * @see #place For more information about placing items.
      */
     @LuaFunction
-    public final MethodResult placeUp(IArguments args) {
+    public final MethodResult placeUp(IArguments args) throws LuaException {
         return trackCommand(new TurtlePlaceCommand(InteractDirection.UP, args.getAll()));
     }
 
@@ -252,7 +251,7 @@ public class TurtleAPI implements ILuaAPI {
      * @see #place For more information about placing items.
      */
     @LuaFunction
-    public final MethodResult placeDown(IArguments args) {
+    public final MethodResult placeDown(IArguments args) throws LuaException {
         return trackCommand(new TurtlePlaceCommand(InteractDirection.DOWN, args.getAll()));
     }
 

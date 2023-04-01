@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 describe("cc.pretty", function()
     local str = require("cc.strings")
 
@@ -5,8 +9,8 @@ describe("cc.pretty", function()
         it("validates arguments", function()
             str.wrap("test string is long")
             str.wrap("test string is long", 11)
-            expect.error(str.wrap, nil):eq("bad argument #1 (expected string, got nil)")
-            expect.error(str.wrap, "", false):eq("bad argument #2 (expected number, got boolean)")
+            expect.error(str.wrap, nil):eq("bad argument #1 (string expected, got nil)")
+            expect.error(str.wrap, "", false):eq("bad argument #2 (number expected, got boolean)")
         end)
 
         it("wraps lines", function()
@@ -27,8 +31,8 @@ describe("cc.pretty", function()
         it("validates arguments", function()
             str.wrap("test string is long")
             str.wrap("test string is long", 11)
-            expect.error(str.ensure_width, nil):eq("bad argument #1 (expected string, got nil)")
-            expect.error(str.ensure_width, "", false):eq("bad argument #2 (expected number, got boolean)")
+            expect.error(str.ensure_width, nil):eq("bad argument #1 (string expected, got nil)")
+            expect.error(str.ensure_width, "", false):eq("bad argument #2 (number expected, got boolean)")
         end)
 
         it("pads lines", function()

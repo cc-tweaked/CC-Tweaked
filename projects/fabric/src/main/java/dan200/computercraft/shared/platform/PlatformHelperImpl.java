@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.shared.platform;
 
 import com.google.auto.service.AutoService;
@@ -15,6 +14,7 @@ import dan200.computercraft.api.node.wired.WiredElementLookup;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralLookup;
 import dan200.computercraft.mixin.ArgumentTypeInfosAccessor;
+import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
@@ -46,6 +46,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
@@ -77,13 +78,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 @AutoService(dan200.computercraft.impl.PlatformHelper.class)
 public class PlatformHelperImpl implements PlatformHelper {
+    @Override
+    public ConfigFile.Builder createConfigBuilder() {
+        return new FabricConfigFile.Builder();
+    }
+
     @SuppressWarnings("unchecked")
     private static <T> Registry<T> getRegistry(ResourceKey<Registry<T>> id) {
         var registry = (Registry<T>) BuiltInRegistries.REGISTRY.get(id.location());
@@ -198,7 +201,7 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    @SuppressWarnings("UnstableApiUsage")
+    @SuppressWarnings({ "UnstableApiUsage", "NullAway" }) // FIXME: SIDED is treated as nullable by NullAway
     public @Nullable ContainerTransfer getContainer(ServerLevel level, BlockPos pos, Direction side) {
         var storage = ItemStorage.SIDED.find(level, pos, side);
         if (storage != null) return FabricContainerTransfer.of(storage);
@@ -286,8 +289,8 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public boolean hasToolUsage(ItemStack stack) {
         var item = stack.getItem();
-        return item instanceof ShovelItem || stack.is(ConventionalItemTags.SHOVELS) ||
-            item instanceof HoeItem || stack.is(ConventionalItemTags.HOES);
+        return item instanceof ShovelItem || stack.is(ItemTags.SHOVELS) ||
+            item instanceof HoeItem || stack.is(ItemTags.HOES);
     }
 
     @Override
@@ -303,9 +306,15 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit) {
+    public InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit, Predicate<BlockState> canUseBlock) {
         var result = UseBlockCallback.EVENT.invoker().interact(player, player.level, InteractionHand.MAIN_HAND, hit);
         if (result != InteractionResult.PASS) return result;
+
+        var block = player.level.getBlockState(hit.getBlockPos());
+        if (!block.isAir() && canUseBlock.test(block)) {
+            var useResult = block.use(player.level, player, InteractionHand.MAIN_HAND, hit);
+            if (useResult.consumesAction()) return useResult;
+        }
 
         return stack.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
     }

@@ -1,21 +1,18 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.core.lua;
 
 import dan200.computercraft.core.computer.TimeoutState;
 
 import javax.annotation.Nullable;
-import java.io.InputStream;
 
 /**
  * The result of executing an action on a machine.
  * <p>
  * Errors should halt the machine and display the error to the user.
  *
- * @see ILuaMachine#loadBios(InputStream)
  * @see ILuaMachine#handleEvent(String, Object[])
  */
 public final class MachineResult {

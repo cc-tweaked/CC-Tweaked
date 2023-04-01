@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.shared.command.builder;
 
 import com.mojang.brigadier.Command;
@@ -70,7 +69,7 @@ public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>> {
         return argMany(name, RepeatArgumentType.someFlat(type, ARGUMENT_EXPECTED), empty);
     }
 
-    private <T, U> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argMany(String name, RepeatArgumentType<T, ?> type, Supplier<List<T>> empty) {
+    private <T> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argMany(String name, RepeatArgumentType<T, ?> type, Supplier<List<T>> empty) {
         if (args.isEmpty()) throw new IllegalStateException("Cannot have empty arg chain builder");
 
         return command -> {

@@ -1,10 +1,10 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
+//
+// SPDX-License-Identifier: LicenseRef-CCPL
+
 package dan200.computercraft.shared.util;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.BaseEncoding;
 import dan200.computercraft.core.util.Nullability;
 import net.minecraft.nbt.*;
@@ -24,7 +24,8 @@ import java.util.Map;
 
 public final class NBTUtil {
     private static final Logger LOG = LoggerFactory.getLogger(NBTUtil.class);
-    private static final BaseEncoding ENCODING = BaseEncoding.base16().lowerCase();
+    @VisibleForTesting
+    static final BaseEncoding ENCODING = BaseEncoding.base16().lowerCase();
 
     private NBTUtil() {
     }
@@ -157,7 +158,7 @@ public final class NBTUtil {
         try {
             var digest = MessageDigest.getInstance("MD5");
             DataOutput output = new DataOutputStream(new DigestOutputStream(digest));
-            writeTag(output, "", tag);
+            writeNamedTag(output, "", tag);
             var hash = digest.digest();
             return ENCODING.encode(hash);
         } catch (NoSuchAlgorithmException | IOException e) {
@@ -176,24 +177,33 @@ public final class NBTUtil {
      * @throws IOException If the underlying stream throws.
      * @see NbtIo#write(CompoundTag, DataOutput)
      * @see CompoundTag#write(DataOutput)
+     * @see ListTag#write(DataOutput)
      */
-    private static void writeTag(DataOutput output, String name, Tag tag) throws IOException {
+    private static void writeNamedTag(DataOutput output, String name, Tag tag) throws IOException {
         output.writeByte(tag.getId());
         if (tag.getId() == 0) return;
         output.writeUTF(name);
+        writeTag(output, tag);
+    }
 
+    private static void writeTag(DataOutput output, Tag tag) throws IOException {
         if (tag instanceof CompoundTag compound) {
             var keys = compound.getAllKeys().toArray(new String[0]);
             Arrays.sort(keys);
-            for (var key : keys) writeTag(output, key, Nullability.assertNonNull(compound.get(key)));
+            for (var key : keys) writeNamedTag(output, key, Nullability.assertNonNull(compound.get(key)));
 
             output.writeByte(0);
+        } else if (tag instanceof ListTag list) {
+            output.writeByte(list.isEmpty() ? 0 : list.get(0).getId());
+            output.writeInt(list.size());
+            for (var value : list) writeTag(output, value);
         } else {
             tag.write(output);
         }
     }
 
-    private static final class DigestOutputStream extends OutputStream {
+    @VisibleForTesting
+    static final class DigestOutputStream extends OutputStream {
         private final MessageDigest digest;
 
         DigestOutputStream(MessageDigest digest) {

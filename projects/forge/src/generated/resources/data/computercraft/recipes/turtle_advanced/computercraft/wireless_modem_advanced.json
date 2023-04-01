@@ -7,5 +7,6 @@
   "result": {
     "item": "computercraft:turtle_advanced",
     "nbt": "{RightUpgrade:\"computercraft:wireless_modem_advanced\"}"
-  }
+  },
+  "show_notification": true
 }

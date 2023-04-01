@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2017 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft;
 
 import dan200.computercraft.api.ComputerCraftAPI;
@@ -14,6 +13,7 @@ import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
+import dan200.computercraft.shared.platform.ForgeConfigFile;
 import dan200.computercraft.shared.details.FluidData;
 import dan200.computercraft.shared.peripheral.generic.methods.EnergyMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
@@ -38,8 +38,8 @@ public final class ComputerCraft {
     public ComputerCraft() {
         ModRegistry.register();
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ConfigSpec.serverSpec);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigSpec.clientSpec);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ((ForgeConfigFile) ConfigSpec.serverSpec).spec());
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ((ForgeConfigFile) ConfigSpec.clientSpec).spec());
 
         NetworkHandler.setup();
     }
@@ -83,11 +83,21 @@ public final class ComputerCraft {
 
     @SubscribeEvent
     public static void sync(ModConfigEvent.Loading event) {
-        ConfigSpec.sync(event.getConfig());
+        syncConfig(event.getConfig());
     }
 
     @SubscribeEvent
     public static void sync(ModConfigEvent.Reloading event) {
-        ConfigSpec.sync(event.getConfig());
+        syncConfig(event.getConfig());
+    }
+
+    private static void syncConfig(ModConfig config) {
+        if (!config.getModId().equals(ComputerCraftAPI.MOD_ID)) return;
+
+        if (config.getType() == ModConfig.Type.SERVER && ((ForgeConfigFile) ConfigSpec.serverSpec).spec().isLoaded()) {
+            ConfigSpec.syncServer();
+        } else if (config.getType() == ModConfig.Type.CLIENT) {
+            ConfigSpec.syncClient();
+        }
     }
 }

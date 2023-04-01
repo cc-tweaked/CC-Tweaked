@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2017 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.shared.platform.PlatformHelper;
@@ -18,6 +17,10 @@ public final class ColourUtils {
     private static final List<TagKey<Item>> DYES = PlatformHelper.get().getDyeTags();
 
     private ColourUtils() {
+    }
+
+    public static TagKey<Item> getDyeTag(DyeColor color) {
+        return DYES.get(color.getId());
     }
 
     public static @Nullable DyeColor getStackColour(ItemStack stack) {

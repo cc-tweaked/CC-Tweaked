@@ -196,8 +196,6 @@
   "itemGroup.computercraft": "ComputerCraft",
   "tracking_field.computercraft.avg": "%s (avg)",
   "tracking_field.computercraft.computer_tasks.name": "Tasks",
-  "tracking_field.computercraft.coroutines_created.name": "Coroutines created",
-  "tracking_field.computercraft.coroutines_dead.name": "Coroutines disposed",
   "tracking_field.computercraft.count": "%s (count)",
   "tracking_field.computercraft.fs.name": "Filesystem operations",
   "tracking_field.computercraft.http_download.name": "HTTP download",

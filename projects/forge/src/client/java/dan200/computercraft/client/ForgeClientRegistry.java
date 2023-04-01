@@ -1,13 +1,11 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.client;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.model.turtle.TurtleModelLoader;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
@@ -49,8 +47,6 @@ public final class ForgeClientRegistry {
     @SubscribeEvent
     public static void setupClient(FMLClientSetupEvent event) {
         ClientRegistry.register();
-        ClientRegistry.registerBlockEntityRenderers(BlockEntityRenderers::register);
-
         event.enqueueWork(ClientRegistry::registerMainThread);
     }
 }

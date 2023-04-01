@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
@@ -43,9 +47,11 @@ dependencies {
     implementation(libs.kotlin.plugin)
     implementation(libs.spotless)
 
+    implementation(libs.curseForgeGradle)
     implementation(libs.fabric.loom)
     implementation(libs.forgeGradle)
     implementation(libs.librarian)
+    implementation(libs.minotaur)
     implementation(libs.quiltflower)
     implementation(libs.vanillaGradle)
 }

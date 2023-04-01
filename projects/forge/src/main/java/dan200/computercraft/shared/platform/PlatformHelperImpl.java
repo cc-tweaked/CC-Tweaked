@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.shared.platform;
 
 import com.google.auto.service.AutoService;
@@ -14,6 +13,7 @@ import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.impl.Peripherals;
 import dan200.computercraft.shared.Capabilities;
+import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
@@ -74,13 +74,15 @@ import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 @AutoService(dan200.computercraft.impl.PlatformHelper.class)
 public class PlatformHelperImpl implements PlatformHelper {
+    @Override
+    public ConfigFile.Builder createConfigBuilder() {
+        return new ForgeConfigFile.Builder();
+    }
+
     @Override
     public <T> ResourceLocation getRegistryKey(ResourceKey<Registry<T>> registry, T object) {
         var key = RegistryManager.ACTIVE.getRegistry(registry).getKey(object);
@@ -318,17 +320,25 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit) {
+    public InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit, Predicate<BlockState> canUseBlock) {
         var level = player.level;
         var pos = hit.getBlockPos();
         var event = ForgeHooks.onRightClickBlock(player, InteractionHand.MAIN_HAND, pos, hit);
         if (event.isCanceled()) return event.getCancellationResult();
 
         var context = new UseOnContext(player, InteractionHand.MAIN_HAND, hit);
-        if (event.getUseItem() == Event.Result.DENY) return InteractionResult.PASS;
+        if (event.getUseItem() != Event.Result.DENY) {
+            var result = stack.onItemUseFirst(context);
+            if (result != InteractionResult.PASS) return result;
+        }
 
-        var result = stack.onItemUseFirst(context);
-        return result != InteractionResult.PASS ? result : stack.useOn(context);
+        var block = level.getBlockState(hit.getBlockPos());
+        if (event.getUseBlock() != Event.Result.DENY && !block.isAir() && canUseBlock.test(block)) {
+            var useResult = block.use(level, player, InteractionHand.MAIN_HAND, hit);
+            if (useResult.consumesAction()) return useResult;
+        }
+
+        return event.getUseItem() == Event.Result.DENY ? InteractionResult.PASS : stack.useOn(context);
     }
 
     private record RegistryWrapperImpl<T>(

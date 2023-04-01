@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 --[[- The @{cc.expect} library provides helper functions for verifying that
 function arguments are well-formed and of the correct type.
 
@@ -38,6 +42,21 @@ local function get_type_names(...)
         return table.concat(types, ", ", 1, #types - 1) .. " or " .. types[#types]
     end
 end
+
+
+local function get_display_type(value, t)
+    -- Lua is somewhat inconsistent in whether it obeys __name just for values which
+    -- have a per-instance metatable (so tables/userdata) or for everything. We follow
+    -- Cobalt and only read the metatable for tables/userdata.
+    if t ~= "table" and t ~= "userdata" then return t end
+
+    local metatable = debug.getmetatable(value)
+    if not metatable then return t end
+
+    local name = rawget(metatable, "__name")
+    if type(name) == "string" then return name else return t end
+end
+
 --- Expect an argument to have a specific type.
 --
 -- @tparam number index The 1-based argument index.
@@ -56,11 +75,13 @@ local function expect(index, value, ...)
     local ok, info = pcall(debug.getinfo, 3, "nS")
     if ok and info.name and info.name ~= "" and info.what ~= "C" then name = info.name end
 
+    t = get_display_type(value, t)
+
     local type_names = get_type_names(...)
     if name then
-        error(("bad argument #%d to '%s' (expected %s, got %s)"):format(index, name, type_names, t), 3)
+        error(("bad argument #%d to '%s' (%s expected, got %s)"):format(index, name, type_names, t), 3)
     else
-        error(("bad argument #%d (expected %s, got %s)"):format(index, type_names, t), 3)
+        error(("bad argument #%d (%s expected, got %s)"):format(index, type_names, t), 3)
     end
 end
 
@@ -81,10 +102,12 @@ local function field(tbl, index, ...)
         if t == native_select(i, ...) then return value end
     end
 
+    t = get_display_type(value, t)
+
     if value == nil then
         error(("field '%s' missing from table"):format(index), 3)
     else
-        error(("bad field '%s' (expected %s, got %s)"):format(index, get_type_names(...), t), 3)
+        error(("bad field '%s' (%s expected, got %s)"):format(index, get_type_names(...), t), 3)
     end
 end
 

@@ -2,6 +2,12 @@
 module: [kind=event] terminate
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 The @{terminate} event is fired when <kbd>Ctrl-T</kbd> is held down.
 
 This event is normally handled by @{os.pullEvent}, and will not be returned. However, @{os.pullEventRaw} will return this event when fired.

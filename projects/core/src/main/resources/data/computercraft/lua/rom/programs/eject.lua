@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 -- Get arguments
 local tArgs = { ... }
 if #tArgs == 0 then

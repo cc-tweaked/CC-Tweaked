@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 describe("cc.audio.dfpwm", function()
     local dfpwm = require "cc.audio.dfpwm"
 

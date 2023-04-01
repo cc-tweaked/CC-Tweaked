@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.data;
 
 import dan200.computercraft.api.ComputerCraftTags;
@@ -56,6 +55,8 @@ class TagProvider {
         );
 
         tags.tag(ComputerCraftTags.Blocks.TURTLE_SWORD_BREAKABLE).addTag(BlockTags.WOOL).add(Blocks.COBWEB);
+
+        tags.tag(ComputerCraftTags.Blocks.TURTLE_CAN_USE).addTag(BlockTags.CAULDRONS).addTag(BlockTags.BEEHIVES);
 
         // Make all blocks aside from command computer mineable.
         tags.tag(BlockTags.MINEABLE_WITH_PICKAXE).add(

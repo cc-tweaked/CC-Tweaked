@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 local function keys(tbl)
     local keys = {}
     for k in pairs(tbl) do keys[#keys + 1] = k end

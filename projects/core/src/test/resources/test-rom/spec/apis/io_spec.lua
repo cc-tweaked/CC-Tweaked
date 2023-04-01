@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 --- Tests the io library is (mostly) consistent with PUC Lua.
 --
 -- These tests are based on the tests for Lua 5.1 and 5.3
@@ -72,7 +76,7 @@ describe("The io library", function()
         it("validates arguments", function()
             io.lines(nil)
             expect.error(io.lines, ""):eq("/: No such file")
-            expect.error(io.lines, false):eq("bad argument #1 (expected string, got boolean)")
+            expect.error(io.lines, false):eq("bad argument #1 (string expected, got boolean)")
         end)
 
         it("closes the file", function()
@@ -163,8 +167,8 @@ describe("The io library", function()
             io.open("")
             io.open("", "r")
 
-            expect.error(io.open, nil):eq("bad argument #1 (expected string, got nil)")
-            expect.error(io.open, "", false):eq("bad argument #2 (expected string, got boolean)")
+            expect.error(io.open, nil):eq("bad argument #1 (string expected, got nil)")
+            expect.error(io.open, "", false):eq("bad argument #2 (string expected, got boolean)")
         end)
 
         it("checks the mode", function()

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 import { render, h, Component, Computer, PeripheralKind } from "copycat/embed";
 import type { ComponentChild } from "preact";
 
@@ -6,7 +10,7 @@ import startupFile from "./mount/startup.lua";
 import exprTemplate from "./mount/expr_template.lua";
 import exampleNfp from "./mount/example.nfp";
 import exampleNft from "./mount/example.nft";
-import exampleAudioLicense from "./mount/example.dfpwm.LICENSE";
+import exampleAudioLicense from "./mount/example.dfpwm.license";
 import exampleAudioUrl from "./mount/example.dfpwm";
 
 const defaultFiles: { [filename: string]: string } = {
@@ -84,7 +88,7 @@ class Window extends Component<WindowProps, WindowState> {
 
             const mount = element.getAttribute("data-mount");
             const peripheral = element.getAttribute("data-peripheral");
-            render(<Click run={this.runExample(example, mount, peripheral)} />, element);
+            render(<Click run={this.runExample(example, mount, peripheral)} />, element.parentElement!!);
         }
     }
 
@@ -94,14 +98,16 @@ class Window extends Component<WindowProps, WindowState> {
 
     public render(_: WindowProps, { visible, example, exampleIdx }: WindowState): ComponentChild {
         return visible ? <div class="example-window" style={`transform: translate(${this.left}px, ${this.top}px);`}>
-            <div class="titlebar">
-                <div class="titlebar-drag" onMouseDown={this.onMouseDown} onTouchStart={this.onTouchDown} />
-                <button type="button" class="titlebar-close" onClick={this.close}>{"\u2715"}</button>
-            </div>
-            <div class="computer-container">
-                <Computer key={exampleIdx} files={{
-                    ...defaultFiles, ...example!.files,
-                }} peripherals={{ back: example!.peripheral }} />
+            <div class="example-contents">
+                <div class="titlebar">
+                    <div class="titlebar-drag" onMouseDown={this.onMouseDown} onTouchStart={this.onTouchDown} />
+                    <button type="button" class="titlebar-close" onClick={this.close}>{"\u2715"}</button>
+                </div>
+                <div class="computer-container">
+                    <Computer key={exampleIdx} files={{
+                        ...defaultFiles, ...example!.files,
+                    }} peripherals={{ back: example!.peripheral }} />
+                </div>
             </div>
         </div> : <div class="example-window example-window-hidden" />;
     }
@@ -123,7 +129,7 @@ class Window extends Component<WindowProps, WindowState> {
             }
 
             if (example.includes("data/example.dfpwm")) {
-                files["data/example.dfpwm.LICENSE"] = exampleAudioLicense;
+                files["data/example.dfpwm.license"] = exampleAudioLicense;
 
                 try {
                     if (dfpwmAudio === null) dfpwmAudio = download(exampleAudioUrl);

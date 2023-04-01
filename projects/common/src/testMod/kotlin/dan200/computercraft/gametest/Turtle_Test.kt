@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.gametest
 
 import dan200.computercraft.api.detail.BasicItemDetailProvider
@@ -185,7 +184,7 @@ class Turtle_Test {
      *
      * Currently not required as turtles can no longer right-click cauldrons.
      */
-    @GameTest(required = false)
+    @GameTest
     fun Cleaned_with_cauldrons(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
             val details = getTurtleItemDetail(1, true)

@@ -1,13 +1,11 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.client.pocket;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.computer.items.ComputerItem;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -47,7 +45,7 @@ public final class ClientPocketComputers {
     }
 
     public static PocketComputerData get(ItemStack stack) {
-        var family = stack.getItem() instanceof ComputerItem computer ? computer.getFamily() : ComputerFamily.NORMAL;
+        var family = stack.getItem() instanceof PocketComputerItem computer ? computer.getFamily() : ComputerFamily.NORMAL;
         return get(PocketComputerItem.getInstanceID(stack), family != ComputerFamily.NORMAL);
     }
 }

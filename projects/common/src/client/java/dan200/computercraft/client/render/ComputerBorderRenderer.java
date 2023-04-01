@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
+//
+// SPDX-License-Identifier: LicenseRef-CCPL
+
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -72,9 +71,9 @@ public class ComputerBorderRenderer {
         return RenderType.text(location);
     }
 
-    public static void render(Matrix4f transform, ResourceLocation location, int x, int y, int z, int light, int width, int height) {
+    public static void render(Matrix4f transform, ResourceLocation location, int x, int y, int light, int width, int height) {
         var source = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        render(transform, source.getBuffer(getRenderType(location)), x, y, z, light, width, height, false, 1, 1, 1);
+        render(transform, source.getBuffer(getRenderType(location)), x, y, 1, light, width, height, false, 1, 1, 1);
         source.endBatch();
     }
 

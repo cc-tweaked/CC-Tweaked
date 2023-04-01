@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
+//
+// SPDX-License-Identifier: LicenseRef-CCPL
+
 package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -245,7 +244,9 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     @Override
-    public void onFocusedChanged(boolean focused) {
+    public void setFocused(boolean focused) {
+        super.setFocused(focused);
+
         if (!focused) {
             // When blurring, we should make all keys go up
             for (var key = 0; key < keysDown.size(); key++) {
@@ -264,7 +265,7 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     @Override
-    public void render(PoseStack transform, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(PoseStack transform, int mouseX, int mouseY, float partialTicks) {
         if (!visible) return;
 
         var bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());

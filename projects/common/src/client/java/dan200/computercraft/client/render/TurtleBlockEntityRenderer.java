@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
+//
+// SPDX-License-Identifier: LicenseRef-CCPL
+
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -87,8 +86,9 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
             var matrix = transform.last().pose();
             var opacity = (int) (mc.options.getBackgroundOpacity(0.25f) * 255) << 24;
             var width = -font.width(label) / 2.0f;
-            font.drawInBatch(label, width, (float) 0, 0x20ffffff, false, matrix, buffers, true, opacity, lightmapCoord);
-            font.drawInBatch(label, width, (float) 0, 0xffffffff, false, matrix, buffers, false, 0, lightmapCoord);
+            // TODO: Check this looks okay
+            font.drawInBatch(label, width, (float) 0, 0x20ffffff, false, matrix, buffers, Font.DisplayMode.SEE_THROUGH, opacity, lightmapCoord);
+            font.drawInBatch(label, width, (float) 0, 0xffffffff, false, matrix, buffers, Font.DisplayMode.NORMAL, 0, lightmapCoord);
 
             transform.popPose();
         }

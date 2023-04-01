@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.shared.platform;
 
 import com.google.gson.JsonObject;
@@ -10,6 +9,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * This extends {@linkplain dan200.computercraft.impl.PlatformHelper the API's loader abstraction layer}, adding
@@ -67,6 +68,13 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     static PlatformHelper get() {
         return (PlatformHelper) dan200.computercraft.impl.PlatformHelper.get();
     }
+
+    /**
+     * Create a new config builder.
+     *
+     * @return The newly created config builder.
+     */
+    ConfigFile.Builder createConfigBuilder();
 
     /**
      * Wrap a Minecraft registry in our own abstraction layer.
@@ -385,13 +393,15 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      * Place an item against a block.
      * <p>
      * Implementations should largely mirror {@link ServerPlayerGameMode#useItemOn(ServerPlayer, Level, ItemStack, InteractionHand, BlockHitResult)}
-     * (including any loader-specific modifications), except they should skip the call to {@link BlockState#use(Level, Player, InteractionHand, BlockHitResult)}.
+     * (including any loader-specific modifications), except the call to {@link BlockState#use(Level, Player, InteractionHand, BlockHitResult)}
+     * should only be evaluated when {@code canUseBlock} evaluates to true.
      *
-     * @param player The player which is placing this item.
-     * @param stack  The item to place.
-     * @param hit    The collision with the block we're placing against.
+     * @param player      The player which is placing this item.
+     * @param stack       The item to place.
+     * @param hit         The collision with the block we're placing against.
+     * @param canUseBlock Test whether the block should be interacted with first.
      * @return Whether any interaction occurred.
      * @see ServerPlayerGameMode#useItemOn(ServerPlayer, Level, ItemStack, InteractionHand, BlockHitResult)
      */
-    InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit);
+    InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit, Predicate<BlockState> canUseBlock);
 }

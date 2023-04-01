@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 # Lua VM tests
 
 Unlike the rest of the test suites, the code in this folder doesn't test any

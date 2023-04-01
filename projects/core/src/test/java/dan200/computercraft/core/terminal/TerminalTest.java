@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: LicenseRef-CCPL
+
 package dan200.computercraft.core.terminal;
 
 import dan200.computercraft.api.lua.LuaValues;

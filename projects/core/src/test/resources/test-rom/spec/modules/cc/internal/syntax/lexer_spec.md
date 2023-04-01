@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 We provide a lexer for Lua source code. Here we test that the lexer returns the
 correct tokens and positions, and that it can report sensible error messages.
 

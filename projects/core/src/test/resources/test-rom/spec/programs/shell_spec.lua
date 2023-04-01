@@ -1,10 +1,14 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 local with_window = require "test_helpers".with_window
 
 describe("The shell", function()
     describe("require", function()
         it("validates arguments", function()
             require("math")
-            expect.error(require, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(require, nil):eq("bad argument #1 (string expected, got nil)")
         end)
     end)
 
@@ -17,14 +21,16 @@ describe("The shell", function()
 
             expect(args):same { [0] = "/test-rom/data/dump-args", "arg1", "arg 2" }
         end)
+    end)
 
+    describe("hashbangs", function()
         local function make_hashbang_file(target, filename)
             local tmp = fs.open(filename or "test-files/out.lua", "w")
             tmp.write("#!" .. target)
             tmp.close()
         end
 
-        it("supports hashbangs", function()
+        it("has basic support", function()
             make_hashbang_file("/test-rom/data/dump-args")
             shell.execute("test-files/out.lua", "arg1", "arg2")
 
@@ -78,6 +84,16 @@ describe("The shell", function()
             make_hashbang_file("test-files/out.lua")
             expect(shell.execute("test-files/out.lua")):eq(false)
         end)
+
+        it("returns error for using the shell", function()
+            make_hashbang_file("shell")
+            expect(shell.execute("test-files/out.lua")):eq(false)
+        end)
+
+        it("allows running a shell with arguments", function()
+            make_hashbang_file("shell /test-rom/data/dump-args")
+            expect(shell.execute("test-files/out.lua")):eq(true)
+        end)
     end)
 
     describe("shell.run", function()
@@ -94,7 +110,7 @@ describe("The shell", function()
     describe("shell.setDir", function()
         it("validates arguments", function()
             shell.setDir(shell.dir())
-            expect.error(shell.setDir, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(shell.setDir, nil):eq("bad argument #1 (string expected, got nil)")
         end)
 
         it("not existing directory", function()
@@ -105,63 +121,63 @@ describe("The shell", function()
     describe("shell.setPath", function()
         it("validates arguments", function()
             shell.setPath(shell.path())
-            expect.error(shell.setPath, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(shell.setPath, nil):eq("bad argument #1 (string expected, got nil)")
         end)
     end)
 
     describe("shell.resolve", function()
         it("validates arguments", function()
             shell.resolve("")
-            expect.error(shell.resolve, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(shell.resolve, nil):eq("bad argument #1 (string expected, got nil)")
         end)
     end)
 
     describe("shell.resolveProgram", function()
         it("validates arguments", function()
             shell.resolveProgram("ls")
-            expect.error(shell.resolveProgram, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(shell.resolveProgram, nil):eq("bad argument #1 (string expected, got nil)")
         end)
     end)
 
     describe("shell.complete", function()
         it("validates arguments", function()
             shell.complete("ls")
-            expect.error(shell.complete, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(shell.complete, nil):eq("bad argument #1 (string expected, got nil)")
         end)
     end)
 
     describe("shell.setCompletionFunction", function()
         it("validates arguments", function()
-            expect.error(shell.setCompletionFunction, nil):eq("bad argument #1 (expected string, got nil)")
-            expect.error(shell.setCompletionFunction, "", nil):eq("bad argument #2 (expected function, got nil)")
+            expect.error(shell.setCompletionFunction, nil):eq("bad argument #1 (string expected, got nil)")
+            expect.error(shell.setCompletionFunction, "", nil):eq("bad argument #2 (function expected, got nil)")
         end)
     end)
 
     describe("shell.setCompletionFunction", function()
         it("validates arguments", function()
-            expect.error(shell.setCompletionFunction, nil):eq("bad argument #1 (expected string, got nil)")
-            expect.error(shell.setCompletionFunction, "", nil):eq("bad argument #2 (expected function, got nil)")
+            expect.error(shell.setCompletionFunction, nil):eq("bad argument #1 (string expected, got nil)")
+            expect.error(shell.setCompletionFunction, "", nil):eq("bad argument #2 (function expected, got nil)")
         end)
     end)
 
     describe("shell.setAlias", function()
         it("validates arguments", function()
             shell.setAlias("sl", "ls")
-            expect.error(shell.setAlias, nil):eq("bad argument #1 (expected string, got nil)")
-            expect.error(shell.setAlias, "", nil):eq("bad argument #2 (expected string, got nil)")
+            expect.error(shell.setAlias, nil):eq("bad argument #1 (string expected, got nil)")
+            expect.error(shell.setAlias, "", nil):eq("bad argument #2 (string expected, got nil)")
         end)
     end)
 
     describe("shell.clearAlias", function()
         it("validates arguments", function()
             shell.clearAlias("sl")
-            expect.error(shell.clearAlias, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(shell.clearAlias, nil):eq("bad argument #1 (string expected, got nil)")
         end)
     end)
 
     describe("shell.switchTab", function()
         it("validates arguments", function()
-            expect.error(shell.switchTab, nil):eq("bad argument #1 (expected number, got nil)")
+            expect.error(shell.switchTab, nil):eq("bad argument #1 (number expected, got nil)")
         end)
     end)
 

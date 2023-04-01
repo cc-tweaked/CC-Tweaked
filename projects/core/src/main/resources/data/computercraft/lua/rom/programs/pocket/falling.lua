@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --[[
 Falling - Based on Tetris by Alexey Pajitnov
 This version written by Gopher, at the request of Dan200, for

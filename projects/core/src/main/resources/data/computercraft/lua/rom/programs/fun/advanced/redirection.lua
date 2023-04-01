@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --CCRedirection by : RamiLego4Game and Dan200--
 --Based on Redirection by Dan200: http://www.redirectiongame.com--
 --Clearing Screen--

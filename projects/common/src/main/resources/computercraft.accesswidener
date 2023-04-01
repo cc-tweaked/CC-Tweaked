@@ -1,5 +1,9 @@
 accessWidener v1 named
 
+# SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+
 # Shared vanilla and Fabric access wideners. This should not include things already exposed by Fabric's transitive
 # wideners.
 

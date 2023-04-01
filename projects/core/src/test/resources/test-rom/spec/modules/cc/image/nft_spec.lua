@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 local helpers = require "test_helpers"
 
 describe("cc.image.nft", function()
@@ -6,7 +10,7 @@ describe("cc.image.nft", function()
     describe("parse", function()
         it("validates arguments", function()
             nft.parse("")
-            expect.error(nft.parse, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(nft.parse, nil):eq("bad argument #1 (string expected, got nil)")
         end)
 
         it("parses an empty string", function()
@@ -40,7 +44,7 @@ describe("cc.image.nft", function()
     describe("load", function()
         it("validates arguments", function()
             nft.load("")
-            expect.error(nft.load, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(nft.load, nil):eq("bad argument #1 (string expected, got nil)")
         end)
 
         it("loads from a file", function()
@@ -61,10 +65,10 @@ describe("cc.image.nft", function()
 
     describe("draw", function()
         it("validates arguments", function()
-            expect.error(nft.draw, nil):eq("bad argument #1 (expected table, got nil)")
-            expect.error(nft.draw, {}, nil):eq("bad argument #2 (expected number, got nil)")
-            expect.error(nft.draw, {}, 1, nil):eq("bad argument #3 (expected number, got nil)")
-            expect.error(nft.draw, {}, 1, 1, false):eq("bad argument #4 (expected table, got boolean)")
+            expect.error(nft.draw, nil):eq("bad argument #1 (table expected, got nil)")
+            expect.error(nft.draw, {}, nil):eq("bad argument #2 (number expected, got nil)")
+            expect.error(nft.draw, {}, 1, nil):eq("bad argument #3 (number expected, got nil)")
+            expect.error(nft.draw, {}, 1, 1, false):eq("bad argument #4 (table expected, got boolean)")
         end)
 
         it("draws an image", function()

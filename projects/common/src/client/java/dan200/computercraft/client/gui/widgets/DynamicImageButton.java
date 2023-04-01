@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -58,7 +57,7 @@ public class DynamicImageButton extends Button {
     }
 
     @Override
-    public void renderButton(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
         RenderSystem.setShaderTexture(0, texture);
         RenderSystem.disableDepthTest();
 

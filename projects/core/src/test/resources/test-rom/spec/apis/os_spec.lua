@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 describe("The os library", function()
     describe("os.date and os.time", function()
         it("round trips correctly", function()
@@ -175,13 +179,13 @@ describe("The os library", function()
 
     describe("os.loadAPI", function()
         it("validates arguments", function()
-            expect.error(os.loadAPI, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(os.loadAPI, nil):eq("bad argument #1 (string expected, got nil)")
         end)
     end)
 
     describe("os.unloadAPI", function()
         it("validates arguments", function()
-            expect.error(os.loadAPI, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(os.loadAPI, nil):eq("bad argument #1 (string expected, got nil)")
         end)
     end)
 end)

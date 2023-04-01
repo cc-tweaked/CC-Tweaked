@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 --[[- A pretty printer for rendering data structures in an aesthetically
 pleasing manner.
 

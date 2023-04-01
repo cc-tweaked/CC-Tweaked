@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.shared.platform;
 
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
@@ -111,7 +110,7 @@ public class FabricContainerTransfer implements ContainerTransfer {
 
             long transferred = 0;
             for (var i = 0; i < size; i++) {
-                transferred += slots.get(wrap(i, size)).insert(resource, maxAmount, transaction);
+                transferred += slots.get(wrap(i, size)).insert(resource, maxAmount - transferred, transaction);
                 if (transferred >= maxAmount) break;
             }
 
@@ -125,7 +124,7 @@ public class FabricContainerTransfer implements ContainerTransfer {
 
             long transferred = 0;
             for (var i = 0; i < size; i++) {
-                transferred += slots.get(wrap(i, size)).extract(resource, maxAmount, transaction);
+                transferred += slots.get(wrap(i, size)).extract(resource, maxAmount - transferred, transaction);
                 if (transferred >= maxAmount) break;
             }
 

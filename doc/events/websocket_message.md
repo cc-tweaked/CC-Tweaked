@@ -2,6 +2,12 @@
 module: [kind=event] websocket_message
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 The @{websocket_message} event is fired when a message is received on an open WebSocket connection.
 
 This event is normally handled by @{http.Websocket.receive}, but it can also be pulled manually.

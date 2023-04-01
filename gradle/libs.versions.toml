@@ -1,65 +1,70 @@
+# SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+
 [versions]
 
 # Minecraft
 # MC version is specified in gradle.properties, as we need that in settings.gradle.
-fabric-api = "0.68.1+1.19.3"
-fabric-loader = "0.14.11"
-forge = "44.1.0"
+# Remember to update corresponding versions in fabric.mod.json/mods.toml
+fabric-api = "0.75.3+1.19.4"
+fabric-loader = "0.14.17"
+forge = "45.0.6"
 forgeSpi = "6.0.0"
 mixin = "0.8.5"
-parchment = "2022.11.27"
-parchmentMc = "1.19.2"
+parchment = "2023.03.12"
+parchmentMc = "1.19.3"
 
 # Normal dependencies
 asm = "9.3"
 autoService = "1.0.1"
-checkerFramework = "3.12.0"
-cobalt = "0.6.0"
+checkerFramework = "3.32.0"
+cobalt = "0.7.0"
+cobalt-next = "0.7.1" # Not a real version, used to constrain the version we accept.
 fastutil = "8.5.9"
 guava = "31.1-jre"
-jetbrainsAnnotations = "23.0.0"
+jetbrainsAnnotations = "24.0.1"
 jsr305 = "3.0.2"
-kotlin = "1.8.0"
+jzlib = "1.1.3"
+kotlin = "1.8.10"
 kotlin-coroutines = "1.6.4"
 netty = "4.1.82.Final"
 nightConfig = "3.6.5"
 slf4j = "1.7.36"
 
 # Minecraft mods
-forgeConfig = "5.0.4"
-iris = "1.19.3-v1.4.6"
+iris = "1.5.2+1.19.4"
 jei = "11.3.0.262"
-modmenu = "5.0.1"
+modmenu = "6.1.0-rc.1"
 oculus = "1.2.5"
 rei = "10.0.578"
 rubidium = "0.6.1"
-sodium = "mc1.19.3-0.4.6"
+sodium = "mc1.19.4-0.4.10"
 
 # Testing
-byteBuddy = "1.12.19"
+byteBuddy = "1.14.2"
 hamcrest = "2.2"
-jqwik = "1.7.0"
-junit = "5.9.1"
+jqwik = "1.7.2"
+junit = "5.9.2"
 
 # Build tools
-cctJavadoc = "1.6.0"
+cctJavadoc = "1.6.1"
 checkstyle = "10.3.4"
 curseForgeGradle = "1.0.11"
-errorProne-core = "2.14.0"
-errorProne-plugin = "2.0.2"
-fabric-loom = "1.0-SNAPSHOT"
+errorProne-core = "2.18.0"
+errorProne-plugin = "3.0.1"
+fabric-loom = "1.1.10"
 forgeGradle = "5.1.+"
 githubRelease = "2.2.12"
 ideaExt = "1.1.6"
-illuaminate = "0.1.0-20-g8c483a4"
+illuaminate = "0.1.0-24-gdb28902"
 librarian = "1.+"
 minotaur = "2.+"
 mixinGradle = "0.7.+"
 nullAway = "0.9.9"
-quiltflower = "1.7.3"
-shadow = "7.1.2"
-spotless = "6.8.0"
-taskTree = "2.1.0"
+quiltflower = "1.8.0"
+spotless = "6.17.0"
+taskTree = "2.1.1"
 vanillaGradle = "0.2.1-SNAPSHOT"
 
 [libraries]
@@ -73,8 +78,9 @@ forgeSpi = { module = "net.minecraftforge:forgespi", version.ref = "forgeSpi" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 jetbrainsAnnotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsAnnotations" }
 jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "jsr305" }
-kotlin-platform = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
+jzlib = { module = "com.jcraft:jzlib", version.ref = "jzlib" }
 kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
+kotlin-platform = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 netty-http = { module = "io.netty:netty-codec-http", version.ref = "netty" }
 nightConfig-core = { module = "com.electronwill.night-config:core", version.ref = "nightConfig" }
@@ -84,7 +90,6 @@ slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 # Minecraft mods
 fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
-forgeConfig = { module = "fuzs.forgeconfigapiport:forgeconfigapiport-fabric", version.ref = "forgeConfig" }
 iris = { module = "maven.modrinth:iris", version.ref = "iris" }
 jei-api = { module = "mezz.jei:jei-1.19.2-common-api", version.ref = "jei" }
 jei-fabric = { module = "mezz.jei:jei-1.19.2-fabric", version.ref = "jei" }
@@ -99,8 +104,8 @@ rubidium = { module = "maven.modrinth:rubidium", version.ref = "rubidium" }
 sodium = { module = "maven.modrinth:sodium", version.ref = "sodium" }
 
 # Testing
-byteBuddyAgent = { module ="net.bytebuddy:byte-buddy-agent", version.ref = "byteBuddy" }
-byteBuddy = { module ="net.bytebuddy:byte-buddy", version.ref = "byteBuddy" }
+byteBuddyAgent = { module = "net.bytebuddy:byte-buddy-agent", version.ref = "byteBuddy" }
+byteBuddy = { module = "net.bytebuddy:byte-buddy", version.ref = "byteBuddy" }
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
 jqwik-api = { module = "net.jqwik:jqwik-api", version.ref = "jqwik" }
 jqwik-engine = { module = "net.jqwik:jqwik-engine", version.ref = "jqwik" }
@@ -112,6 +117,7 @@ slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 # Build tools
 cctJavadoc = { module = "cc.tweaked:cct-javadoc", version.ref = "cctJavadoc" }
 checkstyle = { module = "com.puppycrawl.tools:checkstyle", version.ref = "checkstyle" }
+curseForgeGradle = { module = "net.darkhax.curseforgegradle:CurseForgeGradle", version.ref = "curseForgeGradle" }
 errorProne-annotations = { module = "com.google.errorprone:error_prone_annotations", version.ref = "errorProne-core" }
 errorProne-api = { module = "com.google.errorprone:error_prone_check_api", version.ref = "errorProne-core" }
 errorProne-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorProne-core" }
@@ -121,31 +127,29 @@ fabric-loom = { module = "net.fabricmc:fabric-loom", version.ref = "fabric-loom"
 forgeGradle = { module = "net.minecraftforge.gradle:ForgeGradle", version.ref = "forgeGradle" }
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 librarian = { module = "org.parchmentmc:librarian", version.ref = "librarian" }
+minotaur = { module = "com.modrinth.minotaur:Minotaur", version.ref = "minotaur" }
 nullAway = { module = "com.uber.nullaway:nullaway", version.ref = "nullAway" }
 quiltflower = { module = "io.github.juuxel:loom-quiltflower", version.ref = "quiltflower" }
 spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 vanillaGradle = { module = "org.spongepowered:vanillagradle", version.ref = "vanillaGradle" }
 
 [plugins]
-curseForgeGradle = { id = "net.darkhax.curseforgegradle", version.ref = "curseForgeGradle" }
 forgeGradle = { id = "net.minecraftforge.gradle", version.ref = "forgeGradle" }
 githubRelease = { id = "com.github.breadmoirai.github-release", version.ref = "githubRelease" }
 ideaExt = { id = "org.jetbrains.gradle.plugin.idea-ext", version.ref = "ideaExt" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 librarian = { id = "org.parchmentmc.librarian.forgegradle", version.ref = "librarian" }
-minotaur = { id = "com.modrinth.minotaur", version.ref = "minotaur" }
 mixinGradle = { id = "org.spongepowered.mixin", version.ref = "mixinGradle" }
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
 taskTree = { id = "com.dorongold.task-tree", version.ref = "taskTree" }
 
 [bundles]
 kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 
 # Minecraft
-externalMods-common = ["jei-api", "forgeConfig", "nightConfig-core", "nightConfig-toml"]
+externalMods-common = ["jei-api", "nightConfig-core", "nightConfig-toml"]
 externalMods-forge-compile = ["oculus", "jei-api"]
 externalMods-forge-runtime = []
-externalMods-fabric = ["fabric-loader", "fabric-api", "forgeConfig", "nightConfig-core", "nightConfig-toml"]
+externalMods-fabric = ["nightConfig-core", "nightConfig-toml"]
 externalMods-fabric-compile = ["iris", "jei-api", "rei-api", "rei-builtin"]
 externalMods-fabric-runtime = ["modmenu"]
 

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2017 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 # ![CC: Tweaked](doc/logo.png)
 [![Current build status](https://github.com/cc-tweaked/CC-Tweaked/workflows/Build/badge.svg)](https://github.com/cc-tweaked/CC-Tweaked/actions "Current build status") [![Download CC: Tweaked on CurseForge](http://cf.way2muchnoise.eu/title/cc-tweaked.svg)][CurseForge]
 
@@ -30,7 +36,6 @@ repositories {
     content {
       includeGroup("cc.tweaked")
       includeModule("org.squiddev", "Cobalt")
-      includeModule("fuzs.forgeconfigapiport", "forgeconfigapiport-fabric")
     }
   }
 }
@@ -40,6 +45,7 @@ dependencies {
   compileOnly("cc.tweaked:cc-tweaked-$mcVersion-common-api")
 
   // Forge Gradle
+  compileOnly("cc.tweaked:cc-tweaked-$mcVersion-core-api:$cctVersion")
   compileOnly(fg.deobf("cc.tweaked:cc-tweaked-$mcVersion-forge-api:$cctVersion"))
   runtimeOnly(fg.deobf("cc.tweaked:cc-tweaked-$mcVersion-forge:$cctVersion"))
 

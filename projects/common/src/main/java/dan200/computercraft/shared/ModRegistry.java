@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.shared;
 
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -71,6 +70,7 @@ import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.turtle.inventory.TurtleMenu;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
+import dan200.computercraft.shared.turtle.recipes.TurtleOverlayRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.turtle.upgrades.*;
@@ -82,6 +82,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.CustomRecipe;
@@ -295,10 +296,10 @@ public final class ModRegistry {
             () -> ContainerData.toType(ComputerContainerData::new, TurtleMenu::ofMenuData));
 
         public static final RegistryEntry<MenuType<DiskDriveMenu>> DISK_DRIVE = REGISTRY.register("disk_drive",
-            () -> new MenuType<>(DiskDriveMenu::new));
+            () -> new MenuType<>(DiskDriveMenu::new, FeatureFlags.VANILLA_SET));
 
         public static final RegistryEntry<MenuType<PrinterMenu>> PRINTER = REGISTRY.register("printer",
-            () -> new MenuType<>(PrinterMenu::new));
+            () -> new MenuType<>(PrinterMenu::new, FeatureFlags.VANILLA_SET));
 
         public static final RegistryEntry<MenuType<HeldItemMenu>> PRINTOUT = REGISTRY.register("printout",
             () -> ContainerData.toType(HeldItemContainerData::new, HeldItemMenu::createPrintout));
@@ -355,6 +356,7 @@ public final class ModRegistry {
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<ClearColourRecipe>> DYEABLE_ITEM_CLEAR = simple("clear_colour", ClearColourRecipe::new);
         public static final RegistryEntry<TurtleRecipe.Serializer> TURTLE = REGISTRY.register("turtle", TurtleRecipe.Serializer::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<TurtleUpgradeRecipe>> TURTLE_UPGRADE = simple("turtle_upgrade", TurtleUpgradeRecipe::new);
+        public static final RegistryEntry<TurtleOverlayRecipe.Serializer> TURTLE_OVERLAY = REGISTRY.register("turtle_overlay", TurtleOverlayRecipe.Serializer::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<PocketComputerUpgradeRecipe>> POCKET_COMPUTER_UPGRADE = simple("pocket_computer_upgrade", PocketComputerUpgradeRecipe::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<PrintoutRecipe>> PRINTOUT = simple("printout", PrintoutRecipe::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<DiskRecipe>> DISK = simple("disk", DiskRecipe::new);
@@ -409,10 +411,10 @@ public final class ModRegistry {
         return builder
             .icon(() -> new ItemStack(Items.COMPUTER_NORMAL.get()))
             .title(Component.translatable("itemGroup.computercraft"))
-            .displayItems((flags, out, isOp) -> {
+            .displayItems((context, out) -> {
                 out.accept(new ItemStack(Items.COMPUTER_NORMAL.get()));
                 out.accept(new ItemStack(Items.COMPUTER_ADVANCED.get()));
-                if (isOp) out.accept(new ItemStack(Items.COMPUTER_COMMAND.get()));
+                if (context.hasPermissions()) out.accept(new ItemStack(Items.COMPUTER_COMMAND.get()));
                 addTurtle(out, Items.TURTLE_NORMAL.get());
                 addTurtle(out, Items.TURTLE_ADVANCED.get());
                 addPocket(out, Items.POCKET_COMPUTER_NORMAL.get());

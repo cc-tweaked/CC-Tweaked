@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
+//
+// SPDX-License-Identifier: LicenseRef-CCPL
+
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.base.Objects;
@@ -35,7 +34,7 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 
 public class CableBlockEntity extends BlockEntity {
-    private static final String NBT_PERIPHERAL_ENABLED = "PeirpheralAccess";
+    private static final String NBT_PERIPHERAL_ENABLED = "PeripheralAccess";
 
     private class CableElement extends WiredModemElement {
         @Override
@@ -199,7 +198,8 @@ public class CableBlockEntity extends BlockEntity {
     @Override
     public void load(CompoundTag nbt) {
         super.load(nbt);
-        peripheralAccessAllowed = nbt.getBoolean(NBT_PERIPHERAL_ENABLED);
+        // Fallback to the previous (incorrect) key
+        peripheralAccessAllowed = nbt.getBoolean(NBT_PERIPHERAL_ENABLED) || nbt.getBoolean("PeirpheralAccess");
         peripheral.read(nbt, "");
     }
 

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 # Contributing to CC: Tweaked
 As with many open source projects, CC: Tweaked thrives on contributions from other people! This document (hopefully)
 provides an introduction as to how to get started in helping out.

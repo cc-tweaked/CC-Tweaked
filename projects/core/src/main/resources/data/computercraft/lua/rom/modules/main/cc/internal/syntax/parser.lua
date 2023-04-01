@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2023 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 --[[- A parser for Lua programs and expressions.
 
 :::warning

@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.data;
 
 import com.google.gson.JsonObject;
@@ -18,6 +17,7 @@ import dan200.computercraft.shared.platform.RecipeIngredients;
 import dan200.computercraft.shared.platform.RegistryWrappers;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
+import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.registries.Registries;
@@ -61,6 +61,7 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         diskColours(add);
         pocketUpgrades(add);
         turtleUpgrades(add);
+        turtleOverlays(add);
 
         addSpecial(add, ModRegistry.RecipeSerializers.PRINTOUT.get());
         addSpecial(add, ModRegistry.RecipeSerializers.DISK.get());
@@ -156,6 +157,51 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             }
         }
     }
+
+    private void turtleOverlays(Consumer<FinishedRecipe> add) {
+        turtleOverlay(add, "turtle_trans_overlay", x -> x
+            .unlockedBy("has_dye", inventoryChange(itemPredicate(ingredients.dye())))
+            .requires(ColourUtils.getDyeTag(DyeColor.LIGHT_BLUE))
+            .requires(ColourUtils.getDyeTag(DyeColor.PINK))
+            .requires(ColourUtils.getDyeTag(DyeColor.WHITE))
+            .requires(Items.STICK)
+        );
+
+        turtleOverlay(add, "turtle_rainbow_overlay", x -> x
+            .unlockedBy("has_dye", inventoryChange(itemPredicate(ingredients.dye())))
+            .requires(ColourUtils.getDyeTag(DyeColor.RED))
+            .requires(ColourUtils.getDyeTag(DyeColor.ORANGE))
+            .requires(ColourUtils.getDyeTag(DyeColor.YELLOW))
+            .requires(ColourUtils.getDyeTag(DyeColor.GREEN))
+            .requires(ColourUtils.getDyeTag(DyeColor.BLUE))
+            .requires(ColourUtils.getDyeTag(DyeColor.PURPLE))
+            .requires(Items.STICK)
+        );
+    }
+
+    private void turtleOverlay(Consumer<FinishedRecipe> add, String overlay, Consumer<ShapelessRecipeBuilder> build) {
+        for (var family : ComputerFamily.values()) {
+            var base = TurtleItemFactory.create(-1, null, -1, family, null, null, 0, null);
+            if (base.isEmpty()) continue;
+
+            var nameId = family.name().toLowerCase(Locale.ROOT);
+            var group = "%s:turtle_%s_overlay".formatted(ComputerCraftAPI.MOD_ID, nameId);
+
+            var builder = ShapelessRecipeBuilder.shapeless(RecipeCategory.REDSTONE, base.getItem())
+                .group(group)
+                .unlockedBy("has_turtle", inventoryChange(base.getItem()));
+            build.accept(builder);
+            builder
+                .requires(base.getItem())
+                .save(
+                    RecipeWrapper
+                        .wrap(ModRegistry.RecipeSerializers.TURTLE_OVERLAY.get(), add)
+                        .withExtraData(x -> x.addProperty("overlay", new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/" + overlay).toString())),
+                    new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_%s_overlays/%s".formatted(nameId, overlay))
+                );
+        }
+    }
+
 
     private void basicRecipes(Consumer<FinishedRecipe> add) {
         ShapedRecipeBuilder

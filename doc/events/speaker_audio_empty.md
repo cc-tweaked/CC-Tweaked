@@ -3,6 +3,12 @@ module: [kind=event] speaker_audio_empty
 see: speaker.playAudio To play audio using the speaker
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 ## Return Values
 1. @{string}: The event name.
 2. @{string}: The name of the speaker which is available to play more audio.

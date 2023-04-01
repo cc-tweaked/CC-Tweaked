@@ -4,5 +4,6 @@
   "group": "computercraft:pocket_normal",
   "key": {"#": {"item": "computercraft:speaker"}, "P": {"item": "computercraft:pocket_computer_normal"}},
   "pattern": ["#", "P"],
-  "result": {"item": "computercraft:pocket_computer_normal", "nbt": "{Upgrade:\"computercraft:speaker\"}"}
+  "result": {"item": "computercraft:pocket_computer_normal", "nbt": "{Upgrade:\"computercraft:speaker\"}"},
+  "show_notification": true
 }

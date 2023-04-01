@@ -4,5 +4,6 @@
   "group": "computercraft:turtle_normal",
   "key": {"#": {"item": "minecraft:diamond_pickaxe"}, "T": {"item": "computercraft:turtle_normal"}},
   "pattern": ["#T"],
-  "result": {"item": "computercraft:turtle_normal", "nbt": "{RightUpgrade:\"minecraft:diamond_pickaxe\"}"}
+  "result": {"item": "computercraft:turtle_normal", "nbt": "{RightUpgrade:\"minecraft:diamond_pickaxe\"}"},
+  "show_notification": true
 }

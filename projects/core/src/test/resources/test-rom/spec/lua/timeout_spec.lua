@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 describe("The VM terminates long running code :slow", function()
     it("in loops", function()
         expect.error(function() while true do end end)

@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.api.filesystem.Mount;
@@ -15,15 +14,16 @@ import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.lua.MachineEnvironment;
+import dan200.computercraft.core.lua.MachineException;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.core.util.Colour;
-import dan200.computercraft.core.util.IoUtil;
 import dan200.computercraft.core.util.Nullability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -378,24 +378,20 @@ final class ComputerExecutor {
         }
 
         // Create the lua machine
-        var machine = luaFactory.create(new MachineEnvironment(
-            new LuaContext(computer), metrics, timeout, computer.getGlobalEnvironment().getHostString()
-        ));
-
-        // Add the APIs. We unwrap them (yes, this is horrible) to get access to the underlying object.
-        for (var api : apis) machine.addAPI(api instanceof ApiWrapper wrapper ? wrapper.getDelegate() : api);
-
-        // Start the machine running the bios resource
-        var result = machine.loadBios(biosStream);
-        IoUtil.closeQuietly(biosStream);
-
-        if (result.isError()) {
-            machine.close();
-            displayFailure("Error loading bios.lua", result.getMessage());
+        try (var bios = biosStream) {
+            return luaFactory.create(new MachineEnvironment(
+                new LuaContext(computer), metrics, timeout,
+                () -> apis.stream().map(api -> api instanceof ApiWrapper wrapper ? wrapper.getDelegate() : api).iterator(),
+                computer.getGlobalEnvironment().getHostString()
+            ), bios);
+        } catch (IOException e) {
+            LOG.error("Failed to read bios.lua", e);
+            displayFailure("Error loading bios.lua", null);
+            return null;
+        } catch (MachineException e) {
+            displayFailure("Error loading bios.lua", e.getMessage());
             return null;
         }
-
-        return machine;
     }
 
     private void turnOn() throws InterruptedException {

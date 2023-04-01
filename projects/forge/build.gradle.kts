@@ -1,25 +1,19 @@
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 import cc.tweaked.gradle.*
-import net.darkhax.curseforgegradle.TaskPublishCurseForge
 import net.minecraftforge.gradle.common.util.RunConfig
 
 plugins {
-    // Build
     id("cc-tweaked.forge")
     id("cc-tweaked.gametest")
     alias(libs.plugins.mixinGradle)
-    alias(libs.plugins.shadow)
-    // Publishing
-    alias(libs.plugins.curseForgeGradle)
-    alias(libs.plugins.minotaur)
-
     id("cc-tweaked.illuaminate")
-    id("cc-tweaked.publishing")
-    id("cc-tweaked")
+    id("cc-tweaked.mod-publishing")
 }
 
-val isUnstable = project.properties["isUnstable"] == "true"
 val modVersion: String by extra
-val mcVersion: String by extra
 
 val allProjects = listOf(":core-api", ":core", ":forge-api").map { evaluationDependsOn(it) }
 cct {
@@ -123,12 +117,9 @@ mixin {
     config("computercraft-client.forge.mixins.json")
 }
 
-reobf {
-    register("shadowJar")
-}
-
 configurations {
     register("cctJavadoc")
+    minecraftLibrary { extendsFrom(minecraftEmbed.get()) }
 }
 
 dependencies {
@@ -141,14 +132,21 @@ dependencies {
     libs.bundles.externalMods.forge.compile.get().map { compileOnly(fg.deobf(it)) }
     libs.bundles.externalMods.forge.runtime.get().map { runtimeOnly(fg.deobf(it)) }
 
-    // Depend on our other projects. By using the api configuration, shadow jar will correctly
-    // preserve all files from forge-api/core-api.
+    // Depend on our other projects.
     api(commonClasses(project(":forge-api")))
     api(clientClasses(project(":forge-api")))
     implementation(project(":core"))
 
-    minecraftLibrary(libs.cobalt)
-    minecraftLibrary(libs.netty.http) { isTransitive = false }
+    minecraftEmbed(libs.cobalt) {
+        jarJar.ranged(this, "[${libs.versions.cobalt.asProvider().get()},${libs.versions.cobalt.next.get()})")
+    }
+    minecraftEmbed(libs.jzlib) {
+        jarJar.ranged(this, "[${libs.versions.jzlib.get()},)")
+    }
+    minecraftEmbed(libs.netty.http) {
+        jarJar.ranged(this, "[${libs.versions.netty.get()},)")
+        isTransitive = false
+    }
 
     testFixturesApi(libs.bundles.test)
     testFixturesApi(libs.bundles.kotlin)
@@ -215,23 +213,16 @@ tasks.sourcesJar {
     for (source in cct.sourceDirectories.get()) from(source.sourceSet.allSource)
 }
 
-tasks.shadowJar {
-    finalizedBy("reobfShadowJar")
+tasks.jarJar {
+    finalizedBy("reobfJarJar")
     archiveClassifier.set("")
 
-    from(sourceSets.client.get().output)
-
-    dependencies {
-        include(dependency("cc.tweaked:"))
-        include(dependency(libs.cobalt.get()))
-        include(dependency(libs.netty.http.get()))
+    for (source in cct.sourceDirectories.get()) {
+        if (source.classes) from(source.sourceSet.output)
     }
-    relocate("org.squiddev.cobalt", "cc.tweaked.internal.cobalt")
-    relocate("io.netty.handler.codec.http", "cc.tweaked.internal.netty.codec.http")
-    minimize()
 }
 
-tasks.assemble { dependsOn("shadowJar") }
+tasks.assemble { dependsOn("jarJar") }
 
 // Check tasks
 
@@ -289,38 +280,9 @@ tasks.register("checkClient") {
 
 // Upload tasks
 
-val publishCurseForge by tasks.registering(TaskPublishCurseForge::class) {
-    group = PublishingPlugin.PUBLISH_TASK_GROUP
-    description = "Upload artifacts to CurseForge"
-
-    apiToken = findProperty("curseForgeApiKey") ?: ""
-    enabled = apiToken != ""
-
-    val mainFile = upload("282001", tasks.shadowJar.get().archiveFile)
-    dependsOn(tasks.shadowJar) // Ughr.
-    mainFile.changelog =
-        "Release notes can be found on the [GitHub repository](https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v$mcVersion-$modVersion)."
-    mainFile.changelogType = "markdown"
-    mainFile.releaseType = if (isUnstable) "alpha" else "release"
-    mainFile.gameVersions.add(mcVersion)
+modPublishing {
+    output.set(tasks.jarJar)
 }
-
-tasks.publish { dependsOn(publishCurseForge) }
-
-modrinth {
-    token.set(findProperty("modrinthApiKey") as String? ?: "")
-    projectId.set("gu7yAYhd")
-    versionNumber.set("$mcVersion-$modVersion")
-    versionName.set(modVersion)
-    versionType.set(if (isUnstable) "alpha" else "release")
-    uploadFile.set(tasks.shadowJar as Any)
-    gameVersions.add(mcVersion)
-    changelog.set("Release notes can be found on the [GitHub repository](https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v$mcVersion-$modVersion).")
-
-    syncBodyFrom.set(provider { file("doc/mod-page.md").readText() })
-}
-
-tasks.publish { dependsOn(tasks.modrinth) }
 
 // Don't publish the slim jar
 for (cfg in listOf(configurations.apiElements, configurations.runtimeElements)) {
@@ -331,6 +293,10 @@ publishing {
     publications {
         named("maven", MavenPublication::class) {
             fg.component(this)
+            // jarJar.component is broken (https://github.com/MinecraftForge/ForgeGradle/issues/914), so declare the
+            // artifact explicitly.
+            artifact(tasks.jarJar)
+
             mavenDependencies {
                 exclude(dependencies.create("cc.tweaked:"))
                 exclude(libs.jei.forge.get())

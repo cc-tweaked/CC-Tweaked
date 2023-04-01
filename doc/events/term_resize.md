@@ -2,6 +2,12 @@
 module: [kind=event] term_resize
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 The @{term_resize} event is fired when the main terminal is resized. For instance:
  - When a the tab bar is shown or hidden in @{multishell}.
  - When the terminal is redirected to a monitor via the "monitor" program and the monitor is resized.

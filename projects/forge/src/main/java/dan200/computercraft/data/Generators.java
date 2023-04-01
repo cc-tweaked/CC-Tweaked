@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.data;
 
 import dan200.computercraft.api.ComputerCraftAPI;
@@ -64,7 +63,7 @@ public class Generators {
 
         @Override
         public TagsProvider<Item> itemTags(Consumer<TagProvider.ItemTagConsumer> tags, TagsProvider<Block> blocks) {
-            return add(out -> new ItemTagsProvider(out, registries, blocks, ComputerCraftAPI.MOD_ID, existingFiles) {
+            return add(out -> new ItemTagsProvider(out, registries, blocks.contentsGetter(), ComputerCraftAPI.MOD_ID, existingFiles) {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
                     var self = this;

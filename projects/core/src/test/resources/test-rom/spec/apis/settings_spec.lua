@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 describe("The settings library", function()
     describe("settings.define", function()
         it("ensures valid type names", function()
@@ -20,8 +24,8 @@ describe("The settings library", function()
             settings.set("test", {})
             settings.set("test", false)
 
-            expect.error(settings.set, nil):eq("bad argument #1 (expected string, got nil)")
-            expect.error(settings.set, "", nil):eq("bad argument #2 (expected number, string, boolean or table, got nil)")
+            expect.error(settings.set, nil):eq("bad argument #1 (string expected, got nil)")
+            expect.error(settings.set, "", nil):eq("bad argument #2 (number, string, boolean or table expected, got nil)")
         end)
 
         it("prevents storing unserialisable types", function()
@@ -37,7 +41,7 @@ describe("The settings library", function()
         it("checks the type of the value", function()
             settings.define("test.defined", { default = 123, description = "A description", type = "number" })
             expect.error(settings.set, "test.defined", "hello")
-                :eq("bad argument #2 (expected number, got string)")
+                :eq("bad argument #2 (number expected, got string)")
             settings.set("test.defined", 123)
         end)
 
@@ -56,7 +60,7 @@ describe("The settings library", function()
     describe("settings.get", function()
         it("validates arguments", function()
             settings.get("test")
-            expect.error(settings.get, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(settings.get, nil):eq("bad argument #1 (string expected, got nil)")
         end)
 
         it("returns the default", function()
@@ -71,7 +75,7 @@ describe("The settings library", function()
 
     describe("settings.getDetails", function()
         it("validates arguments", function()
-            expect.error(settings.getDetails, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(settings.getDetails, nil):eq("bad argument #1 (string expected, got nil)")
         end)
 
         it("works on undefined and unset values", function()
@@ -100,7 +104,7 @@ describe("The settings library", function()
     describe("settings.unset", function()
         it("validates arguments", function()
             settings.unset("test")
-            expect.error(settings.unset, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(settings.unset, nil):eq("bad argument #1 (string expected, got nil)")
         end)
 
         it("unsetting resets the value", function()
@@ -150,7 +154,7 @@ describe("The settings library", function()
 
     describe("settings.load", function()
         it("validates arguments", function()
-            expect.error(settings.load, 1):eq("bad argument #1 (expected string, got number)")
+            expect.error(settings.load, 1):eq("bad argument #1 (string expected, got number)")
         end)
 
         local function setup_with(contents)
@@ -206,7 +210,7 @@ describe("The settings library", function()
 
     describe("settings.save", function()
         it("validates arguments", function()
-            expect.error(settings.save, 1):eq("bad argument #1 (expected string, got number)")
+            expect.error(settings.save, 1):eq("bad argument #1 (string expected, got number)")
         end)
 
         it("defaults to .settings", function()

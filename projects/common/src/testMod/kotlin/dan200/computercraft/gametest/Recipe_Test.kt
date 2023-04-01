@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.gametest
 
 import dan200.computercraft.gametest.api.Structures
@@ -40,7 +39,7 @@ class Recipe_Test {
                 .getRecipeFor(RecipeType.CRAFTING, container, context.level)
             if (!recipe.isPresent) throw GameTestAssertException("No recipe matches")
 
-            val result = recipe.get().assemble(container)
+            val result = recipe.get().assemble(container, context.level.registryAccess())
 
             val owner = CompoundTag()
             owner.putString("Name", "dan200")

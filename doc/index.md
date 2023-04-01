@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 # ![CC: Tweaked](logo.png)
 CC: Tweaked is a mod for Minecraft which adds programmable computers, turtles and more to the game. A fork of the
 much-beloved [ComputerCraft], it continues its legacy with better performance, stability, and a wealth of new features.

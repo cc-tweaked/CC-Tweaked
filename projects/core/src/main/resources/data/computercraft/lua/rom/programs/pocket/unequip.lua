@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 if not pocket then
     printError("Requires a Pocket Computer")
     return

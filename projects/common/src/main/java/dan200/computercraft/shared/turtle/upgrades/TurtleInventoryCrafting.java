@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
+//
+// SPDX-License-Identifier: LicenseRef-CCPL
+
 package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
@@ -74,7 +73,7 @@ public class TurtleInventoryCrafting extends CraftingContainer {
 
         var results = new ArrayList<ItemStack>();
         for (var i = 0; i < maxCount && recipe.matches(this, world); i++) {
-            var result = recipe.assemble(this);
+            var result = recipe.assemble(this, world.registryAccess());
             if (result.isEmpty()) break;
             results.add(result);
 

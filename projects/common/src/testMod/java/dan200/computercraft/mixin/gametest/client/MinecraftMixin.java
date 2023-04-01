@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.mixin.gametest.client;
 
 import dan200.computercraft.gametest.core.MinecraftExtensions;
@@ -39,6 +38,7 @@ class MinecraftMixin implements MinecraftExtensions {
     private final AtomicBoolean isStable = new AtomicBoolean(false);
 
     @Inject(method = "runTick", at = @At("TAIL"))
+    @SuppressWarnings("UnusedMethod")
     private void updateStable(boolean render, CallbackInfo ci) {
         isStable.set(
             level != null && player != null &&

@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 require "cc.completion"
 
 print("Drop files to transfer them to this computer")

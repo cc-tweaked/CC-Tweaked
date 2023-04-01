@@ -3,6 +3,12 @@ module: [kind=event] alarm
 see: os.setAlarm To start an alarm.
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 The @{alarm} event is fired when an alarm started with @{os.setAlarm} completes.
 
 ## Return Values

@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.test.shared.WithMinecraft;
@@ -22,7 +21,7 @@ public class InventoryUtilTest {
 
         var remainder = InventoryUtil.storeItemsFromOffset(container, new ItemStack(Items.COBBLESTONE, 32), 4);
         assertThat("Remainder is empty", remainder, isStack(ItemStack.EMPTY));
-        assertThat("Was inserted into slot", container.getItem(4), isStack(new ItemStack(Items.COBBLESTONE, 32)));
+        assertThat("Was inserted into slot", container.getItem(4), isStack(Items.COBBLESTONE, 32));
     }
 
     @Test
@@ -33,6 +32,6 @@ public class InventoryUtilTest {
 
         var remainder = InventoryUtil.storeItemsFromOffset(container, new ItemStack(Items.COBBLESTONE, 32), 4);
         assertThat("Remainder is empty", remainder, isStack(ItemStack.EMPTY));
-        assertThat("Was inserted into slot", container.getItem(1), isStack(new ItemStack(Items.COBBLESTONE, 32)));
+        assertThat("Was inserted into slot", container.getItem(1), isStack(Items.COBBLESTONE, 32));
     }
 }

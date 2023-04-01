@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --[[- Interact with disk drives.
 
 These functions can operate on locally attached or remote disk drives. To use a
@@ -16,7 +20,7 @@ placed within a disk drive to access it's internal storage like a disk.
 
 local function isDrive(name)
     if type(name) ~= "string" then
-        error("bad argument #1 (expected string, got " .. type(name) .. ")", 3)
+        error("bad argument #1 (string expected, got " .. type(name) .. ")", 3)
     end
     return peripheral.getType(name) == "drive"
 end

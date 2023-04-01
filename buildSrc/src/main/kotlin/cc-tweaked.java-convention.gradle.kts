@@ -1,6 +1,9 @@
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 import cc.tweaked.gradle.CCTweakedExtension
 import cc.tweaked.gradle.CCTweakedPlugin
-import cc.tweaked.gradle.LicenseHeader
 import com.diffplug.gradle.spotless.FormatExtension
 import com.diffplug.spotless.LineEnding
 import net.ltgt.gradle.errorprone.CheckSeverity
@@ -46,7 +49,6 @@ repositories {
             includeGroup("me.shedaniel.cloth")
             includeGroup("mezz.jei")
             includeModule("com.terraformersmc", "modmenu")
-            includeModule("fuzs.forgeconfigapiport", "forgeconfigapiport-fabric")
             // Until https://github.com/SpongePowered/Mixin/pull/593 is merged
             includeModule("org.spongepowered", "mixin")
         }
@@ -98,6 +100,10 @@ tasks.compileTestJava {
 
 tasks.withType(JavaCompile::class.java).configureEach {
     options.encoding = "UTF-8"
+}
+
+tasks.processResources {
+    exclude("**/*.license")
 }
 
 tasks.withType(AbstractArchiveTask::class.java).configureEach {
@@ -160,19 +166,13 @@ spotless {
         indentWithSpaces(4)
     }
 
-    val licenser = LicenseHeader.create(
-        api = rootProject.file("config/license/api.txt"),
-        main = rootProject.file("config/license/main.txt"),
-    )
-
     java {
         defaults()
-        addStep(licenser)
         removeUnusedImports()
     }
 
     val ktlintConfig = mapOf(
-        "disabled_rules" to "no-wildcard-imports",
+        "ktlint_standard_no-wildcard-imports" to "disabled",
         "ij_kotlin_allow_trailing_comma" to "true",
         "ij_kotlin_allow_trailing_comma_on_call_site" to "true",
     )

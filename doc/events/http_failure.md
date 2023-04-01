@@ -3,6 +3,12 @@ module: [kind=event] http_failure
 see: http.request To send an HTTP request.
 ---
 
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 The @{http_failure} event is fired when an HTTP request fails.
 
 This event is normally handled inside @{http.get} and @{http.post}, but it can still be seen when using @{http.request}.

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 plugins {
     `java-library`
     `java-test-fixtures`
@@ -15,6 +19,7 @@ dependencies {
     implementation(libs.cobalt)
     implementation(libs.fastutil)
     implementation(libs.guava)
+    implementation(libs.jzlib)
     implementation(libs.netty.http)
     implementation(libs.slf4j)
     implementation(libs.asm)

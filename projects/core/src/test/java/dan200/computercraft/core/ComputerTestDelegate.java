@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.core;
 
 import dan200.computercraft.api.filesystem.WritableMount;
@@ -18,7 +17,7 @@ import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.filesystem.WritableFileMount;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.MachineEnvironment;
-import dan200.computercraft.core.lua.MachineResult;
+import dan200.computercraft.core.lua.MachineException;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.test.core.computer.BasicEnvironment;
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
@@ -28,11 +27,12 @@ import org.opentest4j.AssertionFailedError;
 import org.opentest4j.TestAbortedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.squiddev.cobalt.*;
+import org.squiddev.cobalt.LuaState;
+import org.squiddev.cobalt.LuaString;
+import org.squiddev.cobalt.LuaThread;
 import org.squiddev.cobalt.debug.DebugFrame;
 import org.squiddev.cobalt.debug.DebugHook;
 import org.squiddev.cobalt.debug.DebugState;
-import org.squiddev.cobalt.function.OneArgFunction;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -478,22 +478,11 @@ public class ComputerTestDelegate {
      * This is a super nasty hack, but is also an order of magnitude faster than tracking this in Lua.
      */
     private class CoverageLuaMachine extends CobaltLuaMachine {
-        CoverageLuaMachine(MachineEnvironment environment) {
-            super(environment);
-        }
+        CoverageLuaMachine(MachineEnvironment environment, InputStream bios) throws MachineException, IOException {
+            super(environment, bios);
 
-        @Override
-        public MachineResult loadBios(InputStream bios) {
-            var result = super.loadBios(bios);
-            if (result != MachineResult.OK) return result;
-
-            LuaTable globals;
             LuaThread mainRoutine;
             try {
-                var globalField = CobaltLuaMachine.class.getDeclaredField("globals");
-                globalField.setAccessible(true);
-                globals = (LuaTable) globalField.get(this);
-
                 var threadField = CobaltLuaMachine.class.getDeclaredField("mainRoutine");
                 threadField.setAccessible(true);
                 mainRoutine = (LuaThread) threadField.get(this);
@@ -520,24 +509,14 @@ public class ComputerTestDelegate {
                     if (frame.closure == null) return;
 
                     var proto = frame.closure.getPrototype();
-                    if (!proto.source.startsWith('@')) return;
+                    if (!proto.source.startsWith((byte) '@')) return;
 
                     var map = coverage.computeIfAbsent(proto.source, x -> new Int2IntArrayMap());
                     map.put(newLine, map.get(newLine) + 1);
                 }
             };
 
-            ((LuaTable) globals.rawget("coroutine")).rawset("create", new OneArgFunction() {
-                @Override
-                public LuaValue call(LuaState state, LuaValue arg) throws LuaError {
-                    var thread = new LuaThread(state, arg.checkFunction(), state.getCurrentThread().getfenv());
-                    thread.getDebugState().setHook(hook, false, true, false, 0);
-                    return thread;
-                }
-            });
             mainRoutine.getDebugState().setHook(hook, false, true, false, 0);
-
-            return MachineResult.OK;
         }
     }
 }

@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2017 Daniel Ratcliffe
+--
+-- SPDX-License-Identifier: LicenseRef-CCPL
+
 --[[- Communicate with other computers by using @{modem|modems}. @{rednet}
 provides a layer of abstraction on top of the main @{modem} peripheral, making
 it slightly easier to use.

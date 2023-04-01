@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 describe("The fs library", function()
     local test_root = "/test-files/fs"
     local function test_file(path) return fs.combine(test_root, path) end
@@ -9,10 +13,10 @@ describe("The fs library", function()
             fs.complete("", "", true)
             fs.complete("", "", nil, true)
 
-            expect.error(fs.complete, nil):eq("bad argument #1 (expected string, got nil)")
-            expect.error(fs.complete, "", nil):eq("bad argument #2 (expected string, got nil)")
-            expect.error(fs.complete, "", "", 1):eq("bad argument #3 (expected boolean, got number)")
-            expect.error(fs.complete, "", "", true, 1):eq("bad argument #4 (expected boolean, got number)")
+            expect.error(fs.complete, nil):eq("bad argument #1 (string expected, got nil)")
+            expect.error(fs.complete, "", nil):eq("bad argument #2 (string expected, got nil)")
+            expect.error(fs.complete, "", "", 1):eq("bad argument #3 (boolean expected, got number)")
+            expect.error(fs.complete, "", "", true, 1):eq("bad argument #4 (boolean expected, got number)")
         end)
 
         describe("include_hidden", function()
@@ -60,7 +64,7 @@ describe("The fs library", function()
         it("validates arguments", function()
             fs.isDriveRoot("")
 
-            expect.error(fs.isDriveRoot, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(fs.isDriveRoot, nil):eq("bad argument #1 (string expected, got nil)")
         end)
 
         it("correctly identifies drive roots", function()

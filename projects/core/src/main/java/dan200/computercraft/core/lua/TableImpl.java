@@ -1,8 +1,7 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
+// SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.core.lua;
 
 import dan200.computercraft.api.lua.LuaException;
@@ -28,11 +27,7 @@ class TableImpl implements dan200.computercraft.api.lua.LuaTable<Object, Object>
     @Override
     public int size() {
         checkValid();
-        try {
-            return table.keyCount();
-        } catch (LuaError e) {
-            throw new IllegalStateException(e);
-        }
+        return table.size();
     }
 
     @Override
@@ -108,7 +103,7 @@ class TableImpl implements dan200.computercraft.api.lua.LuaTable<Object, Object>
     }
 
     private void checkValid() {
-        if (arguments.closed) {
+        if (arguments.isClosed()) {
             throw new IllegalStateException("Cannot use LuaTable after IArguments has been released");
         }
     }
