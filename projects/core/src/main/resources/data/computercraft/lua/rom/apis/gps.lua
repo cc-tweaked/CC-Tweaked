@@ -161,7 +161,7 @@ function locate(_nTimeout, _bDebug)
                         -- previous position, replace that instead of inserting.
                         local insIndex = math.min(3, #tFixes + 1)
                         for i, older in pairs(tFixes) do
-                            if (older.vPosition - tFix.vPosition):length() < 5 then
+                            if (older.vPosition - tFix.vPosition):length() < 1 then
                                 insIndex = i
                                 break
                             end
