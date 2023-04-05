@@ -56,7 +56,12 @@ local function make_computer(id, fn)
             repeat local _, id = env.os.pullEvent("timer") until id == timer
         end,
     }
+    env.redstone = {
+        getSides = redstone.getSides,
+    }
+    env.rs = env.redstone
     env.sleep = env.os.sleep
+    env.loadfile = function(path, mode, new_env) return loadfile(path, mode, new_env or env) end
     env.dofile = function(path)
         local fn, err = loadfile(path, nil, env)
         if fn then return fn() else error(err, 2) end
@@ -91,7 +96,9 @@ local function make_computer(id, fn)
         end
     end
 
-    return { env = env, peripherals = peripherals, queue_event = queue_event, step = step, co = co, advance = advance }
+    local position = vector.new(0, 0, 0)
+
+    return { env = env, peripherals = peripherals, queue_event = queue_event, step = step, co = co, advance = advance, position = position }
 end
 
 local function parse_channel(c)
@@ -112,10 +119,13 @@ local function add_modem(owner, side)
 
             for _, adjacent in pairs(adjacent) do
                 if adjacent.open[channel] then
-                    adjacent.owner.queue_event("modem_message", adjacent.side, channel, reply_channel, payload, 123)
+                    local distance = (adjacent.owner.position - owner.position):length()
+                    print(("Distance %s .. %s => %d"):format(adjacent.owner.position, owner.position, distance))
+                    adjacent.owner.queue_event("modem_message", adjacent.side, channel, reply_channel, payload, distance)
                 end
             end
         end,
+        isWireless = function() return true end,
     }, { type = "modem" })
     owner.peripherals[side] = peripheral
     return { adjacent = adjacent, side = side, owner = owner, open = open }
