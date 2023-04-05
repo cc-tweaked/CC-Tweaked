@@ -294,7 +294,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public double getReachDistance(Player player) {
-        return player.getReachDistance();
+        return player.getBlockReach();
     }
 
     @Override
