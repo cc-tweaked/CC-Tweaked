@@ -5,7 +5,7 @@ SPDX-License-Identifier: MPL-2.0
 -->
 
 # ![CC: Tweaked](https://tweaked.cc/logo.png)
-CC: Tweaked is a mod for Minecraft which adds programmable computers, turtles and more to the game. A fork of the much-beloved [ComputerCraft], it continues its legacy with better performance, stability, and a wealth of new features.
+CC: Tweaked is a mod for Minecraft which adds programmable computers, turtles and more to the game. A fork of the much-beloved [ComputerCraft], it continues its legacy with improved performance and stability, along with a wealth of new features.
 
 ## Testimonials
 
@@ -58,8 +58,6 @@ CC: Tweaked lives on [GitHub]. If you've got any ideas, feedback or bugs please 
 [github]: https://github.com/cc-tweaked/CC-Tweaked/ "CC: Tweaked on GitHub"
 [bug]: https://github.com/cc-tweaked/CC-Tweaked/issues/new/choose
 [computercraft]: https://github.com/dan200/ComputerCraft "ComputerCraft on GitHub"
-[forge]: https://files.minecraftforge.net/ "Download Minecraft Forge."
-[ccrestitched]: https://modrinth.com/mod/cc-restitched "Download CC: Restitched from Modrinth"
 [lua]: https://www.lua.org/ "Lua's main website"
 [GitHub Discussions]: https://github.com/cc-tweaked/CC-Tweaked/discussions
 [IRC]: http://webchat.esper.net/?channels=computercraft "#computercraft on EsperNet"

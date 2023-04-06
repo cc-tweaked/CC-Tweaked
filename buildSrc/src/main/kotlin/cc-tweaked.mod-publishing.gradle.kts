@@ -46,7 +46,7 @@ tasks.publish { dependsOn(publishCurseForge) }
 modrinth {
     token.set(findProperty("modrinthApiKey") as String? ?: "")
     projectId.set("gu7yAYhd")
-    versionNumber.set("$mcVersion-$modVersion")
+    versionNumber.set(modVersion)
     versionName.set(modVersion)
     versionType.set(if (isUnstable) "alpha" else "release")
     uploadFile.setProvider(modPublishing.output)

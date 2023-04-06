@@ -6,10 +6,10 @@ SPDX-License-Identifier: MPL-2.0
 
 # ![CC: Tweaked](logo.png)
 CC: Tweaked is a mod for Minecraft which adds programmable computers, turtles and more to the game. A fork of the
-much-beloved [ComputerCraft], it continues its legacy with better performance, stability, and a wealth of new features.
+much-beloved [ComputerCraft], it continues its legacy with improved performance and stability, along with a wealth of
+new features.
 
-CC: Tweaked can be installed from [CurseForge] or [Modrinth]. It requires the [Minecraft Forge][forge] mod loader, but
-[versions are available for Fabric][ccrestitched].
+CC: Tweaked can be installed from [CurseForge] or [Modrinth]. It runs on both [Minecraft Forge] and [Fabric].
 
 ## Features
 Controlled using the [Lua programming language][lua], CC: Tweaked's computers provides all the tools you need to start
@@ -54,7 +54,8 @@ CC: Tweaked lives on [GitHub]. If you've got any ideas, feedback or bugs please 
 [curseforge]: https://minecraft.curseforge.com/projects/cc-tweaked "Download CC: Tweaked from CurseForge"
 [modrinth]: https://modrinth.com/mod/gu7yAYhd "Download CC: Tweaked from Modrinth"
 [forge]: https://files.minecraftforge.net/ "Download Minecraft Forge."
-[ccrestitched]: https://www.curseforge.com/minecraft/mc-mods/cc-restitched "Download CC: Restitched from CurseForge"
+[Minecraft Forge]: https://files.minecraftforge.net/ "Download Minecraft Forge."
+[Fabric]: https://fabricmc.net/use/installer/ "Download Fabric."
 [lua]: https://www.lua.org/ "Lua's main website"
 [GitHub Discussions]: https://github.com/cc-tweaked/CC-Tweaked/discussions
 [IRC]: https://webchat.esper.net/?channels=computercraft "#computercraft on EsperNet"

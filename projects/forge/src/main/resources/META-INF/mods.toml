@@ -15,6 +15,7 @@ modId="computercraft"
 version="${file.jarVersion}"
 displayName="CC: Tweaked"
 displayURL="https://tweaked.cc"
+updateJSONURL = "https://api.modrinth.com/updates/cc-tweaked/forge_updates.json"
 
 credits="Created by Daniel Ratcliffe (@DanTwoHundred)"
 authors="Daniel Ratcliffe, Aaron Mills, SquidDev"
