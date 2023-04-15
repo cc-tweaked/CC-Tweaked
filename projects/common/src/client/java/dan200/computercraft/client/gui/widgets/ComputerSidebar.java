@@ -45,11 +45,11 @@ public final class ComputerSidebar {
         x += CORNERS_BORDER + 1;
         y += CORNERS_BORDER + ICON_MARGIN;
 
-        var turnOn = new HintedMessage(
+        var turnOn = new HintedMessage(Component.translatable("gui.computercraft.tooltip.turn_on"), (Component) null);
+        var turnOff = new HintedMessage(
             Component.translatable("gui.computercraft.tooltip.turn_off"),
             Component.translatable("gui.computercraft.tooltip.turn_off.key")
         );
-        var turnOff = new HintedMessage(Component.translatable("gui.computercraft.tooltip.turn_on"), (Component) null);
         add.accept(new DynamicImageButton(
             x, y, ICON_WIDTH, ICON_HEIGHT, () -> isOn.getAsBoolean() ? 15 : 1, 1, ICON_TEX_Y_DIFF,
             TEXTURE, TEX_SIZE, TEX_SIZE, b -> toggleComputer(isOn, input),
