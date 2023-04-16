@@ -153,7 +153,6 @@ class FakeNetHandler extends ServerGamePacketListenerImpl {
 
     @Override
     public void send(Packet<?> packet, @Nullable PacketSendListener packetSendListener) {
-        super.send(packet, packetSendListener);
     }
 
     @Override

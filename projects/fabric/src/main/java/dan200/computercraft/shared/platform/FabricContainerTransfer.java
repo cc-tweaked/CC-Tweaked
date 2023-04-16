@@ -4,8 +4,8 @@
 
 package dan200.computercraft.shared.platform;
 
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
@@ -25,10 +25,10 @@ public class FabricContainerTransfer implements ContainerTransfer {
     }
 
     public static ContainerTransfer of(Storage<ItemVariant> storage) {
-        return storage instanceof InventoryStorage inv ? new SlottedImpl(inv) : new FabricContainerTransfer(storage);
+        return storage instanceof SlottedStorage<ItemVariant> inv ? new SlottedImpl(inv) : new FabricContainerTransfer(storage);
     }
 
-    public static ContainerTransfer.Slotted of(InventoryStorage storage) {
+    public static ContainerTransfer.Slotted of(SlottedStorage<ItemVariant> storage) {
         return new SlottedImpl(storage);
     }
 
@@ -68,9 +68,9 @@ public class FabricContainerTransfer implements ContainerTransfer {
     }
 
     private static class SlottedImpl extends FabricContainerTransfer implements ContainerTransfer.Slotted {
-        private final InventoryStorage storage;
+        private final SlottedStorage<ItemVariant> storage;
 
-        SlottedImpl(InventoryStorage storage) {
+        SlottedImpl(SlottedStorage<ItemVariant> storage) {
             super(storage);
             this.storage = storage;
         }
@@ -86,7 +86,7 @@ public class FabricContainerTransfer implements ContainerTransfer {
         }
     }
 
-    private record OffsetStorage(InventoryStorage storage, int offset) implements Storage<ItemVariant> {
+    private record OffsetStorage(SlottedStorage<ItemVariant> storage, int offset) implements Storage<ItemVariant> {
         @Override
         public boolean supportsInsertion() {
             for (var slot : storage.getSlots()) {
