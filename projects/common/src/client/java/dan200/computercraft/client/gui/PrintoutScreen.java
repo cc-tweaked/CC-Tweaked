@@ -46,8 +46,6 @@ public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
 
     @Override
     public boolean keyPressed(int key, int scancode, int modifiers) {
-        if (super.keyPressed(key, scancode, modifiers)) return true;
-
         if (key == GLFW.GLFW_KEY_RIGHT) {
             if (page < pages - 1) page++;
             return true;
@@ -58,7 +56,7 @@ public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
             return true;
         }
 
-        return false;
+        return super.keyPressed(key, scancode, modifiers);
     }
 
     @Override
