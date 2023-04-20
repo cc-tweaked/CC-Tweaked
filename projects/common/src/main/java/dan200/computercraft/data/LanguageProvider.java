@@ -208,6 +208,7 @@ public final class LanguageProvider implements DataProvider {
         // Config options
         addConfigEntry(ConfigSpec.computerSpaceLimit, "Computer space limit (bytes)");
         addConfigEntry(ConfigSpec.floppySpaceLimit, "Floppy Disk space limit (bytes)");
+        addConfigEntry(ConfigSpec.uploadMaxSize, "File upload size limit (bytes)");
         addConfigEntry(ConfigSpec.maximumFilesOpen, "Maximum files open per computer");
         addConfigEntry(ConfigSpec.disableLua51Features, "Disable Lua 5.1 features");
         addConfigEntry(ConfigSpec.defaultComputerSettings, "Default Computer settings");

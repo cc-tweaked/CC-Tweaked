@@ -161,7 +161,7 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
 
             try (var sbc = Files.newByteChannel(file)) {
                 var fileSize = sbc.size();
-                if (fileSize > UploadFileMessage.MAX_SIZE || (size += fileSize) >= UploadFileMessage.MAX_SIZE) {
+                if (fileSize > Config.uploadMaxSize || (size += fileSize) >= Config.uploadMaxSize) {
                     alert(UploadResult.FAILED_TITLE, UploadResult.TOO_MUCH_MSG);
                     return;
                 }
