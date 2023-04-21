@@ -96,8 +96,11 @@ public final class ConfigSpec {
                 .define("floppy_space_limit", Config.floppySpaceLimit);
 
             uploadMaxSize = builder
-                .comment("The file upload size limit, in bytes.")
-                .define("upload_max_size", Config.uploadMaxSize);
+                .comment("""
+                    The file upload size limit, in bytes. Must be in range of 1 KiB and 16 MiB.
+                    Keep in mind that uploads are processed in a single tick - large files or
+                    poor network performance can stall the networking thread. And mind the disk space!""")
+                .defineInRange("upload_max_size", Config.uploadMaxSize, 1024, 16 * 1024 * 1024);
 
             maximumFilesOpen = builder
                 .comment("Set how many files a computer can have open at the same time. Set to 0 for unlimited.")
