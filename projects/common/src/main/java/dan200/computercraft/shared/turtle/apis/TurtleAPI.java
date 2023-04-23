@@ -372,7 +372,7 @@ public class TurtleAPI implements ILuaAPI {
      * Check if there is a solid block above the turtle. In this case, solid refers to any non-air or liquid block.
      *
      * @return The turtle command result.
-     * @cc.treturn boolean If there is a solid block in front.
+     * @cc.treturn boolean If there is a solid block above.
      */
     @LuaFunction
     public final MethodResult detectUp() {
@@ -383,7 +383,7 @@ public class TurtleAPI implements ILuaAPI {
      * Check if there is a solid block below the turtle. In this case, solid refers to any non-air or liquid block.
      *
      * @return The turtle command result.
-     * @cc.treturn boolean If there is a solid block in front.
+     * @cc.treturn boolean If there is a solid block below.
      */
     @LuaFunction
     public final MethodResult detectDown() {
