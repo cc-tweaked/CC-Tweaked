@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.network.container;
 
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
@@ -14,17 +15,20 @@ public class ComputerContainerData implements ContainerData {
     private final ComputerFamily family;
     private final TerminalState terminal;
     private final ItemStack displayStack;
+    private final int uploadMaxSize;
 
     public ComputerContainerData(ServerComputer computer, ItemStack displayStack) {
         family = computer.getFamily();
         terminal = computer.getTerminalState();
         this.displayStack = displayStack;
+        uploadMaxSize = Config.uploadMaxSize;
     }
 
     public ComputerContainerData(FriendlyByteBuf buf) {
         family = buf.readEnum(ComputerFamily.class);
         terminal = new TerminalState(buf);
         displayStack = buf.readItem();
+        uploadMaxSize = buf.readInt();
     }
 
     @Override
@@ -32,6 +36,7 @@ public class ComputerContainerData implements ContainerData {
         buf.writeEnum(family);
         terminal.write(buf);
         buf.writeItem(displayStack);
+        buf.writeInt(uploadMaxSize);
     }
 
     public ComputerFamily family() {
@@ -50,4 +55,6 @@ public class ComputerContainerData implements ContainerData {
     public ItemStack displayStack() {
         return displayStack;
     }
+
+    public int uploadMaxSize() { return uploadMaxSize; }
 }

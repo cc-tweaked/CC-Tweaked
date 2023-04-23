@@ -55,6 +55,7 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
     protected final int sidebarYOffset;
 
     private long uploadNagDeadline = Long.MAX_VALUE;
+    private final int uploadMaxSize;
     private final ItemStack displayStack;
 
     public AbstractComputerScreen(T container, Inventory player, Component title, int sidebarYOffset) {
@@ -62,6 +63,7 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
         terminalData = container.getTerminal();
         family = container.getFamily();
         displayStack = container.getDisplayStack();
+        uploadMaxSize = container.getUploadMaxSize();
         input = new ClientInputHandler(menu);
         this.sidebarYOffset = sidebarYOffset;
     }
@@ -161,7 +163,7 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
 
             try (var sbc = Files.newByteChannel(file)) {
                 var fileSize = sbc.size();
-                if (fileSize > Config.uploadMaxSize || (size += fileSize) >= Config.uploadMaxSize) {
+                if (fileSize > uploadMaxSize || (size += fileSize) >= uploadMaxSize) {
                     alert(UploadResult.FAILED_TITLE, UploadResult.TOO_MUCH_MSG);
                     return;
                 }
