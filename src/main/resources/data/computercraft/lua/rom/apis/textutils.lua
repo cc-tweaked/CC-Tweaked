@@ -292,6 +292,13 @@ local g_tLuaKeywords = {
     ["while"] = true,
 }
 
+--- A version of the ipairs iterator which ignores metamethods
+local function inext(tbl, i)
+    i = (i or 0) + 1
+    local v = rawget(tbl, i)
+    if v == nil then return nil else return i, v end
+end
+
 local serialize_infinity = math.huge
 local function serialize_impl(t, tracking, indent, opts)
     local sType = type(t)
@@ -318,11 +325,11 @@ local function serialize_impl(t, tracking, indent, opts)
 
             result = open
             local seen_keys = {}
-            for k, v in ipairs(t) do
+            for k, v in inext, t do
                 seen_keys[k] = true
                 result = result .. sub_indent .. serialize_impl(v, tracking, sub_indent, opts) .. comma
             end
-            for k, v in pairs(t) do
+            for k, v in next, t do
                 if not seen_keys[k] then
                     local sEntry
                     if type(k) == "string" and not g_tLuaKeywords[k] and string.match(k, "^[%a_][%a%d_]*$") then

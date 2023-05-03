@@ -364,6 +364,48 @@ function errors.table_key_equals(start_pos, end_pos)
     }
 end
 
+--[[- There is a trailing comma in this list of function arguments.
+
+@tparam number token The token id.
+@tparam number token_start The start position of the token.
+@tparam number token_end The end position of the token.
+@tparam number prev The start position of the previous entry.
+@treturn table The resulting parse error.
+]]
+function errors.missing_table_comma(token, token_start, token_end, prev)
+    expect(1, token, "number")
+    expect(2, token_start, "number")
+    expect(3, token_end, "number")
+    expect(4, prev, "number")
+
+    return {
+        "Unexpected " .. token_names[token] .. " in table.",
+        annotate(token_start, token_end),
+        annotate(prev + 1, prev + 1, "Are you missing a comma here?"),
+    }
+end
+
+--[[- There is a trailing comma in this list of function arguments.
+
+@tparam number comma_start The start position of the `,` token.
+@tparam number comma_end The end position of the `,` token.
+@tparam number paren_start The start position of the `)` token.
+@tparam number paren_end The end position of the `)` token.
+@treturn table The resulting parse error.
+]]
+function errors.trailing_call_comma(comma_start, comma_end, paren_start, paren_end)
+    expect(1, comma_start, "number")
+    expect(2, comma_end, "number")
+    expect(3, paren_start, "number")
+    expect(4, paren_end, "number")
+
+    return {
+        "Unexpected " .. code(")") .. " in function call.",
+        annotate(paren_start, paren_end),
+        annotate(comma_start, comma_end, "Tip: Try removing this " .. code(",") .. "."),
+    }
+end
+
 --------------------------------------------------------------------------------
 -- Statement parsing errors
 --------------------------------------------------------------------------------
