@@ -87,7 +87,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
         }
         else
         {
-            leftOffModel = new ResourceLocation( ComputerCraft.MOD_ID, "turtle_modem_normal_off_left" );
+            leftOffModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_normal_off_left" );
             rightOffModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_normal_off_right" );
             leftOnModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_normal_on_left" );
             rightOnModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_normal_on_right" );
