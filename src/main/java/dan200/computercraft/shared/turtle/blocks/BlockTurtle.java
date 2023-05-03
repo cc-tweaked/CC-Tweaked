@@ -172,9 +172,9 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWater
     }
 
     @Override
-    public float getExplosionResistance( BlockState state, IBlockReader world, BlockPos pos, Explosion explosion )
+    public float getExplosionResistance( BlockState state, IBlockReader world, BlockPos pos, @Nullable Explosion explosion )
     {
-        Entity exploder = explosion.getExploder();
+        Entity exploder = explosion == null ? null : explosion.getExploder();
         if( getFamily() == ComputerFamily.ADVANCED || exploder instanceof LivingEntity || exploder instanceof DamagingProjectileEntity )
         {
             return 2000;
