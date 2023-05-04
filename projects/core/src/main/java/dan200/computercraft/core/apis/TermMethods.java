@@ -234,7 +234,7 @@ public abstract class TermMethods {
     }
 
     /**
-     * Writes {@code text} to the terminal with the specific foreground and background characters.
+     * Writes {@code text} to the terminal with the specific foreground and background colours.
      * <p>
      * As with {@link #write(IArguments)}, the text will be written at the current cursor location, with the cursor
      * moving to the end of the text.
