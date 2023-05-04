@@ -7,8 +7,7 @@
         "defaultRequire": 1
     },
     "mixins": [
-        "CacheUpdaterMixin",
-        "ExplosionAccessor"
+        "CacheUpdaterMixin"
     ],
     "refmap": "computercraft.refmap.json"
 }
