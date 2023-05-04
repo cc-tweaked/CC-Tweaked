@@ -533,12 +533,18 @@ do
     local function parse_string(str, pos, terminate)
         local buf, n = {}, 1
 
+        -- We attempt to match all non-special characters at once using Lua patterns, as this
+        -- provides a significant speed boost. This is all characters >= " " except \ and the
+        -- terminator (' or ").
+        local char_pat = "^[ !#-[%]^-\255]+"
+        if terminate == "'" then char_pat = "^[ -&(-[%]^-\255]+" end
+
         while true do
             local c = sub(str, pos, pos)
             if c == "" then error_at(pos, "Unexpected end of input, expected '\"'.") end
             if c == terminate then break end
 
-            if c == '\\' then
+            if c == "\\" then
                 -- Handle the various escapes
                 c = sub(str, pos + 1, pos + 1)
                 if c == "" then error_at(pos, "Unexpected end of input, expected escape sequence.") end
@@ -552,8 +558,10 @@ do
                     if not unesc then error_at(pos + 1, "Unknown escape character %q.", c) end
                     buf[n], n, pos = unesc, n + 1, pos + 2
                 end
-            elseif c >= '\x20' then
-                buf[n], n, pos = c, n + 1, pos + 1
+            elseif c >= " " then
+                local _, finish = find(str, char_pat, pos)
+                buf[n], n = sub(str, pos, finish), n + 1
+                pos = finish + 1
             else
                 error_at(pos + 1, "Unescaped whitespace %q.", c)
             end
