@@ -6,7 +6,6 @@ package dan200.computercraft.shared.turtle.blocks;
 
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.mixin.ExplosionAccessor;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlock;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlockEntity;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -148,7 +147,7 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
 
     @ForgeOverride
     public float getExplosionResistance(BlockState state, BlockGetter world, BlockPos pos, Explosion explosion) {
-        var exploder = ((ExplosionAccessor) explosion).computercraft$getExploder();
+        var exploder = explosion.getDirectSourceEntity();
         if (getFamily() == ComputerFamily.ADVANCED || exploder instanceof LivingEntity || exploder instanceof AbstractHurtingProjectile) {
             return 2000;
         }
