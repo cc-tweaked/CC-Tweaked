@@ -11,8 +11,8 @@ import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.platform.PlatformHelper;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Filter;
-import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.filter.MarkerFilter;
 
 import java.util.Arrays;
@@ -81,7 +81,9 @@ public final class ConfigSpec {
     }
 
     static {
-        LoggerContext.getContext().addFilter(logFilter);
+        if (LogManager.getContext(false) instanceof org.apache.logging.log4j.core.LoggerContext context) {
+            context.addFilter(logFilter);
+        }
 
         var builder = PlatformHelper.get().createConfigBuilder();
 
@@ -347,9 +349,9 @@ public final class ConfigSpec {
             logComputerErrors.get() ? Filter.Result.ACCEPT : Filter.Result.DENY,
             Filter.Result.NEUTRAL
         );
-        if (!logFilter.equals(ConfigSpec.logFilter)) {
-            LoggerContext.getContext().removeFilter(ConfigSpec.logFilter);
-            LoggerContext.getContext().addFilter(ConfigSpec.logFilter = logFilter);
+        if (!logFilter.equals(ConfigSpec.logFilter) && LogManager.getContext(false) instanceof org.apache.logging.log4j.core.LoggerContext context) {
+            context.removeFilter(ConfigSpec.logFilter);
+            context.addFilter(ConfigSpec.logFilter = logFilter);
         }
 
         // HTTP

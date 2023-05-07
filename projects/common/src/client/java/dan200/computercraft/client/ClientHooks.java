@@ -174,7 +174,7 @@ public final class ClientHooks {
      * @param addText A callback which adds a single line of text.
      */
     public static void addGameDebugInfo(Consumer<String> addText) {
-        if (MonitorBlockEntityRenderer.hasRenderedThisFrame()) {
+        if (MonitorBlockEntityRenderer.hasRenderedThisFrame() && Minecraft.getInstance().options.renderDebug) {
             addText.accept("[CC:T] Monitor renderer: " + MonitorBlockEntityRenderer.currentRenderer());
         }
     }
