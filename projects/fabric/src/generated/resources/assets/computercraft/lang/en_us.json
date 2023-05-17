@@ -163,6 +163,8 @@
   "gui.computercraft.config.turtle.normal_fuel_limit": "Turtle fuel limit",
   "gui.computercraft.config.turtle.normal_fuel_limit.tooltip": "The fuel limit for Turtles.\nRange: > 0",
   "gui.computercraft.config.turtle.tooltip": "Various options relating to turtles.",
+  "gui.computercraft.config.upload_max_size": "File upload size limit (bytes)",
+  "gui.computercraft.config.upload_max_size.tooltip": "The file upload size limit, in bytes. Must be in range of 1 KiB and 16 MiB.\nKeep in mind that uploads are processed in a single tick - large files or\npoor network performance can stall the networking thread. And mind the disk space!\nRange: 1024 ~ 16777216",
   "gui.computercraft.config.upload_nag_delay": "Upload nag delay",
   "gui.computercraft.config.upload_nag_delay.tooltip": "The delay in seconds after which we'll notify about unhandled imports. Set to 0 to disable.\nRange: 0 ~ 60",
   "gui.computercraft.pocket_computer_overlay": "Pocket computer open. Press ESC to close.",
