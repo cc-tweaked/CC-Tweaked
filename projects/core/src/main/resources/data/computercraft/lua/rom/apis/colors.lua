@@ -363,3 +363,20 @@ function toBlit(color)
     return color_hex_lookup[color] or
         string.format("%x", math.floor(math.log(color) / math.log(2)))
 end
+
+--- Converts the given paint/blit hex character (0-9a-f) to a color.
+--
+-- This is equivalent to converting the hex character to decimal and then 2 ^ decimal
+--
+-- @tparam string hex The paint/blit hex character to convert
+-- @treturn number The color
+
+function fromBlit(hex)
+    expect(1, hex, "string")
+
+    if hex:find("[^0-9a-f]") or hex == "" then
+        return
+    end
+
+    return math.floor(2 ^ tonumber(hex, 16))
+end
