@@ -4,10 +4,10 @@
 
 package dan200.computercraft.shared.network.container;
 
-import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
+import dan200.computercraft.shared.config.Config;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 
@@ -56,5 +56,7 @@ public class ComputerContainerData implements ContainerData {
         return displayStack;
     }
 
-    public int uploadMaxSize() { return uploadMaxSize; }
+    public int uploadMaxSize() {
+        return uploadMaxSize;
+    }
 }

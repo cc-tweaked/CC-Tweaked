@@ -70,7 +70,9 @@ public abstract class AbstractComputerMenu extends AbstractContainerMenu impleme
         return data.get(0) != 0;
     }
 
-    public int getUploadMaxSize() { return uploadMaxSize; }
+    public int getUploadMaxSize() {
+        return uploadMaxSize;
+    }
 
     @Override
     public ServerComputer getComputer() {
