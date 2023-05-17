@@ -357,6 +357,12 @@ end
 --
 -- @tparam number color The color to convert.
 -- @treturn string The blit hex code of the color.
+-- @usage
+-- ```lua
+-- colors.toBlit(colors.red)
+-- -- => "c"
+-- ```
+-- @see colors.fromBlit
 -- @since 1.94.0
 function toBlit(color)
     expect(1, color, "number")
@@ -370,6 +376,13 @@ end
 --
 -- @tparam string hex The paint/blit hex character to convert
 -- @treturn number The color
+-- @usage
+-- ```lua
+-- colors.fromBlit("e")
+-- -- => 16384
+-- ```
+-- @see colors.toBlit
+-- @since 1.105.0
 
 function fromBlit(hex)
     expect(1, hex, "string")
