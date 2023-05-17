@@ -93,4 +93,18 @@ describe("The colors library", function()
             expect(colors.toBlit(16385)):eq("e")
         end)
     end)
+
+    describe("colors.fromBlit", function()
+        it("validates arguments", function()
+            expect.error(colors.fromBlit, nil):eq("bad argument #1 (string expected, got nil)")
+            expect(colors.fromBlit("")):eq(nil)
+            expect(colors.fromBlit("not hex")):eq(nil)
+        end)
+
+        it("converts all colors", function()
+            for i = 0, 15 do
+                expect(colors.fromBlit(string.format("%x", i))):eq(2 ^ i)
+            end
+        end)
+    end)
 end)
