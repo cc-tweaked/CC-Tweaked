@@ -11,6 +11,7 @@ projects/common/src/testMod/resources/data/cctest/structures/* linguist-generate
 *.gradle eol=lf diff=java
 *.java   eol=lf diff=java
 *.kt     eol=lf diff=java
+*.kts    eol=lf diff=java
 *.lua    eol=lf
 *.md     eol=lf diff=markdown
 *.txt    eol=lf
