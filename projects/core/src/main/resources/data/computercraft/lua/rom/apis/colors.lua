@@ -372,7 +372,7 @@ end
 
 --- Converts the given paint/blit hex character (0-9a-f) to a color.
 --
--- This is equivalent to converting the hex character to decimal and then 2 ^ decimal
+-- This is equivalent to converting the hex character to a number and then 2 ^ decimal
 --
 -- @tparam string hex The paint/blit hex character to convert
 -- @treturn number The color
@@ -387,9 +387,9 @@ end
 function fromBlit(hex)
     expect(1, hex, "string")
 
-    if hex:find("[^0-9a-f]") or hex == "" then
-        return
-    end
+    if #hex ~= 1 then return nil end
+    local value = tonumber(hex, 16)
+    if not value then return nil end
 
-    return math.floor(2 ^ tonumber(hex, 16))
+    return 2 ^ value
 end
