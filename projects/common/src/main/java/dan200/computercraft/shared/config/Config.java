@@ -14,6 +14,7 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 public final class Config {
     public static int computerSpaceLimit = 1000 * 1000;
     public static int floppySpaceLimit = 125 * 1000;
+    public static int uploadMaxSize = 512 * 1024; // 512 KB
     public static boolean commandRequireCreative = true;
 
     public static boolean enableCommandBlock = false;

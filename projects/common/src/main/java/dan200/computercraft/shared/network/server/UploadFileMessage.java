@@ -8,6 +8,7 @@ import com.google.common.annotations.VisibleForTesting;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
+import dan200.computercraft.shared.config.Config;
 import io.netty.handler.codec.DecoderException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -22,7 +23,6 @@ import java.util.function.Consumer;
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public class UploadFileMessage extends ComputerServerMessage {
-    public static final int MAX_SIZE = 512 * 1024;
     static final int MAX_PACKET_SIZE = 30 * 1024; // Max packet size is 32767.
     private static final int HEADER_SIZE = 16 + 1; // 16 bytes for the UUID, 4 for the flag.
 
@@ -60,7 +60,7 @@ public class UploadFileMessage extends ComputerServerMessage {
             for (var i = 0; i < nFiles; i++) {
                 var name = buf.readUtf(MAX_FILE_NAME);
                 var size = buf.readVarInt();
-                if (size > MAX_SIZE || (totalSize += size) > MAX_SIZE) {
+                if (size > Config.uploadMaxSize || (totalSize += size) > Config.uploadMaxSize) {
                     throw new DecoderException("Files are too large");
                 }
 

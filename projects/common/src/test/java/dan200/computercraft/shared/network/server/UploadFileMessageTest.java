@@ -5,6 +5,7 @@
 package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.upload.FileUpload;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.test.core.ArbitraryByteBuffer;
 import dan200.computercraft.test.shared.FakeContainer;
 import dan200.computercraft.test.shared.WithMinecraft;
@@ -114,7 +115,7 @@ public class UploadFileMessageTest {
                 Arbitraries.strings().ofMinLength(1).ascii().ofMaxLength(MAX_FILE_NAME),
                 Arbitraries.strings().ofMinLength(1).ofMaxLength(MAX_FILE_NAME / 4)
             )),
-            ArbitraryByteBuffer.bytes().ofMaxSize(MAX_SIZE)
+            ArbitraryByteBuffer.bytes().ofMaxSize(Config.uploadMaxSize)
         ).as(UploadFileMessageTest::file);
     }
 
@@ -122,7 +123,7 @@ public class UploadFileMessageTest {
     Arbitrary<List<FileUpload>> fileUploads() {
         return fileUpload().list()
             .ofMinSize(1).ofMaxSize(MAX_FILES)
-            .filter(us -> us.stream().mapToInt(u -> u.getBytes().remaining()).sum() <= MAX_SIZE);
+            .filter(us -> us.stream().mapToInt(u -> u.getBytes().remaining()).sum() <= Config.uploadMaxSize);
     }
 
     private static FileUpload file(String name, ByteBuffer buffer) {

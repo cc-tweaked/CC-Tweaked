@@ -32,6 +32,7 @@ public final class ConfigSpec {
     public static final ConfigFile.Value<String> defaultComputerSettings;
     public static final ConfigFile.Value<Boolean> logComputerErrors;
     public static final ConfigFile.Value<Boolean> commandRequireCreative;
+    public static final ConfigFile.Value<Integer> uploadMaxSize;
 
     public static final ConfigFile.Value<Integer> computerThreads;
     public static final ConfigFile.Value<Integer> maxMainGlobalTime;
@@ -95,6 +96,13 @@ public final class ConfigSpec {
             floppySpaceLimit = builder
                 .comment("The disk space limit for floppy disks, in bytes.")
                 .define("floppy_space_limit", Config.floppySpaceLimit);
+
+            uploadMaxSize = builder
+                .comment("""
+                    The file upload size limit, in bytes. Must be in range of 1 KiB and 16 MiB.
+                    Keep in mind that uploads are processed in a single tick - large files or
+                    poor network performance can stall the networking thread. And mind the disk space!""")
+                .defineInRange("upload_max_size", Config.uploadMaxSize, 1024, 16 * 1024 * 1024);
 
             maximumFilesOpen = builder
                 .comment("Set how many files a computer can have open at the same time. Set to 0 for unlimited.")
@@ -334,6 +342,7 @@ public final class ConfigSpec {
         // General
         Config.computerSpaceLimit = computerSpaceLimit.get();
         Config.floppySpaceLimit = floppySpaceLimit.get();
+        Config.uploadMaxSize = uploadMaxSize.get();
         CoreConfig.maximumFilesOpen = maximumFilesOpen.get();
         CoreConfig.disableLua51Features = disableLua51Features.get();
         CoreConfig.defaultComputerSettings = defaultComputerSettings.get();
