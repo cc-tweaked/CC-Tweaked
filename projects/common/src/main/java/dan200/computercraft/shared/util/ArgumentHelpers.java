@@ -19,18 +19,6 @@ public final class ArgumentHelpers {
     private ArgumentHelpers() {
     }
 
-    public static void assertBetween(double value, double min, double max, String message) throws LuaException {
-        if (value < min || value > max || Double.isNaN(value)) {
-            throw new LuaException(String.format(message, "between " + min + " and " + max));
-        }
-    }
-
-    public static void assertBetween(int value, int min, int max, String message) throws LuaException {
-        if (value < min || value > max) {
-            throw new LuaException(String.format(message, "between " + min + " and " + max));
-        }
-    }
-
     public static <T> T getRegistryEntry(String name, String typeName, RegistryWrappers.RegistryWrapper<T> registry) throws LuaException {
         ResourceLocation id;
         try {

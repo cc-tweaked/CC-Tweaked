@@ -30,9 +30,6 @@ import java.io.Serial;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-import static org.squiddev.cobalt.ValueFactory.valueOf;
-import static org.squiddev.cobalt.ValueFactory.varargsOf;
-
 public class CobaltLuaMachine implements ILuaMachine {
     private static final Logger LOG = LoggerFactory.getLogger(CobaltLuaMachine.class);
 
@@ -76,8 +73,8 @@ public class CobaltLuaMachine implements ILuaMachine {
         var globals = state.getMainThread().getfenv();
         CoreLibraries.debugGlobals(state);
         Bit32Lib.add(state, globals);
-        globals.rawset("_HOST", valueOf(environment.hostString()));
-        globals.rawset("_CC_DEFAULT_SETTINGS", valueOf(CoreConfig.defaultComputerSettings));
+        globals.rawset("_HOST", ValueFactory.valueOf(environment.hostString()));
+        globals.rawset("_CC_DEFAULT_SETTINGS", ValueFactory.valueOf(CoreConfig.defaultComputerSettings));
         if (CoreConfig.disableLua51Features) globals.rawset("_CC_DISABLE_LUA51_FEATURES", Constants.TRUE);
 
         // Add default APIs
@@ -121,7 +118,7 @@ public class CobaltLuaMachine implements ILuaMachine {
         }
 
         try {
-            var resumeArgs = eventName == null ? Constants.NONE : varargsOf(valueOf(eventName), toValues(arguments));
+            var resumeArgs = eventName == null ? Constants.NONE : ValueFactory.varargsOf(ValueFactory.valueOf(eventName), toValues(arguments));
 
             // Resume the current thread, or the main one when first starting off.
             var thread = state.getCurrentThread();
@@ -189,14 +186,14 @@ public class CobaltLuaMachine implements ILuaMachine {
 
     private LuaValue toValue(@Nullable Object object, @Nullable IdentityHashMap<Object, LuaValue> values) {
         if (object == null) return Constants.NIL;
-        if (object instanceof Number num) return valueOf(num.doubleValue());
-        if (object instanceof Boolean bool) return valueOf(bool);
-        if (object instanceof String str) return valueOf(str);
-        if (object instanceof byte[] b) return valueOf(Arrays.copyOf(b, b.length));
+        if (object instanceof Number num) return ValueFactory.valueOf(num.doubleValue());
+        if (object instanceof Boolean bool) return ValueFactory.valueOf(bool);
+        if (object instanceof String str) return ValueFactory.valueOf(str);
+        if (object instanceof byte[] b) return ValueFactory.valueOf(Arrays.copyOf(b, b.length));
         if (object instanceof ByteBuffer b) {
             var bytes = new byte[b.remaining()];
             b.get(bytes);
-            return valueOf(bytes);
+            return ValueFactory.valueOf(bytes);
         }
 
         if (values == null) values = new IdentityHashMap<>(1);
@@ -261,7 +258,7 @@ public class CobaltLuaMachine implements ILuaMachine {
             var object = objects[i];
             values[i] = toValue(object, result);
         }
-        return varargsOf(values);
+        return ValueFactory.varargsOf(values);
     }
 
     @Nullable

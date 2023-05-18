@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static dan200.computercraft.shared.util.ArgumentHelpers.assertBetween;
+import static dan200.computercraft.core.util.ArgumentHelpers.assertBetween;
 
 /**
  * Methods for interacting with inventories. This mirrors the Forge version.
