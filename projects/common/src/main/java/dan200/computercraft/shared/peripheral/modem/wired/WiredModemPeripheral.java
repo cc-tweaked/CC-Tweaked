@@ -44,12 +44,12 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
     //region IPacketSender implementation
     @Override
     public boolean isInterdimensional() {
-        return false;
+        return true;
     }
 
     @Override
     public double getRange() {
-        return 256.0;
+        return Integer.MAX_VALUE;
     }
 
     @Override
