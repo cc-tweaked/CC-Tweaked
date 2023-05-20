@@ -107,6 +107,13 @@ final class VarargArguments implements IArguments {
     }
 
     @Override
+    public String getStringCoerced(int index) {
+        checkAccessible();
+        // This doesn't run __tostring, which is _technically_ wrong, but avoids a lot of complexity.
+        return varargs.arg(index + 1).toString();
+    }
+
+    @Override
     public String getType(int index) {
         checkAccessible();
 

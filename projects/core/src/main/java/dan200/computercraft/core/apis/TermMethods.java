@@ -4,12 +4,12 @@
 
 package dan200.computercraft.core.apis;
 
+import dan200.computercraft.api.lua.Coerced;
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.util.StringUtil;
 
 import java.nio.ByteBuffer;
 
@@ -36,13 +36,12 @@ public abstract class TermMethods {
      * Unlike functions like {@code write} and {@code print}, this does not wrap the text - it simply copies the
      * text to the current terminal line.
      *
-     * @param arguments The text to write.
+     * @param textA The text to write.
      * @throws LuaException (hidden) If the terminal cannot be found.
-     * @cc.param text The text to write.
      */
     @LuaFunction
-    public final void write(IArguments arguments) throws LuaException {
-        var text = StringUtil.toString(arguments.get(0));
+    public final void write(Coerced<String> textA) throws LuaException {
+        var text = textA.value();
         var terminal = getTerminal();
         synchronized (terminal) {
             terminal.write(text);
@@ -79,7 +78,7 @@ public abstract class TermMethods {
     }
 
     /**
-     * Set the position of the cursor. {@link #write(IArguments) terminal writes} will begin from this position.
+     * Set the position of the cursor. {@link #write(Coerced) terminal writes} will begin from this position.
      *
      * @param x The new x position of the cursor.
      * @param y The new y position of the cursor.
@@ -236,7 +235,7 @@ public abstract class TermMethods {
     /**
      * Writes {@code text} to the terminal with the specific foreground and background colours.
      * <p>
-     * As with {@link #write(IArguments)}, the text will be written at the current cursor location, with the cursor
+     * As with {@link #write(Coerced)}, the text will be written at the current cursor location, with the cursor
      * moving to the end of the text.
      * <p>
      * {@code textColour} and {@code backgroundColour} must both be strings the same length as {@code text}. All

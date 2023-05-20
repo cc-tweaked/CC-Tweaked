@@ -137,6 +137,7 @@ public class GeneratorTest {
 
     public static class IllegalThrows {
         @LuaFunction
+        @SuppressWarnings("DoNotCallSuggester")
         public final void go() throws IOException {
             throw new IOException();
         }

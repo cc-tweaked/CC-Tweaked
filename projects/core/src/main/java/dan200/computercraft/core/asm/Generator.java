@@ -9,10 +9,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.primitives.Primitives;
 import com.google.common.reflect.TypeToken;
-import dan200.computercraft.api.lua.IArguments;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.peripheral.PeripheralType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -46,6 +43,8 @@ public final class Generator<T> {
 
     private static final String INTERNAL_ARGUMENTS = Type.getInternalName(IArguments.class);
     private static final String DESC_ARGUMENTS = Type.getDescriptor(IArguments.class);
+
+    private static final String INTERNAL_COERCED = Type.getInternalName(Coerced.class);
 
     private final Class<T> base;
     private final List<Class<?>> context;
@@ -274,6 +273,21 @@ public final class Generator<T> {
         if (idx >= 0) {
             mw.visitVarInsn(ALOAD, 2 + idx);
             return false;
+        }
+
+        if (arg == Coerced.class) {
+            var klass = Reflect.getRawType(method, TypeToken.of(genericArg).resolveType(Reflect.COERCED_IN).getType(), false);
+            if (klass == null) return null;
+
+            if (klass == String.class) {
+                mw.visitTypeInsn(NEW, INTERNAL_COERCED);
+                mw.visitInsn(DUP);
+                mw.visitVarInsn(ALOAD, 2 + context.size());
+                Reflect.loadInt(mw, argIndex);
+                mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, "getStringCoerced", "(I)Ljava/lang/String;", true);
+                mw.visitMethodInsn(INVOKESPECIAL, INTERNAL_COERCED, "<init>", "(Ljava/lang/Object;)V", false);
+                return true;
+            }
         }
 
         if (arg == Optional.class) {

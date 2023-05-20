@@ -39,7 +39,7 @@ public class ObjectWrapper implements ILuaContext {
         return method.apply(object, this, new ObjectArguments(args)).getResult();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "TypeParameterUnusedInFormals" })
     public <T> T callOf(String name, Object... args) throws LuaException {
         return (T) call(name, args)[0];
     }

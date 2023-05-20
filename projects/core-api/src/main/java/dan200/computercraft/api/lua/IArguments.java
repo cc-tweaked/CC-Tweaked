@@ -155,6 +155,36 @@ public interface IArguments {
     }
 
     /**
+     * Get the argument, converting it to a string by following Lua conventions.
+     * <p>
+     * Unlike {@code Objects.toString(arguments.get(i))}, this may follow Lua's string formatting, so {@code nil} will be
+     * converted to {@code "nil"} and tables/functions will use their original hash.
+     *
+     * @param index The argument number.
+     * @return The argument's representation as a string.
+     * @throws LuaException          If the argument cannot be converted to Java. This should be thrown in extraneous
+     *                               circumstances (if the conversion would allocate too much memory) and should
+     *                               <em>not</em> be thrown if the original argument is not present or is an unsupported
+     *                               data type (such as a function or userdata).
+     * @throws IllegalStateException If accessing these arguments outside the scope of the original function. See
+     *                               {@link #escapes()}.
+     * @see Coerced
+     */
+    default String getStringCoerced(int index) throws LuaException {
+        var value = get(index);
+        if (value == null) return "nil";
+        if (value instanceof Boolean || value instanceof String) return value.toString();
+        if (value instanceof Number number) {
+            var asDouble = number.doubleValue();
+            var asInt = (int) asDouble;
+            return asInt == asDouble ? Integer.toString(asInt) : Double.toString(asDouble);
+        }
+
+        // This is somewhat bogus - the hash codes don't match up - but it's a good approximation.
+        return String.format("%s: %08x", getType(index), value.hashCode());
+    }
+
+    /**
      * Get a string argument as a byte array.
      *
      * @param index The argument number.

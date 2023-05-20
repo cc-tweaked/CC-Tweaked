@@ -4,6 +4,7 @@
 
 package dan200.computercraft.core.asm;
 
+import dan200.computercraft.api.lua.Coerced;
 import dan200.computercraft.api.lua.LuaTable;
 import org.objectweb.asm.MethodVisitor;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import static org.objectweb.asm.Opcodes.ICONST_0;
 final class Reflect {
     private static final Logger LOG = LoggerFactory.getLogger(Reflect.class);
     static final java.lang.reflect.Type OPTIONAL_IN = Optional.class.getTypeParameters()[0];
+    static final java.lang.reflect.Type COERCED_IN = Coerced.class.getTypeParameters()[0];
 
     private Reflect() {
     }

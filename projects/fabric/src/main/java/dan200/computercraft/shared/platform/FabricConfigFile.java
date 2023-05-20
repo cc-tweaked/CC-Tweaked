@@ -221,10 +221,12 @@ public class FabricConfigFile implements ConfigFile {
             this.comment = comment;
         }
 
+        @SuppressWarnings("UnusedMethod")
         public final String translationKey() {
             return TRANSLATION_PREFIX + path;
         }
 
+        @SuppressWarnings("UnusedMethod")
         public final String comment() {
             return comment;
         }

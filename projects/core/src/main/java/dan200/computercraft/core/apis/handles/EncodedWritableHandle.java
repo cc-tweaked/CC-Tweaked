@@ -4,11 +4,10 @@
 
 package dan200.computercraft.core.apis.handles;
 
-import dan200.computercraft.api.lua.IArguments;
+import dan200.computercraft.api.lua.Coerced;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.filesystem.TrackingCloseable;
-import dan200.computercraft.core.util.StringUtil;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -34,14 +33,13 @@ public class EncodedWritableHandle extends HandleGeneric {
     /**
      * Write a string of characters to the file.
      *
-     * @param args The value to write.
+     * @param textA The text to write to the file.
      * @throws LuaException If the file has been closed.
-     * @cc.param value The value to write to the file.
      */
     @LuaFunction
-    public final void write(IArguments args) throws LuaException {
+    public final void write(Coerced<String> textA) throws LuaException {
         checkOpen();
-        var text = StringUtil.toString(args.get(0));
+        var text = textA.value();
         try {
             writer.write(text, 0, text.length());
         } catch (IOException e) {
@@ -52,14 +50,13 @@ public class EncodedWritableHandle extends HandleGeneric {
     /**
      * Write a string of characters to the file, following them with a new line character.
      *
-     * @param args The value to write.
+     * @param textA The text to write to the file.
      * @throws LuaException If the file has been closed.
-     * @cc.param value The value to write to the file.
      */
     @LuaFunction
-    public final void writeLine(IArguments args) throws LuaException {
+    public final void writeLine(Coerced<String> textA) throws LuaException {
         checkOpen();
-        var text = StringUtil.toString(args.get(0));
+        var text = textA.value();
         try {
             writer.write(text, 0, text.length());
             writer.newLine();

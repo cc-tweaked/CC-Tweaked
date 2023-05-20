@@ -4,7 +4,7 @@
 
 package dan200.computercraft.shared.peripheral.printer;
 
-import dan200.computercraft.api.lua.IArguments;
+import dan200.computercraft.api.lua.Coerced;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -45,13 +45,12 @@ public class PrinterPeripheral implements IPeripheral {
     /**
      * Writes text to the current page.
      *
-     * @param arguments The values to write to the page.
+     * @param textA The value to write to the page.
      * @throws LuaException If any values couldn't be converted to a string, or if no page is started.
-     * @cc.tparam string|number ... The values to write to the page.
      */
     @LuaFunction
-    public final void write(IArguments arguments) throws LuaException {
-        var text = StringUtil.toString(arguments.get(0));
+    public final void write(Coerced<String> textA) throws LuaException {
+        var text = textA.value();
         var page = getCurrentPage();
         page.write(text);
         page.setCursorPos(page.getCursorX() + text.length(), page.getCursorY());

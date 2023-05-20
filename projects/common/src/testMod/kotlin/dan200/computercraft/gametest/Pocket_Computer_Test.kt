@@ -4,7 +4,7 @@
 
 package dan200.computercraft.gametest
 
-import dan200.computercraft.api.lua.ObjectArguments
+import dan200.computercraft.api.lua.Coerced
 import dan200.computercraft.client.pocket.ClientPocketComputers
 import dan200.computercraft.core.apis.TermAPI
 import dan200.computercraft.gametest.api.*
@@ -34,7 +34,7 @@ class Pocket_Computer_Test {
             context.givePocketComputer(unique)
         }
         // Write some text to the computer.
-        thenOnComputer(unique) { getApi<TermAPI>().write(ObjectArguments("Hello, world!")) }
+        thenOnComputer(unique) { getApi<TermAPI>().write(Coerced("Hello, world!")) }
         // And ensure its synced to the client.
         thenIdle(4)
         thenOnClient {
@@ -49,7 +49,7 @@ class Pocket_Computer_Test {
             val term = getApi<TermAPI>()
             term.setCursorPos(1, 1)
             term.setCursorBlink(true)
-            term.write(ObjectArguments("Updated text :)"))
+            term.write(Coerced("Updated text :)"))
         }
         // And ensure the new computer state and terminal are sent.
         thenIdle(4)

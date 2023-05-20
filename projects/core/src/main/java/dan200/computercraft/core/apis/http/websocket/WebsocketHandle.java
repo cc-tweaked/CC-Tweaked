@@ -8,7 +8,6 @@ import com.google.common.base.Objects;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.core.metrics.Metrics;
-import dan200.computercraft.core.util.StringUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
@@ -75,10 +74,10 @@ public class WebsocketHandle implements Closeable {
      * @cc.changed 1.81.0 Added argument for binary mode.
      */
     @LuaFunction
-    public final void send(Object message, Optional<Boolean> binary) throws LuaException {
+    public final void send(Coerced<String> message, Optional<Boolean> binary) throws LuaException {
         checkOpen();
 
-        var text = StringUtil.toString(message);
+        var text = message.value();
         if (options.websocketMessage != 0 && text.length() > options.websocketMessage) {
             throw new LuaException("Message is too large");
         }

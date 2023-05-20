@@ -173,11 +173,13 @@ public class MethodTest {
 
     public static class PeripheralThrow implements IPeripheral {
         @LuaFunction
+        @SuppressWarnings("DoNotCallSuggester")
         public final void thisThread() throws LuaException {
             throw new LuaException("!");
         }
 
         @LuaFunction(mainThread = true)
+        @SuppressWarnings("DoNotCallSuggester")
         public final void mainThread() throws LuaException {
             throw new LuaException("!");
         }

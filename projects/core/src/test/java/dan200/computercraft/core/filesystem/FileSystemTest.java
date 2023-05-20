@@ -6,8 +6,8 @@ package dan200.computercraft.core.filesystem;
 
 import com.google.common.io.Files;
 import dan200.computercraft.api.filesystem.WritableMount;
+import dan200.computercraft.api.lua.Coerced;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.ObjectArguments;
 import dan200.computercraft.core.TestFiles;
 import dan200.computercraft.core.apis.handles.EncodedWritableHandle;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ public class FileSystemTest {
         {
             var writer = fs.openForWrite("out.txt", false, EncodedWritableHandle::openUtf8);
             var handle = new EncodedWritableHandle(writer.get(), writer);
-            handle.write(new ObjectArguments("This is a long line"));
+            handle.write(new Coerced<>("This is a long line"));
             handle.doClose();
         }
 
@@ -54,7 +54,7 @@ public class FileSystemTest {
         {
             var writer = fs.openForWrite("out.txt", false, EncodedWritableHandle::openUtf8);
             var handle = new EncodedWritableHandle(writer.get(), writer);
-            handle.write(new ObjectArguments("Tiny line"));
+            handle.write(new Coerced<>("Tiny line"));
             handle.doClose();
         }
 
@@ -72,7 +72,7 @@ public class FileSystemTest {
 
         fs.unmount("disk");
 
-        var err = assertThrows(LuaException.class, () -> handle.write(new ObjectArguments("Tiny line")));
+        var err = assertThrows(LuaException.class, () -> handle.write(new Coerced<>("Tiny line")));
         assertEquals("attempt to use a closed file", err.getMessage());
     }
 
