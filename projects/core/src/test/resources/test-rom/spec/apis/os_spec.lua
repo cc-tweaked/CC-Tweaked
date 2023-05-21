@@ -100,8 +100,8 @@ describe("The os library", function()
             exp_code("%Y", "2000")
             exp_code("%%", "%")
 
-            it("%r at 12 AM", function() expect(os.date("%r", 1670373922)):eq("12:45:22 AM") end)
-            it("%I at 12 AM", function() expect(os.date("%I", 1670373922)):eq("12") end)
+            it("%r at 12 AM", function() expect(os.date("!%r", 1670373922)):eq("12:45:22 AM") end)
+            it("%I at 12 AM", function() expect(os.date("!%I", 1670373922)):eq("12") end)
 
             it("zones are numbers", function()
                 local zone = os.date("%z", t1)
