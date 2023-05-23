@@ -17,36 +17,33 @@ import static dan200.computercraft.core.apis.http.websocket.Websocket.MESSAGE_EV
 
 public class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
     private final Websocket websocket;
-    private final WebSocketClientHandshaker handshaker;
     private final Options options;
+    private boolean handshakeComplete = false;
 
-    public WebsocketHandler(Websocket websocket, WebSocketClientHandshaker handshaker, Options options) {
-        this.handshaker = handshaker;
+    public WebsocketHandler(Websocket websocket, Options options) {
         this.websocket = websocket;
         this.options = options;
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        handshaker.handshake(ctx.channel());
-        super.channelActive(ctx);
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        fail("Connection closed");
+        super.channelInactive(ctx);
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        websocket.close(-1, "Websocket is inactive");
-        super.channelInactive(ctx);
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt == WebSocketClientProtocolHandler.ClientHandshakeStateEvent.HANDSHAKE_COMPLETE) {
+            websocket.success(ctx.channel(), options);
+            handshakeComplete = true;
+        } else if (evt == WebSocketClientProtocolHandler.ClientHandshakeStateEvent.HANDSHAKE_TIMEOUT) {
+            websocket.failure("Timed out");
+        }
     }
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, Object msg) {
         if (websocket.isClosed()) return;
-
-        if (!handshaker.isHandshakeComplete()) {
-            handshaker.finishHandshake(ctx.channel(), (FullHttpResponse) msg);
-            websocket.success(ctx.channel(), options);
-            return;
-        }
 
         if (msg instanceof FullHttpResponse response) {
             throw new IllegalStateException("Unexpected FullHttpResponse (getStatus=" + response.status() + ", content=" + response.content().toString(CharsetUtil.UTF_8) + ')');
@@ -65,9 +62,6 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
             websocket.environment().queueEvent(MESSAGE_EVENT, websocket.address(), converted, true);
         } else if (frame instanceof CloseWebSocketFrame closeFrame) {
             websocket.close(closeFrame.statusCode(), closeFrame.reasonText());
-        } else if (frame instanceof PingWebSocketFrame) {
-            frame.content().retain();
-            ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content()));
         }
     }
 
@@ -75,8 +69,11 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         ctx.close();
 
-        var message = NetworkUtils.toFriendlyError(cause);
-        if (handshaker.isHandshakeComplete()) {
+        fail(NetworkUtils.toFriendlyError(cause));
+    }
+
+    private void fail(String message) {
+        if (handshakeComplete) {
             websocket.close(-1, message);
         } else {
             websocket.failure(message);
