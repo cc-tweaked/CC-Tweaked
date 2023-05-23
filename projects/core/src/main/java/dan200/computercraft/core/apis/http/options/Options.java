@@ -12,14 +12,12 @@ public final class Options {
     public final Action action;
     public final long maxUpload;
     public final long maxDownload;
-    public final int timeout;
     public final int websocketMessage;
 
-    Options(Action action, long maxUpload, long maxDownload, int timeout, int websocketMessage) {
+    Options(Action action, long maxUpload, long maxDownload, int websocketMessage) {
         this.action = action;
         this.maxUpload = maxUpload;
         this.maxDownload = maxDownload;
-        this.timeout = timeout;
         this.websocketMessage = websocketMessage;
     }
 }

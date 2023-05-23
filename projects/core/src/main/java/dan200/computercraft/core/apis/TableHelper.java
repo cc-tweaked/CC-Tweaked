@@ -9,6 +9,7 @@ import dan200.computercraft.api.lua.LuaValues;
 
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Optional;
 
 import static dan200.computercraft.api.lua.LuaValues.getNumericType;
 
@@ -97,6 +98,15 @@ public final class TableHelper {
             return (int) ((Number) value).longValue();
         } else {
             throw badKey(key, "number", value);
+        }
+    }
+
+    public static Optional<Double> optRealField(Map<?, ?> table, String key) throws LuaException {
+        var value = table.get(key);
+        if(value == null) {
+            return Optional.empty();
+        } else {
+            return Optional.of(getRealField(table, key));
         }
     }
 

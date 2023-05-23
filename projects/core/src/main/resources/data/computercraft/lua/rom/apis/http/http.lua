@@ -20,7 +20,7 @@ local methods = {
     PATCH = true, TRACE = true,
 }
 
-local function checkKey(options, key, ty, opt)
+local function check_key(options, key, ty, opt)
     local value = options[key]
     local valueTy = type(value)
 
@@ -29,23 +29,24 @@ local function checkKey(options, key, ty, opt)
     end
 end
 
-local function checkOptions(options, body)
-    checkKey(options, "url", "string")
+local function check_request_options(options, body)
+    check_key(options, "url", "string")
     if body == false then
-        checkKey(options, "body", "nil")
+        check_key(options, "body", "nil")
     else
-        checkKey(options, "body", "string", not body)
+        check_key(options, "body", "string", not body)
     end
-    checkKey(options, "headers", "table", true)
-    checkKey(options, "method", "string", true)
-    checkKey(options, "redirect", "boolean", true)
+    check_key(options, "headers", "table", true)
+    check_key(options, "method", "string", true)
+    check_key(options, "redirect", "boolean", true)
+    check_key(options, "timeout", "number", true)
 
     if options.method and not methods[options.method] then
         error("Unsupported HTTP method", 3)
     end
 end
 
-local function wrapRequest(_url, ...)
+local function wrap_request(_url, ...)
     local ok, err = nativeHTTPRequest(...)
     if ok then
         while true do
@@ -72,6 +73,7 @@ decoded.
 @tparam[2] {
   url = string, headers? = { [string] = string },
   binary? = boolean, method? = string, redirect? = boolean,
+  timeout? = number,
 } request Options for the request. See @{http.request} for details on how
 these options behave.
 
@@ -86,6 +88,7 @@ error or connection timeout.
 @changed 1.80pr1 Added argument for binary handles.
 @changed 1.80pr1.6 Added support for table argument.
 @changed 1.86.0 Added PATCH and TRACE methods.
+@changed 1.105.0 Added support for custom timeouts.
 
 @usage Make a request to [example.tweaked.cc](https://example.tweaked.cc),
 and print the returned page.
@@ -99,14 +102,14 @@ request.close()
 ]]
 function get(_url, _headers, _binary)
     if type(_url) == "table" then
-        checkOptions(_url, false)
-        return wrapRequest(_url.url, _url)
+        check_request_options(_url, false)
+        return wrap_request(_url.url, _url)
     end
 
     expect(1, _url, "string")
     expect(2, _headers, "table", "nil")
     expect(3, _binary, "boolean", "nil")
-    return wrapRequest(_url, _url, nil, _headers, _binary)
+    return wrap_request(_url, _url, nil, _headers, _binary)
 end
 
 --[[- Make a HTTP POST request to the given url.
@@ -122,6 +125,7 @@ decoded.
 @tparam[2] {
   url = string, body? = string, headers? = { [string] = string },
   binary? = boolean, method? = string, redirect? = boolean,
+  timeout? = number,
 } request Options for the request. See @{http.request} for details on how
 these options behave.
 
@@ -137,18 +141,19 @@ error or connection timeout.
 @changed 1.80pr1 Added argument for binary handles.
 @changed 1.80pr1.6 Added support for table argument.
 @changed 1.86.0 Added PATCH and TRACE methods.
+@changed 1.105.0 Added support for custom timeouts.
 ]]
 function post(_url, _post, _headers, _binary)
     if type(_url) == "table" then
-        checkOptions(_url, true)
-        return wrapRequest(_url.url, _url)
+        check_request_options(_url, true)
+        return wrap_request(_url.url, _url)
     end
 
     expect(1, _url, "string")
     expect(2, _post, "string")
     expect(3, _headers, "table", "nil")
     expect(4, _binary, "boolean", "nil")
-    return wrapRequest(_url, _url, _post, _headers, _binary)
+    return wrap_request(_url, _url, _post, _headers, _binary)
 end
 
 --[[- Asynchronously make a HTTP request to the given url.
@@ -168,6 +173,7 @@ decoded.
 @tparam[2] {
   url = string, body? = string, headers? = { [string] = string },
   binary? = boolean, method? = string, redirect? = boolean,
+  timeout? = number,
 } request Options for the request.
 
 This table form is an expanded version of the previous syntax. All arguments
@@ -178,6 +184,7 @@ from above are passed in as fields instead (for instance,
 
  - `method`: Which HTTP method to use, for instance `"PATCH"` or `"DELETE"`.
  - `redirect`: Whether to follow HTTP redirects. Defaults to true.
+ - `timeout`: The connection timeout, in seconds.
 
 @see http.get  For a synchronous way to make GET requests.
 @see http.post For a synchronous way to make POST requests.
@@ -186,11 +193,12 @@ from above are passed in as fields instead (for instance,
 @changed 1.80pr1 Added argument for binary handles.
 @changed 1.80pr1.6 Added support for table argument.
 @changed 1.86.0 Added PATCH and TRACE methods.
+@changed 1.105.0 Added support for custom timeouts.
 ]]
 function request(_url, _post, _headers, _binary)
     local url
     if type(_url) == "table" then
-        checkOptions(_url)
+        check_request_options(_url)
         url = _url.url
     else
         expect(1, _url, "string")
@@ -263,26 +271,48 @@ end
 
 local nativeWebsocket = native.websocket
 
+local function check_websocket_options(options, body)
+    check_key(options, "url", "string")
+    check_key(options, "headers", "table", true)
+    check_key(options, "timeout", "number", true)
+end
+
 
 --[[- Asynchronously open a websocket.
 
 This returns immediately, a @{websocket_success} or @{websocket_failure}
 will be queued once the request has completed.
 
-@tparam string url The websocket url to connect to. This should have the
+@tparam[1] string url The websocket url to connect to. This should have the
 `ws://` or `wss://` protocol.
-@tparam[opt] { [string] = string } headers Additional headers to send as part
+@tparam[1, opt] { [string] = string } headers Additional headers to send as part
 of the initial websocket connection.
+
+@tparam[2] {
+  url = string, headers? = { [string] = string }, timeout ?= number,
+} request Options for the websocket.  See @{http.websocket} for details on how
+these options behave.
+
 @since 1.80pr1.3
 @changed 1.95.3 Added User-Agent to default headers.
+@changed 1.105.0 Added support for table argument and custom timeout.
+@see websocket_success
+@see websocket_failure
 ]]
 function websocketAsync(url, headers)
-    expect(1, url, "string")
-    expect(2, headers, "table", "nil")
+    local actual_url
+    if type(url) == "table" then
+        check_websocket_options(url)
+        actual_url = url.url
+    else
+        expect(1, url, "string")
+        expect(2, headers, "table", "nil")
+        actual_url = url
+    end
 
     local ok, err = nativeWebsocket(url, headers)
     if not ok then
-        os.queueEvent("websocket_failure", url, err)
+        os.queueEvent("websocket_failure", actual_url, err)
     end
 
     -- Return true/false for legacy reasons. Undocumented, as it shouldn't be relied on.
@@ -291,30 +321,59 @@ end
 
 --[[- Open a websocket.
 
-@tparam string url The websocket url to connect to. This should have the
+@tparam[1] string url The websocket url to connect to. This should have the
 `ws://` or `wss://` protocol.
-@tparam[opt] { [string] = string } headers Additional headers to send as part
+@tparam[1,opt] { [string] = string } headers Additional headers to send as part
 of the initial websocket connection.
+
+@tparam[2] {
+  url = string, headers? = { [string] = string }, timeout ?= number,
+} request Options for the websocket.
+
+This table form is an expanded version of the previous syntax. All arguments
+from above are passed in as fields instead (for instance,
+`http.websocket("https://example.com")` becomes `http.websocket { url =
+"https://example.com" }`).
+ This table also accepts the following additional options:
+
+  - `timeout`: The connection timeout, in seconds.
 
 @treturn Websocket The websocket connection.
 @treturn[2] false If the websocket connection failed.
 @treturn string An error message describing why the connection failed.
+
 @since 1.80pr1.1
 @changed 1.80pr1.3 No longer asynchronous.
 @changed 1.95.3 Added User-Agent to default headers.
-]]
-function websocket(_url, _headers)
-    expect(1, _url, "string")
-    expect(2, _headers, "table", "nil")
+@changed 1.105.0 Added support for table argument and custom timeout.
 
-    local ok, err = nativeWebsocket(_url, _headers)
+@usage Connect to an echo websocket and send a message.
+
+    local ws = assert(http.websocket("wss://example.tweaked.cc/echo"))
+    ws.send("Hello!") -- Send a message
+    print(ws.receive()) -- And receive the reply
+    ws.close()
+
+]]
+function websocket(url, headers)
+    local actual_url
+    if type(url) == "table" then
+        check_websocket_options(url)
+        actual_url = url.url
+    else
+        expect(1, url, "string")
+        expect(2, headers, "table", "nil")
+        actual_url = url
+    end
+
+    local ok, err = nativeWebsocket(url, headers)
     if not ok then return ok, err end
 
     while true do
         local event, url, param = os.pullEvent( )
-        if event == "websocket_success" and url == _url then
+        if event == "websocket_success" and url == actual_url then
             return param
-        elseif event == "websocket_failure" and url == _url then
+        elseif event == "websocket_failure" and url == actual_url then
             return false, param
         end
     end

@@ -4,6 +4,7 @@
 
 package http
 
+import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.core.CoreConfig
 import dan200.computercraft.core.apis.HTTPAPI
 import dan200.computercraft.core.apis.http.options.Action
@@ -45,7 +46,7 @@ class TestHttpApi {
         LuaTaskRunner.runTest {
             val httpApi = addApi(HTTPAPI(environment))
 
-            val result = httpApi.websocket(WS_ADDRESS, Optional.empty())
+            val result = httpApi.websocket(ObjectArguments(WS_ADDRESS))
             assertArrayEquals(arrayOf(true), result, "Should have created websocket")
 
             val event = pullEvent()

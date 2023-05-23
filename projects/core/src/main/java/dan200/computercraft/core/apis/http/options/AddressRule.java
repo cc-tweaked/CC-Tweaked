@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 public final class AddressRule {
     public static final long MAX_DOWNLOAD = 16 * 1024 * 1024;
     public static final long MAX_UPLOAD = 4 * 1024 * 1024;
-    public static final int TIMEOUT = 30_000;
     public static final int WEBSOCKET_MESSAGE = 128 * 1024;
 
     private final AddressPredicate predicate;

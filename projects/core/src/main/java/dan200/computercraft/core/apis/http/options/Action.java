@@ -12,7 +12,7 @@ public enum Action {
     DENY;
 
     private final PartialOptions partial = new PartialOptions(
-        this, OptionalLong.empty(), OptionalLong.empty(), OptionalInt.empty(), OptionalInt.empty()
+        this, OptionalLong.empty(), OptionalLong.empty(), OptionalInt.empty()
     );
 
     public PartialOptions toPartial() {

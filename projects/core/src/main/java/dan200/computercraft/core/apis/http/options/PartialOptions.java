@@ -13,23 +13,21 @@ import java.util.OptionalLong;
 @Immutable
 public final class PartialOptions {
     public static final PartialOptions DEFAULT = new PartialOptions(
-        null, OptionalLong.empty(), OptionalLong.empty(), OptionalInt.empty(), OptionalInt.empty()
+        null, OptionalLong.empty(), OptionalLong.empty(), OptionalInt.empty()
     );
 
     private final @Nullable Action action;
     private final OptionalLong maxUpload;
     private final OptionalLong maxDownload;
-    private final OptionalInt timeout;
     private final OptionalInt websocketMessage;
 
     @SuppressWarnings("Immutable") // Lazily initialised, so this mutation is invisible in the public API
     private @Nullable Options options;
 
-    public PartialOptions(@Nullable Action action, OptionalLong maxUpload, OptionalLong maxDownload, OptionalInt timeout, OptionalInt websocketMessage) {
+    public PartialOptions(@Nullable Action action, OptionalLong maxUpload, OptionalLong maxDownload, OptionalInt websocketMessage) {
         this.action = action;
         this.maxUpload = maxUpload;
         this.maxDownload = maxDownload;
-        this.timeout = timeout;
         this.websocketMessage = websocketMessage;
     }
 
@@ -40,7 +38,6 @@ public final class PartialOptions {
             action == null ? Action.DENY : action,
             maxUpload.orElse(AddressRule.MAX_UPLOAD),
             maxDownload.orElse(AddressRule.MAX_DOWNLOAD),
-            timeout.orElse(AddressRule.TIMEOUT),
             websocketMessage.orElse(AddressRule.WEBSOCKET_MESSAGE)
         );
     }
@@ -59,7 +56,6 @@ public final class PartialOptions {
             action == null && other.action != null ? other.action : action,
             maxUpload.isPresent() ? maxUpload : other.maxUpload,
             maxDownload.isPresent() ? maxDownload : other.maxDownload,
-            timeout.isPresent() ? timeout : other.timeout,
             websocketMessage.isPresent() ? websocketMessage : other.websocketMessage
         );
     }

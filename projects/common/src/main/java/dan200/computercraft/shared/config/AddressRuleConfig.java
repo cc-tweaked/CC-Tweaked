@@ -32,9 +32,6 @@ class AddressRuleConfig {
         config.add("action", action.name().toLowerCase(Locale.ROOT));
 
         if (host.equals("*") && action == Action.ALLOW) {
-            config.setComment("timeout", "The period of time (in milliseconds) to wait before a HTTP request times out. Set to 0 for unlimited.");
-            config.add("timeout", AddressRule.TIMEOUT);
-
             config.setComment("max_download", """
                 The maximum size (in bytes) that a computer can download in a single request.
                 Note that responses may receive more data than allowed, but this data will not
@@ -58,7 +55,6 @@ class AddressRuleConfig {
         var port = unboxOptInt(get(builder, "port", Number.class));
         return hostObj != null && checkEnum(builder, "action", Action.class)
             && check(builder, "port", Number.class)
-            && check(builder, "timeout", Number.class)
             && check(builder, "max_upload", Number.class)
             && check(builder, "max_download", Number.class)
             && check(builder, "websocket_message", Number.class)
@@ -72,7 +68,6 @@ class AddressRuleConfig {
 
         var action = getEnum(builder, "action", Action.class).orElse(null);
         var port = unboxOptInt(get(builder, "port", Number.class));
-        var timeout = unboxOptInt(get(builder, "timeout", Number.class));
         var maxUpload = unboxOptLong(get(builder, "max_upload", Number.class).map(Number::longValue));
         var maxDownload = unboxOptLong(get(builder, "max_download", Number.class).map(Number::longValue));
         var websocketMessage = unboxOptInt(get(builder, "websocket_message", Number.class).map(Number::intValue));
@@ -81,7 +76,6 @@ class AddressRuleConfig {
             action,
             maxUpload,
             maxDownload,
-            timeout,
             websocketMessage
         );
 
