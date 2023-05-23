@@ -13,6 +13,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ConnectTimeoutException;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.TooLongFrameException;
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
@@ -50,7 +51,7 @@ public final class NetworkUtils {
         .build()
     );
 
-    public static final AbstractTrafficShapingHandler SHAPING_HANDLER = new GlobalTrafficShapingHandler(
+    private static final AbstractTrafficShapingHandler SHAPING_HANDLER = new GlobalTrafficShapingHandler(
         EXECUTOR, CoreConfig.httpUploadBandwidth, CoreConfig.httpDownloadBandwidth
     );
 
@@ -139,6 +140,30 @@ public final class NetworkUtils {
         var options = AddressRule.apply(CoreConfig.httpRules, host, address);
         if (options.action == Action.DENY) throw new HTTPRequestException("Domain not permitted");
         return options;
+    }
+
+    /**
+     * Set up some basic properties of the channel. This adds a timeout, the traffic shaping handler, and the SSL
+     * handler.
+     *
+     * @param ch            The channel to initialise.
+     * @param uri           The URI to connect to.
+     * @param socketAddress The address of the socket to connect to.
+     * @param sslContext    The SSL context, if present.
+     * @param timeout       The timeout on this channel.
+     * @see io.netty.channel.ChannelInitializer
+     */
+    public static void initChannel(SocketChannel ch, URI uri, InetSocketAddress socketAddress, @Nullable SslContext sslContext, int timeout) {
+        if (timeout > 0) ch.config().setConnectTimeoutMillis(timeout);
+
+        var p = ch.pipeline();
+        p.addLast(SHAPING_HANDLER);
+
+        if (sslContext != null) {
+            var handler = sslContext.newHandler(ch.alloc(), uri.getHost(), socketAddress.getPort());
+            if (timeout > 0) handler.setHandshakeTimeoutMillis(timeout);
+            p.addLast(handler);
+        }
     }
 
     /**

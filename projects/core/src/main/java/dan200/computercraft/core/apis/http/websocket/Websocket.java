@@ -23,7 +23,7 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
+import io.netty.handler.codec.http.websocketx.WebSocketClientProtocolHandler;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,13 +59,15 @@ public class Websocket extends Resource<Websocket> {
     private final URI uri;
     private final String address;
     private final HttpHeaders headers;
+    private final int timeout;
 
-    public Websocket(ResourceGroup<Websocket> limiter, IAPIEnvironment environment, URI uri, String address, HttpHeaders headers) {
+    public Websocket(ResourceGroup<Websocket> limiter, IAPIEnvironment environment, URI uri, String address, HttpHeaders headers, int timeout) {
         super(limiter);
         this.environment = environment;
         this.uri = uri;
         this.address = address;
         this.headers = headers;
+        this.timeout = timeout;
     }
 
     public static URI checkUri(String address) throws HTTPRequestException {
@@ -125,23 +127,21 @@ public class Websocket extends Resource<Websocket> {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) {
-                        var p = ch.pipeline();
-                        p.addLast(NetworkUtils.SHAPING_HANDLER);
-                        if (sslContext != null) {
-                            p.addLast(sslContext.newHandler(ch.alloc(), uri.getHost(), socketAddress.getPort()));
-                        }
+                        NetworkUtils.initChannel(ch, uri, socketAddress, sslContext, timeout);
 
                         var subprotocol = headers.get(HttpHeaderNames.SEC_WEBSOCKET_PROTOCOL);
-                        WebSocketClientHandshaker handshaker = new NoOriginWebSocketHandshaker(
+                        var handshaker = new NoOriginWebSocketHandshaker(
                             uri, WebSocketVersion.V13, subprotocol, true, headers,
                             options.websocketMessage <= 0 ? MAX_MESSAGE_SIZE : options.websocketMessage
                         );
 
+                        var p = ch.pipeline();
                         p.addLast(
                             new HttpClientCodec(),
                             new HttpObjectAggregator(8192),
                             WebsocketCompressionHandler.INSTANCE,
-                            new WebsocketHandler(Websocket.this, handshaker, options)
+                            new WebSocketClientProtocolHandler(handshaker, false, timeout),
+                            new WebsocketHandler(Websocket.this, options)
                         );
                     }
                 })

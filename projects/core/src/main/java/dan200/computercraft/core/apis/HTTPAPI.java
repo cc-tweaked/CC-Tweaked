@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static dan200.computercraft.core.apis.TableHelper.*;
+import static dan200.computercraft.core.util.ArgumentHelpers.assertBetween;
 
 /**
  * Placeholder description, please ignore.
@@ -31,6 +32,9 @@ import static dan200.computercraft.core.apis.TableHelper.*;
  * @hidden
  */
 public class HTTPAPI implements ILuaAPI {
+    private static final double DEFAULT_TIMEOUT = 30;
+    private static final double MAX_TIMEOUT = 60;
+
     private final IAPIEnvironment apiEnvironment;
 
     private final ResourceGroup<CheckUrl> checkUrls = new ResourceGroup<>(() -> ResourceGroup.DEFAULT_LIMIT);
@@ -72,6 +76,7 @@ public class HTTPAPI implements ILuaAPI {
         String address, postString, requestMethod;
         Map<?, ?> headerTable;
         boolean binary, redirect;
+        Optional<Double> timeoutArg;
 
         if (args.get(0) instanceof Map) {
             var options = args.getTable(0);
@@ -81,7 +86,7 @@ public class HTTPAPI implements ILuaAPI {
             binary = optBooleanField(options, "binary", false);
             requestMethod = optStringField(options, "method", null);
             redirect = optBooleanField(options, "redirect", true);
-
+            timeoutArg = optRealField(options, "timeout");
         } else {
             // Get URL and post information
             address = args.getString(0);
@@ -90,9 +95,11 @@ public class HTTPAPI implements ILuaAPI {
             binary = args.optBoolean(3, false);
             requestMethod = null;
             redirect = true;
+            timeoutArg = Optional.empty();
         }
 
         var headers = getHeaders(headerTable);
+        var timeout = getTimeout(timeoutArg);
 
         HttpMethod httpMethod;
         if (requestMethod == null) {
@@ -106,7 +113,7 @@ public class HTTPAPI implements ILuaAPI {
 
         try {
             var uri = HttpRequest.checkUri(address);
-            var request = new HttpRequest(requests, apiEnvironment, address, postString, headers, binary, redirect);
+            var request = new HttpRequest(requests, apiEnvironment, address, postString, headers, binary, redirect, timeout);
 
             // Make the request
             if (!request.queue(r -> r.request(uri, httpMethod))) {
@@ -134,16 +141,32 @@ public class HTTPAPI implements ILuaAPI {
     }
 
     @LuaFunction
-    public final Object[] websocket(String address, Optional<Map<?, ?>> headerTbl) throws LuaException {
+    public final Object[] websocket(IArguments args) throws LuaException {
         if (!CoreConfig.httpWebsocketEnabled) {
             throw new LuaException("Websocket connections are disabled");
         }
 
-        var headers = getHeaders(headerTbl.orElse(Collections.emptyMap()));
+        String address;
+        Map<?, ?> headerTable;
+        Optional<Double> timeoutArg;
+
+        if (args.get(0) instanceof Map) {
+            var options = args.getTable(0);
+            address = getStringField(options, "url");
+            headerTable = optTableField(options, "headers", Collections.emptyMap());
+            timeoutArg = optRealField(options, "timeout");
+        } else {
+            address = args.getString(0);
+            headerTable = args.optTable(1, Collections.emptyMap());
+            timeoutArg = Optional.empty();
+        }
+
+        var headers = getHeaders(headerTable);
+        var timeout = getTimeout(timeoutArg);
 
         try {
             var uri = Websocket.checkUri(address);
-            if (!new Websocket(websockets, apiEnvironment, uri, address, headers).queue(Websocket::connect)) {
+            if (!new Websocket(websockets, apiEnvironment, uri, address, headers, timeout).queue(Websocket::connect)) {
                 throw new LuaException("Too many websockets already open");
             }
 
@@ -170,5 +193,18 @@ public class HTTPAPI implements ILuaAPI {
             headers.set(HttpHeaderNames.USER_AGENT, apiEnvironment.getGlobalEnvironment().getUserAgent());
         }
         return headers;
+    }
+
+    /**
+     * Parse the timeout value, asserting it is in range.
+     *
+     * @param timeoutArg The (optional) timeout, in seconds.
+     * @return The parsed timeout value, in milliseconds.
+     * @throws LuaException If the timeout is in-range.
+     */
+    private static int getTimeout(Optional<Double> timeoutArg) throws LuaException {
+        double timeout = timeoutArg.orElse(DEFAULT_TIMEOUT);
+        assertBetween(timeout, 0, MAX_TIMEOUT, "timeout out of range (%s)");
+        return (int) (timeout * 1000);
     }
 }
