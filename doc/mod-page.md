@@ -22,13 +22,13 @@ CC: Tweaked is a mod for Minecraft which adds programmable computers, turtles an
 Controlled using the [Lua programming language][lua], CC: Tweaked's computers provides all the tools you need to start
 writing code and automating your Minecraft world.
 
-![A ComputerCraft terminal open and ready to be programmed.](https://tweaked.cc/images/basic-terminal.png)
+![A ComputerCraft terminal open and ready to be programmed.](https://raw.githubusercontent.com/cc-tweaked/CC-Tweaked/HEAD/doc/images/basic-terminal.png)
 
 While computers are incredibly powerful, they're rather limited by their inability to move about. *Turtles* are the
 solution here. They can move about the world, placing and breaking blocks, swinging a sword to protect you from zombies,
 or whatever else you program them to!
 
-![A turtle tunneling in Minecraft.](https://tweaked.cc/images/turtle.png)
+![A turtle tunneling in Minecraft.](https://raw.githubusercontent.com/cc-tweaked/CC-Tweaked/HEAD/doc/images/turtle.png)
 
 Not all problems can be solved with a pickaxe though, and so CC: Tweaked also provides a bunch of additional peripherals
 for your computers. You can play a tune with speakers, display text or images on a monitor, connect all your
@@ -37,7 +37,7 @@ computers together with modems, and much more.
 Computers can now also interact with inventories such as chests, allowing you to build complex inventory and item
 management systems.
 
-![A chest's contents being read by a computer and displayed on a monitor.](https://tweaked.cc/images/peripherals.png)
+![A chest's contents being read by a computer and displayed on a monitor.](https://raw.githubusercontent.com/cc-tweaked/CC-Tweaked/HEAD/doc/images/peripherals.png)
 
 ## Getting Started
 While ComputerCraft is lovely for both experienced programmers and for people who have never coded before, it can be a

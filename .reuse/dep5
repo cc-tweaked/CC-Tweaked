@@ -16,6 +16,7 @@ Copyright: The CC: Tweaked Developers
 License: CC0-1.0
 
 Files:
+  doc/images/*
   package.json
   package-lock.json
   projects/common/src/client/resources/computercraft-client.mixins.json
@@ -24,6 +25,10 @@ Files:
   projects/common/src/testMod/resources/computercraft-gametest.mixins.json
   projects/common/src/testMod/resources/data/computercraft/loot_tables/treasure_disk.json
   projects/common/src/testMod/resources/pack.mcmeta
+  projects/core/src/main/resources/data/computercraft/lua/rom/modules/command/.ignoreme
+  projects/core/src/main/resources/data/computercraft/lua/rom/modules/main/.ignoreme
+  projects/core/src/main/resources/data/computercraft/lua/rom/modules/turtle/.ignoreme
+  projects/core/src/main/resources/data/computercraft/lua/rom/motd.txt
   projects/fabric-api/src/main/modJson/fabric.mod.json
   projects/fabric/src/client/resources/computercraft-client.fabric.mixins.json
   projects/fabric/src/main/resources/computercraft.fabric.mixins.json
@@ -41,7 +46,6 @@ Copyright: The CC: Tweaked Developers
 License: MPL-2.0
 
 Files:
-  doc/images/*
   doc/logo.png
   projects/common/src/main/resources/assets/computercraft/models/*
   projects/common/src/main/resources/assets/computercraft/textures/*
@@ -49,10 +53,6 @@ Files:
   projects/common/src/main/resources/pack.png
   projects/core/src/main/resources/data/computercraft/lua/rom/autorun/.ignoreme
   projects/core/src/main/resources/data/computercraft/lua/rom/help/*
-  projects/core/src/main/resources/data/computercraft/lua/rom/modules/command/.ignoreme
-  projects/core/src/main/resources/data/computercraft/lua/rom/modules/main/.ignoreme
-  projects/core/src/main/resources/data/computercraft/lua/rom/modules/turtle/.ignoreme
-  projects/core/src/main/resources/data/computercraft/lua/rom/motd.txt
   projects/core/src/main/resources/data/computercraft/lua/rom/programs/fun/advanced/levels/*
   projects/web/src/export/items/computercraft/*
 Comment: Bulk-license original assets as CCPL.

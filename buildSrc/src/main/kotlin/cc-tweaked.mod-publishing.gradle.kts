@@ -53,7 +53,7 @@ modrinth {
     gameVersions.add(mcVersion)
     changelog.set("Release notes can be found on the [GitHub repository](https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v$mcVersion-$modVersion).")
 
-    syncBodyFrom.set(provider { file("doc/mod-page.md").readText() })
+    syncBodyFrom.set(provider { rootProject.file("doc/mod-page.md").readText() })
 }
 
 tasks.publish { dependsOn(tasks.modrinth) }
