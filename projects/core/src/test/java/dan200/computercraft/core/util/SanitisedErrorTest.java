@@ -22,7 +22,7 @@ class SanitisedErrorTest {
         try (var printWriter = new PrintWriter(writer)) {
             t.printStackTrace(printWriter);
         }
-        var actualOutput = writer.toString();
+        var actualOutput = writer.toString().replace("\r\n", "\n");
 
         assertEquals(actualOutput, truncatedOutput);
     }
