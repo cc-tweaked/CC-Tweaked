@@ -14,6 +14,7 @@ import dan200.computercraft.core.asm.LuaMethod;
 import dan200.computercraft.core.asm.ObjectSource;
 import dan200.computercraft.core.computer.TimeoutState;
 import dan200.computercraft.core.util.Nullability;
+import dan200.computercraft.core.util.SanitisedError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squiddev.cobalt.*;
@@ -142,7 +143,7 @@ public class CobaltLuaMachine implements ILuaMachine {
             return MachineResult.TIMEOUT;
         } catch (LuaError e) {
             close();
-            LOG.warn("Top level coroutine errored", e);
+            LOG.warn("Top level coroutine errored: {}", new SanitisedError(e));
             return MachineResult.error(e);
         }
     }
