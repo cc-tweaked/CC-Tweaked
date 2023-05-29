@@ -34,6 +34,7 @@ import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -47,11 +48,11 @@ import java.util.concurrent.Executor;
 
 public class ComputerCraft {
     private static final LevelResource SERVERCONFIG = new LevelResource("serverconfig");
+    public static final Registry<TurtleUpgradeSerialiser<?>> TURTLE_UPGRADE_SERIALISERS = FabricRegistryBuilder.createSimple(TurtleUpgradeSerialiser.REGISTRY_ID).buildAndRegister();
+    public static final Registry<PocketUpgradeSerialiser<?>> POCKET_UPGRADE_SERIALISERS = FabricRegistryBuilder.createSimple(PocketUpgradeSerialiser.REGISTRY_ID).buildAndRegister();
 
     public static void init() {
         NetworkHandler.init();
-        FabricRegistryBuilder.createSimple(TurtleUpgradeSerialiser.REGISTRY_ID).buildAndRegister();
-        FabricRegistryBuilder.createSimple(PocketUpgradeSerialiser.REGISTRY_ID).buildAndRegister();
         ModRegistry.register();
         ModRegistry.registerMainThread();
         ModRegistry.registerCreativeTab(FabricItemGroup.builder(new ResourceLocation(ComputerCraftAPI.MOD_ID, "tab"))).build();

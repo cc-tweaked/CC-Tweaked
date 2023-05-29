@@ -5,8 +5,13 @@
 package dan200.computercraft.impl;
 
 import dan200.computercraft.api.detail.DetailRegistry;
+import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -21,4 +26,7 @@ public interface ComputerCraftAPIFabricService extends ComputerCraftAPIService {
     }
 
     DetailRegistry<StorageView<FluidVariant>> getFluidDetailRegistry();
+
+    <T extends ITurtleUpgrade> TurtleUpgradeSerialiser<T> registerTurtleSerializer(ResourceLocation key, TurtleUpgradeSerialiser<T> serializer);
+    <T extends IPocketUpgrade> PocketUpgradeSerialiser<T> registerPocketSerializer(ResourceLocation key, PocketUpgradeSerialiser<T> serializer);
 }
