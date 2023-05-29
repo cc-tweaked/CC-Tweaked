@@ -24,8 +24,10 @@ public final class FabricComputerCraftAPI {
      *
      * @param key Turtle upgrade serializer ID.
      * @param serializer Turtle upgrade serializer for registration
+     * @param <T> Turtle upgrade type for registration
      * @see ITurtleUpgrade
      * @see TurtleUpgradeSerialiser
+     * @return registered turtle upgrade serializer
      */
     public <T extends ITurtleUpgrade> TurtleUpgradeSerialiser<T> registerTurtleSerializer(ResourceLocation key, TurtleUpgradeSerialiser<T> serializer) {
         return getInstance().registerTurtleSerializer(key, serializer);
@@ -35,10 +37,12 @@ public final class FabricComputerCraftAPI {
      *
      * @param key Pocket upgrade serializer ID.
      * @param serializer Pocket upgrade serializer for registration
+     * @param <T> Pocket upgrade type for registration
      * @see IPocketUpgrade
      * @see PocketUpgradeSerialiser
+     * @return registered pocket upgrade serializer
      */
-    public <T extends IPocketUpgrade> PocketUpgradeSerialiser<T> registerPocketSerializer(ResourceLocation key, PocketUpgradeSerialiser<T> serializer){
+    public <T extends IPocketUpgrade> PocketUpgradeSerialiser<T> registerPocketSerializer(ResourceLocation key, PocketUpgradeSerialiser<T> serializer) {
         return getInstance().registerPocketSerializer(key, serializer);
     }
 }
