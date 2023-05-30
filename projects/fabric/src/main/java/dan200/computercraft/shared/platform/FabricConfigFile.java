@@ -4,10 +4,7 @@
 
 package dan200.computercraft.shared.platform;
 
-import com.electronwill.nightconfig.core.Config;
-import com.electronwill.nightconfig.core.ConfigSpec;
-import com.electronwill.nightconfig.core.EnumGetMethod;
-import com.electronwill.nightconfig.core.UnmodifiableConfig;
+import com.electronwill.nightconfig.core.*;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.file.FileNotFoundAction;
 import com.electronwill.nightconfig.core.file.FileWatcher;
@@ -200,10 +197,10 @@ public class FabricConfigFile implements ConfigFile {
         @Override
         public <V extends Enum<V>> Value<V> defineEnum(String path, V defaultValue) {
             var fullPath = getFullPath(path);
-            spec.defineEnum(fullPath, defaultValue, EnumGetMethod.NAME_IGNORECASE);
+            spec.define(fullPath, defaultValue, o -> o != null && o != NullObject.NULL_OBJECT && EnumGetMethod.NAME_IGNORECASE.validate(o, defaultValue.getDeclaringClass()));
 
             var suffix = "Allowed Values: " + Arrays.stream(defaultValue.getDeclaringClass().getEnumConstants()).map(Enum::name).collect(Collectors.joining(", "));
-            return defineValue(path, takeComment(suffix), defaultValue, (c, p, d) -> c.getEnumOrElse(p, d, EnumGetMethod.NAME_IGNORECASE));
+            return defineValue(fullPath, takeComment(suffix), defaultValue, (c, p, d) -> c.getEnumOrElse(p, d, EnumGetMethod.NAME_IGNORECASE));
         }
 
         @Override
