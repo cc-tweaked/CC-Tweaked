@@ -21,6 +21,8 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.jzlib)
     implementation(libs.netty.http)
+    implementation(libs.netty.socks)
+    implementation(libs.netty.proxy)
     implementation(libs.slf4j)
     implementation(libs.asm)
 

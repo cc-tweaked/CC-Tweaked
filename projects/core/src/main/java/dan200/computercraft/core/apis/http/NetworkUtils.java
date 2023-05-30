@@ -4,10 +4,12 @@
 
 package dan200.computercraft.core.apis.http;
 
+import com.google.common.base.Strings;
 import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.apis.http.options.Options;
+import dan200.computercraft.core.apis.http.options.ProxyType;
 import dan200.computercraft.core.util.ThreadUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ConnectTimeoutException;
@@ -17,11 +19,17 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.TooLongFrameException;
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
+import io.netty.handler.proxy.HttpProxyHandler;
+import io.netty.handler.proxy.ProxyHandler;
+import io.netty.handler.proxy.Socks4ProxyHandler;
+import io.netty.handler.proxy.Socks5ProxyHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.handler.traffic.AbstractTrafficShapingHandler;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,6 +151,57 @@ public final class NetworkUtils {
     }
 
     /**
+     * Creates a proxy handler for a specific domain. Returns null if a proxy is not required for this HTTP rule, or
+     * throws if it is required but is not configured correctly.
+     * <p>
+     * Note, this may require a DNS lookup, and so should not be executed on the main CC thread.
+     *
+     * @param options The options for the host to be proxied.
+     * @return The proxy handler, or null if no proxy is required.
+     * @throws HTTPRequestException If a proxy is required but not configured correctly.
+     */
+    @Nullable
+    public static ProxyHandler getProxyHandler(Options options) throws HTTPRequestException {
+        if (!options.useProxy) return null;
+
+        var type = CoreConfig.httpProxyType;
+        var host = CoreConfig.httpProxyHost;
+        var port = CoreConfig.httpProxyPort;
+        var username = CoreConfig.httpProxyUsername;
+        var password = CoreConfig.httpProxyPassword;
+
+        if (Strings.isNullOrEmpty(host)) {
+            throw new HTTPRequestException("Proxy host not configured");
+        }
+
+        var proxyAddress = new InetSocketAddress(host, port);
+        if (proxyAddress.isUnresolved()) throw new HTTPRequestException("Unknown proxy host");
+
+        return switch (type) {
+            case HTTP, HTTPS -> new HttpProxyHandler(proxyAddress, username, password);
+            case SOCKS4 -> new Socks4ProxyHandler(proxyAddress, username);
+            case SOCKS5 -> new Socks5ProxyHandler(proxyAddress, username, password);
+        };
+    }
+
+    /**
+     * Make an SSL handler for the remote host.
+     *
+     * @param ch         The channel the handler will be added to.
+     * @param sslContext The SSL context, if present.
+     * @param timeout    The timeout on this channel.
+     * @param peerHost   The host to connect to.
+     * @param peerPort   The port to connect to.
+     * @return The SSL handler.
+     * @see io.netty.handler.ssl.SslHandler
+     */
+    private static SslHandler makeSslHandler(SocketChannel ch, @NotNull SslContext sslContext, int timeout, String peerHost, int peerPort) {
+        var handler = sslContext.newHandler(ch.alloc(), peerHost, peerPort);
+        if (timeout > 0) handler.setHandshakeTimeoutMillis(timeout);
+        return handler;
+    }
+
+    /**
      * Set up some basic properties of the channel. This adds a timeout, the traffic shaping handler, and the SSL
      * handler.
      *
@@ -150,19 +209,27 @@ public final class NetworkUtils {
      * @param uri           The URI to connect to.
      * @param socketAddress The address of the socket to connect to.
      * @param sslContext    The SSL context, if present.
+     * @param proxy         The proxy handler, if present.
      * @param timeout       The timeout on this channel.
      * @see io.netty.channel.ChannelInitializer
      */
-    public static void initChannel(SocketChannel ch, URI uri, InetSocketAddress socketAddress, @Nullable SslContext sslContext, int timeout) {
+    public static void initChannel(SocketChannel ch, URI uri, InetSocketAddress socketAddress, @Nullable SslContext sslContext, @Nullable ProxyHandler proxy, int timeout) {
         if (timeout > 0) ch.config().setConnectTimeoutMillis(timeout);
 
         var p = ch.pipeline();
         p.addLast(SHAPING_HANDLER);
 
+        if (proxy != null) {
+            if (CoreConfig.httpProxyType == ProxyType.HTTPS && sslContext != null) {
+                // If we're using an HTTPS proxy, we need to add an SSL handler for the proxy too.
+                p.addLast(makeSslHandler(ch, sslContext, timeout, CoreConfig.httpProxyHost, CoreConfig.httpProxyPort));
+            }
+
+            p.addLast(proxy);
+        }
+
         if (sslContext != null) {
-            var handler = sslContext.newHandler(ch.alloc(), uri.getHost(), socketAddress.getPort());
-            if (timeout > 0) handler.setHandshakeTimeoutMillis(timeout);
-            p.addLast(handler);
+            p.addLast(makeSslHandler(ch, sslContext, timeout, uri.getHost(), socketAddress.getPort()));
         }
     }
 

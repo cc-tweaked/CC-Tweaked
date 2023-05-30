@@ -9,6 +9,7 @@ import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.Action;
+import dan200.computercraft.core.apis.http.options.ProxyType;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import org.apache.logging.log4j.LogManager;
@@ -47,6 +48,12 @@ public final class ConfigSpec {
 
     public static final ConfigFile.Value<Integer> httpDownloadBandwidth;
     public static final ConfigFile.Value<Integer> httpUploadBandwidth;
+
+    public static final ConfigFile.Value<ProxyType> httpProxyType;
+    public static final ConfigFile.Value<String> httpProxyHost;
+    public static final ConfigFile.Value<Integer> httpProxyPort;
+    public static final ConfigFile.Value<String> httpProxyUsername;
+    public static final ConfigFile.Value<String> httpProxyPassword;
 
     public static final ConfigFile.Value<Boolean> commandBlockEnabled;
     public static final ConfigFile.Value<Integer> modemRange;
@@ -221,6 +228,38 @@ public final class ConfigSpec {
 
             builder.pop();
 
+            builder
+                .comment("""
+                    Tunnels HTTP and websocket requests through a proxy server. Only affects HTTP
+                    rules with "use_proxy" set to true (off by default).""")
+                .push("proxy");
+
+            httpProxyType = builder
+                .comment("The type of proxy to use.")
+                .defineEnum("type", CoreConfig.httpProxyType);
+
+            httpProxyHost = builder
+                .comment("The hostname or IP address of the proxy server.")
+                .define("host", CoreConfig.httpProxyHost);
+
+            httpProxyPort = builder
+                .comment("The port of the proxy server.")
+                .defineInRange("port", CoreConfig.httpProxyPort, 1, 65536);
+
+            httpProxyUsername = builder
+                .comment("""
+                    The username to use when authenticating with the proxy server. Leave blank if
+                    not required.""")
+                .define("username", CoreConfig.httpProxyUsername);
+
+            httpProxyPassword = builder
+                .comment("""
+                    The password to use when authenticating with the proxy server. Leave blank if
+                    not required. Not supported by SOCKS4 proxies.""")
+                .define("password", CoreConfig.httpProxyPassword);
+
+            builder.pop();
+
             builder.pop();
         }
 
@@ -373,6 +412,12 @@ public final class ConfigSpec {
         CoreConfig.httpMaxWebsockets = httpMaxWebsockets.get();
         CoreConfig.httpDownloadBandwidth = httpDownloadBandwidth.get();
         CoreConfig.httpUploadBandwidth = httpUploadBandwidth.get();
+
+        CoreConfig.httpProxyType = httpProxyType.get();
+        CoreConfig.httpProxyHost = httpProxyHost.get();
+        CoreConfig.httpProxyPort = httpProxyPort.get();
+        CoreConfig.httpProxyUsername = httpProxyUsername.get();
+        CoreConfig.httpProxyPassword = httpProxyPassword.get();
         NetworkUtils.reloadConfig();
 
         // Peripheral
