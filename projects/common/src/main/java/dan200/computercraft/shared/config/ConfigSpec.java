@@ -52,8 +52,6 @@ public final class ConfigSpec {
     public static final ConfigFile.Value<ProxyType> httpProxyType;
     public static final ConfigFile.Value<String> httpProxyHost;
     public static final ConfigFile.Value<Integer> httpProxyPort;
-    public static final ConfigFile.Value<String> httpProxyUsername;
-    public static final ConfigFile.Value<String> httpProxyPassword;
 
     public static final ConfigFile.Value<Boolean> commandBlockEnabled;
     public static final ConfigFile.Value<Integer> modemRange;
@@ -231,7 +229,11 @@ public final class ConfigSpec {
             builder
                 .comment("""
                     Tunnels HTTP and websocket requests through a proxy server. Only affects HTTP
-                    rules with "use_proxy" set to true (off by default).""")
+                    rules with "use_proxy" set to true (off by default).
+                    If authentication is required for the proxy, create a "computercraft-proxy.pw"
+                    file in the same directory as "computercraft-server.toml", containing the
+                    username and password separated by a colon, e.g. "myuser:mypassword". For
+                    SOCKS4 proxies only the username is required.""")
                 .push("proxy");
 
             httpProxyType = builder
@@ -245,18 +247,6 @@ public final class ConfigSpec {
             httpProxyPort = builder
                 .comment("The port of the proxy server.")
                 .defineInRange("port", CoreConfig.httpProxyPort, 1, 65536);
-
-            httpProxyUsername = builder
-                .comment("""
-                    The username to use when authenticating with the proxy server. Leave blank if
-                    not required.""")
-                .define("username", CoreConfig.httpProxyUsername);
-
-            httpProxyPassword = builder
-                .comment("""
-                    The password to use when authenticating with the proxy server. Leave blank if
-                    not required. Not supported by SOCKS4 proxies.""")
-                .define("password", CoreConfig.httpProxyPassword);
 
             builder.pop();
 
@@ -416,8 +406,6 @@ public final class ConfigSpec {
         CoreConfig.httpProxyType = httpProxyType.get();
         CoreConfig.httpProxyHost = httpProxyHost.get();
         CoreConfig.httpProxyPort = httpProxyPort.get();
-        CoreConfig.httpProxyUsername = httpProxyUsername.get();
-        CoreConfig.httpProxyPassword = httpProxyPassword.get();
         NetworkUtils.reloadConfig();
 
         // Peripheral

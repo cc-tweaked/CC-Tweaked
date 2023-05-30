@@ -13,6 +13,7 @@ import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.config.ConfigSpec;
+import dan200.computercraft.shared.config.ProxyPasswordConfig;
 import dan200.computercraft.shared.details.FluidDetails;
 import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
@@ -83,7 +84,9 @@ public class ComputerCraft {
 
         // Register hooks
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-            ((FabricConfigFile) ConfigSpec.serverSpec).load(server.getWorldPath(SERVERCONFIG).resolve(ComputerCraftAPI.MOD_ID + "-server.toml"));
+            var configPath = server.getWorldPath(SERVERCONFIG);
+            ((FabricConfigFile) ConfigSpec.serverSpec).load(configPath.resolve(ComputerCraftAPI.MOD_ID + "-server.toml"));
+            ProxyPasswordConfig.init(configPath.resolve(ComputerCraftAPI.MOD_ID + "-proxy.pw"));
             CommonHooks.onServerStarting(server);
         });
         ServerLifecycleEvents.SERVER_STOPPED.register(s -> {

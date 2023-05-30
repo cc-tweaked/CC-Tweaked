@@ -13,6 +13,7 @@ import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
+import dan200.computercraft.shared.config.ProxyPasswordConfig;
 import dan200.computercraft.shared.platform.ForgeConfigFile;
 import dan200.computercraft.shared.details.FluidData;
 import dan200.computercraft.shared.peripheral.generic.methods.EnergyMethods;
@@ -95,6 +96,7 @@ public final class ComputerCraft {
         if (!config.getModId().equals(ComputerCraftAPI.MOD_ID)) return;
 
         if (config.getType() == ModConfig.Type.SERVER && ((ForgeConfigFile) ConfigSpec.serverSpec).spec().isLoaded()) {
+            ProxyPasswordConfig.init(config.getFullPath().resolveSibling(ComputerCraftAPI.MOD_ID + "-proxy.pw"));
             ConfigSpec.syncServer();
         } else if (config.getType() == ModConfig.Type.CLIENT) {
             ConfigSpec.syncClient();
