@@ -130,6 +130,7 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
 
     @Override
     public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+        super.playerWillDestroy(world, pos, state, player);
         if (!(world instanceof ServerLevel serverWorld)) return;
 
         // We drop the item here instead of doing it in the harvest method, as we should
