@@ -9,6 +9,7 @@ import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.Action;
+import dan200.computercraft.core.computer.mainthread.MainThreadConfig;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import org.apache.logging.log4j.LogManager;
@@ -155,14 +156,14 @@ public final class ConfigSpec {
                     milliseconds.
                     Note, we will quite possibly go over this limit, as there's no way to tell how
                     long a will take - this aims to be the upper bound of the average time.""")
-                .defineInRange("max_main_global_time", (int) TimeUnit.NANOSECONDS.toMillis(CoreConfig.maxMainGlobalTime), 1, Integer.MAX_VALUE);
+                .defineInRange("max_main_global_time", (int) TimeUnit.NANOSECONDS.toMillis(MainThreadConfig.DEFAULT_MAX_GLOBAL_TIME), 1, Integer.MAX_VALUE);
 
             maxMainComputerTime = builder
                 .comment("""
                     The ideal maximum time a computer can execute for in a tick, in milliseconds.
                     Note, we will quite possibly go over this limit, as there's no way to tell how
                     long a will take - this aims to be the upper bound of the average time.""")
-                .defineInRange("max_main_computer_time", (int) TimeUnit.NANOSECONDS.toMillis(CoreConfig.maxMainComputerTime), 1, Integer.MAX_VALUE);
+                .defineInRange("max_main_computer_time", (int) TimeUnit.NANOSECONDS.toMillis(MainThreadConfig.DEFAULT_MAX_COMPUTER_TIME), 1, Integer.MAX_VALUE);
 
             builder.pop();
         }
@@ -347,10 +348,6 @@ public final class ConfigSpec {
         CoreConfig.disableLua51Features = disableLua51Features.get();
         CoreConfig.defaultComputerSettings = defaultComputerSettings.get();
         Config.commandRequireCreative = commandRequireCreative.get();
-
-        // Execution
-        CoreConfig.maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos(maxMainGlobalTime.get());
-        CoreConfig.maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos(maxMainComputerTime.get());
 
         // Update our log filter if needed.
         var logFilter = MarkerFilter.createFilter(

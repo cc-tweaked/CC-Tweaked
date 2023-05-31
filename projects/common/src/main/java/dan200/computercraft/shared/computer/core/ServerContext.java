@@ -12,6 +12,7 @@ import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.computer.ComputerThread;
 import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.computer.mainthread.MainThread;
+import dan200.computercraft.core.computer.mainthread.MainThreadConfig;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.impl.AbstractComputerCraftAPI;
@@ -65,7 +66,7 @@ public final class ServerContext {
     private ServerContext(MinecraftServer server) {
         this.server = server;
         storageDir = server.getWorldPath(FOLDER);
-        mainThread = new MainThread();
+        mainThread = new MainThread(mainThreadConfig);
         context = new ComputerContext(
             new Environment(server),
             new ComputerThread(ConfigSpec.computerThreads.get()),
@@ -215,4 +216,16 @@ public final class ServerContext {
             return ComputerCraftAPI.MOD_ID + "/" + ComputerCraftAPI.getInstalledVersion();
         }
     }
+
+    private static final MainThreadConfig mainThreadConfig = new MainThreadConfig() {
+        @Override
+        public long maxGlobalTime() {
+            return TimeUnit.MILLISECONDS.toNanos(ConfigSpec.maxMainGlobalTime.get());
+        }
+
+        @Override
+        public long maxComputerTime() {
+            return TimeUnit.MILLISECONDS.toNanos(ConfigSpec.maxMainComputerTime.get());
+        }
+    };
 }

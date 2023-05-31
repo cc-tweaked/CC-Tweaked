@@ -9,7 +9,6 @@ import dan200.computercraft.core.apis.http.options.AddressRule;
 
 import java.util.List;
 import java.util.OptionalInt;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Config options for ComputerCraft's Lua runtime.
@@ -24,9 +23,6 @@ public final class CoreConfig {
     public static int maximumFilesOpen = 128;
     public static boolean disableLua51Features = false;
     public static String defaultComputerSettings = "";
-
-    public static long maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos(10);
-    public static long maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos(5);
 
     public static boolean httpEnabled = true;
     public static boolean httpWebsocketEnabled = true;
