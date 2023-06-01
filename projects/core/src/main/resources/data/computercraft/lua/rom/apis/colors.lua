@@ -367,8 +367,7 @@ colors.toBlit(colors.red)
 ]]
 function toBlit(color)
     expect(1, color, "number")
-    return color_hex_lookup[color] or
-        string.format("%x", math.floor(math.log(color) / math.log(2)))
+    return color_hex_lookup[color] or string.format("%x", math.floor(math.log(color, 2)))
 end
 
 --[[- Converts the given paint/blit hex character (0-9a-f) to a color.
