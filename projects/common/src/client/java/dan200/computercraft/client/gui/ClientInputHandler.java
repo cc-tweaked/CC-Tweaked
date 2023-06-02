@@ -16,9 +16,9 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import javax.annotation.Nullable;
 
 /**
- * An {@link InputHandler} which for use on the client.
+ * An {@link InputHandler} for use on the client.
  * <p>
- * This queues events on the remote player's open {@link ComputerMenu}
+ * This queues events on the remote player's open {@link ComputerMenu}.
  */
 public final class ClientInputHandler implements InputHandler {
     private final AbstractContainerMenu menu;

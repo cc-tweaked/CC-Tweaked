@@ -12,7 +12,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-
+/**
+ * The GUI for disk drives.
+ */
 public class DiskDriveScreen extends AbstractContainerScreen<DiskDriveMenu> {
     private static final ResourceLocation BACKGROUND = new ResourceLocation("computercraft", "textures/gui/disk_drive.png");
 

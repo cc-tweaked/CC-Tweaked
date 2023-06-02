@@ -25,6 +25,12 @@ import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 
+/**
+ * A widget which renders a computer terminal and handles input events (keyboard, mouse, clipboard) and computer
+ * shortcuts (terminate/shutdown/reboot).
+ *
+ * @see dan200.computercraft.client.gui.ClientInputHandler The input handler typically used with this class.
+ */
 public class TerminalWidget extends AbstractWidget {
     private static final Component DESCRIPTION = Component.translatable("gui.computercraft.terminal");
 

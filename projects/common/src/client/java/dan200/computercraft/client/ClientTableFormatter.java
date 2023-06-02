@@ -11,6 +11,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +19,12 @@ import org.apache.commons.lang3.StringUtils;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
+/**
+ * A {@link TableFormatter} subclass which writes directly to {@linkplain ChatComponent the chat GUI}.
+ * <p>
+ * Each message written gets a special {@link GuiMessageTag}, so we can remove the previous table of the same
+ * {@link TableBuilder#getId() id}.
+ */
 public class ClientTableFormatter implements TableFormatter {
     public static final ClientTableFormatter INSTANCE = new ClientTableFormatter();
 

@@ -17,6 +17,11 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The custom model for turtle items, which renders tools and overlays as part of the model.
+ *
+ * @see TurtleModelParts
+ */
 public class TurtleModel extends ForwardingBakedModel {
     private final TurtleModelParts parts;
 

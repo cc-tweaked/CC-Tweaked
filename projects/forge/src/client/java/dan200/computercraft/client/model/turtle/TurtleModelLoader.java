@@ -21,6 +21,12 @@ import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
 
 import java.util.function.Function;
 
+/**
+ * A model loader for turtle item models.
+ * <p>
+ * This reads in the associated model file (typically {@code computercraft:block/turtle_xxx}) and wraps it in a
+ * {@link TurtleModel}.
+ */
 public final class TurtleModelLoader implements IGeometryLoader<TurtleModelLoader.Unbaked> {
     private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
 

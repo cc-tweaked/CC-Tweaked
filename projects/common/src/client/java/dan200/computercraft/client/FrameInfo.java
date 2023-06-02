@@ -4,6 +4,11 @@
 
 package dan200.computercraft.client;
 
+/**
+ * Tracks the current client-side tick and frame.
+ * <p>
+ * These are updated via {@link ClientHooks}.
+ */
 public final class FrameInfo {
     private static int tick;
     private static long renderFrame;

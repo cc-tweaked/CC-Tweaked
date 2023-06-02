@@ -10,6 +10,9 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Predicate;
 
+/**
+ * A slot which only accepts items matching a predicate.
+ */
 public class ValidatingSlot extends Slot {
     private final Predicate<ItemStack> predicate;
 

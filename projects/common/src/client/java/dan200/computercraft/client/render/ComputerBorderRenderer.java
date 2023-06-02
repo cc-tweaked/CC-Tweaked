@@ -13,6 +13,10 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 
+/**
+ * Renders the borders of computers, either for a GUI ({@link dan200.computercraft.client.gui.ComputerScreen}) or
+ * {@linkplain PocketItemRenderer in-hand pocket computers}.
+ */
 public class ComputerBorderRenderer {
     public static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_normal.png");
     public static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_advanced.png");

@@ -20,6 +20,11 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * A registry of {@link TurtleUpgradeModeller}s.
+ *
+ * @see dan200.computercraft.api.client.ComputerCraftAPIClient#registerTurtleUpgradeModeller(TurtleUpgradeSerialiser, TurtleUpgradeModeller)
+ */
 public final class TurtleUpgradeModellers {
     private static final TurtleUpgradeModeller<ITurtleUpgrade> NULL_TURTLE_MODELLER = (upgrade, turtle, side) ->
         new TransformedModel(Minecraft.getInstance().getModelManager().getMissingModel(), Transformation.identity());

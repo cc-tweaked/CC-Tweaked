@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.command.text.ChatHelpers.coloured;
-import static dan200.computercraft.shared.command.text.ChatHelpers.translate;
 
 public interface TableFormatter {
     Component SEPARATOR = coloured("| ", ChatFormatting.GRAY);
@@ -99,7 +98,7 @@ public interface TableFormatter {
         }
 
         if (table.getAdditional() > 0) {
-            writeLine(id, coloured(translate("commands.computercraft.generic.additional_rows", table.getAdditional()), ChatFormatting.AQUA));
+            writeLine(id, Component.translatable("commands.computercraft.generic.additional_rows", table.getAdditional()).withStyle(ChatFormatting.AQUA));
         }
     }
 }

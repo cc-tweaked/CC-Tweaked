@@ -20,6 +20,13 @@ import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Holds the client-side state of a monitor. This both tracks the last place a monitor was rendered at (see the comments
+ * in {@link MonitorBlockEntityRenderer}) and the current OpenGL buffers allocated for this object.
+ * <p>
+ * This is automatically cleared by {@link dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity} when the
+ * entity is unloaded on the client side (see {@link MonitorRenderState#close()}).
+ */
 public class MonitorRenderState implements ClientMonitor.RenderState {
     @GuardedBy("allMonitors")
     private static final Set<MonitorRenderState> allMonitors = new HashSet<>();

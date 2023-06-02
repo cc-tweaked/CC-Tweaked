@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * A basic implementation of {@link Container} which operates on a {@linkplain #getContents() stack of items}.
+ * A basic implementation of {@link Container} which operates on a {@linkplain #getContents() list of stacks}.
  */
 public interface BasicContainer extends Container {
     NonNullList<ItemStack> getContents();

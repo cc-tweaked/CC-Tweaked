@@ -39,6 +39,12 @@ import java.util.concurrent.TimeUnit;
 
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
+/**
+ * The base class of all screens with a computer terminal (i.e. {@link ComputerScreen}). This works with
+ * {@link AbstractComputerMenu} to handle the common behaviour such as the terminal, input and file uploading.
+ *
+ * @param <T> The concrete type of the associated menu.
+ */
 public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> extends AbstractContainerScreen<T> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractComputerScreen.class);
 

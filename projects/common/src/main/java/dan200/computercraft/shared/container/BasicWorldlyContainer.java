@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import javax.annotation.Nullable;
 
 /**
- * A basic implementation of {@link WorldlyContainer} which operates on a {@linkplain #getContents() stack of items}.
+ * A basic implementation of {@link WorldlyContainer} which operates on a {@linkplain #getContents() list of stacks}.
  */
 public interface BasicWorldlyContainer extends BasicContainer, WorldlyContainer {
     @Override

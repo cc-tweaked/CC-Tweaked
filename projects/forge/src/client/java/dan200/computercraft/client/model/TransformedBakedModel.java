@@ -18,6 +18,9 @@ import net.minecraftforge.client.model.data.ModelData;
 import javax.annotation.Nullable;
 import java.util.List;
 
+/**
+ * A {@link BakedModel} which applies a transformation matrix to its underlying quads.
+ */
 public class TransformedBakedModel extends BakedModelWrapper<BakedModel> {
     private final Transformation transformation;
     private final boolean invert;

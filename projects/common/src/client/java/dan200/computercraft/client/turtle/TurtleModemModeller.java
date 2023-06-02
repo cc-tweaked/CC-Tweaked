@@ -13,6 +13,9 @@ import dan200.computercraft.shared.turtle.upgrades.TurtleModem;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A {@link TurtleUpgradeModeller} for modems, providing different models depending on if the modem is on/off.
+ */
 public class TurtleModemModeller implements TurtleUpgradeModeller<TurtleModem> {
     private final ResourceLocation leftOffModel;
     private final ResourceLocation rightOffModel;
