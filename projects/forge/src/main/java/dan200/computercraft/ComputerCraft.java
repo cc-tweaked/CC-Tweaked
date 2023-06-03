@@ -13,11 +13,11 @@ import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
-import dan200.computercraft.shared.platform.ForgeConfigFile;
 import dan200.computercraft.shared.details.FluidData;
 import dan200.computercraft.shared.peripheral.generic.methods.EnergyMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
+import dan200.computercraft.shared.platform.ForgeConfigFile;
 import dan200.computercraft.shared.platform.NetworkHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -47,11 +47,11 @@ public final class ComputerCraft {
     @SubscribeEvent
     public static void registerRegistries(NewRegistryEvent event) {
         event.create(new RegistryBuilder<TurtleUpgradeSerialiser<?>>()
-            .setName(TurtleUpgradeSerialiser.REGISTRY_ID.location())
+            .setName(TurtleUpgradeSerialiser.registryId().location())
             .disableSaving().disableSync());
 
         event.create(new RegistryBuilder<PocketUpgradeSerialiser<?>>()
-            .setName(PocketUpgradeSerialiser.REGISTRY_ID.location())
+            .setName(PocketUpgradeSerialiser.registryId().location())
             .disableSaving().disableSync());
     }
 

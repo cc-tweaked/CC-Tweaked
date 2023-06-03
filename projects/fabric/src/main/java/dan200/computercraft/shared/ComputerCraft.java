@@ -8,8 +8,6 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.FabricDetailRegistries;
 import dan200.computercraft.api.node.wired.WiredElementLookup;
 import dan200.computercraft.api.peripheral.PeripheralLookup;
-import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
-import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.config.ConfigSpec;
@@ -28,7 +26,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
@@ -50,8 +47,6 @@ public class ComputerCraft {
 
     public static void init() {
         NetworkHandler.init();
-        FabricRegistryBuilder.createSimple(TurtleUpgradeSerialiser.REGISTRY_ID).buildAndRegister();
-        FabricRegistryBuilder.createSimple(PocketUpgradeSerialiser.REGISTRY_ID).buildAndRegister();
         ModRegistry.register();
         ModRegistry.registerMainThread();
         ModRegistry.registerCreativeTab(FabricItemGroup.builder(new ResourceLocation(ComputerCraftAPI.MOD_ID, "tab"))).build();

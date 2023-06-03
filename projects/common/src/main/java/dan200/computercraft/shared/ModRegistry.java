@@ -255,7 +255,7 @@ public final class ModRegistry {
     }
 
     public static class TurtleSerialisers {
-        static final RegistrationHelper<TurtleUpgradeSerialiser<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(TurtleUpgradeSerialiser.REGISTRY_ID);
+        static final RegistrationHelper<TurtleUpgradeSerialiser<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(TurtleUpgradeSerialiser.registryId());
 
         public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleSpeaker>> SPEAKER =
             REGISTRY.register("speaker", () -> TurtleUpgradeSerialiser.simpleWithCustomItem(TurtleSpeaker::new));
@@ -270,7 +270,7 @@ public final class ModRegistry {
     }
 
     public static class PocketUpgradeSerialisers {
-        static final RegistrationHelper<PocketUpgradeSerialiser<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(PocketUpgradeSerialiser.REGISTRY_ID);
+        static final RegistrationHelper<PocketUpgradeSerialiser<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(PocketUpgradeSerialiser.registryId());
 
         public static final RegistryEntry<PocketUpgradeSerialiser<PocketSpeaker>> SPEAKER =
             REGISTRY.register("speaker", () -> PocketUpgradeSerialiser.simpleWithCustomItem(PocketSpeaker::new));

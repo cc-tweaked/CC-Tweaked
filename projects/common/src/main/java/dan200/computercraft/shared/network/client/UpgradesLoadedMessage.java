@@ -37,8 +37,8 @@ public class UpgradesLoadedMessage implements NetworkMessage<ClientNetworkContex
     }
 
     public UpgradesLoadedMessage(FriendlyByteBuf buf) {
-        turtleUpgrades = fromBytes(buf, TurtleUpgradeSerialiser.REGISTRY_ID);
-        pocketUpgrades = fromBytes(buf, PocketUpgradeSerialiser.REGISTRY_ID);
+        turtleUpgrades = fromBytes(buf, TurtleUpgradeSerialiser.registryId());
+        pocketUpgrades = fromBytes(buf, PocketUpgradeSerialiser.registryId());
     }
 
     private <R extends UpgradeSerialiser<? extends T>, T extends UpgradeBase> Map<String, UpgradeManager.UpgradeWrapper<R, T>> fromBytes(
@@ -66,8 +66,8 @@ public class UpgradesLoadedMessage implements NetworkMessage<ClientNetworkContex
 
     @Override
     public void toBytes(FriendlyByteBuf buf) {
-        toBytes(buf, TurtleUpgradeSerialiser.REGISTRY_ID, turtleUpgrades);
-        toBytes(buf, PocketUpgradeSerialiser.REGISTRY_ID, pocketUpgrades);
+        toBytes(buf, TurtleUpgradeSerialiser.registryId(), turtleUpgrades);
+        toBytes(buf, PocketUpgradeSerialiser.registryId(), pocketUpgrades);
     }
 
     private <R extends UpgradeSerialiser<? extends T>, T extends UpgradeBase> void toBytes(

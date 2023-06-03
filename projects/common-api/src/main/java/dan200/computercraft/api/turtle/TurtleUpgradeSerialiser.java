@@ -7,6 +7,7 @@ package dan200.computercraft.api.turtle;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import dan200.computercraft.impl.ComputerCraftAPIService;
 import dan200.computercraft.impl.upgrades.SerialiserWithCraftingItem;
 import dan200.computercraft.impl.upgrades.SimpleSerialiser;
 import net.minecraft.core.Registry;
@@ -66,8 +67,20 @@ import java.util.function.Function;
 public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends UpgradeSerialiser<T> {
     /**
      * The ID for the associated registry.
+     *
+     * @deprecated Use {@link #registryId()} instead.
      */
+    @Deprecated(forRemoval = true)
     ResourceKey<Registry<TurtleUpgradeSerialiser<?>>> REGISTRY_ID = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_upgrade_serialiser"));
+
+    /**
+     * The ID for the associated registry.
+     *
+     * @return The registry key.
+     */
+    static ResourceKey<Registry<TurtleUpgradeSerialiser<?>>> registryId() {
+        return ComputerCraftAPIService.get().turtleUpgradeRegistryId();
+    }
 
     /**
      * Create an upgrade serialiser for a simple upgrade. This is similar to a {@link SimpleCraftingRecipeSerializer},

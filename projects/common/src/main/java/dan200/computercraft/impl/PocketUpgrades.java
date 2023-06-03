@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 
 public final class PocketUpgrades {
     private static final UpgradeManager<PocketUpgradeSerialiser<?>, IPocketUpgrade> registry = new UpgradeManager<>(
-        "pocket computer upgrade", "computercraft/pocket_upgrades", PocketUpgradeSerialiser.REGISTRY_ID
+        "pocket computer upgrade", "computercraft/pocket_upgrades", PocketUpgradeSerialiser.registryId()
     );
 
     private PocketUpgrades() {
