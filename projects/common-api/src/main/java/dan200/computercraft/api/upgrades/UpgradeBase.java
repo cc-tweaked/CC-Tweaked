@@ -8,9 +8,11 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.impl.PlatformHelper;
 import net.minecraft.Util;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
@@ -49,6 +51,14 @@ public interface UpgradeBase {
      * @return The item stack to craft with, or {@link ItemStack#EMPTY} if it cannot be crafted.
      */
     ItemStack getCraftingItem();
+
+    default @Nonnull ItemStack produceCraftingItem(@Nonnull CompoundTag upgradeData) {
+        return getCraftingItem();
+    }
+
+    default @Nonnull CompoundTag produceUpgradeData(@Nonnull ItemStack stack) {
+        return new CompoundTag();
+    }
 
     /**
      * Determine if an item is suitable for being used for this upgrade.
