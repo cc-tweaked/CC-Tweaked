@@ -17,6 +17,16 @@ public final class ThreadUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ThreadUtils.class);
     private static final ThreadGroup baseGroup = new ThreadGroup("ComputerCraft");
 
+    /**
+     * A lower thread priority (though not the minimum), used for most of ComputerCraft's threads.
+     * <p>
+     * The Minecraft thread typically runs on a higher priority thread anyway, but this ensures we don't dominate other,
+     * more critical work.
+     *
+     * @see Thread#setPriority(int)
+     */
+    public static final int LOWER_PRIORITY = (Thread.MIN_PRIORITY + Thread.NORM_PRIORITY) / 2;
+
     private ThreadUtils() {
     }
 
@@ -30,16 +40,6 @@ public final class ThreadUtils {
     }
 
     /**
-     * Construct a group under ComputerCraft's shared group.
-     *
-     * @param name The group's name. This will be prefixed with "ComputerCraft-".
-     * @return The constructed thread group.
-     */
-    public static ThreadGroup group(String name) {
-        return new ThreadGroup(baseGroup, baseGroup.getName() + "-" + name);
-    }
-
-    /**
      * Create a new {@link ThreadFactoryBuilder}, which constructs threads under a group of the given {@code name}.
      * <p>
      * Each thread will be of the format {@code ComputerCraft-<name>-<number>}, and belong to a group
@@ -50,7 +50,7 @@ public final class ThreadUtils {
      * @see #factory(String)
      */
     public static ThreadFactoryBuilder builder(String name) {
-        var group = group(name);
+        var group = new ThreadGroup(baseGroup, baseGroup.getName() + "-" + name);
         return new ThreadFactoryBuilder()
             .setDaemon(true)
             .setNameFormat(group.getName().replace("%", "%%") + "-%d")
@@ -70,5 +70,17 @@ public final class ThreadUtils {
      */
     public static ThreadFactory factory(String name) {
         return builder(name).build();
+    }
+
+    /**
+     * Create a new {@link ThreadFactory}, which constructs threads under a group of the given {@code name}. This is the
+     * same as {@link #factory(String)}, but threads will be created with a {@linkplain #LOWER_PRIORITY lower priority}.
+     *
+     * @param name The name for the thread group and child threads.
+     * @return The constructed thread factory.
+     * @see #builder(String)
+     */
+    public static ThreadFactory lowPriorityFactory(String name) {
+        return builder(name).setPriority(LOWER_PRIORITY).build();
     }
 }
