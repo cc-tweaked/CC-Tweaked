@@ -19,6 +19,11 @@ import javax.annotation.Nullable;
 
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
+/**
+ * The GUI for off-hand computers. This accepts keyboard input, but does not render a terminal.
+ *
+ * @param <T> The concrete type of the associated menu.
+ */
 public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen implements MenuAccess<T> {
     private final T menu;
     private final Terminal terminalData;

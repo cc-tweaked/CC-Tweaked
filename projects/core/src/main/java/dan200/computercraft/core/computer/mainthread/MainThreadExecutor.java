@@ -5,7 +5,6 @@
 package dan200.computercraft.core.computer.mainthread;
 
 import dan200.computercraft.api.peripheral.WorkMonitor;
-import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.metrics.MetricsObserver;
@@ -22,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * those run elsewhere (such as during the turtle's tick). In order to handle this, the executor goes through three
  * stages:
  * <p>
- * When {@link State#COOL}, the computer is allocated {@link CoreConfig#maxMainComputerTime}ns to execute any work
+ * When {@link State#COOL}, the computer is allocated {@link MainThreadConfig#maxComputerTime()}ns to execute any work
  * this tick. At the beginning of the tick, we execute as many {@link MainThread} tasks as possible, until our
  * time-frame or the global time frame has expired.
  * <p>
@@ -33,13 +32,13 @@ import java.util.concurrent.TimeUnit;
  * {@link State#HOT}. This means it will no longer be able to execute {@link MainThread} tasks (though will still
  * execute tile entity tasks, in order to prevent the main thread from exhausting work every tick).
  * <p>
- * At the beginning of the next tick, we increment the budget e by {@link CoreConfig#maxMainComputerTime} and any
+ * At the beginning of the next tick, we increment the budget e by {@link MainThreadConfig#maxComputerTime()} and any
  * {@link State#HOT} executors are marked as {@link State#COOLING}. They will remain cooling until their budget is fully
- * replenished (is equal to {@link CoreConfig#maxMainComputerTime}). Note, this is different to {@link MainThread},
+ * replenished (is equal to {@link MainThreadConfig#maxComputerTime()}). Note, this is different to {@link MainThread},
  * which allows running when it has any budget left. When cooling, <em>no</em> tasks are executed - be they on the tile
  * entity or main thread.
  * <p>
- * This mechanism means that, on average, computers will use at most {@link CoreConfig#maxMainComputerTime}ns per
+ * This mechanism means that, on average, computers will use at most {@link MainThreadConfig#maxComputerTime()}ns per
  * second, but one task source will not prevent others from executing.
  *
  * @see MainThread
@@ -189,7 +188,7 @@ final class MainThreadExecutor implements MainThreadScheduler.Executor {
         // #tickCooling() isn't called, and so we didn't overrun the previous tick.
         if (currentTick != scheduler.currentTick()) {
             currentTick = scheduler.currentTick();
-            budget = CoreConfig.maxMainComputerTime;
+            budget = scheduler.config.maxComputerTime();
         }
 
         budget -= time;
@@ -202,15 +201,16 @@ final class MainThreadExecutor implements MainThreadScheduler.Executor {
     }
 
     /**
-     * Move this executor forward one tick, replenishing the budget by {@link CoreConfig#maxMainComputerTime}.
+     * Move this executor forward one tick, replenishing the budget by {@link MainThreadConfig#maxComputerTime()}.
      *
      * @return Whether this executor has cooled down, and so is safe to run again.
      */
     boolean tickCooling() {
         state = State.COOLING;
         currentTick = scheduler.currentTick();
-        budget = Math.min(budget + CoreConfig.maxMainComputerTime, CoreConfig.maxMainComputerTime);
-        if (budget < CoreConfig.maxMainComputerTime) return false;
+        var maxTime = scheduler.config.maxComputerTime();
+        budget = Math.min(budget + maxTime, maxTime);
+        if (budget < maxTime) return false;
 
         state = State.COOL;
         synchronized (queueLock) {

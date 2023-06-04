@@ -13,13 +13,18 @@ import org.lwjgl.BufferUtils;
 
 import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.Executor;
 
+/**
+ * An {@link AudioStream} which decodes DFPWM streams, converting them to PCM.
+ *
+ * @see SpeakerPeripheral Server-side encoding of the audio.
+ * @see SpeakerInstance
+ */
 class DfpwmStream implements AudioStream {
     private static final int PREC = 10;
     private static final int LPF_STRENGTH = 140;
@@ -128,7 +133,7 @@ class DfpwmStream implements AudioStream {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         buffers.clear();
     }
 

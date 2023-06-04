@@ -64,7 +64,6 @@ public final class CommandComputerCraft {
                     var source = context.getSource();
                     List<ServerComputer> computers = new ArrayList<>(ServerContext.get(source.getServer()).registry().getComputers());
 
-                    // Unless we're on a server, limit the number of rows we can send.
                     Level world = source.getLevel();
                     var pos = BlockPos.containing(source.getPosition());
 
@@ -125,7 +124,7 @@ public final class CommandComputerCraft {
                         if (computer.isOn()) shutdown++;
                         computer.shutdown();
                     }
-                    context.getSource().sendSuccess(translate("commands.computercraft.shutdown.done", shutdown, computers.size()), false);
+                    context.getSource().sendSuccess(Component.translatable("commands.computercraft.shutdown.done", shutdown, computers.size()), false);
                     return shutdown;
                 }))
 
@@ -139,7 +138,7 @@ public final class CommandComputerCraft {
                         if (!computer.isOn()) on++;
                         computer.turnOn();
                     }
-                    context.getSource().sendSuccess(translate("commands.computercraft.turn_on.done", on, computers.size()), false);
+                    context.getSource().sendSuccess(Component.translatable("commands.computercraft.turn_on.done", on, computers.size()), false);
                     return on;
                 }))
 
@@ -214,8 +213,8 @@ public final class CommandComputerCraft {
                         getMetricsInstance(context.getSource()).start();
 
                         var stopCommand = "/computercraft track stop";
-                        context.getSource().sendSuccess(translate("commands.computercraft.track.start.stop",
-                            link(text(stopCommand), stopCommand, translate("commands.computercraft.track.stop.action"))), false);
+                        Object[] args = new Object[]{ link(text(stopCommand), stopCommand, Component.translatable("commands.computercraft.track.stop.action")) };
+                        context.getSource().sendSuccess(Component.translatable("commands.computercraft.track.start.stop", args), false);
                         return 1;
                     }))
 
@@ -255,7 +254,7 @@ public final class CommandComputerCraft {
             out.append(link(
                 text(Integer.toString(serverComputer.getInstanceID())),
                 "/computercraft dump " + serverComputer.getInstanceID(),
-                translate("commands.computercraft.dump.action")
+                Component.translatable("commands.computercraft.dump.action")
             ));
         }
 
@@ -269,13 +268,13 @@ public final class CommandComputerCraft {
                 .append(link(
                     text("\u261b"),
                     "/computercraft tp " + serverComputer.getInstanceID(),
-                    translate("commands.computercraft.tp.action")
+                    Component.translatable("commands.computercraft.tp.action")
                 ))
                 .append(" ")
                 .append(link(
                     text("\u20e2"),
                     "/computercraft view " + serverComputer.getInstanceID(),
-                    translate("commands.computercraft.view.action")
+                    Component.translatable("commands.computercraft.view.action")
                 ));
         }
 
@@ -292,7 +291,7 @@ public final class CommandComputerCraft {
             return link(
                 position(computer.getPosition()),
                 "/computercraft tp " + computer.getInstanceID(),
-                translate("commands.computercraft.tp.action")
+                Component.translatable("commands.computercraft.tp.action")
             );
         } else {
             return position(computer.getPosition());
@@ -306,7 +305,7 @@ public final class CommandComputerCraft {
         return link(
             text("\u270E"),
             "/" + OPEN_COMPUTER + id,
-            translate("commands.computercraft.dump.open_path")
+            Component.translatable("commands.computercraft.dump.open_path")
         );
     }
 
@@ -331,7 +330,7 @@ public final class CommandComputerCraft {
         timings.sort(Comparator.<ComputerMetrics, Long>comparing(x -> x.get(sortField.metric(), sortField.aggregate())).reversed());
 
         var headers = new Component[1 + fields.size()];
-        headers[0] = translate("commands.computercraft.track.dump.computer");
+        headers[0] = Component.translatable("commands.computercraft.track.dump.computer");
         for (var i = 0; i < fields.size(); i++) headers[i + 1] = fields.get(i).displayName();
         var table = new TableBuilder("Metrics", headers);
 

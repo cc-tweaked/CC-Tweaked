@@ -15,6 +15,13 @@ import net.minecraft.world.entity.player.Inventory;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
 import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
+/**
+ * A GUI for computers which renders the terminal (and border), but with no UI elements.
+ * <p>
+ * This is used by computers and pocket computers.
+ *
+ * @param <T> The concrete type of the associated menu.
+ */
 public final class ComputerScreen<T extends AbstractComputerMenu> extends AbstractComputerScreen<T> {
     public ComputerScreen(T container, Inventory player, Component title) {
         super(container, player, title, BORDER);

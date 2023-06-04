@@ -33,7 +33,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
     private static final ResourceLocation TOOL_ID = new ResourceLocation(ComputerCraftAPI.MOD_ID, "tool");
 
     public TurtleUpgradeDataProvider(PackOutput output) {
-        super(output, "Turtle Upgrades", "computercraft/turtle_upgrades", TurtleUpgradeSerialiser.REGISTRY_ID);
+        super(output, "Turtle Upgrades", "computercraft/turtle_upgrades", TurtleUpgradeSerialiser.registryId());
     }
 
     /**

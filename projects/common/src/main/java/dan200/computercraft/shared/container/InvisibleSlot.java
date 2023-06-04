@@ -9,7 +9,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-
+/**
+ * A slot which is invisible and cannot be interacted with.
+ * <p>
+ * This is used to ensure inventory slots (normally the hotbar) are synced between client and server, when not actually
+ * visible in the GUI.
+ */
 public class InvisibleSlot extends Slot {
     public InvisibleSlot(Container container, int slot) {
         super(container, slot, 0, 0);

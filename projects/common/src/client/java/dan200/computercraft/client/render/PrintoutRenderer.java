@@ -15,6 +15,10 @@ import org.joml.Matrix4f;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.shared.media.items.PrintoutItem.LINES_PER_PAGE;
 
+/**
+ * Renders printed pages or books, either for a GUI ({@link dan200.computercraft.client.gui.PrintoutScreen}) or
+ * {@linkplain PrintoutItemRenderer in-hand/item frame printouts}.
+ */
 public final class PrintoutRenderer {
     private static final float BG_SIZE = 256.0f;
 

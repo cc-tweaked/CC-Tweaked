@@ -9,7 +9,11 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.impl.client.ComputerCraftAPIClientService;
 
-
+/**
+ * The public API for client-only code.
+ *
+ * @see dan200.computercraft.api.ComputerCraftAPI The main API
+ */
 public final class ComputerCraftAPIClient {
     private ComputerCraftAPIClient() {
     }

@@ -49,17 +49,8 @@ import static dan200.computercraft.core.util.Nullability.assertNonNull;
 public final class NetworkUtils {
     private static final Logger LOG = LoggerFactory.getLogger(NetworkUtils.class);
 
-    public static final ScheduledThreadPoolExecutor EXECUTOR = new ScheduledThreadPoolExecutor(
-        4,
-        ThreadUtils.builder("Network")
-            .setPriority(Thread.MIN_PRIORITY + (Thread.NORM_PRIORITY - Thread.MIN_PRIORITY) / 2)
-            .build()
-    );
-
-    public static final EventLoopGroup LOOP_GROUP = new NioEventLoopGroup(4, ThreadUtils.builder("Netty")
-        .setPriority(Thread.MIN_PRIORITY + (Thread.NORM_PRIORITY - Thread.MIN_PRIORITY) / 2)
-        .build()
-    );
+    public static final ScheduledThreadPoolExecutor EXECUTOR = new ScheduledThreadPoolExecutor(4, ThreadUtils.lowPriorityFactory("Network"));
+    public static final EventLoopGroup LOOP_GROUP = new NioEventLoopGroup(4, ThreadUtils.lowPriorityFactory("Netty"));
 
     private static final AbstractTrafficShapingHandler SHAPING_HANDLER = new GlobalTrafficShapingHandler(
         EXECUTOR, CoreConfig.httpUploadBandwidth, CoreConfig.httpDownloadBandwidth

@@ -10,7 +10,7 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.integration.RecipeModHelpers;
 import dan200.computercraft.shared.media.items.DiskItem;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
-import dan200.computercraft.shared.turtle.items.ITurtleItem;
+import dan200.computercraft.shared.turtle.items.TurtleItem;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
@@ -71,7 +71,7 @@ public class JEIComputerCraft implements IModPlugin {
      */
     private static final IIngredientSubtypeInterpreter<ItemStack> turtleSubtype = (stack, ctx) -> {
         var item = stack.getItem();
-        if (!(item instanceof ITurtleItem turtle)) return IIngredientSubtypeInterpreter.NONE;
+        if (!(item instanceof TurtleItem turtle)) return IIngredientSubtypeInterpreter.NONE;
 
         var name = new StringBuilder("turtle:");
 

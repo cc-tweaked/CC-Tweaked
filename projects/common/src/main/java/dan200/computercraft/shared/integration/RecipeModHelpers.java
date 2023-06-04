@@ -7,21 +7,25 @@ package dan200.computercraft.shared.integration;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
-import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
+import dan200.computercraft.shared.pocket.items.PocketComputerItem;
+import dan200.computercraft.shared.turtle.items.TurtleItem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Utilities for recipe mod plugins (such as JEI).
  */
 public final class RecipeModHelpers {
     static final List<ComputerFamily> MAIN_FAMILIES = Arrays.asList(ComputerFamily.NORMAL, ComputerFamily.ADVANCED);
+    static final List<Supplier<TurtleItem>> TURTLES = List.of(ModRegistry.Items.TURTLE_NORMAL, ModRegistry.Items.TURTLE_ADVANCED);
+    static final List<Supplier<PocketComputerItem>> POCKET_COMPUTERS = List.of(ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED);
 
     private RecipeModHelpers() {
     }
@@ -49,13 +53,17 @@ public final class RecipeModHelpers {
      */
     public static List<ItemStack> getExtraStacks() {
         List<ItemStack> upgradeItems = new ArrayList<>();
-        for (var family : MAIN_FAMILIES) {
+        for (var turtleSupplier : TURTLES) {
+            var turtle = turtleSupplier.get();
             for (var upgrade : TurtleUpgrades.instance().getUpgrades()) {
-                upgradeItems.add(TurtleItemFactory.create(-1, null, -1, family, null, upgrade, 0, null));
+                upgradeItems.add(turtle.create(-1, null, -1, null, upgrade, 0, null));
             }
+        }
 
+        for (var pocketSupplier : POCKET_COMPUTERS) {
+            var pocket = pocketSupplier.get();
             for (var upgrade : PocketUpgrades.instance().getUpgrades()) {
-                upgradeItems.add(PocketComputerItemFactory.create(-1, null, -1, family, upgrade));
+                upgradeItems.add(pocket.create(-1, null, -1, upgrade));
             }
         }
 

@@ -19,6 +19,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
+/**
+ * A model "loader" (the concept doesn't quite exist in the same way as it does on Forge) for turtle item models.
+ * <p>
+ * This reads in the associated model file (typically {@code computercraft:block/turtle_xxx}) and wraps it in a
+ * {@link TurtleModel}.
+ */
 public final class TurtleModelLoader {
     private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
 

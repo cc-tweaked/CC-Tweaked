@@ -10,7 +10,6 @@ import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.core.apis.IAPIEnvironment
 import dan200.computercraft.test.core.apis.BasicApiEnvironment
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlin.time.Duration
@@ -21,11 +20,7 @@ class LuaTaskRunner : AbstractLuaTaskContext() {
     private val apis = mutableListOf<ILuaAPI>()
 
     val environment: IAPIEnvironment = object : BasicApiEnvironment(BasicEnvironment()) {
-        override fun queueEvent(event: String?, vararg args: Any?) {
-            if (eventStream.trySend(Event(event, args)).isFailure) {
-                throw IllegalStateException("Queue is full")
-            }
-        }
+        override fun queueEvent(event: String?, vararg args: Any?) = this@LuaTaskRunner.queueEvent(event, args)
 
         override fun shutdown() {
             super.shutdown()
@@ -46,21 +41,13 @@ class LuaTaskRunner : AbstractLuaTaskContext() {
         environment.shutdown()
     }
 
-    private suspend fun run() {
-        for (event in eventStream) {
-            queueEvent(event.name, event.args)
-        }
-    }
-
     private class Event(val name: String?, val args: Array<out Any?>)
 
     companion object {
         fun runTest(timeout: Duration = 5.seconds, fn: suspend LuaTaskRunner.() -> Unit) {
             runBlocking {
                 withTimeout(timeout) {
-                    val runner = LuaTaskRunner()
-                    launch { runner.run() }
-                    runner.use { fn(runner) }
+                    LuaTaskRunner().use { fn(it) }
                 }
             }
         }

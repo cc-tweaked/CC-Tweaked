@@ -7,6 +7,7 @@ package dan200.computercraft.api.pocket;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import dan200.computercraft.impl.ComputerCraftAPIService;
 import dan200.computercraft.impl.upgrades.SerialiserWithCraftingItem;
 import dan200.computercraft.impl.upgrades.SimpleSerialiser;
 import net.minecraft.core.Registry;
@@ -31,8 +32,20 @@ import java.util.function.Function;
 public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends UpgradeSerialiser<T> {
     /**
      * The ID for the associated registry.
+     *
+     * @deprecated Use {@link #registryId()} instead.
      */
+    @Deprecated(forRemoval = true)
     ResourceKey<Registry<PocketUpgradeSerialiser<?>>> REGISTRY_ID = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_upgrade_serialiser"));
+
+    /**
+     * The ID for the associated registry.
+     *
+     * @return The registry key.
+     */
+    static ResourceKey<Registry<PocketUpgradeSerialiser<?>>> registryId() {
+        return ComputerCraftAPIService.get().pocketUpgradeRegistryId();
+    }
 
     /**
      * Create an upgrade serialiser for a simple upgrade. This is similar to a {@link SimpleCraftingRecipeSerializer},

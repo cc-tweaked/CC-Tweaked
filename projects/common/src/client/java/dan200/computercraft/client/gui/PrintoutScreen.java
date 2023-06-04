@@ -19,6 +19,11 @@ import org.lwjgl.glfw.GLFW;
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
 import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
+/**
+ * The GUI for printed pages and books.
+ *
+ * @see dan200.computercraft.client.render.PrintoutRenderer
+ */
 public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
     private final boolean book;
     private final int pages;

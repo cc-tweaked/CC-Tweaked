@@ -23,28 +23,15 @@ public final class ChatHelpers {
     }
 
     public static MutableComponent coloured(@Nullable String text, ChatFormatting colour) {
-        return Component.literal(text == null ? "" : text).withStyle(colour);
-    }
-
-    public static <T extends MutableComponent> T coloured(T component, ChatFormatting colour) {
-        component.withStyle(colour);
-        return component;
+        return text(text).withStyle(colour);
     }
 
     public static MutableComponent text(@Nullable String text) {
         return Component.literal(text == null ? "" : text);
     }
 
-    public static MutableComponent translate(@Nullable String text) {
-        return Component.translatable(text == null ? "" : text);
-    }
-
-    public static MutableComponent translate(@Nullable String text, Object... args) {
-        return Component.translatable(text == null ? "" : text, args);
-    }
-
     public static MutableComponent list(Component... children) {
-        var component = Component.literal("");
+        var component = Component.empty();
         for (var child : children) {
             component.append(child);
         }
@@ -52,14 +39,14 @@ public final class ChatHelpers {
     }
 
     public static MutableComponent position(@Nullable BlockPos pos) {
-        if (pos == null) return translate("commands.computercraft.generic.no_position");
-        return translate("commands.computercraft.generic.position", pos.getX(), pos.getY(), pos.getZ());
+        if (pos == null) return Component.translatable("commands.computercraft.generic.no_position");
+        return Component.translatable("commands.computercraft.generic.position", pos.getX(), pos.getY(), pos.getZ());
     }
 
     public static MutableComponent bool(boolean value) {
         return value
-            ? coloured(translate("commands.computercraft.generic.yes"), ChatFormatting.GREEN)
-            : coloured(translate("commands.computercraft.generic.no"), ChatFormatting.RED);
+            ? Component.translatable("commands.computercraft.generic.yes").withStyle(ChatFormatting.GREEN)
+            : Component.translatable("commands.computercraft.generic.no").withStyle(ChatFormatting.RED);
     }
 
     public static Component link(MutableComponent component, String command, Component toolTip) {
@@ -81,10 +68,9 @@ public final class ChatHelpers {
     }
 
     public static MutableComponent copy(String text) {
-        var name = Component.literal(text);
-        var style = name.getStyle()
+        return Component.literal(text).withStyle(s -> s
             .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, text))
-            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("gui.computercraft.tooltip.copy")));
-        return name.withStyle(style);
+            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("gui.computercraft.tooltip.copy")))
+        );
     }
 }

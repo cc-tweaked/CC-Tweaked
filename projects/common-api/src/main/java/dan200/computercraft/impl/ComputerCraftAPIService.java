@@ -15,10 +15,14 @@ import dan200.computercraft.api.media.MediaProvider;
 import dan200.computercraft.api.network.PacketNetwork;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.network.wired.WiredNode;
+import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.redstone.BundledRedstoneProvider;
 import dan200.computercraft.api.turtle.TurtleRefuelHandler;
+import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -62,6 +66,10 @@ public interface ComputerCraftAPIService {
     WiredNode createWiredNodeForElement(WiredElement element);
 
     void registerRefuelHandler(TurtleRefuelHandler handler);
+
+    ResourceKey<Registry<TurtleUpgradeSerialiser<?>>> turtleUpgradeRegistryId();
+
+    ResourceKey<Registry<PocketUpgradeSerialiser<?>>> pocketUpgradeRegistryId();
 
     DetailRegistry<ItemStack> getItemStackDetailRegistry();
 

@@ -15,6 +15,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The custom model for turtle items, which renders tools and overlays as part of the model.
+ *
+ * @see TurtleModelParts
+ */
 public class TurtleModel extends BakedModelWrapper<BakedModel> {
     private final TurtleModelParts parts;
     private final Map<TurtleModelParts.Combination, List<BakedModel>> cachedModels = new HashMap<>();

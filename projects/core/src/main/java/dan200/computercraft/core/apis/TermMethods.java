@@ -20,12 +20,8 @@ import java.nio.ByteBuffer;
  */
 public abstract class TermMethods {
     private static int getHighestBit(int group) {
-        var bit = 0;
-        while (group > 0) {
-            group >>= 1;
-            bit++;
-        }
-        return bit;
+        // Equivalent to log2(group) - 1.
+        return 32 - Integer.numberOfLeadingZeros(group);
     }
 
     public abstract Terminal getTerminal() throws LuaException;

@@ -39,7 +39,7 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.Collections;
 
-public class TurtleBlockEntity extends AbstractComputerBlockEntity implements BasicContainer, ITurtleBlockEntity {
+public class TurtleBlockEntity extends AbstractComputerBlockEntity implements BasicContainer {
     public static final int INVENTORY_SIZE = 16;
     public static final int INVENTORY_WIDTH = 4;
     public static final int INVENTORY_HEIGHT = 4;
@@ -189,39 +189,30 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
         onTileEntityChange();
     }
 
-    // ITurtleTile
-
-    @Override
     public @Nullable ITurtleUpgrade getUpgrade(TurtleSide side) {
         return brain.getUpgrade(side);
     }
 
-    @Override
     public int getColour() {
         return brain.getColour();
     }
 
-    @Override
     public @Nullable ResourceLocation getOverlay() {
         return brain.getOverlay();
     }
 
-    @Override
     public ITurtleAccess getAccess() {
         return brain;
     }
 
-    @Override
     public Vec3 getRenderOffset(float f) {
         return brain.getRenderOffset(f);
     }
 
-    @Override
     public float getRenderYaw(float f) {
         return brain.getVisualYaw(f);
     }
 
-    @Override
     public float getToolRenderAngle(TurtleSide side, float f) {
         return brain.getToolRenderAngle(side, f);
     }

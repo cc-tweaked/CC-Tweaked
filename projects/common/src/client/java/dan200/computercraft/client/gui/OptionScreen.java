@@ -19,6 +19,11 @@ import java.util.List;
 
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
+/**
+ * A screen which displays a series of buttons (such as a yes/no prompt).
+ * <p>
+ * When closed, it returns to the previous screen.
+ */
 public final class OptionScreen extends Screen {
     private static final ResourceLocation BACKGROUND = new ResourceLocation("computercraft", "textures/gui/blank_screen.png");
 

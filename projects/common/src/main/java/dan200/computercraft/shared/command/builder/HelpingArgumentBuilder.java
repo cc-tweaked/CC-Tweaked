@@ -21,7 +21,6 @@ import java.util.Collection;
 
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 import static dan200.computercraft.shared.command.text.ChatHelpers.coloured;
-import static dan200.computercraft.shared.command.text.ChatHelpers.translate;
 
 /**
  * An alternative to {@link LiteralArgumentBuilder} which also provides a {@code /... help} command, and defaults
@@ -77,7 +76,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
 
     private LiteralCommandNode<CommandSourceStack> buildImpl(String id, String command) {
         var helpCommand = new HelpCommand(id, command);
-        var node = new LiteralCommandNode<CommandSourceStack>(getLiteral(), helpCommand, getRequirement(), getRedirect(), getRedirectModifier(), isFork());
+        var node = new LiteralCommandNode<>(getLiteral(), helpCommand, getRequirement(), getRedirect(), getRedirectModifier(), isFork());
         helpCommand.node = node;
 
         // Set up a /... help command
@@ -153,9 +152,9 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
         var output = Component.literal("")
             .append(coloured("/" + command + usage, HEADER))
             .append(" ")
-            .append(coloured(translate("commands." + id + ".synopsis"), SYNOPSIS))
+            .append(Component.translatable("commands." + id + ".synopsis").withStyle(SYNOPSIS))
             .append("\n")
-            .append(translate("commands." + id + ".desc"));
+            .append(Component.translatable("commands." + id + ".desc"));
 
         for (var child : node.getChildren()) {
             if (!child.getRequirement().test(context.getSource()) || !(child instanceof LiteralCommandNode)) {
@@ -171,7 +170,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
             ));
             output.append(component);
 
-            output.append(" - ").append(translate("commands." + id + "." + child.getName() + ".synopsis"));
+            output.append(" - ").append(Component.translatable("commands." + id + "." + child.getName() + ".synopsis"));
         }
 
         return output;

@@ -7,6 +7,7 @@ package dan200.computercraft.client.render.monitor;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dan200.computercraft.client.FrameInfo;
+import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
@@ -24,6 +25,16 @@ import java.nio.ByteBuffer;
 
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.getColour;
 
+/**
+ * The shader used for the monitor TBO renderer.
+ * <p>
+ * This extends Minecraft's default shader loading code to extract out the TBO buffer and handle our custom uniforms
+ * ({@code MonitorData}, {@code CursorBlink}).
+ * <p>
+ * See also {@code monitor_tbo.fsh} and {@code monitor_tbo.vsh} in the mod's resources.
+ *
+ * @see RenderTypes#getMonitorTextureBufferShader()
+ */
 public class MonitorTextureBufferShader extends ShaderInstance {
     public static final int UNIFORM_SIZE = 4 * 4 * 16 + 4 + 4 + 2 * 4 + 4;
 

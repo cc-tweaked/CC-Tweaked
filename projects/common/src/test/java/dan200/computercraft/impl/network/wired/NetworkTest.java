@@ -6,7 +6,6 @@ package dan200.computercraft.impl.network.wired;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.network.wired.WiredNetwork;
 import dan200.computercraft.api.network.wired.WiredNetworkChange;
@@ -308,7 +307,7 @@ public class NetworkTest {
             this.world = world;
             this.position = position;
             this.id = id;
-            this.node = ComputerCraftAPI.createWiredNodeForElement(this);
+            this.node = new WiredNodeImpl(this);
             this.addPeripheral(id);
         }
 

@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 
 public final class TurtleUpgrades {
     private static final UpgradeManager<TurtleUpgradeSerialiser<?>, ITurtleUpgrade> registry = new UpgradeManager<>(
-        "turtle upgrade", "computercraft/turtle_upgrades", TurtleUpgradeSerialiser.REGISTRY_ID
+        "turtle upgrade", "computercraft/turtle_upgrades", TurtleUpgradeSerialiser.registryId()
     );
 
     private TurtleUpgrades() {

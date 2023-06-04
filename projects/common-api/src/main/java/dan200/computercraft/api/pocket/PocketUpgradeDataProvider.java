@@ -21,6 +21,6 @@ import java.util.function.Consumer;
  */
 public abstract class PocketUpgradeDataProvider extends UpgradeDataProvider<IPocketUpgrade, PocketUpgradeSerialiser<?>> {
     public PocketUpgradeDataProvider(PackOutput output) {
-        super(output, "Pocket Computer Upgrades", "computercraft/pocket_upgrades", PocketUpgradeSerialiser.REGISTRY_ID);
+        super(output, "Pocket Computer Upgrades", "computercraft/pocket_upgrades", PocketUpgradeSerialiser.registryId());
     }
 }

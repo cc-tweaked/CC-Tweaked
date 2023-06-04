@@ -7,9 +7,7 @@ package dan200.computercraft.shared.pocket.recipes;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
-import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -31,7 +29,7 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
 
     @Override
     public ItemStack getResultItem(RegistryAccess registryAccess) {
-        return PocketComputerItemFactory.create(-1, null, -1, ComputerFamily.NORMAL, null);
+        return ModRegistry.Items.POCKET_COMPUTER_NORMAL.get().create(-1, null, -1, null);
     }
 
     @Override
@@ -86,7 +84,7 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
         var computerID = itemComputer.getComputerID(computer);
         var label = itemComputer.getLabel(computer);
         var colour = itemComputer.getColour(computer);
-        return PocketComputerItemFactory.create(computerID, label, colour, family, upgrade);
+        return itemComputer.create(computerID, label, colour, upgrade);
     }
 
     @Override

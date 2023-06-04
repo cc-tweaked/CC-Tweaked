@@ -18,7 +18,6 @@ import java.util.Map;
 /**
  * Implementation of {@link IComputerAccess}/{@link IComputerSystem} for usage by externally registered APIs.
  *
- * @see dan200.computercraft.api.ComputerCraftAPI#registerAPIFactory(ILuaAPIFactory)
  * @see ILuaAPIFactory
  * @see ApiWrapper
  */

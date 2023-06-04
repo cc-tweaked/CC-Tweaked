@@ -9,14 +9,19 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
+/**
+ * A base class for items which have map-like rendering when held in the hand.
+ *
+ * @see dan200.computercraft.client.ClientHooks#onRenderHeldItem(PoseStack, MultiBufferSource, int, InteractionHand, float, float, float, ItemStack)
+ */
 public abstract class ItemMapLikeRenderer {
     /**
      * The main rendering method for the item.
@@ -25,7 +30,7 @@ public abstract class ItemMapLikeRenderer {
      * @param render    The buffer to render to
      * @param stack     The stack to render
      * @param light     The packed lightmap coordinates.
-     * @see ItemInHandRenderer#renderItem(LivingEntity, ItemStack, ItemTransforms.TransformType, boolean, PoseStack, MultiBufferSource, int)
+     * @see ItemInHandRenderer#renderItem(LivingEntity, ItemStack, ItemDisplayContext, boolean, PoseStack, MultiBufferSource, int)
      */
     protected abstract void renderItem(PoseStack transform, MultiBufferSource render, ItemStack stack, int light);
 

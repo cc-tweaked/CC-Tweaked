@@ -22,6 +22,9 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+/**
+ * Shared {@link RenderType}s used throughout the mod.
+ */
 public class RenderTypes {
     public static final int FULL_BRIGHT_LIGHTMAP = (0xF << 4) | (0xF << 20);
 

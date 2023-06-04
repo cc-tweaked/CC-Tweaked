@@ -20,6 +20,14 @@ import net.minecraft.world.entity.Entity;
 import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * A sound played by a speaker. This has two purposes:
+ *
+ * <ul>
+ *     <li>Tracks a {@link SpeakerPosition}, ensuring the sound moves around with the speaker's owner.</li>
+ *     <li>Provides a {@link DfpwmStream} when playing custom audio.</li>
+ * </ul>
+ */
 public class SpeakerSound extends AbstractSoundInstance implements TickableSoundInstance {
     @Nullable
     DfpwmStream stream;
