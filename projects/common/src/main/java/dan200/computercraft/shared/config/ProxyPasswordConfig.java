@@ -18,8 +18,8 @@ public record ProxyPasswordConfig(String username, String password) {
     private static final Logger LOG = LoggerFactory.getLogger(ProxyPasswordConfig.class);
 
     @Nullable
-    private static ProxyPasswordConfig loadFromFile(Path path) {
-        if (!path.toFile().exists()) return null;
+    private static ProxyPasswordConfig loadFromFile(@Nullable Path path) {
+        if (path == null || !path.toFile().exists()) return null;
 
         try (var br = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             var line = br.readLine();
@@ -35,7 +35,7 @@ public record ProxyPasswordConfig(String username, String password) {
         }
     }
 
-    public static void init(Path path) {
+    public static void init(@Nullable Path path) {
         var config = loadFromFile(path);
         if (config == null) {
             CoreConfig.httpProxyUsername = "";

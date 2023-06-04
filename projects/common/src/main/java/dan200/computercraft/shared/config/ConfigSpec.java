@@ -16,6 +16,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.filter.MarkerFilter;
 
+import javax.annotation.Nullable;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -346,7 +348,7 @@ public final class ConfigSpec {
             builder.pop();
         }
 
-        serverSpec = builder.build(ConfigSpec::syncServer);
+        serverSpec = builder.build(() -> syncServer(null));
 
         var clientBuilder = PlatformHelper.get().createConfigBuilder();
         monitorRenderer = clientBuilder
@@ -367,7 +369,7 @@ public final class ConfigSpec {
         clientSpec = clientBuilder.build(ConfigSpec::syncClient);
     }
 
-    public static void syncServer() {
+    public static void syncServer(@Nullable Path proxyPasswordConfig) {
         // General
         Config.computerSpaceLimit = computerSpaceLimit.get();
         Config.floppySpaceLimit = floppySpaceLimit.get();
@@ -406,6 +408,9 @@ public final class ConfigSpec {
         CoreConfig.httpProxyType = httpProxyType.get();
         CoreConfig.httpProxyHost = httpProxyHost.get();
         CoreConfig.httpProxyPort = httpProxyPort.get();
+
+        ProxyPasswordConfig.init(proxyPasswordConfig);
+
         NetworkUtils.reloadConfig();
 
         // Peripheral

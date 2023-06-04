@@ -4,6 +4,7 @@
 
 package dan200.computercraft;
 
+import com.electronwill.nightconfig.core.file.FileConfig;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.ForgeComputerCraftAPI;
 import dan200.computercraft.api.detail.ForgeDetailRegistries;
@@ -13,7 +14,6 @@ import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
-import dan200.computercraft.shared.config.ProxyPasswordConfig;
 import dan200.computercraft.shared.platform.ForgeConfigFile;
 import dan200.computercraft.shared.details.FluidData;
 import dan200.computercraft.shared.peripheral.generic.methods.EnergyMethods;
@@ -96,8 +96,13 @@ public final class ComputerCraft {
         if (!config.getModId().equals(ComputerCraftAPI.MOD_ID)) return;
 
         if (config.getType() == ModConfig.Type.SERVER && ((ForgeConfigFile) ConfigSpec.serverSpec).spec().isLoaded()) {
-            ProxyPasswordConfig.init(config.getFullPath().resolveSibling(ComputerCraftAPI.MOD_ID + "-proxy.pw"));
-            ConfigSpec.syncServer();
+            // Try to get the path to the proxy password file. If we're in singleplayer or are a dedicated server, this
+            // will be adjacent to the server config file.
+            var proxyPasswordPath = config.getConfigData() instanceof FileConfig fileConfig
+                ? fileConfig.getNioPath().resolveSibling(ComputerCraftAPI.MOD_ID + "-proxy.pw")
+                : null; // The config will not be available when this is a client connecting to a dedicated server.
+
+            ConfigSpec.syncServer(proxyPasswordPath);
         } else if (config.getType() == ModConfig.Type.CLIENT) {
             ConfigSpec.syncClient();
         }
