@@ -15,8 +15,8 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.RecipeIngredients;
 import dan200.computercraft.shared.platform.RegistryWrappers;
-import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
-import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
+import dan200.computercraft.shared.pocket.items.PocketComputerItem;
+import dan200.computercraft.shared.turtle.items.TurtleItem;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -38,6 +38,7 @@ import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 
@@ -93,20 +94,23 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         }
     }
 
+    private static List<TurtleItem> turtleItems() {
+        return List.of(ModRegistry.Items.TURTLE_NORMAL.get(), ModRegistry.Items.TURTLE_ADVANCED.get());
+    }
+
     /**
      * Register a crafting recipe for each turtle upgrade.
      *
      * @param add The callback to add recipes.
      */
     private void turtleUpgrades(Consumer<FinishedRecipe> add) {
-        for (var family : ComputerFamily.values()) {
-            var base = TurtleItemFactory.create(-1, null, -1, family, null, null, 0, null);
-            if (base.isEmpty()) continue;
+        for (var turtleItem : turtleItems()) {
+            var base = turtleItem.create(-1, null, -1, null, null, 0, null);
 
-            var nameId = family.name().toLowerCase(Locale.ROOT);
+            var nameId = turtleItem.getFamily().name().toLowerCase(Locale.ROOT);
 
             for (var upgrade : turtleUpgrades.getGeneratedUpgrades()) {
-                var result = TurtleItemFactory.create(-1, null, -1, family, null, upgrade, -1, null);
+                var result = turtleItem.create(-1, null, -1, null, upgrade, -1, null);
                 ShapedRecipeBuilder
                     .shaped(RecipeCategory.REDSTONE, result.getItem())
                     .group(String.format("%s:turtle_%s", ComputerCraftAPI.MOD_ID, nameId))
@@ -125,20 +129,24 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         }
     }
 
+    private static List<PocketComputerItem> pocketComputerItems() {
+        return List.of(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get(), ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get());
+    }
+
     /**
      * Register a crafting recipe for each pocket upgrade.
      *
      * @param add The callback to add recipes.
      */
     private void pocketUpgrades(Consumer<FinishedRecipe> add) {
-        for (var family : ComputerFamily.values()) {
-            var base = PocketComputerItemFactory.create(-1, null, -1, family, null);
+        for (var pocket : pocketComputerItems()) {
+            var base = pocket.create(-1, null, -1, null);
             if (base.isEmpty()) continue;
 
-            var nameId = family.name().toLowerCase(Locale.ROOT);
+            var nameId = pocket.getFamily().name().toLowerCase(Locale.ROOT);
 
             for (var upgrade : pocketUpgrades.getGeneratedUpgrades()) {
-                var result = PocketComputerItemFactory.create(-1, null, -1, family, upgrade);
+                var result = pocket.create(-1, null, -1, upgrade);
                 ShapedRecipeBuilder
                     .shaped(RecipeCategory.REDSTONE, result.getItem())
                     .group(String.format("%s:pocket_%s", ComputerCraftAPI.MOD_ID, nameId))
@@ -180,11 +188,10 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     }
 
     private void turtleOverlay(Consumer<FinishedRecipe> add, String overlay, Consumer<ShapelessRecipeBuilder> build) {
-        for (var family : ComputerFamily.values()) {
-            var base = TurtleItemFactory.create(-1, null, -1, family, null, null, 0, null);
-            if (base.isEmpty()) continue;
+        for (var turtleItem : turtleItems()) {
+            var base = turtleItem.create(-1, null, -1, null, null, 0, null);
 
-            var nameId = family.name().toLowerCase(Locale.ROOT);
+            var nameId = turtleItem.getFamily().name().toLowerCase(Locale.ROOT);
             var group = "%s:turtle_%s_overlay".formatted(ComputerCraftAPI.MOD_ID, nameId);
 
             var builder = ShapelessRecipeBuilder.shapeless(RecipeCategory.REDSTONE, base.getItem())

@@ -8,9 +8,7 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.turtle.items.ITurtleItem;
-import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
+import dan200.computercraft.shared.turtle.items.TurtleItem;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -32,7 +30,7 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
 
     @Override
     public ItemStack getResultItem(RegistryAccess registryAccess) {
-        return TurtleItemFactory.create(-1, null, -1, ComputerFamily.NORMAL, null, null, 0, null);
+        return ModRegistry.Items.TURTLE_NORMAL.get().create(-1, null, -1, null, null, 0, null);
     }
 
     @Override
@@ -58,7 +56,7 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
                             return ItemStack.EMPTY;
                         }
 
-                        if (item.getItem() instanceof ITurtleItem) {
+                        if (item.getItem() instanceof TurtleItem) {
                             // Item is a turtle
                             if (turtle.isEmpty()) {
                                 turtle = item;
@@ -105,8 +103,7 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
 
         // At this point we have a turtle + 1 or 2 items
         // Get the turtle we already have
-        var itemTurtle = (ITurtleItem) turtle.getItem();
-        var family = itemTurtle.getFamily();
+        var itemTurtle = (TurtleItem) turtle.getItem();
         var upgrades = new ITurtleUpgrade[]{
             itemTurtle.getUpgrade(turtle, TurtleSide.LEFT),
             itemTurtle.getUpgrade(turtle, TurtleSide.RIGHT),
@@ -128,7 +125,7 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
         var fuelLevel = itemTurtle.getFuelLevel(turtle);
         var colour = itemTurtle.getColour(turtle);
         var overlay = itemTurtle.getOverlay(turtle);
-        return TurtleItemFactory.create(computerID, label, colour, family, upgrades[0], upgrades[1], fuelLevel, overlay);
+        return itemTurtle.create(computerID, label, colour, upgrades[0], upgrades[1], fuelLevel, overlay);
     }
 
     @Override

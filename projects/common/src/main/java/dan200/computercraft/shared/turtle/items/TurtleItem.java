@@ -9,6 +9,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.impl.TurtleUpgrades;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.AbstractComputerItem;
@@ -24,9 +25,23 @@ import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.turtle.core.TurtleBrain.*;
 
-public class TurtleItem extends AbstractComputerItem implements ITurtleItem {
+public class TurtleItem extends AbstractComputerItem implements IColouredItem {
     public TurtleItem(TurtleBlock block, Properties settings) {
         super(block, settings);
+    }
+
+    public static ItemStack create(
+        int id, @Nullable String label, int colour, ComputerFamily family,
+        @Nullable ITurtleUpgrade leftUpgrade, @Nullable ITurtleUpgrade rightUpgrade,
+        int fuelLevel, @Nullable ResourceLocation overlay
+    ) {
+        return switch (family) {
+            case NORMAL ->
+                ModRegistry.Items.TURTLE_NORMAL.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay);
+            case ADVANCED ->
+                ModRegistry.Items.TURTLE_ADVANCED.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay);
+            default -> ItemStack.EMPTY;
+        };
     }
 
     public ItemStack create(
@@ -99,7 +114,7 @@ public class TurtleItem extends AbstractComputerItem implements ITurtleItem {
 
     @Override
     public ItemStack withFamily(ItemStack stack, ComputerFamily family) {
-        return TurtleItemFactory.create(
+        return create(
             getComputerID(stack), getLabel(stack),
             getColour(stack), family,
             getUpgrade(stack, TurtleSide.LEFT), getUpgrade(stack, TurtleSide.RIGHT),
@@ -107,7 +122,6 @@ public class TurtleItem extends AbstractComputerItem implements ITurtleItem {
         );
     }
 
-    @Override
     public @Nullable ITurtleUpgrade getUpgrade(ItemStack stack, TurtleSide side) {
         var tag = stack.getTag();
         if (tag == null) return null;
@@ -116,13 +130,11 @@ public class TurtleItem extends AbstractComputerItem implements ITurtleItem {
         return tag.contains(key) ? TurtleUpgrades.instance().get(tag.getString(key)) : null;
     }
 
-    @Override
     public @Nullable ResourceLocation getOverlay(ItemStack stack) {
         var tag = stack.getTag();
         return tag != null && tag.contains(NBT_OVERLAY) ? new ResourceLocation(tag.getString(NBT_OVERLAY)) : null;
     }
 
-    @Override
     public int getFuelLevel(ItemStack stack) {
         var tag = stack.getTag();
         return tag != null && tag.contains(NBT_FUEL) ? tag.getInt(NBT_FUEL) : 0;

@@ -11,8 +11,7 @@ import dan200.computercraft.shared.computer.blocks.AbstractComputerBlockEntity;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.platform.RegistryEntry;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
-import dan200.computercraft.shared.turtle.items.ITurtleItem;
-import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
+import dan200.computercraft.shared.turtle.items.TurtleItem;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import dan200.computercraft.shared.util.WaterloggableHelpers;
 import net.minecraft.core.BlockPos;
@@ -126,7 +125,7 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
         if (!world.isClientSide && tile instanceof TurtleBlockEntity turtle) {
             if (entity instanceof Player player) turtle.setOwningPlayer(player.getGameProfile());
 
-            if (stack.getItem() instanceof ITurtleItem item) {
+            if (stack.getItem() instanceof TurtleItem item) {
                 // Set Upgrades
                 for (var side : TurtleSide.values()) {
                     turtle.getAccess().setUpgrade(side, item.getUpgrade(stack, side));
@@ -157,7 +156,14 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
 
     @Override
     protected ItemStack getItem(AbstractComputerBlockEntity tile) {
-        return tile instanceof TurtleBlockEntity turtle ? TurtleItemFactory.create(turtle) : ItemStack.EMPTY;
+        if (!(tile instanceof TurtleBlockEntity turtle)) return ItemStack.EMPTY;
+
+        var access = turtle.getAccess();
+        return TurtleItem.create(
+            turtle.getComputerID(), turtle.getLabel(), access.getColour(), turtle.getFamily(),
+            access.getUpgrade(TurtleSide.LEFT), access.getUpgrade(TurtleSide.RIGHT),
+            access.getFuelLevel(), turtle.getOverlay()
+        );
     }
 
     @Override
