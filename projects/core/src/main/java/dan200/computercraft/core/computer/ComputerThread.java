@@ -55,7 +55,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public final class ComputerThread {
     private static final Logger LOG = LoggerFactory.getLogger(ComputerThread.class);
     private static final ThreadFactory monitorFactory = ThreadUtils.factory("Computer-Monitor");
-    private static final ThreadFactory workerFactory = ThreadUtils.factory("Computer-Worker");
+    private static final ThreadFactory workerFactory = ThreadUtils.lowPriorityFactory("Computer-Worker");
 
     /**
      * How often the computer thread monitor should run.
