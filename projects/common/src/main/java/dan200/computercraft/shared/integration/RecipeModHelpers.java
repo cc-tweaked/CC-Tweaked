@@ -51,7 +51,7 @@ public final class RecipeModHelpers {
         List<ItemStack> upgradeItems = new ArrayList<>();
         for (var family : MAIN_FAMILIES) {
             for (var upgrade : TurtleUpgrades.instance().getUpgrades()) {
-                upgradeItems.add(TurtleItemFactory.create(-1, null, -1, family, null, upgrade, 0, null));
+                upgradeItems.add(TurtleItemFactory.create(-1, null, -1, family, null, upgrade, 0, null, null, null));
             }
 
             for (var upgrade : PocketUpgrades.instance().getUpgrades()) {
