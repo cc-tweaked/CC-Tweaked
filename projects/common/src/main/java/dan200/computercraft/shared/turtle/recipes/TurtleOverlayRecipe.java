@@ -9,9 +9,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
-import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
@@ -22,7 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 
 /**
- * A {@link ShapelessRecipe} which sets the {@linkplain ITurtleItem#getOverlay(ItemStack)} turtle's overlay} instead.
+ * A {@link ShapelessRecipe} which sets the {@linkplain TurtleItem#getOverlay(ItemStack)} turtle's overlay} instead.
  */
 public class TurtleOverlayRecipe extends ShapelessRecipe {
     private final ResourceLocation overlay;
@@ -35,12 +33,11 @@ public class TurtleOverlayRecipe extends ShapelessRecipe {
     }
 
     private static ItemStack make(ItemStack stack, ResourceLocation overlay) {
-        var turtle = (ITurtleItem) stack.getItem();
-        return TurtleItemFactory.create(
+        var turtle = (TurtleItem) stack.getItem();
+        return turtle.create(
             turtle.getComputerID(stack),
             turtle.getLabel(stack),
             turtle.getColour(stack),
-            turtle.getFamily(),
             turtle.getUpgrade(stack, TurtleSide.LEFT),
             turtle.getUpgrade(stack, TurtleSide.RIGHT),
             turtle.getFuelLevel(stack),

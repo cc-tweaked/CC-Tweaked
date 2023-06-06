@@ -5,7 +5,6 @@
 package dan200.computercraft.shared.computer.inventory;
 
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
@@ -13,6 +12,7 @@ import dan200.computercraft.shared.computer.menu.ServerInputHandler;
 import dan200.computercraft.shared.computer.menu.ServerInputState;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.container.SingleContainerData;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import net.minecraft.world.entity.player.Player;

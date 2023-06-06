@@ -12,9 +12,7 @@ import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
-import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
-import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -28,7 +26,8 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-import static dan200.computercraft.shared.integration.RecipeModHelpers.MAIN_FAMILIES;
+import static dan200.computercraft.shared.integration.RecipeModHelpers.POCKET_COMPUTERS;
+import static dan200.computercraft.shared.integration.RecipeModHelpers.TURTLES;
 
 /**
  * Provides dynamic recipe and usage information for upgraded turtle and pocket computers. This is intended to be
@@ -218,17 +217,16 @@ public class UpgradeRecipeGenerator<T> {
 
     private static ItemStack turtleWith(ItemStack stack, @Nullable ITurtleUpgrade left, @Nullable ITurtleUpgrade right) {
         var item = (TurtleItem) stack.getItem();
-        return TurtleItemFactory.create(
-            item.getComputerID(stack), item.getLabel(stack), item.getColour(stack), item.getFamily(),
+        return item.create(
+            item.getComputerID(stack), item.getLabel(stack), item.getColour(stack),
             left, right, item.getFuelLevel(stack), item.getOverlay(stack)
         );
     }
 
     private static ItemStack pocketWith(ItemStack stack, @Nullable IPocketUpgrade back) {
         var item = (PocketComputerItem) stack.getItem();
-        return PocketComputerItemFactory.create(
-            item.getComputerID(stack), item.getLabel(stack), item.getColour(stack), item.getFamily(),
-            back
+        return item.create(
+            item.getComputerID(stack), item.getLabel(stack), item.getColour(stack), back
         );
     }
 
@@ -267,20 +265,25 @@ public class UpgradeRecipeGenerator<T> {
             if (recipes != null) return recipes;
 
             recipes = this.recipes = new ArrayList<>(4);
-            for (var family : MAIN_FAMILIES) {
-                if (turtle != null) {
+
+            if (turtle != null) {
+                for (var turtleSupplier : TURTLES) {
+                    var turtleItem = turtleSupplier.get();
                     recipes.add(turtle(
                         ingredient, // Right upgrade, recipe on left
-                        Ingredient.of(TurtleItemFactory.create(-1, null, -1, family, null, null, 0, null)),
-                        TurtleItemFactory.create(-1, null, -1, family, null, turtle, 0, null)
+                        Ingredient.of(turtleItem.create(-1, null, -1, null, null, 0, null)),
+                        turtleItem.create(-1, null, -1, null, turtle, 0, null)
                     ));
                 }
+            }
 
-                if (pocket != null) {
+            if (pocket != null) {
+                for (var pocketSupplier : POCKET_COMPUTERS) {
+                    var pocketItem = pocketSupplier.get();
                     recipes.add(pocket(
                         ingredient,
-                        Ingredient.of(PocketComputerItemFactory.create(-1, null, -1, family, null)),
-                        PocketComputerItemFactory.create(-1, null, -1, family, pocket)
+                        Ingredient.of(pocketItem.create(-1, null, -1, null)),
+                        pocketItem.create(-1, null, -1, pocket)
                     ));
                 }
             }

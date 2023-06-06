@@ -54,6 +54,8 @@ dependencies {
     include(libs.cobalt)
     include(libs.jzlib)
     include(libs.netty.http)
+    include(libs.netty.socks)
+    include(libs.netty.proxy)
     include(libs.nightConfig.core)
     include(libs.nightConfig.toml)
 
@@ -65,6 +67,8 @@ dependencies {
     // in our POM, and this is the easiest way.
     runtimeOnly(libs.cobalt)
     runtimeOnly(libs.netty.http)
+    runtimeOnly(libs.netty.socks)
+    runtimeOnly(libs.netty.proxy)
 
     annotationProcessorEverywhere(libs.autoService)
 

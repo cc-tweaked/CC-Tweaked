@@ -4,6 +4,7 @@
 
 package dan200.computercraft.core.apis.http.options;
 
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
@@ -12,7 +13,7 @@ public enum Action {
     DENY;
 
     private final PartialOptions partial = new PartialOptions(
-        this, OptionalLong.empty(), OptionalLong.empty(), OptionalInt.empty()
+        this, OptionalLong.empty(), OptionalLong.empty(), OptionalInt.empty(), Optional.empty()
     );
 
     public PartialOptions toPartial() {

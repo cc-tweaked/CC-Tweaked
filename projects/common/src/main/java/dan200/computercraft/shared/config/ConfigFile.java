@@ -8,6 +8,7 @@ import com.google.common.base.Splitter;
 
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
@@ -141,6 +142,18 @@ public interface ConfigFile {
          * @param onChange The function to run on change.
          * @return The built config file.
          */
-        public abstract ConfigFile build(Runnable onChange);
+        public abstract ConfigFile build(ConfigListener onChange);
+    }
+
+    @FunctionalInterface
+    interface ConfigListener {
+        /**
+         * The function called then a config file is changed.
+         *
+         * @param path The path to the config file. This will be {@code null} when the config file does not exist on
+         *             disk, such as when synced from a server to the client.
+         * @see Builder#build(ConfigListener)
+         */
+        void onConfigChanged(@Nullable Path path);
     }
 }

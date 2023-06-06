@@ -8,7 +8,7 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.computer.recipe.ComputerFamilyRecipe;
-import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
+import dan200.computercraft.shared.turtle.items.TurtleItem;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -31,7 +31,7 @@ public final class TurtleRecipe extends ComputerFamilyRecipe {
         var computerID = item.getComputerID(stack);
         var label = item.getLabel(stack);
 
-        return TurtleItemFactory.create(computerID, label, -1, getFamily(), null, null, 0, null);
+        return TurtleItem.create(computerID, label, -1, getFamily(), null, null, 0, null);
     }
 
     public static class Serializer extends ComputerFamilyRecipe.Serializer<TurtleRecipe> {

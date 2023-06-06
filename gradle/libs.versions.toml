@@ -34,7 +34,7 @@ slf4j = "1.7.36"
 
 # Minecraft mods
 iris = "1.5.2+1.19.4"
-jei = "11.3.0.262"
+jei = "13.1.0.11"
 modmenu = "6.1.0-rc.1"
 oculus = "1.2.5"
 rei = "10.0.578"
@@ -83,6 +83,8 @@ kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", 
 kotlin-platform = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 netty-http = { module = "io.netty:netty-codec-http", version.ref = "netty" }
+netty-socks = { module = "io.netty:netty-codec-socks", version.ref = "netty" }
+netty-proxy = { module = "io.netty:netty-handler-proxy", version.ref = "netty" }
 nightConfig-core = { module = "com.electronwill.night-config:core", version.ref = "nightConfig" }
 nightConfig-toml = { module = "com.electronwill.night-config:toml", version.ref = "nightConfig" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
@@ -91,9 +93,9 @@ slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
 iris = { module = "maven.modrinth:iris", version.ref = "iris" }
-jei-api = { module = "mezz.jei:jei-1.19.2-common-api", version.ref = "jei" }
-jei-fabric = { module = "mezz.jei:jei-1.19.2-fabric", version.ref = "jei" }
-jei-forge = { module = "mezz.jei:jei-1.19.2-forge", version.ref = "jei" }
+jei-api = { module = "mezz.jei:jei-1.19.4-common-api", version.ref = "jei" }
+jei-fabric = { module = "mezz.jei:jei-1.19.4-fabric", version.ref = "jei" }
+jei-forge = { module = "mezz.jei:jei-1.19.4-forge", version.ref = "jei" }
 mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
 oculus = { module = "maven.modrinth:oculus", version.ref = "oculus" }
@@ -148,10 +150,10 @@ kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 # Minecraft
 externalMods-common = ["jei-api", "nightConfig-core", "nightConfig-toml"]
 externalMods-forge-compile = ["oculus", "jei-api"]
-externalMods-forge-runtime = []
+externalMods-forge-runtime = ["jei-forge"]
 externalMods-fabric = ["nightConfig-core", "nightConfig-toml"]
 externalMods-fabric-compile = ["iris", "jei-api", "rei-api", "rei-builtin"]
-externalMods-fabric-runtime = ["modmenu"]
+externalMods-fabric-runtime = ["jei-fabric", "modmenu"]
 
 # Testing
 test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]

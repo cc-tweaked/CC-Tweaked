@@ -117,7 +117,7 @@ public final class ForgeConfigFile implements ConfigFile {
         }
 
         @Override
-        public ConfigFile build(Runnable onChange) {
+        public ConfigFile build(ConfigListener onChange) {
             var spec = builder.build();
             entries.stream().forEach(x -> {
                 if (x instanceof ValueImpl<?> value) value.owner = spec;

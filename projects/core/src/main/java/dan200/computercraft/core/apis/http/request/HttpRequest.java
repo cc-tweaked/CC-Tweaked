@@ -124,6 +124,7 @@ public class HttpRequest extends Resource<HttpRequest> {
             var socketAddress = NetworkUtils.getAddress(uri, ssl);
             var options = NetworkUtils.getOptions(uri.getHost(), socketAddress);
             var sslContext = ssl ? NetworkUtils.getSslContext() : null;
+            var proxy = NetworkUtils.getProxyHandler(options, timeout);
 
             // getAddress may have a slight delay, so let's perform another cancellation check.
             if (isClosed()) return;
@@ -145,7 +146,7 @@ public class HttpRequest extends Resource<HttpRequest> {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) {
-                        NetworkUtils.initChannel(ch, uri, socketAddress, sslContext, timeout);
+                        NetworkUtils.initChannel(ch, uri, socketAddress, sslContext, proxy, timeout);
 
                         var p = ch.pipeline();
                         if (timeout > 0) p.addLast(new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
