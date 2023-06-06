@@ -5,6 +5,7 @@
 package dan200.computercraft.shared.config;
 
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.http.NetworkUtils;
@@ -349,7 +350,7 @@ public final class ConfigSpec {
             builder.pop();
         }
 
-        serverSpec = builder.build(() -> syncServer(null));
+        serverSpec = builder.build(ConfigSpec::syncServer);
 
         var clientBuilder = PlatformHelper.get().createConfigBuilder();
         monitorRenderer = clientBuilder
@@ -370,7 +371,7 @@ public final class ConfigSpec {
         clientSpec = clientBuilder.build(ConfigSpec::syncClient);
     }
 
-    public static void syncServer(@Nullable Path proxyPasswordConfig) {
+    public static void syncServer(@Nullable Path path) {
         // General
         Config.computerSpaceLimit = computerSpaceLimit.get();
         Config.floppySpaceLimit = floppySpaceLimit.get();
@@ -406,7 +407,7 @@ public final class ConfigSpec {
         CoreConfig.httpProxyHost = httpProxyHost.get();
         CoreConfig.httpProxyPort = httpProxyPort.get();
 
-        ProxyPasswordConfig.init(proxyPasswordConfig);
+        if (path != null) ProxyPasswordConfig.init(path.resolveSibling(ComputerCraftAPI.MOD_ID + "-proxy.pw"));
 
         NetworkUtils.reloadConfig();
 
@@ -434,7 +435,7 @@ public final class ConfigSpec {
         Config.monitorHeight = monitorHeight.get();
     }
 
-    public static void syncClient() {
+    public static void syncClient(@Nullable Path path) {
         Config.monitorRenderer = monitorRenderer.get();
         Config.monitorDistance = monitorDistance.get();
         Config.uploadNagDelay = uploadNagDelay.get();

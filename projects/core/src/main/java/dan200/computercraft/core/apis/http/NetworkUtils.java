@@ -9,7 +9,6 @@ import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.apis.http.options.Options;
-import dan200.computercraft.core.apis.http.options.ProxyType;
 import dan200.computercraft.core.util.ThreadUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ConnectTimeoutException;
@@ -39,9 +38,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
-
-import static dan200.computercraft.core.util.Nullability.assertNonNull;
+import java.util.function.Consumer;
 
 /**
  * Just a shared object for executing simple HTTP related tasks.
@@ -67,8 +64,7 @@ public final class NetworkUtils {
     private static @Nullable SslContext sslContext;
     private static boolean triedSslContext = false;
 
-    @Nullable
-    private static SslContext makeSslContext() {
+    private static @Nullable SslContext makeSslContext() {
         if (triedSslContext) return sslContext;
         synchronized (sslLock) {
             if (triedSslContext) return sslContext;
@@ -83,7 +79,6 @@ public final class NetworkUtils {
         }
     }
 
-    @NotNull
     public static SslContext getSslContext() throws HTTPRequestException {
         var ssl = makeSslContext();
         if (ssl == null) throw new HTTPRequestException("Could not create a secure connection");
@@ -151,11 +146,11 @@ public final class NetworkUtils {
      * Note, this may require a DNS lookup, and so should not be executed on the main CC thread.
      *
      * @param options The options for the host to be proxied.
-     * @return A consumer that takes a {@link SocketChannel} and the timeout for SSL initialization (for HTTPS proxies).
+     * @param timeout The timeout for this connection. Currently only used for establishing the SSL initialisation.
+     * @return A consumer that takes a {@link SocketChannel} and injects the proxy handler..
      * @throws HTTPRequestException If a proxy is required but not configured correctly.
      */
-    @Nullable
-    public static BiConsumer<SocketChannel, Integer> getProxyHandler(Options options) throws HTTPRequestException {
+    public static @Nullable Consumer<SocketChannel> getProxyHandler(Options options, int timeout) throws HTTPRequestException {
         if (!options.useProxy) return null;
 
         var type = CoreConfig.httpProxyType;
@@ -171,22 +166,19 @@ public final class NetworkUtils {
         var proxyAddress = new InetSocketAddress(host, port);
         if (proxyAddress.isUnresolved()) throw new HTTPRequestException("Unknown proxy host");
 
-        // HTTPS proxies require an SSL handler for the proxy itself, even if the underlying request is not HTTPS.
-        var sslContext = type == ProxyType.HTTPS ? getSslContext() : null;
-
         return switch (type) {
-            case HTTP -> (ch, timeout) ->
-                ch.pipeline().addLast(new HttpProxyHandler(proxyAddress, username, password));
-            case HTTPS -> (ch, timeout) -> {
-                var p = ch.pipeline();
-                // If we're using an HTTPS proxy, we need to add an SSL handler for the proxy too.
-                p.addLast(makeSslHandler(ch, assertNonNull(sslContext), timeout, host, port));
-                p.addLast(new HttpProxyHandler(proxyAddress, username, password));
-            };
-            case SOCKS4 -> (ch, timeout) ->
-                ch.pipeline().addLast(new Socks4ProxyHandler(proxyAddress, username));
-            case SOCKS5 -> (ch, timeout) ->
-                ch.pipeline().addLast(new Socks5ProxyHandler(proxyAddress, username, password));
+            case HTTP -> ch -> ch.pipeline().addLast(new HttpProxyHandler(proxyAddress, username, password));
+            case HTTPS -> {
+                var sslContext = getSslContext();
+                yield ch -> {
+                    var p = ch.pipeline();
+                    // If we're using an HTTPS proxy, we need to add an SSL handler for the proxy too.
+                    p.addLast(makeSslHandler(ch, sslContext, timeout, host, port));
+                    p.addLast(new HttpProxyHandler(proxyAddress, username, password));
+                };
+            }
+            case SOCKS4 -> ch -> ch.pipeline().addLast(new Socks4ProxyHandler(proxyAddress, username));
+            case SOCKS5 -> ch -> ch.pipeline().addLast(new Socks5ProxyHandler(proxyAddress, username, password));
         };
     }
 
@@ -219,15 +211,13 @@ public final class NetworkUtils {
      * @param timeout       The timeout on this channel.
      * @see io.netty.channel.ChannelInitializer
      */
-    public static void initChannel(SocketChannel ch, URI uri, InetSocketAddress socketAddress, @Nullable SslContext sslContext, @Nullable BiConsumer<SocketChannel, Integer> proxy, int timeout) {
+    public static void initChannel(SocketChannel ch, URI uri, InetSocketAddress socketAddress, @Nullable SslContext sslContext, @Nullable Consumer<SocketChannel> proxy, int timeout) {
         if (timeout > 0) ch.config().setConnectTimeoutMillis(timeout);
 
         var p = ch.pipeline();
         p.addLast(SHAPING_HANDLER);
 
-        if (proxy != null) {
-            proxy.accept(ch, timeout);
-        }
+        if (proxy != null) proxy.accept(ch);
 
         if (sslContext != null) {
             p.addLast(makeSslHandler(ch, sslContext, timeout, uri.getHost(), socketAddress.getPort()));

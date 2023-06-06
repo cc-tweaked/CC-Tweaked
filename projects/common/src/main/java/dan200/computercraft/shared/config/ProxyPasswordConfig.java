@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public record ProxyPasswordConfig(String username, String password) {
+record ProxyPasswordConfig(String username, String password) {
     private static final Logger LOG = LoggerFactory.getLogger(ProxyPasswordConfig.class);
 
     @Nullable
@@ -35,7 +35,7 @@ public record ProxyPasswordConfig(String username, String password) {
         }
     }
 
-    public static void init(@Nullable Path path) {
+    static void init(@Nullable Path path) {
         var config = loadFromFile(path);
         if (config == null) {
             CoreConfig.httpProxyUsername = "";

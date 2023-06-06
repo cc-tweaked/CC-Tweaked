@@ -124,7 +124,7 @@ public class HttpRequest extends Resource<HttpRequest> {
             var socketAddress = NetworkUtils.getAddress(uri, ssl);
             var options = NetworkUtils.getOptions(uri.getHost(), socketAddress);
             var sslContext = ssl ? NetworkUtils.getSslContext() : null;
-            var proxy = NetworkUtils.getProxyHandler(options);
+            var proxy = NetworkUtils.getProxyHandler(options, timeout);
 
             // getAddress may have a slight delay, so let's perform another cancellation check.
             if (isClosed()) return;

@@ -95,16 +95,12 @@ public final class ComputerCraft {
     private static void syncConfig(ModConfig config) {
         if (!config.getModId().equals(ComputerCraftAPI.MOD_ID)) return;
 
-        if (config.getType() == ModConfig.Type.SERVER && ((ForgeConfigFile) ConfigSpec.serverSpec).spec().isLoaded()) {
-            // Try to get the path to the proxy password file. If we're in singleplayer or are a dedicated server, this
-            // will be adjacent to the server config file.
-            var proxyPasswordPath = config.getConfigData() instanceof FileConfig fileConfig
-                ? fileConfig.getNioPath().resolveSibling(ComputerCraftAPI.MOD_ID + "-proxy.pw")
-                : null; // The config will not be available when this is a client connecting to a dedicated server.
+        var path = config.getConfigData() instanceof FileConfig fileConfig ? fileConfig.getNioPath() : null;
 
-            ConfigSpec.syncServer(proxyPasswordPath);
+        if (config.getType() == ModConfig.Type.SERVER && ((ForgeConfigFile) ConfigSpec.serverSpec).spec().isLoaded()) {
+            ConfigSpec.syncServer(path);
         } else if (config.getType() == ModConfig.Type.CLIENT) {
-            ConfigSpec.syncClient();
+            ConfigSpec.syncClient(path);
         }
     }
 }
