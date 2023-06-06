@@ -444,9 +444,9 @@ public final class ModRegistry {
     }
 
     private static void addTurtle(CreativeModeTab.Output out, TurtleItem turtle) {
-        out.accept(turtle.create(-1, null, -1, null, null, 0, null, null, null));
+        out.accept(turtle.create(-1, null, -1, null, null, 0, null));
         TurtleUpgrades.getVanillaUpgrades()
-            .map(x -> turtle.create(-1, null, -1, null, x, 0, null, null, null))
+            .map(x -> turtle.create(-1, null, -1, null, x, 0, null))
             .forEach(out::accept);
     }
 

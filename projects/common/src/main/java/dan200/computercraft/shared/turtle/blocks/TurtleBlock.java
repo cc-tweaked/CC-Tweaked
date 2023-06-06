@@ -130,10 +130,6 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
                 // Set Upgrades
                 for (var side : TurtleSide.values()) {
                     turtle.getAccess().setUpgrade(side, item.getUpgrade(stack, side));
-                    var upgradeData = item.getUpgradeData(stack, side);
-                    if (upgradeData != null && !upgradeData.isEmpty()) {
-                        turtle.getAccess().getUpgradeNBTData(side).merge(upgradeData);
-                    }
                 }
 
                 turtle.getAccess().setFuelLevel(item.getFuelLevel(stack));

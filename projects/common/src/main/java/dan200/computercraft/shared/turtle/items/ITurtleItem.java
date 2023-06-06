@@ -8,7 +8,6 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.items.IComputerItem;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -17,9 +16,6 @@ import javax.annotation.Nullable;
 public interface ITurtleItem extends IComputerItem, IColouredItem {
     @Nullable
     ITurtleUpgrade getUpgrade(ItemStack stack, TurtleSide side);
-
-    @Nullable
-    CompoundTag getUpgradeData(ItemStack stack, TurtleSide side);
 
     int getFuelLevel(ItemStack stack);
 
