@@ -4,6 +4,12 @@
 
 package dan200.computercraft.core.apis.http.options;
 
+/**
+ * The type of proxy to use for HTTP requests.
+ *
+ * @see dan200.computercraft.core.apis.http.NetworkUtils#getProxyHandler(Options, int)
+ * @see dan200.computercraft.core.CoreConfig#httpProxyType
+ */
 public enum ProxyType {
     HTTP,
     HTTPS,
