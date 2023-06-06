@@ -147,6 +147,14 @@ dependencies {
         jarJar.ranged(this, "[${libs.versions.netty.get()},)")
         isTransitive = false
     }
+    minecraftEmbed(libs.netty.socks) {
+        jarJar.ranged(this, "[${libs.versions.netty.get()},)")
+        isTransitive = false
+    }
+    minecraftEmbed(libs.netty.proxy) {
+        jarJar.ranged(this, "[${libs.versions.netty.get()},)")
+        isTransitive = false
+    }
 
     testFixturesApi(libs.bundles.test)
     testFixturesApi(libs.bundles.kotlin)

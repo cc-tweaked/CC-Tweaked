@@ -45,6 +45,9 @@ class AddressRuleConfig {
 
             config.setComment("max_websocket_message", "The maximum size (in bytes) that a computer can send or receive in one websocket packet.");
             config.set("max_websocket_message", AddressRule.WEBSOCKET_MESSAGE);
+
+            config.setComment("use_proxy", "Enable use of the HTTP/SOCKS proxy if it is configured.");
+            config.set("use_proxy", false);
         }
 
         return config;
@@ -58,6 +61,7 @@ class AddressRuleConfig {
             && check(builder, "max_upload", Number.class)
             && check(builder, "max_download", Number.class)
             && check(builder, "websocket_message", Number.class)
+            && check(builder, "use_proxy", Boolean.class)
             && AddressRule.parse(hostObj, port, PartialOptions.DEFAULT) != null;
     }
 
@@ -71,12 +75,14 @@ class AddressRuleConfig {
         var maxUpload = unboxOptLong(get(builder, "max_upload", Number.class).map(Number::longValue));
         var maxDownload = unboxOptLong(get(builder, "max_download", Number.class).map(Number::longValue));
         var websocketMessage = unboxOptInt(get(builder, "websocket_message", Number.class).map(Number::intValue));
+        var useProxy = get(builder, "use_proxy", Boolean.class);
 
         var options = new PartialOptions(
             action,
             maxUpload,
             maxDownload,
-            websocketMessage
+            websocketMessage,
+            useProxy
         );
 
         return AddressRule.parse(hostObj, port, options);

@@ -117,6 +117,7 @@ public class Websocket extends Resource<Websocket> {
             var socketAddress = NetworkUtils.getAddress(uri, ssl);
             var options = NetworkUtils.getOptions(uri.getHost(), socketAddress);
             var sslContext = ssl ? NetworkUtils.getSslContext() : null;
+            var proxy = NetworkUtils.getProxyHandler(options, timeout);
 
             // getAddress may have a slight delay, so let's perform another cancellation check.
             if (isClosed()) return;
@@ -127,7 +128,7 @@ public class Websocket extends Resource<Websocket> {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) {
-                        NetworkUtils.initChannel(ch, uri, socketAddress, sslContext, timeout);
+                        NetworkUtils.initChannel(ch, uri, socketAddress, sslContext, proxy, timeout);
 
                         var subprotocol = headers.get(HttpHeaderNames.SEC_WEBSOCKET_PROTOCOL);
                         var handshaker = new NoOriginWebSocketHandshaker(

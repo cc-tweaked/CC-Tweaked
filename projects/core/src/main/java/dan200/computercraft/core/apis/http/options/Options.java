@@ -13,11 +13,13 @@ public final class Options {
     public final long maxUpload;
     public final long maxDownload;
     public final int websocketMessage;
+    public final boolean useProxy;
 
-    Options(Action action, long maxUpload, long maxDownload, int websocketMessage) {
+    Options(Action action, long maxUpload, long maxDownload, int websocketMessage, boolean useProxy) {
         this.action = action;
         this.maxUpload = maxUpload;
         this.maxDownload = maxDownload;
         this.websocketMessage = websocketMessage;
+        this.useProxy = useProxy;
     }
 }

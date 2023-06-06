@@ -34,11 +34,11 @@ public class FabricConfigFile implements ConfigFile {
 
     private final ConfigSpec spec;
     private final Trie<String, Entry> entries;
-    private final Runnable onChange;
+    private final ConfigListener onChange;
 
     private @Nullable CommentedFileConfig config;
 
-    public FabricConfigFile(ConfigSpec spec, Trie<String, Entry> entries, Runnable onChange) {
+    public FabricConfigFile(ConfigSpec spec, Trie<String, Entry> entries, ConfigListener onChange) {
         this.spec = spec;
         this.entries = entries;
         this.onChange = onChange;
@@ -95,7 +95,7 @@ public class FabricConfigFile implements ConfigFile {
             LOG.warn("Incorrect key {} was corrected from {} to {}", String.join(".", entryPath), oldValue, newValue);
         });
 
-        onChange.run();
+        onChange.onConfigChanged(config.getNioPath());
 
         return corrected > 0;
     }
@@ -204,7 +204,7 @@ public class FabricConfigFile implements ConfigFile {
         }
 
         @Override
-        public ConfigFile build(Runnable onChange) {
+        public ConfigFile build(ConfigListener onChange) {
             return new FabricConfigFile(spec, entries, onChange);
         }
     }

@@ -5,10 +5,12 @@
 package dan200.computercraft.shared.config;
 
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.Action;
+import dan200.computercraft.core.apis.http.options.ProxyType;
 import dan200.computercraft.core.computer.mainthread.MainThreadConfig;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.platform.PlatformHelper;
@@ -16,6 +18,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.filter.MarkerFilter;
 
+import javax.annotation.Nullable;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -48,6 +52,10 @@ public final class ConfigSpec {
 
     public static final ConfigFile.Value<Integer> httpDownloadBandwidth;
     public static final ConfigFile.Value<Integer> httpUploadBandwidth;
+
+    public static final ConfigFile.Value<ProxyType> httpProxyType;
+    public static final ConfigFile.Value<String> httpProxyHost;
+    public static final ConfigFile.Value<Integer> httpProxyPort;
 
     public static final ConfigFile.Value<Boolean> commandBlockEnabled;
     public static final ConfigFile.Value<Integer> modemRange;
@@ -222,6 +230,30 @@ public final class ConfigSpec {
 
             builder.pop();
 
+            builder
+                .comment("""
+                    Tunnels HTTP and websocket requests through a proxy server. Only affects HTTP
+                    rules with "use_proxy" set to true (off by default).
+                    If authentication is required for the proxy, create a "computercraft-proxy.pw"
+                    file in the same directory as "computercraft-server.toml", containing the
+                    username and password separated by a colon, e.g. "myuser:mypassword". For
+                    SOCKS4 proxies only the username is required.""")
+                .push("proxy");
+
+            httpProxyType = builder
+                .comment("The type of proxy to use.")
+                .defineEnum("type", CoreConfig.httpProxyType);
+
+            httpProxyHost = builder
+                .comment("The hostname or IP address of the proxy server.")
+                .define("host", CoreConfig.httpProxyHost);
+
+            httpProxyPort = builder
+                .comment("The port of the proxy server.")
+                .defineInRange("port", CoreConfig.httpProxyPort, 1, 65536);
+
+            builder.pop();
+
             builder.pop();
         }
 
@@ -339,7 +371,7 @@ public final class ConfigSpec {
         clientSpec = clientBuilder.build(ConfigSpec::syncClient);
     }
 
-    public static void syncServer() {
+    public static void syncServer(@Nullable Path path) {
         // General
         Config.computerSpaceLimit = computerSpaceLimit.get();
         Config.floppySpaceLimit = floppySpaceLimit.get();
@@ -370,6 +402,13 @@ public final class ConfigSpec {
         CoreConfig.httpMaxWebsockets = httpMaxWebsockets.get();
         CoreConfig.httpDownloadBandwidth = httpDownloadBandwidth.get();
         CoreConfig.httpUploadBandwidth = httpUploadBandwidth.get();
+
+        CoreConfig.httpProxyType = httpProxyType.get();
+        CoreConfig.httpProxyHost = httpProxyHost.get();
+        CoreConfig.httpProxyPort = httpProxyPort.get();
+
+        if (path != null) ProxyPasswordConfig.init(path.resolveSibling(ComputerCraftAPI.MOD_ID + "-proxy.pw"));
+
         NetworkUtils.reloadConfig();
 
         // Peripheral
@@ -396,7 +435,7 @@ public final class ConfigSpec {
         Config.monitorHeight = monitorHeight.get();
     }
 
-    public static void syncClient() {
+    public static void syncClient(@Nullable Path path) {
         Config.monitorRenderer = monitorRenderer.get();
         Config.monitorDistance = monitorDistance.get();
         Config.uploadNagDelay = uploadNagDelay.get();
