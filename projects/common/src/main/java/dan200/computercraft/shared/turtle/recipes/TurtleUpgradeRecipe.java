@@ -30,7 +30,7 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
 
     @Override
     public ItemStack getResultItem(RegistryAccess registryAccess) {
-        return ModRegistry.Items.TURTLE_NORMAL.get().create(-1, null, -1, null, null, 0, null);
+        return ModRegistry.Items.TURTLE_NORMAL.get().create(-1, null, -1, null, null, 0, null, null, null);
     }
 
     @Override
@@ -125,7 +125,10 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
         var fuelLevel = itemTurtle.getFuelLevel(turtle);
         var colour = itemTurtle.getColour(turtle);
         var overlay = itemTurtle.getOverlay(turtle);
-        return itemTurtle.create(computerID, label, colour, upgrades[0], upgrades[1], fuelLevel, overlay);
+        return itemTurtle.create(
+            computerID, label, colour, upgrades[0], upgrades[1], fuelLevel, overlay,
+            itemTurtle.getUpgradeData(turtle, TurtleSide.LEFT), itemTurtle.getUpgradeData(turtle, TurtleSide.RIGHT)
+        );
     }
 
     @Override

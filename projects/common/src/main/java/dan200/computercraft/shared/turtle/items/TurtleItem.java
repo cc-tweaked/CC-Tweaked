@@ -15,6 +15,7 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.AbstractComputerItem;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
 import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
@@ -33,13 +34,14 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
     public static ItemStack create(
         int id, @Nullable String label, int colour, ComputerFamily family,
         @Nullable ITurtleUpgrade leftUpgrade, @Nullable ITurtleUpgrade rightUpgrade,
-        int fuelLevel, @Nullable ResourceLocation overlay
+        int fuelLevel, @Nullable ResourceLocation overlay,
+        @Nullable CompoundTag leftUpgradeData, @Nullable CompoundTag rightUpdateData
     ) {
         return switch (family) {
             case NORMAL ->
-                ModRegistry.Items.TURTLE_NORMAL.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay);
+                ModRegistry.Items.TURTLE_NORMAL.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay, leftUpgradeData, rightUpdateData);
             case ADVANCED ->
-                ModRegistry.Items.TURTLE_ADVANCED.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay);
+                ModRegistry.Items.TURTLE_ADVANCED.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay, leftUpgradeData, rightUpdateData);
             default -> ItemStack.EMPTY;
         };
     }
@@ -47,7 +49,8 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
     public ItemStack create(
         int id, @Nullable String label, int colour,
         @Nullable ITurtleUpgrade leftUpgrade, @Nullable ITurtleUpgrade rightUpgrade,
-        int fuelLevel, @Nullable ResourceLocation overlay
+        int fuelLevel, @Nullable ResourceLocation overlay,
+        @Nullable CompoundTag leftUpgradeData, @Nullable CompoundTag rightUpdateData
     ) {
         // Build the stack
         var stack = new ItemStack(this);
@@ -61,8 +64,16 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
             stack.getOrCreateTag().putString(NBT_LEFT_UPGRADE, leftUpgrade.getUpgradeID().toString());
         }
 
+        if (leftUpgradeData != null && !leftUpgradeData.isEmpty()) {
+            stack.getOrCreateTag().put(NBT_LEFT_UPGRADE_DATA, leftUpgradeData);
+        }
+
         if (rightUpgrade != null) {
             stack.getOrCreateTag().putString(NBT_RIGHT_UPGRADE, rightUpgrade.getUpgradeID().toString());
+        }
+
+        if (rightUpdateData != null && !rightUpdateData.isEmpty()) {
+            stack.getOrCreateTag().put(NBT_RIGHT_UPGRADE_DATA, rightUpdateData);
         }
 
         return stack;
@@ -118,7 +129,8 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
             getComputerID(stack), getLabel(stack),
             getColour(stack), family,
             getUpgrade(stack, TurtleSide.LEFT), getUpgrade(stack, TurtleSide.RIGHT),
-            getFuelLevel(stack), getOverlay(stack)
+            getFuelLevel(stack), getOverlay(stack),
+            getUpgradeData(stack, TurtleSide.LEFT), getUpgradeData(stack, TurtleSide.RIGHT)
         );
     }
 
@@ -128,6 +140,14 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
 
         var key = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE : NBT_RIGHT_UPGRADE;
         return tag.contains(key) ? TurtleUpgrades.instance().get(tag.getString(key)) : null;
+    }
+
+    public @Nullable CompoundTag getUpgradeData(ItemStack stack, TurtleSide side) {
+        var tag = stack.getTag();
+        if (tag == null) return null;
+
+        var key = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE_DATA : NBT_RIGHT_UPGRADE_DATA;
+        return tag.contains(key) ? tag.getCompound(key) : null;
     }
 
     public @Nullable ResourceLocation getOverlay(ItemStack stack) {

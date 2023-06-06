@@ -219,7 +219,8 @@ public class UpgradeRecipeGenerator<T> {
         var item = (TurtleItem) stack.getItem();
         return item.create(
             item.getComputerID(stack), item.getLabel(stack), item.getColour(stack),
-            left, right, item.getFuelLevel(stack), item.getOverlay(stack)
+            left, right, item.getFuelLevel(stack), item.getOverlay(stack),
+            null, null
         );
     }
 
@@ -271,8 +272,8 @@ public class UpgradeRecipeGenerator<T> {
                     var turtleItem = turtleSupplier.get();
                     recipes.add(turtle(
                         ingredient, // Right upgrade, recipe on left
-                        Ingredient.of(turtleItem.create(-1, null, -1, null, null, 0, null)),
-                        turtleItem.create(-1, null, -1, null, turtle, 0, null)
+                        Ingredient.of(turtleItem.create(-1, null, -1, null, null, 0, null, null, null)),
+                        turtleItem.create(-1, null, -1, null, turtle, 0, null, null, null)
                     ));
                 }
             }

@@ -31,7 +31,7 @@ public final class TurtleRecipe extends ComputerFamilyRecipe {
         var computerID = item.getComputerID(stack);
         var label = item.getLabel(stack);
 
-        return TurtleItem.create(computerID, label, -1, getFamily(), null, null, 0, null);
+        return TurtleItem.create(computerID, label, -1, getFamily(), null, null, 0, null, null, null);
     }
 
     public static class Serializer extends ComputerFamilyRecipe.Serializer<TurtleRecipe> {

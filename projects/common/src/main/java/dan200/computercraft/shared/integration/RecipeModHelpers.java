@@ -56,7 +56,7 @@ public final class RecipeModHelpers {
         for (var turtleSupplier : TURTLES) {
             var turtle = turtleSupplier.get();
             for (var upgrade : TurtleUpgrades.instance().getUpgrades()) {
-                upgradeItems.add(turtle.create(-1, null, -1, null, upgrade, 0, null));
+                upgradeItems.add(turtle.create(-1, null, -1, null, upgrade, 0, null, null, null));
             }
         }
 

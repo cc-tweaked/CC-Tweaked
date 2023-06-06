@@ -105,12 +105,12 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
      */
     private void turtleUpgrades(Consumer<FinishedRecipe> add) {
         for (var turtleItem : turtleItems()) {
-            var base = turtleItem.create(-1, null, -1, null, null, 0, null);
+            var base = turtleItem.create(-1, null, -1, null, null, 0, null, null, null);
 
             var nameId = turtleItem.getFamily().name().toLowerCase(Locale.ROOT);
 
             for (var upgrade : turtleUpgrades.getGeneratedUpgrades()) {
-                var result = turtleItem.create(-1, null, -1, null, upgrade, -1, null);
+                var result = turtleItem.create(-1, null, -1, null, upgrade, -1, null, null, null);
                 ShapedRecipeBuilder
                     .shaped(RecipeCategory.REDSTONE, result.getItem())
                     .group(String.format("%s:turtle_%s", ComputerCraftAPI.MOD_ID, nameId))
@@ -189,7 +189,7 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
 
     private void turtleOverlay(Consumer<FinishedRecipe> add, String overlay, Consumer<ShapelessRecipeBuilder> build) {
         for (var turtleItem : turtleItems()) {
-            var base = turtleItem.create(-1, null, -1, null, null, 0, null);
+            var base = turtleItem.create(-1, null, -1, null, null, 0, null, null, null);
 
             var nameId = turtleItem.getFamily().name().toLowerCase(Locale.ROOT);
             var group = "%s:turtle_%s_overlay".formatted(ComputerCraftAPI.MOD_ID, nameId);
