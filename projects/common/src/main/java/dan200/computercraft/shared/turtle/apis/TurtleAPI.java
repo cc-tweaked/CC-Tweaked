@@ -768,6 +768,18 @@ public class TurtleAPI implements ILuaAPI {
     }
 
 
+    /**
+     * Toggle a wired modem block in front of the turtle to allow / disallow peripheral access.
+     *
+     * @return The turtle command result.
+     * @cc.treturn boolean If a modem was toggled.
+     */
+    @LuaFunction
+    public final MethodResult toggleModem() throws LuaException {
+        return trackCommand(new TurtleToggleModemCommand(InteractDirection.FORWARD));
+    }
+
+
     private static int checkSlot(int slot) throws LuaException {
         if (slot < 1 || slot > 16) throw new LuaException("Slot number " + slot + " out of range");
         return slot - 1;

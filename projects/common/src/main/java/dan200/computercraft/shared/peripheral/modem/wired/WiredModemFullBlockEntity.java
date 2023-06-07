@@ -141,6 +141,10 @@ public class WiredModemFullBlockEntity extends BlockEntity {
         return InteractionResult.CONSUME;
     }
 
+    public void use() {
+        togglePeripheralAccess();
+    }
+
     private static void sendPeripheralChanges(Player player, String kind, Collection<String> peripherals) {
         if (peripherals.isEmpty()) return;
 
