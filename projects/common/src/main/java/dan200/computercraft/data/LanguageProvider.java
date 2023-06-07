@@ -230,6 +230,11 @@ public final class LanguageProvider implements DataProvider {
         addConfigEntry(ConfigSpec.httpDownloadBandwidth, "Global download limit");
         addConfigEntry(ConfigSpec.httpUploadBandwidth, "Global upload limit");
 
+        addConfigGroup(ConfigSpec.serverSpec, "http.proxy", "Proxy");
+        addConfigEntry(ConfigSpec.httpProxyHost, "Host name");
+        addConfigEntry(ConfigSpec.httpProxyPort, "Port");
+        addConfigEntry(ConfigSpec.httpProxyType, "Proxy type");
+
         addConfigGroup(ConfigSpec.serverSpec, "peripheral", "Peripherals");
         addConfigEntry(ConfigSpec.commandBlockEnabled, "Enable command block peripheral");
         addConfigEntry(ConfigSpec.modemRange, "Modem range (default)");
