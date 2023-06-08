@@ -75,7 +75,9 @@ public interface ITurtleAccess {
      * @param f The subframe fraction.
      * @return A vector containing the floating point co-ordinates at which the turtle resides.
      * @see #getVisualYaw(float)
+     * @deprecated Will be removed in 1.20.
      */
+    @Deprecated(forRemoval = true)
     Vec3 getVisualPosition(float f);
 
     /**
@@ -84,7 +86,9 @@ public interface ITurtleAccess {
      * @param f The subframe fraction.
      * @return The yaw the turtle is facing.
      * @see #getVisualPosition(float)
+     * @deprecated Will be removed in 1.20.
      */
+    @Deprecated(forRemoval = true)
     float getVisualYaw(float f);
 
     /**
