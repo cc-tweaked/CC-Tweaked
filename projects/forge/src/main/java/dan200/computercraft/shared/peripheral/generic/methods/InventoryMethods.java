@@ -96,13 +96,18 @@ public class InventoryMethods implements GenericPeripheral {
      * <p>
      * The returned information contains the same information as each item in
      * {@link #list}, as well as additional details like the display name
-     * (`displayName`), item groups (`itemGroups`), which are the creative tabs
-     * an item will appear under, and item and item durability (`damage`,
-     * `maxDamage`, `durability`).
+     * (`displayName`), and item and item durability (`damage`, `maxDamage`, `durability`).
      * <p>
      * Some items include more information (such as enchantments) - it is
      * recommended to print it out using @{textutils.serialize} or in the Lua
      * REPL, to explore what is available.
+     * <p>
+     * :::info Deprecated fields
+     * Older versions of CC: Tweaked exposed an {@code itemGroups} field, listing the
+     * creative tabs an item was available under. This information is no longer available on
+     * more recent versions of the game, and so this field will always be empty. Do not use this
+     * field in new code!
+     * :::
      *
      * @param inventory The current inventory.
      * @param slot      The slot to get information about.
@@ -118,10 +123,6 @@ public class InventoryMethods implements GenericPeripheral {
      *
      * print(("%s (%s)"):format(item.displayName, item.name))
      * print(("Count: %d/%d"):format(item.count, item.maxCount))
-     *
-     * for _, group in pairs(item.itemGroups) do
-     *   print(("Group: %s"):format(group.displayName))
-     * end
      *
      * if item.damage then
      *   print(("Damage: %d/%d"):format(item.damage, item.maxDamage))

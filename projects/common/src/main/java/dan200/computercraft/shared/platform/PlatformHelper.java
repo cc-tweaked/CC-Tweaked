@@ -33,7 +33,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -272,15 +271,6 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      * @return The amount of fuel it provides.
      */
     int getBurnTime(ItemStack stack);
-
-    /**
-     * Get a unique identifier for this creative tab.
-     *
-     * @param tab The tab to get
-     * @return The unique identifier, or {@code null} if not available.
-     */
-    @Nullable
-    ResourceLocation getCreativeTabId(CreativeModeTab tab);
 
     /**
      * Get the "container" item to be returned after crafting. For instance, crafting with a lava bucket should return

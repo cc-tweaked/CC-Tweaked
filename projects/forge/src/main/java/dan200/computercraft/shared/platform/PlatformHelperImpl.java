@@ -38,7 +38,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
@@ -52,7 +51,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.CreativeModeTabRegistry;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.ToolActions;
@@ -256,12 +254,6 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public int getBurnTime(ItemStack stack) {
         return ForgeHooks.getBurnTime(stack, null);
-    }
-
-    @Nullable
-    @Override
-    public ResourceLocation getCreativeTabId(CreativeModeTab tab) {
-        return CreativeModeTabRegistry.getName(tab);
     }
 
     @Override

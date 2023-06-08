@@ -256,12 +256,6 @@ public class PlatformHelperImpl implements PlatformHelper {
         return fuel == null ? 0 : fuel;
     }
 
-    @Nullable
-    @Override
-    public ResourceLocation getCreativeTabId(CreativeModeTab tab) {
-        return tab.getId();
-    }
-
     @Override
     public ItemStack getCraftingRemainingItem(ItemStack stack) {
         return stack.getRecipeRemainder();
