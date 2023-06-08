@@ -18,9 +18,9 @@ import org.joml.Matrix4f;
  * {@linkplain PocketItemRenderer in-hand pocket computers}.
  */
 public class ComputerBorderRenderer {
-    public static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_normal.png");
-    public static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_advanced.png");
-    public static final ResourceLocation BACKGROUND_COMMAND = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_command.png");
+    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_normal.png");
+    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_advanced.png");
+    private static final ResourceLocation BACKGROUND_COMMAND = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_command.png");
     public static final ResourceLocation BACKGROUND_COLOUR = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_colour.png");
 
     /**

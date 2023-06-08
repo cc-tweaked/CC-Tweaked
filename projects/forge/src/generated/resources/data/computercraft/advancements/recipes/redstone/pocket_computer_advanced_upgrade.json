@@ -13,5 +13,6 @@
     }
   },
   "requirements": [["has_components", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:pocket_computer_advanced_upgrade"]}
+  "rewards": {"recipes": ["computercraft:pocket_computer_advanced_upgrade"]},
+  "sends_telemetry_event": false
 }

@@ -7,10 +7,7 @@ package dan200.computercraft.client.render.monitor;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.integration.ShaderMod;
@@ -170,7 +167,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
                 tboVertex(buffer, matrix, -xMargin, pixelHeight + yMargin);
                 tboVertex(buffer, matrix, pixelWidth + xMargin, -yMargin);
                 tboVertex(buffer, matrix, pixelWidth + xMargin, pixelHeight + yMargin);
-                RenderTypes.MONITOR_TBO.end(buffer, 0, 0, 0);
+                RenderTypes.MONITOR_TBO.end(buffer, VertexSorting.DISTANCE_TO_ORIGIN);
             }
             case VBO -> {
                 var backgroundBuffer = assertNonNull(renderState.backgroundBuffer);

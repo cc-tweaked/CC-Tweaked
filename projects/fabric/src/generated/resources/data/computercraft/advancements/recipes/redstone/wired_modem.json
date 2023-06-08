@@ -15,5 +15,6 @@
     }
   },
   "requirements": [["has_computer", "has_cable", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:wired_modem"]}
+  "rewards": {"recipes": ["computercraft:wired_modem"]},
+  "sends_telemetry_event": false
 }

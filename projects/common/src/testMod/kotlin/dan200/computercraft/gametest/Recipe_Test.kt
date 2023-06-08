@@ -13,8 +13,8 @@ import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.AbstractContainerMenu
-import net.minecraft.world.inventory.CraftingContainer
 import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.inventory.TransientCraftingContainer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.crafting.CraftingRecipe
@@ -31,7 +31,7 @@ class Recipe_Test {
     @GameTest(template = Structures.DEFAULT)
     fun Craft_result_has_nbt(context: GameTestHelper) = context.sequence {
         thenExecute {
-            val container = CraftingContainer(DummyMenu, 3, 3)
+            val container = TransientCraftingContainer(DummyMenu, 3, 3)
             container.setItem(0, ItemStack(Items.SKELETON_SKULL))
             container.setItem(1, ItemStack(ModRegistry.Items.COMPUTER_ADVANCED.get()))
 

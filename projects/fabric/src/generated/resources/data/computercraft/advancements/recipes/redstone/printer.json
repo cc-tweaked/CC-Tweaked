@@ -8,5 +8,6 @@
     "has_the_recipe": {"conditions": {"recipe": "computercraft:printer"}, "trigger": "minecraft:recipe_unlocked"}
   },
   "requirements": [["has_computer", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:printer"]}
+  "rewards": {"recipes": ["computercraft:printer"]},
+  "sends_telemetry_event": false
 }

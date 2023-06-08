@@ -58,36 +58,36 @@ class CCTestCommand {
 
             .then(literal("marker").executes(context -> {
                 var player = context.getSource().getPlayerOrException();
-                var pos = StructureUtils.findNearestStructureBlock(player.blockPosition(), 15, player.getLevel());
+                var pos = StructureUtils.findNearestStructureBlock(player.blockPosition(), 15, player.serverLevel());
                 if (pos == null) return error(context.getSource(), "No nearby test");
 
-                var structureBlock = (StructureBlockEntity) player.getLevel().getBlockEntity(pos);
+                var structureBlock = (StructureBlockEntity) player.level().getBlockEntity(pos);
                 if (structureBlock == null) return error(context.getSource(), "No nearby structure block");
                 var info = GameTestRegistry.getTestFunction(structureBlock.getStructurePath());
 
                 // Kill the existing armor stand
                 player
-                    .getLevel().getEntities(EntityType.ARMOR_STAND, x -> x.isAlive() && x.getName().getString().equals(info.getTestName()))
+                    .serverLevel().getEntities(EntityType.ARMOR_STAND, x -> x.isAlive() && x.getName().getString().equals(info.getTestName()))
                     .forEach(Entity::kill);
 
                 // And create a new one
                 var nbt = new CompoundTag();
                 nbt.putBoolean("Marker", true);
                 nbt.putBoolean("Invisible", true);
-                var armorStand = assertNonNull(EntityType.ARMOR_STAND.create(player.getLevel()));
+                var armorStand = assertNonNull(EntityType.ARMOR_STAND.create(player.level()));
                 armorStand.readAdditionalSaveData(nbt);
                 armorStand.copyPosition(player);
                 armorStand.setCustomName(Component.literal(info.getTestName()));
-                player.getLevel().addFreshEntity(armorStand);
+                player.level().addFreshEntity(armorStand);
                 return 0;
             }))
 
             .then(literal("give-computer").executes(context -> {
                 var player = context.getSource().getPlayerOrException();
-                var pos = StructureUtils.findNearestStructureBlock(player.blockPosition(), 15, player.getLevel());
+                var pos = StructureUtils.findNearestStructureBlock(player.blockPosition(), 15, player.serverLevel());
                 if (pos == null) return error(context.getSource(), "No nearby test");
 
-                var structureBlock = (StructureBlockEntity) player.getLevel().getBlockEntity(pos);
+                var structureBlock = (StructureBlockEntity) player.level().getBlockEntity(pos);
                 if (structureBlock == null) return error(context.getSource(), "No nearby structure block");
                 var info = GameTestRegistry.getTestFunction(structureBlock.getStructurePath());
 

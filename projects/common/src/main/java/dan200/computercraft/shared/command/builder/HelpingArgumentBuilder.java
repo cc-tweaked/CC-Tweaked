@@ -129,14 +129,14 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
 
         @Override
         public int run(CommandContext<CommandSourceStack> context) {
-            context.getSource().sendSuccess(getHelp(context, assertNonNull(node), id, command), false);
+            context.getSource().sendSuccess(() -> getHelp(context, assertNonNull(node), id, command), false);
             return 0;
         }
     }
 
     private static Command<CommandSourceStack> helpForChild(CommandNode<CommandSourceStack> node, String id, String command) {
         return context -> {
-            context.getSource().sendSuccess(getHelp(context, node, id + "." + node.getName().replace('-', '_'), command + " " + node.getName()), false);
+            context.getSource().sendSuccess(() -> getHelp(context, node, id + "." + node.getName().replace('-', '_'), command + " " + node.getName()), false);
             return 0;
         };
     }

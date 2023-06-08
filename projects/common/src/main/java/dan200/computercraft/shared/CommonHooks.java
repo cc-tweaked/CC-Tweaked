@@ -23,13 +23,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.entries.LootTableReference;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
-import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
@@ -75,9 +69,9 @@ public final class CommonHooks {
         MonitorWatcher.onWatch(chunk, player);
     }
 
-    public static final ResourceLocation LOOT_TREASURE_DISK = new ResourceLocation(ComputerCraftAPI.MOD_ID, "treasure_disk");
+    public static final ResourceLocation TREASURE_DISK_LOOT = new ResourceLocation(ComputerCraftAPI.MOD_ID, "treasure_disk");
 
-    private static final Set<ResourceLocation> TABLES = new HashSet<>(Arrays.asList(
+    public static final Set<ResourceLocation> TREASURE_DISK_LOOT_TABLES = Set.of(
         BuiltInLootTables.SIMPLE_DUNGEON,
         BuiltInLootTables.ABANDONED_MINESHAFT,
         BuiltInLootTables.STRONGHOLD_CORRIDOR,
@@ -88,16 +82,7 @@ public final class CommonHooks {
         BuiltInLootTables.IGLOO_CHEST,
         BuiltInLootTables.WOODLAND_MANSION,
         BuiltInLootTables.VILLAGE_CARTOGRAPHER
-    ));
-
-
-    public static @Nullable LootPool.Builder getExtraLootPool(ResourceLocation lootTable) {
-        if (!lootTable.getNamespace().equals("minecraft") || !TABLES.contains(lootTable)) return null;
-
-        return LootPool.lootPool()
-            .add(LootTableReference.lootTableReference(LOOT_TREASURE_DISK))
-            .setRolls(ConstantValue.exactly(1));
-    }
+    );
 
     public static void onDatapackReload(BiConsumer<String, PreparableReloadListener> addReload) {
         addReload.accept("mounts", ResourceMount.RELOAD_LISTENER);

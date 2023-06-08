@@ -11,5 +11,6 @@
     }
   },
   "requirements": [["has_redstone", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:computer_normal"]}
+  "rewards": {"recipes": ["computercraft:computer_normal"]},
+  "sends_telemetry_event": false
 }

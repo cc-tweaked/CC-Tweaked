@@ -30,5 +30,6 @@
       "entries": [{"type": "minecraft:item", "name": "computercraft:wired_modem"}],
       "rolls": 1.0
     }
-  ]
+  ],
+  "random_sequence": "computercraft:blocks/cable"
 }

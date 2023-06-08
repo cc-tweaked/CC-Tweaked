@@ -124,7 +124,9 @@ public final class CommandComputerCraft {
                         if (computer.isOn()) shutdown++;
                         computer.shutdown();
                     }
-                    context.getSource().sendSuccess(Component.translatable("commands.computercraft.shutdown.done", shutdown, computers.size()), false);
+
+                    var didShutdown = shutdown;
+                    context.getSource().sendSuccess(() -> Component.translatable("commands.computercraft.shutdown.done", didShutdown, computers.size()), false);
                     return shutdown;
                 }))
 
@@ -138,7 +140,9 @@ public final class CommandComputerCraft {
                         if (!computer.isOn()) on++;
                         computer.turnOn();
                     }
-                    context.getSource().sendSuccess(Component.translatable("commands.computercraft.turn_on.done", on, computers.size()), false);
+
+                    var didOn = on;
+                    context.getSource().sendSuccess(() -> Component.translatable("commands.computercraft.turn_on.done", didOn, computers.size()), false);
                     return on;
                 }))
 
@@ -213,7 +217,7 @@ public final class CommandComputerCraft {
                         getMetricsInstance(context.getSource()).start();
 
                         var stopCommand = "/computercraft track stop";
-                        context.getSource().sendSuccess(Component.translatable(
+                        context.getSource().sendSuccess(() -> Component.translatable(
                             "commands.computercraft.track.start.stop",
                             link(text(stopCommand), stopCommand, Component.translatable("commands.computercraft.track.stop.action"))
                         ), false);

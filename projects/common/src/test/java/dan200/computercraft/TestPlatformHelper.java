@@ -165,11 +165,9 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
         throw new UnsupportedOperationException("Cannot interact with the world inside tests");
     }
 
-
-    @Nullable
     @Override
-    public ResourceLocation getCreativeTabId(CreativeModeTab tab) {
-        return null;
+    public CreativeModeTab.Builder newCreativeModeTab() {
+        throw new IllegalStateException("Cannot create creative tab inside tests");
     }
 
     @Override

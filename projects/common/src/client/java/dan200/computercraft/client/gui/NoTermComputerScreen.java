@@ -4,11 +4,11 @@
 
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.network.chat.Component;
@@ -42,7 +42,7 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
 
     @Override
     protected void init() {
-        passEvents = true; // Pass mouse vents through to the game's mouse handler.
+        // FIXME: passEvents = true; // Pass mouse vents through to the game's mouse handler.
         // First ensure we're still grabbing the mouse, so the user can look around. Then reset bits of state that
         // grabbing unsets.
         minecraft.mouseHandler.grabMouse();
@@ -91,15 +91,15 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
     }
 
     @Override
-    public void render(PoseStack transform, int mouseX, int mouseY, float partialTicks) {
-        super.render(transform, mouseX, mouseY, partialTicks);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.render(graphics, mouseX, mouseY, partialTicks);
 
         var font = minecraft.font;
         var lines = font.split(Component.translatable("gui.computercraft.pocket_computer_overlay"), (int) (width * 0.8));
-        var y = 10.0f;
+        var y = 10;
         for (var line : lines) {
-            font.drawShadow(transform, line, (float) ((width / 2) - (minecraft.font.width(line) / 2)), y, 0xFFFFFF);
-            y += 9.0f;
+            graphics.drawString(font, line, (width / 2) - (minecraft.font.width(line) / 2), y, 0xFFFFFF, true);
+            y += 9;
         }
     }
 }

@@ -19,7 +19,7 @@ public record SpeakerPosition(@Nullable Level level, Vec3 position, @Nullable En
     }
 
     public static SpeakerPosition of(Entity entity) {
-        return new SpeakerPosition(entity.level, entity.getEyePosition(1), entity);
+        return new SpeakerPosition(entity.level(), entity.getEyePosition(1), entity);
     }
 
     public boolean withinDistance(SpeakerPosition other, double distanceSq) {

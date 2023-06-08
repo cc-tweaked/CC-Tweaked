@@ -25,6 +25,7 @@ public class DirectVertexBuffer extends VertexBuffer {
     private int actualIndexCount;
 
     public DirectVertexBuffer() {
+        super(Usage.STATIC);
         if (DirectBuffers.HAS_DSA) {
             RenderSystem.glDeleteBuffers(vertexBufferId);
             if (DirectBuffers.ON_LINUX) BufferUploader.reset(); // See comment on DirectBuffers.deleteBuffer.

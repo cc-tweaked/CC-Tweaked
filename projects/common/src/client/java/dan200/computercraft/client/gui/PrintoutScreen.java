@@ -4,12 +4,11 @@
 
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.common.HeldItemMenu;
 import dan200.computercraft.shared.media.items.PrintoutItem;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -83,30 +82,27 @@ public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
     }
 
     @Override
-    protected void renderBg(PoseStack transform, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
         // Draw the printout
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.enableDepthTest();
-
         var renderer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        drawBorder(transform, renderer, leftPos, topPos, 0, page, pages, book, FULL_BRIGHT_LIGHTMAP);
-        drawText(transform, renderer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, PrintoutItem.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours);
+        drawBorder(graphics.pose(), renderer, leftPos, topPos, 0, page, pages, book, FULL_BRIGHT_LIGHTMAP);
+        drawText(graphics.pose(), renderer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, PrintoutItem.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours);
         renderer.endBatch();
     }
 
     @Override
-    public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         // We must take the background further back in order to not overlap with our printed pages.
-        stack.pushPose();
-        stack.translate(0, 0, -1);
-        renderBackground(stack);
-        stack.popPose();
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, 0, -1);
+        renderBackground(graphics);
+        graphics.pose().popPose();
 
-        super.render(stack, mouseX, mouseY, partialTicks);
+        super.render(graphics, mouseX, mouseY, partialTicks);
     }
 
     @Override
-    protected void renderLabels(PoseStack transform, int mouseX, int mouseY) {
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         // Skip rendering labels.
     }
 }

@@ -37,7 +37,7 @@ public class PocketSpeakerPeripheral extends UpgradeSpeakerPeripheral {
     public void update() {
         var entity = access.getEntity();
         if (entity != null) {
-            level = entity.level;
+            level = entity.level();
             position = entity.position();
         }
 

@@ -52,7 +52,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.CreativeModeTabRegistry;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.ToolActions;
@@ -258,10 +257,10 @@ public class PlatformHelperImpl implements PlatformHelper {
         return ForgeHooks.getBurnTime(stack, null);
     }
 
-    @Nullable
+
     @Override
-    public ResourceLocation getCreativeTabId(CreativeModeTab tab) {
-        return CreativeModeTabRegistry.getName(tab);
+    public CreativeModeTab.Builder newCreativeModeTab() {
+        return CreativeModeTab.builder();
     }
 
     @Override
@@ -321,7 +320,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit, Predicate<BlockState> canUseBlock) {
-        var level = player.level;
+        var level = player.level();
         var pos = hit.getBlockPos();
         var event = ForgeHooks.onRightClickBlock(player, InteractionHand.MAIN_HAND, pos, hit);
         if (event.isCanceled()) return event.getCancellationResult();

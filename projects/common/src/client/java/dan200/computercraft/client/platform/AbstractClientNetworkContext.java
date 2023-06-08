@@ -52,7 +52,7 @@ public abstract class AbstractClientNetworkContext implements ClientNetworkConte
         var player = Minecraft.getInstance().player;
         if (player == null) return;
 
-        var te = player.level.getBlockEntity(pos);
+        var te = player.level().getBlockEntity(pos);
         if (!(te instanceof MonitorBlockEntity monitor)) return;
 
         monitor.read(terminal);

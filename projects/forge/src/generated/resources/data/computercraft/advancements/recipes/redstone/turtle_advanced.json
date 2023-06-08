@@ -11,5 +11,6 @@
     }
   },
   "requirements": [["has_computer", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:turtle_advanced"]}
+  "rewards": {"recipes": ["computercraft:turtle_advanced"]},
+  "sends_telemetry_event": false
 }

@@ -7,9 +7,9 @@
 # Minecraft
 # MC version is specified in gradle.properties, as we need that in settings.gradle.
 # Remember to update corresponding versions in fabric.mod.json/mods.toml
-fabric-api = "0.80.0+1.19.4"
-fabric-loader = "0.14.19"
-forge = "45.0.42"
+fabric-api = "0.83.0+1.20"
+fabric-loader = "0.14.21"
+forge = "46.0.1"
 forgeSpi = "6.0.0"
 mixin = "0.8.5"
 parchment = "2023.03.12"
@@ -150,10 +150,10 @@ kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 # Minecraft
 externalMods-common = ["jei-api", "nightConfig-core", "nightConfig-toml"]
 externalMods-forge-compile = ["oculus", "jei-api"]
-externalMods-forge-runtime = ["jei-forge"]
+externalMods-forge-runtime = []
 externalMods-fabric = ["nightConfig-core", "nightConfig-toml"]
 externalMods-fabric-compile = ["iris", "jei-api", "rei-api", "rei-builtin"]
-externalMods-fabric-runtime = ["jei-fabric", "modmenu"]
+externalMods-fabric-runtime = []
 
 # Testing
 test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]

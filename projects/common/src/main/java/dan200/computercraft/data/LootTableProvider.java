@@ -23,7 +23,7 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.minecraft.world.level.storage.loot.predicates.AlternativeLootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.AnyOfCondition;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
@@ -79,7 +79,7 @@ class LootTableProvider {
     }
 
     private static void registerGeneric(BiConsumer<ResourceLocation, LootTable.Builder> add) {
-        add.accept(CommonHooks.LOOT_TREASURE_DISK, LootTable.lootTable());
+        add.accept(CommonHooks.TREASURE_DISK_LOOT, LootTable.lootTable());
     }
 
     private static void selfDrop(BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> wrapper) {
@@ -98,7 +98,7 @@ class LootTableProvider {
         blockDrop(
             add, block,
             DynamicLoot.dynamicEntry(new ResourceLocation(ComputerCraftAPI.MOD_ID, "computer")),
-            AlternativeLootItemCondition.alternative(
+            AnyOfCondition.anyOf(
                 BlockNamedEntityLootCondition.BUILDER,
                 HasComputerIdLootCondition.BUILDER,
                 PlayerCreativeLootCondition.BUILDER.invert()

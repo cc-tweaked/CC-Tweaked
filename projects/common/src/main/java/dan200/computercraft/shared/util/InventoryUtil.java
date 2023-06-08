@@ -90,6 +90,6 @@ public final class InventoryUtil {
         if (stack1.getItem() != stack2.getItem()) return false;
         if (stack1.getDamageValue() != stack2.getDamageValue()) return false;
         if (stack1.getCount() > stack1.getMaxStackSize()) return false;
-        return ItemStack.tagMatches(stack1, stack2);
+        return ItemStack.isSameItemSameTags(stack1, stack2);
     }
 }

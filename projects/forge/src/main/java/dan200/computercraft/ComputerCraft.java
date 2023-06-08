@@ -12,6 +12,7 @@ import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
+import dan200.computercraft.shared.ForgeModRegistry;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.details.FluidData;
@@ -20,10 +21,8 @@ import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.platform.ForgeConfigFile;
 import dan200.computercraft.shared.platform.NetworkHandler;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
-import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -38,6 +37,7 @@ import net.minecraftforge.registries.RegistryBuilder;
 public final class ComputerCraft {
     public ComputerCraft() {
         ModRegistry.register();
+        ForgeModRegistry.register();
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ((ForgeConfigFile) ConfigSpec.serverSpec).spec());
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ((ForgeConfigFile) ConfigSpec.clientSpec).spec());
@@ -60,11 +60,6 @@ public final class ComputerCraft {
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.register(WiredElement.class);
         event.register(IPeripheral.class);
-    }
-
-    @SubscribeEvent
-    public static void registerCreativeTab(CreativeModeTabEvent.Register event) {
-        event.registerCreativeModeTab(new ResourceLocation(ComputerCraftAPI.MOD_ID, "tab"), ModRegistry::registerCreativeTab);
     }
 
     @SubscribeEvent

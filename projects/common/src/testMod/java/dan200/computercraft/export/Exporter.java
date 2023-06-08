@@ -130,7 +130,9 @@ public class Exporter {
 
             dump.itemNames.put(location.toString(), stack.getHoverName().getString());
             renderer.captureRender(itemDir.resolve(location.getNamespace()).resolve(location.getPath() + ".png"),
-                () -> Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(transform, stack, 0, 0)
+                () -> {
+                    // TODO: Minecraft.getInstance().getItemRenderer().ren(transform, stack, 0, 0)
+                }
             );
         }
         renderer.clearState();

@@ -16,5 +16,6 @@
     }
   },
   "requirements": [["has_items", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:turtle_normal/computercraft/wireless_modem_normal"]}
+  "rewards": {"recipes": ["computercraft:turtle_normal/computercraft/wireless_modem_normal"]},
+  "sends_telemetry_event": false
 }

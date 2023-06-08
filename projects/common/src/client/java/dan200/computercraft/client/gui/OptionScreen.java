@@ -4,9 +4,8 @@
 
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
@@ -86,20 +85,19 @@ public final class OptionScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack transform, int mouseX, int mouseY, float partialTicks) {
-        renderBackground(transform);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        renderBackground(graphics);
 
         // Render the actual texture.
-        RenderSystem.setShaderTexture(0, BACKGROUND);
-        blit(transform, x, y, 0, 0, innerWidth, PADDING);
-        blit(transform,
+        graphics.blit(BACKGROUND, x, y, 0, 0, innerWidth, PADDING);
+        graphics.blit(BACKGROUND,
             x, y + PADDING, 0, PADDING, innerWidth, innerHeight - PADDING * 2,
             innerWidth, PADDING
         );
-        blit(transform, x, y + innerHeight - PADDING, 0, 256 - PADDING, innerWidth, PADDING);
+        graphics.blit(BACKGROUND, x, y + innerHeight - PADDING, 0, 256 - PADDING, innerWidth, PADDING);
 
-        assertNonNull(messageRenderer).renderLeftAlignedNoShadow(transform, x + PADDING, y + PADDING, FONT_HEIGHT, 0x404040);
-        super.render(transform, mouseX, mouseY, partialTicks);
+        assertNonNull(messageRenderer).renderLeftAlignedNoShadow(graphics, x + PADDING, y + PADDING, FONT_HEIGHT, 0x404040);
+        super.render(graphics, mouseX, mouseY, partialTicks);
     }
 
     @Override

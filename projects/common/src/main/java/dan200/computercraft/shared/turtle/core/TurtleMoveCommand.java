@@ -44,7 +44,7 @@ public class TurtleMoveCommand implements TurtleCommand {
         var state = oldWorld.getBlockState(newPosition);
         if (!oldWorld.isEmptyBlock(newPosition) &&
             !WorldUtil.isLiquidBlock(oldWorld, newPosition) &&
-            !state.getMaterial().isReplaceable()) {
+            !state.canBeReplaced()) {
             return TurtleCommandResult.failure("Movement obstructed");
         }
 

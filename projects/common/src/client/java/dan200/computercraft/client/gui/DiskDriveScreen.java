@@ -4,9 +4,8 @@
 
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveMenu;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -23,16 +22,14 @@ public class DiskDriveScreen extends AbstractContainerScreen<DiskDriveMenu> {
     }
 
     @Override
-    protected void renderBg(PoseStack transform, float partialTicks, int mouseX, int mouseY) {
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, BACKGROUND);
-        blit(transform, leftPos, topPos, 0, 0, imageWidth, imageHeight);
+    protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+        graphics.blit(BACKGROUND, leftPos, topPos, 0, 0, imageWidth, imageHeight);
     }
 
     @Override
-    public void render(PoseStack transform, int mouseX, int mouseY, float partialTicks) {
-        renderBackground(transform);
-        super.render(transform, mouseX, mouseY, partialTicks);
-        renderTooltip(transform, mouseX, mouseY);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        renderBackground(graphics);
+        super.render(graphics, mouseX, mouseY, partialTicks);
+        renderTooltip(graphics, mouseX, mouseY);
     }
 }

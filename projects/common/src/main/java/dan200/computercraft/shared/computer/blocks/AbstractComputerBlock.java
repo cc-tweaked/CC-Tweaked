@@ -32,7 +32,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -138,13 +138,12 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
 
         var tile = world.getBlockEntity(pos);
         if (tile instanceof AbstractComputerBlockEntity computer) {
-            var context = new LootContext.Builder(serverWorld)
-                .withRandom(world.random)
+            var context = new LootParams.Builder(serverWorld)
                 .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
                 .withParameter(LootContextParams.TOOL, player.getMainHandItem())
                 .withParameter(LootContextParams.THIS_ENTITY, player)
                 .withParameter(LootContextParams.BLOCK_ENTITY, tile)
-                .withDynamicDrop(DROP, (ctx, out) -> out.accept(getItem(computer)));
+                .withDynamicDrop(DROP, out -> out.accept(getItem(computer)));
             for (var item : state.getDrops(context)) {
                 popResource(world, pos, item);
             }

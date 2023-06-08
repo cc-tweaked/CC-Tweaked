@@ -7,6 +7,7 @@ package dan200.computercraft.export;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
 import org.joml.Matrix4f;
@@ -36,7 +37,7 @@ public class ImageRenderer implements AutoCloseable {
 
     public void setupState() {
         projectionMatrix = RenderSystem.getProjectionMatrix();
-        RenderSystem.setProjectionMatrix(new Matrix4f().identity().ortho(0, 16, 0, 16, 1000, 3000));
+        RenderSystem.setProjectionMatrix(new Matrix4f().identity().ortho(0, 16, 0, 16, 1000, 3000), VertexSorting.DISTANCE_TO_ORIGIN);
 
         var transform = RenderSystem.getModelViewStack();
         transform.pushPose();
@@ -48,7 +49,7 @@ public class ImageRenderer implements AutoCloseable {
 
     public void clearState() {
         if (projectionMatrix == null) throw new IllegalStateException("Not currently rendering");
-        RenderSystem.setProjectionMatrix(projectionMatrix);
+        RenderSystem.setProjectionMatrix(projectionMatrix, VertexSorting.DISTANCE_TO_ORIGIN);
         RenderSystem.getModelViewStack().popPose();
     }
 

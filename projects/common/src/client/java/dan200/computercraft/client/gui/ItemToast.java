@@ -4,10 +4,8 @@
 
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.network.chat.Component;
@@ -73,55 +71,52 @@ public class ItemToast implements Toast {
     }
 
     @Override
-    public Visibility render(PoseStack transform, ToastComponent component, long time) {
+    public Visibility render(GuiGraphics graphics, ToastComponent component, long time) {
         if (isNew) {
 
             firstDisplay = time;
             isNew = false;
         }
 
-        RenderSystem.setShaderTexture(0, TEXTURE);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-
         if (width == 160 && message.size() <= 1) {
-            GuiComponent.blit(transform, 0, 0, 0, 64, width, height());
+            graphics.blit(TEXTURE, 0, 0, 0, 64, width, height());
         } else {
 
             var height = height();
 
             var bottom = Math.min(4, height - 28);
-            renderBackgroundRow(transform, component, width, 0, 0, 28);
+            renderBackgroundRow(graphics, width, 0, 0, 28);
 
             for (var i = 28; i < height - bottom; i += 10) {
-                renderBackgroundRow(transform, component, width, 16, i, Math.min(16, height - i - bottom));
+                renderBackgroundRow(graphics, width, 16, i, Math.min(16, height - i - bottom));
             }
 
-            renderBackgroundRow(transform, component, width, 32 - bottom, height - bottom, bottom);
+            renderBackgroundRow(graphics, width, 32 - bottom, height - bottom, bottom);
         }
 
         var textX = MARGIN;
         if (!stack.isEmpty()) {
             textX += MARGIN + IMAGE_SIZE;
-            component.getMinecraft().getItemRenderer().renderAndDecorateFakeItem(transform, stack, MARGIN, MARGIN + height() / 2 - IMAGE_SIZE);
+            graphics.renderFakeItem(stack, MARGIN, MARGIN + height() / 2 - IMAGE_SIZE);
         }
 
-        component.getMinecraft().font.draw(transform, title, textX, MARGIN, 0xff500050);
+        graphics.drawString(component.getMinecraft().font, title, textX, MARGIN, 0xff500050);
         for (var i = 0; i < message.size(); ++i) {
-            component.getMinecraft().font.draw(transform, message.get(i), textX, (float) (LINE_SPACING + (i + 1) * LINE_SPACING), 0xff000000);
+            graphics.drawString(component.getMinecraft().font, message.get(i), textX, LINE_SPACING + (i + 1) * LINE_SPACING, 0xff000000);
         }
 
         return time - firstDisplay < DISPLAY_TIME ? Visibility.SHOW : Visibility.HIDE;
     }
 
-    private static void renderBackgroundRow(PoseStack transform, ToastComponent component, int x, int u, int y, int height) {
+    private static void renderBackgroundRow(GuiGraphics graphics, int x, int u, int y, int height) {
         var leftOffset = 5;
         var rightOffset = Math.min(60, x - leftOffset);
 
-        GuiComponent.blit(transform, 0, y, 0, 32 + u, leftOffset, height);
+        graphics.blit(TEXTURE, 0, y, 0, 32 + u, leftOffset, height);
         for (var k = leftOffset; k < x - rightOffset; k += 64) {
-            GuiComponent.blit(transform, k, y, 32, 32 + u, Math.min(64, x - k - rightOffset), height);
+            graphics.blit(TEXTURE, k, y, 32, 32 + u, Math.min(64, x - k - rightOffset), height);
         }
 
-        GuiComponent.blit(transform, x - rightOffset, y, 160 - rightOffset, 32 + u, rightOffset, height);
+        graphics.blit(TEXTURE, x - rightOffset, y, 160 - rightOffset, 32 + u, rightOffset, height);
     }
 }

@@ -138,12 +138,6 @@ public class ForgeCommonHooks {
         }
     }
 
-    @SubscribeEvent
-    public static void lootLoad(LootTableLoadEvent event) {
-        var pool = CommonHooks.getExtraLootPool(event.getName());
-        if (pool != null) event.getTable().addPool(pool.build());
-    }
-
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onEntitySpawn(EntityJoinLevelEvent event) {
         if (CommonHooks.onEntitySpawn(event.getEntity())) event.setCanceled(true);

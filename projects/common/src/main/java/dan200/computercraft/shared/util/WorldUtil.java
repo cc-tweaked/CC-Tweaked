@@ -35,7 +35,7 @@ public final class WorldUtil {
 
     public static boolean isLiquidBlock(Level world, BlockPos pos) {
         if (!world.isInWorldBounds(pos)) return false;
-        return world.getBlockState(pos).getMaterial().isLiquid();
+        return world.getBlockState(pos).liquid();
     }
 
     public static boolean isVecInside(VoxelShape shape, Vec3 vec) {

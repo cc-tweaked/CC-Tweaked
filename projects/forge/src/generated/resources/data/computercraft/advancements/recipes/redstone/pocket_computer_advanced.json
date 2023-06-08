@@ -15,5 +15,6 @@
     }
   },
   "requirements": [["has_computer", "has_apple", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:pocket_computer_advanced"]}
+  "rewards": {"recipes": ["computercraft:pocket_computer_advanced"]},
+  "sends_telemetry_event": false
 }

@@ -4,7 +4,6 @@
 
 package dan200.computercraft.client.gui.widgets;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
@@ -12,6 +11,7 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.InputHandler;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -271,11 +271,11 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     @Override
-    public void renderWidget(PoseStack transform, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         if (!visible) return;
 
         var bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        var emitter = FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(RenderTypes.TERMINAL));
+        var emitter = FixedWidthFontRenderer.toVertexConsumer(graphics.pose(), bufferSource.getBuffer(RenderTypes.TERMINAL));
 
         FixedWidthFontRenderer.drawTerminal(
             emitter,

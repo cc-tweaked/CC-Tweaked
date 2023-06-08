@@ -11,5 +11,6 @@
     }
   },
   "requirements": [["has_monitor", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:skull_cloudy"]}
+  "rewards": {"recipes": ["computercraft:skull_cloudy"]},
+  "sends_telemetry_event": false
 }

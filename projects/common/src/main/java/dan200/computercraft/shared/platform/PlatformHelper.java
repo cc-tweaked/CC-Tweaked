@@ -274,13 +274,11 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     int getBurnTime(ItemStack stack);
 
     /**
-     * Get a unique identifier for this creative tab.
+     * Create a builder for a new creative tab.
      *
-     * @param tab The tab to get
-     * @return The unique identifier, or {@code null} if not available.
+     * @return The creative tab builder.
      */
-    @Nullable
-    ResourceLocation getCreativeTabId(CreativeModeTab tab);
+    CreativeModeTab.Builder newCreativeModeTab();
 
     /**
      * Get the "container" item to be returned after crafting. For instance, crafting with a lava bucket should return

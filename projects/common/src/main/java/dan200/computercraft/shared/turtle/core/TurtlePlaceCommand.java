@@ -29,6 +29,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -210,7 +211,7 @@ public class TurtlePlaceCommand implements TurtleCommand {
         );
         if (result != InteractionResult.PASS) return result;
 
-        var level = turtlePlayer.player().level;
+        var level = turtlePlayer.player().level();
 
         // We special case some items which we allow to place "normally". Yes, this is very ugly.
         var item = stack.getItem();
@@ -225,18 +226,18 @@ public class TurtlePlaceCommand implements TurtleCommand {
         var signTile = (SignBlockEntity) tile;
         var split = Splitter.on('\n').splitToList(message);
         var firstLine = split.size() <= 2 ? 1 : 0;
+
+        var signText = new SignText();
         for (var i = 0; i < 4; i++) {
             if (i >= firstLine && i < firstLine + split.size()) {
                 var line = split.get(i - firstLine);
-                signTile.setMessage(i, line.length() > 15
+                signText.setMessage(i, line.length() > 15
                     ? Component.literal(line.substring(0, 15))
                     : Component.literal(line)
                 );
-            } else {
-                signTile.setMessage(i, Component.literal(""));
             }
         }
-        signTile.setChanged();
+        signTile.setText(signText, true);
         world.sendBlockUpdated(tile.getBlockPos(), tile.getBlockState(), tile.getBlockState(), Block.UPDATE_ALL);
     }
 

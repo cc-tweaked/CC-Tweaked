@@ -8,6 +8,7 @@ import com.google.gson.JsonParseException;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.RegistryWrappers;
 import dan200.computercraft.shared.util.NBTUtil;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -96,9 +97,7 @@ public class ItemDetails {
             .map(group -> {
                 Map<String, Object> groupData = new HashMap<>(2);
 
-                var id = PlatformHelper.get().getCreativeTabId(group);
-                if (id != null) groupData.put("id", id.toString());
-
+                groupData.put("id", PlatformHelper.get().getRegistryKey(Registries.CREATIVE_MODE_TAB, group).toString());
                 groupData.put("displayName", group.getDisplayName().getString());
                 return groupData;
             })

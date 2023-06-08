@@ -13,5 +13,6 @@
     }
   },
   "requirements": [["has_items", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:turtle_normal/minecraft/diamond_sword"]}
+  "rewards": {"recipes": ["computercraft:turtle_normal/minecraft/diamond_sword"]},
+  "sends_telemetry_event": false
 }

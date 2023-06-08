@@ -26,7 +26,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -38,6 +37,9 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.entries.LootTableReference;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -49,7 +51,6 @@ public class ComputerCraft {
         NetworkHandler.init();
         ModRegistry.register();
         ModRegistry.registerMainThread();
-        ModRegistry.registerCreativeTab(FabricItemGroup.builder(new ResourceLocation(ComputerCraftAPI.MOD_ID, "tab"))).build();
 
         // Register peripherals
         PeripheralLookup.get().registerForBlockEntity((b, d) -> b.peripheral(), ModRegistry.BlockEntities.COMPUTER_NORMAL.get());
@@ -94,8 +95,10 @@ public class ComputerCraft {
         UseBlockCallback.EVENT.register(FabricCommonHooks::useOnBlock);
 
         LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
-            var pool = CommonHooks.getExtraLootPool(id);
-            if (pool != null) tableBuilder.withPool(pool);
+            if (!id.getNamespace().equals("minecraft") || !CommonHooks.TREASURE_DISK_LOOT_TABLES.contains(id)) return;
+            tableBuilder.withPool(LootPool.lootPool()
+                .add(LootTableReference.lootTableReference(CommonHooks.TREASURE_DISK_LOOT))
+                .setRolls(ConstantValue.exactly(1)));
         });
 
         CommonHooks.onDatapackReload((name, listener) -> ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new ReloadListener(name, listener)));

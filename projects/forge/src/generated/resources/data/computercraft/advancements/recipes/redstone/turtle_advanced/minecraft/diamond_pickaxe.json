@@ -13,5 +13,6 @@
     }
   },
   "requirements": [["has_items", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:turtle_advanced/minecraft/diamond_pickaxe"]}
+  "rewards": {"recipes": ["computercraft:turtle_advanced/minecraft/diamond_pickaxe"]},
+  "sends_telemetry_event": false
 }

@@ -12,5 +12,6 @@
     }
   },
   "requirements": [["has_turtle", "has_dye", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:turtle_normal_overlays/turtle_rainbow_overlay"]}
+  "rewards": {"recipes": ["computercraft:turtle_normal_overlays/turtle_rainbow_overlay"]},
+  "sends_telemetry_event": false
 }

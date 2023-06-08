@@ -8,5 +8,6 @@
     "has_the_recipe": {"conditions": {"recipe": "computercraft:disk_7"}, "trigger": "minecraft:recipe_unlocked"}
   },
   "requirements": [["has_drive", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:disk_7"]}
+  "rewards": {"recipes": ["computercraft:disk_7"]},
+  "sends_telemetry_event": false
 }

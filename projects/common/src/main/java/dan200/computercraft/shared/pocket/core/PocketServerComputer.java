@@ -153,7 +153,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         super.tickServer();
 
         // Find any players which have gone missing and remove them from the tracking list.
-        tracking.removeIf(player -> !player.isAlive() || player.level != getLevel());
+        tracking.removeIf(player -> !player.isAlive() || player.level() != getLevel());
 
         // And now find any new players, add them to the tracking list, and broadcast state where appropriate.
         var sendState = hasOutputChanged() || lightChanged;

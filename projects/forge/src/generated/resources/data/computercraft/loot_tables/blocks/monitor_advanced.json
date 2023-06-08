@@ -7,5 +7,6 @@
       "entries": [{"type": "minecraft:item", "name": "computercraft:monitor_advanced"}],
       "rolls": 1.0
     }
-  ]
+  ],
+  "random_sequence": "computercraft:blocks/monitor_advanced"
 }

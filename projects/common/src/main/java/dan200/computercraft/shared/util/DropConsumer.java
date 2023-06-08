@@ -33,7 +33,7 @@ public final class DropConsumer {
         dropConsumer = consumer;
         remainingDrops = new ArrayList<>();
         dropEntity = entity;
-        dropWorld = entity.level;
+        dropWorld = entity.level();
         dropBounds = new AABB(entity.blockPosition()).inflate(2, 2, 2);
     }
 
@@ -70,7 +70,7 @@ public final class DropConsumer {
 
     public static boolean onEntitySpawn(Entity entity) {
         // Capture any nearby item spawns
-        if (dropWorld == entity.getLevel() && entity instanceof ItemEntity
+        if (dropWorld == entity.level() && entity instanceof ItemEntity
             && assertNonNull(dropBounds).contains(entity.position())) {
             handleDrops(((ItemEntity) entity).getItem());
             return true;

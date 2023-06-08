@@ -10,6 +10,7 @@ import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -17,20 +18,22 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class TurtleInventoryCrafting extends CraftingContainer {
+public class TurtleInventoryCrafting implements CraftingContainer {
+    public static final int WIDTH = 3;
+    public static final int HEIGHT = 3;
+    public static final int SIZE = WIDTH * HEIGHT;
+
     private final ITurtleAccess turtle;
     private int xStart = 0;
     private int yStart = 0;
 
     @SuppressWarnings("ConstantConditions")
     public TurtleInventoryCrafting(ITurtleAccess turtle) {
-        // Passing null in here is evil, but we don't have a container present. We override most methods in order to
-        // avoid throwing any NPEs.
-        super(null, 0, 0);
         this.turtle = turtle;
     }
 
@@ -96,7 +99,7 @@ public class TurtleInventoryCrafting extends CraftingContainer {
                 // afterwards).
                 if (existing.isEmpty()) {
                     setItem(slot, remainder);
-                } else if (ItemStack.isSame(existing, remainder) && ItemStack.tagMatches(existing, remainder)) {
+                } else if (ItemStack.isSameItemSameTags(existing, remainder)) {
                     remainder.grow(existing.getCount());
                     setItem(slot, remainder);
                 } else {
@@ -110,12 +113,12 @@ public class TurtleInventoryCrafting extends CraftingContainer {
 
     @Override
     public int getWidth() {
-        return 3;
+        return WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return 3;
+        return HEIGHT;
     }
 
     private int modifyIndex(int index) {
@@ -126,35 +129,37 @@ public class TurtleInventoryCrafting extends CraftingContainer {
             : -1;
     }
 
-    // IInventory implementation
+    @Override
+    public boolean isEmpty() {
+        for (int i = 0; i < SIZE; i++) {
+            if (!getItem(i).isEmpty()) return false;
+        }
+        return true;
+    }
 
     @Override
     public int getContainerSize() {
-        return getWidth() * getHeight();
+        return SIZE;
     }
 
     @Override
     public ItemStack getItem(int i) {
-        i = modifyIndex(i);
-        return turtle.getInventory().getItem(i);
+        return turtle.getInventory().getItem(modifyIndex(i));
     }
 
     @Override
     public ItemStack removeItemNoUpdate(int i) {
-        i = modifyIndex(i);
-        return turtle.getInventory().removeItemNoUpdate(i);
+        return turtle.getInventory().removeItemNoUpdate(modifyIndex(i));
     }
 
     @Override
     public ItemStack removeItem(int i, int size) {
-        i = modifyIndex(i);
-        return turtle.getInventory().removeItem(i, size);
+        return turtle.getInventory().removeItem(modifyIndex(i), size);
     }
 
     @Override
     public void setItem(int i, ItemStack stack) {
-        i = modifyIndex(i);
-        turtle.getInventory().setItem(i, stack);
+        turtle.getInventory().setItem(modifyIndex(i), stack);
     }
 
     @Override
@@ -174,15 +179,34 @@ public class TurtleInventoryCrafting extends CraftingContainer {
 
     @Override
     public boolean canPlaceItem(int i, ItemStack stack) {
-        i = modifyIndex(i);
-        return turtle.getInventory().canPlaceItem(i, stack);
+        return turtle.getInventory().canPlaceItem(modifyIndex(i), stack);
     }
 
     @Override
     public void clearContent() {
-        for (var i = 0; i < getContainerSize(); i++) {
+        for (var i = 0; i < SIZE; i++) {
             var j = modifyIndex(i);
             turtle.getInventory().setItem(j, ItemStack.EMPTY);
         }
+    }
+
+    @Override
+    public void fillStackedContents(StackedContents contents) {
+        for (int i = 0; i < SIZE; i++) contents.accountSimpleStack(getItem(i));
+    }
+
+    @Override
+    public List<ItemStack> getItems() {
+        return new AbstractList<>() {
+            @Override
+            public ItemStack get(int index) {
+                return getItem(index);
+            }
+
+            @Override
+            public int size() {
+                return SIZE;
+            }
+        };
     }
 }

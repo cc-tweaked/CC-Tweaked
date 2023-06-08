@@ -11,5 +11,6 @@
     }
   },
   "requirements": [["has_components", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:computer_advanced"]}
+  "rewards": {"recipes": ["computercraft:computer_advanced"]},
+  "sends_telemetry_event": false
 }

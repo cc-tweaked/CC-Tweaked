@@ -122,10 +122,11 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
 
     @ForgeOverride
     public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
-        if (entity.level.isClientSide || entity.level.getServer() == null) return false;
+        var level = entity.level();
+        if (level.isClientSide || level.getServer() == null) return false;
 
-        var computer = getServerComputer(entity.level.getServer(), stack);
-        if (computer != null && tick(stack, entity.level, entity, computer)) entity.setItem(stack.copy());
+        var computer = getServerComputer(level.getServer(), stack);
+        if (computer != null && tick(stack, entity.level(), entity, computer)) entity.setItem(stack.copy());
         return false;
     }
 

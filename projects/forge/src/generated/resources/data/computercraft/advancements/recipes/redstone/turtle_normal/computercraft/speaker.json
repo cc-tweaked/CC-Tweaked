@@ -13,5 +13,6 @@
     }
   },
   "requirements": [["has_items", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:turtle_normal/computercraft/speaker"]}
+  "rewards": {"recipes": ["computercraft:turtle_normal/computercraft/speaker"]},
+  "sends_telemetry_event": false
 }

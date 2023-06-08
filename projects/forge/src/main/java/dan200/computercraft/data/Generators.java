@@ -34,6 +34,8 @@ public class Generators {
     public static void gather(GatherDataEvent event) {
         var generator = event.getGenerator();
         DataProviders.add(new GeneratorFactoryImpl(generator.getVanillaPack(true), event.getExistingFileHelper(), event.getLookupProvider()));
+
+        generator.<LootModifierProvider>addProvider(event.includeServer(), LootModifierProvider::new);
     }
 
     private record GeneratorFactoryImpl(

@@ -93,7 +93,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
 import java.util.function.BiFunction;
@@ -112,7 +112,7 @@ public final class ModRegistry {
         static final RegistrationHelper<Block> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registries.BLOCK);
 
         private static BlockBehaviour.Properties properties() {
-            return BlockBehaviour.Properties.of(Material.STONE).strength(2);
+            return BlockBehaviour.Properties.of().strength(2);
         }
 
         private static BlockBehaviour.Properties computerProperties() {
@@ -122,17 +122,17 @@ public final class ModRegistry {
         }
 
         private static BlockBehaviour.Properties turtleProperties() {
-            return BlockBehaviour.Properties.of(Material.STONE).strength(2.5f);
+            return BlockBehaviour.Properties.of().strength(2.5f);
         }
 
         private static BlockBehaviour.Properties modemProperties() {
-            return BlockBehaviour.Properties.of(Material.STONE).strength(1.5f);
+            return BlockBehaviour.Properties.of().strength(1.5f);
         }
 
         public static final RegistryEntry<ComputerBlock<ComputerBlockEntity>> COMPUTER_NORMAL = REGISTRY.register("computer_normal",
-            () -> new ComputerBlock<>(computerProperties(), ComputerFamily.NORMAL, BlockEntities.COMPUTER_NORMAL));
+            () -> new ComputerBlock<>(computerProperties().mapColor(MapColor.STONE), ComputerFamily.NORMAL, BlockEntities.COMPUTER_NORMAL));
         public static final RegistryEntry<ComputerBlock<ComputerBlockEntity>> COMPUTER_ADVANCED = REGISTRY.register("computer_advanced",
-            () -> new ComputerBlock<>(computerProperties(), ComputerFamily.ADVANCED, BlockEntities.COMPUTER_ADVANCED));
+            () -> new ComputerBlock<>(computerProperties().mapColor(MapColor.GOLD), ComputerFamily.ADVANCED, BlockEntities.COMPUTER_ADVANCED));
 
         public static final RegistryEntry<ComputerBlock<CommandComputerBlockEntity>> COMPUTER_COMMAND = REGISTRY.register("computer_command", () -> new ComputerBlock<>(
             computerProperties().strength(-1, 6000000.0F),
@@ -140,27 +140,27 @@ public final class ModRegistry {
         ));
 
         public static final RegistryEntry<TurtleBlock> TURTLE_NORMAL = REGISTRY.register("turtle_normal",
-            () -> new TurtleBlock(turtleProperties(), ComputerFamily.NORMAL, BlockEntities.TURTLE_NORMAL));
+            () -> new TurtleBlock(turtleProperties().mapColor(MapColor.STONE), ComputerFamily.NORMAL, BlockEntities.TURTLE_NORMAL));
         public static final RegistryEntry<TurtleBlock> TURTLE_ADVANCED = REGISTRY.register("turtle_advanced",
-            () -> new TurtleBlock(turtleProperties(), ComputerFamily.ADVANCED, BlockEntities.TURTLE_ADVANCED));
+            () -> new TurtleBlock(turtleProperties().mapColor(MapColor.GOLD), ComputerFamily.ADVANCED, BlockEntities.TURTLE_ADVANCED));
 
-        public static final RegistryEntry<SpeakerBlock> SPEAKER = REGISTRY.register("speaker", () -> new SpeakerBlock(properties()));
-        public static final RegistryEntry<DiskDriveBlock> DISK_DRIVE = REGISTRY.register("disk_drive", () -> new DiskDriveBlock(properties()));
-        public static final RegistryEntry<PrinterBlock> PRINTER = REGISTRY.register("printer", () -> new PrinterBlock(properties()));
+        public static final RegistryEntry<SpeakerBlock> SPEAKER = REGISTRY.register("speaker", () -> new SpeakerBlock(properties().mapColor(MapColor.STONE)));
+        public static final RegistryEntry<DiskDriveBlock> DISK_DRIVE = REGISTRY.register("disk_drive", () -> new DiskDriveBlock(properties().mapColor(MapColor.STONE)));
+        public static final RegistryEntry<PrinterBlock> PRINTER = REGISTRY.register("printer", () -> new PrinterBlock(properties().mapColor(MapColor.STONE)));
 
         public static final RegistryEntry<MonitorBlock> MONITOR_NORMAL = REGISTRY.register("monitor_normal",
-            () -> new MonitorBlock(properties(), BlockEntities.MONITOR_NORMAL));
+            () -> new MonitorBlock(properties().mapColor(MapColor.STONE), BlockEntities.MONITOR_NORMAL));
         public static final RegistryEntry<MonitorBlock> MONITOR_ADVANCED = REGISTRY.register("monitor_advanced",
-            () -> new MonitorBlock(properties(), BlockEntities.MONITOR_ADVANCED));
+            () -> new MonitorBlock(properties().mapColor(MapColor.GOLD), BlockEntities.MONITOR_ADVANCED));
 
         public static final RegistryEntry<WirelessModemBlock> WIRELESS_MODEM_NORMAL = REGISTRY.register("wireless_modem_normal",
-            () -> new WirelessModemBlock(properties(), BlockEntities.WIRELESS_MODEM_NORMAL));
+            () -> new WirelessModemBlock(properties().mapColor(MapColor.STONE), BlockEntities.WIRELESS_MODEM_NORMAL));
         public static final RegistryEntry<WirelessModemBlock> WIRELESS_MODEM_ADVANCED = REGISTRY.register("wireless_modem_advanced",
-            () -> new WirelessModemBlock(properties(), BlockEntities.WIRELESS_MODEM_ADVANCED));
+            () -> new WirelessModemBlock(properties().mapColor(MapColor.GOLD), BlockEntities.WIRELESS_MODEM_ADVANCED));
 
         public static final RegistryEntry<WiredModemFullBlock> WIRED_MODEM_FULL = REGISTRY.register("wired_modem_full",
-            () -> new WiredModemFullBlock(modemProperties()));
-        public static final RegistryEntry<CableBlock> CABLE = REGISTRY.register("cable", () -> new CableBlock(modemProperties()));
+            () -> new WiredModemFullBlock(modemProperties().mapColor(MapColor.STONE)));
+        public static final RegistryEntry<CableBlock> CABLE = REGISTRY.register("cable", () -> new CableBlock(modemProperties().mapColor(MapColor.STONE)));
     }
 
     public static class BlockEntities {
@@ -365,50 +365,11 @@ public final class ModRegistry {
         public static final RegistryEntry<ImpostorShapelessRecipe.Serializer> IMPOSTOR_SHAPELESS = REGISTRY.register("impostor_shapeless", ImpostorShapelessRecipe.Serializer::new);
     }
 
-    /**
-     * Register any objects which don't have to be done on the main thread.
-     */
-    public static void register() {
-        Blocks.REGISTRY.register();
-        BlockEntities.REGISTRY.register();
-        Items.REGISTRY.register();
-        TurtleSerialisers.REGISTRY.register();
-        PocketUpgradeSerialisers.REGISTRY.register();
-        Menus.REGISTRY.register();
-        ArgumentTypes.REGISTRY.register();
-        LootItemConditionTypes.REGISTRY.register();
-        RecipeSerializers.REGISTRY.register();
+    static class CreativeTabs {
+        static final RegistrationHelper<CreativeModeTab> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registries.CREATIVE_MODE_TAB);
 
-        // Register bundled power providers
-        ComputerCraftAPI.registerBundledRedstoneProvider(new DefaultBundledRedstoneProvider());
-        ComputerCraftAPI.registerRefuelHandler(new FurnaceRefuelHandler());
-        ComputerCraftAPI.registerMediaProvider(stack -> {
-            var item = stack.getItem();
-            if (item instanceof IMedia media) return media;
-            if (item instanceof RecordItem) return RecordMedia.INSTANCE;
-            return null;
-        });
-
-        VanillaDetailRegistries.ITEM_STACK.addProvider(ItemDetails::fill);
-        VanillaDetailRegistries.BLOCK_IN_WORLD.addProvider(BlockDetails::fill);
-    }
-
-    /**
-     * Register any objects which must be done on the main thread.
-     */
-    public static void registerMainThread() {
-        CauldronInteraction.WATER.put(ModRegistry.Items.TURTLE_NORMAL.get(), TurtleItem.CAULDRON_INTERACTION);
-        CauldronInteraction.WATER.put(ModRegistry.Items.TURTLE_ADVANCED.get(), TurtleItem.CAULDRON_INTERACTION);
-    }
-
-    /**
-     * Configure a {@link CreativeModeTab.Builder} to contain all of ComputerCraft's items.
-     *
-     * @param builder The builder to configure.
-     * @return The same building, for calling {@link CreativeModeTab.Builder#build()} on.
-     */
-    public static CreativeModeTab.Builder registerCreativeTab(CreativeModeTab.Builder builder) {
-        return builder
+        @SuppressWarnings("unused")
+        private static final RegistryEntry<CreativeModeTab> TAB = REGISTRY.register("tab", () -> PlatformHelper.get().newCreativeModeTab()
             .icon(() -> new ItemStack(Items.COMPUTER_NORMAL.get()))
             .title(Component.translatable("itemGroup.computercraft"))
             .displayItems((context, out) -> {
@@ -440,7 +401,45 @@ public final class ModRegistry {
                 for (var colour = 0; colour < 16; colour++) {
                     out.accept(DiskItem.createFromIDAndColour(-1, null, Colour.VALUES[colour].getHex()));
                 }
-            });
+            })
+            .build());
+    }
+
+    /**
+     * Register any objects which don't have to be done on the main thread.
+     */
+    public static void register() {
+        Blocks.REGISTRY.register();
+        BlockEntities.REGISTRY.register();
+        Items.REGISTRY.register();
+        TurtleSerialisers.REGISTRY.register();
+        PocketUpgradeSerialisers.REGISTRY.register();
+        Menus.REGISTRY.register();
+        ArgumentTypes.REGISTRY.register();
+        LootItemConditionTypes.REGISTRY.register();
+        RecipeSerializers.REGISTRY.register();
+        CreativeTabs.REGISTRY.register();
+
+        // Register bundled power providers
+        ComputerCraftAPI.registerBundledRedstoneProvider(new DefaultBundledRedstoneProvider());
+        ComputerCraftAPI.registerRefuelHandler(new FurnaceRefuelHandler());
+        ComputerCraftAPI.registerMediaProvider(stack -> {
+            var item = stack.getItem();
+            if (item instanceof IMedia media) return media;
+            if (item instanceof RecordItem) return RecordMedia.INSTANCE;
+            return null;
+        });
+
+        VanillaDetailRegistries.ITEM_STACK.addProvider(ItemDetails::fill);
+        VanillaDetailRegistries.BLOCK_IN_WORLD.addProvider(BlockDetails::fill);
+    }
+
+    /**
+     * Register any objects which must be done on the main thread.
+     */
+    public static void registerMainThread() {
+        CauldronInteraction.WATER.put(ModRegistry.Items.TURTLE_NORMAL.get(), TurtleItem.CAULDRON_INTERACTION);
+        CauldronInteraction.WATER.put(ModRegistry.Items.TURTLE_ADVANCED.get(), TurtleItem.CAULDRON_INTERACTION);
     }
 
     private static void addTurtle(CreativeModeTab.Output out, TurtleItem turtle) {

@@ -5,8 +5,8 @@
 package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
@@ -57,15 +57,14 @@ public class DynamicImageButton extends Button {
     }
 
     @Override
-    public void renderWidget(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
-        RenderSystem.setShaderTexture(0, texture);
-        RenderSystem.disableDepthTest();
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        RenderSystem.enableBlend();
+        RenderSystem.enableDepthTest();
 
         var yTex = yTexStart;
         if (isHoveredOrFocused()) yTex += yDiffTex;
 
-        blit(stack, getX(), getY(), xTexStart.getAsInt(), yTex, width, height, textureWidth, textureHeight);
-        RenderSystem.enableDepthTest();
+        graphics.blit(texture, getX(), getY(), xTexStart.getAsInt(), yTex, width, height, textureWidth, textureHeight);
     }
 
     @Override
@@ -74,9 +73,9 @@ public class DynamicImageButton extends Button {
     }
 
     @Override
-    public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         setTooltip(message.get().tooltip());
-        super.render(stack, mouseX, mouseY, partialTicks);
+        super.render(graphics, mouseX, mouseY, partialTicks);
     }
 
     public record HintedMessage(Component message, Tooltip tooltip) {

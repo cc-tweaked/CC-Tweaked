@@ -4,11 +4,11 @@
 
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -36,13 +36,14 @@ public final class ComputerScreen<T extends AbstractComputerMenu> extends Abstra
     }
 
     @Override
-    public void renderBg(PoseStack stack, float partialTicks, int mouseX, int mouseY) {
+    public void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
         // Draw a border around the terminal
         var terminal = getTerminal();
+        var texture = ComputerBorderRenderer.getTexture(family);
         ComputerBorderRenderer.render(
-            stack.last().pose(), ComputerBorderRenderer.getTexture(family), terminal.getX(), terminal.getY(),
+            graphics.pose().last().pose(), texture, terminal.getX(), terminal.getY(),
             FULL_BRIGHT_LIGHTMAP, terminal.getWidth(), terminal.getHeight()
         );
-        ComputerSidebar.renderBackground(stack, leftPos, topPos + sidebarYOffset);
+        ComputerSidebar.renderBackground(graphics, texture, leftPos, topPos + sidebarYOffset);
     }
 }

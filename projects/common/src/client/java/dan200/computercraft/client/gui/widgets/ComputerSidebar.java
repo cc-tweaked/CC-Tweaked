@@ -4,14 +4,13 @@
 
 package dan200.computercraft.client.gui.widgets;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.gui.widgets.DynamicImageButton.HintedMessage;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.computer.core.InputHandler;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -68,19 +67,19 @@ public final class ComputerSidebar {
         ));
     }
 
-    public static void renderBackground(PoseStack transform, int x, int y) {
-        Screen.blit(transform,
+    public static void renderBackground(GuiGraphics graphics, ResourceLocation texture, int x, int y) {
+        graphics.blit(texture,
             x, y, 0, 102, AbstractComputerMenu.SIDEBAR_WIDTH, FULL_BORDER,
             ComputerBorderRenderer.TEX_SIZE, ComputerBorderRenderer.TEX_SIZE
         );
 
-        Screen.blit(transform,
+        graphics.blit(texture,
             x, y + FULL_BORDER, AbstractComputerMenu.SIDEBAR_WIDTH, HEIGHT - FULL_BORDER * 2,
             0, 107, AbstractComputerMenu.SIDEBAR_WIDTH, 4,
             ComputerBorderRenderer.TEX_SIZE, ComputerBorderRenderer.TEX_SIZE
         );
 
-        Screen.blit(transform,
+        graphics.blit(texture,
             x, y + HEIGHT - FULL_BORDER, 0, 111, AbstractComputerMenu.SIDEBAR_WIDTH, FULL_BORDER,
             ComputerBorderRenderer.TEX_SIZE, ComputerBorderRenderer.TEX_SIZE
         );

@@ -1,0 +1,21 @@
+{
+  "type": "computercraft:inject_loot_table",
+  "conditions": [
+    {
+      "condition": "minecraft:any_of",
+      "terms": [
+        {"condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/simple_dungeon"},
+        {"condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/abandoned_mineshaft"},
+        {"condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/stronghold_corridor"},
+        {"condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/woodland_mansion"},
+        {"condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/stronghold_library"},
+        {"condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/stronghold_crossing"},
+        {"condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/desert_pyramid"},
+        {"condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/jungle_temple"},
+        {"condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/igloo_chest"},
+        {"condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village/village_cartographer"}
+      ]
+    }
+  ],
+  "loot_table": "computercraft:treasure_disk"
+}

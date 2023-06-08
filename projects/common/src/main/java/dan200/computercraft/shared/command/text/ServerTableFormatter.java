@@ -37,6 +37,6 @@ public class ServerTableFormatter implements TableFormatter {
 
     @Override
     public void writeLine(String label, Component component) {
-        source.sendSuccess(component, false);
+        source.sendSuccess(() -> component, false);
     }
 }

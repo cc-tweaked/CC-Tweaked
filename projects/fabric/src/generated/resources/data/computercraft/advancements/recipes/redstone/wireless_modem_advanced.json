@@ -15,5 +15,6 @@
     }
   },
   "requirements": [["has_computer", "has_wireless", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:wireless_modem_advanced"]}
+  "rewards": {"recipes": ["computercraft:wireless_modem_advanced"]},
+  "sends_telemetry_event": false
 }

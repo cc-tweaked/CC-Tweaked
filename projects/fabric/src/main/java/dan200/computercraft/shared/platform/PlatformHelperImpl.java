@@ -23,6 +23,7 @@ import dan200.computercraft.shared.util.InventoryUtil;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiCache;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
@@ -256,10 +257,9 @@ public class PlatformHelperImpl implements PlatformHelper {
         return fuel == null ? 0 : fuel;
     }
 
-    @Nullable
     @Override
-    public ResourceLocation getCreativeTabId(CreativeModeTab tab) {
-        return tab.getId();
+    public CreativeModeTab.Builder newCreativeModeTab() {
+        return FabricItemGroup.builder();
     }
 
     @Override
@@ -295,24 +295,24 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public InteractionResult canAttackEntity(ServerPlayer player, Entity entity) {
-        return AttackEntityCallback.EVENT.invoker().interact(player, player.level, InteractionHand.MAIN_HAND, entity, null);
+        return AttackEntityCallback.EVENT.invoker().interact(player, player.level(), InteractionHand.MAIN_HAND, entity, null);
     }
 
     @Override
     public boolean interactWithEntity(ServerPlayer player, Entity entity, Vec3 hitPos) {
-        return UseEntityCallback.EVENT.invoker().interact(player, entity.level, InteractionHand.MAIN_HAND, entity, new EntityHitResult(entity, hitPos)).consumesAction() ||
+        return UseEntityCallback.EVENT.invoker().interact(player, entity.level(), InteractionHand.MAIN_HAND, entity, new EntityHitResult(entity, hitPos)).consumesAction() ||
             entity.interactAt(player, hitPos.subtract(entity.position()), InteractionHand.MAIN_HAND).consumesAction() ||
             player.interactOn(entity, InteractionHand.MAIN_HAND).consumesAction();
     }
 
     @Override
     public InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit, Predicate<BlockState> canUseBlock) {
-        var result = UseBlockCallback.EVENT.invoker().interact(player, player.level, InteractionHand.MAIN_HAND, hit);
+        var result = UseBlockCallback.EVENT.invoker().interact(player, player.level(), InteractionHand.MAIN_HAND, hit);
         if (result != InteractionResult.PASS) return result;
 
-        var block = player.level.getBlockState(hit.getBlockPos());
+        var block = player.level().getBlockState(hit.getBlockPos());
         if (!block.isAir() && canUseBlock.test(block)) {
-            var useResult = block.use(player.level, player, InteractionHand.MAIN_HAND, hit);
+            var useResult = block.use(player.level(), player, InteractionHand.MAIN_HAND, hit);
             if (useResult.consumesAction()) return useResult;
         }
 

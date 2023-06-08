@@ -13,5 +13,6 @@
     }
   },
   "requirements": [["has_items", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:turtle_advanced/minecraft/crafting_table"]}
+  "rewards": {"recipes": ["computercraft:turtle_advanced/minecraft/crafting_table"]},
+  "sends_telemetry_event": false
 }

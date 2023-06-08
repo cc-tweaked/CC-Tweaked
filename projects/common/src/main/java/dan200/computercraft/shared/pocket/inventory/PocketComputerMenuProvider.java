@@ -48,7 +48,7 @@ public class PocketComputerMenuProvider implements MenuProvider {
             isTypingOnly ? ModRegistry.Menus.POCKET_COMPUTER_NO_TERM.get() : ModRegistry.Menus.POCKET_COMPUTER.get(), id, inventory,
             p -> {
                 var stack = p.getItemInHand(hand);
-                return stack.getItem() == item && PocketComputerItem.getServerComputer(assertNonNull(entity.level.getServer()), stack) == computer;
+                return stack.getItem() == item && PocketComputerItem.getServerComputer(assertNonNull(entity.level().getServer()), stack) == computer;
             },
             computer, item.getFamily()
         );

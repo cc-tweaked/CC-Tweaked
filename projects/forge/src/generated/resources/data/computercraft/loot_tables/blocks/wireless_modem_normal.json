@@ -7,5 +7,6 @@
       "entries": [{"type": "minecraft:item", "name": "computercraft:wireless_modem_normal"}],
       "rolls": 1.0
     }
-  ]
+  ],
+  "random_sequence": "computercraft:blocks/wireless_modem_normal"
 }

@@ -11,5 +11,6 @@
     }
   },
   "requirements": [["has_printer", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:printed_pages"]}
+  "rewards": {"recipes": ["computercraft:printed_pages"]},
+  "sends_telemetry_event": false
 }

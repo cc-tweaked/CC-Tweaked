@@ -4,7 +4,6 @@
 
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.DynamicImageButton;
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
@@ -19,6 +18,7 @@ import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.server.UploadFileMessage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -124,10 +124,10 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
     }
 
     @Override
-    public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
-        renderBackground(stack);
-        super.render(stack, mouseX, mouseY, partialTicks);
-        renderTooltip(stack, mouseX, mouseY);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        renderBackground(graphics);
+        super.render(graphics, mouseX, mouseY, partialTicks);
+        renderTooltip(graphics, mouseX, mouseY);
     }
 
     @Override
@@ -147,7 +147,7 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
 
 
     @Override
-    protected void renderLabels(PoseStack transform, int mouseX, int mouseY) {
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         // Skip rendering labels.
     }
 

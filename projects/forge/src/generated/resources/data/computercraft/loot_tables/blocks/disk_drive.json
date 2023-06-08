@@ -13,5 +13,6 @@
       ],
       "rolls": 1.0
     }
-  ]
+  ],
+  "random_sequence": "computercraft:blocks/disk_drive"
 }
