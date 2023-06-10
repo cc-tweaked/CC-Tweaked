@@ -251,3 +251,7 @@ publishing {
         }
     }
 }
+
+modrinth {
+    required.project("fabric-api")
+}
