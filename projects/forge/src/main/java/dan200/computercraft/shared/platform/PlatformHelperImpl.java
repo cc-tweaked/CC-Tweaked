@@ -257,7 +257,6 @@ public class PlatformHelperImpl implements PlatformHelper {
         return ForgeHooks.getBurnTime(stack, null);
     }
 
-
     @Override
     public CreativeModeTab.Builder newCreativeModeTab() {
         return CreativeModeTab.builder();

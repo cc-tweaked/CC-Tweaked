@@ -169,7 +169,7 @@ public class TurtlePlaceCommand implements TurtleCommand {
         if (Math.abs(hitY - 0.5f) < 0.01f) hitY = 0.45f;
 
         // Check if there's something suitable to place onto
-        var hit = new BlockHitResult(new Vec3(hitX, hitY, hitZ), side, position, false);
+        var hit = new BlockHitResult(new Vec3(position.getX() + hitX, position.getY() + hitY, position.getZ() + hitZ), side, position, false);
         var context = new UseOnContext(turtlePlayer.player(), InteractionHand.MAIN_HAND, hit);
         if (!canDeployOnBlock(new BlockPlaceContext(context), turtle, turtlePlayer, position, side, adjacent, outErrorMessage)) {
             return false;

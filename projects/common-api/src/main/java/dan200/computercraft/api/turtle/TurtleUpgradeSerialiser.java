@@ -4,7 +4,6 @@
 
 package dan200.computercraft.api.turtle;
 
-import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.impl.ComputerCraftAPIService;
@@ -65,14 +64,6 @@ import java.util.function.Function;
  * @see dan200.computercraft.api.client.turtle.TurtleUpgradeModeller
  */
 public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends UpgradeSerialiser<T> {
-    /**
-     * The ID for the associated registry.
-     *
-     * @deprecated Use {@link #registryId()} instead.
-     */
-    @Deprecated(forRemoval = true)
-    ResourceKey<Registry<TurtleUpgradeSerialiser<?>>> REGISTRY_ID = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_upgrade_serialiser"));
-
     /**
      * The ID for the associated registry.
      *

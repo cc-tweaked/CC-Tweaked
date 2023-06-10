@@ -4,7 +4,6 @@
 
 package dan200.computercraft.api.pocket;
 
-import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.impl.ComputerCraftAPIService;
@@ -30,14 +29,6 @@ import java.util.function.Function;
  * @see PocketUpgradeDataProvider
  */
 public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends UpgradeSerialiser<T> {
-    /**
-     * The ID for the associated registry.
-     *
-     * @deprecated Use {@link #registryId()} instead.
-     */
-    @Deprecated(forRemoval = true)
-    ResourceKey<Registry<PocketUpgradeSerialiser<?>>> REGISTRY_ID = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_upgrade_serialiser"));
-
     /**
      * The ID for the associated registry.
      *

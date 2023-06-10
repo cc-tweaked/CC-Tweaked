@@ -13,7 +13,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
@@ -67,25 +66,6 @@ public interface ITurtleAccess {
      * @throws UnsupportedOperationException When attempting to teleport on the client side.
      */
     boolean teleportTo(Level world, BlockPos pos);
-
-    /**
-     * Returns a vector containing the floating point co-ordinates at which the turtle is rendered.
-     * This will shift when the turtle is moving.
-     *
-     * @param f The subframe fraction.
-     * @return A vector containing the floating point co-ordinates at which the turtle resides.
-     * @see #getVisualYaw(float)
-     */
-    Vec3 getVisualPosition(float f);
-
-    /**
-     * Returns the yaw the turtle is facing when it is rendered.
-     *
-     * @param f The subframe fraction.
-     * @return The yaw the turtle is facing.
-     * @see #getVisualPosition(float)
-     */
-    float getVisualYaw(float f);
 
     /**
      * Returns the world direction the turtle is currently facing.

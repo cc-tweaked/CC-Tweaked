@@ -2,8 +2,6 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-import org.gradle.kotlin.dsl.`maven-publish`
-
 plugins {
     `java-library`
     `maven-publish`

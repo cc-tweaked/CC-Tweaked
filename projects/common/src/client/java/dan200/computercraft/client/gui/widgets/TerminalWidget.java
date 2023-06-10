@@ -15,6 +15,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
@@ -81,6 +82,11 @@ public class TerminalWidget extends AbstractWidget {
     @Override
     public boolean keyPressed(int key, int scancode, int modifiers) {
         if (key == GLFW.GLFW_KEY_ESCAPE) return false;
+        if (Screen.isPaste(key)) {
+            paste();
+            return true;
+        }
+
         if ((modifiers & GLFW.GLFW_MOD_CONTROL) != 0) {
             switch (key) {
                 case GLFW.GLFW_KEY_T -> {
@@ -91,32 +97,6 @@ public class TerminalWidget extends AbstractWidget {
                 }
                 case GLFW.GLFW_KEY_R -> {
                     if (rebootTimer < 0) rebootTimer = 0;
-                }
-                case GLFW.GLFW_KEY_V -> {
-                    // Ctrl+V for paste
-                    var clipboard = Minecraft.getInstance().keyboardHandler.getClipboard();
-                    if (clipboard != null) {
-                        // Clip to the first occurrence of \r or \n
-                        var newLineIndex1 = clipboard.indexOf("\r");
-                        var newLineIndex2 = clipboard.indexOf("\n");
-                        if (newLineIndex1 >= 0 && newLineIndex2 >= 0) {
-                            clipboard = clipboard.substring(0, Math.min(newLineIndex1, newLineIndex2));
-                        } else if (newLineIndex1 >= 0) {
-                            clipboard = clipboard.substring(0, newLineIndex1);
-                        } else if (newLineIndex2 >= 0) {
-                            clipboard = clipboard.substring(0, newLineIndex2);
-                        }
-
-                        // Filter the string
-                        clipboard = SharedConstants.filterText(clipboard);
-                        if (!clipboard.isEmpty()) {
-                            // Clip to 512 characters and queue the event
-                            if (clipboard.length() > 512) clipboard = clipboard.substring(0, 512);
-                            computer.queueEvent("paste", new Object[]{ clipboard });
-                        }
-
-                        return true;
-                    }
                 }
             }
         }
@@ -129,6 +109,29 @@ public class TerminalWidget extends AbstractWidget {
         }
 
         return true;
+    }
+
+    private void paste() {
+        var clipboard = Minecraft.getInstance().keyboardHandler.getClipboard();
+
+        // Clip to the first occurrence of \r or \n
+        var newLineIndex1 = clipboard.indexOf('\r');
+        var newLineIndex2 = clipboard.indexOf('\n');
+        if (newLineIndex1 >= 0 && newLineIndex2 >= 0) {
+            clipboard = clipboard.substring(0, Math.min(newLineIndex1, newLineIndex2));
+        } else if (newLineIndex1 >= 0) {
+            clipboard = clipboard.substring(0, newLineIndex1);
+        } else if (newLineIndex2 >= 0) {
+            clipboard = clipboard.substring(0, newLineIndex2);
+        }
+
+        // Filter the string
+        clipboard = SharedConstants.filterText(clipboard);
+        if (!clipboard.isEmpty()) {
+            // Clip to 512 characters and queue the event
+            if (clipboard.length() > 512) clipboard = clipboard.substring(0, 512);
+            computer.queueEvent("paste", new Object[]{ clipboard });
+        }
     }
 
     @Override

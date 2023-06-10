@@ -5,15 +5,11 @@
 package dan200.computercraft.shared.details;
 
 import com.google.gson.JsonParseException;
-import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.RegistryWrappers;
 import dan200.computercraft.shared.util.NBTUtil;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -46,7 +42,9 @@ public class ItemDetails {
         }
 
         data.put("tags", DetailHelpers.getTags(stack.getTags()));
-        data.put("itemGroups", getItemGroups(stack));
+
+        // Include deprecated itemGroups field
+        data.put("itemGroups", List.of());
 
         var tag = stack.getTag();
         if (tag != null && tag.contains("display", Tag.TAG_COMPOUND)) {
@@ -83,25 +81,6 @@ public class ItemDetails {
         } catch (JsonParseException e) {
             return null;
         }
-    }
-
-    /**
-     * Retrieve all item groups an item stack pertains to.
-     *
-     * @param stack Stack to analyse
-     * @return A filled list that contains pairs of item group IDs and their display names.
-     */
-    private static List<Map<String, Object>> getItemGroups(ItemStack stack) {
-        return CreativeModeTabs.allTabs().stream()
-            .filter(x -> x.shouldDisplay() && x.getType() == CreativeModeTab.Type.CATEGORY && x.contains(stack))
-            .map(group -> {
-                Map<String, Object> groupData = new HashMap<>(2);
-
-                groupData.put("id", PlatformHelper.get().getRegistryKey(Registries.CREATIVE_MODE_TAB, group).toString());
-                groupData.put("displayName", group.getDisplayName().getString());
-                return groupData;
-            })
-            .toList();
     }
 
     /**
