@@ -38,6 +38,11 @@ public class ClassTransformer implements IClassTransformer {
             "dan200.computer.shared.TileEntityMonitor",
             "cc.tweaked.patch.mixins.TileEntityMonitorMixin"
         ))
+        // And extend the turtle API
+        .atClass("dan200.turtle.shared.TurtleAPI", new ClassMerger(
+            "dan200.turtle.shared.TurtleAPI",
+            "cc.tweaked.patch.mixins.TurtleAPIMixin"
+        ))
         // Load from our ROM instead of the CC one. We do this by:
         // 1. Changing the path of the assets folder.
         .atMethod(

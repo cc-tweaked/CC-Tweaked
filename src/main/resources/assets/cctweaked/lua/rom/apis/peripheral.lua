@@ -100,7 +100,7 @@ local expect = dofile("rom/modules/main/cc/expect.lua").expect
 local native = peripheral
 
 -- Stub in peripheral.hasType
-function native.hasType(p, type) return peripheral.getType(p) == type end
+function native.hasType(p, ty) return native.getType(p) == ty end
 
 local sides = rs.getSides()
 

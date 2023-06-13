@@ -103,15 +103,12 @@ elseif sCommand == "set" then
     else
         -- Regular output
         local sValue = tArgs[3]
-        local nValue = tonumber(sValue)
         if sValue == "true" then
             rs.setOutput(sSide, true)
         elseif sValue == "false" then
             rs.setOutput(sSide, false)
-        elseif nValue and nValue >= 0 and nValue <= 15 then
-            rs.setAnalogOutput(sSide, nValue)
         else
-            print("Value must be boolean or 0-15")
+            print("Value must be boolean")
         end
     end
 

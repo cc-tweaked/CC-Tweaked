@@ -14,31 +14,53 @@ end
 -- should not need to use it.
 native = turtle.native or turtle
 
-local function addCraftMethod(object)
-    if peripheral.getType("left") == "workbench" then
-        object.craft = function(...)
-            return peripheral.call("left", "craft", ...)
+local function waitForResponse(_id)
+    local event, responseID, success
+    while event ~= "turtle_response" or responseID ~= _id do
+        event, responseID, success = os.pullEvent("turtle_response")
+    end
+    return success
+end
+
+local function wrap(_sCommand)
+    return function(...)
+        local id = native[_sCommand](...)
+        if id == -1 then
+            return false
         end
-    elseif peripheral.getType("right") == "workbench" then
-        object.craft = function(...)
-            return peripheral.call("right", "craft", ...)
+        return waitForResponse(id)
+    end
+end
+
+-- Wrap standard commands
+local turtle = {}
+turtle["getItemCount"] = native.getItemCount
+turtle["getItemSpace"] = native.getItemSpace
+turtle["getFuelLevel"] = native.getFuelLevel
+turtle["getSelectedSlot"] = native.getSelectedSlot
+turtle["getFuelLimit"] = native.getFuelLimit
+
+for k,v in pairs(native) do
+    if type(k) == "string" and type(v) == "function" then
+        if turtle[k] == nil then
+            turtle[k] = wrap(k)
         end
-    else
-        object.craft = nil
+    end
+end
+
+-- Wrap peripheral commands
+if peripheral.getType("left") == "workbench" then
+    turtle["craft"] = function(...)
+        local id = peripheral.call("left", "craft", ...)
+        return waitForResponse(id)
+    end
+elseif peripheral.getType("right") == "workbench" then
+    turtle["craft"] = function(...)
+        local id = peripheral.call("right", "craft", ...)
+        return waitForResponse(id)
     end
 end
 
 -- Put commands into environment table
 local env = _ENV
-for k, v in pairs(native) do
-    if k == "equipLeft" or k == "equipRight" then
-        env[k] = function(...)
-            local result, err = v(...)
-            addCraftMethod(turtle)
-            return result, err
-        end
-    else
-        env[k] = v
-    end
-end
-addCraftMethod(env)
+for k,v in pairs(turtle) do env[k] = v end
