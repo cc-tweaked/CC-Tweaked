@@ -1,0 +1,23 @@
+The Monitor is a peripheral device available for CraftOS. Type "help peripheral" to learn about using the Peripheral API to connect with peripherals. When a Monitor is connected, peripheral.getType() will return "monitor". A wrapped monitor can be used with term.redirect() to send all terminal output to the monitor.
+
+Methods exposed by the Monitor:
+write( text )
+blit( text, textColor, backgroundColor )
+clear()
+clearLine()
+getCursorPos()
+setCursorPos( x, y )
+setCursorBlink( blink )
+isColor()
+setTextColor( color )
+setBackgroundColor( color )
+getTextColor()
+getBackgroundColor()
+getSize()
+scroll( n )
+setPaletteColor( color, r, g, b )
+getPaletteColor( color )
+
+Events fired by the Monitor:
+"monitor_touch" when an Advanced Monitor is touched by the player. Arguments are name, x, y
+"monitor_resize" when the size of a Monitor changes. Argument is the name of the monitor.

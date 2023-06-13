@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2017 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: CC0-1.0
+
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+ij_continuation_indent_size = 4
+ij_any_do_while_brace_force = if_multiline
+ij_any_if_brace_force = if_multiline
+ij_any_for_brace_force = if_multiline
+ij_any_spaces_within_array_initializer_braces = true
+
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+ij_kotlin_method_parameters_wrap = off
+ij_kotlin_call_parameters_wrap = off
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.sexp]
+indent_size = 2
+
+[*.yml]
+indent_size = 2

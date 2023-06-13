@@ -1,0 +1,6 @@
+The set program can be used to inspect and change system settings.
+
+Usage:
+"set" will print all the system settings and their values
+"set foo" will print the value of the system setting "foo"
+"set foo bar" will set the value of the system setting "foo" to "bar"

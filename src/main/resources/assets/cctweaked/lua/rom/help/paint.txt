@@ -1,0 +1,4 @@
+paint is a program for creating images on Advanced Computers. Select colors from the color pallette on the right, and click on the canvas to draw. Press Ctrl to access the menu and save your pictures.
+
+ex:
+"edit mario" opens an image called "mario" for editing.

@@ -1,0 +1,6 @@
+cp copies a file or directory from one location to another.
+
+ex:
+"cp rom myrom" copies "rom" to "myrom".
+"cp rom mystuff/rom" copies "rom" to "mystuff/rom".
+"cp disk/* disk2" copies the contents of one disk to another

@@ -1,0 +1,7 @@
+pastebin is a program for uploading files to and downloading files from pastebin.com. This is useful for sharing programs with other players.
+The HTTP API must be enabled in ComputerCraft.cfg to use this program.
+
+ex:
+"pastebin put foo" will upload the file "foo" to pastebin.com, and print the URL.
+"pastebin get xq5gc7LB foo" will download the file from the URL http://pastebin.com/xq5gc7LB, and save it as "foo".
+"pastebin run CxaWmPrX" will download the file from the URL http://pastebin.com/CxaWmPrX, and immediately run it.

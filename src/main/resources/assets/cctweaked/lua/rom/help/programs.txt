@@ -1,0 +1,1 @@
+programs lists all the programs on the rom of the computer.

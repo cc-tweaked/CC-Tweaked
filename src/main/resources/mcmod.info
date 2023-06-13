@@ -1,0 +1,17 @@
+[
+    {
+        "modid": "cctweaked",
+        "name": "CC: Tweaked",
+        "description": "CC: Tweaked is a core mod for ComputerCraft, doing terrible things in older versions of Minecraft.",
+        "version": "${version}",
+        "mcversion": "${mcVersion}",
+        "url": "https://github.com/cc-tweaked/cc-tweaked",
+        "credits": "Dan200 for ComputerCraft",
+        "authorList": [
+            "SquidDev"
+        ],
+        "dependencies": [
+            "ComputerCraft"
+        ]
+    }
+]

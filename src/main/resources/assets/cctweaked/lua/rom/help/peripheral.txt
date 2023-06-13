@@ -1,0 +1,16 @@
+The peripheral API is for interacting with external peripheral devices. Type "help peripherals" to learn about the peripherals available.
+
+Functions in the peripheral API:
+peripheral.getNames()
+peripheral.isPresent( name )
+peripheral.getName( peripheral )
+peripheral.getType( name )
+peripheral.getMethods( name )
+peripheral.call( name, methodName, param1, param2, etc )
+peripheral.wrap( name )
+peripheral.find( type, [fnFilter] )
+
+Events fired by the peripheral API:
+"peripheral" when a new peripheral is attached. Argument is the name.
+"peripheral_detach" when a peripheral is removed. Argument is the name.
+Type "help events" to learn about the event system.

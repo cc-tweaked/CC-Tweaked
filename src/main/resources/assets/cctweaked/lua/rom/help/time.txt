@@ -1,0 +1,1 @@
+time prints the current time of day.

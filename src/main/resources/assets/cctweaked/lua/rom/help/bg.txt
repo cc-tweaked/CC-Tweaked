@@ -1,0 +1,5 @@
+bg is a program for Advanced Computers which opens a new tab in the background.
+
+ex:
+"bg" will open a background tab running the shell
+"bg worm" will open a background tab running the "worm" program

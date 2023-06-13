@@ -1,0 +1,5 @@
+Surf the rednet superhighway with "chat", the networked chat program for CraftOS! Host chatrooms and invite your friends! Requires a Wired or Wireless Modem on each computer. When running chat, type "/help" to see a list of available commands.
+
+ex:
+"chat host forgecraft" will create a chatroom with the name "forgecraft"
+"chat join forgecraft direwolf20" will connect to the chatroom with the name "forgecraft", using the nickname "direwolf20"

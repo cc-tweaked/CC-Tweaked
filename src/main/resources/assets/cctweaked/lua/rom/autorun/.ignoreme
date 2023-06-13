@@ -1,0 +1,4 @@
+--[[
+Alright then, don't ignore me. This file is to ensure the existence of the "autorun" folder, files placed in this folder
+using resource packs will always run when computers startup.
+]]

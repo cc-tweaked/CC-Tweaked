@@ -1,0 +1,5 @@
+id prints the unique identifier of this computer, or a Disk in an attached Disk Drive.
+
+ex:
+"id" will print this Computers ID and label
+"id left" will print the ID and label of the disk in the Disk Drive on the left

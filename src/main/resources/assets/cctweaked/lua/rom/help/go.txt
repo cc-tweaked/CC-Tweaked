@@ -1,0 +1,6 @@
+go is a program for Turtles, used to control the turtle without programming. It accepts one or more commands as a direction followed by a distance.
+
+ex:
+"go forward" moves the turtle 1 space forward.
+"go forward 3" moves the turtle 3 spaces forward.
+"go forward 3 up left 2" moves the turtle 3 spaces forward, 1 spaces up, then left 180 degrees.

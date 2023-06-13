@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# Ignore changes in generated files
+projects/*/src/generated/** linguist-generated
+projects/common/src/testMod/resources/data/cctest/structures/* linguist-generated
+
+* text=auto
+
+*.gradle eol=lf diff=java
+*.java   eol=lf diff=java
+*.kt     eol=lf diff=java
+*.kts    eol=lf diff=java
+*.lua    eol=lf
+*.md     eol=lf diff=markdown
+*.txt    eol=lf
+
+*.png binary
+*.jar binary
+*.dfpwm binary

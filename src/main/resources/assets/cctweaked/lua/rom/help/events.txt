@@ -1,0 +1,15 @@
+The function os.pullEvent() will yield the program until a system event occurs. The first return value is the event name, followed by any arguments.
+
+Some events which can occur are:
+"char" when text is typed on the keyboard. Argument is the character typed.
+"key" when a key is pressed on the keyboard. Arguments are the keycode and whether the key is a repeat. Compare the keycode to the values in keys API to see which key was pressed.
+"key_up" when a key is released on the keyboard. Argument is the numerical keycode. Compare to the values in keys API to see which key was released.
+"paste" when text is pasted from the users keyboard. Argument is the line of text pasted.
+
+Events only on advanced computers:
+"mouse_click" when a user clicks the mouse. Arguments are button, xPos, yPos.
+"mouse_drag" when a user moves the mouse when held. Arguments are button, xPos, yPos.
+"mouse_up" when a user releases the mouse button. Arguments are button, xPos, yPos.
+"mouse_scroll" when a user uses the scrollwheel on the mouse. Arguments are direction, xPos, yPos.
+
+Other APIs and peripherals will emit their own events. See their respective help pages for details.

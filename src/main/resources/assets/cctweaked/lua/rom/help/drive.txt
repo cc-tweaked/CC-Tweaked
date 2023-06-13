@@ -1,0 +1,5 @@
+drive tells you which disk drive the current or specified directory is located in.
+
+ex:
+"drive" tell you the disk drive of the current directory.
+"drive foo" tells you the disk drive of the subdirectory "foo"

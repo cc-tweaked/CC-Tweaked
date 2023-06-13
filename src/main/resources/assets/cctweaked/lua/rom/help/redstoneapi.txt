@@ -1,0 +1,19 @@
+Functions in the Redstone API:
+redstone.getSides( )
+redstone.getInput( side )
+redstone.setOutput( side, boolean )
+redstone.getOutput( side )
+redstone.getAnalogInput( side )
+redstone.setAnalogOutput( side, number )
+redstone.getAnalogOutput( side )
+
+Functions in the Redstone API for working with bundled cables:
+redstone.getBundledInput( side )
+redstone.testBundledInput( side, color )
+redstone.setBundledOutput( side, colors )
+redstone.getBundledOutput( side )
+Type "help bundled" for usage examples.
+
+Events emitted by the redstone API:
+"redstone", when the state of any redstone input changes. Use getInput() or getBundledInput() to inspect the changes
+Type "help events" to learn about the event system.

@@ -1,0 +1,6 @@
+clear clears the screen and/or resets the palette.
+ex:
+"clear" clears the screen, but keeps the palette.
+"clear screen" does the same as "clear"
+"clear palette" resets the palette, but doesn't clear the screen
+"clear all" clears the screen and resets the palette

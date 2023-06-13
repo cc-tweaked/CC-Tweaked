@@ -1,0 +1,5 @@
+unequip is a program for Turtles and Pocket Computers. unequip will remove tools of peripherals from the specified side of the turtle. On a Pocket Computer you don't need to write a side.
+
+ex:
+"unequip left" will remove the item on the left side of the turtle
+"unequip" on a Pocket Computer will remove the item from the Pocket Computer

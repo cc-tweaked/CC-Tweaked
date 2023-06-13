@@ -1,0 +1,4 @@
+Functions in the GPS API:
+gps.locate( timeout )
+
+The locate function will send a signal to nearby gps servers, and wait for responses before the timeout. If it receives enough responses to determine this computers position then x, y and z co-ordinates will be returned, otherwise it will return nil. If GPS hosts do not have their positions configured correctly, results will be inaccurate.

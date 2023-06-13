@@ -1,0 +1,4 @@
+help is the help tool you're currently using.
+Type "help index" to see all help topics.
+Type "help" to see the help intro.
+Type "help helpapi" for information on the help Lua API.

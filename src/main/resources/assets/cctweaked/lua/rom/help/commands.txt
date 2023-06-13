@@ -1,0 +1,2 @@
+On a Command Computer, "commands" will list all the commands available for use. Use "exec" to execute them.
+Type "help commandsapi" for help using commands in lua programs.

@@ -1,0 +1,9 @@
+Functions in the colours api
+(used for redstone.setBundledOutput):
+colours.combine( colour1, colour2, colour3, ...)
+colours.subtract( colours, colour1, colour2, ...)
+colours.test( colours, colour )
+colours.rgb8( r, g, b )
+
+Colour constants in the colours api, in ascending bit order:
+colours.white, colours.orange, colours.magenta, colours.lightBlue, colours.yellow, colours.lime, colours.pink, colours.grey, colours.lightGrey, colours.cyan, colours.purple, colours.blue, colours.brown, colours.green, colours.red, colours.black.

@@ -1,0 +1,5 @@
+equip is a program for Turtles and Pocket Computer. equip will equip an item from the Turtle's inventory for use as a tool of peripheral. On a Pocket Computer you don't need to write a side.
+
+ex:
+"equip 5 left" will equip the item from slot 5 of the turtle onto the left side of the turtle
+"equip" on a Pocket Computer will equip the first item from your inventory.

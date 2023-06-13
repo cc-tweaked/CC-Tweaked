@@ -1,0 +1,26 @@
+Functions in the os (Operating System) API:
+os.version()
+os.getComputerID()
+os.getComputerLabel()
+os.setComputerLabel()
+os.run( environment, programpath, arguments )
+os.loadAPI( path )
+os.unloadAPI( name )
+os.pullEvent( [filter] )
+os.queueEvent( event, arguments )
+os.clock()
+os.startTimer( timeout )
+os.cancelTimer( token )
+os.sleep( timeout )
+os.time( [source] )
+os.day( [source] )
+os.epoch( [source] )
+os.setAlarm( time )
+os.cancelAlarm( token )
+os.shutdown()
+os.reboot()
+
+Events emitted by the os API:
+"timer" when a timeout started by os.startTimer() completes. Argument is the token returned by os.startTimer().
+"alarm" when a time passed to os.setAlarm() is reached. Argument is the token returned by os.setAlarm().
+Type "help events" to learn about the event system.

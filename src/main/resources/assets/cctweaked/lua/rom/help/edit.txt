@@ -1,0 +1,4 @@
+edit is a text editor for creating or modifying programs or text files. After creating a program with edit, type its filename in the shell to run it. You can open any of the builtin programs with edit to learn how to program.
+
+ex:
+"edit hello" opens a file called "hello" for editing.

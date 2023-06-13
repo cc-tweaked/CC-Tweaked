@@ -1,0 +1,11 @@
+To learn the lua programming language, visit http://lua-users.org/wiki/TutorialDirectory.
+
+To experiment with lua in CraftOS, run the "lua" program and start typing code.
+To create programs, use "edit" to create files, then type their names in the shell to run them. If you name a program "startup" and place it in the root or on a disk drive, it will run automatically when the computer starts.
+
+To terminate a program stuck in a loop, hold Ctrl+T for 1 second.
+To quickly shutdown a computer, hold Ctrl+S for 1 second.
+To quickly reboot a computer, hold Ctrl+R for 1 second.
+
+To learn about the programming APIs available, type "apis" or "help apis".
+If you get stuck, visit the forums at http://www.computercraft.info/ for advice and tutorials.

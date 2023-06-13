@@ -1,0 +1,9 @@
+label gets or sets the label of the Computer, or of Floppy Disks in attached disk drives.
+
+ex:
+"label get" prints the label of the computer.
+"label get left" prints the label of the disk in the left drive.
+"label set "My Computer"" set the label of the computer to "My Computer".
+"label set left "My Programs"" - sets the label of the disk in the left drive to "My Programs".
+"label clear" clears the label of the computer.
+"label clear left" clears the label of the disk in the left drive.

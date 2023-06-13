@@ -1,0 +1,22 @@
+Functions in the Terminal API:
+term.write( text )
+term.blit( text, textColor, backgroundColor )
+term.clear()
+term.clearLine()
+term.getCursorPos()
+term.setCursorPos( x, y )
+term.setCursorBlink( blink )
+term.isColor()
+term.setTextColor( color )
+term.setBackgroundColor( color )
+term.getTextColor()
+term.getBackgroundColor()
+term.getSize()
+term.scroll( n )
+term.redirect( object )
+term.current()
+term.setPaletteColor( color, r, g, b )
+term.getPaletteColor( color )
+
+Events emitted by the terminals:
+"term_resize", when the size of a terminal changes. This can happen in multitasking environments, or when the terminal out is being redirected by the "monitor" program.

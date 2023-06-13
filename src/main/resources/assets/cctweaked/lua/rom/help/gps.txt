@@ -1,0 +1,10 @@
+gps can be used to host a GPS server, or to determine a position using trilateration.
+Type "help gpsapi" for help using GPS functions in lua programs.
+
+ex:
+"gps locate" will connect to nearby GPS servers, and try to determine the position of the computer or turtle.
+"gps host" will try to determine the position, and host a GPS server if successful.
+"gps host 10 20 30" will host a GPS server, using the manually entered position 10,20,30.
+
+Take care when manually entering host positions. If the positions entered into multiple GPS hosts
+are not consistent, the results of locate calls will be incorrect.

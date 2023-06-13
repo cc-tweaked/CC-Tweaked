@@ -1,0 +1,19 @@
+The Disk Drive is a peripheral device available for CraftOS. Type "help peripheral" to learn about using the Peripheral API to connect with peripherals. When a Disk Drive is connected, peripheral.getType() will return "drive".
+
+Methods exposed by the Disk Drive:
+isDiskPresent()
+getDiskLabel()
+setDiskLabel( label )
+hasData()
+getMountPath()
+hasAudio()
+getAudioTitle()
+playAudio()
+stopAudio()
+ejectDisk()
+getDiskID()
+
+Events fired by the Disk Drive:
+"disk" when a disk or other item is inserted into the drive. Argument is the name of the drive.
+"disk_eject" when a disk is removed from a  drive. Argument is the name of the drive.
+Type "help events" to learn about the event system.

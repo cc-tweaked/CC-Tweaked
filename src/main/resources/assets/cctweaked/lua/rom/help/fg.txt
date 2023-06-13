@@ -1,0 +1,5 @@
+fg is a program for Advanced Computers which opens a new tab in the foreground.
+
+ex:
+"fg" will open a foreground tab running the shell
+"fg worm" will open a foreground tab running the "worm" program

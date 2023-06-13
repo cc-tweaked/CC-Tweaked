@@ -1,0 +1,1 @@
+shutdown will turn off the computer.

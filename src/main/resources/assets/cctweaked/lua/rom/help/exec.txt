@@ -1,0 +1,7 @@
+On a Command Computer, "exec" will execute a command as if entered on a command block. Use "commands" to list all the available commands.
+
+ex:
+"exec say Hello World"
+"exec setblock ~0 ~1 ~0 minecraft:dirt"
+
+Type "help commandsapi" for help using commands in lua programs.

@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.0.1
+  hooks:
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: check-merge-conflict
+
+  # Quick syntax checkers
+  - id: check-xml
+  - id: check-yaml
+  - id: check-toml
+  - id: check-json
+    exclude: "tsconfig\\.json$"
+
+- repo: https://github.com/fsfe/reuse-tool
+  rev: v1.1.0
+  hooks:
+  - id: reuse
+
+- repo: local
+  hooks:
+  - id: license
+    name: Spotless
+    files: ".*\\.(java|kt|kts)$"
+    language: system
+    entry: ./gradlew spotlessApply
+    pass_filenames: false
+    require_serial: true

@@ -1,0 +1,4 @@
+excavate is a program for Mining Turtles. When excavate is run, the turtle will mine a rectangular shaft into the ground, collecting blocks as it goes, and return to the surface once bedrock is hit.
+
+ex:
+"excavate 3" will mine a 3x3 shaft.

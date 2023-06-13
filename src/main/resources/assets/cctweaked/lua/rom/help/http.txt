@@ -1,0 +1,9 @@
+Functions in the HTTP API:
+http.checkURL( url )
+http.checkURLAsync( url )
+http.request( url, [postData], [headers] )
+http.get( url, [headers] )
+http.post( url, postData, [headers] )
+
+The HTTP API may be disabled in ComputerCraft.cfg
+A period of time after a http.request() call is made, a "http_success" or "http_failure" event will be raised. Arguments are the url and a file handle if successful. Arguments are nil, an error message, and (optionally) a file handle if the request failed. http.get() and http.post() block until this event fires instead.

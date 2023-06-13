@@ -1,0 +1,2 @@
+reboot will turn the computer off and on again.
+You can also hold Ctrl+R at any time to quickly reboot.

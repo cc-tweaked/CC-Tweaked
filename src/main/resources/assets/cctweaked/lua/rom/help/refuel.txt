@@ -1,0 +1,6 @@
+refuel is a program for Turtles. Refuel will consume items from the inventory as fuel for turtle.
+
+ex:
+"refuel" will refuel with at most one fuel item
+"refuel 10" will refuel with at most 10 fuel items
+"refuel all" will refuel with as many fuel items as possible

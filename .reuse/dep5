@@ -1,0 +1,30 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://github.com/cc-tweaked/cc-tweaked
+Upstream-Name: CC: Tweaked
+Upstream-Contact: Jonathan Coates <git@squiddev.cc>
+
+Files:
+  src/main/resources/assets/cctweaked/lua/rom/modules/command/.ignoreme
+  src/main/resources/assets/cctweaked/lua/rom/modules/main/.ignoreme
+  src/main/resources/assets/cctweaked/lua/rom/modules/turtle/.ignoreme
+  src/main/resources/assets/cctweaked/lua/rom/motd.txt
+  src/main/resources/mcmod.info
+Comment: Several assets where it's inconvenient to create a .license file.
+Copyright: The CC: Tweaked Developers
+License: MPL-2.0
+
+Files:
+  src/main/resources/assets/cctweaked/lua/rom/autorun/.ignoreme
+  src/main/resources/assets/cctweaked/lua/rom/help/*
+  src/main/resources/assets/cctweaked/lua/rom/programs/fun/advanced/levels/*
+  src/main/resources/assets/cctweaked/textures/gui/term_font.png
+Comment: Bulk-license original assets as CCPL.
+Copyright: 2011 Daniel Ratcliffe
+License: LicenseRef-CCPL
+
+Files:
+  gradle/wrapper/*
+  gradlew
+  gradlew.bat
+Copyright: Gradle Inc
+License: Apache-2.0

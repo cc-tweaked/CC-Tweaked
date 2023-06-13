@@ -1,0 +1,7 @@
+The "peripherals" program will list all of the peripheral devices accessible from this computer.
+Peripherals are external devices which CraftOS Computers and Turtles can interact with using the peripheral API.
+Type "help peripheral" to learn about using the peripheral API.
+Type "help drives" to learn about using Disk Drives.
+Type "help modems" to learn about using Modems.
+Type "help monitors" to learn about using Monitors.
+Type "help printers" to learn about using Printers.

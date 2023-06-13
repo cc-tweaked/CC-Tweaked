@@ -1,0 +1,1 @@
+repeat is a program for repeating rednet messages across long distances. To use, connect 2 or more modems to a computer and run the "repeat" program; from then on, any rednet message sent from any computer in wireless range or connected by networking cable to either of the modems will be repeated to those on the other side.

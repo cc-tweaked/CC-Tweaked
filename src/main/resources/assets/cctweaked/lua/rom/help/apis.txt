@@ -1,0 +1,4 @@
+apis lists the currently loaded APIs available to programs in CraftOS.
+
+Type "help <api>" to see help for a specific api.
+Call os.loadAPI( path ) to load extra apis.

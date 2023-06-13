@@ -1,0 +1,1 @@
+ls will list all the directories and files in the current location. Use "type" to find out if an item is a file or a directory.

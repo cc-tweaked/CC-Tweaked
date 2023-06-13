@@ -1,0 +1,6 @@
+alias assigns shell commands to run other programs.
+
+ex:
+"alias dir ls" will make the "dir" command run the "ls" program
+"alias dir" will remove the alias set on "dir"
+"alias" will list all current aliases.

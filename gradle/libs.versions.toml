@@ -1,0 +1,28 @@
+# SPDX-FileCopyrightText: 2023 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+
+[versions]
+forge = "1.4.7-6.6.2.534"
+
+asm = "9.3"
+kotlin = "1.8.10"
+
+[libraries]
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+asm-analysis = { module = "org.ow2.asm:asm-analysis", version.ref = "asm" }
+asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
+asm-tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
+asm-util = { module = "org.ow2.asm:asm-util", version.ref = "asm" }
+
+kotlin-platform = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+
+[bundles]
+asm = ["asm", "asm-analysis", "asm-commons", "asm-tree", "asm-util"]
+kotlin = ["kotlin-stdlib"]
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+spotless = { id = "com.diffplug.spotless", version = "6.19.0" }
+voldeloom = { id = "agency.highlysuspect.voldeloom", version = "2.4-SNAPSHOT" }

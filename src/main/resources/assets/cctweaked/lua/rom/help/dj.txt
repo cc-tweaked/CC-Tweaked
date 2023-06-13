@@ -1,0 +1,6 @@
+dj plays Music Discs from disk drives attached to the computer.
+
+ex:
+"dj" or "dj play" plays a random disc.
+"dj play left" plays the disc in the drive on the left of the computer.
+"dj stop" stops the current disc.

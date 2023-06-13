@@ -1,0 +1,10 @@
+Functions in the Text Utilities API:
+textutils.slowPrint( text )
+textutils.tabulate( table, table2, ... )
+textutils.pagedTabulate( table, table2, ... )
+textutils.formatTime( time, bTwentyFourHour )
+textutils.serialize( table )
+textutils.unserialize( string )
+textutils.serializeJSON( table, [useNBTStyle] )
+textutils.urlEncode( string )
+textutils.complete( string, table )

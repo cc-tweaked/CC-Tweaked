@@ -1,0 +1,17 @@
+Functions in the disk API. These functions are for interacting with disk drives:
+disk.isPresent( drive )
+disk.setLabel( drive, label )
+disk.getLabel( drive )
+disk.hasData( drive )
+disk.getMountPath( drive )
+disk.hasAudio( drive )
+disk.getAudioTitle( drive )
+disk.playAudio( drive )
+disk.stopAudio( )
+disk.eject( drive )
+disk.getID( drive )
+
+Events fired by the disk API:
+"disk" when a disk or other item is inserted into a disk drive. Argument is the name of the drive
+"disk_eject" when a disk is removed from a disk drive. Argument is the name of the drive
+Type "help events" to learn about the event system.

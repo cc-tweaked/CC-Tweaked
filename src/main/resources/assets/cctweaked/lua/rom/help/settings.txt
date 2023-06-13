@@ -1,0 +1,19 @@
+Functions in the Settings API:
+settings.get( name, [default] )
+settings.set( name, value )
+settings.unset( name )
+settings.load( path )
+settings.save( path )
+settings.clear()
+settings.getNames()
+
+Default Settings:
+shell.autocomplete - enables auto-completion in the Shell.
+lua.autocomplete - enables auto-completion in the Lua program.
+edit.autocomplete - enables auto-completion in the Edit program.
+edit.default_extension - sets the default file extension for files created with the Edit program
+paint.default_extension - sets the default file extension for files created with the Paint program
+bios.use_multishell - enables Multishell on Advanced Computers, Turtles, Pocket Computers and Command Computers.
+shell.allow_disk_startup - if a Disk Drive with a Disk inside that has a 'startup' script is attached to a computer, this setting allows to automatically run that script when the computer starts.
+shell.allow_startup - if there is a 'startup' script in a computer's root, this setting allow to automatically run that script when the computer runs.
+list.show_hidden - determines, whether the List program will list hidden files or not.

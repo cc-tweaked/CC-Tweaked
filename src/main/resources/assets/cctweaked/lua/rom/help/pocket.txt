@@ -1,0 +1,6 @@
+pocket is an API available on pocket computers, which allows modifying its upgrades.
+Functions in the pocket API:
+pocket.equipBack()
+pocket.unequipBack()
+
+When equipping upgrades, it will search your inventory for a suitable upgrade, starting in the selected slot. If one cannot be found then it will check your offhand.

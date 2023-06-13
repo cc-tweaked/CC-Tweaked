@@ -1,0 +1,17 @@
+Functions in the 3D Vector Math API:
+vector.new( x,y,z )
+
+Vectors returned by vector.new() have the following fields and methods:
+vector.x
+vector.y
+vector.z
+vector:add( vector )
+vector:sub( vector )
+vector:mul( number )
+vector:dot( vector )
+vector:cross( vector )
+vector:length()
+vector:normalize()
+vector:round()
+vector:tostring()
+The +, - and * operators can also be used on vectors.

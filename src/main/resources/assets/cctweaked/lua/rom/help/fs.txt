@@ -1,0 +1,40 @@
+Functions in the Filesystem API:
+fs.list( path )
+fs.find( wildcard )
+fs.exists( path )
+fs.isDir( path )
+fs.isReadOnly( path )
+fs.getDir( path )
+fs.getName( path )
+fs.getSize( path )
+fs.getDrive( path )
+fs.getFreeSpace( path )
+fs.makeDir( path )
+fs.move( path, path )
+fs.copy( path, path )
+fs.delete( path )
+fs.combine( path, localpath )
+fs.open( path, mode )
+fs.complete( path, location )
+Available fs.open() modes are "r", "w", "a", "rb", "wb" and "ab".
+
+Functions on files opened with mode "r":
+readLine()
+readAll()
+close()
+read( number )
+
+Functions on files opened with mode "w" or "a":
+write( string )
+writeLine( string )
+flush()
+close()
+
+Functions on files opened with mode "rb":
+read()
+close()
+
+Functions on files opened with mode "wb" or "ab":
+write( byte )
+flush()
+close()

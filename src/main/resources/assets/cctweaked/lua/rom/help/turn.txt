@@ -1,0 +1,6 @@
+turn is a program for Turtles, used to turn the turtle around without programming. It accepts one or more commands as a direction and a number of turns. The "go" program can also be used for turning.
+
+ex:
+"turn left" turns the turtle 90 degrees left.
+"turn right 2" turns the turtle 180 degrees right.
+"turn left 2 right" turns left 180 degrees, then right 90 degrees.

@@ -1,0 +1,2 @@
+multishell is the toplevel program on Advanced Computers which manages background tabs.
+Type "help shellapi" for information about the shell lua api.

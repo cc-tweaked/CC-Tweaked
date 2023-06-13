@@ -1,0 +1,4 @@
+Workbenches are peripheral devices found on Crafty Turtles running CraftOS. Type "help peripheral" to learn about using the Peripheral API to connect with peripherals. When a workbench is attached to a turtle, peripheral.getType() will return "workbench".
+
+Methods exposed by Workbenches:
+craft( channel )

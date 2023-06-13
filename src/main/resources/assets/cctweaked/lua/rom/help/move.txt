@@ -1,0 +1,6 @@
+mv moves a file or directory from one location to another.
+
+ex:
+"mv foo bar" renames the file "foo" to "bar".
+"mv foo bar/foo" moves the file "foo" to a folder called "bar".
+"mv disk/* disk2" moves the contents of one disk to another

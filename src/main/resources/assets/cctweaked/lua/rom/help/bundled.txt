@@ -1,0 +1,15 @@
+To set bundled outputs:
+c = colors.combine( colors.red, colors.blue )
+rs.setBundledOutput( "left", c )
+
+c = colors.combine( c, colors.green )
+rs.setBundledOutput( "left", c )
+
+c = colors.subtract( c, colors.blue )
+rs.setBundledOutput( "left", c )
+
+To get bundled inputs:
+c = rs.getBundledInput( "right" )
+red = colors.test( c, colors.red )
+
+Type "help colors" for the list of wire colors.

@@ -1,0 +1,4 @@
+tunnel is a program for Mining Turtles. Tunnel will mine a 3x2 tunnel of the depth specified.
+
+ex:
+"tunnel 20" will tunnel a tunnel 20 blocks long.

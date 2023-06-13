@@ -1,0 +1,7 @@
+Functions in the Paint Utilities API:
+paintutils.drawPixel( x, y, colour )
+paintutils.drawLine( startX, startY, endX, endY, colour )
+paintutils.drawBox( startX, startY, endX, endY, colour )
+paintutils.drawFilledBox( startX, startY, endX, endY, colour )
+paintutils.loadImage( path )
+paintutils.drawImage( image, x, y )

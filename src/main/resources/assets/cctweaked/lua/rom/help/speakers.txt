@@ -1,0 +1,9 @@
+The Speaker is a peripheral device available for CraftOS. Type "help peripheral" to learn about using the Peripheral API to connect with peripherals. When a Speaker is connected, peripheral.getType() will return "speaker".
+
+Methods exposed by the Speaker:
+playSound( sResourceName, nVolume, nPitch )
+playNote( sInstrumentName, nVolume, nPitch )
+
+Resource name is the same as used by the /playsound command, such as "minecraft:entity.cow.ambient".
+Instruments are as follows: "harp", "bass", "snare", "hat", and "basedrum" with the addition of "flute", "bell", "chime", and "guitar" in Minecraft versions 1.12 and above.
+Ticks is the amount of times a noteblock has been tuned (right clicked).
