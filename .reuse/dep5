@@ -14,6 +14,7 @@ Copyright: The CC: Tweaked Developers
 License: MPL-2.0
 
 Files:
+  doc/logo.png
   src/main/resources/assets/cctweaked/lua/rom/autorun/.ignoreme
   src/main/resources/assets/cctweaked/lua/rom/help/*
   src/main/resources/assets/cctweaked/lua/rom/programs/fun/advanced/levels/*
