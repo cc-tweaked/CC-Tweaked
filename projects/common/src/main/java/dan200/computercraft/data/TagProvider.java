@@ -88,6 +88,8 @@ class TagProvider {
             ModRegistry.Items.MONITOR_ADVANCED.get()
         );
 
+        tags.tag(ItemTags.BOOKSHELF_BOOKS).add(ModRegistry.Items.PRINTED_BOOK.get());
+
         tags.tag(ComputerCraftTags.Items.TURTLE_CAN_PLACE)
             .add(Items.GLASS_BOTTLE)
             .addTag(ItemTags.BOATS);
