@@ -206,6 +206,7 @@ tasks.processResources {
     filesMatching("META-INF/mods.toml") {
         expand(mapOf("forgeVersion" to libs.versions.forge.get(), "file" to mapOf("jarVersion" to modVersion)))
     }
+    exclude(".cache")
 }
 
 tasks.jar {

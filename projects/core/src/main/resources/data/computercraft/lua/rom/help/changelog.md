@@ -7,7 +7,7 @@
 * Java methods now coerce values to strings consistently with Lua.
 * Add custom timeout support to the HTTP API.
 * Support custom proxies for HTTP requests (Lemmmy).
-* The `speaker` program now errors when playing HTTP files.
+* The `speaker` program now errors when playing HTML files.
 * `edit` now shows an error message when editing read-only files.
 * Update Ukranian translation (SirEdvin).
 
