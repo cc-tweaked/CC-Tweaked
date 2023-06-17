@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.turtle.inventory;
 
+import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -29,12 +30,13 @@ public final class TurtleMenu extends AbstractComputerMenu {
     public static final int PLAYER_START_Y = 134;
     public static final int TURTLE_START_X = SIDEBAR_WIDTH + 175;
     public static final int PLAYER_START_X = SIDEBAR_WIDTH + BORDER;
+    public static final int UPGRADE_START_X = SIDEBAR_WIDTH + 254;
 
     private final ContainerData data;
 
     private TurtleMenu(
         int id, Predicate<Player> canUse, ComputerFamily family, @Nullable ServerComputer computer, @Nullable ComputerContainerData menuData,
-        Inventory playerInventory, Container inventory, ContainerData data
+        Inventory playerInventory, Container inventory, Container turtleUpgrades, ContainerData data
     ) {
         super(ModRegistry.Menus.TURTLE.get(), id, canUse, family, computer, menuData);
         this.data = data;
@@ -58,19 +60,24 @@ public final class TurtleMenu extends AbstractComputerMenu {
         for (var x = 0; x < 9; x++) {
             addSlot(new Slot(playerInventory, x, PLAYER_START_X + x * 18, PLAYER_START_Y + 3 * 18 + 5));
         }
+
+        // Turtle upgrades
+        addSlot(new UpgradeSlot(turtleUpgrades, TurtleSide.LEFT, 0, UPGRADE_START_X, PLAYER_START_Y + 1));
+        addSlot(new UpgradeSlot(turtleUpgrades, TurtleSide.RIGHT, 1, UPGRADE_START_X, PLAYER_START_Y + 1 + 18));
     }
 
     public static TurtleMenu ofBrain(int id, Inventory player, TurtleBrain turtle) {
         return new TurtleMenu(
             // Laziness in turtle.getOwner() is important here!
             id, p -> turtle.getOwner().stillValid(p), turtle.getFamily(), turtle.getOwner().createServerComputer(), null,
-            player, turtle.getInventory(), (SingleContainerData) turtle::getSelectedSlot
+            player, turtle.getInventory(), new UpgradeContainer(turtle), (SingleContainerData) turtle::getSelectedSlot
         );
     }
 
     public static TurtleMenu ofMenuData(int id, Inventory player, ComputerContainerData data) {
         return new TurtleMenu(
-            id, x -> true, data.family(), null, data, player, new SimpleContainer(TurtleBlockEntity.INVENTORY_SIZE), new SimpleContainerData(1)
+            id, x -> true, data.family(), null, data,
+            player, new SimpleContainer(TurtleBlockEntity.INVENTORY_SIZE), new SimpleContainer(2), new SimpleContainerData(1)
         );
     }
 

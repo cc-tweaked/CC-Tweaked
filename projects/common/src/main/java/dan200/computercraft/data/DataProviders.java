@@ -41,6 +41,15 @@ public final class DataProviders {
         generator.models(BlockModelProvider::addBlockModels, ItemModelProvider::addItemModels);
 
         generator.add(out -> new LanguageProvider(out, turtleUpgrades, pocketUpgrades));
+
+        // Unfortunately we rely on some client-side classes in this code. We just load in the client side data provider
+        // and invoke that.
+        try {
+            Class.forName("dan200.computercraft.data.client.ClientDataProviders")
+                .getMethod("add", GeneratorSink.class).invoke(null, generator);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public interface GeneratorSink {

@@ -119,7 +119,7 @@ loom {
 
         register("data") {
             configName = "Datagen"
-            server()
+            client()
 
             runDir("run/dataGen")
             property("cct.pretty-json")
