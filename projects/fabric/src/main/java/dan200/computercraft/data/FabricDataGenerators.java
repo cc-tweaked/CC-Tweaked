@@ -4,21 +4,25 @@
 
 package dan200.computercraft.data;
 
+import com.mojang.serialization.Codec;
 import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricCodecDataProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.SimpleFabricLootTableProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.data.models.BlockModelGenerators;
 import net.minecraft.data.models.ItemModelGenerators;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -41,6 +45,27 @@ public class FabricDataGenerators implements DataGeneratorEntrypoint {
         @Override
         public <T extends DataProvider> T add(DataProvider.Factory<T> factory) {
             return generator.addProvider(factory);
+        }
+
+        @Override
+        public <T> void addFromCodec(String name, PackType type, String directory, Codec<T> codec, Consumer<BiConsumer<ResourceLocation, T>> output) {
+            generator.addProvider((FabricDataOutput out) -> {
+                var ourType = switch (type) {
+                    case SERVER_DATA -> PackOutput.Target.DATA_PACK;
+                    case CLIENT_RESOURCES -> PackOutput.Target.RESOURCE_PACK;
+                };
+                return new FabricCodecDataProvider<T>(out, ourType, directory, codec) {
+                    @Override
+                    public String getName() {
+                        return name;
+                    }
+
+                    @Override
+                    protected void configure(BiConsumer<ResourceLocation, T> provider) {
+                        output.accept(provider);
+                    }
+                };
+            });
         }
 
         @Override

@@ -4,16 +4,20 @@
 
 package dan200.computercraft.data;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider.SubProviderEntry;
 import net.minecraft.data.models.BlockModelGenerators;
 import net.minecraft.data.models.ItemModelGenerators;
 import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -39,8 +43,10 @@ public final class DataProviders {
         generator.add(out -> new LanguageProvider(out, turtleUpgrades, pocketUpgrades));
     }
 
-    interface GeneratorSink {
+    public interface GeneratorSink {
         <T extends DataProvider> T add(DataProvider.Factory<T> factory);
+
+        <T> void addFromCodec(String name, PackType type, String directory, Codec<T> codec, Consumer<BiConsumer<ResourceLocation, T>> output);
 
         void lootTable(List<SubProviderEntry> tables);
 
