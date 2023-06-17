@@ -42,7 +42,6 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
 
     @Override
     protected void init() {
-        // FIXME: passEvents = true; // Pass mouse vents through to the game's mouse handler.
         // First ensure we're still grabbing the mouse, so the user can look around. Then reset bits of state that
         // grabbing unsets.
         minecraft.mouseHandler.grabMouse();
