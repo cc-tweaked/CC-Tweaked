@@ -165,7 +165,6 @@ tasks.processResources {
     filesMatching("fabric.mod.json") {
         expand(mapOf("version" to modVersion))
     }
-    exclude(".cache")
 }
 
 tasks.jar {
