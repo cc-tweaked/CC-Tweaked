@@ -848,7 +848,9 @@ unserialise = unserialize -- GB version
 --  - `nbt_style`: Whether to produce NBT-style JSON (non-quoted keys) instead of standard JSON.
 --  - `unicode_strings`: Whether to parse strings as containing UTF-8 characters instead of
 --    using the default 8-bit ANSI character set.
--- @tparam[opt][2] boolean bNBTStyle Whether to produce NBT-style JSON (non-quoted keys)
+-- @param[2] t The value to serialise. Like @{textutils.serialise}, this should not
+-- contain recursive tables or functions.
+-- @tparam[2] boolean bNBTStyle Whether to produce NBT-style JSON (non-quoted keys)
 -- instead of standard JSON.
 -- @treturn string The JSON representation of the input.
 -- @throws If the object contains a value which cannot be
@@ -862,12 +864,12 @@ function serializeJSON(t, options)
     expect(1, t, "table", "string", "number", "boolean")
     expect(2, options, "table", "boolean", "nil")
     if type(options) == "boolean" then
-        options = {nbt_style = options}
+        options = { nbt_style = options }
     elseif type(options) == "table" then
         field(options, "nbt_style", "boolean", "nil")
         field(options, "unicode_strings", "boolean", "nil")
     end
-    
+
     local tTracking = {}
     return serializeJSONImpl(t, tTracking, options)
 end
