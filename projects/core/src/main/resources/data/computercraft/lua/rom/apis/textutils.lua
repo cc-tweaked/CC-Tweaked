@@ -846,8 +846,8 @@ unserialise = unserialize -- GB version
 -- contain recursive tables or functions.
 -- @tparam[opt] { nbt_style? = boolean, unicode_strings? = boolean } options Options for serialization.
 --  - `nbt_style`: Whether to produce NBT-style JSON (non-quoted keys) instead of standard JSON.
---  - `unicode_strings`: Whether to parse strings as containing UTF-8 characters instead of
---    using the default 8-bit ANSI character set.
+--  - `unicode_strings`: Whether to treat strings as containing UTF-8 characters instead of
+--    using the default 8-bit character set.
 -- @param[2] t The value to serialise. Like @{textutils.serialise}, this should not
 -- contain recursive tables or functions.
 -- @tparam[2] boolean bNBTStyle Whether to produce NBT-style JSON (non-quoted keys)
