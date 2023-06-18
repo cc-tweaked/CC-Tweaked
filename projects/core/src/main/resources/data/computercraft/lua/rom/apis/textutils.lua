@@ -833,33 +833,45 @@ end
 
 unserialise = unserialize -- GB version
 
---- Returns a JSON representation of the given data.
---
--- This function attempts to guess whether a table is a JSON array or
--- object. However, empty tables are assumed to be empty objects - use
--- @{textutils.empty_json_array} to mark an empty array.
---
--- This is largely intended for interacting with various functions from the
--- @{commands} API, though may also be used in making @{http} requests.
---
--- @param t The value to serialise. Like @{textutils.serialise}, this should not
--- contain recursive tables or functions.
--- @tparam[opt] { nbt_style? = boolean, unicode_strings? = boolean } options Options for serialization.
---  - `nbt_style`: Whether to produce NBT-style JSON (non-quoted keys) instead of standard JSON.
---  - `unicode_strings`: Whether to treat strings as containing UTF-8 characters instead of
---    using the default 8-bit character set.
--- @param[2] t The value to serialise. Like @{textutils.serialise}, this should not
--- contain recursive tables or functions.
--- @tparam[2] boolean bNBTStyle Whether to produce NBT-style JSON (non-quoted keys)
--- instead of standard JSON.
--- @treturn string The JSON representation of the input.
--- @throws If the object contains a value which cannot be
--- serialised. This includes functions and tables which appear multiple
--- times.
--- @usage textutils.serialiseJSON({ values = { 1, "2", true } })
--- @since 1.7
--- @see textutils.json_null Use to serialise a JSON `null` value.
--- @see textutils.empty_json_array Use to serialise a JSON empty array.
+--[[- Returns a JSON representation of the given data.
+
+This function attempts to guess whether a table is a JSON array or
+object. However, empty tables are assumed to be empty objects - use
+@{textutils.empty_json_array} to mark an empty array.
+
+This is largely intended for interacting with various functions from the
+@{commands} API, though may also be used in making @{http} requests.
+
+@param[1] t The value to serialise. Like @{textutils.serialise}, this should not
+contain recursive tables or functions.
+@tparam[1,opt] { nbt_style? = boolean, unicode_strings? = boolean } options Options for serialisation.
+- `nbt_style`: Whether to produce NBT-style JSON (non-quoted keys) instead of standard JSON.
+- `unicode_strings`: Whether to treat strings as containing UTF-8 characters instead of
+   using the default 8-bit character set.
+
+@param[2] t The value to serialise. Like @{textutils.serialise}, this should not
+contain recursive tables or functions.
+@tparam[2] boolean bNBTStyle Whether to produce NBT-style JSON (non-quoted keys)
+instead of standard JSON.
+
+@treturn string The JSON representation of the input.
+@throws If the object contains a value which cannot be serialised. This includes
+functions and tables which appear multiple times.
+
+@usage Serialise a simple object
+
+    textutils.serialiseJSON({ values = { 1, "2", true } })
+
+@usage Serialise an object to a NBT-style string
+
+    textutils.serialiseJSON({ values = { 1, "2", true } }, { nbt_style = true })
+
+@since 1.7
+@changed 1.106.0 Added `options` overload and `unicode_strings` option.
+
+@see textutils.json_null Use to serialise a JSON `null` value.
+@see textutils.empty_json_array Use to serialise a JSON empty array.
+]]
 function serializeJSON(t, options)
     expect(1, t, "table", "string", "number", "boolean")
     expect(2, options, "table", "boolean", "nil")
