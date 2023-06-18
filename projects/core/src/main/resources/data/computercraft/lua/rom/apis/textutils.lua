@@ -427,7 +427,7 @@ do
     serializeJSONString = function(s, options)
         if options and options.unicode_strings and s:find("[\x80-\xff]") then
             local retval = '"'
-            for code in utf8.codes(s) do
+            for _, code in utf8.codes(s) do
                 if code > 0xFFFF then
                     -- Encode the codepoint as a UTF-16 surrogate pair
                     code = code - 0x10000
@@ -441,7 +441,7 @@ do
                     retval = retval .. string.char(code)
                 end
             end
-            return retval
+            return retval .. '"'
         else
             return ('"%s"'):format(s:gsub("[\0-\x1f\"\\]", map):gsub("[\x7f-\xff]", hexify))
         end

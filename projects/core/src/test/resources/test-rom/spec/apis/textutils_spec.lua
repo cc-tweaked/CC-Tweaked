@@ -183,9 +183,9 @@ describe("The textutils library", function()
         end)
 
         it("serializes Unicode strings", function()
-            expect(textutils.serializeJSON("\xe3\x81\x93\xe3\x82\x93\xe3\x81\xab\xe3\x81\xa1\xe3\x81\xaf", { unicode_strings = true })):eq('"\\u3053\\u3093\\u306b\\u3061\\u306f"')
-            expect(textutils.serializeJSON("\xf0\x9f\x98\xaf", { unicode_strings = true })):eq('"\\ud83d\\ude2f"')
-            expect(textutils.serializeJSON("\\\"\xc3\xbf\n\"", { unicode_strings = true })):eq('"\\\\\\"\\ud83d\\ude2f\\n\\""')
+            expect(textutils.serializeJSON("\xe3\x81\x93\xe3\x82\x93\xe3\x81\xab\xe3\x81\xa1\xe3\x81\xaf", { unicode_strings = true })):eq('"\\u3053\\u3093\\u306B\\u3061\\u306F"')
+            expect(textutils.serializeJSON("\xf0\x9f\x98\xaf", { unicode_strings = true })):eq('"\\uD83D\\uDE2F"')
+            expect(textutils.serializeJSON("\\\"\xc3\xbf\n\"", { unicode_strings = true })):eq('"\\\\\\"\\u00FF\\n\\""')
         end)
     end)
 
