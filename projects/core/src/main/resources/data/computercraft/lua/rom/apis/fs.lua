@@ -133,6 +133,93 @@ function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
     return {}
 end
 
+local function find_aux(path, parts, i, out)
+    local part = parts[i]
+    if not part then
+        -- If we're at the end of the pattern, ensure our path exists and append it.
+        if fs.exists(path) then out[#out + 1] = path end
+    elseif part.exact then
+        -- If we're an exact match, just recurse into this directory.
+        return find_aux(fs.combine(path, part.contents), parts, i + 1, out)
+    else
+        -- Otherwise we're a pattern. Check we're a directory, then recurse into each
+        -- matching file.
+        if not fs.isDir(path) then return end
+
+        local files = fs.list(path)
+        for j = 1, #files do
+            local file = files[j]
+            if file:find(part.contents) then find_aux(fs.combine(path, file), parts, i + 1, out) end
+        end
+    end
+end
+
+local find_escape = {
+    -- Escape standard Lua pattern characters
+    ["^"] = "%^", ["$"] = "%$", ["("] = "%(", [")"] = "%)", ["%"] = "%%",
+    ["."] = "%.", ["["] = "%[", ["]"] = "%]", ["+"] = "%+", ["-"] = "%-",
+    -- Aside from our wildcards.
+    ["*"] = ".*",
+    ["?"] = ".",
+}
+
+--[[- Searches for files matching a string with wildcards.
+
+This string looks like a normal path string, but can include wildcards, which
+can match multiple paths:
+
+ - "?" matches any single character in a file name.
+ - "*" matches any number of characters.
+
+For example, `rom/*/command*` will look for any path starting with `command`
+inside any subdirectory of `/rom`.
+
+Note that these wildcards match a single segment of the path. For instance
+`rom/*.lua` will include `rom/startup.lua` but _not_ include `rom/programs/list.lua`.
+
+@tparam string path The wildcard-qualified path to search for.
+@treturn { string... } A list of paths that match the search string.
+@throws If the supplied path was invalid.
+@since 1.6
+@changed 1.106.0 Added support for the `?` wildcard.
+
+@usage List all Markdown files in the help folder
+
+    fs.find("rom/help/*.md")
+]]
+function fs.find(pattern)
+    expect(1, pattern, "string")
+
+    pattern = fs.combine(pattern) -- Normalise the path, removing ".."s.
+
+    -- If the pattern is trying to search outside the computer root, just abort.
+    -- This will fail later on anyway.
+    if pattern == ".." or pattern:sub(1, 3) == "../" then
+        error("/" .. pattern .. ": Invalid Path", 2)
+    end
+
+    -- If we've no wildcards, just check the file exists.
+    if not pattern:find("[*?]") then
+        if fs.exists(pattern) then return { pattern } else return {} end
+    end
+
+    local parts = {}
+    for part in pattern:gmatch("[^/]+") do
+        if part:find("[*?]") then
+            parts[#parts + 1] = {
+                exact = false,
+                contents = "^" .. part:gsub(".", find_escape) .. "$",
+            }
+        else
+            parts[#parts + 1] = { exact = true, contents = part }
+        end
+    end
+
+    local out = {}
+    find_aux("", parts, 1, out)
+    return out
+end
+
 --- Returns true if a path is mounted to the parent filesystem.
 --
 -- The root filesystem "/" is considered a mount, along with disk folders and

@@ -4,6 +4,8 @@
 
 package dan200.computercraft.data;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.core.HolderLookup;
@@ -14,18 +16,24 @@ import net.minecraft.data.models.BlockModelGenerators;
 import net.minecraft.data.models.ItemModelGenerators;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.common.data.JsonCodecProvider;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -44,6 +52,15 @@ public class Generators {
         @Override
         public <T extends DataProvider> T add(DataProvider.Factory<T> factory) {
             return generator.addProvider(factory);
+        }
+
+        @Override
+        public <T> void addFromCodec(String name, PackType type, String directory, Codec<T> codec, Consumer<BiConsumer<ResourceLocation, T>> output) {
+            generator.addProvider(out -> {
+                Map<ResourceLocation, T> map = new HashMap<>();
+                output.accept(map::put);
+                return new JsonCodecProvider<>(out, existingFiles, ComputerCraftAPI.MOD_ID, JsonOps.INSTANCE, type, directory, codec, map);
+            });
         }
 
         @Override

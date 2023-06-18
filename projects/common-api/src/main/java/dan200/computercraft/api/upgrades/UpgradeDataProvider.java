@@ -24,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -104,7 +105,7 @@ public abstract class UpgradeDataProvider<T extends UpgradeBase, R extends Upgra
     protected abstract void addUpgrades(Consumer<Upgrade<R>> addUpgrade);
 
     @Override
-    public final CompletableFuture<?> run(CachedOutput cache) {
+    public CompletableFuture<?> run(CachedOutput cache) {
         var base = output.getOutputFolder().resolve("data");
 
         Set<ResourceLocation> seen = new HashSet<>();
@@ -127,7 +128,7 @@ public abstract class UpgradeDataProvider<T extends UpgradeBase, R extends Upgra
             }
         });
 
-        this.upgrades = upgrades;
+        this.upgrades = Collections.unmodifiableList(upgrades);
         return Util.sequenceFailFast(futures);
     }
 

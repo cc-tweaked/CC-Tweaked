@@ -213,8 +213,10 @@ public final class CommandComputerCraft {
                         getMetricsInstance(context.getSource()).start();
 
                         var stopCommand = "/computercraft track stop";
-                        Object[] args = new Object[]{ link(text(stopCommand), stopCommand, Component.translatable("commands.computercraft.track.stop.action")) };
-                        context.getSource().sendSuccess(Component.translatable("commands.computercraft.track.start.stop", args), false);
+                        context.getSource().sendSuccess(Component.translatable(
+                            "commands.computercraft.track.start.stop",
+                            link(text(stopCommand), stopCommand, Component.translatable("commands.computercraft.track.stop.action"))
+                        ), false);
                         return 1;
                     }))
 

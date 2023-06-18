@@ -166,47 +166,6 @@ public class FileSystem {
         return array;
     }
 
-    private void findIn(String dir, List<String> matches, Pattern wildPattern) throws FileSystemException {
-        var list = list(dir);
-        for (var entry : list) {
-            var entryPath = dir.isEmpty() ? entry : dir + "/" + entry;
-            if (wildPattern.matcher(entryPath).matches()) {
-                matches.add(entryPath);
-            }
-            if (isDir(entryPath)) {
-                findIn(entryPath, matches, wildPattern);
-            }
-        }
-    }
-
-    public synchronized String[] find(String wildPath) throws FileSystemException {
-        // Match all the files on the system
-        wildPath = sanitizePath(wildPath, true);
-
-        // If we don't have a wildcard at all just check the file exists
-        var starIndex = wildPath.indexOf('*');
-        if (starIndex == -1) {
-            return exists(wildPath) ? new String[]{ wildPath } : new String[0];
-        }
-
-        // Find the all non-wildcarded directories. For instance foo/bar/baz* -> foo/bar
-        var prevDir = wildPath.substring(0, starIndex).lastIndexOf('/');
-        var startDir = prevDir == -1 ? "" : wildPath.substring(0, prevDir);
-
-        // If this isn't a directory then just abort
-        if (!isDir(startDir)) return new String[0];
-
-        // Scan as normal, starting from this directory
-        var wildPattern = Pattern.compile("^\\Q" + wildPath.replaceAll("\\*", "\\\\E[^\\\\/]*\\\\Q") + "\\E$");
-        List<String> matches = new ArrayList<>();
-        findIn(startDir, matches, wildPattern);
-
-        // Return matches
-        var array = new String[matches.size()];
-        matches.toArray(array);
-        return array;
-    }
-
     public synchronized boolean exists(String path) throws FileSystemException {
         path = sanitizePath(path);
         var mount = getMount(path);
@@ -400,21 +359,20 @@ public class FileSystem {
 
     private static final Pattern threeDotsPattern = Pattern.compile("^\\.{3,}$");
 
+    // IMPORTANT: Both arrays are sorted by ASCII value.
+    private static final char[] specialChars = new char[]{ '"', '*', ':', '<', '>', '?', '|' };
+    private static final char[] specialCharsAllowWildcards = new char[]{ '"', ':', '<', '>', '|' };
+
     public static String sanitizePath(String path, boolean allowWildcards) {
         // Allow windowsy slashes
         path = path.replace('\\', '/');
 
         // Clean the path or illegal characters.
-        final var specialChars = new char[]{
-            '"', ':', '<', '>', '?', '|', // Sorted by ascii value (important)
-        };
-
         var cleanName = new StringBuilder();
+        var allowedChars = allowWildcards ? specialCharsAllowWildcards : specialChars;
         for (var i = 0; i < path.length(); i++) {
             var c = path.charAt(i);
-            if (c >= 32 && Arrays.binarySearch(specialChars, c) < 0 && (allowWildcards || c != '*')) {
-                cleanName.append(c);
-            }
+            if (c >= 32 && Arrays.binarySearch(allowedChars, c) < 0) cleanName.append(c);
         }
         path = cleanName.toString();
 

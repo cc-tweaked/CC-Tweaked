@@ -36,7 +36,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -163,13 +162,6 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     @Override
     public boolean onNotifyNeighbour(Level level, BlockPos pos, BlockState block, Direction direction) {
         throw new UnsupportedOperationException("Cannot interact with the world inside tests");
-    }
-
-
-    @Nullable
-    @Override
-    public ResourceLocation getCreativeTabId(CreativeModeTab tab) {
-        return null;
     }
 
     @Override

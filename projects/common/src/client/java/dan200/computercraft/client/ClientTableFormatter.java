@@ -23,7 +23,7 @@ import java.util.Objects;
  * A {@link TableFormatter} subclass which writes directly to {@linkplain ChatComponent the chat GUI}.
  * <p>
  * Each message written gets a special {@link GuiMessageTag}, so we can remove the previous table of the same
- * {@link TableBuilder#getId() id}.
+ * {@linkplain TableBuilder#getId() id}.
  */
 public class ClientTableFormatter implements TableFormatter {
     public static final ClientTableFormatter INSTANCE = new ClientTableFormatter();

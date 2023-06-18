@@ -37,6 +37,14 @@ import static net.minecraft.data.models.model.ModelLocationUtils.getModelLocatio
 import static net.minecraft.data.models.model.TextureMapping.getBlockTexture;
 
 class BlockModelProvider {
+    private static final TextureSlot CURSOR = TextureSlot.create("cursor");
+
+    private static final ModelTemplate COMPUTER_ON = new ModelTemplate(
+        Optional.of(new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/computer_on")),
+        Optional.empty(),
+        TextureSlot.FRONT, TextureSlot.SIDE, TextureSlot.TOP, CURSOR
+    );
+
     private static final ModelTemplate MONITOR_BASE = new ModelTemplate(
         Optional.of(new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/monitor_base")),
         Optional.empty(),
@@ -142,11 +150,18 @@ class BlockModelProvider {
     private static void registerComputer(BlockModelGenerators generators, ComputerBlock<?> block) {
         generators.blockStateOutput.accept(MultiVariantGenerator.multiVariant(block)
             .with(createHorizontalFacingDispatch())
-            .with(createModelDispatch(ComputerBlock.STATE, state -> ModelTemplates.CUBE_ORIENTABLE.createWithSuffix(
-                block, "_" + state.getSerializedName(),
-                TextureMapping.orientableCube(block).put(TextureSlot.FRONT, getBlockTexture(block, "_front" + state.getTexture())),
-                generators.modelOutput
-            )))
+            .with(createModelDispatch(ComputerBlock.STATE, state -> switch (state) {
+                case OFF -> ModelTemplates.CUBE_ORIENTABLE.createWithSuffix(
+                    block, "_" + state.getSerializedName(),
+                    TextureMapping.orientableCube(block),
+                    generators.modelOutput
+                );
+                case ON, BLINKING -> COMPUTER_ON.createWithSuffix(
+                    block, "_" + state.getSerializedName(),
+                    TextureMapping.orientableCube(block).put(CURSOR, new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/computer" + state.getTexture())),
+                    generators.modelOutput
+                );
+            }))
         );
         generators.delegateItemModel(block, getModelLocation(block, "_blinking"));
     }
