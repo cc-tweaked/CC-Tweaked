@@ -5,6 +5,7 @@
 package dan200.computercraft.client.model;
 
 import com.mojang.math.Transformation;
+import dan200.computercraft.client.model.turtle.ModelTransformer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
@@ -12,7 +13,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.BakedModelWrapper;
-import net.minecraftforge.client.model.QuadTransformers;
 import net.minecraftforge.client.model.data.ModelData;
 
 import javax.annotation.Nullable;
@@ -20,16 +20,15 @@ import java.util.List;
 
 /**
  * A {@link BakedModel} which applies a transformation matrix to its underlying quads.
+ *
+ * @see ModelTransformer
  */
 public class TransformedBakedModel extends BakedModelWrapper<BakedModel> {
-    private final Transformation transformation;
-    private final boolean invert;
-    private @Nullable TransformedQuads cache;
+    private final ModelTransformer transformation;
 
     public TransformedBakedModel(BakedModel model, Transformation transformation) {
         super(model);
-        this.transformation = transformation;
-        invert = transformation.getNormalMatrix().determinant() < 0;
+        this.transformation = new ModelTransformer(transformation);
     }
 
     @Override
@@ -39,19 +38,6 @@ public class TransformedBakedModel extends BakedModelWrapper<BakedModel> {
 
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData extraData, @Nullable RenderType renderType) {
-        var cache = this.cache;
-        var quads = originalModel.getQuads(state, side, rand, extraData, renderType);
-        if (quads.isEmpty()) return List.of();
-
-        // We do some basic caching here to avoid recomputing every frame. Most turtle models don't have culled faces,
-        // so it's not worth being smarter here.
-        if (cache != null && quads.equals(cache.original())) return cache.transformed();
-
-        var transformed = QuadTransformers.applying(transformation).process(quads);
-        this.cache = new TransformedQuads(quads, transformed);
-        return transformed;
-    }
-
-    private record TransformedQuads(List<BakedQuad> original, List<BakedQuad> transformed) {
+        return transformation.transform(originalModel.getQuads(state, side, rand, extraData, renderType));
     }
 }
