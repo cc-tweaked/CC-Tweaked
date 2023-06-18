@@ -11,6 +11,7 @@ import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
@@ -444,14 +445,14 @@ public final class ModRegistry {
     }
 
     private static void addTurtle(CreativeModeTab.Output out, TurtleItem turtle) {
-        out.accept(turtle.create(-1, null, -1, null, null, 0, null, null, null));
+        out.accept(turtle.create(-1, null, -1, null, null, 0, null));
         TurtleUpgrades.getVanillaUpgrades()
-            .map(x -> turtle.create(-1, null, -1, null, x, 0, null, null, null))
+            .map(x -> turtle.create(-1, null, -1, null, UpgradeData.wrap(x), 0, null))
             .forEach(out::accept);
     }
 
     private static void addPocket(CreativeModeTab.Output out, PocketComputerItem pocket) {
         out.accept(pocket.create(-1, null, -1, null));
-        PocketUpgrades.getVanillaUpgrades().map(x -> pocket.create(-1, null, -1, x)).forEach(out::accept);
+        PocketUpgrades.getVanillaUpgrades().map(x -> pocket.create(-1, null, -1, UpgradeData.wrap(x))).forEach(out::accept);
     }
 }

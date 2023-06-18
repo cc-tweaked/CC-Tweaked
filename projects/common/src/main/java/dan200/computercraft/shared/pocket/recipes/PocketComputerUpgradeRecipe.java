@@ -5,6 +5,7 @@
 package dan200.computercraft.shared.pocket.recipes;
 
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
@@ -62,7 +63,7 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
         if (PocketComputerItem.getUpgrade(computer) != null) return ItemStack.EMPTY;
 
         // Check for upgrades around the item
-        IPocketUpgrade upgrade = null;
+        UpgradeData<IPocketUpgrade> upgrade = null;
         for (var y = 0; y < inventory.getHeight(); y++) {
             for (var x = 0; x < inventory.getWidth(); x++) {
                 var item = inventory.getItem(x + y * inventory.getWidth());

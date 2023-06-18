@@ -8,6 +8,7 @@ import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
@@ -15,7 +16,6 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.AbstractComputerItem;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
 import net.minecraft.core.cauldron.CauldronInteraction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
@@ -33,24 +33,22 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
 
     public static ItemStack create(
         int id, @Nullable String label, int colour, ComputerFamily family,
-        @Nullable ITurtleUpgrade leftUpgrade, @Nullable ITurtleUpgrade rightUpgrade,
-        int fuelLevel, @Nullable ResourceLocation overlay,
-        @Nullable CompoundTag leftUpgradeData, @Nullable CompoundTag rightUpdateData
+        @Nullable UpgradeData<ITurtleUpgrade> leftUpgrade, @Nullable UpgradeData<ITurtleUpgrade> rightUpgrade,
+        int fuelLevel, @Nullable ResourceLocation overlay
     ) {
         return switch (family) {
             case NORMAL ->
-                ModRegistry.Items.TURTLE_NORMAL.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay, leftUpgradeData, rightUpdateData);
+                ModRegistry.Items.TURTLE_NORMAL.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay);
             case ADVANCED ->
-                ModRegistry.Items.TURTLE_ADVANCED.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay, leftUpgradeData, rightUpdateData);
+                ModRegistry.Items.TURTLE_ADVANCED.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay);
             default -> ItemStack.EMPTY;
         };
     }
 
     public ItemStack create(
         int id, @Nullable String label, int colour,
-        @Nullable ITurtleUpgrade leftUpgrade, @Nullable ITurtleUpgrade rightUpgrade,
-        int fuelLevel, @Nullable ResourceLocation overlay,
-        @Nullable CompoundTag leftUpgradeData, @Nullable CompoundTag rightUpdateData
+        @Nullable UpgradeData<ITurtleUpgrade> leftUpgrade, @Nullable UpgradeData<ITurtleUpgrade> rightUpgrade,
+        int fuelLevel, @Nullable ResourceLocation overlay
     ) {
         // Build the stack
         var stack = new ItemStack(this);
@@ -62,20 +60,17 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
 
         if (leftUpgrade != null) {
             stack.getOrCreateTag().putString(NBT_LEFT_UPGRADE, leftUpgrade.getUpgradeID().toString());
-        }
-
-        if (leftUpgradeData != null && !leftUpgradeData.isEmpty()) {
-            stack.getOrCreateTag().put(NBT_LEFT_UPGRADE_DATA, leftUpgradeData);
+            if (!leftUpgrade.data().isEmpty()) {
+                stack.getOrCreateTag().put(NBT_LEFT_UPGRADE_DATA, leftUpgrade.data());
+            }
         }
 
         if (rightUpgrade != null) {
             stack.getOrCreateTag().putString(NBT_RIGHT_UPGRADE, rightUpgrade.getUpgradeID().toString());
+            if (!rightUpgrade.data().isEmpty()) {
+                stack.getOrCreateTag().put(NBT_RIGHT_UPGRADE_DATA, rightUpgrade.data());
+            }
         }
-
-        if (rightUpdateData != null && !rightUpdateData.isEmpty()) {
-            stack.getOrCreateTag().put(NBT_RIGHT_UPGRADE_DATA, rightUpdateData);
-        }
-
         return stack;
     }
 
@@ -86,16 +81,16 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
         var right = getUpgrade(stack, TurtleSide.RIGHT);
         if (left != null && right != null) {
             return Component.translatable(baseString + ".upgraded_twice",
-                Component.translatable(right.getUnlocalisedAdjective()),
-                Component.translatable(left.getUnlocalisedAdjective())
+                Component.translatable(right.upgrade().getUnlocalisedAdjective()),
+                Component.translatable(left.upgrade().getUnlocalisedAdjective())
             );
         } else if (left != null) {
             return Component.translatable(baseString + ".upgraded",
-                Component.translatable(left.getUnlocalisedAdjective())
+                Component.translatable(left.upgrade().getUnlocalisedAdjective())
             );
         } else if (right != null) {
             return Component.translatable(baseString + ".upgraded",
-                Component.translatable(right.getUnlocalisedAdjective())
+                Component.translatable(right.upgrade().getUnlocalisedAdjective())
             );
         } else {
             return Component.translatable(baseString);
@@ -110,13 +105,13 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
 
         var left = getUpgrade(stack, TurtleSide.LEFT);
         if (left != null) {
-            var mod = TurtleUpgrades.instance().getOwner(left);
+            var mod = TurtleUpgrades.instance().getOwner(left.upgrade());
             if (mod != null && !mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
         }
 
         var right = getUpgrade(stack, TurtleSide.RIGHT);
         if (right != null) {
-            var mod = TurtleUpgrades.instance().getOwner(right);
+            var mod = TurtleUpgrades.instance().getOwner(right.upgrade());
             if (mod != null && !mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
         }
 
@@ -129,25 +124,22 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
             getComputerID(stack), getLabel(stack),
             getColour(stack), family,
             getUpgrade(stack, TurtleSide.LEFT), getUpgrade(stack, TurtleSide.RIGHT),
-            getFuelLevel(stack), getOverlay(stack),
-            getUpgradeData(stack, TurtleSide.LEFT), getUpgradeData(stack, TurtleSide.RIGHT)
+            getFuelLevel(stack), getOverlay(stack)
         );
     }
 
-    public @Nullable ITurtleUpgrade getUpgrade(ItemStack stack, TurtleSide side) {
+    public @Nullable UpgradeData<ITurtleUpgrade> getUpgrade(ItemStack stack, TurtleSide side) {
         var tag = stack.getTag();
         if (tag == null) return null;
 
         var key = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE : NBT_RIGHT_UPGRADE;
-        return tag.contains(key) ? TurtleUpgrades.instance().get(tag.getString(key)) : null;
-    }
-
-    public @Nullable CompoundTag getUpgradeData(ItemStack stack, TurtleSide side) {
-        var tag = stack.getTag();
-        if (tag == null) return null;
-
-        var key = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE_DATA : NBT_RIGHT_UPGRADE_DATA;
-        return tag.contains(key) ? tag.getCompound(key) : null;
+        if (!tag.contains(key)) return null;
+        var upgrade = TurtleUpgrades.instance().get(tag.getString(key));
+        if (upgrade == null) return null;
+        var dataKey = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE_DATA : NBT_RIGHT_UPGRADE_DATA;
+        return new UpgradeData<>(
+            upgrade, tag.getCompound(dataKey)
+        );
     }
 
     public @Nullable ResourceLocation getOverlay(ItemStack stack) {

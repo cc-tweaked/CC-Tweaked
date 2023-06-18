@@ -7,6 +7,7 @@ package dan200.computercraft.shared.pocket.core;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -112,6 +113,13 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         return upgrade;
     }
 
+    public @Nullable UpgradeData<IPocketUpgrade> getUpgradeData() {
+        if (upgrade == null) return null;
+        return new UpgradeData<>(
+            upgrade, getUpgradeNBTData()
+        );
+    }
+
     /**
      * Set the upgrade for this pocket computer, also updating the item stack.
      * <p>
@@ -119,13 +127,14 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
      *
      * @param upgrade The new upgrade to set it to, may be {@code null}.
      */
-    public void setUpgrade(@Nullable IPocketUpgrade upgrade) {
-        if (this.upgrade == upgrade) return;
+    public void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
+        var upgradeInstance = upgrade == null ? null : upgrade.upgrade();
+        if (this.upgrade == upgradeInstance) return;
 
         synchronized (this) {
             PocketComputerItem.setUpgrade(stack, upgrade);
             updateUpgradeNBTData();
-            this.upgrade = upgrade;
+            this.upgrade = upgradeInstance;
             invalidatePeripheral();
         }
     }

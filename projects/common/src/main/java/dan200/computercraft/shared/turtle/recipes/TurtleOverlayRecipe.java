@@ -41,9 +41,7 @@ public class TurtleOverlayRecipe extends ShapelessRecipe {
             turtle.getUpgrade(stack, TurtleSide.LEFT),
             turtle.getUpgrade(stack, TurtleSide.RIGHT),
             turtle.getFuelLevel(stack),
-            overlay,
-            turtle.getUpgradeData(stack, TurtleSide.LEFT),
-            turtle.getUpgradeData(stack, TurtleSide.RIGHT)
+            overlay
         );
     }
 

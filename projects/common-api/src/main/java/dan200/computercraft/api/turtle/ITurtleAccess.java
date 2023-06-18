@@ -8,6 +8,7 @@ import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -254,6 +255,16 @@ public interface ITurtleAccess {
     @Nullable
     ITurtleUpgrade getUpgrade(TurtleSide side);
 
+    default @Nullable UpgradeData<ITurtleUpgrade> getUpgradeData(TurtleSide side) {
+        var upgrade = getUpgrade(side);
+        if (upgrade == null) {
+            return null;
+        }
+        return new UpgradeData<>(
+            upgrade, getUpgradeNBTData(side)
+        );
+    }
+
     /**
      * Set the upgrade for a given side, resetting peripherals and clearing upgrade specific data.
      *
@@ -262,6 +273,15 @@ public interface ITurtleAccess {
      * @see #getUpgrade(TurtleSide)
      */
     void setUpgrade(TurtleSide side, @Nullable ITurtleUpgrade upgrade);
+
+    /**
+     * Set the upgrade for a given side, resetting peripherals and clearing upgrade specific data.
+     *
+     * @param side    The side to set the upgrade on.
+     * @param upgrade The upgrade to set, may be {@code null} to clear.
+     * @see #getUpgrade(TurtleSide)
+     */
+    void setUpgrade(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade);
 
     /**
      * Returns the peripheral created by the upgrade on the specified side of the turtle, if there is one.

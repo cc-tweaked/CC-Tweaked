@@ -7,6 +7,7 @@ package dan200.computercraft.shared.pocket.apis;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import net.minecraft.core.NonNullList;
@@ -57,7 +58,7 @@ public class PocketAPI implements ILuaAPI {
         var entity = computer.getEntity();
         if (!(entity instanceof Player player)) return new Object[]{ false, "Cannot find player" };
         var inventory = player.getInventory();
-        var previousUpgrade = computer.getUpgrade();
+        var previousUpgrade = computer.getUpgradeData();
 
         // Attempt to find the upgrade, starting in the main segment, and then looking in the opposite
         // one. We start from the position the item is currently in and loop round to the start.
@@ -71,11 +72,10 @@ public class PocketAPI implements ILuaAPI {
         if (newUpgrade == null) return new Object[]{ false, "Cannot find a valid upgrade" };
 
         // Remove the current upgrade
-        if (previousUpgrade != null) storeItem(player, previousUpgrade.produceCraftingItem(computer.getUpgradeNBTData()).copy());
+        if (previousUpgrade != null) storeItem(player, previousUpgrade.getUpgradeItem().copy());
 
         // Set the new upgrade
         computer.setUpgrade(newUpgrade);
-        computer.getUpgradeNBTData().merge(newUpgrade.produceUpgradeData(newUpgradeItem));
 
         return new Object[]{ true };
     }
@@ -91,13 +91,13 @@ public class PocketAPI implements ILuaAPI {
     public final Object[] unequipBack() {
         var entity = computer.getEntity();
         if (!(entity instanceof Player player)) return new Object[]{ false, "Cannot find player" };
-        var previousUpgrade = computer.getUpgrade();
+        var previousUpgrade = computer.getUpgradeData();
 
         if (previousUpgrade == null) return new Object[]{ false, "Nothing to unequip" };
 
         computer.setUpgrade(null);
 
-        storeItem(player, previousUpgrade.getCraftingItem().copy());
+        storeItem(player, previousUpgrade.getUpgradeItem().copy());
 
         return new Object[]{ true };
     }
@@ -109,13 +109,13 @@ public class PocketAPI implements ILuaAPI {
         }
     }
 
-    private static @Nullable ItemStack findUpgrade(NonNullList<ItemStack> inv, int start, @Nullable IPocketUpgrade previous) {
+    private static @Nullable ItemStack findUpgrade(NonNullList<ItemStack> inv, int start, @Nullable UpgradeData<IPocketUpgrade> previous) {
         for (var i = 0; i < inv.size(); i++) {
             var invStack = inv.get((i + start) % inv.size());
             if (!invStack.isEmpty()) {
                 var newUpgrade = PocketUpgrades.instance().get(invStack);
 
-                if (newUpgrade != null && newUpgrade != previous) {
+                if (newUpgrade != null && !UpgradeData.isSame(newUpgrade, previous)) {
                     // Consume an item from this stack and exit the loop
                     invStack = invStack.copy();
                     invStack.shrink(1);

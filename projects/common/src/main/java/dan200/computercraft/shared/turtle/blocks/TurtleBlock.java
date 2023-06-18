@@ -6,6 +6,7 @@ package dan200.computercraft.shared.turtle.blocks;
 
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlock;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlockEntity;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -129,10 +130,6 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
                 // Set Upgrades
                 for (var side : TurtleSide.values()) {
                     turtle.getAccess().setUpgrade(side, item.getUpgrade(stack, side));
-                    var updateData = item.getUpgradeData(stack, side);
-                    if (updateData != null && !updateData.isEmpty()) {
-                        turtle.getAccess().getUpgradeNBTData(side).merge(updateData);
-                    }
                 }
 
                 turtle.getAccess().setFuelLevel(item.getFuelLevel(stack));
@@ -165,9 +162,9 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
         var access = turtle.getAccess();
         return TurtleItem.create(
             turtle.getComputerID(), turtle.getLabel(), access.getColour(), turtle.getFamily(),
-            access.getUpgrade(TurtleSide.LEFT), access.getUpgrade(TurtleSide.RIGHT),
-            access.getFuelLevel(), turtle.getOverlay(),
-            access.getUpgradeNBTData(TurtleSide.LEFT), access.getUpgradeNBTData(TurtleSide.RIGHT)
+            UpgradeData.persist(access.getUpgradeData(TurtleSide.LEFT)),
+            UpgradeData.persist(access.getUpgradeData(TurtleSide.RIGHT)),
+            access.getFuelLevel(), turtle.getOverlay()
         );
     }
 

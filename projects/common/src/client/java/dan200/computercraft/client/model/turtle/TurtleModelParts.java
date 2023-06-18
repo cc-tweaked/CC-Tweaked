@@ -82,7 +82,9 @@ public final class TurtleModelParts {
         var label = turtle.getLabel(stack);
         var flip = label != null && (label.equals("Dinnerbone") || label.equals("Grumm"));
 
-        return new Combination(colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip);
+        return new Combination(
+            colour != -1, leftUpgrade == null ? null : leftUpgrade.upgrade(),
+            rightUpgrade == null ? null : rightUpgrade.upgrade(), overlay, christmas, flip);
     }
 
     public List<BakedModel> buildModel(Combination combo) {

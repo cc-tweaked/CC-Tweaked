@@ -13,6 +13,7 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.impl.TurtleUpgrades;
@@ -529,6 +530,20 @@ public class TurtleBrain implements TurtleAccessInternal {
         owner.updateInputsImmediately();
     }
 
+    @Override
+    public void setUpgrade(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
+        if (!setUpgradeDirect(side, upgrade) || owner.getLevel() == null) return;
+
+        // This is a separate function to avoid updating the block when reading the NBT. We don't need to do this as
+        // either the block is newly placed (and so won't have changed) or is being updated with /data, which calls
+        // updateBlock for us.
+        BlockEntityHelpers.updateBlock(owner);
+
+        // Recompute peripherals in case an upgrade being removed has exposed a new peripheral.
+        // TODO: Only update peripherals, or even only two sides?
+        owner.updateInputsImmediately();
+    }
+
     private boolean setUpgradeDirect(TurtleSide side, @Nullable ITurtleUpgrade upgrade) {
         // Remove old upgrade
         if (upgrades.containsKey(side)) {
@@ -549,6 +564,13 @@ public class TurtleBrain implements TurtleAccessInternal {
         }
 
         return true;
+    }
+
+    private boolean setUpgradeDirect(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
+        if (upgrade == null) return setUpgradeDirect(side, (ITurtleUpgrade) null);
+        var result = setUpgradeDirect(side, upgrade.upgrade());
+        if (result) upgradeNBTData.put(side, upgrade.data());
+        return result;
     }
 
     @Override

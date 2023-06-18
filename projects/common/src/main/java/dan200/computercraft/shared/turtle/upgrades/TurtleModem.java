@@ -9,11 +9,13 @@ import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class TurtleModem extends AbstractTurtleUpgrade {
@@ -76,5 +78,11 @@ public class TurtleModem extends AbstractTurtleUpgrade {
                 }
             }
         }
+    }
+
+    @Nonnull
+    @Override
+    public CompoundTag getPersistedData(CompoundTag upgradeData) {
+        return new CompoundTag();
     }
 }

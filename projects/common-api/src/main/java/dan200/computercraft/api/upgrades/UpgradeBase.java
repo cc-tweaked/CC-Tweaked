@@ -52,12 +52,43 @@ public interface UpgradeBase {
      */
     ItemStack getCraftingItem();
 
-    default @Nonnull ItemStack produceCraftingItem(@Nonnull CompoundTag upgradeData) {
+    /**
+     * Return an item stack representing the instance of upgrade with passed upgrade data.
+     * By default, this method output equals to {@link #getCraftingItem()} because default behavior of
+     * upgrades is ignored any upgrade data.
+     * <p>
+     * But if your upgrade required this, you can redefine this behavior and pass some information from upgrade data
+     * to item stack. Please, use this method with cautions.
+     * <p>
+     * This method will be used by {@code turtle.unequipLeft()} and {@code pocket.unequipBack()} to determine item stack
+     * that should be placed inside inventory
+     *
+     * @param upgradeData NBT information that was stored inside turtle/pocket by upgrade
+     * @return The item stack, that should be stored inside inventory
+     */
+    default @Nonnull ItemStack getUpgradeItem(@Nonnull CompoundTag upgradeData) {
         return getCraftingItem();
     }
 
-    default @Nonnull CompoundTag produceUpgradeData(@Nonnull ItemStack stack) {
+    /**
+     * Returns initial upgrade data, that should be set for turtle/pocket, that uses this upgrade, based on item stack
+     * that used for installing upgrade right now.
+     * @param stack Item Stack that used for upgrade
+     * @return Upgrade NBT data that should be set in time of adding this upgrade to turtle/pocket
+     */
+    default @Nonnull CompoundTag getUpgradeData(@Nonnull ItemStack stack) {
         return new CompoundTag();
+    }
+
+    /**
+     * Specific hook, that allow you to filter data, that should be stored when turtle was broken.
+     * Use this in cases when you don't need to store all upgrade data by default, and you want to change this
+     * behavior, for example, as modem do.
+     * @param upgradeData NBT data that currently stored for this upgrade
+     * @return filtered version of this data, by default just all of it
+     */
+    default @Nonnull CompoundTag getPersistedData(CompoundTag upgradeData) {
+        return upgradeData;
     }
 
     /**
