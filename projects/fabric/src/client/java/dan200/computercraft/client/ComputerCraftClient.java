@@ -4,6 +4,7 @@
 
 package dan200.computercraft.client;
 
+import dan200.computercraft.client.model.EmissiveComputerModel;
 import dan200.computercraft.client.model.turtle.TurtleModelLoader;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
@@ -35,9 +36,12 @@ public class ComputerCraftClient {
         ClientRegistry.registerItemColours(ColorProviderRegistry.ITEM::register);
         ClientRegistry.registerMainThread();
 
-
         ModelLoadingRegistry.INSTANCE.registerModelProvider((manager, out) -> ClientRegistry.registerExtraModels(out));
         ModelLoadingRegistry.INSTANCE.registerResourceProvider(loader -> (path, ctx) -> TurtleModelLoader.load(loader, path));
+        ModelLoadingRegistry.INSTANCE.registerResourceProvider(loader -> (path, ctx) -> EmissiveComputerModel.load(loader, path));
+        BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Blocks.COMPUTER_NORMAL.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Blocks.COMPUTER_COMMAND.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Blocks.COMPUTER_ADVANCED.get(), RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Blocks.MONITOR_NORMAL.get(), RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Blocks.MONITOR_ADVANCED.get(), RenderType.cutout());
 

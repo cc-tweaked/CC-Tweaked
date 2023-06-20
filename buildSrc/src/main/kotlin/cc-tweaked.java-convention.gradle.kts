@@ -104,6 +104,7 @@ tasks.withType(JavaCompile::class.java).configureEach {
 
 tasks.processResources {
     exclude("**/*.license")
+    exclude(".cache")
 }
 
 tasks.withType(AbstractArchiveTask::class.java).configureEach {

@@ -25,8 +25,10 @@ public class TurtleScreen extends AbstractComputerScreen<TurtleMenu> {
     private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/turtle_normal.png");
     private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/turtle_advanced.png");
 
-    private static final int TEX_WIDTH = 254;
+    private static final int TEX_WIDTH = 278;
     private static final int TEX_HEIGHT = 217;
+
+    private static final int FULL_TEX_SIZE = 512;
 
     public TurtleScreen(TurtleMenu container, Inventory player, Component title) {
         super(container, player, title, BORDER);
@@ -44,15 +46,16 @@ public class TurtleScreen extends AbstractComputerScreen<TurtleMenu> {
     protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
         var advanced = family == ComputerFamily.ADVANCED;
         var texture = advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL;
-        graphics.blit(texture, leftPos + AbstractComputerMenu.SIDEBAR_WIDTH, topPos, 0, 0, TEX_WIDTH, TEX_HEIGHT);
+        graphics.blit(texture, leftPos + AbstractComputerMenu.SIDEBAR_WIDTH, topPos, 0, 0, 0, TEX_WIDTH, TEX_HEIGHT, FULL_TEX_SIZE, FULL_TEX_SIZE);
 
+        // Render selected slot
         var slot = getMenu().getSelectedSlot();
         if (slot >= 0) {
             var slotX = slot % 4;
             var slotY = slot / 4;
             graphics.blit(texture,
-                leftPos + TURTLE_START_X - 2 + slotX * 18, topPos + PLAYER_START_Y - 2 + slotY * 18,
-                0, 217, 24, 24
+                leftPos + TURTLE_START_X - 2 + slotX * 18, topPos + PLAYER_START_Y - 2 + slotY * 18, 0,
+                0, 217, 24, 24, FULL_TEX_SIZE, FULL_TEX_SIZE
             );
         }
 

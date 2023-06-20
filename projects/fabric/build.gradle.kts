@@ -122,7 +122,7 @@ loom {
 
         register("data") {
             configName = "Datagen"
-            server()
+            client()
 
             runDir("run/dataGen")
             property("cct.pretty-json")
@@ -168,7 +168,6 @@ tasks.processResources {
     filesMatching("fabric.mod.json") {
         expand(mapOf("version" to modVersion))
     }
-    exclude(".cache")
 }
 
 tasks.jar {

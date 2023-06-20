@@ -10,6 +10,7 @@ import com.mojang.math.Axis;
 import com.mojang.math.Transformation;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.client.model.turtle.ModelTransformer;
 import dan200.computercraft.client.platform.ClientPlatformHelper;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -30,6 +31,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.joml.Vector4f;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -146,16 +148,30 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         renderModel(transform, renderer, lightmapCoord, overlayLight, ClientPlatformHelper.get().getModel(modelManager, modelLocation), tints);
     }
 
+    /**
+     * Render a block model.
+     *
+     * @param transform     The current matrix stack.
+     * @param renderer      The buffer to write to.
+     * @param lightmapCoord The current lightmap coordinate.
+     * @param overlayLight  The overlay light.
+     * @param model         The model to render.
+     * @param tints         Tints for the quads, as an array of RGB values.
+     * @see net.minecraft.client.renderer.block.ModelBlockRenderer#renderModel
+     */
     private void renderModel(PoseStack transform, VertexConsumer renderer, int lightmapCoord, int overlayLight, BakedModel model, @Nullable int[] tints) {
-        random.setSeed(0);
-        renderQuads(transform, renderer, lightmapCoord, overlayLight, model.getQuads(null, null, random), tints);
         for (var facing : DirectionUtil.FACINGS) {
+            random.setSeed(42);
             renderQuads(transform, renderer, lightmapCoord, overlayLight, model.getQuads(null, facing, random), tints);
         }
+
+        random.setSeed(42);
+        renderQuads(transform, renderer, lightmapCoord, overlayLight, model.getQuads(null, null, random), tints);
     }
 
     private static void renderQuads(PoseStack transform, VertexConsumer buffer, int lightmapCoord, int overlayLight, List<BakedQuad> quads, @Nullable int[] tints) {
         var matrix = transform.last();
+        var inverted = matrix.pose().determinant() < 0;
 
         for (var bakedquad : quads) {
             var tint = -1;
@@ -167,7 +183,50 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
             var r = (float) (tint >> 16 & 255) / 255.0F;
             var g = (float) (tint >> 8 & 255) / 255.0F;
             var b = (float) (tint & 255) / 255.0F;
-            buffer.putBulkData(matrix, bakedquad, r, g, b, lightmapCoord, overlayLight);
+            if (inverted) {
+                putBulkQuadInvert(buffer, matrix, bakedquad, r, g, b, lightmapCoord, overlayLight);
+            } else {
+                buffer.putBulkData(matrix, bakedquad, r, g, b, lightmapCoord, overlayLight);
+            }
+        }
+    }
+
+    /**
+     * A version of {@link VertexConsumer#putBulkData(PoseStack.Pose, BakedQuad, float, float, float, int, int)} for
+     * when the matrix is inverted.
+     *
+     * @param buffer        The buffer to draw to.
+     * @param pose          The current matrix stack.
+     * @param quad          The quad to draw.
+     * @param red           The red tint of this quad.
+     * @param green         The  green tint of this quad.
+     * @param blue          The blue tint of this quad.
+     * @param lightmapCoord The lightmap coordinate
+     * @param overlayLight  The overlay light.
+     */
+    private static void putBulkQuadInvert(VertexConsumer buffer, PoseStack.Pose pose, BakedQuad quad, float red, float green, float blue, int lightmapCoord, int overlayLight) {
+        var matrix = pose.pose();
+        // It's a little dubious to transform using this matrix rather than the normal matrix. This mirrors the logic in
+        // Direction.rotate (so not out of nowhere!), but is a little suspicious.
+        var dirNormal = quad.getDirection().getNormal();
+        var normal = matrix.transform(new Vector4f(dirNormal.getX(), dirNormal.getY(), dirNormal.getZ(), 0.0f)).normalize();
+
+        var vertices = quad.getVertices();
+        for (var vertex : ModelTransformer.ORDER) {
+            var i = vertex * ModelTransformer.STRIDE;
+
+            var x = Float.intBitsToFloat(vertices[i]);
+            var y = Float.intBitsToFloat(vertices[i + 1]);
+            var z = Float.intBitsToFloat(vertices[i + 2]);
+            var transformed = matrix.transform(new Vector4f(x, y, z, 1));
+
+            var u = Float.intBitsToFloat(vertices[i + 4]);
+            var v = Float.intBitsToFloat(vertices[i + 5]);
+            buffer.vertex(
+                transformed.x(), transformed.y(), transformed.z(),
+                red, green, blue, 1.0F, u, v, overlayLight, lightmapCoord,
+                normal.x(), normal.y(), normal.z()
+            );
         }
     }
 

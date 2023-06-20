@@ -2,7 +2,7 @@
 --
 -- SPDX-License-Identifier: MPL-2.0
 
---- Read and draw nbt ("Nitrogen Fingers Text") images.
+--- Read and draw nft ("Nitrogen Fingers Text") images.
 --
 -- nft ("Nitrogen Fingers Text") is a file format for drawing basic images.
 -- Unlike the images that @{paintutils.parseImage} uses, nft supports coloured

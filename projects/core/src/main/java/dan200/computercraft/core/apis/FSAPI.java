@@ -444,28 +444,6 @@ public class FSAPI implements ILuaAPI {
     }
 
     /**
-     * Searches for files matching a string with wildcards.
-     * <p>
-     * This string is formatted like a normal path string, but can include any
-     * number of wildcards ({@code *}) to look for files matching anything.
-     * For example, <code>rom/&#42;/command*</code> will look for any path starting with
-     * {@code command} inside any subdirectory of {@code /rom}.
-     *
-     * @param path The wildcard-qualified path to search for.
-     * @return A list of paths that match the search string.
-     * @throws LuaException If the path doesn't exist.
-     * @cc.since 1.6
-     */
-    @LuaFunction
-    public final String[] find(String path) throws LuaException {
-        try (var ignored = environment.time(Metrics.FS_OPS)) {
-            return getFileSystem().find(path);
-        } catch (FileSystemException e) {
-            throw new LuaException(e.getMessage());
-        }
-    }
-
-    /**
      * Returns the capacity of the drive the path is located on.
      *
      * @param path The path of the drive to get.

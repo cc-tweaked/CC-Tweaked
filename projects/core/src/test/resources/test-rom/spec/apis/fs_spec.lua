@@ -87,6 +87,53 @@ describe("The fs library", function()
         end)
     end)
 
+    describe("fs.find", function()
+        it("fails on invalid paths", function()
+            expect.error(fs.find, ".."):eq("/..: Invalid Path")
+            expect.error(fs.find, "../foo/bar"):eq("/../foo/bar: Invalid Path")
+        end)
+
+        it("returns nothing on non-existent files", function()
+            expect(fs.find("no/such/file")):same {}
+            expect(fs.find("no/such/*")):same {}
+            expect(fs.find("no/*/file")):same {}
+        end)
+
+        it("returns a single file", function()
+            expect(fs.find("rom")):same { "rom" }
+            expect(fs.find("rom/motd.txt")):same { "rom/motd.txt" }
+        end)
+
+        it("supports the '*' wildcard", function()
+            expect(fs.find("rom/*")):same {
+                "rom/apis",
+                "rom/autorun",
+                "rom/help",
+                "rom/modules",
+                "rom/motd.txt",
+                "rom/programs",
+                "rom/startup.lua",
+            }
+            expect(fs.find("rom/*/command")):same {
+                "rom/apis/command",
+                "rom/modules/command",
+                "rom/programs/command",
+            }
+
+            expect(fs.find("rom/*/lua*")):same {
+                "rom/help/lua.txt",
+                "rom/programs/lua.lua",
+            }
+        end)
+
+        it("supports the '?' wildcard", function()
+            expect(fs.find("rom/programs/mo??.lua")):same {
+                "rom/programs/motd.lua",
+                "rom/programs/move.lua",
+            }
+        end)
+    end)
+
     describe("fs.combine", function()
         it("removes . and ..", function()
             expect(fs.combine("./a/b")):eq("a/b")
