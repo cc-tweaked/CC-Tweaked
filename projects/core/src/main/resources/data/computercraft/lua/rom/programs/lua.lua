@@ -25,21 +25,13 @@ local tEnv = {
 }
 setmetatable(tEnv, { __index = _ENV })
 
--- Replace our package.path, so that it loads from the current directory, rather
--- than from /rom/programs. This makes it a little more friendly to use and
--- closer to what you'd expect.
+-- Replace our require with new instance that loads from the current directory
+-- rather than from /rom/programs. This makes it more friendly to use and closer
+-- to what you'd expect.
 do
+    local make_package = require "cc.require".make
     local dir = shell.dir()
-    if dir:sub(1, 1) ~= "/" then dir = "/" .. dir end
-    if dir:sub(-1) ~= "/" then dir = dir .. "/" end
-
-    local strip_path = "?;?.lua;?/init.lua;"
-    local path = package.path
-    if path:sub(1, #strip_path) == strip_path then
-        path = path:sub(#strip_path + 1)
-    end
-
-    package.path = dir .. "?;" .. dir .. "?.lua;" .. dir .. "?/init.lua;" .. path
+    _ENV.require, _ENV.package = make_package(_ENV, dir)
 end
 
 if term.isColour() then
