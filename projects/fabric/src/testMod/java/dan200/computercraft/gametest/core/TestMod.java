@@ -6,6 +6,7 @@ package dan200.computercraft.gametest.core;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.export.Exporter;
+import dan200.computercraft.testmod.ModEntrypoint;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -21,6 +22,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
     @Override
     public void onInitialize() {
         TestHooks.init();
+        ModEntrypoint.init();
 
         var phase = new ResourceLocation(ComputerCraftAPI.MOD_ID, "test_mod");
         ServerLifecycleEvents.SERVER_STARTED.addPhaseOrdering(Event.DEFAULT_PHASE, phase);

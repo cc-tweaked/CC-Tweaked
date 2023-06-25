@@ -52,6 +52,10 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         this.breakable = breakable;
     }
 
+    protected ItemStack buildItem(ITurtleAccess turtle, TurtleSide side) {
+        return item.copy();
+    }
+
     @Override
     public boolean isItemSuitable(ItemStack stack) {
         var tag = stack.getTag();
@@ -70,8 +74,8 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     @Override
     public TurtleCommandResult useTool(ITurtleAccess turtle, TurtleSide side, TurtleVerb verb, Direction direction) {
         return switch (verb) {
-            case ATTACK -> attack(turtle, direction);
-            case DIG -> dig(turtle, direction);
+            case ATTACK -> attack(turtle, side, direction);
+            case DIG -> dig(turtle, side, direction);
         };
     }
 
@@ -91,11 +95,12 @@ public class TurtleTool extends AbstractTurtleUpgrade {
      * different (and we don't want to play sounds/particles).
      *
      * @param turtle    The current turtle.
+     * @param side Side of this upgrade.
      * @param direction The direction we're attacking in.
      * @return Whether an attack occurred.
      * @see Player#attack(Entity)
      */
-    private TurtleCommandResult attack(ITurtleAccess turtle, Direction direction) {
+    private TurtleCommandResult attack(ITurtleAccess turtle, TurtleSide side, Direction direction) {
         // Create a fake player, and orient it appropriately
         var world = turtle.getLevel();
         var position = turtle.getPosition();
@@ -109,7 +114,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         var hit = WorldUtil.clip(world, turtlePos, rayDir, 1.5, null);
         if (hit instanceof EntityHitResult entityHit) {
             // Load up the turtle's inventory
-            var stackCopy = item.copy();
+            var stackCopy = buildItem(turtle, side);
             turtlePlayer.loadInventory(stackCopy);
 
             var hitEntity = entityHit.getEntity();
@@ -148,8 +153,9 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         return TurtleCommandResult.failure("Nothing to attack here");
     }
 
-    private TurtleCommandResult dig(ITurtleAccess turtle, Direction direction) {
-        if (PlatformHelper.get().hasToolUsage(item) && TurtlePlaceCommand.deployCopiedItem(item.copy(), turtle, direction, null, null)) {
+    private TurtleCommandResult dig(ITurtleAccess turtle, TurtleSide side, Direction direction) {
+        var itemCopy = buildItem(turtle, side);
+        if (PlatformHelper.get().hasToolUsage(item) && TurtlePlaceCommand.deployCopiedItem(itemCopy, turtle, direction, null, null)) {
             return TurtleCommandResult.success();
         }
 
@@ -162,7 +168,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         }
 
         var turtlePlayer = TurtlePlayer.getWithPosition(turtle, turtlePosition, direction);
-        turtlePlayer.loadInventory(item.copy());
+        turtlePlayer.loadInventory(itemCopy);
 
         // Check if we can break the block
         var breakable = checkBlockBreakable(level, blockPosition, turtlePlayer);
