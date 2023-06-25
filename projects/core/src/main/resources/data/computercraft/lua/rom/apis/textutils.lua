@@ -484,8 +484,10 @@ local function serializeJSONImpl(t, tTracking, options)
                         sObjectResult = sObjectResult .. "," .. sEntry
                     end
                     nObjectSize = nObjectSize + 1
+                    sleep()
                 elseif type(k) == "number" and k > largestArrayIndex then --the largest index is kept to avoid losing half the array if there is any single nil in that array
                     largestArrayIndex = k
+                    sleep()
                 end
             end
             for k = 1, largestArrayIndex, 1 do --the array is read up to the very last valid array index, ipairs() would stop at the first nil value and we would lose any data after.
@@ -651,6 +653,7 @@ do
                 -- Consume the next delimiter
                 pos = skip(str, pos)
                 c = sub(str, pos, pos)
+                sleep()
                 if c == "}" then break
                 elseif c == "," then pos = skip(str, pos + 1)
                 else return expected(pos, c, "',' or '}'")
@@ -683,10 +686,11 @@ do
 
             while true do
                 n, arr[n], pos = n + 1, decode_impl(str, pos, opts)
-
+                
                 -- Consume the next delimiter
                 pos = skip(str, pos)
                 c = sub(str, pos, pos)
+                sleep()
                 if c == "]" then break
                 elseif c == "," then pos = skip(str, pos + 1)
                 else return expected(pos, c, "',' or ']'")
