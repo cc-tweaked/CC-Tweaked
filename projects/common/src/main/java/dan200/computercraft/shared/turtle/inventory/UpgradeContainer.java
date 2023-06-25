@@ -7,6 +7,7 @@ package dan200.computercraft.shared.turtle.inventory;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.TurtleUpgrades;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
@@ -27,7 +28,7 @@ class UpgradeContainer implements Container {
 
     private final ITurtleAccess turtle;
 
-    private final List<ITurtleUpgrade> lastUpgrade = Arrays.asList(null, null);
+    private final List<UpgradeData<ITurtleUpgrade>> lastUpgrade = Arrays.asList(null, null);
     private final NonNullList<ItemStack> lastStack = NonNullList.withSize(2, ItemStack.EMPTY);
 
     UpgradeContainer(ITurtleAccess turtle) {
@@ -44,14 +45,14 @@ class UpgradeContainer implements Container {
 
     @Override
     public ItemStack getItem(int slot) {
-        var upgrade = turtle.getUpgrade(getSide(slot));
+        var upgrade = turtle.getUpgradeData(getSide(slot));
 
         // We don't want to return getCraftingItem directly here, as consumers may mutate the stack (they shouldn't!,
         // but if they do it's a pain to track down). To avoid recreating the stack each tick, we maintain a simple
         // cache.
         if (upgrade == lastUpgrade.get(slot)) return lastStack.get(slot);
 
-        var stack = upgrade == null ? ItemStack.EMPTY : upgrade.getCraftingItem().copy();
+        var stack = upgrade == null ? ItemStack.EMPTY : upgrade.getUpgradeItem().copy();
         lastUpgrade.set(slot, upgrade);
         lastStack.set(slot, stack);
         return stack;

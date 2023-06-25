@@ -9,6 +9,7 @@ import com.mojang.math.Transformation;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.client.platform.ClientPlatformHelper;
 import dan200.computercraft.client.render.TurtleBlockEntityRenderer;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
@@ -44,8 +45,8 @@ public final class TurtleModelParts {
 
     public record Combination(
         boolean colour,
-        @Nullable ITurtleUpgrade leftUpgrade,
-        @Nullable ITurtleUpgrade rightUpgrade,
+        @Nullable UpgradeData<ITurtleUpgrade> leftUpgrade,
+        @Nullable UpgradeData<ITurtleUpgrade> rightUpgrade,
         @Nullable ResourceLocation overlay,
         boolean christmas,
         boolean flip
@@ -82,9 +83,7 @@ public final class TurtleModelParts {
         var label = turtle.getLabel(stack);
         var flip = label != null && (label.equals("Dinnerbone") || label.equals("Grumm"));
 
-        return new Combination(
-            colour != -1, leftUpgrade == null ? null : leftUpgrade.upgrade(),
-            rightUpgrade == null ? null : rightUpgrade.upgrade(), overlay, christmas, flip);
+        return new Combination(colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip);
     }
 
     public List<BakedModel> buildModel(Combination combo) {
@@ -100,11 +99,11 @@ public final class TurtleModelParts {
             parts.add(transform(ClientPlatformHelper.get().getModel(modelManager, overlayModelLocation), transformation));
         }
         if (combo.leftUpgrade() != null) {
-            var model = TurtleUpgradeModellers.getModel(combo.leftUpgrade(), null, TurtleSide.LEFT);
+            var model = TurtleUpgradeModellers.getModel(combo.leftUpgrade(), TurtleSide.LEFT);
             parts.add(transform(model.getModel(), transformation.compose(model.getMatrix())));
         }
         if (combo.rightUpgrade() != null) {
-            var model = TurtleUpgradeModellers.getModel(combo.rightUpgrade(), null, TurtleSide.RIGHT);
+            var model = TurtleUpgradeModellers.getModel(combo.rightUpgrade(), TurtleSide.RIGHT);
             parts.add(transform(model.getModel(), transformation.compose(model.getMatrix())));
         }
 

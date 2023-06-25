@@ -35,7 +35,7 @@ public class EnchantableTurtleTool extends TurtleTool {
             var disenchantedStack = stack.copy();
             var tag = disenchantedStack.getOrCreateTag();
             tag.remove(ENCHANTMENTS_TAG);
-            stack.setTag(tag);
+            disenchantedStack.setTag(tag);
             // The rest of logic is pretty fine for our case
             return super.isItemSuitable(disenchantedStack);
         }

@@ -10,9 +10,11 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -26,6 +28,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * Obtain the model to be used when rendering a turtle peripheral.
      * <p>
      * When the current turtle is {@literal null}, this function should be constant for a given upgrade and side.
+     * If you want access to upgrade data in such cases, use another version of this method.
      *
      * @param upgrade The upgrade that you're getting the model for.
      * @param turtle  Access to the turtle that the upgrade resides on. This will be null when getting item models!
@@ -33,6 +36,20 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * @return The model that you wish to be used to render your upgrade.
      */
     TransformedModel getModel(T upgrade, @Nullable ITurtleAccess turtle, TurtleSide side);
+
+    /**
+     * Obtain the model to be used when rendering a turtle peripheral.
+     * <p>
+     * Used when turtle access object doesn't exist. For compatibility reasons, by default this method call getModel
+     * that depend on turtle.
+     *
+     * @param data  Upgrade data instance for current turtle side
+     * @param side    Which side of the turtle (left or right) the upgrade resides on.
+     * @return The model that you wish to be used to render your upgrade.
+     */
+    default TransformedModel getModel(@Nonnull UpgradeData<T> data, TurtleSide side) {
+        return getModel(data.upgrade(), null, side);
+    }
 
     /**
      * A basic {@link TurtleUpgradeModeller} which renders using the upgrade's {@linkplain ITurtleUpgrade#getCraftingItem()
