@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - mc-1.19.x
+    - mc-1.20.x
 
 jobs:
   make_doc:
