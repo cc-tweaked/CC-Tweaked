@@ -55,6 +55,22 @@ public record UpgradeData<T extends UpgradeBase>(T upgrade, CompoundTag data) {
         return upgrade.getUpgradeItem(data);
     }
 
+    /**
+     * Proxy method to upgrade.
+     * @return default crafting item for upgrade
+     */
+    public ItemStack getCraftingItem() {
+        return upgrade.getCraftingItem();
+    }
+
+    /**
+     * Proxy method to upgrade.
+     * @return The localisation key for this upgrade's adjective.
+     */
+    public String getUnlocalisedAdjective() {
+        return upgrade.getUnlocalisedAdjective();
+    }
+
     /** Wrapper that just pass upgrade ID.
      * @return upgrade id
      */

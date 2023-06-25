@@ -194,14 +194,14 @@ public class UpgradeRecipeGenerator<T> {
             if (left != null) {
                 recipes.add(turtle(
                     Ingredient.of(turtleWith(stack, null, right)),
-                    Ingredient.of(left.upgrade().getCraftingItem()),
+                    Ingredient.of(left.getCraftingItem()),
                     stack
                 ));
             }
 
             if (right != null) {
                 recipes.add(turtle(
-                    Ingredient.of(right.upgrade().getCraftingItem()),
+                    Ingredient.of(right.getCraftingItem()),
                     Ingredient.of(turtleWith(stack, left, null)),
                     stack
                 ));
@@ -213,7 +213,7 @@ public class UpgradeRecipeGenerator<T> {
 
             var back = PocketComputerItem.getUpgrade(stack);
             if (back != null) {
-                recipes.add(pocket(Ingredient.of(back.upgrade().getCraftingItem()), Ingredient.of(pocketWith(stack, null)), stack));
+                recipes.add(pocket(Ingredient.of(back.getCraftingItem()), Ingredient.of(pocketWith(stack, null)), stack));
             }
 
             return Collections.unmodifiableList(recipes);

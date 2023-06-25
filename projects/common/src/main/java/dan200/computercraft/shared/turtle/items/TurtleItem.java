@@ -81,16 +81,16 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
         var right = getUpgrade(stack, TurtleSide.RIGHT);
         if (left != null && right != null) {
             return Component.translatable(baseString + ".upgraded_twice",
-                Component.translatable(right.upgrade().getUnlocalisedAdjective()),
-                Component.translatable(left.upgrade().getUnlocalisedAdjective())
+                Component.translatable(right.getUnlocalisedAdjective()),
+                Component.translatable(left.getUnlocalisedAdjective())
             );
         } else if (left != null) {
             return Component.translatable(baseString + ".upgraded",
-                Component.translatable(left.upgrade().getUnlocalisedAdjective())
+                Component.translatable(left.getUnlocalisedAdjective())
             );
         } else if (right != null) {
             return Component.translatable(baseString + ".upgraded",
-                Component.translatable(right.upgrade().getUnlocalisedAdjective())
+                Component.translatable(right.getUnlocalisedAdjective())
             );
         } else {
             return Component.translatable(baseString);

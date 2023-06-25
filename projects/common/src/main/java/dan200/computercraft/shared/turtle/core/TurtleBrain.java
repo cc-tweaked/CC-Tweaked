@@ -517,7 +517,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     }
 
     @Override
-    public void setUpgrade(TurtleSide side, @Nullable ITurtleUpgrade upgrade) {
+    public void setUpgradeData(TurtleSide side, @Nullable ITurtleUpgrade upgrade) {
         if (!setUpgradeDirect(side, upgrade) || owner.getLevel() == null) return;
 
         // This is a separate function to avoid updating the block when reading the NBT. We don't need to do this as
@@ -531,7 +531,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     }
 
     @Override
-    public void setUpgrade(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
+    public void setUpgradeData(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
         if (!setUpgradeDirect(side, upgrade) || owner.getLevel() == null) return;
 
         // This is a separate function to avoid updating the block when reading the NBT. We don't need to do this as

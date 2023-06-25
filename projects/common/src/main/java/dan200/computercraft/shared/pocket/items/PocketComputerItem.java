@@ -161,7 +161,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         var upgrade = getUpgrade(stack);
         if (upgrade != null) {
             return Component.translatable(baseString + ".upgraded",
-                Component.translatable(upgrade.upgrade().getUnlocalisedAdjective())
+                Component.translatable(upgrade.getUnlocalisedAdjective())
             );
         } else {
             return super.getName(stack);

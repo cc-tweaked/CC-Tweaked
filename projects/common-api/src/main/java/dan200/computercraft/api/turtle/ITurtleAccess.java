@@ -250,7 +250,7 @@ public interface ITurtleAccess {
      *
      * @param side The side to get the upgrade from.
      * @return The upgrade on the specified side of the turtle, if there is one.
-     * @see #setUpgrade(TurtleSide, ITurtleUpgrade)
+     * @see #setUpgradeData(TurtleSide, ITurtleUpgrade)
      */
     @Nullable
     ITurtleUpgrade getUpgrade(TurtleSide side);
@@ -272,7 +272,7 @@ public interface ITurtleAccess {
      * @param upgrade The upgrade to set, may be {@code null} to clear.
      * @see #getUpgrade(TurtleSide)
      */
-    void setUpgrade(TurtleSide side, @Nullable ITurtleUpgrade upgrade);
+    void setUpgradeData(TurtleSide side, @Nullable ITurtleUpgrade upgrade);
 
     /**
      * Set the upgrade for a given side, resetting peripherals and clearing upgrade specific data.
@@ -281,7 +281,7 @@ public interface ITurtleAccess {
      * @param upgrade The upgrade to set, may be {@code null} to clear.
      * @see #getUpgrade(TurtleSide)
      */
-    void setUpgrade(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade);
+    void setUpgradeData(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade);
 
     /**
      * Returns the peripheral created by the upgrade on the specified side of the turtle, if there is one.

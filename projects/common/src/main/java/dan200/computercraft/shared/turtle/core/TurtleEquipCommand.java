@@ -36,7 +36,7 @@ public class TurtleEquipCommand implements TurtleCommand {
             turtle.getInventory().removeItem(turtle.getSelectedSlot(), 1);
         }
         if (oldUpgrade != null) TurtleUtil.storeItemOrDrop(turtle, oldUpgrade.getUpgradeItem(turtle.getUpgradeNBTData(side)).copy());
-        turtle.setUpgrade(side, newUpgrade);
+        turtle.setUpgradeData(side, newUpgrade);
 
         // Animate
         if (newUpgrade != null || oldUpgrade != null) {
