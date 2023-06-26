@@ -4,38 +4,23 @@
 
 package dan200.computercraft.core.asm;
 
+import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralType;
 
 import javax.annotation.Nullable;
 
-public final class NamedMethod<T> {
-    private final String name;
-    private final T method;
-    private final boolean nonYielding;
-
-    private final @Nullable PeripheralType genericType;
-
-    NamedMethod(String name, T method, boolean nonYielding, @Nullable PeripheralType genericType) {
-        this.name = name;
-        this.method = method;
-        this.nonYielding = nonYielding;
-        this.genericType = genericType;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public T getMethod() {
-        return method;
-    }
-
-    public boolean nonYielding() {
-        return nonYielding;
-    }
-
-    @Nullable
-    public PeripheralType getGenericType() {
-        return genericType;
-    }
+/**
+ * A method generated from a {@link LuaFunction}.
+ *
+ * @param name        The name of this method.
+ * @param method      The underlying method implementation.
+ * @param nonYielding If this method is guaranteed to never yield, and will always return a
+ *                    {@linkplain MethodResult#of(Object...) basic result}.
+ * @param genericType The peripheral type of this method. This is only set if this is a method on a
+ *                    {@link GenericPeripheral}.
+ * @param <T>         The type of method, either a {@link LuaMethod} or {@link PeripheralMethod}.
+ */
+public record NamedMethod<T>(String name, T method, boolean nonYielding, @Nullable PeripheralType genericType) {
 }

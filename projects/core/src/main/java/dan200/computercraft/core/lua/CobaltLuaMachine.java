@@ -172,9 +172,9 @@ public class CobaltLuaMachine implements ILuaMachine {
         }
 
         ObjectSource.allMethods(LuaMethod.GENERATOR, object, (instance, method) ->
-            table.rawset(method.getName(), method.nonYielding()
-                ? new BasicFunction(this, method.getMethod(), instance, context, method.getName())
-                : new ResultInterpreterFunction(this, method.getMethod(), instance, context, method.getName())));
+            table.rawset(method.name(), method.nonYielding()
+                ? new BasicFunction(this, method.method(), instance, context, method.name())
+                : new ResultInterpreterFunction(this, method.method(), instance, context, method.name())));
 
         try {
             if (table.next(Constants.NIL).first().isNil()) return null;

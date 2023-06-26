@@ -28,7 +28,7 @@ public class ObjectWrapper implements ILuaContext {
             methodMap.put(dynamicMethods[i], LuaMethod.DYNAMIC.get(i));
         }
         for (var method : methods) {
-            methodMap.put(method.getName(), method.getMethod());
+            methodMap.put(method.name(), method.method());
         }
     }
 

@@ -328,7 +328,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             methodMap.put(dynamicMethods[i], PeripheralMethod.DYNAMIC.get(i));
         }
         for (var method : methods) {
-            methodMap.put(method.getName(), method.getMethod());
+            methodMap.put(method.name(), method.method());
         }
         return methodMap;
     }

@@ -44,7 +44,7 @@ public class GeneratorTest {
         var methods = LuaMethod.GENERATOR.getMethods(Basic.class);
         var methods2 = LuaMethod.GENERATOR.getMethods(Basic2.class);
         assertThat(methods, contains(named("go")));
-        assertThat(methods.get(0).getMethod(), sameInstance(methods2.get(0).getMethod()));
+        assertThat(methods.get(0).method(), sameInstance(methods2.get(0).method()));
     }
 
     @Test
@@ -217,8 +217,8 @@ public class GeneratorTest {
 
     private static <T> T find(Collection<NamedMethod<T>> methods, String name) {
         return methods.stream()
-            .filter(x -> x.getName().equals(name))
-            .map(NamedMethod::getMethod)
+            .filter(x -> x.name().equals(name))
+            .map(NamedMethod::method)
             .findAny()
             .orElseThrow(NullPointerException::new);
     }
@@ -235,7 +235,7 @@ public class GeneratorTest {
     }
 
     public static <T> Matcher<NamedMethod<T>> named(String method) {
-        return contramap(is(method), "name", NamedMethod::getName);
+        return contramap(is(method), "name", NamedMethod::name);
     }
 
     private static final ILuaContext CONTEXT = new ILuaContext() {

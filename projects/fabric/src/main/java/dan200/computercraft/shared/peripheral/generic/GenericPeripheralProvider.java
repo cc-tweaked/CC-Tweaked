@@ -71,7 +71,7 @@ public class GenericPeripheralProvider {
 
                 // If we have a peripheral type, use it. Always pick the smallest one, so it's consistent (assuming mods
                 // don't change).
-                var type = method.getGenericType();
+                var type = method.genericType();
                 if (type != null && type.getPrimaryType() != null) {
                     var name = type.getPrimaryType();
                     if (this.name == null || this.name.compareTo(name) > 0) this.name = name;

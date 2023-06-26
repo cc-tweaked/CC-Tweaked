@@ -19,8 +19,8 @@ final class SaturatedMethod {
 
     SaturatedMethod(Object target, NamedMethod<PeripheralMethod> method) {
         this.target = target;
-        name = method.getName();
-        this.method = method.getMethod();
+        name = method.name();
+        this.method = method.method();
     }
 
     MethodResult apply(ILuaContext context, IComputerAccess computer, IArguments args) throws LuaException {
