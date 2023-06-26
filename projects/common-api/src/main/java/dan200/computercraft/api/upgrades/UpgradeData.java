@@ -4,29 +4,58 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public record UpgradeData<T extends UpgradeBase>(T upgrade, CompoundTag data) {
+public final class UpgradeData<T extends UpgradeBase> {
+    private final @Nonnull T upgrade;
+    private final @Nonnull CompoundTag data;
+
+    private UpgradeData(@Nonnull T upgrade, @Nonnull CompoundTag data) {
+        this.upgrade = upgrade;
+        this.data = data;
+    }
+
+    public @Nonnull T upgrade() {
+        return upgrade;
+    }
+
+    public @Nonnull CompoundTag data() {
+        return data;
+    }
+
     /** Utility function, that provide ability to build default version of upgrade data
      * based only on upgrade object.
      * @param upgrade any upgrade
      * @param <T> Upgrade class
      * @return default instance of upgrade data
      */
-    public static <T extends UpgradeBase> UpgradeData<T> wrap(T upgrade) {
-        return new UpgradeData<>(upgrade, upgrade.getUpgradeData(upgrade.getCraftingItem()));
+    public static <T extends UpgradeBase> UpgradeData<T> of(T upgrade) {
+        return of(upgrade, upgrade.getUpgradeData(upgrade.getCraftingItem()));
+    }
+
+    /** Utility function, that provide ability to build default version of upgrade data
+     * based only on upgrade object.
+     * @param upgrade any upgrade
+     * @param data upgrade data
+     * @param <T> Upgrade class
+     * @return default instance of upgrade data
+     */
+    public static <T extends UpgradeBase> UpgradeData<T> of(T upgrade, CompoundTag data) {
+        return new UpgradeData<>(upgrade, data.copy());
     }
 
     /** Transform UpgradeData to it persistent variant that should be stored, when turtle or pocket items stop functioning.
      * @see UpgradeBase#getPersistedData(CompoundTag)
      * @param upgrade UpgradeData that should be persisted or null
+     * @param <T> Upgrade type parameter
      * @return UpgradeData instance with only persistent upgrade information or null
      */
     public static <T extends UpgradeBase> @Nullable UpgradeData<T> persist(@Nullable UpgradeData<T> upgrade) {
         if (upgrade == null) {
             return null;
         }
-        return new UpgradeData<>(
+        return of(
             upgrade.upgrade, upgrade.upgrade.getPersistedData(upgrade.data)
         );
     }
@@ -48,7 +77,8 @@ public record UpgradeData<T extends UpgradeBase>(T upgrade, CompoundTag data) {
         return first.upgrade == second.upgrade;
     }
 
-    /** Build ItemStack from upgrade and data pair.
+    /**
+     * Build ItemStack from upgrade and data pair.
      * @return ItemStack that correspond current upgrade + data pair
      */
     public ItemStack getUpgradeItem() {

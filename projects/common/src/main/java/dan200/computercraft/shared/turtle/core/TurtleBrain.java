@@ -555,6 +555,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
         upgradeNBTData.remove(side);
 
+
         // Set new upgrade
         if (upgrade != null) upgrades.put(side, upgrade);
 

@@ -24,7 +24,11 @@ public class EnchantableTurtleTool extends TurtleTool {
     protected ItemStack buildItem(ITurtleAccess turtle, TurtleSide side) {
         var upgradeData = turtle.getUpgradeData(side);
         if (upgradeData == null) return super.buildItem(turtle, side);
-        return upgradeData.getUpgradeItem();
+        var resultItem = upgradeData.getUpgradeItem();
+        // So, in some cases, when NBT data is empty, we still need to make sure, that we will not modify
+        // initial item
+        if (resultItem == getCraftingItem()) return resultItem.copy();
+        return resultItem;
     }
 
     @Override
@@ -54,10 +58,11 @@ public class EnchantableTurtleTool extends TurtleTool {
     @NotNull
     @Override
     public ItemStack getUpgradeItem(@NotNull CompoundTag upgradeData) {
-        var baseItem = super.getUpgradeItem(upgradeData);
         if (upgradeData.contains(ENCHANTMENTS_TAG)) {
+            var baseItem = getCraftingItem().copy();
             baseItem.getOrCreateTag().put(ENCHANTMENTS_TAG, Objects.requireNonNull(upgradeData.get(ENCHANTMENTS_TAG)));
+            return baseItem;
         }
-        return baseItem;
+        return super.getUpgradeItem(upgradeData);
     }
 }

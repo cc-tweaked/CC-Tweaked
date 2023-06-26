@@ -115,7 +115,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
     public @Nullable UpgradeData<IPocketUpgrade> getUpgradeData() {
         if (upgrade == null) return null;
-        return new UpgradeData<>(
+        return UpgradeData.of(
             upgrade, getUpgradeNBTData()
         );
     }

@@ -137,7 +137,7 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
         var upgrade = TurtleUpgrades.instance().get(tag.getString(key));
         if (upgrade == null) return null;
         var dataKey = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE_DATA : NBT_RIGHT_UPGRADE_DATA;
-        return new UpgradeData<>(
+        return UpgradeData.of(
             upgrade, tag.getCompound(dataKey)
         );
     }

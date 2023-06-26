@@ -47,12 +47,14 @@ class UpgradeContainer implements Container {
     public ItemStack getItem(int slot) {
         var upgrade = turtle.getUpgradeData(getSide(slot));
 
+        if (upgrade == null) return ItemStack.EMPTY;
+
         // We don't want to return getCraftingItem directly here, as consumers may mutate the stack (they shouldn't!,
         // but if they do it's a pain to track down). To avoid recreating the stack each tick, we maintain a simple
         // cache.
-        if (upgrade == lastUpgrade.get(slot)) return lastStack.get(slot);
+        if (upgrade.equals(lastUpgrade.get(slot))) return lastStack.get(slot);
 
-        var stack = upgrade == null ? ItemStack.EMPTY : upgrade.getUpgradeItem().copy();
+        var stack = upgrade.getUpgradeItem().copy();
         lastUpgrade.set(slot, upgrade);
         lastStack.set(slot, stack);
         return stack;

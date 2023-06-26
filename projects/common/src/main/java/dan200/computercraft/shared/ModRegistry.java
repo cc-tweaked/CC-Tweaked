@@ -447,12 +447,12 @@ public final class ModRegistry {
     private static void addTurtle(CreativeModeTab.Output out, TurtleItem turtle) {
         out.accept(turtle.create(-1, null, -1, null, null, 0, null));
         TurtleUpgrades.getVanillaUpgrades()
-            .map(x -> turtle.create(-1, null, -1, null, UpgradeData.wrap(x), 0, null))
+            .map(x -> turtle.create(-1, null, -1, null, UpgradeData.of(x), 0, null))
             .forEach(out::accept);
     }
 
     private static void addPocket(CreativeModeTab.Output out, PocketComputerItem pocket) {
         out.accept(pocket.create(-1, null, -1, null));
-        PocketUpgrades.getVanillaUpgrades().map(x -> pocket.create(-1, null, -1, UpgradeData.wrap(x))).forEach(out::accept);
+        PocketUpgrades.getVanillaUpgrades().map(x -> pocket.create(-1, null, -1, UpgradeData.of(x))).forEach(out::accept);
     }
 }

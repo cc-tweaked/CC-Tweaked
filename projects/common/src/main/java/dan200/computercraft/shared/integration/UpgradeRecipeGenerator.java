@@ -124,11 +124,11 @@ public class UpgradeRecipeGenerator<T> {
                 }
                 // The turtle is facing towards us, so upgrades on the left are actually crafted on the right.
                 if (left == null) {
-                    recipes.add(turtle(ingredient, upgrade.ingredient, turtleWith(stack, UpgradeData.wrap(upgrade.turtle), right)));
+                    recipes.add(turtle(ingredient, upgrade.ingredient, turtleWith(stack, UpgradeData.of(upgrade.turtle), right)));
                 }
 
                 if (right == null) {
-                    recipes.add(turtle(upgrade.ingredient, ingredient, turtleWith(stack, left, UpgradeData.wrap(upgrade.turtle))));
+                    recipes.add(turtle(upgrade.ingredient, ingredient, turtleWith(stack, left, UpgradeData.of(upgrade.turtle))));
                 }
             }
 
@@ -144,7 +144,7 @@ public class UpgradeRecipeGenerator<T> {
                 if (upgrade.pocket == null) {
                     continue;
                 }
-                recipes.add(pocket(upgrade.ingredient, ingredient, pocketWith(stack, UpgradeData.wrap(upgrade.pocket))));
+                recipes.add(pocket(upgrade.ingredient, ingredient, pocketWith(stack, UpgradeData.of(upgrade.pocket))));
             }
 
             return Collections.unmodifiableList(recipes);
@@ -279,7 +279,7 @@ public class UpgradeRecipeGenerator<T> {
                     recipes.add(turtle(
                         ingredient, // Right upgrade, recipe on left
                         Ingredient.of(turtleItem.create(-1, null, -1, null, null, 0, null)),
-                        turtleItem.create(-1, null, -1, null, UpgradeData.wrap(turtle), 0, null)
+                        turtleItem.create(-1, null, -1, null, UpgradeData.of(turtle), 0, null)
                     ));
                 }
             }
@@ -290,7 +290,7 @@ public class UpgradeRecipeGenerator<T> {
                     recipes.add(pocket(
                         ingredient,
                         Ingredient.of(pocketItem.create(-1, null, -1, null)),
-                        pocketItem.create(-1, null, -1, UpgradeData.wrap(pocket))
+                        pocketItem.create(-1, null, -1, UpgradeData.of(pocket))
                     ));
                 }
             }

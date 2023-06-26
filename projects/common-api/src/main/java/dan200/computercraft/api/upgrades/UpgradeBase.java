@@ -61,7 +61,7 @@ public interface UpgradeBase {
      * to item stack. Please, use this method with cautions.
      * <p>
      * This method will be used by {@code turtle.unequipLeft()} and {@code pocket.unequipBack()} to determine item stack
-     * that should be placed inside inventory
+     * that should be placed inside inventory.
      *
      * @param upgradeData NBT information that was stored inside turtle/pocket by upgrade
      * @return The item stack, that should be stored inside inventory

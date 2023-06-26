@@ -260,7 +260,7 @@ public interface ITurtleAccess {
         if (upgrade == null) {
             return null;
         }
-        return new UpgradeData<>(
+        return UpgradeData.of(
             upgrade, getUpgradeNBTData(side)
         );
     }

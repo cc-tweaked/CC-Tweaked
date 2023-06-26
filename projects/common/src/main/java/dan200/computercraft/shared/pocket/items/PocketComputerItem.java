@@ -303,7 +303,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         if (compound == null || !compound.contains(NBT_UPGRADE)) return null;
         var upgrade = PocketUpgrades.instance().get(compound.getString(NBT_UPGRADE));
         if (upgrade == null) return null;
-        return new UpgradeData<>(
+        return UpgradeData.of(
             upgrade,
             compound.getCompound(NBT_UPGRADE_INFO)
         );
