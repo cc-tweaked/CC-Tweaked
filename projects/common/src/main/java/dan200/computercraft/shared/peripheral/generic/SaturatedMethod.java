@@ -9,7 +9,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.core.asm.PeripheralMethod;
+import dan200.computercraft.core.methods.PeripheralMethod;
 
 /**
  * A {@link PeripheralMethod} along with the method's target.

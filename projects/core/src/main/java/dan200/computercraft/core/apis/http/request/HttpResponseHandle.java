@@ -10,7 +10,7 @@ import dan200.computercraft.core.apis.HTTPAPI;
 import dan200.computercraft.core.apis.handles.BinaryReadableHandle;
 import dan200.computercraft.core.apis.handles.EncodedReadableHandle;
 import dan200.computercraft.core.apis.handles.HandleGeneric;
-import dan200.computercraft.core.asm.ObjectSource;
+import dan200.computercraft.core.methods.ObjectSource;
 
 import java.util.Collections;
 import java.util.Map;

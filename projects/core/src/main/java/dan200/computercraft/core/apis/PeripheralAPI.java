@@ -7,13 +7,12 @@ package dan200.computercraft.core.apis;
 import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.*;
-import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.NotAttachedException;
 import dan200.computercraft.api.peripheral.WorkMonitor;
-import dan200.computercraft.core.asm.LuaMethod;
-import dan200.computercraft.core.asm.PeripheralMethod;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.core.methods.MethodSupplier;
+import dan200.computercraft.core.methods.PeripheralMethod;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.util.LuaUtil;
 
@@ -44,7 +43,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             type = Objects.requireNonNull(peripheral.getType(), "Peripheral type cannot be null");
             additionalTypes = peripheral.getAdditionalTypes();
 
-            methodMap = PeripheralAPI.getMethods(peripheral);
+            methodMap = peripheralMethods.getSelfMethods(peripheral);
         }
 
         public IPeripheral getPeripheral() {
@@ -172,11 +171,13 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
     }
 
     private final IAPIEnvironment environment;
+    private final MethodSupplier<PeripheralMethod> peripheralMethods;
     private final PeripheralWrapper[] peripherals = new PeripheralWrapper[6];
     private boolean running;
 
-    public PeripheralAPI(IAPIEnvironment environment) {
+    public PeripheralAPI(IAPIEnvironment environment, MethodSupplier<PeripheralMethod> peripheralMethods) {
         this.environment = environment;
+        this.peripheralMethods = peripheralMethods;
         this.environment.setPeripheralChangeListener(this);
         running = false;
     }
@@ -314,22 +315,5 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             if (e.getLevel() > 0) throw new FastLuaException(e.getMessage(), e.getLevel() + 1);
             throw e;
         }
-    }
-
-    public static Map<String, PeripheralMethod> getMethods(IPeripheral peripheral) {
-        var dynamicMethods = peripheral instanceof IDynamicPeripheral
-            ? Objects.requireNonNull(((IDynamicPeripheral) peripheral).getMethodNames(), "Peripheral methods cannot be null")
-            : LuaMethod.EMPTY_METHODS;
-
-        var methods = PeripheralMethod.GENERATOR.getMethods(peripheral.getClass());
-
-        Map<String, PeripheralMethod> methodMap = new HashMap<>(methods.size() + dynamicMethods.length);
-        for (var i = 0; i < dynamicMethods.length; i++) {
-            methodMap.put(dynamicMethods[i], PeripheralMethod.DYNAMIC.get(i));
-        }
-        for (var method : methods) {
-            methodMap.put(method.name(), method.method());
-        }
-        return methodMap;
     }
 }

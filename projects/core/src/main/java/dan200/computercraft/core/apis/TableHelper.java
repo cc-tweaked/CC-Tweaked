@@ -103,7 +103,7 @@ public final class TableHelper {
 
     public static Optional<Double> optRealField(Map<?, ?> table, String key) throws LuaException {
         var value = table.get(key);
-        if(value == null) {
+        if (value == null) {
             return Optional.empty();
         } else {
             return Optional.of(getRealField(table, key));

@@ -5,12 +5,18 @@
 package dan200.computercraft.core;
 
 import dan200.computercraft.api.lua.ILuaAPIFactory;
+import dan200.computercraft.core.asm.LuaMethodSupplier;
+import dan200.computercraft.core.asm.PeripheralMethodSupplier;
 import dan200.computercraft.core.computer.ComputerThread;
 import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.computer.mainthread.MainThreadScheduler;
 import dan200.computercraft.core.computer.mainthread.NoWorkMainThreadScheduler;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
+import dan200.computercraft.core.lua.MachineEnvironment;
+import dan200.computercraft.core.methods.LuaMethod;
+import dan200.computercraft.core.methods.MethodSupplier;
+import dan200.computercraft.core.methods.PeripheralMethod;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nullable;
@@ -28,17 +34,22 @@ public final class ComputerContext {
     private final MainThreadScheduler mainThreadScheduler;
     private final ILuaMachine.Factory luaFactory;
     private final List<ILuaAPIFactory> apiFactories;
+    private final MethodSupplier<LuaMethod> luaMethods;
+    private final MethodSupplier<PeripheralMethod> peripheralMethods;
 
     ComputerContext(
         GlobalEnvironment globalEnvironment, ComputerThread computerScheduler,
         MainThreadScheduler mainThreadScheduler, ILuaMachine.Factory luaFactory,
-        List<ILuaAPIFactory> apiFactories
+        List<ILuaAPIFactory> apiFactories, MethodSupplier<LuaMethod> luaMethods,
+        MethodSupplier<PeripheralMethod> peripheralMethods
     ) {
         this.globalEnvironment = globalEnvironment;
         this.computerScheduler = computerScheduler;
         this.mainThreadScheduler = mainThreadScheduler;
         this.luaFactory = luaFactory;
         this.apiFactories = apiFactories;
+        this.luaMethods = luaMethods;
+        this.peripheralMethods = peripheralMethods;
     }
 
     /**
@@ -85,6 +96,25 @@ public final class ComputerContext {
      */
     public List<ILuaAPIFactory> apiFactories() {
         return apiFactories;
+    }
+
+    /**
+     * Get the {@link MethodSupplier} used to find methods on Lua values.
+     *
+     * @return The {@link LuaMethod} method supplier.
+     * @see MachineEnvironment#luaMethods()
+     */
+    public MethodSupplier<LuaMethod> luaMethods() {
+        return luaMethods;
+    }
+
+    /**
+     * Get the {@link MethodSupplier} used to find methods on peripherals.
+     *
+     * @return The {@link PeripheralMethod} method supplier.
+     */
+    public MethodSupplier<PeripheralMethod> peripheralMethods() {
+        return peripheralMethods;
     }
 
     /**
@@ -206,7 +236,9 @@ public final class ComputerContext {
                 new ComputerThread(threads),
                 mainThreadScheduler == null ? new NoWorkMainThreadScheduler() : mainThreadScheduler,
                 luaFactory == null ? CobaltLuaMachine::new : luaFactory,
-                apiFactories == null ? List.of() : apiFactories
+                apiFactories == null ? List.of() : apiFactories,
+                LuaMethodSupplier.create(),
+                PeripheralMethodSupplier.create()
             );
         }
     }

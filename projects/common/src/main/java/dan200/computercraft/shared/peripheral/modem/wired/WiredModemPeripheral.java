@@ -16,10 +16,12 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.NotAttachedException;
 import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.apis.PeripheralAPI;
-import dan200.computercraft.core.asm.PeripheralMethod;
+import dan200.computercraft.core.methods.PeripheralMethod;
 import dan200.computercraft.core.util.LuaUtil;
+import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -284,7 +286,8 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
 
     private void attachPeripheralImpl(IComputerAccess computer, ConcurrentMap<String, RemotePeripheralWrapper> peripherals, String periphName, IPeripheral peripheral) {
         if (!peripherals.containsKey(periphName) && !periphName.equals(getLocalPeripheral().getConnectedName())) {
-            var wrapper = new RemotePeripheralWrapper(modem, peripheral, computer, periphName);
+            var methods = ServerContext.get(((ServerLevel) getLevel()).getServer()).peripheralMethods().getSelfMethods(peripheral);
+            var wrapper = new RemotePeripheralWrapper(modem, peripheral, computer, periphName, methods);
             peripherals.put(periphName, wrapper);
             wrapper.attach();
         }
@@ -314,7 +317,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
         private volatile boolean attached;
         private final Set<String> mounts = new HashSet<>();
 
-        RemotePeripheralWrapper(WiredModemElement element, IPeripheral peripheral, IComputerAccess computer, String name) {
+        RemotePeripheralWrapper(WiredModemElement element, IPeripheral peripheral, IComputerAccess computer, String name, Map<String, PeripheralMethod> methods) {
             this.element = element;
             this.peripheral = peripheral;
             this.computer = computer;
@@ -322,7 +325,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
 
             type = Objects.requireNonNull(peripheral.getType(), "Peripheral type cannot be null");
             additionalTypes = peripheral.getAdditionalTypes();
-            methodMap = PeripheralAPI.getMethods(peripheral);
+            methodMap = methods;
         }
 
         public void attach() {

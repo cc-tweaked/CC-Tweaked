@@ -10,9 +10,9 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaFunction;
 import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.Logging;
-import dan200.computercraft.core.asm.LuaMethod;
-import dan200.computercraft.core.asm.ObjectSource;
 import dan200.computercraft.core.computer.TimeoutState;
+import dan200.computercraft.core.methods.LuaMethod;
+import dan200.computercraft.core.methods.MethodSupplier;
 import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.core.util.SanitisedError;
 import org.slf4j.Logger;
@@ -39,6 +39,7 @@ public class CobaltLuaMachine implements ILuaMachine {
     private final TimeoutState timeout;
     private final Runnable timeoutListener = this::updateTimeout;
     private final ILuaContext context;
+    private final MethodSupplier<LuaMethod> luaMethods;
 
     private final LuaState state;
     private final LuaThread mainRoutine;
@@ -51,6 +52,7 @@ public class CobaltLuaMachine implements ILuaMachine {
     public CobaltLuaMachine(MachineEnvironment environment, InputStream bios) throws MachineException, IOException {
         timeout = environment.timeout();
         context = environment.context();
+        luaMethods = environment.luaMethods();
 
         // Create an environment to run in
         var state = this.state = LuaState.builder()
@@ -161,28 +163,13 @@ public class CobaltLuaMachine implements ILuaMachine {
 
     @Nullable
     private LuaTable wrapLuaObject(Object object) {
-        var dynamicMethods = object instanceof IDynamicLuaObject dynamic
-            ? Objects.requireNonNull(dynamic.getMethodNames(), "Methods cannot be null")
-            : LuaMethod.EMPTY_METHODS;
-
         var table = new LuaTable();
-        for (var i = 0; i < dynamicMethods.length; i++) {
-            var method = dynamicMethods[i];
-            table.rawset(method, new ResultInterpreterFunction(this, LuaMethod.DYNAMIC.get(i), object, context, method));
-        }
+        var found = luaMethods.forEachMethod(object, (target, name, method, info) ->
+            table.rawset(name, info != null && info.nonYielding()
+                ? new BasicFunction(this, method, target, context, name)
+                : new ResultInterpreterFunction(this, method, target, context, name)));
 
-        ObjectSource.allMethods(LuaMethod.GENERATOR, object, (instance, method) ->
-            table.rawset(method.name(), method.nonYielding()
-                ? new BasicFunction(this, method.method(), instance, context, method.name())
-                : new ResultInterpreterFunction(this, method.method(), instance, context, method.name())));
-
-        try {
-            if (table.next(Constants.NIL).first().isNil()) return null;
-        } catch (LuaError ignored) {
-            // next should never throw on nil.
-        }
-
-        return table;
+        return found ? table : null;
     }
 
     private LuaValue toValue(@Nullable Object object, @Nullable IdentityHashMap<Object, LuaValue> values) {

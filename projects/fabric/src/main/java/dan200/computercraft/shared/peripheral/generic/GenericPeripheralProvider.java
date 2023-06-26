@@ -11,11 +11,15 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
 public class GenericPeripheralProvider {
+    private static final Logger LOG = LoggerFactory.getLogger(GenericPeripheralProvider.class);
+
     interface Lookup<T> {
         @Nullable
         T find(Level world, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, Direction context);
@@ -29,7 +33,13 @@ public class GenericPeripheralProvider {
     public static IPeripheral getPeripheral(Level level, BlockPos pos, Direction side, @Nullable BlockEntity blockEntity) {
         if (blockEntity == null) return null;
 
-        var builder = new GenericPeripheralBuilder();
+        var server = level.getServer();
+        if (server == null) {
+            LOG.warn("Fetching peripherals on a non-server level {}.", level, new IllegalStateException("Fetching peripherals on a non-server level."));
+            return null;
+        }
+
+        var builder = new GenericPeripheralBuilder(server);
         builder.addMethods(blockEntity);
 
         for (var lookup : lookups) {

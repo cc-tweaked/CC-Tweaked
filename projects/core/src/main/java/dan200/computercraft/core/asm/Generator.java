@@ -11,6 +11,7 @@ import com.google.common.primitives.Primitives;
 import com.google.common.reflect.TypeToken;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.peripheral.PeripheralType;
+import dan200.computercraft.core.methods.NamedMethod;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -30,7 +31,7 @@ import java.util.function.Function;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public final class Generator<T> {
+final class Generator<T> {
     private static final Logger LOG = LoggerFactory.getLogger(Generator.class);
 
     private static final AtomicInteger METHOD_ID = new AtomicInteger();

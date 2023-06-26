@@ -9,7 +9,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.core.Logging;
-import dan200.computercraft.core.asm.LuaMethod;
+import dan200.computercraft.core.methods.LuaMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.squiddev.cobalt.*;

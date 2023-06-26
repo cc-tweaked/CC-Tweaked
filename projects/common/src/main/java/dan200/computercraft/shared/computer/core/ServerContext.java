@@ -14,6 +14,8 @@ import dan200.computercraft.core.computer.mainthread.MainThread;
 import dan200.computercraft.core.computer.mainthread.MainThreadConfig;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
+import dan200.computercraft.core.methods.MethodSupplier;
+import dan200.computercraft.core.methods.PeripheralMethod;
 import dan200.computercraft.impl.AbstractComputerCraftAPI;
 import dan200.computercraft.impl.ApiFactories;
 import dan200.computercraft.shared.CommonHooks;
@@ -132,6 +134,16 @@ public final class ServerContext {
      */
     ComputerContext computerContext() {
         return context;
+    }
+
+    /**
+     * Get the {@link MethodSupplier} used to find methods on peripherals.
+     *
+     * @return The {@link PeripheralMethod} method supplier.
+     * @see ComputerContext#peripheralMethods()
+     */
+    public MethodSupplier<PeripheralMethod> peripheralMethods() {
+        return context.peripheralMethods();
     }
 
     /**

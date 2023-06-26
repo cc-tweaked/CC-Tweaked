@@ -7,6 +7,8 @@ package dan200.computercraft.core.asm;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.core.methods.LuaMethod;
+import dan200.computercraft.core.methods.NamedMethod;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
@@ -21,9 +23,11 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GeneratorTest {
+    private static final Generator<LuaMethod> GENERATOR = LuaMethodSupplier.GENERATOR;
+
     @Test
     public void testBasic() {
-        var methods = LuaMethod.GENERATOR.getMethods(Basic.class);
+        var methods = GENERATOR.getMethods(Basic.class);
         assertThat(methods, contains(
             allOf(
                 named("go"),
@@ -34,48 +38,48 @@ public class GeneratorTest {
 
     @Test
     public void testIdentical() {
-        var methods = LuaMethod.GENERATOR.getMethods(Basic.class);
-        var methods2 = LuaMethod.GENERATOR.getMethods(Basic.class);
+        var methods = GENERATOR.getMethods(Basic.class);
+        var methods2 = GENERATOR.getMethods(Basic.class);
         assertThat(methods, sameInstance(methods2));
     }
 
     @Test
     public void testIdenticalMethods() {
-        var methods = LuaMethod.GENERATOR.getMethods(Basic.class);
-        var methods2 = LuaMethod.GENERATOR.getMethods(Basic2.class);
+        var methods = GENERATOR.getMethods(Basic.class);
+        var methods2 = GENERATOR.getMethods(Basic2.class);
         assertThat(methods, contains(named("go")));
         assertThat(methods.get(0).method(), sameInstance(methods2.get(0).method()));
     }
 
     @Test
     public void testEmptyClass() {
-        assertThat(LuaMethod.GENERATOR.getMethods(Empty.class), is(empty()));
+        assertThat(GENERATOR.getMethods(Empty.class), is(empty()));
     }
 
     @Test
     public void testNonPublicClass() {
-        assertThat(LuaMethod.GENERATOR.getMethods(NonPublic.class), is(empty()));
+        assertThat(GENERATOR.getMethods(NonPublic.class), is(empty()));
     }
 
     @Test
     public void testNonInstance() {
-        assertThat(LuaMethod.GENERATOR.getMethods(NonInstance.class), is(empty()));
+        assertThat(GENERATOR.getMethods(NonInstance.class), is(empty()));
     }
 
     @Test
     public void testIllegalThrows() {
-        assertThat(LuaMethod.GENERATOR.getMethods(IllegalThrows.class), is(empty()));
+        assertThat(GENERATOR.getMethods(IllegalThrows.class), is(empty()));
     }
 
     @Test
     public void testCustomNames() {
-        var methods = LuaMethod.GENERATOR.getMethods(CustomNames.class);
+        var methods = GENERATOR.getMethods(CustomNames.class);
         assertThat(methods, contains(named("go1"), named("go2")));
     }
 
     @Test
     public void testArgKinds() {
-        var methods = LuaMethod.GENERATOR.getMethods(ArgKinds.class);
+        var methods = GENERATOR.getMethods(ArgKinds.class);
         assertThat(methods, containsInAnyOrder(
             named("objectArg"), named("intArg"), named("optIntArg"),
             named("context"), named("arguments")
@@ -84,7 +88,7 @@ public class GeneratorTest {
 
     @Test
     public void testEnum() throws LuaException {
-        var methods = LuaMethod.GENERATOR.getMethods(EnumMethods.class);
+        var methods = GENERATOR.getMethods(EnumMethods.class);
         assertThat(methods, containsInAnyOrder(named("getEnum"), named("optEnum")));
 
         assertThat(apply(methods, new EnumMethods(), "getEnum", "front"), one(is("FRONT")));
@@ -95,7 +99,7 @@ public class GeneratorTest {
 
     @Test
     public void testMainThread() throws LuaException {
-        var methods = LuaMethod.GENERATOR.getMethods(MainThread.class);
+        var methods = GENERATOR.getMethods(MainThread.class);
         assertThat(methods, contains(allOf(
             named("go"),
             contramap(is(false), "non-yielding", NamedMethod::nonYielding)
@@ -107,7 +111,7 @@ public class GeneratorTest {
 
     @Test
     public void testUnsafe() {
-        var methods = LuaMethod.GENERATOR.getMethods(Unsafe.class);
+        var methods = GENERATOR.getMethods(Unsafe.class);
         assertThat(methods, contains(named("withUnsafe")));
     }
 
