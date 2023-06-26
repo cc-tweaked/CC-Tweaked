@@ -5,6 +5,7 @@
 package dan200.computercraft.core;
 
 import dan200.computercraft.api.lua.ILuaAPIFactory;
+import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.asm.LuaMethodSupplier;
 import dan200.computercraft.core.asm.PeripheralMethodSupplier;
 import dan200.computercraft.core.computer.ComputerThread;
@@ -165,6 +166,7 @@ public final class ComputerContext {
         private @Nullable MainThreadScheduler mainThreadScheduler;
         private @Nullable ILuaMachine.Factory luaFactory;
         private @Nullable List<ILuaAPIFactory> apiFactories;
+        private @Nullable List<GenericMethod> genericMethods;
 
         Builder(GlobalEnvironment environment) {
             this.environment = environment;
@@ -226,6 +228,21 @@ public final class ComputerContext {
         }
 
         /**
+         * Set the set of {@link GenericMethod}s used by the {@linkplain MethodSupplier method suppliers}.
+         *
+         * @param genericMethods A list of API factories.
+         * @return {@code this}, for chaining
+         * @see ComputerContext#luaMethods()
+         * @see ComputerContext#peripheralMethods()
+         */
+        public Builder genericMethods(Collection<GenericMethod> genericMethods) {
+            Objects.requireNonNull(genericMethods);
+            if (this.genericMethods != null) throw new IllegalStateException("Main-thread scheduler already specified");
+            this.genericMethods = List.copyOf(genericMethods);
+            return this;
+        }
+
+        /**
          * Create a new {@link ComputerContext}.
          *
          * @return The newly created context.
@@ -237,8 +254,8 @@ public final class ComputerContext {
                 mainThreadScheduler == null ? new NoWorkMainThreadScheduler() : mainThreadScheduler,
                 luaFactory == null ? CobaltLuaMachine::new : luaFactory,
                 apiFactories == null ? List.of() : apiFactories,
-                LuaMethodSupplier.create(),
-                PeripheralMethodSupplier.create()
+                LuaMethodSupplier.create(genericMethods == null ? List.of() : genericMethods),
+                PeripheralMethodSupplier.create(genericMethods == null ? List.of() : genericMethods)
             );
         }
     }

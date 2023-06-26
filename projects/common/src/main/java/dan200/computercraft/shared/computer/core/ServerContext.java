@@ -18,6 +18,7 @@ import dan200.computercraft.core.methods.MethodSupplier;
 import dan200.computercraft.core.methods.PeripheralMethod;
 import dan200.computercraft.impl.AbstractComputerCraftAPI;
 import dan200.computercraft.impl.ApiFactories;
+import dan200.computercraft.impl.GenericSources;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.computer.metrics.GlobalMetrics;
 import dan200.computercraft.shared.config.ConfigSpec;
@@ -74,6 +75,7 @@ public final class ServerContext {
             .mainThreadScheduler(mainThread)
             .luaFactory(luaMachine)
             .apiFactories(ApiFactories.getAll())
+            .genericMethods(GenericSources.getAllMethods())
             .build();
         idAssigner = new IDAssigner(storageDir.resolve("ids.json"));
     }

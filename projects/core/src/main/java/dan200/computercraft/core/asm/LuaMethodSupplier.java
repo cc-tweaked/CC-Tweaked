@@ -6,16 +6,21 @@ package dan200.computercraft.core.asm;
 
 import dan200.computercraft.api.lua.IDynamicLuaObject;
 import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.methods.LuaMethod;
 import dan200.computercraft.core.methods.MethodSupplier;
-import org.jetbrains.annotations.VisibleForTesting;
 
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Provides a {@link MethodSupplier} for {@link LuaMethod}s.
+ * <p>
+ * This is used by {@link ComputerContext} to construct {@linkplain ComputerContext#peripheralMethods() the context-wide
+ * method supplier}. It should not be used directly.
+ */
 public final class LuaMethodSupplier {
-    @VisibleForTesting
-    static final Generator<LuaMethod> GENERATOR = new Generator<>(LuaMethod.class, List.of(ILuaContext.class),
+    private static final Generator<LuaMethod> GENERATOR = new Generator<>(LuaMethod.class, List.of(ILuaContext.class),
         m -> (target, context, args) -> context.executeMainThreadTask(() -> ResultHelpers.checkNormalResult(m.apply(target, context, args.escapes())))
     );
     private static final IntCache<LuaMethod> DYNAMIC = new IntCache<>(
@@ -25,8 +30,8 @@ public final class LuaMethodSupplier {
     private LuaMethodSupplier() {
     }
 
-    public static MethodSupplier<LuaMethod> create() {
-        return new MethodSupplierImpl<>(GENERATOR, DYNAMIC, x -> x instanceof IDynamicLuaObject dynamic
+    public static MethodSupplier<LuaMethod> create(List<GenericMethod> genericMethods) {
+        return new MethodSupplierImpl<>(genericMethods, GENERATOR, DYNAMIC, x -> x instanceof IDynamicLuaObject dynamic
             ? Objects.requireNonNull(dynamic.getMethodNames(), "Dynamic methods cannot be null")
             : null
         );

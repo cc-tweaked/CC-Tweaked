@@ -10,8 +10,6 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.primitives.Primitives;
 import com.google.common.reflect.TypeToken;
 import dan200.computercraft.api.lua.*;
-import dan200.computercraft.api.peripheral.PeripheralType;
-import dan200.computercraft.core.methods.NamedMethod;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -21,11 +19,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -55,10 +50,6 @@ final class Generator<T> {
 
     private final Function<T, T> wrap;
 
-    private final LoadingCache<Class<?>, List<NamedMethod<T>>> classCache = CacheBuilder
-        .newBuilder()
-        .build(CacheLoader.from(catching(this::build, Collections.emptyList())));
-
     private final LoadingCache<Method, Optional<T>> methodCache = CacheBuilder
         .newBuilder()
         .build(CacheLoader.from(catching(this::build, Optional.empty())));
@@ -75,58 +66,8 @@ final class Generator<T> {
         this.methodDesc = methodDesc.toString();
     }
 
-    public List<NamedMethod<T>> getMethods(Class<?> klass) {
-        try {
-            return classCache.get(klass);
-        } catch (ExecutionException e) {
-            LOG.error("Error getting methods for {}.", klass.getName(), e.getCause());
-            return Collections.emptyList();
-        }
-    }
-
-    private List<NamedMethod<T>> build(Class<?> klass) {
-        ArrayList<NamedMethod<T>> methods = null;
-        for (var method : klass.getMethods()) {
-            var annotation = method.getAnnotation(LuaFunction.class);
-            if (annotation == null) continue;
-
-            if (Modifier.isStatic(method.getModifiers())) {
-                LOG.warn("LuaFunction method {}.{} should be an instance method.", method.getDeclaringClass(), method.getName());
-                continue;
-            }
-
-            var instance = methodCache.getUnchecked(method).orElse(null);
-            if (instance == null) continue;
-
-            if (methods == null) methods = new ArrayList<>();
-            addMethod(methods, method, annotation, null, instance);
-        }
-
-        for (var method : GenericMethod.all()) {
-            if (!method.target.isAssignableFrom(klass)) continue;
-
-            var instance = methodCache.getUnchecked(method.method).orElse(null);
-            if (instance == null) continue;
-
-            if (methods == null) methods = new ArrayList<>();
-            addMethod(methods, method.method, method.annotation, method.peripheralType, instance);
-        }
-
-        if (methods == null) return Collections.emptyList();
-        methods.trimToSize();
-        return Collections.unmodifiableList(methods);
-    }
-
-    private void addMethod(List<NamedMethod<T>> methods, Method method, LuaFunction annotation, @Nullable PeripheralType genericType, T instance) {
-        var names = annotation.value();
-        var isSimple = method.getReturnType() != MethodResult.class && !annotation.mainThread();
-        if (names.length == 0) {
-            methods.add(new NamedMethod<>(method.getName(), instance, isSimple, genericType));
-        } else {
-            for (var name : names) {
-                methods.add(new NamedMethod<>(name, instance, isSimple, genericType));
-            }
-        }
+    Optional<T> getMethod(Method method) {
+        return methodCache.getUnchecked(method);
     }
 
     private Optional<T> build(Method method) {
@@ -337,7 +278,7 @@ final class Generator<T> {
     }
 
     @SuppressWarnings("Guava")
-    private static <T, U> com.google.common.base.Function<T, U> catching(Function<T, U> function, U def) {
+    static <T, U> com.google.common.base.Function<T, U> catching(Function<T, U> function, U def) {
         return x -> {
             try {
                 return function.apply(x);

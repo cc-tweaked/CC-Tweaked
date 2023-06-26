@@ -19,7 +19,6 @@ import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.redstone.BundledRedstoneProvider;
 import dan200.computercraft.api.turtle.TurtleRefuelHandler;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
-import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.filesystem.WritableFileMount;
 import dan200.computercraft.impl.detail.DetailRegistryImpl;
 import dan200.computercraft.impl.network.wired.WiredNodeImpl;
@@ -78,7 +77,7 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
 
     @Override
     public final void registerGenericSource(GenericSource source) {
-        GenericMethod.register(source);
+        GenericSources.register(source);
     }
 
     @Override

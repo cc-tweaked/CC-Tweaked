@@ -12,10 +12,11 @@ import dan200.computercraft.core.asm.LuaMethodSupplier;
 import dan200.computercraft.core.methods.LuaMethod;
 import dan200.computercraft.core.methods.MethodSupplier;
 
+import java.util.List;
 import java.util.Map;
 
 public class ObjectWrapper implements ILuaContext {
-    private static final MethodSupplier<LuaMethod> LUA_METHODS = LuaMethodSupplier.create();
+    private static final MethodSupplier<LuaMethod> LUA_METHODS = LuaMethodSupplier.create(List.of());
 
     private final Object object;
     private final Map<String, LuaMethod> methodMap;

@@ -7,12 +7,19 @@ package dan200.computercraft.core.asm;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IDynamicPeripheral;
+import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.methods.MethodSupplier;
 import dan200.computercraft.core.methods.PeripheralMethod;
 
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Provides a {@link MethodSupplier} for {@link PeripheralMethod}s.
+ * <p>
+ * This is used by {@link ComputerContext} to construct {@linkplain ComputerContext#peripheralMethods() the context-wide
+ * method supplier}. It should not be used directly.
+ */
 public class PeripheralMethodSupplier {
     private static final Generator<PeripheralMethod> GENERATOR = new Generator<>(PeripheralMethod.class, List.of(ILuaContext.class, IComputerAccess.class),
         m -> (target, context, computer, args) -> context.executeMainThreadTask(() -> ResultHelpers.checkNormalResult(m.apply(target, context, computer, args.escapes())))
@@ -21,8 +28,8 @@ public class PeripheralMethodSupplier {
         method -> (instance, context, computer, args) -> ((IDynamicPeripheral) instance).callMethod(computer, context, method, args)
     );
 
-    public static MethodSupplier<PeripheralMethod> create() {
-        return new MethodSupplierImpl<>(GENERATOR, DYNAMIC, x -> x instanceof IDynamicPeripheral dynamic
+    public static MethodSupplier<PeripheralMethod> create(List<GenericMethod> genericMethods) {
+        return new MethodSupplierImpl<>(genericMethods, GENERATOR, DYNAMIC, x -> x instanceof IDynamicPeripheral dynamic
             ? Objects.requireNonNull(dynamic.getMethodNames(), "Dynamic methods cannot be null")
             : null
         );
