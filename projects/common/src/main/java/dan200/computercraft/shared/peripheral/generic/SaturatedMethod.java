@@ -9,18 +9,20 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.core.asm.NamedMethod;
 import dan200.computercraft.core.asm.PeripheralMethod;
 
+/**
+ * A {@link PeripheralMethod} along with the method's target.
+ */
 final class SaturatedMethod {
     private final Object target;
     private final String name;
     private final PeripheralMethod method;
 
-    SaturatedMethod(Object target, NamedMethod<PeripheralMethod> method) {
+    SaturatedMethod(Object target, String name, PeripheralMethod method) {
         this.target = target;
-        name = method.name();
-        this.method = method.method();
+        this.name = name;
+        this.method = method;
     }
 
     MethodResult apply(ILuaContext context, IComputerAccess computer, IArguments args) throws LuaException {
