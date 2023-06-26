@@ -4,6 +4,7 @@
 
 package dan200.computercraft.core;
 
+import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.core.computer.ComputerThread;
 import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.computer.mainthread.MainThreadScheduler;
@@ -13,6 +14,8 @@ import dan200.computercraft.core.lua.ILuaMachine;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -24,15 +27,18 @@ public final class ComputerContext {
     private final ComputerThread computerScheduler;
     private final MainThreadScheduler mainThreadScheduler;
     private final ILuaMachine.Factory luaFactory;
+    private final List<ILuaAPIFactory> apiFactories;
 
     ComputerContext(
         GlobalEnvironment globalEnvironment, ComputerThread computerScheduler,
-        MainThreadScheduler mainThreadScheduler, ILuaMachine.Factory luaFactory
+        MainThreadScheduler mainThreadScheduler, ILuaMachine.Factory luaFactory,
+        List<ILuaAPIFactory> apiFactories
     ) {
         this.globalEnvironment = globalEnvironment;
         this.computerScheduler = computerScheduler;
         this.mainThreadScheduler = mainThreadScheduler;
         this.luaFactory = luaFactory;
+        this.apiFactories = apiFactories;
     }
 
     /**
@@ -70,6 +76,15 @@ public final class ComputerContext {
      */
     public ILuaMachine.Factory luaFactory() {
         return luaFactory;
+    }
+
+    /**
+     * Additional APIs to inject into each computer.
+     *
+     * @return All available API factories.
+     */
+    public List<ILuaAPIFactory> apiFactories() {
+        return apiFactories;
     }
 
     /**
@@ -119,6 +134,7 @@ public final class ComputerContext {
         private int threads = 1;
         private @Nullable MainThreadScheduler mainThreadScheduler;
         private @Nullable ILuaMachine.Factory luaFactory;
+        private @Nullable List<ILuaAPIFactory> apiFactories;
 
         Builder(GlobalEnvironment environment) {
             this.environment = environment;
@@ -166,6 +182,20 @@ public final class ComputerContext {
         }
 
         /**
+         * Set the additional {@linkplain ILuaAPIFactory APIs} to add to each computer.
+         *
+         * @param apis A list of API factories.
+         * @return {@code this}, for chaining
+         * @see ComputerContext#apiFactories()
+         */
+        public Builder apiFactories(Collection<ILuaAPIFactory> apis) {
+            Objects.requireNonNull(apis);
+            if (apiFactories != null) throw new IllegalStateException("Main-thread scheduler already specified");
+            apiFactories = List.copyOf(apis);
+            return this;
+        }
+
+        /**
          * Create a new {@link ComputerContext}.
          *
          * @return The newly created context.
@@ -175,7 +205,8 @@ public final class ComputerContext {
                 environment,
                 new ComputerThread(threads),
                 mainThreadScheduler == null ? new NoWorkMainThreadScheduler() : mainThreadScheduler,
-                luaFactory == null ? CobaltLuaMachine::new : luaFactory
+                luaFactory == null ? CobaltLuaMachine::new : luaFactory,
+                apiFactories == null ? List.of() : apiFactories
             );
         }
     }

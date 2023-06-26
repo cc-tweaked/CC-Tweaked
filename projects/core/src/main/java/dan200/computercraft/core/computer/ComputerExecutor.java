@@ -181,7 +181,7 @@ final class ComputerExecutor {
         if (CoreConfig.httpEnabled) apis.add(new HTTPAPI(environment));
 
         // Load in the externally registered APIs.
-        for (var factory : ApiFactories.getAll()) {
+        for (var factory : context.apiFactories()) {
             var system = new ComputerSystem(environment);
             var api = factory.create(system);
             if (api != null) apis.add(new ApiWrapper(api, system));

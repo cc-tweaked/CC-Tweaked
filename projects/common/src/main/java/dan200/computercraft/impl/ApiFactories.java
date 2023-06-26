@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package dan200.computercraft.core.apis;
+package dan200.computercraft.impl;
 
 import dan200.computercraft.api.lua.ILuaAPIFactory;
 
@@ -23,7 +23,7 @@ public final class ApiFactories {
         factories.add(factory);
     }
 
-    public static Iterable<ILuaAPIFactory> getAll() {
+    public static Collection<ILuaAPIFactory> getAll() {
         return factoriesView;
     }
 }

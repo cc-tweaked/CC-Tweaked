@@ -15,6 +15,7 @@ import dan200.computercraft.core.computer.mainthread.MainThreadConfig;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.impl.AbstractComputerCraftAPI;
+import dan200.computercraft.impl.ApiFactories;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.computer.metrics.GlobalMetrics;
 import dan200.computercraft.shared.config.ConfigSpec;
@@ -70,6 +71,7 @@ public final class ServerContext {
             .computerThreads(ConfigSpec.computerThreads.get())
             .mainThreadScheduler(mainThread)
             .luaFactory(luaMachine)
+            .apiFactories(ApiFactories.getAll())
             .build();
         idAssigner = new IDAssigner(storageDir.resolve("ids.json"));
     }
