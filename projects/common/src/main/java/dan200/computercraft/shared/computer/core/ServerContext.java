@@ -9,7 +9,6 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.network.PacketNetwork;
 import dan200.computercraft.core.ComputerContext;
-import dan200.computercraft.core.computer.ComputerThread;
 import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.computer.mainthread.MainThread;
 import dan200.computercraft.core.computer.mainthread.MainThreadConfig;
@@ -67,11 +66,11 @@ public final class ServerContext {
         this.server = server;
         storageDir = server.getWorldPath(FOLDER);
         mainThread = new MainThread(mainThreadConfig);
-        context = new ComputerContext(
-            new Environment(server),
-            new ComputerThread(ConfigSpec.computerThreads.get()),
-            mainThread, luaMachine
-        );
+        context = ComputerContext.builder(new Environment(server))
+            .computerThreads(ConfigSpec.computerThreads.get())
+            .mainThreadScheduler(mainThread)
+            .luaFactory(luaMachine)
+            .build();
         idAssigner = new IDAssigner(storageDir.resolve("ids.json"));
     }
 

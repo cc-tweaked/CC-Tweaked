@@ -49,7 +49,7 @@ public class ComputerBootstrap {
         var term = new Terminal(51, 19, true);
         var mainThread = new MainThread(new MainThreadConfig.Basic(Integer.MAX_VALUE, Integer.MAX_VALUE));
         var environment = new BasicEnvironment(mount);
-        var context = new ComputerContext(environment, 1, mainThread);
+        var context = ComputerContext.builder(environment).mainThreadScheduler(mainThread).build();
         final var computer = new Computer(context, environment, term, 0);
 
         var api = new AssertApi();

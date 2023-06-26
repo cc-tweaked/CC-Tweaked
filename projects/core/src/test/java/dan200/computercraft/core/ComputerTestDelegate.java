@@ -11,8 +11,6 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.core.computer.ComputerThread;
-import dan200.computercraft.core.computer.mainthread.NoWorkMainThreadScheduler;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.filesystem.WritableFileMount;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
@@ -112,7 +110,7 @@ public class ComputerTestDelegate {
         }
 
         var environment = new BasicEnvironment(mount);
-        context = new ComputerContext(environment, new ComputerThread(1), new NoWorkMainThreadScheduler(), CoverageLuaMachine::new);
+        context = ComputerContext.builder(environment).luaFactory(CoverageLuaMachine::new).build();
         computer = new Computer(context, environment, term, 0);
         computer.getEnvironment().setPeripheral(ComputerSide.TOP, new FakeModem());
         computer.getEnvironment().setPeripheral(ComputerSide.BOTTOM, new FakePeripheralHub());

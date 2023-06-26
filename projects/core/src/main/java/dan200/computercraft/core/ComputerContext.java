@@ -7,10 +7,13 @@ package dan200.computercraft.core;
 import dan200.computercraft.core.computer.ComputerThread;
 import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.computer.mainthread.MainThreadScheduler;
+import dan200.computercraft.core.computer.mainthread.NoWorkMainThreadScheduler;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
 
 import javax.annotation.CheckReturnValue;
+import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -20,27 +23,16 @@ public final class ComputerContext {
     private final GlobalEnvironment globalEnvironment;
     private final ComputerThread computerScheduler;
     private final MainThreadScheduler mainThreadScheduler;
-    private final ILuaMachine.Factory factory;
+    private final ILuaMachine.Factory luaFactory;
 
-    public ComputerContext(
+    ComputerContext(
         GlobalEnvironment globalEnvironment, ComputerThread computerScheduler,
-        MainThreadScheduler mainThreadScheduler, ILuaMachine.Factory factory
+        MainThreadScheduler mainThreadScheduler, ILuaMachine.Factory luaFactory
     ) {
         this.globalEnvironment = globalEnvironment;
         this.computerScheduler = computerScheduler;
         this.mainThreadScheduler = mainThreadScheduler;
-        this.factory = factory;
-    }
-
-    /**
-     * Create a default {@link ComputerContext} with the given global environment.
-     *
-     * @param environment         The current global environment.
-     * @param threads             The number of threads to use for the {@link #computerScheduler()}
-     * @param mainThreadScheduler The main thread scheduler to use.
-     */
-    public ComputerContext(GlobalEnvironment environment, int threads, MainThreadScheduler mainThreadScheduler) {
-        this(environment, new ComputerThread(threads), mainThreadScheduler, CobaltLuaMachine::new);
+        this.luaFactory = luaFactory;
     }
 
     /**
@@ -77,7 +69,7 @@ public final class ComputerContext {
      * @return The current Lua machine factory.
      */
     public ILuaMachine.Factory luaFactory() {
-        return factory;
+        return luaFactory;
     }
 
     /**
@@ -104,6 +96,87 @@ public final class ComputerContext {
     public void ensureClosed(long timeout, TimeUnit unit) throws InterruptedException {
         if (!computerScheduler().stop(timeout, unit)) {
             throw new IllegalStateException("Failed to shutdown ComputerContext in time.");
+        }
+    }
+
+    /**
+     * Create a new {@linkplain Builder builder} for a computer context.
+     *
+     * @param environment The {@linkplain ComputerContext#globalEnvironment() global environment} for this context.
+     * @return The builder for a new context.
+     */
+    public static Builder builder(GlobalEnvironment environment) {
+        return new Builder(environment);
+    }
+
+    /**
+     * A builder for a {@link ComputerContext}.
+     *
+     * @see ComputerContext#builder(GlobalEnvironment)
+     */
+    public static class Builder {
+        private final GlobalEnvironment environment;
+        private int threads = 1;
+        private @Nullable MainThreadScheduler mainThreadScheduler;
+        private @Nullable ILuaMachine.Factory luaFactory;
+
+        Builder(GlobalEnvironment environment) {
+            this.environment = environment;
+        }
+
+        /**
+         * Set the number of threads the {@link ComputerThread} will use.
+         *
+         * @param threads The number of threads to use.
+         * @return {@code this}, for chaining
+         * @see ComputerContext#computerScheduler()
+         */
+        public Builder computerThreads(int threads) {
+            if (threads < 1) throw new IllegalArgumentException("Threads must be >= 1");
+            this.threads = threads;
+            return this;
+        }
+
+        /**
+         * Set the {@link MainThreadScheduler} for this context.
+         *
+         * @param scheduler The main thread scheduler.
+         * @return {@code this}, for chaining
+         * @see ComputerContext#mainThreadScheduler()
+         */
+        public Builder mainThreadScheduler(MainThreadScheduler scheduler) {
+            Objects.requireNonNull(scheduler);
+            if (mainThreadScheduler != null) throw new IllegalStateException("Main-thread scheduler already specified");
+            mainThreadScheduler = scheduler;
+            return this;
+        }
+
+        /**
+         * Set the {@link ILuaMachine.Factory} for this context.
+         *
+         * @param factory The Lua machine factory.
+         * @return {@code this}, for chaining
+         * @see ComputerContext#luaFactory()
+         */
+        public Builder luaFactory(ILuaMachine.Factory factory) {
+            Objects.requireNonNull(factory);
+            if (luaFactory != null) throw new IllegalStateException("Main-thread scheduler already specified");
+            luaFactory = factory;
+            return this;
+        }
+
+        /**
+         * Create a new {@link ComputerContext}.
+         *
+         * @return The newly created context.
+         */
+        public ComputerContext build() {
+            return new ComputerContext(
+                environment,
+                new ComputerThread(threads),
+                mainThreadScheduler == null ? new NoWorkMainThreadScheduler() : mainThreadScheduler,
+                luaFactory == null ? CobaltLuaMachine::new : luaFactory
+            );
         }
     }
 }
