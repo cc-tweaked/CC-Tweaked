@@ -16,11 +16,11 @@ public final class UpgradeData<T extends UpgradeBase> {
         this.data = data;
     }
 
-    public @Nonnull T upgrade() {
+    public @Nonnull T getUpgrade() {
         return upgrade;
     }
 
-    public @Nonnull CompoundTag data() {
+    public @Nonnull CompoundTag getData() {
         return data;
     }
 

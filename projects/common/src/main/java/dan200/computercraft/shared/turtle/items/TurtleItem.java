@@ -60,15 +60,15 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
 
         if (leftUpgrade != null) {
             stack.getOrCreateTag().putString(NBT_LEFT_UPGRADE, leftUpgrade.getUpgradeID().toString());
-            if (!leftUpgrade.data().isEmpty()) {
-                stack.getOrCreateTag().put(NBT_LEFT_UPGRADE_DATA, leftUpgrade.data());
+            if (!leftUpgrade.getData().isEmpty()) {
+                stack.getOrCreateTag().put(NBT_LEFT_UPGRADE_DATA, leftUpgrade.getData());
             }
         }
 
         if (rightUpgrade != null) {
             stack.getOrCreateTag().putString(NBT_RIGHT_UPGRADE, rightUpgrade.getUpgradeID().toString());
-            if (!rightUpgrade.data().isEmpty()) {
-                stack.getOrCreateTag().put(NBT_RIGHT_UPGRADE_DATA, rightUpgrade.data());
+            if (!rightUpgrade.getData().isEmpty()) {
+                stack.getOrCreateTag().put(NBT_RIGHT_UPGRADE_DATA, rightUpgrade.getData());
             }
         }
         return stack;
@@ -105,13 +105,13 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
 
         var left = getUpgrade(stack, TurtleSide.LEFT);
         if (left != null) {
-            var mod = TurtleUpgrades.instance().getOwner(left.upgrade());
+            var mod = TurtleUpgrades.instance().getOwner(left.getUpgrade());
             if (mod != null && !mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
         }
 
         var right = getUpgrade(stack, TurtleSide.RIGHT);
         if (right != null) {
-            var mod = TurtleUpgrades.instance().getOwner(right.upgrade());
+            var mod = TurtleUpgrades.instance().getOwner(right.getUpgrade());
             if (mod != null && !mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
         }
 

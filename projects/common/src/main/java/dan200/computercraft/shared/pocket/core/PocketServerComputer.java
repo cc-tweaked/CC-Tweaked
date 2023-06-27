@@ -128,7 +128,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
      * @param upgrade The new upgrade to set it to, may be {@code null}.
      */
     public void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
-        var upgradeInstance = upgrade == null ? null : upgrade.upgrade();
+        var upgradeInstance = upgrade == null ? null : upgrade.getUpgrade();
         if (this.upgrade == upgradeInstance) return;
 
         synchronized (this) {

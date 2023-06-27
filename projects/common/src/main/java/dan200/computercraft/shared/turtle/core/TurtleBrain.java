@@ -569,8 +569,8 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     private boolean setUpgradeDirect(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
         if (upgrade == null) return setUpgradeDirect(side, (ITurtleUpgrade) null);
-        var result = setUpgradeDirect(side, upgrade.upgrade());
-        if (result) upgradeNBTData.put(side, upgrade.data());
+        var result = setUpgradeDirect(side, upgrade.getUpgrade());
+        if (result) upgradeNBTData.put(side, upgrade.getData());
         return result;
     }
 

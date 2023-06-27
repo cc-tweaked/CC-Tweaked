@@ -22,10 +22,8 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.Supplier;
 
@@ -65,10 +63,6 @@ public class TestMod {
         bus.addListener((RegisterClientCommandsEvent e) -> Exporter.register(e.getDispatcher()));
 
         var modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modBus.addListener((FMLClientSetupEvent e) -> {
-            for (int i = 0; i < 100; i++)
-                System.out.println("JGHASVDFHGVSDFSDFSDF");
-            ComputerCraftAPIClient.registerTurtleUpgradeModeller(ENCHANTED_TOOL.get(), TurtleUpgradeModeller.flatItem());
-        });
+        modBus.addListener((FMLClientSetupEvent e) -> ComputerCraftAPIClient.registerTurtleUpgradeModeller(ENCHANTED_TOOL.get(), TurtleUpgradeModeller.flatItem()));
     }
 }
