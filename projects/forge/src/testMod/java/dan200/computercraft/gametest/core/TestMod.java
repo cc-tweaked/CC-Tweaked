@@ -33,7 +33,7 @@ public class TestMod {
         TurtleUpgradeSerialiser.registryId(),
         "cctest"
     );
-    public static Supplier<TurtleUpgradeSerialiser<EnchantableTurtleTool>> ENCHANTED_TOOL = turtleRegistry.register(
+    public static Supplier<TurtleUpgradeSerialiser<EnchantableTurtleTool>> enchantedTool = turtleRegistry.register(
         ModEntrypoint.ENCHANTABLE_TOOL,
         ModEntrypoint.buildEnchantableTurtleTool()
     );
@@ -63,6 +63,6 @@ public class TestMod {
         bus.addListener((RegisterClientCommandsEvent e) -> Exporter.register(e.getDispatcher()));
 
         var modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modBus.addListener((FMLClientSetupEvent e) -> ComputerCraftAPIClient.registerTurtleUpgradeModeller(ENCHANTED_TOOL.get(), TurtleUpgradeModeller.flatItem()));
+        modBus.addListener((FMLClientSetupEvent e) -> ComputerCraftAPIClient.registerTurtleUpgradeModeller(enchantedTool.get(), TurtleUpgradeModeller.flatItem()));
     }
 }
