@@ -22,7 +22,10 @@ import java.util.Objects;
  */
 public class PeripheralMethodSupplier {
     private static final Generator<PeripheralMethod> GENERATOR = new Generator<>(PeripheralMethod.class, List.of(ILuaContext.class, IComputerAccess.class),
-        m -> (target, context, computer, args) -> context.executeMainThreadTask(() -> ResultHelpers.checkNormalResult(m.apply(target, context, computer, args.escapes())))
+        m -> (target, context, computer, args) -> {
+            var escArgs = args.escapes();
+            return context.executeMainThreadTask(() -> ResultHelpers.checkNormalResult(m.apply(target, context, computer, escArgs)));
+        }
     );
     private static final IntCache<PeripheralMethod> DYNAMIC = new IntCache<>(
         method -> (instance, context, computer, args) -> ((IDynamicPeripheral) instance).callMethod(computer, context, method, args)

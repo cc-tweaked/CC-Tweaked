@@ -21,7 +21,10 @@ import java.util.Objects;
  */
 public final class LuaMethodSupplier {
     private static final Generator<LuaMethod> GENERATOR = new Generator<>(LuaMethod.class, List.of(ILuaContext.class),
-        m -> (target, context, args) -> context.executeMainThreadTask(() -> ResultHelpers.checkNormalResult(m.apply(target, context, args.escapes())))
+        m -> (target, context, args) -> {
+            var escArgs = args.escapes();
+            return context.executeMainThreadTask(() -> ResultHelpers.checkNormalResult(m.apply(target, context, escArgs)));
+        }
     );
     private static final IntCache<LuaMethod> DYNAMIC = new IntCache<>(
         method -> (instance, context, args) -> ((IDynamicLuaObject) instance).callMethod(context, method, args)

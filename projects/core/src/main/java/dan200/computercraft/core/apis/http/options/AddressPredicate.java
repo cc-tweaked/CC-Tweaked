@@ -70,7 +70,7 @@ interface AddressPredicate {
             } catch (IllegalArgumentException e) {
                 LOG.error(
                     "Malformed http whitelist/blacklist entry '{}': Cannot extract IP address from '{}'.",
-                    addressStr + '/' + prefixSizeStr, prefixSizeStr
+                    addressStr + '/' + prefixSizeStr, addressStr
                 );
                 return null;
             }
