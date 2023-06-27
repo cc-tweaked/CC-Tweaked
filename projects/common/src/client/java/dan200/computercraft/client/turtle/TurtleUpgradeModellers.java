@@ -15,6 +15,7 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.impl.UpgradeManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -59,10 +60,10 @@ public final class TurtleUpgradeModellers {
         return modeller.getModel(upgrade, access, side);
     }
 
-    public static TransformedModel getModel(@Nonnull UpgradeData<ITurtleUpgrade> data, TurtleSide side) {
+    public static TransformedModel getModel(@Nonnull ITurtleUpgrade upgrade, @Nonnull CompoundTag data, TurtleSide side) {
         @SuppressWarnings("unchecked")
-        var modeller = (TurtleUpgradeModeller<ITurtleUpgrade>) modelCache.computeIfAbsent(data.upgrade(), TurtleUpgradeModellers::getModeller);
-        return modeller.getModel(data, side);
+        var modeller = (TurtleUpgradeModeller<ITurtleUpgrade>) modelCache.computeIfAbsent(upgrade, TurtleUpgradeModellers::getModeller);
+        return modeller.getModel(upgrade, data, side);
     }
 
     private static TurtleUpgradeModeller<?> getModeller(ITurtleUpgrade upgradeA) {

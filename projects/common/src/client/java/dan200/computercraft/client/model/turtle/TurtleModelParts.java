@@ -99,11 +99,11 @@ public final class TurtleModelParts {
             parts.add(transform(ClientPlatformHelper.get().getModel(modelManager, overlayModelLocation), transformation));
         }
         if (combo.leftUpgrade() != null) {
-            var model = TurtleUpgradeModellers.getModel(combo.leftUpgrade(), TurtleSide.LEFT);
+            var model = TurtleUpgradeModellers.getModel(combo.leftUpgrade().upgrade(), combo.leftUpgrade().data(), TurtleSide.LEFT);
             parts.add(transform(model.getModel(), transformation.compose(model.getMatrix())));
         }
         if (combo.rightUpgrade() != null) {
-            var model = TurtleUpgradeModellers.getModel(combo.rightUpgrade(), TurtleSide.RIGHT);
+            var model = TurtleUpgradeModellers.getModel(combo.rightUpgrade().upgrade(), combo.rightUpgrade().data(), TurtleSide.RIGHT);
             parts.add(transform(model.getModel(), transformation.compose(model.getMatrix())));
         }
 

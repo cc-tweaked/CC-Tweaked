@@ -62,13 +62,10 @@ public class PocketAPI implements ILuaAPI {
 
         // Attempt to find the upgrade, starting in the main segment, and then looking in the opposite
         // one. We start from the position the item is currently in and loop round to the start.
-        var newUpgradeItem = findUpgrade(inventory.items, inventory.selected, previousUpgrade);
-        if (newUpgradeItem == null) {
-            newUpgradeItem = findUpgrade(inventory.offhand, 0, previousUpgrade);
+        var newUpgrade = findUpgrade(inventory.items, inventory.selected, previousUpgrade);
+        if (newUpgrade == null) {
+            newUpgrade = findUpgrade(inventory.offhand, 0, previousUpgrade);
         }
-        if (newUpgradeItem == null) return new Object[]{ false, "Cannot find a valid upgrade" };
-        // Unpack new upgrade here and ensure some mystical error is not happened
-        var newUpgrade = PocketUpgrades.instance().get(newUpgradeItem);
         if (newUpgrade == null) return new Object[]{ false, "Cannot find a valid upgrade" };
 
         // Remove the current upgrade
@@ -109,7 +106,7 @@ public class PocketAPI implements ILuaAPI {
         }
     }
 
-    private static @Nullable ItemStack findUpgrade(NonNullList<ItemStack> inv, int start, @Nullable UpgradeData<IPocketUpgrade> previous) {
+    private static @Nullable UpgradeData<IPocketUpgrade> findUpgrade(NonNullList<ItemStack> inv, int start, @Nullable UpgradeData<IPocketUpgrade> previous) {
         for (var i = 0; i < inv.size(); i++) {
             var invStack = inv.get((i + start) % inv.size());
             if (!invStack.isEmpty()) {
@@ -121,7 +118,7 @@ public class PocketAPI implements ILuaAPI {
                     invStack.shrink(1);
                     inv.set((i + start) % inv.size(), invStack.isEmpty() ? ItemStack.EMPTY : invStack);
 
-                    return invStack.copyWithCount(1);
+                    return newUpgrade;
                 }
             }
         }
