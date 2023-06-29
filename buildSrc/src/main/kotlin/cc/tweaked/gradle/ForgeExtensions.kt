@@ -17,7 +17,7 @@ import java.nio.file.Files
 fun JavaExec.setRunConfig(config: RunConfig) {
     dependsOn("prepareRuns")
     setRunConfigInternal(project, this, config)
-    doFirst("Create working directory") { Files.createDirectories(workingDir.toPath().parent) }
+    doFirst("Create working directory") { Files.createDirectories(workingDir.toPath()) }
 
     javaLauncher.set(
         project.extensions.getByType(JavaToolchainService::class.java)
