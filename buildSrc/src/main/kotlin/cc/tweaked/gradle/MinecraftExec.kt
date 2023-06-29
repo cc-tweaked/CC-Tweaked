@@ -32,11 +32,14 @@ abstract class ClientJavaExec : JavaExec() {
         usesService(clientRunner)
     }
 
+    @get:Input
+    val renderdoc get() = project.hasProperty("renderdoc")
+
     /**
      * When [false], tests will not be run automatically, allowing the user to debug rendering.
      */
     @get:Input
-    val clientDebug get() = project.hasProperty("clientDebug")
+    val clientDebug get() = renderdoc || project.hasProperty("clientDebug")
 
     /**
      * When [false], tests will not run under a framebuffer.
@@ -63,6 +66,7 @@ abstract class ClientJavaExec : JavaExec() {
         task.copyToFull(this)
 
         if (!clientDebug) systemProperty("cctest.client", "")
+        if (renderdoc) environment("LD_PRELOAD", "/usr/lib/librenderdoc.so")
         systemProperty("cctest.gametest-report", testResults.get().asFile.absoluteFile)
         workingDir(project.buildDir.resolve("gametest").resolve(name))
     }

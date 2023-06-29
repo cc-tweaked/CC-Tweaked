@@ -60,7 +60,7 @@ class IlluaminatePlugin : Plugin<Project> {
 
     /** Define a dependency for illuaminate from a version number and the current operating system. */
     private fun illuaminateArtifact(project: Project, version: String): Dependency {
-        val osName = System.getProperty("os.name").toLowerCase()
+        val osName = System.getProperty("os.name").lowercase()
         val (os, suffix) = when {
             osName.contains("windows") -> Pair("windows", ".exe")
             osName.contains("mac os") || osName.contains("darwin") -> Pair("macos", "")
@@ -68,7 +68,7 @@ class IlluaminatePlugin : Plugin<Project> {
             else -> error("Unsupported OS $osName for illuaminate")
         }
 
-        val osArch = System.getProperty("os.arch").toLowerCase()
+        val osArch = System.getProperty("os.arch").lowercase()
         val arch = when {
             // On macOS the x86_64 binary will work for both ARM and Intel Macs through Rosetta.
             os == "macos" -> "x86_64"
