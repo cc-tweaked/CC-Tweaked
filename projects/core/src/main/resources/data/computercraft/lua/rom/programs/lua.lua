@@ -90,9 +90,8 @@ while running do
 
         local results = table.pack(exception.try(func))
         if results[1] then
-            local n = 1
-            while n < results.n do
-                local value = results[n + 1]
+            for i = 2, results.n do
+                local value = results[i]
                 local ok, serialised = pcall(pretty.pretty, value, {
                     function_args = settings.get("lua.function_args"),
                     function_source = settings.get("lua.function_source"),
@@ -102,7 +101,6 @@ while running do
                 else
                     print(tostring(value))
                 end
-                n = n + 1
             end
         else
             printError(results[2])

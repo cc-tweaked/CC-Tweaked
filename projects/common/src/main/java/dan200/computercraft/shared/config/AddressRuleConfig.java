@@ -4,21 +4,19 @@
 
 package dan200.computercraft.shared.config;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.InMemoryCommentedFormat;
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
+import dan200.computercraft.core.apis.http.options.InvalidRuleException;
 import dan200.computercraft.core.apis.http.options.PartialOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Parses, checks and generates {@link Config}s for {@link AddressRule}.
@@ -26,49 +24,65 @@ import java.util.concurrent.ConcurrentHashMap;
 class AddressRuleConfig {
     private static final Logger LOG = LoggerFactory.getLogger(AddressRuleConfig.class);
 
-    public static UnmodifiableConfig makeRule(String host, Action action) {
-        var config = InMemoryCommentedFormat.defaultInstance().createConfig(ConcurrentHashMap::new);
-        config.add("host", host);
-        config.add("action", action.name().toLowerCase(Locale.ROOT));
+    private static final AddressRule REJECT_ALL = AddressRule.parse("*", OptionalInt.empty(), Action.DENY.toPartial());
 
-        if (host.equals("*") && action == Action.ALLOW) {
-            config.setComment("max_download", """
-                The maximum size (in bytes) that a computer can download in a single request.
-                Note that responses may receive more data than allowed, but this data will not
-                be returned to the client.""");
-            config.set("max_download", AddressRule.MAX_DOWNLOAD);
+    public static List<UnmodifiableConfig> defaultRules() {
+        return List.of(
+            makeRule(config -> {
+                config.setComment("host", """
+                    The magic "$private" host matches all private address ranges, such as localhost and 192.168.0.0/16.
+                    This rule prevents computers accessing internal services, and is strongly recommended.""");
+                config.add("host", "$private");
 
-            config.setComment("max_upload", """
-                The maximum size (in bytes) that a computer can upload in a single request. This
-                includes headers and POST text.""");
-            config.set("max_upload", AddressRule.MAX_UPLOAD);
+                config.setComment("action", "Deny all requests to private IP addresses.");
+                config.add("action", Action.DENY.name().toLowerCase(Locale.ROOT));
+            }),
+            makeRule(config -> {
+                config.setComment("host", """
+                    The wildcard "*" rule matches all remaining hosts.""");
+                config.add("host", "*");
 
-            config.setComment("max_websocket_message", "The maximum size (in bytes) that a computer can send or receive in one websocket packet.");
-            config.set("max_websocket_message", AddressRule.WEBSOCKET_MESSAGE);
+                config.setComment("action", "Allow all non-denied hosts.");
+                config.add("action", Action.ALLOW.name().toLowerCase(Locale.ROOT));
 
-            config.setComment("use_proxy", "Enable use of the HTTP/SOCKS proxy if it is configured.");
-            config.set("use_proxy", false);
-        }
+                config.setComment("max_download", """
+                    The maximum size (in bytes) that a computer can download in a single request.
+                    Note that responses may receive more data than allowed, but this data will not
+                    be returned to the client.""");
+                config.set("max_download", AddressRule.MAX_DOWNLOAD);
 
+                config.setComment("max_upload", """
+                    The maximum size (in bytes) that a computer can upload in a single request. This
+                    includes headers and POST text.""");
+                config.set("max_upload", AddressRule.MAX_UPLOAD);
+
+                config.setComment("max_websocket_message", "The maximum size (in bytes) that a computer can send or receive in one websocket packet.");
+                config.set("max_websocket_message", AddressRule.WEBSOCKET_MESSAGE);
+
+                config.setComment("use_proxy", "Enable use of the HTTP/SOCKS proxy if it is configured.");
+                config.set("use_proxy", false);
+            })
+        );
+    }
+
+    private static UnmodifiableConfig makeRule(Consumer<CommentedConfig> setup) {
+        var config = InMemoryCommentedFormat.defaultInstance().createConfig(LinkedHashMap::new);
+        setup.accept(config);
         return config;
     }
 
-    public static boolean checkRule(UnmodifiableConfig builder) {
-        var hostObj = get(builder, "host", String.class).orElse(null);
-        var port = unboxOptInt(get(builder, "port", Number.class));
-        return hostObj != null && checkEnum(builder, "action", Action.class)
-            && check(builder, "port", Number.class)
-            && check(builder, "max_upload", Number.class)
-            && check(builder, "max_download", Number.class)
-            && check(builder, "websocket_message", Number.class)
-            && check(builder, "use_proxy", Boolean.class)
-            && AddressRule.parse(hostObj, port, PartialOptions.DEFAULT) != null;
+    public static AddressRule parseRule(UnmodifiableConfig builder) {
+        try {
+            return doParseRule(builder);
+        } catch (InvalidRuleException e) {
+            LOG.error("Malformed HTTP rule: {} HTTP will NOT work until this is fixed.", e.getMessage());
+            return REJECT_ALL;
+        }
     }
 
-    @Nullable
-    public static AddressRule parseRule(UnmodifiableConfig builder) {
+    public static AddressRule doParseRule(UnmodifiableConfig builder) {
         var hostObj = get(builder, "host", String.class).orElse(null);
-        if (hostObj == null) return null;
+        if (hostObj == null) throw new InvalidRuleException("No 'host' specified");
 
         var action = getEnum(builder, "action", Action.class).orElse(null);
         var port = unboxOptInt(get(builder, "port", Number.class));
@@ -88,38 +102,19 @@ class AddressRuleConfig {
         return AddressRule.parse(hostObj, port, options);
     }
 
-    private static <T> boolean check(UnmodifiableConfig config, String field, Class<T> klass) {
-        var value = config.get(field);
-        if (value == null || klass.isInstance(value)) return true;
-
-        LOG.warn("HTTP rule's {} is not a {}.", field, klass.getSimpleName());
-        return false;
-    }
-
-    private static <T extends Enum<T>> boolean checkEnum(UnmodifiableConfig config, String field, Class<T> klass) {
-        var value = config.get(field);
-        if (value == null) return true;
-
-        if (!(value instanceof String)) {
-            LOG.warn("HTTP rule's {} is not a string", field);
-            return false;
-        }
-
-        if (parseEnum(klass, (String) value) == null) {
-            LOG.warn("HTTP rule's {} is not a known option", field);
-            return false;
-        }
-
-        return true;
-    }
-
     private static <T> Optional<T> get(UnmodifiableConfig config, String field, Class<T> klass) {
         var value = config.get(field);
-        return klass.isInstance(value) ? Optional.of(klass.cast(value)) : Optional.empty();
+        if (value == null) return Optional.empty();
+        if (klass.isInstance(value)) return Optional.of(klass.cast(value));
+
+        throw new InvalidRuleException(String.format(
+            "Field '%s' should be a '%s' but is a %s.",
+            field, klass.getSimpleName(), value.getClass().getSimpleName()
+        ));
     }
 
     private static <T extends Enum<T>> Optional<T> getEnum(UnmodifiableConfig config, String field, Class<T> klass) {
-        return get(config, field, String.class).map(x -> parseEnum(klass, x));
+        return get(config, field, String.class).map(x -> parseEnum(field, klass, x));
     }
 
     private static OptionalLong unboxOptLong(Optional<? extends Number> value) {
@@ -130,11 +125,14 @@ class AddressRuleConfig {
         return value.map(Number::intValue).map(OptionalInt::of).orElse(OptionalInt.empty());
     }
 
-    @Nullable
-    private static <T extends Enum<T>> T parseEnum(Class<T> klass, String x) {
+    private static <T extends Enum<T>> T parseEnum(String field, Class<T> klass, String x) {
         for (var value : klass.getEnumConstants()) {
             if (value.name().equalsIgnoreCase(x)) return value;
         }
-        return null;
+
+        throw new InvalidRuleException(String.format(
+            "Field '%s' should be one of %s, but is '%s'.",
+            field, Arrays.stream(klass.getEnumConstants()).map(Enum::name).toList(), x
+        ));
     }
 }

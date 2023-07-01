@@ -35,14 +35,13 @@ public final class AddressRule {
         this.port = port;
     }
 
-    @Nullable
     public static AddressRule parse(String filter, OptionalInt port, PartialOptions partial) {
         var cidr = filter.indexOf('/');
         if (cidr >= 0) {
             var addressStr = filter.substring(0, cidr);
             var prefixSizeStr = filter.substring(cidr + 1);
             var range = HostRange.parse(addressStr, prefixSizeStr);
-            return range == null ? null : new AddressRule(range, port, partial);
+            return new AddressRule(range, port, partial);
         } else if (filter.equalsIgnoreCase("$private")) {
             return new AddressRule(PrivatePattern.INSTANCE, port, partial);
         } else {
