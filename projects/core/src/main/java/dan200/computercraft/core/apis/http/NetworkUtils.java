@@ -27,7 +27,6 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.handler.traffic.AbstractTrafficShapingHandler;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -193,7 +192,7 @@ public final class NetworkUtils {
      * @return The SSL handler.
      * @see io.netty.handler.ssl.SslHandler
      */
-    private static SslHandler makeSslHandler(SocketChannel ch, @NotNull SslContext sslContext, int timeout, String peerHost, int peerPort) {
+    private static SslHandler makeSslHandler(SocketChannel ch, SslContext sslContext, int timeout, String peerHost, int peerPort) {
         var handler = sslContext.newHandler(ch.alloc(), peerHost, peerPort);
         if (timeout > 0) handler.setHandshakeTimeoutMillis(timeout);
         return handler;

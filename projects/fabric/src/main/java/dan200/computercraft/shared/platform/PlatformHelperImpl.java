@@ -72,7 +72,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -284,7 +283,7 @@ public class PlatformHelperImpl implements PlatformHelper {
     public boolean hasToolUsage(ItemStack stack) {
         var item = stack.getItem();
         return item instanceof ShovelItem || stack.is(ItemTags.SHOVELS) ||
-            item instanceof HoeItem || stack.is(ItemTags.HOES);
+               item instanceof HoeItem || stack.is(ItemTags.HOES);
     }
 
     @Override
@@ -295,8 +294,8 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public boolean interactWithEntity(ServerPlayer player, Entity entity, Vec3 hitPos) {
         return UseEntityCallback.EVENT.invoker().interact(player, entity.level, InteractionHand.MAIN_HAND, entity, new EntityHitResult(entity, hitPos)).consumesAction() ||
-            entity.interactAt(player, hitPos.subtract(entity.position()), InteractionHand.MAIN_HAND).consumesAction() ||
-            player.interactOn(entity, InteractionHand.MAIN_HAND).consumesAction();
+               entity.interactAt(player, hitPos.subtract(entity.position()), InteractionHand.MAIN_HAND).consumesAction() ||
+               player.interactOn(entity, InteractionHand.MAIN_HAND).consumesAction();
     }
 
     @Override
@@ -350,7 +349,6 @@ public class PlatformHelperImpl implements PlatformHelper {
             return object;
         }
 
-        @Nonnull
         @Override
         public Iterator<T> iterator() {
             return registry.iterator();
