@@ -5,10 +5,7 @@
 package dan200.computercraft.core.apis.http.options;
 
 import com.google.common.net.InetAddresses;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.regex.Pattern;
@@ -19,8 +16,6 @@ import java.util.regex.Pattern;
  * @see AddressRule#apply(Iterable, String, InetSocketAddress) for the actual handling of this rule.
  */
 interface AddressPredicate {
-    Logger LOG = LoggerFactory.getLogger(AddressPredicate.class);
-
     default boolean matches(String domain) {
         return false;
     }
@@ -51,28 +46,25 @@ interface AddressPredicate {
             return true;
         }
 
-        @Nullable
         public static HostRange parse(String addressStr, String prefixSizeStr) {
             int prefixSize;
             try {
                 prefixSize = Integer.parseInt(prefixSizeStr);
             } catch (NumberFormatException e) {
-                LOG.error(
-                    "Malformed http whitelist/blacklist entry '{}': Cannot extract size of CIDR mask from '{}'.",
+                throw new InvalidRuleException(String.format(
+                    "Invalid host host '%s': Cannot extract size of CIDR mask from '%s'.",
                     addressStr + '/' + prefixSizeStr, prefixSizeStr
-                );
-                return null;
+                ));
             }
 
             InetAddress address;
             try {
                 address = InetAddresses.forString(addressStr);
             } catch (IllegalArgumentException e) {
-                LOG.error(
-                    "Malformed http whitelist/blacklist entry '{}': Cannot extract IP address from '{}'.",
-                    addressStr + '/' + prefixSizeStr, prefixSizeStr
-                );
-                return null;
+                throw new InvalidRuleException(String.format(
+                    "Invalid host '%s': Cannot extract IP address from '%s'.",
+                    addressStr + '/' + prefixSizeStr, addressStr
+                ));
             }
 
             // Mask the bytes of the IP address.
@@ -111,7 +103,6 @@ interface AddressPredicate {
             return pattern.matcher(socketAddress.getHostAddress()).matches();
         }
     }
-
 
     final class PrivatePattern implements AddressPredicate {
         static final PrivatePattern INSTANCE = new PrivatePattern();

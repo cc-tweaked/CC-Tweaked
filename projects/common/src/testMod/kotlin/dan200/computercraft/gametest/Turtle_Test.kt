@@ -32,8 +32,10 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.FenceBlock
+import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.*
+import org.hamcrest.Matchers.array
+import org.hamcrest.Matchers.instanceOf
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import java.util.*
@@ -76,6 +78,26 @@ class Turtle_Test {
                 .assertArrayEquals(true, message = "Placed lava")
         }
         thenExecute { helper.assertBlockPresent(Blocks.LAVA, BlockPos(2, 2, 2)) }
+    }
+
+    /**
+     * Checks that calling [net.minecraft.world.item.Item.use] will not place blocks too far away.
+     *
+     * This is caused by items using [net.minecraft.world.item.Item.getPlayerPOVHitResult] to perform a ray trace, which
+     * ignores turtle's reduced reach distance.
+     *
+     * @see [#1497](https://github.com/cc-tweaked/CC-Tweaked/issues/1497)
+     */
+    @GameTest
+    fun Place_use_reach_limit(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer {
+            turtle.placeDown(ObjectArguments()).await()
+                .assertArrayEquals(true, message = "Placed water")
+        }
+        thenExecute {
+            helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 2, 2))
+            helper.assertBlockHas(BlockPos(2, 5, 2), BlockStateProperties.WATERLOGGED, true)
+        }
     }
 
     /**

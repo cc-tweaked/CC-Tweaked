@@ -10,9 +10,9 @@ import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
-import dan200.computercraft.core.metrics.OperationTimer;
 import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.MetricsObserver;
+import dan200.computercraft.core.metrics.OperationTimer;
 import dan200.computercraft.core.terminal.Terminal;
 
 import javax.annotation.Nullable;

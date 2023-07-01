@@ -17,7 +17,6 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -144,7 +143,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>> {
     ) implements ArgumentTypeInfo.Template<RepeatArgumentType<?, ?>> {
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        public RepeatArgumentType<?, ?> instantiate(@NotNull CommandBuildContext commandBuildContext) {
+        public RepeatArgumentType<?, ?> instantiate(CommandBuildContext commandBuildContext) {
             var child = child().instantiate(commandBuildContext);
             return flatten ? RepeatArgumentType.someFlat((ArgumentType) child, some()) : RepeatArgumentType.some(child, some());
         }

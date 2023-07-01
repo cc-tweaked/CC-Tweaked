@@ -12,6 +12,7 @@
         "EntityMixin",
         "ExplosionDamageCalculatorMixin",
         "ItemEntityMixin",
+        "ItemMixin",
         "ServerLevelMixin",
         "ShapedRecipeMixin",
         "TagEntryAccessor",

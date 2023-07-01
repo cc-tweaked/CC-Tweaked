@@ -28,10 +28,13 @@ jobs:
         echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
 
     - name: Build with Gradle
-      run: |
-        ./gradlew assemble || ./gradlew assemble
-        ./gradlew downloadAssets || ./gradlew downloadAssets
-        ./gradlew build
+      run: ./gradlew assemble || ./gradlew assemble
+
+    - name: Download assets for game tests
+      run: ./gradlew downloadAssets || ./gradlew downloadAssets
+
+    - name: Run tests and linters
+      run: ./gradlew build
 
     - name: Run client tests
       run: ./gradlew runGametestClient # Not checkClient, as no point running rendering tests.

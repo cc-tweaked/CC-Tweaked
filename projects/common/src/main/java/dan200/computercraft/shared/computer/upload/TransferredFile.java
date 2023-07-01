@@ -7,7 +7,7 @@ package dan200.computercraft.shared.computer.upload;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.apis.handles.BinaryReadableHandle;
 import dan200.computercraft.core.apis.handles.ByteBufferChannel;
-import dan200.computercraft.core.asm.ObjectSource;
+import dan200.computercraft.core.methods.ObjectSource;
 
 import java.nio.ByteBuffer;
 import java.util.Collections;

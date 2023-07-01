@@ -80,7 +80,10 @@ public interface IPocketAccess {
     void updateUpgradeNBTData();
 
     /**
-     * Remove the current peripheral and create a new one. You may wish to do this if the methods available change.
+     * Remove the current peripheral and create a new one.
+     * <p>
+     * You may wish to do this if the methods available change, for instance when the {@linkplain #getEntity() owning
+     * entity} changes.
      */
     void invalidatePeripheral();
 
@@ -88,6 +91,8 @@ public interface IPocketAccess {
      * Get a list of all upgrades for the pocket computer.
      *
      * @return A collection of all upgrade names.
+     * @deprecated This is a relic of a previous API, which no longer makes sense with newer versions of ComputerCraft.
      */
+    @Deprecated(forRemoval = true)
     Map<ResourceLocation, IPeripheral> getUpgrades();
 }

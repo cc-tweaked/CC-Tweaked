@@ -15,6 +15,8 @@ import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.lua.MachineEnvironment;
 import dan200.computercraft.core.lua.MachineException;
+import dan200.computercraft.core.methods.LuaMethod;
+import dan200.computercraft.core.methods.MethodSupplier;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.core.util.Colour;
@@ -61,6 +63,7 @@ final class ComputerExecutor {
     private final MetricsObserver metrics;
     private final List<ILuaAPI> apis = new ArrayList<>();
     private final ComputerThread scheduler;
+    private final MethodSupplier<LuaMethod> luaMethods;
     final TimeoutState timeout;
 
     private @Nullable FileSystem fileSystem;
@@ -168,6 +171,7 @@ final class ComputerExecutor {
         metrics = computerEnvironment.getMetrics();
         luaFactory = context.luaFactory();
         scheduler = context.computerScheduler();
+        luaMethods = context.luaMethods();
         timeout = new TimeoutState(scheduler);
 
         var environment = computer.getEnvironment();
@@ -176,12 +180,12 @@ final class ComputerExecutor {
         apis.add(new TermAPI(environment));
         apis.add(new RedstoneAPI(environment));
         apis.add(new FSAPI(environment));
-        apis.add(new PeripheralAPI(environment));
+        apis.add(new PeripheralAPI(environment, context.peripheralMethods()));
         apis.add(new OSAPI(environment));
         if (CoreConfig.httpEnabled) apis.add(new HTTPAPI(environment));
 
         // Load in the externally registered APIs.
-        for (var factory : ApiFactories.getAll()) {
+        for (var factory : context.apiFactories()) {
             var system = new ComputerSystem(environment);
             var api = factory.create(system);
             if (api != null) apis.add(new ApiWrapper(api, system));
@@ -382,6 +386,7 @@ final class ComputerExecutor {
             return luaFactory.create(new MachineEnvironment(
                 new LuaContext(computer), metrics, timeout,
                 () -> apis.stream().map(api -> api instanceof ApiWrapper wrapper ? wrapper.getDelegate() : api).iterator(),
+                luaMethods,
                 computer.getGlobalEnvironment().getHostString()
             ), bios);
         } catch (IOException e) {

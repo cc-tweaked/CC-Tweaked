@@ -9,7 +9,6 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.http.NetworkUtils;
-import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.ProxyType;
 import dan200.computercraft.core.computer.mainthread.MainThreadConfig;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
@@ -20,9 +19,7 @@ import org.apache.logging.log4j.core.filter.MarkerFilter;
 
 import javax.annotation.Nullable;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public final class ConfigSpec {
@@ -182,9 +179,9 @@ public final class ConfigSpec {
 
             httpEnabled = builder
                 .comment("""
-                    Enable the "http" API on Computers. This also disables the "pastebin" and "wget"
-                    programs, that many users rely on. It's recommended to leave this on and use the
-                    "rules" config option to impose more fine-grained control.""")
+                    Enable the "http" API on Computers. Disabling this also disables the "pastebin" and
+                    "wget" programs, that many users rely on. It's recommended to leave this on and use
+                    the "rules" config option to impose more fine-grained control.""")
                 .define("enabled", CoreConfig.httpEnabled);
 
             httpWebsocketEnabled = builder
@@ -194,16 +191,23 @@ public final class ConfigSpec {
             httpRules = builder
                 .comment("""
                     A list of rules which control behaviour of the "http" API for specific domains or
-                    IPs. Each rule is an item with a 'host' to match against, and a series of
-                    properties. Rules are evaluated in order, meaning earlier rules override later
-                    ones.
-                    The host may be a domain name ("pastebin.com"), wildcard ("*.pastebin.com") or
-                    CIDR notation ("127.0.0.0/8").
-                    If no rules, the domain is blocked.""")
-                .defineList("rules", Arrays.asList(
-                    AddressRuleConfig.makeRule("$private", Action.DENY),
-                    AddressRuleConfig.makeRule("*", Action.ALLOW)
-                ), x -> x instanceof UnmodifiableConfig && AddressRuleConfig.checkRule((UnmodifiableConfig) x));
+                    IPs. Each rule matches against a hostname and an optional port, and then sets several
+                    properties for the request.  Rules are evaluated in order, meaning earlier rules override
+                    later ones.
+
+                    Valid properties:
+                     - "host" (required): The domain or IP address this rule matches. This may be a domain name
+                       ("pastebin.com"), wildcard ("*.pastebin.com") or CIDR notation ("127.0.0.0/8").
+                     - "port" (optional): Only match requests for a specific port, such as 80 or 443.
+
+                     - "action" (optional): Whether to allow or deny this request.
+                     - "max_download" (optional): The maximum size (in bytes) that a computer can download in this
+                       request.
+                     - "max_upload" (optional): The maximum size (in bytes) that a computer can upload in a this request.
+                     - "max_websocket_message" (optional): The maximum size (in bytes) that a computer can send or
+                       receive in one websocket packet.
+                     - "use_proxy" (optional): Enable use of the HTTP/SOCKS proxy if it is configured.""")
+                .defineList("rules", AddressRuleConfig.defaultRules(), x -> x instanceof UnmodifiableConfig);
 
             httpMaxRequests = builder
                 .comment("""
@@ -395,8 +399,8 @@ public final class ConfigSpec {
         // HTTP
         CoreConfig.httpEnabled = httpEnabled.get();
         CoreConfig.httpWebsocketEnabled = httpWebsocketEnabled.get();
-        CoreConfig.httpRules = httpRules.get().stream()
-            .map(AddressRuleConfig::parseRule).filter(Objects::nonNull).toList();
+
+        CoreConfig.httpRules = httpRules.get().stream().map(AddressRuleConfig::parseRule).toList();
 
         CoreConfig.httpMaxRequests = httpMaxRequests.get();
         CoreConfig.httpMaxWebsockets = httpMaxWebsockets.get();

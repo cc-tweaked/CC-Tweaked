@@ -11,9 +11,8 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.model.BakedModelWrapper;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Function;
 
 /**
  * The custom model for turtle items, which renders tools and overlays as part of the model.
@@ -21,12 +20,11 @@ import java.util.Map;
  * @see TurtleModelParts
  */
 public class TurtleModel extends BakedModelWrapper<BakedModel> {
-    private final TurtleModelParts parts;
-    private final Map<TurtleModelParts.Combination, List<BakedModel>> cachedModels = new HashMap<>();
+    private final TurtleModelParts<List<BakedModel>> parts;
 
     public TurtleModel(BakedModel familyModel, BakedModel colourModel) {
         super(familyModel);
-        parts = new TurtleModelParts(familyModel, colourModel, TransformedBakedModel::new);
+        parts = new TurtleModelParts<>(familyModel, colourModel, TransformedBakedModel::new, Function.identity());
     }
 
     @Override
@@ -37,6 +35,6 @@ public class TurtleModel extends BakedModelWrapper<BakedModel> {
 
     @Override
     public List<BakedModel> getRenderPasses(ItemStack stack, boolean fabulous) {
-        return cachedModels.computeIfAbsent(parts.getCombination(stack), parts::buildModel);
+        return parts.getModel(stack);
     }
 }

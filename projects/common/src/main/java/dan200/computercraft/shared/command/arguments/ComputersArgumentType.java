@@ -18,7 +18,6 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.network.FriendlyByteBuf;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -159,14 +158,14 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         }
 
         @Override
-        public ComputersArgumentType.Template unpack(@NotNull ComputersArgumentType argumentType) {
+        public ComputersArgumentType.Template unpack(ComputersArgumentType argumentType) {
             return new ComputersArgumentType.Template(this, argumentType.requireSome);
         }
     }
 
     public record Template(Info info, boolean requireSome) implements ArgumentTypeInfo.Template<ComputersArgumentType> {
         @Override
-        public ComputersArgumentType instantiate(@NotNull CommandBuildContext context) {
+        public ComputersArgumentType instantiate(CommandBuildContext context) {
             return requireSome ? SOME : MANY;
         }
 

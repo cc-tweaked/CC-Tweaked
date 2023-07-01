@@ -244,7 +244,7 @@ local function handle_error(context, stack, stack_n, token, token_start, token_e
         end
     end
 
-    context.report(errors.unexpected_token(token, token_start, token_end))
+    context.report(errors.unexpected_token, token, token_start, token_end)
     return false
 end
 

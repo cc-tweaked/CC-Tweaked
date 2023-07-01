@@ -5,20 +5,22 @@
 package dan200.computercraft.shared.peripheral.generic;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.asm.NamedMethod;
-import dan200.computercraft.core.asm.PeripheralMethod;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.NonNullConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Objects;
 
 public class GenericPeripheralProvider {
+    private static final Logger LOG = LoggerFactory.getLogger(GenericPeripheralProvider.class);
+
     private static final ArrayList<Capability<?>> capabilities = new ArrayList<>();
 
     public static synchronized void addCapability(Capability<?> capability) {
@@ -27,57 +29,26 @@ public class GenericPeripheralProvider {
     }
 
     @Nullable
-    public static IPeripheral getPeripheral(Level world, BlockPos pos, Direction side, NonNullConsumer<Object> invalidate) {
-        var tile = world.getBlockEntity(pos);
-        if (tile == null) return null;
+    public static IPeripheral getPeripheral(Level level, BlockPos pos, Direction side, NonNullConsumer<Object> invalidate) {
+        var blockEntity = level.getBlockEntity(pos);
+        if (blockEntity == null) return null;
 
-        var saturated = new GenericPeripheralBuilder();
+        var server = level.getServer();
+        if (server == null) {
+            LOG.warn("Fetching peripherals on a non-server level {}.", level, new IllegalStateException("Fetching peripherals on a non-server level."));
+            return null;
+        }
 
-        var tileMethods = PeripheralMethod.GENERATOR.getMethods(tile.getClass());
-        if (!tileMethods.isEmpty()) saturated.addMethods(tile, tileMethods);
+        var builder = new GenericPeripheralBuilder(server);
+        builder.addMethods(blockEntity);
 
         for (var capability : capabilities) {
-            var wrapper = CapabilityUtil.getCapability(tile, capability, side);
+            var wrapper = CapabilityUtil.getCapability(blockEntity, capability, side);
             wrapper.ifPresent(contents -> {
-                var capabilityMethods = PeripheralMethod.GENERATOR.getMethods(contents.getClass());
-                if (capabilityMethods.isEmpty()) return;
-
-                saturated.addMethods(contents, capabilityMethods);
-                CapabilityUtil.addListener(wrapper, invalidate);
+                if (builder.addMethods(contents)) CapabilityUtil.addListener(wrapper, invalidate);
             });
         }
 
-        return saturated.toPeripheral(tile);
-    }
-
-    private static class GenericPeripheralBuilder {
-        private @Nullable String name;
-        private final Set<String> additionalTypes = new HashSet<>(0);
-        private final ArrayList<SaturatedMethod> methods = new ArrayList<>(0);
-
-        @Nullable
-        IPeripheral toPeripheral(BlockEntity tile) {
-            if (methods.isEmpty()) return null;
-
-            methods.trimToSize();
-            return new GenericPeripheral(tile, name, additionalTypes, methods);
-        }
-
-        void addMethods(Object target, List<NamedMethod<PeripheralMethod>> methods) {
-            var saturatedMethods = this.methods;
-            saturatedMethods.ensureCapacity(saturatedMethods.size() + methods.size());
-            for (var method : methods) {
-                saturatedMethods.add(new SaturatedMethod(target, method));
-
-                // If we have a peripheral type, use it. Always pick the smallest one, so it's consistent (assuming mods
-                // don't change).
-                var type = method.getGenericType();
-                if (type != null && type.getPrimaryType() != null) {
-                    var name = type.getPrimaryType();
-                    if (this.name == null || this.name.compareTo(name) > 0) this.name = name;
-                }
-                if (type != null) additionalTypes.addAll(type.getAdditionalTypes());
-            }
-        }
+        return builder.toPeripheral(blockEntity, side);
     }
 }

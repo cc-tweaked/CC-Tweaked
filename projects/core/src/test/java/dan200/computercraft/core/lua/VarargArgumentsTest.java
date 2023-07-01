@@ -60,4 +60,12 @@ class VarargArgumentsTest {
         assertThrows(IllegalStateException.class, () -> args.get(0));
         assertThrows(IllegalStateException.class, () -> args.getType(0));
     }
+
+    @Test
+    public void testEscapeAfterClose() {
+        var args = VarargArguments.of(tableWithCustomType());
+        args.close();
+
+        assertThrows(IllegalStateException.class, args::escapes);
+    }
 }

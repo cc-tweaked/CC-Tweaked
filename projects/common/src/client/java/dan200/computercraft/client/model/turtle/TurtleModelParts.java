@@ -29,8 +29,10 @@ import java.util.function.Function;
 
 /**
  * Combines several individual models together to form a turtle.
+ *
+ * @param <T> The type of the resulting "baked model".
  */
-public final class TurtleModelParts {
+public final class TurtleModelParts<T> {
     private static final Transformation identity, flip;
 
     static {
@@ -43,7 +45,7 @@ public final class TurtleModelParts {
         flip = new Transformation(stack.last().pose());
     }
 
-    public record Combination(
+    private record Combination(
         boolean colour,
         @Nullable UpgradeData<ITurtleUpgrade> leftUpgrade,
         @Nullable UpgradeData<ITurtleUpgrade> rightUpgrade,
@@ -56,6 +58,7 @@ public final class TurtleModelParts {
     private final BakedModel familyModel;
     private final BakedModel colourModel;
     private final Function<TransformedModel, BakedModel> transformer;
+    private final Function<Combination, T> buildModel;
 
     /**
      * A cache of {@link TransformedModel} to the transformed {@link BakedModel}. This helps us pool the transformed
@@ -63,13 +66,23 @@ public final class TurtleModelParts {
      */
     private final Map<TransformedModel, BakedModel> transformCache = new HashMap<>();
 
-    public TurtleModelParts(BakedModel familyModel, BakedModel colourModel, ModelTransformer transformer) {
+    /**
+     * A cache of {@link Combination}s to the combined model.
+     */
+    private final Map<Combination, T> modelCache = new HashMap<>();
+
+    public TurtleModelParts(BakedModel familyModel, BakedModel colourModel, ModelTransformer transformer, Function<List<BakedModel>, T> combineModel) {
         this.familyModel = familyModel;
         this.colourModel = colourModel;
         this.transformer = x -> transformer.transform(x.getModel(), x.getMatrix());
+        buildModel = x -> combineModel.apply(buildModel(x));
     }
 
-    public Combination getCombination(ItemStack stack) {
+    public T getModel(ItemStack stack) {
+        return modelCache.computeIfAbsent(getCombination(stack), buildModel);
+    }
+
+    private Combination getCombination(ItemStack stack) {
         var christmas = Holiday.getCurrent() == Holiday.CHRISTMAS;
 
         if (!(stack.getItem() instanceof TurtleItem turtle)) {
@@ -86,7 +99,7 @@ public final class TurtleModelParts {
         return new Combination(colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip);
     }
 
-    public List<BakedModel> buildModel(Combination combo) {
+    private List<BakedModel> buildModel(Combination combo) {
         var mc = Minecraft.getInstance();
         var modelManager = mc.getItemRenderer().getItemModelShaper().getModelManager();
 
@@ -110,7 +123,7 @@ public final class TurtleModelParts {
         return parts;
     }
 
-    public BakedModel transform(BakedModel model, Transformation transformation) {
+    private BakedModel transform(BakedModel model, Transformation transformation) {
         if (transformation.equals(Transformation.identity())) return model;
         return transformCache.computeIfAbsent(new TransformedModel(model, transformation), transformer);
     }
