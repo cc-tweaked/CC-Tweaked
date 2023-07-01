@@ -72,8 +72,8 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         if (id >= 0) result.getOrCreateTag().putInt(NBT_ID, id);
         if (label != null) result.setHoverName(Component.literal(label));
         if (upgrade != null) {
-            result.getOrCreateTag().putString(NBT_UPGRADE, upgrade.getUpgradeID().toString());
-            if (!upgrade.getData().isEmpty()) result.getOrCreateTag().put(NBT_UPGRADE_INFO, upgrade.getData());
+            result.getOrCreateTag().putString(NBT_UPGRADE, upgrade.upgrade().getUpgradeID().toString());
+            if (!upgrade.data().isEmpty()) result.getOrCreateTag().put(NBT_UPGRADE_INFO, upgrade.data().copy());
         }
         if (colour != -1) result.getOrCreateTag().putInt(NBT_COLOUR, colour);
         return result;
@@ -83,7 +83,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         var upgrade = getUpgrade(stack);
 
         computer.setLevel((ServerLevel) world);
-        computer.updateValues(entity, stack, upgrade != null ? upgrade.getUpgrade() : null);
+        computer.updateValues(entity, stack, upgrade);
 
         var changed = false;
 
@@ -108,7 +108,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         }
 
         // Update pocket upgrade
-        if (upgrade != null) upgrade.getUpgrade().update(computer, computer.getPeripheral(ComputerSide.BACK));
+        if (upgrade != null) upgrade.update(computer, computer.getPeripheral(ComputerSide.BACK));
 
         return changed;
     }
@@ -143,8 +143,8 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
             var stop = false;
             var upgrade = getUpgrade(stack);
             if (upgrade != null) {
-                computer.updateValues(player, stack, upgrade.getUpgrade());
-                stop = upgrade.getUpgrade().onRightClick(world, computer, computer.getPeripheral(ComputerSide.BACK));
+                computer.updateValues(player, stack, upgrade);
+                stop = upgrade.onRightClick(world, computer, computer.getPeripheral(ComputerSide.BACK));
             }
 
             if (!stop) {
@@ -187,7 +187,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         if (upgrade != null) {
             // If we're a non-vanilla, non-CC upgrade then return whichever mod this upgrade
             // belongs to.
-            var mod = PocketUpgrades.instance().getOwner(upgrade.getUpgrade());
+            var mod = PocketUpgrades.instance().getOwner(upgrade);
             if (mod != null && !mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
         }
 
@@ -213,7 +213,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
 
             var upgrade = getUpgrade(stack);
 
-            computer.updateValues(entity, stack, upgrade != null ? upgrade.getUpgrade() : null);
+            computer.updateValues(entity, stack, upgrade);
             computer.addAPI(new PocketAPI(computer));
 
             // Only turn on when initially creating the computer, rather than each tick.
@@ -250,7 +250,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
     public ItemStack withFamily(ItemStack stack, ComputerFamily family) {
         return create(
             getComputerID(stack), getLabel(stack), getColour(stack),
-            family, getUpgrade(stack)
+            family, getUpgradeWithData(stack)
         );
     }
 
@@ -298,15 +298,17 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         return nbt != null && nbt.getBoolean(NBT_ON);
     }
 
-    public static @Nullable UpgradeData<IPocketUpgrade> getUpgrade(ItemStack stack) {
+    public static @Nullable IPocketUpgrade getUpgrade(ItemStack stack) {
+        var compound = stack.getTag();
+        if (compound == null || !compound.contains(NBT_UPGRADE)) return null;
+        return PocketUpgrades.instance().get(compound.getString(NBT_UPGRADE));
+    }
+
+    public static @Nullable UpgradeData<IPocketUpgrade> getUpgradeWithData(ItemStack stack) {
         var compound = stack.getTag();
         if (compound == null || !compound.contains(NBT_UPGRADE)) return null;
         var upgrade = PocketUpgrades.instance().get(compound.getString(NBT_UPGRADE));
-        if (upgrade == null) return null;
-        return UpgradeData.of(
-            upgrade,
-            compound.getCompound(NBT_UPGRADE_INFO)
-        );
+        return upgrade == null ? null : UpgradeData.of(upgrade, compound.getCompound(NBT_UPGRADE_INFO));
     }
 
     public static void setUpgrade(ItemStack stack, @Nullable UpgradeData<IPocketUpgrade> upgrade) {
@@ -316,8 +318,8 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
             compound.remove(NBT_UPGRADE);
             compound.remove(NBT_UPGRADE_INFO);
         } else {
-            compound.putString(NBT_UPGRADE, upgrade.getUpgradeID().toString());
-            compound.put(NBT_UPGRADE_INFO, upgrade.getData());
+            compound.putString(NBT_UPGRADE, upgrade.upgrade().getUpgradeID().toString());
+            compound.put(NBT_UPGRADE_INFO, upgrade.data().copy());
         }
     }
 

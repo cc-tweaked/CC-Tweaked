@@ -19,7 +19,7 @@ public class TurtleEquipCommand implements TurtleCommand {
     @Override
     public TurtleCommandResult execute(ITurtleAccess turtle) {
         // Determine the upgrade to replace
-        var oldUpgrade = turtle.getUpgrade(side);
+        var oldUpgrade = turtle.getUpgradeWithData(side);
 
         // Determine the upgrade to equipLeft
         UpgradeData<ITurtleUpgrade> newUpgrade;
@@ -35,8 +35,8 @@ public class TurtleEquipCommand implements TurtleCommand {
         if (newUpgrade != null) {
             turtle.getInventory().removeItem(turtle.getSelectedSlot(), 1);
         }
-        if (oldUpgrade != null) TurtleUtil.storeItemOrDrop(turtle, oldUpgrade.getUpgradeItem(turtle.getUpgradeNBTData(side)).copy());
-        turtle.setUpgradeData(side, newUpgrade);
+        if (oldUpgrade != null) TurtleUtil.storeItemOrDrop(turtle, oldUpgrade.getUpgradeItem());
+        turtle.setUpgradeWithData(side, newUpgrade);
 
         // Animate
         if (newUpgrade != null || oldUpgrade != null) {

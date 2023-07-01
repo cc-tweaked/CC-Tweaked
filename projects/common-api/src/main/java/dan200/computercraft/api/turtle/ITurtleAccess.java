@@ -8,11 +8,13 @@ import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
@@ -246,23 +248,28 @@ public interface ITurtleAccess {
     void playAnimation(TurtleAnimation animation);
 
     /**
-     * Returns the turtle on the specified side of the turtle, if there is one.
+     * Returns the upgrade on the specified side of the turtle, if there is one.
      *
      * @param side The side to get the upgrade from.
      * @return The upgrade on the specified side of the turtle, if there is one.
-     * @see #setUpgradeData(TurtleSide, ITurtleUpgrade)
+     * @see #getUpgradeWithData(TurtleSide)
+     * @see #setUpgradeWithData(TurtleSide, UpgradeData)
      */
     @Nullable
     ITurtleUpgrade getUpgrade(TurtleSide side);
 
-    default @Nullable UpgradeData<ITurtleUpgrade> getUpgradeData(TurtleSide side) {
+    /**
+     * Returns the upgrade on the specified side of the turtle, along with its {@linkplain #getUpgradeNBTData(TurtleSide)
+     * update data}.
+     *
+     * @param side The side to get the upgrade from.
+     * @return The upgrade on the specified side of the turtle, along with its upgrade data, if there is one.
+     * @see #getUpgradeWithData(TurtleSide)
+     * @see #setUpgradeWithData(TurtleSide, UpgradeData)
+     */
+    default @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(TurtleSide side) {
         var upgrade = getUpgrade(side);
-        if (upgrade == null) {
-            return null;
-        }
-        return UpgradeData.of(
-            upgrade, getUpgradeNBTData(side)
-        );
+        return upgrade == null ? null : UpgradeData.of(upgrade, getUpgradeNBTData(side));
     }
 
     /**
@@ -271,17 +278,21 @@ public interface ITurtleAccess {
      * @param side    The side to set the upgrade on.
      * @param upgrade The upgrade to set, may be {@code null} to clear.
      * @see #getUpgrade(TurtleSide)
+     * @deprecated Use {@link #setUpgradeWithData(TurtleSide, UpgradeData)}
      */
-    void setUpgradeData(TurtleSide side, @Nullable ITurtleUpgrade upgrade);
+    @Deprecated
+    default void setUpgrade(TurtleSide side, @Nullable ITurtleUpgrade upgrade) {
+        setUpgradeWithData(side, upgrade == null ? null : UpgradeData.ofDefault(upgrade));
+    }
 
     /**
-     * Set the upgrade for a given side, resetting peripherals and clearing upgrade specific data.
+     * Set the upgrade for a given side and its upgrade data.
      *
      * @param side    The side to set the upgrade on.
      * @param upgrade The upgrade to set, may be {@code null} to clear.
-     * @see #getUpgrade(TurtleSide)
+     * @see #getUpgradeWithData(TurtleSide)
      */
-    void setUpgradeData(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade);
+    void setUpgradeWithData(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade);
 
     /**
      * Returns the peripheral created by the upgrade on the specified side of the turtle, if there is one.
@@ -301,6 +312,8 @@ public interface ITurtleAccess {
      * @param side The side to get the upgrade data for.
      * @return The upgrade-specific data.
      * @see #updateUpgradeNBTData(TurtleSide)
+     * @see UpgradeBase#getUpgradeItem(CompoundTag)
+     * @see UpgradeBase#getUpgradeData(ItemStack)
      */
     CompoundTag getUpgradeNBTData(TurtleSide side);
 

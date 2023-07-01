@@ -4,15 +4,17 @@
 
 package dan200.computercraft.api.upgrades;
 
+import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.impl.PlatformHelper;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
@@ -53,42 +55,39 @@ public interface UpgradeBase {
     ItemStack getCraftingItem();
 
     /**
-     * Return an item stack representing the instance of upgrade with passed upgrade data.
-     * By default, this method output equals to {@link #getCraftingItem()} because default behavior of
-     * upgrades is ignored any upgrade data.
+     * Returns the item stack representing a currently equipped turtle upgrade.
      * <p>
-     * But if your upgrade required this, you can redefine this behavior and pass some information from upgrade data
-     * to item stack. Please, use this method with cautions.
+     * While upgrades can store upgrade data ({@link ITurtleAccess#getUpgradeNBTData(TurtleSide)} and
+     * {@link IPocketAccess#getUpgradeNBTData()}}, by default this data is discarded when an upgrade is unequipped,
+     * and the original item stack is returned.
      * <p>
-     * This method will be used by {@code turtle.unequipLeft()} and {@code pocket.unequipBack()} to determine item stack
-     * that should be placed inside inventory.
+     * By overriding this method, you can create a new {@link ItemStack} which contains enough data to
+     * {@linkplain #getUpgradeData(ItemStack) re-create the upgrade data} if the item is re-equipped.
+     * <p>
+     * When overriding this, you should override {@link #getUpgradeData(ItemStack)} and {@link #isItemSuitable(ItemStack)}
+     * at the same time,
      *
-     * @param upgradeData NBT information that was stored inside turtle/pocket by upgrade
-     * @return The item stack, that should be stored inside inventory
+     * @param upgradeData The current upgrade data. This should <strong>NOT</strong> be mutated.
+     * @return The item stack returned when unequipping.
      */
-    default @Nonnull ItemStack getUpgradeItem(@Nonnull CompoundTag upgradeData) {
+    default ItemStack getUpgradeItem(CompoundTag upgradeData) {
         return getCraftingItem();
     }
 
     /**
-     * Returns initial upgrade data, that should be set for turtle/pocket, that uses this upgrade, based on item stack
-     * that used for installing upgrade right now.
-     * @param stack Item Stack that used for upgrade
-     * @return Upgrade NBT data that should be set in time of adding this upgrade to turtle/pocket
+     * Extract upgrade data from an {@link ItemStack}.
+     * <p>
+     * This upgrade data will be available with {@link ITurtleAccess#getUpgradeNBTData(TurtleSide)} or
+     * {@link IPocketAccess#getUpgradeNBTData()}.
+     * <p>
+     * This should be an inverse to {@link #getUpgradeItem(CompoundTag)}.
+     *
+     * @param stack The stack that was equipped by the turtle or pocket computer. This will have the same item as
+     *              {@link #getCraftingItem()}.
+     * @return The upgrade data that should be set on the turtle or pocket computer.
      */
-    default @Nonnull CompoundTag getUpgradeData(@Nonnull ItemStack stack) {
+    default CompoundTag getUpgradeData(ItemStack stack) {
         return new CompoundTag();
-    }
-
-    /**
-     * Specific hook, that allow you to filter data, that should be stored when turtle was broken.
-     * Use this in cases when you don't need to store all upgrade data by default, and you want to change this
-     * behavior, for example, as modem do.
-     * @param upgradeData NBT data that currently stored for this upgrade
-     * @return filtered version of this data, by default just all of it
-     */
-    default @Nonnull CompoundTag getPersistedData(CompoundTag upgradeData) {
-        return upgradeData;
     }
 
     /**

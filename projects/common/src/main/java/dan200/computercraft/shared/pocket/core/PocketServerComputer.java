@@ -110,15 +110,8 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         return upgrade == null ? Collections.emptyMap() : Collections.singletonMap(upgrade.getUpgradeID(), getPeripheral(ComputerSide.BACK));
     }
 
-    public @Nullable IPocketUpgrade getUpgrade() {
-        return upgrade;
-    }
-
-    public @Nullable UpgradeData<IPocketUpgrade> getUpgradeData() {
-        if (upgrade == null) return null;
-        return UpgradeData.of(
-            upgrade, getUpgradeNBTData()
-        );
+    public @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
+        return upgrade == null ? null : UpgradeData.of(upgrade, getUpgradeNBTData());
     }
 
     /**
@@ -129,13 +122,10 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
      * @param upgrade The new upgrade to set it to, may be {@code null}.
      */
     public void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
-        var upgradeInstance = upgrade == null ? null : upgrade.getUpgrade();
-        if (this.upgrade == upgradeInstance) return;
-
         synchronized (this) {
             PocketComputerItem.setUpgrade(stack, upgrade);
             updateUpgradeNBTData();
-            this.upgrade = upgradeInstance;
+            this.upgrade = upgrade == null ? null : upgrade.upgrade();
             invalidatePeripheral();
         }
     }

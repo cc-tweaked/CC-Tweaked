@@ -142,17 +142,16 @@ public class TurtleBrain implements TurtleAccessInternal {
         overlay = nbt.contains(NBT_OVERLAY) ? new ResourceLocation(nbt.getString(NBT_OVERLAY)) : null;
 
         // Read upgrades
-        setUpgradeDirect(TurtleSide.LEFT, nbt.contains(NBT_LEFT_UPGRADE) ? TurtleUpgrades.instance().get(nbt.getString(NBT_LEFT_UPGRADE)) : null);
-        setUpgradeDirect(TurtleSide.RIGHT, nbt.contains(NBT_RIGHT_UPGRADE) ? TurtleUpgrades.instance().get(nbt.getString(NBT_RIGHT_UPGRADE)) : null);
+        setUpgradeDirect(TurtleSide.LEFT, readUpgrade(nbt, NBT_LEFT_UPGRADE, NBT_LEFT_UPGRADE_DATA));
+        setUpgradeDirect(TurtleSide.RIGHT, readUpgrade(nbt, NBT_RIGHT_UPGRADE, NBT_RIGHT_UPGRADE_DATA));
+    }
 
-        // NBT
-        upgradeNBTData.clear();
-        if (nbt.contains(NBT_LEFT_UPGRADE_DATA)) {
-            upgradeNBTData.put(TurtleSide.LEFT, nbt.getCompound(NBT_LEFT_UPGRADE_DATA).copy());
-        }
-        if (nbt.contains(NBT_RIGHT_UPGRADE_DATA)) {
-            upgradeNBTData.put(TurtleSide.RIGHT, nbt.getCompound(NBT_RIGHT_UPGRADE_DATA).copy());
-        }
+    private @Nullable UpgradeData<ITurtleUpgrade> readUpgrade(CompoundTag tag, String upgradeKey, String dataKey) {
+        if (!tag.contains(upgradeKey)) return null;
+        var upgrade = TurtleUpgrades.instance().get(tag.getString(upgradeKey));
+        if (upgrade == null) return null;
+
+        return UpgradeData.of(upgrade, tag.getCompound(dataKey));
     }
 
     private void writeCommon(CompoundTag nbt) {
@@ -517,7 +516,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     }
 
     @Override
-    public void setUpgradeData(TurtleSide side, @Nullable ITurtleUpgrade upgrade) {
+    public void setUpgradeWithData(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
         if (!setUpgradeDirect(side, upgrade) || owner.getLevel() == null) return;
 
         // This is a separate function to avoid updating the block when reading the NBT. We don't need to do this as
@@ -530,34 +529,18 @@ public class TurtleBrain implements TurtleAccessInternal {
         owner.updateInputsImmediately();
     }
 
-    @Override
-    public void setUpgradeData(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
-        if (!setUpgradeDirect(side, upgrade) || owner.getLevel() == null) return;
-
-        // This is a separate function to avoid updating the block when reading the NBT. We don't need to do this as
-        // either the block is newly placed (and so won't have changed) or is being updated with /data, which calls
-        // updateBlock for us.
-        BlockEntityHelpers.updateBlock(owner);
-
-        // Recompute peripherals in case an upgrade being removed has exposed a new peripheral.
-        // TODO: Only update peripherals, or even only two sides?
-        owner.updateInputsImmediately();
-    }
-
-    private boolean setUpgradeDirect(TurtleSide side, @Nullable ITurtleUpgrade upgrade) {
+    private boolean setUpgradeDirect(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
         // Remove old upgrade
-        if (upgrades.containsKey(side)) {
-            if (upgrades.get(side) == upgrade) return false;
-            upgrades.remove(side);
-        } else {
-            if (upgrade == null) return false;
-        }
-
-        upgradeNBTData.remove(side);
-
+        var oldUpgrade = upgrades.remove(side);
+        if (oldUpgrade == null && upgrade == null) return false;
 
         // Set new upgrade
-        if (upgrade != null) upgrades.put(side, upgrade);
+        if (upgrade == null) {
+            upgradeNBTData.remove(side);
+        } else {
+            upgrades.put(side, upgrade.upgrade());
+            upgradeNBTData.put(side, upgrade.data().copy());
+        }
 
         // Notify clients and create peripherals
         if (owner.getLevel() != null && !owner.getLevel().isClientSide) {
@@ -565,13 +548,6 @@ public class TurtleBrain implements TurtleAccessInternal {
         }
 
         return true;
-    }
-
-    private boolean setUpgradeDirect(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
-        if (upgrade == null) return setUpgradeDirect(side, (ITurtleUpgrade) null);
-        var result = setUpgradeDirect(side, upgrade.getUpgrade());
-        if (result) upgradeNBTData.put(side, upgrade.getData());
-        return result;
     }
 
     @Override
@@ -618,7 +594,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     public float getToolRenderAngle(TurtleSide side, float f) {
         return (side == TurtleSide.LEFT && animation == TurtleAnimation.SWING_LEFT_TOOL) ||
-            (side == TurtleSide.RIGHT && animation == TurtleAnimation.SWING_RIGHT_TOOL)
+               (side == TurtleSide.RIGHT && animation == TurtleAnimation.SWING_RIGHT_TOOL)
             ? 45.0f * (float) Math.sin(getAnimationFraction(f) * Math.PI)
             : 0.0f;
     }

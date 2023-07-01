@@ -15,6 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * Control the current pocket computer, adding or removing upgrades.
@@ -58,7 +59,7 @@ public class PocketAPI implements ILuaAPI {
         var entity = computer.getEntity();
         if (!(entity instanceof Player player)) return new Object[]{ false, "Cannot find player" };
         var inventory = player.getInventory();
-        var previousUpgrade = computer.getUpgradeData();
+        var previousUpgrade = computer.getUpgrade();
 
         // Attempt to find the upgrade, starting in the main segment, and then looking in the opposite
         // one. We start from the position the item is currently in and loop round to the start.
@@ -69,7 +70,7 @@ public class PocketAPI implements ILuaAPI {
         if (newUpgrade == null) return new Object[]{ false, "Cannot find a valid upgrade" };
 
         // Remove the current upgrade
-        if (previousUpgrade != null) storeItem(player, previousUpgrade.getUpgradeItem().copy());
+        if (previousUpgrade != null) storeItem(player, previousUpgrade.getUpgradeItem());
 
         // Set the new upgrade
         computer.setUpgrade(newUpgrade);
@@ -88,13 +89,13 @@ public class PocketAPI implements ILuaAPI {
     public final Object[] unequipBack() {
         var entity = computer.getEntity();
         if (!(entity instanceof Player player)) return new Object[]{ false, "Cannot find player" };
-        var previousUpgrade = computer.getUpgradeData();
+        var previousUpgrade = computer.getUpgrade();
 
         if (previousUpgrade == null) return new Object[]{ false, "Nothing to unequip" };
 
         computer.setUpgrade(null);
 
-        storeItem(player, previousUpgrade.getUpgradeItem().copy());
+        storeItem(player, previousUpgrade.getUpgradeItem());
 
         return new Object[]{ true };
     }
@@ -112,7 +113,7 @@ public class PocketAPI implements ILuaAPI {
             if (!invStack.isEmpty()) {
                 var newUpgrade = PocketUpgrades.instance().get(invStack);
 
-                if (newUpgrade != null && !UpgradeData.isSame(newUpgrade, previous)) {
+                if (newUpgrade != null && !Objects.equals(newUpgrade, previous)) {
                     // Consume an item from this stack and exit the loop
                     invStack = invStack.copy();
                     invStack.shrink(1);

@@ -81,10 +81,7 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends 
         for (var wrapper : current.values()) {
             var craftingStack = wrapper.upgrade().getCraftingItem();
             if (!craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && wrapper.upgrade().isItemSuitable(stack)) {
-                return UpgradeData.of(
-                    wrapper.upgrade,
-                    wrapper.upgrade.getUpgradeData(stack)
-                );
+                return UpgradeData.of(wrapper.upgrade, wrapper.upgrade.getUpgradeData(stack));
             }
         }
 

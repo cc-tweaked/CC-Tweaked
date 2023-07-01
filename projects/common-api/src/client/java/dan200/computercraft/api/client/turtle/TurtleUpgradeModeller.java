@@ -14,7 +14,6 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -28,10 +27,10 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * Obtain the model to be used when rendering a turtle peripheral.
      * <p>
      * When the current turtle is {@literal null}, this function should be constant for a given upgrade and side.
-     * If you want access to upgrade data in such cases, use another version of this method.
      *
      * @param upgrade The upgrade that you're getting the model for.
-     * @param turtle  Access to the turtle that the upgrade resides on. This will be null when getting item models!
+     * @param turtle  Access to the turtle that the upgrade resides on. This will be null when getting item models, unless
+     *                {@link #getModel(ITurtleUpgrade, CompoundTag, TurtleSide)} is overriden.
      * @param side    Which side of the turtle (left or right) the upgrade resides on.
      * @return The model that you wish to be used to render your upgrade.
      */
@@ -40,15 +39,14 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
     /**
      * Obtain the model to be used when rendering a turtle peripheral.
      * <p>
-     * Used when turtle access object doesn't exist. For compatibility reasons, by default this method call getModel
-     * that depend on turtle.
+     * This is used when rendering the turtle's item model, and so no {@link ITurtleAccess} is available.
      *
      * @param upgrade The upgrade that you're getting the model for.
-     * @param data  Upgrade data instance for current turtle side
+     * @param data    Upgrade data instance for current turtle side.
      * @param side    Which side of the turtle (left or right) the upgrade resides on.
      * @return The model that you wish to be used to render your upgrade.
      */
-    default TransformedModel getModel(@Nonnull T upgrade, @Nonnull CompoundTag data, TurtleSide side) {
+    default TransformedModel getModel(T upgrade, CompoundTag data, TurtleSide side) {
         return getModel(upgrade, (ITurtleAccess) null, side);
     }
 

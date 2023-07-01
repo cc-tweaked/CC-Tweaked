@@ -57,14 +57,14 @@ public final class RecipeModHelpers {
         for (var turtleSupplier : TURTLES) {
             var turtle = turtleSupplier.get();
             for (var upgrade : TurtleUpgrades.instance().getUpgrades()) {
-                upgradeItems.add(turtle.create(-1, null, -1, null, UpgradeData.of(upgrade), 0, null));
+                upgradeItems.add(turtle.create(-1, null, -1, null, UpgradeData.ofDefault(upgrade), 0, null));
             }
         }
 
         for (var pocketSupplier : POCKET_COMPUTERS) {
             var pocket = pocketSupplier.get();
             for (var upgrade : PocketUpgrades.instance().getUpgrades()) {
-                upgradeItems.add(pocket.create(-1, null, -1, UpgradeData.of(upgrade)));
+                upgradeItems.add(pocket.create(-1, null, -1, UpgradeData.ofDefault(upgrade)));
             }
         }
 

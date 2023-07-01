@@ -112,23 +112,22 @@ public class UpgradeRecipeGenerator<T> {
 
         if (stack.getItem() instanceof TurtleItem item) {
             // Suggest possible upgrades which can be applied to this turtle
-            var left = item.getUpgrade(stack, TurtleSide.LEFT);
-            var right = item.getUpgrade(stack, TurtleSide.RIGHT);
+            var left = item.getUpgradeWithData(stack, TurtleSide.LEFT);
+            var right = item.getUpgradeWithData(stack, TurtleSide.RIGHT);
             if (left != null && right != null) return Collections.emptyList();
 
             List<T> recipes = new ArrayList<>();
             var ingredient = Ingredient.of(stack);
             for (var upgrade : turtleUpgrades) {
-                if (upgrade.turtle == null) {
-                    continue;
-                }
+                if (upgrade.turtle == null) throw new NullPointerException();
+
                 // The turtle is facing towards us, so upgrades on the left are actually crafted on the right.
                 if (left == null) {
-                    recipes.add(turtle(ingredient, upgrade.ingredient, turtleWith(stack, UpgradeData.of(upgrade.turtle), right)));
+                    recipes.add(turtle(ingredient, upgrade.ingredient, turtleWith(stack, UpgradeData.ofDefault(upgrade.turtle), right)));
                 }
 
                 if (right == null) {
-                    recipes.add(turtle(upgrade.ingredient, ingredient, turtleWith(stack, left, UpgradeData.of(upgrade.turtle))));
+                    recipes.add(turtle(upgrade.ingredient, ingredient, turtleWith(stack, left, UpgradeData.ofDefault(upgrade.turtle))));
                 }
             }
 
@@ -141,10 +140,8 @@ public class UpgradeRecipeGenerator<T> {
             List<T> recipes = new ArrayList<>();
             var ingredient = Ingredient.of(stack);
             for (var upgrade : pocketUpgrades) {
-                if (upgrade.pocket == null) {
-                    continue;
-                }
-                recipes.add(pocket(upgrade.ingredient, ingredient, pocketWith(stack, UpgradeData.of(upgrade.pocket))));
+                if (upgrade.pocket == null) throw new NullPointerException();
+                recipes.add(pocket(upgrade.ingredient, ingredient, pocketWith(stack, UpgradeData.ofDefault(upgrade.pocket))));
             }
 
             return Collections.unmodifiableList(recipes);
@@ -187,21 +184,21 @@ public class UpgradeRecipeGenerator<T> {
         if (stack.getItem() instanceof TurtleItem item) {
             List<T> recipes = new ArrayList<>(0);
 
-            var left = item.getUpgrade(stack, TurtleSide.LEFT);
-            var right = item.getUpgrade(stack, TurtleSide.RIGHT);
+            var left = item.getUpgradeWithData(stack, TurtleSide.LEFT);
+            var right = item.getUpgradeWithData(stack, TurtleSide.RIGHT);
 
             // The turtle is facing towards us, so upgrades on the left are actually crafted on the right.
             if (left != null) {
                 recipes.add(turtle(
                     Ingredient.of(turtleWith(stack, null, right)),
-                    Ingredient.of(left.getCraftingItem()),
+                    Ingredient.of(left.getUpgradeItem()),
                     stack
                 ));
             }
 
             if (right != null) {
                 recipes.add(turtle(
-                    Ingredient.of(right.getCraftingItem()),
+                    Ingredient.of(right.getUpgradeItem()),
                     Ingredient.of(turtleWith(stack, left, null)),
                     stack
                 ));
@@ -211,9 +208,9 @@ public class UpgradeRecipeGenerator<T> {
         } else if (stack.getItem() instanceof PocketComputerItem) {
             List<T> recipes = new ArrayList<>(0);
 
-            var back = PocketComputerItem.getUpgrade(stack);
+            var back = PocketComputerItem.getUpgradeWithData(stack);
             if (back != null) {
-                recipes.add(pocket(Ingredient.of(back.getCraftingItem()), Ingredient.of(pocketWith(stack, null)), stack));
+                recipes.add(pocket(Ingredient.of(back.getUpgradeItem()), Ingredient.of(pocketWith(stack, null)), stack));
             }
 
             return Collections.unmodifiableList(recipes);
@@ -279,7 +276,7 @@ public class UpgradeRecipeGenerator<T> {
                     recipes.add(turtle(
                         ingredient, // Right upgrade, recipe on left
                         Ingredient.of(turtleItem.create(-1, null, -1, null, null, 0, null)),
-                        turtleItem.create(-1, null, -1, null, UpgradeData.of(turtle), 0, null)
+                        turtleItem.create(-1, null, -1, null, UpgradeData.ofDefault(turtle), 0, null)
                     ));
                 }
             }
@@ -290,7 +287,7 @@ public class UpgradeRecipeGenerator<T> {
                     recipes.add(pocket(
                         ingredient,
                         Ingredient.of(pocketItem.create(-1, null, -1, null)),
-                        pocketItem.create(-1, null, -1, UpgradeData.of(pocket))
+                        pocketItem.create(-1, null, -1, UpgradeData.ofDefault(pocket))
                     ));
                 }
             }

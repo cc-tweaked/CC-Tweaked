@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.turtle.recipes;
 
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.TurtleUpgrades;
@@ -104,9 +105,10 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
         // At this point we have a turtle + 1 or 2 items
         // Get the turtle we already have
         var itemTurtle = (TurtleItem) turtle.getItem();
-        var upgrades = new UpgradeData[]{
-            itemTurtle.getUpgrade(turtle, TurtleSide.LEFT),
-            itemTurtle.getUpgrade(turtle, TurtleSide.RIGHT),
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        UpgradeData<ITurtleUpgrade>[] upgrades = new UpgradeData[]{
+            itemTurtle.getUpgradeWithData(turtle, TurtleSide.LEFT),
+            itemTurtle.getUpgradeWithData(turtle, TurtleSide.RIGHT),
         };
 
         // Get the upgrades for the new items
@@ -125,9 +127,7 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
         var fuelLevel = itemTurtle.getFuelLevel(turtle);
         var colour = itemTurtle.getColour(turtle);
         var overlay = itemTurtle.getOverlay(turtle);
-        return itemTurtle.create(
-            computerID, label, colour, upgrades[0], upgrades[1], fuelLevel, overlay
-        );
+        return itemTurtle.create(computerID, label, colour, upgrades[0], upgrades[1], fuelLevel, overlay);
     }
 
     @Override
