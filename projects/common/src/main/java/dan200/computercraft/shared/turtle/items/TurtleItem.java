@@ -17,7 +17,6 @@ import dan200.computercraft.shared.computer.items.AbstractComputerItem;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.core.cauldron.CauldronInteraction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
@@ -29,8 +28,6 @@ import javax.annotation.Nullable;
 import static dan200.computercraft.shared.turtle.core.TurtleBrain.*;
 
 public class TurtleItem extends AbstractComputerItem implements IColouredItem {
-    private static final CompoundTag EMPTY_TAG = new CompoundTag();
-
     public TurtleItem(TurtleBlock block, Properties settings) {
         super(block, settings);
     }
@@ -73,6 +70,7 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
             tag.putString(NBT_RIGHT_UPGRADE, rightUpgrade.upgrade().getUpgradeID().toString());
             if (!rightUpgrade.data().isEmpty()) tag.put(NBT_RIGHT_UPGRADE_DATA, rightUpgrade.data().copy());
         }
+
         return stack;
     }
 
@@ -139,15 +137,6 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
         return TurtleUpgrades.instance().get(tag.getString(key));
     }
 
-    /**
-     * Get the upgrade for an item.
-     *
-     * @param stack The turtle item.
-     * @param side  The turtle side to query for.
-     * @return The current turtle upgrade or {@code null}. Note the {@linkplain UpgradeData#data()} is identical to the
-     * item's current data. You should be careful to copy before using.
-     * @see #getUpgrade(ItemStack, TurtleSide)
-     */
     public @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(ItemStack stack, TurtleSide side) {
         var tag = stack.getTag();
         if (tag == null) return null;

@@ -24,6 +24,7 @@ import dan200.computercraft.shared.pocket.apis.PocketAPI;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import dan200.computercraft.shared.pocket.inventory.PocketComputerMenuProvider;
 import dan200.computercraft.shared.util.IDAssigner;
+import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -308,7 +309,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         var compound = stack.getTag();
         if (compound == null || !compound.contains(NBT_UPGRADE)) return null;
         var upgrade = PocketUpgrades.instance().get(compound.getString(NBT_UPGRADE));
-        return upgrade == null ? null : UpgradeData.of(upgrade, compound.getCompound(NBT_UPGRADE_INFO));
+        return upgrade == null ? null : UpgradeData.of(upgrade, NBTUtil.getCompoundOrEmpty(compound, NBT_UPGRADE_INFO));
     }
 
     public static void setUpgrade(ItemStack stack, @Nullable UpgradeData<IPocketUpgrade> upgrade) {

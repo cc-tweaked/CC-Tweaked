@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Contract;
 import javax.annotation.Nullable;
 
 /**
- * A snapshot of a particular upgrade (i.e. a {@link ITurtleUpgrade}) and its corresponding upgrade data).
+ * An upgrade (i.e. a {@link ITurtleUpgrade}) and its current upgrade data.
  * <p>
  * <strong>IMPORTANT:</strong> The {@link #data()} in an upgrade data is often a reference to the original upgrade data.
  * Be careful to take a {@linkplain #copy() defensive copy} if you plan to use the data in this upgrade.
@@ -71,7 +71,8 @@ public record UpgradeData<T extends UpgradeBase>(T upgrade, CompoundTag data) {
     }
 
     /**
-     * Take a copy of this {@link UpgradeData}.
+     * Take a copy of this {@link UpgradeData}. This returns a new instance with the same upgrade and a fresh copy of
+     * the upgrade data.
      *
      * @return A copy of the current instance.
      */

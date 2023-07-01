@@ -32,9 +32,7 @@ public class TurtleEquipCommand implements TurtleCommand {
         }
 
         // Do the swapping:
-        if (newUpgrade != null) {
-            turtle.getInventory().removeItem(turtle.getSelectedSlot(), 1);
-        }
+        if (newUpgrade != null) turtle.getInventory().removeItem(turtle.getSelectedSlot(), 1);
         if (oldUpgrade != null) TurtleUtil.storeItemOrDrop(turtle, oldUpgrade.getUpgradeItem());
         turtle.setUpgradeWithData(side, newUpgrade);
 
