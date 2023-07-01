@@ -104,6 +104,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     }
 
     @Override
+    @Deprecated(forRemoval = true)
     public Map<ResourceLocation, IPeripheral> getUpgrades() {
         return upgrade == null ? Collections.emptyMap() : Collections.singletonMap(upgrade.getUpgradeID(), getPeripheral(ComputerSide.BACK));
     }
