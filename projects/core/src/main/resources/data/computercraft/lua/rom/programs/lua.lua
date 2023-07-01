@@ -74,18 +74,13 @@ while running do
 
     local name, offset = "=lua[" .. chunk_idx .. "]", 0
 
-    local force_print = 0
     local func, err = load(input, name, "t", tEnv)
-
-    local expr_func = load("return _echo(" .. input .. ");", name, "t", tEnv)
-    if not func then
-        if expr_func then
-            func = expr_func
-            offset = 13
-            force_print = 1
-        end
-    elseif expr_func then
-        func = expr_func
+    if load("return " .. input) then
+        -- We wrap the expression with a call to _echo(...), which prevents tail
+        -- calls (and thus confusing errors). Note we check this is a valid
+        -- expression separately, to avoid accepting inputs like `)--` (which are
+        -- parsed as `_echo()--)`.
+        func = load("return _echo(" .. input .. "\n)", name, "t", tEnv)
         offset = 13
     end
 
@@ -96,7 +91,7 @@ while running do
         local results = table.pack(exception.try(func))
         if results[1] then
             local n = 1
-            while n < results.n or n <= force_print do
+            while n < results.n do
                 local value = results[n + 1]
                 local ok, serialised = pcall(pretty.pretty, value, {
                     function_args = settings.get("lua.function_args"),
