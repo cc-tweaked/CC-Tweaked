@@ -4,11 +4,16 @@
 
 package dan200.computercraft.client;
 
+import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.client.integration.libmultipart.LibMultiPartIntegrationClient;
 import dan200.computercraft.client.model.EmissiveComputerModel;
 import dan200.computercraft.client.model.turtle.TurtleModelLoader;
 import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.config.ConfigSpec;
+import dan200.computercraft.shared.integration.LoadedMods;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
+import dan200.computercraft.shared.platform.FabricConfigFile;
 import dan200.computercraft.shared.platform.NetworkHandler;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -17,6 +22,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.ItemStack;
@@ -68,5 +74,10 @@ public class ComputerCraftClient {
 
             return cable.getCloneItemStack(state, hit, level, pos, player);
         });
+
+        // Load config file
+        ((FabricConfigFile) ConfigSpec.clientSpec).load(FabricLoader.getInstance().getConfigDir().resolve(ComputerCraftAPI.MOD_ID + "-client.toml"));
+
+        if (LoadedMods.LIB_MULTI_PART) LibMultiPartIntegrationClient.init();
     }
 }

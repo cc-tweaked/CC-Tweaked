@@ -18,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 
-public class WirelessModemBlockEntity extends BlockEntity {
+public final class WirelessModemBlockEntity extends BlockEntity {
     private static class Peripheral extends WirelessModemPeripheral {
         private final WirelessModemBlockEntity entity;
 
@@ -94,6 +94,10 @@ public class WirelessModemBlockEntity extends BlockEntity {
         if (state.getValue(WirelessModemBlock.ON) != on) {
             getLevel().setBlockAndUpdate(getBlockPos(), state.setValue(WirelessModemBlock.ON, on));
         }
+    }
+
+    public ModemState getModemState() {
+        return modem.getModemState();
     }
 
     @Nullable

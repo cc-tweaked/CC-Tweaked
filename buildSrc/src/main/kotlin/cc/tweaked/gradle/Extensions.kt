@@ -49,6 +49,7 @@ fun JavaExec.copyToFull(spec: JavaExec) {
  * Copy additional [BaseExecSpec] options which aren't handled by [ProcessForkOptions.copyTo].
  */
 fun BaseExecSpec.copyToExec(spec: BaseExecSpec) {
+    spec.workingDir = workingDir
     spec.isIgnoreExitValue = isIgnoreExitValue
     if (standardInput != null) spec.standardInput = standardInput
     if (standardOutput != null) spec.standardOutput = standardOutput

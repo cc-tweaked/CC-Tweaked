@@ -28,6 +28,7 @@ fun addRemappedConfiguration(name: String) {
     val ourSourceSet = sourceSets.register(name) {
         // Try to make this source set as much of a non-entity as possible.
         listOf(allSource, java, resources, kotlin).forEach { it.setSrcDirs(emptyList<File>()) }
+        runtimeClasspath += sourceSets["client"].runtimeClasspath
     }
     val capitalName = name.replaceFirstChar { it.titlecase(Locale.ROOT) }
     loom.addRemapConfiguration("mod$capitalName") {
@@ -45,6 +46,7 @@ fun addRemappedConfiguration(name: String) {
 
 addRemappedConfiguration("testWithSodium")
 addRemappedConfiguration("testWithIris")
+addRemappedConfiguration("integrations")
 
 dependencies {
     modImplementation(libs.bundles.externalMods.fabric)
@@ -60,6 +62,7 @@ dependencies {
     "modTestWithSodium"(libs.sodium)
     "modTestWithIris"(libs.iris)
     "modTestWithIris"(libs.sodium)
+    "modIntegrations"(libs.libmultipart)
 
     include(libs.cobalt)
     include(libs.jzlib)
@@ -165,6 +168,14 @@ loom {
             property("fabric-api.gametest")
             property("fabric-api.gametest.report-file", project.buildDir.resolve("test-results/runGametest.xml").absolutePath)
             runDir("run/gametest")
+        }
+
+        register("clientWithIntegrations") {
+            configName = "Client (+integrations)"
+            runDir("run/integration")
+            client()
+
+            source(sourceSets["integrations"])
         }
     }
 }

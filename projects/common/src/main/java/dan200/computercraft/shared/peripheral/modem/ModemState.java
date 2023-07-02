@@ -11,7 +11,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ModemState {
+public final class ModemState {
     private final @Nullable Runnable onChanged;
     private final AtomicBoolean changed = new AtomicBoolean(true);
 
@@ -67,6 +67,32 @@ public class ModemState {
         synchronized (channels) {
             channels.clear();
             setOpen(false);
+        }
+    }
+
+    /**
+     * Copy this modem state, returning a new instance. The new instance will have the same set of open channels but no
+     * on-change listener.
+     *
+     * @return The new modem state.
+     */
+    public ModemState copy() {
+        return copy(null);
+    }
+
+    /**
+     * Copy this modem state, returning a new instance. The new instance will have the same set of open channels and a
+     * different on-change listener.
+     *
+     * @param onChanged The on-change listener.
+     * @return The new modem state.
+     */
+    public ModemState copy(@Nullable Runnable onChanged) {
+        synchronized (channels) {
+            var clone = onChanged == null ? new ModemState() : new ModemState(onChanged);
+            clone.channels.addAll(channels);
+            clone.open = open;
+            return clone;
         }
     }
 }

@@ -12,6 +12,8 @@ import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.details.FluidDetails;
+import dan200.computercraft.shared.integration.LoadedMods;
+import dan200.computercraft.shared.integration.libmultipart.LibMultiPartIntegration;
 import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
@@ -30,7 +32,6 @@ import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -100,11 +101,11 @@ public class ComputerCraft {
 
         CommonHooks.onDatapackReload((name, listener) -> ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new ReloadListener(name, listener)));
 
-        ((FabricConfigFile) ConfigSpec.clientSpec).load(FabricLoader.getInstance().getConfigDir().resolve(ComputerCraftAPI.MOD_ID + "-client.toml"));
-
         FabricDetailRegistries.FLUID_VARIANT.addProvider(FluidDetails::fill);
 
         ComputerCraftAPI.registerGenericSource(new InventoryMethods());
+
+        if (LoadedMods.LIB_MULTI_PART) LibMultiPartIntegration.init();
     }
 
     private record ReloadListener(String name, PreparableReloadListener listener)
