@@ -56,12 +56,13 @@ internal fun setRunConfigInternal(project: Project, spec: JavaExecSpec, config: 
     for ((k, v) in config.lazyTokens) lazyTokens[k] = v
     lazyTokens.compute(
         "source_roots",
-        { key: String, sourceRoots: Supplier<String>? ->
+        { _, sourceRoots ->
             Supplier<String> {
                 val modClasses = RunConfigGenerator.mapModClassesToGradle(project, config)
-                (if (sourceRoots != null) Stream.concat<String>(
-                    sourceRoots.get().split(File.pathSeparator).stream(), modClasses,
-                ) else modClasses).distinct().collect(Collectors.joining(File.pathSeparator))
+                (when (sourceRoots) {
+                    null -> modClasses
+                    else -> Stream.concat<String>(sourceRoots.get().split(File.pathSeparator).stream(), modClasses)
+                }).distinct().collect(Collectors.joining(File.pathSeparator))
             }
         },
     )

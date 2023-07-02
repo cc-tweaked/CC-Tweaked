@@ -10,8 +10,9 @@ import cc.tweaked.gradle.IdeaRunConfigurations
 import cc.tweaked.gradle.MinecraftConfigurations
 
 plugins {
-    id("cc-tweaked.java-convention")
     id("net.minecraftforge.gradle")
+    // We must apply java-convention after Forge, as we need the fg extension to be present.
+    id("cc-tweaked.java-convention")
     id("org.parchmentmc.librarian.forgegradle")
 }
 
