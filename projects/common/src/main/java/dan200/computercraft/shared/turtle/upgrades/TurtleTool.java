@@ -14,6 +14,7 @@ import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
@@ -59,12 +60,27 @@ public class TurtleTool extends AbstractTurtleUpgrade {
 
         // Check we've not got anything vaguely interesting on the item. We allow other mods to add their
         // own NBT, with the understanding such details will be lost to the mist of time.
-        if (stack.isDamaged() || stack.isEnchanted() || stack.hasCustomHoverName()) return false;
+        if (stack.isDamaged() || stack.isEnchanted()) return false;
         if (tag.contains("AttributeModifiers", TAG_LIST) && !tag.getList("AttributeModifiers", TAG_COMPOUND).isEmpty()) {
             return false;
         }
 
         return true;
+    }
+
+    @Override
+    public CompoundTag getUpgradeData(ItemStack stack) {
+        // Just use the current item's tag.
+        var itemTag = stack.getTag();
+        return itemTag == null ? new CompoundTag() : itemTag;
+    }
+
+    @Override
+    public ItemStack getUpgradeItem(CompoundTag upgradeData) {
+        // Copy upgrade data back to the item.
+        var item = super.getUpgradeItem(upgradeData);
+        if (!upgradeData.isEmpty()) item.setTag(upgradeData);
+        return item;
     }
 
     @Override
@@ -177,7 +193,8 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     }
 
     private static boolean isTriviallyBreakable(BlockGetter reader, BlockPos pos, BlockState state) {
-        return state.is(ComputerCraftTags.Blocks.TURTLE_ALWAYS_BREAKABLE)
+        return
+            state.is(ComputerCraftTags.Blocks.TURTLE_ALWAYS_BREAKABLE)
             // Allow breaking any "instabreak" block.
             || state.getDestroySpeed(reader, pos) == 0;
     }

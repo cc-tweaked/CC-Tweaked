@@ -14,6 +14,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,24 +47,28 @@ class UpgradeContainer implements Container {
     @Override
     public ItemStack getItem(int slot) {
         var side = getSide(slot);
-        var upgrade = turtle.getUpgrade(side);
+        var upgrade = turtle.getUpgradeWithData(side);
         if (upgrade == null) return ItemStack.EMPTY;
 
-        // We don't want to return getCraftingItem directly here, as consumers may mutate the stack (they shouldn't!,
-        // but if they do it's a pain to track down). To avoid recreating the stack each tick, we maintain a simple
-        // cache. We use an inlined getUpgradeData here to avoid the additional defensive copy.
-        var upgradeData = UpgradeData.of(upgrade, turtle.getUpgradeNBTData(side));
-        if (upgradeData.equals(lastUpgrade.get(slot))) return lastStack.get(slot);
+        // We don't want to return getUpgradeItem directly here, as we'd end up recreating the stack each tick. To
+        // avoid that, we maintain a simple cache.
+        if (upgrade.equals(lastUpgrade.get(slot))) return lastStack.get(slot);
 
-        var stack = upgradeData.getUpgradeItem();
-        lastUpgrade.set(slot, upgradeData.copy());
+        return setUpgradeStack(slot, upgrade);
+    }
+
+    private ItemStack setUpgradeStack(int slot, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
+        var stack = upgrade == null ? ItemStack.EMPTY : upgrade.getUpgradeItem();
+        lastUpgrade.set(slot, upgrade);
         lastStack.set(slot, stack);
         return stack;
     }
 
     @Override
     public void setItem(int slot, ItemStack itemStack) {
-        turtle.setUpgradeWithData(getSide(slot), TurtleUpgrades.instance().get(itemStack));
+        var upgrade = TurtleUpgrades.instance().get(itemStack);
+        turtle.setUpgradeWithData(getSide(slot), upgrade);
+        setUpgradeStack(slot, upgrade);
     }
 
     @Override
