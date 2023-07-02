@@ -39,6 +39,7 @@ import org.hamcrest.Matchers.instanceOf
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.time.Duration.Companion.milliseconds
 
 class Turtle_Test {
@@ -488,7 +489,7 @@ class Turtle_Test {
     fun Peripheral_change(helper: GameTestHelper) = helper.sequence {
         val testInfo = (helper as GameTestHelperAccessor).testInfo as GameTestInfoAccessor
 
-        val events = mutableListOf<Pair<String, String>>()
+        val events = CopyOnWriteArrayList<Pair<String, String>>()
         var running = false
         thenStartComputer("listen") {
             running = true
@@ -507,15 +508,13 @@ class Turtle_Test {
             turtle.back().await().assertArrayEquals(true, message = "Moved turtle forward")
             TestHooks.LOG.info("[{}] Finished turtle at {}", testInfo, testInfo.`computercraft$getTick`())
         }
-        thenIdle(4) // Should happen immediately, but computers might be slow.
-        thenExecute {
-            assertEquals(
-                listOf(
-                    "peripheral_detach" to "right",
-                    "peripheral" to "right",
-                ),
-                events,
+        thenWaitUntil {
+            val expected = listOf(
+                "peripheral_detach" to "right",
+                "peripheral" to "right",
             )
+
+            if (events != expected) helper.fail("Expected $expected, but received $events")
         }
     }
 
