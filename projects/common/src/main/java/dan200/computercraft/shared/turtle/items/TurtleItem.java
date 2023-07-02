@@ -8,12 +8,14 @@ import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.AbstractComputerItem;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
+import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -32,7 +34,7 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
 
     public static ItemStack create(
         int id, @Nullable String label, int colour, ComputerFamily family,
-        @Nullable ITurtleUpgrade leftUpgrade, @Nullable ITurtleUpgrade rightUpgrade,
+        @Nullable UpgradeData<ITurtleUpgrade> leftUpgrade, @Nullable UpgradeData<ITurtleUpgrade> rightUpgrade,
         int fuelLevel, @Nullable ResourceLocation overlay
     ) {
         return switch (family) {
@@ -46,7 +48,7 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
 
     public ItemStack create(
         int id, @Nullable String label, int colour,
-        @Nullable ITurtleUpgrade leftUpgrade, @Nullable ITurtleUpgrade rightUpgrade,
+        @Nullable UpgradeData<ITurtleUpgrade> leftUpgrade, @Nullable UpgradeData<ITurtleUpgrade> rightUpgrade,
         int fuelLevel, @Nullable ResourceLocation overlay
     ) {
         // Build the stack
@@ -58,11 +60,15 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
         if (overlay != null) stack.getOrCreateTag().putString(NBT_OVERLAY, overlay.toString());
 
         if (leftUpgrade != null) {
-            stack.getOrCreateTag().putString(NBT_LEFT_UPGRADE, leftUpgrade.getUpgradeID().toString());
+            var tag = stack.getOrCreateTag();
+            tag.putString(NBT_LEFT_UPGRADE, leftUpgrade.upgrade().getUpgradeID().toString());
+            if (!leftUpgrade.data().isEmpty()) tag.put(NBT_LEFT_UPGRADE_DATA, leftUpgrade.data().copy());
         }
 
         if (rightUpgrade != null) {
-            stack.getOrCreateTag().putString(NBT_RIGHT_UPGRADE, rightUpgrade.getUpgradeID().toString());
+            var tag = stack.getOrCreateTag();
+            tag.putString(NBT_RIGHT_UPGRADE, rightUpgrade.upgrade().getUpgradeID().toString());
+            if (!rightUpgrade.data().isEmpty()) tag.put(NBT_RIGHT_UPGRADE_DATA, rightUpgrade.data().copy());
         }
 
         return stack;
@@ -117,7 +123,7 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
         return create(
             getComputerID(stack), getLabel(stack),
             getColour(stack), family,
-            getUpgrade(stack, TurtleSide.LEFT), getUpgrade(stack, TurtleSide.RIGHT),
+            getUpgradeWithData(stack, TurtleSide.LEFT), getUpgradeWithData(stack, TurtleSide.RIGHT),
             getFuelLevel(stack), getOverlay(stack)
         );
     }
@@ -127,7 +133,20 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
         if (tag == null) return null;
 
         var key = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE : NBT_RIGHT_UPGRADE;
-        return tag.contains(key) ? TurtleUpgrades.instance().get(tag.getString(key)) : null;
+        if (!tag.contains(key)) return null;
+        return TurtleUpgrades.instance().get(tag.getString(key));
+    }
+
+    public @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(ItemStack stack, TurtleSide side) {
+        var tag = stack.getTag();
+        if (tag == null) return null;
+
+        var key = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE : NBT_RIGHT_UPGRADE;
+        if (!tag.contains(key)) return null;
+        var upgrade = TurtleUpgrades.instance().get(tag.getString(key));
+        if (upgrade == null) return null;
+        var dataKey = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE_DATA : NBT_RIGHT_UPGRADE_DATA;
+        return UpgradeData.of(upgrade, NBTUtil.getCompoundOrEmpty(tag, dataKey));
     }
 
     public @Nullable ResourceLocation getOverlay(ItemStack stack) {

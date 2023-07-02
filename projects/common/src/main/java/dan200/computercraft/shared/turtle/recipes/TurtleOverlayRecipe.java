@@ -38,8 +38,8 @@ public class TurtleOverlayRecipe extends ShapelessRecipe {
             turtle.getComputerID(stack),
             turtle.getLabel(stack),
             turtle.getColour(stack),
-            turtle.getUpgrade(stack, TurtleSide.LEFT),
-            turtle.getUpgrade(stack, TurtleSide.RIGHT),
+            turtle.getUpgradeWithData(stack, TurtleSide.LEFT),
+            turtle.getUpgradeWithData(stack, TurtleSide.RIGHT),
             turtle.getFuelLevel(stack),
             overlay
         );

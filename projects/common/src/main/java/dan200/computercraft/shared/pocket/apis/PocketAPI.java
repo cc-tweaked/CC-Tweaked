@@ -7,6 +7,7 @@ package dan200.computercraft.shared.pocket.apis;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import net.minecraft.core.NonNullList;
@@ -14,6 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * Control the current pocket computer, adding or removing upgrades.
@@ -68,7 +70,7 @@ public class PocketAPI implements ILuaAPI {
         if (newUpgrade == null) return new Object[]{ false, "Cannot find a valid upgrade" };
 
         // Remove the current upgrade
-        if (previousUpgrade != null) storeItem(player, previousUpgrade.getCraftingItem().copy());
+        if (previousUpgrade != null) storeItem(player, previousUpgrade.getUpgradeItem());
 
         // Set the new upgrade
         computer.setUpgrade(newUpgrade);
@@ -93,7 +95,7 @@ public class PocketAPI implements ILuaAPI {
 
         computer.setUpgrade(null);
 
-        storeItem(player, previousUpgrade.getCraftingItem().copy());
+        storeItem(player, previousUpgrade.getUpgradeItem());
 
         return new Object[]{ true };
     }
@@ -105,13 +107,13 @@ public class PocketAPI implements ILuaAPI {
         }
     }
 
-    private static @Nullable IPocketUpgrade findUpgrade(NonNullList<ItemStack> inv, int start, @Nullable IPocketUpgrade previous) {
+    private static @Nullable UpgradeData<IPocketUpgrade> findUpgrade(NonNullList<ItemStack> inv, int start, @Nullable UpgradeData<IPocketUpgrade> previous) {
         for (var i = 0; i < inv.size(); i++) {
             var invStack = inv.get((i + start) % inv.size());
             if (!invStack.isEmpty()) {
                 var newUpgrade = PocketUpgrades.instance().get(invStack);
 
-                if (newUpgrade != null && newUpgrade != previous) {
+                if (newUpgrade != null && !Objects.equals(newUpgrade, previous)) {
                     // Consume an item from this stack and exit the loop
                     invStack = invStack.copy();
                     invStack.shrink(1);

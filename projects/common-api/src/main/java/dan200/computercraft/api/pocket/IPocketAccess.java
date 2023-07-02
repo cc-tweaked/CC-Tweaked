@@ -5,9 +5,11 @@
 package dan200.computercraft.api.pocket;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.upgrades.UpgradeBase;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -69,6 +71,8 @@ public interface IPocketAccess {
      *
      * @return The upgrade's NBT.
      * @see #updateUpgradeNBTData()
+     * @see UpgradeBase#getUpgradeItem(CompoundTag)
+     * @see UpgradeBase#getUpgradeData(ItemStack)
      */
     CompoundTag getUpgradeNBTData();
 

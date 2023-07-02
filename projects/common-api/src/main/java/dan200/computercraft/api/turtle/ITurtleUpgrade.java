@@ -7,6 +7,7 @@ package dan200.computercraft.api.turtle;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
 
@@ -78,5 +79,18 @@ public interface ITurtleUpgrade extends UpgradeBase {
      * @param side   Which side of the turtle (left or right) the upgrade resides on.
      */
     default void update(ITurtleAccess turtle, TurtleSide side) {
+    }
+
+    /**
+     * Get upgrade data that should be persisted when the turtle was broken.
+     * <p>
+     * This method should be overridden when you don't need to store all upgrade data by default. For instance, if you
+     * store peripheral state in the upgrade data, which should be lost when the turtle is broken.
+     *
+     * @param upgradeData Data that currently stored for this upgrade
+     * @return Filtered version of this data.
+     */
+    default CompoundTag getPersistedData(CompoundTag upgradeData) {
+        return upgradeData;
     }
 }

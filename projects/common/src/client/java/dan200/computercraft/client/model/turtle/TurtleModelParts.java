@@ -4,11 +4,13 @@
 
 package dan200.computercraft.client.model.turtle;
 
+import com.google.common.cache.CacheBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Transformation;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.client.platform.ClientPlatformHelper;
 import dan200.computercraft.client.render.TurtleBlockEntityRenderer;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
@@ -21,9 +23,9 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 /**
@@ -46,12 +48,19 @@ public final class TurtleModelParts<T> {
 
     private record Combination(
         boolean colour,
-        @Nullable ITurtleUpgrade leftUpgrade,
-        @Nullable ITurtleUpgrade rightUpgrade,
+        @Nullable UpgradeData<ITurtleUpgrade> leftUpgrade,
+        @Nullable UpgradeData<ITurtleUpgrade> rightUpgrade,
         @Nullable ResourceLocation overlay,
         boolean christmas,
         boolean flip
     ) {
+        Combination copy() {
+            if (leftUpgrade == null && rightUpgrade == null) return this;
+            return new Combination(
+                colour, UpgradeData.copyOf(leftUpgrade), UpgradeData.copyOf(rightUpgrade),
+                overlay, christmas, flip
+            );
+        }
     }
 
     private final BakedModel familyModel;
@@ -63,12 +72,20 @@ public final class TurtleModelParts<T> {
      * A cache of {@link TransformedModel} to the transformed {@link BakedModel}. This helps us pool the transformed
      * instances, reducing memory usage and hopefully ensuring their caches are hit more often!
      */
-    private final Map<TransformedModel, BakedModel> transformCache = new HashMap<>();
+    private final Map<TransformedModel, BakedModel> transformCache = CacheBuilder.newBuilder()
+        .concurrencyLevel(1)
+        .expireAfterAccess(30, TimeUnit.SECONDS)
+        .<TransformedModel, BakedModel>build()
+        .asMap();
 
     /**
      * A cache of {@link Combination}s to the combined model.
      */
-    private final Map<Combination, T> modelCache = new HashMap<>();
+    private final Map<Combination, T> modelCache = CacheBuilder.newBuilder()
+        .concurrencyLevel(1)
+        .expireAfterAccess(30, TimeUnit.SECONDS)
+        .<Combination, T>build()
+        .asMap();
 
     public TurtleModelParts(BakedModel familyModel, BakedModel colourModel, ModelTransformer transformer, Function<List<BakedModel>, T> combineModel) {
         this.familyModel = familyModel;
@@ -78,7 +95,15 @@ public final class TurtleModelParts<T> {
     }
 
     public T getModel(ItemStack stack) {
-        return modelCache.computeIfAbsent(getCombination(stack), buildModel);
+        var combination = getCombination(stack);
+        var existing = modelCache.get(combination);
+        if (existing != null) return existing;
+
+        // Take a defensive copy of the upgrade data, and add it to the cache.
+        var newCombination = combination.copy();
+        var newModel = buildModel.apply(newCombination);
+        modelCache.put(newCombination, newModel);
+        return newModel;
     }
 
     private Combination getCombination(ItemStack stack) {
@@ -89,8 +114,8 @@ public final class TurtleModelParts<T> {
         }
 
         var colour = turtle.getColour(stack);
-        var leftUpgrade = turtle.getUpgrade(stack, TurtleSide.LEFT);
-        var rightUpgrade = turtle.getUpgrade(stack, TurtleSide.RIGHT);
+        var leftUpgrade = turtle.getUpgradeWithData(stack, TurtleSide.LEFT);
+        var rightUpgrade = turtle.getUpgradeWithData(stack, TurtleSide.RIGHT);
         var overlay = turtle.getOverlay(stack);
         var label = turtle.getLabel(stack);
         var flip = label != null && (label.equals("Dinnerbone") || label.equals("Grumm"));
@@ -110,16 +135,17 @@ public final class TurtleModelParts<T> {
         if (overlayModelLocation != null) {
             parts.add(transform(ClientPlatformHelper.get().getModel(modelManager, overlayModelLocation), transformation));
         }
-        if (combo.leftUpgrade() != null) {
-            var model = TurtleUpgradeModellers.getModel(combo.leftUpgrade(), null, TurtleSide.LEFT);
-            parts.add(transform(model.getModel(), transformation.compose(model.getMatrix())));
-        }
-        if (combo.rightUpgrade() != null) {
-            var model = TurtleUpgradeModellers.getModel(combo.rightUpgrade(), null, TurtleSide.RIGHT);
-            parts.add(transform(model.getModel(), transformation.compose(model.getMatrix())));
-        }
+
+        addUpgrade(parts, transformation, TurtleSide.LEFT, combo.leftUpgrade());
+        addUpgrade(parts, transformation, TurtleSide.RIGHT, combo.rightUpgrade());
 
         return parts;
+    }
+
+    private void addUpgrade(List<BakedModel> parts, Transformation transformation, TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
+        if (upgrade == null) return;
+        var model = TurtleUpgradeModellers.getModel(upgrade.upgrade(), upgrade.data(), side);
+        parts.add(transform(model.getModel(), transformation.compose(model.getMatrix())));
     }
 
     private BakedModel transform(BakedModel model, Transformation transformation) {

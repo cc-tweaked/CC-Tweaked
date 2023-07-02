@@ -7,6 +7,7 @@ package dan200.computercraft.impl;
 import com.google.gson.*;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.upgrades.UpgradeBase;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.core.Registry;
@@ -74,13 +75,13 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends 
     }
 
     @Nullable
-    public T get(ItemStack stack) {
+    public UpgradeData<T> get(ItemStack stack) {
         if (stack.isEmpty()) return null;
 
         for (var wrapper : current.values()) {
             var craftingStack = wrapper.upgrade().getCraftingItem();
             if (!craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && wrapper.upgrade().isItemSuitable(stack)) {
-                return wrapper.upgrade();
+                return UpgradeData.of(wrapper.upgrade, wrapper.upgrade.getUpgradeData(stack));
             }
         }
 
