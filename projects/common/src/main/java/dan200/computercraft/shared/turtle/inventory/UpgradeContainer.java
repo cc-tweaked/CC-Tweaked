@@ -59,7 +59,7 @@ class UpgradeContainer implements Container {
 
     private ItemStack setUpgradeStack(int slot, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
         var stack = upgrade == null ? ItemStack.EMPTY : upgrade.getUpgradeItem();
-        lastUpgrade.set(slot, upgrade);
+        lastUpgrade.set(slot, UpgradeData.copyOf(upgrade));
         lastStack.set(slot, stack);
         return stack;
     }

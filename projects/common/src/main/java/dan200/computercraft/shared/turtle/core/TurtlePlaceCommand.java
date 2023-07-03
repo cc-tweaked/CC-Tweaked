@@ -74,19 +74,7 @@ public class TurtlePlaceCommand implements TurtleCommand {
         }
     }
 
-    public static boolean deployCopiedItem(
-        ItemStack stack, ITurtleAccess turtle, Direction direction, @Nullable Object[] extraArguments, @Nullable ErrorMessage outErrorMessage
-    ) {
-        // Create a fake player, and orient it appropriately
-        var playerPosition = turtle.getPosition().relative(direction);
-        var turtlePlayer = TurtlePlayer.getWithPosition(turtle, playerPosition, direction);
-        turtlePlayer.loadInventory(stack);
-        var result = deploy(stack, turtle, turtlePlayer, direction, extraArguments, outErrorMessage);
-        turtlePlayer.player().getInventory().clearContent();
-        return result;
-    }
-
-    private static boolean deploy(
+    public static boolean deploy(
         ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, Direction direction,
         @Nullable Object[] extraArguments, @Nullable ErrorMessage outErrorMessage
     ) {

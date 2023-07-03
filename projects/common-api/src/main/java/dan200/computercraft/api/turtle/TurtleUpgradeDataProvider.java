@@ -13,8 +13,10 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
 import javax.annotation.Nullable;
@@ -61,6 +63,8 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
         private @Nullable Item craftingItem;
         private @Nullable Float damageMultiplier = null;
         private @Nullable TagKey<Block> breakable;
+        private boolean allowEnchantments = false;
+        private TurtleToolDurability consumesDurability = TurtleToolDurability.NEVER;
 
         ToolBuilder(ResourceLocation id, TurtleUpgradeSerialiser<?> serialiser, Item toolItem) {
             this.id = id;
@@ -105,6 +109,28 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
         }
 
         /**
+         * Indicate that this upgrade allows items which have been {@linkplain ItemStack#isEnchanted() enchanted} or have
+         * {@linkplain ItemStack#getAttributeModifiers(EquipmentSlot) custom attribute modifiers}.
+         *
+         * @return The tool builder, for further use.
+         */
+        public ToolBuilder allowEnchantments() {
+            allowEnchantments = true;
+            return this;
+        }
+
+        /**
+         * Set when the tool will consume durability.
+         *
+         * @param durability The durability predicate.
+         * @return The tool builder, for further use.
+         */
+        public ToolBuilder consumesDurability(TurtleToolDurability durability) {
+            consumesDurability = durability;
+            return this;
+        }
+
+        /**
          * Provide a list of breakable blocks. If not given, the tool can break all blocks. If given, only blocks
          * in this tag, those in {@link ComputerCraftTags.Blocks#TURTLE_ALWAYS_BREAKABLE} and "insta-mine" ones can
          * be broken.
@@ -132,6 +158,10 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
                 }
                 if (damageMultiplier != null) s.addProperty("damageMultiplier", damageMultiplier);
                 if (breakable != null) s.addProperty("breakable", breakable.location().toString());
+                if (allowEnchantments) s.addProperty("allowEnchantments", true);
+                if (consumesDurability != TurtleToolDurability.NEVER) {
+                    s.addProperty("consumesDurability", consumesDurability.getSerializedName());
+                }
             }));
         }
     }

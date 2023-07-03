@@ -15,7 +15,6 @@ import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -35,7 +34,6 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.PushReaction;
@@ -461,23 +459,6 @@ public class TurtleBrain implements TurtleAccessInternal {
     public void setOverlay(@Nullable ResourceLocation overlay) {
         if (!Objects.equal(this.overlay, overlay)) {
             this.overlay = overlay;
-            BlockEntityHelpers.updateBlock(owner);
-        }
-    }
-
-    public @Nullable DyeColor getDyeColour() {
-        if (colourHex == -1) return null;
-        var colour = Colour.fromHex(colourHex);
-        return colour == null ? null : DyeColor.byId(15 - colour.ordinal());
-    }
-
-    public void setDyeColour(@Nullable DyeColor dyeColour) {
-        var newColour = -1;
-        if (dyeColour != null) {
-            newColour = Colour.values()[15 - dyeColour.getId()].getHex();
-        }
-        if (colourHex != newColour) {
-            colourHex = newColour;
             BlockEntityHelpers.updateBlock(owner);
         }
     }

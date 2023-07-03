@@ -6,6 +6,7 @@ package dan200.computercraft.shared.platform;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -56,5 +57,10 @@ class FakePlayerExt extends FakePlayer {
     @Override
     public double getEntityReach() {
         return MAX_REACH;
+    }
+
+    @Override
+    public boolean broadcastToPlayer(ServerPlayer player) {
+        return false;
     }
 }
