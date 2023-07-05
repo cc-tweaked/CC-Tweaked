@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.util.StringUtil;
 import dan200.computercraft.shared.computer.core.InputHandler;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
@@ -71,9 +72,13 @@ public class TerminalWidget extends AbstractWidget {
 
     @Override
     public boolean charTyped(char ch, int modifiers) {
-        if (ch >= 32 && ch <= 126 || ch >= 160 && ch <= 255) {
-            // Queue the char event for any printable chars in byte range
-            computer.queueEvent("char", new Object[]{ Character.toString(ch) });
+        if (ch >= 32 && ch <= 126 || ch >= 160) {
+            if (ch <= 255){
+                // Queue the char event for any printable chars in byte range
+                computer.queueEvent("char", new Object[]{ Character.toString(ch) });
+            }
+            // always send 'charutf' event so that in the computer it only needs to poll one type of event
+            computer.queueEvent("charutf", new Object[]{ StringUtil.utfToByteString(Character.toString(ch)) });
         }
 
         return true;
@@ -131,6 +136,7 @@ public class TerminalWidget extends AbstractWidget {
             // Clip to 512 characters and queue the event
             if (clipboard.length() > 512) clipboard = clipboard.substring(0, 512);
             computer.queueEvent("paste", new Object[]{ clipboard });
+            computer.queueEvent("pasteutf", new Object[]{StringUtil.utfToByteString(clipboard)});
         }
     }
 
@@ -278,7 +284,7 @@ public class TerminalWidget extends AbstractWidget {
         if (!visible) return;
 
         var bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        var emitter = FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(RenderTypes.TERMINAL));
+        var emitter = FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(RenderTypes.TERMINAL_FULLTEXT));
 
         FixedWidthFontRenderer.drawTerminal(
             emitter,

@@ -674,6 +674,22 @@ settings.define("lua.autocomplete", {
         type = "boolean",
 })
 
+settings.define("shell.unicode", {
+    default = false,
+    description = "allow reading and writing Unicode in the shell. (Require shell restart to take effect)",
+    type = "boolean",
+})
+settings.define("edit.unicode", {
+    default = false,
+    description = "allow reading and writing Unicode in the editor.",
+    type = "boolean",
+})
+settings.define("lua.unicode", {
+    default = false,
+    description = "allow reading and writing Unicode in the Lua REPL",
+    type = "boolean",
+})
+
 settings.define("edit.default_extension", {
     default = "lua",
     description = [[The file extension the editor will use if none is given. Set to "" to disable.]],

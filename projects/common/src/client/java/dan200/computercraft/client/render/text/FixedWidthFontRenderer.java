@@ -11,9 +11,11 @@ import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
@@ -63,20 +65,29 @@ public final class FixedWidthFontRenderer {
         // Short circuit to avoid the common case - the texture should be blank here after all.
         if (index == '\0' || index == ' ') return;
 
-        var column = index % 16;
-        var row = index / 16;
-
-        var xStart = 1 + column * (FONT_WIDTH + 2);
-        var yStart = 1 + row * (FONT_HEIGHT + 2);
-
+        var glyphUv = TerminalFont.getInstance().getGlyphUv(index);
         quad(
             emitter, x, y, x + FONT_WIDTH, y + FONT_HEIGHT, 0, colour,
-            xStart / WIDTH, yStart / WIDTH, (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH, light
+            glyphUv.x(), glyphUv.y(), glyphUv.z(), glyphUv.w(), light
         );
+        if(false)
+        {
+            var column = index % 16;
+            var row = index / 16;
+
+            var xStart = 1 + column * (FONT_WIDTH + 2);
+            var yStart = 1 + row * (FONT_HEIGHT + 2);
+
+            quad(
+                emitter, x, y, x + FONT_WIDTH, y + FONT_HEIGHT, 0, colour,
+                xStart / WIDTH, yStart / WIDTH, (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH, light
+            );
+        }
     }
 
     public static void drawQuad(QuadEmitter emitter, float x, float y, float z, float width, float height, byte[] colour, int light) {
-        quad(emitter, x, y, x + width, y + height, z, colour, BACKGROUND_START, BACKGROUND_START, BACKGROUND_END, BACKGROUND_END, light);
+        var glyphUv = TerminalFont.getInstance().getWhiteGlyphUv();
+        quad(emitter, x, y, x + width, y + height, z, colour, glyphUv.x(), glyphUv.y(), glyphUv.z(), glyphUv.w(), light);
     }
 
     private static void drawQuad(QuadEmitter emitter, float x, float y, float width, float height, Palette palette, char colourIndex, int light) {
@@ -121,7 +132,7 @@ public final class FixedWidthFontRenderer {
             var colour = palette.getRenderColours(getColour(textColour.charAt(i), Colour.BLACK));
 
             int index = text.charAt(i);
-            if (index > 255) index = '?';
+//            if (index > 255) index = '?';
             drawChar(emitter, x + i * FONT_WIDTH, y, index, colour, light);
         }
 
@@ -188,6 +199,9 @@ public final class FixedWidthFontRenderer {
         QuadEmitter emitter, float x, float y, Terminal terminal,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     ) {
+        for (int i = 0; i < terminal.getHeight(); i++) {
+            TerminalFont.getInstance().preloadCharacterFont(terminal.getLine(i));
+        }
         drawTerminalBackground(
             emitter, x, y, terminal,
             topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize

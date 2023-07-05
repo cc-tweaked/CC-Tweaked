@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.render.monitor.MonitorTextureBufferShader;
+import dan200.computercraft.client.render.text.DynamicFontTexture;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -36,6 +37,11 @@ public class RenderTypes {
     public static final RenderType TERMINAL = RenderType.text(FixedWidthFontRenderer.FONT);
 
     /**
+     * Renders a fullbright terminal.
+     */
+    public static final RenderType TERMINAL_FULLTEXT = RenderType.text(DynamicFontTexture.DEFAULT_NAME);
+
+    /**
      * Renders a monitor with the TBO shader.
      *
      * @see MonitorTextureBufferShader
@@ -46,6 +52,11 @@ public class RenderTypes {
      * A variant of {@link #TERMINAL} which uses the lightmap rather than rendering fullbright.
      */
     public static final RenderType PRINTOUT_TEXT = RenderType.text(FixedWidthFontRenderer.FONT);
+
+    /**
+     * A variant of {@link #TERMINAL} which uses the lightmap rather than rendering fullbright.
+     */
+    public static final RenderType PRINTOUT_FULLTEXT = RenderType.text(DynamicFontTexture.DEFAULT_NAME);
 
     /**
      * Printout's background texture. {@link RenderType#text(ResourceLocation)} is a <em>little</em> questionable, but

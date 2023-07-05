@@ -34,6 +34,9 @@ parent, and only one of which is visible at a time.
 ]]
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
+local utflib = dofile("rom/modules/main/cc/utflib.lua")
+local isUTFString = utflib.isUTFString
+local u = utflib.UTFString
 
 local tHex = {
     [colors.white] = "0",
@@ -161,7 +164,9 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     local function redrawLine(n)
         local tLine = tLines[n]
         parent.setCursorPos(nX, nY + n - 1)
-        parent.blit(tLine[1], tLine[2], tLine[3])
+        if isUTFString(tLine[1]) then
+            parent._blitutf8(tostring(tLine[1]), tLine[2], tLine[3])
+        else parent.blit(tLine[1], tLine[2], tLine[3]) end
     end
 
     local function redraw()
@@ -192,12 +197,12 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                     if nStart < 1 then
                         local nClipStart = 1 - nStart + 1
                         local nClipEnd = nWidth - nStart + 1
-                        sClippedText = string_sub(sText, nClipStart, nClipEnd)
+                        sClippedText = sText:sub(nClipStart, nClipEnd)
                         sClippedTextColor = string_sub(sTextColor, nClipStart, nClipEnd)
                         sClippedBackgroundColor = string_sub(sBackgroundColor, nClipStart, nClipEnd)
                     elseif nEnd > nWidth then
                         local nClipEnd = nWidth - nStart + 1
-                        sClippedText = string_sub(sText, 1, nClipEnd)
+                        sClippedText = sText:sub(1, nClipEnd)
                         sClippedTextColor = string_sub(sTextColor, 1, nClipEnd)
                         sClippedBackgroundColor = string_sub(sBackgroundColor, 1, nClipEnd)
                     else
@@ -212,7 +217,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                     local sNewText, sNewTextColor, sNewBackgroundColor
                     if nStart > 1 then
                         local nOldEnd = nStart - 1
-                        sNewText = string_sub(sOldText, 1, nOldEnd) .. sClippedText
+                        sNewText = sOldText:sub(1, nOldEnd) .. sClippedText
                         sNewTextColor = string_sub(sOldTextColor, 1, nOldEnd) .. sClippedTextColor
                         sNewBackgroundColor = string_sub(sOldBackgroundColor, 1, nOldEnd) .. sClippedBackgroundColor
                     else
@@ -222,7 +227,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                     end
                     if nEnd < nWidth then
                         local nOldStart = nEnd + 1
-                        sNewText = sNewText .. string_sub(sOldText, nOldStart, nWidth)
+                        sNewText = sNewText .. sOldText:sub(nOldStart, nWidth)
                         sNewTextColor = sNewTextColor .. string_sub(sOldTextColor, nOldStart, nWidth)
                         sNewBackgroundColor = sNewBackgroundColor .. string_sub(sOldBackgroundColor, nOldStart, nWidth)
                     end
@@ -259,8 +264,31 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
         internalBlit(sText, string_rep(tHex[nTextColor], #sText), string_rep(tHex[nBackgroundColor], #sText))
     end
 
+    function window._writeutf8(utfText)
+        if not isUTFString(utfText) then
+            if type(utfText) ~= "string" then utfText = tostring(utfText) end
+            utfText = u(utfText)
+        end
+        internalBlit(utfText, string_rep(tHex[nTextColor], #utfText), string_rep(tHex[nBackgroundColor], #utfText))
+    end
+
     function window.blit(sText, sTextColor, sBackgroundColor)
         if type(sText) ~= "string" then expect(1, sText, "string") end
+        if type(sTextColor) ~= "string" then expect(2, sTextColor, "string") end
+        if type(sBackgroundColor) ~= "string" then expect(3, sBackgroundColor, "string") end
+        if #sTextColor ~= #sText or #sBackgroundColor ~= #sText then
+            error("Arguments must be the same length", 2)
+        end
+        sTextColor = sTextColor:lower()
+        sBackgroundColor = sBackgroundColor:lower()
+        internalBlit(sText, sTextColor, sBackgroundColor)
+    end
+
+    function window._blitutf8(sText, sTextColor, sBackgroundColor)
+        if not isUTFString(sText) then
+            expect(1, sText, "string")
+            sText = u(sText)
+        end
         if type(sTextColor) ~= "string" then expect(2, sTextColor, "string") end
         if type(sBackgroundColor) ~= "string" then expect(3, sBackgroundColor, "string") end
         if #sTextColor ~= #sText or #sBackgroundColor ~= #sText then
@@ -466,7 +494,9 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
         end
 
         local line = tLines[y]
-        return line[1], line[2], line[3]
+        if isUTFString(line[1]) then
+            return tostring(line[1]), line[2], line[3]
+        else return line[1], line[2], line[3] end
     end
 
     -- Other functions
@@ -569,7 +599,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                         tNewLines[y] = tOldLine
                     elseif new_width < nWidth then
                         tNewLines[y] = {
-                            string_sub(tOldLine[1], 1, new_width),
+                            tOldLine[1]:sub(1, new_width),
                             string_sub(tOldLine[2], 1, new_width),
                             string_sub(tOldLine[3], 1, new_width),
                         }

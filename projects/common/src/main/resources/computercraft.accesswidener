@@ -9,7 +9,7 @@ accessWidener v1 named
 
 accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
 accessible method net/minecraft/world/level/storage/LevelResource <init> (Ljava/lang/String;)V
-
+accessible method net/minecraft/client/gui/Font getFontSet (Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/gui/font/FontSet;
 # DirectVertexBuffer
 accessible field com/mojang/blaze3d/vertex/VertexBuffer vertexBufferId I
 accessible field com/mojang/blaze3d/vertex/VertexBuffer indexType Lcom/mojang/blaze3d/vertex/VertexFormat$IndexType;

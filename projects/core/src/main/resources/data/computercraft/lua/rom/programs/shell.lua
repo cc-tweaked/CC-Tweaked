@@ -85,15 +85,35 @@ else
     bgColour = colours.black
 end
 
+local unicodeMode = settings.get("shell.unicode")
+local write, print, printError, read
+if unicodeMode then
+    local uterm = require("cc.utflib.term")
+    write, print, printError, read = uterm.write, uterm.print, uterm.printError, uterm.read
+else
+    write, print, printError, read = _G.write, _G.print, _G.printError, _G.read
+end
+local utflib = require("cc.utflib")
+
 local function tokenise(...)
-    local sLine = table.concat({ ... }, " ")
+    local args = { ... }
+    local hasUTF = false
+    for k, v in pairs(args) do
+        if utflib.isUTFString(v) then
+            args[k] = tostring(v)
+            hasUTF = true
+        end
+    end
+    local sLine = table.concat(args, " ")
+    if hasUTF then sLine = utflib.UTFString(sLine) end
     local tWords = {}
     local bQuoted = false
-    for match in string.gmatch(sLine .. "\"", "(.-)\"") do
+    print(sLine)
+    for match in (sLine .. "\""):gmatch("(.-)\"") do
         if bQuoted then
             table.insert(tWords, match)
         else
-            for m in string.gmatch(match, "[^ \t]+") do
+            for m in match:gmatch("[^ \t]+") do
                 table.insert(tWords, m)
             end
         end
@@ -240,7 +260,18 @@ function shell.execute(command, ...)
         return false
     end
 end
-
+local function dump(o)
+    if type(o) == 'table' then
+        local s = '{ '
+        for k,v in pairs(o) do
+            if type(k) ~= 'number' then k = '"'..k..'"' end
+            s = s .. '['..k..'] = ' .. dump(v) .. ','
+        end
+        return s .. '} '
+    else
+        return tostring(o)
+    end
+end
 -- Install shell API
 
 --- Run a program with the supplied arguments.
@@ -259,6 +290,7 @@ end
 -- @changed 1.83.0 `arg` is now added to the environment.
 function shell.run(...)
     local tWords = tokenise(...)
+    print(dump(tWords))
     local sCommand = tWords[1]
     if sCommand then
         return shell.execute(sCommand, table.unpack(tWords, 2))

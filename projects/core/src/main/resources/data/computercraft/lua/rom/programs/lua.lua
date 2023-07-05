@@ -41,6 +41,15 @@ print("Interactive Lua prompt.")
 print("Call exit() to exit.")
 term.setTextColour(colours.white)
 
+local unicodeMode = settings.get("lua.unicode")
+local write, print, printError, read
+if unicodeMode then
+    local uterm = require("cc.utflib.term")
+    write, print, printError, read = uterm.write, uterm.print, uterm.printError, uterm.read
+else
+    write, print, printError, read = _G.write, _G.print, _G.printError, _G.read
+end
+
 local chunk_idx, chunk_map = 1, {}
 while running do
     --if term.isColour() then

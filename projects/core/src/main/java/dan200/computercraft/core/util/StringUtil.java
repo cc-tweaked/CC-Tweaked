@@ -4,6 +4,8 @@
 
 package dan200.computercraft.core.util;
 
+import java.nio.charset.StandardCharsets;
+
 public final class StringUtil {
     private StringUtil() {
     }
@@ -21,5 +23,13 @@ public final class StringUtil {
         }
 
         return builder.toString();
+    }
+
+    public static String byteStringToUtf8(String s){
+        return String.valueOf(StandardCharsets.UTF_8.decode(StandardCharsets.ISO_8859_1.encode(s)));
+    }
+
+    public static String utfToByteString(String s){
+        return String.valueOf(StandardCharsets.ISO_8859_1.decode(StandardCharsets.UTF_8.encode(s)));
     }
 }
