@@ -7,6 +7,7 @@ package dan200.computercraft.shared.pocket.core;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -104,12 +105,13 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     }
 
     @Override
+    @Deprecated(forRemoval = true)
     public Map<ResourceLocation, IPeripheral> getUpgrades() {
         return upgrade == null ? Collections.emptyMap() : Collections.singletonMap(upgrade.getUpgradeID(), getPeripheral(ComputerSide.BACK));
     }
 
-    public @Nullable IPocketUpgrade getUpgrade() {
-        return upgrade;
+    public @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
+        return upgrade == null ? null : UpgradeData.of(upgrade, getUpgradeNBTData());
     }
 
     /**
@@ -119,13 +121,11 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
      *
      * @param upgrade The new upgrade to set it to, may be {@code null}.
      */
-    public void setUpgrade(@Nullable IPocketUpgrade upgrade) {
-        if (this.upgrade == upgrade) return;
-
+    public void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
         synchronized (this) {
             PocketComputerItem.setUpgrade(stack, upgrade);
             updateUpgradeNBTData();
-            this.upgrade = upgrade;
+            this.upgrade = upgrade == null ? null : upgrade.upgrade();
             invalidatePeripheral();
         }
     }

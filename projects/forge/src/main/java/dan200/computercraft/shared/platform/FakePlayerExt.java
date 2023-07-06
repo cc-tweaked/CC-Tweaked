@@ -6,6 +6,7 @@ package dan200.computercraft.shared.platform;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -15,6 +16,8 @@ import net.minecraftforge.common.util.FakePlayer;
 
 import javax.annotation.Nullable;
 import java.util.OptionalInt;
+
+import static dan200.computercraft.shared.platform.FakePlayerConstants.MAX_REACH;
 
 class FakePlayerExt extends FakePlayer {
     FakePlayerExt(ServerLevel serverLevel, GameProfile profile) {
@@ -44,5 +47,20 @@ class FakePlayerExt extends FakePlayer {
     @Override
     public float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
         return 0;
+    }
+
+    @Override
+    public double getBlockReach() {
+        return MAX_REACH;
+    }
+
+    @Override
+    public double getEntityReach() {
+        return MAX_REACH;
+    }
+
+    @Override
+    public boolean broadcastToPlayer(ServerPlayer player) {
+        return false;
     }
 }

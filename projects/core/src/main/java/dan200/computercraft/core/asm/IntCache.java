@@ -7,7 +7,7 @@ package dan200.computercraft.core.asm;
 import java.util.Arrays;
 import java.util.function.IntFunction;
 
-public final class IntCache<T> {
+final class IntCache<T> {
     private final IntFunction<T> factory;
     private volatile Object[] cache = new Object[16];
 

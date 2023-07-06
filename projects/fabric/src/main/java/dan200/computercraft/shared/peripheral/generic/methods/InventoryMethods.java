@@ -12,7 +12,6 @@ import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.generic.SidedGenericPeripheral;
 import dan200.computercraft.shared.platform.FabricContainerTransfer;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -157,7 +156,7 @@ public class InventoryMethods implements GenericPeripheral {
     @Nullable
     private static SlottedStorage<ItemVariant> extractHandler(IPeripheral peripheral) {
         var object = peripheral.getTarget();
-        var direction = peripheral instanceof SidedGenericPeripheral sided ? sided.direction() : null;
+        var direction = peripheral instanceof dan200.computercraft.shared.peripheral.generic.GenericPeripheral sided ? sided.side() : null;
 
         if (object instanceof BlockEntity blockEntity) {
             if (blockEntity.isRemoved()) return null;

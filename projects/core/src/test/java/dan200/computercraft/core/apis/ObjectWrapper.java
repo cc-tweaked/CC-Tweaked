@@ -4,32 +4,26 @@
 
 package dan200.computercraft.core.apis;
 
-import dan200.computercraft.api.lua.*;
-import dan200.computercraft.core.asm.LuaMethod;
+import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaTask;
+import dan200.computercraft.api.lua.ObjectArguments;
+import dan200.computercraft.core.asm.LuaMethodSupplier;
+import dan200.computercraft.core.methods.LuaMethod;
+import dan200.computercraft.core.methods.MethodSupplier;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class ObjectWrapper implements ILuaContext {
+    private static final MethodSupplier<LuaMethod> LUA_METHODS = LuaMethodSupplier.create(List.of());
+
     private final Object object;
     private final Map<String, LuaMethod> methodMap;
 
     public ObjectWrapper(Object object) {
         this.object = object;
-        var dynamicMethods = object instanceof IDynamicLuaObject dynamic
-            ? Objects.requireNonNull(dynamic.getMethodNames(), "Methods cannot be null")
-            : LuaMethod.EMPTY_METHODS;
-
-        var methods = LuaMethod.GENERATOR.getMethods(object.getClass());
-
-        var methodMap = this.methodMap = new HashMap<>(methods.size() + dynamicMethods.length);
-        for (var i = 0; i < dynamicMethods.length; i++) {
-            methodMap.put(dynamicMethods[i], LuaMethod.DYNAMIC.get(i));
-        }
-        for (var method : methods) {
-            methodMap.put(method.getName(), method.getMethod());
-        }
+        methodMap = LUA_METHODS.getSelfMethods(object);
     }
 
     public Object[] call(String name, Object... args) throws LuaException {

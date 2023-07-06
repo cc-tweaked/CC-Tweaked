@@ -4,10 +4,14 @@
 
 package dan200.computercraft.api.upgrades;
 
+import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.impl.PlatformHelper;
 import net.minecraft.Util;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -49,6 +53,42 @@ public interface UpgradeBase {
      * @return The item stack to craft with, or {@link ItemStack#EMPTY} if it cannot be crafted.
      */
     ItemStack getCraftingItem();
+
+    /**
+     * Returns the item stack representing a currently equipped turtle upgrade.
+     * <p>
+     * While upgrades can store upgrade data ({@link ITurtleAccess#getUpgradeNBTData(TurtleSide)} and
+     * {@link IPocketAccess#getUpgradeNBTData()}}, by default this data is discarded when an upgrade is unequipped,
+     * and the original item stack is returned.
+     * <p>
+     * By overriding this method, you can create a new {@link ItemStack} which contains enough data to
+     * {@linkplain #getUpgradeData(ItemStack) re-create the upgrade data} if the item is re-equipped.
+     * <p>
+     * When overriding this, you should override {@link #getUpgradeData(ItemStack)} and {@link #isItemSuitable(ItemStack)}
+     * at the same time,
+     *
+     * @param upgradeData The current upgrade data. This should <strong>NOT</strong> be mutated.
+     * @return The item stack returned when unequipping.
+     */
+    default ItemStack getUpgradeItem(CompoundTag upgradeData) {
+        return getCraftingItem();
+    }
+
+    /**
+     * Extract upgrade data from an {@link ItemStack}.
+     * <p>
+     * This upgrade data will be available with {@link ITurtleAccess#getUpgradeNBTData(TurtleSide)} or
+     * {@link IPocketAccess#getUpgradeNBTData()}.
+     * <p>
+     * This should be an inverse to {@link #getUpgradeItem(CompoundTag)}.
+     *
+     * @param stack The stack that was equipped by the turtle or pocket computer. This will have the same item as
+     *              {@link #getCraftingItem()}.
+     * @return The upgrade data that should be set on the turtle or pocket computer.
+     */
+    default CompoundTag getUpgradeData(ItemStack stack) {
+        return new CompoundTag();
+    }
 
     /**
      * Determine if an item is suitable for being used for this upgrade.

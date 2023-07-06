@@ -12,24 +12,32 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.platform.RegistryWrappers;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 
-class GenericPeripheral implements IDynamicPeripheral {
+public final class GenericPeripheral implements IDynamicPeripheral {
+    private final BlockEntity tile;
+    private final Direction side;
+
     private final String type;
     private final Set<String> additionalTypes;
-    private final BlockEntity tile;
     private final List<SaturatedMethod> methods;
 
-    GenericPeripheral(BlockEntity tile, @Nullable String name, Set<String> additionalTypes, List<SaturatedMethod> methods) {
+    GenericPeripheral(BlockEntity tile, Direction side, @Nullable String name, Set<String> additionalTypes, List<SaturatedMethod> methods) {
+        this.side = side;
         var type = RegistryWrappers.BLOCK_ENTITY_TYPES.getKey(tile.getType());
         this.tile = tile;
         this.type = name != null ? name : type.toString();
         this.additionalTypes = additionalTypes;
         this.methods = methods;
+    }
+
+    public Direction side() {
+        return side;
     }
 
     @Override
@@ -54,7 +62,6 @@ class GenericPeripheral implements IDynamicPeripheral {
         return additionalTypes;
     }
 
-    @Nullable
     @Override
     public Object getTarget() {
         return tile;

@@ -7,9 +7,13 @@ package dan200.computercraft.gametest
 import dan200.computercraft.api.detail.BasicItemDetailProvider
 import dan200.computercraft.api.detail.VanillaDetailRegistries
 import dan200.computercraft.api.lua.ObjectArguments
+import dan200.computercraft.api.turtle.ITurtleUpgrade
+import dan200.computercraft.api.turtle.TurtleSide
+import dan200.computercraft.api.upgrades.UpgradeData
 import dan200.computercraft.core.apis.PeripheralAPI
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.gametest.core.TestHooks
+import dan200.computercraft.impl.TurtleUpgrades
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.mixin.gametest.GameTestInfoAccessor
 import dan200.computercraft.shared.ModRegistry
@@ -30,13 +34,17 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.item.PrimedTnt
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
+import net.minecraft.world.item.enchantment.Enchantments
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.FenceBlock
+import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.*
+import org.hamcrest.Matchers.array
+import org.hamcrest.Matchers.instanceOf
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.time.Duration.Companion.milliseconds
 
 class Turtle_Test {
@@ -76,6 +84,26 @@ class Turtle_Test {
                 .assertArrayEquals(true, message = "Placed lava")
         }
         thenExecute { helper.assertBlockPresent(Blocks.LAVA, BlockPos(2, 2, 2)) }
+    }
+
+    /**
+     * Checks that calling [net.minecraft.world.item.Item.use] will not place blocks too far away.
+     *
+     * This is caused by items using [net.minecraft.world.item.Item.getPlayerPOVHitResult] to perform a ray trace, which
+     * ignores turtle's reduced reach distance.
+     *
+     * @see [#1497](https://github.com/cc-tweaked/CC-Tweaked/issues/1497)
+     */
+    @GameTest
+    fun Place_use_reach_limit(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer {
+            turtle.placeDown(ObjectArguments()).await()
+                .assertArrayEquals(true, message = "Placed water")
+        }
+        thenExecute {
+            helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 2, 2))
+            helper.assertBlockHas(BlockPos(2, 5, 2), BlockStateProperties.WATERLOGGED, true)
+        }
     }
 
     /**
@@ -148,6 +176,85 @@ class Turtle_Test {
                     ItemStack(ModRegistry.Items.WIRED_MODEM.get()),
                 ),
             )
+        }
+    }
+
+    /**
+     * Digging using a pickaxe with `{"consumesDurability": "always"}`, consumes durability.
+     */
+    @GameTest
+    fun Dig_consume_durability(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer { turtle.dig(Optional.empty()).await() }
+        thenExecute {
+            helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 2, 3))
+            helper.assertContainerExactly(BlockPos(2, 2, 2), listOf(ItemStack(Items.COBBLESTONE)))
+
+            val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
+            val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
+            assertEquals(TurtleUpgrades.instance().get("cctest:wooden_pickaxe"), upgrade, "Upgrade is a wooden pickaxe")
+
+            val item = ItemStack(Items.WOODEN_PICKAXE)
+            item.damageValue = 1
+            helper.assertUpgradeItem(item, turtle.getUpgradeWithData(TurtleSide.LEFT)!!)
+        }
+    }
+
+    /**
+     * Digging using a pickaxe with `{"consumesDurability": "always"}` and no durability removes the tool.
+     */
+    @GameTest
+    fun Dig_breaks_tool(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer { turtle.dig(Optional.empty()).await() }
+        thenExecute {
+            helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 2, 3))
+            helper.assertContainerExactly(BlockPos(2, 2, 2), listOf(ItemStack(Items.COBBLESTONE)))
+
+            val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
+            val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
+            assertEquals(null, upgrade, "Upgrade broke")
+
+            helper.assertUpgradeItem(
+                ItemStack(Items.WOODEN_PICKAXE),
+                UpgradeData.ofDefault(TurtleUpgrades.instance().get("cctest:wooden_pickaxe")),
+            )
+        }
+    }
+
+    /**
+     * Digging using a silk-touch enchanted pickaxe with `{"consumesDurability": "when_enchanted"}`, consumes durability
+     * uses silk touch.
+     */
+    @GameTest
+    fun Dig_enchanted_consume_durability(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer { turtle.dig(Optional.empty()).await() }
+        thenExecute {
+            helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 2, 3))
+            helper.assertContainerExactly(BlockPos(2, 2, 2), listOf(ItemStack(Items.STONE)))
+
+            val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
+            val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
+            assertEquals(
+                TurtleUpgrades.instance().get("cctest:netherite_pickaxe"),
+                upgrade,
+                "Upgrade is a netherite pickaxe",
+            )
+
+            val item = ItemStack(Items.NETHERITE_PICKAXE)
+            item.damageValue = 1
+            item.enchant(Enchantments.SILK_TOUCH, 1)
+            item.setRepairCost(1)
+
+            helper.assertUpgradeItem(item, turtle.getUpgradeWithData(TurtleSide.LEFT)!!)
+        }
+    }
+
+    private fun GameTestHelper.assertUpgradeItem(expected: ItemStack, upgrade: UpgradeData<ITurtleUpgrade>) {
+        if (!ItemStack.matches(expected, upgrade.upgradeItem)) {
+            fail("Invalid upgrade item\n Expected => ${expected.tag}\n    Actual => ${upgrade.upgradeItem.tag}")
+        }
+
+        if (!ItemStack.matches(ItemStack(expected.item), upgrade.upgrade.craftingItem)) {
+            fail("Original upgrade item has changed (is now ${upgrade.upgrade.craftingItem})")
         }
     }
 
@@ -466,7 +573,7 @@ class Turtle_Test {
     fun Peripheral_change(helper: GameTestHelper) = helper.sequence {
         val testInfo = (helper as GameTestHelperAccessor).testInfo as GameTestInfoAccessor
 
-        val events = mutableListOf<Pair<String, String>>()
+        val events = CopyOnWriteArrayList<Pair<String, String>>()
         var running = false
         thenStartComputer("listen") {
             running = true
@@ -485,15 +592,13 @@ class Turtle_Test {
             turtle.back().await().assertArrayEquals(true, message = "Moved turtle forward")
             TestHooks.LOG.info("[{}] Finished turtle at {}", testInfo, testInfo.`computercraft$getTick`())
         }
-        thenIdle(4) // Should happen immediately, but computers might be slow.
-        thenExecute {
-            assertEquals(
-                listOf(
-                    "peripheral_detach" to "right",
-                    "peripheral" to "right",
-                ),
-                events,
+        thenWaitUntil {
+            val expected = listOf(
+                "peripheral_detach" to "right",
+                "peripheral" to "right",
             )
+
+            if (events != expected) helper.fail("Expected $expected, but received $events")
         }
     }
 

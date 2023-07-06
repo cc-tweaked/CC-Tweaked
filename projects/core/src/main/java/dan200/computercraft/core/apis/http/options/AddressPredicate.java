@@ -5,13 +5,14 @@
 package dan200.computercraft.core.apis.http.options;
 
 import com.google.common.net.InetAddresses;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * A predicate on an address. Matches against a domain and an ip address.
@@ -19,8 +20,6 @@ import java.util.regex.Pattern;
  * @see AddressRule#apply(Iterable, String, InetSocketAddress) for the actual handling of this rule.
  */
 interface AddressPredicate {
-    Logger LOG = LoggerFactory.getLogger(AddressPredicate.class);
-
     default boolean matches(String domain) {
         return false;
     }
@@ -51,28 +50,25 @@ interface AddressPredicate {
             return true;
         }
 
-        @Nullable
         public static HostRange parse(String addressStr, String prefixSizeStr) {
             int prefixSize;
             try {
                 prefixSize = Integer.parseInt(prefixSizeStr);
             } catch (NumberFormatException e) {
-                LOG.error(
-                    "Malformed http whitelist/blacklist entry '{}': Cannot extract size of CIDR mask from '{}'.",
+                throw new InvalidRuleException(String.format(
+                    "Invalid host host '%s': Cannot extract size of CIDR mask from '%s'.",
                     addressStr + '/' + prefixSizeStr, prefixSizeStr
-                );
-                return null;
+                ));
             }
 
             InetAddress address;
             try {
                 address = InetAddresses.forString(addressStr);
             } catch (IllegalArgumentException e) {
-                LOG.error(
-                    "Malformed http whitelist/blacklist entry '{}': Cannot extract IP address from '{}'.",
-                    addressStr + '/' + prefixSizeStr, prefixSizeStr
-                );
-                return null;
+                throw new InvalidRuleException(String.format(
+                    "Invalid host '%s': Cannot extract IP address from '%s'.",
+                    addressStr + '/' + prefixSizeStr, addressStr
+                ));
             }
 
             // Mask the bytes of the IP address.
@@ -112,16 +108,38 @@ interface AddressPredicate {
         }
     }
 
-
     final class PrivatePattern implements AddressPredicate {
         static final PrivatePattern INSTANCE = new PrivatePattern();
 
+        private static final Set<InetAddress> additionalAddresses = Arrays.stream(new String[]{
+            // Block various cloud providers internal IPs.
+            "100.100.100.200", // Alibaba
+            "192.0.0.192", // Oracle
+        }).map(InetAddresses::forString).collect(Collectors.toUnmodifiableSet());
+
         @Override
         public boolean matches(InetAddress socketAddress) {
-            return socketAddress.isAnyLocalAddress()
-                || socketAddress.isLoopbackAddress()
-                || socketAddress.isLinkLocalAddress()
-                || socketAddress.isSiteLocalAddress();
+            return
+                socketAddress.isAnyLocalAddress()      // 0.0.0.0, ::0
+                || socketAddress.isLoopbackAddress()   // 127.0.0.0/8, ::1
+                || socketAddress.isLinkLocalAddress()  // 169.254.0.0/16, fe80::/10
+                || socketAddress.isSiteLocalAddress()  // 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, fec0::/10
+                || socketAddress.isMulticastAddress()  // 224.0.0.0/4, ff00::/8
+                || isUniqueLocalAddress(socketAddress) // fd00::/8
+                || additionalAddresses.contains(socketAddress);
+        }
+
+        /**
+         * Determine if an IP address lives inside the ULA address range.
+         *
+         * @param address The IP address to test.
+         * @return Whether this address sits in the ULA address range.
+         * @see <a href="https://en.wikipedia.org/wiki/Unique_local_address">Unique local address on Wikipedia</a>
+         */
+        private boolean isUniqueLocalAddress(InetAddress address) {
+            // ULA is actually defined as fc00::/7 (so both fc00::/8 and fd00::/8). However, only the latter is actually
+            // defined right now, so let's be conservative.
+            return address instanceof Inet6Address && (address.getAddress()[0] & 0xff) == 0xfd;
         }
     }
 

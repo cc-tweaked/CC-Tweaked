@@ -14,8 +14,8 @@ import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.impl.UpgradeManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.nbt.CompoundTag;
 
-import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,10 +52,16 @@ public final class TurtleUpgradeModellers {
         }
     }
 
-    public static TransformedModel getModel(ITurtleUpgrade upgrade, @Nullable ITurtleAccess access, TurtleSide side) {
+    public static TransformedModel getModel(ITurtleUpgrade upgrade, ITurtleAccess access, TurtleSide side) {
         @SuppressWarnings("unchecked")
         var modeller = (TurtleUpgradeModeller<ITurtleUpgrade>) modelCache.computeIfAbsent(upgrade, TurtleUpgradeModellers::getModeller);
         return modeller.getModel(upgrade, access, side);
+    }
+
+    public static TransformedModel getModel(ITurtleUpgrade upgrade, CompoundTag data, TurtleSide side) {
+        @SuppressWarnings("unchecked")
+        var modeller = (TurtleUpgradeModeller<ITurtleUpgrade>) modelCache.computeIfAbsent(upgrade, TurtleUpgradeModellers::getModeller);
+        return modeller.getModel(upgrade, data, side);
     }
 
     private static TurtleUpgradeModeller<?> getModeller(ITurtleUpgrade upgradeA) {

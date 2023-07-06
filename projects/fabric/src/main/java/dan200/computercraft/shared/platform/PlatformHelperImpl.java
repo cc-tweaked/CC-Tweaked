@@ -34,6 +34,7 @@ import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.fabricmc.fabric.api.tag.convention.v1.ConventionalItemTags;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -73,7 +74,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -83,6 +83,11 @@ import java.util.function.*;
 
 @AutoService(dan200.computercraft.impl.PlatformHelper.class)
 public class PlatformHelperImpl implements PlatformHelper {
+    @Override
+    public boolean isDevelopmentEnvironment() {
+        return FabricLoader.getInstance().isDevelopmentEnvironment();
+    }
+
     @Override
     public ConfigFile.Builder createConfigBuilder() {
         return new FabricConfigFile.Builder();
@@ -290,7 +295,7 @@ public class PlatformHelperImpl implements PlatformHelper {
     public boolean hasToolUsage(ItemStack stack) {
         var item = stack.getItem();
         return item instanceof ShovelItem || stack.is(ItemTags.SHOVELS) ||
-            item instanceof HoeItem || stack.is(ItemTags.HOES);
+               item instanceof HoeItem || stack.is(ItemTags.HOES);
     }
 
     @Override
@@ -356,7 +361,6 @@ public class PlatformHelperImpl implements PlatformHelper {
             return object;
         }
 
-        @Nonnull
         @Override
         public Iterator<T> iterator() {
             return registry.iterator();

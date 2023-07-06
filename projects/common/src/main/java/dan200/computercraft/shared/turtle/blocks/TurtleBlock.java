@@ -5,7 +5,9 @@
 package dan200.computercraft.shared.turtle.blocks;
 
 import dan200.computercraft.annotations.ForgeOverride;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlock;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlockEntity;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -128,7 +130,7 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
             if (stack.getItem() instanceof TurtleItem item) {
                 // Set Upgrades
                 for (var side : TurtleSide.values()) {
-                    turtle.getAccess().setUpgrade(side, item.getUpgrade(stack, side));
+                    turtle.getAccess().setUpgradeWithData(side, item.getUpgradeWithData(stack, side));
                 }
 
                 turtle.getAccess().setFuelLevel(item.getFuelLevel(stack));
@@ -161,9 +163,14 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
         var access = turtle.getAccess();
         return TurtleItem.create(
             turtle.getComputerID(), turtle.getLabel(), access.getColour(), turtle.getFamily(),
-            access.getUpgrade(TurtleSide.LEFT), access.getUpgrade(TurtleSide.RIGHT),
+            withPersistedData(access.getUpgradeWithData(TurtleSide.LEFT)),
+            withPersistedData(access.getUpgradeWithData(TurtleSide.RIGHT)),
             access.getFuelLevel(), turtle.getOverlay()
         );
+    }
+
+    private static @Nullable UpgradeData<ITurtleUpgrade> withPersistedData(@Nullable UpgradeData<ITurtleUpgrade> upgrade) {
+        return upgrade == null ? null : UpgradeData.of(upgrade.upgrade(), upgrade.upgrade().getPersistedData(upgrade.data()));
     }
 
     @Override

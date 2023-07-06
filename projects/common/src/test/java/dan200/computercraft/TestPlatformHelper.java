@@ -60,6 +60,11 @@ import java.util.function.Predicate;
 @AutoService({ PlatformHelper.class, dan200.computercraft.impl.PlatformHelper.class, ComputerCraftAPIService.class })
 public class TestPlatformHelper extends AbstractComputerCraftAPI implements PlatformHelper {
     @Override
+    public boolean isDevelopmentEnvironment() {
+        return true;
+    }
+
+    @Override
     public ConfigFile.Builder createConfigBuilder() {
         throw new UnsupportedOperationException("Cannot create config file inside tests");
     }

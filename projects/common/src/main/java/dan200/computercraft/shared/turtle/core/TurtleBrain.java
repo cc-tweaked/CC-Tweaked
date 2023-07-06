@@ -13,8 +13,8 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -34,7 +34,6 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.PushReaction;
@@ -141,17 +140,16 @@ public class TurtleBrain implements TurtleAccessInternal {
         overlay = nbt.contains(NBT_OVERLAY) ? new ResourceLocation(nbt.getString(NBT_OVERLAY)) : null;
 
         // Read upgrades
-        setUpgradeDirect(TurtleSide.LEFT, nbt.contains(NBT_LEFT_UPGRADE) ? TurtleUpgrades.instance().get(nbt.getString(NBT_LEFT_UPGRADE)) : null);
-        setUpgradeDirect(TurtleSide.RIGHT, nbt.contains(NBT_RIGHT_UPGRADE) ? TurtleUpgrades.instance().get(nbt.getString(NBT_RIGHT_UPGRADE)) : null);
+        setUpgradeDirect(TurtleSide.LEFT, readUpgrade(nbt, NBT_LEFT_UPGRADE, NBT_LEFT_UPGRADE_DATA));
+        setUpgradeDirect(TurtleSide.RIGHT, readUpgrade(nbt, NBT_RIGHT_UPGRADE, NBT_RIGHT_UPGRADE_DATA));
+    }
 
-        // NBT
-        upgradeNBTData.clear();
-        if (nbt.contains(NBT_LEFT_UPGRADE_DATA)) {
-            upgradeNBTData.put(TurtleSide.LEFT, nbt.getCompound(NBT_LEFT_UPGRADE_DATA).copy());
-        }
-        if (nbt.contains(NBT_RIGHT_UPGRADE_DATA)) {
-            upgradeNBTData.put(TurtleSide.RIGHT, nbt.getCompound(NBT_RIGHT_UPGRADE_DATA).copy());
-        }
+    private @Nullable UpgradeData<ITurtleUpgrade> readUpgrade(CompoundTag tag, String upgradeKey, String dataKey) {
+        if (!tag.contains(upgradeKey)) return null;
+        var upgrade = TurtleUpgrades.instance().get(tag.getString(upgradeKey));
+        if (upgrade == null) return null;
+
+        return UpgradeData.of(upgrade, tag.getCompound(dataKey));
     }
 
     private void writeCommon(CompoundTag nbt) {
@@ -463,23 +461,6 @@ public class TurtleBrain implements TurtleAccessInternal {
         }
     }
 
-    public @Nullable DyeColor getDyeColour() {
-        if (colourHex == -1) return null;
-        var colour = Colour.fromHex(colourHex);
-        return colour == null ? null : DyeColor.byId(15 - colour.ordinal());
-    }
-
-    public void setDyeColour(@Nullable DyeColor dyeColour) {
-        var newColour = -1;
-        if (dyeColour != null) {
-            newColour = Colour.values()[15 - dyeColour.getId()].getHex();
-        }
-        if (colourHex != newColour) {
-            colourHex = newColour;
-            BlockEntityHelpers.updateBlock(owner);
-        }
-    }
-
     @Override
     public void setColour(int colour) {
         if (colour >= 0 && colour <= 0xFFFFFF) {
@@ -514,7 +495,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     }
 
     @Override
-    public void setUpgrade(TurtleSide side, @Nullable ITurtleUpgrade upgrade) {
+    public void setUpgradeWithData(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
         if (!setUpgradeDirect(side, upgrade) || owner.getLevel() == null) return;
 
         // This is a separate function to avoid updating the block when reading the NBT. We don't need to do this as
@@ -527,19 +508,18 @@ public class TurtleBrain implements TurtleAccessInternal {
         owner.updateInputsImmediately();
     }
 
-    private boolean setUpgradeDirect(TurtleSide side, @Nullable ITurtleUpgrade upgrade) {
+    private boolean setUpgradeDirect(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
         // Remove old upgrade
-        if (upgrades.containsKey(side)) {
-            if (upgrades.get(side) == upgrade) return false;
-            upgrades.remove(side);
-        } else {
-            if (upgrade == null) return false;
-        }
-
-        upgradeNBTData.remove(side);
+        var oldUpgrade = upgrades.remove(side);
+        if (oldUpgrade == null && upgrade == null) return false;
 
         // Set new upgrade
-        if (upgrade != null) upgrades.put(side, upgrade);
+        if (upgrade == null) {
+            upgradeNBTData.remove(side);
+        } else {
+            upgrades.put(side, upgrade.upgrade());
+            upgradeNBTData.put(side, upgrade.data().copy());
+        }
 
         // Notify clients and create peripherals
         if (owner.getLevel() != null && !owner.getLevel().isClientSide) {
@@ -593,7 +573,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     public float getToolRenderAngle(TurtleSide side, float f) {
         return (side == TurtleSide.LEFT && animation == TurtleAnimation.SWING_LEFT_TOOL) ||
-            (side == TurtleSide.RIGHT && animation == TurtleAnimation.SWING_RIGHT_TOOL)
+               (side == TurtleSide.RIGHT && animation == TurtleAnimation.SWING_RIGHT_TOOL)
             ? 45.0f * (float) Math.sin(getAnimationFraction(f) * Math.PI)
             : 0.0f;
     }

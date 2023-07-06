@@ -479,9 +479,11 @@ public interface IArguments {
      * yourself.
      *
      * @return An {@link IArguments} instance which can escape the current scope. May be {@code this}.
-     * @throws LuaException For the same reasons as {@link #get(int)}.
+     * @throws LuaException          For the same reasons as {@link #get(int)}.
+     * @throws IllegalStateException If marking these arguments as escaping outside the scope of the original function.
      */
     default IArguments escapes() throws LuaException {
+        // TODO(1.21.0): Make this return void, require that it mutates this.
         return this;
     }
 }

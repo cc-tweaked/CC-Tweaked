@@ -25,6 +25,10 @@ public class CompositeBakedModel extends CustomBakedModel {
         this.models = models;
     }
 
+    public static BakedModel of(List<BakedModel> models) {
+        return models.size() == 1 ? models.get(0) : new CompositeBakedModel(models);
+    }
+
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction face, RandomSource rand) {
         @SuppressWarnings({ "unchecked", "rawtypes" })

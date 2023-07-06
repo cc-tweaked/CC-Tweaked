@@ -14,8 +14,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * The custom model for turtle items, which renders tools and overlays as part of the model.
@@ -23,28 +21,22 @@ import java.util.Map;
  * @see TurtleModelParts
  */
 public class TurtleModel extends ForwardingBakedModel {
-    private final TurtleModelParts parts;
+    private final TurtleModelParts<BakedModel> parts;
 
-    private final Map<TurtleModelParts.Combination, BakedModel> cachedModels = new HashMap<>();
     private final ItemOverrides overrides = new ItemOverrides() {
         @Override
         public BakedModel resolve(BakedModel model, ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int seed) {
-            return cachedModels.computeIfAbsent(parts.getCombination(stack), TurtleModel.this::buildModel);
+            return parts.getModel(stack);
         }
     };
 
     public TurtleModel(BakedModel familyModel, BakedModel colourModel) {
         wrapped = familyModel;
-        parts = new TurtleModelParts(familyModel, colourModel, TransformedBakedModel::new);
+        parts = new TurtleModelParts<>(familyModel, colourModel, TransformedBakedModel::new, CompositeBakedModel::of);
     }
 
     @Override
     public ItemOverrides getOverrides() {
         return overrides;
-    }
-
-    private BakedModel buildModel(TurtleModelParts.Combination combo) {
-        var models = parts.buildModel(combo);
-        return models.size() == 1 ? models.get(0) : new CompositeBakedModel(models);
     }
 }

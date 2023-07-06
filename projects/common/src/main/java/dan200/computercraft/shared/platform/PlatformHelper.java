@@ -70,6 +70,13 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     }
 
     /**
+     * Check if we're running in a development environment.
+     *
+     * @return If we're running in a development environment.
+     */
+    boolean isDevelopmentEnvironment();
+
+    /**
      * Create a new config builder.
      *
      * @return The newly created config builder.

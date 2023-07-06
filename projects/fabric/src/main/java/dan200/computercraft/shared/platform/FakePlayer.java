@@ -6,12 +6,15 @@ package dan200.computercraft.shared.platform;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 
-final class FakePlayer extends net.fabricmc.fabric.api.entity.FakePlayer {
+import static dan200.computercraft.shared.platform.FakePlayerConstants.MAX_REACH;
+
+public final class FakePlayer extends net.fabricmc.fabric.api.entity.FakePlayer {
     private FakePlayer(ServerLevel serverLevel, GameProfile gameProfile) {
         super(serverLevel, gameProfile);
     }
@@ -32,5 +35,14 @@ final class FakePlayer extends net.fabricmc.fabric.api.entity.FakePlayer {
     @Override
     public float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
         return 0;
+    }
+
+    public double getBlockReach() {
+        return MAX_REACH;
+    }
+
+    @Override
+    public boolean broadcastToPlayer(ServerPlayer player) {
+        return false;
     }
 }

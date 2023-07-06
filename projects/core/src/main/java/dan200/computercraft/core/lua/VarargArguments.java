@@ -191,6 +191,7 @@ final class VarargArguments implements IArguments {
     @Override
     public IArguments escapes() {
         if (escapes) return this;
+        if (isClosed()) throw new IllegalStateException("Cannot call escapes after IArguments has been closed.");
 
         var cache = this.cache;
         var typeNames = this.typeNames;

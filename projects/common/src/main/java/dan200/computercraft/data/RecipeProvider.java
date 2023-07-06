@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
 import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
@@ -110,7 +111,7 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             var nameId = turtleItem.getFamily().name().toLowerCase(Locale.ROOT);
 
             for (var upgrade : turtleUpgrades.getGeneratedUpgrades()) {
-                var result = turtleItem.create(-1, null, -1, null, upgrade, -1, null);
+                var result = turtleItem.create(-1, null, -1, null, UpgradeData.ofDefault(upgrade), -1, null);
                 ShapedRecipeBuilder
                     .shaped(RecipeCategory.REDSTONE, result.getItem())
                     .group(String.format("%s:turtle_%s", ComputerCraftAPI.MOD_ID, nameId))
@@ -146,7 +147,7 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             var nameId = pocket.getFamily().name().toLowerCase(Locale.ROOT);
 
             for (var upgrade : pocketUpgrades.getGeneratedUpgrades()) {
-                var result = pocket.create(-1, null, -1, upgrade);
+                var result = pocket.create(-1, null, -1, UpgradeData.ofDefault(upgrade));
                 ShapedRecipeBuilder
                     .shaped(RecipeCategory.REDSTONE, result.getItem())
                     .group(String.format("%s:pocket_%s", ComputerCraftAPI.MOD_ID, nameId))

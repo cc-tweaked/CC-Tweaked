@@ -7,6 +7,7 @@ package dan200.computercraft.shared.util;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.BaseEncoding;
 import dan200.computercraft.core.util.Nullability;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.nbt.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +29,40 @@ public final class NBTUtil {
     @VisibleForTesting
     static final BaseEncoding ENCODING = BaseEncoding.base16().lowerCase();
 
+    private static final CompoundTag EMPTY_TAG;
+
+    static {
+        // If in a development environment, create a magic immutable compound tag.
+        // We avoid doing this in prod, as I fear it might mess up the JIT inlining things.
+        if (PlatformHelper.get().isDevelopmentEnvironment()) {
+            try {
+                var ctor = CompoundTag.class.getDeclaredConstructor(Map.class);
+                ctor.setAccessible(true);
+                EMPTY_TAG = ctor.newInstance(Collections.emptyMap());
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            EMPTY_TAG = new CompoundTag();
+        }
+    }
+
     private NBTUtil() {
+    }
+
+    /**
+     * Get a singleton empty {@link CompoundTag}. This tag should never be modified.
+     *
+     * @return The empty compound tag.
+     */
+    public static CompoundTag emptyTag() {
+        if (EMPTY_TAG.size() != 0) LOG.error("The empty tag has been modified.");
+        return EMPTY_TAG;
+    }
+
+    public static CompoundTag getCompoundOrEmpty(CompoundTag tag, String key) {
+        var childTag = tag.get(key);
+        return childTag != null && childTag.getId() == Tag.TAG_COMPOUND ? (CompoundTag) childTag : emptyTag();
     }
 
     private static @Nullable Tag toNBTTag(@Nullable Object object) {

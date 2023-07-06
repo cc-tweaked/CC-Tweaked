@@ -555,7 +555,7 @@ public class TurtleAPI implements ILuaAPI {
      * @cc.usage Refuel a turtle from the currently selected slot.
      * <pre>{@code
      * local level = turtle.getFuelLevel()
-     * if new_level == "unlimited" then error("Turtle does not need fuel", 0) end
+     * if level == "unlimited" then error("Turtle does not need fuel", 0) end
      *
      * local ok, err = turtle.refuel()
      * if ok then

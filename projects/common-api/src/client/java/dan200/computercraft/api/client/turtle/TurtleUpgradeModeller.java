@@ -11,6 +11,7 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
@@ -28,11 +29,26 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * When the current turtle is {@literal null}, this function should be constant for a given upgrade and side.
      *
      * @param upgrade The upgrade that you're getting the model for.
-     * @param turtle  Access to the turtle that the upgrade resides on. This will be null when getting item models!
+     * @param turtle  Access to the turtle that the upgrade resides on. This will be null when getting item models, unless
+     *                {@link #getModel(ITurtleUpgrade, CompoundTag, TurtleSide)} is overriden.
      * @param side    Which side of the turtle (left or right) the upgrade resides on.
      * @return The model that you wish to be used to render your upgrade.
      */
     TransformedModel getModel(T upgrade, @Nullable ITurtleAccess turtle, TurtleSide side);
+
+    /**
+     * Obtain the model to be used when rendering a turtle peripheral.
+     * <p>
+     * This is used when rendering the turtle's item model, and so no {@link ITurtleAccess} is available.
+     *
+     * @param upgrade The upgrade that you're getting the model for.
+     * @param data    Upgrade data instance for current turtle side.
+     * @param side    Which side of the turtle (left or right) the upgrade resides on.
+     * @return The model that you wish to be used to render your upgrade.
+     */
+    default TransformedModel getModel(T upgrade, CompoundTag data, TurtleSide side) {
+        return getModel(upgrade, (ITurtleAccess) null, side);
+    }
 
     /**
      * A basic {@link TurtleUpgradeModeller} which renders using the upgrade's {@linkplain ITurtleUpgrade#getCraftingItem()
