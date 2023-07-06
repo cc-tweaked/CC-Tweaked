@@ -30,41 +30,22 @@ internal fun setRunConfigInternal(project: Project, spec: JavaExecSpec, config: 
     val originalTask = project.tasks.named(config.taskName, MinecraftRunTask::class.java)
 
     // Add argument and JVM argument via providers, to be as lazy as possible with fetching artifacts.
-    fun lazyTokens(): MutableMap<String, Supplier<String>> {
-        return RunConfigGenerator.configureTokensLazy(
-            project, config, RunConfigGenerator.mapModClassesToGradle(project, config),
-            originalTask.get().minecraftArtifacts.files,
-            originalTask.get().runtimeClasspathArtifacts.files,
-        )
-    }
+    val lazyTokens = RunConfigGenerator.configureTokensLazy(
+        project, config, RunConfigGenerator.mapModClassesToGradle(project, config),
+        originalTask.get().minecraftArtifacts,
+        originalTask.get().runtimeClasspathArtifacts,
+    )
     spec.argumentProviders.add(
         CommandLineArgumentProvider {
-            RunConfigGenerator.getArgsStream(config, lazyTokens(), false).toList()
+            RunConfigGenerator.getArgsStream(config, lazyTokens, false).toList()
         },
     )
     spec.jvmArgumentProviders.add(
         CommandLineArgumentProvider {
-            val lazyTokens = lazyTokens()
             (if (config.isClient) config.jvmArgs + originalTask.get().additionalClientArgs.get() else config.jvmArgs).map { config.replace(lazyTokens, it) } +
                 config.properties.map { (k, v) -> "-D${k}=${config.replace(lazyTokens, v)}" }
         },
     )
 
-    // We can't configure environment variables lazily, so we do these now with a more minimal lazyTokens set.
-    val lazyTokens = mutableMapOf<String, Supplier<String>>()
-    for ((k, v) in config.tokens) lazyTokens[k] = Supplier<String> { v }
-    for ((k, v) in config.lazyTokens) lazyTokens[k] = v
-    lazyTokens.compute(
-        "source_roots",
-        { _, sourceRoots ->
-            Supplier<String> {
-                val modClasses = RunConfigGenerator.mapModClassesToGradle(project, config)
-                (when (sourceRoots) {
-                    null -> modClasses
-                    else -> Stream.concat<String>(sourceRoots.get().split(File.pathSeparator).stream(), modClasses)
-                }).distinct().collect(Collectors.joining(File.pathSeparator))
-            }
-        },
-    )
     for ((key, value) in config.environment) spec.environment(key, config.replace(lazyTokens, value))
 }

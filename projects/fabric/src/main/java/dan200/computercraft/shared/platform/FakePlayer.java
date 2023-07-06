@@ -6,6 +6,7 @@ package dan200.computercraft.shared.platform;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
@@ -38,5 +39,10 @@ public final class FakePlayer extends net.fabricmc.fabric.api.entity.FakePlayer 
 
     public double getBlockReach() {
         return MAX_REACH;
+    }
+
+    @Override
+    public boolean broadcastToPlayer(ServerPlayer player) {
+        return false;
     }
 }

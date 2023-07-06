@@ -5,6 +5,7 @@
 package dan200.computercraft.shared.turtle.upgrades;
 
 import com.google.gson.JsonObject;
+import dan200.computercraft.api.turtle.TurtleToolDurability;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.shared.platform.RegistryWrappers;
@@ -28,6 +29,8 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
         var toolItem = GsonHelper.getAsItem(object, "item");
         var craftingItem = GsonHelper.getAsItem(object, "craftingItem", toolItem);
         var damageMultiplier = GsonHelper.getAsFloat(object, "damageMultiplier", 3.0f);
+        var allowsEnchantments = GsonHelper.getAsBoolean(object, "allowsEnchantments", false);
+        var consumesDurability = TurtleToolDurability.CODEC.byName(GsonHelper.getAsString(object, "consumesDurability", null), TurtleToolDurability.NEVER);
 
         TagKey<Block> breakable = null;
         if (object.has("breakable")) {
@@ -35,7 +38,7 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
             breakable = TagKey.create(Registries.BLOCK, tag);
         }
 
-        return new TurtleTool(id, adjective, craftingItem, new ItemStack(toolItem), damageMultiplier, breakable);
+        return new TurtleTool(id, adjective, craftingItem, new ItemStack(toolItem), damageMultiplier, allowsEnchantments, consumesDurability, breakable);
     }
 
     @Override
@@ -46,9 +49,11 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
         // damageMultiplier and breakable aren't used by the client, but we need to construct the upgrade exactly
         // as otherwise syncing on an SP world will overwrite the (shared) upgrade registry with an invalid upgrade!
         var damageMultiplier = buffer.readFloat();
+        var allowsEnchantments = buffer.readBoolean();
+        var consumesDurability = buffer.readEnum(TurtleToolDurability.class);
 
         var breakable = buffer.readBoolean() ? TagKey.create(Registries.BLOCK, buffer.readResourceLocation()) : null;
-        return new TurtleTool(id, adjective, craftingItem, toolItem, damageMultiplier, breakable);
+        return new TurtleTool(id, adjective, craftingItem, toolItem, damageMultiplier, allowsEnchantments, consumesDurability, breakable);
     }
 
     @Override
@@ -57,6 +62,8 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
         RegistryWrappers.writeId(buffer, RegistryWrappers.ITEMS, upgrade.getCraftingItem().getItem());
         buffer.writeItem(upgrade.item);
         buffer.writeFloat(upgrade.damageMulitiplier);
+        buffer.writeBoolean(upgrade.allowsEnchantments);
+        buffer.writeEnum(upgrade.consumesDurability);
         buffer.writeBoolean(upgrade.breakable != null);
         if (upgrade.breakable != null) buffer.writeResourceLocation(upgrade.breakable.location());
     }
