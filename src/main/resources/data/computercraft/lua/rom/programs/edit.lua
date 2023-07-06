@@ -107,7 +107,9 @@ local function set_status(text, ok)
     status_text = text
 end
 
-if not bReadOnly and fs.getFreeSpace(sPath) < 1024 then
+if bReadOnly then
+    set_status("File is read only", false)
+elseif fs.getFreeSpace(sPath) < 1024 then
     set_status("Disk is low on space", false)
 else
     local message

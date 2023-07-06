@@ -27,7 +27,7 @@ local function pcm_decoder(chunk)
 end
 
 local function report_invalid_format(format)
-    printError(("The speaker cannot play %s files."):format(format))
+    printError(("speaker cannot play %s files."):format(format))
     local pp = require "cc.pretty"
     pp.print("Run '" .. pp.text("help speaker", colours.lightGrey) .. "' for information on supported formats.")
 end
@@ -103,6 +103,7 @@ elseif cmd == "play" then
     elseif start == "OggS" then return report_invalid_format("Ogg")
     elseif start == "fLaC" then return report_invalid_format("FLAC")
     elseif start:sub(1, 3) == "ID3" then return report_invalid_format("MP3")
+    elseif start == "<!DO" --[[<!DOCTYPE]] then return report_invalid_format("HTML")
     end
 
     print("Playing " .. file)
