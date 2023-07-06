@@ -74,8 +74,7 @@ function undefine(name)
     details[name] = nil
 end
 
-local function set_value(name, value)
-    local new = reserialize(value)
+local function set_value(name, new)
     local old = values[name]
     if old == nil then
         local opt = details[name]
@@ -103,7 +102,7 @@ function set(name, value)
     local opt = details[name]
     if opt and opt.type then expect(2, value, opt.type) end
 
-    set_value(name, value)
+    set_value(name, reserialize(value))
 end
 
 --- Get the value of a setting.
@@ -214,7 +213,9 @@ function load(sPath)
         if type(k) == "string" and (ty_v == "string" or ty_v == "number" or ty_v == "boolean" or ty_v == "table") then
             local opt = details[k]
             if not opt or not opt.type or ty_v == opt.type then
-                set_value(k, v)
+                -- This may fail if the table is recursive (or otherwise cannot be serialized).
+                local ok, v = pcall(reserialize, v)
+                if ok then set_value(k, v) end
             end
         end
     end

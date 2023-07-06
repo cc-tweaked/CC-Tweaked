@@ -153,12 +153,22 @@ function locate(_nTimeout, _bDebug)
                     if tFix.nDistance == 0 then
                         pos1, pos2 = tFix.vPosition, nil
                     else
-                        table.insert(tFixes, tFix)
+                        -- Insert our new position in our table, with a maximum of three items. If this is close to a
+                        -- previous position, replace that instead of inserting.
+                        local insIndex = math.min(3, #tFixes + 1)
+                        for i, older in pairs(tFixes) do
+                            if (older.vPosition - tFix.vPosition):length() < 1 then
+                                insIndex = i
+                                break
+                            end
+                        end
+                        tFixes[insIndex] = tFix
+
                         if #tFixes >= 3 then
                             if not pos1 then
-                                pos1, pos2 = trilaterate(tFixes[1], tFixes[2], tFixes[#tFixes])
+                                pos1, pos2 = trilaterate(tFixes[1], tFixes[2], tFixes[3])
                             else
-                                pos1, pos2 = narrow(pos1, pos2, tFixes[#tFixes])
+                                pos1, pos2 = narrow(pos1, pos2, tFixes[3])
                             end
                         end
                     end
