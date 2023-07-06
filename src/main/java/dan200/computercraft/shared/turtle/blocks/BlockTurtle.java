@@ -167,7 +167,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
     @Override
     public float getExplosionResistance( BlockState state, BlockGetter world, BlockPos pos, Explosion explosion )
     {
-        Entity exploder = explosion.getExploder();
+        Entity exploder = explosion == null ? null : explosion.getExploder();
         if( getFamily() == ComputerFamily.ADVANCED || exploder instanceof LivingEntity || exploder instanceof AbstractHurtingProjectile )
         {
             return 2000;

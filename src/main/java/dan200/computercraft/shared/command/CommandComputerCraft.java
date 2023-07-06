@@ -7,10 +7,13 @@ package dan200.computercraft.shared.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.Suggestions;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.metrics.Metrics;
+import dan200.computercraft.shared.command.arguments.ComputersArgumentType;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -200,7 +203,10 @@ public final class CommandComputerCraft
 
             .then( command( "queue" )
                 .requires( UserLevel.ANYONE )
-                .arg( "computer", manyComputers() )
+                .arg(
+                    RequiredArgumentBuilder.<CommandSourceStack, ComputersArgumentType.ComputersSupplier>argument( "computer", manyComputers() )
+                        .suggests( ( context, builder ) -> Suggestions.empty() )
+                )
                 .argManyValue( "args", StringArgumentType.string(), Collections.emptyList() )
                 .executes( ( ctx, args ) -> {
                     Collection<ServerComputer> computers = getComputersArgument( ctx, "computer" );

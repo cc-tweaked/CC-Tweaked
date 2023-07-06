@@ -1,16 +1,19 @@
-New features in CC: Tweaked 1.101.2
+New features in CC: Tweaked 1.101.3
 
-* Error messages in `edit` are now displayed in red on advanced computers.
-* Improvements to the display of errors in the shell and REPL.
+* Improve syntax errors when missing commas in tables, and on trailing commas in parameter lists.
+* `speaker` program now reports an error on common unsupported audio formats.
+* Small optimisations to the `window` API.
 
 Several bug fixes:
-* Fix `import.lua` failing to upload a file.
-* Fix several issues with sparse Lua tables (Shiranuit).
-* Computer upgrades now accept normal computers, rather than uselessly allowing you to upgrade an advanced computer to an advanced computer!
-* Correctly clamp speaker volume.
-* Fix rednet queueing the wrong message when sending a message to the current computer.
-* Fix the Lua VM crashing when a `__len` metamethod yields.
-* Trim spaces from filesystem paths.
-* Correctly format 12AM/PM with `%I`.
+* Fix the REPL syntax reporting crashing on valid parses.
+* Ignore metatables in `textutils.serialize`.
+* Fix `gps.locate` returning `nan` when receiving a duplicate location (Wojbie).
+* Ignore metatables in `textutils.serialize`.
+* Fix wireless turtles having an invalid model.
+* Fix crash when turtles are exploded by a null explosion.
+* Lua REPL no longer accepts `)(` as a valid expression.
+* Fix several inconsistencies with `require`/`package.path` in the Lua REPL (Wojbie).
+* Fix private several IP address ranges not being blocked by the `$private` rule.
+* Improve permission checks in the `/computercraft` command.
 
 Type "help changelog" to see the full version history.

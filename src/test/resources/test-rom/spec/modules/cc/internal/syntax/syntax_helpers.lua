@@ -45,8 +45,9 @@ local function capture_parser(input, print_tokens, start)
     end
 
     local context = make_context(input)
-    function context.report(message)
-        expect(3, message, "table")
+    function context.report(message, ...)
+        expect(3, message, "table", "function")
+        if type(message) == "function" then message = message(...) end
 
         for _, msg in ipairs(message) do
             if type(msg) == "table" and msg.tag == "annotate" then

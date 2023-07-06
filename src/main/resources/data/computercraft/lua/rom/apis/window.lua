@@ -127,11 +127,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
         local sEmptyTextColor = tEmptyColorLines[nTextColor]
         local sEmptyBackgroundColor = tEmptyColorLines[nBackgroundColor]
         for y = 1, nHeight do
-            tLines[y] = {
-                text = sEmptyText,
-                textColor = sEmptyTextColor,
-                backgroundColor = sEmptyBackgroundColor,
-            }
+            tLines[y] = { sEmptyText, sEmptyTextColor, sEmptyBackgroundColor }
         end
 
         for i = 0, 15 do
@@ -161,7 +157,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     local function redrawLine(n)
         local tLine = tLines[n]
         parent.setCursorPos(nX, nY + n - 1)
-        parent.blit(tLine.text, tLine.textColor, tLine.backgroundColor)
+        parent.blit(tLine[1], tLine[2], tLine[3])
     end
 
     local function redraw()
@@ -184,9 +180,9 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                 -- Modify line
                 local tLine = tLines[nCursorY]
                 if nStart == 1 and nEnd == nWidth then
-                    tLine.text = sText
-                    tLine.textColor = sTextColor
-                    tLine.backgroundColor = sBackgroundColor
+                    tLine[1] = sText
+                    tLine[2] = sTextColor
+                    tLine[3] = sBackgroundColor
                 else
                     local sClippedText, sClippedTextColor, sClippedBackgroundColor
                     if nStart < 1 then
@@ -206,9 +202,9 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                         sClippedBackgroundColor = sBackgroundColor
                     end
 
-                    local sOldText = tLine.text
-                    local sOldTextColor = tLine.textColor
-                    local sOldBackgroundColor = tLine.backgroundColor
+                    local sOldText = tLine[1]
+                    local sOldTextColor = tLine[2]
+                    local sOldBackgroundColor = tLine[3]
                     local sNewText, sNewTextColor, sNewBackgroundColor
                     if nStart > 1 then
                         local nOldEnd = nStart - 1
@@ -227,9 +223,9 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                         sNewBackgroundColor = sNewBackgroundColor .. string_sub(sOldBackgroundColor, nOldStart, nWidth)
                     end
 
-                    tLine.text = sNewText
-                    tLine.textColor = sNewTextColor
-                    tLine.backgroundColor = sNewBackgroundColor
+                    tLine[1] = sNewText
+                    tLine[2] = sNewTextColor
+                    tLine[3] = sNewBackgroundColor
                 end
 
                 -- Redraw line
@@ -276,11 +272,10 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
         local sEmptyTextColor = tEmptyColorLines[nTextColor]
         local sEmptyBackgroundColor = tEmptyColorLines[nBackgroundColor]
         for y = 1, nHeight do
-            tLines[y] = {
-                text = sEmptyText,
-                textColor = sEmptyTextColor,
-                backgroundColor = sEmptyBackgroundColor,
-            }
+            local line = tLines[y]
+            line[1] = sEmptyText
+            line[2] = sEmptyTextColor
+            line[3] = sEmptyBackgroundColor
         end
         if bVisible then
             redraw()
@@ -291,14 +286,10 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
 
     function window.clearLine()
         if nCursorY >= 1 and nCursorY <= nHeight then
-            local sEmptyText = sEmptySpaceLine
-            local sEmptyTextColor = tEmptyColorLines[nTextColor]
-            local sEmptyBackgroundColor = tEmptyColorLines[nBackgroundColor]
-            tLines[nCursorY] = {
-                text = sEmptyText,
-                textColor = sEmptyTextColor,
-                backgroundColor = sEmptyBackgroundColor,
-            }
+            local line = tLines[nCursorY]
+            line[1] = sEmptySpaceLine
+            line[2] = tEmptyColorLines[nTextColor]
+            line[3] = tEmptyColorLines[nBackgroundColor]
             if bVisible then
                 redrawLine(nCursorY)
                 updateCursorColor()
@@ -427,11 +418,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                 if y >= 1 and y <= nHeight then
                     tNewLines[newY] = tLines[y]
                 else
-                    tNewLines[newY] = {
-                        text = sEmptyText,
-                        textColor = sEmptyTextColor,
-                        backgroundColor = sEmptyBackgroundColor,
-                    }
+                    tNewLines[newY] = { sEmptyText, sEmptyTextColor, sEmptyBackgroundColor }
                 end
             end
             tLines = tNewLines
@@ -474,7 +461,8 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
             error("Line is out of range.", 2)
         end
 
-        return tLines[y].text, tLines[y].textColor, tLines[y].backgroundColor
+        local line = tLines[y]
+        return line[1], line[2], line[3]
     end
 
     -- Other functions
@@ -570,26 +558,22 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
             local sEmptyBackgroundColor = tEmptyColorLines[nBackgroundColor]
             for y = 1, new_height do
                 if y > nHeight then
-                    tNewLines[y] = {
-                        text = sEmptyText,
-                        textColor = sEmptyTextColor,
-                        backgroundColor = sEmptyBackgroundColor,
-                    }
+                    tNewLines[y] = { sEmptyText, sEmptyTextColor, sEmptyBackgroundColor }
                 else
                     local tOldLine = tLines[y]
                     if new_width == nWidth then
                         tNewLines[y] = tOldLine
                     elseif new_width < nWidth then
                         tNewLines[y] = {
-                            text = string_sub(tOldLine.text, 1, new_width),
-                            textColor = string_sub(tOldLine.textColor, 1, new_width),
-                            backgroundColor = string_sub(tOldLine.backgroundColor, 1, new_width),
+                            string_sub(tOldLine[1], 1, new_width),
+                            string_sub(tOldLine[2], 1, new_width),
+                            string_sub(tOldLine[3], 1, new_width),
                         }
                     else
                         tNewLines[y] = {
-                            text = tOldLine.text .. string_sub(sEmptyText, nWidth + 1, new_width),
-                            textColor = tOldLine.textColor .. string_sub(sEmptyTextColor, nWidth + 1, new_width),
-                            backgroundColor = tOldLine.backgroundColor .. string_sub(sEmptyBackgroundColor, nWidth + 1, new_width),
+                            tOldLine[1] .. string_sub(sEmptyText, nWidth + 1, new_width),
+                            tOldLine[2] .. string_sub(sEmptyTextColor, nWidth + 1, new_width),
+                            tOldLine[3] .. string_sub(sEmptyBackgroundColor, nWidth + 1, new_width),
                         }
                     end
                 end
