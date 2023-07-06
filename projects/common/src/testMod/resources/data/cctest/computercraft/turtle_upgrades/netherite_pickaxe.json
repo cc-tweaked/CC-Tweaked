@@ -1,0 +1,6 @@
+{
+    "type": "computercraft:tool",
+    "item": "minecraft:netherite_pickaxe",
+    "allowEnchantments": true,
+    "consumeDurability": "when_enchanted"
+}

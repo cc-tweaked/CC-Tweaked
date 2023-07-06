@@ -6,7 +6,6 @@ package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.turtle.*;
-import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
@@ -46,31 +45,33 @@ import static net.minecraft.nbt.Tag.TAG_COMPOUND;
 import static net.minecraft.nbt.Tag.TAG_LIST;
 
 public class TurtleTool extends AbstractTurtleUpgrade {
-    protected static final TurtleCommandResult UNBREAKABLE = TurtleCommandResult.failure("Cannot break unbreakable block");
-    protected static final TurtleCommandResult INEFFECTIVE = TurtleCommandResult.failure("Cannot break block with this tool");
+    private static final TurtleCommandResult UNBREAKABLE = TurtleCommandResult.failure("Cannot break unbreakable block");
+    private static final TurtleCommandResult INEFFECTIVE = TurtleCommandResult.failure("Cannot break block with this tool");
+
+    private static final String TAG_ITEM_TAG = "Tag";
 
     final ItemStack item;
     final float damageMulitiplier;
-    final boolean allowsEnchantments;
-    final TurtleToolDurability consumesDurability;
+    final boolean allowEnchantments;
+    final TurtleToolDurability consumeDurability;
     final @Nullable TagKey<Block> breakable;
 
     public TurtleTool(
         ResourceLocation id, String adjective, Item craftItem, ItemStack toolItem, float damageMulitiplier,
-        boolean allowsEnchantments, TurtleToolDurability consumesDurability, @Nullable TagKey<Block> breakable
+        boolean allowEnchantments, TurtleToolDurability consumeDurability, @Nullable TagKey<Block> breakable
     ) {
         super(id, TurtleUpgradeType.TOOL, adjective, new ItemStack(craftItem));
         item = toolItem;
         this.damageMulitiplier = damageMulitiplier;
-        this.allowsEnchantments = allowsEnchantments;
-        this.consumesDurability = consumesDurability;
+        this.allowEnchantments = allowEnchantments;
+        this.consumeDurability = consumeDurability;
         this.breakable = breakable;
     }
 
     @Override
     public boolean isItemSuitable(ItemStack stack) {
-        if (consumesDurability == TurtleToolDurability.NEVER && stack.isDamaged()) return false;
-        if (!allowsEnchantments && isEnchanted(stack)) return false;
+        if (consumeDurability == TurtleToolDurability.NEVER && stack.isDamaged()) return false;
+        if (!allowEnchantments && isEnchanted(stack)) return false;
         return true;
     }
 
@@ -86,32 +87,34 @@ public class TurtleTool extends AbstractTurtleUpgrade {
 
     @Override
     public CompoundTag getUpgradeData(ItemStack stack) {
-        // Just use the current item's tag.
+        var upgradeData = super.getUpgradeData(stack);
+
+        // Store the item's current tag.
         var itemTag = stack.getTag();
-        return itemTag == null ? new CompoundTag() : itemTag;
+        if (itemTag != null) upgradeData.put(TAG_ITEM_TAG, itemTag);
+
+        return upgradeData;
     }
 
     @Override
     public ItemStack getUpgradeItem(CompoundTag upgradeData) {
         // Copy upgrade data back to the item.
-        var item = super.getUpgradeItem(upgradeData);
-        if (!upgradeData.isEmpty()) item.setTag(upgradeData);
+        var item = super.getUpgradeItem(upgradeData).copy();
+        item.setTag(upgradeData.contains(TAG_ITEM_TAG, TAG_COMPOUND) ? upgradeData.getCompound(TAG_ITEM_TAG).copy() : null);
         return item;
     }
 
     private ItemStack getToolStack(ITurtleAccess turtle, TurtleSide side) {
-        var item = getCraftingItem();
-        var tag = turtle.getUpgradeNBTData(side);
-        if (!tag.isEmpty()) item.setTag(tag);
-        return item.copy();
+        return getUpgradeItem(turtle.getUpgradeNBTData(side));
     }
 
     private void setToolStack(ITurtleAccess turtle, TurtleSide side, ItemStack stack) {
-        var tag = turtle.getUpgradeNBTData(side);
+        var upgradeData = turtle.getUpgradeNBTData(side);
 
-        var useDurability = switch (consumesDurability) {
+        var useDurability = switch (consumeDurability) {
             case NEVER -> false;
-            case WHEN_ENCHANTED -> isEnchanted(tag);
+            case WHEN_ENCHANTED ->
+                upgradeData.contains(TAG_ITEM_TAG, TAG_COMPOUND) && isEnchanted(upgradeData.getCompound(TAG_ITEM_TAG));
             case ALWAYS -> true;
         };
         if (!useDurability) return;
@@ -128,13 +131,12 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         var itemTag = stack.getTag();
 
         // Early return if the item hasn't changed to avoid redundant syncs with the client.
-        if ((itemTag == null && tag.isEmpty()) || Objects.equals(itemTag, tag)) return;
+        if (Objects.equals(itemTag, upgradeData.get(TAG_ITEM_TAG))) return;
 
         if (itemTag == null) {
-            tag.getAllKeys().clear();
+            upgradeData.remove(TAG_ITEM_TAG);
         } else {
-            for (var key : itemTag.getAllKeys()) tag.put(key, Nullability.assertNonNull(itemTag.get(key)));
-            tag.getAllKeys().removeIf(x -> !itemTag.contains(x));
+            upgradeData.put(TAG_ITEM_TAG, itemTag);
         }
 
         turtle.updateUpgradeNBTData(side);

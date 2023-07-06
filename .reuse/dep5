@@ -6,6 +6,7 @@ Upstream-Contact: Jonathan Coates <git@squiddev.cc>
 Files:
   projects/common/src/main/resources/assets/computercraft/sounds.json
   projects/common/src/main/resources/assets/computercraft/sounds/empty.ogg
+  projects/common/src/testMod/resources/data/cctest/computercraft/turtle_upgrades/*
   projects/common/src/testMod/resources/data/cctest/structures/*
   projects/fabric/src/generated/*
   projects/forge/src/generated/*
