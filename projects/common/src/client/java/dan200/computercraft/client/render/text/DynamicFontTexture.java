@@ -2,6 +2,7 @@ package dan200.computercraft.client.render.text;
 
 import com.mojang.blaze3d.font.GlyphInfo;
 import com.mojang.blaze3d.font.SheetGlyphInfo;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -9,7 +10,6 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.gui.font.glyphs.SpecialGlyphs;
 import net.minecraft.client.renderer.texture.AbstractTexture;
@@ -44,7 +44,7 @@ public class DynamicFontTexture extends AbstractTexture {
             currentSize = MathUtil.mathRoundPoT(size);
         }
         TextureUtil.prepareImage(NativeImage.InternalGlFormat.RGBA, getId(), currentSize, currentSize);
-        rootNode = new TextureSlotNode(null, 0, 0, currentSize, currentSize);
+        rootNode = new TextureSlotNode(0, 0, currentSize, currentSize);
         var whiteImage = new NativeImage(NativeImage.Format.RGBA, 6, 9, false);
         whiteImage.fillRect(0, 0, 6, 9, -1);
         whiteImage.untrack();
@@ -137,6 +137,8 @@ public class DynamicFontTexture extends AbstractTexture {
         RenderSystem.assertOnRenderThreadOrInit();
         if(desiredSize > currentSize){
             desiredSize = MathUtil.mathRoundPoT(desiredSize);
+            int maxSize = GlStateManager._getInteger(GL11.GL_MAX_TEXTURE_SIZE);
+            if(desiredSize > maxSize) return; // prevent exceeding hardware's limit
             if(GL.getCapabilities().GL_ARB_copy_image || GL.getCapabilities().OpenGL43){
                 var newId = TextureUtil.generateTextureId();
                 TextureUtil.prepareImage(NativeImage.InternalGlFormat.RGBA, newId, desiredSize, desiredSize);
@@ -153,10 +155,13 @@ public class DynamicFontTexture extends AbstractTexture {
                 TextureUtil.prepareImage(NativeImage.InternalGlFormat.RGBA, getId(), desiredSize, desiredSize);
                 GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, currentSize, currentSize, NativeImage.InternalGlFormat.RGBA.glFormat(), GL11.GL_UNSIGNED_BYTE, buf);
             }
+            var newRootNode = new TextureSlotNode(0, 0, desiredSize, desiredSize);
+            newRootNode.topLeft = rootNode;
+            newRootNode.topRight = new TextureSlotNode(currentSize, 0, currentSize, currentSize);
+            newRootNode.bottomLeft = new TextureSlotNode(0, currentSize, currentSize, currentSize);
+            newRootNode.bottomRight = new TextureSlotNode(currentSize, currentSize, currentSize, currentSize);
+            rootNode = newRootNode;
             currentSize = desiredSize;
-            rootNode.width = currentSize;
-            rootNode.height = currentSize;
-            rootNode.recomputeNodeDimension();
         }
     }
 
@@ -173,18 +178,20 @@ public class DynamicFontTexture extends AbstractTexture {
         int height;
 
         @Nullable
-        TextureSlotNode parent;
+        TextureSlotNode topLeft;
 
         @Nullable
-        TextureSlotNode left;
+        TextureSlotNode bottomLeft;
 
         @Nullable
-        TextureSlotNode right;
+        TextureSlotNode topRight;
+
+        @Nullable
+        TextureSlotNode bottomRight;
 
         boolean occupied = false;
 
-        TextureSlotNode(@Nullable TextureSlotNode parent, int x, int y, int width, int height){
-            this.parent = parent;
+        TextureSlotNode(int x, int y, int width, int height){
             this.x = x;
             this.y = y;
             this.width = width;
@@ -198,52 +205,34 @@ public class DynamicFontTexture extends AbstractTexture {
                 var glyphW = info.getPixelWidth();
                 var glyphH = info.getPixelHeight();
                 if (glyphW > width || glyphH > height) return null; // cannot fit the glyph
-                if(this.left != null && this.right != null){
-                    var result = this.left.insert(info);
-                    if(result == null) return this.right.insert(info);
+                if(this.topLeft != null){ // if top-left child is initialized, we've already split this node
+                    var result = this.topLeft.insert(info);
+                    if(result == null && this.topRight != null) result = this.topRight.insert(info);
+                    if(result == null && this.bottomLeft != null) result = this.bottomLeft.insert(info);
+                    if(result == null && this.bottomRight != null) result = this.bottomRight.insert(info);
                     return result;
-                }
-                else if (glyphW == width && glyphH == height) {
-                    occupied = true;
-                    return this;
                 } else {
-                    int remainW = width - glyphW;
-                    int remainH = height - glyphH;
-                    // always cut out part with larger dimension, and the left node is always the smaller part
-                    if (remainW > remainH) {
-                        this.left = new TextureSlotNode(this, this.x, this.y, glyphW, this.height);
-                        this.right = new TextureSlotNode(this, this.x + glyphW + 1, this.y, remainW - 1, this.height);
-                    } else {
-                        this.left = new TextureSlotNode(this, this.x, this.y, this.width, glyphH);
-                        this.right = new TextureSlotNode(this, this.x, this.y + glyphH + 1, this.width, remainH - 1);
+                    if(this.width != this.height){
+                        // non-square node must not be split.
+                        occupied = true;
+                        return this;
                     }
-                    return this.left.insert(info);
-                }
-            }
-        }
-
-        void recomputeNodeDimension(){
-            if(this.left != null && this.right != null){
-                boolean updated = false;
-                if(this.left.width == this.right.width){
-                    this.left.width = width;
-                    this.right.width = width;
-                    updated = true;
-                }else if(this.left.width + this.right.width != this.width - 1){
-                    this.right.width = this.width - this.left.width - 1;
-                    updated = true;
-                }
-                if(this.left.height == this.right.height){
-                    this.left.height = height;
-                    this.right.height = height;
-                    updated = true;
-                }else if(this.left.height + this.right.height != this.height - 1){
-                    this.right.height = this.height - this.left.height - 1;
-                    updated = true;
-                }
-                if(updated){
-                    this.left.recomputeNodeDimension();
-                    this.right.recomputeNodeDimension();
+                    int halfSize = width / 2;
+                    if(glyphW <= halfSize && glyphH > halfSize){
+                        this.topLeft = new TextureSlotNode(this.x, this.y, halfSize, this.height);
+                        this.topRight = new TextureSlotNode(this.x + halfSize, this.y, halfSize, this.height);
+                    }
+                    else if(glyphW > halfSize && glyphH <= halfSize){
+                        this.topLeft = new TextureSlotNode(this.x, this.y, this.width, halfSize);
+                        this.bottomLeft = new TextureSlotNode(this.x, this.y + halfSize, this.width, halfSize);
+                    }
+                    else{
+                        this.topLeft = new TextureSlotNode(this.x, this.y, halfSize, halfSize);
+                        this.bottomLeft = new TextureSlotNode(this.x, this.y + halfSize, halfSize, halfSize);
+                        this.topRight = new TextureSlotNode(this.x + halfSize, this.y, halfSize, halfSize);
+                        this.bottomRight = new TextureSlotNode(this.x + halfSize, this.y + halfSize, halfSize, halfSize);
+                    }
+                    return this.topLeft.insert(info);
                 }
             }
         }
