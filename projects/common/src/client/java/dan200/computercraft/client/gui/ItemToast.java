@@ -100,9 +100,9 @@ public class ItemToast implements Toast {
             graphics.renderFakeItem(stack, MARGIN, MARGIN + height() / 2 - IMAGE_SIZE);
         }
 
-        graphics.drawString(component.getMinecraft().font, title, textX, MARGIN, 0xff500050);
+        graphics.drawString(component.getMinecraft().font, title, textX, MARGIN, 0xff500050, false);
         for (var i = 0; i < message.size(); ++i) {
-            graphics.drawString(component.getMinecraft().font, message.get(i), textX, LINE_SPACING + (i + 1) * LINE_SPACING, 0xff000000);
+            graphics.drawString(component.getMinecraft().font, message.get(i), textX, LINE_SPACING + (i + 1) * LINE_SPACING, 0xff000000, false);
         }
 
         return time - firstDisplay < DISPLAY_TIME ? Visibility.SHOW : Visibility.HIDE;
