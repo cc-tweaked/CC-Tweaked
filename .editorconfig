@@ -8,5 +8,12 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
+ij_continuation_indent_size = 4
+
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+ij_kotlin_method_parameters_wrap = off
+ij_kotlin_call_parameters_wrap = off
+
 [*.md]
 trim_trailing_whitespace = false

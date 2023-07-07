@@ -12,28 +12,27 @@ We then build each branch, push changes, and upload all versions.
 import argparse
 import os
 import os.path
-import pathlib
-import regex
-import shutil
 import subprocess
 import sys
-import xml.etree.ElementTree as ET
 from dataclasses import dataclass
-from textwrap import dedent
 from typing import List, Optional
 
 
 @dataclass
 class Branch:
     name: str
+    java: str
     parent: Optional[str] = None
-    java: str = "1.8"
 
 
 BRANCHES: List[Branch] = [
-    Branch('mc-1.16.x'),
-    Branch('mc-1.18.x', parent='mc-1.16.x', java="17"),
-    Branch('mc-1.19.x', parent='mc-1.18.x', java="17"),
+    # Legacy branches
+    Branch("mc-1.16.x", java="1.8"),
+    Branch("mc-1.18.x", parent="mc-1.16.x", java="17"),
+    Branch("mc-1.19.2", parent="mc-1.18.x", java="17"),
+    # New branches
+    Branch("mc-1.19.x", java="17"),
+    Branch("mc-1.20.x", parent="mc-1.19.x", java="17"),
 ]
 
 
@@ -54,9 +53,7 @@ def run_in(branch: Branch, *cmd: str, **kwargs) -> subprocess.CompletedProcess:
 
 def setup() -> None:
     """
-    Setup the repository suitable for working with multiple versions. Namely:
-    - Register all remotes.
-    - Copy gradle files from the default branch.
+    Setup the repository suitable for working with multiple versions.
     """
     # Update git remote.
     log("Updating from remotes")
@@ -67,98 +64,6 @@ def setup() -> None:
         if not os.path.isdir(branch.name):
             log(f"Creating worktree for {branch.name}")
             subprocess.check_call(["git", "worktree", "add", branch.name, branch.name])
-
-    # Setup gradle.
-    log("Setting up gradle project")
-    for file in ["gradle", "gradlew", "gradlew.bat"]:
-        src = f"{BRANCHES[0].name}/{file}"
-        if os.path.isdir(src):
-            shutil.copytree(src, file, dirs_exist_ok=True)
-        else:
-            shutil.copy2(src, file)
-
-    with open("settings.gradle.kts", "w") as h:
-        h.write(dedent("""\
-        pluginManagement {
-            repositories {
-                gradlePluginPortal()
-                maven("https://maven.minecraftforge.net")
-                maven("https://maven.parchmentmc.org")
-            }
-            resolutionStrategy {
-                eachPlugin {
-                    if (requested.id.id == "org.spongepowered.mixin") {
-                        useModule("org.spongepowered:mixingradle:${requested.version}")
-                    }
-                }
-            }
-        }
-
-        rootProject.name = "cc-tweaked"
-        """))
-        for branch in BRANCHES:
-            h.write(f"include(\"{branch.name}\")\n")
-
-    with open("build.gradle.kts", "w") as h:
-        pass
-
-    log("Installing npm packages")
-    for branch in BRANCHES:
-        if not os.path.isdir(os.path.join(branch.name, "node_modules")):
-            run_in(branch, "npm", "ci")
-
-
-def gen_runs() -> None:
-    """
-    Generate .idea run files
-    """
-    setup()
-
-    gen_command = ["./gradlew", "--no-daemon"]
-    for branch in BRANCHES:
-        gen_command.append(f"{branch.name}:genIntellijRuns")
-    subprocess.check_call(gen_command)
-
-    re = regex.compile(r"(mc-.*)_run(.*)\.xml")
-    for path in pathlib.Path(".idea/runConfigurations").glob("*.xml"):
-        group = re.match(path.name)
-        if not group:
-            continue
-        version, name = group[1], group[2]
-
-        for branch in BRANCHES:
-            if branch.name == version:
-                break
-        else:
-            print(f"Cannot find Java for version for {path}")
-            continue
-
-        component = 'testMod' if name.startswith('Test') else 'main'
-        xml = ET.parse(path)
-
-        # Put run configurations in folders
-        configuration = xml.find("./configuration")
-        if configuration:
-            configuration.set("folderName", version)
-
-        # Ensure they're linked to the right CC:T version
-        module = xml.find("./configuration/module")
-        if module is None:
-            print("Unknown module for " + path.name)
-        else:
-            module.set("name", f"cc-tweaked.{version}.{component}")
-
-        # Force a specific JDK version
-        version = xml.find("./configuration/option[@name='ALTERNATIVE_JRE_PATH']")
-        if version:
-            version.set("value", branch.java)
-        else:
-            root = xml.find("./configuration")
-            assert root
-            ET.SubElement(root, 'option', {'name': 'ALTERNATIVE_JRE_PATH', 'value': branch.java})
-            ET.SubElement(root, 'option', {'name': 'ALTERNATIVE_JRE_PATH_ENABLED', 'value': 'true'})
-
-        xml.write(path)
 
 
 def check_git() -> None:
@@ -177,7 +82,11 @@ def check_git() -> None:
             ok = False
             continue
 
-        actual_branch = git_in(branch, "rev-parse", "--abbrev-ref", "HEAD", check=True, stdout=subprocess.PIPE).stdout.decode("utf-8").strip()
+        actual_branch = (
+            git_in(branch, "rev-parse", "--abbrev-ref", "HEAD", check=True, stdout=subprocess.PIPE)
+            .stdout.decode("utf-8")
+            .strip()
+        )
         if actual_branch != branch.name:
             log(f"{branch.name} is actually on {actual_branch} right now")
             ok = False
@@ -201,8 +110,8 @@ def build() -> None:
     # Merge each branch into the next one.
     for branch in BRANCHES:
         if (
-            branch.parent is not None and
-            git_in(branch, "merge-base", "--is-ancestor", branch.parent, branch.name).returncode != 0
+            branch.parent is not None
+            and git_in(branch, "merge-base", "--is-ancestor", branch.parent, branch.name).returncode != 0
         ):
             log(f"{branch.name} is not up-to-date with {branch.parent}.")
             ret = git_in(branch, "merge", "--no-edit", branch.parent).returncode
@@ -224,14 +133,18 @@ def release() -> None:
     """Publish releases for each version."""
     build()
 
-    check = input("Are you sure you want to release? Make sure you've performed some manual checks first! [y/N]").lower().strip()
+    check = (
+        input("Are you sure you want to release? Make sure you've performed some manual checks first! [y/N]")
+        .lower()
+        .strip()
+    )
     if check != "y":
         sys.exit(1)
 
-    subprocess.check_call(["git", "push",  "origin", *(b.name for b in BRANCHES)])
+    subprocess.check_call(["git", "push", "origin", *(b.name for b in BRANCHES)])
     for branch in BRANCHES:
         log(f"Uploading {branch.name}")
-        ret = run_in(branch, "./gradlew", "uploadAll", "--no-daemon").returncode
+        ret = run_in(branch, "./gradlew", "publish", "--no-daemon").returncode
         if ret != 0:
             log(f"Upload failed. Good luck in recovering from this!")
             sys.exit(ret)
@@ -248,12 +161,14 @@ def main() -> None:
         required=True,
     )
     subparsers.add_parser("setup", help="Setup the git repository and build environment.").set_defaults(func=setup)
-    subparsers.add_parser("gen-runs", help="Generate IntelliJ IDEA run configurations.").set_defaults(func=gen_runs)
-    subparsers.add_parser("check-git", help="Check the git worktrees are in a state ready for merging.").set_defaults(func=check_git)
+    subparsers.add_parser("check-git", help="Check the git worktrees are in a state ready for merging.").set_defaults(
+        func=check_git
+    )
     subparsers.add_parser("build", help="Merge and build all branches.").set_defaults(func=build)
     subparsers.add_parser("release", help="Publish a release.").set_defaults(func=release)
 
     parser.parse_args().func()
+
 
 if __name__ == "__main__":
     main()

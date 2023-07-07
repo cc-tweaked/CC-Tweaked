@@ -1,7 +1,9 @@
-# Minecraft/loader versions
+# Work trees
 /mc-*
+/license-tools
 
 # Build output
+/buildSrc
 /.idea
 /.gradle
 /logs
