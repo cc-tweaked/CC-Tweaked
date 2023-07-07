@@ -58,7 +58,7 @@ public class MethodTest {
 
     @Test
     public void testExtra() {
-        ComputerBootstrap.run("assert(extra.go, 'go')\nassert(extra.go2, 'go2')",
+        ComputerBootstrap.run("assert(extra.go() == nil, 'go')\nassert(extra.go2() == 456, 'go2')",
             x -> x.addApi(new ExtraObject()),
             50);
     }
@@ -163,7 +163,8 @@ public class MethodTest {
         }
 
         @LuaFunction
-        public final void go2() {
+        public final int go2() {
+            return 456;
         }
 
         @Override
