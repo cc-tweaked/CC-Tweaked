@@ -37,9 +37,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.LevelResource;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.entries.LootTableReference;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -95,10 +92,8 @@ public class ComputerCraft {
         UseBlockCallback.EVENT.register(FabricCommonHooks::useOnBlock);
 
         LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
-            if (!id.getNamespace().equals("minecraft") || !CommonHooks.TREASURE_DISK_LOOT_TABLES.contains(id)) return;
-            tableBuilder.withPool(LootPool.lootPool()
-                .add(LootTableReference.lootTableReference(CommonHooks.TREASURE_DISK_LOOT))
-                .setRolls(ConstantValue.exactly(1)));
+            var pool = CommonHooks.getExtraLootPool(id);
+            if (pool != null) tableBuilder.withPool(pool);
         });
 
         CommonHooks.onDatapackReload((name, listener) -> ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new ReloadListener(name, listener)));

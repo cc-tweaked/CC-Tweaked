@@ -9,7 +9,7 @@
 # Remember to update corresponding versions in fabric.mod.json/mods.toml
 fabric-api = "0.83.1+1.20.1"
 fabric-loader = "0.14.21"
-forge = "47.0.1"
+forge = "47.1.0"
 forgeSpi = "6.0.0"
 mixin = "0.8.5"
 parchment = "2023.03.12"
