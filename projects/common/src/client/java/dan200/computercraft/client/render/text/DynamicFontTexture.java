@@ -127,7 +127,7 @@ public class DynamicFontTexture extends AbstractTexture {
             }
             bind();
             sheetGlyphInfo.upload(assignedNode.x, assignedNode.y);
-            regGlyphWrapper[0] = new RegisteredGlyph(assignedNode.x, assignedNode.y, assignedNode.x + assignedNode.width, assignedNode.y + assignedNode.height);
+            regGlyphWrapper[0] = new RegisteredGlyph(assignedNode.x, assignedNode.y, assignedNode.x + sheetGlyphInfo.getPixelWidth(), assignedNode.y + sheetGlyphInfo.getPixelHeight());
             return null;
         });
         return regGlyphWrapper[0];
@@ -144,7 +144,7 @@ public class DynamicFontTexture extends AbstractTexture {
                 TextureUtil.prepareImage(NativeImage.InternalGlFormat.RGBA, newId, desiredSize, desiredSize);
                 ARBCopyImage.glCopyImageSubData(id, GL11.GL_TEXTURE_2D, 0, 0, 0, 0,
                     newId, GL11.GL_TEXTURE_2D, 0, 0, 0, 0,
-                    currentSize, currentSize, 0);
+                    currentSize, currentSize, 1);
                 TextureUtil.releaseTextureId(id);
                 this.id = newId;
             }
@@ -218,11 +218,15 @@ public class DynamicFontTexture extends AbstractTexture {
                         return this;
                     }
                     int halfSize = width / 2;
+                    if(glyphW > halfSize && glyphH > halfSize){
+                        occupied = true;
+                        return this;
+                    }
                     if(glyphW <= halfSize && glyphH > halfSize){
                         this.topLeft = new TextureSlotNode(this.x, this.y, halfSize, this.height);
                         this.topRight = new TextureSlotNode(this.x + halfSize, this.y, halfSize, this.height);
                     }
-                    else if(glyphW > halfSize && glyphH <= halfSize){
+                    else if(glyphW > halfSize){
                         this.topLeft = new TextureSlotNode(this.x, this.y, this.width, halfSize);
                         this.bottomLeft = new TextureSlotNode(this.x, this.y + halfSize, this.width, halfSize);
                     }
