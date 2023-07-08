@@ -1,6 +1,12 @@
 local expect = (require and require("cc.expect") or dofile("rom/modules/main/cc/expect.lua")).expect
 local utflib = (require and require("cc.utflib") or dofile("rom/modules/main/cc/utflib.lua"))
-local u = utflib.UTFString
+
+local function twrite(sText)
+    if not utflib.isUTFString(sText) then
+        expect(1, sText, "UTFString") -- type(sText) == "UTFString" should never happened. Just use for triggering errors
+    end
+    term._writeutf8(tostring(sText))
+end
 
 local function writeutf8(sText, targetTerm)
     if not utflib.isUTFString(sText) then
@@ -157,9 +163,9 @@ local function readutf8(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
         term.setCursorPos(sx, cy)
         local sReplace = _bClear and " " or _sReplaceChar
         if sReplace then
-            writeutf8(sReplace:rep(math.max(#sLine - nScroll, 0)))
+            term._writeutf8(sReplace:rep(math.max(#sLine - nScroll, 0)))
         else
-            writeutf8(sLine:sub(nScroll + 1))
+            term._writeutf8(sLine:sub(nScroll + 1))
         end
 
         if nCompletion then
@@ -172,9 +178,9 @@ local function readutf8(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
                 term.setBackgroundColor(colors.gray)
             end
             if sReplace then
-                writeutf8(sReplace:rep(#sCompletion))
+                term._writeutf8(sReplace:rep(#sCompletion))
             else
-                writeutf8(sCompletion)
+                term._writeutf8(sCompletion)
             end
             if not _bClear then
                 term.setTextColor(oldText)
@@ -377,6 +383,7 @@ end
 
 
 return {
+    twrite = twrite,
     write = writeutf8,
     print = printutf8,
     printError = printErrorutf8,

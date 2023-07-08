@@ -53,8 +53,8 @@ else
     errorColour = colours.white
 end
 
-local utflib = dofile("rom/modules/main/cc/utflib.lua")
-local uterm = dofile("rom/modules/main/cc/utflib/term.lua")
+local utflib = (require and require("cc.utflib") or dofile("rom/modules/main/cc/utflib.lua"))
+local uterm = (require and require("cc.utflib.term") or dofile("rom/modules/main/cc/utflib/term.lua"))
 local unicodeMode = settings.get("edit.unicode")
 
 local runHandler = [[multishell.setTitle(multishell.getCurrent(), %q)
@@ -140,7 +140,8 @@ local function load(_sPath)
         local file = io.open(_sPath, "r")
         local sLine = file:read()
         while sLine do
-            table.insert(tLines, sLine)
+            if unicodeMode then table.insert(tLines, utflib.UTFString(sLine))
+            else table.insert(tLines, sLine) end
             sLine = file:read()
         end
         file:close()
@@ -210,7 +211,7 @@ local function tryWrite(sLine, regex, colour)
         else
             term.setTextColour(colour(match))
         end
-        if utflib.isUTFString(match) then uterm.write(match)
+        if utflib.isUTFString(match) then uterm.twrite(match)
         else term.write(match) end
         term.setTextColour(textColour)
         return sLine:sub(#match + 1)
@@ -249,9 +250,7 @@ local function complete(sLine)
             sLine = sLine:sub(nStartPos)
         end
         if #sLine > 0 then
-            if utflib.isUTFString(sLine) then
-                return utflib.UTFString(textutils.complete(tostring(sLine), tCompleteEnv))
-            else return textutils.complete(sLine, tCompleteEnv) end
+            return textutils.complete(tostring(sLine), tCompleteEnv)
         end
     end
     return nil
@@ -470,7 +469,15 @@ local tMenuFuncs = {
             return
         end
         local ok = save(sTempPath, function(file)
-            file.write(runHandler:format(sTitle, table.concat(tLines, "\n"), "@/" .. sPath))
+            tmpLines = {}
+            if unicodeMode then
+                for _, sLine in ipairs(tLines) do
+                    table.insert(tmpLines, tostring(sLine))
+                end
+            else
+                tmpLines = tLines
+            end
+            file.write(runHandler:format(sTitle, table.concat(tmpLines, "\n"), "@/" .. sPath))
         end)
         if ok then
             local nTask = shell.openTab("/" .. sTempPath)
