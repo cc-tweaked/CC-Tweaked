@@ -1,3 +1,9 @@
+# New features in CC: Tweaked 1.106.1
+
+Several bug fixes:
+* Block the CGNAT range (100.64.0.0/10) by default.
+* Fix conflicts with other mods replacing reach distance.
+
 # New features in CC: Tweaked 1.106.0
 
 * Numerous documentation improvements (MCJack123, znepb, penguinencounter).
