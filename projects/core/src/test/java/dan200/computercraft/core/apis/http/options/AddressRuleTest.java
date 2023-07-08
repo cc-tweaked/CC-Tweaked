@@ -34,6 +34,8 @@ public class AddressRuleTest {
         "172.17.0.1", "192.168.1.114", "[0:0:0:0:0:ffff:c0a8:172]", "10.0.0.1",
         // Multicast
         "224.0.0.1", "ff02::1",
+        // CGNAT
+        "100.64.0.0", "100.127.255.255",
         // Cloud metadata providers
         "100.100.100.200", // Alibaba
         "192.0.0.192", // Oracle
@@ -42,6 +44,15 @@ public class AddressRuleTest {
     })
     public void blocksLocalDomains(String domain) {
         assertEquals(apply(CoreConfig.httpRules, domain, 80).action, Action.DENY);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        // Ensure either side of the CGNAT range is allowed.
+        "100.63.255.255", "100.128.0.0"
+    })
+    public void allowsNonLocalDomains(String domain) {
+        assertEquals(apply(CoreConfig.httpRules, domain, 80).action, Action.ALLOW);
     }
 
     private Options apply(Iterable<AddressRule> rules, String host, int port) {
