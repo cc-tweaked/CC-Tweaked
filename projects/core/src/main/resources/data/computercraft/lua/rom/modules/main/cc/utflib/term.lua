@@ -226,6 +226,7 @@ local function readutf8(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
         elseif sEvent == "pasteutf" then
             -- Pasted text
             clear()
+            param = utflib.UTFString(param)
             sLine = sLine:sub(1, nPos) .. param .. sLine:sub(nPos + 1)
             nPos = nPos + #param
             recomplete()

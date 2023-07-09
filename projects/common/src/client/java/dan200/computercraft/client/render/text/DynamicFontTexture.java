@@ -24,6 +24,7 @@ import org.lwjgl.system.MathUtil;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class DynamicFontTexture extends AbstractTexture {
@@ -117,17 +118,20 @@ public class DynamicFontTexture extends AbstractTexture {
     private RegisteredGlyph registerGlyph(GlyphInfo glyphInfo) {
         var regGlyphWrapper = new RegisteredGlyph[]{ null };
         glyphInfo.bake(sheetGlyphInfo -> {
-            var assignedNode = rootNode.insert(sheetGlyphInfo);
+            var offsetX = ((int) glyphInfo.getAdvance());
+            offsetX = offsetX + sheetGlyphInfo.getPixelWidth() <= 16 ? offsetX : 0;
+            var wrapper = new SheetGlyphInfoWrapper(sheetGlyphInfo, Optional.of(offsetX));
+            var assignedNode = rootNode.insert(wrapper);
             if (assignedNode == null) {
                 resize(currentSize * 2);
-                assignedNode = rootNode.insert(sheetGlyphInfo);
+                assignedNode = rootNode.insert(wrapper);
             }
             if (assignedNode == null) {
                 return null;
             }
             bind();
-            sheetGlyphInfo.upload(assignedNode.x, assignedNode.y);
-            regGlyphWrapper[0] = new RegisteredGlyph(assignedNode.x, assignedNode.y, assignedNode.x + sheetGlyphInfo.getPixelWidth(), assignedNode.y + sheetGlyphInfo.getPixelHeight());
+            sheetGlyphInfo.upload(assignedNode.x + offsetX / 2, assignedNode.y);
+            regGlyphWrapper[0] = new RegisteredGlyph(assignedNode.x, assignedNode.y, assignedNode.x + sheetGlyphInfo.getPixelWidth() + offsetX, assignedNode.y + sheetGlyphInfo.getPixelHeight());
             return null;
         });
         return regGlyphWrapper[0];
@@ -253,5 +257,41 @@ public class DynamicFontTexture extends AbstractTexture {
      */
     public record RegisteredGlyph (float u0, float v0, float u1, float v1){
 
+    }
+
+    static class SheetGlyphInfoWrapper implements SheetGlyphInfo{
+
+        private final SheetGlyphInfo backend;
+        private final Optional<Integer> optOffsetX;
+
+        SheetGlyphInfoWrapper(SheetGlyphInfo backend, Optional<Integer> optOffsetX){
+            this.backend = backend;
+            this.optOffsetX = optOffsetX;
+        }
+
+        @Override
+        public int getPixelWidth() {
+            return optOffsetX.orElse(0) + backend.getPixelWidth();
+        }
+
+        @Override
+        public int getPixelHeight() {
+            return backend.getPixelHeight();
+        }
+
+        @Override
+        public void upload(int i, int i1) {
+            backend.upload(i, i1);
+        }
+
+        @Override
+        public boolean isColored() {
+            return backend.isColored();
+        }
+
+        @Override
+        public float getOversample() {
+            return backend.getOversample();
+        }
     }
 }

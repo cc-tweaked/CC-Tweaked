@@ -50,6 +50,10 @@ public class TerminalFont {
         }
     }
 
+    public int getTextureSize(){
+        return fullTexture.getCurrentSize();
+    }
+
     public Vector4f getGlyphUv(int codepoint){
         var registeredGlyph = this.fullTexture.getGlyph(codepoint);
         return new Vector4f(registeredGlyph.u0() / this.fullTexture.getCurrentSize(),

@@ -42,6 +42,7 @@ print("Call exit() to exit.")
 term.setTextColour(colours.white)
 
 local unicodeMode = settings.get("lua.unicode")
+local ulib = require("cc.utflib")
 local write, print, printError, read
 if unicodeMode then
     local uterm = require("cc.utflib.term")
@@ -82,7 +83,7 @@ while running do
     end
 
     local name, offset = "=lua[" .. chunk_idx .. "]", 0
-
+    if ulib.isUTFString(input) then input = tostring(input) end
     local func, err = load(input, name, "t", tEnv)
     if load("return " .. input) then
         -- We wrap the expression with a call to _echo(...), which prevents tail

@@ -32,6 +32,7 @@ public class MonitorRenderState implements ClientMonitor.RenderState {
     private static final Set<MonitorRenderState> allMonitors = new HashSet<>();
 
     public long lastRenderFrame = -1;
+    public int lastFontTextureSize = -1;
     public @Nullable BlockPos lastRenderPos = null;
 
     public int tboBuffer;

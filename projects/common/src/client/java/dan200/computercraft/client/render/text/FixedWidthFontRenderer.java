@@ -70,19 +70,6 @@ public final class FixedWidthFontRenderer {
             emitter, x, y, x + FONT_WIDTH, y + FONT_HEIGHT, 0, colour,
             glyphUv.x(), glyphUv.y(), glyphUv.z(), glyphUv.w(), light
         );
-        if(false)
-        {
-            var column = index % 16;
-            var row = index / 16;
-
-            var xStart = 1 + column * (FONT_WIDTH + 2);
-            var yStart = 1 + row * (FONT_HEIGHT + 2);
-
-            quad(
-                emitter, x, y, x + FONT_WIDTH, y + FONT_HEIGHT, 0, colour,
-                xStart / WIDTH, yStart / WIDTH, (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH, light
-            );
-        }
     }
 
     public static void drawQuad(QuadEmitter emitter, float x, float y, float z, float width, float height, byte[] colour, int light) {

@@ -45,21 +45,17 @@ public final class DirectFixedWidthFontRenderer {
         // Short circuit to avoid the common case - the texture should be blank here after all.
         if (index == '\0' || index == ' ') return;
 
-        var column = index % 16;
-        var row = index / 16;
-
-        var xStart = 1 + column * (FONT_WIDTH + 2);
-        var yStart = 1 + row * (FONT_HEIGHT + 2);
-
+        var glyphUv = TerminalFont.getInstance().getGlyphUv(index);
         quad(
             emitter, x, y, x + FONT_WIDTH, y + FONT_HEIGHT, 0, colour,
-            xStart / WIDTH, yStart / WIDTH, (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH
+            glyphUv.x(), glyphUv.y(), glyphUv.z(), glyphUv.w()
         );
     }
 
     private static void drawQuad(QuadEmitter emitter, float x, float y, float width, float height, Palette palette, char colourIndex) {
         var colour = palette.getRenderColours(getColour(colourIndex, Colour.BLACK));
-        quad(emitter, x, y, x + width, y + height, 0f, colour, BACKGROUND_START, BACKGROUND_START, BACKGROUND_END, BACKGROUND_END);
+        var glyphUv = TerminalFont.getInstance().getWhiteGlyphUv();
+        quad(emitter, x, y, x + width, y + height, 0f, colour, glyphUv.x(), glyphUv.y(), glyphUv.z(), glyphUv.w());
     }
 
     private static void drawBackground(
@@ -99,7 +95,7 @@ public final class DirectFixedWidthFontRenderer {
             var colour = palette.getRenderColours(getColour(textColour.charAt(i), Colour.BLACK));
 
             int index = text.charAt(i);
-            if (index > 255) index = '?';
+//            if (index > 255) index = '?';
             drawChar(emitter, x + i * FONT_WIDTH, y, index, colour);
         }
 
