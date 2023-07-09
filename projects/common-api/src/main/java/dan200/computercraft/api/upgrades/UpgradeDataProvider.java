@@ -23,11 +23,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -166,6 +162,22 @@ public abstract class UpgradeDataProvider<T extends UpgradeBase, R extends Upgra
          */
         public void add(Consumer<Upgrade<R>> add) {
             add.accept(this);
+        }
+
+        /**
+         * Return a new {@link Upgrade} which requires the given mod to be present.
+         * <p>
+         * This uses mod-loader-specific hooks (Forge's crafting conditions and Fabric's resource conditions). If using
+         * this in a multi-loader setup, you must generate resources separately for the two loaders.
+         *
+         * @param modId The id of the mod.
+         * @return A new upgrade instance.
+         */
+        public Upgrade<R> requireMod(String modId) {
+            return new Upgrade<>(id, serialiser, json -> {
+                PlatformHelper.get().addRequiredModCondition(json, modId);
+                serialise.accept(json);
+            });
         }
     }
 }
