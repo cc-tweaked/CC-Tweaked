@@ -82,7 +82,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     private static boolean isEnchanted(@Nullable CompoundTag tag) {
         if (tag == null || tag.isEmpty()) return false;
         return (tag.contains(ItemStack.TAG_ENCH, TAG_LIST) && !tag.getList(ItemStack.TAG_ENCH, TAG_COMPOUND).isEmpty())
-               || (tag.contains("AttributeModifiers", TAG_LIST) && !tag.getList("AttributeModifiers", TAG_COMPOUND).isEmpty());
+            || (tag.contains("AttributeModifiers", TAG_LIST) && !tag.getList("AttributeModifiers", TAG_COMPOUND).isEmpty());
     }
 
     @Override
@@ -321,8 +321,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     }
 
     private static boolean isTriviallyBreakable(BlockGetter reader, BlockPos pos, BlockState state) {
-        return
-            state.is(ComputerCraftTags.Blocks.TURTLE_ALWAYS_BREAKABLE)
+        return state.is(ComputerCraftTags.Blocks.TURTLE_ALWAYS_BREAKABLE)
             // Allow breaking any "instabreak" block.
             || state.getDestroySpeed(reader, pos) == 0;
     }

@@ -31,6 +31,9 @@
         ],
         "rei_client": [
             "dan200.computercraft.client.integration.rei.REIComputerCraft"
+        ],
+        "emi": [
+            "dan200.computercraft.client.integration.emi.EMIComputerCraft"
         ]
     },
     "mixins": [

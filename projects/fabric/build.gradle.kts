@@ -47,6 +47,7 @@ addRemappedConfiguration("testWithSodium")
 addRemappedConfiguration("testWithIris")
 
 dependencies {
+    clientCompileOnly(variantOf(libs.emi) { classifier("api") })
     modImplementation(libs.bundles.externalMods.fabric)
     modCompileOnly(libs.bundles.externalMods.fabric.compile) {
         exclude("net.fabricmc", "fabric-loader")

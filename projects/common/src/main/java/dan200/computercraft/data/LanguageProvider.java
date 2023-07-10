@@ -6,6 +6,7 @@ package dan200.computercraft.data;
 
 import com.google.gson.JsonObject;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
 import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
 import dan200.computercraft.api.upgrades.UpgradeBase;
@@ -20,6 +21,7 @@ import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
@@ -96,6 +98,12 @@ public final class LanguageProvider implements DataProvider {
         add(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get().getDescriptionId() + ".upgraded", "%s Pocket Computer");
         add(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get(), "Advanced Pocket Computer");
         add(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get().getDescriptionId() + ".upgraded", "Advanced %s Pocket Computer");
+
+        // Tags (for EMI)
+        add(ComputerCraftTags.Items.COMPUTER, "Computers");
+        add(ComputerCraftTags.Items.TURTLE, "Turtles");
+        add(ComputerCraftTags.Items.WIRED_MODEM, "Wired modems");
+        add(ComputerCraftTags.Items.MONITOR, "Monitors");
 
         // Turtle/pocket upgrades
         add("upgrade.minecraft.diamond_sword.adjective", "Melee");
@@ -297,6 +305,10 @@ public final class LanguageProvider implements DataProvider {
 
     private void add(Metric metric, String text) {
         add(AggregatedMetric.TRANSLATION_PREFIX + metric.name() + ".name", text);
+    }
+
+    private void add(TagKey<Item> tag, String text) {
+        add("tag.item." + tag.location().getNamespace() + "." + tag.location().getPath(), text);
     }
 
     private void addConfigGroup(ConfigFile spec, String path, String text) {
