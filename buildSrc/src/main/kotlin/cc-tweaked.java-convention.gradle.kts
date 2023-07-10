@@ -56,13 +56,14 @@ repositories {
         if (fg != null) forRepositories(fg.repository)
 
         filter {
-            includeGroup("org.squiddev")
             includeGroup("cc.tweaked")
+            includeModule("org.squiddev", "Cobalt")
             // Things we mirror
             includeGroup("dev.architectury")
+            includeGroup("dev.emi")
             includeGroup("maven.modrinth")
-            includeGroup("me.shedaniel")
             includeGroup("me.shedaniel.cloth")
+            includeGroup("me.shedaniel")
             includeGroup("mezz.jei")
             includeModule("com.terraformersmc", "modmenu")
         }

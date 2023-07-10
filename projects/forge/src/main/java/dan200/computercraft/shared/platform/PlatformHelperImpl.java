@@ -5,6 +5,7 @@
 package dan200.computercraft.shared.platform;
 
 import com.google.auto.service.AutoService;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -32,6 +33,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -57,7 +59,9 @@ import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.conditions.ICondition;
+import net.minecraftforge.common.crafting.conditions.ModLoadedCondition;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -121,6 +125,17 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public boolean shouldLoadResource(JsonObject object) {
         return ICondition.shouldRegisterEntry(object);
+    }
+
+    @Override
+    public void addRequiredModCondition(JsonObject object, String modId) {
+        var conditions = GsonHelper.getAsJsonArray(object, "forge:conditions", null);
+        if (conditions == null) {
+            conditions = new JsonArray();
+            object.add("forge:conditions", conditions);
+        }
+
+        conditions.add(CraftingHelper.serialize(new ModLoadedCondition(modId)));
     }
 
     @Override

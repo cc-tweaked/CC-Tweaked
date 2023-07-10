@@ -19,8 +19,8 @@ parchmentMc = "1.19.3"
 asm = "9.3"
 autoService = "1.0.1"
 checkerFramework = "3.32.0"
-cobalt = "0.7.0"
-cobalt-next = "0.7.1" # Not a real version, used to constrain the version we accept.
+cobalt = "0.7.1"
+cobalt-next = "0.7.2" # Not a real version, used to constrain the version we accept.
 fastutil = "8.5.9"
 guava = "31.1-jre"
 jetbrainsAnnotations = "24.0.1"
@@ -33,6 +33,7 @@ nightConfig = "3.6.5"
 slf4j = "1.7.36"
 
 # Minecraft mods
+emi = "1.0.8+1.19.4"
 iris = "1.5.2+1.19.4"
 jei = "13.1.0.11"
 modmenu = "6.1.0-rc.1"
@@ -62,7 +63,7 @@ librarian = "1.+"
 minotaur = "2.+"
 mixinGradle = "0.7.+"
 nullAway = "0.9.9"
-quiltflower = "1.8.0"
+quiltflower = "1.10.0"
 spotless = "6.17.0"
 taskTree = "2.1.1"
 vanillaGradle = "0.2.1-SNAPSHOT"
@@ -92,6 +93,7 @@ slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 # Minecraft mods
 fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
+emi = { module = "dev.emi:emi-xplat-mojmap", version.ref = "emi" }
 iris = { module = "maven.modrinth:iris", version.ref = "iris" }
 jei-api = { module = "mezz.jei:jei-1.19.4-common-api", version.ref = "jei" }
 jei-fabric = { module = "mezz.jei:jei-1.19.4-fabric", version.ref = "jei" }
