@@ -28,9 +28,12 @@ function slowWrite(text, rate)
     if rate < 0 then
         error("Rate must be positive", 2)
     end
+    if not utflib.isUTFString(text) and type(text) ~= 'string' then
+        text = tostring(text)
+    end
     local to_sleep = 1 / rate
 
-    local wrapped_lines = wrap(tostring(text), (term.getSize()))
+    local wrapped_lines = wrap(text, (term.getSize()))
     local wrapped_str = table.concat(wrapped_lines, "\n")
 
     for n = 1, #wrapped_str do
@@ -180,10 +183,11 @@ local function tabulateCommon(bPaged, ...)
         if type(t) == "table" then
             for nu, sItem in pairs(t) do
                 local ty = type(sItem)
-                if ty ~= "string" and ty ~= "number" then
+                if not utflib.isUTFString(ty) and ty ~= "string" and ty ~= "number" then
                     error("bad argument #" .. n .. "." .. nu .. " (string expected, got " .. ty .. ")", 3)
                 end
-                nMaxLen = math.max(#tostring(sItem) + 1, nMaxLen)
+                sItem1 = ty == "number" and tostring(sItem) or sItem
+                nMaxLen = math.max(#sItem1 + 1, nMaxLen)
             end
         end
     end
@@ -898,22 +902,17 @@ unserialiseJSON = unserialise_json
 -- @usage print("https://example.com/?view=" .. textutils.urlEncode("some text&things"))
 -- @since 1.31
 function urlEncode(str)
-    expect(1, str, "string")
+    if not utflib.isUTFString(str) then
+        expect(1, str, "string")
+    end
     if str then
-        str = string.gsub(str, "\n", "\r\n")
-        str = string.gsub(str, "([^A-Za-z0-9 %-%_%.])", function(c)
+        str = tostring(utflib.fromLatin(str))
+        str = str:gsub("\n", "\r\n")
+        str = str:gsub("([^A-Za-z0-9 %-%_%.])", function(c)
             local n = string.byte(c)
-            if n < 128 then
-                -- ASCII
-                return string.format("%%%02X", n)
-            else
-                -- Non-ASCII (encode as UTF-8)
-                return
-                    string.format("%%%02X", 192 + bit32.band(bit32.arshift(n, 6), 31)) ..
-                    string.format("%%%02X", 128 + bit32.band(n, 63))
-            end
+            return string.format("%%%02X", n)
         end)
-        str = string.gsub(str, " ", "+")
+        str = str:gsub(" ", "+")
     end
     return str
 end
@@ -938,27 +937,29 @@ local tEmpty = {}
 -- @usage textutils.complete( "pa", _ENV )
 -- @since 1.74
 function complete(sSearchText, tSearchTable)
-    expect(1, sSearchText, "string")
+    if not utflib.isUTFString(sSearchText) then
+        expect(1, sSearchText, "string")
+    end
     expect(2, tSearchTable, "table", "nil")
 
-    if g_tLuaKeywords[sSearchText] then return tEmpty end
+    if g_tLuaKeywords[tostring(sSearchText)] then return tEmpty end
     local nStart = 1
-    local nDot = string.find(sSearchText, ".", nStart, true)
+    local nDot = sSearchText:find(".", nStart, true)
     local tTable = tSearchTable or _ENV
     while nDot do
-        local sPart = string.sub(sSearchText, nStart, nDot - 1)
+        local sPart = tostring(sSearchText:sub(nStart, nDot - 1))
         local value = tTable[sPart]
         if type(value) == "table" then
             tTable = value
             nStart = nDot + 1
-            nDot = string.find(sSearchText, ".", nStart, true)
+            nDot = sSearchText:find(".", nStart, true)
         else
             return tEmpty
         end
     end
-    local nColon = string.find(sSearchText, ":", nStart, true)
+    local nColon = sSearchText:find(":", nStart, true)
     if nColon then
-        local sPart = string.sub(sSearchText, nStart, nColon - 1)
+        local sPart = tostring(sSearchText:sub(nStart, nColon - 1))
         local value = tTable[sPart]
         if type(value) == "table" then
             tTable = value
@@ -968,7 +969,7 @@ function complete(sSearchText, tSearchTable)
         end
     end
 
-    local sPart = string.sub(sSearchText, nStart)
+    local sPart = sSearchText:sub(nStart)
     local nPartLength = #sPart
 
     local tResults = {}
@@ -976,9 +977,9 @@ function complete(sSearchText, tSearchTable)
     while tTable do
         for k, v in pairs(tTable) do
             if not tSeen[k] and type(k) == "string" then
-                if string.find(k, sPart, 1, true) == 1 then
-                    if not g_tLuaKeywords[k] and string.match(k, "^[%a_][%a%d_]*$") then
-                        local sResult = string.sub(k, nPartLength + 1)
+                if k:find(sPart, 1, true) == 1 then
+                    if not g_tLuaKeywords[k] and k:match("^[%a_][%a%d_]*$") then
+                        local sResult = k:sub(nPartLength + 1)
                         if nColon then
                             if type(v) == "function" then
                                 table.insert(tResults, sResult .. "(")

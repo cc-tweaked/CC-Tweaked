@@ -94,7 +94,9 @@ function sleep(nTime)
 end
 
 function write(sText)
-    expect(1, sText, "string", "number")
+    if not utflib.isUTFString(sText) then
+        expect(1, sText, "string", "number")
+    end
 
     local w, h = term.getSize()
     local x, y = term.getCursorPos()
@@ -112,26 +114,28 @@ function write(sText)
     end
 
     -- Print the line with proper word wrapping
-    sText = tostring(sText)
+    if not utflib.isUTFString(sText) then
+        sText = tostring(sText)
+    end
     while #sText > 0 do
-        local whitespace = string.match(sText, "^[ \t]+")
+        local whitespace = sText:match("^[ \t]+")
         if whitespace then
             -- Print whitespace
             term.write(whitespace)
             x, y = term.getCursorPos()
-            sText = string.sub(sText, #whitespace + 1)
+            sText = sText:sub(#whitespace + 1)
         end
 
-        local newline = string.match(sText, "^\n")
+        local newline = sText:match("^\n")
         if newline then
             -- Print newlines
             newLine()
-            sText = string.sub(sText, 2)
+            sText = sText:sub(2)
         end
 
-        local text = string.match(sText, "^[^ \t\n]+")
+        local text = sText:match("^[^ \t\n]+")
         if text then
-            sText = string.sub(sText, #text + 1)
+            sText = sText:sub(#text + 1)
             if #text > w then
                 -- Print a multiline word
                 while #text > 0 do
@@ -139,7 +143,7 @@ function write(sText)
                         newLine()
                     end
                     term.write(text)
-                    text = string.sub(text, w - x + 2)
+                    text = text:sub(w - x + 2)
                     x, y = term.getCursorPos()
                 end
             else
@@ -160,7 +164,8 @@ function print(...)
     local nLinesPrinted = 0
     local nLimit = select("#", ...)
     for n = 1, nLimit do
-        local s = tostring(select(n, ...))
+        local s = select(n, ...)
+        if not utflib.isUTFString(s) then s = tostring(s) end
         if n < nLimit then
             s = s .. "\t"
         end
@@ -182,16 +187,17 @@ function printError(...)
     end
 end
 
-function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
-    expect(1, _sReplaceChar, "string", "nil")
+function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault, _bReadUnicode)
+    if not utflib.isUTFString(_sReplaceChar) then expect(1, _sReplaceChar, "string", "nil") end
     expect(2, _tHistory, "table", "nil")
     expect(3, _fnComplete, "function", "nil")
-    expect(4, _sDefault, "string", "nil")
+    if not utflib.isUTFString(_sDefault) then expect(4, _sDefault, "string", "nil") end
+    expect(5, _bReadUnicode, "boolean", "nil")
 
     term.setCursorBlink(true)
 
     local sLine
-    if type(_sDefault) == "string" then
+    if type(_sDefault) ~= "nil" then
         sLine = _sDefault
     else
         sLine = ""
@@ -199,7 +205,7 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
     local nHistoryPos
     local nPos, nScroll = #sLine, 0
     if _sReplaceChar then
-        _sReplaceChar = string.sub(_sReplaceChar, 1, 1)
+        _sReplaceChar = _sReplaceChar:sub(1, 1)
     end
 
     local tCompletions
@@ -240,9 +246,9 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
         term.setCursorPos(sx, cy)
         local sReplace = _bClear and " " or _sReplaceChar
         if sReplace then
-            term.write(string.rep(sReplace, math.max(#sLine - nScroll, 0)))
+            term.write(sReplace:rep(math.max(#sLine - nScroll, 0)))
         else
-            term.write(string.sub(sLine, nScroll + 1))
+            term.write(sLine:sub(nScroll + 1))
         end
 
         if nCompletion then
@@ -255,7 +261,7 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
                 term.setBackgroundColor(colors.gray)
             end
             if sReplace then
-                term.write(string.rep(sReplace, #sCompletion))
+                term.write(sReplace:rep(#sCompletion))
             else
                 term.write(sCompletion)
             end
@@ -295,7 +301,7 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
         if sEvent == "char" then
             -- Typed key
             clear()
-            sLine = string.sub(sLine, 1, nPos) .. param .. string.sub(sLine, nPos + 1)
+            sLine = sLine:sub(1, nPos) .. (_bReadUnicode and utflib.UTFString(param1) or param) .. sLine:sub(nPos + 1)
             nPos = nPos + 1
             recomplete()
             redraw()
@@ -303,8 +309,9 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
         elseif sEvent == "paste" then
             -- Pasted text
             clear()
-            sLine = string.sub(sLine, 1, nPos) .. param .. string.sub(sLine, nPos + 1)
-            nPos = nPos + #param
+            local pastedText = (_bReadUnicode and utflib.UTFString(param1) or param)
+            sLine = sLine:sub(sLine, 1, nPos) .. pastedText .. sLine:sub(nPos + 1)
+            nPos = nPos + #pastedText
             recomplete()
             redraw()
 
@@ -394,7 +401,7 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
                 -- Backspace
                 if nPos > 0 then
                     clear()
-                    sLine = string.sub(sLine, 1, nPos - 1) .. string.sub(sLine, nPos + 1)
+                    sLine = sLine:sub(1, nPos - 1) .. sLine:sub(nPos + 1)
                     nPos = nPos - 1
                     if nScroll > 0 then nScroll = nScroll - 1 end
                     recomplete()
@@ -414,7 +421,7 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
                 -- Delete
                 if nPos < #sLine then
                     clear()
-                    sLine = string.sub(sLine, 1, nPos) .. string.sub(sLine, nPos + 2)
+                    sLine = sLine:sub(1, nPos) .. sLine:sub(nPos + 2)
                     recomplete()
                     redraw()
                 end

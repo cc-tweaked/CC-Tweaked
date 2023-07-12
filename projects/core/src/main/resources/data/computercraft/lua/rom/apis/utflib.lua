@@ -1,6 +1,6 @@
-local expect = (require and require("cc.expect") or dofile("rom/modules/main/cc/expect.lua")).expect
+local expect = (dofile("rom/modules/main/cc/expect.lua")).expect
 
-local UTFString = {}
+UTFString = {}
 local UTFString_mt = {
     __index = UTFString, __name = 'UTFString'
 }
@@ -11,6 +11,8 @@ local StringWrapper_mt = {
     __tostring = function() return self.str  end,
     __len = function() return #self.str  end
 }
+
+wrapStr = StringWrapper
 
 local function rectify_string(s)
     -- check a string is a valid utf8 byte sequence
@@ -32,11 +34,11 @@ local function rectify_string(s)
     return result
 end
 
-local function isUTFString(obj)
+function isUTFString(obj)
     return type(obj) == 'table' and getmetatable(obj) == UTFString_mt
 end
 
-local function isStringWrapper(obj)
+function isStringWrapper(obj)
     return type(obj) == 'table' and getmetatable(obj) == StringWrapper_mt
 end
 
@@ -59,7 +61,7 @@ end
 
 setmetatable(StringWrapper, {__call = StringWrapper.new })
 
-local function from_latin(s)
+function fromLatin(s)
     local str = ""
     for _, c in string.codes(s) do
         str = str .. utf8.char(c)
@@ -206,7 +208,7 @@ function UTFString:byte(i, j)
     return utf8.codepoint(self.bytestring, utf8.offset(self.bytestring, i), j and utf8.offset(self.bytestring, j))
 end
 
-function UTFString:to_latin()
+function UTFString:toLatin()
     local str = ""
     for _, c in utf8.codes(self.bytestring) do
         if c > 255 then str = str .. "?"
@@ -787,11 +789,3 @@ function UTFString:reverse()
     for i = codes.n, 1, -1 do s = s .. utf8.char(codes[i]) end
     return unsafe_utfstring(s)
 end
-
-return {
-    UTFString = UTFString,
-    from_latin = from_latin,
-    isUTFString = isUTFString,
-    isStringWrapper = isStringWrapper,
-    wrap_str = StringWrapper
-}

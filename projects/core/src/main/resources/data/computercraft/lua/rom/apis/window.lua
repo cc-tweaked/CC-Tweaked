@@ -34,9 +34,6 @@ parent, and only one of which is visible at a time.
 ]]
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
-local utflib = dofile("rom/modules/main/cc/utflib.lua")
-local isUTFString = utflib.isUTFString
-local u = utflib.UTFString
 
 local tHex = {
     [colors.white] = "0",
@@ -164,9 +161,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     local function redrawLine(n)
         local tLine = tLines[n]
         parent.setCursorPos(nX, nY + n - 1)
-        if isUTFString(tLine[1]) then
-            parent._blitutf8(tostring(tLine[1]), tLine[2], tLine[3])
-        else parent.blit(tLine[1], tLine[2], tLine[3]) end
+        parent.blit(tLine[1], tLine[2], tLine[3])
     end
 
     local function redraw()
@@ -260,35 +255,12 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     local window = {}
 
     function window.write(sText)
-        sText = tostring(sText)
+        if not utflib.isUTFString(sText) then sText = tostring(sText) end
         internalBlit(sText, string_rep(tHex[nTextColor], #sText), string_rep(tHex[nBackgroundColor], #sText))
     end
 
-    function window._writeutf8(utfText)
-        if not isUTFString(utfText) then
-            if type(utfText) ~= "string" then utfText = tostring(utfText) end
-            utfText = u(utfText)
-        end
-        internalBlit(utfText, string_rep(tHex[nTextColor], #utfText), string_rep(tHex[nBackgroundColor], #utfText))
-    end
-
     function window.blit(sText, sTextColor, sBackgroundColor)
-        if type(sText) ~= "string" then expect(1, sText, "string") end
-        if type(sTextColor) ~= "string" then expect(2, sTextColor, "string") end
-        if type(sBackgroundColor) ~= "string" then expect(3, sBackgroundColor, "string") end
-        if #sTextColor ~= #sText or #sBackgroundColor ~= #sText then
-            error("Arguments must be the same length", 2)
-        end
-        sTextColor = sTextColor:lower()
-        sBackgroundColor = sBackgroundColor:lower()
-        internalBlit(sText, sTextColor, sBackgroundColor)
-    end
-
-    function window._blitutf8(sText, sTextColor, sBackgroundColor)
-        if not isUTFString(sText) then
-            expect(1, sText, "string")
-            sText = u(sText)
-        end
+        if not utflib.isUTFString(sText) and type(sText) ~= "string" then expect(1, sText, "string", "UTFString") end
         if type(sTextColor) ~= "string" then expect(2, sTextColor, "string") end
         if type(sBackgroundColor) ~= "string" then expect(3, sBackgroundColor, "string") end
         if #sTextColor ~= #sText or #sBackgroundColor ~= #sText then
@@ -494,9 +466,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
         end
 
         local line = tLines[y]
-        if isUTFString(line[1]) then
-            return tostring(line[1]), line[2], line[3]
-        else return line[1], line[2], line[3] end
+        return line[1], line[2], line[3]
     end
 
     -- Other functions

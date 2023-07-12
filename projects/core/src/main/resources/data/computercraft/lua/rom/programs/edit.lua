@@ -53,8 +53,6 @@ else
     errorColour = colours.white
 end
 
-local utflib = (require and require("cc.utflib") or dofile("rom/modules/main/cc/utflib.lua"))
-local uterm = (require and require("cc.utflib.term") or dofile("rom/modules/main/cc/utflib/term.lua"))
 local unicodeMode = settings.get("edit.unicode")
 
 local runHandler = [[multishell.setTitle(multishell.getCurrent(), %q)
@@ -211,8 +209,7 @@ local function tryWrite(sLine, regex, colour)
         else
             term.setTextColour(colour(match))
         end
-        if utflib.isUTFString(match) then uterm.twrite(match)
-        else term.write(match) end
+        term.write(match)
         term.setTextColour(textColour)
         return sLine:sub(#match + 1)
     end
@@ -276,8 +273,7 @@ local function writeCompletion(sLine)
         local sCompletion = tCompletions[nCompletion]
         term.setTextColor(colours.white)
         term.setBackgroundColor(colours.grey)
-        if utflib.isUTFString(sCompletion) then uterm.write(sCompletion)
-        else term.write(sCompletion) end
+        term.write(sCompletion)
         term.setTextColor(textColour)
         term.setBackgroundColor(bgColour)
     end
@@ -791,12 +787,12 @@ while bRunning do
             end
         end
 
-    elseif unicodeMode and sEvent == "charutf" or not unicodeMode and sEvent == "char" then
+    elseif sEvent == "char" then
         if not bMenu and not bReadOnly then
             -- Input text
             local sLine = tLines[y]
             if unicodeMode then
-                tLines[y] = sLine:sub(1, x - 1) .. utflib.UTFString(param) .. sLine:sub(x)
+                tLines[y] = sLine:sub(1, x - 1) .. utflib.UTFString(param2) .. sLine:sub(x)
             else
                 tLines[y] = sLine:sub(1, x - 1) .. param .. sLine:sub(x)
             end
@@ -812,7 +808,7 @@ while bRunning do
             end
         end
 
-    elseif unicodeMode and sEvent == "pasteutf" or not unicodeMode and sEvent == "paste" then
+    elseif sEvent == "paste" then
         if not bReadOnly then
             -- Close menu if open
             if bMenu then
@@ -822,12 +818,9 @@ while bRunning do
             end
             -- Input text
             local sLine = tLines[y]
-            if unicodeMode then
-                tLines[y] = sLine:sub(1, x - 1) .. utflib.UTFString(param) .. sLine:sub(x)
-            else
-                tLines[y] = sLine:sub(1, x - 1) .. param .. sLine:sub(x)
-            end
-            setCursor(x + #param , y)
+            local copiedText = unicodeMode and utflib.UTFString(param2) or param
+            tLines[y] = sLine:sub(1, x - 1) .. copiedText .. sLine:sub(x)
+            setCursor(x + #copiedText , y)
         end
 
     elseif sEvent == "mouse_click" then

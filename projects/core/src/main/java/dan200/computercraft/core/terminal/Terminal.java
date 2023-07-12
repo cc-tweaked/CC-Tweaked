@@ -176,11 +176,11 @@ public class Terminal {
         }
     }
 
-    public synchronized void blitUtf(String utf, ByteBuffer textColour, ByteBuffer backgroundColour) {
+    public synchronized void blit(String text, ByteBuffer textColour, ByteBuffer backgroundColour) {
         var x = cursorX;
         var y = cursorY;
         if (y >= 0 && y < height) {
-            this.text[y].write(utf, x);
+            this.text[y].write(text, x);
             this.textColour[y].write(textColour, x);
             this.backgroundColour[y].write(backgroundColour, x);
             setChanged();

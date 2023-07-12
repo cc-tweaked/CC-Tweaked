@@ -13,6 +13,7 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.util.StringUtil;
 
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 /**
  * A base class for all objects which interact with a terminal. Namely the {@link TermAPI} and monitors.
@@ -37,30 +38,15 @@ public abstract class TermMethods {
      * @throws LuaException (hidden) If the terminal cannot be found.
      */
     @LuaFunction
-    public final void write(Coerced<String> textA) throws LuaException {
-        var text = textA.value();
-        var terminal = getTerminal();
-        synchronized (terminal) {
-            terminal.write(text);
-            terminal.setCursorPos(terminal.getCursorX() + text.length(), terminal.getCursorY());
+    public final void write(IArguments textA) throws LuaException {
+        String text;
+        if(textA.get(0) instanceof Map utfString && utfString.containsKey("bytestring")){
+            text = utfString.get("bytestring").toString();
+            text = StringUtil.byteStringToUtf8(text);
         }
-    }
-
-    /**
-     * Write utf8 encoded byte string{@code text} at the current cursor position, moving the cursor to the end of the text.
-     * <p>
-     * Unlike functions like {@code write} and {@code print}, this does not wrap the text - it simply copies the
-     * text to the current terminal line.
-     * <p>
-     * Developer should not use this function directly, but use the {@code utflib.term.write} to write Unicode strings.
-     *
-     * @param textA The utf8 encoded byte string to write.
-     * @throws LuaException (hidden) If the terminal cannot be found.
-     */
-    @LuaFunction
-    public final void _writeutf8(Coerced<String> textA) throws LuaException {
-        var text = textA.value();
-        text = StringUtil.byteStringToUtf8(text);
+        else{
+            text = textA.getStringCoerced(0);
+        }
         var terminal = getTerminal();
         synchronized (terminal) {
             terminal.write(text);
@@ -274,53 +260,25 @@ public abstract class TermMethods {
      * }</pre>
      */
     @LuaFunction
-    public final void blit(ByteBuffer text, ByteBuffer textColour, ByteBuffer backgroundColour) throws LuaException {
-        if (textColour.remaining() != text.remaining() || backgroundColour.remaining() != text.remaining()) {
-            throw new LuaException(String.format("Arguments must be the same length (%d, %d, %d)", text.remaining(), textColour.remaining(), backgroundColour.remaining()));
+    public final void blit(IArguments args) throws LuaException {
+        String text;
+        if(args.get(0) instanceof Map utfString && utfString.containsKey("bytestring")){
+            text = utfString.get("bytestring").toString();
+            text = StringUtil.byteStringToUtf8(text);
         }
-
-        var terminal = getTerminal();
-        synchronized (terminal) {
-            terminal.blit(text, textColour, backgroundColour);
-            terminal.setCursorPos(terminal.getCursorX() + text.remaining(), terminal.getCursorY());
+        else{
+            text = args.getString(0);
         }
-    }
-
-    /**
-     * Writes utf8 encoded byte string {@code text} to the terminal with the specific foreground and background colours.
-     * <p>
-     * As with {@link #write(Coerced)}, the text will be written at the current cursor location, with the cursor
-     * moving to the end of the text.
-     * <p>
-     * {@code textColour} and {@code backgroundColour} must both be strings the same length as teh decoded {@code text}.
-     * All characters represent a single hexadecimal digit, which is converted to one of CC's colours. For instance,
-     * {@code "a"} corresponds to purple.
-     * <p>
-     * Developer should not use this function directly, but use the {@code utflib.blit} to write Unicode strings.
-     *
-     * @param text             The utf8 encoded byte string to write.
-     * @param textColour       The corresponding text colours.
-     * @param backgroundColour The corresponding background colours.
-     * @throws LuaException If the three inputs are not the same length.
-     * @cc.see colors For a list of colour constants, and their hexadecimal values.
-     * @cc.since 1.74
-     * @cc.changed 1.80pr1 Standard computers can now use all 16 colors, being changed to grayscale on screen.
-     * @cc.usage Prints "Hello, world!" in rainbow text.
-     * <pre>{@code
-     * term.blit("Hello, world!","01234456789ab","0000000000000")
-     * }</pre>
-     */
-    @LuaFunction
-    public final void _blitutf8(String text, ByteBuffer textColour, ByteBuffer backgroundColour) throws LuaException {
-        text = StringUtil.byteStringToUtf8(text);
         var textLen = text.codePointCount(0, text.length());
+        ByteBuffer textColour = args.getBytes(1);
+        ByteBuffer backgroundColour = args.getBytes(2);
         if (textColour.remaining() != textLen || backgroundColour.remaining() != textLen) {
             throw new LuaException("Arguments must be the same length");
         }
 
         var terminal = getTerminal();
         synchronized (terminal) {
-            terminal.blitUtf(text, textColour, backgroundColour);
+            terminal.blit(text, textColour, backgroundColour);
             terminal.setCursorPos(terminal.getCursorX() + textLen, terminal.getCursorY());
         }
     }

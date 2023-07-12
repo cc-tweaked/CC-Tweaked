@@ -5,6 +5,7 @@
 package dan200.computercraft.gametest
 
 import dan200.computercraft.api.lua.Coerced
+import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.client.gui.AbstractComputerScreen
 import dan200.computercraft.core.apis.RedstoneAPI
 import dan200.computercraft.core.apis.TermAPI
@@ -88,7 +89,7 @@ class Computer_Test {
     @ClientGameTest
     fun Open_on_client(context: GameTestHelper) = context.sequence {
         // Write "Hello, world!" and then print each event to the terminal.
-        thenOnComputer { getApi<TermAPI>().write(Coerced("Hello, world!")) }
+        thenOnComputer { getApi<TermAPI>().write(ObjectArguments("Hello, world!")) }
         thenStartComputer {
             val term = getApi<TermAPI>().terminal
             while (true) {

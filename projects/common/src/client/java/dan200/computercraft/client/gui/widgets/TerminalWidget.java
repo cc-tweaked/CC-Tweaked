@@ -73,12 +73,9 @@ public class TerminalWidget extends AbstractWidget {
     @Override
     public boolean charTyped(char ch, int modifiers) {
         if (ch >= 32 && ch <= 126 || ch >= 160) {
-            if (ch <= 255){
-                // Queue the char event for any printable chars in byte range
-                computer.queueEvent("char", new Object[]{ Character.toString(ch) });
-            }
-            // always send 'charutf' event so that in the computer it only needs to poll one type of event
-            computer.queueEvent("charutf", new Object[]{ StringUtil.utfToByteString(Character.toString(ch)) });
+            // Queue the char event for any printable chars in byte range
+            var s = Character.toString(ch);
+            computer.queueEvent("char", new Object[]{ s, StringUtil.utfToByteString(s) });
         }
 
         return true;
@@ -135,8 +132,7 @@ public class TerminalWidget extends AbstractWidget {
         if (!clipboard.isEmpty()) {
             // Clip to 512 characters and queue the event
             if (clipboard.length() > 512) clipboard = clipboard.substring(0, 512);
-            computer.queueEvent("paste", new Object[]{ clipboard });
-            computer.queueEvent("pasteutf", new Object[]{StringUtil.utfToByteString(clipboard)});
+            computer.queueEvent("paste", new Object[]{ clipboard, StringUtil.utfToByteString(clipboard) });
         }
     }
 

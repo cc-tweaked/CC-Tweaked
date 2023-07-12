@@ -86,14 +86,6 @@ else
 end
 
 local unicodeMode = settings.get("shell.unicode")
-local write, print, printError, read
-if unicodeMode then
-    local uterm = require("cc.utflib.term")
-    write, print, printError, read = uterm.write, uterm.print, uterm.printError, uterm.read
-else
-    write, print, printError, read = _G.write, _G.print, _G.printError, _G.read
-end
-local utflib = require("cc.utflib")
 
 local function tokenise(...)
     local args = { ... }
@@ -368,10 +360,10 @@ end
 
 local function pathWithExtension(_sPath, _sExt)
     local nLen = #sPath
-    local sEndChar = string.sub(_sPath, nLen, nLen)
+    local sEndChar = _sPath:sub(nLen, nLen)
     -- Remove any trailing slashes so we can add an extension to the path safely
     if sEndChar == "/" or sEndChar == "\\" then
-        _sPath = string.sub(_sPath, 1, nLen - 1)
+        _sPath = _sPath:sub(1, nLen - 1)
     end
     return _sPath .. "." .. _sExt
 end
@@ -388,10 +380,12 @@ end
 --      shell.resolveProgram("hello")
 --      -- => rom/programs/fun/hello.lua
 function shell.resolveProgram(command)
-    expect(1, command, "string")
+    if not utflib.isUTFString(command) then
+        expect(1, command, "string")
+    end
     -- Substitute aliases firsts
-    if tAliases[command] ~= nil then
-        command = tAliases[command]
+    if tAliases[tostring(command)] ~= nil then
+        command = tAliases[tostring(command)]
     end
 
     -- If the path is a global path, use it directly
@@ -409,7 +403,7 @@ function shell.resolveProgram(command)
     end
 
      -- Otherwise, look on the path variable
-    for sPath in string.gmatch(sPath, "[^:]+") do
+    for sPath in sPath:gmatch("[^:]+") do
         sPath = fs.combine(shell.resolve(sPath), command)
         if fs.exists(sPath) and not fs.isDir(sPath) then
             return sPath
@@ -547,11 +541,13 @@ end
 -- @see shell.getCompletionInfo
 -- @since 1.74
 function shell.complete(sLine)
-    expect(1, sLine, "string")
+    if not utflib.isUTFString(sLine) then
+        expect(1, sLine, "string")
+    end
     if #sLine > 0 then
         local tWords = tokenise(sLine)
         local nIndex = #tWords
-        if string.sub(sLine, #sLine, #sLine) == " " then
+        if sLine:sub(#sLine, #sLine) == " " then
             nIndex = nIndex + 1
         end
         if nIndex == 1 then
@@ -774,7 +770,7 @@ else
 
         local ok, result
         local co = coroutine.create(read)
-        assert(coroutine.resume(co, nil, tCommandHistory, complete))
+        assert(coroutine.resume(co, nil, tCommandHistory, complete, nil, unicodeMode))
 
         while coroutine.status(co) ~= "dead" do
             local event = table.pack(os.pullEvent())

@@ -339,7 +339,7 @@ while #tProcesses > 0 do
         resizeWindows()
         redrawMenu()
 
-    elseif sEvent == "char" or sEvent == "charutf" or sEvent == "key" or sEvent == "key_up" or sEvent == "paste" or sEvent == "pasteutf" or sEvent == "terminate" or sEvent == "file_transfer" then
+    elseif sEvent == "char" or sEvent == "key" or sEvent == "key_up" or sEvent == "paste" or sEvent == "terminate" or sEvent == "file_transfer" then
         -- Basic input, just passthrough to current process
         resumeProcess(nCurrentProcess, table.unpack(tEventData, 1, tEventData.n))
         if cullProcess(nCurrentProcess) then
