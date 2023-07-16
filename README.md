@@ -21,12 +21,10 @@ new features.
 CC: Tweaked can be installed from [CurseForge] or [Modrinth]. It runs on both [Minecraft Forge] and [Fabric].
 
 ## Contributing
-
 Any contribution is welcome, be that using the mod, reporting bugs or contributing code. If you want to get started
 developing the mod, [check out the instructions here](CONTRIBUTING.md#developing).
 
 ## Community
-
 If you need help getting started with CC: Tweaked, want to show off your latest project, or just want to chat about
 ComputerCraft, do check out our [forum] and [GitHub discussions page][GitHub discussions]! There's also a fairly
 populated, albeit quiet [IRC channel][irc], if that's more your cup of tea.
@@ -34,7 +32,6 @@ populated, albeit quiet [IRC channel][irc], if that's more your cup of tea.
 We also host fairly comprehensive documentation at [tweaked.cc](https://tweaked.cc/ "The CC: Tweaked website").
 
 ## Using
-
 CC: Tweaked is hosted on my maven repo, and so is relatively simple to depend on. You may wish to add a soft (or hard)
 dependency in your `mods.toml` file, with the appropriate version bounds, to ensure that API functionality you depend
 on is present.
