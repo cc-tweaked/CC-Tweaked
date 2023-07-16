@@ -4,7 +4,12 @@ SPDX-FileCopyrightText: 2017 The CC: Tweaked Developers
 SPDX-License-Identifier: MPL-2.0
 -->
 
-# ![CC: Tweaked](doc/logo.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./doc/logo-darkmode.png">
+  <source media="(prefers-color-scheme: light)" srcset="./doc/logo.png">
+  <img alt="CC: Tweaked" src="./doc/logo.png">
+</picture>
+
 [![Current build status](https://github.com/cc-tweaked/CC-Tweaked/workflows/Build/badge.svg)](https://github.com/cc-tweaked/CC-Tweaked/actions "Current build status")
 [![Download CC: Tweaked on CurseForge](https://img.shields.io/static/v1?label=Download&message=CC:%20Tweaked&color=E04E14&logoColor=E04E14&logo=CurseForge)][CurseForge]
 [![Download CC: Tweaked on Modrinth](https://img.shields.io/static/v1?label=Download&color=00AF5C&logoColor=00AF5C&logo=Modrinth&message=CC:%20Tweaked)][Modrinth]
@@ -16,10 +21,12 @@ new features.
 CC: Tweaked can be installed from [CurseForge] or [Modrinth]. It runs on both [Minecraft Forge] and [Fabric].
 
 ## Contributing
+
 Any contribution is welcome, be that using the mod, reporting bugs or contributing code. If you want to get started
 developing the mod, [check out the instructions here](CONTRIBUTING.md#developing).
 
 ## Community
+
 If you need help getting started with CC: Tweaked, want to show off your latest project, or just want to chat about
 ComputerCraft, do check out our [forum] and [GitHub discussions page][GitHub discussions]! There's also a fairly
 populated, albeit quiet [IRC channel][irc], if that's more your cup of tea.
@@ -27,6 +34,7 @@ populated, albeit quiet [IRC channel][irc], if that's more your cup of tea.
 We also host fairly comprehensive documentation at [tweaked.cc](https://tweaked.cc/ "The CC: Tweaked website").
 
 ## Using
+
 CC: Tweaked is hosted on my maven repo, and so is relatively simple to depend on. You may wish to add a soft (or hard)
 dependency in your `mods.toml` file, with the appropriate version bounds, to ensure that API functionality you depend
 on is present.
