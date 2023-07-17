@@ -99,4 +99,12 @@ public interface IPocketAccess {
      */
     @Deprecated(forRemoval = true)
     Map<ResourceLocation, IPeripheral> getUpgrades();
+
+    /**
+     * Returns the peripheral created by the upgrade of pocket computer, if there is one.
+     *
+     * @return The peripheral created by the upgrade of pocket computer, if there is one, {@code null} if none exists.
+     */
+    @Nullable
+    IPeripheral getPeripheral();
 }

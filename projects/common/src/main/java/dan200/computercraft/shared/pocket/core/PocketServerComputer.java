@@ -110,6 +110,12 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         return upgrade == null ? Collections.emptyMap() : Collections.singletonMap(upgrade.getUpgradeID(), getPeripheral(ComputerSide.BACK));
     }
 
+    @Nullable
+    @Override
+    public IPeripheral getPeripheral() {
+        return getPeripheral(ComputerSide.BACK);
+    }
+
     public @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
         return upgrade == null ? null : UpgradeData.of(upgrade, getUpgradeNBTData());
     }
