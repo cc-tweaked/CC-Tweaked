@@ -4,7 +4,12 @@ SPDX-FileCopyrightText: 2017 The CC: Tweaked Developers
 SPDX-License-Identifier: MPL-2.0
 -->
 
-# ![CC: Tweaked](doc/logo.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./doc/logo-darkmode.png">
+  <source media="(prefers-color-scheme: light)" srcset="./doc/logo.png">
+  <img alt="CC: Tweaked" src="./doc/logo.png">
+</picture>
+
 [![Current build status](https://github.com/cc-tweaked/CC-Tweaked/workflows/Build/badge.svg)](https://github.com/cc-tweaked/CC-Tweaked/actions "Current build status")
 [![Download CC: Tweaked on CurseForge](https://img.shields.io/static/v1?label=Download&message=CC:%20Tweaked&color=E04E14&logoColor=E04E14&logo=CurseForge)][CurseForge]
 [![Download CC: Tweaked on Modrinth](https://img.shields.io/static/v1?label=Download&color=00AF5C&logoColor=00AF5C&logo=Modrinth&message=CC:%20Tweaked)][Modrinth]
