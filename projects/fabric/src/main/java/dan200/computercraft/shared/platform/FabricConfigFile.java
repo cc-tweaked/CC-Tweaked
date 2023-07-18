@@ -62,12 +62,15 @@ public class FabricConfigFile implements ConfigFile {
         if (loadConfig()) config.save();
     }
 
+    @SuppressWarnings("unchecked")
+    private Stream<ValueImpl<?>> values() {
+        return (Stream<ValueImpl<?>>) (Stream<?>) entries.stream().filter(ValueImpl.class::isInstance);
+    }
+
     public synchronized void unload() {
         closeConfig();
 
-        entries.stream().forEach(x -> {
-            if (x instanceof ValueImpl<?> value) value.unload();
-        });
+        values().forEach(ValueImpl::unload);
     }
 
     @GuardedBy("this")
@@ -87,14 +90,15 @@ public class FabricConfigFile implements ConfigFile {
 
         config.load();
 
-        entries.stream().forEach(x -> {
-            config.setComment(x.path, x.comment);
-            if (x instanceof ValueImpl<?> value) value.load(config);
-        });
-        var corrected = spec.correct(config, (action, entryPath, oldValue, newValue) -> {
+        // Ensure the config file matches the spec
+        var isNewFile = config.isEmpty();
+        entries.stream().forEach(x -> config.setComment(x.path, x.comment));
+        var corrected = isNewFile ? spec.correct(config) : spec.correct(config, (action, entryPath, oldValue, newValue) -> {
             LOG.warn("Incorrect key {} was corrected from {} to {}", String.join(".", entryPath), oldValue, newValue);
         });
 
+        // And then load the underlying entries.
+        values().forEach(x -> x.load(config));
         onChange.onConfigChanged(config.getNioPath());
 
         return corrected > 0;
@@ -102,7 +106,7 @@ public class FabricConfigFile implements ConfigFile {
 
     @Override
     public Stream<ConfigFile.Entry> entries() {
-        return entries.children().map(x -> (ConfigFile.Entry) x);
+        return entries.stream().map(x -> (ConfigFile.Entry) x);
     }
 
     @Nullable
@@ -148,7 +152,7 @@ public class FabricConfigFile implements ConfigFile {
         public void push(String name) {
             var path = getFullPath(name);
             var splitPath = SPLITTER.split(path);
-            entries.setValue(splitPath, new GroupImpl(path, takeComment(), entries.getChild(splitPath)));
+            entries.setValue(splitPath, new GroupImpl(path, takeComment()));
 
             super.push(name);
         }
@@ -230,16 +234,8 @@ public class FabricConfigFile implements ConfigFile {
     }
 
     private static final class GroupImpl extends Entry implements Group {
-        private final Trie<String, Entry> children;
-
-        private GroupImpl(String path, String comment, Trie<String, Entry> children) {
+        private GroupImpl(String path, String comment) {
             super(path, comment);
-            this.children = children;
-        }
-
-        @Override
-        public Stream<ConfigFile.Entry> children() {
-            return children.children().map(x -> (ConfigFile.Entry) x);
         }
     }
 

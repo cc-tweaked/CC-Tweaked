@@ -212,7 +212,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         var normal = matrix.transform(new Vector4f(dirNormal.getX(), dirNormal.getY(), dirNormal.getZ(), 0.0f)).normalize();
 
         var vertices = quad.getVertices();
-        for (var vertex : ModelTransformer.ORDER) {
+        for (var vertex : ModelTransformer.INVERSE_ORDER) {
             var i = vertex * ModelTransformer.STRIDE;
 
             var x = Float.intBitsToFloat(vertices[i]);

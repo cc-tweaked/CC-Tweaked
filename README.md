@@ -44,7 +44,7 @@ repositories {
 
 dependencies {
   // Vanilla (i.e. for multi-loader systems)
-  compileOnly("cc.tweaked:cc-tweaked-$mcVersion-common-api")
+  compileOnly("cc.tweaked:cc-tweaked-$mcVersion-common-api:$cctVersion")
 
   // Forge Gradle
   compileOnly("cc.tweaked:cc-tweaked-$mcVersion-core-api:$cctVersion")
@@ -54,6 +54,19 @@ dependencies {
   // Fabric Loom
   modCompileOnly("cc.tweaked:cc-tweaked-$mcVersion-fabric-api:$cctVersion")
   modRuntimeOnly("cc.tweaked:cc-tweaked-$mcVersion-fabric:$cctVersion")
+}
+```
+
+When using ForgeGradle, you may also need to add the following:
+
+```groovy
+minecraft {
+    runs {
+        configureEach {
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
+        }
+    }
 }
 ```
 

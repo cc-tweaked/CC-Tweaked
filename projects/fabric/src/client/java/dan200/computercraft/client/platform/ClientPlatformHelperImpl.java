@@ -8,7 +8,6 @@ import com.google.auto.service.AutoService;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.server.ServerNetworkContext;
 import dan200.computercraft.shared.platform.NetworkHandler;
-import net.fabricmc.fabric.api.client.model.BakedModelManagerHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
@@ -23,7 +22,7 @@ public class ClientPlatformHelperImpl implements ClientPlatformHelper {
 
     @Override
     public BakedModel getModel(ModelManager manager, ResourceLocation location) {
-        var model = BakedModelManagerHelper.getModel(manager, location);
+        var model = manager.getModel(location);
         return model == null ? manager.getMissingModel() : model;
     }
 }
