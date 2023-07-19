@@ -44,12 +44,12 @@ public class ArgumentUtils {
 
     @SuppressWarnings("unchecked")
     private static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>> void serializeToNetwork(FriendlyByteBuf buffer, ArgumentTypeInfo<A, T> type, ArgumentTypeInfo.Template<A> template) {
-        RegistryWrappers.writeId(buffer, RegistryWrappers.COMMAND_ARGUMENT_TYPES, type);
+        buffer.writeId(RegistryWrappers.COMMAND_ARGUMENT_TYPES, type);
         type.serializeToNetwork((T) template, buffer);
     }
 
     public static ArgumentTypeInfo.Template<?> deserialize(FriendlyByteBuf buffer) {
-        var type = RegistryWrappers.readId(buffer, RegistryWrappers.COMMAND_ARGUMENT_TYPES);
+        var type = buffer.readById(RegistryWrappers.COMMAND_ARGUMENT_TYPES);
         Objects.requireNonNull(type, "Unknown argument type");
         return type.deserializeFromNetwork(buffer);
     }

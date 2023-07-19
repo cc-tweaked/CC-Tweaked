@@ -5,6 +5,7 @@
 package dan200.computercraft.shared.platform;
 
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.core.IdMap;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
@@ -36,9 +37,7 @@ public final class RegistryWrappers {
     public static final RegistryWrapper<RecipeSerializer<?>> RECIPE_SERIALIZERS = PlatformHelper.get().wrap(Registries.RECIPE_SERIALIZER);
     public static final RegistryWrapper<MenuType<?>> MENU = PlatformHelper.get().wrap(Registries.MENU);
 
-    public interface RegistryWrapper<T> extends Iterable<T> {
-        int getId(T object);
-
+    public interface RegistryWrapper<T> extends IdMap<T> {
         ResourceLocation getKey(T object);
 
         T get(ResourceLocation location);
@@ -46,23 +45,12 @@ public final class RegistryWrappers {
         @Nullable
         T tryGet(ResourceLocation location);
 
-        T get(int id);
-
         default Stream<T> stream() {
             return StreamSupport.stream(spliterator(), false);
         }
     }
 
     private RegistryWrappers() {
-    }
-
-    public static <K> void writeId(FriendlyByteBuf buf, RegistryWrapper<K> registry, K object) {
-        buf.writeVarInt(registry.getId(object));
-    }
-
-    public static <K> K readId(FriendlyByteBuf buf, RegistryWrapper<K> registry) {
-        var id = buf.readVarInt();
-        return registry.get(id);
     }
 
     public static <K> void writeKey(FriendlyByteBuf buf, RegistryWrapper<K> registry, K object) {

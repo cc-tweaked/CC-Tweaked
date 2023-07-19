@@ -359,9 +359,7 @@ public class PlatformHelperImpl implements PlatformHelper {
     ) implements RegistryWrappers.RegistryWrapper<T> {
         @Override
         public int getId(T object) {
-            var id = registry.getID(object);
-            if (id == -1) throw new IllegalStateException(object + " was not registered in " + name);
-            return id;
+            return registry.getID(object);
         }
 
         @Override
@@ -385,10 +383,13 @@ public class PlatformHelperImpl implements PlatformHelper {
         }
 
         @Override
-        public T get(int id) {
-            var object = registry.getValue(id);
-            if (object == null) throw new IllegalStateException(id + " was not registered in " + name);
-            return object;
+        public @Nullable T byId(int id) {
+            return registry.getValue(id);
+        }
+
+        @Override
+        public int size() {
+            return registry.getKeys().size();
         }
 
         @Override

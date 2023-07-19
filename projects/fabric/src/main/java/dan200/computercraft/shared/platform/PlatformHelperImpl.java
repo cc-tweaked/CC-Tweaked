@@ -303,7 +303,7 @@ public class PlatformHelperImpl implements PlatformHelper {
     public boolean hasToolUsage(ItemStack stack) {
         var item = stack.getItem();
         return item instanceof ShovelItem || stack.is(ItemTags.SHOVELS) ||
-               item instanceof HoeItem || stack.is(ItemTags.HOES);
+            item instanceof HoeItem || stack.is(ItemTags.HOES);
     }
 
     @Override
@@ -314,8 +314,8 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public boolean interactWithEntity(ServerPlayer player, Entity entity, Vec3 hitPos) {
         return UseEntityCallback.EVENT.invoker().interact(player, entity.level, InteractionHand.MAIN_HAND, entity, new EntityHitResult(entity, hitPos)).consumesAction() ||
-               entity.interactAt(player, hitPos.subtract(entity.position()), InteractionHand.MAIN_HAND).consumesAction() ||
-               player.interactOn(entity, InteractionHand.MAIN_HAND).consumesAction();
+            entity.interactAt(player, hitPos.subtract(entity.position()), InteractionHand.MAIN_HAND).consumesAction() ||
+            player.interactOn(entity, InteractionHand.MAIN_HAND).consumesAction();
     }
 
     @Override
@@ -337,9 +337,7 @@ public class PlatformHelperImpl implements PlatformHelper {
     ) implements RegistryWrappers.RegistryWrapper<T> {
         @Override
         public int getId(T object) {
-            var id = registry.getId(object);
-            if (id == -1) throw new IllegalArgumentException(object + " was not registered in " + name);
-            return id;
+            return registry.getId(object);
         }
 
         @Override
@@ -363,10 +361,13 @@ public class PlatformHelperImpl implements PlatformHelper {
         }
 
         @Override
-        public T get(int id) {
-            var object = registry.byId(id);
-            if (object == null) throw new IllegalArgumentException(id + " was not registered in " + name);
-            return object;
+        public @Nullable T byId(int id) {
+            return registry.byId(id);
+        }
+
+        @Override
+        public int size() {
+            return registry.size();
         }
 
         @Override
