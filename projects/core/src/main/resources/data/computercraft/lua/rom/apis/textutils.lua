@@ -977,7 +977,7 @@ function complete(sSearchText, tSearchTable)
     while tTable do
         for k, v in pairs(tTable) do
             if not tSeen[k] and type(k) == "string" then
-                if k:find(sPart, 1, true) == 1 then
+                if k:find(tostring(sPart), 1, true) == 1 then
                     if not g_tLuaKeywords[k] and k:match("^[%a_][%a%d_]*$") then
                         local sResult = k:sub(nPartLength + 1)
                         if nColon then

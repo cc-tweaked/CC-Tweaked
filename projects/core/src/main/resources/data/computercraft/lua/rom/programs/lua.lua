@@ -53,16 +53,16 @@ while running do
 
     local input = read(nil, tCommandHistory, function(sLine)
         if settings.get("lua.autocomplete") then
-            local nStartPos = string.find(sLine, "[a-zA-Z0-9_%.:]+$")
+            local nStartPos = sLine:find("[a-zA-Z0-9_%.:]+$")
             if nStartPos then
-                sLine = string.sub(sLine, nStartPos)
+                sLine = sLine:sub(nStartPos)
             end
             if #sLine > 0 then
                 return textutils.complete(sLine, tEnv)
             end
         end
         return nil
-    end)
+    end, nil, unicodeMode)
     if input:match("%S") and tCommandHistory[#tCommandHistory] ~= input then
         table.insert(tCommandHistory, input)
     end
