@@ -29,7 +29,10 @@ import java.util.function.Function;
 
 public class DynamicFontTexture extends AbstractTexture {
     public static final ResourceLocation DEFAULT_NAME = new ResourceLocation(ComputerCraftAPI.MOD_ID, "dyn_term_font");
-    private static final int MINIMUM_SIZE = 512;
+
+    public static final ResourceLocation TERMINAL_FONT_DEFINATION = new ResourceLocation(ComputerCraftAPI.MOD_ID, "terminal_font");
+
+    private static final int MINIMUM_SIZE = 256;
 
     private int currentSize;
     private TextureSlotNode rootNode;
@@ -97,7 +100,7 @@ public class DynamicFontTexture extends AbstractTexture {
 
     public RegisteredGlyph getGlyph(int codepoint){
         return glyphs.computeIfAbsent(codepoint, cp -> {
-            var fontSet = Minecraft.getInstance().font.getFontSet(Minecraft.UNIFORM_FONT);
+            var fontSet = Minecraft.getInstance().font.getFontSet(TERMINAL_FONT_DEFINATION);
             var glyphInfo = fontSet.getGlyphInfo(cp, false);
             if(glyphInfo != SpecialGlyphs.MISSING){
                 var glyph = registerGlyph(glyphInfo);
@@ -118,9 +121,7 @@ public class DynamicFontTexture extends AbstractTexture {
     private RegisteredGlyph registerGlyph(GlyphInfo glyphInfo) {
         var regGlyphWrapper = new RegisteredGlyph[]{ null };
         glyphInfo.bake(sheetGlyphInfo -> {
-            var offsetX = ((int) glyphInfo.getAdvance());
-            offsetX = offsetX + sheetGlyphInfo.getPixelWidth() <= 16 ? offsetX : 0;
-            var wrapper = new SheetGlyphInfoWrapper(sheetGlyphInfo, Optional.of(offsetX));
+            var wrapper = new SheetGlyphInfoWrapper(sheetGlyphInfo, Optional.empty());
             var assignedNode = rootNode.insert(wrapper);
             if (assignedNode == null) {
                 resize(currentSize * 2);
@@ -130,8 +131,8 @@ public class DynamicFontTexture extends AbstractTexture {
                 return null;
             }
             bind();
-            sheetGlyphInfo.upload(assignedNode.x + offsetX / 2, assignedNode.y);
-            regGlyphWrapper[0] = new RegisteredGlyph(assignedNode.x, assignedNode.y, assignedNode.x + sheetGlyphInfo.getPixelWidth() + offsetX, assignedNode.y + sheetGlyphInfo.getPixelHeight());
+            sheetGlyphInfo.upload(assignedNode.x, assignedNode.y);
+            regGlyphWrapper[0] = new RegisteredGlyph(assignedNode.x, assignedNode.y, assignedNode.x + sheetGlyphInfo.getPixelWidth(), assignedNode.y + sheetGlyphInfo.getPixelHeight());
             return null;
         });
         return regGlyphWrapper[0];

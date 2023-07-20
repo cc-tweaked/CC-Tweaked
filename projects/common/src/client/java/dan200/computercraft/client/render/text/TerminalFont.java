@@ -1,25 +1,16 @@
 package dan200.computercraft.client.render.text;
 
-import com.mojang.blaze3d.font.GlyphInfo;
-import com.mojang.blaze3d.font.SheetGlyphInfo;
-import com.mojang.blaze3d.platform.NativeImage;
 import dan200.computercraft.core.terminal.TextBuffer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.font.glyphs.BakedGlyph;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
 import org.joml.Vector4f;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.function.Function;
 
 public class TerminalFont {
-
-    public static final ResourceLocation ANSI_TERM_FONT = new ResourceLocation("computercraft", "textures/gui/term_font.png");
-
-    public static final int FONT_HEIGHT = 9;
-    public static final int FONT_WIDTH = 6;
-    static final float WIDTH = 256.0f;
     private DynamicFontTexture fullTexture;
 
     @Nullable
@@ -33,20 +24,27 @@ public class TerminalFont {
     }
 
     private TerminalFont(){
-        this.fullTexture = new DynamicFontTexture(512);
-        Minecraft.getInstance().getTextureManager().register(DynamicFontTexture.DEFAULT_NAME, this.fullTexture);
-        try (var stream = Minecraft.getInstance().getResourceManager().open(ANSI_TERM_FONT)){
-            var image = NativeImage.read(stream);
-            var scale = image.getWidth() / WIDTH;
-            for (int i = 1; i < 256; i++) {
-                var column = i % 16;
-                var row = i / 16;
-                var xStart = 1 + column * (FONT_WIDTH + 2);
-                var yStart = 1 + row * (FONT_HEIGHT + 2);
-                fullTexture.registeredGlyph(i, new ANSITerminalGlyphInfo(image, (int) (xStart * scale), (int) (yStart * scale), (int) (FONT_WIDTH * scale), (int) (FONT_HEIGHT * scale)));
+        prepareFontTexture();
+        ((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(new SimplePreparableReloadListener<Void>() {
+            @Override
+            protected Void prepare(ResourceManager resourceManager, ProfilerFiller profilerFiller) {
+                return null;
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+
+            @Override
+            protected void apply(Void unused, ResourceManager resourceManager, ProfilerFiller profilerFiller) {
+                TerminalFont.this.fullTexture.close();
+                prepareFontTexture();
+            }
+        });
+    }
+
+    private void prepareFontTexture() {
+        this.fullTexture = new DynamicFontTexture(256);
+        Minecraft.getInstance().getTextureManager().register(DynamicFontTexture.DEFAULT_NAME, this.fullTexture);
+        // preload codepoint 0x01-0xff
+        for (int i = 1; i < 256; i++) {
+            this.fullTexture.getGlyph(i);
         }
     }
 
@@ -81,37 +79,4 @@ public class TerminalFont {
             preloadCharacterFont(textBuffer);
         }
     }
-
-    record ANSITerminalGlyphInfo(NativeImage image, int offsetX, int offsetY, int width, int height) implements GlyphInfo{
-
-        public float getAdvance() {
-            return 0;
-        }
-
-        public BakedGlyph bake(Function<SheetGlyphInfo, BakedGlyph> function) {
-            return function.apply(new SheetGlyphInfo() {
-                @Override
-                public int getPixelWidth() {
-                    return ANSITerminalGlyphInfo.this.width;
-                }
-                @Override
-                public int getPixelHeight() {
-                    return ANSITerminalGlyphInfo.this.height;
-                }
-                @Override
-                public void upload(int xOffset, int yOffset) {
-                    ANSITerminalGlyphInfo.this.image.upload(0, xOffset, yOffset, ANSITerminalGlyphInfo.this.offsetX, ANSITerminalGlyphInfo.this.offsetY, width, height, false, false);
-                }
-                @Override
-                public boolean isColored() {
-                    return true;
-                }
-                @Override
-                public float getOversample() {
-                    return 1;
-                }
-            });
-        }
-    }
-
 }

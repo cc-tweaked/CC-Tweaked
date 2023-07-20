@@ -59,7 +59,7 @@ public final class PrintoutRenderer {
     }
 
     public static void drawText(PoseStack transform, MultiBufferSource bufferSource, int x, int y, int start, int light, TextBuffer[] text, TextBuffer[] colours) {
-        var buffer = bufferSource.getBuffer(RenderTypes.PRINTOUT_TEXT);
+        var buffer = bufferSource.getBuffer(RenderTypes.PRINTOUT_FULLTEXT);
         var emitter = FixedWidthFontRenderer.toVertexConsumer(transform, buffer);
         for (var line = 0; line < LINES_PER_PAGE && line < text.length; line++) {
             FixedWidthFontRenderer.drawString(emitter,
@@ -70,7 +70,7 @@ public final class PrintoutRenderer {
     }
 
     public static void drawText(PoseStack transform, MultiBufferSource bufferSource, int x, int y, int start, int light, String[] text, String[] colours) {
-        var buffer = bufferSource.getBuffer(RenderTypes.PRINTOUT_TEXT);
+        var buffer = bufferSource.getBuffer(RenderTypes.PRINTOUT_FULLTEXT);
         var emitter = FixedWidthFontRenderer.toVertexConsumer(transform, buffer);
         for (var line = 0; line < LINES_PER_PAGE && line < text.length; line++) {
             FixedWidthFontRenderer.drawString(emitter,
