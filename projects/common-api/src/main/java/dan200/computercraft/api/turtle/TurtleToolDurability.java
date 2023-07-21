@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 /**
  * Indicates if an equipped turtle item will consume durability.
  *
- * @see TurtleUpgradeDataProvider.ToolBuilder#consumesDurability(TurtleToolDurability)
+ * @see TurtleUpgradeDataProvider.ToolBuilder#consumeDurability(TurtleToolDurability)
  */
 public enum TurtleToolDurability implements StringRepresentable {
     /**
@@ -35,6 +35,7 @@ public enum TurtleToolDurability implements StringRepresentable {
     /**
      * The codec which may be used for serialising/deserialising {@link TurtleToolDurability}s.
      */
+    @SuppressWarnings("deprecation")
     public static final StringRepresentable.EnumCodec<TurtleToolDurability> CODEC = StringRepresentable.fromEnum(TurtleToolDurability::values);
 
     TurtleToolDurability(String serialisedName) {

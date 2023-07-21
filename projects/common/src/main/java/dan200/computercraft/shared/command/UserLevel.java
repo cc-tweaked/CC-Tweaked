@@ -49,6 +49,29 @@ public enum UserLevel implements Predicate<CommandSourceStack> {
         return source.hasPermission(toLevel());
     }
 
+    /**
+     * Take the union of two {@link UserLevel}s.
+     * <p>
+     * This satisfies the property that for all sources {@code s}, {@code a.test(s) || b.test(s) == (a ∪ b).test(s)}.
+     *
+     * @param left  The first user level to take the union of.
+     * @param right The second user level to take the union of.
+     * @return The union of two levels.
+     */
+    public static UserLevel union(UserLevel left, UserLevel right) {
+        if (left == right) return left;
+
+        // x ∪ ANYONE = ANYONE
+        if (left == ANYONE || right == ANYONE) return ANYONE;
+
+        // x ∪ OWNER = OWNER
+        if (left == OWNER) return right;
+        if (right == OWNER) return left;
+
+        // At this point, we have x != y and x, y ∈ { OP, OWNER_OP }.
+        return OWNER_OP;
+    }
+
     private static boolean isOwner(CommandSourceStack source) {
         var server = source.getServer();
         var sender = source.getEntity();

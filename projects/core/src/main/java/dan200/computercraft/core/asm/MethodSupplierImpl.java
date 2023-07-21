@@ -76,7 +76,7 @@ final class MethodSupplierImpl<T> implements MethodSupplier<T> {
             for (var extra : source.getExtra()) {
                 var extraMethods = getMethods(extra.getClass());
                 if (!extraMethods.isEmpty()) hasMethods = true;
-                for (var method : extraMethods) consumer.accept(object, method.name(), method.method(), method);
+                for (var method : extraMethods) consumer.accept(extra, method.name(), method.method(), method);
             }
         }
 

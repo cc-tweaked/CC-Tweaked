@@ -54,12 +54,6 @@ public interface ConfigFile {
      * A group of config entries.
      */
     non-sealed interface Group extends Entry {
-        /**
-         * Get all entries in this group.
-         *
-         * @return All child entries.
-         */
-        Stream<Entry> children();
     }
 
     /**

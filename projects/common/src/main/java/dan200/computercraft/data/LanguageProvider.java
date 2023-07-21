@@ -6,6 +6,7 @@ package dan200.computercraft.data;
 
 import com.google.gson.JsonObject;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
 import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
 import dan200.computercraft.api.upgrades.UpgradeBase;
@@ -20,6 +21,7 @@ import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
@@ -96,6 +98,12 @@ public final class LanguageProvider implements DataProvider {
         add(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get().getDescriptionId() + ".upgraded", "%s Pocket Computer");
         add(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get(), "Advanced Pocket Computer");
         add(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get().getDescriptionId() + ".upgraded", "Advanced %s Pocket Computer");
+
+        // Tags (for EMI)
+        add(ComputerCraftTags.Items.COMPUTER, "Computers");
+        add(ComputerCraftTags.Items.TURTLE, "Turtles");
+        add(ComputerCraftTags.Items.WIRED_MODEM, "Wired modems");
+        add(ComputerCraftTags.Items.MONITOR, "Monitors");
 
         // Turtle/pocket upgrades
         add("upgrade.minecraft.diamond_sword.adjective", "Melee");
@@ -214,6 +222,7 @@ public final class LanguageProvider implements DataProvider {
         addConfigEntry(ConfigSpec.defaultComputerSettings, "Default Computer settings");
         addConfigEntry(ConfigSpec.logComputerErrors, "Log computer errors");
         addConfigEntry(ConfigSpec.commandRequireCreative, "Command computers require creative");
+        addConfigEntry(ConfigSpec.disabledGenericMethods, "Disabled generic methods");
 
         addConfigGroup(ConfigSpec.serverSpec, "execution", "Execution");
         addConfigEntry(ConfigSpec.computerThreads, "Computer threads");
@@ -277,8 +286,8 @@ public final class LanguageProvider implements DataProvider {
             turtleUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),
             pocketUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),
             Metric.metrics().values().stream().map(x -> AggregatedMetric.TRANSLATION_PREFIX + x.name() + ".name"),
-            getConfigEntries(ConfigSpec.serverSpec).map(ConfigFile.Entry::translationKey),
-            getConfigEntries(ConfigSpec.clientSpec).map(ConfigFile.Entry::translationKey)
+            ConfigSpec.serverSpec.entries().map(ConfigFile.Entry::translationKey),
+            ConfigSpec.clientSpec.entries().map(ConfigFile.Entry::translationKey)
         ).flatMap(x -> x);
     }
 
@@ -298,6 +307,10 @@ public final class LanguageProvider implements DataProvider {
         add(AggregatedMetric.TRANSLATION_PREFIX + metric.name() + ".name", text);
     }
 
+    private void add(TagKey<Item> tag, String text) {
+        add("tag.item." + tag.location().getNamespace() + "." + tag.location().getPath(), text);
+    }
+
     private void addConfigGroup(ConfigFile spec, String path, String text) {
         var entry = spec.getEntry(path);
         if (!(entry instanceof ConfigFile.Group)) throw new IllegalArgumentException("Cannot find group " + path);
@@ -307,17 +320,5 @@ public final class LanguageProvider implements DataProvider {
     private void addConfigEntry(ConfigFile.Entry value, String text) {
         add(value.translationKey(), text);
         add(value.translationKey() + ".tooltip", value.comment());
-    }
-
-    private static Stream<ConfigFile.Entry> getConfigEntries(ConfigFile spec) {
-        return spec.entries().flatMap(LanguageProvider::getConfigEntries);
-    }
-
-    private static Stream<ConfigFile.Entry> getConfigEntries(ConfigFile.Entry entry) {
-        if (entry instanceof ConfigFile.Value<?>) return Stream.of(entry);
-        if (entry instanceof ConfigFile.Group group) {
-            return Stream.concat(Stream.of(entry), group.children().flatMap(LanguageProvider::getConfigEntries));
-        }
-        throw new IllegalStateException("Invalid config entry " + entry);
     }
 }

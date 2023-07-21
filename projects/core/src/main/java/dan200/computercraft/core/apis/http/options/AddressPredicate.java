@@ -6,9 +6,14 @@ package dan200.computercraft.core.apis.http.options;
 
 import com.google.common.net.InetAddresses;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * A predicate on an address. Matches against a domain and an ip address.
@@ -107,12 +112,47 @@ interface AddressPredicate {
     final class PrivatePattern implements AddressPredicate {
         static final PrivatePattern INSTANCE = new PrivatePattern();
 
+        private static final Set<InetAddress> additionalAddresses = Arrays.stream(new String[]{
+            // Block various cloud providers internal IPs.
+            "192.0.0.192", // Oracle
+        }).map(InetAddresses::forString).collect(Collectors.toUnmodifiableSet());
+
         @Override
         public boolean matches(InetAddress socketAddress) {
-            return socketAddress.isAnyLocalAddress()
-                || socketAddress.isLoopbackAddress()
-                || socketAddress.isLinkLocalAddress()
-                || socketAddress.isSiteLocalAddress();
+            return socketAddress.isAnyLocalAddress()   // 0.0.0.0, ::0
+                || socketAddress.isLoopbackAddress()   // 127.0.0.0/8, ::1
+                || socketAddress.isLinkLocalAddress()  // 169.254.0.0/16, fe80::/10
+                || socketAddress.isSiteLocalAddress()  // 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, fec0::/10
+                || socketAddress.isMulticastAddress()  // 224.0.0.0/4, ff00::/8
+                || isUniqueLocalAddress(socketAddress) // fd00::/8
+                || isCarrierGradeNatAddress(socketAddress) // 100.64.0.0/10
+                || additionalAddresses.contains(socketAddress);
+        }
+
+        /**
+         * Determine if an IP address lives inside the ULA address range.
+         *
+         * @param address The IP address to test.
+         * @return Whether this address sits in the ULA address range.
+         * @see <a href="https://en.wikipedia.org/wiki/Unique_local_address">Unique local address on Wikipedia</a>
+         */
+        private boolean isUniqueLocalAddress(InetAddress address) {
+            // ULA is actually defined as fc00::/7 (so both fc00::/8 and fd00::/8). However, only the latter is actually
+            // defined right now, so let's be conservative.
+            return address instanceof Inet6Address && (address.getAddress()[0] & 0xff) == 0xfd;
+        }
+
+        /**
+         * Determine if an IP address lives within the CGNAT address range (100.64.0.0/10).
+         *
+         * @param address The IP address to test.
+         * @return Whether this address sits in the CGNAT address range.
+         * @see <a href="https://en.wikipedia.org/wiki/Carrier-grade_NAT">Carrier-grade NAT on Wikipedia</a>
+         */
+        private boolean isCarrierGradeNatAddress(InetAddress address) {
+            if (!(address instanceof Inet4Address)) return false;
+            var bytes = address.getAddress();
+            return bytes[0] == 100 && ((bytes[1] & 0xFF) >= 64 && (bytes[1] & 0xFF) <= 127);
         }
     }
 

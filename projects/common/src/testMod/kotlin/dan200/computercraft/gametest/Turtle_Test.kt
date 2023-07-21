@@ -7,9 +7,13 @@ package dan200.computercraft.gametest
 import dan200.computercraft.api.detail.BasicItemDetailProvider
 import dan200.computercraft.api.detail.VanillaDetailRegistries
 import dan200.computercraft.api.lua.ObjectArguments
+import dan200.computercraft.api.turtle.ITurtleUpgrade
+import dan200.computercraft.api.turtle.TurtleSide
+import dan200.computercraft.api.upgrades.UpgradeData
 import dan200.computercraft.core.apis.PeripheralAPI
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.gametest.core.TestHooks
+import dan200.computercraft.impl.TurtleUpgrades
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.mixin.gametest.GameTestInfoAccessor
 import dan200.computercraft.shared.ModRegistry
@@ -30,6 +34,7 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.item.PrimedTnt
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
+import net.minecraft.world.item.enchantment.Enchantments
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.FenceBlock
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
@@ -140,11 +145,31 @@ class Turtle_Test {
      */
     @GameTest
     fun Hoe_dirt(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer { turtle.dig(Optional.empty()).await().assertArrayEquals(true, message = "Dug with hoe") }
+        thenExecute { helper.assertBlockPresent(Blocks.FARMLAND, BlockPos(1, 2, 1)) }
+    }
+
+    /**
+     * Checks turtles can hoe dirt with a block gap below them.
+     *
+     * @see [#1527](https://github.com/cc-tweaked/CC-Tweaked/issues/1527)
+     */
+    @GameTest
+    fun Hoe_dirt_below(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer { turtle.digDown(Optional.empty()).await().assertArrayEquals(true, message = "Dug with hoe") }
+        thenExecute { helper.assertBlockPresent(Blocks.FARMLAND, BlockPos(1, 1, 1)) }
+    }
+
+    /**
+     * Checks turtles cannot hoe dirt with a block gap in front of them.
+     */
+    @GameTest
+    fun Hoe_dirt_distant(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
             turtle.dig(Optional.empty()).await()
-                .assertArrayEquals(true, message = "Dug with hoe")
+                .assertArrayEquals(false, "Nothing to dig here", message = "Dug with hoe")
         }
-        thenExecute { helper.assertBlockPresent(Blocks.FARMLAND, BlockPos(1, 2, 1)) }
+        thenExecute { helper.assertBlockPresent(Blocks.DIRT, BlockPos(1, 2, 2)) }
     }
 
     /**
@@ -171,6 +196,85 @@ class Turtle_Test {
                     ItemStack(ModRegistry.Items.WIRED_MODEM.get()),
                 ),
             )
+        }
+    }
+
+    /**
+     * Digging using a pickaxe with `{"consumesDurability": "always"}`, consumes durability.
+     */
+    @GameTest
+    fun Dig_consume_durability(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer { turtle.dig(Optional.empty()).await() }
+        thenExecute {
+            helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 2, 3))
+            helper.assertContainerExactly(BlockPos(2, 2, 2), listOf(ItemStack(Items.COBBLESTONE)))
+
+            val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
+            val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
+            assertEquals(TurtleUpgrades.instance().get("cctest:wooden_pickaxe"), upgrade, "Upgrade is a wooden pickaxe")
+
+            val item = ItemStack(Items.WOODEN_PICKAXE)
+            item.damageValue = 1
+            helper.assertUpgradeItem(item, turtle.getUpgradeWithData(TurtleSide.LEFT)!!)
+        }
+    }
+
+    /**
+     * Digging using a pickaxe with `{"consumesDurability": "always"}` and no durability removes the tool.
+     */
+    @GameTest
+    fun Dig_breaks_tool(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer { turtle.dig(Optional.empty()).await() }
+        thenExecute {
+            helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 2, 3))
+            helper.assertContainerExactly(BlockPos(2, 2, 2), listOf(ItemStack(Items.COBBLESTONE)))
+
+            val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
+            val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
+            assertEquals(null, upgrade, "Upgrade broke")
+
+            helper.assertUpgradeItem(
+                ItemStack(Items.WOODEN_PICKAXE),
+                UpgradeData.ofDefault(TurtleUpgrades.instance().get("cctest:wooden_pickaxe")),
+            )
+        }
+    }
+
+    /**
+     * Digging using a silk-touch enchanted pickaxe with `{"consumesDurability": "when_enchanted"}`, consumes durability
+     * uses silk touch.
+     */
+    @GameTest
+    fun Dig_enchanted_consume_durability(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer { turtle.dig(Optional.empty()).await() }
+        thenExecute {
+            helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 2, 3))
+            helper.assertContainerExactly(BlockPos(2, 2, 2), listOf(ItemStack(Items.STONE)))
+
+            val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
+            val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
+            assertEquals(
+                TurtleUpgrades.instance().get("cctest:netherite_pickaxe"),
+                upgrade,
+                "Upgrade is a netherite pickaxe",
+            )
+
+            val item = ItemStack(Items.NETHERITE_PICKAXE)
+            item.damageValue = 1
+            item.enchant(Enchantments.SILK_TOUCH, 1)
+            item.setRepairCost(1)
+
+            helper.assertUpgradeItem(item, turtle.getUpgradeWithData(TurtleSide.LEFT)!!)
+        }
+    }
+
+    private fun GameTestHelper.assertUpgradeItem(expected: ItemStack, upgrade: UpgradeData<ITurtleUpgrade>) {
+        if (!ItemStack.matches(expected, upgrade.upgradeItem)) {
+            fail("Invalid upgrade item\n Expected => ${expected.tag}\n    Actual => ${upgrade.upgradeItem.tag}")
+        }
+
+        if (!ItemStack.matches(ItemStack(expected.item), upgrade.upgrade.craftingItem)) {
+            fail("Original upgrade item has changed (is now ${upgrade.upgrade.craftingItem})")
         }
     }
 

@@ -64,7 +64,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
         private @Nullable Float damageMultiplier = null;
         private @Nullable TagKey<Block> breakable;
         private boolean allowEnchantments = false;
-        private TurtleToolDurability consumesDurability = TurtleToolDurability.NEVER;
+        private TurtleToolDurability consumeDurability = TurtleToolDurability.NEVER;
 
         ToolBuilder(ResourceLocation id, TurtleUpgradeSerialiser<?> serialiser, Item toolItem) {
             this.id = id;
@@ -125,8 +125,8 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
          * @param durability The durability predicate.
          * @return The tool builder, for further use.
          */
-        public ToolBuilder consumesDurability(TurtleToolDurability durability) {
-            consumesDurability = durability;
+        public ToolBuilder consumeDurability(TurtleToolDurability durability) {
+            consumeDurability = durability;
             return this;
         }
 
@@ -159,8 +159,8 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
                 if (damageMultiplier != null) s.addProperty("damageMultiplier", damageMultiplier);
                 if (breakable != null) s.addProperty("breakable", breakable.location().toString());
                 if (allowEnchantments) s.addProperty("allowEnchantments", true);
-                if (consumesDurability != TurtleToolDurability.NEVER) {
-                    s.addProperty("consumesDurability", consumesDurability.getSerializedName());
+                if (consumeDurability != TurtleToolDurability.NEVER) {
+                    s.addProperty("consumeDurability", consumeDurability.getSerializedName());
                 }
             }));
         }

@@ -96,7 +96,12 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
 
     @Override
     public boolean shouldLoadResource(JsonObject object) {
-        throw new UnsupportedOperationException("Cannot use loot conditions");
+        throw new UnsupportedOperationException("Cannot use resource conditions");
+    }
+
+    @Override
+    public void addRequiredModCondition(JsonObject object, String modId) {
+        throw new UnsupportedOperationException("Cannot use resource conditions");
     }
 
     @Override

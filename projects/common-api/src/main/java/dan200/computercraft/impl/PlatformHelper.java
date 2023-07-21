@@ -4,6 +4,8 @@
 
 package dan200.computercraft.impl;
 
+import com.google.gson.JsonObject;
+import dan200.computercraft.api.upgrades.UpgradeDataProvider;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
@@ -62,6 +64,15 @@ public interface PlatformHelper {
     default CompoundTag getShareTag(ItemStack item) {
         return item.getTag();
     }
+
+    /**
+     * Add a resource condition which requires a mod to be loaded. This should be used by data providers such as
+     * {@link UpgradeDataProvider}.
+     *
+     * @param object The JSON object we're generating.
+     * @param modId  The mod ID that we require.
+     */
+    void addRequiredModCondition(JsonObject object, String modId);
 
     final class Instance {
         static final @Nullable PlatformHelper INSTANCE;

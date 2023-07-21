@@ -26,6 +26,7 @@ dependencies {
     clientImplementation(clientClasses(project(":common-api")))
 
     compileOnly(libs.bundles.externalMods.common)
+    clientCompileOnly(variantOf(libs.emi) { classifier("api") })
 
     compileOnly(libs.mixin)
     annotationProcessorEverywhere(libs.autoService)

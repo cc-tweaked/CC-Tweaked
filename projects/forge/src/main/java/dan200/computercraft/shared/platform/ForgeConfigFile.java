@@ -32,7 +32,7 @@ public final class ForgeConfigFile implements ConfigFile {
 
     @Override
     public Stream<Entry> entries() {
-        return entries.children();
+        return entries.stream();
     }
 
     @Nullable
@@ -68,7 +68,7 @@ public final class ForgeConfigFile implements ConfigFile {
         @Override
         public void pop() {
             var path = new ArrayList<>(groupStack);
-            entries.setValue(path, new GroupImpl(path, entries.getChild(path)));
+            entries.setValue(path, new GroupImpl(path));
 
             builder.pop();
             super.pop();
@@ -129,12 +129,10 @@ public final class ForgeConfigFile implements ConfigFile {
 
     private static final class GroupImpl implements ConfigFile.Group {
         private final List<String> path;
-        private final Trie<String, ConfigFile.Entry> entries;
         private @Nullable ForgeConfigSpec owner;
 
-        private GroupImpl(List<String> path, Trie<String, ConfigFile.Entry> entries) {
+        private GroupImpl(List<String> path) {
             this.path = path;
-            this.entries = entries;
         }
 
         @Override
@@ -147,11 +145,6 @@ public final class ForgeConfigFile implements ConfigFile {
         public String comment() {
             if (owner == null) throw new IllegalStateException("Config has not been built yet");
             return owner.getLevelComment(path);
-        }
-
-        @Override
-        public Stream<Entry> children() {
-            return entries.children();
         }
     }
 

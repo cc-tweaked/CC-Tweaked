@@ -6,6 +6,7 @@ Upstream-Contact: Jonathan Coates <git@squiddev.cc>
 Files:
   projects/common/src/main/resources/assets/computercraft/sounds.json
   projects/common/src/main/resources/assets/computercraft/sounds/empty.ogg
+  projects/common/src/testMod/resources/data/cctest/computercraft/turtle_upgrades/*
   projects/common/src/testMod/resources/data/cctest/structures/*
   projects/fabric/src/generated/*
   projects/forge/src/generated/*
@@ -47,6 +48,7 @@ License: MPL-2.0
 
 Files:
   doc/logo.png
+  doc/logo-darkmode.png
   projects/common/src/main/resources/assets/computercraft/models/*
   projects/common/src/main/resources/assets/computercraft/textures/*
   projects/common/src/main/resources/pack.mcmeta

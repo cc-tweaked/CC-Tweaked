@@ -6,10 +6,12 @@ package dan200.computercraft.impl;
 
 import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.core.asm.GenericMethod;
+import dan200.computercraft.shared.config.ConfigSpec;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * The global registry for {@link GenericSource}s.
@@ -29,6 +31,11 @@ public final class GenericSources {
     }
 
     public static Collection<GenericMethod> getAllMethods() {
-        return sources.stream().flatMap(GenericMethod::getMethods).toList();
+        var disabledMethods = Set.copyOf(ConfigSpec.disabledGenericMethods.get());
+        return sources.stream()
+            .filter(x -> !disabledMethods.contains(x.id()))
+            .flatMap(GenericMethod::getMethods)
+            .filter(x -> !disabledMethods.contains(x.id()))
+            .toList();
     }
 }

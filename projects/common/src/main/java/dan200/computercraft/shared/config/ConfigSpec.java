@@ -35,6 +35,7 @@ public final class ConfigSpec {
     public static final ConfigFile.Value<Boolean> logComputerErrors;
     public static final ConfigFile.Value<Boolean> commandRequireCreative;
     public static final ConfigFile.Value<Integer> uploadMaxSize;
+    public static final ConfigFile.Value<List<? extends String>> disabledGenericMethods;
 
     public static final ConfigFile.Value<Integer> computerThreads;
     public static final ConfigFile.Value<Integer> maxMainGlobalTime;
@@ -139,6 +140,19 @@ public final class ConfigSpec {
                     Require players to be in creative mode and be opped in order to interact with
                     command computers. This is the default behaviour for vanilla's Command blocks.""")
                 .define("command_require_creative", Config.commandRequireCreative);
+
+            disabledGenericMethods = builder
+                .comment("""
+                    A list of generic methods or method sources to disable. Generic methods are
+                    methods added to a block/block entity when there is no explicit peripheral
+                    provider. This includes inventory methods (i.e. inventory.getItemDetail,
+                    inventory.pushItems), and (if on Forge), the fluid_storage and energy_storage
+                    methods.
+                    Methods in this list can either be a whole group of methods (computercraft:inventory)
+                    or a single method (computercraft:inventory#pushItems).
+                    """)
+                .worldRestart()
+                .defineList("disabled_generic_methods", List.of(), x -> x instanceof String);
         }
 
         {

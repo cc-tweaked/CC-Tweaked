@@ -73,7 +73,7 @@ public class FabricDataGenerators implements DataGeneratorEntrypoint {
             for (var table : tables) {
                 generator.addProvider((FabricDataOutput out) -> new SimpleFabricLootTableProvider(out, table.paramSet()) {
                     @Override
-                    public void accept(BiConsumer<ResourceLocation, LootTable.Builder> exporter) {
+                    public void generate(BiConsumer<ResourceLocation, LootTable.Builder> exporter) {
                         table.provider().get().generate(exporter);
                     }
                 });

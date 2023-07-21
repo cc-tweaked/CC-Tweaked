@@ -24,16 +24,22 @@ import java.util.stream.Stream;
 public final class GenericMethod {
     private static final Logger LOG = LoggerFactory.getLogger(GenericMethod.class);
 
+    final GenericSource source;
     final Method method;
     final LuaFunction annotation;
     final Class<?> target;
     final @Nullable PeripheralType peripheralType;
 
-    private GenericMethod(Method method, LuaFunction annotation, Class<?> target, @Nullable PeripheralType peripheralType) {
+    private GenericMethod(GenericSource source, Method method, LuaFunction annotation, Class<?> target, @Nullable PeripheralType peripheralType) {
+        this.source = source;
         this.method = method;
         this.annotation = annotation;
         this.target = target;
         this.peripheralType = peripheralType;
+    }
+
+    public String id() {
+        return source.id() + "#" + name();
     }
 
     public String name() {
@@ -69,7 +75,7 @@ public final class GenericMethod {
                 var target = Reflect.getRawType(method, types[0], false);
                 if (target == null) return null;
 
-                return new GenericMethod(method, annotation, target, type);
+                return new GenericMethod(source, method, annotation, target, type);
             })
             .filter(Objects::nonNull);
     }

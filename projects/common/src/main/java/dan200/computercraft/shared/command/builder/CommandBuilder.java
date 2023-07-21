@@ -48,9 +48,13 @@ public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>> {
         return this;
     }
 
-    public CommandBuilder<S> arg(String name, ArgumentType<?> type) {
-        args.add(RequiredArgumentBuilder.argument(name, type));
+    public CommandBuilder<S> arg(ArgumentBuilder<S, ?> arg) {
+        args.add(arg);
         return this;
+    }
+
+    public CommandBuilder<S> arg(String name, ArgumentType<?> type) {
+        return arg(RequiredArgumentBuilder.argument(name, type));
     }
 
     public <T> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argManyValue(String name, ArgumentType<T> type, List<T> empty) {
@@ -74,7 +78,7 @@ public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>> {
 
         return command -> {
             // The node for no arguments
-            var tail = tail(ctx -> command.run(ctx, empty.get()));
+            var tail = setupTail(ctx -> command.run(ctx, empty.get()));
 
             // The node for one or more arguments
             ArgumentBuilder<S, ?> moreArg = RequiredArgumentBuilder
@@ -83,7 +87,7 @@ public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>> {
 
             // Chain all of them together!
             tail.then(moreArg);
-            return link(tail);
+            return buildTail(tail);
         };
     }
 
@@ -94,20 +98,16 @@ public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>> {
 
     @Override
     public CommandNode<S> executes(Command<S> command) {
-        if (args.isEmpty()) throw new IllegalStateException("Cannot have empty arg chain builder");
-
-        return link(tail(command));
+        return buildTail(setupTail(command));
     }
 
-    private ArgumentBuilder<S, ?> tail(Command<S> command) {
-        var defaultTail = args.get(args.size() - 1);
-        defaultTail.executes(command);
-        if (requires != null) defaultTail.requires(requires);
-        return defaultTail;
+    private ArgumentBuilder<S, ?> setupTail(Command<S> command) {
+        return args.get(args.size() - 1).executes(command);
     }
 
-    private CommandNode<S> link(ArgumentBuilder<S, ?> tail) {
+    private CommandNode<S> buildTail(ArgumentBuilder<S, ?> tail) {
         for (var i = args.size() - 2; i >= 0; i--) tail = args.get(i).then(tail);
+        if (requires != null) tail.requires(requires);
         return tail.build();
     }
 }

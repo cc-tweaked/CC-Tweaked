@@ -4,19 +4,22 @@
 
 package dan200.computercraft.client;
 
-import dan200.computercraft.client.model.EmissiveComputerModel;
-import dan200.computercraft.client.model.turtle.TurtleModelLoader;
+import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.client.model.CustomModelLoader;
 import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
+import dan200.computercraft.shared.platform.FabricConfigFile;
 import dan200.computercraft.shared.platform.NetworkHandler;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
+import net.fabricmc.fabric.api.client.model.loading.v1.PreparableModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.ItemStack;
@@ -36,9 +39,12 @@ public class ComputerCraftClient {
         ClientRegistry.registerItemColours(ColorProviderRegistry.ITEM::register);
         ClientRegistry.registerMainThread();
 
-        ModelLoadingRegistry.INSTANCE.registerModelProvider((manager, out) -> ClientRegistry.registerExtraModels(out));
-        ModelLoadingRegistry.INSTANCE.registerResourceProvider(loader -> (path, ctx) -> TurtleModelLoader.load(loader, path));
-        ModelLoadingRegistry.INSTANCE.registerResourceProvider(loader -> (path, ctx) -> EmissiveComputerModel.load(loader, path));
+        PreparableModelLoadingPlugin.register(CustomModelLoader::prepare, (state, context) -> {
+            ClientRegistry.registerExtraModels(context::addModels);
+            context.resolveModel().register(ctx -> state.loadModel(ctx.id()));
+            context.modifyModelAfterBake().register((model, ctx) -> state.wrapModel(ctx, model));
+        });
+
         BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Blocks.COMPUTER_NORMAL.get(), RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Blocks.COMPUTER_COMMAND.get(), RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Blocks.COMPUTER_ADVANCED.get(), RenderType.cutout());
@@ -68,5 +74,7 @@ public class ComputerCraftClient {
 
             return cable.getCloneItemStack(state, hit, level, pos, player);
         });
+
+        ((FabricConfigFile) ConfigSpec.clientSpec).load(FabricLoader.getInstance().getConfigDir().resolve(ComputerCraftAPI.MOD_ID + "-client.toml"));
     }
 }
