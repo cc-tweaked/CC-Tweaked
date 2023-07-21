@@ -294,17 +294,18 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     private TurtleCommandResult dig(ITurtleAccess turtle, TurtleSide side, Direction direction) {
         var level = (ServerLevel) turtle.getLevel();
 
-        var blockPosition = turtle.getPosition().relative(direction);
-        if (level.isEmptyBlock(blockPosition) || WorldUtil.isLiquidBlock(level, blockPosition)) {
-            return TurtleCommandResult.failure("Nothing to dig here");
-        }
-
         return withEquippedItem(turtle, side, direction, turtlePlayer -> {
             var stack = turtlePlayer.player().getItemInHand(InteractionHand.MAIN_HAND);
 
-            // Right-click the block when using a shovel/hoe.
-            if (PlatformHelper.get().hasToolUsage(item) && TurtlePlaceCommand.deploy(stack, turtle, turtlePlayer, direction, null, null)) {
+            // Right-click the block when using a shovel/hoe. Important that we do this before checking the block is
+            // present, as we allow doing these actions from slightly further away.
+            if (PlatformHelper.get().hasToolUsage(stack) && useTool(level, turtle, turtlePlayer, stack, direction)) {
                 return TurtleCommandResult.success();
+            }
+
+            var blockPosition = turtle.getPosition().relative(direction);
+            if (level.isEmptyBlock(blockPosition) || WorldUtil.isLiquidBlock(level, blockPosition)) {
+                return TurtleCommandResult.failure("Nothing to dig here");
             }
 
             // Check if we can break the block
@@ -318,6 +319,32 @@ public class TurtleTool extends AbstractTurtleUpgrade {
 
             return broken ? TurtleCommandResult.success() : TurtleCommandResult.failure("Cannot break protected block");
         });
+    }
+
+    /**
+     * Attempt to use a tool against a block instead.
+     *
+     * @param level        The current level.
+     * @param turtle       The current turtle.
+     * @param turtlePlayer The turtle player, already positioned and with a stack equipped.
+     * @param stack        The current tool's stack.
+     * @param direction    The direction this action occurs in.
+     * @return Whether the tool was successfully used.
+     * @see PlatformHelper#hasToolUsage(ItemStack)
+     */
+    private boolean useTool(ServerLevel level, ITurtleAccess turtle, TurtlePlayer turtlePlayer, ItemStack stack, Direction direction) {
+        var position = turtle.getPosition().relative(direction);
+        // Allow digging one extra block below the turtle, as you can't till dirt/flatten grass if there's a block
+        // above.
+        if (direction == Direction.DOWN && level.isEmptyBlock(position)) position = position.relative(direction);
+
+        if (!level.isInWorldBounds(position) || level.isEmptyBlock(position) || turtlePlayer.isBlockProtected(level, position)) {
+            return false;
+        }
+
+        var hit = TurtlePlaceCommand.getHitResult(position, direction.getOpposite());
+        var result = PlatformHelper.get().useOn(turtlePlayer.player(), stack, hit, x -> false);
+        return result.consumesAction();
     }
 
     private static boolean isTriviallyBreakable(BlockGetter reader, BlockPos pos, BlockState state) {

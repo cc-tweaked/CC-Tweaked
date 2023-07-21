@@ -145,11 +145,31 @@ class Turtle_Test {
      */
     @GameTest
     fun Hoe_dirt(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer { turtle.dig(Optional.empty()).await().assertArrayEquals(true, message = "Dug with hoe") }
+        thenExecute { helper.assertBlockPresent(Blocks.FARMLAND, BlockPos(1, 2, 1)) }
+    }
+
+    /**
+     * Checks turtles can hoe dirt with a block gap below them.
+     *
+     * @see [#1527](https://github.com/cc-tweaked/CC-Tweaked/issues/1527)
+     */
+    @GameTest
+    fun Hoe_dirt_below(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer { turtle.digDown(Optional.empty()).await().assertArrayEquals(true, message = "Dug with hoe") }
+        thenExecute { helper.assertBlockPresent(Blocks.FARMLAND, BlockPos(1, 1, 1)) }
+    }
+
+    /**
+     * Checks turtles cannot hoe dirt with a block gap in front of them.
+     */
+    @GameTest
+    fun Hoe_dirt_distant(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
             turtle.dig(Optional.empty()).await()
-                .assertArrayEquals(true, message = "Dug with hoe")
+                .assertArrayEquals(false, "Nothing to dig here", message = "Dug with hoe")
         }
-        thenExecute { helper.assertBlockPresent(Blocks.FARMLAND, BlockPos(1, 2, 1)) }
+        thenExecute { helper.assertBlockPresent(Blocks.DIRT, BlockPos(1, 2, 2)) }
     }
 
     /**
