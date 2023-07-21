@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.TextBuffer;
+import dan200.computercraft.core.terminal.VariableWidthTextBuffer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import org.joml.Matrix4f;
 
@@ -58,7 +59,7 @@ public final class PrintoutRenderer {
     private PrintoutRenderer() {
     }
 
-    public static void drawText(PoseStack transform, MultiBufferSource bufferSource, int x, int y, int start, int light, TextBuffer[] text, TextBuffer[] colours) {
+    public static void drawText(PoseStack transform, MultiBufferSource bufferSource, int x, int y, int start, int light, VariableWidthTextBuffer[] text, TextBuffer[] colours) {
         var buffer = bufferSource.getBuffer(RenderTypes.PRINTOUT_FULLTEXT);
         var emitter = FixedWidthFontRenderer.toVertexConsumer(transform, buffer);
         for (var line = 0; line < LINES_PER_PAGE && line < text.length; line++) {
@@ -75,7 +76,7 @@ public final class PrintoutRenderer {
         for (var line = 0; line < LINES_PER_PAGE && line < text.length; line++) {
             FixedWidthFontRenderer.drawString(emitter,
                 x, y + line * FONT_HEIGHT,
-                new TextBuffer(text[start + line]), new TextBuffer(colours[start + line]),
+                new VariableWidthTextBuffer(text[start + line]), new TextBuffer(colours[start + line]),
                 Palette.DEFAULT, light
             );
         }

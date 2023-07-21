@@ -40,6 +40,7 @@ public class DynamicFontTexture extends AbstractTexture {
     private Int2ObjectMap<RegisteredGlyph> glyphs = new Int2ObjectOpenHashMap<>();
 
     private RegisteredGlyph whiteGlyph;
+    private RegisteredGlyph tofuGlyph;
 
 
     public DynamicFontTexture(int size){
@@ -49,41 +50,17 @@ public class DynamicFontTexture extends AbstractTexture {
         }
         TextureUtil.prepareImage(NativeImage.InternalGlFormat.RGBA, getId(), currentSize, currentSize);
         rootNode = new TextureSlotNode(0, 0, currentSize, currentSize);
-        var whiteImage = new NativeImage(NativeImage.Format.RGBA, 6, 9, false);
-        whiteImage.fillRect(0, 0, 6, 9, -1);
-        whiteImage.untrack();
-        whiteGlyph = Objects.requireNonNull(registerGlyph(new GlyphInfo() {
-            @Override
-            public float getAdvance() {
-                return 0;
-            }
-            @Override
-            public BakedGlyph bake(Function<SheetGlyphInfo, BakedGlyph> function) {
-                return function.apply(new SheetGlyphInfo() {
-                    @Override
-                    public int getPixelWidth() {
-                        return whiteImage.getWidth();
-                    }
-                    @Override
-                    public int getPixelHeight() {
-                        return whiteImage.getHeight();
-                    }
-                    @Override
-                    public void upload(int xOffset, int yOffset) {
-                        whiteImage.upload(0, xOffset, yOffset, false);
-                    }
-                    @Override
-                    public boolean isColored() {
-                        return true;
-                    }
-                    @Override
-                    public float getOversample() {
-                        return 1;
-                    }
-                });
-            }
-        }));
-        whiteImage.close();
+        try(var whiteImage = new NativeImage(NativeImage.Format.RGBA, 6, 9, false)){
+            whiteImage.fillRect(0, 0, 6, 9, -1);
+            whiteImage.untrack();
+            whiteGlyph = Objects.requireNonNull(registerGlyph(new SpecialGlyphInfo(whiteImage)));
+        }
+        try(var missing = new NativeImage(NativeImage.Format.RGBA, 6, 9, false)){
+            missing.fillRect(0, 0, 6, 9, 0xffffffff);
+            missing.fillRect(1, 1, 4, 7, 0x00ffffff);
+            missing.untrack();
+            tofuGlyph = Objects.requireNonNull(registerGlyph(new SpecialGlyphInfo(missing)));
+        }
     }
     @Override
     public void load(ResourceManager resourceManager) throws IOException {
@@ -104,9 +81,9 @@ public class DynamicFontTexture extends AbstractTexture {
             var glyphInfo = fontSet.getGlyphInfo(cp, false);
             if(glyphInfo != SpecialGlyphs.MISSING){
                 var glyph = registerGlyph(glyphInfo);
-                return glyph != null ? glyph : whiteGlyph;
+                return glyph != null ? glyph : tofuGlyph;
             }
-            return whiteGlyph;
+            return tofuGlyph;
         });
     }
 
@@ -121,11 +98,10 @@ public class DynamicFontTexture extends AbstractTexture {
     private RegisteredGlyph registerGlyph(GlyphInfo glyphInfo) {
         var regGlyphWrapper = new RegisteredGlyph[]{ null };
         glyphInfo.bake(sheetGlyphInfo -> {
-            var wrapper = new SheetGlyphInfoWrapper(sheetGlyphInfo, Optional.empty());
-            var assignedNode = rootNode.insert(wrapper);
+            var assignedNode = rootNode.insert(sheetGlyphInfo);
             if (assignedNode == null) {
                 resize(currentSize * 2);
-                assignedNode = rootNode.insert(wrapper);
+                assignedNode = rootNode.insert(sheetGlyphInfo);
             }
             if (assignedNode == null) {
                 return null;
@@ -260,39 +236,42 @@ public class DynamicFontTexture extends AbstractTexture {
 
     }
 
-    static class SheetGlyphInfoWrapper implements SheetGlyphInfo{
+    private static class SpecialGlyphInfo implements GlyphInfo {
+        private final NativeImage image;
 
-        private final SheetGlyphInfo backend;
-        private final Optional<Integer> optOffsetX;
-
-        SheetGlyphInfoWrapper(SheetGlyphInfo backend, Optional<Integer> optOffsetX){
-            this.backend = backend;
-            this.optOffsetX = optOffsetX;
+        public SpecialGlyphInfo(NativeImage image) {
+            this.image = image;
         }
 
         @Override
-        public int getPixelWidth() {
-            return optOffsetX.orElse(0) + backend.getPixelWidth();
+        public float getAdvance() {
+            return 0;
         }
 
         @Override
-        public int getPixelHeight() {
-            return backend.getPixelHeight();
-        }
-
-        @Override
-        public void upload(int i, int i1) {
-            backend.upload(i, i1);
-        }
-
-        @Override
-        public boolean isColored() {
-            return backend.isColored();
-        }
-
-        @Override
-        public float getOversample() {
-            return backend.getOversample();
+        public BakedGlyph bake(Function<SheetGlyphInfo, BakedGlyph> function) {
+            return function.apply(new SheetGlyphInfo() {
+                @Override
+                public int getPixelWidth() {
+                    return image.getWidth();
+                }
+                @Override
+                public int getPixelHeight() {
+                    return image.getHeight();
+                }
+                @Override
+                public void upload(int xOffset, int yOffset) {
+                    image.upload(0, xOffset, yOffset, false);
+                }
+                @Override
+                public boolean isColored() {
+                    return true;
+                }
+                @Override
+                public float getOversample() {
+                    return 1;
+                }
+            });
         }
     }
 }

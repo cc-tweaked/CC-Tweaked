@@ -1,6 +1,6 @@
 package dan200.computercraft.client.render.text;
 
-import dan200.computercraft.core.terminal.TextBuffer;
+import dan200.computercraft.core.terminal.VariableWidthTextBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -68,14 +68,14 @@ public class TerminalFont {
             registeredGlyph.v1() / this.fullTexture.getCurrentSize());
     }
 
-    public void preloadCharacterFont(TextBuffer textBuffer){
+    public void preloadCharacterFont(VariableWidthTextBuffer textBuffer){
         for (int i = 0; i < textBuffer.length(); i++) {
-            fullTexture.getGlyph(textBuffer.charAt(i));
+            fullTexture.getGlyph(textBuffer.codepointAt(i));
         }
     }
 
-    public void preloadCharacterFont(TextBuffer[] textBuffers){
-        for (TextBuffer textBuffer : textBuffers) {
+    public void preloadCharacterFont(VariableWidthTextBuffer[] textBuffers){
+        for (var textBuffer : textBuffers) {
             preloadCharacterFont(textBuffer);
         }
     }

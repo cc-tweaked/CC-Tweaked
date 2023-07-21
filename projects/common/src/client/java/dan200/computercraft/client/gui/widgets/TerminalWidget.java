@@ -70,10 +70,28 @@ public class TerminalWidget extends AbstractWidget {
         innerHeight = terminal.getHeight() * FONT_HEIGHT;
     }
 
+
+    private char lastSurrogate = 0;
+
     @Override
     public boolean charTyped(char ch, int modifiers) {
         if (ch >= 32 && ch <= 126 || ch >= 160) {
             // Queue the char event for any printable chars in byte range
+            if(lastSurrogate != 0){
+                var high = lastSurrogate;
+                lastSurrogate = 0;
+                if(Character.isSurrogatePair(high, ch)){
+                    var s = Character.toString(Character.toCodePoint(high, ch));
+                    computer.queueEvent("char", new Object[]{ s, StringUtil.utfToByteString(s) });
+                    return true;
+                }
+                var s = Character.toString(high);
+                computer.queueEvent("char", new Object[]{ s, StringUtil.utfToByteString(s) });
+            }
+            if(Character.isHighSurrogate(ch)){
+                lastSurrogate = ch;
+                return true;
+            }
             var s = Character.toString(ch);
             computer.queueEvent("char", new Object[]{ s, StringUtil.utfToByteString(s) });
         }
@@ -164,6 +182,7 @@ public class TerminalWidget extends AbstractWidget {
         var charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
         charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
         charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
+        charX = terminal.getLine(charY).getIndexFromWidth(charX) + 1;
 
         computer.mouseClick(button + 1, charX + 1, charY + 1);
 
@@ -183,6 +202,7 @@ public class TerminalWidget extends AbstractWidget {
         var charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
         charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
         charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
+        charX = terminal.getLine(charY).getIndexFromWidth(charX) + 1;
 
         if (lastMouseButton == button) {
             computer.mouseUp(lastMouseButton + 1, charX + 1, charY + 1);
@@ -204,6 +224,7 @@ public class TerminalWidget extends AbstractWidget {
         var charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
         charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
         charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
+        charX = terminal.getLine(charY).getIndexFromWidth(charX) + 1;
 
         if (button == lastMouseButton && (charX != lastMouseX || charY != lastMouseY)) {
             computer.mouseDrag(button + 1, charX + 1, charY + 1);
@@ -223,6 +244,7 @@ public class TerminalWidget extends AbstractWidget {
         var charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
         charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
         charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
+        charX = terminal.getLine(charY).getIndexFromWidth(charX) + 1;
 
         computer.mouseScroll(delta < 0 ? 1 : -1, charX + 1, charY + 1);
 
