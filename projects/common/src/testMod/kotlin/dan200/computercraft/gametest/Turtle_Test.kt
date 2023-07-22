@@ -623,6 +623,24 @@ class Turtle_Test {
     }
 
     // TODO: Turtle sucking from items
+
+    /**
+     * Render turtles as an item.
+     */
+    @ClientGameTest
+    fun Render_turtle_items(helper: GameTestHelper) = helper.sequence {
+        thenExecute { helper.positionAtArmorStand() }
+        thenScreenshot()
+    }
+
+    /**
+     * Render turtles as a block entity.
+     */
+    @ClientGameTest
+    fun Render_turtle_blocks(helper: GameTestHelper) = helper.sequence {
+        thenExecute { helper.positionAtArmorStand() }
+        thenScreenshot()
+    }
 }
 
 private val LuaTaskContext.turtle get() = getApi<TurtleAPI>()

@@ -51,8 +51,8 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
     }
 
     /**
-     * A basic {@link TurtleUpgradeModeller} which renders using the upgrade's {@linkplain ITurtleUpgrade#getCraftingItem()
-     * crafting item}.
+     * A basic {@link TurtleUpgradeModeller} which renders using the upgrade's {@linkplain ITurtleUpgrade#getUpgradeItem(CompoundTag)}
+     * upgrade item}.
      * <p>
      * This uses appropriate transformations for "flat" items, namely those extending the {@literal minecraft:item/generated}
      * model type. It will not appear correct for 3D models with additional depth, such as blocks.
@@ -62,7 +62,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      */
     @SuppressWarnings("unchecked")
     static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> flatItem() {
-        return (TurtleUpgradeModeller<T>) TurtleUpgradeModellers.FLAT_ITEM;
+        return (TurtleUpgradeModeller<T>) TurtleUpgradeModellers.UPGRADE_ITEM;
     }
 
     /**

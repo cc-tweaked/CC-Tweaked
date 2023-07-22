@@ -5,6 +5,7 @@
 package dan200.computercraft.client.platform;
 
 import com.google.auto.service.AutoService;
+import dan200.computercraft.client.model.FoiledModel;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.server.ServerNetworkContext;
 import dan200.computercraft.shared.platform.NetworkHandler;
@@ -24,5 +25,10 @@ public class ClientPlatformHelperImpl implements ClientPlatformHelper {
     public BakedModel getModel(ModelManager manager, ResourceLocation location) {
         var model = manager.getModel(location);
         return model == null ? manager.getMissingModel() : model;
+    }
+
+    @Override
+    public BakedModel createdFoiledModel(BakedModel model) {
+        return new FoiledModel(model);
     }
 }
