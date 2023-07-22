@@ -4,6 +4,7 @@
 
 package cc.tweaked.gradle
 
+import net.minecraftforge.gradle.common.util.RunConfig
 import org.gradle.api.GradleException
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.invocation.Gradle
@@ -53,6 +54,25 @@ abstract class ClientJavaExec : JavaExec() {
     @get:OutputFile
     val testResults = project.layout.buildDirectory.file("test-results/$name.xml")
 
+    private fun setTestProperties() {
+        if (!clientDebug) systemProperty("cctest.client", "")
+        if (renderdoc) environment("LD_PRELOAD", "/usr/lib/librenderdoc.so")
+        systemProperty("cctest.gametest-report", testResults.get().asFile.absoluteFile)
+        workingDir(project.buildDir.resolve("gametest").resolve(name))
+    }
+
+    init {
+        setTestProperties()
+    }
+
+    /**
+     * Set this task to run a given [RunConfig].
+     */
+    fun setRunConfig(config: RunConfig) {
+        (this as JavaExec).setRunConfig(config)
+        setTestProperties() // setRunConfig may clobber some properties, ensure everything is set.
+    }
+
     /**
      * Copy configuration from a task with the given name.
      */
@@ -64,11 +84,7 @@ abstract class ClientJavaExec : JavaExec() {
     fun copyFrom(task: JavaExec) {
         for (dep in task.dependsOn) dependsOn(dep)
         task.copyToFull(this)
-
-        if (!clientDebug) systemProperty("cctest.client", "")
-        if (renderdoc) environment("LD_PRELOAD", "/usr/lib/librenderdoc.so")
-        systemProperty("cctest.gametest-report", testResults.get().asFile.absoluteFile)
-        workingDir(project.buildDir.resolve("gametest").resolve(name))
+        setTestProperties() // copyToFull may clobber some properties, ensure everything is set.
     }
 
     /**
