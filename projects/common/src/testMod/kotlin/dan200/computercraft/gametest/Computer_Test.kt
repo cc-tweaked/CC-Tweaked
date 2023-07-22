@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.RedstoneLampBlock
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.lwjgl.glfw.GLFW
+import kotlin.time.Duration.Companion.milliseconds
 
 class Computer_Test {
     /**
@@ -69,6 +70,24 @@ class Computer_Test {
         thenExecute { context.setBlock(BlockPos(2, 2, 2), Blocks.AIR) }
         thenIdle(4)
         thenExecute { context.assertBlockHas(lamp, RedstoneLampBlock.LIT, false, "Lamp should not be lit") }
+    }
+
+    /**
+     * Check computers pick up propagated redstone to surrounding blocks.
+     *
+     * @see [#1520](https://github.com/cc-tweaked/CC-Tweaked/issues/1520)
+     */
+    @GameTest
+    fun Self_output_update(context: GameTestHelper) = context.sequence {
+        thenOnComputer {
+            getApi<RedstoneAPI>().setOutput(ComputerSide.BACK, true)
+            sleep(100.milliseconds)
+            assertEquals(true, getApi<RedstoneAPI>().getInput(ComputerSide.BACK), "Input should be on")
+
+            getApi<RedstoneAPI>().setOutput(ComputerSide.BACK, false)
+            sleep(100.milliseconds)
+            assertEquals(false, getApi<RedstoneAPI>().getInput(ComputerSide.BACK), "Input should be off")
+        }
     }
 
     /**

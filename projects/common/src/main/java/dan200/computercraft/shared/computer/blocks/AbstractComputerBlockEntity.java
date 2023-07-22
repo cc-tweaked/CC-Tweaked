@@ -199,6 +199,11 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         return localSide;
     }
 
+    private void updateRedstoneInputs(ServerComputer computer) {
+        var pos = getBlockPos();
+        for (var dir : DirectionUtil.FACINGS) updateRedstoneInput(computer, dir, pos.relative(dir));
+    }
+
     private void updateRedstoneInput(ServerComputer computer, Direction dir, BlockPos targetPos) {
         var offsetSide = dir.getOpposite();
         var localDir = remapToLocalSide(dir);
@@ -254,8 +259,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
 
         // If the position is not any adjacent one, update all inputs. This is pretty terrible, but some redstone mods
         // handle this incorrectly.
-        var pos = getBlockPos();
-        for (var dir : DirectionUtil.FACINGS) updateRedstoneInput(computer, dir, pos.relative(dir));
+        updateRedstoneInputs(computer);
         invalidSides = (1 << 6) - 1; // Mark all peripherals as dirty.
     }
 
@@ -264,9 +268,10 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
      */
     public void updateOutput() {
         BlockEntityHelpers.updateBlock(this);
-        for (var dir : DirectionUtil.FACINGS) {
-            RedstoneUtil.propagateRedstoneOutput(getLevel(), getBlockPos(), dir);
-        }
+        for (var dir : DirectionUtil.FACINGS) RedstoneUtil.propagateRedstoneOutput(getLevel(), getBlockPos(), dir);
+
+        var computer = getServerComputer();
+        if (computer != null) updateRedstoneInputs(computer);
     }
 
     protected abstract ServerComputer createComputer(int id);
