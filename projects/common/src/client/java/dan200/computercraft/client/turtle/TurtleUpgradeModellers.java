@@ -15,10 +15,12 @@ import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.impl.UpgradeManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 /**
  * A registry of {@link TurtleUpgradeModeller}s.
@@ -70,5 +72,9 @@ public final class TurtleUpgradeModellers {
 
         var modeller = turtleModels.get(wrapper.serialiser());
         return modeller == null ? NULL_TURTLE_MODELLER : modeller;
+    }
+
+    public static Stream<ResourceLocation> getDependencies() {
+        return turtleModels.values().stream().flatMap(x -> x.getDependencies().stream());
     }
 }
