@@ -23,7 +23,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
@@ -34,8 +33,6 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
     private static final ModelResourceLocation ADVANCED_TURTLE_MODEL = new ModelResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_advanced", "inventory");
     private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
     private static final ResourceLocation ELF_OVERLAY_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_elf_overlay");
-
-    private final RandomSource random = RandomSource.create(0);
 
     private final BlockEntityRenderDispatcher renderer;
     private final Font font;
