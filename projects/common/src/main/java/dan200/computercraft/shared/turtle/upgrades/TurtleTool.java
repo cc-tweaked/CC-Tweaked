@@ -100,12 +100,12 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     public ItemStack getUpgradeItem(CompoundTag upgradeData) {
         // Copy upgrade data back to the item.
         var item = super.getUpgradeItem(upgradeData).copy();
-        item.setTag(upgradeData.contains(TAG_ITEM_TAG, TAG_COMPOUND) ? upgradeData.getCompound(TAG_ITEM_TAG).copy() : null);
+        item.setTag(upgradeData.contains(TAG_ITEM_TAG, TAG_COMPOUND) ? upgradeData.getCompound(TAG_ITEM_TAG) : null);
         return item;
     }
 
     private ItemStack getToolStack(ITurtleAccess turtle, TurtleSide side) {
-        return getUpgradeItem(turtle.getUpgradeNBTData(side));
+        return getUpgradeItem(turtle.getUpgradeNBTData(side)).copy();
     }
 
     private void setToolStack(ITurtleAccess turtle, TurtleSide side, ItemStack stack) {
