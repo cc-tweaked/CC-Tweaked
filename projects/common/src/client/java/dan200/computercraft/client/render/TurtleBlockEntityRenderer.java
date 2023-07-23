@@ -128,9 +128,8 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         transform.translate(0.0f, -0.5f, -0.5f);
 
         var model = TurtleUpgradeModellers.getModel(upgrade, turtle.getAccess(), side);
-        pushPoseFromTransformation(transform, model.getMatrix());
+        applyTransformation(transform, model.getMatrix());
         renderModel(transform, buffers, lightmapCoord, overlayLight, model.getModel(), null);
-        transform.popPose();
 
         transform.popPose();
     }
@@ -155,9 +154,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         ClientPlatformHelper.get().renderBakedModel(transform, renderer, model, lightmapCoord, overlayLight, tints);
     }
 
-    private static void pushPoseFromTransformation(PoseStack stack, Transformation transformation) {
-        stack.pushPose();
-
+    private static void applyTransformation(PoseStack stack, Transformation transformation) {
         var trans = transformation.getTranslation();
         stack.translate(trans.x(), trans.y(), trans.z());
 

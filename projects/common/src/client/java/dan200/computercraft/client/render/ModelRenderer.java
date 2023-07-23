@@ -53,17 +53,13 @@ public final class ModelRenderer {
             var r = (float) (tint >> 16 & 255) / 255.0F;
             var g = (float) (tint >> 8 & 255) / 255.0F;
             var b = (float) (tint & 255) / 255.0F;
-            if (inverted) {
-                putBulkQuadInvert(buffer, matrix, bakedquad, r, g, b, lightmapCoord, overlayLight);
-            } else {
-                buffer.putBulkData(matrix, bakedquad, r, g, b, lightmapCoord, overlayLight);
-            }
+            putBulkQuad(buffer, matrix, bakedquad, r, g, b, lightmapCoord, overlayLight, inverted);
         }
     }
 
     /**
-     * A version of {@link VertexConsumer#putBulkData(PoseStack.Pose, BakedQuad, float, float, float, int, int)} for
-     * when the matrix is inverted.
+     * A version of {@link VertexConsumer#putBulkData(PoseStack.Pose, BakedQuad, float, float, float, int, int)} which
+     * will reverse vertex order when the matrix is inverted.
      *
      * @param buffer        The buffer to draw to.
      * @param pose          The current matrix stack.
@@ -74,7 +70,7 @@ public final class ModelRenderer {
      * @param lightmapCoord The lightmap coordinate
      * @param overlayLight  The overlay light.
      */
-    private static void putBulkQuadInvert(VertexConsumer buffer, PoseStack.Pose pose, BakedQuad quad, float red, float green, float blue, int lightmapCoord, int overlayLight) {
+    private static void putBulkQuad(VertexConsumer buffer, PoseStack.Pose pose, BakedQuad quad, float red, float green, float blue, int lightmapCoord, int overlayLight, boolean invert) {
         var matrix = pose.pose();
         // It's a little dubious to transform using this matrix rather than the normal matrix. This mirrors the logic in
         // Direction.rotate (so not out of nowhere!), but is a little suspicious.
@@ -85,8 +81,8 @@ public final class ModelRenderer {
         float normalX = vector.x(), normalY = vector.y(), normalZ = vector.z();
 
         var vertices = quad.getVertices();
-        for (var vertex : ModelTransformer.INVERSE_ORDER) {
-            var i = vertex * ModelTransformer.STRIDE;
+        for (var vertex = 0; vertex < 4; vertex++) {
+            var i = ModelTransformer.getVertexOffset(vertex, invert);
 
             var x = Float.intBitsToFloat(vertices[i]);
             var y = Float.intBitsToFloat(vertices[i + 1]);
