@@ -39,5 +39,15 @@
     "item.computercraft.printed_page": "Wydrukowana Strona",
     "item.computercraft.printed_pages": "Wydrukowane Strony",
     "item.computercraft.treasure_disk": "Dyskietka",
-    "itemGroup.computercraft": "ComputerCraft"
+    "itemGroup.computercraft": "ComputerCraft",
+    "commands.computercraft.reload.desc": "Przeładuj plik konfiguracji ComputerCraft",
+    "commands.computercraft.reload.synopsis": "Przeładuj plik konfiguracji ComputerCraft",
+    "commands.computercraft.generic.no_position": "<brak pozycji>",
+    "argument.computercraft.argument_expected": "Argument oczekiwany",
+    "commands.computercraft.dump.open_path": "Przeglądaj pliki tego komputera",
+    "commands.computercraft.track.dump.computer": "Komputer",
+    "commands.computercraft.generic.position": "%s, %s, %s",
+    "commands.computercraft.generic.yes": "T",
+    "commands.computercraft.reload.done": "Przeładowano konfigurację",
+    "commands.computercraft.tp.not_there": "Nie można zlokalizować komputera w świecie"
 }

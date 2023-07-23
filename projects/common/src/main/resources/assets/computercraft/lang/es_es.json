@@ -53,5 +53,17 @@
     "upgrade.minecraft.diamond_hoe.adjective": "granjera",
     "upgrade.minecraft.diamond_pickaxe.adjective": "minera",
     "upgrade.minecraft.diamond_shovel.adjective": "excavadora",
-    "upgrade.minecraft.diamond_sword.adjective": "guerrera"
+    "upgrade.minecraft.diamond_sword.adjective": "guerrera",
+    "commands.computercraft.generic.additional_rows": "%d filas adicionales…",
+    "commands.computercraft.generic.no_position": "<sin pos>",
+    "commands.computercraft.shutdown.done": "Apague %s/%s computadoras",
+    "argument.computercraft.computer.many_matching": "Varias computadoras que coinciden con ' %s' (instancias %s)",
+    "commands.computercraft.generic.no": "N",
+    "commands.computercraft.help.desc": "Muestra este mensaje de ayuda",
+    "commands.computercraft.generic.yes": "Y",
+    "block.computercraft.wired_modem_full": "Módem con cable",
+    "commands.computercraft.help.no_command": "Sin comando '%s'",
+    "commands.computercraft.shutdown.synopsis": "Apague las computadoras de forma remota.",
+    "commands.computercraft.generic.position": "%s, %s, %s",
+    "argument.computercraft.argument_expected": "Argumento esperado"
 }

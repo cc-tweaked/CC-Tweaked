@@ -216,6 +216,14 @@
     "itemGroup.computercraft": "ComputerCraft",
     "gui.computercraft.config.execution.max_main_computer_time.tooltip": "Ideální maximální v kterém počítač se může spustit na tick, v milisekundách.\nPoznámka, možná přejdeme přes tento limit protože tu nelze rozhodnout jak\ndlouho to bude trvat - toto se zaměřuje jako vrchní hranice průměrného času.\nRozsah: > 1",
     "gui.computercraft.config.http.bandwidth.global_upload.tooltip": "Počet bytů které můžou být nahrány za sekundu. Toto je sdíleno mezi všemi počítači (bajty/s).\nRozsah: > 1",
-    "gui.computercraft.config.http.enabled.tooltip": "Zapnout \"http\" API na počítačích. Toto také vypne programy \"pastebin\" a \"wget\"\nna kterých záleží hodně uživatelům. Je doporučeno nechat toto zapnuté a použít\nmožnost konfigurace \"rules\" pro určení více jemné kontroly.",
-    "gui.computercraft.config.http.websocket_enabled.tooltip": "Zapnout použití HTTP websocketů. Toto vyžaduje možnost \"http_enable\" aby byla zapnuta."
+    "gui.computercraft.config.http.enabled.tooltip": "Zapnout \"http\" API na počítačích. Vypnutí tohoto také vypne programy \"pastebin\" a \"wget\"\nna kterých záleží hodně uživatelům. Je doporučeno nechat toto zapnuté a použít\nmožnost konfigurace \"rules\" pro určení více jemné kontroly.",
+    "gui.computercraft.config.http.websocket_enabled.tooltip": "Zapnout použití HTTP websocketů. Toto vyžaduje možnost \"http_enable\" aby byla zapnuta.",
+    "gui.computercraft.config.http.proxy.host.tooltip": "Název hostitele nebo IP adresa proxy serveru.",
+    "gui.computercraft.config.http.proxy.port": "Port",
+    "gui.computercraft.config.http.proxy.port.tooltip": "Port proxy serveru.\nRozsah: 1 ~ 65536",
+    "gui.computercraft.config.http.proxy.host": "Název hostitele",
+    "gui.computercraft.config.http.proxy.type": "Typ proxy",
+    "gui.computercraft.config.http.proxy.type.tooltip": "Typ proxy k použití.\nPovolené hodnoty: HTTP, HTTPS, SOCKS4, SOCKS5",
+    "gui.computercraft.config.disabled_generic_methods": "Vypnuté obecné metody",
+    "gui.computercraft.config.upload_max_size": "Limit velikosti nahrávaného souboru (v bajtech)"
 }

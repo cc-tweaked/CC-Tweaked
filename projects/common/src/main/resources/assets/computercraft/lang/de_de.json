@@ -129,5 +129,13 @@
     "upgrade.minecraft.diamond_hoe.adjective": "Ackerbau",
     "upgrade.minecraft.diamond_pickaxe.adjective": "Bergbau",
     "upgrade.minecraft.diamond_shovel.adjective": "Graben",
-    "upgrade.minecraft.diamond_sword.adjective": "Nahkampf"
+    "upgrade.minecraft.diamond_sword.adjective": "Nahkampf",
+    "gui.computercraft.config.disable_lua51_features.tooltip": "Beim aktivieren werden die Lua 5.1 Funktionieren deaktiviert, die in zukünftigen\nUpdates sowieso entfernt werden. Auf dieser Weise kann vorwärts Kompatibilität für Programme sichergestellt werden.",
+    "gui.computercraft.config.disabled_generic_methods.tooltip": "Eine Liste an generischen Methoden oder Methodenquellen zum deaktivieren.\nGenerische Methoden sind Methoden die zu einem block/block entity hinzugefügt werden, insofern kein expliziter Peripheral Provider\ngefunden wurde. Mitbetroffen sind Inventarmethoden (d.h. inventory.getItemDetail,\ninventory.pushItems) und, wenn in Forge gespielt wird, die fluid_storage und energy_storage\nMethoden.\nMethoden in dieser Liste können entweder Gruppen von Methoden (wie computercraft:inventory)\noder einzelne Methoden (wie computercraft:inventory#pushItems) sein.\n",
+    "gui.computercraft.config.command_require_creative": "Kommando-Computer benötigen den Kreativ-Modus",
+    "gui.computercraft.config.computer_space_limit.tooltip": "Das Speicherplatzlimit für Computer und Turtles in Bytes.",
+    "gui.computercraft.config.default_computer_settings.tooltip": "eine mit Komma separierte Liste an standardmäßige Systemeinstellungen für neuen Computern.\nBeispiel: \"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\"\nwürde jegliche Autovervollständigung deaktivieren.",
+    "gui.computercraft.config.execution.computer_threads.tooltip": "Setzt die Anzahl an Hintergrundprozessen fest, auf denen Computer laufen können. Eine hohe Nummer heißt,\ndass mehrere Computer zur selben Zeit laufen können, jedoch aber auch ggf. mehr Verzögerungen verursachen. Bitte beachte, dass manche mods\nnicht mit einer Anzahl an Hintergrundprozessen laufen, die höher als 1 ist. Benutze also mit bedacht.\nBereich: > 1",
+    "gui.computercraft.config.disabled_generic_methods": "Generische Methoden deaktiviert.",
+    "gui.computercraft.config.execution.max_main_computer_time.tooltip": "Die ideale maximale Zeit, in der ein Computer laufen kann im innerhalb von einem tick in Millisekunden.\nBeachte, dass wir wahrscheinlich über diesen Limit gehen werden, da es unmöglich ist zu bestimmen,\nwie lange ein Computer brauchen wird. Dies wird also die höhere Grenze der durchschnittlichen Zeit darstellen.\nBereich: > 1"
 }

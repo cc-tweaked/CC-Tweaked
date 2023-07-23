@@ -227,5 +227,6 @@
     "gui.computercraft.config.http.proxy.port.tooltip": "Le port du serveur proxy.\nPlage : 1 ~ 65536",
     "gui.computercraft.config.http.proxy.type": "Type de proxy",
     "gui.computercraft.config.http.proxy.type.tooltip": "Le type de proxy à utiliser.\nValeurs autorisées : HTTP, HTTPS, SOCKS4, SOCKS5",
-    "gui.computercraft.config.upload_max_size": "Taille limite de téléversement de fichiers (octets)"
+    "gui.computercraft.config.upload_max_size": "Taille limite de téléversement de fichiers (octets)",
+    "gui.computercraft.config.disabled_generic_methods": "Méthodes génériques désactivées"
 }
