@@ -158,9 +158,6 @@ public final class LanguageProvider implements DataProvider {
         add("commands.computercraft.track.dump.desc", "Dump the latest results of computer tracking.");
         add("commands.computercraft.track.dump.no_timings", "No timings available");
         add("commands.computercraft.track.dump.computer", "Computer");
-        add("commands.computercraft.reload.synopsis", "Reload the ComputerCraft config file");
-        add("commands.computercraft.reload.desc", "Reload the ComputerCraft config file");
-        add("commands.computercraft.reload.done", "Reloaded config");
         add("commands.computercraft.queue.synopsis", "Send a computer_command event to a command computer");
         add("commands.computercraft.queue.desc", "Send a computer_command event to a command computer, passing through the additional arguments. This is mostly designed for map makers, acting as a more computer-friendly version of /trigger. Any player can run the command, which would most likely be done through a text component's click event.");
 

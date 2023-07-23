@@ -4,6 +4,9 @@
   "group": "computercraft:turtle_advanced",
   "key": {"#": {"item": "minecraft:diamond_pickaxe"}, "T": {"item": "computercraft:turtle_advanced"}},
   "pattern": ["#T"],
-  "result": {"item": "computercraft:turtle_advanced", "nbt": "{RightUpgrade:\"minecraft:diamond_pickaxe\"}"},
+  "result": {
+    "item": "computercraft:turtle_advanced",
+    "nbt": "{RightUpgrade:\"minecraft:diamond_pickaxe\",RightUpgradeNbt:{Tag:{Damage:0}}}"
+  },
   "show_notification": true
 }
