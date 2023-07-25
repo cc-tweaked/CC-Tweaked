@@ -26,7 +26,7 @@ which program to run:
     uses the @{shell.path|program path}. This is a colon separated list of
     directories, each of which is checked to see if it contains the program.
 
-    `list` or `list.lua` doesn't exist in `.` (the current directory), so she
+    `list` or `list.lua` doesn't exist in `.` (the current directory), so the
     shell now looks in `/rom/programs`, where `list.lua` can be found!
 
  3. Finally, the shell reads the file and checks if the file starts with a
