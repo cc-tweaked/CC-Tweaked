@@ -98,7 +98,7 @@ system.
 :::caution The accuracy problem
 At extreme ranges, our small 6x6x6 block GPS constellation may not be able to disambiguate some locations from others.
 A symptom of this happening is not being able to locate yourself while being in range of the GPS computer's modem messages.
-You can confirm that this is the issue by running the GPS program `gps locate` on the symptomatic computer, if it outputs 
+You can confirm that this is the issue by running the GPS program `gps locate` on the symptomatic computer, if it outputs
 `Ambiguous position` then you have this problem.
 
 To fix the problem, you can either add more GPS constellations or move the host computers in your problematic constellation
