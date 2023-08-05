@@ -6,9 +6,9 @@ SPDX-License-Identifier: MPL-2.0
 
 # Contributing to CC: Tweaked
 As with many open source projects, CC: Tweaked thrives on contributions from other people! This document (hopefully)
-provides an introduction as to how to get started to help.
+provides an introduction as to how to get started with helping out.
 
-If you've got any other questions, [just ask the community][community] or [open an issue][new-issue].
+If you've any other questions, [just ask the community][community] or [open an issue][new-issue].
 
 ## Table of Contents
  - [Reporting issues](#reporting-issues)
@@ -91,7 +91,7 @@ file.
 
 Documentation is built using [illuaminate] which, while not currently documented (somewhat ironic), is largely the same
 as [ldoc][ldoc]. Documentation comments are written in Markdown, though note that we do not support many GitHub-specific
-markdown features—if you can, do check what the documentation looks like locally!
+markdown features. If you can, do check what the documentation looks like locally!
 
 When writing long-form documentation (such as the guides in [doc/guides](doc/guides)), I find it useful to tell a
 narrative. Think of what you want the user to learn or achieve, then start introducing a simple concept, and then talk
