@@ -42,7 +42,7 @@ public class ComputerCraftClient {
         PreparableModelLoadingPlugin.register(CustomModelLoader::prepare, (state, context) -> {
             ClientRegistry.registerExtraModels(context::addModels);
             context.resolveModel().register(ctx -> state.loadModel(ctx.id()));
-            context.modifyModelAfterBake().register((model, ctx) -> state.wrapModel(ctx, model));
+            context.modifyModelAfterBake().register((model, ctx) -> model == null ? null : state.wrapModel(ctx, model));
         });
 
         BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Blocks.COMPUTER_NORMAL.get(), RenderType.cutout());

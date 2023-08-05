@@ -69,6 +69,7 @@ public final class ModelRenderer {
      * @param blue          The blue tint of this quad.
      * @param lightmapCoord The lightmap coordinate
      * @param overlayLight  The overlay light.
+     * @param invert        Whether to reverse the order of this quad.
      */
     private static void putBulkQuad(VertexConsumer buffer, PoseStack.Pose pose, BakedQuad quad, float red, float green, float blue, int lightmapCoord, int overlayLight, boolean invert) {
         var matrix = pose.pose();
