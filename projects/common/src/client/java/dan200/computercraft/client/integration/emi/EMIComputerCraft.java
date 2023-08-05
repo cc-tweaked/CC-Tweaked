@@ -12,7 +12,6 @@ import dev.emi.emi.api.EmiEntrypoint;
 import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.stack.Comparison;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.function.BiPredicate;
@@ -36,7 +35,7 @@ public class EMIComputerCraft implements EmiPlugin {
     private static final Comparison pocketComparison = compareStacks((left, right) ->
         left.getItem() instanceof PocketComputerItem && PocketComputerItem.getUpgrade(left) == PocketComputerItem.getUpgrade(right));
 
-    private static <T extends Item> Comparison compareStacks(BiPredicate<ItemStack, ItemStack> test) {
+    private static Comparison compareStacks(BiPredicate<ItemStack, ItemStack> test) {
         return Comparison.of((left, right) -> {
             ItemStack leftStack = left.getItemStack(), rightStack = right.getItemStack();
             return leftStack.getItem() == rightStack.getItem() && test.test(leftStack, rightStack);

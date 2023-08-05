@@ -48,6 +48,7 @@ License: MPL-2.0
 
 Files:
   doc/logo.png
+  doc/logo-darkmode.png
   projects/common/src/main/resources/assets/computercraft/models/*
   projects/common/src/main/resources/assets/computercraft/textures/*
   projects/common/src/main/resources/pack.mcmeta

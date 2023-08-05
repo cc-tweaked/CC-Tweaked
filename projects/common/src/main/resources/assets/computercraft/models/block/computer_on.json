@@ -1,16 +1,7 @@
 {
-    "parent": "minecraft:block/block",
+    "parent": "minecraft:block/orientable",
     "render_type": "cutout",
-    "textures": {
-        "particle": "#front"
-    },
-    "display": {
-        "firstperson_righthand": {
-            "rotation": [ 0, 135, 0 ],
-            "translation": [ 0, 0, 0 ],
-            "scale": [ 0.40, 0.40, 0.40 ]
-        }
-    },
+    "computercraft:emissive_texture": "cursor",
     "elements": [
         {
             "from": [ 0, 0, 0 ],

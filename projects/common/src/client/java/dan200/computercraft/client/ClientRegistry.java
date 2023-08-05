@@ -13,6 +13,7 @@ import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.TurtleBlockEntityRenderer;
 import dan200.computercraft.client.render.monitor.MonitorBlockEntityRenderer;
 import dan200.computercraft.client.turtle.TurtleModemModeller;
+import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
@@ -107,24 +108,6 @@ public final class ClientRegistry {
     }
 
     private static final String[] EXTRA_MODELS = new String[]{
-        // Turtle upgrades
-        "block/turtle_modem_normal_off_left",
-        "block/turtle_modem_normal_on_left",
-        "block/turtle_modem_normal_off_right",
-        "block/turtle_modem_normal_on_right",
-
-        "block/turtle_modem_advanced_off_left",
-        "block/turtle_modem_advanced_on_left",
-        "block/turtle_modem_advanced_off_right",
-        "block/turtle_modem_advanced_on_right",
-
-        "block/turtle_crafting_table_left",
-        "block/turtle_crafting_table_right",
-
-        "block/turtle_speaker_left",
-        "block/turtle_speaker_right",
-
-        // Turtle block renderer
         "block/turtle_colour",
         "block/turtle_elf_overlay",
         "block/turtle_rainbow_overlay",
@@ -133,6 +116,7 @@ public final class ClientRegistry {
 
     public static void registerExtraModels(Consumer<ResourceLocation> register) {
         for (var model : EXTRA_MODELS) register.accept(new ResourceLocation(ComputerCraftAPI.MOD_ID, model));
+        TurtleUpgradeModellers.getDependencies().forEach(register);
     }
 
     public static void registerItemColours(BiConsumer<ItemColor, ItemLike> register) {

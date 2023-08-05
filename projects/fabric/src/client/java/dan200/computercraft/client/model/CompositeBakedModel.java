@@ -4,29 +4,43 @@
 
 package dan200.computercraft.client.model;
 
+import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
+import net.fabricmc.fabric.api.renderer.v1.model.ForwardingBakedModel;
+import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
  * A {@link BakedModel} formed from two or more other models stitched together.
  */
-public class CompositeBakedModel extends CustomBakedModel {
+public class CompositeBakedModel extends ForwardingBakedModel {
+    private final boolean isVanillaAdapter;
     private final List<BakedModel> models;
 
     public CompositeBakedModel(List<BakedModel> models) {
-        super(models.get(0));
+        wrapped = models.get(0);
+        isVanillaAdapter = models.stream().allMatch(FabricBakedModel::isVanillaAdapter);
         this.models = models;
     }
 
     public static BakedModel of(List<BakedModel> models) {
         return models.size() == 1 ? models.get(0) : new CompositeBakedModel(models);
+    }
+
+    @Override
+    public boolean isVanillaAdapter() {
+        return isVanillaAdapter;
     }
 
     @Override
@@ -37,6 +51,16 @@ public class CompositeBakedModel extends CustomBakedModel {
         var i = 0;
         for (var model : models) quads[i++] = model.getQuads(blockState, face, rand);
         return new ConcatListView(quads);
+    }
+
+    @Override
+    public void emitBlockQuads(BlockAndTintGetter blockView, BlockState state, BlockPos pos, Supplier<RandomSource> randomSupplier, RenderContext context) {
+        for (var model : models) model.emitBlockQuads(blockView, state, pos, randomSupplier, context);
+    }
+
+    @Override
+    public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context) {
+        for (var model : models) model.emitItemQuads(stack, randomSupplier, context);
     }
 
     private static final class ConcatListView extends AbstractList<BakedQuad> {

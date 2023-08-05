@@ -35,6 +35,7 @@ public enum TurtleToolDurability implements StringRepresentable {
     /**
      * The codec which may be used for serialising/deserialising {@link TurtleToolDurability}s.
      */
+    @SuppressWarnings("deprecation")
     public static final StringRepresentable.EnumCodec<TurtleToolDurability> CODEC = StringRepresentable.fromEnum(TurtleToolDurability::values);
 
     TurtleToolDurability(String serialisedName) {

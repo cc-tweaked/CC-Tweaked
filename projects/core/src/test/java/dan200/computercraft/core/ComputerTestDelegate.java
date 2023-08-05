@@ -4,6 +4,7 @@
 
 package dan200.computercraft.core;
 
+import com.google.common.base.Splitter;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
@@ -346,10 +347,10 @@ public class ComputerTestDelegate {
                 var details = (Map<?, ?>) entry.getValue();
                 var def = (String) details.get("definition");
 
-                var parts = name.split("\0");
+                var parts = Splitter.on('\0').splitToList(name);
                 var builder = root;
-                for (var i = 0; i < parts.length - 1; i++) builder = builder.get(parts[i]);
-                builder.runs(parts[parts.length - 1], def, () -> {
+                for (var i = 0; i < parts.size() - 1; i++) builder = builder.get(parts.get(i));
+                builder.runs(parts.get(parts.size() - 1), def, () -> {
                     // Run it
                     lock.lockInterruptibly();
                     try {

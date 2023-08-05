@@ -61,7 +61,7 @@ final class ComputerExecutor {
     private final Computer computer;
     private final ComputerEnvironment computerEnvironment;
     private final MetricsObserver metrics;
-    private final List<ILuaAPI> apis = new ArrayList<>();
+    private final List<ApiWrapper> apis = new ArrayList<>();
     private final ComputerThread scheduler;
     private final MethodSupplier<LuaMethod> luaMethods;
     final TimeoutState timeout;
@@ -177,12 +177,12 @@ final class ComputerExecutor {
         var environment = computer.getEnvironment();
 
         // Add all default APIs to the loaded list.
-        apis.add(new TermAPI(environment));
-        apis.add(new RedstoneAPI(environment));
-        apis.add(new FSAPI(environment));
-        apis.add(new PeripheralAPI(environment, context.peripheralMethods()));
-        apis.add(new OSAPI(environment));
-        if (CoreConfig.httpEnabled) apis.add(new HTTPAPI(environment));
+        addApi(new TermAPI(environment));
+        addApi(new RedstoneAPI(environment));
+        addApi(new FSAPI(environment));
+        addApi(new PeripheralAPI(environment, context.peripheralMethods()));
+        addApi(new OSAPI(environment));
+        if (CoreConfig.httpEnabled) addApi(new HTTPAPI(environment));
 
         // Load in the externally registered APIs.
         for (var factory : context.apiFactories()) {
@@ -207,7 +207,7 @@ final class ComputerExecutor {
     }
 
     void addApi(ILuaAPI api) {
-        apis.add(api);
+        apis.add(new ApiWrapper(api, null));
     }
 
     /**
@@ -385,7 +385,7 @@ final class ComputerExecutor {
         try (var bios = biosStream) {
             return luaFactory.create(new MachineEnvironment(
                 new LuaContext(computer), metrics, timeout,
-                () -> apis.stream().map(api -> api instanceof ApiWrapper wrapper ? wrapper.getDelegate() : api).iterator(),
+                () -> apis.stream().map(ApiWrapper::api).iterator(),
                 luaMethods,
                 computer.getGlobalEnvironment().getHostString()
             ), bios);

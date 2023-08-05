@@ -75,7 +75,7 @@ public class TurtlePlaceCommand implements TurtleCommand {
         }
     }
 
-    public static boolean deploy(
+    private static boolean deploy(
         ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, Direction direction,
         @Nullable Object[] extraArguments, @Nullable ErrorMessage outErrorMessage
     ) {
@@ -141,6 +141,22 @@ public class TurtlePlaceCommand implements TurtleCommand {
         return true;
     }
 
+    /**
+     * Calculate where a turtle would interact with a block.
+     *
+     * @param position The position of the block.
+     * @param side     The side the turtle is clicking on.
+     * @return The hit result.
+     */
+    public static BlockHitResult getHitResult(BlockPos position, Direction side) {
+        var hitX = 0.5 + side.getStepX() * 0.5;
+        var hitY = 0.5 + side.getStepY() * 0.5;
+        var hitZ = 0.5 + side.getStepZ() * 0.5;
+        if (Math.abs(hitY - 0.5) < 0.01) hitY = 0.45;
+
+        return new BlockHitResult(new Vec3(position.getX() + hitX, position.getY() + hitY, position.getZ() + hitZ), side, position, false);
+    }
+
     private static boolean deployOnBlock(
         ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, BlockPos position, Direction side,
         @Nullable Object[] extraArguments, boolean adjacent, @Nullable ErrorMessage outErrorMessage
@@ -150,14 +166,8 @@ public class TurtlePlaceCommand implements TurtleCommand {
         var playerPosition = position.relative(side);
         turtlePlayer.setPosition(turtle, playerPosition, playerDir);
 
-        // Calculate where the turtle would hit the block
-        var hitX = 0.5f + side.getStepX() * 0.5f;
-        var hitY = 0.5f + side.getStepY() * 0.5f;
-        var hitZ = 0.5f + side.getStepZ() * 0.5f;
-        if (Math.abs(hitY - 0.5f) < 0.01f) hitY = 0.45f;
-
         // Check if there's something suitable to place onto
-        var hit = new BlockHitResult(new Vec3(position.getX() + hitX, position.getY() + hitY, position.getZ() + hitZ), side, position, false);
+        var hit = getHitResult(position, side);
         var context = new UseOnContext(turtlePlayer.player(), InteractionHand.MAIN_HAND, hit);
         if (!canDeployOnBlock(new BlockPlaceContext(context), turtle, turtlePlayer, position, side, adjacent, outErrorMessage)) {
             return false;

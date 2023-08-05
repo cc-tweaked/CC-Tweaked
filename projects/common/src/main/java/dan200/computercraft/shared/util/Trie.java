@@ -7,7 +7,6 @@ package dan200.computercraft.shared.util;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -36,12 +35,6 @@ public class Trie<K, V> {
 
     public void setValue(Iterable<K> key, V value) {
         getChild(key).current = value;
-    }
-
-    public Stream<V> children() {
-        return children == null
-            ? Stream.empty()
-            : children.values().stream().map(x -> x.current).filter(Objects::nonNull);
     }
 
     public Stream<V> stream() {

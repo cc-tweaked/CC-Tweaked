@@ -114,10 +114,12 @@ def main():
 
     images: list[Image] = []
     for project, dir in {
-        "Forge": "projects/forge",
-        "Fabric": "projects/fabric",
+        "Forge": "projects/forge/build/gametest/runGametestClient",
+        "Fabric": "projects/fabric/build/gametest/runGametestClient",
+        "Fabric (+Sodium)": "projects/fabric/build/gametest/runGametestClientWithSodium",
+        "Fabric (+Iris)": "projects/fabric/build/gametest/runGametestClientWithIris",
     }.items():
-        for file in sorted(pathlib.Path(dir).glob("build/gametest/*/screenshots/*.png")):
+        for file in sorted(pathlib.Path(dir).glob("screenshots/*.png")):
             name = [project, *(_normalise_id(x) for x in file.stem.split("."))]
 
             mtime = datetime.fromtimestamp(file.stat().st_mtime, tz=timezone.utc)

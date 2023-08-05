@@ -26,13 +26,14 @@ import java.util.List;
  * <p>
  * This is typically used with a {@link BakedModel} subclass - see the loader-specific projects.
  */
-public final class ModelTransformer {
-    public static final int[] ORDER = new int[]{ 3, 2, 1, 0 };
-    public static final int STRIDE = DefaultVertexFormat.BLOCK.getIntegerSize();
+public class ModelTransformer {
+    private static final int[] INVERSE_ORDER = new int[]{ 3, 2, 1, 0 };
+
+    private static final int STRIDE = DefaultVertexFormat.BLOCK.getIntegerSize();
     private static final int POS_OFFSET = findOffset(DefaultVertexFormat.BLOCK, DefaultVertexFormat.ELEMENT_POSITION);
 
-    private final Matrix4f transformation;
-    private final boolean invert;
+    protected final Matrix4f transformation;
+    protected final boolean invert;
     private @Nullable TransformedQuads cache;
 
     public ModelTransformer(Transformation transformation) {
@@ -60,7 +61,7 @@ public final class ModelTransformer {
         for (var i = 0; i < 4; i++) {
             var inStart = STRIDE * i;
             // Reverse the order of the quads if we're inverting
-            var outStart = STRIDE * (invert ? ORDER[i] : i);
+            var outStart = getVertexOffset(i, invert);
             System.arraycopy(inputData, inStart, outputData, outStart, STRIDE);
 
             // Apply the matrix to our position
@@ -82,6 +83,10 @@ public final class ModelTransformer {
 
         var direction = Direction.rotate(transformation, quad.getDirection());
         return new BakedQuad(outputData, quad.getTintIndex(), direction, quad.getSprite(), quad.isShade());
+    }
+
+    public static int getVertexOffset(int vertex, boolean invert) {
+        return (invert ? ModelTransformer.INVERSE_ORDER[vertex] : vertex) * ModelTransformer.STRIDE;
     }
 
     private record TransformedQuads(List<BakedQuad> original, List<BakedQuad> transformed) {

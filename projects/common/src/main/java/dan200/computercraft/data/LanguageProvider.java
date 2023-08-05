@@ -158,9 +158,6 @@ public final class LanguageProvider implements DataProvider {
         add("commands.computercraft.track.dump.desc", "Dump the latest results of computer tracking.");
         add("commands.computercraft.track.dump.no_timings", "No timings available");
         add("commands.computercraft.track.dump.computer", "Computer");
-        add("commands.computercraft.reload.synopsis", "Reload the ComputerCraft config file");
-        add("commands.computercraft.reload.desc", "Reload the ComputerCraft config file");
-        add("commands.computercraft.reload.done", "Reloaded config");
         add("commands.computercraft.queue.synopsis", "Send a computer_command event to a command computer");
         add("commands.computercraft.queue.desc", "Send a computer_command event to a command computer, passing through the additional arguments. This is mostly designed for map makers, acting as a more computer-friendly version of /trigger. Any player can run the command, which would most likely be done through a text component's click event.");
 
@@ -286,8 +283,8 @@ public final class LanguageProvider implements DataProvider {
             turtleUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),
             pocketUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),
             Metric.metrics().values().stream().map(x -> AggregatedMetric.TRANSLATION_PREFIX + x.name() + ".name"),
-            getConfigEntries(ConfigSpec.serverSpec).map(ConfigFile.Entry::translationKey),
-            getConfigEntries(ConfigSpec.clientSpec).map(ConfigFile.Entry::translationKey)
+            ConfigSpec.serverSpec.entries().map(ConfigFile.Entry::translationKey),
+            ConfigSpec.clientSpec.entries().map(ConfigFile.Entry::translationKey)
         ).flatMap(x -> x);
     }
 
@@ -320,17 +317,5 @@ public final class LanguageProvider implements DataProvider {
     private void addConfigEntry(ConfigFile.Entry value, String text) {
         add(value.translationKey(), text);
         add(value.translationKey() + ".tooltip", value.comment());
-    }
-
-    private static Stream<ConfigFile.Entry> getConfigEntries(ConfigFile spec) {
-        return spec.entries().flatMap(LanguageProvider::getConfigEntries);
-    }
-
-    private static Stream<ConfigFile.Entry> getConfigEntries(ConfigFile.Entry entry) {
-        if (entry instanceof ConfigFile.Value<?>) return Stream.of(entry);
-        if (entry instanceof ConfigFile.Group group) {
-            return Stream.concat(Stream.of(entry), group.children().flatMap(LanguageProvider::getConfigEntries));
-        }
-        throw new IllegalStateException("Invalid config entry " + entry);
     }
 }

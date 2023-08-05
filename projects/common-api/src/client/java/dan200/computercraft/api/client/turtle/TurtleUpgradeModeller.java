@@ -11,10 +11,13 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Provides models for a {@link ITurtleUpgrade}.
@@ -50,9 +53,24 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
         return getModel(upgrade, (ITurtleAccess) null, side);
     }
 
+
     /**
-     * A basic {@link TurtleUpgradeModeller} which renders using the upgrade's {@linkplain ITurtleUpgrade#getCraftingItem()
-     * crafting item}.
+     * Get a list of models that this turtle modeller depends on.
+     * <p>
+     * Models included in this list will be loaded and baked alongside item and block models, and so may be referenced
+     * by {@link TransformedModel#of(ResourceLocation)}. You do not need to override this method if you will load models
+     * by other means.
+     *
+     * @return A list of models that this modeller depends on.
+     * @see UnbakedModel#getDependencies()
+     */
+    default Collection<ResourceLocation> getDependencies() {
+        return List.of();
+    }
+
+    /**
+     * A basic {@link TurtleUpgradeModeller} which renders using the upgrade's {@linkplain ITurtleUpgrade#getUpgradeItem(CompoundTag)}
+     * upgrade item}.
      * <p>
      * This uses appropriate transformations for "flat" items, namely those extending the {@literal minecraft:item/generated}
      * model type. It will not appear correct for 3D models with additional depth, such as blocks.
@@ -62,7 +80,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      */
     @SuppressWarnings("unchecked")
     static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> flatItem() {
-        return (TurtleUpgradeModeller<T>) TurtleUpgradeModellers.FLAT_ITEM;
+        return (TurtleUpgradeModeller<T>) TurtleUpgradeModellers.UPGRADE_ITEM;
     }
 
     /**
@@ -74,7 +92,8 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * @return The constructed modeller.
      */
     static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> sided(ModelResourceLocation left, ModelResourceLocation right) {
-        return (upgrade, turtle, side) -> TransformedModel.of(side == TurtleSide.LEFT ? left : right);
+        // TODO(1.21.0): Remove this.
+        return sided((ResourceLocation) left, right);
     }
 
     /**
@@ -86,6 +105,16 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * @return The constructed modeller.
      */
     static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> sided(ResourceLocation left, ResourceLocation right) {
-        return (upgrade, turtle, side) -> TransformedModel.of(side == TurtleSide.LEFT ? left : right);
+        return new TurtleUpgradeModeller<>() {
+            @Override
+            public TransformedModel getModel(T upgrade, @Nullable ITurtleAccess turtle, TurtleSide side) {
+                return TransformedModel.of(side == TurtleSide.LEFT ? left : right);
+            }
+
+            @Override
+            public Collection<ResourceLocation> getDependencies() {
+                return List.of(left, right);
+            }
+        };
     }
 }

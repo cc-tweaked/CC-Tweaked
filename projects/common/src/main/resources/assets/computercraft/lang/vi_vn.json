@@ -30,8 +30,6 @@
     "item.computercraft.printed_page": "Trang in",
     "item.computercraft.treasure_disk": "Đĩa mềm",
     "itemGroup.computercraft": "ComputerCraft",
-    "tracking_field.computercraft.coroutines_created.name": "Coroutine đã tạo",
-    "tracking_field.computercraft.coroutines_dead.name": "Coroutine bỏ đi",
     "tracking_field.computercraft.http_download.name": "HTTP tải xuống",
     "tracking_field.computercraft.http_upload.name": "HTTP tải lên",
     "tracking_field.computercraft.websocket_incoming.name": "Websocket đến",

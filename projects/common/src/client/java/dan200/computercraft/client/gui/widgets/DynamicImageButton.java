@@ -68,13 +68,10 @@ public class DynamicImageButton extends Button {
     }
 
     @Override
-    public Component getMessage() {
-        return message.get().message;
-    }
-
-    @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        setTooltip(message.get().tooltip());
+        var message = this.message.get();
+        setMessage(message.message());
+        setTooltip(message.tooltip());
         super.render(graphics, mouseX, mouseY, partialTicks);
     }
 

@@ -5,6 +5,7 @@
 package dan200.computercraft.impl.client;
 
 import dan200.computercraft.impl.Services;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -23,6 +24,15 @@ public interface ClientPlatformHelper {
      * @return The baked model.
      */
     BakedModel getModel(ModelManager manager, ResourceLocation location);
+
+    /**
+     * Wrap this model in a version which renders a foil/enchantment glint.
+     *
+     * @param model The model to wrap.
+     * @return The wrapped model.
+     * @see RenderType#glint()
+     */
+    BakedModel createdFoiledModel(BakedModel model);
 
     static ClientPlatformHelper get() {
         var instance = Instance.INSTANCE;

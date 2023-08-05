@@ -50,6 +50,8 @@ public final class RedstoneUtil {
 
         var neighbourPos = pos.relative(side);
         world.neighborChanged(neighbourPos, block.getBlock(), pos);
-        world.updateNeighborsAtExceptFromFacing(neighbourPos, block.getBlock(), side.getOpposite());
+        // We intentionally use updateNeighborsAt here instead of updateNeighborsAtExceptFromFacing, as computers can
+        // both send and receive redstone, and so also need to be updated.
+        world.updateNeighborsAt(neighbourPos, block.getBlock());
     }
 }
