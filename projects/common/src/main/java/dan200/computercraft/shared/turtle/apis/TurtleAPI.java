@@ -290,7 +290,7 @@ public class TurtleAPI implements ILuaAPI {
     }
 
     /**
-     * Drop the currently selected stack into the inventory in front of the turtle, or as an item into the world if
+     * Drop the currently selected stack into the inventory below the turtle, or as an item into the world if
      * there is no inventory.
      *
      * @param count The number of items to drop. If not given, the entire stack will be dropped.
