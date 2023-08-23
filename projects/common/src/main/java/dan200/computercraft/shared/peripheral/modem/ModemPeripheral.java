@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.peripheral.modem;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.network.Packet;
@@ -85,7 +86,7 @@ import java.util.Set;
  */
 public abstract class ModemPeripheral implements IPeripheral, PacketSender, PacketReceiver {
     private @Nullable PacketNetwork network;
-    private final Set<IComputerAccess> computers = new HashSet<>(1);
+    private final @GuardedBy("computers") Set<IComputerAccess> computers = new HashSet<>(1);
     private final ModemState state;
 
     protected ModemPeripheral(ModemState state) {

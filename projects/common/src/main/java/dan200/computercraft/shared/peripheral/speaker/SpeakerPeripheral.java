@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.peripheral.speaker;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -57,7 +58,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
     public static final int SAMPLE_RATE = 48000;
 
     private final UUID source = UUID.randomUUID();
-    private final Set<IComputerAccess> computers = new HashSet<>();
+    private final @GuardedBy("computers") Set<IComputerAccess> computers = new HashSet<>();
 
     private long clock = 0;
     private long lastPositionTime;
