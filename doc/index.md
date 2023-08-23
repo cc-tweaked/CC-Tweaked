@@ -15,13 +15,13 @@ CC: Tweaked can be installed from [CurseForge] or [Modrinth]. It runs on both [M
 Controlled using the [Lua programming language][lua], CC: Tweaked's computers provides all the tools you need to start
 writing code and automating your Minecraft world.
 
-![A ComputerCraft terminal open and ready to be programmed.](images/basic-terminal.png){.big-image}
+<img alt="A ComputerCraft terminal open and ready to be programmed." src="images/basic-terminal.png" class="big-image" />
 
 While computers are incredibly powerful, they're rather limited by their inability to move about. *Turtles* are the
 solution here. They can move about the world, placing and breaking blocks, swinging a sword to protect you from zombies,
 or whatever else you program them to!
 
-![A turtle tunneling in Minecraft.](images/turtle.png){.big-image}
+<img alt="A turtle tunneling in Minecraft." src="images/turtle.png" class="big-image" />
 
 Not all problems can be solved with a pickaxe though, and so CC: Tweaked also provides a bunch of additional peripherals
 for your computers. You can play a tune with speakers, display text or images on a monitor, connect all your
@@ -30,7 +30,7 @@ computers together with modems, and much more.
 Computers can now also interact with inventories such as chests, allowing you to build complex inventory and item
 management systems.
 
-![A chest's contents being read by a computer and displayed on a monitor.](images/peripherals.png){.big-image}
+<img alt="A chest's contents being read by a computer and displayed on a monitor." src="images/peripherals.png" class="big-image" />
 
 ## Getting Started
 While ComputerCraft is lovely for both experienced programmers and for people who have never coded before, it can be a
