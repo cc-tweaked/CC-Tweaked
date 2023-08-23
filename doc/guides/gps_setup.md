@@ -12,7 +12,7 @@ SPDX-License-Identifier: MPL-2.0
 The @{gps} API allows computers and turtles to find their current position using wireless modems.
 
 In order to use GPS, you'll need to set up multiple *GPS hosts*. These are computers running the special `gps host`
-program, which tell other computers the host's position. Several hosts running together are known as a *GPS
+program, which tells other computers the host's position. Several hosts running together are known as a *GPS
 constellation*.
 
 In order to give the best results, a GPS constellation needs at least four computers. More than four GPS hosts per
@@ -22,7 +22,7 @@ constellation is redundant, but it does not cause problems.
 <img alt="An example GPS constellation." src="/images/gps-constellation-example.png" class="big-image" />
 
 We are going to build our GPS constellation as shown in the image above. You will need 4 computers and either 4 wireless
-modems or 4 ender modems. Try not to mix ender and wireless modems together as you might get some odd behavior when your
+modems or 4 ender modems. Try not to mix ender and wireless modems together as you might get some odd behaviour when your
 requesting computers are out of range.
 
 :::tip Ender modems vs wireless modems
@@ -47,13 +47,13 @@ area fits in a single chunk to reduce the number of chunks that need to be kept 
 Let's get started building the constellation! Place your first computer in one of the corners of your 6x6x6. Remember
 which computer this is as other computers need to be placed relative to it. Place the second computer 4 blocks above the
 first. Go back to your first computer and place your third computer 5 blocks in front of your first computer, leaving 4
-blocks of air between them. Finally for the fourth computer, go back to your first computer and place it 5 blocks right
+blocks of air between them. Finally, for the fourth computer, go back to your first computer and place it 5 blocks right
 of your first computer, leaving 4 blocks of air between them.
 
 With all four computers placed within the 6x6x6, place one modem on top of each computer. You should have 4 modems and 4
 computers all within your 6x6x6 where each modem is attached to a computer and each computer has a modem.
 
-Currently your GPS constellation will not work, that's because each host is not aware that it's a GPS host. We will fix
+Currently, your GPS constellation will not work, that's because each host is not aware that it's a GPS host. We will fix
 this in the next section.
 
 ## Configuring the constellation
@@ -76,7 +76,7 @@ Block: 59, 5, -150` and I would change my startup file to this `shell.run("gps",
 
 To hide Minecraft's debug screen, press <kbd>F3</kbd> again.
 
-Create similar startup files for the other computers in your constellation, making sure to input the each computer's own
+Create similar startup files for the other computers in your constellation, making sure to input each computer's own
 coordinates.
 
 :::caution Modem messages come from the computer's position, not the modem's
@@ -93,4 +93,17 @@ the same reference point (requesting computers will get confused if hosts have d
 using MC's coordinate system does provide a nice standard to adopt server-wide. It also is consistent with how command
 computers get their location, they use MC's command system to get their block which returns that in MC's coordinate
 system.
+:::
+
+:::caution The accuracy problem
+At extreme ranges, our small 6x6x6 block GPS constellation may not be able to disambiguate some locations from others.
+A symptom of this happening is not being able to locate yourself while being in range of the GPS computer's modem messages.
+You can confirm that this is the issue by running the GPS program `gps locate` on the symptomatic computer, if it outputs
+`Ambiguous position` then you have this problem.
+
+To fix the problem, you can either add more GPS constellations or move the host computers in your problematic constellation
+further away from each other. Putting them in the corners of their chunk is a good option, just make sure to move the one
+that is above the others up by a similar distance.
+
+![An example large GPS constellation.](/images/gps-constellation-example-large.png){.big-image}
 :::
