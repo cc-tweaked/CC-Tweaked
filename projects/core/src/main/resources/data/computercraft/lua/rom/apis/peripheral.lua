@@ -35,11 +35,10 @@ Once you have the name of a peripheral, you can call functions on it using the
 @{peripheral.call} function. This takes the name of our peripheral, the name of
 the function we want to call, and then its arguments.
 
-:::info
-Some bits of the peripheral API call peripheral functions *methods* instead
-(for example, the @{peripheral.getMethods} function). Don't worry, they're the
-same thing!
-:::
+> [!INFO]
+> Some bits of the peripheral API call peripheral functions *methods* instead
+> (for example, the @{peripheral.getMethods} function). Don't worry, they're the
+> same thing!
 
 Let's say we have a monitor above our computer (and so "top") and want to
 @{monitor.write|write some text to it}. We'd write the following:

@@ -27,24 +27,22 @@ import java.util.Optional;
  * {@literal @}{turtle.down} move it up and down (as one might expect!). In order to move left or right, you first need
  * to turn the turtle using @{turtle.turnLeft}/@{turtle.turnRight} and then move forward or backwards.
  * <p>
- * :::info
- * The name "turtle" comes from [Turtle graphics], which originated from the Logo programming language. Here you'd move
- * a turtle with various commands like "move 10" and "turn left", much like ComputerCraft's turtles!
- * :::
+ * > [!INFO]
+ * > The name "turtle" comes from [Turtle graphics], which originated from the Logo programming language. Here you'd
+ * > move a turtle with various commands like "move 10" and "turn left", much like ComputerCraft's turtles!
  * <p>
  * Moving a turtle (though not turning it) consumes *fuel*. If a turtle does not have any @{turtle.refuel|fuel}, it
  * won't move, and the movement functions will return @{false}. If your turtle isn't going anywhere, the first thing to
  * check is if you've fuelled your turtle.
  * <p>
- * :::tip Handling errors
- * Many turtle functions can fail in various ways. For instance, a turtle cannot move forward if there's already a block
- * there. Instead of erroring, functions which can fail either return @{true} if they succeed, or @{false} and some
- * error message if they fail.
- * <p>
- * Unexpected failures can often lead to strange behaviour. It's often a good idea to check the return values of these
- * functions, or wrap them in @{assert} (for instance, use `assert(turtle.forward())` rather than `turtle.forward()`),
- * so the program doesn't misbehave.
- * :::
+ * > [Handling errors][!TIP]
+ * > Many turtle functions can fail in various ways. For instance, a turtle cannot move forward if there's already a
+ * > block there. Instead of erroring, functions which can fail either return @{true} if they succeed, or @{false} and
+ * > some error message if they fail.
+ * >
+ * > Unexpected failures can often lead to strange behaviour. It's often a good idea to check the return values of these
+ * > functions, or wrap them in @{assert} (for instance, use `assert(turtle.forward())` rather than `turtle.forward()`),
+ * > so the program doesn't misbehave.
  * <p>
  * ## Turtle upgrades
  * While a normal turtle can move about the world and place blocks, its functionality is limited. Thankfully, turtles

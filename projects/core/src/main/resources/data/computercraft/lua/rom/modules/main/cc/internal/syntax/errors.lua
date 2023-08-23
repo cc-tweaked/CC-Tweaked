@@ -4,10 +4,9 @@
 
 --[[- The error messages reported by our lexer and parser.
 
-:::warning
-This is an internal module and SHOULD NOT be used in your own code. It may
-be removed or changed at any time.
-:::
+> [!DANGER]
+> This is an internal module and SHOULD NOT be used in your own code. It may
+> be removed or changed at any time.
 
 This provides a list of factory methods which take source positions and produce
 appropriate error messages targeting that location. These error messages can

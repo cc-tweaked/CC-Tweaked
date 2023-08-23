@@ -17,25 +17,23 @@ etc) can safely be used in one without affecting the event queue accessed by
 the other.
 
 
-:::caution
-When using this API, be careful to pass the functions you want to run in
-parallel, and _not_ the result of calling those functions.
-
-For instance, the following is correct:
-
-```lua
-local function do_sleep() sleep(1) end
-parallel.waitForAny(do_sleep, rednet.receive)
-```
-
-but the following is **NOT**:
-
-```lua
-local function do_sleep() sleep(1) end
-parallel.waitForAny(do_sleep(), rednet.receive)
-```
-
-:::
+> [!WARNING]
+> When using this API, be careful to pass the functions you want to run in
+> parallel, and _not_ the result of calling those functions.
+>
+> For instance, the following is correct:
+>
+> ```lua
+> local function do_sleep() sleep(1) end
+> parallel.waitForAny(do_sleep, rednet.receive)
+> ```
+>
+> but the following is **NOT**:
+>
+> ```lua
+> local function do_sleep() sleep(1) end
+> parallel.waitForAny(do_sleep(), rednet.receive)
+> ```
 
 @module parallel
 @since 1.2

@@ -95,10 +95,9 @@ end
 The returned encoder is itself a function. This function accepts a table of amplitude data between -128 and 127 and
 returns the encoded DFPWM data.
 
-:::caution Reusing encoders
-Encoders have lots of internal state which tracks the state of the current stream. If you reuse an encoder for multiple
-streams, or use different encoders for the same stream, the resulting audio may not sound correct.
-:::
+> [Reusing encoders][!WARNING]
+> Encoders have lots of internal state which tracks the state of the current stream. If you reuse an encoder for multiple
+> streams, or use different encoders for the same stream, the resulting audio may not sound correct.
 
 @treturn function(pcm: { number... }):string The encoder function
 @see encode A helper function for encoding an entire file of audio at once.
@@ -138,10 +137,9 @@ end
 The returned decoder is itself a function. This function accepts a string and returns a table of amplitudes, each value
 between -128 and 127.
 
-:::caution Reusing decoders
-Decoders have lots of internal state which tracks the state of the current stream. If you reuse an decoder for multiple
-streams, or use different decoders for the same stream, the resulting audio may not sound correct.
-:::
+> [Reusing decoders][!WARNING]
+> Decoders have lots of internal state which tracks the state of the current stream. If you reuse an decoder for
+> multiple streams, or use different decoders for the same stream, the resulting audio may not sound correct.
 
 @treturn function(dfpwm: string):{ number... } The encoder function
 @see decode A helper function for decoding an entire file of audio at once.

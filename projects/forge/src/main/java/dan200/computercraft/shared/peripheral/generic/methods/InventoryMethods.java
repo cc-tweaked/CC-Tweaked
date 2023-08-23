@@ -102,12 +102,11 @@ public class InventoryMethods implements GenericPeripheral {
      * recommended to print it out using @{textutils.serialize} or in the Lua
      * REPL, to explore what is available.
      * <p>
-     * :::info Deprecated fields
-     * Older versions of CC: Tweaked exposed an {@code itemGroups} field, listing the
-     * creative tabs an item was available under. This information is no longer available on
-     * more recent versions of the game, and so this field will always be empty. Do not use this
-     * field in new code!
-     * :::
+     * > [Deprecated fields][!INFO]
+     * > Older versions of CC: Tweaked exposed an {@code itemGroups} field, listing the
+     * > creative tabs an item was available under. This information is no longer available on
+     * > more recent versions of the game, and so this field will always be empty. Do not use this
+     * > field in new code!
      *
      * @param inventory The current inventory.
      * @param slot      The slot to get information about.

@@ -8,10 +8,9 @@ When a computer starts, it reads the current value of settings from the
 `/.settings` file. These values then may be @{settings.get|read} or
 @{settings.set|modified}.
 
-:::caution
-Calling @{settings.set} does _not_ update the settings file by default. You
-_must_ call @{settings.save} to persist values.
-:::
+> [!WARNING]
+> Calling @{settings.set} does _not_ update the settings file by default. You
+> _must_ call @{settings.save} to persist values.
 
 @module settings
 @since 1.78
@@ -113,10 +112,9 @@ end
 
 --[[- Set the value of a setting.
 
-:::caution
-Calling @{settings.set} does _not_ update the settings file by default. You
-_must_ call @{settings.save} to persist values.
-:::
+> [!WARNING]
+> Calling @{settings.set} does _not_ update the settings file by default. You
+> _must_ call @{settings.save} to persist values.
 
 @tparam string name The name of the setting to set
 @param value The setting's value. This cannot be `nil`, and must be

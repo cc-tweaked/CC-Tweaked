@@ -21,10 +21,9 @@ import java.util.Set;
 /**
  * Modems allow you to send messages between computers over long distances.
  * <p>
- * :::tip
- * Modems provide a fairly basic set of methods, which makes them very flexible but often hard to work with. The
- * {@literal @}{rednet} API is built on top of modems, and provides a more user-friendly interface.
- * :::
+ * > [!TIP]
+ * > Modems provide a fairly basic set of methods, which makes them very flexible but often hard to work with. The
+ * > {@literal @}{rednet} API is built on top of modems, and provides a more user-friendly interface.
  * <p>
  * ## Sending and receiving messages
  * Modems operate on a series of channels, a bit like frequencies on a radio. Any modem can send a message on a
@@ -198,9 +197,8 @@ public abstract class ModemPeripheral implements IPeripheral, PacketSender, Pack
      * Sends a modem message on a certain channel. Modems listening on the channel will queue a {@code modem_message}
      * event on adjacent computers.
      * <p>
-     * :::note
-     * The channel does not need be open to send a message.
-     * :::
+     * > [!NOTE]
+     * > The channel does not need be open to send a message.
      *
      * @param channel      The channel to send messages on.
      * @param replyChannel The channel that responses to this message should be sent on. This can be the same as

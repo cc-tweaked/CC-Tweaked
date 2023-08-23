@@ -12,11 +12,10 @@ and the fourth should be either above or below the other three. The three in a
 plane should not be in a line with each other. You can set up hosts using the
 gps program.
 
-:::note
-When entering in the coordinates for the host you need to put in the `x`, `y`,
-and `z` coordinates of the block that the modem is connected to, not the modem.
-All modem distances are measured from the block that the modem is placed on.
-:::
+> [!NOTE]
+> When entering in the coordinates for the host you need to put in the `x`, `y`,
+> and `z` coordinates of the block that the modem is connected to, not the modem.
+> All modem distances are measured from the block that the modem is placed on.
 
 Also note that you may choose which axes x, y, or z refers to - so long as your
 systems have the same definition as any GPS servers that're in range, it works

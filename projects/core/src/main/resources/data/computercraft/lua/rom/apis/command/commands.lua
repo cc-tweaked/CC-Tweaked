@@ -5,10 +5,9 @@
 --[[- Execute [Minecraft commands][mc] and gather data from the results from
 a command computer.
 
-:::note
-This API is only available on Command computers. It is not accessible to normal
-players.
-:::
+> [!NOTE]
+> This API is only available on Command computers. It is not accessible to normal
+> players.
 
 While one may use @{commands.exec} directly to execute a command, the
 commands API also provides helper methods to execute every command. For

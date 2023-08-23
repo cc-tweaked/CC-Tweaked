@@ -37,10 +37,9 @@ import java.util.function.Function;
  * {@link #copy} and {@link #delete}.</li>
  * </ul>
  * <p>
- * :::note
- * All functions in the API work on absolute paths, and do not take the @{shell.dir|current directory} into account.
- * You can use @{shell.resolve} to convert a relative path into an absolute one.
- * :::
+ * > [!NOTE]
+ * > All functions in the API work on absolute paths, and do not take the @{shell.dir|current directory} into account.
+ * > You can use @{shell.resolve} to convert a relative path into an absolute one.
  * <p>
  * ## Mounts
  * While a computer can only have one hard drive and filesystem, other filesystems may be "mounted" inside it. For

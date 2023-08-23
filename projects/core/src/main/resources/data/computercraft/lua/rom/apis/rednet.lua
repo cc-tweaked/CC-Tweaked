@@ -16,15 +16,14 @@ Once rednet is opened, you can send messages using @{rednet.send} and receive
 them using @{rednet.receive}. It's also possible to send a message to _every_
 rednet-using computer using @{rednet.broadcast}.
 
-:::caution Network security
-
-While rednet provides a friendly way to send messages to specific computers, it
-doesn't provide any guarantees about security. Other computers could be
-listening in to your messages, or even pretending to send messages from other computers!
-
-If you're playing on a multi-player server (or at least one where you don't
-trust other players), it's worth encrypting or signing your rednet messages.
-:::
+> [Network security][!WARNING]
+>
+> While rednet provides a friendly way to send messages to specific computers, it
+> doesn't provide any guarantees about security. Other computers could be
+> listening in to your messages, or even pretending to send messages from other computers!
+>
+> If you're playing on a multi-player server (or at least one where you don't
+> trust other players), it's worth encrypting or signing your rednet messages.
 
 ## Protocols and hostnames
 Several rednet messages accept "protocol"s - simple string names describing what

@@ -4,10 +4,9 @@
 
 --[[- A lexer for Lua source code.
 
-:::warning
-This is an internal module and SHOULD NOT be used in your own code. It may
-be removed or changed at any time.
-:::
+> [!DANGER]
+> This is an internal module and SHOULD NOT be used in your own code. It may
+> be removed or changed at any time.
 
 This module provides utilities for lexing Lua code, returning tokens compatible
 with @{cc.internal.syntax.parser}. While all lexers are roughly the same, there

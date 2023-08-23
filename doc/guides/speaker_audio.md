@@ -189,10 +189,9 @@ for chunk in io.lines("data/example.dfpwm", 16 * 1024) do
 end
 ```
 
-:::note Confused?
-Don't worry if you don't understand this example. It's quite advanced, and does use some ideas that this guide doesn't
-cover. That said, don't be afraid to ask on [GitHub Discussions] or [IRC] either!
-:::
+> [Confused?][!NOTE]
+> Don't worry if you don't understand this example. It's quite advanced, and does use some ideas that this guide doesn't
+> cover. That said, don't be afraid to ask on [GitHub Discussions] or [IRC] either!
 
 It's worth noting that the examples of audio processing we've mentioned here are about manipulating the _amplitude_ of
 the wave. If you wanted to modify the _frequency_ (for instance, shifting the pitch), things get rather more complex.
