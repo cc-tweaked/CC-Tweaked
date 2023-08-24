@@ -11,7 +11,7 @@ SPDX-License-Identifier: MPL-2.0
 -->
 
 # Playing audio with speakers
-CC: Tweaked's speaker peripheral provides a powerful way to play any audio you like with the @{speaker.playAudio}
+CC: Tweaked's speaker peripheral provides a powerful way to play any audio you like with the [`speaker.playAudio`]
 method. However, for people unfamiliar with digital audio, it's not the most intuitive thing to use. This guide provides
 an introduction to digital audio, demonstrates how to play music with CC: Tweaked's speakers, and then briefly discusses
 the more complex topic of audio processing.
@@ -60,7 +60,7 @@ sine waves (and why wouldn't you?), you'd need a table with almost 3 _million_. 
 up very quickly, and these tables take up more and more memory.
 
 Instead of building our entire song (well, sine wave) in one go, we can produce it in small batches, each of which get
-passed off to @{speaker.playAudio} when the time is right. This allows us to build a _stream_ of audio, where we read
+passed off to [`speaker.playAudio`] when the time is right. This allows us to build a _stream_ of audio, where we read
 chunks of audio one at a time (either from a file or a tone generator like above), do some optional processing to each
 one, and then play them.
 
@@ -84,15 +84,15 @@ end
 ```
 
 It looks pretty similar to before, aside from we've wrapped the generation and playing code in a while loop, and added a
-rather odd loop with @{speaker.playAudio} and @{os.pullEvent}.
+rather odd loop with [`speaker.playAudio`] and [`os.pullEvent`].
 
-Let's talk about this loop, why do we need to keep calling @{speaker.playAudio}? Remember that what we're trying to do
+Let's talk about this loop, why do we need to keep calling [`speaker.playAudio`]? Remember that what we're trying to do
 here is avoid keeping too much audio in memory at once. However, if we're generating audio quicker than the speakers can
 play it, we're not helping at all - all this audio is still hanging around waiting to be played!
 
 In order to avoid this, the speaker rejects any new chunks of audio if its backlog is too large. When this happens,
-@{speaker.playAudio} returns false. Once enough audio has played, and the backlog has been reduced, a
-@{speaker_audio_empty} event is queued, and we can try to play our chunk once more.
+[`speaker.playAudio`] returns false. Once enough audio has played, and the backlog has been reduced, a
+[`speaker_audio_empty`] event is queued, and we can try to play our chunk once more.
 
 ## Storing audio
 PCM is a fantastic way of representing audio when we want to manipulate it, but it's not very efficient when we want to
@@ -106,7 +106,7 @@ computer. Instead, we need something much simpler.
 
 DFPWM (Dynamic Filter Pulse Width Modulation) is the de facto standard audio format of the ComputerCraft (and
 OpenComputers) world. Originally popularised by the addon mod [Computronics], CC:T now has built-in support for it with
-the @{cc.audio.dfpwm} module. This allows you to read DFPWM files from disk, decode them to PCM, and then play them
+the [`cc.audio.dfpwm`] module. This allows you to read DFPWM files from disk, decode them to PCM, and then play them
 using the speaker.
 
 Let's dive in with an example, and we'll explain things afterwards:
@@ -125,16 +125,16 @@ for chunk in io.lines("data/example.dfpwm", 16 * 1024) do
 end
 ```
 
-Once again, we see the @{speaker.playAudio}/@{speaker_audio_empty} loop. However, the rest of the program is a little
+Once again, we see the [`speaker.playAudio`]/[`speaker_audio_empty`] loop. However, the rest of the program is a little
 different.
 
-First, we require the dfpwm module and call @{cc.audio.dfpwm.make_decoder} to construct a new decoder. This decoder
+First, we require the dfpwm module and call [`cc.audio.dfpwm.make_decoder`] to construct a new decoder. This decoder
 accepts blocks of DFPWM data and converts it to a list of 8-bit amplitudes, which we can then play with our speaker.
 
-As mentioned above, @{speaker.playAudio} accepts at most 128×1024 samples in one go. DFPMW uses a single bit for each
+As mentioned above, [`speaker.playAudio`] accepts at most 128×1024 samples in one go. DFPMW uses a single bit for each
 sample, which means we want to process our audio in chunks of 16×1024 bytes (16KiB). In order to do this, we use
-@{io.lines}, which provides a nice way to loop over chunks of a file. You can of course just use @{fs.open} and
-@{fs.BinaryReadHandle.read} if you prefer.
+[`io.lines`], which provides a nice way to loop over chunks of a file. You can of course just use [`fs.open`] and
+[`fs.BinaryReadHandle.read`] if you prefer.
 
 ## Processing audio
 As mentioned near the beginning of this guide, PCM audio is pretty easy to work with as it's just a list of amplitudes.
@@ -189,10 +189,9 @@ for chunk in io.lines("data/example.dfpwm", 16 * 1024) do
 end
 ```
 
-:::note Confused?
-Don't worry if you don't understand this example. It's quite advanced, and does use some ideas that this guide doesn't
-cover. That said, don't be afraid to ask on [GitHub Discussions] or [IRC] either!
-:::
+> [Confused?][!NOTE]
+> Don't worry if you don't understand this example. It's quite advanced, and does use some ideas that this guide doesn't
+> cover. That said, don't be afraid to ask on [GitHub Discussions] or [IRC] either!
 
 It's worth noting that the examples of audio processing we've mentioned here are about manipulating the _amplitude_ of
 the wave. If you wanted to modify the _frequency_ (for instance, shifting the pitch), things get rather more complex.

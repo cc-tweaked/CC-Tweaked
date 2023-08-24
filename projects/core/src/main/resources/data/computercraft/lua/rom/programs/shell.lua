@@ -4,26 +4,26 @@
 
 --[[- The shell API provides access to CraftOS's command line interface.
 
-It allows you to @{run|start programs}, @{setCompletionFunction|add completion
-for a program}, and much more.
+It allows you to [start programs][`run`], [add completion for a
+program][`setCompletionFunction`], and much more.
 
-@{shell} is not a "true" API. Instead, it is a standard program, which injects
+[`shell`] is not a "true" API. Instead, it is a standard program, which injects
 its API into the programs that it launches. This allows for multiple shells to
 run at the same time, but means that the API is not available in the global
-environment, and so is unavailable to other @{os.loadAPI|APIs}.
+environment, and so is unavailable to other [APIs][`os.loadAPI`].
 
 ## Programs and the program path
 When you run a command with the shell, either from the prompt or
-@{shell.run|from Lua code}, the shell API performs several steps to work out
+[from Lua code][`shell.run`], the shell API performs several steps to work out
 which program to run:
 
- 1. Firstly, the shell attempts to resolve @{shell.aliases|aliases}. This allows
+ 1. Firstly, the shell attempts to resolve [aliases][`shell.aliases`]. This allows
     us to use multiple names for a single command. For example, the `list`
     program has two aliases: `ls` and `dir`. When you write `ls /rom`, that's
     expanded to `list /rom`.
 
  2. Next, the shell attempts to find where the program actually is. For this, it
-    uses the @{shell.path|program path}. This is a colon separated list of
+    uses the [program path][`shell.path`]. This is a colon separated list of
     directories, each of which is checked to see if it contains the program.
 
     `list` or `list.lua` doesn't exist in `.` (the current directory), so the
@@ -192,7 +192,7 @@ end
 
 --- Run a program with the supplied arguments.
 --
--- Unlike @{shell.run}, each argument is passed to the program verbatim. While
+-- Unlike [`shell.run`], each argument is passed to the program verbatim. While
 -- `shell.run("echo", "b c")` runs `echo` with `b` and `c`,
 -- `shell.execute("echo", "b c")` runs `echo` with a single argument `b c`.
 --
@@ -276,7 +276,7 @@ function shell.exit()
 end
 
 --- Return the current working directory. This is what is displayed before the
--- `> ` of the shell prompt, and is used by @{shell.resolve} to handle relative
+-- `> ` of the shell prompt, and is used by [`shell.resolve`] to handle relative
 -- paths.
 --
 -- @treturn string The current working directory.
@@ -313,10 +313,10 @@ function shell.path()
     return sPath
 end
 
---- Set the @{path|current program path}.
+--- Set the [current program path][`path`].
 --
 -- Be careful to prefix directories with a `/`. Otherwise they will be searched
--- for from the @{shell.dir|current directory}, rather than the computer's root.
+-- for from the [current directory][`shell.dir`], rather than the computer's root.
 --
 -- @tparam string path The new program path.
 -- @since 1.2
@@ -327,8 +327,8 @@ end
 
 --- Resolve a relative path to an absolute path.
 --
--- The @{fs} and @{io} APIs work using absolute paths, and so we must convert
--- any paths relative to the @{dir|current directory} to absolute ones. This
+-- The [`fs`] and [`io`] APIs work using absolute paths, and so we must convert
+-- any paths relative to the [current directory][`dir`] to absolute ones. This
 -- does nothing when the path starts with `/`.
 --
 -- @tparam string path The path to resolve.
@@ -357,10 +357,10 @@ local function pathWithExtension(_sPath, _sExt)
     return _sPath .. "." .. _sExt
 end
 
---- Resolve a program, using the @{path|program path} and list of @{aliases|aliases}.
+--- Resolve a program, using the [program path][`path`] and list of [aliases][`aliases`].
 --
 -- @tparam string command The name of the program
--- @treturn string|nil The absolute path to the program, or @{nil} if it could
+-- @treturn string|nil The absolute path to the program, or [`nil`] if it could
 -- not be found.
 -- @since 1.2
 -- @changed 1.80pr1 Now searches for files with and without the `.lua` extension.
@@ -406,7 +406,7 @@ function shell.resolveProgram(command)
     return nil
 end
 
---- Return a list of all programs on the @{shell.path|path}.
+--- Return a list of all programs on the [path][`shell.path`].
 --
 -- @tparam[opt] boolean include_hidden Include hidden files. Namely, any which
 -- start with `.`.
@@ -518,7 +518,7 @@ end
 -- completed to `ls rom/`.
 --
 -- Completion handlers for your program may be registered with
--- @{shell.setCompletionFunction}.
+-- [`shell.setCompletionFunction`].
 --
 -- @tparam string sLine The input to complete.
 -- @treturn { string }|nil The list of possible completions.
@@ -614,7 +614,7 @@ end
 --- Get a table containing all completion functions.
 --
 -- This should only be needed when building custom shells. Use
--- @{setCompletionFunction} to add a completion function.
+-- [`setCompletionFunction`] to add a completion function.
 --
 -- @treturn { [string] = { fnComplete = function } } A table mapping the
 -- absolute path of programs, to their completion functions.
@@ -676,12 +676,12 @@ function shell.aliases()
 end
 
 if multishell then
-    --- Open a new @{multishell} tab running a command.
+    --- Open a new [`multishell`] tab running a command.
     --
-    -- This behaves similarly to @{shell.run}, but instead returns the process
+    -- This behaves similarly to [`shell.run`], but instead returns the process
     -- index.
     --
-    -- This function is only available if the @{multishell} API is.
+    -- This function is only available if the [`multishell`] API is.
     --
     -- @tparam string ... The command line to run.
     -- @see shell.run
@@ -706,7 +706,7 @@ if multishell then
         end
     end
 
-    --- Switch to the @{multishell} tab with the given index.
+    --- Switch to the [`multishell`] tab with the given index.
     --
     -- @tparam number id The tab to switch to.
     -- @see multishell.setFocus

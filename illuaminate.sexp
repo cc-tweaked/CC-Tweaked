@@ -12,7 +12,6 @@
   /projects/core/src/test/resources/test-rom
   /projects/web/src/mount)
 
-
 (doc
   ; Also defined in projects/web/build.gradle.kts
   (destination /projects/web/build/illuaminate)
@@ -50,6 +49,8 @@
 (at /
   (linters
     syntax:string-index
+    doc:docusaurus-admonition
+    doc:ldoc-reference
 
     ;; It'd be nice to avoid this, but right now there's a lot of instances of
     ;; it.

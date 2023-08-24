@@ -9,7 +9,7 @@ SPDX-License-Identifier: MPL-2.0
 -->
 
 # Setting up GPS
-The @{gps} API allows computers and turtles to find their current position using wireless modems.
+The [`gps`] API allows computers and turtles to find their current position using wireless modems.
 
 In order to use GPS, you'll need to set up multiple *GPS hosts*. These are computers running the special `gps host`
 program, which tell other computers the host's position. Several hosts running together are known as a *GPS
@@ -25,16 +25,15 @@ We are going to build our GPS constellation as shown in the image above. You wil
 modems or 4 ender modems. Try not to mix ender and wireless modems together as you might get some odd behavior when your
 requesting computers are out of range.
 
-:::tip Ender modems vs wireless modems
-Ender modems have a very large range, which makes them very useful for setting up GPS hosts. If you do this then you
-will likely only need one GPS constellation for the whole dimension (such as the Overworld or Nether).
-
-If you do use wireless modems then you may find that you need multiple GPS constellations to cover your needs.
-
-A computer needs a wireless or ender modem and to be in range of a GPS constellation that is in the same dimension as it
-to use the GPS API. The reason for this is that ComputerCraft mimics real-life GPS by making use of the distance
-parameter of @{modem_message|modem messages} and some maths.
-:::
+> [Ender modems vs wireless modems][!TIP]
+> Ender modems have a very large range, which makes them very useful for setting up GPS hosts. If you do this then you
+> will likely only need one GPS constellation for the whole dimension (such as the Overworld or Nether).
+>
+> If you do use wireless modems then you may find that you need multiple GPS constellations to cover your needs.
+>
+> A computer needs a wireless or ender modem and to be in range of a GPS constellation that is in the same dimension as
+> it to use the GPS API. The reason for this is that ComputerCraft mimics real-life GPS by making use of the distance
+> parameter of [modem messages][`modem_message`] and some maths.
 
 Locate where you want to place your GPS constellation. You will need an area at least 6 blocks high, 6 blocks wide, and
 6 blocks deep (6x6x6). If you are using wireless modems then you may want to build your constellation as high as you can
@@ -79,18 +78,16 @@ To hide Minecraft's debug screen, press <kbd>F3</kbd> again.
 Create similar startup files for the other computers in your constellation, making sure to input the each computer's own
 coordinates.
 
-:::caution Modem messages come from the computer's position, not the modem's
-Wireless modems transmit from the block that they are attached to *not* the block space that they occupy, the
-coordinates that you input into your GPS host should be the position of the computer and not the position of the modem.
-:::
+> [Modem messages come from the computer's position, not the modem's][!WARNING]
+> Wireless modems transmit from the block that they are attached to *not* the block space that they occupy, the
+> coordinates that you input into your GPS host should be the position of the computer and not the position of the modem.
 
 Congratulations, your constellation is now fully set up! You can test it by placing another computer close by, placing a
-wireless modem on it, and running the `gps locate` program (or calling the @{gps.locate} function).
+wireless modem on it, and running the `gps locate` program (or calling the [`gps.locate`] function).
 
-:::info Why use Minecraft's coordinates?
-CC doesn't care if you use Minecraft's coordinate system, so long as all of the GPS hosts with overlapping ranges use
-the same reference point (requesting computers will get confused if hosts have different reference points). However,
-using MC's coordinate system does provide a nice standard to adopt server-wide. It also is consistent with how command
-computers get their location, they use MC's command system to get their block which returns that in MC's coordinate
-system.
-:::
+> [Why use Minecraft's coordinates?][!INFO]
+> CC doesn't care if you use Minecraft's coordinate system, so long as all of the GPS hosts with overlapping ranges use
+> the same reference point (requesting computers will get confused if hosts have different reference points). However,
+> using MC's coordinate system does provide a nice standard to adopt server-wide. It also is consistent with how command
+> computers get their location, they use MC's command system to get their block which returns that in MC's coordinate
+> system.

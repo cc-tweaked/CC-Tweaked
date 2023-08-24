@@ -9,14 +9,14 @@ SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 SPDX-License-Identifier: MPL-2.0
 -->
 
-The @{websocket_failure} event is fired when a WebSocket connection request fails.
+The [`websocket_failure`] event is fired when a WebSocket connection request fails.
 
-This event is normally handled inside @{http.websocket}, but it can still be seen when using @{http.websocketAsync}.
+This event is normally handled inside [`http.websocket`], but it can still be seen when using [`http.websocketAsync`].
 
 ## Return Values
-1. @{string}: The event name.
-2. @{string}: The URL of the site requested.
-3. @{string}: An error describing the failure.
+1. [`string`]: The event name.
+2. [`string`]: The URL of the site requested.
+3. [`string`]: An error describing the failure.
 
 ## Example
 Prints an error why the website cannot be contacted:

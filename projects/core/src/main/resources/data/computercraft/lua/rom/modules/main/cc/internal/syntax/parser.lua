@@ -4,10 +4,9 @@
 
 --[[- A parser for Lua programs and expressions.
 
-:::warning
-This is an internal module and SHOULD NOT be used in your own code. It may
-be removed or changed at any time.
-:::
+> [!DANGER]
+> This is an internal module and SHOULD NOT be used in your own code. It may
+> be removed or changed at any time.
 
 Most of the code in this module is automatically generated from the Lua grammar,
 hence being mostly unreadable!

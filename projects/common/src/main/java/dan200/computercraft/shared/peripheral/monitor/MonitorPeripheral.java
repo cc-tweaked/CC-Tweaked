@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
  * Monitors are a block which act as a terminal, displaying information on one side. This allows them to be read and
  * interacted with in-world without opening a GUI.
  * <p>
- * Monitors act as @{term.Redirect|terminal redirects} and so expose the same methods, as well as several additional
+ * Monitors act as [terminal redirects][`term.Redirect`] and so expose the same methods, as well as several additional
  * ones, which are documented below.
  * <p>
  * Like computers, monitors come in both normal (no colour) and advanced (colour) varieties.

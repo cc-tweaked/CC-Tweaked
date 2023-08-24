@@ -15,10 +15,9 @@ import net.minecraftforge.energy.IEnergyStorage;
  * <p>
  * This works with energy storage blocks, as well as generators and machines which consume energy.
  * <p>
- * :::note
- * Due to limitations with Forge's energy API, it is not possible to measure throughput (i.e. RF
- * used/generated per tick).
- * :::
+ * > [!NOTE]
+ * > Due to limitations with Forge's energy API, it is not possible to measure throughput (i.e. RF
+ * > used/generated per tick).
  *
  * @cc.module energy_storage
  * @cc.since 1.94.0

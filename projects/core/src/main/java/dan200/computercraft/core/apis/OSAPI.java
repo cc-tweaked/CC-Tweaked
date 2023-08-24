@@ -146,7 +146,7 @@ public class OSAPI implements ILuaAPI {
      * the timer fires, a {@code timer} event will be added to the queue with
      * the ID returned from this function as the first parameter.
      * <p>
-     * As with @{os.sleep|sleep}, {@code timer} will automatically be rounded up
+     * As with [sleep][`os.sleep`], {@code timer} will automatically be rounded up
      * to the nearest multiple of 0.05 seconds, as it waits for a fixed amount
      * of world ticks.
      *
@@ -353,13 +353,12 @@ public class OSAPI implements ILuaAPI {
      * * If called with {@code local}, returns the number of milliseconds since 1
      * January 1970 in the server's local timezone.
      * <p>
-     * :::info
-     * The {@code ingame} time zone assumes that one Minecraft day consists of 86,400,000
-     * milliseconds. Since one in-game day is much faster than a real day (20 minutes), this
-     * will change quicker than real time - one real second is equal to 72000 in-game
-     * milliseconds. If you wish to convert this value to real time, divide by 72000; to
-     * convert to ticks (where a day is 24000 ticks), divide by 3600.
-     * :::
+     * > [!INFO]
+     * > The {@code ingame} time zone assumes that one Minecraft day consists of 86,400,000
+     * > milliseconds. Since one in-game day is much faster than a real day (20 minutes), this
+     * > will change quicker than real time - one real second is equal to 72000 in-game
+     * > milliseconds. If you wish to convert this value to real time, divide by 72000; to
+     * > convert to ticks (where a day is 24000 ticks), divide by 3600.
      *
      * @param args The locale to get the milliseconds for. Defaults to {@code ingame} if not set.
      * @return The milliseconds since the epoch depending on the selected locale.

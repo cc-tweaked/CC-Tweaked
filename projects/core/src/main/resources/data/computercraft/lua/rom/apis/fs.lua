@@ -13,19 +13,19 @@ local fs = _ENV
 for k, v in pairs(native) do fs[k] = v end
 
 --[[- Provides completion for a file or directory name, suitable for use with
-@{_G.read}.
+[`_G.read`].
 
 When a directory is a possible candidate for completion, two entries are
 included - one with a trailing slash (indicating that entries within this
 directory exist) and one without it (meaning this entry is an immediate
-completion candidate). `include_dirs` can be set to @{false} to only include
+completion candidate). `include_dirs` can be set to [`false`] to only include
 those with a trailing slash.
 
 @tparam[1] string path The path to complete.
 @tparam[1] string location The location where paths are resolved from.
-@tparam[1,opt=true] boolean include_files When @{false}, only directories will
+@tparam[1,opt=true] boolean include_files When [`false`], only directories will
 be included in the returned list.
-@tparam[1,opt=true] boolean include_dirs When @{false}, "raw" directories will
+@tparam[1,opt=true] boolean include_dirs When [`false`], "raw" directories will
 not be included in the returned list.
 
 @tparam[2] string path The path to complete.

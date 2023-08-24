@@ -9,11 +9,11 @@ SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 SPDX-License-Identifier: MPL-2.0
 -->
 
-The @{peripheral_detach} event is fired when a peripheral is detached from a side or from a modem.
+The [`peripheral_detach`] event is fired when a peripheral is detached from a side or from a modem.
 
 ## Return Values
-1. @{string}: The event name.
-2. @{string}: The side the peripheral was detached from.
+1. [`string`]: The event name.
+2. [`string`]: The side the peripheral was detached from.
 
 ## Example
 Prints a message when a peripheral is detached:

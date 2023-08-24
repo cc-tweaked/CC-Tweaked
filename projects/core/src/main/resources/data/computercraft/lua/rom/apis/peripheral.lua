@@ -5,8 +5,8 @@
 --[[- Find and control peripherals attached to this computer.
 
 Peripherals are blocks (or turtle and pocket computer upgrades) which can
-be controlled by a computer. For instance, the @{speaker} peripheral allows a
-computer to play music and the @{monitor} peripheral allows you to display text
+be controlled by a computer. For instance, the [`speaker`] peripheral allows a
+computer to play music and the [`monitor`] peripheral allows you to display text
 in the world.
 
 ## Referencing peripherals
@@ -18,10 +18,10 @@ computer will be called `"bottom"` in your Lua code, one to the left called
 `"right"`, `"front"`, `"back"`).
 
 You can list the names of all peripherals with the `peripherals` program, or the
-@{peripheral.getNames} function.
+[`peripheral.getNames`] function.
 
 It's also possible to use peripherals which are further away from your computer
-through the use of @{modem|Wired Modems}. Place one modem against your computer
+through the use of [Wired Modems][`modem`]. Place one modem against your computer
 (you may need to sneak and right click), run Networking Cable to your
 peripheral, and then place another modem against that block. You can then right
 click the modem to use (or *attach*) the peripheral. This will print a
@@ -32,24 +32,23 @@ clipboard.
 ## Using peripherals
 
 Once you have the name of a peripheral, you can call functions on it using the
-@{peripheral.call} function. This takes the name of our peripheral, the name of
+[`peripheral.call`] function. This takes the name of our peripheral, the name of
 the function we want to call, and then its arguments.
 
-:::info
-Some bits of the peripheral API call peripheral functions *methods* instead
-(for example, the @{peripheral.getMethods} function). Don't worry, they're the
-same thing!
-:::
+> [!INFO]
+> Some bits of the peripheral API call peripheral functions *methods* instead
+> (for example, the [`peripheral.getMethods`] function). Don't worry, they're the
+> same thing!
 
 Let's say we have a monitor above our computer (and so "top") and want to
-@{monitor.write|write some text to it}. We'd write the following:
+[write some text to it][`monitor.write`]. We'd write the following:
 
 ```lua
 peripheral.call("top", "write", "This is displayed on a monitor!")
 ```
 
 Once you start calling making a couple of peripheral calls this can get very
-repetitive, and so we can @{peripheral.wrap|wrap} a peripheral. This builds a
+repetitive, and so we can [wrap][`peripheral.wrap`] a peripheral. This builds a
 table of all the peripheral's functions so you can use it like an API or module.
 
 For instance, we could have written the above example as follows:
@@ -66,7 +65,7 @@ called, you just need to know it's there. For instance, if you're writing a
 music player, you just need a speaker - it doesn't matter if it's above or below
 the computer.
 
-Thankfully there's a quick way to do this: @{peripheral.find}. This takes a
+Thankfully there's a quick way to do this: [`peripheral.find`]. This takes a
 *peripheral type* and returns all the attached peripherals which are of this
 type.
 
@@ -76,10 +75,10 @@ are just called `"speaker"`, and monitors `"monitor"`. Some peripherals might
 have more than one type - a Minecraft chest is both a `"minecraft:chest"` and
 `"inventory"`.
 
-You can get all the types a peripheral has with @{peripheral.getType}, and check
-a peripheral is a specific type with @{peripheral.hasType}.
+You can get all the types a peripheral has with [`peripheral.getType`], and check
+a peripheral is a specific type with [`peripheral.hasType`].
 
-To return to our original example, let's use @{peripheral.find} to find an
+To return to our original example, let's use [`peripheral.find`] to find an
 attached speaker:
 
 ```lua
@@ -229,7 +228,7 @@ function getMethods(name)
     return nil
 end
 
---- Get the name of a peripheral wrapped with @{peripheral.wrap}.
+--- Get the name of a peripheral wrapped with [`peripheral.wrap`].
 --
 -- @tparam table peripheral The peripheral to get the name of.
 -- @treturn string The name of the given peripheral.
@@ -270,7 +269,7 @@ function call(name, method, ...)
 end
 
 --- Get a table containing all functions available on a peripheral. These can
--- then be called instead of using @{peripheral.call} every time.
+-- then be called instead of using [`peripheral.call`] every time.
 --
 -- @tparam string name The name of the peripheral to wrap.
 -- @treturn table|nil The table containing the peripheral's methods, or `nil` if
@@ -305,7 +304,7 @@ function wrap(name)
 end
 
 --[[- Find all peripherals of a specific type, and return the
-@{peripheral.wrap|wrapped} peripherals.
+[wrapped][`peripheral.wrap`] peripherals.
 
 @tparam string ty The type of peripheral to look for.
 @tparam[opt] function(name:string, wrapped:table):boolean filter A
@@ -325,7 +324,7 @@ and returns if it should be included in the result.
         return modem.isWireless() -- Check this modem is wireless.
     end) }
 
-@usage This abuses the `filter` argument to call @{rednet.open} on every modem.
+@usage This abuses the `filter` argument to call [`rednet.open`] on every modem.
 
     peripheral.find("modem", rednet.open)
 @since 1.6

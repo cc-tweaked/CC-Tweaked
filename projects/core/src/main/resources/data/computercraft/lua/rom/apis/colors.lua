@@ -3,20 +3,20 @@
 -- SPDX-License-Identifier: LicenseRef-CCPL
 
 --[[- Constants and functions for colour values, suitable for working with
-@{term} and @{redstone}.
+[`term`] and [`redstone`].
 
-This is useful in conjunction with @{redstone.setBundledOutput|Bundled Cables}
-from mods like Project Red, and @{term.setTextColour|colors on Advanced
-Computers and Advanced Monitors}.
+This is useful in conjunction with [Bundled Cables][`redstone.setBundledOutput`]
+from mods like Project Red, and [colors on Advanced Computers and Advanced
+Monitors][`term.setTextColour`].
 
-For the non-American English version just replace @{colors} with @{colours}.
+For the non-American English version just replace [`colors`] with [`colours`].
 This alternative API is exactly the same, except the colours use British English
-(e.g. @{colors.gray} is spelt @{colours.grey}).
+(e.g. [`colors.gray`] is spelt [`colours.grey`]).
 
 On basic terminals (such as the Computer and Monitor), all the colors are
 converted to grayscale. This means you can still use all 16 colors on the
 screen, but they will appear as the nearest tint of gray. You can check if a
-terminal supports color by using the function @{term.isColor}.
+terminal supports color by using the function [`term.isColor`].
 
 Grayscale colors are calculated by taking the average of the three components,
 i.e. `(red + green + blue) / 3`.
@@ -140,67 +140,67 @@ i.e. `(red + green + blue) / 3`.
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
---- White: Written as `0` in paint files and @{term.blit}, has a default
+--- White: Written as `0` in paint files and [`term.blit`], has a default
 -- terminal colour of #F0F0F0.
 white = 0x1
 
---- Orange: Written as `1` in paint files and @{term.blit}, has a
+--- Orange: Written as `1` in paint files and [`term.blit`], has a
 -- default terminal colour of #F2B233.
 orange = 0x2
 
---- Magenta: Written as `2` in paint files and @{term.blit}, has a
+--- Magenta: Written as `2` in paint files and [`term.blit`], has a
 -- default terminal colour of #E57FD8.
 magenta = 0x4
 
---- Light blue: Written as `3` in paint files and @{term.blit}, has a
+--- Light blue: Written as `3` in paint files and [`term.blit`], has a
 -- default terminal colour of #99B2F2.
 lightBlue = 0x8
 
---- Yellow: Written as `4` in paint files and @{term.blit}, has a
+--- Yellow: Written as `4` in paint files and [`term.blit`], has a
 -- default terminal colour of #DEDE6C.
 yellow = 0x10
 
---- Lime: Written as `5` in paint files and @{term.blit}, has a default
+--- Lime: Written as `5` in paint files and [`term.blit`], has a default
 -- terminal colour of #7FCC19.
 lime = 0x20
 
---- Pink: Written as `6` in paint files and @{term.blit}, has a default
+--- Pink: Written as `6` in paint files and [`term.blit`], has a default
 -- terminal colour of #F2B2CC.
 pink = 0x40
 
---- Gray: Written as `7` in paint files and @{term.blit}, has a default
+--- Gray: Written as `7` in paint files and [`term.blit`], has a default
 -- terminal colour of #4C4C4C.
 gray = 0x80
 
---- Light gray: Written as `8` in paint files and @{term.blit}, has a
+--- Light gray: Written as `8` in paint files and [`term.blit`], has a
 -- default terminal colour of #999999.
 lightGray = 0x100
 
---- Cyan: Written as `9` in paint files and @{term.blit}, has a default
+--- Cyan: Written as `9` in paint files and [`term.blit`], has a default
 -- terminal colour of #4C99B2.
 cyan = 0x200
 
---- Purple: Written as `a` in paint files and @{term.blit}, has a
+--- Purple: Written as `a` in paint files and [`term.blit`], has a
 -- default terminal colour of #B266E5.
 purple = 0x400
 
---- Blue: Written as `b` in paint files and @{term.blit}, has a default
+--- Blue: Written as `b` in paint files and [`term.blit`], has a default
 -- terminal colour of #3366CC.
 blue = 0x800
 
---- Brown: Written as `c` in paint files and @{term.blit}, has a default
+--- Brown: Written as `c` in paint files and [`term.blit`], has a default
 -- terminal colour of #7F664C.
 brown = 0x1000
 
---- Green: Written as `d` in paint files and @{term.blit}, has a default
+--- Green: Written as `d` in paint files and [`term.blit`], has a default
 -- terminal colour of #57A64E.
 green = 0x2000
 
---- Red: Written as `e` in paint files and @{term.blit}, has a default
+--- Red: Written as `e` in paint files and [`term.blit`], has a default
 -- terminal colour of #CC4C4C.
 red = 0x4000
 
---- Black: Written as `f` in paint files and @{term.blit}, has a default
+--- Black: Written as `f` in paint files and [`term.blit`], has a default
 -- terminal colour of #111111.
 black = 0x8000
 
@@ -313,18 +313,18 @@ function unpackRGB(rgb)
         bit32.band(rgb, 0xFF) / 255
 end
 
---- Either calls @{colors.packRGB} or @{colors.unpackRGB}, depending on how many
+--- Either calls [`colors.packRGB`] or [`colors.unpackRGB`], depending on how many
 -- arguments it receives.
 --
--- @tparam[1] number r The red channel, as an argument to @{colors.packRGB}.
--- @tparam[1] number g The green channel, as an argument to @{colors.packRGB}.
--- @tparam[1] number b The blue channel, as an argument to @{colors.packRGB}.
--- @tparam[2] number rgb The combined hexadecimal color, as an argument to @{colors.unpackRGB}.
--- @treturn[1] number The combined hexadecimal colour, as returned by @{colors.packRGB}.
--- @treturn[2] number The red channel, as returned by @{colors.unpackRGB}
--- @treturn[2] number The green channel, as returned by @{colors.unpackRGB}
--- @treturn[2] number The blue channel, as returned by @{colors.unpackRGB}
--- @deprecated Use @{packRGB} or @{unpackRGB} directly.
+-- @tparam[1] number r The red channel, as an argument to [`colors.packRGB`].
+-- @tparam[1] number g The green channel, as an argument to [`colors.packRGB`].
+-- @tparam[1] number b The blue channel, as an argument to [`colors.packRGB`].
+-- @tparam[2] number rgb The combined hexadecimal color, as an argument to [`colors.unpackRGB`].
+-- @treturn[1] number The combined hexadecimal colour, as returned by [`colors.packRGB`].
+-- @treturn[2] number The red channel, as returned by [`colors.unpackRGB`]
+-- @treturn[2] number The green channel, as returned by [`colors.unpackRGB`]
+-- @treturn[2] number The blue channel, as returned by [`colors.unpackRGB`]
+-- @deprecated Use [`packRGB`] or [`unpackRGB`] directly.
 -- @usage
 -- ```lua
 -- colors.rgb8(0xb23399)

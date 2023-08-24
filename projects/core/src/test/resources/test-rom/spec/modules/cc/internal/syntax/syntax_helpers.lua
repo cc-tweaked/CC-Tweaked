@@ -27,7 +27,7 @@ end
 --[[- Run a parser on an input string, capturing its output.
 
 This uses a simplified method of displaying errors (compared with
-@{cc.internal.error_printer}), which is suitable for printing to a file.
+[`cc.internal.error_printer`]), which is suitable for printing to a file.
 
 @tparam string input The input string to parse.
 @tparam[opt=false] boolean print_tokens Whether to print each token as its parsed.

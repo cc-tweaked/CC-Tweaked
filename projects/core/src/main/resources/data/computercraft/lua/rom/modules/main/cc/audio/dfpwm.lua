@@ -9,11 +9,11 @@ DFPWM (Dynamic Filter Pulse Width Modulation) is an audio codec designed by Grea
 format compared to raw PCM data, only using 1 bit per sample, but is simple enough to simple enough to encode and decode
 in real time.
 
-Typically DFPWM audio is read from @{fs.BinaryReadHandle|the filesystem} or a @{http.Response|a web request} as a
-string, and converted a format suitable for @{speaker.playAudio}.
+Typically DFPWM audio is read from [the filesystem][`fs.BinaryReadHandle`] or a [a web request][`http.Response`] as a
+string, and converted a format suitable for [`speaker.playAudio`].
 
 ## Encoding and decoding files
-This modules exposes two key functions, @{make_decoder} and @{make_encoder}, which construct a new decoder or encoder.
+This modules exposes two key functions, [`make_decoder`] and [`make_encoder`], which construct a new decoder or encoder.
 The returned encoder/decoder is itself a function, which converts between the two kinds of data.
 
 These encoders and decoders have lots of hidden state, so you should be careful to use the same encoder or decoder for
@@ -95,10 +95,9 @@ end
 The returned encoder is itself a function. This function accepts a table of amplitude data between -128 and 127 and
 returns the encoded DFPWM data.
 
-:::caution Reusing encoders
-Encoders have lots of internal state which tracks the state of the current stream. If you reuse an encoder for multiple
-streams, or use different encoders for the same stream, the resulting audio may not sound correct.
-:::
+> [Reusing encoders][!WARNING]
+> Encoders have lots of internal state which tracks the state of the current stream. If you reuse an encoder for multiple
+> streams, or use different encoders for the same stream, the resulting audio may not sound correct.
 
 @treturn function(pcm: { number... }):string The encoder function
 @see encode A helper function for encoding an entire file of audio at once.
@@ -138,10 +137,9 @@ end
 The returned decoder is itself a function. This function accepts a string and returns a table of amplitudes, each value
 between -128 and 127.
 
-:::caution Reusing decoders
-Decoders have lots of internal state which tracks the state of the current stream. If you reuse an decoder for multiple
-streams, or use different decoders for the same stream, the resulting audio may not sound correct.
-:::
+> [Reusing decoders][!WARNING]
+> Decoders have lots of internal state which tracks the state of the current stream. If you reuse an decoder for
+> multiple streams, or use different decoders for the same stream, the resulting audio may not sound correct.
 
 @treturn function(dfpwm: string):{ number... } The encoder function
 @see decode A helper function for decoding an entire file of audio at once.
@@ -200,7 +198,7 @@ end
 --[[- A convenience function for decoding a complete file of audio at once.
 
 This should only be used for short files. For larger files, one should read the file in chunks and process it using
-@{make_decoder}.
+[`make_decoder`].
 
 @tparam string input The DFPWM data to convert.
 @treturn { number... } The produced amplitude data.
@@ -214,7 +212,7 @@ end
 --[[- A convenience function for encoding a complete file of audio at once.
 
 This should only be used for complete pieces of audio. If you are writing writing multiple chunks to the same place,
-you should use an encoder returned by @{make_encoder} instead.
+you should use an encoder returned by [`make_encoder`] instead.
 
 @tparam { number... } input The table of amplitude data.
 @treturn string The encoded DFPWM data.
