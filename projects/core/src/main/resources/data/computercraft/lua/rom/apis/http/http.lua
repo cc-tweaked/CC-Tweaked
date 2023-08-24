@@ -74,7 +74,7 @@ decoded.
   url = string, headers? = { [string] = string },
   binary? = boolean, method? = string, redirect? = boolean,
   timeout? = number,
-} request Options for the request. See @{http.request} for details on how
+} request Options for the request. See [`http.request`] for details on how
 these options behave.
 
 @treturn Response The resulting http response, which can be read from.
@@ -126,7 +126,7 @@ decoded.
   url = string, body? = string, headers? = { [string] = string },
   binary? = boolean, method? = string, redirect? = boolean,
   timeout? = number,
-} request Options for the request. See @{http.request} for details on how
+} request Options for the request. See [`http.request`] for details on how
 these options behave.
 
 @treturn Response The resulting http response, which can be read from.
@@ -158,7 +158,7 @@ end
 
 --[[- Asynchronously make a HTTP request to the given url.
 
-This returns immediately, a @{http_success} or @{http_failure} will be queued
+This returns immediately, a [`http_success`] or [`http_failure`] will be queued
 once the request has completed.
 
 @tparam      string url   The url to request
@@ -221,7 +221,7 @@ local nativeCheckURL = native.checkURL
 
 --[[- Asynchronously determine whether a URL can be requested.
 
-If this returns `true`, one should also listen for @{http_check} which will
+If this returns `true`, one should also listen for [`http_check`] which will
 container further information about whether the URL is allowed or not.
 
 @tparam string url The URL to check.
@@ -237,11 +237,11 @@ checkURLAsync = nativeCheckURL
 
 --[[- Determine whether a URL can be requested.
 
-If this returns `true`, one should also listen for @{http_check} which will
+If this returns `true`, one should also listen for [`http_check`] which will
 container further information about whether the URL is allowed or not.
 
 @tparam string url The URL to check.
-@treturn true When this url is valid and can be requested via @{http.request}.
+@treturn true When this url is valid and can be requested via [`http.request`].
 @treturn[2] false When this url is invalid.
 @treturn string A reason why this URL is not valid (for instance, if it is
 malformed, or blocked).
@@ -280,7 +280,7 @@ end
 
 --[[- Asynchronously open a websocket.
 
-This returns immediately, a @{websocket_success} or @{websocket_failure}
+This returns immediately, a [`websocket_success`] or [`websocket_failure`]
 will be queued once the request has completed.
 
 @tparam[1] string url The websocket url to connect to. This should have the
@@ -290,7 +290,7 @@ of the initial websocket connection.
 
 @tparam[2] {
   url = string, headers? = { [string] = string }, timeout ?= number,
-} request Options for the websocket.  See @{http.websocket} for details on how
+} request Options for the websocket.  See [`http.websocket`] for details on how
 these options behave.
 
 @since 1.80pr1.3

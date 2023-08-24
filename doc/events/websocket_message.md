@@ -8,15 +8,15 @@ SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 SPDX-License-Identifier: MPL-2.0
 -->
 
-The @{websocket_message} event is fired when a message is received on an open WebSocket connection.
+The [`websocket_message`] event is fired when a message is received on an open WebSocket connection.
 
-This event is normally handled by @{http.Websocket.receive}, but it can also be pulled manually.
+This event is normally handled by [`http.Websocket.receive`], but it can also be pulled manually.
 
 ## Return Values
-1. @{string}: The event name.
-2. @{string}: The URL of the WebSocket.
-3. @{string}: The contents of the message.
-4. @{boolean}: Whether this is a binary message.
+1. [`string`]: The event name.
+2. [`string`]: The URL of the WebSocket.
+3. [`string`]: The contents of the message.
+4. [`boolean`]: Whether this is a binary message.
 
 ## Example
 Prints a message sent by a WebSocket:

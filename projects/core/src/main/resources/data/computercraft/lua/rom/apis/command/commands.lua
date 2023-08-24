@@ -9,11 +9,11 @@ a command computer.
 > This API is only available on Command computers. It is not accessible to normal
 > players.
 
-While one may use @{commands.exec} directly to execute a command, the
+While one may use [`commands.exec`] directly to execute a command, the
 commands API also provides helper methods to execute every command. For
 instance, `commands.say("Hi!")` is equivalent to `commands.exec("say Hi!")`.
 
-@{commands.async} provides a similar interface to execute asynchronous
+[`commands.async`] provides a similar interface to execute asynchronous
 commands. `commands.async.say("Hi!")` is equivalent to
 `commands.execAsync("say Hi!")`.
 
@@ -30,7 +30,7 @@ end
 
 --- The builtin commands API, without any generated command helper functions
 --
--- This may be useful if a built-in function (such as @{commands.list}) has been
+-- This may be useful if a built-in function (such as [`commands.list`]) has been
 -- overwritten by a command.
 local native = commands.native or commands
 
@@ -111,7 +111,7 @@ end
 
 --- A table containing asynchronous wrappers for all commands.
 --
--- As with @{commands.execAsync}, this returns the "task id" of the enqueued
+-- As with [`commands.execAsync`], this returns the "task id" of the enqueued
 -- command.
 -- @see execAsync
 -- @usage Asynchronously sets the block above the computer to stone.

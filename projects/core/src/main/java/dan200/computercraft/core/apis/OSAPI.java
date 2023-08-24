@@ -146,7 +146,7 @@ public class OSAPI implements ILuaAPI {
      * the timer fires, a {@code timer} event will be added to the queue with
      * the ID returned from this function as the first parameter.
      * <p>
-     * As with @{os.sleep|sleep}, {@code timer} will automatically be rounded up
+     * As with [sleep][`os.sleep`], {@code timer} will automatically be rounded up
      * to the nearest multiple of 0.05 seconds, as it waits for a fixed amount
      * of world ticks.
      *

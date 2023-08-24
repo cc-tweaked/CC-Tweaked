@@ -9,11 +9,11 @@
 > be removed or changed at any time.
 
 This module provides utilities for lexing Lua code, returning tokens compatible
-with @{cc.internal.syntax.parser}. While all lexers are roughly the same, there
+with [`cc.internal.syntax.parser`]. While all lexers are roughly the same, there
 are some design choices worth drawing attention to:
 
- - The lexer uses Lua patterns (i.e. @{string.find}) as much as possible,
-   trying to avoid @{string.sub} loops except when needed. This allows us to
+ - The lexer uses Lua patterns (i.e. [`string.find`]) as much as possible,
+   trying to avoid [`string.sub`] loops except when needed. This allows us to
    move string processing to native code, which ends up being much faster.
 
  - We try to avoid allocating where possible. There are some cases we need to
@@ -177,7 +177,7 @@ end
 -- @tparam number start The start position, after the input boundary.
 -- @tparam number len The expected length of the boundary. Equal to 1 + the
 -- number of `=`.
--- @treturn number|nil The end position, or @{nil} if this is not terminated.
+-- @treturn number|nil The end position, or [`nil`] if this is not terminated.
 local function lex_long_str(context, str, start, len)
     local pos = start
     while true do

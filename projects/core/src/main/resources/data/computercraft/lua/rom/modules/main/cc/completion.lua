@@ -3,11 +3,11 @@
 -- SPDX-License-Identifier: LicenseRef-CCPL
 
 --- A collection of helper methods for working with input completion, such
--- as that require by @{_G.read}.
+-- as that require by [`_G.read`].
 --
 -- @module cc.completion
 -- @see cc.shell.completion For additional helpers to use with
--- @{shell.setCompletionFunction}.
+-- [`shell.setCompletionFunction`].
 -- @since 1.85.0
 
 local expect = require "cc.expect".expect
@@ -34,7 +34,7 @@ end
 -- @tparam { string... } choices The list of choices to complete from.
 -- @tparam[opt] boolean add_space Whether to add a space after the completed item.
 -- @treturn { string... } A list of suffixes of matching strings.
--- @usage Call @{_G.read}, completing the names of various animals.
+-- @usage Call [`_G.read`], completing the names of various animals.
 --
 --     local completion = require "cc.completion"
 --     local animals = { "dog", "cat", "lion", "unicorn" }
@@ -76,7 +76,7 @@ local function side(text, add_space)
     return choice_impl(text, sides, add_space)
 end
 
---- Complete a @{settings|setting}.
+--- Complete a [setting][`settings`].
 --
 -- @tparam string text The input string to complete.
 -- @tparam[opt] boolean add_space Whether to add a space after the completed settings.
@@ -92,7 +92,7 @@ end
 
 local command_list
 
---- Complete the name of a Minecraft @{commands|command}.
+--- Complete the name of a Minecraft [command][`commands`].
 --
 -- @tparam string text The input string to complete.
 -- @tparam[opt] boolean add_space Whether to add a space after the completed command.

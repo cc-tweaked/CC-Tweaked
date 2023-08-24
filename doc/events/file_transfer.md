@@ -9,15 +9,15 @@ SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
 SPDX-License-Identifier: MPL-2.0
 -->
 
-The @{file_transfer} event is queued when a user drags-and-drops a file on an open computer.
+The [`file_transfer`] event is queued when a user drags-and-drops a file on an open computer.
 
-This event contains a single argument of type @{TransferredFiles}, which can be used to @{TransferredFiles.getFiles|get
-the files to be transferred}. Each file returned is a @{fs.BinaryReadHandle|binary file handle} with an additional
-@{TransferredFile.getName|getName} method.
+This event contains a single argument of type [`TransferredFiles`], which can be used to [get the files to be
+transferred][`TransferredFiles.getFiles`]. Each file returned is a [binary file handle][`fs.BinaryReadHandle`] with an
+additional [getName][`TransferredFile.getName`] method.
 
 ## Return values
-1. @{string}: The event name
-2. @{TransferredFiles}: The list of transferred files.
+1. [`string`]: The event name
+2. [`TransferredFiles`]: The list of transferred files.
 
 ## Example
 Waits for a user to drop files on top of the computer, then prints the list of files and the size of each file.

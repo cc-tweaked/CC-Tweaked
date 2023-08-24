@@ -38,8 +38,8 @@ import java.util.function.Function;
  * </ul>
  * <p>
  * > [!NOTE]
- * > All functions in the API work on absolute paths, and do not take the @{shell.dir|current directory} into account.
- * > You can use @{shell.resolve} to convert a relative path into an absolute one.
+ * > All functions in the API work on absolute paths, and do not take the [current directory][`shell.dir`] into account.
+ * > You can use [`shell.resolve`] to convert a relative path into an absolute one.
  * <p>
  * ## Mounts
  * While a computer can only have one hard drive and filesystem, other filesystems may be "mounted" inside it. For
@@ -332,7 +332,7 @@ public class FSAPI implements ILuaAPI {
      *
      * print(contents)
      * }</pre>
-     * @cc.usage Open a file and read all lines into a table. @{io.lines} offers an alternative way to do this.
+     * @cc.usage Open a file and read all lines into a table. [`io.lines`] offers an alternative way to do this.
      * <pre>{@code
      * local file = fs.open("/rom/motd.txt", "r")
      * local lines = {}

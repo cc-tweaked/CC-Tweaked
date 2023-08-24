@@ -4,7 +4,7 @@
 
 --- A basic 3D vector type and some common vector operations. This may be useful
 -- when working with coordinates in Minecraft's world (such as those from the
--- @{gps} API).
+-- [`gps`] API).
 --
 -- An introduction to vectors can be found on [Wikipedia][wiki].
 --
@@ -180,7 +180,7 @@ local vmetatable = {
     __eq = vector.equals,
 }
 
---- Construct a new @{Vector} with the given coordinates.
+--- Construct a new [`Vector`] with the given coordinates.
 --
 -- @tparam number x The X coordinate or direction of the vector.
 -- @tparam number y The Y coordinate or direction of the vector.

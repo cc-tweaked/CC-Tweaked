@@ -5,12 +5,12 @@
 --[[- A pretty printer for rendering data structures in an aesthetically
 pleasing manner.
 
-In order to display something using @{cc.pretty}, you build up a series of
-@{Doc|documents}. These behave a little bit like strings; you can concatenate
+In order to display something using [`cc.pretty`], you build up a series of
+[documents][`Doc`]. These behave a little bit like strings; you can concatenate
 them together and then print them to the screen.
 
 However, documents also allow you to control how they should be printed. There
-are several functions (such as @{nest} and @{group}) which allow you to control
+are several functions (such as [`nest`] and [`group`]) which allow you to control
 the "layout" of the document. When you come to display the document, the 'best'
 (most compact) layout is used.
 
@@ -37,7 +37,7 @@ local expect, field = expect.expect, expect.field
 local type, getmetatable, setmetatable, colours, str_write, tostring = type, getmetatable, setmetatable, colours, write, tostring
 local debug_info, debug_local = debug.getinfo, debug.getlocal
 
---- @{table.insert} alternative, but with the length stored inline.
+--- [`table.insert`] alternative, but with the length stored inline.
 local function append(out, value)
     local n = out.n + 1
     out[n], out.n = value, n
@@ -59,10 +59,10 @@ local empty = mk_doc({ tag = "nil" })
 --- A document with a single space in it.
 local space = mk_doc({ tag = "text", text = " " })
 
---- A line break. When collapsed with @{group}, this will be replaced with @{empty}.
+--- A line break. When collapsed with [`group`], this will be replaced with [`empty`].
 local line = mk_doc({ tag = "line", flat = empty })
 
---- A line break. When collapsed with @{group}, this will be replaced with @{space}.
+--- A line break. When collapsed with [`group`], this will be replaced with [`space`].
 local space_line = mk_doc({ tag = "line", flat = space })
 
 local text_cache = { [""] = empty, [" "] = space, ["\n"] = space_line }
@@ -73,7 +73,7 @@ end
 
 --- Create a new document from a string.
 --
--- If your string contains multiple lines, @{group} will flatten the string
+-- If your string contains multiple lines, [`group`] will flatten the string
 -- into a single line, with spaces between each line.
 --
 -- @tparam      string text   The string to construct a new document with.
@@ -453,7 +453,7 @@ end
 
 --- Pretty-print an arbitrary object, converting it into a document.
 --
--- This can then be rendered with @{write} or @{print}.
+-- This can then be rendered with [`write`] or [`print`].
 --
 -- @param obj The object to pretty-print.
 -- @tparam[opt] { function_args = boolean, function_source = boolean } options
@@ -479,7 +479,7 @@ local function pretty(obj, options)
     return pretty_impl(obj, actual_options, {})
 end
 
---[[- A shortcut for calling @{pretty} and @{print} together.
+--[[- A shortcut for calling [`pretty`] and [`print`] together.
 
 @param obj The object to pretty-print.
 @tparam[opt] { function_args = boolean, function_source = boolean } options

@@ -272,7 +272,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
      * <p>
      * This accepts a list of audio samples as amplitudes between -128 and 127. These are stored in an internal buffer
      * and played back at 48kHz. If this buffer is full, this function will return {@literal false}. You should wait for
-     * a @{speaker_audio_empty} event before trying again.
+     * a [`speaker_audio_empty`] event before trying again.
      * <p>
      * > [!NOTE]
      * > The speaker only buffers a single call to {@link #playAudio} at once. This means if you try to play a small
@@ -280,7 +280,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
      * > (up to 128×1024), as this reduces the chances of audio stuttering or halting, especially when the server or
      * > computer is lagging.
      * <p>
-     * {@literal @}{speaker_audio} provides a more complete guide to using speakers
+     * [`speaker_audio`] provides a more complete guide to using speakers
      *
      * @param context The Lua context.
      * @param audio   The audio data to play.
@@ -291,7 +291,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
      * @cc.tparam [opt] number volume The volume to play this audio at. If not given, defaults to the previous volume
      * given to {@link #playAudio}.
      * @cc.since 1.100
-     * @cc.usage Read an audio file, decode it using @{cc.audio.dfpwm}, and play it using the speaker.
+     * @cc.usage Read an audio file, decode it using [`cc.audio.dfpwm`], and play it using the speaker.
      *
      * <pre data-peripheral="speaker">{@code
      * local dfpwm = require("cc.audio.dfpwm")

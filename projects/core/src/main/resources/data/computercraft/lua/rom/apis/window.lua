@@ -2,10 +2,10 @@
 --
 -- SPDX-License-Identifier: LicenseRef-CCPL
 
---[[- A @{term.Redirect|terminal redirect} occupying a smaller area of an
+--[[- A [terminal redirect][`term.Redirect`] occupying a smaller area of an
 existing terminal. This allows for easy definition of spaces within the display
 that can be written/drawn to, then later redrawn/repositioned/etc as need
-be. The API itself contains only one function, @{window.create}, which returns
+be. The API itself contains only one function, [`window.create`], which returns
 the windows themselves.
 
 Windows are considered terminal objects - as such, they have access to nearly
@@ -60,11 +60,11 @@ local string_sub = string.sub
 
 --[[- Returns a terminal object that is a space within the specified parent
 terminal object. This can then be used (or even redirected to) in the same
-manner as eg a wrapped monitor. Refer to @{term|the term API} for a list of
+manner as eg a wrapped monitor. Refer to [the term API][`term`] for a list of
 functions available to it.
 
-@{term} itself may not be passed as the parent, though @{term.native} is
-acceptable. Generally, @{term.current} or a wrapped monitor will be most
+[`term`] itself may not be passed as the parent, though [`term.native`] is
+acceptable. Generally, [`term.current`] or a wrapped monitor will be most
 suitable, though windows may even have other windows assigned as their
 parents.
 
@@ -247,7 +247,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
         end
     end
 
-    --- The window object. Refer to the @{window|module's documentation} for
+    --- The window object. Refer to the [module's documentation][`window`] for
     -- a full description.
     --
     -- @type Window
@@ -454,8 +454,8 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     --
     -- @tparam number y The y position of the line to get.
     -- @treturn string The textual content of this line.
-    -- @treturn string The text colours of this line, suitable for use with @{term.blit}.
-    -- @treturn string The background colours of this line, suitable for use with @{term.blit}.
+    -- @treturn string The text colours of this line, suitable for use with [`term.blit`].
+    -- @treturn string The background colours of this line, suitable for use with [`term.blit`].
     -- @throws If `y` is not between 1 and this window's height.
     -- @since 1.84.0
     function window.getLine(y)

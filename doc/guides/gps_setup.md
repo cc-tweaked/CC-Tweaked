@@ -9,7 +9,7 @@ SPDX-License-Identifier: MPL-2.0
 -->
 
 # Setting up GPS
-The @{gps} API allows computers and turtles to find their current position using wireless modems.
+The [`gps`] API allows computers and turtles to find their current position using wireless modems.
 
 In order to use GPS, you'll need to set up multiple *GPS hosts*. These are computers running the special `gps host`
 program, which tell other computers the host's position. Several hosts running together are known as a *GPS
@@ -33,7 +33,7 @@ requesting computers are out of range.
 >
 > A computer needs a wireless or ender modem and to be in range of a GPS constellation that is in the same dimension as
 > it to use the GPS API. The reason for this is that ComputerCraft mimics real-life GPS by making use of the distance
-> parameter of @{modem_message|modem messages} and some maths.
+> parameter of [modem messages][`modem_message`] and some maths.
 
 Locate where you want to place your GPS constellation. You will need an area at least 6 blocks high, 6 blocks wide, and
 6 blocks deep (6x6x6). If you are using wireless modems then you may want to build your constellation as high as you can
@@ -83,7 +83,7 @@ coordinates.
 > coordinates that you input into your GPS host should be the position of the computer and not the position of the modem.
 
 Congratulations, your constellation is now fully set up! You can test it by placing another computer close by, placing a
-wireless modem on it, and running the `gps locate` program (or calling the @{gps.locate} function).
+wireless modem on it, and running the `gps locate` program (or calling the [`gps.locate`] function).
 
 > [Why use Minecraft's coordinates?][!INFO]
 > CC doesn't care if you use Minecraft's coordinate system, so long as all of the GPS hosts with overlapping ranges use

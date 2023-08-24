@@ -8,13 +8,13 @@ SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 SPDX-License-Identifier: MPL-2.0
 -->
 
-The @{monitor_touch} event is fired when an adjacent or networked Advanced Monitor is right-clicked.
+The [`monitor_touch`] event is fired when an adjacent or networked Advanced Monitor is right-clicked.
 
 ## Return Values
-1. @{string}: The event name.
-2. @{string}: The side or network ID of the monitor that was touched.
-3. @{number}: The X coordinate of the touch, in characters.
-4. @{number}: The Y coordinate of the touch, in characters.
+1. [`string`]: The event name.
+2. [`string`]: The side or network ID of the monitor that was touched.
+3. [`number`]: The X coordinate of the touch, in characters.
+4. [`number`]: The Y coordinate of the touch, in characters.
 
 ## Example
 Prints a message when a monitor is touched:

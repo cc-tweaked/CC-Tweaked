@@ -4,16 +4,16 @@
 
 --[[- A collection of helper methods for working with shell completion.
 
-Most programs may be completed using the @{build} helper method, rather than
+Most programs may be completed using the [`build`] helper method, rather than
 manually switching on the argument index.
 
 Note, the helper functions within this module do not accept an argument index,
-and so are not directly usable with the @{shell.setCompletionFunction}. Instead,
-wrap them using @{build}, or your own custom function.
+and so are not directly usable with the [`shell.setCompletionFunction`]. Instead,
+wrap them using [`build`], or your own custom function.
 
 @module cc.shell.completion
 @since 1.85.0
-@see cc.completion For more general helpers, suitable for use with @{_G.read}.
+@see cc.completion For more general helpers, suitable for use with [`_G.read`].
 @see shell.setCompletionFunction
 
 @usage Register a completion handler for example.lua which prompts for a
@@ -135,15 +135,15 @@ end
 --[[- A helper function for building shell completion arguments.
 
 This accepts a series of single-argument completion functions, and combines
-them into a function suitable for use with @{shell.setCompletionFunction}.
+them into a function suitable for use with [`shell.setCompletionFunction`].
 
-@tparam nil|table|function ... Every argument to @{build} represents an argument
+@tparam nil|table|function ... Every argument to [`build`] represents an argument
 to the program you wish to complete. Each argument can be one of three types:
 
  - `nil`: This argument will not be completed.
 
  - A function: This argument will be completed with the given function. It is
-   called with the @{shell} object, the string to complete and the arguments
+   called with the [`shell`] object, the string to complete and the arguments
    before this one.
 
  - A table: This acts as a more powerful version of the function case. The table
@@ -197,12 +197,12 @@ return {
     programWithArgs = programWithArgs,
 
     -- Re-export various other functions
-    help = wrap(help.completeTopic), --- Wraps @{help.completeTopic} as a @{build} compatible function.
-    choice = wrap(completion.choice), --- Wraps @{cc.completion.choice} as a @{build} compatible function.
-    peripheral = wrap(completion.peripheral), --- Wraps @{cc.completion.peripheral} as a @{build} compatible function.
-    side = wrap(completion.side), --- Wraps @{cc.completion.side} as a @{build} compatible function.
-    setting = wrap(completion.setting), --- Wraps @{cc.completion.setting} as a @{build} compatible function.
-    command = wrap(completion.command), --- Wraps @{cc.completion.command} as a @{build} compatible function.
+    help = wrap(help.completeTopic), --- Wraps [`help.completeTopic`] as a [`build`] compatible function.
+    choice = wrap(completion.choice), --- Wraps [`cc.completion.choice`] as a [`build`] compatible function.
+    peripheral = wrap(completion.peripheral), --- Wraps [`cc.completion.peripheral`] as a [`build`] compatible function.
+    side = wrap(completion.side), --- Wraps [`cc.completion.side`] as a [`build`] compatible function.
+    setting = wrap(completion.setting), --- Wraps [`cc.completion.setting`] as a [`build`] compatible function.
+    command = wrap(completion.command), --- Wraps [`cc.completion.command`] as a [`build`] compatible function.
 
     build = build,
 }

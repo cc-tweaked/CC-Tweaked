@@ -10,7 +10,7 @@
 
 This provides a list of factory methods which take source positions and produce
 appropriate error messages targeting that location. These error messages can
-then be displayed to the user via @{cc.internal.error_printer}.
+then be displayed to the user via [`cc.internal.error_printer`].
 
 @local
 ]]
@@ -120,7 +120,7 @@ function errors.unfinished_string(start_pos, end_pos, quote)
 end
 
 --[[- A string which ends with an escape sequence (so a literal `"foo\`). This
-is slightly different from @{unfinished_string}, as we don't want to suggest
+is slightly different from [`unfinished_string`], as we don't want to suggest
 adding a quote.
 
 @tparam number start_pos The start position of the string.
@@ -466,7 +466,7 @@ function errors.standalone_name(pos)
     }
 end
 
---[[- A statement of the form `x.y`. This is similar to @{standalone_name}, but
+--[[- A statement of the form `x.y`. This is similar to [`standalone_name`], but
 when the next token is on another line.
 
 @tparam number pos The position right after this name.

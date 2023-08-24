@@ -75,13 +75,13 @@ public class FluidMethods implements GenericPeripheral {
      *
      * @param from      Container to move fluid from.
      * @param computer  The current computer.
-     * @param toName    The name of the peripheral/container to push to. This is the string given to @{peripheral.wrap},
+     * @param toName    The name of the peripheral/container to push to. This is the string given to [`peripheral.wrap`],
      *                  and displayed by the wired modem.
      * @param limit     The maximum amount of fluid to move.
      * @param fluidName The fluid to move. If not given, an arbitrary fluid will be chosen.
      * @return The amount of moved fluid.
      * @throws LuaException If the peripheral to transfer to doesn't exist or isn't an fluid container.
-     * @cc.see peripheral.getName Allows you to get the name of a @{peripheral.wrap|wrapped} peripheral.
+     * @cc.see peripheral.getName Allows you to get the name of a [wrapped][`peripheral.wrap`] peripheral.
      */
     @LuaFunction(mainThread = true)
     public static int pushFluid(
@@ -115,13 +115,13 @@ public class FluidMethods implements GenericPeripheral {
      *
      * @param to        Container to move fluid to.
      * @param computer  The current computer.
-     * @param fromName  The name of the peripheral/container to push to. This is the string given to @{peripheral.wrap},
+     * @param fromName  The name of the peripheral/container to push to. This is the string given to [`peripheral.wrap`],
      *                  and displayed by the wired modem.
      * @param limit     The maximum amount of fluid to move.
      * @param fluidName The fluid to move. If not given, an arbitrary fluid will be chosen.
      * @return The amount of moved fluid.
      * @throws LuaException If the peripheral to transfer to doesn't exist or isn't an fluid container.
-     * @cc.see peripheral.getName Allows you to get the name of a @{peripheral.wrap|wrapped} peripheral.
+     * @cc.see peripheral.getName Allows you to get the name of a [wrapped][`peripheral.wrap`] peripheral.
      */
     @LuaFunction(mainThread = true)
     public static int pullFluid(

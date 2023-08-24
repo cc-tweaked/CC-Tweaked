@@ -9,15 +9,15 @@ SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 SPDX-License-Identifier: MPL-2.0
 -->
 
-The @{http_failure} event is fired when an HTTP request fails.
+The [`http_failure`] event is fired when an HTTP request fails.
 
-This event is normally handled inside @{http.get} and @{http.post}, but it can still be seen when using @{http.request}.
+This event is normally handled inside [`http.get`] and [`http.post`], but it can still be seen when using [`http.request`].
 
 ## Return Values
-1. @{string}: The event name.
-2. @{string}: The URL of the site requested.
-3. @{string}: An error describing the failure.
-4. <span class="type">@{http.Response}|@{nil}</span>: A response handle if the connection succeeded, but the server's
+1. [`string`]: The event name.
+2. [`string`]: The URL of the site requested.
+3. [`string`]: An error describing the failure.
+4. <span class="type">[`http.Response`]|[`nil`]</span>: A response handle if the connection succeeded, but the server's
    response indicated failure.
 
 ## Example

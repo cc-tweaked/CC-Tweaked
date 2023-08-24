@@ -99,7 +99,7 @@ public class InventoryMethods implements GenericPeripheral {
      * (`displayName`), and item and item durability (`damage`, `maxDamage`, `durability`).
      * <p>
      * Some items include more information (such as enchantments) - it is
-     * recommended to print it out using @{textutils.serialize} or in the Lua
+     * recommended to print it out using [`textutils.serialize`] or in the Lua
      * REPL, to explore what is available.
      * <p>
      * > [Deprecated fields][!INFO]
@@ -172,7 +172,7 @@ public class InventoryMethods implements GenericPeripheral {
      *
      * @param from     Inventory to move items from.
      * @param computer The current computer.
-     * @param toName   The name of the peripheral/inventory to push to. This is the string given to @{peripheral.wrap},
+     * @param toName   The name of the peripheral/inventory to push to. This is the string given to [`peripheral.wrap`],
      *                 and displayed by the wired modem.
      * @param fromSlot The slot in the current inventory to move items to.
      * @param limit    The maximum number of items to move. Defaults to the current stack limit.
@@ -180,7 +180,7 @@ public class InventoryMethods implements GenericPeripheral {
      * @return The number of transferred items.
      * @throws LuaException If the peripheral to transfer to doesn't exist or isn't an inventory.
      * @throws LuaException If either source or destination slot is out of range.
-     * @cc.see peripheral.getName Allows you to get the name of a @{peripheral.wrap|wrapped} peripheral.
+     * @cc.see peripheral.getName Allows you to get the name of a [wrapped][`peripheral.wrap`] peripheral.
      * @cc.usage Wrap two chests, and push an item from one to another.
      * <pre>{@code
      * local chest_a = peripheral.wrap("minecraft:chest_0")
@@ -218,7 +218,7 @@ public class InventoryMethods implements GenericPeripheral {
      *
      * @param to       Inventory to move items to.
      * @param computer The current computer.
-     * @param fromName The name of the peripheral/inventory to pull from. This is the string given to @{peripheral.wrap},
+     * @param fromName The name of the peripheral/inventory to pull from. This is the string given to [`peripheral.wrap`],
      *                 and displayed by the wired modem.
      * @param fromSlot The slot in the source inventory to move items from.
      * @param limit    The maximum number of items to move. Defaults to the current stack limit.
@@ -226,7 +226,7 @@ public class InventoryMethods implements GenericPeripheral {
      * @return The number of transferred items.
      * @throws LuaException If the peripheral to transfer to doesn't exist or isn't an inventory.
      * @throws LuaException If either source or destination slot is out of range.
-     * @cc.see peripheral.getName Allows you to get the name of a @{peripheral.wrap|wrapped} peripheral.
+     * @cc.see peripheral.getName Allows you to get the name of a [wrapped][`peripheral.wrap`] peripheral.
      * @cc.usage Wrap two chests, and push an item from one to another.
      * <pre>{@code
      * local chest_a = peripheral.wrap("minecraft:chest_0")

@@ -12,10 +12,10 @@ SPDX-License-Identifier: LicenseRef-CCPL
 This event is fired every time the mouse is moved while a mouse button is being held.
 
 ## Return values
-1. @{string}: The event name.
-2. @{number}: The [mouse button](mouse_click.html#Mouse_buttons) that is being pressed.
-3. @{number}: The X-coordinate of the mouse.
-4. @{number}: The Y-coordinate of the mouse.
+1. [`string`]: The event name.
+2. [`number`]: The [mouse button](mouse_click.html#Mouse_buttons) that is being pressed.
+3. [`number`]: The X-coordinate of the mouse.
+4. [`number`]: The Y-coordinate of the mouse.
 
 ## Example
 Print the button and the coordinates whenever the mouse is dragged.

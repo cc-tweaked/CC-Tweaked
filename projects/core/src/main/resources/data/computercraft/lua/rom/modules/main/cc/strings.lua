@@ -13,7 +13,7 @@ local expect = (require and require("cc.expect") or dofile("rom/modules/main/cc/
 --[[- Wraps a block of text, so that each line fits within the given width.
 
 This may be useful if you want to wrap text before displaying it to a
-@{monitor} or @{printer} without using @{_G.print|print}.
+[`monitor`] or [`printer`] without using [print][`_G.print`].
 
 @tparam string text The string to wrap.
 @tparam[opt] number width The width to constrain to, defaults to the width of

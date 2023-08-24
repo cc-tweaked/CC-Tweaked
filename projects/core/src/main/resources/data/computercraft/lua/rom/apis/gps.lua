@@ -2,10 +2,10 @@
 --
 -- SPDX-License-Identifier: LicenseRef-CCPL
 
---[[- Use @{modem|modems} to locate the position of the current turtle or
+--[[- Use [modems][`modem`] to locate the position of the current turtle or
 computers.
 
-It broadcasts a PING message over @{rednet} and wait for responses. In order for
+It broadcasts a PING message over [`rednet`] and wait for responses. In order for
 this system to work, there must be at least 4 computers used as gps hosts which
 will respond and allow trilateration. Three of these hosts should be in a plane,
 and the fourth should be either above or below the other three. The three in a

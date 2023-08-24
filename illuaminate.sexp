@@ -50,6 +50,7 @@
   (linters
     syntax:string-index
     doc:docusaurus-admonition
+    doc:ldoc-reference
 
     ;; It'd be nice to avoid this, but right now there's a lot of instances of
     ;; it.

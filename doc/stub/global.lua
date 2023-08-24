@@ -13,7 +13,7 @@ include standard Lua functions.
 
 As it waits for a fixed amount of world ticks, `time` will automatically be
 rounded up to the nearest multiple of 0.05 seconds. If you are using coroutines
-or the @{parallel|parallel API}, it will only pause execution of the current
+or the [parallel API][`parallel`], it will only pause execution of the current
 thread, not the whole program.
 
 > [!TIP]
@@ -23,10 +23,10 @@ thread, not the whole program.
 
 > [!WARNING]
 > Internally, this function queues and waits for a timer event (using
-> @{os.startTimer}), however it does not listen for any other events. This means
+> [`os.startTimer`]), however it does not listen for any other events. This means
 > that any event that occurs while sleeping will be entirely discarded. If you
-> need to receive events while sleeping, consider using @{os.startTimer|timers},
-> or the @{parallel|parallel API}.
+> need to receive events while sleeping, consider using [timers][`os.startTimer`],
+> or the [parallel API][`parallel`].
 
 @tparam number time The number of seconds to sleep for, rounded up to the
 nearest multiple of 0.05.
@@ -114,7 +114,7 @@ function read(replaceChar, history, completeFn, default) end
 
 --- Stores the current ComputerCraft and Minecraft versions.
 --
--- Outside of Minecraft (for instance, in an emulator) @{_HOST} will contain the
+-- Outside of Minecraft (for instance, in an emulator) [`_HOST`] will contain the
 -- emulator's version instead.
 --
 -- For example, `ComputerCraft 1.93.0 (Minecraft 1.15.2)`.

@@ -21,9 +21,9 @@ import java.util.List;
  * strength of the redstone wired, from 0 to 15.
  * - Bundled cables ({@link #setBundledOutput}/{@link #getBundledInput}): These interact with "bundled" cables, such
  * as those from Project:Red. These allow you to send 16 separate on/off signals. Each channel corresponds to a
- * colour, with the first being @{colors.white} and the last @{colors.black}.
+ * colour, with the first being [`colors.white`] and the last [`colors.black`].
  * <p>
- * Whenever a redstone input changes, a @{event!redstone} event will be fired. This may be used instead of repeativly
+ * Whenever a redstone input changes, a [`event!redstone`] event will be fired. This may be used instead of repeativly
  * polling.
  * <p>
  * This module may also be referred to as {@code rs}. For example, one may call {@code rs.getSides()} instead of
@@ -192,7 +192,7 @@ public class RedstoneAPI implements ILuaAPI {
      * @param side The side to test.
      * @param mask The mask to test.
      * @return If the colours are on.
-     * @cc.usage Check if @{colors.white} and @{colors.black} are on above the computer.
+     * @cc.usage Check if [`colors.white`] and [`colors.black`] are on above the computer.
      * <pre>{@code
      * print(redstone.testBundledInput("top", colors.combine(colors.white, colors.black)))
      * }</pre>

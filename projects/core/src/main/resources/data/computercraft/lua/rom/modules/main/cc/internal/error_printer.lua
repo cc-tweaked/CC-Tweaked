@@ -99,7 +99,7 @@ local code_accent = pretty.text("\x95", colours.cyan)
     over the underlying source, exposing the following functions:
     - `get_pos`: Get the line and column of an opaque position.
     - `get_line`: Get the source code for an opaque position.
-@tparam table message The message to display, as produced by @{cc.internal.syntax.errors}.
+@tparam table message The message to display, as produced by [`cc.internal.syntax.errors`].
 ]]
 return function(context, message)
     expect(1, context, "table")

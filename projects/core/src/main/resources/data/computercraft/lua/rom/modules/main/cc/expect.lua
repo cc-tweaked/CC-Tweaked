@@ -2,7 +2,7 @@
 --
 -- SPDX-License-Identifier: MPL-2.0
 
---[[- The @{cc.expect} library provides helper functions for verifying that
+--[[- The [`cc.expect`] library provides helper functions for verifying that
 function arguments are well-formed and of the correct type.
 
 @module cc.expect

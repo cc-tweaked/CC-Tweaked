@@ -267,7 +267,7 @@ public abstract class TermMethods {
      * Set the palette for a specific colour.
      * <p>
      * ComputerCraft's palette system allows you to change how a specific colour should be displayed. For instance, you
-     * can make @{colors.red} <em>more red</em> by setting its palette to #FF0000. This does now allow you to draw more
+     * can make [`colors.red`] <em>more red</em> by setting its palette to #FF0000. This does now allow you to draw more
      * colours - you are still limited to 16 on the screen at one time - but you can change <em>which</em> colours are
      * used.
      *
@@ -280,7 +280,7 @@ public abstract class TermMethods {
      * @cc.tparam number r The intensity of the red channel, between 0 and 1.
      * @cc.tparam number g The intensity of the green channel, between 0 and 1.
      * @cc.tparam number b The intensity of the blue channel, between 0 and 1.
-     * @cc.usage Change the @{colors.red|red colour} from the default #CC4C4C to #FF0000.
+     * @cc.usage Change the [red colour][`colors.red`] from the default #CC4C4C to #FF0000.
      * <pre>{@code
      * term.setPaletteColour(colors.red, 0xFF0000)
      * term.setTextColour(colors.red)
