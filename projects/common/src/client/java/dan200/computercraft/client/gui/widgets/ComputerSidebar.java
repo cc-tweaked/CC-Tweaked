@@ -4,16 +4,13 @@
 
 package dan200.computercraft.client.gui.widgets;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.client.gui.GuiSprites;
 import dan200.computercraft.client.gui.widgets.DynamicImageButton.HintedMessage;
-import dan200.computercraft.client.render.ComputerBorderRenderer;
+import dan200.computercraft.client.render.SpriteRenderer;
 import dan200.computercraft.shared.computer.core.InputHandler;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -22,21 +19,17 @@ import java.util.function.Consumer;
  * Registers buttons to interact with a computer.
  */
 public final class ComputerSidebar {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/buttons.png");
-
-    private static final int TEX_SIZE = 64;
-
     private static final int ICON_WIDTH = 12;
     private static final int ICON_HEIGHT = 12;
     private static final int ICON_MARGIN = 2;
-
-    private static final int ICON_TEX_Y_DIFF = 14;
 
     private static final int CORNERS_BORDER = 3;
     private static final int FULL_BORDER = CORNERS_BORDER + ICON_MARGIN;
 
     private static final int BUTTONS = 2;
     private static final int HEIGHT = (ICON_HEIGHT + ICON_MARGIN * 2) * BUTTONS + CORNERS_BORDER * 2;
+
+    private static final int TEX_HEIGHT = 14;
 
     private ComputerSidebar() {
     }
@@ -51,16 +44,18 @@ public final class ComputerSidebar {
             Component.translatable("gui.computercraft.tooltip.turn_off.key")
         );
         add.accept(new DynamicImageButton(
-            x, y, ICON_WIDTH, ICON_HEIGHT, () -> isOn.getAsBoolean() ? 15 : 1, 1, ICON_TEX_Y_DIFF,
-            TEXTURE, TEX_SIZE, TEX_SIZE, b -> toggleComputer(isOn, input),
+            x, y, ICON_WIDTH, ICON_HEIGHT,
+            h -> isOn.getAsBoolean() ? GuiSprites.TURNED_ON.get(h) : GuiSprites.TURNED_OFF.get(h),
+            b -> toggleComputer(isOn, input),
             () -> isOn.getAsBoolean() ? turnOff : turnOn
         ));
 
         y += ICON_HEIGHT + ICON_MARGIN * 2;
 
         add.accept(new DynamicImageButton(
-            x, y, ICON_WIDTH, ICON_HEIGHT, 29, 1, ICON_TEX_Y_DIFF,
-            TEXTURE, TEX_SIZE, TEX_SIZE, b -> input.queueEvent("terminate"),
+            x, y, ICON_WIDTH, ICON_HEIGHT,
+            GuiSprites.TERMINATE::get,
+            b -> input.queueEvent("terminate"),
             new HintedMessage(
                 Component.translatable("gui.computercraft.tooltip.terminate"),
                 Component.translatable("gui.computercraft.tooltip.terminate.key")
@@ -68,22 +63,12 @@ public final class ComputerSidebar {
         ));
     }
 
-    public static void renderBackground(PoseStack transform, int x, int y) {
-        Screen.blit(transform,
-            x, y, 0, 102, AbstractComputerMenu.SIDEBAR_WIDTH, FULL_BORDER,
-            ComputerBorderRenderer.TEX_SIZE, ComputerBorderRenderer.TEX_SIZE
-        );
+    public static void renderBackground(SpriteRenderer renderer, GuiSprites.ComputerTextures textures, int x, int y) {
+        var texture = textures.sidebar();
+        if (texture == null) throw new NullPointerException(textures + " has no sidebar texture");
+        var sprite = GuiSprites.get(texture);
 
-        Screen.blit(transform,
-            x, y + FULL_BORDER, AbstractComputerMenu.SIDEBAR_WIDTH, HEIGHT - FULL_BORDER * 2,
-            0, 107, AbstractComputerMenu.SIDEBAR_WIDTH, 4,
-            ComputerBorderRenderer.TEX_SIZE, ComputerBorderRenderer.TEX_SIZE
-        );
-
-        Screen.blit(transform,
-            x, y + HEIGHT - FULL_BORDER, 0, 111, AbstractComputerMenu.SIDEBAR_WIDTH, FULL_BORDER,
-            ComputerBorderRenderer.TEX_SIZE, ComputerBorderRenderer.TEX_SIZE
-        );
+        renderer.blitVerticalSliced(sprite, x, y, AbstractComputerMenu.SIDEBAR_WIDTH, HEIGHT, FULL_BORDER, FULL_BORDER, TEX_HEIGHT);
     }
 
     private static void toggleComputer(BooleanSupplier isOn, InputHandler input) {

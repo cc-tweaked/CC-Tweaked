@@ -5,15 +5,18 @@
 package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
+import dan200.computercraft.client.render.RenderTypes;
+import dan200.computercraft.client.render.SpriteRenderer;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
 import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
-import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
 /**
  * A GUI for computers which renders the terminal (and border), but with no UI elements.
@@ -39,10 +42,16 @@ public final class ComputerScreen<T extends AbstractComputerMenu> extends Abstra
     public void renderBg(PoseStack stack, float partialTicks, int mouseX, int mouseY) {
         // Draw a border around the terminal
         var terminal = getTerminal();
+        var buffers = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+
+        var spriteRenderer = SpriteRenderer.createForGui(stack, buffers.getBuffer(RenderTypes.GUI_SPRITES));
+        var computerTextures = GuiSprites.getComputerTextures(family);
+
         ComputerBorderRenderer.render(
-            stack.last().pose(), ComputerBorderRenderer.getTexture(family), terminal.getX(), terminal.getY(),
-            FULL_BRIGHT_LIGHTMAP, terminal.getWidth(), terminal.getHeight()
+            spriteRenderer, computerTextures,
+            terminal.getX(), terminal.getY(), terminal.getWidth(), terminal.getHeight(), false
         );
-        ComputerSidebar.renderBackground(stack, leftPos, topPos + sidebarYOffset);
+        ComputerSidebar.renderBackground(spriteRenderer, computerTextures, leftPos, topPos + sidebarYOffset);
+        buffers.endBatch();
     }
 }

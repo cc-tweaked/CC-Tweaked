@@ -6,13 +6,16 @@ package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
-import dan200.computercraft.client.render.ComputerBorderRenderer;
+import dan200.computercraft.client.render.RenderTypes;
+import dan200.computercraft.client.render.SpriteRenderer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import dan200.computercraft.shared.turtle.inventory.TurtleMenu;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -60,7 +63,10 @@ public class TurtleScreen extends AbstractComputerScreen<TurtleMenu> {
             );
         }
 
-        RenderSystem.setShaderTexture(0, advanced ? ComputerBorderRenderer.BACKGROUND_ADVANCED : ComputerBorderRenderer.BACKGROUND_NORMAL);
-        ComputerSidebar.renderBackground(transform, leftPos, topPos + sidebarYOffset);
+        // Render sidebar
+        var buffers = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+        var spriteRenderer = SpriteRenderer.createForGui(transform, buffers.getBuffer(RenderTypes.GUI_SPRITES));
+        ComputerSidebar.renderBackground(spriteRenderer, GuiSprites.getComputerTextures(family), leftPos, topPos + sidebarYOffset);
+        buffers.endBatch();
     }
 }

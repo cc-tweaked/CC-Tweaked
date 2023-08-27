@@ -6,6 +6,7 @@ package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import dan200.computercraft.client.gui.GuiSprites;
 import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.util.Colour;
@@ -72,13 +73,14 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
     }
 
     private static void renderFrame(Matrix4f transform, MultiBufferSource render, ComputerFamily family, int colour, int light, int width, int height) {
-        var texture = colour != -1 ? ComputerBorderRenderer.BACKGROUND_COLOUR : ComputerBorderRenderer.getTexture(family);
+        var texture = colour != -1 ? GuiSprites.COMPUTER_COLOUR : GuiSprites.getComputerTextures(family);
 
-        var r = ((colour >>> 16) & 0xFF) / 255.0f;
-        var g = ((colour >>> 8) & 0xFF) / 255.0f;
-        var b = (colour & 0xFF) / 255.0f;
+        var r = (colour >>> 16) & 0xFF;
+        var g = (colour >>> 8) & 0xFF;
+        var b = colour & 0xFF;
 
-        ComputerBorderRenderer.render(transform, render.getBuffer(ComputerBorderRenderer.getRenderType(texture)), 0, 0, 0, light, width, height, true, r, g, b);
+        var spriteRenderer = new SpriteRenderer(transform, render.getBuffer(RenderTypes.GUI_SPRITES), 0, light, r, g, b);
+        ComputerBorderRenderer.render(spriteRenderer, texture, 0, 0, width, height, true);
     }
 
     private static void renderLight(PoseStack transform, MultiBufferSource render, int colour, int width, int height) {
