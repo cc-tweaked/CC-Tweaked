@@ -21,6 +21,7 @@ import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import dan200.computercraft.shared.computer.inventory.ViewComputerMenu;
 import dan200.computercraft.shared.media.items.DiskItem;
 import dan200.computercraft.shared.media.items.TreasureDiskItem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -30,6 +31,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -105,6 +107,10 @@ public final class ClientRegistry {
     private static void registerItemProperty(String name, ClampedItemPropertyFunction getter, Supplier<? extends Item>... items) {
         var id = new ResourceLocation(ComputerCraftAPI.MOD_ID, name);
         for (var item : items) ItemProperties.register(item.get(), id, getter);
+    }
+
+    public static void registerReloadListeners(Consumer<PreparableReloadListener> register, Minecraft minecraft) {
+        register.accept(GuiSprites.initialise(minecraft.getTextureManager()));
     }
 
     private static final String[] EXTRA_MODELS = new String[]{

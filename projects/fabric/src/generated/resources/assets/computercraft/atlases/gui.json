@@ -1,0 +1,20 @@
+{
+  "sources": [
+    {"type": "minecraft:single", "resource": "computercraft:gui/buttons/turned_off"},
+    {"type": "minecraft:single", "resource": "computercraft:gui/buttons/turned_off_hover"},
+    {"type": "minecraft:single", "resource": "computercraft:gui/buttons/turned_on"},
+    {"type": "minecraft:single", "resource": "computercraft:gui/buttons/turned_on_hover"},
+    {"type": "minecraft:single", "resource": "computercraft:gui/buttons/terminate"},
+    {"type": "minecraft:single", "resource": "computercraft:gui/buttons/terminate_hover"},
+    {"type": "minecraft:single", "resource": "computercraft:gui/border_normal"},
+    {"type": "minecraft:single", "resource": "computercraft:gui/pocket_bottom_normal"},
+    {"type": "minecraft:single", "resource": "computercraft:gui/sidebar_normal"},
+    {"type": "minecraft:single", "resource": "computercraft:gui/border_advanced"},
+    {"type": "minecraft:single", "resource": "computercraft:gui/pocket_bottom_advanced"},
+    {"type": "minecraft:single", "resource": "computercraft:gui/sidebar_advanced"},
+    {"type": "minecraft:single", "resource": "computercraft:gui/border_command"},
+    {"type": "minecraft:single", "resource": "computercraft:gui/sidebar_command"},
+    {"type": "minecraft:single", "resource": "computercraft:gui/border_colour"},
+    {"type": "minecraft:single", "resource": "computercraft:gui/pocket_bottom_colour"}
+  ]
+}

@@ -9,11 +9,11 @@ SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 SPDX-License-Identifier: MPL-2.0
 -->
 
-The @{disk} event is fired when a disk is inserted into an adjacent or networked disk drive.
+The [`disk`] event is fired when a disk is inserted into an adjacent or networked disk drive.
 
 ## Return Values
-1. @{string}: The event name.
-2. @{string}: The side of the disk drive that had a disk inserted.
+1. [`string`]: The event name.
+2. [`string`]: The side of the disk drive that had a disk inserted.
 
 ## Example
 Prints a message when a disk is inserted:

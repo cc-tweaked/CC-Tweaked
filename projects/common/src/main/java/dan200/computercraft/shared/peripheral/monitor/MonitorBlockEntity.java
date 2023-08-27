@@ -25,8 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class MonitorBlockEntity extends BlockEntity {
@@ -46,7 +47,7 @@ public class MonitorBlockEntity extends BlockEntity {
     private @Nullable ServerMonitor serverMonitor;
     private @Nullable ClientMonitor clientMonitor;
     private @Nullable MonitorPeripheral peripheral;
-    private final Set<IComputerAccess> computers = new HashSet<>();
+    private final Set<IComputerAccess> computers = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     private boolean needsUpdate = false;
     private boolean needsValidating = false;

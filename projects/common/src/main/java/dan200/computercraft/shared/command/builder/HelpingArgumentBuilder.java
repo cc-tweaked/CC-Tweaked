@@ -10,7 +10,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import dan200.computercraft.shared.command.UserLevel;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.ClickEvent;
@@ -31,6 +30,7 @@ import static dan200.computercraft.shared.command.text.ChatHelpers.coloured;
  */
 public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<CommandSourceStack> {
     private final Collection<HelpingArgumentBuilder> children = new ArrayList<>();
+    private @Nullable Predicate<CommandSourceStack> requirement;
 
     private HelpingArgumentBuilder(String literal) {
         super(literal);
@@ -41,26 +41,20 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
     }
 
     @Override
-    public LiteralArgumentBuilder<CommandSourceStack> requires(Predicate<CommandSourceStack> requirement) {
-        throw new IllegalStateException("Cannot use requires on a HelpingArgumentBuilder");
+    public HelpingArgumentBuilder requires(Predicate<CommandSourceStack> requirement) {
+        this.requirement = requirement;
+        return this;
     }
 
     @Override
     public Predicate<CommandSourceStack> getRequirement() {
-        // The requirement of this node is the union of all child's requirements.
+        if (requirement != null) return requirement;
+
         var requirements = Stream.concat(
             children.stream().map(ArgumentBuilder::getRequirement),
             getArguments().stream().map(CommandNode::getRequirement)
         ).toList();
-
-        // If all requirements are a UserLevel, take the union of those instead.
-        var userLevel = UserLevel.OWNER;
-        for (var requirement : requirements) {
-            if (!(requirement instanceof UserLevel level)) return x -> requirements.stream().anyMatch(y -> y.test(x));
-            userLevel = UserLevel.union(userLevel, level);
-        }
-
-        return userLevel;
+        return x -> requirements.stream().anyMatch(y -> y.test(x));
     }
 
     @Override
@@ -181,7 +175,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
             .append(Component.translatable("commands." + id + ".desc"));
 
         for (var child : node.getChildren()) {
-            if (!child.getRequirement().test(context.getSource()) || !(child instanceof LiteralCommandNode)) {
+            if (!child.canUse(context.getSource()) || !(child instanceof LiteralCommandNode)) {
                 continue;
             }
 

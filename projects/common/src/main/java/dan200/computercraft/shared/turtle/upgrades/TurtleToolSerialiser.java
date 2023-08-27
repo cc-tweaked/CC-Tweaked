@@ -55,7 +55,7 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
         var allowsEnchantments = buffer.readBoolean();
         var consumesDurability = buffer.readEnum(TurtleToolDurability.class);
 
-        var breakable = buffer.readBoolean() ? TagKey.create(Registries.BLOCK, buffer.readResourceLocation()) : null;
+        var breakable = buffer.readNullable(b -> TagKey.create(Registries.BLOCK, b.readResourceLocation()));
         return new TurtleTool(id, adjective, craftingItem, toolItem, damageMultiplier, allowsEnchantments, consumesDurability, breakable);
     }
 
@@ -67,7 +67,6 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
         buffer.writeFloat(upgrade.damageMulitiplier);
         buffer.writeBoolean(upgrade.allowEnchantments);
         buffer.writeEnum(upgrade.consumeDurability);
-        buffer.writeBoolean(upgrade.breakable != null);
-        if (upgrade.breakable != null) buffer.writeResourceLocation(upgrade.breakable.location());
+        buffer.writeNullable(upgrade.breakable, (b, x) -> b.writeResourceLocation(x.location()));
     }
 }

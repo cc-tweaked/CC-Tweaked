@@ -66,6 +66,7 @@ repositories {
             includeGroup("me.shedaniel")
             includeGroup("mezz.jei")
             includeModule("com.terraformersmc", "modmenu")
+            includeModule("me.lucko", "fabric-permissions-api")
         }
     }
 }

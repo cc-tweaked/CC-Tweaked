@@ -7,6 +7,7 @@ package dan200.computercraft.client.render;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.client.gui.GuiSprites;
 import dan200.computercraft.client.render.monitor.MonitorTextureBufferShader;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import net.minecraft.client.renderer.GameRenderer;
@@ -52,6 +53,11 @@ public class RenderTypes {
      * it is what maps use, so should behave the same as vanilla in both item frames and in-hand.
      */
     public static final RenderType PRINTOUT_BACKGROUND = RenderType.text(new ResourceLocation("computercraft", "textures/gui/printout.png"));
+
+    /**
+     * Render type for {@linkplain GuiSprites GUI sprites}.
+     */
+    public static final RenderType GUI_SPRITES = RenderType.text(GuiSprites.TEXTURE);
 
     public static MonitorTextureBufferShader getMonitorTextureBufferShader() {
         if (monitorTboShader == null) throw new NullPointerException("MonitorTboShader has not been registered");

@@ -80,9 +80,8 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
      * If this computer is attached to the network, it _will not_ be included in
      * this list.
      * <p>
-     * :::note
-     * This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
-     * :::
+     * > [!NOTE]
+     * > This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
      *
      * @param computer The calling computer.
      * @return Remote peripheral names on the network.
@@ -96,9 +95,8 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
     /**
      * Determine if a peripheral is available on this wired network.
      * <p>
-     * :::note
-     * This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
-     * :::
+     * > [!NOTE]
+     * > This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
      *
      * @param computer The calling computer.
      * @param name     The peripheral's name.
@@ -113,9 +111,8 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
     /**
      * Get the type of a peripheral is available on this wired network.
      * <p>
-     * :::note
-     * This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
-     * :::
+     * > [!NOTE]
+     * > This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
      *
      * @param computer The calling computer.
      * @param name     The peripheral's name.
@@ -133,9 +130,8 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
     /**
      * Check a peripheral is of a particular type.
      * <p>
-     * :::note
-     * This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
-     * :::
+     * > [!NOTE]
+     * > This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
      *
      * @param computer The calling computer.
      * @param name     The peripheral's name.
@@ -154,9 +150,8 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
     /**
      * Get all available methods for the remote peripheral with the given name.
      * <p>
-     * :::note
-     * This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
-     * :::
+     * > [!NOTE]
+     * > This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
      *
      * @param computer The calling computer.
      * @param name     The peripheral's name.
@@ -175,9 +170,8 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
     /**
      * Call a method on a peripheral on this wired network.
      * <p>
-     * :::note
-     * This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
-     * :::
+     * > [!NOTE]
+     * > This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
      *
      * @param computer  The calling computer.
      * @param context   The Lua context we're executing in.
@@ -205,9 +199,8 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
      * may be used by other computers on the network to wrap this computer as a
      * peripheral.
      * <p>
-     * :::note
-     * This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
-     * :::
+     * > [!NOTE]
+     * > This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
      *
      * @return The current computer's name.
      * @cc.treturn string|nil The current computer's name on the wired network.

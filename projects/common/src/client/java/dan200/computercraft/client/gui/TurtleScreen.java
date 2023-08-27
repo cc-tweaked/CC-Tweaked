@@ -7,7 +7,8 @@ package dan200.computercraft.client.gui;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
-import dan200.computercraft.client.render.ComputerBorderRenderer;
+import dan200.computercraft.client.render.RenderTypes;
+import dan200.computercraft.client.render.SpriteRenderer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import dan200.computercraft.shared.turtle.inventory.TurtleMenu;
@@ -59,6 +60,8 @@ public class TurtleScreen extends AbstractComputerScreen<TurtleMenu> {
             );
         }
 
-        ComputerSidebar.renderBackground(graphics, ComputerBorderRenderer.getTexture(family), leftPos, topPos + sidebarYOffset);
+        // Render sidebar
+        var spriteRenderer = SpriteRenderer.createForGui(graphics, RenderTypes.GUI_SPRITES);
+        ComputerSidebar.renderBackground(spriteRenderer, GuiSprites.getComputerTextures(family), leftPos, topPos + sidebarYOffset);
     }
 }

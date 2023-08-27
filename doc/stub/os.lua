@@ -15,27 +15,27 @@ variables and functions exported by it will by available through the use of
 @deprecated When possible it's best to avoid using this function. It pollutes
 the global table and can mask errors.
 
-@{require} should be used to load libraries instead.
+[`require`] should be used to load libraries instead.
 ]]
 function loadAPI(path) end
 
---- Unloads an API which was loaded by @{os.loadAPI}.
+--- Unloads an API which was loaded by [`os.loadAPI`].
 --
 -- This effectively removes the specified table from `_G`.
 --
 -- @tparam string name The name of the API to unload.
 -- @since 1.2
--- @deprecated See @{os.loadAPI} for why.
+-- @deprecated See [`os.loadAPI`] for why.
 function unloadAPI(name) end
 
 --[[- Pause execution of the current thread and waits for any events matching
 `filter`.
 
-This function @{coroutine.yield|yields} the current process and waits for it
+This function [yields][`coroutine.yield`] the current process and waits for it
 to be resumed with a vararg list where the first element matches `filter`.
 If no `filter` is supplied, this will match all events.
 
-Unlike @{os.pullEventRaw}, it will stop the application upon a "terminate"
+Unlike [`os.pullEventRaw`], it will stop the application upon a "terminate"
 event, printing the error "Terminated".
 
 @tparam[opt] string filter Event to filter for.
@@ -69,7 +69,7 @@ function pullEvent(filter) end
 --[[- Pause execution of the current thread and waits for events, including the
 `terminate` event.
 
-This behaves almost the same as @{os.pullEvent}, except it allows you to handle
+This behaves almost the same as [`os.pullEvent`], except it allows you to handle
 the `terminate` event yourself - the program will not stop execution when
 <kbd>Ctrl+T</kbd> is pressed.
 
@@ -89,7 +89,7 @@ the `terminate` event yourself - the program will not stop execution when
 ]]
 function pullEventRaw(filter) end
 
---- Pauses execution for the specified number of seconds, alias of @{_G.sleep}.
+--- Pauses execution for the specified number of seconds, alias of [`_G.sleep`].
 --
 -- @tparam number time The number of seconds to sleep for, rounded up to the
 -- nearest multiple of 0.05.
@@ -109,12 +109,12 @@ arguments.
 
 This function does not resolve program names like the shell does. This means
 that, for example, `os.run("edit")` will not work. As well as this, it does not
-provide access to the @{shell} API in the environment. For this behaviour, use
-@{shell.run} instead.
+provide access to the [`shell`] API in the environment. For this behaviour, use
+[`shell.run`] instead.
 
 If the program cannot be found, or failed to run, it will print the error and
 return `false`. If you want to handle this more gracefully, use an alternative
-such as @{loadfile}.
+such as [`loadfile`].
 
 @tparam table env The environment to run the program with.
 @tparam string path The exact path of the program to run.

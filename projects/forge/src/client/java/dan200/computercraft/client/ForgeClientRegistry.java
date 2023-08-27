@@ -6,8 +6,10 @@ package dan200.computercraft.client;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.model.turtle.TurtleModelLoader;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.RegisterShadersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -42,6 +44,11 @@ public final class ForgeClientRegistry {
     @SubscribeEvent
     public static void onItemColours(RegisterColorHandlersEvent.Item event) {
         ClientRegistry.registerItemColours(event::register);
+    }
+
+    @SubscribeEvent
+    public static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
+        ClientRegistry.registerReloadListeners(event::registerReloadListener, Minecraft.getInstance());
     }
 
     @SubscribeEvent

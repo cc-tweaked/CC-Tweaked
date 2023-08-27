@@ -168,7 +168,7 @@ public class CommandAPI implements ILuaAPI {
     /**
      * Get information about a range of blocks.
      * <p>
-     * This returns the same information as @{getBlockInfo}, just for multiple
+     * This returns the same information as [`getBlockInfo`], just for multiple
      * blocks at once.
      * <p>
      * Blocks are traversed by ascending y level, followed by z and x - the returned
@@ -225,7 +225,7 @@ public class CommandAPI implements ILuaAPI {
      * Get some basic information about a block.
      * <p>
      * The returned table contains the current name, metadata and block state (as
-     * with @{turtle.inspect}). If there is a tile entity for that block, its NBT
+     * with [`turtle.inspect`]). If there is a tile entity for that block, its NBT
      * will also be returned.
      *
      * @param x         The x position of the block to query.

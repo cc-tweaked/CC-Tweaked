@@ -17,9 +17,9 @@ end
 
 local term = _ENV
 
---- Redirects terminal output to a monitor, a @{window}, or any other custom
+--- Redirects terminal output to a monitor, a [`window`], or any other custom
 -- terminal object. Once the redirect is performed, any calls to a "term"
--- function - or to a function that makes use of a term function, as @{print} -
+-- function - or to a function that makes use of a term function, as [`print`] -
 -- will instead operate with the new terminal object.
 --
 -- A "terminal object" is simply a table that contains functions with the same
@@ -29,9 +29,9 @@ local term = _ENV
 -- The redirect can be undone by pointing back to the previous terminal object
 -- (which this function returns whenever you switch).
 --
--- @tparam Redirect target The terminal redirect the @{term} API will draw to.
+-- @tparam Redirect target The terminal redirect the [`term`] API will draw to.
 -- @treturn Redirect The previous redirect object, as returned by
--- @{term.current}.
+-- [`term.current`].
 -- @since 1.31
 -- @usage
 -- Redirect to a monitor on the right of the computer.
@@ -60,7 +60,7 @@ end
 -- @treturn Redirect The current terminal redirect
 -- @since 1.6
 -- @usage
--- Create a new @{window} which draws to the current redirect target.
+-- Create a new [`window`] which draws to the current redirect target.
 --
 --     window.create(term.current(), 1, 1, 10, 10)
 term.current = function()
@@ -70,7 +70,7 @@ end
 --- Get the native terminal object of the current computer.
 --
 -- It is recommended you do not use this function unless you absolutely have
--- to. In a multitasked environment, @{term.native} will _not_ be the current
+-- to. In a multitasked environment, [`term.native`] will _not_ be the current
 -- terminal object, and so drawing may interfere with other programs.
 --
 -- @treturn Redirect The native terminal redirect.

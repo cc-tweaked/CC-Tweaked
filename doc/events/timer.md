@@ -9,11 +9,11 @@ SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 SPDX-License-Identifier: MPL-2.0
 -->
 
-The @{timer} event is fired when a timer started with @{os.startTimer} completes.
+The [`timer`] event is fired when a timer started with [`os.startTimer`] completes.
 
 ## Return Values
-1. @{string}: The event name.
-2. @{number}: The ID of the timer that finished.
+1. [`string`]: The event name.
+2. [`number`]: The ID of the timer that finished.
 
 ## Example
 Start and wait for a timer to finish.

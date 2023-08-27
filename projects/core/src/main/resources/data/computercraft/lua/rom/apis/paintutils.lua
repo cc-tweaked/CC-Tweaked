@@ -51,7 +51,7 @@ end
 --
 -- @tparam string image The string containing the raw-image data.
 -- @treturn table The parsed image data, suitable for use with
--- @{paintutils.drawImage}.
+-- [`paintutils.drawImage`].
 -- @since 1.80pr1
 function parseImage(image)
     expect(1, image, "string")
@@ -69,7 +69,7 @@ end
 -- @tparam string path The file to load.
 --
 -- @treturn table|nil The parsed image data, suitable for use with
--- @{paintutils.drawImage}, or `nil` if the file does not exist.
+-- [`paintutils.drawImage`], or `nil` if the file does not exist.
 -- @usage Load an image and draw it.
 --
 --     local image = paintutils.loadImage("data/example.nfp")
@@ -93,7 +93,7 @@ end
 --
 -- @tparam number xPos The x position to draw at, where 1 is the far left.
 -- @tparam number yPos The y position to draw at, where 1 is the very top.
--- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
+-- @tparam[opt] number colour The [color][`colors`] of this pixel. This will be
 -- the current background colour if not specified.
 function drawPixel(xPos, yPos, colour)
     expect(1, xPos, "number")
@@ -115,7 +115,7 @@ end
 -- @tparam number startY The starting y position of the line.
 -- @tparam number endX The end x position of the line.
 -- @tparam number endY The end y position of the line.
--- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
+-- @tparam[opt] number colour The [color][`colors`] of this pixel. This will be
 -- the current background colour if not specified.
 -- @usage paintutils.drawLine(2, 3, 30, 7, colors.red)
 function drawLine(startX, startY, endX, endY, colour)
@@ -189,7 +189,7 @@ end
 -- @tparam number startY The starting y position of the line.
 -- @tparam number endX The end x position of the line.
 -- @tparam number endY The end y position of the line.
--- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
+-- @tparam[opt] number colour The [color][`colors`] of this pixel. This will be
 -- the current background colour if not specified.
 -- @usage paintutils.drawBox(2, 3, 30, 7, colors.red)
 function drawBox(startX, startY, endX, endY, nColour)
@@ -242,7 +242,7 @@ end
 -- @tparam number startY The starting y position of the line.
 -- @tparam number endX The end x position of the line.
 -- @tparam number endY The end y position of the line.
--- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
+-- @tparam[opt] number colour The [color][`colors`] of this pixel. This will be
 -- the current background colour if not specified.
 -- @usage paintutils.drawFilledBox(2, 3, 30, 7, colors.red)
 function drawFilledBox(startX, startY, endX, endY, nColour)
@@ -278,7 +278,7 @@ function drawFilledBox(startX, startY, endX, endY, nColour)
     end
 end
 
---- Draw an image loaded by @{paintutils.parseImage} or @{paintutils.loadImage}.
+--- Draw an image loaded by [`paintutils.parseImage`] or [`paintutils.loadImage`].
 --
 -- @tparam table image The parsed image data.
 -- @tparam number xPos The x position to start drawing at.

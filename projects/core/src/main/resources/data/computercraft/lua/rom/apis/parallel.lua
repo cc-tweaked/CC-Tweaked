@@ -6,36 +6,34 @@
 
 Functions are not actually executed simultaneously, but rather this API will
 automatically switch between them whenever they yield (e.g. whenever they call
-@{coroutine.yield}, or functions that call that - such as @{os.pullEvent} - or
+[`coroutine.yield`], or functions that call that - such as [`os.pullEvent`] - or
 functions that call that, etc - basically, anything that causes the function
 to "pause").
 
 Each function executed in "parallel" gets its own copy of the event queue,
 and so "event consuming" functions (again, mostly anything that causes the
-script to pause - eg @{os.sleep}, @{rednet.receive}, most of the @{turtle} API,
+script to pause - eg [`os.sleep`], [`rednet.receive`], most of the [`turtle`] API,
 etc) can safely be used in one without affecting the event queue accessed by
 the other.
 
 
-:::caution
-When using this API, be careful to pass the functions you want to run in
-parallel, and _not_ the result of calling those functions.
-
-For instance, the following is correct:
-
-```lua
-local function do_sleep() sleep(1) end
-parallel.waitForAny(do_sleep, rednet.receive)
-```
-
-but the following is **NOT**:
-
-```lua
-local function do_sleep() sleep(1) end
-parallel.waitForAny(do_sleep(), rednet.receive)
-```
-
-:::
+> [!WARNING]
+> When using this API, be careful to pass the functions you want to run in
+> parallel, and _not_ the result of calling those functions.
+>
+> For instance, the following is correct:
+>
+> ```lua
+> local function do_sleep() sleep(1) end
+> parallel.waitForAny(do_sleep, rednet.receive)
+> ```
+>
+> but the following is **NOT**:
+>
+> ```lua
+> local function do_sleep() sleep(1) end
+> parallel.waitForAny(do_sleep(), rednet.receive)
+> ```
 
 @module parallel
 @since 1.2
@@ -100,7 +98,7 @@ end
 
 --[[- Switches between execution of the functions, until any of them
 finishes. If any of the functions errors, the message is propagated upwards
-from the @{parallel.waitForAny} call.
+from the [`parallel.waitForAny`] call.
 
 @tparam function ... The functions this task will run
 @usage Print a message every second until the `q` key is pressed.
@@ -128,7 +126,7 @@ end
 
 --[[- Switches between execution of the functions, until all of them are
 finished. If any of the functions errors, the message is propagated upwards
-from the @{parallel.waitForAll} call.
+from the [`parallel.waitForAll`] call.
 
 @tparam function ... The functions this task will run
 @usage Start off two timers and wait for them both to run.

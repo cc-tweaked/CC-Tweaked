@@ -9,14 +9,14 @@ SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 SPDX-License-Identifier: MPL-2.0
 -->
 
-The @{http_success} event is fired when an HTTP request returns successfully.
+The [`http_success`] event is fired when an HTTP request returns successfully.
 
-This event is normally handled inside @{http.get} and @{http.post}, but it can still be seen when using @{http.request}.
+This event is normally handled inside [`http.get`] and [`http.post`], but it can still be seen when using [`http.request`].
 
 ## Return Values
-1. @{string}: The event name.
-2. @{string}: The URL of the site requested.
-3. @{http.Response}: The successful HTTP response.
+1. [`string`]: The event name.
+2. [`string`]: The URL of the site requested.
+3. [`http.Response`]: The successful HTTP response.
 
 ## Example
 Prints the content of a website (this may fail if the request fails):

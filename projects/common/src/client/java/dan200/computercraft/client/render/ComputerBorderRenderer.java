@@ -4,25 +4,17 @@
 
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
-import org.joml.Matrix4f;
+import dan200.computercraft.client.gui.GuiSprites;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+
+import static dan200.computercraft.client.render.SpriteRenderer.u;
+import static dan200.computercraft.client.render.SpriteRenderer.v;
 
 /**
  * Renders the borders of computers, either for a GUI ({@link dan200.computercraft.client.gui.ComputerScreen}) or
  * {@linkplain PocketItemRenderer in-hand pocket computers}.
  */
-public class ComputerBorderRenderer {
-    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_normal.png");
-    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_advanced.png");
-    private static final ResourceLocation BACKGROUND_COMMAND = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_command.png");
-    public static final ResourceLocation BACKGROUND_COLOUR = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/corners_colour.png");
-
+public final class ComputerBorderRenderer {
     /**
      * The margin between the terminal and its border.
      */
@@ -33,100 +25,51 @@ public class ComputerBorderRenderer {
      */
     public static final int BORDER = 12;
 
-    private static final int CORNER_TOP_Y = 28;
-    private static final int CORNER_BOTTOM_Y = CORNER_TOP_Y + BORDER;
-    private static final int CORNER_LEFT_X = BORDER;
-    private static final int CORNER_RIGHT_X = CORNER_LEFT_X + BORDER;
-    private static final int BORDER_RIGHT_X = 36;
-    private static final int LIGHT_BORDER_Y = 56;
-    private static final int LIGHT_CORNER_Y = 80;
-
     public static final int LIGHT_HEIGHT = 8;
 
-    public static final int TEX_SIZE = 256;
-    private static final float TEX_SCALE = 1 / (float) TEX_SIZE;
+    private static final int TEX_SIZE = 36;
 
-    private final Matrix4f transform;
-    private final VertexConsumer builder;
-    private final int light;
-    private final int z;
-    private final float r, g, b;
-
-    public ComputerBorderRenderer(Matrix4f transform, VertexConsumer builder, int z, int light, float r, float g, float b) {
-        this.transform = transform;
-        this.builder = builder;
-        this.z = z;
-        this.light = light;
-        this.r = r;
-        this.g = g;
-        this.b = b;
+    private ComputerBorderRenderer() {
     }
 
-    public static ResourceLocation getTexture(ComputerFamily family) {
-        return switch (family) {
-            case NORMAL -> BACKGROUND_NORMAL;
-            case ADVANCED -> BACKGROUND_ADVANCED;
-            case COMMAND -> BACKGROUND_COMMAND;
-        };
-    }
-
-    public static RenderType getRenderType(ResourceLocation location) {
-        // See note in RenderTypes about why we use text rather than anything intuitive.
-        return RenderType.text(location);
-    }
-
-    public static void render(Matrix4f transform, ResourceLocation location, int x, int y, int light, int width, int height) {
-        var source = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        render(transform, source.getBuffer(getRenderType(location)), x, y, 1, light, width, height, false, 1, 1, 1);
-        source.endBatch();
-    }
-
-    public static void render(Matrix4f transform, VertexConsumer buffer, int x, int y, int z, int light, int width, int height, boolean withLight, float r, float g, float b) {
-        new ComputerBorderRenderer(transform, buffer, z, light, r, g, b).doRender(x, y, width, height, withLight);
-    }
-
-    public void doRender(int x, int y, int width, int height, boolean withLight) {
+    public static void render(SpriteRenderer renderer, GuiSprites.ComputerTextures textures, int x, int y, int width, int height, boolean withLight) {
         var endX = x + width;
         var endY = y + height;
 
-        // Vertical bars
-        renderLine(x - BORDER, y, 0, CORNER_TOP_Y, BORDER, endY - y);
-        renderLine(endX, y, BORDER_RIGHT_X, CORNER_TOP_Y, BORDER, endY - y);
+        var border = GuiSprites.get(textures.border());
 
         // Top bar
-        renderLine(x, y - BORDER, 0, 0, endX - x, BORDER);
-        renderCorner(x - BORDER, y - BORDER, CORNER_LEFT_X, CORNER_TOP_Y);
-        renderCorner(endX, y - BORDER, CORNER_RIGHT_X, CORNER_TOP_Y);
+        blitBorder(renderer, border, x - BORDER, y - BORDER, 0, 0, BORDER, BORDER);
+        blitBorder(renderer, border, x, y - BORDER, BORDER, 0, width, BORDER);
+        blitBorder(renderer, border, endX, y - BORDER, BORDER * 2, 0, BORDER, BORDER);
+
+        // Vertical bars
+        blitBorder(renderer, border, x - BORDER, y, 0, BORDER, BORDER, height);
+        blitBorder(renderer, border, endX, y, BORDER * 2, BORDER, BORDER, height);
 
         // Bottom bar. We allow for drawing a stretched version, which allows for additional elements (such as the
         // pocket computer's lights).
         if (withLight) {
-            renderTexture(x, endY, 0, LIGHT_BORDER_Y, endX - x, BORDER + LIGHT_HEIGHT, BORDER, BORDER + LIGHT_HEIGHT);
-            renderTexture(x - BORDER, endY, CORNER_LEFT_X, LIGHT_CORNER_Y, BORDER, BORDER + LIGHT_HEIGHT);
-            renderTexture(endX, endY, CORNER_RIGHT_X, LIGHT_CORNER_Y, BORDER, BORDER + LIGHT_HEIGHT);
+            var pocketBottomTexture = textures.pocketBottom();
+            if (pocketBottomTexture == null) throw new NullPointerException(textures + " has no pocket texture");
+            var pocketBottom = GuiSprites.get(pocketBottomTexture);
+
+            renderer.blitHorizontalSliced(
+                pocketBottom, x - BORDER, endY, width + BORDER * 2, BORDER + LIGHT_HEIGHT,
+                BORDER, BORDER, BORDER * 3
+            );
         } else {
-            renderLine(x, endY, 0, BORDER, endX - x, BORDER);
-            renderCorner(x - BORDER, endY, CORNER_LEFT_X, CORNER_BOTTOM_Y);
-            renderCorner(endX, endY, CORNER_RIGHT_X, CORNER_BOTTOM_Y);
+            blitBorder(renderer, border, x - BORDER, endY, 0, BORDER * 2, BORDER, BORDER);
+            blitBorder(renderer, border, x, endY, BORDER, BORDER * 2, width, BORDER);
+            blitBorder(renderer, border, endX, endY, BORDER * 2, BORDER * 2, BORDER, BORDER);
         }
     }
 
-    private void renderCorner(int x, int y, int u, int v) {
-        renderTexture(x, y, u, v, BORDER, BORDER, BORDER, BORDER);
-    }
-
-    private void renderLine(int x, int y, int u, int v, int width, int height) {
-        renderTexture(x, y, u, v, width, height, BORDER, BORDER);
-    }
-
-    private void renderTexture(int x, int y, int u, int v, int width, int height) {
-        renderTexture(x, y, u, v, width, height, width, height);
-    }
-
-    private void renderTexture(int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight) {
-        builder.vertex(transform, x, y + height, z).color(r, g, b, 1.0f).uv(u * TEX_SCALE, (v + textureHeight) * TEX_SCALE).uv2(light).endVertex();
-        builder.vertex(transform, x + width, y + height, z).color(r, g, b, 1.0f).uv((u + textureWidth) * TEX_SCALE, (v + textureHeight) * TEX_SCALE).uv2(light).endVertex();
-        builder.vertex(transform, x + width, y, z).color(r, g, b, 1.0f).uv((u + textureWidth) * TEX_SCALE, v * TEX_SCALE).uv2(light).endVertex();
-        builder.vertex(transform, x, y, z).color(r, g, b, 1.0f).uv(u * TEX_SCALE, v * TEX_SCALE).uv2(light).endVertex();
+    private static void blitBorder(SpriteRenderer renderer, TextureAtlasSprite sprite, int x, int y, int u, int v, int width, int height) {
+        renderer.blit(
+            x, y, width, height,
+            u(sprite, u, TEX_SIZE), v(sprite, v, TEX_SIZE),
+            u(sprite, u + BORDER, TEX_SIZE), v(sprite, v + BORDER, TEX_SIZE)
+        );
     }
 }

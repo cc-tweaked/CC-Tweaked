@@ -131,6 +131,14 @@ div.lua-example {
     --recipe-size: 32px;
 }
 
+@media (prefers-color-scheme: dark) {
+    :root {
+        --recipe-bg: #222;
+        --recipe-fg: #444;
+        --recipe-hover: #888;
+    }
+}
+
 .recipe-container {
     display: flex;
     justify-content: center;
@@ -151,7 +159,7 @@ div.lua-example {
 }
 
 .recipe-title {
-    color: #222; /* Same as --foreground in light theme. Ugly, but too lazy to style in dark for now. */
+    color: var(--foreground);
     grid-column-start: span 3;
 }
 

@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.peripheral.modem;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.network.Packet;
@@ -20,10 +21,9 @@ import java.util.Set;
 /**
  * Modems allow you to send messages between computers over long distances.
  * <p>
- * :::tip
- * Modems provide a fairly basic set of methods, which makes them very flexible but often hard to work with. The
- * {@literal @}{rednet} API is built on top of modems, and provides a more user-friendly interface.
- * :::
+ * > [!TIP]
+ * > Modems provide a fairly basic set of methods, which makes them very flexible but often hard to work with. The
+ * > [`rednet`] API is built on top of modems, and provides a more user-friendly interface.
  * <p>
  * ## Sending and receiving messages
  * Modems operate on a series of channels, a bit like frequencies on a radio. Any modem can send a message on a
@@ -31,11 +31,11 @@ import java.util.Set;
  * messages.
  * <p>
  * Channels are represented as an integer between 0 and 65535 inclusive. These channels don't have any defined meaning,
- * though some APIs or programs will assign a meaning to them. For instance, the @{gps} module sends all its messages on
- * channel 65534 (@{gps.CHANNEL_GPS}), while @{rednet} uses channels equal to the computer's ID.
+ * though some APIs or programs will assign a meaning to them. For instance, the [`gps`] module sends all its messages on
+ * channel 65534 ([`gps.CHANNEL_GPS`]), while [`rednet`] uses channels equal to the computer's ID.
  * <p>
  * - Sending messages is done with the {@link #transmit(int, int, Object)} message.
- * - Receiving messages is done by listening to the @{modem_message} event.
+ * - Receiving messages is done by listening to the [`modem_message`] event.
  * <p>
  * ## Types of modem
  * CC: Tweaked comes with three kinds of modem, with different capabilities.
@@ -85,7 +85,7 @@ import java.util.Set;
  */
 public abstract class ModemPeripheral implements IPeripheral, PacketSender, PacketReceiver {
     private @Nullable PacketNetwork network;
-    private final Set<IComputerAccess> computers = new HashSet<>(1);
+    private final @GuardedBy("computers") Set<IComputerAccess> computers = new HashSet<>(1);
     private final ModemState state;
 
     protected ModemPeripheral(ModemState state) {
@@ -197,9 +197,8 @@ public abstract class ModemPeripheral implements IPeripheral, PacketSender, Pack
      * Sends a modem message on a certain channel. Modems listening on the channel will queue a {@code modem_message}
      * event on adjacent computers.
      * <p>
-     * :::note
-     * The channel does not need be open to send a message.
-     * :::
+     * > [!NOTE]
+     * > The channel does not need be open to send a message.
      *
      * @param channel      The channel to send messages on.
      * @param replyChannel The channel that responses to this message should be sent on. This can be the same as

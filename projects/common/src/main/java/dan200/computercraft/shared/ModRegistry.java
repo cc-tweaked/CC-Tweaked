@@ -15,6 +15,7 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
+import dan200.computercraft.shared.command.UserLevel;
 import dan200.computercraft.shared.command.arguments.ComputerArgumentType;
 import dan200.computercraft.shared.command.arguments.ComputersArgumentType;
 import dan200.computercraft.shared.command.arguments.RepeatArgumentType;
@@ -37,6 +38,7 @@ import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.details.BlockDetails;
 import dan200.computercraft.shared.details.ItemDetails;
+import dan200.computercraft.shared.integration.PermissionRegistry;
 import dan200.computercraft.shared.media.items.DiskItem;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.media.items.RecordMedia;
@@ -77,6 +79,7 @@ import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.turtle.upgrades.*;
 import dan200.computercraft.shared.util.ImpostorRecipe;
 import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.BlockPos;
@@ -98,6 +101,7 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 /**
  * Registers ComputerCraft's registry entries and additional objects, such as {@link CauldronInteraction}s and
@@ -366,6 +370,18 @@ public final class ModRegistry {
         public static final RegistryEntry<ImpostorShapelessRecipe.Serializer> IMPOSTOR_SHAPELESS = REGISTRY.register("impostor_shapeless", ImpostorShapelessRecipe.Serializer::new);
     }
 
+    public static class Permissions {
+        static final PermissionRegistry REGISTRY = PermissionRegistry.create();
+
+        public static final Predicate<CommandSourceStack> PERMISSION_DUMP = REGISTRY.registerCommand("dump", UserLevel.OWNER_OP);
+        public static final Predicate<CommandSourceStack> PERMISSION_SHUTDOWN = REGISTRY.registerCommand("shutdown", UserLevel.OWNER_OP);
+        public static final Predicate<CommandSourceStack> PERMISSION_TURN_ON = REGISTRY.registerCommand("turn_on", UserLevel.OWNER_OP);
+        public static final Predicate<CommandSourceStack> PERMISSION_TP = REGISTRY.registerCommand("tp", UserLevel.OP);
+        public static final Predicate<CommandSourceStack> PERMISSION_TRACK = REGISTRY.registerCommand("track", UserLevel.OWNER_OP);
+        public static final Predicate<CommandSourceStack> PERMISSION_QUEUE = REGISTRY.registerCommand("queue", UserLevel.ANYONE);
+        public static final Predicate<CommandSourceStack> PERMISSION_VIEW = REGISTRY.registerCommand("view", UserLevel.OP);
+    }
+
     static class CreativeTabs {
         static final RegistrationHelper<CreativeModeTab> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registries.CREATIVE_MODE_TAB);
 
@@ -419,6 +435,7 @@ public final class ModRegistry {
         ArgumentTypes.REGISTRY.register();
         LootItemConditionTypes.REGISTRY.register();
         RecipeSerializers.REGISTRY.register();
+        Permissions.REGISTRY.register();
         CreativeTabs.REGISTRY.register();
 
         // Register bundled power providers

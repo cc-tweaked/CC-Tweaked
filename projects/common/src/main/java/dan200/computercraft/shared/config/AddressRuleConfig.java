@@ -26,6 +26,10 @@ class AddressRuleConfig {
 
     private static final AddressRule REJECT_ALL = AddressRule.parse("*", OptionalInt.empty(), Action.DENY.toPartial());
 
+    private static final Set<String> knownKeys = Set.of(
+        "host", "action", "max_download", "max_upload", "max_websocket_message", "use_proxy"
+    );
+
     public static List<UnmodifiableConfig> defaultRules() {
         return List.of(
             makeRule(config -> {
@@ -88,8 +92,19 @@ class AddressRuleConfig {
         var port = unboxOptInt(get(builder, "port", Number.class));
         var maxUpload = unboxOptLong(get(builder, "max_upload", Number.class).map(Number::longValue));
         var maxDownload = unboxOptLong(get(builder, "max_download", Number.class).map(Number::longValue));
-        var websocketMessage = unboxOptInt(get(builder, "websocket_message", Number.class).map(Number::intValue));
+        var websocketMessage = unboxOptInt(
+            get(builder, "max_websocket_message", Number.class)
+                // Fallback to (incorrect) websocket_message option.
+                .or(() -> get(builder, "websocket_message", Number.class))
+                .map(Number::intValue)
+        );
         var useProxy = get(builder, "use_proxy", Boolean.class);
+
+        // Find unknown keys and warn about them.
+        var unknownKeys = builder.entrySet().stream().map(UnmodifiableConfig.Entry::getKey).filter(x -> !knownKeys.contains(x)).toList();
+        if (!unknownKeys.isEmpty()) {
+            LOG.warn("Unknown config {} {} in address rule.", unknownKeys.size() == 1 ? "option" : "options", String.join(", ", unknownKeys));
+        }
 
         var options = new PartialOptions(
             action,
