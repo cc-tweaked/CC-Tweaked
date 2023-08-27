@@ -165,7 +165,7 @@ local function make_decoder()
     local low_pass_charge = 0
     local previous_charge, previous_bit = 0, false
 
-    return function (input, output)
+    return function (input)
         expect(1, input, "string")
 
         local output, output_n = {}, 0

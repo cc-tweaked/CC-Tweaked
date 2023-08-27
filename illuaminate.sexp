@@ -83,23 +83,19 @@
       ;; isn't smart enough.
       sleep write printError read rs)))
 
-;; We disable the unused global linter in bios.lua and the APIs. In the future
-;; hopefully we'll get illuaminate to handle this.
+;; We disable the unused global linter in bios.lua, APIs and our documentation
+;; stubs docs. In the future hopefully we'll get illuaminate to handle this.
 (at
-  (/projects/core/src/main/resources/data/computercraft/lua/bios.lua
-   /projects/core/src/main/resources/data/computercraft/lua/rom/apis/)
-  (linters -var:unused-global)
-  (lint (allow-toplevel-global true)))
-
-;; Silence some variable warnings in documentation stubs.
-(at (/doc/stub/ /projects/forge/build/docs/luaJavadoc/)
+  (/doc/stub/
+   /projects/core/src/main/resources/data/computercraft/lua/bios.lua
+   /projects/core/src/main/resources/data/computercraft/lua/rom/apis/
+   /projects/forge/build/docs/luaJavadoc/)
   (linters -var:unused-global)
   (lint (allow-toplevel-global true)))
 
 ;; Suppress warnings for currently undocumented modules.
 (at
   (; Lua APIs
-   /projects/core/src/main/resources/data/computercraft/lua/rom/apis/io.lua
    /projects/core/src/main/resources/data/computercraft/lua/rom/apis/window.lua)
 
   (linters -doc:undocumented -doc:undocumented-arg -doc:undocumented-return))
