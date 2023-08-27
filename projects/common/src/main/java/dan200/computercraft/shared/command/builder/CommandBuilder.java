@@ -44,7 +44,8 @@ public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>> {
     }
 
     public CommandBuilder<S> requires(Predicate<S> predicate) {
-        requires = requires == null ? predicate : requires.and(predicate);
+        if (requires != null) throw new IllegalStateException("Requires already set");
+        requires = predicate;
         return this;
     }
 

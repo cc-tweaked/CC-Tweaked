@@ -11,6 +11,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.metrics.Metrics;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.command.arguments.ComputersArgumentType;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -60,7 +61,7 @@ public final class CommandComputerCraft {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(choice("computercraft")
             .then(literal("dump")
-                .requires(UserLevel.OWNER_OP)
+                .requires(ModRegistry.Permissions.PERMISSION_DUMP)
                 .executes(context -> {
                     var table = new TableBuilder("DumpAll", "Computer", "On", "Position");
 
@@ -118,7 +119,7 @@ public final class CommandComputerCraft {
                     })))
 
             .then(command("shutdown")
-                .requires(UserLevel.OWNER_OP)
+                .requires(ModRegistry.Permissions.PERMISSION_SHUTDOWN)
                 .argManyValue("computers", manyComputers(), s -> ServerContext.get(s.getServer()).registry().getComputers())
                 .executes((context, computerSelectors) -> {
                     var shutdown = 0;
@@ -132,7 +133,7 @@ public final class CommandComputerCraft {
                 }))
 
             .then(command("turn-on")
-                .requires(UserLevel.OWNER_OP)
+                .requires(ModRegistry.Permissions.PERMISSION_TURN_ON)
                 .argManyValue("computers", manyComputers(), s -> ServerContext.get(s.getServer()).registry().getComputers())
                 .executes((context, computerSelectors) -> {
                     var on = 0;
@@ -146,7 +147,7 @@ public final class CommandComputerCraft {
                 }))
 
             .then(command("tp")
-                .requires(UserLevel.OP)
+                .requires(ModRegistry.Permissions.PERMISSION_TP)
                 .arg("computer", oneComputer())
                 .executes(context -> {
                     var computer = getComputerArgument(context, "computer");
@@ -171,7 +172,7 @@ public final class CommandComputerCraft {
                 }))
 
             .then(command("queue")
-                .requires(UserLevel.ANYONE)
+                .requires(ModRegistry.Permissions.PERMISSION_QUEUE)
                 .arg(
                     RequiredArgumentBuilder.<CommandSourceStack, ComputersArgumentType.ComputersSupplier>argument("computer", manyComputers())
                         .suggests((context, builder) -> Suggestions.empty())
@@ -193,7 +194,7 @@ public final class CommandComputerCraft {
                 }))
 
             .then(command("view")
-                .requires(UserLevel.OP)
+                .requires(ModRegistry.Permissions.PERMISSION_VIEW)
                 .arg("computer", oneComputer())
                 .executes(context -> {
                     var player = context.getSource().getPlayerOrException();
@@ -213,8 +214,8 @@ public final class CommandComputerCraft {
                 }))
 
             .then(choice("track")
+                .requires(ModRegistry.Permissions.PERMISSION_TRACK)
                 .then(command("start")
-                    .requires(UserLevel.OWNER_OP)
                     .executes(context -> {
                         getMetricsInstance(context.getSource()).start();
 
@@ -227,7 +228,6 @@ public final class CommandComputerCraft {
                     }))
 
                 .then(command("stop")
-                    .requires(UserLevel.OWNER_OP)
                     .executes(context -> {
                         var timings = getMetricsInstance(context.getSource());
                         if (!timings.stop()) throw NOT_TRACKING_EXCEPTION.create();
@@ -236,7 +236,6 @@ public final class CommandComputerCraft {
                     }))
 
                 .then(command("dump")
-                    .requires(UserLevel.OWNER_OP)
                     .argManyValue("fields", metric(), DEFAULT_FIELDS)
                     .executes((context, fields) -> {
                         AggregatedMetric sort;
@@ -270,23 +269,25 @@ public final class CommandComputerCraft {
         out.append(" (id " + computerId + ")");
 
         // And, if we're a player, some useful links
-        if (serverComputer != null && UserLevel.OP.test(source) && isPlayer(source)) {
-            out
-                .append(" ")
-                .append(link(
+        if (serverComputer != null && isPlayer(source)) {
+            if (ModRegistry.Permissions.PERMISSION_TP.test(source)) {
+                out.append(" ").append(link(
                     text("\u261b"),
                     "/computercraft tp " + serverComputer.getInstanceID(),
                     Component.translatable("commands.computercraft.tp.action")
-                ))
-                .append(" ")
-                .append(link(
+                ));
+            }
+
+            if (ModRegistry.Permissions.PERMISSION_VIEW.test(source)) {
+                out.append(" ").append(link(
                     text("\u20e2"),
                     "/computercraft view " + serverComputer.getInstanceID(),
                     Component.translatable("commands.computercraft.view.action")
                 ));
+            }
         }
 
-        if (UserLevel.OWNER.test(source) && isPlayer(source)) {
+        if (isPlayer(source) && UserLevel.isOwner(source)) {
             var linkPath = linkStorage(source, computerId);
             if (linkPath != null) out.append(" ").append(linkPath);
         }
@@ -295,7 +296,7 @@ public final class CommandComputerCraft {
     }
 
     private static Component linkPosition(CommandSourceStack context, ServerComputer computer) {
-        if (UserLevel.OP.test(context)) {
+        if (ModRegistry.Permissions.PERMISSION_TP.test(context)) {
             return link(
                 position(computer.getPosition()),
                 "/computercraft tp " + computer.getInstanceID(),
