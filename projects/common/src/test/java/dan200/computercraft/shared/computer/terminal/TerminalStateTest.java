@@ -18,22 +18,11 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class TerminalStateTest {
     @RepeatedTest(5)
-    public void testCompressed() {
+    public void testRoundTrip() {
         var terminal = randomTerminal();
 
         var buffer = new FriendlyByteBuf(Unpooled.directBuffer());
-        new TerminalState(terminal, true).write(buffer);
-
-        checkEqual(terminal, read(buffer));
-        assertEquals(0, buffer.readableBytes());
-    }
-
-    @RepeatedTest(5)
-    public void testUncompressed() {
-        var terminal = randomTerminal();
-
-        var buffer = new FriendlyByteBuf(Unpooled.directBuffer());
-        new TerminalState(terminal, false).write(buffer);
+        new TerminalState(terminal).write(buffer);
 
         checkEqual(terminal, read(buffer));
         assertEquals(0, buffer.readableBytes());
