@@ -38,6 +38,7 @@ fabricPermissions = "0.3.20230723"
 iris = "1.6.4+1.20"
 jei = "15.2.0.22"
 modmenu = "7.1.0"
+moreRed = "4.0.0.4"
 oculus = "1.2.5"
 rei = "12.0.626"
 rubidium = "0.6.1"
@@ -102,6 +103,7 @@ jei-fabric = { module = "mezz.jei:jei-1.20.1-fabric", version.ref = "jei" }
 jei-forge = { module = "mezz.jei:jei-1.20.1-forge", version.ref = "jei" }
 mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
+moreRed = { module = "commoble.morered:morered-1.20.1", version.ref = "moreRed" }
 oculus = { module = "maven.modrinth:oculus", version.ref = "oculus" }
 rei-api = { module = "me.shedaniel:RoughlyEnoughItems-api", version.ref = "rei" }
 rei-builtin = { module = "me.shedaniel:RoughlyEnoughItems-default-plugin", version.ref = "rei" }
@@ -153,7 +155,7 @@ kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 
 # Minecraft
 externalMods-common = ["jei-api", "nightConfig-core", "nightConfig-toml"]
-externalMods-forge-compile = ["oculus", "jei-api"]
+externalMods-forge-compile = ["moreRed", "oculus", "jei-api"]
 externalMods-forge-runtime = ["jei-forge"]
 externalMods-fabric = ["nightConfig-core", "nightConfig-toml"]
 externalMods-fabric-compile = ["fabricPermissions", "iris", "jei-api", "rei-api", "rei-builtin"]

@@ -53,13 +53,11 @@ dependencies {
         exclude("net.fabricmc", "fabric-loader")
         exclude("net.fabricmc.fabric-api")
     }
-    /*
 
     modClientRuntimeOnly(libs.bundles.externalMods.fabric.runtime) {
         exclude("net.fabricmc", "fabric-loader")
         exclude("net.fabricmc.fabric-api")
     }
-    */
 
     "modTestWithSodium"(libs.sodium)
     "modTestWithIris"(libs.iris)

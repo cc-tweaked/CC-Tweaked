@@ -15,6 +15,7 @@ import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.details.FluidData;
+import dan200.computercraft.shared.integration.MoreRedIntegration;
 import dan200.computercraft.shared.peripheral.generic.methods.EnergyMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
@@ -23,6 +24,7 @@ import dan200.computercraft.shared.platform.NetworkHandler;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -73,6 +75,8 @@ public final class ComputerCraft {
         ForgeComputerCraftAPI.registerGenericCapability(ForgeCapabilities.FLUID_HANDLER);
 
         ForgeDetailRegistries.FLUID_STACK.addProvider(FluidData::fill);
+
+        if (ModList.get().isLoaded(MoreRedIntegration.MOD_ID)) MoreRedIntegration.setup();
     }
 
     @SubscribeEvent

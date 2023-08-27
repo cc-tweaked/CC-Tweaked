@@ -59,6 +59,7 @@ repositories {
             includeGroup("cc.tweaked")
             includeModule("org.squiddev", "Cobalt")
             // Things we mirror
+            includeGroup("commoble.morered")
             includeGroup("dev.architectury")
             includeGroup("dev.emi")
             includeGroup("maven.modrinth")
