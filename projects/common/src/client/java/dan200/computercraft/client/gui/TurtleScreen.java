@@ -63,5 +63,6 @@ public class TurtleScreen extends AbstractComputerScreen<TurtleMenu> {
         // Render sidebar
         var spriteRenderer = SpriteRenderer.createForGui(graphics, RenderTypes.GUI_SPRITES);
         ComputerSidebar.renderBackground(spriteRenderer, GuiSprites.getComputerTextures(family), leftPos, topPos + sidebarYOffset);
+        graphics.flush(); // Flush to ensure background textures are drawn before foreground.
     }
 }

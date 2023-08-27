@@ -48,5 +48,6 @@ public final class ComputerScreen<T extends AbstractComputerMenu> extends Abstra
             terminal.getX(), terminal.getY(), terminal.getWidth(), terminal.getHeight(), false
         );
         ComputerSidebar.renderBackground(spriteRenderer, computerTextures, leftPos, topPos + sidebarYOffset);
+        graphics.flush(); // Flush to ensure background textures are drawn before foreground.
     }
 }

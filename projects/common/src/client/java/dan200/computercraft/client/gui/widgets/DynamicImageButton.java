@@ -44,9 +44,8 @@ public class DynamicImageButton extends Button {
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         var texture = this.texture.get(isHoveredOrFocused());
-        RenderSystem.setShaderTexture(0, texture.atlasLocation());
-        RenderSystem.disableDepthTest();
 
+        RenderSystem.disableDepthTest();
         graphics.blit(getX(), getY(), 0, width, height, texture);
         RenderSystem.enableDepthTest();
     }
