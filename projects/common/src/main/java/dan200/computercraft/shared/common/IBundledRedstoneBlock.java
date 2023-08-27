@@ -9,7 +9,5 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 
 public interface IBundledRedstoneBlock {
-    boolean getBundledRedstoneConnectivity(Level world, BlockPos pos, Direction side);
-
     int getBundledRedstoneOutput(Level world, BlockPos pos, Direction side);
 }

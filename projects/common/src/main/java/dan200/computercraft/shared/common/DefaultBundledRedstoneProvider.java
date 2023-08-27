@@ -18,11 +18,6 @@ public class DefaultBundledRedstoneProvider implements BundledRedstoneProvider {
 
     public static int getDefaultBundledRedstoneOutput(Level world, BlockPos pos, Direction side) {
         var block = world.getBlockState(pos).getBlock();
-        if (block instanceof IBundledRedstoneBlock generic) {
-            if (generic.getBundledRedstoneConnectivity(world, pos, side)) {
-                return generic.getBundledRedstoneOutput(world, pos, side);
-            }
-        }
-        return -1;
+        return block instanceof IBundledRedstoneBlock bundledBlock ? bundledBlock.getBundledRedstoneOutput(world, pos, side) : -1;
     }
 }

@@ -93,11 +93,6 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
     }
 
     @Override
-    public boolean getBundledRedstoneConnectivity(Level world, BlockPos pos, Direction side) {
-        return true;
-    }
-
-    @Override
     public int getBundledRedstoneOutput(Level world, BlockPos pos, Direction side) {
         var entity = world.getBlockEntity(pos);
         if (!(entity instanceof AbstractComputerBlockEntity computerEntity)) return 0;
