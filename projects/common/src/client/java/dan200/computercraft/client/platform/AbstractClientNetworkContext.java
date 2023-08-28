@@ -76,8 +76,8 @@ public abstract class AbstractClientNetworkContext implements ClientNetworkConte
     }
 
     @Override
-    public final void handleSpeakerAudioPush(UUID source, ByteBuf buffer) {
-        SpeakerManager.getSound(source).pushAudio(buffer);
+    public final void handleSpeakerAudioPush(UUID source, ByteBuf buffer, boolean isPCM) {
+        SpeakerManager.getSound(source).pushAudio(buffer, isPCM);
     }
 
     @Override

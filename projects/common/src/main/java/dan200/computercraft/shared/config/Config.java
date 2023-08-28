@@ -46,6 +46,8 @@ public final class Config {
 
     public static int uploadNagDelay = 5;
 
+    public static boolean speakersUsePCM = false;
+
     private Config() {
     }
 }

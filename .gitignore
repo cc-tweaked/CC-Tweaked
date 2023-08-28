@@ -8,6 +8,7 @@
 /build
 /projects/*/logs
 /projects/*/build
+/projects/*/bin
 /buildSrc/build
 /out
 /buildSrc/out

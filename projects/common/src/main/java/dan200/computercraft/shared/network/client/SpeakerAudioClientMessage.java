@@ -27,22 +27,25 @@ public class SpeakerAudioClientMessage implements NetworkMessage<ClientNetworkCo
     private final SpeakerPosition.Message pos;
     private final @Nullable ByteBuffer content;
     private final float volume;
+    private final boolean isPCM;
 
-    public SpeakerAudioClientMessage(UUID source, SpeakerPosition pos, float volume, ByteBuffer content) {
+    public SpeakerAudioClientMessage(UUID source, SpeakerPosition pos, float volume, ByteBuffer content, boolean isPCM) {
         this.source = source;
         this.pos = pos.asMessage();
         this.content = content;
         this.volume = volume;
+        this.isPCM = isPCM;
     }
 
     public SpeakerAudioClientMessage(FriendlyByteBuf buf) {
         source = buf.readUUID();
         pos = SpeakerPosition.Message.read(buf);
         volume = buf.readFloat();
+        isPCM = buf.readByte() != 0;
 
         // TODO: Remove this, so we no longer need a getter for ClientNetworkContext. However, doing so without
         //  leaking or redundantly copying the buffer is hard.
-        ClientNetworkContext.get().handleSpeakerAudioPush(source, buf);
+        ClientNetworkContext.get().handleSpeakerAudioPush(source, buf, isPCM);
         content = null;
     }
 
@@ -51,6 +54,7 @@ public class SpeakerAudioClientMessage implements NetworkMessage<ClientNetworkCo
         buf.writeUUID(source);
         pos.write(buf);
         buf.writeFloat(volume);
+        buf.writeByte(isPCM ? 1 : 0);
         buf.writeBytes(assertNonNull(content).duplicate());
     }
 

@@ -82,6 +82,7 @@ public final class ConfigSpec {
     public static final ConfigFile.Value<MonitorRenderer> monitorRenderer;
     public static final ConfigFile.Value<Integer> monitorDistance;
     public static final ConfigFile.Value<Integer> uploadNagDelay;
+    public static final ConfigFile.Value<Boolean> speakersUsePCM;
 
     private static MarkerFilter logFilter = MarkerFilter.createFilter(Logging.COMPUTER_ERROR.getName(), Filter.Result.ACCEPT, Filter.Result.NEUTRAL);
 
@@ -153,6 +154,14 @@ public final class ConfigSpec {
                     """)
                 .worldRestart()
                 .defineList("disabled_generic_methods", List.of(), x -> x instanceof String);
+
+            speakersUsePCM = builder
+                .comment("""
+                    Whether speakers use send 8-bit PCM data over the network, instead of
+                    compressing the audio using 1-bit DFPWM. Using PCM gives better audio quality,
+                    but increases bandwidth requirements eightfold (about 384 kbps per speaker) -
+                    only set this on local worlds or private servers!""")
+                .define("speakers_use_pcm", Config.speakersUsePCM);
         }
 
         {
@@ -398,6 +407,7 @@ public final class ConfigSpec {
         CoreConfig.disableLua51Features = disableLua51Features.get();
         CoreConfig.defaultComputerSettings = defaultComputerSettings.get();
         Config.commandRequireCreative = commandRequireCreative.get();
+        Config.speakersUsePCM = speakersUsePCM.get();
 
         // Update our log filter if needed.
         var logFilter = MarkerFilter.createFilter(

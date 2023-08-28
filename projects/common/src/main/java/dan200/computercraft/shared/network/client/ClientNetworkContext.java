@@ -42,7 +42,7 @@ public interface ClientNetworkContext {
 
     void handleSpeakerAudio(UUID source, SpeakerPosition.Message position, float volume);
 
-    void handleSpeakerAudioPush(UUID source, ByteBuf buffer);
+    void handleSpeakerAudioPush(UUID source, ByteBuf buffer, boolean isPCM);
 
     void handleSpeakerMove(UUID source, SpeakerPosition.Message position);
 

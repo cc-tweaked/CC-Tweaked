@@ -25,13 +25,13 @@ public class SpeakerInstance {
     SpeakerInstance() {
     }
 
-    public synchronized void pushAudio(ByteBuf buffer) {
+    public synchronized void pushAudio(ByteBuf buffer, boolean isPCM) {
         var sound = this.sound;
 
         var stream = currentStream;
         if (stream == null) stream = currentStream = new DfpwmStream();
         var exhausted = stream.isEmpty();
-        stream.push(buffer);
+        stream.push(buffer, isPCM);
 
         // If we've got nothing left in the buffer, enqueue an additional one just in case.
         if (exhausted && sound != null && sound.stream == stream && stream.channel != null && stream.executor != null) {

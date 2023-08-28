@@ -58,43 +58,47 @@ class DfpwmStream implements AudioStream {
     DfpwmStream() {
     }
 
-    void push(ByteBuf input) {
+    void push(ByteBuf input, boolean isPCM) {
         var readable = input.readableBytes();
-        var output = ByteBuffer.allocate(readable * 8).order(ByteOrder.nativeOrder());
+        var output = ByteBuffer.allocate(readable * (isPCM ? 1 : 8)).order(ByteOrder.nativeOrder());
 
         for (var i = 0; i < readable; i++) {
             var inputByte = input.readByte();
-            for (var j = 0; j < 8; j++) {
-                var currentBit = (inputByte & 1) != 0;
-                var target = currentBit ? 127 : -128;
+            if (isPCM) {
+                output.put(inputByte);
+            } else {
+                for (var j = 0; j < 8; j++) {
+                    var currentBit = (inputByte & 1) != 0;
+                    var target = currentBit ? 127 : -128;
 
-                // q' <- q + (s * (t - q) + 128)/256
-                var nextCharge = charge + ((strength * (target - charge) + (1 << (PREC - 1))) >> PREC);
-                if (nextCharge == charge && nextCharge != target) nextCharge += currentBit ? 1 : -1;
+                    // q' <- q + (s * (t - q) + 128)/256
+                    var nextCharge = charge + ((strength * (target - charge) + (1 << (PREC - 1))) >> PREC);
+                    if (nextCharge == charge && nextCharge != target) nextCharge += currentBit ? 1 : -1;
 
-                var z = currentBit == previousBit ? (1 << PREC) - 1 : 0;
+                    var z = currentBit == previousBit ? (1 << PREC) - 1 : 0;
 
-                var nextStrength = strength;
-                if (strength != z) nextStrength += currentBit == previousBit ? 1 : -1;
-                if (nextStrength < 2 << (PREC - 8)) nextStrength = 2 << (PREC - 8);
+                    var nextStrength = strength;
+                    if (strength != z) nextStrength += currentBit == previousBit ? 1 : -1;
+                    if (nextStrength < 2 << (PREC - 8)) nextStrength = 2 << (PREC - 8);
 
-                // Apply antijerk
-                var chargeWithAntijerk = currentBit == previousBit
-                    ? nextCharge
-                    : nextCharge + charge + 1 >> 1;
+                    // Apply antijerk
+                    var chargeWithAntijerk = currentBit == previousBit
+                        ? nextCharge
+                        : nextCharge + charge + 1 >> 1;
 
-                // And low pass filter: outQ <- outQ + ((expectedOutput - outQ) x 140 / 256)
-                lowPassCharge += ((chargeWithAntijerk - lowPassCharge) * LPF_STRENGTH + 0x80) >> 8;
+                    // And low pass filter: outQ <- outQ + ((expectedOutput - outQ) x 140 / 256)
+                    lowPassCharge += ((chargeWithAntijerk - lowPassCharge) * LPF_STRENGTH + 0x80) >> 8;
 
-                charge = nextCharge;
-                strength = nextStrength;
-                previousBit = currentBit;
+                    charge = nextCharge;
+                    strength = nextStrength;
+                    previousBit = currentBit;
 
-                // OpenAL expects signed data ([0, 255]) while we produce unsigned ([-128, 127]). Do some bit twiddling
-                // magic to convert.
-                output.put((byte) ((lowPassCharge & 0xFF) ^ 0x80));
+                    // OpenAL expects signed data ([0, 255]) while we produce unsigned ([-128, 127]). Do some bit twiddling
+                    // magic to convert.
+                    output.put((byte) ((lowPassCharge & 0xFF) ^ 0x80));
 
-                inputByte >>= 1;
+                    inputByte >>= 1;
+                }
             }
         }
 

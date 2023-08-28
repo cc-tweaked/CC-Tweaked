@@ -132,7 +132,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
             // If clients need to receive another batch of audio, send it and then notify computers our internal buffer is
             // free again.
             PlatformHelper.get().sendToAllTracking(
-                new SpeakerAudioClientMessage(getSource(), position, dfpwmState.getVolume(), dfpwmState.pullPending(now)),
+                new SpeakerAudioClientMessage(getSource(), position, dfpwmState.getVolume(), dfpwmState.pullPending(now), Config.speakersUsePCM),
                 level.getChunkAt(BlockPos.containing(pos))
             );
             syncedPosition(position);
