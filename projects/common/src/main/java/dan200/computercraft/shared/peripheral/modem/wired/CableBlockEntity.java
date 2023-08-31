@@ -36,7 +36,7 @@ import java.util.Collections;
 public class CableBlockEntity extends BlockEntity {
     private static final String NBT_PERIPHERAL_ENABLED = "PeripheralAccess";
 
-    private class CableElement extends WiredModemElement {
+    private final class CableElement extends WiredModemElement {
         @Override
         public Level getLevel() {
             return CableBlockEntity.this.getLevel();

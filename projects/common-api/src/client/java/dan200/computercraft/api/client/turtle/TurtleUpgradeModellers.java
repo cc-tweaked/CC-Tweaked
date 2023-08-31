@@ -17,7 +17,7 @@ import org.joml.Matrix4f;
 
 import javax.annotation.Nullable;
 
-class TurtleUpgradeModellers {
+final class TurtleUpgradeModellers {
     private static final Transformation leftTransform = getMatrixFor(-0.4065f);
     private static final Transformation rightTransform = getMatrixFor(0.4065f);
 
@@ -35,7 +35,7 @@ class TurtleUpgradeModellers {
 
     static final TurtleUpgradeModeller<ITurtleUpgrade> UPGRADE_ITEM = new UpgradeItemModeller();
 
-    private static class UpgradeItemModeller implements TurtleUpgradeModeller<ITurtleUpgrade> {
+    private static final class UpgradeItemModeller implements TurtleUpgradeModeller<ITurtleUpgrade> {
         @Override
         public TransformedModel getModel(ITurtleUpgrade upgrade, @Nullable ITurtleAccess turtle, TurtleSide side) {
             return getModel(turtle == null ? upgrade.getCraftingItem() : upgrade.getUpgradeItem(turtle.getUpgradeNBTData(side)), side);

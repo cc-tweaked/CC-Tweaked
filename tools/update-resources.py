@@ -4,7 +4,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-
 """
 Upgrades textures to newer resource pack formats.
 

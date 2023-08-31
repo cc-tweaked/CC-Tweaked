@@ -13,13 +13,13 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * This is useful for emulators, where we'll never make any main thread calls.
  */
-public class NoWorkMainThreadScheduler implements MainThreadScheduler {
+public final class NoWorkMainThreadScheduler implements MainThreadScheduler {
     @Override
     public Executor createExecutor(MetricsObserver observer) {
         return new ExecutorImpl();
     }
 
-    private static class ExecutorImpl implements Executor {
+    private static final class ExecutorImpl implements Executor {
         @Override
         public boolean enqueue(Runnable task) {
             throw new IllegalStateException("Cannot schedule tasks");

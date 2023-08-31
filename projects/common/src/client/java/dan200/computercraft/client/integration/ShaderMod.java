@@ -47,7 +47,7 @@ public class ShaderMod {
         Optional<ShaderMod> get();
     }
 
-    private static class Storage {
+    private static final class Storage {
         static final ShaderMod INSTANCE = ServiceLoader.load(Provider.class)
             .stream()
             .flatMap(x -> x.get().get().stream())

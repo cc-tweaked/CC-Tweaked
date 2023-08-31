@@ -353,7 +353,7 @@ public class NetworkTest {
         }
     }
 
-    private static class NetworkPeripheral implements IPeripheral {
+    private static final class NetworkPeripheral implements IPeripheral {
         @Override
         public String getType() {
             return "test";

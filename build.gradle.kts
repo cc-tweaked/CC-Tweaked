@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.githubRelease)
     id("org.jetbrains.gradle.plugin.idea-ext")
     id("cc-tweaked")
+    id("com.github.ben-manes.versions") version "0.47.0"
 }
 
 val isUnstable = project.properties["isUnstable"] == "true"

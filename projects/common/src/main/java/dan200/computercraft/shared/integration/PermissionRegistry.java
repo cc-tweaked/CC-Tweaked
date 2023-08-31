@@ -69,7 +69,7 @@ public abstract class PermissionRegistry {
             .orElseGet(DefaultPermissionRegistry::new);
     }
 
-    private static class DefaultPermissionRegistry extends PermissionRegistry {
+    private static final class DefaultPermissionRegistry extends PermissionRegistry {
         @Override
         public Predicate<CommandSourceStack> registerCommand(String command, UserLevel fallback) {
             checkNotFrozen();

@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
     private static final String NBT_ITEM = "Item";
 
-    private static class MountInfo {
+    private static final class MountInfo {
         @Nullable
         String mountPath;
     }

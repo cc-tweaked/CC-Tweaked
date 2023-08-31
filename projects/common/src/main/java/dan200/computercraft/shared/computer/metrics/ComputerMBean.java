@@ -141,7 +141,7 @@ public final class ComputerMBean implements DynamicMBean, ComputerMetricsObserve
         }
     }
 
-    private static class Counter {
+    private static final class Counter {
         final AtomicLong value = new AtomicLong();
         final AtomicLong count = new AtomicLong();
     }

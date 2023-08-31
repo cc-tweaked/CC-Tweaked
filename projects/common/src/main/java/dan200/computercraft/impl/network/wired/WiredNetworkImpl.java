@@ -24,7 +24,7 @@ final class WiredNetworkImpl implements WiredNetwork {
         nodes.add(node);
     }
 
-    private WiredNetworkImpl(HashSet<WiredNodeImpl> nodes) {
+    private WiredNetworkImpl(Set<WiredNodeImpl> nodes) {
         this.nodes = nodes;
     }
 
@@ -375,7 +375,7 @@ final class WiredNetworkImpl implements WiredNetwork {
         }
     }
 
-    private static HashSet<WiredNodeImpl> reachableNodes(WiredNodeImpl start) {
+    private static Set<WiredNodeImpl> reachableNodes(WiredNodeImpl start) {
         Queue<WiredNodeImpl> enqueued = new ArrayDeque<>();
         var reachable = new HashSet<WiredNodeImpl>();
 

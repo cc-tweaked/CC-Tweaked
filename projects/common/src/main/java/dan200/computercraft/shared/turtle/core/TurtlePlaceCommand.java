@@ -239,7 +239,7 @@ public class TurtlePlaceCommand implements TurtleCommand {
         world.sendBlockUpdated(tile.getBlockPos(), tile.getBlockState(), tile.getBlockState(), Block.UPDATE_ALL);
     }
 
-    private static class ErrorMessage {
+    private static final class ErrorMessage {
         @Nullable
         String message;
     }

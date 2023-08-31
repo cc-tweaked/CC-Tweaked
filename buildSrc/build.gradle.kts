@@ -52,7 +52,7 @@ dependencies {
     implementation(libs.forgeGradle)
     implementation(libs.librarian)
     implementation(libs.minotaur)
-    implementation(libs.quiltflower)
+    implementation(libs.vineflower)
     implementation(libs.vanillaGradle)
 }
 

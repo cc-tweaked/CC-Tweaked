@@ -49,7 +49,7 @@ public class FabricContainerTransfer implements ContainerTransfer {
      *
      * @param <T> The type of the object to accept.
      */
-    private static class GatePredicate<T> implements Predicate<T> {
+    private static final class GatePredicate<T> implements Predicate<T> {
         private @Nullable T instance = null;
 
         @Override
@@ -67,7 +67,7 @@ public class FabricContainerTransfer implements ContainerTransfer {
         }
     }
 
-    private static class SlottedImpl extends FabricContainerTransfer implements ContainerTransfer.Slotted {
+    private static final class SlottedImpl extends FabricContainerTransfer implements ContainerTransfer.Slotted {
         private final SlottedStorage<ItemVariant> storage;
 
         SlottedImpl(SlottedStorage<ItemVariant> storage) {

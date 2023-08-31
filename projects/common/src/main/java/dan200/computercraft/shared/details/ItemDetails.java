@@ -116,6 +116,7 @@ public class ItemDetails {
      * @param enchants    The enchantment map to add it to.
      * @see EnchantmentHelper
      */
+    @SuppressWarnings("NonApiType")
     private static void addEnchantments(ListTag rawEnchants, ArrayList<Map<String, Object>> enchants) {
         if (rawEnchants.isEmpty()) return;
 

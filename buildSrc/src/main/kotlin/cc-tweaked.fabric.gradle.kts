@@ -12,7 +12,7 @@ import cc.tweaked.gradle.MinecraftConfigurations
 plugins {
     `java-library`
     id("fabric-loom")
-    id("io.github.juuxel.loom-quiltflower")
+    id("io.github.juuxel.loom-vineflower")
     id("cc-tweaked.java-convention")
 }
 

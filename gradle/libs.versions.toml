@@ -12,12 +12,12 @@ fabric-loader = "0.14.21"
 forge = "47.1.0"
 forgeSpi = "6.0.0"
 mixin = "0.8.5"
-parchment = "2023.06.26"
-parchmentMc = "1.19.4"
+parchment = "2023.08.20"
+parchmentMc = "1.20.1"
 
 # Normal dependencies
 asm = "9.3"
-autoService = "1.0.1"
+autoService = "1.1.1"
 checkerFramework = "3.32.0"
 cobalt = "0.7.3"
 cobalt-next = "0.7.4" # Not a real version, used to constrain the version we accept.
@@ -29,7 +29,7 @@ jzlib = "1.1.3"
 kotlin = "1.8.10"
 kotlin-coroutines = "1.6.4"
 netty = "4.1.82.Final"
-nightConfig = "3.6.5"
+nightConfig = "3.6.7"
 slf4j = "1.7.36"
 
 # Minecraft mods
@@ -45,30 +45,30 @@ rubidium = "0.6.1"
 sodium = "mc1.20-0.4.10"
 
 # Testing
-byteBuddy = "1.14.2"
+byteBuddy = "1.14.7"
 hamcrest = "2.2"
-jqwik = "1.7.2"
-junit = "5.9.2"
+jqwik = "1.7.4"
+junit = "5.10.0"
 
 # Build tools
 cctJavadoc = "1.8.0"
-checkstyle = "10.3.4"
+checkstyle = "10.12.3"
 curseForgeGradle = "1.0.14"
-errorProne-core = "2.18.0"
-errorProne-plugin = "3.0.1"
+errorProne-core = "2.21.1"
+errorProne-plugin = "3.1.0"
 fabric-loom = "1.3.7"
 forgeGradle = "6.0.8"
-githubRelease = "2.2.12"
-ideaExt = "1.1.6"
+githubRelease = "2.4.1"
+ideaExt = "1.1.7"
 illuaminate = "0.1.0-40-g975cbc3"
 librarian = "1.+"
 minotaur = "2.+"
 mixinGradle = "0.7.+"
 nullAway = "0.9.9"
-quiltflower = "1.10.0"
-spotless = "6.17.0"
+spotless = "6.21.0"
 taskTree = "2.1.1"
 vanillaGradle = "0.2.1-SNAPSHOT"
+vineflower = "1.11.0"
 
 [libraries]
 # Normal dependencies
@@ -137,9 +137,9 @@ kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.
 librarian = { module = "org.parchmentmc:librarian", version.ref = "librarian" }
 minotaur = { module = "com.modrinth.minotaur:Minotaur", version.ref = "minotaur" }
 nullAway = { module = "com.uber.nullaway:nullaway", version.ref = "nullAway" }
-quiltflower = { module = "io.github.juuxel:loom-quiltflower", version.ref = "quiltflower" }
 spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 vanillaGradle = { module = "org.spongepowered:vanillagradle", version.ref = "vanillaGradle" }
+vineflower = { module = "io.github.juuxel:loom-vineflower", version.ref = "vineflower" }
 
 [plugins]
 forgeGradle = { id = "net.minecraftforge.gradle", version.ref = "forgeGradle" }
