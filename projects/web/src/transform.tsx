@@ -11,7 +11,7 @@
  * Yes, this would be so much nicer with next.js.
  */
 import * as fs from "fs/promises";
-import glob from "glob";
+import { glob } from "glob";
 import * as path from "path";
 import { createElement, createElement as h, Fragment } from 'react';
 import { renderToStaticMarkup } from "react-dom/server";
@@ -22,7 +22,7 @@ import { unified } from 'unified';
 // Our components
 import Recipe from "./components/Recipe.js";
 import { noChildren } from "./components/support.js";
-import { DataExport, WithExport } from "./components/WithExport.js";
+import { type DataExport, WithExport } from "./components/WithExport.js";
 
 (async () => {
     const base = "build/illuaminate";

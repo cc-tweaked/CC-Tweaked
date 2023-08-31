@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-import { render, h, Component, Computer, PeripheralKind } from "copycat/embed";
+import { render, h, Component, Computer, type PeripheralKind } from "copycat/embed";
 import type { ComponentChild } from "preact";
 
 import settingsFile from "./mount/.settings";

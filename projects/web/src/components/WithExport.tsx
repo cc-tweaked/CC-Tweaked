@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-import { createElement as h, useContext, createContext, FunctionComponent, ReactNode } from "react";
+import { createElement as h, useContext, createContext, type FunctionComponent, type ReactNode } from "react";
 
 export type DataExport = {
     readonly itemNames: Record<string, string>,
