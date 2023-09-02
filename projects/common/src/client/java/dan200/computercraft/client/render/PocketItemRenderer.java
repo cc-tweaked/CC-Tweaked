@@ -65,7 +65,7 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
         renderLight(transform, bufferSource, lightColour, width, height);
 
         FixedWidthFontRenderer.drawTerminal(
-            FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(RenderTypes.TERMINAL)),
+            FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(RenderTypes.TERMINAL_FULLTEXT)),
             MARGIN, MARGIN, terminal, MARGIN, MARGIN, MARGIN, MARGIN
         );
 

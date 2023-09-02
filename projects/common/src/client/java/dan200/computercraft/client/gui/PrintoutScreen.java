@@ -8,6 +8,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import dan200.computercraft.core.terminal.TextBuffer;
+import dan200.computercraft.core.terminal.VariableWidthTextBuffer;
 import dan200.computercraft.shared.common.HeldItemMenu;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -27,7 +28,7 @@ import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMA
 public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
     private final boolean book;
     private final int pages;
-    private final TextBuffer[] text;
+    private final VariableWidthTextBuffer[] text;
     private final TextBuffer[] colours;
     private int page;
 
@@ -37,8 +38,8 @@ public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
         imageHeight = Y_SIZE;
 
         var text = PrintoutItem.getText(container.getStack());
-        this.text = new TextBuffer[text.length];
-        for (var i = 0; i < this.text.length; i++) this.text[i] = new TextBuffer(text[i]);
+        this.text = new VariableWidthTextBuffer[text.length];
+        for (var i = 0; i < this.text.length; i++) this.text[i] = new VariableWidthTextBuffer(text[i]);
 
         var colours = PrintoutItem.getColours(container.getStack());
         this.colours = new TextBuffer[colours.length];

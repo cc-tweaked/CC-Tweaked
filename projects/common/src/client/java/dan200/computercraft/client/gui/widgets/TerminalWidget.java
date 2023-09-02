@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.util.StringUtil;
 import dan200.computercraft.shared.computer.core.InputHandler;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
@@ -69,11 +70,30 @@ public class TerminalWidget extends AbstractWidget {
         innerHeight = terminal.getHeight() * FONT_HEIGHT;
     }
 
+
+    private char lastSurrogate = 0;
+
     @Override
     public boolean charTyped(char ch, int modifiers) {
-        if (ch >= 32 && ch <= 126 || ch >= 160 && ch <= 255) {
+        if (ch >= 32 && ch <= 126 || ch >= 160) {
             // Queue the char event for any printable chars in byte range
-            computer.queueEvent("char", new Object[]{ Character.toString(ch) });
+            if(lastSurrogate != 0){
+                var high = lastSurrogate;
+                lastSurrogate = 0;
+                if(Character.isSurrogatePair(high, ch)){
+                    var s = Character.toString(Character.toCodePoint(high, ch));
+                    computer.queueEvent("char", new Object[]{ s, StringUtil.utfToByteString(s) });
+                    return true;
+                }
+                var s = Character.toString(high);
+                computer.queueEvent("char", new Object[]{ s, StringUtil.utfToByteString(s) });
+            }
+            if(Character.isHighSurrogate(ch)){
+                lastSurrogate = ch;
+                return true;
+            }
+            var s = Character.toString(ch);
+            computer.queueEvent("char", new Object[]{ s, StringUtil.utfToByteString(s) });
         }
 
         return true;
@@ -130,7 +150,7 @@ public class TerminalWidget extends AbstractWidget {
         if (!clipboard.isEmpty()) {
             // Clip to 512 characters and queue the event
             if (clipboard.length() > 512) clipboard = clipboard.substring(0, 512);
-            computer.queueEvent("paste", new Object[]{ clipboard });
+            computer.queueEvent("paste", new Object[]{ clipboard, StringUtil.utfToByteString(clipboard) });
         }
     }
 
@@ -162,6 +182,7 @@ public class TerminalWidget extends AbstractWidget {
         var charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
         charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
         charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
+        charX = terminal.getLine(charY).getIndexFromWidth(charX) + 1;
 
         computer.mouseClick(button + 1, charX + 1, charY + 1);
 
@@ -181,6 +202,7 @@ public class TerminalWidget extends AbstractWidget {
         var charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
         charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
         charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
+        charX = terminal.getLine(charY).getIndexFromWidth(charX) + 1;
 
         if (lastMouseButton == button) {
             computer.mouseUp(lastMouseButton + 1, charX + 1, charY + 1);
@@ -202,6 +224,7 @@ public class TerminalWidget extends AbstractWidget {
         var charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
         charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
         charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
+        charX = terminal.getLine(charY).getIndexFromWidth(charX) + 1;
 
         if (button == lastMouseButton && (charX != lastMouseX || charY != lastMouseY)) {
             computer.mouseDrag(button + 1, charX + 1, charY + 1);
@@ -221,6 +244,7 @@ public class TerminalWidget extends AbstractWidget {
         var charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
         charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
         charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
+        charX = terminal.getLine(charY).getIndexFromWidth(charX) + 1;
 
         computer.mouseScroll(delta < 0 ? 1 : -1, charX + 1, charY + 1);
 
@@ -278,7 +302,7 @@ public class TerminalWidget extends AbstractWidget {
         if (!visible) return;
 
         var bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        var emitter = FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(RenderTypes.TERMINAL));
+        var emitter = FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(RenderTypes.TERMINAL_FULLTEXT));
 
         FixedWidthFontRenderer.drawTerminal(
             emitter,

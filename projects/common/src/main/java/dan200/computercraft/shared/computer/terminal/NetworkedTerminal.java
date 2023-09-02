@@ -30,7 +30,7 @@ public class NetworkedTerminal extends Terminal {
             var textColour = this.textColour[y];
             var backColour = backgroundColour[y];
 
-            for (var x = 0; x < width; x++) buffer.writeByte(text.charAt(x) & 0xFF);
+            for (var x = 0; x < width; x++) buffer.writeVarInt(text.codepointAt(x));
             for (var x = 0; x < width; x++) {
                 buffer.writeByte(getColour(
                     backColour.charAt(x), Colour.BLACK) << 4 |
@@ -58,7 +58,7 @@ public class NetworkedTerminal extends Terminal {
             var textColour = this.textColour[y];
             var backColour = backgroundColour[y];
 
-            for (var x = 0; x < width; x++) text.setChar(x, (char) (buffer.readByte() & 0xFF));
+            for (var x = 0; x < width; x++) text.setChar(x, buffer.readVarInt());
             for (var x = 0; x < width; x++) {
                 var colour = buffer.readByte();
                 backColour.setChar(x, BASE_16.charAt((colour >> 4) & 0xF));

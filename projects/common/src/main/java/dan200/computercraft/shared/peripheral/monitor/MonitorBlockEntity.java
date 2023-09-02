@@ -467,8 +467,9 @@ public class MonitorBlockEntity extends BlockEntity {
         var xCharWidth = (width - (RENDER_BORDER + RENDER_MARGIN) * 2.0) / originTerminal.getWidth();
         var yCharHeight = (height - (RENDER_BORDER + RENDER_MARGIN) * 2.0) / originTerminal.getHeight();
 
-        var xCharPos = (int) Math.min(originTerminal.getWidth(), Math.max((pair.x() - RENDER_BORDER - RENDER_MARGIN) / xCharWidth + 1.0, 1.0));
+        var x1 = (int) Math.min(originTerminal.getWidth(), Math.max((pair.x() - RENDER_BORDER - RENDER_MARGIN) / xCharWidth + 1.0, 1.0));
         var yCharPos = (int) Math.min(originTerminal.getHeight(), Math.max((pair.y() - RENDER_BORDER - RENDER_MARGIN) / yCharHeight + 1.0, 1.0));
+        var xCharPos = originTerminal.getLine(yCharPos - 1).getIndexFromWidth(x1 - 1) + 2;
 
         eachComputer(c -> c.queueEvent("monitor_touch", c.getAttachmentName(), xCharPos, yCharPos));
     }

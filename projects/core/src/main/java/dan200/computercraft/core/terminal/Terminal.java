@@ -22,7 +22,7 @@ public class Terminal {
     protected int cursorColour = 0;
     protected int cursorBackgroundColour = 15;
 
-    protected TextBuffer[] text;
+    protected VariableWidthTextBuffer[] text;
     protected TextBuffer[] textColour;
     protected TextBuffer[] backgroundColour;
 
@@ -41,11 +41,11 @@ public class Terminal {
         palette = new Palette(colour);
         onChanged = changedCallback;
 
-        text = new TextBuffer[height];
+        text = new VariableWidthTextBuffer[height];
         textColour = new TextBuffer[height];
         backgroundColour = new TextBuffer[height];
         for (var i = 0; i < this.height; i++) {
-            text[i] = new TextBuffer(' ', this.width);
+            text[i] = new VariableWidthTextBuffer(' ', this.width);
             textColour[i] = new TextBuffer(BASE_16.charAt(cursorColour), this.width);
             backgroundColour[i] = new TextBuffer(BASE_16.charAt(cursorBackgroundColour), this.width);
         }
@@ -88,12 +88,12 @@ public class Terminal {
         this.width = width;
         this.height = height;
 
-        text = new TextBuffer[height];
+        text = new VariableWidthTextBuffer[height];
         textColour = new TextBuffer[height];
         backgroundColour = new TextBuffer[height];
         for (var i = 0; i < this.height; i++) {
             if (i >= oldHeight) {
-                text[i] = new TextBuffer(' ', this.width);
+                text[i] = new VariableWidthTextBuffer(' ', this.width);
                 textColour[i] = new TextBuffer(BASE_16.charAt(cursorColour), this.width);
                 backgroundColour[i] = new TextBuffer(BASE_16.charAt(cursorBackgroundColour), this.width);
             } else if (this.width == oldWidth) {
@@ -101,7 +101,7 @@ public class Terminal {
                 textColour[i] = oldTextColour[i];
                 backgroundColour[i] = oldBackgroundColour[i];
             } else {
-                text[i] = new TextBuffer(' ', this.width);
+                text[i] = new VariableWidthTextBuffer(' ', this.width);
                 textColour[i] = new TextBuffer(BASE_16.charAt(cursorColour), this.width);
                 backgroundColour[i] = new TextBuffer(BASE_16.charAt(cursorBackgroundColour), this.width);
                 text[i].write(oldText[i]);
@@ -176,6 +176,17 @@ public class Terminal {
         }
     }
 
+    public synchronized void blit(String text, ByteBuffer textColour, ByteBuffer backgroundColour) {
+        var x = cursorX;
+        var y = cursorY;
+        if (y >= 0 && y < height) {
+            this.text[y].write(text, x);
+            this.textColour[y].write(textColour, x);
+            this.backgroundColour[y].write(backgroundColour, x);
+            setChanged();
+        }
+    }
+
     public synchronized void write(String text) {
         var x = cursorX;
         var y = cursorY;
@@ -189,7 +200,7 @@ public class Terminal {
 
     public synchronized void scroll(int yDiff) {
         if (yDiff != 0) {
-            var newText = new TextBuffer[height];
+            var newText = new VariableWidthTextBuffer[height];
             var newTextColour = new TextBuffer[height];
             var newBackgroundColour = new TextBuffer[height];
             for (var y = 0; y < height; y++) {
@@ -199,7 +210,7 @@ public class Terminal {
                     newTextColour[y] = textColour[oldY];
                     newBackgroundColour[y] = backgroundColour[oldY];
                 } else {
-                    newText[y] = new TextBuffer(' ', width);
+                    newText[y] = new VariableWidthTextBuffer(' ', width);
                     newTextColour[y] = new TextBuffer(BASE_16.charAt(cursorColour), width);
                     newBackgroundColour[y] = new TextBuffer(BASE_16.charAt(cursorBackgroundColour), width);
                 }
@@ -230,7 +241,7 @@ public class Terminal {
         }
     }
 
-    public synchronized TextBuffer getLine(int y) {
+    public synchronized VariableWidthTextBuffer getLine(int y) {
         return text[y];
     }
 

@@ -10,8 +10,10 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.util.StringUtil;
 
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 /**
  * A base class for all objects which interact with a terminal. Namely the {@link TermAPI} and monitors.
@@ -36,8 +38,15 @@ public abstract class TermMethods {
      * @throws LuaException (hidden) If the terminal cannot be found.
      */
     @LuaFunction
-    public final void write(Coerced<String> textA) throws LuaException {
-        var text = textA.value();
+    public final void write(IArguments textA) throws LuaException {
+        String text;
+        if(textA.get(0) instanceof Map utfString && utfString.containsKey("bytestring")){
+            text = utfString.get("bytestring").toString();
+            text = StringUtil.byteStringToUtf8(text);
+        }
+        else{
+            text = textA.getStringCoerced(0);
+        }
         var terminal = getTerminal();
         synchronized (terminal) {
             terminal.write(text);
@@ -251,15 +260,26 @@ public abstract class TermMethods {
      * }</pre>
      */
     @LuaFunction
-    public final void blit(ByteBuffer text, ByteBuffer textColour, ByteBuffer backgroundColour) throws LuaException {
-        if (textColour.remaining() != text.remaining() || backgroundColour.remaining() != text.remaining()) {
+    public final void blit(IArguments args) throws LuaException {
+        String text;
+        if(args.get(0) instanceof Map utfString && utfString.containsKey("bytestring")){
+            text = utfString.get("bytestring").toString();
+            text = StringUtil.byteStringToUtf8(text);
+        }
+        else{
+            text = args.getString(0);
+        }
+        var textLen = text.codePointCount(0, text.length());
+        ByteBuffer textColour = args.getBytes(1);
+        ByteBuffer backgroundColour = args.getBytes(2);
+        if (textColour.remaining() != textLen || backgroundColour.remaining() != textLen) {
             throw new LuaException("Arguments must be the same length");
         }
 
         var terminal = getTerminal();
         synchronized (terminal) {
             terminal.blit(text, textColour, backgroundColour);
-            terminal.setCursorPos(terminal.getCursorX() + text.remaining(), terminal.getCursorY());
+            terminal.setCursorPos(terminal.getCursorX() + textLen, terminal.getCursorY());
         }
     }
 

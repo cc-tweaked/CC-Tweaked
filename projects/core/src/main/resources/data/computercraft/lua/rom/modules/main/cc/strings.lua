@@ -29,7 +29,9 @@ the terminal.
     end
 ]]
 local function wrap(text, width)
-    expect(1, text, "string")
+    if not utflib.isUTFString(text) then
+        expect(1, text, "string")
+    end
     expect(2, width, "number", "nil")
     width = width or term.getSize()
 
@@ -42,18 +44,17 @@ local function wrap(text, width)
     end
 
     local pos, length = 1, #text
-    local sub, match = string.sub, string.match
     while pos <= length do
-        local head = sub(text, pos, pos)
+        local head = text:sub(pos, pos)
         if head == " " or head == "\t" then
-            local whitespace = match(text, "^[ \t]+", pos)
+            local whitespace = text:match("^[ \t]+", pos)
             current_line = current_line .. whitespace
             pos = pos + #whitespace
         elseif head == "\n" then
             push_line()
             pos = pos + 1
         else
-            local word = match(text, "^[^ \t\n]+", pos)
+            local word = text:match("^[^ \t\n]+", pos)
             pos = pos + #word
             if #word > width then
                 -- Print a multiline word
@@ -64,8 +65,8 @@ local function wrap(text, width)
                         space_remaining = width
                     end
 
-                    current_line = current_line .. sub(word, 1, space_remaining)
-                    word = sub(word, space_remaining + 1)
+                    current_line = current_line .. word:sub(1, space_remaining)
+                    word = word:sub(space_remaining + 1)
                 end
             else
                 -- Print a word normally
@@ -97,7 +98,9 @@ end
 -- @usage require "cc.strings".ensure_width("a short string", 20)
 -- @usage require "cc.strings".ensure_width("a rather long string which is truncated", 20)
 local function ensure_width(line, width)
-    expect(1, line, "string")
+    if not isUTFString(line) then
+        expect(1, line, "string")
+    end
     expect(2, width, "number", "nil")
     width = width or term.getSize()
 

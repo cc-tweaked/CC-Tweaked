@@ -10,7 +10,9 @@ import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
+import dan200.computercraft.core.terminal.VariableWidthTextBuffer;
 import dan200.computercraft.core.util.Colour;
+import dan200.computercraft.core.util.StringUtil;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -60,23 +62,32 @@ public final class FixedWidthFontRenderer {
     }
 
     private static void drawChar(QuadEmitter emitter, float x, float y, int index, byte[] colour, int light) {
+        drawChar(emitter, x, y, index, colour, StringUtil.getCodepointWidth(index), light);
+    }
+
+    private static void drawChar(QuadEmitter emitter, float x, float y, int index, byte[] colour, int width, int light) {
         // Short circuit to avoid the common case - the texture should be blank here after all.
         if (index == '\0' || index == ' ') return;
 
-        var column = index % 16;
-        var row = index / 16;
-
-        var xStart = 1 + column * (FONT_WIDTH + 2);
-        var yStart = 1 + row * (FONT_HEIGHT + 2);
-
-        quad(
-            emitter, x, y, x + FONT_WIDTH, y + FONT_HEIGHT, 0, colour,
-            xStart / WIDTH, yStart / WIDTH, (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH, light
-        );
+        var glyphUv = TerminalFont.getInstance().getGlyphUv(index);
+        if(width == 2){
+            var w1 = FONT_WIDTH * 2 - FONT_HEIGHT;
+            var ox = Math.floorDiv(w1, 2);
+            quad(
+                emitter, x + ox, y, x + FONT_WIDTH * 2 - w1 + ox, y + FONT_HEIGHT, 0, colour,
+                glyphUv.x(), glyphUv.y(), glyphUv.z(), glyphUv.w(), light
+            );
+        } else {
+            quad(
+                emitter, x, y, x + FONT_WIDTH, y + FONT_HEIGHT, 0, colour,
+                glyphUv.x(), glyphUv.y(), glyphUv.z(), glyphUv.w(), light
+            );
+        }
     }
 
     public static void drawQuad(QuadEmitter emitter, float x, float y, float z, float width, float height, byte[] colour, int light) {
-        quad(emitter, x, y, x + width, y + height, z, colour, BACKGROUND_START, BACKGROUND_START, BACKGROUND_END, BACKGROUND_END, light);
+        var glyphUv = TerminalFont.getInstance().getWhiteGlyphUv();
+        quad(emitter, x, y, x + width, y + height, z, colour, glyphUv.x(), glyphUv.y(), glyphUv.z(), glyphUv.w(), light);
     }
 
     private static void drawQuad(QuadEmitter emitter, float x, float y, float width, float height, Palette palette, char colourIndex, int light) {
@@ -85,44 +96,47 @@ public final class FixedWidthFontRenderer {
     }
 
     private static void drawBackground(
-        QuadEmitter emitter, float x, float y, TextBuffer backgroundColour, Palette palette,
+        QuadEmitter emitter, float x, float y, TextBuffer backgroundColour, VariableWidthTextBuffer text, Palette palette,
         float leftMarginSize, float rightMarginSize, float height, int light
     ) {
         if (leftMarginSize > 0) {
             drawQuad(emitter, x - leftMarginSize, y, leftMarginSize, height, palette, backgroundColour.charAt(0), light);
         }
 
+        var i1 = text.getIndexFromWidth(backgroundColour.length());
+        var w = text.getCumulativeWidth(i1);
         if (rightMarginSize > 0) {
-            drawQuad(emitter, x + backgroundColour.length() * FONT_WIDTH, y, rightMarginSize, height, palette, backgroundColour.charAt(backgroundColour.length() - 1), light);
+            drawQuad(emitter, x + w * FONT_WIDTH, y, rightMarginSize + (backgroundColour.length() - w) * FONT_WIDTH, height, palette, backgroundColour.charAt(i1), light);
         }
 
         // Batch together runs of identical background cells.
         var blockStart = 0;
         var blockColour = '\0';
         for (var i = 0; i < backgroundColour.length(); i++) {
+            if(text.getCumulativeWidth(i) > backgroundColour.length()) break;
             var colourIndex = backgroundColour.charAt(i);
             if (colourIndex == blockColour) continue;
 
             if (blockColour != '\0') {
-                drawQuad(emitter, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (i - blockStart), height, palette, blockColour, light);
+                drawQuad(emitter, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (text.getCumulativeWidth(i - 1) - blockStart), height, palette, blockColour, light);
             }
 
             blockColour = colourIndex;
-            blockStart = i;
+            blockStart = text.getCumulativeWidth(i - 1);
         }
 
         if (blockColour != '\0') {
-            drawQuad(emitter, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (backgroundColour.length() - blockStart), height, palette, blockColour, light);
+            drawQuad(emitter, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (w - blockStart), height, palette, blockColour, light);
         }
     }
 
-    public static void drawString(QuadEmitter emitter, float x, float y, TextBuffer text, TextBuffer textColour, Palette palette, int light) {
+    public static void drawString(QuadEmitter emitter, float x, float y, VariableWidthTextBuffer text, TextBuffer textColour, Palette palette, int light) {
         for (var i = 0; i < text.length(); i++) {
+            if(text.getCumulativeWidth(i) > text.length()) break;
             var colour = palette.getRenderColours(getColour(textColour.charAt(i), Colour.BLACK));
 
-            int index = text.charAt(i);
-            if (index > 255) index = '?';
-            drawChar(emitter, x + i * FONT_WIDTH, y, index, colour, light);
+            int index = text.codepointAt(i);
+            drawChar(emitter, x + text.getCumulativeWidth(i - 1) * FONT_WIDTH, y, index, colour, light);
         }
 
     }
@@ -150,12 +164,12 @@ public final class FixedWidthFontRenderer {
 
         // Top and bottom margins
         drawBackground(
-            emitter, x, y - topMarginSize, terminal.getBackgroundColourLine(0), palette,
+            emitter, x, y - topMarginSize, terminal.getBackgroundColourLine(0), terminal.getLine(0), palette,
             leftMarginSize, rightMarginSize, topMarginSize, FULL_BRIGHT_LIGHTMAP
         );
 
         drawBackground(
-            emitter, x, y + height * FONT_HEIGHT, terminal.getBackgroundColourLine(height - 1), palette,
+            emitter, x, y + height * FONT_HEIGHT, terminal.getBackgroundColourLine(height - 1), terminal.getLine(height - 1), palette,
             leftMarginSize, rightMarginSize, bottomMarginSize, FULL_BRIGHT_LIGHTMAP
         );
 
@@ -163,7 +177,7 @@ public final class FixedWidthFontRenderer {
         for (var i = 0; i < height; i++) {
             var rowY = y + FONT_HEIGHT * i;
             drawBackground(
-                emitter, x, rowY, terminal.getBackgroundColourLine(i), palette,
+                emitter, x, rowY, terminal.getBackgroundColourLine(i), terminal.getLine(i), palette,
                 leftMarginSize, rightMarginSize, FONT_HEIGHT, FULL_BRIGHT_LIGHTMAP
             );
         }
@@ -174,13 +188,23 @@ public final class FixedWidthFontRenderer {
 
         var cursorX = terminal.getCursorX();
         var cursorY = terminal.getCursorY();
-        return cursorX >= 0 && cursorX < terminal.getWidth() && cursorY >= 0 && cursorY < terminal.getHeight();
+        if(cursorY >= 0 && cursorY < terminal.getHeight()){
+            return cursorX >= 0 && terminal.getLine(cursorY).getCumulativeWidth(cursorX) <= terminal.getWidth();
+        }
+        return false;
     }
 
     public static void drawCursor(QuadEmitter emitter, float x, float y, Terminal terminal) {
         if (isCursorVisible(terminal) && FrameInfo.getGlobalCursorBlink()) {
             var colour = terminal.getPalette().getRenderColours(15 - terminal.getTextColour());
-            drawChar(emitter, x + terminal.getCursorX() * FONT_WIDTH, y + terminal.getCursorY() * FONT_HEIGHT, '_', colour, FULL_BRIGHT_LIGHTMAP);
+            var line = terminal.getLine(terminal.getCursorY());
+            var charOffset = line.getCumulativeWidth(terminal.getCursorX() - 1);
+            if(line.getCumulativeWidth(terminal.getCursorX()) - charOffset > 1){
+                drawChar(emitter, x + charOffset * FONT_WIDTH, y + terminal.getCursorY() * FONT_HEIGHT, '_', colour, 2, FULL_BRIGHT_LIGHTMAP);
+            }
+            else{
+                drawChar(emitter, x + charOffset * FONT_WIDTH, y + terminal.getCursorY() * FONT_HEIGHT, '_', colour, FULL_BRIGHT_LIGHTMAP);
+            }
         }
     }
 
@@ -188,6 +212,9 @@ public final class FixedWidthFontRenderer {
         QuadEmitter emitter, float x, float y, Terminal terminal,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     ) {
+        for (int i = 0; i < terminal.getHeight(); i++) {
+            TerminalFont.getInstance().preloadCharacterFont(terminal.getLine(i));
+        }
         drawTerminalBackground(
             emitter, x, y, terminal,
             topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize

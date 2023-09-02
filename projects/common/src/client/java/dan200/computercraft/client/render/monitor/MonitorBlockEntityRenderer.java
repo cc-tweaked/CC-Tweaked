@@ -17,6 +17,7 @@ import dan200.computercraft.client.integration.ShaderMod;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
+import dan200.computercraft.client.render.text.TerminalFont;
 import dan200.computercraft.client.render.vbo.DirectBuffers;
 import dan200.computercraft.client.render.vbo.DirectVertexBuffer;
 import dan200.computercraft.core.terminal.Terminal;
@@ -124,7 +125,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
             transform.popPose();
         } else {
             FixedWidthFontRenderer.drawEmptyTerminal(
-                FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(RenderTypes.TERMINAL)),
+                FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(RenderTypes.TERMINAL_FULLTEXT)),
                 -MARGIN, MARGIN,
                 (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
             );
@@ -140,7 +141,8 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
         int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
 
         var renderType = currentRenderer();
-        var redraw = monitor.pollTerminalChanged();
+        var redraw = monitor.pollTerminalChanged()
+            || renderState.lastFontTextureSize != TerminalFont.getInstance().getTextureSize(); // need to recalculate uv coordinate
         if (renderState.createBuffer(renderType)) redraw = true;
 
         switch (renderType) {
@@ -176,6 +178,9 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
                 var backgroundBuffer = assertNonNull(renderState.backgroundBuffer);
                 var foregroundBuffer = assertNonNull(renderState.foregroundBuffer);
                 if (redraw) {
+                    for (int i = 0; i < terminal.getHeight(); i++) {
+                        TerminalFont.getInstance().preloadCharacterFont(terminal.getLine(i));
+                    }
                     var size = DirectFixedWidthFontRenderer.getVertexCount(terminal);
 
                     // In an ideal world we could upload these both into one buffer. However, we can't render VBOs with
@@ -198,7 +203,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
                 var oldInverseRotation = RenderSystem.getInverseViewRotationMatrix();
                 RenderSystem.setInverseViewRotationMatrix(IDENTITY_NORMAL);
 
-                RenderTypes.TERMINAL.setupRenderState();
+                RenderTypes.TERMINAL_FULLTEXT.setupRenderState();
 
                 // Render background geometry
                 backgroundBuffer.bind();
@@ -220,13 +225,14 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
                 // Clear state
                 RenderSystem.polygonOffset(0.0f, -0.0f);
                 RenderSystem.disablePolygonOffset();
-                RenderTypes.TERMINAL.clearRenderState();
+                RenderTypes.TERMINAL_FULLTEXT.clearRenderState();
                 VertexBuffer.unbind();
 
                 RenderSystem.setInverseViewRotationMatrix(oldInverseRotation);
             }
             case BEST -> throw new IllegalStateException("Impossible: Should never use BEST renderer");
         }
+        renderState.lastFontTextureSize = TerminalFont.getInstance().getTextureSize();
     }
 
     private static void renderToBuffer(DirectVertexBuffer vbo, int size, Consumer<DirectFixedWidthFontRenderer.QuadEmitter> draw) {
@@ -235,7 +241,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
 
         draw.accept(sink);
         buffer.flip();
-        vbo.upload(buffer.limit() / sink.format().getVertexSize(), RenderTypes.TERMINAL.mode(), sink.format(), buffer);
+        vbo.upload(buffer.limit() / sink.format().getVertexSize(), RenderTypes.TERMINAL_FULLTEXT.mode(), sink.format(), buffer);
     }
 
     private static void tboVertex(VertexConsumer builder, Matrix4f matrix, float x, float y) {

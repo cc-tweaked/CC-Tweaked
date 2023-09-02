@@ -53,6 +53,8 @@ else
     errorColour = colours.white
 end
 
+local unicodeMode = settings.get("edit.unicode")
+
 local runHandler = [[multishell.setTitle(multishell.getCurrent(), %q)
 local current = term.current()
 local contents, name = %q, %q
@@ -136,7 +138,8 @@ local function load(_sPath)
         local file = io.open(_sPath, "r")
         local sLine = file:read()
         while sLine do
-            table.insert(tLines, sLine)
+            if unicodeMode then table.insert(tLines, utflib.UTFString(sLine))
+            else table.insert(tLines, sLine) end
             sLine = file:read()
         end
         file:close()
@@ -199,7 +202,7 @@ local tKeywords = {
 }
 
 local function tryWrite(sLine, regex, colour)
-    local match = string.match(sLine, regex)
+    local match = sLine:match(regex)
     if match then
         if type(colour) == "number" then
             term.setTextColour(colour)
@@ -208,7 +211,7 @@ local function tryWrite(sLine, regex, colour)
         end
         term.write(match)
         term.setTextColour(textColour)
-        return string.sub(sLine, #match + 1)
+        return sLine:sub(#match + 1)
     end
     return nil
 end
@@ -239,12 +242,12 @@ local nCompletion
 local tCompleteEnv = _ENV
 local function complete(sLine)
     if settings.get("edit.autocomplete") then
-        local nStartPos = string.find(sLine, "[a-zA-Z0-9_%.:]+$")
+        local nStartPos = sLine:find("[a-zA-Z0-9_%.:]+$")
         if nStartPos then
-            sLine = string.sub(sLine, nStartPos)
+            sLine = sLine:sub(nStartPos)
         end
         if #sLine > 0 then
-            return textutils.complete(sLine, tCompleteEnv)
+            return textutils.complete(tostring(sLine), tCompleteEnv)
         end
     end
     return nil
@@ -353,7 +356,7 @@ local tMenuFuncs = {
         else
             local ok, _, fileerr  = save(sPath, function(file)
                 for _, sLine in ipairs(tLines) do
-                    file.write(sLine .. "\n")
+                    file.write(tostring(sLine) .. "\n")
                 end
             end)
             if ok then
@@ -462,7 +465,15 @@ local tMenuFuncs = {
             return
         end
         local ok = save(sTempPath, function(file)
-            file.write(runHandler:format(sTitle, table.concat(tLines, "\n"), "@/" .. sPath))
+            tmpLines = {}
+            if unicodeMode then
+                for _, sLine in ipairs(tLines) do
+                    table.insert(tmpLines, tostring(sLine))
+                end
+            else
+                tmpLines = tLines
+            end
+            file.write(runHandler:format(sTitle, table.concat(tmpLines, "\n"), "@/" .. sPath))
         end)
         if ok then
             local nTask = shell.openTab("/" .. sTempPath)
@@ -604,7 +615,7 @@ while bRunning do
                 else
                     -- Indent line
                     local sLine = tLines[y]
-                    tLines[y] = string.sub(sLine, 1, x - 1) .. "    " .. string.sub(sLine, x)
+                    tLines[y] = sLine:sub(1, x - 1) .. "    " .. sLine:sub(x)
                     setCursor(x + 4, y)
                 end
             end
@@ -705,7 +716,7 @@ while bRunning do
                 local nLimit = #tLines[y] + 1
                 if x < nLimit then
                     local sLine = tLines[y]
-                    tLines[y] = string.sub(sLine, 1, x - 1) .. string.sub(sLine, x + 1)
+                    tLines[y] = sLine:sub(1, x - 1) .. sLine:sub(x + 1)
                     recomplete()
                     redrawLine(y)
                 elseif y < #tLines then
@@ -722,11 +733,11 @@ while bRunning do
                 if x > 1 then
                     -- Remove character
                     local sLine = tLines[y]
-                    if x > 4 and string.sub(sLine, x - 4, x - 1) == "    " and not string.sub(sLine, 1, x - 1):find("%S") then
-                        tLines[y] = string.sub(sLine, 1, x - 5) .. string.sub(sLine, x)
+                    if x > 4 and sLine:sub(x - 4, x - 1) == "    " and not sLine:sub(1, x - 1):find("%S") then
+                        tLines[y] = sLine:sub(1, x - 5) .. sLine:sub(x)
                         setCursor(x - 4, y)
                     else
-                        tLines[y] = string.sub(sLine, 1, x - 2) .. string.sub(sLine, x)
+                        tLines[y] = sLine:sub(1, x - 2) .. sLine:sub(x)
                         setCursor(x - 1, y)
                     end
                 elseif y > 1 then
@@ -744,12 +755,12 @@ while bRunning do
             if not bMenu and not bReadOnly then
                 -- Newline
                 local sLine = tLines[y]
-                local _, spaces = string.find(sLine, "^[ ]+")
+                local _, spaces = sLine:find("^[ ]+")
                 if not spaces then
                     spaces = 0
                 end
-                tLines[y] = string.sub(sLine, 1, x - 1)
-                table.insert(tLines, y + 1, string.rep(' ', spaces) .. string.sub(sLine, x))
+                tLines[y] = sLine:sub(1, x - 1)
+                table.insert(tLines, y + 1, string.rep(' ', spaces) .. sLine:sub(x))
                 setCursor(spaces + 1, y + 1)
                 redrawText()
 
@@ -780,7 +791,11 @@ while bRunning do
         if not bMenu and not bReadOnly then
             -- Input text
             local sLine = tLines[y]
-            tLines[y] = string.sub(sLine, 1, x - 1) .. param .. string.sub(sLine, x)
+            if unicodeMode then
+                tLines[y] = sLine:sub(1, x - 1) .. utflib.UTFString(param2) .. sLine:sub(x)
+            else
+                tLines[y] = sLine:sub(1, x - 1) .. param .. sLine:sub(x)
+            end
             setCursor(x + 1, y)
 
         elseif bMenu then
@@ -803,8 +818,9 @@ while bRunning do
             end
             -- Input text
             local sLine = tLines[y]
-            tLines[y] = string.sub(sLine, 1, x - 1) .. param .. string.sub(sLine, x)
-            setCursor(x + #param , y)
+            local copiedText = unicodeMode and utflib.UTFString(param2) or param
+            tLines[y] = sLine:sub(1, x - 1) .. copiedText .. sLine:sub(x)
+            setCursor(x + #copiedText , y)
         end
 
     elseif sEvent == "mouse_click" then

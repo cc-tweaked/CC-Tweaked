@@ -192,12 +192,12 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                     if nStart < 1 then
                         local nClipStart = 1 - nStart + 1
                         local nClipEnd = nWidth - nStart + 1
-                        sClippedText = string_sub(sText, nClipStart, nClipEnd)
+                        sClippedText = sText:sub(nClipStart, nClipEnd)
                         sClippedTextColor = string_sub(sTextColor, nClipStart, nClipEnd)
                         sClippedBackgroundColor = string_sub(sBackgroundColor, nClipStart, nClipEnd)
                     elseif nEnd > nWidth then
                         local nClipEnd = nWidth - nStart + 1
-                        sClippedText = string_sub(sText, 1, nClipEnd)
+                        sClippedText = sText:sub(1, nClipEnd)
                         sClippedTextColor = string_sub(sTextColor, 1, nClipEnd)
                         sClippedBackgroundColor = string_sub(sBackgroundColor, 1, nClipEnd)
                     else
@@ -212,7 +212,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                     local sNewText, sNewTextColor, sNewBackgroundColor
                     if nStart > 1 then
                         local nOldEnd = nStart - 1
-                        sNewText = string_sub(sOldText, 1, nOldEnd) .. sClippedText
+                        sNewText = sOldText:sub(1, nOldEnd) .. sClippedText
                         sNewTextColor = string_sub(sOldTextColor, 1, nOldEnd) .. sClippedTextColor
                         sNewBackgroundColor = string_sub(sOldBackgroundColor, 1, nOldEnd) .. sClippedBackgroundColor
                     else
@@ -222,7 +222,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                     end
                     if nEnd < nWidth then
                         local nOldStart = nEnd + 1
-                        sNewText = sNewText .. string_sub(sOldText, nOldStart, nWidth)
+                        sNewText = sNewText .. sOldText:sub(nOldStart, nWidth)
                         sNewTextColor = sNewTextColor .. string_sub(sOldTextColor, nOldStart, nWidth)
                         sNewBackgroundColor = sNewBackgroundColor .. string_sub(sOldBackgroundColor, nOldStart, nWidth)
                     end
@@ -255,12 +255,12 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     local window = {}
 
     function window.write(sText)
-        sText = tostring(sText)
+        if not utflib.isUTFString(sText) then sText = tostring(sText) end
         internalBlit(sText, string_rep(tHex[nTextColor], #sText), string_rep(tHex[nBackgroundColor], #sText))
     end
 
     function window.blit(sText, sTextColor, sBackgroundColor)
-        if type(sText) ~= "string" then expect(1, sText, "string") end
+        if not utflib.isUTFString(sText) and type(sText) ~= "string" then expect(1, sText, "string", "UTFString") end
         if type(sTextColor) ~= "string" then expect(2, sTextColor, "string") end
         if type(sBackgroundColor) ~= "string" then expect(3, sBackgroundColor, "string") end
         if #sTextColor ~= #sText or #sBackgroundColor ~= #sText then
@@ -569,7 +569,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                         tNewLines[y] = tOldLine
                     elseif new_width < nWidth then
                         tNewLines[y] = {
-                            string_sub(tOldLine[1], 1, new_width),
+                            tOldLine[1]:sub(1, new_width),
                             string_sub(tOldLine[2], 1, new_width),
                             string_sub(tOldLine[3], 1, new_width),
                         }
