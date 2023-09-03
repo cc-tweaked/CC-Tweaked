@@ -34,9 +34,6 @@ dependencies {
     testImplementation(libs.bundles.test)
     testRuntimeOnly(libs.bundles.testRuntime)
     testRuntimeOnly(libs.slf4j.simple)
-
-    testImplementation(libs.jmh)
-    testAnnotationProcessor(libs.jmh.processor)
 }
 
 tasks.processResources {
