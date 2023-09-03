@@ -8,6 +8,7 @@
 /build
 /projects/*/logs
 /projects/*/build
+/projects/*/src/test/generated_tests/
 /buildSrc/build
 /out
 /buildSrc/out
