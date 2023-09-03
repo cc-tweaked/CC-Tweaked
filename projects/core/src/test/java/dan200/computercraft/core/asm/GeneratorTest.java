@@ -11,12 +11,14 @@ import dan200.computercraft.core.methods.LuaMethod;
 import dan200.computercraft.core.methods.NamedMethod;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.lang.invoke.MethodHandles;
+import java.util.*;
 
 import static dan200.computercraft.test.core.ContramapMatcher.contramap;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -114,6 +116,33 @@ public class GeneratorTest {
     public void testUnsafe() {
         var methods = GENERATOR.getMethods(Unsafe.class);
         assertThat(methods, contains(named("withUnsafe")));
+    }
+
+    @Test
+    public void testClassNotAccessible() throws IOException, ReflectiveOperationException, LuaException {
+        var basicName = Basic.class.getName().replace('.', '/');
+
+        // Load our Basic class, rewriting it to be a separate (hidden) class which is not part of the same nest as
+        // the existing Basic.
+        ClassReader reader;
+        try (var input = getClass().getClassLoader().getResourceAsStream(basicName + ".class")) {
+            reader = new ClassReader(Objects.requireNonNull(input, "Cannot find " + basicName));
+        }
+        var writer = new ClassWriter(reader, 0);
+        reader.accept(new ClassVisitor(Opcodes.ASM9, writer) {
+            @Override
+            public void visitNestHost(String nestHost) {
+            }
+
+            @Override
+            public void visitInnerClass(String name, String outerName, String innerName, int access) {
+            }
+        }, 0);
+
+        var klass = MethodHandles.lookup().defineHiddenClass(writer.toByteArray(), true).lookupClass();
+
+        var methods = GENERATOR.getMethods(klass);
+        assertThat(apply(methods, klass.getConstructor().newInstance(), "go"), equalTo(MethodResult.of()));
     }
 
     public static class Basic {
