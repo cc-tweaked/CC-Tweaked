@@ -54,7 +54,15 @@ import java.util.concurrent.locks.ReentrantLock;
 @SuppressWarnings("GuardedBy") // FIXME: Hard to know what the correct thing to do is.
 public final class ComputerThread {
     private static final Logger LOG = LoggerFactory.getLogger(ComputerThread.class);
-    private static final ThreadFactory monitorFactory = ThreadUtils.factory("Computer-Monitor");
+
+    /**
+     * A factory for the monitor thread. We want this a slightly higher priority than normal to ensure that the computer
+     * thread is interrupted. This spends most of it its time idle, so should be safe.
+     */
+    private static final ThreadFactory monitorFactory = ThreadUtils.builder("Computer-Monitor")
+        .setPriority((Thread.NORM_PRIORITY + Thread.MAX_PRIORITY) / 2)
+        .build();
+
     private static final ThreadFactory workerFactory = ThreadUtils.lowPriorityFactory("Computer-Worker");
 
     /**
