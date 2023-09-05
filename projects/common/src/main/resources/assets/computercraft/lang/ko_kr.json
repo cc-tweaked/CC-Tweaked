@@ -47,8 +47,6 @@
     "commands.computercraft.synopsis": "컴퓨터를 제어하기 위한 다양한 명령어",
     "commands.computercraft.tp.action": "이 컴퓨터로 순간이동하기",
     "commands.computercraft.tp.desc": "컴퓨터의 위치로 순간이동합니다. 컴퓨터의 인스턴스 ID(예: 123) 또는 컴퓨터 ID(예: #123)를 지정할 수 있습니다.",
-    "commands.computercraft.tp.not_player": "비플레이어용 터미널을 열 수 없습니다.",
-    "commands.computercraft.tp.not_there": "월드에서 컴퓨터를 위치시킬 수 없습니다.",
     "commands.computercraft.tp.synopsis": "특정 컴퓨터로 순간이동하기",
     "commands.computercraft.track.desc": "컴퓨터가 실행되는 기간과 처리되는 이벤트 수를 추적합니다. 이는 /forge 트랙과 유사한 방법으로 정보를 제공하며 지연 로그에 유용할 수 있습니다.",
     "commands.computercraft.track.dump.computer": "컴퓨터",

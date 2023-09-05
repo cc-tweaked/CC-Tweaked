@@ -45,8 +45,6 @@
     "commands.computercraft.synopsis": "各种控制计算机的命令.",
     "commands.computercraft.tp.action": "传送到这台电脑",
     "commands.computercraft.tp.desc": "传送到计算机的位置. 你可以指定计算机的实例id (例如. 123)或计算机id (例如. #123).",
-    "commands.computercraft.tp.not_player": "无法为非玩家打开终端",
-    "commands.computercraft.tp.not_there": "无法在世界上定位电脑",
     "commands.computercraft.tp.synopsis": "传送到特定的计算机.",
     "commands.computercraft.track.desc": "跟踪计算机执行的时间以及它们处理的事件数. 这以/forge track类似的方式呈现信息，可用于诊断滞后.",
     "commands.computercraft.track.dump.computer": "计算机",

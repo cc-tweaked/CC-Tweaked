@@ -47,8 +47,6 @@
     "commands.computercraft.synopsis": "Различные команды для управления компьютерами.",
     "commands.computercraft.tp.action": "Телепортироваться к этому компьютеру",
     "commands.computercraft.tp.desc": "Телепортироваться к местоположению компьютера. Ты можешь указать либо идентификатор экземпляра компьютера (например 123) либо идентификатор компьютера (например #123).",
-    "commands.computercraft.tp.not_player": "Нельзя открыть терминал для не-игрока",
-    "commands.computercraft.tp.not_there": "Нельзя определить в мире местоположение компьютер",
     "commands.computercraft.tp.synopsis": "Телепортироваться к конкретному компьютеру.",
     "commands.computercraft.track.desc": "Отслеживает, как долго компьютеры исполняют, а также то, как много они обрабатывают события. Эта информация представляется аналогично к /forge track и может быть полезной для диагностики лага.",
     "commands.computercraft.track.dump.computer": "Компьютер",

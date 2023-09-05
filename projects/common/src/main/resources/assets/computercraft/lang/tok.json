@@ -44,8 +44,6 @@
     "commands.computercraft.synopsis": "mi jo e toki wawa ante tawa ni: sina lawa e ilo sona.",
     "commands.computercraft.tp.action": "o tawa pi ilo sona",
     "commands.computercraft.tp.desc": "o tawa ilo sona. ilo sona la, sina ken pana e nanpa pi ijo (sama 123) anu nanpa (sama #123).",
-    "commands.computercraft.tp.not_player": "jan ala la, mi ken ala open e sitelen pi ilo sona",
-    "commands.computercraft.tp.not_there": "mi ken ala alasa e ilo sona pi lon ma",
     "commands.computercraft.tp.synopsis": "mi tawa pi ilo sona e sina.",
     "commands.computercraft.track.desc": "ilo sona la, mi sitelen e tenpo pali e mute toki. toki wawa /forge track la, mi pana pi nasin sama e sona. mi pona tawa alasa pi tenpo ike.",
     "commands.computercraft.track.dump.computer": "ilo sona",

@@ -47,8 +47,6 @@
   "commands.computercraft.synopsis": "Various commands for controlling computers.",
   "commands.computercraft.tp.action": "Teleport to this computer",
   "commands.computercraft.tp.desc": "Teleport to the location of a computer. You can either specify the computer's instance id (e.g. 123) or computer id (e.g #123).",
-  "commands.computercraft.tp.not_player": "Cannot open terminal for non-player",
-  "commands.computercraft.tp.not_there": "Cannot locate computer in the world",
   "commands.computercraft.tp.synopsis": "Teleport to a specific computer.",
   "commands.computercraft.track.desc": "Track how long computers execute for, as well as how many events they handle. This presents information in a similar way to /forge track and can be useful for diagnosing lag.",
   "commands.computercraft.track.dump.computer": "Computer",

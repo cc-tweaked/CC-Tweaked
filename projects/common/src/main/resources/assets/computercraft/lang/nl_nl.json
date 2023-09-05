@@ -47,8 +47,6 @@
     "commands.computercraft.synopsis": "Verschillende commando's voor het beheren van computers.",
     "commands.computercraft.tp.action": "Teleporteer naar deze computer",
     "commands.computercraft.tp.desc": "Teleporteer naar de locatie van een specefieke computer. Je kunt een instance-id (bijv. 123) of computer-id (bijv. #123) opgeven.",
-    "commands.computercraft.tp.not_player": "Kan geen terminal openen voor non-speler",
-    "commands.computercraft.tp.not_there": "Kan de computer niet lokaliseren",
     "commands.computercraft.tp.synopsis": "Teleporteer naar een specifieke computer.",
     "commands.computercraft.track.desc": "Houd uitvoertijd en het aantal behandelde events van computers bij. Dit biedt informatie op een gelijke manier als /forge track en kan nuttig zijn in het opsloren van lag.",
     "commands.computercraft.track.dump.computer": "Computer",

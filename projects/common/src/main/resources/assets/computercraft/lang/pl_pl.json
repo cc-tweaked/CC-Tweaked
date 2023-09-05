@@ -31,7 +31,6 @@
     "commands.computercraft.synopsis": "Różne komendy do kontrolowania komputerami.",
     "commands.computercraft.tp.action": "Przeteleportuj się do podanego komputera",
     "commands.computercraft.tp.desc": "Przeteleportuj się do lokalizacji komputera. Możesz wybrać numer sesji komputera (np. 123) lub ID komputera (np. #123).",
-    "commands.computercraft.tp.not_there": "Nie można zlokalizować komputera w świecie",
     "commands.computercraft.tp.synopsis": "Przeteleportuj się do podanego komputera.",
     "commands.computercraft.track.dump.computer": "Komputer",
     "commands.computercraft.turn_on.desc": "Włącz podane komputery. Możesz wybrać numer sesji komputera (np. 123), ID komputera (np. #123) lub jego etykietę (np. \"@Mój Komputer\").",

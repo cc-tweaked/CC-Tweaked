@@ -47,8 +47,6 @@
     "commands.computercraft.synopsis": "Olika kommandon för att kontrollera datorer.",
     "commands.computercraft.tp.action": "Teleportera till den här datorn",
     "commands.computercraft.tp.desc": "Teleportera till datorns position. Du kan ange en dators instans-id (t.ex. 123), dator-id (t.ex. #123) eller etikett (t.ex. \"@Min dator\").",
-    "commands.computercraft.tp.not_player": "Kan inte öppna terminalen för en ickespelare",
-    "commands.computercraft.tp.not_there": "Kan inte hitta datorn i världen",
     "commands.computercraft.tp.synopsis": "Teleportera till en specifik dator.",
     "commands.computercraft.track.desc": "Spåra hur länge datorer exekverar, och även hur många event de hanterar. Detta presenterar information på liknande sätt som /forge track och kan vara användbart för att undersöka lagg.",
     "commands.computercraft.track.dump.computer": "Dator",

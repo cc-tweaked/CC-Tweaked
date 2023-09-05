@@ -139,8 +139,6 @@ public final class LanguageProvider implements DataProvider {
         add("commands.computercraft.tp.synopsis", "Teleport to a specific computer.");
         add("commands.computercraft.tp.desc", "Teleport to the location of a computer. You can either specify the computer's instance id (e.g. 123) or computer id (e.g #123).");
         add("commands.computercraft.tp.action", "Teleport to this computer");
-        add("commands.computercraft.tp.not_player", "Cannot open terminal for non-player");
-        add("commands.computercraft.tp.not_there", "Cannot locate computer in the world");
         add("commands.computercraft.view.synopsis", "View the terminal of a computer.");
         add("commands.computercraft.view.desc", "Open the terminal of a computer, allowing remote control of a computer. This does not provide access to turtle's inventories. You can either specify the computer's instance id (e.g. 123) or computer id (e.g #123).");
         add("commands.computercraft.view.action", "View this computer");

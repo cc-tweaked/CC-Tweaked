@@ -18,9 +18,6 @@ public final class Exceptions {
     static final SimpleCommandExceptionType NOT_TRACKING_EXCEPTION = translated("commands.computercraft.track.stop.not_enabled");
     static final SimpleCommandExceptionType NO_TIMINGS_EXCEPTION = translated("commands.computercraft.track.dump.no_timings");
 
-    static final SimpleCommandExceptionType TP_NOT_THERE = translated("commands.computercraft.tp.not_there");
-    static final SimpleCommandExceptionType TP_NOT_PLAYER = translated("commands.computercraft.tp.not_player");
-
     public static final SimpleCommandExceptionType ARGUMENT_EXPECTED = translated("argument.computercraft.argument_expected");
 
     private static SimpleCommandExceptionType translated(String key) {

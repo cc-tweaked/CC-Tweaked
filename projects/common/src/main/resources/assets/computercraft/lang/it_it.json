@@ -47,8 +47,6 @@
     "commands.computercraft.synopsis": "Vari comandi per controllare i computer.",
     "commands.computercraft.tp.action": "Teletrasporta a questo computer",
     "commands.computercraft.tp.desc": "Teletrasporta alla posizione di un computer. Puoi specificare il computer con l'instance id (e.g. 123) o con l'id (e.g. #123).",
-    "commands.computercraft.tp.not_player": "Non è possibile aprire un terminale per un non giocatore",
-    "commands.computercraft.tp.not_there": "Impossibile trovare il computer nel mondo",
     "commands.computercraft.tp.synopsis": "Teletrasporta al computer specificato.",
     "commands.computercraft.track.desc": "Monitora per quanto tempo i computer vengono eseguiti e quanti eventi ricevono. Questo comando fornisce le informazioni in modo simile a /forge track e può essere utile per diagnosticare il lag.",
     "commands.computercraft.track.dump.computer": "Computer",

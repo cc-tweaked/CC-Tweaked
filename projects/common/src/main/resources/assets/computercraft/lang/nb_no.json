@@ -47,8 +47,6 @@
     "commands.computercraft.synopsis": "Forskjellige kommandoer for å kontrollere datamaskiner.",
     "commands.computercraft.tp.action": "Teleporter til denne datamaskinen",
     "commands.computercraft.tp.desc": "Teleporter til en datamaskin sin posisjon. Du kan enten spesifisere datamaskinens forekomst id (f. eks 123) eller datamaskinens id (f. eks #123).",
-    "commands.computercraft.tp.not_player": "Kan kun åpne terminalen for spillere",
-    "commands.computercraft.tp.not_there": "Greide ikke å finne datamaskinen i denne verdenen",
     "commands.computercraft.tp.synopsis": "Teleporter til en spesifikk datamaskin.",
     "commands.computercraft.track.desc": "Spor hvor lenge datamaskiner kjører, samt hvor mange hendelser de handler. Dette presenterer informasjon i en lignende vei til /forge track og kan være nyttig for å diagnostisere lagg.",
     "commands.computercraft.track.dump.computer": "Datamaskin",

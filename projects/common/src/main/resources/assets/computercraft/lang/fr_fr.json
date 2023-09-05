@@ -47,8 +47,6 @@
     "commands.computercraft.synopsis": "Commandes diverses pour contrôler les ordinateurs.",
     "commands.computercraft.tp.action": "Se téléporter vers cet ordinateur",
     "commands.computercraft.tp.desc": "Se téléporter à la position de l'ordinateur. Vous pouvez spécifier l'identifiant d'instance (ex. 123) ou l'identifiant d'ordinateur (ex. #123).",
-    "commands.computercraft.tp.not_player": "Impossible d'ouvrir un terminal pour un non-joueur",
-    "commands.computercraft.tp.not_there": "Impossible de localiser cet ordinateur dans le monde",
     "commands.computercraft.tp.synopsis": "Se téléporter à la position de l'ordinateur spécifié.",
     "commands.computercraft.track.desc": "Surveillez combien de temps prend une exécutions sur les ordinateurs, ainsi que le nombre d’événements capturés. Les informations sont affichées d'une manière similaire à la commande /forge track, utile pour diagnostiquer les sources de latence.",
     "commands.computercraft.track.dump.computer": "Ordinateur",

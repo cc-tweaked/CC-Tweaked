@@ -26,7 +26,6 @@ import dan200.computercraft.shared.network.container.ComputerContainerData;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.entity.player.Inventory;
@@ -34,13 +33,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 
 import static dan200.computercraft.shared.command.CommandUtils.isPlayer;
-import static dan200.computercraft.shared.command.Exceptions.*;
+import static dan200.computercraft.shared.command.Exceptions.NOT_TRACKING_EXCEPTION;
+import static dan200.computercraft.shared.command.Exceptions.NO_TIMINGS_EXCEPTION;
 import static dan200.computercraft.shared.command.arguments.ComputerArgumentType.getComputerArgument;
 import static dan200.computercraft.shared.command.arguments.ComputerArgumentType.oneComputer;
 import static dan200.computercraft.shared.command.arguments.ComputersArgumentType.*;
@@ -62,118 +63,25 @@ public final class CommandComputerCraft {
         dispatcher.register(choice("computercraft")
             .then(literal("dump")
                 .requires(ModRegistry.Permissions.PERMISSION_DUMP)
-                .executes(context -> {
-                    var table = new TableBuilder("DumpAll", "Computer", "On", "Position");
-
-                    var source = context.getSource();
-                    List<ServerComputer> computers = new ArrayList<>(ServerContext.get(source.getServer()).registry().getComputers());
-
-                    Level world = source.getLevel();
-                    var pos = BlockPos.containing(source.getPosition());
-
-                    computers.sort((a, b) -> {
-                        if (a.getLevel() == b.getLevel() && a.getLevel() == world) {
-                            return Double.compare(a.getPosition().distSqr(pos), b.getPosition().distSqr(pos));
-                        } else if (a.getLevel() == world) {
-                            return -1;
-                        } else if (b.getLevel() == world) {
-                            return 1;
-                        } else {
-                            return Integer.compare(a.getInstanceID(), b.getInstanceID());
-                        }
-                    });
-
-                    for (var computer : computers) {
-                        table.row(
-                            linkComputer(source, computer, computer.getID()),
-                            bool(computer.isOn()),
-                            linkPosition(source, computer)
-                        );
-                    }
-
-                    table.display(context.getSource());
-                    return computers.size();
-                })
+                .executes(c -> dump(c.getSource()))
                 .then(args()
                     .arg("computer", oneComputer())
-                    .executes(context -> {
-                        var computer = getComputerArgument(context, "computer");
-
-                        var table = new TableBuilder("Dump");
-                        table.row(header("Instance"), text(Integer.toString(computer.getInstanceID())));
-                        table.row(header("Id"), text(Integer.toString(computer.getID())));
-                        table.row(header("Label"), text(computer.getLabel()));
-                        table.row(header("On"), bool(computer.isOn()));
-                        table.row(header("Position"), linkPosition(context.getSource(), computer));
-                        table.row(header("Family"), text(computer.getFamily().toString()));
-
-                        for (var side : ComputerSide.values()) {
-                            var peripheral = computer.getPeripheral(side);
-                            if (peripheral != null) {
-                                table.row(header("Peripheral " + side.getName()), text(peripheral.getType()));
-                            }
-                        }
-
-                        table.display(context.getSource());
-                        return 1;
-                    })))
+                    .executes(c -> dumpComputer(c.getSource(), getComputerArgument(c, "computer")))))
 
             .then(command("shutdown")
                 .requires(ModRegistry.Permissions.PERMISSION_SHUTDOWN)
                 .argManyValue("computers", manyComputers(), s -> ServerContext.get(s.getServer()).registry().getComputers())
-                .executes((context, computerSelectors) -> {
-                    var shutdown = 0;
-                    var computers = unwrap(context.getSource(), computerSelectors);
-                    for (var computer : computers) {
-                        if (computer.isOn()) shutdown++;
-                        computer.shutdown();
-                    }
-
-                    var didShutdown = shutdown;
-                    context.getSource().sendSuccess(() -> Component.translatable("commands.computercraft.shutdown.done", didShutdown, computers.size()), false);
-                    return shutdown;
-                }))
+                .executes((c, a) -> shutdown(c.getSource(), unwrap(c.getSource(), a))))
 
             .then(command("turn-on")
                 .requires(ModRegistry.Permissions.PERMISSION_TURN_ON)
                 .argManyValue("computers", manyComputers(), s -> ServerContext.get(s.getServer()).registry().getComputers())
-                .executes((context, computerSelectors) -> {
-                    var on = 0;
-                    var computers = unwrap(context.getSource(), computerSelectors);
-                    for (var computer : computers) {
-                        if (!computer.isOn()) on++;
-                        computer.turnOn();
-                    }
-
-                    var didOn = on;
-                    context.getSource().sendSuccess(() -> Component.translatable("commands.computercraft.turn_on.done", didOn, computers.size()), false);
-                    return on;
-                }))
+                .executes((c, a) -> turnOn(c.getSource(), unwrap(c.getSource(), a))))
 
             .then(command("tp")
                 .requires(ModRegistry.Permissions.PERMISSION_TP)
                 .arg("computer", oneComputer())
-                .executes(context -> {
-                    var computer = getComputerArgument(context, "computer");
-                    var world = computer.getLevel();
-                    var pos = computer.getPosition();
-
-                    var entity = context.getSource().getEntityOrException();
-                    if (!(entity instanceof ServerPlayer player)) throw TP_NOT_PLAYER.create();
-
-                    if (player.getCommandSenderWorld() == world) {
-                        player.connection.teleport(
-                            pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0,
-                            EnumSet.noneOf(RelativeMovement.class)
-                        );
-                    } else {
-                        player.teleportTo(world,
-                            pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0
-                        );
-                    }
-
-                    return 1;
-                }))
+                .executes(c -> teleport(c.getSource(), getComputerArgument(c, "computer"))))
 
             .then(command("queue")
                 .requires(ModRegistry.Permissions.PERMISSION_QUEUE)
@@ -182,78 +90,242 @@ public final class CommandComputerCraft {
                         .suggests((context, builder) -> Suggestions.empty())
                 )
                 .argManyValue("args", StringArgumentType.string(), Collections.emptyList())
-                .executes((ctx, args) -> {
-                    var computers = getComputersArgument(ctx, "computer");
-                    var rest = args.toArray();
-
-                    var queued = 0;
-                    for (var computer : computers) {
-                        if (computer.getFamily() == ComputerFamily.COMMAND && computer.isOn()) {
-                            computer.queueEvent("computer_command", rest);
-                            queued++;
-                        }
-                    }
-
-                    return queued;
-                }))
+                .executes((c, a) -> queue(getComputersArgument(c, "computer"), a)))
 
             .then(command("view")
                 .requires(ModRegistry.Permissions.PERMISSION_VIEW)
                 .arg("computer", oneComputer())
-                .executes(context -> {
-                    var player = context.getSource().getPlayerOrException();
-                    var computer = getComputerArgument(context, "computer");
-                    new ComputerContainerData(computer, ItemStack.EMPTY).open(player, new MenuProvider() {
-                        @Override
-                        public Component getDisplayName() {
-                            return Component.translatable("gui.computercraft.view_computer");
-                        }
-
-                        @Override
-                        public AbstractContainerMenu createMenu(int id, Inventory player, Player entity) {
-                            return new ViewComputerMenu(id, player, computer);
-                        }
-                    });
-                    return 1;
-                }))
+                .executes(c -> view(c.getSource(), getComputerArgument(c, "computer"))))
 
             .then(choice("track")
                 .requires(ModRegistry.Permissions.PERMISSION_TRACK)
-                .then(command("start")
-                    .executes(context -> {
-                        getMetricsInstance(context.getSource()).start();
-
-                        var stopCommand = "/computercraft track stop";
-                        context.getSource().sendSuccess(() -> Component.translatable(
-                            "commands.computercraft.track.start.stop",
-                            link(text(stopCommand), stopCommand, Component.translatable("commands.computercraft.track.stop.action"))
-                        ), false);
-                        return 1;
-                    }))
-
-                .then(command("stop")
-                    .executes(context -> {
-                        var timings = getMetricsInstance(context.getSource());
-                        if (!timings.stop()) throw NOT_TRACKING_EXCEPTION.create();
-                        displayTimings(context.getSource(), timings.getSnapshot(), new AggregatedMetric(Metrics.COMPUTER_TASKS, Aggregate.AVG), DEFAULT_FIELDS);
-                        return 1;
-                    }))
-
+                .then(command("start").executes(c -> trackStart(c.getSource())))
+                .then(command("stop").executes(c -> trackStop(c.getSource())))
                 .then(command("dump")
                     .argManyValue("fields", metric(), DEFAULT_FIELDS)
-                    .executes((context, fields) -> {
-                        AggregatedMetric sort;
-                        if (fields.size() == 1 && DEFAULT_FIELDS.contains(fields.get(0))) {
-                            sort = fields.get(0);
-                            fields = DEFAULT_FIELDS;
-                        } else {
-                            sort = fields.get(0);
-                        }
-
-                        return displayTimings(context.getSource(), sort, fields);
-                    })))
+                    .executes((c, f) -> trackDump(c.getSource(), f))))
         );
     }
+
+    /**
+     * Display loaded computers to a table.
+     *
+     * @param source The thing that executed this command.
+     * @return The number of loaded computers.
+     */
+    private static int dump(CommandSourceStack source) {
+        var table = new TableBuilder("DumpAll", "Computer", "On", "Position");
+
+        List<ServerComputer> computers = new ArrayList<>(ServerContext.get(source.getServer()).registry().getComputers());
+
+        Level world = source.getLevel();
+        var pos = BlockPos.containing(source.getPosition());
+
+        // Sort by nearby computers.
+        computers.sort((a, b) -> {
+            if (a.getLevel() == b.getLevel() && a.getLevel() == world) {
+                return Double.compare(a.getPosition().distSqr(pos), b.getPosition().distSqr(pos));
+            } else if (a.getLevel() == world) {
+                return -1;
+            } else if (b.getLevel() == world) {
+                return 1;
+            } else {
+                return Integer.compare(a.getInstanceID(), b.getInstanceID());
+            }
+        });
+
+        for (var computer : computers) {
+            table.row(
+                linkComputer(source, computer, computer.getID()),
+                bool(computer.isOn()),
+                linkPosition(source, computer)
+            );
+        }
+
+        table.display(source);
+        return computers.size();
+    }
+
+    /**
+     * Display additional information about a single computer.
+     *
+     * @param source   The thing that executed this command.
+     * @param computer The computer we're dumping.
+     * @return The constant {@code 1}.
+     */
+    private static int dumpComputer(CommandSourceStack source, ServerComputer computer) {
+        var table = new TableBuilder("Dump");
+        table.row(header("Instance"), text(Integer.toString(computer.getInstanceID())));
+        table.row(header("Id"), text(Integer.toString(computer.getID())));
+        table.row(header("Label"), text(computer.getLabel()));
+        table.row(header("On"), bool(computer.isOn()));
+        table.row(header("Position"), linkPosition(source, computer));
+        table.row(header("Family"), text(computer.getFamily().toString()));
+
+        for (var side : ComputerSide.values()) {
+            var peripheral = computer.getPeripheral(side);
+            if (peripheral != null) {
+                table.row(header("Peripheral " + side.getName()), text(peripheral.getType()));
+            }
+        }
+
+        table.display(source);
+        return 1;
+    }
+
+    /**
+     * Shutdown a list of computers.
+     *
+     * @param source    The thing that executed this command.
+     * @param computers The computers to shutdown.
+     * @return The constant {@code 1}.
+     */
+    private static int shutdown(CommandSourceStack source, Collection<ServerComputer> computers) {
+        var shutdown = 0;
+        for (var computer : computers) {
+            if (computer.isOn()) shutdown++;
+            computer.shutdown();
+        }
+
+        var didShutdown = shutdown;
+        source.sendSuccess(() -> Component.translatable("commands.computercraft.shutdown.done", didShutdown, computers.size()), false);
+        return shutdown;
+    }
+
+    /**
+     * Turn on a list of computers.
+     *
+     * @param source    The thing that executed this command.
+     * @param computers The computers to turn on.
+     * @return The constant {@code 1}.
+     */
+    private static int turnOn(CommandSourceStack source, Collection<ServerComputer> computers) {
+        var on = 0;
+        for (var computer : computers) {
+            if (!computer.isOn()) on++;
+            computer.turnOn();
+        }
+
+        var didOn = on;
+        source.sendSuccess(() -> Component.translatable("commands.computercraft.turn_on.done", didOn, computers.size()), false);
+        return on;
+    }
+
+    /**
+     * Teleport to a computer.
+     *
+     * @param source   The thing that executed this command. This must be an entity, other types will throw an exception.
+     * @param computer The computer to teleport to.
+     * @return The constant {@code 1}.
+     */
+    private static int teleport(CommandSourceStack source, ServerComputer computer) throws CommandSyntaxException {
+        var world = computer.getLevel();
+        var pos = Vec3.atBottomCenterOf(computer.getPosition());
+        source.getEntityOrException().teleportTo(world, pos.x(), pos.y(), pos.z(), EnumSet.noneOf(RelativeMovement.class), 0, 0);
+
+        return 1;
+    }
+
+    /**
+     * Queue a {@code computer_command} event on a command computer.
+     *
+     * @param computers The list of computers to queue on.
+     * @param args      The arguments for this event.
+     * @return The number of computers this event was queued on.
+     */
+    private static int queue(Collection<ServerComputer> computers, List<String> args) {
+        var rest = args.toArray();
+
+        var queued = 0;
+        for (var computer : computers) {
+            if (computer.getFamily() == ComputerFamily.COMMAND && computer.isOn()) {
+                computer.queueEvent("computer_command", rest);
+                queued++;
+            }
+        }
+
+        return queued;
+    }
+
+    /**
+     * Open a terminal for a computer.
+     *
+     * @param source   The thing that executed this command.
+     * @param computer The computer to view.
+     * @return The constant {@code 1}.
+     */
+    private static int view(CommandSourceStack source, ServerComputer computer) throws CommandSyntaxException {
+        var player = source.getPlayerOrException();
+        new ComputerContainerData(computer, ItemStack.EMPTY).open(player, new MenuProvider() {
+            @Override
+            public Component getDisplayName() {
+                return Component.translatable("gui.computercraft.view_computer");
+            }
+
+            @Override
+            public AbstractContainerMenu createMenu(int id, Inventory player, Player entity) {
+                return new ViewComputerMenu(id, player, computer);
+            }
+        });
+        return 1;
+    }
+
+    /**
+     * Start tracking metrics for the current player.
+     *
+     * @param source The thing that executed this command.
+     * @return The constant {@code 1}.
+     */
+    private static int trackStart(CommandSourceStack source) {
+        getMetricsInstance(source).start();
+
+        var stopCommand = "/computercraft track stop";
+        source.sendSuccess(() -> Component.translatable(
+            "commands.computercraft.track.start.stop",
+            link(text(stopCommand), stopCommand, Component.translatable("commands.computercraft.track.stop.action"))
+        ), false);
+        return 1;
+    }
+
+    /**
+     * Stop tracking metrics for the current player, displaying a table with the results.
+     *
+     * @param source The thing that executed this command.
+     * @return The constant {@code 1}.
+     */
+    private static int trackStop(CommandSourceStack source) throws CommandSyntaxException {
+        var metrics = getMetricsInstance(source);
+        if (!metrics.stop()) throw NOT_TRACKING_EXCEPTION.create();
+        displayTimings(source, metrics.getSnapshot(), new AggregatedMetric(Metrics.COMPUTER_TASKS, Aggregate.AVG), DEFAULT_FIELDS);
+        return 1;
+    }
+
+    private static final List<AggregatedMetric> DEFAULT_FIELDS = Arrays.asList(
+        new AggregatedMetric(Metrics.COMPUTER_TASKS, Aggregate.COUNT),
+        new AggregatedMetric(Metrics.COMPUTER_TASKS, Aggregate.NONE),
+        new AggregatedMetric(Metrics.COMPUTER_TASKS, Aggregate.AVG)
+    );
+
+    /**
+     * Display the latest metrics for the current player.
+     *
+     * @param source The thing that executed this command.
+     * @param fields The fields to display in this table, defaulting to {@link #DEFAULT_FIELDS}.
+     * @return The constant {@code 1}.
+     */
+    private static int trackDump(CommandSourceStack source, List<AggregatedMetric> fields) throws CommandSyntaxException {
+        AggregatedMetric sort;
+        if (fields.size() == 1 && DEFAULT_FIELDS.contains(fields.get(0))) {
+            sort = fields.get(0);
+            fields = DEFAULT_FIELDS;
+        } else {
+            sort = fields.get(0);
+        }
+
+        return displayTimings(source, getMetricsInstance(source).getTimings(), sort, fields);
+    }
+
+    // Additional helper functions.
 
     private static Component linkComputer(CommandSourceStack source, @Nullable ServerComputer serverComputer, int computerId) {
         var out = Component.literal("");
@@ -325,16 +397,6 @@ public final class CommandComputerCraft {
     private static BasicComputerMetricsObserver getMetricsInstance(CommandSourceStack source) {
         var entity = source.getEntity();
         return ServerContext.get(source.getServer()).metrics().getMetricsInstance(entity instanceof Player ? entity.getUUID() : SYSTEM_UUID);
-    }
-
-    private static final List<AggregatedMetric> DEFAULT_FIELDS = Arrays.asList(
-        new AggregatedMetric(Metrics.COMPUTER_TASKS, Aggregate.COUNT),
-        new AggregatedMetric(Metrics.COMPUTER_TASKS, Aggregate.NONE),
-        new AggregatedMetric(Metrics.COMPUTER_TASKS, Aggregate.AVG)
-    );
-
-    private static int displayTimings(CommandSourceStack source, AggregatedMetric sortField, List<AggregatedMetric> fields) throws CommandSyntaxException {
-        return displayTimings(source, getMetricsInstance(source).getTimings(), sortField, fields);
     }
 
     private static int displayTimings(CommandSourceStack source, List<ComputerMetrics> timings, AggregatedMetric sortField, List<AggregatedMetric> fields) throws CommandSyntaxException {

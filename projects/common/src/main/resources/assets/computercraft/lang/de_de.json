@@ -46,8 +46,6 @@
     "commands.computercraft.synopsis": "Verschiedene Befehle um Computer zu kontrollieren.",
     "commands.computercraft.tp.action": "Teleportiert dich zum Computer",
     "commands.computercraft.tp.desc": "Teleportiert dich zum Standort eines Computers. Der Computer kann entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) oder seinen Namen (z.B. \"@Mein Computer\") angegeben werden.",
-    "commands.computercraft.tp.not_player": "Konnte Terminal für Nicht-Spieler nicht öffnen",
-    "commands.computercraft.tp.not_there": "Konnte Computer in der Welt nicht finden",
     "commands.computercraft.tp.synopsis": "Teleportiert dich zum angegebenen Computer.",
     "commands.computercraft.track.desc": "Zeichnet die Laufzeiten von Computern und wie viele Events ausgelöst werden auf. Die Ausgabe der Informationen ist ähnlich zu /forge track, was beim aufspüren von Lags sehr hilfreich sein kann.",
     "commands.computercraft.track.dump.computer": "Computer",

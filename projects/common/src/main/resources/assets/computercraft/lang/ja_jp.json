@@ -47,8 +47,6 @@
     "commands.computercraft.synopsis": "コンピュータを制御するためのさまざまなコマンド。",
     "commands.computercraft.tp.action": "このコンピューターへテレポートします",
     "commands.computercraft.tp.desc": "コンピュータの場所にテレポート.コンピュータのインスタンスID（例えば 123）またはコンピュータID（例えば #123）を指定することができます。",
-    "commands.computercraft.tp.not_player": "非プレイヤー用のターミナルを開くことができません",
-    "commands.computercraft.tp.not_there": "世界でコンピュータを見つけることができませんでした",
     "commands.computercraft.tp.synopsis": "特定のコンピュータにテレポート。",
     "commands.computercraft.track.desc": "コンピュータの実行時間を追跡するだけでなく、イベントを確認することができます。 これは /forge と同様の方法で情報を提示し、遅れを診断するのに役立ちます。",
     "commands.computercraft.track.dump.computer": "コンピューター",

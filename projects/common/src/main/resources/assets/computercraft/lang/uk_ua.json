@@ -47,8 +47,6 @@
     "commands.computercraft.synopsis": "Різні команди для керування комп'ютерами.",
     "commands.computercraft.tp.action": "Телепортувати до цього комп'ютера",
     "commands.computercraft.tp.desc": "Телепортувати до розташування комп'ютера. Ви можете вказати або ідентифікатор екземпляра комп'ютера (наприклад, 123) або ідентифікатор комп'ютера (наприклад, #123).",
-    "commands.computercraft.tp.not_player": "Не можна відкрити термінал для не-гравця",
-    "commands.computercraft.tp.not_there": "Не можна визначити у світі розташування комп'ютер",
     "commands.computercraft.tp.synopsis": "Телепортувати до конкретного комп'ютера.",
     "commands.computercraft.track.desc": "Відстежує, як довго комп'ютери виконують, а також те, як багато вони обробляють події. Ця інформація представляється аналогічно /forge track і може бути корисною для діагностики лага.",
     "commands.computercraft.track.dump.computer": "Комп'ютер",

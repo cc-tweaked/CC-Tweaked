@@ -47,8 +47,6 @@
     "commands.computercraft.synopsis": "Různé příkazy pro ovládání počítačů.",
     "commands.computercraft.tp.action": "Teleportovat se k počítači",
     "commands.computercraft.tp.desc": "Teleportovat se na místo počítače. Můžeš specifikovat ID počítačové instance (tř. 123) nebo ID počítače (tř. #123).",
-    "commands.computercraft.tp.not_player": "Nelze otevřít terminál pro nehráče",
-    "commands.computercraft.tp.not_there": "Nelze najít počítač ve světě",
     "commands.computercraft.tp.synopsis": "Teleportovat se ke specifickému počítači.",
     "commands.computercraft.track.desc": "Sledovat jak dlouho se počítače spustí, a také kolik událostí zpracují. Toto uvádí informace v podobné cestě jako /forge track a může být dobré pro diagnostiku lagu.",
     "commands.computercraft.track.dump.computer": "Počítač",
