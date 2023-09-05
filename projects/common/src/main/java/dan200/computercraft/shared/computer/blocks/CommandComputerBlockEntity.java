@@ -104,11 +104,15 @@ public class CommandComputerBlockEntity extends ComputerBlockEntity {
         if (server == null || !server.isCommandBlockEnabled()) {
             player.displayClientMessage(Component.translatable("advMode.notEnabled"), true);
             return false;
-        } else if (Config.commandRequireCreative ? !player.canUseGameMasterBlocks() : !server.getPlayerList().isOp(player.getGameProfile())) {
+        } else if (!canUseCommandBlock(player)) {
             player.displayClientMessage(Component.translatable("advMode.notAllowed"), true);
             return false;
         }
 
         return true;
+    }
+
+    private static boolean canUseCommandBlock(Player player) {
+        return Config.commandRequireCreative ? player.canUseGameMasterBlocks() : player.hasPermissions(2);
     }
 }

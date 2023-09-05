@@ -64,13 +64,7 @@ public abstract class AbstractComputerItem extends BlockItem implements ICompute
 
     @Override
     public @Nullable Mount createDataMount(ItemStack stack, ServerLevel level) {
-        var family = getFamily();
-        if (family != ComputerFamily.COMMAND) {
-            var id = getComputerID(stack);
-            if (id >= 0) {
-                return ComputerCraftAPI.createSaveDirMount(level.getServer(), "computer/" + id, Config.computerSpaceLimit);
-            }
-        }
-        return null;
+        var id = getComputerID(stack);
+        return id >= 0 ? ComputerCraftAPI.createSaveDirMount(level.getServer(), "computer/" + id, Config.computerSpaceLimit) : null;
     }
 }
