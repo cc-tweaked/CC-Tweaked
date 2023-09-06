@@ -1,3 +1,9 @@
+# New features in CC: Tweaked 1.108.1
+
+Several bug fixes:
+* Prevent no-opped players breaking or placing command computers.
+* Allow using `@LuaFunction`-annotated methods on classes defined in child classloaders.
+
 # New features in CC: Tweaked 1.108.0
 
 * Remove compression from terminal/monitor packets. Vanilla applies its own compression, so this ends up being less helpful than expected.
