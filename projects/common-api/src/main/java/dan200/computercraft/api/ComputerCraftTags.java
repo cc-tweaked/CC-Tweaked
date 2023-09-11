@@ -47,6 +47,14 @@ public class ComputerCraftTags {
         public static final TagKey<Block> MONITOR = make("monitor");
 
         /**
+         * Blocks which should be ignored by a {@code peripheral_hub} peripheral.
+         * <p>
+         * This should include blocks which themselves expose a peripheral hub (such as {@linkplain #WIRED_MODEM wired
+         * modems}).
+         */
+        public static final TagKey<Block> PERIPHERAL_HUB_IGNORE = make("peripheral_hub_ignore");
+
+        /**
          * Blocks which can be broken by any turtle tool.
          */
         public static final TagKey<Block> TURTLE_ALWAYS_BREAKABLE = make("turtle_always_breakable");

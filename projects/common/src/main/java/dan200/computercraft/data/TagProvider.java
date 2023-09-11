@@ -35,6 +35,8 @@ class TagProvider {
         tags.tag(ComputerCraftTags.Blocks.WIRED_MODEM).add(ModRegistry.Blocks.CABLE.get(), ModRegistry.Blocks.WIRED_MODEM_FULL.get());
         tags.tag(ComputerCraftTags.Blocks.MONITOR).add(ModRegistry.Blocks.MONITOR_NORMAL.get(), ModRegistry.Blocks.MONITOR_ADVANCED.get());
 
+        tags.tag(ComputerCraftTags.Blocks.PERIPHERAL_HUB_IGNORE).addTag(ComputerCraftTags.Blocks.WIRED_MODEM);
+
         tags.tag(ComputerCraftTags.Blocks.TURTLE_ALWAYS_BREAKABLE).addTag(BlockTags.LEAVES).add(
             Blocks.BAMBOO, Blocks.BAMBOO_SAPLING // Bamboo isn't instabreak for some odd reason.
         );

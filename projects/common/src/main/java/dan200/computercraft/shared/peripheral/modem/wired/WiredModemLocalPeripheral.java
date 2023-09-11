@@ -4,8 +4,8 @@
 
 package dan200.computercraft.shared.peripheral.modem.wired;
 
+import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.platform.ComponentAccess;
 import dan200.computercraft.shared.platform.PlatformHelper;
@@ -124,8 +124,7 @@ public final class WiredModemLocalPeripheral {
     private IPeripheral getPeripheralFrom(Level world, BlockPos pos, Direction direction) {
         var offset = pos.relative(direction);
 
-        var block = world.getBlockState(offset).getBlock();
-        if (block == ModRegistry.Blocks.WIRED_MODEM_FULL.get() || block == ModRegistry.Blocks.CABLE.get()) return null;
+        if (world.getBlockState(offset).is(ComputerCraftTags.Blocks.PERIPHERAL_HUB_IGNORE)) return null;
 
         var peripheral = peripherals.get((ServerLevel) world, pos, direction);
         return peripheral instanceof WiredModemPeripheral ? null : peripheral;
