@@ -67,7 +67,7 @@ val jsxDocs by tasks.registering(cc.tweaked.gradle.NpxExecToDir::class) {
     // Output directory. Also defined in src/transform.tsx
     output.set(buildDir.resolve("jsxDocs"))
 
-    args = listOf("ts-node", "-T", "--esm", "src/transform.tsx")
+    args = listOf("tsx", "src/transform.tsx")
 }
 
 val docWebsite by tasks.registering(Copy::class) {

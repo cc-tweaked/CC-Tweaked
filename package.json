@@ -18,12 +18,12 @@
     "glob": "^10.3.4",
     "react-dom": "^18.1.0",
     "react": "^18.1.0",
-    "rehype-highlight": "^6.0.0",
-    "rehype-react": "^7.1.1",
-    "rehype": "^12.0.0",
+    "rehype-highlight": "^7.0.0",
+    "rehype-react": "^8.0.0",
+    "rehype": "^13.0.0",
     "requirejs": "^2.3.6",
     "rollup": "^3.19.1",
-    "ts-node": "^10.8.0",
+    "tsx": "^3.12.10",
     "typescript": "^5.2.2"
   }
 }

@@ -4,7 +4,7 @@
 
 import type { FunctionComponent } from "react";
 import { createElement as h } from "react";
-import useExport from "./WithExport.js";
+import useExport from "./WithExport";
 
 const Item: FunctionComponent<{ item: string }> = ({ item }) => {
     const data = useExport();
