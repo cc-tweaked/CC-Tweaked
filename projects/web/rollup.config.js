@@ -5,13 +5,14 @@
 import { readFileSync } from "fs";
 import path from "path";
 
-import typescript from "@rollup/plugin-typescript";
-import url from '@rollup/plugin-url';
 import terser from "@rollup/plugin-terser";
+import typescript from "@rollup/plugin-typescript";
+import url from "@rollup/plugin-url";
 
 const input = "src";
 const requirejs = readFileSync("../../node_modules/requirejs/require.js");
 
+/** @type import("rollup").RollupOptions */
 export default {
     input: [`${input}/index.tsx`],
     output: {
@@ -54,7 +55,7 @@ export default {
             async transform(code, file) {
                 // Allow loading files in /mount.
                 const ext = path.extname(file);
-                return ext != '.dfpwm' && path.dirname(file) === path.resolve(`${input}/mount`)
+                return ext != ".dfpwm" && path.dirname(file) === path.resolve(`${input}/mount`)
                     ? `export default ${JSON.stringify(code)};\n`
                     : null;
             },

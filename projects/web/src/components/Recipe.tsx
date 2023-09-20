@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-import type { FunctionComponent } from "react";
-import { createElement as h } from "react";
+import { h, type FunctionComponent, type JSX } from "preact";
 import useExport from "./WithExport";
 
 const Item: FunctionComponent<{ item: string }> = ({ item }) => {

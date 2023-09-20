@@ -687,7 +687,7 @@ settings.define("paint.default_extension", {
 
 settings.define("list.show_hidden", {
     default = false,
-    description = [[Show hidden files (those starting with "." in the Lua REPL).]],
+    description = [[Whether the list program show  hidden files (those starting with ".").]],
     type = "boolean",
 })
 

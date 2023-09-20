@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-import type { FunctionComponent } from "react";
+import { type FunctionComponent } from "preact";
 
 /**
  * Wrap a component and ensure that no children are passed to it.
@@ -20,7 +20,7 @@ export const noChildren = function <T>(component: FunctionComponent<T>): Functio
 
     const name = component.displayName ?? component.name;
     const wrapped: FunctionComponent<T> = props => {
-        if ((props as any).children) throw Error("Unexpected children in " + name);
+        if (props.children) throw Error("Unexpected children in " + name);
 
         return component(props);
     };

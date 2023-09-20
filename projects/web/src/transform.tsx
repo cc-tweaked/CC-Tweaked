@@ -10,20 +10,20 @@
  *
  * Yes, this would be so much nicer with next.js.
  */
-import * as fs from "fs/promises";
+import fs from "fs/promises";
 import { glob } from "glob";
-import * as path from "path";
-import { createElement as h } from 'react';
-import runtime from 'react/jsx-runtime';
-import { renderToStaticMarkup } from "react-dom/server";
-import rehypeHighlight from "rehype-highlight";
-import rehypeParse from 'rehype-parse';
-import rehypeReact, { type Options as ReactOptions } from 'rehype-react';
-import { unified } from 'unified';
+import path from "path";
+import { h, type JSX } from "preact";
+import renderToStaticMarkup from "preact-render-to-string";
+import * as runtime from "preact/jsx-runtime";
+import rehypeHighlight, { type Options as HighlightOptions } from "rehype-highlight";
+import rehypeParse from "rehype-parse";
+import rehypeReact, { type Options as ReactOptions } from "rehype-react";
+import { unified, type Plugin } from "unified";
 // Our components
 import Recipe from "./components/Recipe";
 import { noChildren } from "./components/support";
-import { type DataExport, WithExport } from "./components/WithExport";
+import { WithExport, type DataExport } from "./components/WithExport";
 
 (async () => {
     const base = "build/illuaminate";
@@ -31,19 +31,19 @@ import { type DataExport, WithExport } from "./components/WithExport";
     const reactOptions: ReactOptions = {
         ...(runtime as ReactOptions),
         components: {
-            ['mc-recipe']: noChildren(Recipe),
-            ['mcrecipe']: noChildren(Recipe),
+            ["mc-recipe"]: noChildren(Recipe),
+            ["mcrecipe"]: noChildren(Recipe),
             // Wrap example snippets in a <div class="lua-example">...</div>, so we can inject a
             // Run button into them.
-            ['pre']: (args: JSX.IntrinsicElements["pre"] & { "data-lua-kind"?: undefined }) => {
+            ["pre"]: (args: JSX.IntrinsicElements["pre"] & { "data-lua-kind"?: undefined }) => {
                 const element = <pre {...args} />;
                 return args["data-lua-kind"] ? <div className="lua-example">{element}</div> : element
             }
-        } as any
+        }
     };
     const processor = unified()
         .use(rehypeParse, { emitParseErrors: true })
-        .use(rehypeHighlight, { prefix: "" })
+        .use(rehypeHighlight as unknown as Plugin<[HighlightOptions], import("hast").Root>, { prefix: "" })
         .use(rehypeReact, reactOptions);
 
     const dataExport = JSON.parse(await fs.readFile("src/export/index.json", "utf-8")) as DataExport;

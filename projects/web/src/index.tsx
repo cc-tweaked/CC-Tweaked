@@ -2,18 +2,18 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-import { render, h, Component, Computer, type PeripheralKind } from "copycat/embed";
-import type { ComponentChild } from "preact";
+import { Component, Computer, h, render, type PeripheralKind } from "copycat/embed";
+import type { ComponentChild, FunctionalComponent } from "preact";
 
 import settingsFile from "./mount/.settings";
-import startupFile from "./mount/startup.lua";
-import exprTemplate from "./mount/expr_template.lua";
+import exampleAudioUrl from "./mount/example.dfpwm";
+import exampleAudioLicense from "./mount/example.dfpwm.license";
 import exampleNfp from "./mount/example.nfp";
 import exampleNft from "./mount/example.nft";
-import exampleAudioLicense from "./mount/example.dfpwm.license";
-import exampleAudioUrl from "./mount/example.dfpwm";
+import exprTemplate from "./mount/expr_template.lua";
+import startupFile from "./mount/startup.lua";
 
-const defaultFiles: { [filename: string]: string } = {
+const defaultFiles: Record<string, string> = {
     ".settings": settingsFile,
     "startup.lua": startupFile,
 
@@ -36,13 +36,13 @@ const download = async (url: string): Promise<Uint8Array> => {
 
 let dfpwmAudio: Promise<Uint8Array> | null = null;
 
-const Click = (options: { run: () => void }) =>
-    <button type="button" class="example-run" onClick={options.run}>Run ᐅ</button>
+const Click: FunctionalComponent<{ run: () => void }> = ({ run }) =>
+    <button type="button" class="example-run" onClick={run}>Run ᐅ</button>
 
 type WindowProps = {};
 
 type Example = {
-    files: { [file: string]: string | Uint8Array },
+    files: Record<string, string | Uint8Array>,
     peripheral: PeripheralKind | null,
 }
 
@@ -105,8 +105,8 @@ class Window extends Component<WindowProps, WindowState> {
                 </div>
                 <div class="computer-container">
                     <Computer key={exampleIdx} files={{
-                        ...defaultFiles, ...example!.files,
-                    }} peripherals={{ back: example!.peripheral }} />
+                        ...defaultFiles, ...example.files,
+                    }} peripherals={{ back: example.peripheral }} />
                 </div>
             </div>
         </div> : <div class="example-window example-window-hidden" />;
@@ -120,7 +120,7 @@ class Window extends Component<WindowProps, WindowState> {
                 this.top = 20;
             }
 
-            const files: { [file: string]: string | Uint8Array } = { "example.lua": example };
+            const files: Record<string, string | Uint8Array> = { "example.lua": example };
             if (mount !== null) {
                 for (const toMount of mount.split(",")) {
                     const [name, path] = toMount.split(":", 2);

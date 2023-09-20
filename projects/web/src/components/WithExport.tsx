@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-import { createElement as h, useContext, createContext, type FunctionComponent, type ReactNode } from "react";
+import { h, createContext, type FunctionComponent, type VNode } from "preact";
+import { useContext } from "preact/hooks";
 
 export type DataExport = {
     readonly itemNames: Record<string, string>,
@@ -23,5 +24,5 @@ const DataExport = createContext<DataExport>({
 export const useExport = () => useContext(DataExport);
 export default useExport;
 
-export const WithExport: FunctionComponent<{ data: DataExport, children: ReactNode }> =
-    ({ data, children }) => <DataExport.Provider value={data}> {children}</DataExport.Provider >;
+export const WithExport: FunctionComponent<{ data: DataExport, children: VNode }> =
+    ({ data, children }) => <DataExport.Provider value={data}> {children}</DataExport.Provider>;
