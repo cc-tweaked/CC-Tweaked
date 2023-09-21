@@ -29,8 +29,6 @@ import java.util.Map;
 public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
     private static final Logger LOG = LoggerFactory.getLogger(ResourceMount.class);
 
-    private static final byte[] TEMP_BUFFER = new byte[8192];
-
     /**
      * Maintain a cache of currently loaded resource mounts. This cache is invalidated when currentManager changes.
      */
@@ -68,7 +66,11 @@ public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
             if (!FileSystem.contains(subPath, file.getPath())) continue; // Some packs seem to include the parent?
 
             var localPath = FileSystem.toLocal(file.getPath(), subPath);
-            create(newRoot, localPath);
+            try {
+                getOrCreateChild(newRoot, localPath, this::createEntry);
+            } catch (ResourceLocationException e) {
+                LOG.warn("Cannot create resource location for {} ({})", localPath, e.getMessage());
+            }
             hasAny = true;
         }
 
@@ -83,52 +85,12 @@ public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
         }
     }
 
-    private void create(FileEntry lastEntry, String path) {
-        var lastIndex = 0;
-        while (lastIndex < path.length()) {
-            var nextIndex = path.indexOf('/', lastIndex);
-            if (nextIndex < 0) nextIndex = path.length();
-
-            var part = path.substring(lastIndex, nextIndex);
-            if (lastEntry.children == null) lastEntry.children = new HashMap<>();
-
-            var nextEntry = lastEntry.children.get(part);
-            if (nextEntry == null) {
-                ResourceLocation childPath;
-                try {
-                    childPath = new ResourceLocation(namespace, subPath + "/" + path);
-                } catch (ResourceLocationException e) {
-                    LOG.warn("Cannot create resource location for {} ({})", part, e.getMessage());
-                    return;
-                }
-                lastEntry.children.put(part, nextEntry = new FileEntry(path, childPath));
-            }
-
-            lastEntry = nextEntry;
-            lastIndex = nextIndex + 1;
-        }
+    private FileEntry createEntry(String path) {
+        return new FileEntry(path, new ResourceLocation(namespace, subPath + "/" + path));
     }
 
     @Override
-    public long getSize(FileEntry file) {
-        var resource = manager.getResource(file.identifier).orElse(null);
-        if (resource == null) return 0;
-
-        try (var stream = resource.open()) {
-            int total = 0, read = 0;
-            do {
-                total += read;
-                read = stream.read(TEMP_BUFFER);
-            } while (read > 0);
-
-            return total;
-        } catch (IOException e) {
-            return 0;
-        }
-    }
-
-    @Override
-    public byte[] getContents(FileEntry file) throws IOException {
+    public byte[] getFileContents(FileEntry file) throws IOException {
         var resource = manager.getResource(file.identifier).orElse(null);
         if (resource == null) throw new FileOperationException(file.path, NO_SUCH_FILE);
 

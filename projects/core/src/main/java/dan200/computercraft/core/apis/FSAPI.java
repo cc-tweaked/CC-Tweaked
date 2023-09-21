@@ -17,7 +17,6 @@ import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.metrics.Metrics;
 
 import javax.annotation.Nullable;
-import java.nio.file.attribute.FileTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -488,9 +487,9 @@ public class FSAPI implements ILuaAPI {
         try (var ignored = environment.time(Metrics.FS_OPS)) {
             var attributes = getFileSystem().getAttributes(path);
             Map<String, Object> result = new HashMap<>();
-            result.put("modification", getFileTime(attributes.lastModifiedTime()));
-            result.put("modified", getFileTime(attributes.lastModifiedTime()));
-            result.put("created", getFileTime(attributes.creationTime()));
+            result.put("modification", attributes.lastModifiedTime().toMillis());
+            result.put("modified", attributes.lastModifiedTime().toMillis());
+            result.put("created", attributes.creationTime().toMillis());
             result.put("size", attributes.isDirectory() ? 0 : attributes.size());
             result.put("isDir", attributes.isDirectory());
             result.put("isReadOnly", getFileSystem().isReadOnly(path));
@@ -498,9 +497,5 @@ public class FSAPI implements ILuaAPI {
         } catch (FileSystemException e) {
             throw new LuaException(e.getMessage());
         }
-    }
-
-    private static long getFileTime(@Nullable FileTime time) {
-        return time == null ? 0 : time.toMillis();
     }
 }

@@ -12,25 +12,30 @@ import java.time.Instant;
 /**
  * A simple version of {@link BasicFileAttributes}, which provides what information a {@link Mount} already exposes.
  *
- * @param isDirectory Whether this filesystem entry is a directory.
- * @param size        The size of the file.
+ * @param isDirectory      Whether this filesystem entry is a directory.
+ * @param size             The size of the file.
+ * @param creationTime     The time the file was created.
+ * @param lastModifiedTime The time the file was last modified.
  */
-public record FileAttributes(boolean isDirectory, long size) implements BasicFileAttributes {
+public record FileAttributes(
+    boolean isDirectory, long size, FileTime creationTime, FileTime lastModifiedTime
+) implements BasicFileAttributes {
     private static final FileTime EPOCH = FileTime.from(Instant.EPOCH);
 
-    @Override
-    public FileTime lastModifiedTime() {
-        return EPOCH;
+    /**
+     * Create a new {@link FileAttributes} instance with the {@linkplain #creationTime() creation time} and
+     * {@linkplain #lastModifiedTime() last modified time} set to the Unix epoch.
+     *
+     * @param isDirectory Whether the filesystem entry is a directory.
+     * @param size        The size of the file.
+     */
+    public FileAttributes(boolean isDirectory, long size) {
+        this(isDirectory, size, EPOCH, EPOCH);
     }
 
     @Override
     public FileTime lastAccessTime() {
-        return EPOCH;
-    }
-
-    @Override
-    public FileTime creationTime() {
-        return EPOCH;
+        return lastModifiedTime();
     }
 
     @Override

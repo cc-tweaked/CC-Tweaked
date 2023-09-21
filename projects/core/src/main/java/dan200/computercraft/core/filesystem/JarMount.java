@@ -4,8 +4,8 @@
 
 package dan200.computercraft.core.filesystem;
 
+import dan200.computercraft.api.filesystem.FileAttributes;
 import dan200.computercraft.api.filesystem.FileOperationException;
-import dan200.computercraft.core.util.Nullability;
 
 import javax.annotation.Nullable;
 import java.io.Closeable;
@@ -42,7 +42,7 @@ public class JarMount extends ArchiveMount<JarMount.FileEntry> implements Closea
         }
 
         // Read in all the entries
-        root = new FileEntry("");
+        var root = this.root = new FileEntry("");
         var zipEntries = zip.entries();
         while (zipEntries.hasMoreElements()) {
             var entry = zipEntries.nextElement();
@@ -51,41 +51,18 @@ public class JarMount extends ArchiveMount<JarMount.FileEntry> implements Closea
             if (!entryPath.startsWith(subPath)) continue;
 
             var localPath = FileSystem.toLocal(entryPath, subPath);
-            create(entry, localPath);
+            getOrCreateChild(root, localPath, FileEntry::new).setup(entry);
         }
-    }
-
-    private void create(ZipEntry entry, String localPath) {
-        var lastEntry = Nullability.assertNonNull(root);
-
-        var lastIndex = 0;
-        while (lastIndex < localPath.length()) {
-            var nextIndex = localPath.indexOf('/', lastIndex);
-            if (nextIndex < 0) nextIndex = localPath.length();
-
-            var part = localPath.substring(lastIndex, nextIndex);
-            if (lastEntry.children == null) lastEntry.children = new HashMap<>(0);
-
-            var nextEntry = lastEntry.children.get(part);
-            if (nextEntry == null || !nextEntry.isDirectory()) {
-                lastEntry.children.put(part, nextEntry = new FileEntry(localPath.substring(0, nextIndex)));
-            }
-
-            lastEntry = nextEntry;
-            lastIndex = nextIndex + 1;
-        }
-
-        lastEntry.setup(entry);
     }
 
     @Override
-    protected long getSize(FileEntry file) throws FileOperationException {
+    protected long getFileSize(FileEntry file) throws FileOperationException {
         if (file.zipEntry == null) throw new FileOperationException(file.path, NO_SUCH_FILE);
         return file.zipEntry.getSize();
     }
 
     @Override
-    protected byte[] getContents(FileEntry file) throws FileOperationException {
+    protected byte[] getFileContents(FileEntry file) throws FileOperationException {
         if (file.zipEntry == null) throw new FileOperationException(file.path, NO_SUCH_FILE);
 
         try (var stream = zip.getInputStream(file.zipEntry)) {
@@ -97,9 +74,10 @@ public class JarMount extends ArchiveMount<JarMount.FileEntry> implements Closea
     }
 
     @Override
-    public BasicFileAttributes getAttributes(FileEntry file) throws FileOperationException {
-        if (file.zipEntry == null) throw new FileOperationException(file.path, NO_SUCH_FILE);
-        return new ZipEntryAttributes(file.zipEntry);
+    protected BasicFileAttributes getAttributes(FileEntry file) throws IOException {
+        return file.zipEntry == null ? super.getAttributes(file) : new FileAttributes(
+            file.isDirectory(), getSize(file), orEpoch(file.zipEntry.getCreationTime()), orEpoch(file.zipEntry.getLastModifiedTime())
+        );
     }
 
     @Override
@@ -117,69 +95,13 @@ public class JarMount extends ArchiveMount<JarMount.FileEntry> implements Closea
 
         void setup(ZipEntry entry) {
             zipEntry = entry;
-            size = entry.getSize();
             if (children == null && entry.isDirectory()) children = new HashMap<>(0);
         }
     }
 
-    private static class ZipEntryAttributes implements BasicFileAttributes {
-        private final ZipEntry entry;
+    private static final FileTime EPOCH = FileTime.from(Instant.EPOCH);
 
-        ZipEntryAttributes(ZipEntry entry) {
-            this.entry = entry;
-        }
-
-        @Override
-        public FileTime lastModifiedTime() {
-            return orEpoch(entry.getLastModifiedTime());
-        }
-
-        @Override
-        public FileTime lastAccessTime() {
-            return orEpoch(entry.getLastAccessTime());
-        }
-
-        @Override
-        public FileTime creationTime() {
-            var time = entry.getCreationTime();
-            return time == null ? lastModifiedTime() : time;
-        }
-
-        @Override
-        public boolean isRegularFile() {
-            return !entry.isDirectory();
-        }
-
-        @Override
-        public boolean isDirectory() {
-            return entry.isDirectory();
-        }
-
-        @Override
-        public boolean isSymbolicLink() {
-            return false;
-        }
-
-        @Override
-        public boolean isOther() {
-            return false;
-        }
-
-        @Override
-        public long size() {
-            return entry.getSize();
-        }
-
-        @Nullable
-        @Override
-        public Object fileKey() {
-            return null;
-        }
-
-        private static final FileTime EPOCH = FileTime.from(Instant.EPOCH);
-
-        private static FileTime orEpoch(@Nullable FileTime time) {
-            return time == null ? EPOCH : time;
-        }
+    private static FileTime orEpoch(@Nullable FileTime time) {
+        return time == null ? EPOCH : time;
     }
 }

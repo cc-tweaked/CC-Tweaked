@@ -6,25 +6,21 @@ package dan200.computercraft.core.filesystem;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import dan200.computercraft.api.filesystem.FileAttributes;
-import dan200.computercraft.api.filesystem.FileOperationException;
-import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
  * An abstract mount based on some archive of files, such as a Zip or Minecraft's resources.
+ * <p>
+ * We assume that we cannot create {@link SeekableByteChannel}s directly from the archive, and so maintain a (shared)
+ * cache of recently read files and their contents.
  *
  * @param <T> The type of file.
  */
-public abstract class ArchiveMount<T extends ArchiveMount.FileEntry<T>> implements Mount {
+public abstract class ArchiveMount<T extends ArchiveMount.FileEntry<T>> extends AbstractInMemoryMount<T> {
     protected static final String NO_SUCH_FILE = "No such file";
 
     /**
@@ -44,82 +40,38 @@ public abstract class ArchiveMount<T extends ArchiveMount.FileEntry<T>> implemen
         .<FileEntry<?>, byte[]>weigher((k, v) -> v.length)
         .build();
 
-    @Nullable
-    protected T root;
-
-    private @Nullable T get(String path) {
-        var lastEntry = root;
-        var lastIndex = 0;
-
-        while (lastEntry != null && lastIndex < path.length()) {
-            var nextIndex = path.indexOf('/', lastIndex);
-            if (nextIndex < 0) nextIndex = path.length();
-
-            lastEntry = lastEntry.children == null ? null : lastEntry.children.get(path.substring(lastIndex, nextIndex));
-            lastIndex = nextIndex + 1;
-        }
-
-        return lastEntry;
-    }
-
     @Override
-    public final boolean exists(String path) {
-        return get(path) != null;
-    }
-
-    @Override
-    public final boolean isDirectory(String path) {
-        var file = get(path);
-        return file != null && file.isDirectory();
-    }
-
-    @Override
-    public final void list(String path, List<String> contents) throws IOException {
-        var file = get(path);
-        if (file == null || !file.isDirectory()) throw new FileOperationException(path, "Not a directory");
-
-        file.list(contents);
-    }
-
-    @Override
-    public final long getSize(String path) throws IOException {
-        var file = get(path);
-        if (file == null) throw new FileOperationException(path, NO_SUCH_FILE);
-        return getCachedSize(file);
-    }
-
-    private long getCachedSize(T file) throws IOException {
+    protected final long getSize(T file) throws IOException {
         if (file.size != -1) return file.size;
         if (file.isDirectory()) return file.size = 0;
 
         var contents = CONTENTS_CACHE.getIfPresent(file);
-        if (contents != null) return file.size = contents.length;
-
-        return file.size = getSize(file);
+        return file.size = contents != null ? contents.length : getFileSize(file);
     }
 
     /**
-     * Get the size of a file.
-     * <p>
-     * This should only be called once per file, as the result is cached in {@link #getSize(String)}.
+     * Get the size of the file by reading it (or its metadata) from disk.
      *
-     * @param file The file to compute the size of. This will not be a directory.
-     * @return The size of the file.
-     * @throws IOException If the size could not be read.
+     * @param file The file to get the size of.
+     * @return The file's size.
+     * @throws IOException If the size could not be computed.
      */
-    protected abstract long getSize(T file) throws IOException;
+    protected long getFileSize(T file) throws IOException {
+        return getContents(file).length;
+    }
 
     @Override
-    public SeekableByteChannel openForRead(String path) throws IOException {
-        var file = get(path);
-        if (file == null || file.isDirectory()) throw new FileOperationException(path, NO_SUCH_FILE);
+    protected final SeekableByteChannel openForRead(T file) throws IOException {
+        return new ArrayByteChannel(getContents(file));
+    }
 
+    private byte[] getContents(T file) throws IOException {
         var cachedContents = CONTENTS_CACHE.getIfPresent(file);
-        if (cachedContents != null) return new ArrayByteChannel(cachedContents);
+        if (cachedContents != null) return cachedContents;
 
-        var contents = getContents(file);
+        var contents = getFileContents(file);
         CONTENTS_CACHE.put(file, contents);
-        return new ArrayByteChannel(contents);
+        return contents;
     }
 
     /**
@@ -128,44 +80,13 @@ public abstract class ArchiveMount<T extends ArchiveMount.FileEntry<T>> implemen
      * @param file The file to read into memory. This will not be a directory.
      * @return The contents of the file.
      */
-    protected abstract byte[] getContents(T file) throws IOException;
+    protected abstract byte[] getFileContents(T file) throws IOException;
 
-    @Override
-    public final BasicFileAttributes getAttributes(String path) throws IOException {
-        var file = get(path);
-        if (file == null) throw new FileOperationException(path, NO_SUCH_FILE);
-
-        return getAttributes(file);
-    }
-
-    /**
-     * Get all attributes of the file.
-     *
-     * @param file The file to compute attributes for. This will not be a directory.
-     * @return The file's attributes.
-     * @throws IOException If the attributes could not be read.
-     */
-    protected BasicFileAttributes getAttributes(T file) throws IOException {
-        return new FileAttributes(file.isDirectory(), getCachedSize(file));
-    }
-
-    protected static class FileEntry<T extends ArchiveMount.FileEntry<T>> {
-        public final String path;
-        @Nullable
-        public Map<String, T> children;
-
+    protected static class FileEntry<T extends FileEntry<T>> extends AbstractInMemoryMount.FileEntry<T> {
         long size = -1;
 
         protected FileEntry(String path) {
-            this.path = path;
-        }
-
-        protected boolean isDirectory() {
-            return children != null;
-        }
-
-        protected void list(List<String> contents) {
-            if (children != null) contents.addAll(children.keySet());
+            super(path);
         }
     }
 }
