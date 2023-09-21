@@ -13,14 +13,14 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.CharsetUtil;
 
-import static dan200.computercraft.core.apis.http.websocket.Websocket.MESSAGE_EVENT;
+import static dan200.computercraft.core.apis.http.websocket.WebsocketClient.MESSAGE_EVENT;
 
-public class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
+class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
     private final Websocket websocket;
     private final Options options;
     private boolean handshakeComplete = false;
 
-    public WebsocketHandler(Websocket websocket, Options options) {
+    WebsocketHandler(Websocket websocket, Options options) {
         this.websocket = websocket;
         this.options = options;
     }
@@ -32,9 +32,9 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
     }
 
     @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
         if (evt == WebSocketClientProtocolHandler.ClientHandshakeStateEvent.HANDSHAKE_COMPLETE) {
-            websocket.success(ctx.channel(), options);
+            websocket.success(options);
             handshakeComplete = true;
         } else if (evt == WebSocketClientProtocolHandler.ClientHandshakeStateEvent.HANDSHAKE_TIMEOUT) {
             websocket.failure("Timed out");

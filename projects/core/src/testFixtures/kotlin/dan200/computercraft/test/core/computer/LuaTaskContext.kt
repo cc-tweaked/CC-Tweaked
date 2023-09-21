@@ -12,6 +12,7 @@ import dan200.computercraft.core.apis.OSAPI
 import dan200.computercraft.core.apis.PeripheralAPI
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.time.Duration
 
 /**
@@ -28,6 +29,9 @@ interface LuaTaskContext {
 
     /** Pull a Lua event */
     suspend fun pullEvent(event: String? = null): Array<out Any?>
+
+    suspend fun pullEventOrTimeout(timeout: Duration, event: String? = null): Array<out Any?>? =
+        withTimeoutOrNull(timeout) { pullEvent(event) }
 
     /** Resolve a [MethodResult] until completion, returning the resulting values. */
     suspend fun MethodResult.await(): Array<out Any?>? {

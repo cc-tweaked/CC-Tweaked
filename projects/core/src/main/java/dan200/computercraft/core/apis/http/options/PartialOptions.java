@@ -34,7 +34,7 @@ public final class PartialOptions {
         this.useProxy = useProxy;
     }
 
-    Options toOptions() {
+    public Options toOptions() {
         if (options != null) return options;
 
         return options = new Options(

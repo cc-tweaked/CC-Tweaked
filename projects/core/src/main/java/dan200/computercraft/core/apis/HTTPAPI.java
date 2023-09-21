@@ -12,6 +12,7 @@ import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.apis.http.*;
 import dan200.computercraft.core.apis.http.request.HttpRequest;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
+import dan200.computercraft.core.apis.http.websocket.WebsocketClient;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -165,7 +166,7 @@ public class HTTPAPI implements ILuaAPI {
         var timeout = getTimeout(timeoutArg);
 
         try {
-            var uri = Websocket.checkUri(address);
+            var uri = WebsocketClient.parseUri(address);
             if (!new Websocket(websockets, apiEnvironment, uri, address, headers, timeout).queue(Websocket::connect)) {
                 throw new LuaException("Too many websockets already open");
             }

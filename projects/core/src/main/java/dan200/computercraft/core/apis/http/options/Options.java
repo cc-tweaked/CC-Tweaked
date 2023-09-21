@@ -6,20 +6,13 @@ package dan200.computercraft.core.apis.http.options;
 
 
 /**
- * Options about a specific domain.
+ * Options for a given HTTP request or websocket, which control its resource constraints.
+ *
+ * @param action           Whether to {@link Action#ALLOW} or {@link Action#DENY} this request.
+ * @param maxUpload        The maximum size of the HTTP request.
+ * @param maxDownload      The maximum size of the HTTP response.
+ * @param websocketMessage The maximum size of a websocket message (outgoing and incoming).
+ * @param useProxy         Whether to use the configured proxy.
  */
-public final class Options {
-    public final Action action;
-    public final long maxUpload;
-    public final long maxDownload;
-    public final int websocketMessage;
-    public final boolean useProxy;
-
-    Options(Action action, long maxUpload, long maxDownload, int websocketMessage, boolean useProxy) {
-        this.action = action;
-        this.maxUpload = maxUpload;
-        this.maxDownload = maxDownload;
-        this.websocketMessage = websocketMessage;
-        this.useProxy = useProxy;
-    }
+public record Options(Action action, long maxUpload, long maxDownload, int websocketMessage, boolean useProxy) {
 }

@@ -134,7 +134,7 @@ public final class NetworkUtils {
      */
     public static Options getOptions(String host, InetSocketAddress address) throws HTTPRequestException {
         var options = AddressRule.apply(CoreConfig.httpRules, host, address);
-        if (options.action == Action.DENY) throw new HTTPRequestException("Domain not permitted");
+        if (options.action() == Action.DENY) throw new HTTPRequestException("Domain not permitted");
         return options;
     }
 
@@ -150,7 +150,7 @@ public final class NetworkUtils {
      * @throws HTTPRequestException If a proxy is required but not configured correctly.
      */
     public static @Nullable Consumer<SocketChannel> getProxyHandler(Options options, int timeout) throws HTTPRequestException {
-        if (!options.useProxy) return null;
+        if (!options.useProxy()) return null;
 
         var type = CoreConfig.httpProxyType;
         var host = CoreConfig.httpProxyHost;

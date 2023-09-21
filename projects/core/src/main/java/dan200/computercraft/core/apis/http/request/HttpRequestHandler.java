@@ -136,7 +136,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
             var partial = content.content();
             if (partial.isReadable()) {
                 // If we've read more than we're allowed to handle, abort as soon as possible.
-                if (options.maxDownload != 0 && responseBody.readableBytes() + partial.readableBytes() > options.maxDownload) {
+                if (options.maxDownload() != 0 && responseBody.readableBytes() + partial.readableBytes() > options.maxDownload()) {
                     closed = true;
                     ctx.close();
 

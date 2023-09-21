@@ -27,7 +27,7 @@ object HttpServer {
     const val URL: String = "http://127.0.0.1:$PORT"
     const val WS_URL: String = "ws://127.0.0.1:$PORT/ws"
 
-    fun runServer(run: () -> Unit) {
+    fun runServer(run: (stop: () -> Unit) -> Unit) {
         val workerGroup: EventLoopGroup = NioEventLoopGroup(2)
         try {
             val ch = ServerBootstrap()
@@ -48,7 +48,7 @@ object HttpServer {
                     },
                 ).bind(PORT).sync().channel()
             try {
-                run()
+                run { workerGroup.shutdownGracefully() }
             } finally {
                 ch.close().sync()
             }

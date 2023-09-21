@@ -130,7 +130,7 @@ public class HttpRequest extends Resource<HttpRequest> {
             if (isClosed()) return;
 
             var requestBody = getHeaderSize(headers) + postBuffer.capacity();
-            if (options.maxUpload != 0 && requestBody > options.maxUpload) {
+            if (options.maxUpload() != 0 && requestBody > options.maxUpload()) {
                 failure("Request body is too large");
                 return;
             }

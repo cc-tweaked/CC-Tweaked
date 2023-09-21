@@ -5,6 +5,7 @@
 package dan200.computercraft.core.apis.http
 
 import dan200.computercraft.api.lua.Coerced
+import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.core.CoreConfig
 import dan200.computercraft.core.apis.HTTPAPI
@@ -22,7 +23,9 @@ import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.*
+import kotlin.time.Duration.Companion.milliseconds
 
 class TestHttpApi {
     companion object {
@@ -79,12 +82,36 @@ class TestHttpApi {
 
                 websocket.close()
 
+                val closeEvent = pullEventOrTimeout(500.milliseconds, "websocket_closed")
+                assertThat("No event was queued", closeEvent, equalTo(null))
+            }
+        }
+    }
+
+    @Test
+    fun `Queues an event when the socket is externally closed`() {
+        runServer { stop ->
+            LuaTaskRunner.runTest {
+                val httpApi = addApi(HTTPAPI(environment))
+                assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(WS_URL)), array(equalTo(true)))
+
+                val connectEvent = pullEvent()
+                assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(WS_URL), isA(WebsocketHandle::class.java)))
+
+                val websocket = connectEvent[2] as WebsocketHandle
+
+                stop()
+
                 val closeEvent = pullEvent("websocket_closed")
                 assertThat(
                     "Websocket was closed",
                     closeEvent,
                     array(equalTo("websocket_closed"), equalTo(WS_URL), equalTo("Connection closed"), equalTo(null)),
                 )
+
+                assertThrows<LuaException>("Throws an exception when sending") {
+                    websocket.send(Coerced("hello"), Optional.of(false))
+                }
             }
         }
     }
