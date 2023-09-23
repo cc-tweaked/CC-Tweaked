@@ -70,6 +70,10 @@ import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
+import dan200.computercraft.shared.recipe.CustomShapedRecipe;
+import dan200.computercraft.shared.recipe.CustomShapelessRecipe;
+import dan200.computercraft.shared.recipe.ImpostorShapedRecipe;
+import dan200.computercraft.shared.recipe.ImpostorShapelessRecipe;
 import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
@@ -79,8 +83,6 @@ import dan200.computercraft.shared.turtle.recipes.TurtleOverlayRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.turtle.upgrades.*;
-import dan200.computercraft.shared.util.ImpostorRecipe;
-import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
@@ -359,17 +361,21 @@ public final class ModRegistry {
             return REGISTRY.register(name, () -> new SimpleCraftingRecipeSerializer<>(factory));
         }
 
+        public static final RegistryEntry<RecipeSerializer<CustomShapedRecipe>> SHAPED = REGISTRY.register("shaped", () -> CustomShapedRecipe.serialiser(CustomShapedRecipe::new));
+        public static final RegistryEntry<RecipeSerializer<CustomShapelessRecipe>> SHAPELESS = REGISTRY.register("shapeless", () -> CustomShapelessRecipe.serialiser(CustomShapelessRecipe::new));
+
+        public static final RegistryEntry<RecipeSerializer<ImpostorShapedRecipe>> IMPOSTOR_SHAPED = REGISTRY.register("impostor_shaped", () -> CustomShapedRecipe.serialiser(ImpostorShapedRecipe::new));
+        public static final RegistryEntry<RecipeSerializer<ImpostorShapelessRecipe>> IMPOSTOR_SHAPELESS = REGISTRY.register("impostor_shapeless", () -> CustomShapelessRecipe.serialiser(ImpostorShapelessRecipe::new));
+
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<ColourableRecipe>> DYEABLE_ITEM = simple("colour", ColourableRecipe::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<ClearColourRecipe>> DYEABLE_ITEM_CLEAR = simple("clear_colour", ClearColourRecipe::new);
-        public static final RegistryEntry<TurtleRecipe.Serializer> TURTLE = REGISTRY.register("turtle", TurtleRecipe.Serializer::new);
+        public static final RegistryEntry<RecipeSerializer<TurtleRecipe>> TURTLE = REGISTRY.register("turtle", () -> TurtleRecipe.validatingSerialiser(TurtleRecipe::of));
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<TurtleUpgradeRecipe>> TURTLE_UPGRADE = simple("turtle_upgrade", TurtleUpgradeRecipe::new);
-        public static final RegistryEntry<TurtleOverlayRecipe.Serializer> TURTLE_OVERLAY = REGISTRY.register("turtle_overlay", TurtleOverlayRecipe.Serializer::new);
+        public static final RegistryEntry<RecipeSerializer<TurtleOverlayRecipe>> TURTLE_OVERLAY = REGISTRY.register("turtle_overlay", TurtleOverlayRecipe.Serializer::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<PocketComputerUpgradeRecipe>> POCKET_COMPUTER_UPGRADE = simple("pocket_computer_upgrade", PocketComputerUpgradeRecipe::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<PrintoutRecipe>> PRINTOUT = simple("printout", PrintoutRecipe::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<DiskRecipe>> DISK = simple("disk", DiskRecipe::new);
-        public static final RegistryEntry<ComputerUpgradeRecipe.Serializer> COMPUTER_UPGRADE = REGISTRY.register("computer_upgrade", ComputerUpgradeRecipe.Serializer::new);
-        public static final RegistryEntry<ImpostorRecipe.Serializer> IMPOSTOR_SHAPED = REGISTRY.register("impostor_shaped", ImpostorRecipe.Serializer::new);
-        public static final RegistryEntry<ImpostorShapelessRecipe.Serializer> IMPOSTOR_SHAPELESS = REGISTRY.register("impostor_shapeless", ImpostorShapelessRecipe.Serializer::new);
+        public static final RegistryEntry<RecipeSerializer<ComputerUpgradeRecipe>> COMPUTER_UPGRADE = REGISTRY.register("computer_upgrade", ComputerUpgradeRecipe.Serializer::new);
     }
 
     public static class Permissions {

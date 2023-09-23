@@ -4,26 +4,33 @@
 
 package dan200.computercraft.shared.turtle.recipes;
 
+import com.mojang.serialization.DataResult;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.IComputerItem;
-import dan200.computercraft.shared.computer.recipe.ComputerFamilyRecipe;
+import dan200.computercraft.shared.computer.recipe.ComputerConvertRecipe;
+import dan200.computercraft.shared.recipe.ShapedRecipeSpec;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
-import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
-public final class TurtleRecipe extends ComputerFamilyRecipe {
-    public TurtleRecipe(ResourceLocation identifier, String group, CraftingBookCategory category, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family) {
-        super(identifier, group, category, width, height, ingredients, result, family);
+/**
+ * The recipe which crafts a turtle from an existing computer item.
+ */
+public final class TurtleRecipe extends ComputerConvertRecipe {
+    private final TurtleItem turtle;
+
+    private TurtleRecipe(ResourceLocation id, ShapedRecipeSpec recipe, TurtleItem turtle) {
+        super(id, recipe);
+        this.turtle = turtle;
     }
 
-    @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRegistry.RecipeSerializers.TURTLE.get();
+    public static DataResult<TurtleRecipe> of(ResourceLocation id, ShapedRecipeSpec recipe) {
+        if (!(recipe.result().getItem() instanceof TurtleItem turtle)) {
+            return DataResult.error(() -> recipe.result().getItem() + " is not a turtle item");
+        }
+
+        return DataResult.success(new TurtleRecipe(id, recipe, turtle));
     }
 
     @Override
@@ -31,13 +38,11 @@ public final class TurtleRecipe extends ComputerFamilyRecipe {
         var computerID = item.getComputerID(stack);
         var label = item.getLabel(stack);
 
-        return TurtleItem.create(computerID, label, -1, getFamily(), null, null, 0, null);
+        return turtle.create(computerID, label, -1, null, null, 0, null);
     }
 
-    public static class Serializer extends ComputerFamilyRecipe.Serializer<TurtleRecipe> {
-        @Override
-        protected TurtleRecipe create(ResourceLocation identifier, String group, CraftingBookCategory category, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family) {
-            return new TurtleRecipe(identifier, group, category, width, height, ingredients, result, family);
-        }
+    @Override
+    public RecipeSerializer<TurtleRecipe> getSerializer() {
+        return ModRegistry.RecipeSerializers.TURTLE.get();
     }
 }

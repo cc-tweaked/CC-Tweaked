@@ -14,7 +14,6 @@
         "ItemEntityMixin",
         "ItemMixin",
         "ServerLevelMixin",
-        "ShapedRecipeMixin",
         "TagEntryAccessor",
         "TagsProviderMixin"
     ]

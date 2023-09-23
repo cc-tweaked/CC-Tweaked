@@ -4,6 +4,7 @@
 
 package dan200.computercraft.gametest
 
+import com.mojang.authlib.GameProfile
 import dan200.computercraft.gametest.api.Structures
 import dan200.computercraft.gametest.api.sequence
 import dan200.computercraft.shared.ModRegistry
@@ -11,6 +12,7 @@ import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestAssertException
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.NbtUtils
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.inventory.MenuType
@@ -41,11 +43,10 @@ class Recipe_Test {
 
             val result = recipe.get().assemble(container, context.level.registryAccess())
 
-            val owner = CompoundTag()
-            owner.putString("Name", "dan200")
-            owner.putString("Id", "f3c8d69b-0776-4512-8434-d1b2165909eb")
+            val profile = GameProfile(UUID.fromString("f3c8d69b-0776-4512-8434-d1b2165909eb"), "dan200")
+
             val tag = CompoundTag()
-            tag.put("SkullOwner", owner)
+            tag.put("SkullOwner", NbtUtils.writeGameProfile(CompoundTag(), profile))
 
             assertEquals(tag, result.tag, "Expected NBT tags to be the same")
         }

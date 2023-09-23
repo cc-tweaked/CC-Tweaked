@@ -5,6 +5,7 @@
 package dan200.computercraft.data;
 
 import com.google.gson.JsonObject;
+import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
 import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
@@ -25,15 +26,12 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.DyeItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
@@ -41,6 +39,7 @@ import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import static dan200.computercraft.api.ComputerCraftTags.Items.COMPUTER;
@@ -443,7 +442,7 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .requires(ModRegistry.Items.MONITOR_NORMAL.get())
             .unlockedBy("has_monitor", inventoryChange(ModRegistry.Items.MONITOR_NORMAL.get()))
             .save(
-                RecipeWrapper.wrap(RecipeSerializer.SHAPELESS_RECIPE, add)
+                RecipeWrapper.wrap(ModRegistry.RecipeSerializers.SHAPELESS.get(), add)
                     .withResultTag(playerHead("Cloudhunter", "6d074736-b1e9-4378-a99b-bd8777821c9c")),
                 new ResourceLocation(ComputerCraftAPI.MOD_ID, "skull_cloudy")
             );
@@ -454,7 +453,7 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .requires(ModRegistry.Items.COMPUTER_ADVANCED.get())
             .unlockedBy("has_computer", inventoryChange(ModRegistry.Items.COMPUTER_ADVANCED.get()))
             .save(
-                RecipeWrapper.wrap(RecipeSerializer.SHAPELESS_RECIPE, add)
+                RecipeWrapper.wrap(ModRegistry.RecipeSerializers.SHAPELESS.get(), add)
                     .withResultTag(playerHead("dan200", "f3c8d69b-0776-4512-8434-d1b2165909eb")),
                 new ResourceLocation(ComputerCraftAPI.MOD_ID, "skull_dan200")
             );
@@ -513,17 +512,15 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     }
 
     private static CompoundTag playerHead(String name, String uuid) {
-        var owner = new CompoundTag();
-        owner.putString("Name", name);
-        owner.putString("Id", uuid);
+        var owner = NbtUtils.writeGameProfile(new CompoundTag(), new GameProfile(UUID.fromString(uuid), name));
 
         var tag = new CompoundTag();
-        tag.put("SkullOwner", owner);
+        tag.put(PlayerHeadItem.TAG_SKULL_OWNER, owner);
         return tag;
     }
 
     private static Consumer<JsonObject> family(ComputerFamily family) {
-        return json -> json.addProperty("family", family.toString());
+        return json -> json.addProperty("family", family.getSerializedName());
     }
 
     private static void addSpecial(Consumer<FinishedRecipe> add, SimpleCraftingRecipeSerializer<?> special) {
