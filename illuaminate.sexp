@@ -10,7 +10,7 @@
   /projects/core/src/main/resources/data/computercraft/lua/bios.lua
   /projects/core/src/main/resources/data/computercraft/lua/rom/
   /projects/core/src/test/resources/test-rom
-  /projects/web/src/mount)
+  /projects/web/src/frontend/mount)
 
 (doc
   ; Also defined in projects/web/build.gradle.kts
@@ -23,7 +23,7 @@
     (url https://tweaked.cc/)
     (source-link https://github.com/cc-tweaked/CC-Tweaked/blob/${commit}/${path}#L${line})
 
-    (styles /projects/web/src/styles.css)
+    (styles /projects/web/src/frontend/styles.css)
     (scripts /projects/web/build/rollup/index.js)
     (head doc/head.html))
 
@@ -115,4 +115,4 @@
       :max sleep write
       cct_test describe expect howlci fail it pending stub before_each)))
 
-(at /projects/web/src/mount/expr_template.lua (lint (globals :max __expr__)))
+(at /projects/web/src/frontend/mount/expr_template.lua (lint (globals :max __expr__)))

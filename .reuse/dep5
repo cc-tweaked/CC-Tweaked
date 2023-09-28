@@ -10,8 +10,8 @@ Files:
   projects/common/src/testMod/resources/data/cctest/structures/*
   projects/fabric/src/generated/*
   projects/forge/src/generated/*
-  projects/web/src/export/index.json
-  projects/web/src/export/items/minecraft/*
+  projects/web/src/htmlTransform/export/index.json
+  projects/web/src/htmlTransform/export/items/minecraft/*
 Comment: Generated/data files are CC0.
 Copyright: The CC: Tweaked Developers
 License: CC0-1.0
@@ -37,10 +37,10 @@ Files:
   projects/fabric/src/testMod/resources/computercraft-gametest.fabric.mixins.json
   projects/fabric/src/testMod/resources/fabric.mod.json
   projects/forge/src/client/resources/computercraft-client.forge.mixins.json
-  projects/web/src/mount/.settings
-  projects/web/src/mount/example.nfp
-  projects/web/src/mount/example.nft
-  projects/web/src/mount/expr_template.lua
+  projects/web/src/frontend/mount/.settings
+  projects/web/src/frontend/mount/example.nfp
+  projects/web/src/frontend/mount/example.nft
+  projects/web/src/frontend/mount/expr_template.lua
   projects/web/tsconfig.json
 Comment: Several assets where it's inconvenient to create a .license file.
 Copyright: The CC: Tweaked Developers
@@ -56,7 +56,7 @@ Files:
   projects/core/src/main/resources/data/computercraft/lua/rom/autorun/.ignoreme
   projects/core/src/main/resources/data/computercraft/lua/rom/help/*
   projects/core/src/main/resources/data/computercraft/lua/rom/programs/fun/advanced/levels/*
-  projects/web/src/export/items/computercraft/*
+  projects/web/src/htmlTransform/export/items/computercraft/*
 Comment: Bulk-license original assets as CCPL.
 Copyright: 2011 Daniel Ratcliffe
 License: LicenseRef-CCPL

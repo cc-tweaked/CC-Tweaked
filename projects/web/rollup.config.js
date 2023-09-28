@@ -9,7 +9,7 @@ import terser from "@rollup/plugin-terser";
 import typescript from "@rollup/plugin-typescript";
 import url from "@rollup/plugin-url";
 
-const input = "src";
+const input = "src/frontend";
 const requirejs = readFileSync("../../node_modules/requirejs/require.js");
 
 /** @type import("rollup").RollupOptions */

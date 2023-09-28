@@ -26,7 +26,13 @@ import { noChildren } from "./components/support";
 import { WithExport, type DataExport } from "./components/WithExport";
 
 (async () => {
-    const base = "build/illuaminate";
+    if (process.argv.length !== 5) {
+        console.error("npx tsx ./index.tsx SOURCE EXPORT_JSON OUTPUT");
+        console.error(`Received ${process.argv.length - 1} arguments, expected 4`);
+        process.exit(1);
+    }
+
+    const [_node, _file, sourceDir, dataFile, outputDir] = process.argv;
 
     const reactOptions: ReactOptions = {
         ...(runtime as ReactOptions),
@@ -46,14 +52,14 @@ import { WithExport, type DataExport } from "./components/WithExport";
         .use(rehypeHighlight as unknown as Plugin<[HighlightOptions], import("hast").Root>, { prefix: "" })
         .use(rehypeReact, reactOptions);
 
-    const dataExport = JSON.parse(await fs.readFile("src/export/index.json", "utf-8")) as DataExport;
+    const dataExport = JSON.parse(await fs.readFile(dataFile, "utf-8")) as DataExport;
 
-    for (const file of await glob(base + "/**/*.html")) {
+    for (const file of await glob(sourceDir + "/**/*.html")) {
         const contents = await fs.readFile(file, "utf-8");
 
         const { result } = await processor.process(contents);
 
-        const outputPath = path.resolve("build/jsxDocs", path.relative(base, file));
+        const outputPath = path.resolve(outputDir, path.relative(sourceDir, file));
         await fs.mkdir(path.dirname(outputPath), { recursive: true });
         await fs.writeFile(outputPath, "<!doctype HTML>" + renderToStaticMarkup(<WithExport data={dataExport}>{result}</WithExport>));
     }
