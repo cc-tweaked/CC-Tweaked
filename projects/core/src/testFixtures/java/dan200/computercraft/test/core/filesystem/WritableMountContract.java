@@ -5,10 +5,16 @@
 package dan200.computercraft.test.core.filesystem;
 
 import dan200.computercraft.api.filesystem.WritableMount;
+import dan200.computercraft.api.lua.LuaValues;
+import dan200.computercraft.test.core.ReplaceUnderscoresDisplayNameGenerator;
+import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.opentest4j.TestAbortedException;
 
 import java.io.IOException;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,8 +23,15 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @see MountContract
  */
+@DisplayNameGeneration(ReplaceUnderscoresDisplayNameGenerator.class)
 public interface WritableMountContract {
     long CAPACITY = 1_000_000;
+
+    String LONG_CONTENTS = "This is some example text.\n".repeat(100);
+
+    static Stream<String> fileContents() {
+        return Stream.of("", LONG_CONTENTS);
+    }
 
     /**
      * Create a new empty mount.
@@ -43,18 +56,30 @@ public interface WritableMountContract {
     }
 
     @Test
-    default void testRootWritable() throws IOException {
+    default void Root_is_writable() throws IOException {
         assertFalse(createExisting(CAPACITY).mount().isReadOnly("/"));
         assertFalse(createMount(CAPACITY).mount().isReadOnly("/"));
     }
 
     @Test
-    default void testMissingDirWritable() throws IOException {
+    default void Missing_dir_is_writable() throws IOException {
         assertFalse(createExisting(CAPACITY).mount().isReadOnly("/foo/bar/baz/qux"));
     }
 
     @Test
-    default void testDirReadOnly() throws IOException {
+    default void Make_directory_recursive() throws IOException {
+        var access = createMount(CAPACITY);
+        var mount = access.mount();
+        mount.makeDirectory("a/b/c");
+
+        assertTrue(mount.isDirectory("a/b/c"));
+
+        assertEquals(CAPACITY - 500 * 3, mount.getRemainingSpace());
+        assertEquals(access.computeRemainingSpace(), access.mount().getRemainingSpace(), "Free space is inconsistent");
+    }
+
+    @Test
+    default void Can_make_read_only() throws IOException {
         var root = createMount(CAPACITY);
         var mount = root.mount();
         mount.makeDirectory("read-only");
@@ -66,15 +91,94 @@ public interface WritableMountContract {
     }
 
     @Test
-    default void testMovePreservesSpace() throws IOException {
+    default void Initial_free_space_and_capacity() throws IOException {
+        var mount = createExisting(CAPACITY).mount();
+        assertEquals(CAPACITY, mount.getCapacity());
+        assertEquals(CAPACITY, mount.getRemainingSpace());
+    }
+
+    @Test
+    default void Write_updates_size_and_free_space() throws IOException {
         var access = createExisting(CAPACITY);
         var mount = access.mount();
-        mount.openForWrite("foo").close();
+
+        Mounts.writeFile(mount, "hello.txt", LONG_CONTENTS);
+        assertEquals(LONG_CONTENTS.length(), mount.getSize("hello.txt"));
+        assertEquals(CAPACITY - LONG_CONTENTS.length(), mount.getRemainingSpace());
+
+        Mounts.writeFile(mount, "hello.txt", "");
+        assertEquals(0, mount.getSize("hello.txt"));
+        assertEquals(CAPACITY - 500, mount.getRemainingSpace());
+        assertEquals(access.computeRemainingSpace(), access.mount().getRemainingSpace(), "Free space is inconsistent");
+    }
+
+    @Test
+    default void Append_jumps_to_file_end() throws IOException {
+        var access = createExisting(CAPACITY);
+        var mount = access.mount();
+
+        Mounts.writeFile(mount, "a.txt", "example");
+
+        try (var handle = mount.openForAppend("a.txt")) {
+            assertEquals(7, handle.position());
+            handle.write(LuaValues.encode(" text"));
+            assertEquals(12, handle.position());
+        }
+
+        assertEquals(12, mount.getSize("a.txt"));
+    }
+
+    @ParameterizedTest(name = "\"{0}\"")
+    @MethodSource("fileContents")
+    default void Move_file(String contents) throws IOException {
+        var access = createExisting(CAPACITY);
+        var mount = access.mount();
+        Mounts.writeFile(mount, "src.txt", contents);
 
         var remainingSpace = mount.getRemainingSpace();
-        mount.rename("foo", "bar");
 
+        mount.rename("src.txt", "dest.txt");
+        assertFalse(mount.exists("src.txt"));
+        assertTrue(mount.exists("dest.txt"));
+
+        assertEquals(contents.length(), mount.getSize("dest.txt"));
         assertEquals(remainingSpace, mount.getRemainingSpace(), "Free space has changed after moving");
+        assertEquals(access.computeRemainingSpace(), access.mount().getRemainingSpace(), "Free space is inconsistent");
+    }
+
+    @ParameterizedTest(name = "\"{0}\"")
+    @MethodSource("fileContents")
+    default void Move_file_fails_when_destination_exists(String contents) throws IOException {
+        var access = createExisting(CAPACITY);
+        var mount = access.mount();
+        Mounts.writeFile(mount, "src.txt", contents);
+        Mounts.writeFile(mount, "dest.txt", "dest");
+
+        var remainingSpace = mount.getRemainingSpace();
+
+        assertThrows(IOException.class, () -> mount.rename("src.txt", "dest.txt"));
+
+        assertEquals(contents.length(), mount.getSize("src.txt"));
+        assertEquals(4, mount.getSize("dest.txt"));
+
+        assertEquals(remainingSpace, mount.getRemainingSpace(), "Free space has changed despite no move occurred.");
+        assertEquals(access.computeRemainingSpace(), access.mount().getRemainingSpace(), "Free space is inconsistent");
+    }
+
+    @Test
+    default void Move_file_fails_when_source_does_not_exist() throws IOException {
+        var access = createExisting(CAPACITY);
+        var mount = access.mount();
+        Mounts.writeFile(mount, "dest.txt", "dest");
+
+        var remainingSpace = mount.getRemainingSpace();
+
+        assertThrows(IOException.class, () -> mount.rename("src.txt", "dest.txt"));
+
+        assertFalse(mount.exists("src.txt"));
+        assertEquals(4, mount.getSize("dest.txt"));
+
+        assertEquals(remainingSpace, mount.getRemainingSpace(), "Free space has changed despite no move occurred.");
         assertEquals(access.computeRemainingSpace(), access.mount().getRemainingSpace(), "Free space is inconsistent");
     }
 
@@ -90,7 +194,7 @@ public interface WritableMountContract {
         WritableMount mount();
 
         /**
-         * Make a path read-only. This may throw a {@link TestAbortedException} if
+         * Make a path read-only. This may throw a {@link TestAbortedException} if this operation is not supported.
          *
          * @param path The mount-relative path.
          */

@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.computer.menu;
 
+import dan200.computercraft.core.apis.handles.ByteBufferChannel;
 import dan200.computercraft.core.apis.transfer.TransferredFile;
 import dan200.computercraft.core.apis.transfer.TransferredFiles;
 import dan200.computercraft.shared.computer.upload.FileSlice;
@@ -22,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * The default concrete implementation of {@link ServerInputHandler}.
@@ -156,7 +156,7 @@ public class ServerInputState<T extends AbstractContainerMenu & ComputerMenu> im
 
         computer.queueEvent(TransferredFiles.EVENT, new Object[]{
             new TransferredFiles(
-                toUpload.stream().map(x -> new TransferredFile(x.getName(), x.getBytes())).collect(Collectors.toList()),
+                toUpload.stream().map(x -> new TransferredFile(x.getName(), new ByteBufferChannel(x.getBytes()))).toList(),
                 () -> {
                     if (player.isAlive() && player.containerMenu == owner) {
                         PlatformHelper.get().sendToPlayer(UploadResultMessage.consumed(owner), player);

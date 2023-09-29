@@ -23,7 +23,7 @@ internal object LoaderOverrides {
     private const val FABRIC_ANNOTATION: String = "dan200.computercraft.annotations.FabricOverride"
 
     fun hasOverrideAnnotation(symbol: Symbol.MethodSymbol, state: VisitorState) =
-        ASTHelpers.hasAnnotation(symbol, Override::class.java, state)
+        ASTHelpers.hasAnnotation(symbol, "java.lang.Override", state)
 
     fun getAnnotation(flags: ErrorProneFlags) = when (flags.get("ModLoader").orElse(null)) {
         "forge" -> FORGE_ANNOTATION

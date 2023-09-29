@@ -22,7 +22,7 @@ import java.util.zip.ZipFile;
 /**
  * A mount which reads zip/jar files.
  */
-public class JarMount extends ArchiveMount<JarMount.FileEntry> implements Closeable {
+public final class JarMount extends ArchiveMount<JarMount.FileEntry> implements Closeable {
     private final ZipFile zip;
 
     public JarMount(File jarFile, String subPath) throws IOException {
@@ -42,7 +42,7 @@ public class JarMount extends ArchiveMount<JarMount.FileEntry> implements Closea
         }
 
         // Read in all the entries
-        var root = this.root = new FileEntry("");
+        var root = this.root = new FileEntry();
         var zipEntries = zip.entries();
         while (zipEntries.hasMoreElements()) {
             var entry = zipEntries.nextElement();
@@ -51,32 +51,32 @@ public class JarMount extends ArchiveMount<JarMount.FileEntry> implements Closea
             if (!entryPath.startsWith(subPath)) continue;
 
             var localPath = FileSystem.toLocal(entryPath, subPath);
-            getOrCreateChild(root, localPath, FileEntry::new).setup(entry);
+            getOrCreateChild(root, localPath, x -> new FileEntry()).setup(entry);
         }
     }
 
     @Override
-    protected long getFileSize(FileEntry file) throws FileOperationException {
-        if (file.zipEntry == null) throw new FileOperationException(file.path, NO_SUCH_FILE);
+    protected long getFileSize(String path, FileEntry file) throws FileOperationException {
+        if (file.zipEntry == null) throw new FileOperationException(path, NO_SUCH_FILE);
         return file.zipEntry.getSize();
     }
 
     @Override
-    protected byte[] getFileContents(FileEntry file) throws FileOperationException {
-        if (file.zipEntry == null) throw new FileOperationException(file.path, NO_SUCH_FILE);
+    protected byte[] getFileContents(String path, FileEntry file) throws FileOperationException {
+        if (file.zipEntry == null) throw new FileOperationException(path, NO_SUCH_FILE);
 
         try (var stream = zip.getInputStream(file.zipEntry)) {
             return stream.readAllBytes();
         } catch (IOException e) {
             // Mask other IO exceptions as a non-existent file.
-            throw new FileOperationException(file.path, NO_SUCH_FILE);
+            throw new FileOperationException(path, NO_SUCH_FILE);
         }
     }
 
     @Override
-    protected BasicFileAttributes getAttributes(FileEntry file) throws IOException {
-        return file.zipEntry == null ? super.getAttributes(file) : new FileAttributes(
-            file.isDirectory(), getSize(file), orEpoch(file.zipEntry.getCreationTime()), orEpoch(file.zipEntry.getLastModifiedTime())
+    protected BasicFileAttributes getAttributes(String path, FileEntry file) throws IOException {
+        return file.zipEntry == null ? super.getAttributes(path, file) : new FileAttributes(
+            file.isDirectory(), getSize(path, file), orEpoch(file.zipEntry.getCreationTime()), orEpoch(file.zipEntry.getLastModifiedTime())
         );
     }
 
@@ -85,13 +85,9 @@ public class JarMount extends ArchiveMount<JarMount.FileEntry> implements Closea
         zip.close();
     }
 
-    protected static class FileEntry extends ArchiveMount.FileEntry<FileEntry> {
+    protected static final class FileEntry extends ArchiveMount.FileEntry<FileEntry> {
         @Nullable
         ZipEntry zipEntry;
-
-        protected FileEntry(String path) {
-            super(path);
-        }
 
         void setup(ZipEntry entry) {
             zipEntry = entry;

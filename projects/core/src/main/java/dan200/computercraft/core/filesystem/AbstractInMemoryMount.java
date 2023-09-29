@@ -28,7 +28,7 @@ public abstract class AbstractInMemoryMount<T extends AbstractInMemoryMount.File
     @Nullable
     protected T root;
 
-    private @Nullable T get(String path) {
+    protected final @Nullable T get(String path) {
         var lastEntry = root;
         var lastIndex = 0;
 
@@ -57,58 +57,61 @@ public abstract class AbstractInMemoryMount<T extends AbstractInMemoryMount.File
     @Override
     public final void list(String path, List<String> contents) throws IOException {
         var file = get(path);
-        if (file == null || !file.isDirectory()) throw new FileOperationException(path, "Not a directory");
+        if (file == null || file.children == null) throw new FileOperationException(path, "Not a directory");
 
-        file.list(contents);
+        contents.addAll(file.children.keySet());
     }
 
     @Override
     public final long getSize(String path) throws IOException {
         var file = get(path);
         if (file == null) throw new FileOperationException(path, NO_SUCH_FILE);
-        return getSize(file);
+        return getSize(path, file);
     }
 
     /**
      * Get the size of a file.
      *
+     * @param path The file path, for error messages.
      * @param file The file to get the size of.
      * @return The size of the file. This should be 0 for directories, and equal to {@code openForRead(_).size()} for files.
      * @throws IOException If the size could not be read.
      */
-    protected abstract long getSize(T file) throws IOException;
+    protected abstract long getSize(String path, T file) throws IOException;
 
     @Override
     public final SeekableByteChannel openForRead(String path) throws IOException {
         var file = get(path);
         if (file == null || file.isDirectory()) throw new FileOperationException(path, NO_SUCH_FILE);
-        return openForRead(file);
+        return openForRead(path, file);
     }
 
     /**
      * Open a file for reading.
      *
+     * @param path The file path, for error messages.
      * @param file The file to read. This will not be a directory.
      * @return The channel for this file.
      */
-    protected abstract SeekableByteChannel openForRead(T file) throws IOException;
+    protected abstract SeekableByteChannel openForRead(String path, T file) throws IOException;
 
     @Override
     public final BasicFileAttributes getAttributes(String path) throws IOException {
         var file = get(path);
         if (file == null) throw new FileOperationException(path, NO_SUCH_FILE);
-        return getAttributes(file);
+        return getAttributes(path, file);
     }
 
     /**
      * Get all attributes of the file.
      *
+     * @param path The file path, for error messages.
      * @param file The file to compute attributes for.
      * @return The file's attributes.
      * @throws IOException If the attributes could not be read.
      */
-    protected BasicFileAttributes getAttributes(T file) throws IOException {
-        return new FileAttributes(file.isDirectory(), getSize(file));
+    protected BasicFileAttributes getAttributes(String path, T file) throws IOException {
+        return new FileAttributes(file.isDirectory(), getSize(path, file));
     }
 
     protected T getOrCreateChild(T lastEntry, String localPath, Function<String, T> factory) {
@@ -133,20 +136,11 @@ public abstract class AbstractInMemoryMount<T extends AbstractInMemoryMount.File
     }
 
     protected static class FileEntry<T extends FileEntry<T>> {
-        public final String path;
         @Nullable
         public Map<String, T> children;
 
-        protected FileEntry(String path) {
-            this.path = path;
-        }
-
         public boolean isDirectory() {
             return children != null;
-        }
-
-        protected void list(List<String> contents) {
-            if (children != null) contents.addAll(children.keySet());
         }
     }
 }

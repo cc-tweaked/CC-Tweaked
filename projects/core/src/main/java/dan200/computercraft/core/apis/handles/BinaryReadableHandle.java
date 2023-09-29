@@ -77,12 +77,10 @@ public class BinaryReadableHandle extends HandleGeneric {
                     var buffer = ByteBuffer.allocate(BUFFER_SIZE);
                     var read = channel.read(buffer);
                     if (read < 0) return null;
+                    buffer.flip();
 
                     // If we failed to read "enough" here, let's just abort
-                    if (read >= count || read < BUFFER_SIZE) {
-                        buffer.flip();
-                        return new Object[]{ buffer };
-                    }
+                    if (read >= count || read < BUFFER_SIZE) return new Object[]{ buffer };
 
                     // Build up an array of ByteBuffers. Hopefully this means we can perform less allocation
                     // than doubling up the buffer each time.
@@ -90,11 +88,13 @@ public class BinaryReadableHandle extends HandleGeneric {
                     List<ByteBuffer> parts = new ArrayList<>(4);
                     parts.add(buffer);
                     while (read >= BUFFER_SIZE && totalRead < count) {
-                        buffer = ByteBuffer.allocate(Math.min(BUFFER_SIZE, count - totalRead));
+                        buffer = ByteBuffer.allocateDirect(Math.min(BUFFER_SIZE, count - totalRead));
                         read = channel.read(buffer);
                         if (read < 0) break;
+                        buffer.flip();
 
                         totalRead += read;
+                        assert read == buffer.remaining();
                         parts.add(buffer);
                     }
 
@@ -102,9 +102,11 @@ public class BinaryReadableHandle extends HandleGeneric {
                     var bytes = new byte[totalRead];
                     var pos = 0;
                     for (var part : parts) {
-                        System.arraycopy(part.array(), 0, bytes, pos, part.position());
-                        pos += part.position();
+                        int length = part.remaining();
+                        part.get(bytes, pos, length);
+                        pos += length;
                     }
+                    assert pos == totalRead;
                     return new Object[]{ bytes };
                 }
             } else {

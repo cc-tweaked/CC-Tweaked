@@ -10,10 +10,10 @@ import java.util.Deque;
 import java.util.Objects;
 
 /**
- * An {@link AutoCloseable} implementation which can be used to combine other [AutoCloseable] instances.
+ * An {@link AutoCloseable} implementation which can be used to combine other {@link AutoCloseable} instances.
  * <p>
- * Values which implement {@link AutoCloseable} can be dynamically registered with [CloseScope.add]. When the scope is
- * closed, each value is closed in the opposite order.
+ * Values which implement {@link AutoCloseable} can be dynamically registered with {@link CloseScope#add(AutoCloseable)}.
+ * When the scope is closed, each value is closed in the opposite order.
  * <p>
  * This is largely intended for cases where it's not appropriate to nest try-with-resources blocks, for instance when
  * nested would be too deep or when objects are dynamically created.

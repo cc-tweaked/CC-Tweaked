@@ -41,35 +41,36 @@ public abstract class ArchiveMount<T extends ArchiveMount.FileEntry<T>> extends 
         .build();
 
     @Override
-    protected final long getSize(T file) throws IOException {
+    protected final long getSize(String path, T file) throws IOException {
         if (file.size != -1) return file.size;
         if (file.isDirectory()) return file.size = 0;
 
         var contents = CONTENTS_CACHE.getIfPresent(file);
-        return file.size = contents != null ? contents.length : getFileSize(file);
+        return file.size = contents != null ? contents.length : getFileSize(path, file);
     }
 
     /**
      * Get the size of the file by reading it (or its metadata) from disk.
      *
+     * @param path The file path, for error messages.
      * @param file The file to get the size of.
      * @return The file's size.
      * @throws IOException If the size could not be computed.
      */
-    protected long getFileSize(T file) throws IOException {
-        return getContents(file).length;
+    protected long getFileSize(String path, T file) throws IOException {
+        return getContents(path, file).length;
     }
 
     @Override
-    protected final SeekableByteChannel openForRead(T file) throws IOException {
-        return new ArrayByteChannel(getContents(file));
+    protected final SeekableByteChannel openForRead(String path, T file) throws IOException {
+        return new ArrayByteChannel(getContents(path, file));
     }
 
-    private byte[] getContents(T file) throws IOException {
+    private byte[] getContents(String path, T file) throws IOException {
         var cachedContents = CONTENTS_CACHE.getIfPresent(file);
         if (cachedContents != null) return cachedContents;
 
-        var contents = getFileContents(file);
+        var contents = getFileContents(path, file);
         CONTENTS_CACHE.put(file, contents);
         return contents;
     }
@@ -77,16 +78,13 @@ public abstract class ArchiveMount<T extends ArchiveMount.FileEntry<T>> extends 
     /**
      * Read the entirety of a file into memory.
      *
+     * @param path The file path, for error messages.
      * @param file The file to read into memory. This will not be a directory.
      * @return The contents of the file.
      */
-    protected abstract byte[] getFileContents(T file) throws IOException;
+    protected abstract byte[] getFileContents(String path, T file) throws IOException;
 
     protected static class FileEntry<T extends FileEntry<T>> extends AbstractInMemoryMount.FileEntry<T> {
         long size = -1;
-
-        protected FileEntry(String path) {
-            super(path);
-        }
     }
 }

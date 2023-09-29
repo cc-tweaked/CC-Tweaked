@@ -27,7 +27,7 @@ import java.util.Set;
 public class WritableFileMount extends FileMount implements WritableMount {
     private static final Logger LOG = LoggerFactory.getLogger(WritableFileMount.class);
 
-    private static final long MINIMUM_FILE_SIZE = 500;
+    static final long MINIMUM_FILE_SIZE = 500;
     private static final Set<OpenOption> WRITE_OPTIONS = Sets.newHashSet(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     private static final Set<OpenOption> APPEND_OPTIONS = Sets.newHashSet(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 

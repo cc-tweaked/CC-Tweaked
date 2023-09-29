@@ -11,10 +11,9 @@ import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
+import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.MetricsObserver;
-import dan200.computercraft.test.core.filesystem.MemoryMount;
-import dan200.computercraft.test.core.filesystem.ReadOnlyWritableMount;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +31,7 @@ public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment,
     private final WritableMount mount;
 
     public BasicEnvironment() {
-        this(new ReadOnlyWritableMount(new MemoryMount()));
+        this(new MemoryMount());
     }
 
     public BasicEnvironment(WritableMount mount) {

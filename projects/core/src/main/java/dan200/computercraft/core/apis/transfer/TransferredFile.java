@@ -6,10 +6,9 @@ package dan200.computercraft.core.apis.transfer;
 
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.apis.handles.BinaryReadableHandle;
-import dan200.computercraft.core.apis.handles.ByteBufferChannel;
 import dan200.computercraft.core.methods.ObjectSource;
 
-import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -26,9 +25,9 @@ public class TransferredFile implements ObjectSource {
     private final String name;
     private final BinaryReadableHandle handle;
 
-    public TransferredFile(String name, ByteBuffer contents) {
+    public TransferredFile(String name, SeekableByteChannel contents) {
         this.name = name;
-        handle = BinaryReadableHandle.of(new ByteBufferChannel(contents));
+        handle = BinaryReadableHandle.of(contents);
     }
 
     /**

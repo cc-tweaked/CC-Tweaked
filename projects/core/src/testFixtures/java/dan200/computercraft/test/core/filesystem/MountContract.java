@@ -34,7 +34,10 @@ public interface MountContract {
      * Create a skeleton mount. This should contain the following files:
      *
      * <ul>
-     *     <li>{@code dir/file.lua}, containing {@code print('testing')}.</li>
+     *     <li>
+     *         {@code dir/file.lua}, containing {@code print('testing')}. If {@linkplain #hasFileTimes() file times are
+     *         supported}, it should have a modification time of {@link #MODIFY_TIME}.
+     *     </li>
      *     <li>{@code f.lua}, containing nothing.</li>
      * </ul>
      *
