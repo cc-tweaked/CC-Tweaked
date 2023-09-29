@@ -4,7 +4,11 @@
 
 package dan200.computercraft.shared.computer.menu;
 
-import dan200.computercraft.shared.computer.upload.*;
+import dan200.computercraft.core.apis.transfer.TransferredFile;
+import dan200.computercraft.core.apis.transfer.TransferredFiles;
+import dan200.computercraft.shared.computer.upload.FileSlice;
+import dan200.computercraft.shared.computer.upload.FileUpload;
+import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.client.UploadResultMessage;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -150,8 +154,14 @@ public class ServerInputState<T extends AbstractContainerMenu & ComputerMenu> im
             }
         }
 
-        computer.queueEvent("file_transfer", new Object[]{
-            new TransferredFiles(player, owner, toUpload.stream().map(x -> new TransferredFile(x.getName(), x.getBytes())).collect(Collectors.toList())),
+        computer.queueEvent(TransferredFiles.EVENT, new Object[]{
+            new TransferredFiles(
+                toUpload.stream().map(x -> new TransferredFile(x.getName(), x.getBytes())).collect(Collectors.toList()),
+                () -> {
+                    if (player.isAlive() && player.containerMenu == owner) {
+                        PlatformHelper.get().sendToPlayer(UploadResultMessage.consumed(owner), player);
+                    }
+                }),
         });
         return UploadResultMessage.queued(owner);
     }

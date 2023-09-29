@@ -2,13 +2,9 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package dan200.computercraft.shared.computer.upload;
+package dan200.computercraft.core.apis.transfer;
 
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.shared.network.client.UploadResultMessage;
-import dan200.computercraft.shared.platform.PlatformHelper;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -19,16 +15,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @cc.module [kind=event] file_transfer.TransferredFiles
  */
 public class TransferredFiles {
-    private final ServerPlayer player;
-    private final AbstractContainerMenu container;
+    public static final String EVENT = "file_transfer";
+
     private final AtomicBoolean consumed = new AtomicBoolean(false);
+    private final Runnable onConsumed;
 
     private final List<TransferredFile> files;
 
-    public TransferredFiles(ServerPlayer player, AbstractContainerMenu container, List<TransferredFile> files) {
-        this.player = player;
-        this.container = container;
+    public TransferredFiles(List<TransferredFile> files, Runnable onConsumed) {
         this.files = files;
+        this.onConsumed = onConsumed;
     }
 
     /**
@@ -44,9 +40,6 @@ public class TransferredFiles {
 
     private void consumed() {
         if (consumed.getAndSet(true)) return;
-
-        if (player.isAlive() && player.containerMenu == container) {
-            PlatformHelper.get().sendToPlayer(UploadResultMessage.consumed(container), player);
-        }
+        onConsumed.run();
     }
 }

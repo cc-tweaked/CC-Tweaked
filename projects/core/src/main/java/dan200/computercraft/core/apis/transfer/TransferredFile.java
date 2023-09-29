@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package dan200.computercraft.shared.computer.upload;
+package dan200.computercraft.core.apis.transfer;
 
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.apis.handles.BinaryReadableHandle;
