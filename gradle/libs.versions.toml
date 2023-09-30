@@ -30,7 +30,7 @@ kotlin = "1.8.10"
 kotlin-coroutines = "1.6.4"
 netty = "4.1.82.Final"
 nightConfig = "3.6.7"
-slf4j = "1.7.36"
+slf4j = "2.0.1"
 
 # Minecraft mods
 emi = "1.0.8+1.20.1"
@@ -60,7 +60,7 @@ fabric-loom = "1.3.7"
 forgeGradle = "6.0.8"
 githubRelease = "2.4.1"
 ideaExt = "1.1.7"
-illuaminate = "0.1.0-40-g975cbc3"
+illuaminate = "0.1.0-44-g9ee0055"
 librarian = "1.+"
 minotaur = "2.+"
 mixinGradle = "0.7.+"
@@ -69,10 +69,12 @@ spotless = "6.21.0"
 taskTree = "2.1.1"
 vanillaGradle = "0.2.1-SNAPSHOT"
 vineflower = "1.11.0"
+teavm = "0.9.0-SQUID.1"
 
 [libraries]
 # Normal dependencies
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
 autoService = { module = "com.google.auto.service:auto-service", version.ref = "autoService" }
 checkerFramework = { module = "org.checkerframework:checker-qual", version.ref = "checkerFramework" }
 cobalt = { module = "org.squiddev:Cobalt", version.ref = "cobalt" }
@@ -138,6 +140,14 @@ librarian = { module = "org.parchmentmc:librarian", version.ref = "librarian" }
 minotaur = { module = "com.modrinth.minotaur:Minotaur", version.ref = "minotaur" }
 nullAway = { module = "com.uber.nullaway:nullaway", version.ref = "nullAway" }
 spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+teavm-classlib = { module = "org.teavm:teavm-classlib", version.ref = "teavm" }
+teavm-jso = { module = "org.teavm:teavm-jso", version.ref = "teavm" }
+teavm-jso-apis = { module = "org.teavm:teavm-jso-apis", version.ref = "teavm" }
+teavm-jso-impl = { module = "org.teavm:teavm-jso-impl", version.ref = "teavm" }
+teavm-metaprogramming-api = { module = "org.teavm:teavm-metaprogramming-api", version.ref = "teavm" }
+teavm-metaprogramming-impl = { module = "org.teavm:teavm-metaprogramming-impl", version.ref = "teavm" }
+teavm-platform = { module = "org.teavm:teavm-platform", version.ref = "teavm" }
+teavm-tooling = { module = "org.teavm:teavm-tooling", version.ref = "teavm" }
 vanillaGradle = { module = "org.spongepowered:vanillagradle", version.ref = "vanillaGradle" }
 vineflower = { module = "io.github.juuxel:loom-vineflower", version.ref = "vineflower" }
 
@@ -151,6 +161,7 @@ mixinGradle = { id = "org.spongepowered.mixin", version.ref = "mixinGradle" }
 taskTree = { id = "com.dorongold.task-tree", version.ref = "taskTree" }
 
 [bundles]
+annotations = ["jsr305", "checkerFramework", "jetbrainsAnnotations"]
 kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 
 # Minecraft
@@ -164,3 +175,7 @@ externalMods-fabric-runtime = ["jei-fabric", "modmenu"]
 # Testing
 test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]
 testRuntime = ["junit-jupiter-engine", "jqwik-engine"]
+
+# Build tools
+teavm-api = [ "teavm-jso", "teavm-jso-apis", "teavm-platform", "teavm-classlib", "teavm-metaprogramming-api" ]
+teavm-tooling = [ "teavm-tooling", "teavm-metaprogramming-impl", "teavm-jso-impl" ]

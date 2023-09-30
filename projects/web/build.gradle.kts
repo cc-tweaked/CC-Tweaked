@@ -5,10 +5,12 @@
 import cc.tweaked.gradle.getAbsolutePath
 
 plugins {
-    `lifecycle-base`
+    id("cc-tweaked.java-convention")
     id("cc-tweaked.node")
     id("cc-tweaked.illuaminate")
 }
+
+val modVersion: String by extra
 
 node {
     projectRoot.set(rootProject.projectDir)
@@ -18,12 +20,55 @@ illuaminate {
     version.set(libs.versions.illuaminate)
 }
 
+sourceSets.register("builder")
+
+dependencies {
+    implementation(project(":core"))
+    implementation(libs.bundles.teavm.api)
+    implementation(libs.asm)
+    implementation(libs.guava)
+    implementation(libs.netty.http)
+    implementation(libs.slf4j)
+
+    "builderCompileOnly"(libs.bundles.annotations)
+    "builderImplementation"(libs.bundles.teavm.tooling)
+    "builderImplementation"(libs.asm)
+    "builderImplementation"(libs.asm.commons)
+}
+
+val compileTeaVM by tasks.registering(JavaExec::class) {
+    group = LifecycleBasePlugin.BUILD_GROUP
+    description = "Generate our classes and resources files"
+
+    val output = layout.buildDirectory.dir("teaVM")
+
+    inputs.property("version", "modVersion")
+    inputs.files(sourceSets.main.get().runtimeClasspath).withPropertyName("inputClasspath")
+    outputs.dir(output).withPropertyName("output")
+
+    classpath = sourceSets["builder"].runtimeClasspath
+    jvmArguments.addAll(
+        provider {
+            val main = sourceSets.main.get()
+            listOf(
+                "-Dcct.input=${main.output.classesDirs.asPath}",
+                "-Dcct.version=$modVersion",
+                "-Dcct.classpath=${main.runtimeClasspath.asPath}",
+                "-Dcct.output=${output.getAbsolutePath()}",
+            )
+        },
+    )
+    mainClass.set("cc.tweaked.web.builder.Builder")
+    javaLauncher.set(project.javaToolchains.launcherFor { languageVersion.set(java.toolchain.languageVersion) })
+}
+
 val rollup by tasks.registering(cc.tweaked.gradle.NpxExecToDir::class) {
     group = LifecycleBasePlugin.BUILD_GROUP
     description = "Bundles JS into rollup"
 
     // Sources
     inputs.files(fileTree("src/frontend")).withPropertyName("sources")
+    inputs.files(compileTeaVM)
     // Config files
     inputs.file("tsconfig.json").withPropertyName("Typescript config")
     inputs.file("rollup.config.js").withPropertyName("Rollup config")
@@ -44,9 +89,8 @@ val illuaminateDocs by tasks.registering(cc.tweaked.gradle.IlluaminateExecToDir:
     inputs.files(rootProject.fileTree("doc")).withPropertyName("docs")
     inputs.files(project(":core").fileTree("src/main/resources/data/computercraft/lua")).withPropertyName("lua rom")
     inputs.files(project(":forge").tasks.named("luaJavadoc"))
-    // Additional assets
+    // Assets
     inputs.files(rollup)
-    inputs.file("src/frontend/styles.css").withPropertyName("styles")
 
     // Output directory. Also defined in illuaminate.sexp.
     output.set(layout.buildDirectory.dir("illuaminate"))
@@ -72,7 +116,8 @@ val htmlTransform by tasks.registering(cc.tweaked.gradle.NpxExecToDir::class) {
 
     argumentProviders.add {
         listOf(
-            "tsx", sources.dir.resolve("index.tsx").absolutePath,
+            "tsx",
+            sources.dir.resolve("index.tsx").absolutePath,
             illuaminateDocs.get().output.getAbsolutePath(),
             sources.dir.resolve("export/index.json").absolutePath,
             output.getAbsolutePath(),

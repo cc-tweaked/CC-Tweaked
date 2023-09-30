@@ -23,7 +23,7 @@
     (url https://tweaked.cc/)
     (source-link https://github.com/cc-tweaked/CC-Tweaked/blob/${commit}/${path}#L${line})
 
-    (styles /projects/web/src/frontend/styles.css)
+    (styles  /projects/web/build/rollup/index.css)
     (scripts /projects/web/build/rollup/index.js)
     (head doc/head.html))
 

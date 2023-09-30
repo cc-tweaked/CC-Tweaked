@@ -66,6 +66,7 @@ repositories {
             includeGroup("me.shedaniel.cloth")
             includeGroup("me.shedaniel")
             includeGroup("mezz.jei")
+            includeGroup("org.teavm")
             includeModule("com.terraformersmc", "modmenu")
             includeModule("me.lucko", "fabric-permissions-api")
         }
@@ -99,7 +100,10 @@ sourceSets.all {
             check("FutureReturnValueIgnored", CheckSeverity.OFF) // Too many false positives with Netty
 
             check("NullAway", CheckSeverity.ERROR)
-            option("NullAway:AnnotatedPackages", listOf("dan200.computercraft", "net.fabricmc.fabric.api").joinToString(","))
+            option(
+                "NullAway:AnnotatedPackages",
+                listOf("dan200.computercraft", "cc.tweaked", "net.fabricmc.fabric.api").joinToString(","),
+            )
             option("NullAway:ExcludedFieldAnnotations", listOf("org.spongepowered.asm.mixin.Shadow").joinToString(","))
             option("NullAway:CastToNonNullMethod", "dan200.computercraft.core.util.Nullability.assertNonNull")
             option("NullAway:CheckOptionalEmptiness")
