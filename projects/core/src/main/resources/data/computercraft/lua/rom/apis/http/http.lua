@@ -275,6 +275,7 @@ local function check_websocket_options(options, body)
     check_key(options, "url", "string")
     check_key(options, "headers", "table", true)
     check_key(options, "timeout", "number", true)
+    check_key(options, "binary", "boolean", true)
 end
 
 
@@ -299,7 +300,7 @@ these options behave.
 @see websocket_success
 @see websocket_failure
 ]]
-function websocketAsync(url, headers)
+function websocketAsync(url, headers, binary)
     local actual_url
     if type(url) == "table" then
         check_websocket_options(url)
@@ -307,10 +308,11 @@ function websocketAsync(url, headers)
     else
         expect(1, url, "string")
         expect(2, headers, "table", "nil")
+        expect(3, binary, "boolean", "nil")
         actual_url = url
     end
 
-    local ok, err = nativeWebsocket(url, headers)
+    local ok, err = nativeWebsocket(url, headers, binary)
     if not ok then
         os.queueEvent("websocket_failure", actual_url, err)
     end
@@ -355,7 +357,7 @@ from above are passed in as fields instead (for instance,
     ws.close()
 
 ]]
-function websocket(url, headers)
+function websocket(url, headers, binary)
     local actual_url
     if type(url) == "table" then
         check_websocket_options(url)
@@ -363,10 +365,11 @@ function websocket(url, headers)
     else
         expect(1, url, "string")
         expect(2, headers, "table", "nil")
+        expect(3, binary, "boolean", "nil")
         actual_url = url
     end
 
-    local ok, err = nativeWebsocket(url, headers)
+    local ok, err = nativeWebsocket(url, headers, binary)
     if not ok then return ok, err end
 
     while true do

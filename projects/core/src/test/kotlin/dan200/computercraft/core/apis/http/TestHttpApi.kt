@@ -89,6 +89,32 @@ class TestHttpApi {
     }
 
     @Test
+    fun `Supports binary websockets`() {
+        runServer {
+            LuaTaskRunner.runTest {
+                val httpApi = addApi(HTTPAPI(environment))
+                assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(WS_URL, null, true)), array(equalTo(true)))
+
+                val connectEvent = pullEvent()
+                assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(WS_URL), isA(WebsocketHandle::class.java)))
+
+                val websocket = connectEvent[2] as WebsocketHandle
+                websocket.send(Coerced("Hello \u00E2\u0098\u00BA"), Optional.of(false))
+
+                val message = websocket.receive(Optional.empty()).await()
+                // The string is converted to bytes because it's technically sent as a byte array.
+                // This difference doesn't matter in Lua, but it does here.
+                assertThat("Received a return message", message, array(equalTo("HELLO \u263A".toByteArray()), equalTo(false)))
+
+                websocket.close()
+
+                val closeEvent = pullEventOrTimeout(500.milliseconds, "websocket_closed")
+                assertThat("No event was queued", closeEvent, equalTo(null))
+            }
+        }
+    }
+
+    @Test
     fun `Queues an event when the socket is externally closed`() {
         runServer { stop ->
             LuaTaskRunner.runTest {

@@ -9,6 +9,8 @@ import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.options.Options;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -79,7 +81,18 @@ public class WebsocketHandle {
         if (binary.orElse(false)) {
             websocket.sendBinary(LuaValues.encode(text));
         } else {
-            websocket.sendText(text);
+            var data = text;
+            if (websocket.isBinary()) {
+                // Try to convert the string from UTF-8 bytes to UTF-16 codepoints.
+                // If this fails, fall back to normal ANSI.
+                try {
+                    var buf = LuaValues.encode(text);
+                    var bytes = new byte[buf.capacity()];
+                    buf.get(bytes);
+                    data = new String(bytes, StandardCharsets.UTF_8);
+                } catch (UnsupportedCharsetException ignored) {}
+            }
+            websocket.sendText(data);
         }
     }
 

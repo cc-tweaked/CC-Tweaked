@@ -150,16 +150,19 @@ public class HTTPAPI implements ILuaAPI {
         String address;
         Map<?, ?> headerTable;
         Optional<Double> timeoutArg;
+        boolean binary;
 
         if (args.get(0) instanceof Map) {
             var options = args.getTable(0);
             address = getStringField(options, "url");
             headerTable = optTableField(options, "headers", Collections.emptyMap());
             timeoutArg = optRealField(options, "timeout");
+            binary = optBooleanField(options, "binary", false);
         } else {
             address = args.getString(0);
             headerTable = args.optTable(1, Collections.emptyMap());
             timeoutArg = Optional.empty();
+            binary = args.optBoolean(2, false);
         }
 
         var headers = getHeaders(headerTable);
@@ -167,7 +170,7 @@ public class HTTPAPI implements ILuaAPI {
 
         try {
             var uri = WebsocketClient.parseUri(address);
-            if (!new Websocket(websockets, apiEnvironment, uri, address, headers, timeout).queue(Websocket::connect)) {
+            if (!new Websocket(websockets, apiEnvironment, uri, address, headers, timeout, binary).queue(Websocket::connect)) {
                 throw new LuaException("Too many websockets already open");
             }
 

@@ -56,14 +56,16 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
     private final String address;
     private final HttpHeaders headers;
     private final int timeout;
+    private final boolean binary;
 
-    public Websocket(ResourceGroup<Websocket> limiter, IAPIEnvironment environment, URI uri, String address, HttpHeaders headers, int timeout) {
+    public Websocket(ResourceGroup<Websocket> limiter, IAPIEnvironment environment, URI uri, String address, HttpHeaders headers, int timeout, boolean binary) {
         super(limiter);
         this.environment = environment;
         this.uri = uri;
         this.address = address;
         this.headers = headers;
         this.timeout = timeout;
+        this.binary = binary;
     }
 
     public void connect() {
@@ -183,5 +185,10 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
 
         var channel = channel();
         if (channel != null) channel.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(message)));
+    }
+
+    @Override
+    public boolean isBinary() {
+        return binary;
     }
 }

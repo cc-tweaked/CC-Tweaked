@@ -50,6 +50,15 @@ public interface WebsocketClient extends Closeable {
     void sendBinary(ByteBuffer message);
 
     /**
+     * Determine whether the websocket sends binary messages by default.
+     * 
+     * @return Whether the websocket sends binary messages by default.
+     */
+    default boolean isBinary() {
+        return false;
+    }
+
+    /**
      * Parse an address, ensuring it is a valid websocket URI.
      *
      * @param address The address to parse.
