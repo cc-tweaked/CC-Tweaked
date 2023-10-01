@@ -21,24 +21,16 @@ public final class TLuaMethodSupplier implements MethodSupplier<LuaMethod> {
 
     @Override
     public boolean forEachSelfMethod(Object object, UntargetedConsumer<LuaMethod> consumer) {
-        var methods = MethodReflection.getMethods(object.getClass());
-        for (var method : methods) consumer.accept(method.name(), method.method(), method);
-
-        return !methods.isEmpty();
+        return MethodReflection.getMethods(object.getClass(), method -> consumer.accept(method.name(), method.method(), method));
     }
 
     @Override
     public boolean forEachMethod(Object object, TargetedConsumer<LuaMethod> consumer) {
-        var methods = MethodReflection.getMethods(object.getClass());
-        for (var method : methods) consumer.accept(object, method.name(), method.method(), method);
-
-        var hasMethods = !methods.isEmpty();
+        var hasMethods = MethodReflection.getMethods(object.getClass(), method -> consumer.accept(object, method.name(), method.method(), method));
 
         if (object instanceof ObjectSource source) {
             for (var extra : source.getExtra()) {
-                var extraMethods = MethodReflection.getMethods(extra.getClass());
-                if (!extraMethods.isEmpty()) hasMethods = true;
-                for (var method : extraMethods) consumer.accept(extra, method.name(), method.method(), method);
+                hasMethods |= MethodReflection.getMethods(extra.getClass(), method -> consumer.accept(extra, method.name(), method.method(), method));
             }
         }
 

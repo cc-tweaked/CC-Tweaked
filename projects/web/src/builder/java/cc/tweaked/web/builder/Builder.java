@@ -36,15 +36,16 @@ public class Builder {
             var classpath = getPath(scope, "cct.classpath");
             var output = getFile("cct.output");
             var version = System.getProperty("cct.version");
+            var minify = Boolean.parseBoolean(System.getProperty("cct.minify", "true"));
 
-            buildClasses(input, classpath, output);
+            buildClasses(input, classpath, output, minify);
             buildResources(version, input, classpath, output);
         } catch (UncheckedIOException e) {
             throw e.getCause();
         }
     }
 
-    private static void buildClasses(List<Path> input, List<Path> classpath, Path output) throws Exception {
+    private static void buildClasses(List<Path> input, List<Path> classpath, Path output, boolean minify) throws Exception {
         var remapper = new TransformingClassLoader(classpath);
         // Remap several classes to our stubs. Really we should add all of these to TeaVM, but our current
         // implementations are a bit of a hack.
@@ -75,7 +76,7 @@ public class Builder {
         tool.setMainClass("cc.tweaked.web.Main");
 
         tool.setOptimizationLevel(TeaVMOptimizationLevel.ADVANCED);
-        tool.setObfuscated(true);
+        tool.setObfuscated(minify);
 
         tool.generate();
         TeaVMProblemRenderer.describeProblems(tool.getDependencyInfo().getCallGraph(), tool.getProblemProvider(), new ConsoleTeaVMToolLog(false));

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 
 /**
  * Compile-time generation of {@link LuaMethod} methods.
@@ -31,20 +32,22 @@ import java.util.concurrent.ExecutionException;
  */
 @CompileTime
 public class MethodReflection {
-    public static List<NamedMethod<LuaMethod>> getMethods(Class<?> klass) {
-        List<NamedMethod<LuaMethod>> out = new ArrayList<>();
-        getMethodsImpl(klass, (name, method, nonYielding) -> out.add(new NamedMethod<>(name, method, nonYielding, null)));
-        return out;
+    @Meta
+    public static native boolean getMethods(Class<?> type, Consumer<NamedMethod<LuaMethod>> make);
+
+    private static void getMethods(ReflectClass<?> klass, Value<Consumer<NamedMethod<LuaMethod>>> make) {
+        var result = getMethodsImpl(klass, make);
+        //  Using "unsupportedCase" here causes us to skip generating any code and just return null. While null isn't
+        // a boolean, it's still false-y and thus has the same effect in the generated JS!
+        if (!result) Metaprogramming.unsupportedCase();
+        Metaprogramming.exit(() -> result);
     }
 
-    @Meta
-    private static native void getMethodsImpl(Class<?> type, MakeMethod make);
-
-    private static void getMethodsImpl(ReflectClass<Object> klass, Value<MakeMethod> make) {
+    private static boolean getMethodsImpl(ReflectClass<?> klass, Value<Consumer<NamedMethod<LuaMethod>>> make) {
         if (!klass.getName().startsWith("dan200.computercraft.") && !klass.getName().startsWith("cc.tweaked.web.peripheral")) {
-            return;
+            return false;
         }
-        if (klass.getName().contains("lambda")) return;
+        if (klass.getName().contains("lambda")) return false;
 
         Class<?> actualClass;
         try {
@@ -53,17 +56,16 @@ public class MethodReflection {
             throw new RuntimeException(e);
         }
 
-        for (var method : Internal.getMethods(actualClass)) {
+        var methods = Internal.getMethods(actualClass);
+        for (var method : methods) {
             var name = method.name();
             var nonYielding = method.nonYielding();
             var actualField = method.method().getField("INSTANCE");
 
-            Metaprogramming.emit(() -> make.get().make(name, (LuaMethod) actualField.get(null), nonYielding));
+            Metaprogramming.emit(() -> make.get().accept(new NamedMethod<>(name, (LuaMethod) actualField.get(null), nonYielding, null)));
         }
-    }
 
-    public interface MakeMethod {
-        void make(String name, LuaMethod method, boolean nonYielding);
+        return !methods.isEmpty();
     }
 
     private static final class Internal {

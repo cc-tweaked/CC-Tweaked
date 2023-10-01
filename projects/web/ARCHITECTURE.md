@@ -38,5 +38,6 @@ Rendering the static portion of the website is fortunately much simpler.
    highlighting of non-Lua code blocks, and replaces special `<mc-recipe>` tags with a rendered view of a given
    Minecraft recipe.
 
-[cct-javadoc]: https://github.com/cc-tweaked/cct-javadoc
-[illuaminate]: https://github.com/Squiddev/illuaminate
+[TeaVM]: https://github.com/konsoletyper/teavm "TeaVM - Compiler of Java bytecode to JavaScript"
+[cct-javadoc]: https://github.com/cc-tweaked/cct-javadoc: "cct-javadoc - A Javadoc doclet to extract documentation from @LuaFunction methods."
+[illuaminate]: https://github.com/Squiddev/illuaminate: "illuaminate - Very WIP static analysis for Lua"

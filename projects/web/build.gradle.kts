@@ -41,8 +41,10 @@ val compileTeaVM by tasks.registering(JavaExec::class) {
     description = "Generate our classes and resources files"
 
     val output = layout.buildDirectory.dir("teaVM")
+    val minify = !project.hasProperty("noMinify")
 
-    inputs.property("version", "modVersion")
+    inputs.property("version", modVersion)
+    inputs.property("minify", minify)
     inputs.files(sourceSets.main.get().runtimeClasspath).withPropertyName("inputClasspath")
     outputs.dir(output).withPropertyName("output")
 
@@ -55,6 +57,7 @@ val compileTeaVM by tasks.registering(JavaExec::class) {
                 "-Dcct.version=$modVersion",
                 "-Dcct.classpath=${main.runtimeClasspath.asPath}",
                 "-Dcct.output=${output.getAbsolutePath()}",
+                "-Dcct.minify=$minify",
             )
         },
     )
@@ -66,6 +69,9 @@ val rollup by tasks.registering(cc.tweaked.gradle.NpxExecToDir::class) {
     group = LifecycleBasePlugin.BUILD_GROUP
     description = "Bundles JS into rollup"
 
+    val minify = !project.hasProperty("noMinify")
+    inputs.property("minify", minify)
+
     // Sources
     inputs.files(fileTree("src/frontend")).withPropertyName("sources")
     inputs.files(compileTeaVM)
@@ -76,7 +82,7 @@ val rollup by tasks.registering(cc.tweaked.gradle.NpxExecToDir::class) {
     // Output directory. Also defined in illuaminate.sexp and rollup.config.js
     output.set(layout.buildDirectory.dir("rollup"))
 
-    args = listOf("rollup", "--config", "rollup.config.js")
+    args = listOf("rollup", "--config", "rollup.config.js") + if (minify) emptyList() else listOf("--configDebug")
 }
 
 val illuaminateDocs by tasks.registering(cc.tweaked.gradle.IlluaminateExecToDir::class) {

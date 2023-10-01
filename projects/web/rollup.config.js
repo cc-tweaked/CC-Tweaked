@@ -12,10 +12,10 @@ import postcss from "rollup-plugin-postcss";
 
 const input = "src/frontend";
 
-const minify = true;
+const minify = args => !args.configDebug;
 
-/** @type import("rollup").RollupOptions */
-export default {
+/** @type import("rollup").RollupOptionsFunction */
+export default args => ({
     input: [`${input}/index.tsx`],
     output: {
         // Also defined in build.gradle.kts
@@ -26,9 +26,6 @@ export default {
             preset: "es2015",
             constBindings: true,
         },
-        amd: {
-            define: "require",
-        }
     },
     context: "window",
 
@@ -45,7 +42,7 @@ export default {
 
         postcss({
             namedExports: true,
-            minimize: minify,
+            minimize: minify(args),
             extract: true,
         }),
 
@@ -66,6 +63,6 @@ export default {
             },
         },
 
-        minify && terser(),
+        minify(args) && terser(),
     ],
-};
+});
