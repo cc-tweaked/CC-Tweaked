@@ -90,7 +90,10 @@ public class WebsocketHandle {
                     var bytes = new byte[buf.capacity()];
                     buf.get(bytes);
                     data = new String(bytes, StandardCharsets.UTF_8);
-                } catch (UnsupportedCharsetException ignored) {}
+                } catch (UnsupportedCharsetException ignored) {
+                    // Suppress warnings.
+                    data = text;
+                }
             }
             websocket.sendText(data);
         }

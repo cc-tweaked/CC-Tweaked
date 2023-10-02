@@ -50,7 +50,7 @@ class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
         }
 
         var frame = (WebSocketFrame) msg;
-        if (websocket.isBinary() || (frame instanceof BinaryWebSocketFrame)) {
+        if (websocket.isBinary() || frame instanceof BinaryWebSocketFrame) {
             var converted = NetworkUtils.toBytes(frame.content());
 
             websocket.environment().observe(Metrics.WEBSOCKET_INCOMING, converted.length);
