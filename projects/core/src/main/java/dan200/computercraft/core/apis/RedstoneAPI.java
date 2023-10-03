@@ -49,7 +49,7 @@ import java.util.List;
  * end
  * }</pre>
  * <p>
- * [comparator]: https://minecraft.gamepedia.com/Redstone_Comparator#Subtract_signal_strength "Redstone Comparator on
+ * [comparator]: https://minecraft.wiki/w/Redstone_Comparator#Subtract_signal_strength "Redstone Comparator on
  * the Minecraft wiki."
  * @cc.module redstone
  */

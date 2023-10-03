@@ -17,7 +17,7 @@ instance, `commands.say("Hi!")` is equivalent to `commands.exec("say Hi!")`.
 commands. `commands.async.say("Hi!")` is equivalent to
 `commands.execAsync("say Hi!")`.
 
-[mc]: https://minecraft.gamepedia.com/Commands
+[mc]: https://minecraft.wiki/w/Commands
 
 @module commands
 @usage Set the block above this computer to stone:

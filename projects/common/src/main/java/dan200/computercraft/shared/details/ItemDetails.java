@@ -61,7 +61,7 @@ public class ItemDetails {
 
         /*
          * Used to hide some data from ItemStack tooltip.
-         * @see https://minecraft.gamepedia.com/Tutorials/Command_NBT_tags
+         * @see https://minecraft.wiki/w/Tutorials/Command_NBT_tags
          * @see ItemStack#getTooltip
          */
         var hideFlags = tag != null ? tag.getInt("HideFlags") : 0;
