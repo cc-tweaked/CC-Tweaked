@@ -55,6 +55,12 @@ public class ServerMonitor {
         }
     }
 
+    synchronized void reset() {
+        if (terminal == null) return;
+        terminal = null;
+        markChanged();
+    }
+
     private void markChanged() {
         if (!changed.getAndSet(true)) TickScheduler.schedule(origin.tickToken);
     }
