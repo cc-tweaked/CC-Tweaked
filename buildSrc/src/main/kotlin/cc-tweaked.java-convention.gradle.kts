@@ -174,6 +174,12 @@ project.plugins.withType(CCTweakedPlugin::class.java) {
     }
 }
 
+tasks.register("checkstyle") {
+    description = "Run Checkstyle on all sources"
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    dependsOn(tasks.withType(Checkstyle::class.java))
+}
+
 spotless {
     encoding = StandardCharsets.UTF_8
     lineEndings = LineEnding.UNIX
