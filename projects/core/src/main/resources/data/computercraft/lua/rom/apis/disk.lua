@@ -96,7 +96,7 @@ end
 --
 -- If this returns true, you will can [play][`disk.playAudio`] the record.
 --
--- [disk]: https://minecraft.gamepedia.com/Music_Disc
+-- [disk]: https://minecraft.wiki/w/Music_Disc
 --
 -- @tparam string name The name of the disk drive.
 -- @treturn boolean If the disk is present and has audio saved on it.

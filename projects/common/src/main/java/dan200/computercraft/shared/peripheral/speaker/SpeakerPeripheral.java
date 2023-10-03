@@ -188,7 +188,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
      * {@literal false}.
      * <p>
      * ### Valid instruments
-     * The speaker supports [all of Minecraft's noteblock instruments](https://minecraft.fandom.com/wiki/Note_Block#Instruments).
+     * The speaker supports [all of Minecraft's noteblock instruments](https://minecraft.wiki/w/Note_Block#Instruments).
      * These are:
      * <p>
      * {@code "harp"}, {@code "basedrum"}, {@code "snare"}, {@code "hat"}, {@code "bass"}, {@code "flute"},
@@ -228,7 +228,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
     /**
      * Plays a Minecraft sound through the speaker.
      * <p>
-     * This takes the [name of a Minecraft sound](https://minecraft.fandom.com/wiki/Sounds.json), such as
+     * This takes the [name of a Minecraft sound](https://minecraft.wiki/w/Sounds.json), such as
      * {@code "minecraft:block.note_block.harp"}, as well as an optional volume and pitch.
      * <p>
      * Only one sound can be played at once. This function will return {@literal false} if another sound was started
