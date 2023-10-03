@@ -18,9 +18,7 @@ val docApi by configurations.registering {
 }
 
 dependencies {
-    compileOnlyApi(libs.jsr305)
-    compileOnlyApi(libs.checkerFramework)
-    compileOnlyApi(libs.jetbrainsAnnotations)
+    compileOnlyApi(libs.bundles.annotations)
 
     "docApi"(project(":common-api"))
 }

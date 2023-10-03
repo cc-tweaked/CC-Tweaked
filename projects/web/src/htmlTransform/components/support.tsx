@@ -26,4 +26,4 @@ export const noChildren = function <T>(component: FunctionComponent<T>): Functio
     };
     wrapped.displayName = name;
     return wrapped;
-}
+};

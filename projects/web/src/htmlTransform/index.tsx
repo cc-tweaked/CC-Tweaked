@@ -13,17 +13,17 @@
 import fs from "fs/promises";
 import { glob } from "glob";
 import path from "path";
-import { h, type JSX } from "preact";
+import { type JSX, h } from "preact";
 import renderToStaticMarkup from "preact-render-to-string";
 import * as runtime from "preact/jsx-runtime";
-import rehypeHighlight, { type Options as HighlightOptions } from "rehype-highlight";
+import rehypeHighlight from "rehype-highlight";
 import rehypeParse from "rehype-parse";
 import rehypeReact, { type Options as ReactOptions } from "rehype-react";
-import { unified, type Plugin } from "unified";
+import { unified } from "unified";
 // Our components
 import Recipe from "./components/Recipe";
 import { noChildren } from "./components/support";
-import { WithExport, type DataExport } from "./components/WithExport";
+import { type DataExport, WithExport } from "./components/WithExport";
 
 (async () => {
     if (process.argv.length !== 5) {
@@ -43,13 +43,13 @@ import { WithExport, type DataExport } from "./components/WithExport";
             // Run button into them.
             ["pre"]: (args: JSX.IntrinsicElements["pre"] & { "data-lua-kind"?: undefined }) => {
                 const element = <pre {...args} />;
-                return args["data-lua-kind"] ? <div className="lua-example">{element}</div> : element
+                return args["data-lua-kind"] ? <div className="lua-example">{element}</div> : element;
             }
-        }
+        } as any,
     };
     const processor = unified()
         .use(rehypeParse, { emitParseErrors: true })
-        .use(rehypeHighlight as unknown as Plugin<[HighlightOptions], import("hast").Root>, { prefix: "" })
+        .use(rehypeHighlight, { prefix: "" })
         .use(rehypeReact, reactOptions);
 
     const dataExport = JSON.parse(await fs.readFile(dataFile, "utf-8")) as DataExport;
