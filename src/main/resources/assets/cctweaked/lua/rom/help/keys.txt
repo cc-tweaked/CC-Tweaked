@@ -6,4 +6,4 @@ if sEvent == "key" and nKey == keys.enter then
    -- Do something
 end
 
-See http://www.minecraftwiki.net/wiki/Key_codes, or the source code, for a complete reference.
+See https://www.minecraft.wiki/w/Key_codes, or the source code, for a complete reference.

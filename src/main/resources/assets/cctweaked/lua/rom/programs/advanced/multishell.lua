@@ -6,17 +6,17 @@
 --
 -- When multiple programs are running, it displays a tab bar at the top of the
 -- screen, which allows you to switch between programs. New programs can be
--- launched using the `fg` or `bg` programs, or using the @{shell.openTab} and
--- @{multishell.launch} functions.
+-- launched using the `fg` or `bg` programs, or using the [`shell.openTab`] and
+-- [`multishell.launch`] functions.
 --
 -- Each process is identified by its ID, which corresponds to its position in
 -- the tab list. As tabs may be opened and closed, this ID is _not_ constant
 -- over a program's run. As such, be careful not to use stale IDs.
 --
--- As with @{shell}, @{multishell} is not a "true" API. Instead, it is a
+-- As with [`shell`], [`multishell`] is not a "true" API. Instead, it is a
 -- standard program, which launches a shell and injects its API into the shell's
 -- environment. This API is not available in the global environment, and so is
--- not available to @{os.loadAPI|APIs}.
+-- not available to [APIs][`os.loadAPI`].
 --
 -- @module[module] multishell
 -- @since 1.6
@@ -222,7 +222,7 @@ local multishell = {} --- @export
 --- Get the currently visible process. This will be the one selected on
 -- the tab bar.
 --
--- Note, this is different to @{getCurrent}, which returns the process which is
+-- Note, this is different to [`getCurrent`], which returns the process which is
 -- currently executing.
 --
 -- @treturn number The currently visible process's index.
@@ -235,7 +235,7 @@ end
 --
 -- @tparam number n The process index to switch to.
 -- @treturn boolean If the process was changed successfully. This will
--- return @{false} if there is no process with this id.
+-- return [`false`] if there is no process with this id.
 -- @see getFocus
 function multishell.setFocus(n)
     expect(1, n, "number")
@@ -250,9 +250,9 @@ end
 --- Get the title of the given tab.
 --
 -- This starts as the name of the program, but may be changed using
--- @{multishell.setTitle}.
+-- [`multishell.setTitle`].
 -- @tparam number n The process index.
--- @treturn string|nil The current process title, or @{nil} if the
+-- @treturn string|nil The current process title, or [`nil`] if the
 -- process doesn't exist.
 function multishell.getTitle(n)
     expect(1, n, "number")

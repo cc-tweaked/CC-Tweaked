@@ -1,3 +1,62 @@
+# New features in CC: Tweaked 1.108.1
+
+Several bug fixes:
+* Prevent no-opped players breaking or placing command computers.
+* Allow using `@LuaFunction`-annotated methods on classes defined in child classloaders.
+
+# New features in CC: Tweaked 1.108.0
+
+* Remove compression from terminal/monitor packets. Vanilla applies its own compression, so this ends up being less helpful than expected.
+* `/computercraft` command now supports permission mods.
+* Split some GUI textures into sprite sheets.
+* Support the `%g` character class in string pattern matching.
+
+Several bug fixes:
+* Fix crash when playing some modded records via a disk drive.
+* Fix race condition when computers attach or detach from a monitor.
+* Fix the "max websocket message" config option not being read.
+* `tostring` now correctly obeys `__name`.
+* Fix several inconsistencies with pattern matching character classes.
+
+# New features in CC: Tweaked 1.107.0
+
+* Add `disabled_generic_methods` config option to disable generic methods.
+* Add basic integration with EMI.
+* Enchanted turtle tools now render with a glint.
+* Update several translations (PatriikPlays, 1Turtle, Ale32bit).
+
+Several bug fixes:
+* Fix client config file being generated on a dedicated server.
+* Fix numbers ending in "f" or "d" being treated as avalid.
+* Fix `string.pack`'s "z" specifier causing out-of-bounds errors.
+* Fix several issues with `turtle.dig`'s custom actions (tilling, making paths).
+
+# New features in CC: Tweaked 1.106.1
+
+Several bug fixes:
+* Block the CGNAT range (100.64.0.0/10) by default.
+* Fix conflicts with other mods replacing reach distance.
+
+# New features in CC: Tweaked 1.106.0
+
+* Numerous documentation improvements (MCJack123, znepb, penguinencounter).
+* Port `fs.find` to Lua. This also allows using `?` as a wildcard.
+* Computers cursors now glow in the dark.
+* Allow changing turtle upgrades from the GUI.
+* Add option to serialize Unicode strings to JSON (MCJack123).
+* Small optimisations to the `window` API.
+* Turtle upgrades can now preserve NBT from upgrade item stack and when broken.
+* Add support for tool enchantments and durability via datapacks. This is disabled for the built-in tools.
+
+Several bug fixes:
+* Fix turtles rendering incorrectly when upside down.
+* Fix misplaced calls to IArguments.escapes.
+* Lua REPL no longer accepts `)(` as a valid expression.
+* Fix several inconsistencies with `require`/`package.path` in the Lua REPL (Wojbie).
+* Fix turtle being able to place water buckets outside its reach distance.
+* Fix private several IP address ranges not being blocked by the `$private` rule.
+* Improve permission checks in the `/computercraft` command.
+
 # New features in CC: Tweaked 1.105.0
 
 * Optimise JSON string parsing.

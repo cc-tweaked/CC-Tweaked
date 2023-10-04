@@ -4,21 +4,25 @@
 
 package dan200.computercraft.api.lua;
 
+import javax.annotation.Nullable;
+import java.io.Serial;
+
 /**
  * An exception representing an error in Lua, like that raised by the {@code error()} function.
  */
 public class LuaException extends Exception {
+    @Serial
     private static final long serialVersionUID = -6136063076818512651L;
     private final boolean hasLevel;
     private final int level;
 
-    public LuaException(String message) {
+    public LuaException(@Nullable String message) {
         super(message);
         hasLevel = false;
         level = 1;
     }
 
-    public LuaException(String message, int level) {
+    public LuaException(@Nullable String message, int level) {
         super(message);
         hasLevel = true;
         this.level = level;

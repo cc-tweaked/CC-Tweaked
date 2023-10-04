@@ -2,12 +2,11 @@
 --
 -- SPDX-License-Identifier: MPL-2.0
 
---[[- Upload a list of files, as received by the @{event!file_transfer} event.
+--[[- Upload a list of files, as received by the [`event!file_transfer`] event.
 
-:::warning
-This is an internal module and SHOULD NOT be used in your own code. It may
-be removed or changed at any time.
-:::
+> [!DANGER]
+> This is an internal module and SHOULD NOT be used in your own code. It may
+> be removed or changed at any time.
 
 @local
 ]]

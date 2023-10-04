@@ -4,17 +4,16 @@
 
 --[[- A lexer for Lua source code.
 
-:::warning
-This is an internal module and SHOULD NOT be used in your own code. It may
-be removed or changed at any time.
-:::
+> [!DANGER]
+> This is an internal module and SHOULD NOT be used in your own code. It may
+> be removed or changed at any time.
 
 This module provides utilities for lexing Lua code, returning tokens compatible
-with @{cc.internal.syntax.parser}. While all lexers are roughly the same, there
+with [`cc.internal.syntax.parser`]. While all lexers are roughly the same, there
 are some design choices worth drawing attention to:
 
- - The lexer uses Lua patterns (i.e. @{string.find}) as much as possible,
-   trying to avoid @{string.sub} loops except when needed. This allows us to
+ - The lexer uses Lua patterns (i.e. [`string.find`]) as much as possible,
+   trying to avoid [`string.sub`] loops except when needed. This allows us to
    move string processing to native code, which ends up being much faster.
 
  - We try to avoid allocating where possible. There are some cases we need to
@@ -96,7 +95,7 @@ local function lex_number(context, str, start)
     local contents = sub(str, start, pos - 1)
     if not tonumber(contents) then
         -- TODO: Separate error for "2..3"?
-        context.report(errors.malformed_number(start, pos - 1))
+        context.report(errors.malformed_number, start, pos - 1)
     end
 
     return tokens.NUMBER, pos - 1
@@ -118,14 +117,14 @@ local function lex_string(context, str, start_pos, quote)
             return tokens.STRING, pos
         elseif c == "\n" or c == "\r" or c == "" then
             -- We don't call newline here, as that's done for the next token.
-            context.report(errors.unfinished_string(start_pos, pos, quote))
+            context.report(errors.unfinished_string, start_pos, pos, quote)
             return tokens.STRING, pos - 1
         elseif c == "\\" then
             c = sub(str, pos + 1, pos + 1)
             if c == "\n" or c == "\r" then
                 pos = newline(context, str, pos + 1, c)
             elseif c == "" then
-                context.report(errors.unfinished_string_escape(start_pos, pos, quote))
+                context.report(errors.unfinished_string_escape, start_pos, pos, quote)
                 return tokens.STRING, pos
             elseif c == "z" then
                 pos = pos + 2
@@ -133,7 +132,7 @@ local function lex_string(context, str, start_pos, quote)
                     local next_pos, _, c  = find(str, "([%S\r\n])", pos)
 
                     if not next_pos then
-                        context.report(errors.unfinished_string(start_pos, #str, quote))
+                        context.report(errors.unfinished_string, start_pos, #str, quote)
                         return tokens.STRING, #str
                     end
 
@@ -178,7 +177,7 @@ end
 -- @tparam number start The start position, after the input boundary.
 -- @tparam number len The expected length of the boundary. Equal to 1 + the
 -- number of `=`.
--- @treturn number|nil The end position, or @{nil} if this is not terminated.
+-- @treturn number|nil The end position, or [`nil`] if this is not terminated.
 local function lex_long_str(context, str, start, len)
     local pos = start
     while true do
@@ -196,7 +195,7 @@ local function lex_long_str(context, str, start, len)
         elseif c == "[" then
             local ok, boundary_pos = lex_long_str_boundary(str, pos + 1, "[")
             if ok and boundary_pos - pos == len and len == 1 then
-                context.report(errors.nested_long_str(pos, boundary_pos))
+                context.report(errors.nested_long_str, pos, boundary_pos)
             end
 
             pos = boundary_pos
@@ -238,12 +237,12 @@ local function lex_token(context, str, pos)
             local end_pos = lex_long_str(context, str, boundary_pos + 1, boundary_pos - pos)
             if end_pos then return tokens.STRING, end_pos end
 
-            context.report(errors.unfinished_long_string(pos, boundary_pos, boundary_pos - pos))
+            context.report(errors.unfinished_long_string, pos, boundary_pos, boundary_pos - pos)
             return tokens.ERROR, #str
         elseif pos + 1 == boundary_pos then -- Just a "["
             return tokens.OSQUARE, pos
         else -- Malformed long string, for instance "[="
-            context.report(errors.malformed_long_string(pos, boundary_pos, boundary_pos - pos))
+            context.report(errors.malformed_long_string, pos, boundary_pos, boundary_pos - pos)
             return tokens.ERROR, boundary_pos
         end
 
@@ -260,7 +259,7 @@ local function lex_token(context, str, pos)
                 local end_pos = lex_long_str(context, str, boundary_pos + 1, boundary_pos - comment_pos)
                 if end_pos then return tokens.COMMENT, end_pos end
 
-                context.report(errors.unfinished_long_comment(pos, boundary_pos, boundary_pos - comment_pos))
+                context.report(errors.unfinished_long_comment, pos, boundary_pos, boundary_pos - comment_pos)
                 return tokens.ERROR, #str
             end
         end
@@ -317,18 +316,18 @@ local function lex_token(context, str, pos)
         if end_pos - pos <= 3 then
             local contents = sub(str, pos, end_pos)
             if contents == "&&" then
-                context.report(errors.wrong_and(pos, end_pos))
+                context.report(errors.wrong_and, pos, end_pos)
                 return tokens.AND, end_pos
             elseif contents == "||" then
-                context.report(errors.wrong_or(pos, end_pos))
+                context.report(errors.wrong_or, pos, end_pos)
                 return tokens.OR, end_pos
             elseif contents == "!=" or contents == "<>" then
-                context.report(errors.wrong_ne(pos, end_pos))
+                context.report(errors.wrong_ne, pos, end_pos)
                 return tokens.NE, end_pos
             end
         end
 
-        context.report(errors.unexpected_character(pos))
+        context.report(errors.unexpected_character, pos)
         return tokens.ERROR, end_pos
     end
 end

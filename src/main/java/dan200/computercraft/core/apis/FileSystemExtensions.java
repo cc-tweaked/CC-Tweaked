@@ -7,54 +7,15 @@ import com.google.common.base.Splitter;
 import dan200.computer.core.FileSystem;
 import dan200.computer.core.FileSystemException;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Deque;
 import java.util.regex.Pattern;
 
 /**
  * Backports additional methods from {@link FileSystem}.
  */
 final class FileSystemExtensions {
-    private static void findIn(FileSystem fs, String dir, List<String> matches, Pattern wildPattern) throws FileSystemException {
-        String[] list = fs.list(dir);
-        for (String entry : list) {
-            String entryPath = dir.isEmpty() ? entry : dir + "/" + entry;
-            if (wildPattern.matcher(entryPath).matches()) {
-                matches.add(entryPath);
-            }
-            if (fs.isDir(entryPath)) {
-                findIn(fs, entryPath, matches, wildPattern);
-            }
-        }
-    }
-
-    public static synchronized String[] find(FileSystem fs, String wildPath) throws FileSystemException {
-        // Match all the files on the system
-        wildPath = sanitizePath(wildPath, true);
-
-        // If we don't have a wildcard at all just check the file exists
-        int starIndex = wildPath.indexOf('*');
-        if (starIndex == -1) {
-            return fs.exists(wildPath) ? new String[]{ wildPath } : new String[0];
-        }
-
-        // Find the all non-wildcarded directories. For instance foo/bar/baz* -> foo/bar
-        int prevDir = wildPath.substring(0, starIndex).lastIndexOf('/');
-        String startDir = prevDir == -1 ? "" : wildPath.substring(0, prevDir);
-
-        // If this isn't a directory then just abort
-        if (!fs.isDir(startDir)) return new String[0];
-
-        // Scan as normal, starting from this directory
-        Pattern wildPattern = Pattern.compile("^\\Q" + wildPath.replaceAll("\\*", "\\\\E[^\\\\/]*\\\\Q") + "\\E$");
-        List<String> matches = new ArrayList<>();
-        findIn(fs, startDir, matches, wildPattern);
-
-        // Return matches
-        String[] array = matches.toArray(new String[0]);
-        Arrays.sort(array);
-        return array;
-    }
-
     public static String getDirectory(String path) {
         path = sanitizePath(path, true);
         if (path.isEmpty()) {
@@ -67,6 +28,11 @@ final class FileSystemExtensions {
         } else {
             return "";
         }
+    }
+
+    public static void makeParentDir(FileSystem fileSystem, String path) throws FileSystemException {
+        var parent = getDirectory(path);
+        if (!parent.isEmpty()) fileSystem.makeDir(parent);
     }
 
     private static final Pattern threeDotsPattern = Pattern.compile("^\\.{3,}$");

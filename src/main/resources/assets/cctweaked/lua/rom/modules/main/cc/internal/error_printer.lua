@@ -4,10 +4,9 @@
 
 --[[- A pretty-printer for Lua errors.
 
-:::warning
-This is an internal module and SHOULD NOT be used in your own code. It may
-be removed or changed at any time.
-:::
+> [!DANGER]
+> This is an internal module and SHOULD NOT be used in your own code. It may
+> be removed or changed at any time.
 
 This consumes a list of messages and "annotations" and displays the error to the
 terminal.
@@ -100,7 +99,7 @@ local code_accent = pretty.text("\x95", colours.cyan)
     over the underlying source, exposing the following functions:
     - `get_pos`: Get the line and column of an opaque position.
     - `get_line`: Get the source code for an opaque position.
-@tparam table message The message to display, as produced by @{cc.internal.syntax.errors}.
+@tparam table message The message to display, as produced by [`cc.internal.syntax.errors`].
 ]]
 return function(context, message)
     expect(1, context, "table")

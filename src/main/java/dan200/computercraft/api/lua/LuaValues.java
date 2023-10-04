@@ -4,6 +4,7 @@
 
 package dan200.computercraft.api.lua;
 
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
@@ -23,9 +24,9 @@ public final class LuaValues {
      * @return The encoded string.
      */
     public static ByteBuffer encode(String string) {
-        byte[] chars = new byte[string.length()];
-        for (int i = 0; i < chars.length; i++) {
-            char c = string.charAt(i);
+        var chars = new byte[string.length()];
+        for (var i = 0; i < chars.length; i++) {
+            var c = string.charAt(i);
             chars[i] = c < 256 ? (byte) c : 63;
         }
 
@@ -53,7 +54,7 @@ public final class LuaValues {
      * @return A string representation of the given value's type, in a similar format to that provided by Lua's
      * {@code type} function.
      */
-    public static String getType(Object value) {
+    public static String getType(@Nullable Object value) {
         if (value == null) return "nil";
         if (value instanceof String) return "string";
         if (value instanceof Boolean) return "boolean";
@@ -147,7 +148,7 @@ public final class LuaValues {
      * @throws LuaException If this is not a known enum value.
      */
     public static <T extends Enum<T>> T checkEnum(int index, Class<T> klass, String value) throws LuaException {
-        for (T possibility : klass.getEnumConstants()) {
+        for (var possibility : klass.getEnumConstants()) {
             if (possibility.name().equalsIgnoreCase(value)) return possibility;
         }
 

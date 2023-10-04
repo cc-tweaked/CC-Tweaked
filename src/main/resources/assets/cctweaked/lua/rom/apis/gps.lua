@@ -2,21 +2,20 @@
 --
 -- SPDX-License-Identifier: LicenseRef-CCPL
 
---[[- Use @{modem|modems} to locate the position of the current turtle or
+--[[- Use [modems][`modem`] to locate the position of the current turtle or
 computers.
 
-It broadcasts a PING message over @{rednet} and wait for responses. In order for
+It broadcasts a PING message over [`rednet`] and wait for responses. In order for
 this system to work, there must be at least 4 computers used as gps hosts which
 will respond and allow trilateration. Three of these hosts should be in a plane,
 and the fourth should be either above or below the other three. The three in a
 plane should not be in a line with each other. You can set up hosts using the
 gps program.
 
-:::note
-When entering in the coordinates for the host you need to put in the `x`, `y`,
-and `z` coordinates of the block that the modem is connected to, not the modem.
-All modem distances are measured from the block that the modem is placed on.
-:::
+> [!NOTE]
+> When entering in the coordinates for the host you need to put in the `x`, `y`,
+> and `z` coordinates of the block that the modem is connected to, not the modem.
+> All modem distances are measured from the block that the modem is placed on.
 
 Also note that you may choose which axes x, y, or z refers to - so long as your
 systems have the same definition as any GPS servers that're in range, it works

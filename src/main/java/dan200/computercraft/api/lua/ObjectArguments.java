@@ -4,6 +4,7 @@
 
 package dan200.computercraft.api.lua;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -44,6 +45,7 @@ public final class ObjectArguments extends IArguments {
         return new ObjectArguments(args.subList(count, args.size()));
     }
 
+    @Nullable
     @Override
     public Object get(int index) {
         return index >= args.size() ? null : args.get(index);

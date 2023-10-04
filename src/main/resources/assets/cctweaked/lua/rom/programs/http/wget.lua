@@ -36,13 +36,6 @@ local function getFilename(sUrl)
 end
 
 local function get(sUrl)
-    -- Check if the URL is valid
-    local ok, err = http.checkURL(url)
-    if not ok then
-        printError(err or "Invalid URL.")
-        return
-    end
-
     write("Connecting to " .. sUrl .. "... ")
 
     local response = http.get(sUrl , nil , true)

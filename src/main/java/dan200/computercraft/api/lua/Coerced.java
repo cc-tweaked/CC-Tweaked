@@ -4,8 +4,6 @@
 
 package dan200.computercraft.api.lua;
 
-import java.util.Objects;
-
 /**
  * A wrapper type for "coerced" values.
  * <p>
@@ -20,27 +18,9 @@ import java.util.Objects;
  * }
  * }</pre>
  *
- * @param <T> The type of the underlying value.
+ * @param value The argument value.
+ * @param <T>   The type of the underlying value.
  * @see IArguments#getStringCoerced(int)
  */
-public final class Coerced<T> {
-    private final T value;
-
-    public Coerced(T value) {
-        this.value = value;
-    }
-
-    public T value() {
-        return value;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj == this || obj instanceof Coerced && Objects.equals(value, ((Coerced<?>) obj).value);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(value);
-    }
+public record Coerced<T>(T value) {
 }

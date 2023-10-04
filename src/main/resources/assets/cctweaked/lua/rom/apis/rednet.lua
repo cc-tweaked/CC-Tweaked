@@ -2,42 +2,41 @@
 --
 -- SPDX-License-Identifier: LicenseRef-CCPL
 
---[[- Communicate with other computers by using @{modem|modems}. @{rednet}
-provides a layer of abstraction on top of the main @{modem} peripheral, making
+--[[- Communicate with other computers by using [modems][`modem`]. [`rednet`]
+provides a layer of abstraction on top of the main [`modem`] peripheral, making
 it slightly easier to use.
 
 ## Basic usage
 In order to send a message between two computers, each computer must have a
 modem on one of its sides (or in the case of pocket computers and turtles, the
 modem must be equipped as an upgrade). The two computers should then call
-@{rednet.open}, which sets up the modems ready to send and receive messages.
+[`rednet.open`], which sets up the modems ready to send and receive messages.
 
-Once rednet is opened, you can send messages using @{rednet.send} and receive
-them using @{rednet.receive}. It's also possible to send a message to _every_
-rednet-using computer using @{rednet.broadcast}.
+Once rednet is opened, you can send messages using [`rednet.send`] and receive
+them using [`rednet.receive`]. It's also possible to send a message to _every_
+rednet-using computer using [`rednet.broadcast`].
 
-:::caution Network security
-
-While rednet provides a friendly way to send messages to specific computers, it
-doesn't provide any guarantees about security. Other computers could be
-listening in to your messages, or even pretending to send messages from other computers!
-
-If you're playing on a multi-player server (or at least one where you don't
-trust other players), it's worth encrypting or signing your rednet messages.
-:::
+> [Network security][!WARNING]
+>
+> While rednet provides a friendly way to send messages to specific computers, it
+> doesn't provide any guarantees about security. Other computers could be
+> listening in to your messages, or even pretending to send messages from other computers!
+>
+> If you're playing on a multi-player server (or at least one where you don't
+> trust other players), it's worth encrypting or signing your rednet messages.
 
 ## Protocols and hostnames
 Several rednet messages accept "protocol"s - simple string names describing what
-a message is about. When sending messages using @{rednet.send} and
-@{rednet.broadcast}, you can optionally specify a protocol for the message. This
-same protocol can then be given to @{rednet.receive}, to ignore all messages not
+a message is about. When sending messages using [`rednet.send`] and
+[`rednet.broadcast`], you can optionally specify a protocol for the message. This
+same protocol can then be given to [`rednet.receive`], to ignore all messages not
 using this protocol.
 
 It's also possible to look-up computers based on protocols, providing a basic
 system for service discovery and [DNS]. A computer can advertise that it
-supports a particular protocol with @{rednet.host}, also providing a friendly
+supports a particular protocol with [`rednet.host`], also providing a friendly
 "hostname". Other computers may then find all computers which support this
-protocol using @{rednet.lookup}.
+protocol using [`rednet.lookup`].
 
 [DNS]: https://en.wikipedia.org/wiki/Domain_Name_System "Domain Name System"
 
@@ -50,7 +49,7 @@ bare-bones but flexible interface.
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
---- The channel used by the Rednet API to @{broadcast} messages.
+--- The channel used by the Rednet API to [`broadcast`] messages.
 CHANNEL_BROADCAST = 65535
 
 --- The channel used by the Rednet API to repeat messages.
@@ -68,12 +67,12 @@ local function id_as_channel(id)
     return (id or os.getComputerID()) % MAX_ID_CHANNELS
 end
 
---[[- Opens a modem with the given @{peripheral} name, allowing it to send and
+--[[- Opens a modem with the given [`peripheral`] name, allowing it to send and
 receive messages over rednet.
 
 This will open the modem on two channels: one which has the same
-@{os.getComputerID|ID} as the computer, and another on
-@{CHANNEL_BROADCAST|the broadcast channel}.
+[ID][`os.getComputerID`] as the computer, and another on
+[the broadcast channel][`CHANNEL_BROADCAST`].
 
 @tparam string modem The name of the modem to open.
 @throws If there is no such modem with the given name
@@ -83,7 +82,7 @@ rednet messages using it.
     rednet.open("back")
 
 @usage Open rednet on all attached modems. This abuses the "filter" argument to
-@{peripheral.find}.
+[`peripheral.find`].
 
     peripheral.find("modem", rednet.open)
 @see rednet.close
@@ -98,7 +97,7 @@ function open(modem)
     peripheral.call(modem, "open", CHANNEL_BROADCAST)
 end
 
---- Close a modem with the given @{peripheral} name, meaning it can no longer
+--- Close a modem with the given [`peripheral`] name, meaning it can no longer
 -- send and receive rednet messages.
 --
 -- @tparam[opt] string modem The side the modem exists on. If not given, all
@@ -151,21 +150,21 @@ end
 
 --[[- Allows a computer or turtle with an attached modem to send a message
 intended for a sycomputer with a specific ID. At least one such modem must first
-be @{rednet.open|opened} before sending is possible.
+be [opened][`rednet.open`] before sending is possible.
 
 Assuming the target was in range and also had a correctly opened modem, the
-target computer may then use @{rednet.receive} to collect the message.
+target computer may then use [`rednet.receive`] to collect the message.
 
 @tparam number recipient The ID of the receiving computer.
-@param message The message to send. Like with @{modem.transmit}, this can
+@param message The message to send. Like with [`modem.transmit`], this can
 contain any primitive type (numbers, booleans and strings) as well as
 tables. Other types (like functions), as well as metatables, will not be
 transmitted.
 @tparam[opt] string protocol The "protocol" to send this message under. When
-using @{rednet.receive} one can filter to only receive messages sent under a
+using [`rednet.receive`] one can filter to only receive messages sent under a
 particular protocol.
 @treturn boolean If this message was successfully sent (i.e. if rednet is
-currently @{rednet.open|open}). Note, this does not guarantee the message was
+currently [open][`rednet.open`]). Note, this does not guarantee the message was
 actually _received_.
 @changed 1.6 Added protocol parameter.
 @changed 1.82.0 Now returns whether the message was successfully sent.
@@ -217,13 +216,13 @@ function send(recipient, message, protocol)
     return sent
 end
 
---[[- Broadcasts a string message over the predefined @{CHANNEL_BROADCAST}
+--[[- Broadcasts a string message over the predefined [`CHANNEL_BROADCAST`]
 channel. The message will be received by every device listening to rednet.
 
 @param message The message to send. This should not contain coroutines or
-functions, as they will be converted to @{nil}.
+functions, as they will be converted to [`nil`].
 @tparam[opt] string protocol The "protocol" to send this message under. When
-using @{rednet.receive} one can filter to only receive messages sent under a
+using [`rednet.receive`] one can filter to only receive messages sent under a
 particular protocol.
 @see rednet.receive
 @changed 1.6 Added protocol parameter.
@@ -311,7 +310,7 @@ function receive(protocol_filter, timeout)
 end
 
 --[[- Register the system as "hosting" the desired protocol under the specified
-name. If a rednet @{rednet.lookup|lookup} is performed for that protocol (and
+name. If a rednet [lookup][`rednet.lookup`] is performed for that protocol (and
 maybe name) on the same network, the registered system will automatically
 respond via a background process, hence providing the system performing the
 lookup with its ID number.
@@ -343,8 +342,8 @@ function host(protocol, hostname)
     end
 end
 
---- Stop @{rednet.host|hosting} a specific protocol, meaning it will no longer
--- respond to @{rednet.lookup} requests.
+--- Stop [hosting][`rednet.host`] a specific protocol, meaning it will no longer
+-- respond to [`rednet.lookup`] requests.
 --
 -- @tparam string protocol The protocol to unregister your self from.
 -- @since 1.6
@@ -353,7 +352,7 @@ function unhost(protocol)
     hostnames[protocol] = nil
 end
 
---[[- Search the local rednet network for systems @{rednet.host|hosting} the
+--[[- Search the local rednet network for systems [hosting][`rednet.host`] the
 desired protocol and returns any computer IDs that respond as "registered"
 against it.
 
@@ -365,7 +364,7 @@ match is found).
 
 @treturn[1] number... A list of computer IDs hosting the given protocol.
 @treturn[2] number|nil The computer ID with the provided hostname and protocol,
-or @{nil} if none exists.
+or [`nil`] if none exists.
 @since 1.6
 @usage Find all computers which are hosting the `"chat"` protocol.
 
@@ -450,7 +449,7 @@ end
 local started = false
 
 --- Listen for modem messages and converts them into rednet messages, which may
--- then be @{receive|received}.
+-- then be [received][`receive`].
 --
 -- This is automatically started in the background on computer startup, and
 -- should not be called manually.

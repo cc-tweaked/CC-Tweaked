@@ -2,13 +2,31 @@
 --
 -- SPDX-License-Identifier: LicenseRef-CCPL
 
---- Read and write configuration options for CraftOS and your programs.
---
--- By default, the settings API will load its configuration from the
--- `/.settings` file. One can then use @{settings.save} to update the file.
---
--- @module settings
--- @since 1.78
+--[[- Read and write configuration options for CraftOS and your programs.
+
+When a computer starts, it reads the current value of settings from the
+`/.settings` file. These values then may be [read][`settings.get`] or
+[modified][`settings.set`].
+
+> [!WARNING]
+> Calling [`settings.set`] does _not_ update the settings file by default. You
+> _must_ call [`settings.save`] to persist values.
+
+@module settings
+@since 1.78
+@usage Define an basic setting `123` and read its value.
+
+    settings.define("my.setting", {
+        description = "An example setting",
+        default = 123,
+        type = number,
+    })
+    print("my.setting = " .. settings.get("my.setting")) -- 123
+
+You can then use the `set` program to change its value (e.g. `set my.setting 456`),
+and then re-run the `example` program to check it has changed.
+
+]]
 
 local expect = dofile("rom/modules/main/cc/expect.lua")
 local type, expect, field = type, expect.expect, expect.field
@@ -40,9 +58,9 @@ for _, v in ipairs(valid_types) do valid_types[v] = true end
 -- Options for this setting. This table accepts the following fields:
 --
 --  - `description`: A description which may be printed when running the `set` program.
---  - `default`: A default value, which is returned by @{settings.get} if the
+--  - `default`: A default value, which is returned by [`settings.get`] if the
 --    setting has not been changed.
---  - `type`: Require values to be of this type. @{set|Setting} the value to another type
+--  - `type`: Require values to be of this type. [Setting][`set`] the value to another type
 --    will error.
 -- @since 1.87.0
 function define(name, options)
@@ -66,9 +84,9 @@ function define(name, options)
     details[name] = options
 end
 
---- Remove a @{define|definition} of a setting.
+--- Remove a [definition][`define`] of a setting.
 --
--- If a setting has been changed, this does not remove its value. Use @{settings.unset}
+-- If a setting has been changed, this does not remove its value. Use [`settings.unset`]
 -- for that.
 --
 -- @tparam string name The name of this option
@@ -92,13 +110,18 @@ local function set_value(name, new)
     end
 end
 
---- Set the value of a setting.
---
--- @tparam string name The name of the setting to set
--- @param value The setting's value. This cannot be `nil`, and must be
--- serialisable by @{textutils.serialize}.
--- @throws If this value cannot be serialised
--- @see settings.unset
+--[[- Set the value of a setting.
+
+> [!WARNING]
+> Calling [`settings.set`] does _not_ update the settings file by default. You
+> _must_ call [`settings.save`] to persist values.
+
+@tparam string name The name of the setting to set
+@param value The setting's value. This cannot be `nil`, and must be
+serialisable by [`textutils.serialize`].
+@throws If this value cannot be serialised
+@see settings.unset
+]]
 function set(name, value)
     expect(1, name, "string")
     expect(2, value, "number", "string", "boolean", "table")
@@ -134,7 +157,7 @@ end
 --
 -- @tparam string name The name of the setting to get.
 -- @treturn { description? = string, default? = any, type? = string, value? = any }
--- Information about this setting. This includes all information from @{settings.define},
+-- Information about this setting. This includes all information from [`settings.define`],
 -- as well as this setting's value.
 -- @since 1.87.0
 function getDetails(name)
@@ -148,8 +171,8 @@ end
 
 --- Remove the value of a setting, setting it to the default.
 --
--- @{settings.get} will return the default value until the setting's value is
--- @{settings.set|set}, or the computer is rebooted.
+-- [`settings.get`] will return the default value until the setting's value is
+-- [set][`settings.set`], or the computer is rebooted.
 --
 -- @tparam string name The name of the setting to unset.
 -- @see settings.set
@@ -159,7 +182,7 @@ function unset(name)
     set_value(name, nil)
 end
 
---- Resets the value of all settings. Equivalent to calling @{settings.unset}
+--- Resets the value of all settings. Equivalent to calling [`settings.unset`]
 --- on every setting.
 --
 -- @see settings.unset

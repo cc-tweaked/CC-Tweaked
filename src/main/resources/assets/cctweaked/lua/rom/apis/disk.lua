@@ -9,10 +9,9 @@ locally attached drive, specify “side” as one of the six sides (e.g. `left`)
 use a remote disk drive, specify its name as printed when enabling its modem
 (e.g. `drive_0`).
 
-:::tip
-All computers (except command computers), turtles and pocket computers can be
-placed within a disk drive to access it's internal storage like a disk.
-:::
+> [!TIP]
+> All computers (except command computers), turtles and pocket computers can be
+> placed within a disk drive to access it's internal storage like a disk.
 
 @module disk
 @since 1.2
@@ -95,9 +94,9 @@ end
 --- Whether the current disk is a [music disk][disk] as opposed to a floppy disk
 -- or other item.
 --
--- If this returns true, you will can @{disk.playAudio|play} the record.
+-- If this returns true, you will can [play][`disk.playAudio`] the record.
 --
--- [disk]: https://minecraft.gamepedia.com/Music_Disc
+-- [disk]: https://minecraft.wiki/w/Music_Disc
 --
 -- @tparam string name The name of the disk drive.
 -- @treturn boolean If the disk is present and has audio saved on it.
@@ -110,10 +109,10 @@ end
 
 --- Get the title of the audio track from the music record in the drive.
 --
--- This generally returns the same as @{disk.getLabel} for records.
+-- This generally returns the same as [`disk.getLabel`] for records.
 --
 -- @tparam string name The name of the disk drive.
--- @treturn string|false|nil The track title, @{false} if there is not a music
+-- @treturn string|false|nil The track title, [`false`] if there is not a music
 -- record in the drive or `nil` if no drive is present.
 function getAudioTitle(name)
     if isDrive(name) then
@@ -126,7 +125,7 @@ end
 --
 -- If any record is already playing on any disk drive, it stops before the
 -- target drive starts playing. The record stops when it reaches the end of the
--- track, when it is removed from the drive, when @{disk.stopAudio} is called, or
+-- track, when it is removed from the drive, when [`disk.stopAudio`] is called, or
 -- when another record is started.
 --
 -- @tparam string name The name of the disk drive.
@@ -138,7 +137,7 @@ function playAudio(name)
 end
 
 --- Stops the music record in the drive from playing, if it was started with
--- @{disk.playAudio}.
+-- [`disk.playAudio`].
 --
 -- @tparam string name The name o the disk drive.
 function stopAudio(name)
@@ -165,7 +164,7 @@ end
 
 --- Returns a number which uniquely identifies the disk in the drive.
 --
--- Note, unlike @{disk.getLabel}, this does not return anything for other media,
+-- Note, unlike [`disk.getLabel`], this does not return anything for other media,
 -- such as computers or turtles.
 --
 -- @tparam string name The name of the disk drive.

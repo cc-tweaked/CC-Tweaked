@@ -38,5 +38,3 @@ val mcVersion: String by settings
 rootProject.name = "cc-tweaked-$mcVersion"
 
 includeBuild("vendor/Cobalt")
-
-include("build-tools")

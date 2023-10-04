@@ -20,13 +20,16 @@ version = modVersion
 base.archivesName.convention("cc-tweaked-$mcVersion")
 
 java {
-    // Last version able to set a --release as low as 6
-    toolchain.languageVersion.set(JavaLanguageVersion.of(11))
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 
     withSourcesJar()
 }
 
-tasks.compileJava { options.release.set(8) }
+val runtimeToolchain = javaToolchains.launcherFor {
+    languageVersion.set(JavaLanguageVersion.of(8))
+}
 
 repositories {
     mavenCentral()
@@ -38,16 +41,16 @@ repositories {
 }
 
 volde {
-    forgeCapabilities {
-        setSrgsAsFallback(true)
-    }
-
     runs {
         named("client") {
             programArg("SquidDev")
             property("fml.coreMods.load", "cc.tweaked.patch.CorePlugin")
         }
     }
+}
+
+tasks.withType(net.fabricmc.loom.task.RunTask::class.java).configureEach {
+    javaLauncher.set(runtimeToolchain)
 }
 
 configurations {
@@ -71,10 +74,12 @@ dependencies {
         },
     )
 
+    compileOnly("com.google.code.findbugs:jsr305:3.0.2")
+    compileOnly("org.jetbrains:annotations:24.0.1")
     modImplementation("maven.modrinth:computercraft:1.50")
     "shade"("org.squiddev:Cobalt")
 
-    "buildTools"(project(":build-tools"))
+    "buildTools"("cc.tweaked.cobalt:build-tools")
 }
 
 // Point compileJava to emit to classes/uninstrumentedJava/main, and then add a task to instrument these classes,
@@ -88,12 +93,9 @@ val instrumentJava = tasks.register(mainSource.getTaskName("Instrument", "Java")
     inputs.dir(untransformedClasses).withPropertyName("inputDir")
     outputs.dir(javaClassesDir).withPropertyName("outputDir")
 
-    javaLauncher.set(
-        javaToolchains.launcherFor {
-            languageVersion.set(JavaLanguageVersion.of(17))
-        },
-    )
-    mainClass.set("cc.tweaked.build.MainKt")
+    // Run under Java 8, so we can check compatibility of methods.
+    javaLauncher.set(runtimeToolchain)
+    mainClass.set("cc.tweaked.cobalt.build.MainKt")
     classpath = buildTools
 
     args = listOf(
@@ -129,6 +131,8 @@ tasks.jar {
 }
 
 tasks.processResources {
+    inputs.property("version", project.version)
+    inputs.property("mcVersion", mcVersion)
     filesMatching("mcmod.info") {
         expand("version" to project.version, "mcVersion" to mcVersion)
     }

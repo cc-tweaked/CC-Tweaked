@@ -56,14 +56,6 @@ local function get(url)
     )
 
     if response then
-        -- If spam protection is activated, we get redirected to /paste with Content-Type: text/html
-        local headers = response.getResponseHeaders()
-        if not headers["Content-Type"] or not headers["Content-Type"]:find("^text/plain") then
-            io.stderr:write("Failed.\n")
-            print("Pastebin blocked the download due to spam protection. Please complete the captcha in a web browser: https://pastebin.com/" .. textutils.urlEncode(paste))
-            return
-        end
-
         print("Success.")
 
         local sResponse = response.readAll()

@@ -371,27 +371,36 @@ public class FSAPI implements ILuaAPI {
     public final Object[] open(String path, String mode) throws LuaException {
         try {
             switch (mode) {
-                // Open the file for reading, then create a wrapper around the reader
-                case "r":
+                case "r" -> {
+                    // Open the file for reading, then create a wrapper around the reader
                     return new Object[]{ new EncodedReadableHandle(getFileSystem().openForRead(path)) };
-                // Open the file for writing, then create a wrapper around the writer
-                case "w":
+                }
+                case "w" -> {
+                    // Open the file for writing, then create a wrapper around the writer
+                    FileSystemExtensions.makeParentDir(fileSystem, path);
                     return new Object[]{ new EncodedWritableHandle(getFileSystem().openForWrite(path, false)) };
-                // Open the file for appending, then create a wrapper around the writer
-                case "a":
+                }
+                case "a" -> {
+                    // Open the file for appending, then create a wrapper around the writer
+                    FileSystemExtensions.makeParentDir(fileSystem, path);
                     return new Object[]{ new EncodedWritableHandle(getFileSystem().openForWrite(path, true)) };
-                // Open the file for binary reading, then create a wrapper around the reader
-                case "rb":
+                }
+                case "rb" -> {
+                    // Open the file for binary reading, then create a wrapper around the reader
                     IMountedFileBinary reader = getFileSystem().openForBinaryRead(path);
                     return new Object[]{ new BinaryReadableHandle(reader) };
-                // Open the file for binary writing, then create a wrapper around the writer
-                case "wb":
+                }
+                case "wb" -> {
+                    // Open the file for binary writing, then create a wrapper around the writer
+                    FileSystemExtensions.makeParentDir(fileSystem, path);
                     return new Object[]{ new BinaryWritableHandle(getFileSystem().openForBinaryWrite(path, false)) };
-                // Open the file for binary appending, then create a wrapper around the reader
-                case "ab":
+                }
+                case "ab" -> {
+                    // Open the file for binary appending, then create a wrapper around the reader
+                    FileSystemExtensions.makeParentDir(fileSystem, path);
                     return new Object[]{ new BinaryWritableHandle(getFileSystem().openForBinaryWrite(path, true)) };
-                default:
-                    throw new LuaException("Unsupported mode");
+                }
+                default -> throw new LuaException("Unsupported mode");
             }
         } catch (FileSystemException e) {
             return new Object[]{ null, e.getMessage() };
@@ -437,29 +446,6 @@ public class FSAPI implements ILuaAPI {
         try {
             long freeSpace = getFileSystem().getFreeSpace(path);
             return freeSpace >= 0 ? freeSpace : "unlimited";
-        } catch (FileSystemException e) {
-            throw new LuaException(e.getMessage());
-        }
-    }
-
-
-    /**
-     * Searches for files matching a string with wildcards.
-     * <p>
-     * This string is formatted like a normal path string, but can include any
-     * number of wildcards ({@code *}) to look for files matching anything.
-     * For example, <code>rom/&#42;/command*</code> will look for any path starting with
-     * {@code command} inside any subdirectory of {@code /rom}.
-     *
-     * @param path The wildcard-qualified path to search for.
-     * @return A list of paths that match the search string.
-     * @throws LuaException If the path doesn't exist.
-     * @cc.since 1.6
-     */
-    @LuaFunction
-    public final String[] find(String path) throws LuaException {
-        try {
-            return FileSystemExtensions.find(getFileSystem(), path);
         } catch (FileSystemException e) {
             throw new LuaException(e.getMessage());
         }

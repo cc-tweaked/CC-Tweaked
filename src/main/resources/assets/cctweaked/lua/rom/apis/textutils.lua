@@ -14,7 +14,7 @@ local wrap = dofile("rom/modules/main/cc/strings.lua").wrap
 --- Slowly writes string text at current cursor position,
 -- character-by-character.
 --
--- Like @{_G.write}, this does not insert a newline at the end.
+-- Like [`_G.write`], this does not insert a newline at the end.
 --
 -- @tparam string text The the text to write to the screen
 -- @tparam[opt] number rate The number of characters to write each second,
@@ -42,7 +42,7 @@ end
 --- Slowly prints string text at current cursor position,
 -- character-by-character.
 --
--- Like @{print}, this inserts a newline after printing.
+-- Like [`print`], this inserts a newline after printing.
 --
 -- @tparam string sText The the text to write to the screen
 -- @tparam[opt] number nRate The number of characters to write each second,
@@ -56,7 +56,7 @@ end
 
 --- Takes input time and formats it in a more readable format such as `6:30 PM`.
 --
--- @tparam number nTime The time to format, as provided by @{os.time}.
+-- @tparam number nTime The time to format, as provided by [`os.time`].
 -- @tparam[opt] boolean bTwentyFourHour Whether to format this as a 24-hour
 -- clock (`18:30`) rather than a 12-hour one (`6:30 AM`)
 -- @treturn string The formatted time
@@ -114,7 +114,7 @@ end
 --[[- Prints a given string to the display.
 
 If the action can be completed without scrolling, it acts much the same as
-@{print}; otherwise, it will throw up a "Press any key to continue" prompt at
+[`print`]; otherwise, it will throw up a "Press any key to continue" prompt at
 the bottom of the display. Each press will cause it to scroll down and write a
 single line more before prompting again, if need be.
 
@@ -253,7 +253,7 @@ end
 --[[- Prints tables in a structured form, stopping and prompting for input should
 the result not fit on the terminal.
 
-This functions identically to @{textutils.tabulate}, but will prompt for user
+This functions identically to [`textutils.tabulate`], but will prompt for user
 input should the whole output not fit on the display.
 
 @tparam {string...}|number ... The rows and text colors to display.
@@ -424,12 +424,31 @@ do
         if map[c] == nil then map[c] = hexify(c) end
     end
 
-    serializeJSONString = function(s)
-        return ('"%s"'):format(s:gsub("[\0-\x1f\"\\]", map):gsub("[\x7f-\xff]", hexify))
+    serializeJSONString = function(s, options)
+        if options and options.unicode_strings and s:find("[\x80-\xff]") then
+            local retval = '"'
+            for _, code in utf8.codes(s) do
+                if code > 0xFFFF then
+                    -- Encode the codepoint as a UTF-16 surrogate pair
+                    code = code - 0x10000
+                    local high, low = bit32.extract(code, 10, 10) + 0xD800, bit32.extract(code, 0, 10) + 0xDC00
+                    retval = retval .. ("\\u%04X\\u%04X"):format(high, low)
+                elseif code <= 0x5C and map[string.char(code)] then -- 0x5C = `\`, don't run `string.char` if we don't need to
+                    retval = retval .. map[string.char(code)]
+                elseif code < 0x20 or code >= 0x7F then
+                    retval = retval .. ("\\u%04X"):format(code)
+                else
+                    retval = retval .. string.char(code)
+                end
+            end
+            return retval .. '"'
+        else
+            return ('"%s"'):format(s:gsub("[\0-\x1f\"\\]", map):gsub("[\x7f-\xff]", hexify))
+        end
     end
 end
 
-local function serializeJSONImpl(t, tTracking, bNBTStyle)
+local function serializeJSONImpl(t, tTracking, options)
     local sType = type(t)
     if t == empty_json_array then return "[]"
     elseif t == json_null then return "null"
@@ -450,13 +469,14 @@ local function serializeJSONImpl(t, tTracking, bNBTStyle)
             local nObjectSize = 0
             local nArraySize = 0
             local largestArrayIndex = 0
+            local bNBTStyle = options and options.nbt_style
             for k, v in pairs(t) do
                 if type(k) == "string" then
                     local sEntry
                     if bNBTStyle then
-                        sEntry = tostring(k) .. ":" .. serializeJSONImpl(v, tTracking, bNBTStyle)
+                        sEntry = tostring(k) .. ":" .. serializeJSONImpl(v, tTracking, options)
                     else
-                        sEntry = serializeJSONString(k) .. ":" .. serializeJSONImpl(v, tTracking, bNBTStyle)
+                        sEntry = serializeJSONString(k, options) .. ":" .. serializeJSONImpl(v, tTracking, options)
                     end
                     if nObjectSize == 0 then
                         sObjectResult = sObjectResult .. sEntry
@@ -473,7 +493,7 @@ local function serializeJSONImpl(t, tTracking, bNBTStyle)
                 if t[k] == nil then --if the array is nil at index k the value is "null" as to keep the unused indexes in between used ones.
                     sEntry = "null"
                 else -- if the array index does not point to a nil we serialise it's content.
-                    sEntry = serializeJSONImpl(t[k], tTracking, bNBTStyle)
+                    sEntry = serializeJSONImpl(t[k], tTracking, options)
                 end
                 if nArraySize == 0 then
                     sArrayResult = sArrayResult .. sEntry
@@ -492,7 +512,7 @@ local function serializeJSONImpl(t, tTracking, bNBTStyle)
         end
 
     elseif sType == "string" then
-        return serializeJSONString(t)
+        return serializeJSONString(t, options)
 
     elseif sType == "number" or sType == "boolean" then
         return tostring(t)
@@ -682,13 +702,13 @@ do
 
     --[[- Converts a serialised JSON string back into a reassembled Lua object.
 
-    This may be used with @{textutils.serializeJSON}, or when communicating
+    This may be used with [`textutils.serializeJSON`], or when communicating
     with command blocks or web APIs.
 
     If a `null` value is encountered, it is converted into `nil`. It can be converted
-    into @{textutils.json_null} with the `parse_null` option.
+    into [`textutils.json_null`] with the `parse_null` option.
 
-    If an empty array is encountered, it is converted into @{textutils.empty_json_array}.
+    If an empty array is encountered, it is converted into [`textutils.empty_json_array`].
     It can be converted into a new empty table with the `parse_empty_array` option.
 
     @tparam string s The serialised string to deserialise.
@@ -697,12 +717,12 @@ do
 
     - `nbt_style`: When true, this will accept [stringified NBT][nbt] strings,
        as produced by many commands.
-    - `parse_null`: When true, `null` will be parsed as @{json_null}, rather than
+    - `parse_null`: When true, `null` will be parsed as [`json_null`], rather than
        `nil`.
     - `parse_empty_array`: When false, empty arrays will be parsed as a new table.
-       By default (or when this value is true), they are parsed as @{empty_json_array}.
+       By default (or when this value is true), they are parsed as [`empty_json_array`].
 
-    [nbt]: https://minecraft.gamepedia.com/NBT_format
+    [nbt]: https://minecraft.wiki/w/NBT_format
     @return[1] The deserialised object
     @treturn[2] nil If the object could not be deserialised.
     @treturn string A message describing why the JSON string is invalid.
@@ -714,7 +734,7 @@ do
 
         textutils.unserialiseJSON('{"name": "Steve", "age": null}')
 
-    @usage Unserialise a basic JSON object, returning null values as @{json_null}.
+    @usage Unserialise a basic JSON object, returning null values as [`json_null`].
 
         textutils.unserialiseJSON('{"name": "Steve", "age": null}', { parse_null = true })
     ]]
@@ -793,7 +813,7 @@ serialise = serialize -- GB version
 
 --- Converts a serialised string back into a reassembled Lua object.
 --
--- This is mainly used together with @{textutils.serialise}.
+-- This is mainly used together with [`textutils.serialise`].
 --
 -- @tparam string s The serialised string to deserialise.
 -- @return[1] The deserialised object
@@ -813,32 +833,57 @@ end
 
 unserialise = unserialize -- GB version
 
---- Returns a JSON representation of the given data.
---
--- This function attempts to guess whether a table is a JSON array or
--- object. However, empty tables are assumed to be empty objects - use
--- @{textutils.empty_json_array} to mark an empty array.
---
--- This is largely intended for interacting with various functions from the
--- @{commands} API, though may also be used in making @{http} requests.
---
--- @param t The value to serialise. Like @{textutils.serialise}, this should not
--- contain recursive tables or functions.
--- @tparam[opt] boolean bNBTStyle Whether to produce NBT-style JSON (non-quoted keys)
--- instead of standard JSON.
--- @treturn string The JSON representation of the input.
--- @throws If the object contains a value which cannot be
--- serialised. This includes functions and tables which appear multiple
--- times.
--- @usage textutils.serialiseJSON({ values = { 1, "2", true } })
--- @since 1.7
--- @see textutils.json_null Use to serialise a JSON `null` value.
--- @see textutils.empty_json_array Use to serialise a JSON empty array.
-function serializeJSON(t, bNBTStyle)
+--[[- Returns a JSON representation of the given data.
+
+This function attempts to guess whether a table is a JSON array or
+object. However, empty tables are assumed to be empty objects - use
+[`textutils.empty_json_array`] to mark an empty array.
+
+This is largely intended for interacting with various functions from the
+[`commands`] API, though may also be used in making [`http`] requests.
+
+@param[1] t The value to serialise. Like [`textutils.serialise`], this should not
+contain recursive tables or functions.
+@tparam[1,opt] { nbt_style? = boolean, unicode_strings? = boolean } options Options for serialisation.
+- `nbt_style`: Whether to produce NBT-style JSON (non-quoted keys) instead of standard JSON.
+- `unicode_strings`: Whether to treat strings as containing UTF-8 characters instead of
+   using the default 8-bit character set.
+
+@param[2] t The value to serialise. Like [`textutils.serialise`], this should not
+contain recursive tables or functions.
+@tparam[2] boolean bNBTStyle Whether to produce NBT-style JSON (non-quoted keys)
+instead of standard JSON.
+
+@treturn string The JSON representation of the input.
+@throws If the object contains a value which cannot be serialised. This includes
+functions and tables which appear multiple times.
+
+@usage Serialise a simple object
+
+    textutils.serialiseJSON({ values = { 1, "2", true } })
+
+@usage Serialise an object to a NBT-style string
+
+    textutils.serialiseJSON({ values = { 1, "2", true } }, { nbt_style = true })
+
+@since 1.7
+@changed 1.106.0 Added `options` overload and `unicode_strings` option.
+
+@see textutils.json_null Use to serialise a JSON `null` value.
+@see textutils.empty_json_array Use to serialise a JSON empty array.
+]]
+function serializeJSON(t, options)
     expect(1, t, "table", "string", "number", "boolean")
-    expect(2, bNBTStyle, "boolean", "nil")
+    expect(2, options, "table", "boolean", "nil")
+    if type(options) == "boolean" then
+        options = { nbt_style = options }
+    elseif type(options) == "table" then
+        field(options, "nbt_style", "boolean", "nil")
+        field(options, "unicode_strings", "boolean", "nil")
+    end
+
     local tTracking = {}
-    return serializeJSONImpl(t, tTracking, bNBTStyle or false)
+    return serializeJSONImpl(t, tTracking, options)
 end
 
 serialiseJSON = serializeJSON -- GB version
@@ -884,7 +929,7 @@ local tEmpty = {}
 -- variable name or table index.
 --
 -- @tparam[opt] table tSearchTable The table to find variables in, defaulting to
--- the global environment (@{_G}). The function also searches the "parent"
+-- the global environment ([`_G`]). The function also searches the "parent"
 -- environment via the `__index` metatable field.
 --
 -- @treturn { string... } The (possibly empty) list of completions.

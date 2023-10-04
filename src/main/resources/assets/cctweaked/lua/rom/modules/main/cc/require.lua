@@ -2,8 +2,8 @@
 --
 -- SPDX-License-Identifier: LicenseRef-CCPL
 
---[[- A pure Lua implementation of the builtin @{require} function and
-@{package} library.
+--[[- A pure Lua implementation of the builtin [`require`] function and
+[`package`] library.
 
 Generally you do not need to use this module - it is injected into the every
 program's environment. However, it may be useful when building a custom shell or
@@ -11,7 +11,7 @@ when running programs yourself.
 
 @module cc.require
 @since 1.88.0
-@see using_require For an introduction on how to use @{require}.
+@see using_require For an introduction on how to use [`require`].
 @usage Construct the package and require function, and insert them into a
 custom environment.
 
@@ -110,13 +110,13 @@ local function make_require(package)
     end
 end
 
---- Build an implementation of Lua's @{package} library, and a @{require}
+--- Build an implementation of Lua's [`package`] library, and a [`require`]
 -- function to load modules within it.
 --
 -- @tparam table env The environment to load packages into.
 -- @tparam string dir The directory that relative packages are loaded from.
--- @treturn function The new @{require} function.
--- @treturn table The new @{package} library.
+-- @treturn function The new [`require`] function.
+-- @treturn table The new [`package`] library.
 local function make_package(env, dir)
     expect(1, env, "table")
     expect(2, dir, "string")

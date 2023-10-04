@@ -4,6 +4,9 @@
 
 package dan200.computercraft.api.lua;
 
+import org.jetbrains.annotations.Contract;
+
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Optional;
@@ -39,6 +42,7 @@ public abstract class IArguments {
      * @throws IllegalStateException If accessing these arguments outside the scope of the original function. See
      *                               {@link #escapes()}.
      */
+    @Nullable
     public abstract Object get(int index) throws LuaException;
 
     /**
@@ -70,8 +74,8 @@ public abstract class IArguments {
      * @see #get(int) To get a single argument.
      */
     public Object[] getAll() throws LuaException {
-        Object[] result = new Object[count()];
-        for (int i = 0; i < result.length; i++) result[i] = get(i);
+        var result = new Object[count()];
+        for (var i = 0; i < result.length; i++) result[i] = get(i);
         return result;
     }
 
@@ -84,9 +88,9 @@ public abstract class IArguments {
      * @see #getFiniteDouble(int) if you require this to be finite (i.e. not infinite or NaN).
      */
     public double getDouble(int index) throws LuaException {
-        Object value = get(index);
-        if (!(value instanceof Number)) throw LuaValues.badArgumentOf(this, index, "number");
-        return ((Number) value).doubleValue();
+        var value = get(index);
+        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(this, index, "number");
+        return number.doubleValue();
     }
 
     /**
@@ -108,9 +112,9 @@ public abstract class IArguments {
      * @throws LuaException If the value is not a long.
      */
     public long getLong(int index) throws LuaException {
-        Object value = get(index);
-        if (!(value instanceof Number)) throw LuaValues.badArgumentOf(this, index, "number");
-        return LuaValues.checkFiniteNum(index, (Number) value).longValue();
+        var value = get(index);
+        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(this, index, "number");
+        return LuaValues.checkFiniteNum(index, number).longValue();
     }
 
     /**
@@ -132,9 +136,9 @@ public abstract class IArguments {
      * @throws LuaException If the value is not a boolean.
      */
     public boolean getBoolean(int index) throws LuaException {
-        Object value = get(index);
-        if (!(value instanceof Boolean)) throw LuaValues.badArgumentOf(this, index, "boolean");
-        return (Boolean) value;
+        var value = get(index);
+        if (!(value instanceof Boolean bool)) throw LuaValues.badArgumentOf(this, index, "boolean");
+        return bool;
     }
 
     /**
@@ -145,9 +149,9 @@ public abstract class IArguments {
      * @throws LuaException If the value is not a string.
      */
     public String getString(int index) throws LuaException {
-        Object value = get(index);
-        if (!(value instanceof String)) throw LuaValues.badArgumentOf(this, index, "string");
-        return (String) value;
+        var value = get(index);
+        if (!(value instanceof String string)) throw LuaValues.badArgumentOf(this, index, "string");
+        return string;
     }
 
     /**
@@ -167,12 +171,12 @@ public abstract class IArguments {
      * @see Coerced
      */
     public String getStringCoerced(int index) throws LuaException {
-        Object value = get(index);
+        var value = get(index);
         if (value == null) return "nil";
         if (value instanceof Boolean || value instanceof String) return value.toString();
-        if (value instanceof Number) {
-            double asDouble = ((Number) value).doubleValue();
-            int asInt = (int) asDouble;
+        if (value instanceof Number number) {
+            var asDouble = number.doubleValue();
+            var asInt = (int) asDouble;
             return asInt == asDouble ? Integer.toString(asInt) : Double.toString(asDouble);
         }
 
@@ -212,7 +216,7 @@ public abstract class IArguments {
      * @throws LuaException If the value is not a table.
      */
     public Map<?, ?> getTable(int index) throws LuaException {
-        Object value = get(index);
+        var value = get(index);
         if (!(value instanceof Map)) throw LuaValues.badArgumentOf(this, index, "table");
         return (Map<?, ?>) value;
     }
@@ -225,10 +229,10 @@ public abstract class IArguments {
      * @throws LuaException If the value is not a number.
      */
     public Optional<Double> optDouble(int index) throws LuaException {
-        Object value = get(index);
+        var value = get(index);
         if (value == null) return Optional.empty();
-        if (!(value instanceof Number)) throw LuaValues.badArgumentOf(this, index, "number");
-        return Optional.of(((Number) value).doubleValue());
+        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(this, index, "number");
+        return Optional.of(number.doubleValue());
     }
 
     /**
@@ -250,10 +254,10 @@ public abstract class IArguments {
      * @throws LuaException If the value is not a number.
      */
     public Optional<Long> optLong(int index) throws LuaException {
-        Object value = get(index);
+        var value = get(index);
         if (value == null) return Optional.empty();
-        if (!(value instanceof Number)) throw LuaValues.badArgumentOf(this, index, "number");
-        return Optional.of(LuaValues.checkFiniteNum(index, (Number) value).longValue());
+        if (!(value instanceof Number number)) throw LuaValues.badArgumentOf(this, index, "number");
+        return Optional.of(LuaValues.checkFiniteNum(index, number).longValue());
     }
 
     /**
@@ -264,7 +268,7 @@ public abstract class IArguments {
      * @throws LuaException If the value is not finite.
      */
     public Optional<Double> optFiniteDouble(int index) throws LuaException {
-        Optional<Double> value = optDouble(index);
+        var value = optDouble(index);
         if (value.isPresent()) LuaValues.checkFiniteNum(index, value.get());
         return value;
     }
@@ -277,10 +281,10 @@ public abstract class IArguments {
      * @throws LuaException If the value is not a boolean.
      */
     public Optional<Boolean> optBoolean(int index) throws LuaException {
-        Object value = get(index);
+        var value = get(index);
         if (value == null) return Optional.empty();
-        if (!(value instanceof Boolean)) throw LuaValues.badArgumentOf(this, index, "boolean");
-        return Optional.of((Boolean) value);
+        if (!(value instanceof Boolean bool)) throw LuaValues.badArgumentOf(this, index, "boolean");
+        return Optional.of(bool);
     }
 
     /**
@@ -291,10 +295,10 @@ public abstract class IArguments {
      * @throws LuaException If the value is not a string.
      */
     public Optional<String> optString(int index) throws LuaException {
-        Object value = get(index);
+        var value = get(index);
         if (value == null) return Optional.empty();
-        if (!(value instanceof String)) throw LuaValues.badArgumentOf(this, index, "string");
-        return Optional.of((String) value);
+        if (!(value instanceof String string)) throw LuaValues.badArgumentOf(this, index, "string");
+        return Optional.of(string);
     }
 
     /**
@@ -318,7 +322,7 @@ public abstract class IArguments {
      * @throws LuaException If the value is not a string or not a valid option for this enum.
      */
     public <T extends Enum<T>> Optional<T> optEnum(int index, Class<T> klass) throws LuaException {
-        Optional<String> str = optString(index);
+        var str = optString(index);
         return str.isPresent() ? Optional.of(LuaValues.checkEnum(index, klass, str.get())) : Optional.empty();
     }
 
@@ -330,7 +334,7 @@ public abstract class IArguments {
      * @throws LuaException If the value is not a table.
      */
     public Optional<Map<?, ?>> optTable(int index) throws LuaException {
-        Object value = get(index);
+        var value = get(index);
         if (value == null) return Optional.empty();
         if (!(value instanceof Map)) throw LuaValues.badArgumentOf(this, index, "map");
         return Optional.of((Map<?, ?>) value);
@@ -340,7 +344,7 @@ public abstract class IArguments {
      * Get an argument as a double.
      *
      * @param index The argument number.
-     * @param def   The public value, if this argument is not given.
+     * @param def   The default value, if this argument is not given.
      * @return The argument's value, or {@code def} if none was provided.
      * @throws LuaException If the value is not a number.
      */
@@ -352,7 +356,7 @@ public abstract class IArguments {
      * Get an argument as an int.
      *
      * @param index The argument number.
-     * @param def   The public value, if this argument is not given.
+     * @param def   The default value, if this argument is not given.
      * @return The argument's value, or {@code def} if none was provided.
      * @throws LuaException If the value is not a number.
      */
@@ -364,7 +368,7 @@ public abstract class IArguments {
      * Get an argument as a long.
      *
      * @param index The argument number.
-     * @param def   The public value, if this argument is not given.
+     * @param def   The default value, if this argument is not given.
      * @return The argument's value, or {@code def} if none was provided.
      * @throws LuaException If the value is not a number.
      */
@@ -376,7 +380,7 @@ public abstract class IArguments {
      * Get an argument as a finite number (not infinite or NaN).
      *
      * @param index The argument number.
-     * @param def   The public value, if this argument is not given.
+     * @param def   The default value, if this argument is not given.
      * @return The argument's value, or {@code def} if none was provided.
      * @throws LuaException If the value is not finite.
      */
@@ -388,7 +392,7 @@ public abstract class IArguments {
      * Get an argument as a boolean.
      *
      * @param index The argument number.
-     * @param def   The public value, if this argument is not given.
+     * @param def   The default value, if this argument is not given.
      * @return The argument's value, or {@code def} if none was provided.
      * @throws LuaException If the value is not a boolean.
      */
@@ -400,11 +404,13 @@ public abstract class IArguments {
      * Get an argument as a string.
      *
      * @param index The argument number.
-     * @param def   The public value, if this argument is not given.
+     * @param def   The default value, if this argument is not given.
      * @return The argument's value, or {@code def} if none was provided.
      * @throws LuaException If the value is not a string.
      */
-    public String optString(int index, String def) throws LuaException {
+    @Nullable
+    @Contract("_, !null -> !null")
+    public String optString(int index, @Nullable String def) throws LuaException {
         return optString(index).orElse(def);
     }
 
@@ -412,11 +418,13 @@ public abstract class IArguments {
      * Get an argument as a table.
      *
      * @param index The argument number.
-     * @param def   The public value, if this argument is not given.
+     * @param def   The default value, if this argument is not given.
      * @return The argument's value, or {@code def} if none was provided.
      * @throws LuaException If the value is not a table.
      */
-    public Map<?, ?> optTable(int index, Map<Object, Object> def) throws LuaException {
+    @Nullable
+    @Contract("_, !null -> !null")
+    public Map<?, ?> optTable(int index, @Nullable Map<Object, Object> def) throws LuaException {
         return optTable(index).orElse(def);
     }
 
@@ -436,9 +444,11 @@ public abstract class IArguments {
      * yourself.
      *
      * @return An {@link IArguments} instance which can escape the current scope. May be {@code this}.
-     * @throws LuaException For the same reasons as {@link #get(int)}.
+     * @throws LuaException          For the same reasons as {@link #get(int)}.
+     * @throws IllegalStateException If marking these arguments as escaping outside the scope of the original function.
      */
     public IArguments escapes() throws LuaException {
+        // TODO(1.21.0): Make this return void, require that it mutates this.
         return this;
     }
 }

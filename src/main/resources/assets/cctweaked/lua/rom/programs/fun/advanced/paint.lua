@@ -275,6 +275,12 @@ local function drawCanvas()
     end
 end
 
+local function termResize()
+    w, h = term.getSize()
+    drawCanvas()
+    drawInterface()
+end
+
 local menu_choices = {
     Save = function()
         if bReadOnly then
@@ -376,6 +382,8 @@ local function accessMenu()
                 nMenuPosEnd = nMenuPosEnd + 1
                 nMenuPosStart = nMenuPosEnd
             end
+        elseif id == "term_resize" then
+            termResize()
         end
     end
 end
@@ -434,9 +442,7 @@ local function handleEvents()
                 drawInterface()
             end
         elseif id == "term_resize" then
-            w, h = term.getSize()
-            drawCanvas()
-            drawInterface()
+            termResize()
         end
     end
 end
