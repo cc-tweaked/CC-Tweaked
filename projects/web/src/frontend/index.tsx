@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-import { Component, Computer, h, render, type PeripheralKind } from "copycat/embed";
-import type { ComponentChild, FunctionalComponent } from "preact";
+import { Component, type ComponentChild, type FunctionalComponent, h, render } from "preact";
 
 import settingsFile from "./mount/.settings";
 import exampleAudioUrl from "./mount/example.dfpwm";
@@ -12,6 +11,9 @@ import exampleNfp from "./mount/example.nfp";
 import exampleNft from "./mount/example.nft";
 import exprTemplate from "./mount/expr_template.lua";
 import startupFile from "./mount/startup.lua";
+import type { PeripheralKind } from "./emu/java";
+import Computer from "./emu";
+import "./styles.css";
 
 const defaultFiles: Record<string, string> = {
     ".settings": settingsFile,
@@ -25,24 +27,24 @@ const clamp = (value: number, min: number, max: number): number => {
     if (value < min) return min;
     if (value > max) return max;
     return value;
-}
+};
 
-const download = async (url: string): Promise<Uint8Array> => {
+const download = async (url: string): Promise<ArrayBuffer> => {
     const result = await fetch(url);
     if (result.status != 200) throw new Error(`${url} responded with ${result.status} ${result.statusText}`);
 
-    return new Uint8Array(await result.arrayBuffer());
+    return await result.arrayBuffer();
 };
 
-let dfpwmAudio: Promise<Uint8Array> | null = null;
+let dfpwmAudio: Promise<ArrayBuffer> | null = null;
 
 const Click: FunctionalComponent<{ run: () => void }> = ({ run }) =>
-    <button type="button" class="example-run" onClick={run}>Run ᐅ</button>
+    <button type="button" class="example-run" onClick={run}>Run ᐅ</button>;
 
 type WindowProps = {};
 
 type Example = {
-    files: Record<string, string | Uint8Array>,
+    files: Record<string, string | ArrayBuffer>,
     peripheral: PeripheralKind | null,
 }
 
@@ -58,7 +60,7 @@ class Window extends Component<WindowProps, WindowState> {
     private top: number = 0;
     private dragging?: { downX: number, downY: number, initialX: number, initialY: number };
 
-    private snippets: { [file: string]: string } = {};
+    private snippets: Record<string, string> = {};
 
     constructor(props: WindowProps, context: unknown) {
         super(props, context);
@@ -67,10 +69,10 @@ class Window extends Component<WindowProps, WindowState> {
             visible: false,
             example: null,
             exampleIdx: 0,
-        }
+        };
     }
 
-    componentDidMount() {
+    componentDidMount(): void {
         const elements = document.querySelectorAll("pre[data-lua-kind]");
         for (let i = 0; i < elements.length; i++) {
             const element = elements[i] as HTMLElement;
@@ -88,11 +90,11 @@ class Window extends Component<WindowProps, WindowState> {
 
             const mount = element.getAttribute("data-mount");
             const peripheral = element.getAttribute("data-peripheral");
-            render(<Click run={this.runExample(example, mount, peripheral)} />, element.parentElement!!);
+            render(<Click run={this.runExample(example, mount, peripheral)} />, element.parentElement!);
         }
     }
 
-    componentDidUpdate(_: WindowProps, { visible }: WindowState) {
+    componentDidUpdate(_: WindowProps, { visible }: WindowState): void {
         if (!visible && this.state.visible) this.setPosition(this.left, this.top);
     }
 
@@ -120,7 +122,7 @@ class Window extends Component<WindowProps, WindowState> {
                 this.top = 20;
             }
 
-            const files: Record<string, string | Uint8Array> = { "example.lua": example };
+            const files: Record<string, string | ArrayBuffer> = { "example.lua": example };
             if (mount !== null) {
                 for (const toMount of mount.split(",")) {
                     const [name, path] = toMount.split(":", 2);
@@ -147,14 +149,14 @@ class Window extends Component<WindowProps, WindowState> {
                 },
                 exampleIdx: exampleIdx + 1,
             }));
-        }
+        };
     }
 
-    private readonly close = () => this.setState({ visible: false });
+    private readonly close = (): void => this.setState({ visible: false });
 
     // All the dragging code is terrible. However, I've had massive performance
     // issues doing it other ways, so this'll have to do.
-    private onDown(e: Event, touch: Touch) {
+    private onDown(e: Event, touch: Touch): void {
         e.stopPropagation();
         e.preventDefault();
 
@@ -168,10 +170,10 @@ class Window extends Component<WindowProps, WindowState> {
         window.addEventListener("mouseup", this.onUp, true);
         window.addEventListener("touchend", this.onUp, true);
     }
-    private readonly onMouseDown = (e: MouseEvent) => this.onDown(e, e);
-    private readonly onTouchDown = (e: TouchEvent) => this.onDown(e, e.touches[0]);
+    private readonly onMouseDown = (e: MouseEvent): void => this.onDown(e, e);
+    private readonly onTouchDown = (e: TouchEvent): void => this.onDown(e, e.touches[0]);
 
-    private onDrag(e: Event, touch: Touch) {
+    private onDrag(e: Event, touch: Touch): void {
         e.stopPropagation();
         e.preventDefault();
 
@@ -182,11 +184,11 @@ class Window extends Component<WindowProps, WindowState> {
             dragging.initialX + (touch.clientX - dragging.downX),
             dragging.initialY + (touch.clientY - dragging.downY),
         );
-    };
-    private readonly onMouseDrag = (e: MouseEvent) => this.onDrag(e, e);
-    private readonly onTouchDrag = (e: TouchEvent) => this.onDrag(e, e.touches[0]);
+    }
+    private readonly onMouseDrag = (e: MouseEvent): void => this.onDrag(e, e);
+    private readonly onTouchDrag = (e: TouchEvent): void => this.onDrag(e, e.touches[0]);
 
-    private readonly onUp = (e: Event) => {
+    private readonly onUp = (e: Event): void => {
         e.stopPropagation();
 
         this.dragging = undefined;
@@ -195,7 +197,7 @@ class Window extends Component<WindowProps, WindowState> {
         window.removeEventListener("touchmove", this.onTouchDrag, true);
         window.removeEventListener("mouseup", this.onUp, true);
         window.removeEventListener("touchend", this.onUp, true);
-    }
+    };
 
     private readonly setPosition = (left: number, top: number): void => {
         const root = this.base as HTMLElement;
@@ -203,10 +205,10 @@ class Window extends Component<WindowProps, WindowState> {
         left = this.left = clamp(left, 0, window.innerWidth - root.offsetWidth);
         top = this.top = clamp(top, 0, window.innerHeight - root.offsetHeight);
         root.style.transform = `translate(${left}px, ${top}px)`;
-    }
+    };
 
 }
 
 const root = document.createElement("div");
 document.body.appendChild(root);
-render(<Window />, document.body, root);
+render(<Window />, root);

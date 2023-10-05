@@ -29,7 +29,7 @@ for _, file in ipairs(files.getFiles()) do
   local size = file.seek("end")
   file.seek("set", 0)
 
-  print(file.getName() .. " " .. file.getSize())
+  print(file.getName() .. " " .. size)
 end
 ```
 

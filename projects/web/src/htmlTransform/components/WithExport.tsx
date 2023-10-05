@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-import { h, createContext, type FunctionComponent, type VNode } from "preact";
+import { type FunctionComponent, type VNode, createContext, h } from "preact";
 import { useContext } from "preact/hooks";
 
 export type DataExport = {
@@ -21,7 +21,7 @@ const DataExport = createContext<DataExport>({
     recipes: {},
 });
 
-export const useExport = () => useContext(DataExport);
+export const useExport = (): DataExport => useContext(DataExport);
 export default useExport;
 
 export const WithExport: FunctionComponent<{ data: DataExport, children: VNode }> =

@@ -5,6 +5,7 @@
 package cc.tweaked.gradle
 
 import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.file.FileSystemLocation
 import org.gradle.api.file.FileSystemLocationProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
@@ -126,5 +127,5 @@ class CloseScope : AutoCloseable {
 /** Proxy method to avoid overload ambiguity. */
 fun <T> Property<T>.setProvider(provider: Provider<out T>) = set(provider)
 
-/** Short-cut method to get the absolute path of a [FileSystemLocationProperty]. */
-fun FileSystemLocationProperty<*>.getAbsolutePath(): String = get().asFile.absolutePath
+/** Short-cut method to get the absolute path of a [FileSystemLocation] provider. */
+fun Provider<out FileSystemLocation>.getAbsolutePath(): String = get().asFile.absolutePath

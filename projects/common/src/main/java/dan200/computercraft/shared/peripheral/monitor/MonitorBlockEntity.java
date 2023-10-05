@@ -349,13 +349,15 @@ public class MonitorBlockEntity extends BlockEntity {
         // Either delete the current monitor or sync a new one.
         if (needsTerminal) {
             if (serverMonitor == null) serverMonitor = new ServerMonitor(advanced, this);
-        } else {
-            serverMonitor = null;
-        }
 
-        // Update the terminal's width and height and rebuild it. This ensures the monitor
-        // is consistent when syncing it to other monitors.
-        if (serverMonitor != null) serverMonitor.rebuild();
+            // Update the terminal's width and height and rebuild it. This ensures the monitor
+            // is consistent when syncing it to other monitors.
+            serverMonitor.rebuild();
+        } else {
+            // Remove the terminal from the serverMonitor, but keep it around - this ensures that we sync
+            // the (now blank) monitor to the client.
+            if (serverMonitor != null) serverMonitor.reset();
+        }
 
         // Update the other monitors, setting coordinates, dimensions and the server terminal
         var pos = getBlockPos();

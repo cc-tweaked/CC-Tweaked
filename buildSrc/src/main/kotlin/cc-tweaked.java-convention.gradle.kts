@@ -66,6 +66,7 @@ repositories {
             includeGroup("me.shedaniel.cloth")
             includeGroup("me.shedaniel")
             includeGroup("mezz.jei")
+            includeGroup("org.teavm")
             includeModule("com.terraformersmc", "modmenu")
             includeModule("me.lucko", "fabric-permissions-api")
         }
@@ -99,7 +100,10 @@ sourceSets.all {
             check("FutureReturnValueIgnored", CheckSeverity.OFF) // Too many false positives with Netty
 
             check("NullAway", CheckSeverity.ERROR)
-            option("NullAway:AnnotatedPackages", listOf("dan200.computercraft", "net.fabricmc.fabric.api").joinToString(","))
+            option(
+                "NullAway:AnnotatedPackages",
+                listOf("dan200.computercraft", "cc.tweaked", "net.fabricmc.fabric.api").joinToString(","),
+            )
             option("NullAway:ExcludedFieldAnnotations", listOf("org.spongepowered.asm.mixin.Shadow").joinToString(","))
             option("NullAway:CastToNonNullMethod", "dan200.computercraft.core.util.Nullability.assertNonNull")
             option("NullAway:CheckOptionalEmptiness")
@@ -172,6 +176,12 @@ project.plugins.withType(CCTweakedPlugin::class.java) {
     project.tasks.named("jacocoTestReport", JacocoReport::class.java) {
         for (ref in cct.sourceSets.get()) sourceDirectories.from(ref.allSource.sourceDirectories)
     }
+}
+
+tasks.register("checkstyle") {
+    description = "Run Checkstyle on all sources"
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    dependsOn(tasks.withType(Checkstyle::class.java))
 }
 
 spotless {

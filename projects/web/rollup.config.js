@@ -2,52 +2,48 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-import { readFileSync } from "fs";
 import path from "path";
 
 import terser from "@rollup/plugin-terser";
+import resolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import url from "@rollup/plugin-url";
+import postcss from "rollup-plugin-postcss";
 
 const input = "src/frontend";
-const requirejs = readFileSync("../../node_modules/requirejs/require.js");
 
-/** @type import("rollup").RollupOptions */
-export default {
+const minify = args => !args.configDebug;
+
+/** @type import("rollup").RollupOptionsFunction */
+export default args => ({
     input: [`${input}/index.tsx`],
     output: {
         // Also defined in build.gradle.kts
         dir: "build/rollup/",
 
-        // We bundle requirejs (and config) into the header. It's rather gross
-        // but also works reasonably well.
-        // Also suffix a ?v=${date} onto the end in the event we need to require a specific copy-cat version.
-        banner: `
-            ${requirejs}
-            require.config({
-                paths: { copycat: "https://copy-cat.squiddev.cc" },
-                urlArgs: function(id) { return id == "copycat/embed" ? "?v=20211221" : ""; }
-            });
-        `,
-        format: "amd",
+        format: "esm",
         generatedCode: {
             preset: "es2015",
             constBindings: true,
         },
-        amd: {
-            define: "require",
-        }
     },
     context: "window",
-    external: ["copycat/embed"],
 
     plugins: [
         typescript(),
+        resolve({ browser: true }),
 
         url({
-            include: "**/*.dfpwm",
+            include: ["**/*.dfpwm", "**/*.worker.js", "**/*.png"],
             fileName: "[name]-[hash][extname]",
             publicPath: "/",
+            limit: 0,
+        }),
+
+        postcss({
+            namedExports: true,
+            minimize: minify(args),
+            extract: true,
         }),
 
         {
@@ -59,8 +55,14 @@ export default {
                     ? `export default ${JSON.stringify(code)};\n`
                     : null;
             },
+
+            async resolveId(source) {
+                if (source === "cct/classes") return path.resolve("build/teaVM/classes.js");
+                if (source === "cct/resources") return path.resolve("build/teaVM/resources.js");
+                return null;
+            },
         },
 
-        terser(),
+        minify(args) && terser(),
     ],
-};
+});

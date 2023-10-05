@@ -100,7 +100,6 @@ about how you can build on that until you've covered everything!
 [new-issue]: https://github.com/cc-tweaked/CC-Tweaked/issues/new/choose "Create a new issue"
 [community]: README.md#community "Get in touch with the community."
 [Adoptium]: https://adoptium.net/temurin/releases?version=17 "Download OpenJDK 17"
-[checkstyle]: https://checkstyle.org/
 [illuaminate]: https://github.com/SquidDev/illuaminate/ "Illuaminate on GitHub"
 [weblate]: https://i18n.tweaked.cc/projects/cc-tweaked/minecraft/ "CC: Tweaked weblate instance"
 [docs]: https://tweaked.cc/ "CC: Tweaked documentation"

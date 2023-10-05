@@ -722,7 +722,7 @@ do
     - `parse_empty_array`: When false, empty arrays will be parsed as a new table.
        By default (or when this value is true), they are parsed as [`empty_json_array`].
 
-    [nbt]: https://minecraft.gamepedia.com/NBT_format
+    [nbt]: https://minecraft.wiki/w/NBT_format
     @return[1] The deserialised object
     @treturn[2] nil If the object could not be deserialised.
     @treturn string A message describing why the JSON string is invalid.
