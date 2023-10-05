@@ -27,14 +27,16 @@ public class TWebsocket extends Resource<TWebsocket> implements WebsocketClient 
     private final IAPIEnvironment environment;
     private final URI uri;
     private final String address;
+    private final boolean binary;
 
     private @Nullable WebSocket websocket;
 
-    public TWebsocket(ResourceGroup<TWebsocket> limiter, IAPIEnvironment environment, URI uri, String address, HttpHeaders headers, int timeout) {
+    public TWebsocket(ResourceGroup<TWebsocket> limiter, IAPIEnvironment environment, URI uri, String address, HttpHeaders headers, int timeout, boolean binary) {
         super(limiter);
         this.environment = environment;
         this.uri = uri;
         this.address = address;
+        this.binary = binary;
     }
 
     public void connect() {
@@ -74,6 +76,11 @@ public class TWebsocket extends Resource<TWebsocket> implements WebsocketClient 
         var array = Int8Array.create(message.remaining());
         for (var i = 0; i < array.getLength(); i++) array.set(i, message.get(i));
         websocket.send(array);
+    }
+
+    @Override
+    public boolean isBinary() {
+        return binary;
     }
 
     @Override
