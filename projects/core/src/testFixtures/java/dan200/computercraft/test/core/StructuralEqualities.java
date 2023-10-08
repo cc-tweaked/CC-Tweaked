@@ -100,6 +100,29 @@ final class StructuralEqualities {
         }
     }
 
+    record ListEquality<T>(StructuralEquality<T> equality) implements StructuralEquality<List<T>> {
+        @Override
+        public boolean equals(List<T> left, List<T> right) {
+            if (left.size() != right.size()) return false;
+            for (var i = 0; i < left.size(); i++) {
+                if (!equality.equals(left.get(i), right.get(i))) return false;
+            }
+            return true;
+        }
+
+        @Override
+        public void describe(Description description, List<T> object) {
+            description.appendText("[");
+            var separator = false;
+            for (var value : object) {
+                if (separator) description.appendText(", ");
+                separator = true;
+                equality.describe(description, value);
+            }
+            description.appendText("]");
+        }
+    }
+
     static final class EqualityMatcher<T> extends TypeSafeMatcher<T> {
         private final StructuralEquality<T> equality;
         private final T equalTo;

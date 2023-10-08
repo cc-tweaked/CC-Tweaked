@@ -91,6 +91,8 @@ dependencies {
     testImplementation(libs.byteBuddyAgent)
     testImplementation(libs.bundles.test)
     testRuntimeOnly(libs.bundles.testRuntime)
+
+    testFixturesImplementation(testFixtures(project(":core")))
 }
 
 sourceSets.main { resources.srcDir("src/generated/resources") }

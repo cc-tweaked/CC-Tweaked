@@ -37,6 +37,15 @@ public interface StructuralEquality<T> {
     void describe(Description description, T object);
 
     /**
+     * Lift this equality to a list of values.
+     *
+     * @return A equality for a list of values.
+     */
+    default StructuralEquality<List<T>> list() {
+        return new StructuralEqualities.ListEquality<>(this);
+    }
+
+    /**
      * Convert this equality instance to a {@link Matcher}.
      *
      * @param klass    The expected type of this object.

@@ -165,6 +165,8 @@ dependencies {
     testModImplementation(testFixtures(project(":core")))
     testModImplementation(testFixtures(project(":forge")))
 
+    testFixturesImplementation(testFixtures(project(":core")))
+
     "cctJavadoc"(libs.cctJavadoc)
 }
 

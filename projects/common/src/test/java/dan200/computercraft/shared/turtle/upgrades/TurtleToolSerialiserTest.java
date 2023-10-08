@@ -8,16 +8,13 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleToolDurability;
 import dan200.computercraft.test.core.StructuralEquality;
 import dan200.computercraft.test.shared.MinecraftArbitraries;
+import dan200.computercraft.test.shared.MinecraftEqualities;
+import dan200.computercraft.test.shared.NetworkSupport;
 import dan200.computercraft.test.shared.WithMinecraft;
-import io.netty.buffer.Unpooled;
 import net.jqwik.api.*;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
-import org.hamcrest.Description;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @WithMinecraft
 class TurtleToolSerialiserTest {
@@ -32,11 +29,9 @@ class TurtleToolSerialiserTest {
      */
     @Property
     public void testRoundTrip(@ForAll("tool") TurtleTool tool) {
-        var buffer = new FriendlyByteBuf(Unpooled.directBuffer());
-        TurtleToolSerialiser.INSTANCE.toNetwork(buffer, tool);
-
-        var converted = TurtleToolSerialiser.INSTANCE.fromNetwork(tool.getUpgradeID(), buffer);
-        assertEquals(buffer.readableBytes(), 0, "Whole packet was read");
+        var converted = NetworkSupport.roundTripSerialiser(
+            tool.getUpgradeID(), tool, TurtleToolSerialiser.INSTANCE::toNetwork, TurtleToolSerialiser.INSTANCE::fromNetwork
+        );
 
         if (!equality.equals(tool, converted)) {
             System.out.println("Break");
@@ -58,22 +53,10 @@ class TurtleToolSerialiserTest {
         ).as(TurtleTool::new);
     }
 
-    private static final StructuralEquality<ItemStack> stackEquality = new StructuralEquality<>() {
-        @Override
-        public boolean equals(ItemStack left, ItemStack right) {
-            return ItemStack.isSameItemSameTags(left, right) && left.getCount() == right.getCount();
-        }
-
-        @Override
-        public void describe(Description description, ItemStack object) {
-            description.appendValue(object).appendValue(object.getTag());
-        }
-    };
-
     private static final StructuralEquality<TurtleTool> equality = StructuralEquality.all(
         StructuralEquality.at("id", ITurtleUpgrade::getUpgradeID),
-        StructuralEquality.at("craftingItem", ITurtleUpgrade::getCraftingItem, stackEquality),
-        StructuralEquality.at("tool", x -> x.item, stackEquality),
+        StructuralEquality.at("craftingItem", ITurtleUpgrade::getCraftingItem, MinecraftEqualities.itemStack),
+        StructuralEquality.at("tool", x -> x.item, MinecraftEqualities.itemStack),
         StructuralEquality.at("damageMulitiplier", x -> x.damageMulitiplier),
         StructuralEquality.at("allowEnchantments", x -> x.allowEnchantments),
         StructuralEquality.at("consumeDurability", x -> x.consumeDurability),

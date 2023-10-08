@@ -21,7 +21,10 @@ public final class RecipeUtil {
     }
 
     public static NonNullList<Ingredient> readIngredients(FriendlyByteBuf buffer) {
-        return buffer.readCollection(x -> NonNullList.withSize(x, Ingredient.EMPTY), Ingredient::fromNetwork);
+        var count = buffer.readVarInt();
+        var ingredients = NonNullList.withSize(count, Ingredient.EMPTY);
+        for (var i = 0; i < ingredients.size(); i++) ingredients.set(i, Ingredient.fromNetwork(buffer));
+        return ingredients;
     }
 
     public static void writeIngredients(FriendlyByteBuf buffer, NonNullList<Ingredient> ingredients) {

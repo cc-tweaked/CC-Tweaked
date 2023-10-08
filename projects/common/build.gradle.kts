@@ -39,4 +39,6 @@ dependencies {
     testModImplementation(testFixtures(project(":core")))
     testModImplementation(testFixtures(project(":common")))
     testModImplementation(libs.bundles.kotlin)
+
+    testFixturesImplementation(testFixtures(project(":core")))
 }

@@ -17,6 +17,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.List;
 
@@ -42,6 +43,10 @@ public final class MinecraftArbitraries {
 
     public static Arbitrary<ItemStack> itemStack() {
         return Arbitraries.oneOf(List.of(Arbitraries.just(ItemStack.EMPTY), nonEmptyItemStack()));
+    }
+
+    public static Arbitrary<Ingredient> ingredient() {
+        return nonEmptyItemStack().list().ofMinSize(1).map(x -> Ingredient.of(x.stream()));
     }
 
     public static Arbitrary<BlockPos> blockPos() {
