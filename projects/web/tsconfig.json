@@ -27,6 +27,7 @@
         "allowSyntheticDefaultImports": true,
     },
     "include": [
-        "src",
+        "src/htmlTransform",
+        "src/frontend",
     ]
 }

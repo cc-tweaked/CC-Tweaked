@@ -11,7 +11,6 @@
  * Yes, this would be so much nicer with next.js.
  */
 import fs from "fs/promises";
-import { glob } from "glob";
 import path from "path";
 import { type JSX, h } from "preact";
 import renderToStaticMarkup from "preact-render-to-string";
@@ -54,12 +53,15 @@ import { type DataExport, WithExport } from "./components/WithExport";
 
     const dataExport = JSON.parse(await fs.readFile(dataFile, "utf-8")) as DataExport;
 
-    for (const file of await glob(sourceDir + "/**/*.html")) {
-        const contents = await fs.readFile(file, "utf-8");
+    for (const file of await fs.readdir(sourceDir, { withFileTypes: true, recursive: true })) {
+        if(!file.isFile() || !file.name.endsWith(".html")) continue;
+
+        const sourcePath = path.join(file.path, file.name);
+        const contents = await fs.readFile(sourcePath, "utf-8");
 
         const { result } = await processor.process(contents);
 
-        const outputPath = path.resolve(outputDir, path.relative(sourceDir, file));
+        const outputPath = path.resolve(outputDir, path.relative(sourceDir, sourcePath));
         await fs.mkdir(path.dirname(outputPath), { recursive: true });
         await fs.writeFile(outputPath, "<!doctype HTML>" + renderToStaticMarkup(<WithExport data={dataExport}>{result}</WithExport>));
     }
