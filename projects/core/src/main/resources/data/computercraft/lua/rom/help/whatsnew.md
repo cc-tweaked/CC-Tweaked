@@ -1,7 +1,10 @@
-New features in CC: Tweaked 1.108.1
+New features in CC: Tweaked 1.108.2
+
+* Add a tag for which blocks wired modems should ignore.
 
 Several bug fixes:
-* Prevent no-opped players breaking or placing command computers.
-* Allow using `@LuaFunction`-annotated methods on classes defined in child classloaders.
+* Fix monitors sometimes being warped after resizing.
+* Fix the skull recipes using the wrong UUID format.
+* Fix paint canvas not always being redrawn after a term resize.
 
 Type "help changelog" to see the full version history.
