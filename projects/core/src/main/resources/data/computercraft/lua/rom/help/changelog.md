@@ -1,3 +1,8 @@
+# New features in CC: Tweaked 1.108.3
+
+Several bug fixes:
+* Fix disconnect when joining a dedicated server.
+
 # New features in CC: Tweaked 1.108.2
 
 * Add a tag for which blocks wired modems should ignore.

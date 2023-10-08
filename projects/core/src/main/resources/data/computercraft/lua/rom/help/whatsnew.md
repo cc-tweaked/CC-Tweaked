@@ -1,10 +1,6 @@
-New features in CC: Tweaked 1.108.2
-
-* Add a tag for which blocks wired modems should ignore.
+New features in CC: Tweaked 1.108.3
 
 Several bug fixes:
-* Fix monitors sometimes being warped after resizing.
-* Fix the skull recipes using the wrong UUID format.
-* Fix paint canvas not always being redrawn after a term resize.
+* Fix disconnect when joining a dedicated server.
 
 Type "help changelog" to see the full version history.
