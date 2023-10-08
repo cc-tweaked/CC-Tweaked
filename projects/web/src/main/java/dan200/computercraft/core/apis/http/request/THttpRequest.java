@@ -47,6 +47,7 @@ public class THttpRequest extends Resource<THttpRequest> {
     private final @Nullable String postBuffer;
     private final HttpHeaders headers;
     private final boolean binary;
+    private final boolean followRedirects;
 
     public THttpRequest(
         ResourceGroup<THttpRequest> limiter, IAPIEnvironment environment, String address, @Nullable String postText,
@@ -58,6 +59,7 @@ public class THttpRequest extends Resource<THttpRequest> {
         postBuffer = postText;
         this.headers = headers;
         this.binary = binary;
+        this.followRedirects = followRedirects;
 
         if (postText != null) {
             if (!headers.contains(HttpHeaderNames.CONTENT_TYPE)) {
@@ -102,6 +104,7 @@ public class THttpRequest extends Resource<THttpRequest> {
                 var header = iterator.next();
                 request.setRequestHeader(header.getKey(), header.getValue());
             }
+            request.setRequestHeader("X-CC-Redirect", followRedirects ? "true" : "false");
             request.send(postBuffer);
             checkClosed();
         } catch (Exception e) {
