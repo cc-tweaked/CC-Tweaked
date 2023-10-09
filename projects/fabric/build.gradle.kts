@@ -150,6 +150,8 @@ loom {
 
             // Load cctest last, so it can override resources. This bypasses Fabric's shuffling of mods
             property("fabric.debug.loadLate", "cctest")
+
+            vmArg("-ea")
         }
 
         val testClient by registering {

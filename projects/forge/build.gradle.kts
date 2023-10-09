@@ -102,6 +102,7 @@ minecraft {
             configureForGameTest()
 
             property("forge.logging.console.level", "info")
+            jvmArg("-ea")
         }
     }
 }

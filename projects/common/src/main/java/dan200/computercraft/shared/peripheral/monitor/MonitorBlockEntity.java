@@ -157,7 +157,6 @@ public class MonitorBlockEntity extends BlockEntity {
         if (xIndex == 0 && yIndex == 0) {
             // If we're the origin, set up the new monitor
             serverMonitor = new ServerMonitor(advanced, this);
-            serverMonitor.rebuild();
 
             // And propagate it to child monitors
             for (var x = 0; x < width; x++) {
@@ -176,6 +175,11 @@ public class MonitorBlockEntity extends BlockEntity {
 
             return serverMonitor = monitor.createServerMonitor();
         }
+    }
+
+    private void createServerTerminal() {
+        var monitor = createServerMonitor();
+        if (monitor != null && monitor.getTerminal() == null) monitor.rebuild();
     }
 
     @Nullable
@@ -377,6 +381,8 @@ public class MonitorBlockEntity extends BlockEntity {
                 BlockEntityHelpers.updateBlock(monitor);
             }
         }
+
+        assertInvariant();
     }
 
     void updateNeighborsDeferred() {
@@ -487,9 +493,10 @@ public class MonitorBlockEntity extends BlockEntity {
     }
 
     public IPeripheral peripheral() {
-        createServerMonitor();
-        if (peripheral != null) return peripheral;
-        return peripheral = new MonitorPeripheral(this);
+        createServerTerminal();
+        var peripheral = this.peripheral != null ? this.peripheral : (this.peripheral = new MonitorPeripheral(this));
+        assertInvariant();
+        return peripheral;
     }
 
     void addComputer(IComputerAccess computer) {
@@ -527,5 +534,86 @@ public class MonitorBlockEntity extends BlockEntity {
             Math.max(startPos.getY(), endPos.getY()) + 1,
             Math.max(startPos.getZ(), endPos.getZ()) + 1
         );
+    }
+
+    /**
+     * Assert all {@linkplain #checkInvariants() monitor invariants} hold.
+     */
+    private void assertInvariant() {
+        assert checkInvariants() : "Monitor invariants failed. See logs.";
+    }
+
+    /**
+     * Check various invariants about this monitor multiblock. This is only called when assertions are enabled, so
+     * will be skipped outside of tests.
+     *
+     * @return Whether all invariants passed.
+     */
+    private boolean checkInvariants() {
+        LOG.debug("Checking monitor invariants at {}", getBlockPos());
+
+        var okay = true;
+
+        if (width <= 0 || height <= 0) {
+            okay = false;
+            LOG.error("Monitor {} has non-positive of {}x{}", getBlockPos(), width, height);
+        }
+
+        var hasPeripheral = false;
+        var origin = getOrigin().getMonitor();
+        var serverMonitor = origin != null ? origin.serverMonitor : this.serverMonitor;
+        for (var x = 0; x < width; x++) {
+            for (var y = 0; y < height; y++) {
+                var monitor = getLoadedMonitor(x, y).getMonitor();
+                if (monitor == null) continue;
+
+                hasPeripheral |= monitor.peripheral != null;
+
+                if (monitor.serverMonitor != null && monitor.serverMonitor != serverMonitor) {
+                    okay = false;
+                    LOG.error(
+                        "Monitor {} expected to be have serverMonitor={}, but was {}",
+                        monitor.getBlockPos(), serverMonitor, monitor.serverMonitor
+                    );
+                }
+
+                if (monitor.xIndex != x || monitor.yIndex != y) {
+                    okay = false;
+                    LOG.error(
+                        "Monitor {} expected to be at {},{}, but believes it is {},{}",
+                        monitor.getBlockPos(), x, y, monitor.xIndex, monitor.yIndex
+                    );
+                }
+
+                if (monitor.width != width || monitor.height != height) {
+                    okay = false;
+                    LOG.error(
+                        "Monitor {} expected to be size {},{}, but believes it is {},{}",
+                        monitor.getBlockPos(), width, height, monitor.width, monitor.height
+                    );
+                }
+
+                var expectedState = getBlockState().setValue(MonitorBlock.STATE, MonitorEdgeState.fromConnections(
+                    y < height - 1, y > 0, x > 0, x < width - 1
+                ));
+                if (monitor.getBlockState() != expectedState) {
+                    okay = false;
+                    LOG.error(
+                        "Monitor {} expected to have state {}, but has state {}",
+                        monitor.getBlockState(), expectedState, monitor.getBlockState()
+                    );
+                }
+            }
+        }
+
+        if (hasPeripheral != (serverMonitor != null && serverMonitor.getTerminal() != null)) {
+            okay = false;
+            LOG.error(
+                "Peripheral is {}, but serverMonitor={} and serverMonitor.terminal={}",
+                hasPeripheral, serverMonitor, serverMonitor == null ? null : serverMonitor.getTerminal()
+            );
+        }
+
+        return okay;
     }
 }
