@@ -95,7 +95,7 @@
     "gui.computercraft.config.http.bandwidth.global_upload.tooltip": "Le nombre d'octets qui peuvent être téléversé en une seconde. Ceci est partagé sur tous les ordinateurs. (octets/s).\nPlage : > 1",
     "gui.computercraft.config.http.bandwidth.tooltip": "Limite la bande passante utilisée par les ordinateurs.",
     "gui.computercraft.config.http.enabled": "Permettre l'API HTTP",
-    "gui.computercraft.config.http.enabled.tooltip": "Active l'API \"http\" sur les ordinateurs. Cela désactive également les programmes \"pastebin\" et \"wget\",\nsur lesquels de nombreux utilisateurs comptent. Il est recommandé de laisser cette option activée et\nd'utiliser l'option de configuration \"rules\" pour imposer un contrôle plus précis.",
+    "gui.computercraft.config.http.enabled.tooltip": "Active l'API \"http\" sur les ordinateurs. La désactiver empêche également l'utilisation des programmes \"pastebin\" et \"wget\",\nsur lesquels de nombreux utilisateurs comptent. Il est recommandé de laisser cette option activée et\nd'utiliser l'option de configuration \"rules\" pour imposer un contrôle plus précis.",
     "gui.computercraft.config.http.max_requests": "Maximum de requêtes simultanées",
     "gui.computercraft.config.http.max_requests.tooltip": "Le nombre de requêtes http qu'un ordinateur peut effectuer en même temps.\nLes demandes supplémentaires seront mises en file d'attente et envoyées lorsque\nles demandes en cours seront terminées. Mettre à 0 pour illimité.\nPlage : > 0",
     "gui.computercraft.config.http.max_websockets": "Maximum de websockets en simultané",
@@ -221,5 +221,8 @@
     "upgrade.minecraft.diamond_hoe.adjective": "Fermière",
     "upgrade.minecraft.diamond_pickaxe.adjective": "Mineuse",
     "upgrade.minecraft.diamond_shovel.adjective": "Excavatrice",
-    "upgrade.minecraft.diamond_sword.adjective": "De Combat"
+    "upgrade.minecraft.diamond_sword.adjective": "De Combat",
+    "gui.computercraft.config.disabled_generic_methods.tooltip": "Une liste de méthodes génériques ou de méthodes source à désactiver.\nLes méthodes génériques sont ajoutées à un bloc ou bloc-entité lorsque aucune implémentation explicite de périphérique n'est disponible. Cela inclut les méthodes liées à l'inventaire (ex. inventory.getItemDetail, inventory.pushItems) et, avec Forge, les méthodes fluid_storage et energy_storage.\nLes méthodes de cette liste peuvent être groupées (computercraft:inventory) ou individuelles (computercraft:inventory#pushItems).\n",
+    "tag.item.computercraft.computer": "Ordinateurs",
+    "tag.item.computercraft.wired_modem": "Modems câblés"
 }

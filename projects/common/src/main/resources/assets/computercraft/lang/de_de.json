@@ -130,5 +130,7 @@
     "upgrade.minecraft.diamond_hoe.adjective": "Ackerbau",
     "upgrade.minecraft.diamond_pickaxe.adjective": "Bergbau",
     "upgrade.minecraft.diamond_shovel.adjective": "Graben",
-    "upgrade.minecraft.diamond_sword.adjective": "Nahkampf"
+    "upgrade.minecraft.diamond_sword.adjective": "Nahkampf",
+    "commands.computercraft.dump.open_path": "Siehe die Dateien dieses Computers.",
+    "gui.computercraft.config.command_require_creative.tooltip": "Benötigt Spieler sowohl im Kreativ-Spielmodus, als auch ein Operator zu sein,\num mit Kommando-Computern zu interagieren. Dies entspricht dem standardmäßigen Verhalten von Befehlsblöcken."
 }
