@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "#": {"tag": "forge:ingots/gold"},
+    "A": {"item": "minecraft:golden_apple"},
+    "G": {"tag": "forge:glass_panes"}
+  },
+  "pattern": ["###", "#A#", "#G#"],
+  "result": {"item": "computercraft:pocket_computer_advanced"},
+  "show_notification": true
+}

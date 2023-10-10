@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {"#": {"item": "minecraft:stone"}, "R": {"tag": "c:redstone_dusts"}},
+  "pattern": ["###", "#R#", "###"],
+  "result": {"item": "computercraft:wired_modem"},
+  "show_notification": true
+}

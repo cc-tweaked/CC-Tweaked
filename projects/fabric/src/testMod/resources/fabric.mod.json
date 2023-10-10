@@ -1,0 +1,19 @@
+{
+    "schemaVersion": 1,
+    "id": "cctest",
+    "version": "1.0.0",
+    "entrypoints": {
+        "main": [
+            "dan200.computercraft.gametest.core.TestMod"
+        ],
+        "client": [
+            "dan200.computercraft.gametest.core.TestMod"
+        ]
+    },
+    "mixins": [
+        "computercraft-gametest.mixins.json"
+    ],
+    "depends": {
+        "computercraft": "*"
+    }
+}

@@ -1,0 +1,35 @@
+accessWidener v1 named
+
+# SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+
+# Shared vanilla and Fabric access wideners. This should not include things already exposed by Fabric's transitive
+# wideners.
+
+accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
+accessible method net/minecraft/world/level/storage/LevelResource <init> (Ljava/lang/String;)V
+
+# DirectVertexBuffer
+accessible field com/mojang/blaze3d/vertex/VertexBuffer vertexBufferId I
+accessible field com/mojang/blaze3d/vertex/VertexBuffer indexType Lcom/mojang/blaze3d/vertex/VertexFormat$IndexType;
+accessible field com/mojang/blaze3d/vertex/VertexBuffer indexCount I
+accessible field com/mojang/blaze3d/vertex/VertexBuffer mode Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;
+accessible field com/mojang/blaze3d/vertex/VertexBuffer sequentialIndices Lcom/mojang/blaze3d/systems/RenderSystem$AutoStorageIndexBuffer;
+accessible field com/mojang/blaze3d/vertex/VertexBuffer format Lcom/mojang/blaze3d/vertex/VertexFormat;
+
+# ClientTableFormatter
+accessible field net/minecraft/client/gui/components/ChatComponent allMessages Ljava/util/List;
+accessible method net/minecraft/client/gui/components/ChatComponent refreshTrimmedMessage ()V
+
+# ItemPocketRenderer/ItemPrintoutRenderer
+accessible method net/minecraft/client/renderer/ItemInHandRenderer calculateMapTilt (F)F
+accessible method net/minecraft/client/renderer/ItemInHandRenderer renderMapHand (Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/HumanoidArm;)V
+accessible method net/minecraft/client/renderer/ItemInHandRenderer renderPlayerArm (Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IFFLnet/minecraft/world/entity/HumanoidArm;)V
+
+# SpeakerInstance/SpeakerManager
+accessible method com/mojang/blaze3d/audio/Channel pumpBuffers (I)V
+accessible field net/minecraft/client/sounds/SoundEngine executor Lnet/minecraft/client/sounds/SoundEngineExecutor;
+
+# Turtle model
+accessible method net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V

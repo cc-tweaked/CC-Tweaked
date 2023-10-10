@@ -1,0 +1,29 @@
+-- SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+--
+-- SPDX-License-Identifier: MPL-2.0
+
+local capture = require "test_helpers".capture_program
+
+describe("The type program", function()
+
+    it("displays the usage with no arguments", function()
+        expect(capture("type"))
+            :matches { ok = true, output = "Usage: type <path>\n", error = "" }
+    end)
+
+    it("displays the output for a file", function()
+        expect(capture("type /rom/startup.lua"))
+            :matches { ok = true, output = "file\n", error = "" }
+    end)
+
+    it("displays the output for a directory", function()
+        expect(capture("type /rom"))
+            :matches { ok = true, output = "directory\n", error = "" }
+    end)
+
+    it("displays the output for a not existing path", function()
+        expect(capture("type /rom/nothing"))
+            :matches { ok = true, output = "No such path\n", error = "" }
+    end)
+
+end)

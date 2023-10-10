@@ -1,115 +1,110 @@
+<!--
+SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 # Contributing to CC: Tweaked
 As with many open source projects, CC: Tweaked thrives on contributions from other people! This document (hopefully)
-provides an introduction as to how to get started in helping out.
+provides an introduction as to how to get started with helping out.
 
 If you've any other questions, [just ask the community][community] or [open an issue][new-issue].
 
+## Table of Contents
+ - [Reporting issues](#reporting-issues)
+ - [Translations](#translations)
+ - [Setting up a development environment](#setting-up-a-development-environment)
+ - [Developing CC: Tweaked](#developing-cc-tweaked)
+ - [Writing documentation](#writing-documentation)
+
 ## Reporting issues
-If you have a bug, suggestion, or other feedback, the best thing to do is [file an issue][new-issue]. When doing so,
-do use the issue templates - they provide a useful hint on what information to provide.
+If you have a bug, suggestion, or other feedback, the best thing to do is [file an issue][new-issue]. When doing so, do
+use the issue templates - they provide a useful hint on what information to provide.
 
 ## Translations
 Translations are managed through [Weblate], an online interface for managing language strings. This is synced
 automatically with GitHub, so please don't submit PRs adding/changing translations!
 
-## Developing
-In order to develop CC: Tweaked, you'll need to download the source code and then run it. This is a pretty simple
-process. When building on Windows, Use `gradlew.bat` instead of `./gradlew`.
+## Setting up a development environment
+In order to develop CC: Tweaked, you'll need to download the source code and then run it.
 
- - **Clone the repository:** `git clone https://github.com/cc-tweaked/CC-Tweaked.git && cd CC-Tweaked`
- - **Setup Forge:** `./gradlew build`
- - **Run Minecraft:** `./gradlew runClient` (or run the `GradleStart` class from your IDE).
- - **Optionally:** For small PRs (especially those only touching Lua code), it may be easier to use GitPod, which
-   provides a pre-configured environment: [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-2b2b2b?logo=gitpod)](https://gitpod.io/#https://github.com/cc-tweaked/CC-Tweaked/)
+ - Make sure you've got the following software installed:
+   - Java Development Kit (JDK) installed. This can be downloaded from [Adoptium].
+   - [Git](https://git-scm.com/).
+   - If you want to work on documentation, [NodeJS][node].
 
-   Do note you will need to download the mod after compiling to test.
+ - Download CC: Tweaked's source code:
+   ```
+   git clone https://github.com/cc-tweaked/CC-Tweaked.git
+   cd CC-Tweaked
+   ```
 
-If you want to run CC:T in a normal Minecraft instance, run `./gradlew build` and copy the `.jar` from `build/libs`.
-These commands may take a few minutes to run the first time, as the environment is set up, but should be much faster
-afterwards.
+ - Build CC: Tweaked with `./gradlew build`. This will be very slow the first time it runs, as it needs to download a
+   lot of dependencies (and decompile Minecraft several times). Subsequent runs should be much faster!
 
-The following sections describe the more niche sections of CC: Tweaked's build system. Some bits of these are
-quite-complex, and (dare I say) over-engineered, so you may wish to ignore them. Well tested/documented PRs are always
-preferred (and I'd definitely recommend setting up the tooling if you're doing serious development work), but for
-small changes it can be a lot.
+ - You're now ready to start developing CC: Tweaked. Running `./gradlew :forge:runClient` or
+   `./gradle :fabric:runClient` will start Minecraft under Forge and Fabric respectively.
 
-### Code linters
-CC: Tweaked uses a couple of "linters" on its source code, to enforce a consistent style across the project. While these
-are run whenever you submit a PR, it's often useful to run this before committing.
+If you want to run CC:T in a normal Minecraft instance, run `./gradlew assemble` and copy the `.jar` from
+`projects/forge/build/libs` (for Forge) or `projects/fabric/build/libs` (for Fabric).
 
- - **[Checkstyle]:** Checks Java code to ensure it is consistently formatted. This can be run with `./gradlew build` or
-   `./gradle check`.
- - **[illuaminate]:** Checks Lua code for semantic and styleistic issues. See [the usage section][illuaminate-usage] for
-   how to download and run it. You may need to generate the Java documentation stubs (see "Documentation" below) for all
-   lints to pass.
+## Developing CC: Tweaked
+Before making any major changes to CC: Tweaked, I'd recommend you have a read of the [the architecture
+document][architecture] first. While it's not a comprehensive document, it gives a good hint of where you should start
+looking to make your changes. As always, if you're not sure, [do ask the community][community]!
 
-### Documentation
+### Testing
+When making larger changes, it may be useful to write a test to make sure your code works as expected.
+
+CC: Tweaked has several test suites, each designed to test something different:
+
+ - In order to test CraftOS and its builtin APIs, we have a test suite written in Lua located at
+   `projects/core/src/test/resources/test-rom/`. These don't rely on any Minecraft code, which means they can run on
+   emulators, acting as a sort of compliance test.
+
+   These tests are written using a test system called "mcfly", heavily inspired by [busted]. Groups of tests go inside
+   `describe` blocks, and a single test goes inside `it`. Assertions are generally written using `expect` (inspired by
+   Hamcrest and the like). For instance, `expect(foo):eq("bar")` asserts that your variable `foo` is equal to the
+   expected value `"bar"`.
+
+   These tests can be run with `./gradlew :core:test`.
+
+ - In-game functionality, such as the behaviour of blocks and items, is tested using [Minecraft's gametest
+   system][mc-test] (`projects/common/src/testMod`). These tests spin up a server, spawn a structure for each test, and
+   then run some code on the blocks defined in that structure.
+
+   These tests can be run with `./gradlew runGametest` (or `./gradle :forge:runGametest`/`./gradlew :fabric:runGametest`
+   for a single loader).
+
+For more information, [see the architecture document][architecture].
+
+## Writing documentation
 When writing documentation for [CC: Tweaked's documentation website][docs], it may be useful to build the documentation
 and preview it yourself before submitting a PR.
 
-Building all documentation is, sadly, a multi-stage process (though this is largely hidden by Gradle). First we need to
-convert Java doc-comments into Lua ones, we also generate some Javascript to embed. All of this is then finally fed into
-illuaminate, which spits out our HTML.
+You'll first need to [set up a development environment as above](#setting-up-a-development-environment).
 
-#### Setting up the tooling
-For various reasons, getting the environment set up to build documentation can be pretty complex. I'd quite like to
-automate this via Docker and/or nix in the future, but this needs to be done manually for now.
+Once this is set up, you can now run `./gradlew docWebsite`. This generates documentation from our Lua and Java code,
+writing the resulting HTML into `./projects/web/build/site`, which can then be opened in a browser. When iterating on
+documentation, you can instead run `./gradlew docWebsite -t`, which will rebuild documentation every time you change a
+file.
 
-This tooling is only needed if you need to build the whole website. If you just want to generate the Lua stubs, you can
-skp this section.
- - Install Node/npm and install our Node packages with `npm ci`.
- - Install [illuaminate][illuaminate-usage] as described above.
+Documentation is built using [illuaminate] which, while not currently documented (somewhat ironic), is largely the same
+as [ldoc][ldoc]. Documentation comments are written in Markdown, though note that we do not support many GitHub-specific
+markdown features. If you can, do check what the documentation looks like locally!
 
-#### Building documentation
-Gradle should be your entrypoint to building most documentation. There's two tasks which are of interest:
-
- - `./gradlew luaJavadoc` - Generate documentation stubs for Java methods.
- - `./gradlew docWebsite` - Generate the whole website (including Javascript pages). The resulting HTML is stored at
-   `./build/docs/site/`.
-
-#### Writing documentation
-illuaminate's documentation system is not currently documented (somewhat ironic), but is _largely_ the same as
-[ldoc][ldoc]. Documentation comments are written in Markdown,
-
-Our markdown engine does _not_ support GitHub flavoured markdown, and so does not support all the features one might
-expect (such as tables). It is very much recommended that you build and preview the docs locally first.
-
-### Testing
-Thankfully running tests is much simpler than running the documentation generator! `./gradlew check` will run the
-entire test suite (and some additional bits of verification).
-
-Before we get into writing tests, it's worth mentioning the various test suites that CC: Tweaked has:
- - "Core" Java (`./src/test/java`): These test core bits of the mod which don't require any Minecraft interaction.
-   This includes the `@LuaFunction` system, file system code, etc...
-
-   These tests are run by `./gradlew test`.
-
- - CraftOS (`./src/test/resources/test-rom/`): These tests are written in Lua, and ensure the Lua environment, libraries
-   and programs work as expected. These are (generally) written to be able to be run on emulators too, to provide some
-   sort of compliance test.
-
-   These tests are run by the '"Core" Java' test suite, and so are also run with `./gradlew test`.
-
- - In-game (`./src/testMod/java/dan200/computercraft/ingame/`): These tests are run on an actual Minecraft server and client,
-   using [the same system Mojang do][mc-test]. The aim of these is to test in-game behaviour of blocks and peripherals.
-
-   These are run by `./gradlew testClient` and `./gradlew testServer`. You may want to run the client under `xvfb-run`
-   or similar when running in a headless environment.
-
-## CraftOS tests
-CraftOS's tests are written using a test system called "mcfly", heavily inspired by [busted] (and thus RSpec). Groups of
-tests go inside `describe` blocks, and a single test goes inside `it`.
-
-Assertions are generally written using `expect` (inspired by Hamcrest and the like). For instance, `expect(foo):eq("bar")`
-asserts that your variable `foo` is equal to the expected value `"bar"`.
+When writing long-form documentation (such as the guides in [doc/guides](doc/guides)), I find it useful to tell a
+narrative. Think of what you want the user to learn or achieve, then start introducing a simple concept, and then talk
+about how you can build on that until you've covered everything!
 
 [new-issue]: https://github.com/cc-tweaked/CC-Tweaked/issues/new/choose "Create a new issue"
-[community]: README.md#Community "Get in touch with the community."
-[checkstyle]: https://checkstyle.org/
+[community]: README.md#community "Get in touch with the community."
+[Adoptium]: https://adoptium.net/temurin/releases?version=17 "Download OpenJDK 17"
 [illuaminate]: https://github.com/SquidDev/illuaminate/ "Illuaminate on GitHub"
-[illuaminate-usage]: https://github.com/SquidDev/illuaminate/blob/master/README.md#usage "Installing Illuaminate"
 [weblate]: https://i18n.tweaked.cc/projects/cc-tweaked/minecraft/ "CC: Tweaked weblate instance"
 [docs]: https://tweaked.cc/ "CC: Tweaked documentation"
 [ldoc]: http://stevedonovan.github.io/ldoc/ "ldoc, a Lua documentation generator."
 [mc-test]: https://www.youtube.com/watch?v=vXaWOJTCYNg
 [busted]: https://github.com/Olivine-Labs/busted "busted: Elegant Lua unit testing."
+[node]: https://nodejs.org/en/ "Node.js"
+[architecture]: projects/ARCHITECTURE.md

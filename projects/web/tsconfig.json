@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+        "module": "esNext",
+        "moduleResolution": "node",
+        "target": "es6",
+        "lib": [
+            "es2015",
+            "dom"
+        ],
+        "newLine": "LF",
+        "baseUrl": ".",
+        // Additional compile options
+        "noEmitOnError": true,
+        "preserveWatchOutput": true,
+        "jsx": "react",
+        "jsxFactory": "h",
+        // Strict Type-Checking Options
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "verbatimModuleSyntax": true,
+        "forceConsistentCasingInFileNames": true,
+
+        // Needed for some of our internal stuff.
+        "allowSyntheticDefaultImports": true,
+    },
+    "include": [
+        "src/htmlTransform",
+        "src/frontend",
+    ]
+}

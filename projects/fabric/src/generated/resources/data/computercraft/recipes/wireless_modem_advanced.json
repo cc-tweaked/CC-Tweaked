@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {"#": {"tag": "c:gold_ingots"}, "E": {"item": "minecraft:ender_eye"}},
+  "pattern": ["###", "#E#", "###"],
+  "result": {"item": "computercraft:wireless_modem_advanced"},
+  "show_notification": true
+}

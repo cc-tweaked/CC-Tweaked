@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+
 image:
   file: config/gitpod/Dockerfile
 
@@ -17,6 +21,6 @@ vscode:
 
 tasks:
   - name: Setup pre-commit hool
-    init: pre-commit install --config config/pre-commit/config.yml --allow-missing-config
+    init: pre-commit install --allow-missing-config
   - name: Install npm packages
     init: npm ci

@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:crops",
+    "#minecraft:mineable/hoe",
+    "minecraft:cactus",
+    "minecraft:melon",
+    "minecraft:pumpkin",
+    "minecraft:carved_pumpkin",
+    "minecraft:jack_o_lantern"
+  ]
+}

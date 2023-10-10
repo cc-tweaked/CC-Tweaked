@@ -9,8 +9,9 @@ body:
     description: What version of Minecraft are you using?
     options:
       - 1.16.x
-      - 1.17.x
       - 1.18.x
+      - 1.19.x
+      - 1.20.x
   validations:
     required: true
 - type: input

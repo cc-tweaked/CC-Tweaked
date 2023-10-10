@@ -1,0 +1,9 @@
+{
+  "type": "computercraft:impostor_shaped",
+  "category": "redstone",
+  "group": "computercraft:turtle_normal",
+  "key": {"#": {"item": "computercraft:wireless_modem_advanced"}, "T": {"item": "computercraft:turtle_normal"}},
+  "pattern": ["#T"],
+  "result": {"item": "computercraft:turtle_normal", "nbt": "{RightUpgrade:\"computercraft:wireless_modem_advanced\"}"},
+  "show_notification": true
+}

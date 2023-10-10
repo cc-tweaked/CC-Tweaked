@@ -1,0 +1,15 @@
+Functions in the commands API:
+commands.exec( command )
+commands.execAsync( command )
+commands.list()
+commands.getBlockPosition()
+commands.getBlockInfo( x, y, z )
+commands.getBlockInfos( minx, miny, minz, maxx, maxy, maxz )
+
+The commands API can also be used to invoke commands directly, like so:
+commands.say( "Hello World" )
+commands.give( "dan200", "minecraft:diamond", 64 )
+This works with any command. Use "commands.async" instead of "commands" to execute asynchronously.
+
+The commands API is only available on Command Computers.
+Visit https://minecraft.wiki/w/Commands for documentation on all commands.

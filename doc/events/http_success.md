@@ -3,14 +3,20 @@ module: [kind=event] http_success
 see: http.request To make an HTTP request.
 ---
 
-The @{http_success} event is fired when an HTTP request returns successfully.
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-This event is normally handled inside @{http.get} and @{http.post}, but it can still be seen when using @{http.request}.
+SPDX-License-Identifier: MPL-2.0
+-->
+
+The [`http_success`] event is fired when an HTTP request returns successfully.
+
+This event is normally handled inside [`http.get`] and [`http.post`], but it can still be seen when using [`http.request`].
 
 ## Return Values
-1. @{string}: The event name.
-2. @{string}: The URL of the site requested.
-3. @{http.Response}: The handle for the response text.
+1. [`string`]: The event name.
+2. [`string`]: The URL of the site requested.
+3. [`http.Response`]: The successful HTTP response.
 
 ## Example
 Prints the content of a website (this may fail if the request fails):

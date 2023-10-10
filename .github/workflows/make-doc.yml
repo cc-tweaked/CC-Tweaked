@@ -3,7 +3,8 @@ name: Build documentation
 on:
   push:
     branches:
-    - mc-1.16.x
+    - mc-1.19.x
+    - mc-1.20.x
 
 jobs:
   make_doc:
@@ -11,35 +12,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Clone repository
+      uses: actions/checkout@v3
 
-    - name: Set up Java 8
+    - name: Set up Java
       uses: actions/setup-java@v1
       with:
-        java-version: 8
+        java-version: 17
+        distribution: 'temurin'
 
-    - name: Cache gradle dependencies
-      uses: actions/cache@v2
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
       with:
-        path: ~/.gradle/caches
-        key: ${{ runner.os }}-gradle-${{ hashFiles('gradle.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-
-    - name: Setup illuaminate
-      run: |
-        test -d bin || mkdir bin
-        test -f bin/illuaminate || wget -q -Obin/illuaminate https://squiddev.cc/illuaminate/linux-x86-64/illuaminate
-        chmod +x bin/illuaminate
-
-    - name: Setup node
-      run: npm ci
+        cache-read-only: ${{ !startsWith(github.ref, 'refs/heads/mc-') }}
 
     - name: Build with Gradle
       run: ./gradlew compileJava --no-daemon || ./gradlew compileJava --no-daemon
 
     - name: Generate documentation
-      run: ./gradlew docWebsite javadoc --no-daemon
+      run: ./gradlew docWebsite :common-api:javadoc  --no-daemon
 
     - name: Upload documentation
       run: .github/workflows/make-doc.sh 2> /dev/null

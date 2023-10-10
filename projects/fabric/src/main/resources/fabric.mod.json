@@ -1,0 +1,57 @@
+{
+    "schemaVersion": 1,
+    "id": "computercraft",
+    "name": "CC: Tweaked",
+    "version": "${version}",
+    "description": "CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles and more to Minecraft.",
+    "license": "ComputerCraft Public License (https://raw.githubusercontent.com/dan200/ComputerCraft/master/LICENSE)",
+    "icon": "pack.png",
+    "contact": {
+        "homepage": "https://tweaked.cc/",
+        "issues": "https://github.com/cc-tweaked/cc-tweaked/issues"
+    },
+    "authors": [
+        "Daniel Ratcliffe",
+        "Aaron Mills",
+        "SquidDev"
+    ],
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "dan200.computercraft.shared.ComputerCraft::init"
+        ],
+        "client": [
+            "dan200.computercraft.client.ComputerCraftClient::init"
+        ],
+        "fabric-datagen": [
+            "dan200.computercraft.data.FabricDataGenerators"
+        ],
+        "jei_mod_plugin": [
+            "dan200.computercraft.shared.integration.jei.JEIComputerCraft"
+        ],
+        "rei_client": [
+            "dan200.computercraft.client.integration.rei.REIComputerCraft"
+        ],
+        "emi": [
+            "dan200.computercraft.client.integration.emi.EMIComputerCraft"
+        ]
+    },
+    "mixins": [
+        "computercraft.mixins.json",
+        "computercraft.fabric.mixins.json",
+        {
+            "config": "computercraft-client.mixins.json",
+            "environment": "client"
+        },
+        {
+            "config": "computercraft-client.fabric.mixins.json",
+            "environment": "client"
+        }
+    ],
+    "depends": {
+        "fabricloader": ">=0.14.21",
+        "fabric-api": ">=0.86.1",
+        "minecraft": ">=1.20.1 <1.21"
+    },
+    "accessWidener": "computercraft.accesswidener"
+}

@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+
 """
 Rewrites language files in order to be consistent with en_us.
 
@@ -10,12 +15,13 @@ Note, this is not intended to be a fool-proof tool, rather a quick way to
 ensure language files are mostly correct.
 """
 
-import pathlib, sys, json
+import json
+import pathlib
 from collections import OrderedDict
 
-root = pathlib.Path("src/main/resources/assets/computercraft/lang")
+root = pathlib.Path("projects/common/src/main/resources/assets/computercraft/lang")
 
-with (root / "en_us.json").open(encoding="utf-8") as file:
+with open("projects/fabric/src/generated/resources/assets/computercraft/lang/en_us.json", encoding="utf-8") as file:
     en_us = json.load(file, object_hook=OrderedDict)
 
 for path in root.glob("*.json"):

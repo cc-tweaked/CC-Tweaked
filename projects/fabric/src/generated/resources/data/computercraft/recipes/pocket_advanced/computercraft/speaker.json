@@ -1,0 +1,9 @@
+{
+  "type": "computercraft:impostor_shaped",
+  "category": "redstone",
+  "group": "computercraft:pocket_advanced",
+  "key": {"#": {"item": "computercraft:speaker"}, "P": {"item": "computercraft:pocket_computer_advanced"}},
+  "pattern": ["#", "P"],
+  "result": {"item": "computercraft:pocket_computer_advanced", "nbt": "{Upgrade:\"computercraft:speaker\"}"},
+  "show_notification": true
+}

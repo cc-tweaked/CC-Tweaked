@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {"#": {"item": "minecraft:stone"}, "R": {"tag": "c:redstone_dusts"}},
+  "pattern": [" # ", "#R#", " # "],
+  "result": {"count": 6, "item": "computercraft:cable"},
+  "show_notification": true
+}

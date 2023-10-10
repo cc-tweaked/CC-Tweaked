@@ -1,0 +1,17 @@
+{
+  "type": "computercraft:turtle_overlay",
+  "category": "redstone",
+  "group": "computercraft:turtle_normal_overlay",
+  "ingredients": [
+    {"tag": "forge:dyes/red"},
+    {"tag": "forge:dyes/orange"},
+    {"tag": "forge:dyes/yellow"},
+    {"tag": "forge:dyes/green"},
+    {"tag": "forge:dyes/blue"},
+    {"tag": "forge:dyes/purple"},
+    {"item": "minecraft:stick"},
+    {"item": "computercraft:turtle_normal"}
+  ],
+  "overlay": "computercraft:block/turtle_rainbow_overlay",
+  "result": {"item": "computercraft:turtle_normal"}
+}

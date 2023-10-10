@@ -1,0 +1,209 @@
+/*
+ * SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+:root {
+    --nav-width: 250px;
+}
+/* Some misc styles */
+
+.big-image {
+    display: block;
+    margin: 0 auto;
+    max-height: 400px;
+}
+
+/* Pretty tables, mostly inherited from table.definition-list */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table td,
+table th {
+    border: 1px solid #cccccc;
+    padding: 2px 4px;
+}
+
+table th {
+    background-color: var(--background-2);
+}
+
+div.lua-example {
+    position: relative;
+}
+
+.example-run {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #058e05;
+    color: #fff;
+    padding: 2px 5px;
+}
+
+.example-window {
+    position: fixed;
+    z-index: 200;
+    top: 0px;
+    top: 0px;
+}
+
+.example-window-hidden {
+    display: none;
+}
+
+.example-contents {
+    animation: popup 0.3s cubic-bezier(.18,.89,.32,1.28);
+    transform-origin: center center;
+}
+
+@keyframes popup {
+    0% { scale: 0.5; }
+    100% { scale: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .example-contents { animation: none; }
+}
+
+/* Behold, the most cursed CSS! copy-cat's resizing algorithm is a weird, in
+   that it basically does "wrapper height - 40px" to determine the effective
+   size. But the footer is actually 1em+6px high, so we need to do very weird
+   things.
+
+   Yes, it should probably be fixed on the copy-cat side.
+ */
+.computer-container {
+    width: 620px;
+    height: calc(350px + 40px);
+    margin-top: calc((1em + 6px - 40px) / 2);
+}
+
+.titlebar {
+    display: flex;
+    background: #dede6c;
+    height: 30px;
+}
+
+.titlebar-drag {
+    flex-grow: 1;
+    cursor: grab;
+}
+
+.titlebar-close {
+    background: none;
+    padding: 0px 5px;
+    border: none;
+    border-radius: 0px;
+    margin: 0px;
+    font-size: 15px;
+    width: 30px; /* Same as titlebar height. */
+}
+
+.titlebar-close:hover {
+    background: #cc4c4c;
+}
+
+@media (max-width: 700px) {
+    .computer-container {
+        width: 314px;
+        height: calc(179px + 40px);
+    }
+
+    .titlebar {
+        height: 20px;
+    }
+
+    .titlebar-close {
+        font-size: 7px;
+    }
+}
+
+:root {
+    --recipe-bg: #ddd;
+    --recipe-fg: #bbb;
+    --recipe-hover: #aaa;
+
+    --recipe-padding: 4px;
+    --recipe-size: 32px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --recipe-bg: #222;
+        --recipe-fg: #444;
+        --recipe-hover: #888;
+    }
+}
+
+.recipe-container {
+    display: flex;
+    justify-content: center;
+    margin: 1em 0;
+    gap: 1em;
+    flex-wrap: wrap;
+}
+
+.recipe {
+    display: inline-grid;
+    padding: var(--recipe-padding);
+
+    background: var(--recipe-bg);
+    column-gap: var(--recipe-padding);
+    row-gap: var(--recipe-padding);
+    grid-template-rows: auto auto;
+    grid-template-columns: max-content 1fr max-content;
+}
+
+.recipe-title {
+    color: var(--foreground);
+    grid-column-start: span 3;
+}
+
+.recipe-inputs {
+    display: inline-grid;
+    column-gap: var(--recipe-padding);
+    row-gap: var(--recipe-padding);
+    align-items: center;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.recipe-item {
+    padding: var(--recipe-padding);
+    background-color: var(--recipe-fg);
+}
+
+.recipe-item:hover {
+    background-color: var(--recipe-hover);
+}
+
+.recipe-icon {
+    display: block;
+    width: var(--recipe-size);
+    height: var(--recipe-size);
+    max-width: 10vw;
+    max-height: 10vw;
+}
+
+.recipe-arrow {
+    width: var(--recipe-size);
+    max-width: 10vw;
+    align-self: center;
+}
+
+.recipe-output {
+    align-self: center;
+    position: relative;
+}
+
+.recipe-count {
+    position: absolute;
+    bottom: 0;
+    right: var(--recipe-padding);
+    color: #fff;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000
+}

@@ -1,0 +1,5 @@
+{
+    "type": "computercraft:tool",
+    "item": "minecraft:wooden_pickaxe",
+    "consumeDurability": "always"
+}

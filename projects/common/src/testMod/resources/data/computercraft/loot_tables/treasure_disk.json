@@ -1,0 +1,20 @@
+{
+    "pools": [
+        {
+            "name": "main",
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "computercraft:treasure_disk",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_nbt",
+                            "tag": "{\"Title\": \"Demo disk\", \"SubPath\": \"demo\", \"Colour\": 15905331}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

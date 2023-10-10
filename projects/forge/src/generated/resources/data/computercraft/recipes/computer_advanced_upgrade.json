@@ -1,0 +1,9 @@
+{
+  "type": "computercraft:computer_upgrade",
+  "category": "redstone",
+  "family": "advanced",
+  "key": {"#": {"tag": "forge:ingots/gold"}, "C": {"item": "computercraft:computer_normal"}},
+  "pattern": ["###", "#C#", "# #"],
+  "result": {"item": "computercraft:computer_advanced"},
+  "show_notification": true
+}

@@ -1,0 +1,9 @@
+{
+  "parent": "computercraft:block/monitor_base",
+  "textures": {
+    "back": "computercraft:block/monitor_normal_32",
+    "front": "computercraft:block/monitor_normal_15",
+    "side": "computercraft:block/monitor_normal_4",
+    "top": "computercraft:block/monitor_normal_0"
+  }
+}

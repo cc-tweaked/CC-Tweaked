@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:mineable/shovel",
+    "minecraft:melon",
+    "minecraft:pumpkin",
+    "minecraft:carved_pumpkin",
+    "minecraft:jack_o_lantern"
+  ]
+}

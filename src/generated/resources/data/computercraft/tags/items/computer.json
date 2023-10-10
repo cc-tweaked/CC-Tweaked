@@ -1,8 +1,0 @@
-{
-  "replace": false,
-  "values": [
-    "computercraft:computer_normal",
-    "computercraft:computer_advanced",
-    "computercraft:computer_command"
-  ]
-}

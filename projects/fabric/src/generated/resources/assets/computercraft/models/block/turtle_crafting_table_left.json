@@ -1,0 +1,4 @@
+{
+  "parent": "computercraft:block/turtle_upgrade_base_left",
+  "textures": {"texture": "computercraft:block/turtle_crafty_face"}
+}

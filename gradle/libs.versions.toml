@@ -1,0 +1,181 @@
+# SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+
+[versions]
+
+# Minecraft
+# MC version is specified in gradle.properties, as we need that in settings.gradle.
+# Remember to update corresponding versions in fabric.mod.json/mods.toml
+fabric-api = "0.86.1+1.20.1"
+fabric-loader = "0.14.21"
+forge = "47.1.0"
+forgeSpi = "6.0.0"
+mixin = "0.8.5"
+parchment = "2023.08.20"
+parchmentMc = "1.20.1"
+
+# Normal dependencies
+asm = "9.5"
+autoService = "1.1.1"
+checkerFramework = "3.32.0"
+cobalt = "0.7.3"
+cobalt-next = "0.7.4" # Not a real version, used to constrain the version we accept.
+fastutil = "8.5.9"
+guava = "31.1-jre"
+jetbrainsAnnotations = "24.0.1"
+jsr305 = "3.0.2"
+jzlib = "1.1.3"
+kotlin = "1.8.10"
+kotlin-coroutines = "1.6.4"
+netty = "4.1.82.Final"
+nightConfig = "3.6.7"
+slf4j = "2.0.1"
+
+# Minecraft mods
+emi = "1.0.8+1.20.1"
+fabricPermissions = "0.3.20230723"
+iris = "1.6.4+1.20"
+jei = "15.2.0.22"
+modmenu = "7.1.0"
+moreRed = "4.0.0.4"
+oculus = "1.2.5"
+rei = "12.0.626"
+rubidium = "0.6.1"
+sodium = "mc1.20-0.4.10"
+
+# Testing
+byteBuddy = "1.14.7"
+hamcrest = "2.2"
+jqwik = "1.7.4"
+junit = "5.10.0"
+
+# Build tools
+cctJavadoc = "1.8.0"
+checkstyle = "10.12.3"
+curseForgeGradle = "1.0.14"
+errorProne-core = "2.21.1"
+errorProne-plugin = "3.1.0"
+fabric-loom = "1.3.7"
+forgeGradle = "6.0.8"
+githubRelease = "2.4.1"
+ideaExt = "1.1.7"
+illuaminate = "0.1.0-44-g9ee0055"
+librarian = "1.+"
+minotaur = "2.+"
+mixinGradle = "0.7.+"
+nullAway = "0.9.9"
+spotless = "6.21.0"
+taskTree = "2.1.1"
+vanillaGradle = "0.2.1-SNAPSHOT"
+vineflower = "1.11.0"
+teavm = "0.9.0-SQUID.1"
+
+[libraries]
+# Normal dependencies
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
+autoService = { module = "com.google.auto.service:auto-service", version.ref = "autoService" }
+checkerFramework = { module = "org.checkerframework:checker-qual", version.ref = "checkerFramework" }
+cobalt = { module = "org.squiddev:Cobalt", version.ref = "cobalt" }
+fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
+forgeSpi = { module = "net.minecraftforge:forgespi", version.ref = "forgeSpi" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+jetbrainsAnnotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsAnnotations" }
+jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "jsr305" }
+jzlib = { module = "com.jcraft:jzlib", version.ref = "jzlib" }
+kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
+kotlin-platform = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+netty-http = { module = "io.netty:netty-codec-http", version.ref = "netty" }
+netty-socks = { module = "io.netty:netty-codec-socks", version.ref = "netty" }
+netty-proxy = { module = "io.netty:netty-handler-proxy", version.ref = "netty" }
+nightConfig-core = { module = "com.electronwill.night-config:core", version.ref = "nightConfig" }
+nightConfig-toml = { module = "com.electronwill.night-config:toml", version.ref = "nightConfig" }
+slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+
+# Minecraft mods
+fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
+fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
+fabricPermissions = { module = "me.lucko:fabric-permissions-api", version.ref = "fabricPermissions" }
+emi = { module = "dev.emi:emi-xplat-mojmap", version.ref = "emi" }
+iris = { module = "maven.modrinth:iris", version.ref = "iris" }
+jei-api = { module = "mezz.jei:jei-1.20.1-common-api", version.ref = "jei" }
+jei-fabric = { module = "mezz.jei:jei-1.20.1-fabric", version.ref = "jei" }
+jei-forge = { module = "mezz.jei:jei-1.20.1-forge", version.ref = "jei" }
+mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
+modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
+moreRed = { module = "commoble.morered:morered-1.20.1", version.ref = "moreRed" }
+oculus = { module = "maven.modrinth:oculus", version.ref = "oculus" }
+rei-api = { module = "me.shedaniel:RoughlyEnoughItems-api", version.ref = "rei" }
+rei-builtin = { module = "me.shedaniel:RoughlyEnoughItems-default-plugin", version.ref = "rei" }
+rei-fabric = { module = "me.shedaniel:RoughlyEnoughItems-fabric", version.ref = "rei" }
+rubidium = { module = "maven.modrinth:rubidium", version.ref = "rubidium" }
+sodium = { module = "maven.modrinth:sodium", version.ref = "sodium" }
+
+# Testing
+byteBuddyAgent = { module = "net.bytebuddy:byte-buddy-agent", version.ref = "byteBuddy" }
+byteBuddy = { module = "net.bytebuddy:byte-buddy", version.ref = "byteBuddy" }
+hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
+jqwik-api = { module = "net.jqwik:jqwik-api", version.ref = "jqwik" }
+jqwik-engine = { module = "net.jqwik:jqwik-engine", version.ref = "jqwik" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+
+# Build tools
+cctJavadoc = { module = "cc.tweaked:cct-javadoc", version.ref = "cctJavadoc" }
+checkstyle = { module = "com.puppycrawl.tools:checkstyle", version.ref = "checkstyle" }
+curseForgeGradle = { module = "net.darkhax.curseforgegradle:CurseForgeGradle", version.ref = "curseForgeGradle" }
+errorProne-annotations = { module = "com.google.errorprone:error_prone_annotations", version.ref = "errorProne-core" }
+errorProne-api = { module = "com.google.errorprone:error_prone_check_api", version.ref = "errorProne-core" }
+errorProne-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorProne-core" }
+errorProne-plugin = { module = "net.ltgt.gradle:gradle-errorprone-plugin", version.ref = "errorProne-plugin" }
+errorProne-testHelpers = { module = "com.google.errorprone:error_prone_test_helpers", version.ref = "errorProne-core" }
+fabric-loom = { module = "net.fabricmc:fabric-loom", version.ref = "fabric-loom" }
+forgeGradle = { module = "net.minecraftforge.gradle:ForgeGradle", version.ref = "forgeGradle" }
+kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+librarian = { module = "org.parchmentmc:librarian", version.ref = "librarian" }
+minotaur = { module = "com.modrinth.minotaur:Minotaur", version.ref = "minotaur" }
+nullAway = { module = "com.uber.nullaway:nullaway", version.ref = "nullAway" }
+spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+teavm-classlib = { module = "org.teavm:teavm-classlib", version.ref = "teavm" }
+teavm-jso = { module = "org.teavm:teavm-jso", version.ref = "teavm" }
+teavm-jso-apis = { module = "org.teavm:teavm-jso-apis", version.ref = "teavm" }
+teavm-jso-impl = { module = "org.teavm:teavm-jso-impl", version.ref = "teavm" }
+teavm-metaprogramming-api = { module = "org.teavm:teavm-metaprogramming-api", version.ref = "teavm" }
+teavm-metaprogramming-impl = { module = "org.teavm:teavm-metaprogramming-impl", version.ref = "teavm" }
+teavm-platform = { module = "org.teavm:teavm-platform", version.ref = "teavm" }
+teavm-tooling = { module = "org.teavm:teavm-tooling", version.ref = "teavm" }
+vanillaGradle = { module = "org.spongepowered:vanillagradle", version.ref = "vanillaGradle" }
+vineflower = { module = "io.github.juuxel:loom-vineflower", version.ref = "vineflower" }
+
+[plugins]
+forgeGradle = { id = "net.minecraftforge.gradle", version.ref = "forgeGradle" }
+githubRelease = { id = "com.github.breadmoirai.github-release", version.ref = "githubRelease" }
+ideaExt = { id = "org.jetbrains.gradle.plugin.idea-ext", version.ref = "ideaExt" }
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+librarian = { id = "org.parchmentmc.librarian.forgegradle", version.ref = "librarian" }
+mixinGradle = { id = "org.spongepowered.mixin", version.ref = "mixinGradle" }
+taskTree = { id = "com.dorongold.task-tree", version.ref = "taskTree" }
+
+[bundles]
+annotations = ["jsr305", "checkerFramework", "jetbrainsAnnotations"]
+kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
+
+# Minecraft
+externalMods-common = ["jei-api", "nightConfig-core", "nightConfig-toml"]
+externalMods-forge-compile = ["moreRed", "oculus", "jei-api"]
+externalMods-forge-runtime = ["jei-forge"]
+externalMods-fabric = ["nightConfig-core", "nightConfig-toml"]
+externalMods-fabric-compile = ["fabricPermissions", "iris", "jei-api", "rei-api", "rei-builtin"]
+externalMods-fabric-runtime = ["jei-fabric", "modmenu"]
+
+# Testing
+test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]
+testRuntime = ["junit-jupiter-engine", "jqwik-engine"]
+
+# Build tools
+teavm-api = [ "teavm-jso", "teavm-jso-apis", "teavm-platform", "teavm-classlib", "teavm-metaprogramming-api" ]
+teavm-tooling = [ "teavm-tooling", "teavm-metaprogramming-impl", "teavm-jso-impl" ]

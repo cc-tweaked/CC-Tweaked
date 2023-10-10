@@ -1,0 +1,63 @@
+# SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.4.0
+  hooks:
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: check-merge-conflict
+
+  # Quick syntax checkers
+  - id: check-xml
+  - id: check-yaml
+  - id: check-toml
+  - id: check-json
+    exclude: "tsconfig\\.json$"
+
+- repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+  rev: 2.7.2
+  hooks:
+  - id: editorconfig-checker
+    args: ['-disable-indentation']
+    exclude: "^(.*\\.(bat)|LICENSE)$"
+
+- repo: https://github.com/fsfe/reuse-tool
+  rev: v2.1.0
+  hooks:
+  - id: reuse
+
+- repo: local
+  hooks:
+  - id: license
+    name: Spotless
+    files: ".*\\.(java|kt|kts)$"
+    language: system
+    entry: ./gradlew spotlessApply
+    pass_filenames: false
+    require_serial: true
+  - id: checkstyle
+    name: Check Java codestyle
+    files: ".*\\.java$"
+    language: system
+    entry: ./gradlew checkstyle
+    pass_filenames: false
+    require_serial: true
+  - id: illuaminate
+    name: Check Lua code
+    files: ".*\\.(lua|java|md)"
+    language: system
+    entry: ./gradlew lintLua
+    pass_filenames: false
+    require_serial: true
+
+exclude: |
+  (?x)^(
+    projects/[a-z]+/src/generated|
+    projects/core/src/test/resources/test-rom/data/json-parsing/|
+    .*\.dfpwm
+  )
