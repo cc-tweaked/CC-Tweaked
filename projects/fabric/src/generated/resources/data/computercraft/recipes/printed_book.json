@@ -1,0 +1,10 @@
+{
+  "type": "computercraft:impostor_shapeless",
+  "category": "redstone",
+  "ingredients": [
+    {"item": "minecraft:leather"},
+    {"item": "computercraft:printed_page"},
+    {"item": "minecraft:string"}
+  ],
+  "result": {"item": "computercraft:printed_book"}
+}

@@ -1,0 +1,16 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_computer": {
+      "conditions": {"items": [{"tag": "computercraft:computer"}]},
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {"recipe": "computercraft:monitor_advanced"},
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [["has_computer", "has_the_recipe"]],
+  "rewards": {"recipes": ["computercraft:monitor_advanced"]},
+  "sends_telemetry_event": false
+}

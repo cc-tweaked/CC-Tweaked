@@ -1,0 +1,13 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_computer": {
+      "conditions": {"items": [{"tag": "computercraft:computer"}]},
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {"conditions": {"recipe": "computercraft:disk_drive"}, "trigger": "minecraft:recipe_unlocked"}
+  },
+  "requirements": [["has_computer", "has_the_recipe"]],
+  "rewards": {"recipes": ["computercraft:disk_drive"]},
+  "sends_telemetry_event": false
+}

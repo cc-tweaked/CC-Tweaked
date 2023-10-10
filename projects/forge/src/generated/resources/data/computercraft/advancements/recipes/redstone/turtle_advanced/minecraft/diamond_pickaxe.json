@@ -1,0 +1,18 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_items": {
+      "conditions": {
+        "items": [{"items": ["computercraft:turtle_advanced"]}, {"items": ["minecraft:diamond_pickaxe"]}]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {"recipe": "computercraft:turtle_advanced/minecraft/diamond_pickaxe"},
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [["has_items", "has_the_recipe"]],
+  "rewards": {"recipes": ["computercraft:turtle_advanced/minecraft/diamond_pickaxe"]},
+  "sends_telemetry_event": false
+}

@@ -1,0 +1,31 @@
+accessWidener v1 named
+
+# SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+
+# Additional access wideners for vanilla code. This is a effectively the subset of Fabric's transitive access wideners
+# that we actually use
+
+accessible method net/minecraft/client/renderer/item/ItemProperties register (Lnet/minecraft/world/item/Item;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/client/renderer/item/ClampedItemPropertyFunction;)V
+accessible method net/minecraft/client/renderer/blockentity/BlockEntityRenderers register (Lnet/minecraft/world/level/block/entity/BlockEntityType;Lnet/minecraft/client/renderer/blockentity/BlockEntityRendererProvider;)V
+accessible class net/minecraft/world/item/CreativeModeTab$Output
+
+# Containers
+accessible class net/minecraft/world/inventory/MenuType$MenuSupplier
+accessible method net/minecraft/world/inventory/MenuType <init> (Lnet/minecraft/world/inventory/MenuType$MenuSupplier;Lnet/minecraft/world/flag/FeatureFlagSet;)V
+accessible class net/minecraft/client/gui/screens/MenuScreens$ScreenConstructor
+accessible method net/minecraft/client/gui/screens/MenuScreens register (Lnet/minecraft/world/inventory/MenuType;Lnet/minecraft/client/gui/screens/MenuScreens$ScreenConstructor;)V
+
+# Data generators
+accessible class net/minecraft/data/loot/LootTableProvider$SubProviderEntry
+accessible class net/minecraft/data/tags/TagsProvider$TagAppender
+accessible field net/minecraft/data/models/BlockModelGenerators blockStateOutput Ljava/util/function/Consumer;
+accessible field net/minecraft/data/models/BlockModelGenerators modelOutput Ljava/util/function/BiConsumer;
+accessible method net/minecraft/data/models/BlockModelGenerators delegateItemModel (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/resources/ResourceLocation;)V
+accessible method net/minecraft/data/models/BlockModelGenerators delegateItemModel (Lnet/minecraft/world/item/Item;Lnet/minecraft/resources/ResourceLocation;)V
+accessible method net/minecraft/data/models/BlockModelGenerators createHorizontallyRotatedBlock (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/data/models/model/TexturedModel$Provider;)V
+accessible field net/minecraft/data/models/ItemModelGenerators output Ljava/util/function/BiConsumer;
+accessible method net/minecraft/data/models/ItemModelGenerators generateFlatItem (Lnet/minecraft/world/item/Item;Lnet/minecraft/data/models/model/ModelTemplate;)V
+accessible method net/minecraft/data/models/ItemModelGenerators generateFlatItem (Lnet/minecraft/world/item/Item;Ljava/lang/String;Lnet/minecraft/data/models/model/ModelTemplate;)V
+accessible method net/minecraft/data/models/model/TextureSlot create (Ljava/lang/String;)Lnet/minecraft/data/models/model/TextureSlot;

@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "modem=false,peripheral=false": {"model": "computercraft:block/wired_modem_full_off"},
+    "modem=false,peripheral=true": {"model": "computercraft:block/wired_modem_full_off_peripheral"},
+    "modem=true,peripheral=false": {"model": "computercraft:block/wired_modem_full_on"},
+    "modem=true,peripheral=true": {"model": "computercraft:block/wired_modem_full_on_peripheral"}
+  }
+}

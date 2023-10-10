@@ -1,0 +1,15 @@
+{
+  "type": "computercraft:impostor_shaped",
+  "category": "redstone",
+  "group": "computercraft:pocket_advanced",
+  "key": {
+    "#": {"item": "computercraft:wireless_modem_advanced"},
+    "P": {"item": "computercraft:pocket_computer_advanced"}
+  },
+  "pattern": ["#", "P"],
+  "result": {
+    "item": "computercraft:pocket_computer_advanced",
+    "nbt": "{Upgrade:\"computercraft:wireless_modem_advanced\"}"
+  },
+  "show_notification": true
+}

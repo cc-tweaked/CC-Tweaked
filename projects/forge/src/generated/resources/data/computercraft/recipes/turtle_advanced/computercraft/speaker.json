@@ -1,0 +1,9 @@
+{
+  "type": "computercraft:impostor_shaped",
+  "category": "redstone",
+  "group": "computercraft:turtle_advanced",
+  "key": {"#": {"item": "computercraft:speaker"}, "T": {"item": "computercraft:turtle_advanced"}},
+  "pattern": ["#T"],
+  "result": {"item": "computercraft:turtle_advanced", "nbt": "{RightUpgrade:\"computercraft:speaker\"}"},
+  "show_notification": true
+}

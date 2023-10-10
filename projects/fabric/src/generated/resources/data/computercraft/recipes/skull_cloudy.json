@@ -1,0 +1,9 @@
+{
+  "type": "computercraft:shapeless",
+  "category": "misc",
+  "ingredients": [{"tag": "c:skulls"}, {"item": "computercraft:monitor_normal"}],
+  "result": {
+    "item": "minecraft:player_head",
+    "nbt": "{SkullOwner:{Id:[I;1829193526,-1310112904,-1449411193,2005015708],Name:\"Cloudhunter\"}}"
+  }
+}

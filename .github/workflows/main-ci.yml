@@ -8,63 +8,97 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: 📥 Clone repository
+      uses: actions/checkout@v3
 
-    - name: Set up Java 8
-      uses: actions/setup-java@v1
+    - name: 📥 Set up Java
+      uses: actions/setup-java@v3
       with:
-        java-version: 8
+        java-version: 17
+        distribution: 'temurin'
 
-    - name: Cache gradle dependencies
-      uses: actions/cache@v2
+    - name: 📥 Setup Gradle
+      uses: gradle/gradle-build-action@v2
       with:
-        path: ~/.gradle/caches
-        key: ${{ runner.os }}-gradle-${{ hashFiles('gradle.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
+        cache-read-only: ${{ !startsWith(github.ref, 'refs/heads/mc-') }}
 
     - name: Disable Gradle daemon
       run: |
         mkdir -p ~/.gradle
         echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
 
-    - name: Build with Gradle
-      run: |
-        ./gradlew assemble || ./gradlew assemble
-        ./gradlew downloadAssets || ./gradlew downloadAssets
-        xvfb-run ./gradlew build
+    - name: ⚒️ Build
+      run: ./gradlew assemble || ./gradlew assemble
 
-    - name: Upload Jar
-      uses: actions/upload-artifact@v2
-      with:
-        name: CC-Tweaked
-        path: build/libs
+    - name: 💡 Lint
+      uses: pre-commit/action@v3.0.0
 
-    - name: Upload Screnshots
-      uses: actions/upload-artifact@v2
-      with:
-        name: Screenshots
-        path: test-files/client/screenshots
-        if-no-files-found: ignore
-        retention-days: 5
-      if: failure()
+    - name: 🧪 Run tests
+      run: ./gradlew test validateMixinNames checkChangelog
 
-    - name: Upload Coverage
-      uses: codecov/codecov-action@v2
+    - name: 📥 Download assets for game tests
+      run: ./gradlew downloadAssets || ./gradlew downloadAssets
 
-    - name: Parse test reports
+    - name: 🧪 Run integration tests
+      run: ./gradlew runGametest
+
+    - name: 🧪 Run client tests
+      run: ./gradlew runGametestClient # Not checkClient, as no point running rendering tests.
+      # These are a little flaky on GH actions: its useful to run them, but don't break the build.
+      continue-on-error: true
+
+    - name: 🧪 Parse test reports
       run: ./tools/parse-reports.py
       if: ${{ failure() }}
 
-    - name: Cache pre-commit
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pre-commit
-        key: ${{ runner.os }}-pre-commit-${{ hashFiles('config/pre-commit/config.yml') }}
-        restore-keys: |
-          ${{ runner.os }}-pre-commit-
-
-    - name: Run linters
+    - name: 📦 Prepare Jars
       run: |
-        pip install pre-commit
-        pre-commit run --config config/pre-commit/config.yml --show-diff-on-failure --all --color=always
+        # Find the main jar and append the git hash onto it.
+        mkdir -p jars
+        find projects/forge/build/libs projects/fabric/build/libs -type f -regex '.*[0-9.]+\(-SNAPSHOT\)?\.jar$' -exec bash -c 'cp {} "jars/$(basename {} .jar)-$(git rev-parse HEAD).jar"' \;
+
+    - name: 📤 Upload Jar
+      uses: actions/upload-artifact@v3
+      with:
+        name: CC-Tweaked
+        path: ./jars
+
+    - name: 📤 Upload coverage
+      uses: codecov/codecov-action@v3
+
+  build-core:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - name: Windows
+          uses: windows-latest
+
+        - name: macOS
+          uses: macos-latest
+
+    name: Test on ${{ matrix.name }}
+    runs-on: ${{ matrix.uses }}
+
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v3
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+      with:
+        cache-read-only: ${{ !startsWith(github.ref, 'refs/heads/mc-') }}
+
+    - name: Run tests
+      run: |
+        ./gradlew --configure-on-demand :core:test
+
+    - name: Parse test reports
+      run: python3 ./tools/parse-reports.py
+      if: ${{ failure() }}

@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
 <!DOCTYPE suppressions PUBLIC
     "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
     "https://checkstyle.org/dtds/suppressions_1_2.dtd">
@@ -9,4 +16,10 @@
 
     <!-- The commands API is documented in Lua. -->
     <suppress checks="SummaryJavadocCheck" files=".*[\\/]CommandAPI.java" />
+
+    <!-- Allow putting files in other packages if they look like our TeaVM stubs. -->
+    <suppress checks="PackageName" files=".*[\\/]T[A-Za-z]+.java" />
+
+    <!-- Allow underscores in our test classes. -->
+    <suppress checks="MethodName" files=".*Contract.java" />
 </suppressions>

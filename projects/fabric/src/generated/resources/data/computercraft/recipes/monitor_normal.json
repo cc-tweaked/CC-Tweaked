@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {"#": {"item": "minecraft:stone"}, "G": {"tag": "c:glass_panes"}},
+  "pattern": ["###", "#G#", "###"],
+  "result": {"item": "computercraft:monitor_normal"},
+  "show_notification": true
+}

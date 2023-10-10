@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [{"condition": "minecraft:survives_explosion"}],
+      "entries": [{"type": "minecraft:item", "name": "computercraft:wired_modem_full"}],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "computercraft:blocks/wired_modem_full"
+}

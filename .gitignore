@@ -1,15 +1,24 @@
+# SPDX-FileCopyrightText: 2017 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: CC0-1.0
+
 # Build directories
 /classes
 /logs
 /build
+/projects/*/logs
+/projects/*/build
+/buildSrc/build
 /out
+/buildSrc/out
+/jars
 /doc/out/
 /node_modules
+.jqwik-database
 
 # Runtime directories
 /run
-/run-*
-/test-files
+/projects/*/run
 
 *.ipr
 *.iws
@@ -22,8 +31,6 @@
 /.project
 /.settings
 /.vscode
-bin/
 *.launch
 
-/src/generated/resources/.cache
-/src/web/mount/*.d.ts
+/projects/*/src/generated/resources/.cache

@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+
+modLoader="javafml"
+loaderVersion="[47,48)"
+
+issueTrackerURL="https://github.com/cc-tweaked/CC-Tweaked/issues"
+logoFile="pack.png"
+
+license="ComputerCraft Public License (https://raw.githubusercontent.com/dan200/ComputerCraft/master/LICENSE)"
+
+[[mods]]
+modId="computercraft"
+version="${file.jarVersion}"
+displayName="CC: Tweaked"
+displayURL="https://tweaked.cc"
+updateJSONURL = "https://api.modrinth.com/updates/cc-tweaked/forge_updates.json"
+
+credits="Created by Daniel Ratcliffe (@DanTwoHundred)"
+authors="Daniel Ratcliffe, Aaron Mills, SquidDev"
+description='''
+CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles and more to Minecraft.
+'''
+
+[[dependencies.computercraft]]
+    modId="forge"
+    mandatory=true
+    versionRange="[${forgeVersion},48)"
+    ordering="NONE"
+    side="BOTH"

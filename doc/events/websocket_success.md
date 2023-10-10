@@ -3,14 +3,20 @@ module: [kind=event] websocket_success
 see: http.websocketAsync To open a WebSocket asynchronously.
 ---
 
-The @{websocket_success} event is fired when a WebSocket connection request returns successfully.
+<!--
+SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-This event is normally handled inside @{http.websocket}, but it can still be seen when using @{http.websocketAsync}.
+SPDX-License-Identifier: MPL-2.0
+-->
+
+The [`websocket_success`] event is fired when a WebSocket connection request returns successfully.
+
+This event is normally handled inside [`http.websocket`], but it can still be seen when using [`http.websocketAsync`].
 
 ## Return Values
-1. @{string}: The event name.
-2. @{string}: The URL of the site.
-3. @{http.Websocket}: The handle for the WebSocket.
+1. [`string`]: The event name.
+2. [`string`]: The URL of the site.
+3. [`http.Websocket`]: The handle for the WebSocket.
 
 ## Example
 Prints the content of a website (this may fail if the request fails):

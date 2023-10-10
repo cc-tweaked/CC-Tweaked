@@ -1,0 +1,38 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "computercraft:block/turtle_rainbow_overlay",
+		"texture": "computercraft:block/turtle_rainbow_overlay"
+	},
+	"elements": [
+		{
+			"name": "Flag",
+			"from": [1.5, 13, 10.5],
+			"to": [2, 16.5, 15.5],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [2, 11, 10.75]},
+			"faces": {
+				"north": {"uv": [0, 0, 1, 6], "texture": "#texture"},
+				"east": {"uv": [0, 0, 7, 6], "texture": "#texture"},
+				"south": {"uv": [0, 0, 1, 6], "texture": "#texture"},
+				"west": {"uv": [0, 0, 7, 6], "texture": "#texture"},
+				"up": {"uv": [15, 0, 16, 6], "texture": "#texture"},
+				"down": {"uv": [8, 0, 9, 6], "texture": "#texture"}
+			}
+		},
+		{
+			"name": "Stick",
+			"from": [1.5, 10.5, 10.5],
+			"to": [2, 13, 11],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [2, 11, 10.75]},
+			"faces": {
+				"north": {"uv": [12, 0, 13, 6], "texture": "#texture"},
+				"east": {"uv": [13, 0, 14, 6], "texture": "#texture"},
+				"south": {"uv": [12, 0, 13, 6], "texture": "#texture"},
+				"west": {"uv": [13, 0, 14, 6], "texture": "#texture"},
+				"up": {"uv": [12, 6, 13, 7], "texture": "#texture"},
+				"down": {"uv": [13, 6, 14, 7], "texture": "#texture"}
+			}
+		}
+	],
+	"display": {}
+}

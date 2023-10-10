@@ -1,0 +1,20 @@
+{
+    "required": true,
+    "package": "dan200.computercraft.mixin",
+    "minVersion": "0.8",
+    "compatibilityLevel": "JAVA_17",
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "mixins": [
+        "ArgumentTypeInfosAccessor",
+        "ChunkMapMixin",
+        "EntityMixin",
+        "ExplosionDamageCalculatorMixin",
+        "ItemEntityMixin",
+        "ItemMixin",
+        "ServerLevelMixin",
+        "TagEntryAccessor",
+        "TagsProviderMixin"
+    ]
+}

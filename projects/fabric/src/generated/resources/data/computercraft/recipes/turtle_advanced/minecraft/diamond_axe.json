@@ -1,0 +1,12 @@
+{
+  "type": "computercraft:impostor_shaped",
+  "category": "redstone",
+  "group": "computercraft:turtle_advanced",
+  "key": {"#": {"item": "minecraft:diamond_axe"}, "T": {"item": "computercraft:turtle_advanced"}},
+  "pattern": ["#T"],
+  "result": {
+    "item": "computercraft:turtle_advanced",
+    "nbt": "{RightUpgrade:\"minecraft:diamond_axe\",RightUpgradeNbt:{Tag:{Damage:0}}}"
+  },
+  "show_notification": true
+}

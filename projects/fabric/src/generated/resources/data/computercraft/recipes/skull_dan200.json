@@ -1,0 +1,9 @@
+{
+  "type": "computercraft:shapeless",
+  "category": "misc",
+  "ingredients": [{"tag": "c:skulls"}, {"item": "computercraft:computer_advanced"}],
+  "result": {
+    "item": "minecraft:player_head",
+    "nbt": "{SkullOwner:{Id:[I;-204941669,125191442,-2076913230,374933995],Name:\"dan200\"}}"
+  }
+}
