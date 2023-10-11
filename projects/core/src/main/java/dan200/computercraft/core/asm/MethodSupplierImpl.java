@@ -4,9 +4,6 @@
 
 package dan200.computercraft.core.asm;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.PeripheralType;
@@ -23,7 +20,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 import static dan200.computercraft.core.asm.Generator.catching;
@@ -36,9 +32,14 @@ final class MethodSupplierImpl<T> implements MethodSupplier<T> {
     private final IntCache<T> dynamic;
     private final Function<Object, String[]> dynamicMethods;
 
-    private final LoadingCache<Class<?>, List<NamedMethod<T>>> classCache = CacheBuilder
-        .newBuilder()
-        .build(CacheLoader.from(catching(this::getMethodsImpl, List.of())));
+    private final ClassValue<List<NamedMethod<T>>> classCache = new ClassValue<>() {
+        private final Function<Class<?>, List<NamedMethod<T>>> getter = catching(MethodSupplierImpl.this::getMethodsImpl, List.of());
+
+        @Override
+        protected List<NamedMethod<T>> computeValue(Class<?> type) {
+            return getter.apply(type);
+        }
+    };
 
     MethodSupplierImpl(
         List<GenericMethod> genericMethods,
@@ -93,12 +94,7 @@ final class MethodSupplierImpl<T> implements MethodSupplier<T> {
 
     @VisibleForTesting
     List<NamedMethod<T>> getMethods(Class<?> klass) {
-        try {
-            return classCache.get(klass);
-        } catch (ExecutionException e) {
-            LOG.error("Error getting methods for {}.", klass.getName(), e.getCause());
-            return List.of();
-        }
+        return classCache.get(klass);
     }
 
     private List<NamedMethod<T>> getMethodsImpl(Class<?> klass) {
@@ -148,5 +144,4 @@ final class MethodSupplierImpl<T> implements MethodSupplier<T> {
             }
         }
     }
-
 }
