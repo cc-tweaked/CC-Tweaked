@@ -14,10 +14,10 @@ import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.server.packs.resources.ResourceProvider;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL31;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -36,11 +36,11 @@ import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.get
  * @see RenderTypes#getMonitorTextureBufferShader()
  */
 public class MonitorTextureBufferShader extends ShaderInstance {
+    private static final Logger LOG = LoggerFactory.getLogger(MonitorTextureBufferShader.class);
+
     public static final int UNIFORM_SIZE = 4 * 4 * 16 + 4 + 4 + 2 * 4 + 4;
 
     static final int TEXTURE_INDEX = GL13.GL_TEXTURE3;
-
-    private static final Logger LOGGER = LogManager.getLogger();
 
     private final int monitorData;
     private int uniformBuffer = 0;
@@ -75,7 +75,7 @@ public class MonitorTextureBufferShader extends ShaderInstance {
     private Uniform getUniformChecked(String name) {
         var uniform = getUniform(name);
         if (uniform == null) {
-            LOGGER.warn("Monitor shader {} should have uniform {}, but it was not present.", getName(), name);
+            LOG.warn("Monitor shader {} should have uniform {}, but it was not present.", getName(), name);
         }
 
         return uniform;

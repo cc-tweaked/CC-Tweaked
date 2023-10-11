@@ -4,12 +4,12 @@
 
 package dan200.computercraft.core.apis.http.websocket;
 
-import com.google.common.base.Objects;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.options.Options;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 import static dan200.computercraft.api.lua.LuaValues.checkFinite;
@@ -106,12 +106,12 @@ public class WebsocketHandle {
 
         @Override
         public MethodResult resume(Object[] event) {
-            if (event.length >= 3 && Objects.equal(event[0], MESSAGE_EVENT) && Objects.equal(event[1], address)) {
+            if (event.length >= 3 && Objects.equals(event[0], MESSAGE_EVENT) && Objects.equals(event[1], address)) {
                 return MethodResult.of(Arrays.copyOfRange(event, 2, event.length));
-            } else if (event.length >= 2 && Objects.equal(event[0], CLOSE_EVENT) && Objects.equal(event[1], address) && websocket.isClosed()) {
+            } else if (event.length >= 2 && Objects.equals(event[0], CLOSE_EVENT) && Objects.equals(event[1], address) && websocket.isClosed()) {
                 // If the socket is closed abort.
                 return MethodResult.of();
-            } else if (event.length >= 2 && timeoutId != -1 && Objects.equal(event[0], TIMER_EVENT)
+            } else if (event.length >= 2 && timeoutId != -1 && Objects.equals(event[0], TIMER_EVENT)
                 && event[1] instanceof Number id && id.intValue() == timeoutId) {
                 // If we received a matching timer event then abort.
                 return MethodResult.of();

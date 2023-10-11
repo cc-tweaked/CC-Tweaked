@@ -4,8 +4,6 @@
 
 package dan200.computercraft.impl.network.wired;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.network.wired.WiredNetwork;
 import dan200.computercraft.api.network.wired.WiredNetworkChange;
@@ -19,6 +17,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -47,24 +46,24 @@ public class NetworkTest {
         assertFalse(aN.getNetwork().connect(aN, bN), "Cannot add connection twice");
 
         assertEquals(aN.getNetwork(), bN.getNetwork(), "A's and B's network must be equal");
-        assertEquals(Sets.newHashSet(aN, bN), nodes(aN.getNetwork()), "A's network should be A and B");
+        assertEquals(Set.of(aN, bN), nodes(aN.getNetwork()), "A's network should be A and B");
 
-        assertEquals(Sets.newHashSet("a", "b"), aE.allPeripherals().keySet(), "A's peripheral set should be A, B");
-        assertEquals(Sets.newHashSet("a", "b"), bE.allPeripherals().keySet(), "B's peripheral set should be A, B");
+        assertEquals(Set.of("a", "b"), aE.allPeripherals().keySet(), "A's peripheral set should be A, B");
+        assertEquals(Set.of("a", "b"), bE.allPeripherals().keySet(), "B's peripheral set should be A, B");
 
         aN.getNetwork().connect(aN, cN);
 
         assertEquals(aN.getNetwork(), bN.getNetwork(), "A's and B's network must be equal");
         assertEquals(aN.getNetwork(), cN.getNetwork(), "A's and C's network must be equal");
-        assertEquals(Sets.newHashSet(aN, bN, cN), nodes(aN.getNetwork()), "A's network should be A, B and C");
+        assertEquals(Set.of(aN, bN, cN), nodes(aN.getNetwork()), "A's network should be A, B and C");
 
-        assertEquals(Sets.newHashSet(bN, cN), neighbours(aN), "A's neighbour set should be B, C");
-        assertEquals(Sets.newHashSet(aN), neighbours(bN), "B's neighbour set should be A");
-        assertEquals(Sets.newHashSet(aN), neighbours(cN), "C's neighbour set should be A");
+        assertEquals(Set.of(bN, cN), neighbours(aN), "A's neighbour set should be B, C");
+        assertEquals(Set.of(aN), neighbours(bN), "B's neighbour set should be A");
+        assertEquals(Set.of(aN), neighbours(cN), "C's neighbour set should be A");
 
-        assertEquals(Sets.newHashSet("a", "b", "c"), aE.allPeripherals().keySet(), "A's peripheral set should be A, B, C");
-        assertEquals(Sets.newHashSet("a", "b", "c"), bE.allPeripherals().keySet(), "B's peripheral set should be A, B, C");
-        assertEquals(Sets.newHashSet("a", "b", "c"), cE.allPeripherals().keySet(), "C's peripheral set should be A, B, C");
+        assertEquals(Set.of("a", "b", "c"), aE.allPeripherals().keySet(), "A's peripheral set should be A, B, C");
+        assertEquals(Set.of("a", "b", "c"), bE.allPeripherals().keySet(), "B's peripheral set should be A, B, C");
+        assertEquals(Set.of("a", "b", "c"), cE.allPeripherals().keySet(), "C's peripheral set should be A, B, C");
     }
 
     @Test
@@ -87,11 +86,11 @@ public class NetworkTest {
 
         assertEquals(aN.getNetwork(), bN.getNetwork(), "A's and B's network must be equal");
         assertEquals(aN.getNetwork(), cN.getNetwork(), "A's and C's network must be equal");
-        assertEquals(Sets.newHashSet(aN, bN, cN), nodes(aN.getNetwork()), "A's network should be A, B and C");
+        assertEquals(Set.of(aN, bN, cN), nodes(aN.getNetwork()), "A's network should be A, B and C");
 
-        assertEquals(Sets.newHashSet("a", "b", "c"), aE.allPeripherals().keySet(), "A's peripheral set should be A, B, C");
-        assertEquals(Sets.newHashSet("a", "b", "c"), bE.allPeripherals().keySet(), "B's peripheral set should be A, B, C");
-        assertEquals(Sets.newHashSet("a", "b", "c"), cE.allPeripherals().keySet(), "C's peripheral set should be A, B, C");
+        assertEquals(Set.of("a", "b", "c"), aE.allPeripherals().keySet(), "A's peripheral set should be A, B, C");
+        assertEquals(Set.of("a", "b", "c"), bE.allPeripherals().keySet(), "B's peripheral set should be A, B, C");
+        assertEquals(Set.of("a", "b", "c"), cE.allPeripherals().keySet(), "C's peripheral set should be A, B, C");
     }
 
     @Test
@@ -113,12 +112,12 @@ public class NetworkTest {
 
         assertNotEquals(aN.getNetwork(), bN.getNetwork(), "A's and B's network must not be equal");
         assertEquals(aN.getNetwork(), cN.getNetwork(), "A's and C's network must be equal");
-        assertEquals(Sets.newHashSet(aN, cN), nodes(aN.getNetwork()), "A's network should be A and C");
-        assertEquals(Sets.newHashSet(bN), nodes(bN.getNetwork()), "B's network should be B");
+        assertEquals(Set.of(aN, cN), nodes(aN.getNetwork()), "A's network should be A and C");
+        assertEquals(Set.of(bN), nodes(bN.getNetwork()), "B's network should be B");
 
-        assertEquals(Sets.newHashSet("a", "c"), aE.allPeripherals().keySet(), "A's peripheral set should be A, C");
-        assertEquals(Sets.newHashSet("b"), bE.allPeripherals().keySet(), "B's peripheral set should be B");
-        assertEquals(Sets.newHashSet("a", "c"), cE.allPeripherals().keySet(), "C's peripheral set should be A, C");
+        assertEquals(Set.of("a", "c"), aE.allPeripherals().keySet(), "A's peripheral set should be A, C");
+        assertEquals(Set.of("b"), bE.allPeripherals().keySet(), "B's peripheral set should be B");
+        assertEquals(Set.of("a", "c"), cE.allPeripherals().keySet(), "C's peripheral set should be A, C");
     }
 
     @Test
@@ -146,11 +145,11 @@ public class NetworkTest {
         assertEquals(aN.getNetwork(), aaN.getNetwork(), "A's and A_'s network must be equal");
         assertEquals(bN.getNetwork(), bbN.getNetwork(), "B's and B_'s network must be equal");
 
-        assertEquals(Sets.newHashSet(aN, aaN), nodes(aN.getNetwork()), "A's network should be A and A_");
-        assertEquals(Sets.newHashSet(bN, bbN), nodes(bN.getNetwork()), "B's network should be B and B_");
+        assertEquals(Set.of(aN, aaN), nodes(aN.getNetwork()), "A's network should be A and A_");
+        assertEquals(Set.of(bN, bbN), nodes(bN.getNetwork()), "B's network should be B and B_");
 
-        assertEquals(Sets.newHashSet("a", "a_"), aE.allPeripherals().keySet(), "A's peripheral set should be A and A_");
-        assertEquals(Sets.newHashSet("b", "b_"), bE.allPeripherals().keySet(), "B's peripheral set should be B and B_");
+        assertEquals(Set.of("a", "a_"), aE.allPeripherals().keySet(), "A's peripheral set should be A and A_");
+        assertEquals(Set.of("b", "b_"), bE.allPeripherals().keySet(), "B's peripheral set should be B and B_");
     }
 
     @Test
@@ -184,12 +183,12 @@ public class NetworkTest {
         assertNotEquals(aN.getNetwork(), bN.getNetwork(), "A's and B's network must not be equal");
         assertEquals(aN.getNetwork(), cN.getNetwork(), "A's and C's network must be equal");
 
-        assertEquals(Sets.newHashSet(aN, cN), nodes(aN.getNetwork()), "A's network should be A and C");
-        assertEquals(Sets.newHashSet(bN), nodes(bN.getNetwork()), "B's network should be B");
+        assertEquals(Set.of(aN, cN), nodes(aN.getNetwork()), "A's network should be A and C");
+        assertEquals(Set.of(bN), nodes(bN.getNetwork()), "B's network should be B");
 
-        assertEquals(Sets.newHashSet("a", "c"), aE.allPeripherals().keySet(), "A's peripheral set should be A, C");
-        assertEquals(Sets.newHashSet(), bE.allPeripherals().keySet(), "B's peripheral set should be empty");
-        assertEquals(Sets.newHashSet("a", "c"), cE.allPeripherals().keySet(), "C's peripheral set should be A, C");
+        assertEquals(Set.of("a", "c"), aE.allPeripherals().keySet(), "A's peripheral set should be A, C");
+        assertEquals(Set.of(), bE.allPeripherals().keySet(), "B's peripheral set should be empty");
+        assertEquals(Set.of("a", "c"), cE.allPeripherals().keySet(), "C's peripheral set should be A, C");
     }
 
     @Test
@@ -220,13 +219,13 @@ public class NetworkTest {
         assertEquals(aN.getNetwork(), aaN.getNetwork(), "A's and A_'s network must be equal");
         assertEquals(bN.getNetwork(), bbN.getNetwork(), "B's and B_'s network must be equal");
 
-        assertEquals(Sets.newHashSet(aN, aaN), nodes(aN.getNetwork()), "A's network should be A and A_");
-        assertEquals(Sets.newHashSet(bN, bbN), nodes(bN.getNetwork()), "B's network should be B and B_");
-        assertEquals(Sets.newHashSet(cN), nodes(cN.getNetwork()), "C's network should be C");
+        assertEquals(Set.of(aN, aaN), nodes(aN.getNetwork()), "A's network should be A and A_");
+        assertEquals(Set.of(bN, bbN), nodes(bN.getNetwork()), "B's network should be B and B_");
+        assertEquals(Set.of(cN), nodes(cN.getNetwork()), "C's network should be C");
 
-        assertEquals(Sets.newHashSet("a", "a_"), aE.allPeripherals().keySet(), "A's peripheral set should be A and A_");
-        assertEquals(Sets.newHashSet("b", "b_"), bE.allPeripherals().keySet(), "B's peripheral set should be B and B_");
-        assertEquals(Sets.newHashSet(), cE.allPeripherals().keySet(), "C's peripheral set should be empty");
+        assertEquals(Set.of("a", "a_"), aE.allPeripherals().keySet(), "A's peripheral set should be A and A_");
+        assertEquals(Set.of("b", "b_"), bE.allPeripherals().keySet(), "B's peripheral set should be B and B_");
+        assertEquals(Set.of(), cE.allPeripherals().keySet(), "C's peripheral set should be empty");
     }
 
     private static final int BRUTE_SIZE = 16;
@@ -300,8 +299,8 @@ public class NetworkTest {
         private final Vec3 position;
         private final String id;
         private final WiredNode node;
-        private final Map<String, IPeripheral> localPeripherals = Maps.newHashMap();
-        private final Map<String, IPeripheral> remotePeripherals = Maps.newHashMap();
+        private final Map<String, IPeripheral> localPeripherals = new HashMap<>();
+        private final Map<String, IPeripheral> remotePeripherals = new HashMap<>();
 
         private NetworkElement(Level world, Vec3 position, String id) {
             this.world = world;

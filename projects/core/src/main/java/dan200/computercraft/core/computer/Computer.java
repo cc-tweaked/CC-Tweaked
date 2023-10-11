@@ -4,7 +4,6 @@
 
 package dan200.computercraft.core.computer;
 
-import com.google.common.base.Objects;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaTask;
@@ -16,6 +15,7 @@ import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.terminal.Terminal;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -140,7 +140,7 @@ public class Computer {
     }
 
     public void setLabel(@Nullable String label) {
-        if (!Objects.equal(label, this.label)) {
+        if (!Objects.equals(label, this.label)) {
             this.label = label;
             externalOutputChanged.set(true);
         }

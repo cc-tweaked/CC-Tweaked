@@ -17,7 +17,7 @@ import net.minecraft.gametest.framework.GameTestAssertException
 import net.minecraft.gametest.framework.GameTestAssertPosException
 import net.minecraft.gametest.framework.GameTestInfo
 import net.minecraft.gametest.framework.GameTestSequence
-import org.apache.logging.log4j.LogManager
+import org.slf4j.LoggerFactory
 import java.io.InputStream
 import java.util.*
 import java.util.concurrent.CancellationException
@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicReference
  * @see GameTestSequence.thenOnComputer
  */
 object ManagedComputers : ILuaMachine.Factory {
-    private val LOGGER = LogManager.getLogger(ManagedComputers::class.java)
+    private val LOGGER = LoggerFactory.getLogger(ManagedComputers::class.java)
     private val computers: MutableMap<String, Queue<suspend LuaTaskContext.() -> Unit>> = mutableMapOf()
 
     internal fun enqueue(test: GameTestInfo, label: String, task: suspend LuaTaskContext.() -> Unit): Monitor {

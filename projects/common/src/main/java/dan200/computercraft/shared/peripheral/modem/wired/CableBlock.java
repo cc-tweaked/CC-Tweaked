@@ -4,12 +4,12 @@
 
 package dan200.computercraft.shared.peripheral.modem.wired;
 
-import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.WaterloggableHelpers;
 import dan200.computercraft.shared.util.WorldUtil;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -52,12 +52,14 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     public static final BooleanProperty UP = BooleanProperty.create("up");
     public static final BooleanProperty DOWN = BooleanProperty.create("down");
 
-    static final EnumMap<Direction, BooleanProperty> CONNECTIONS =
-        new EnumMap<>(new ImmutableMap.Builder<Direction, BooleanProperty>()
-            .put(Direction.DOWN, DOWN).put(Direction.UP, UP)
-            .put(Direction.NORTH, NORTH).put(Direction.SOUTH, SOUTH)
-            .put(Direction.WEST, WEST).put(Direction.EAST, EAST)
-            .build());
+    static final EnumMap<Direction, BooleanProperty> CONNECTIONS = Util.make(new EnumMap<>(Direction.class), m -> {
+        m.put(Direction.DOWN, DOWN);
+        m.put(Direction.UP, UP);
+        m.put(Direction.NORTH, NORTH);
+        m.put(Direction.SOUTH, SOUTH);
+        m.put(Direction.WEST, WEST);
+        m.put(Direction.EAST, EAST);
+    });
 
     public CableBlock(Properties settings) {
         super(settings);

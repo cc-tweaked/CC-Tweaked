@@ -4,7 +4,6 @@
 
 package dan200.computercraft.shared.turtle.core;
 
-import com.google.common.base.Objects;
 import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.MethodResult;
@@ -455,7 +454,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     }
 
     public void setOverlay(@Nullable ResourceLocation overlay) {
-        if (!Objects.equal(this.overlay, overlay)) {
+        if (!Objects.equals(this.overlay, overlay)) {
             this.overlay = overlay;
             BlockEntityHelpers.updateBlock(owner);
         }
@@ -573,7 +572,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     public float getToolRenderAngle(TurtleSide side, float f) {
         return (side == TurtleSide.LEFT && animation == TurtleAnimation.SWING_LEFT_TOOL) ||
-               (side == TurtleSide.RIGHT && animation == TurtleAnimation.SWING_RIGHT_TOOL)
+            (side == TurtleSide.RIGHT && animation == TurtleAnimation.SWING_RIGHT_TOOL)
             ? 45.0f * (float) Math.sin(getAnimationFraction(f) * Math.PI)
             : 0.0f;
     }

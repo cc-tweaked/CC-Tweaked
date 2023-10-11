@@ -4,7 +4,6 @@
 
 package dan200.computercraft.shared.peripheral.modem.wired;
 
-import com.google.common.base.Objects;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.network.wired.WiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -133,7 +132,7 @@ public class WiredModemFullBlockEntity extends BlockEntity {
         togglePeripheralAccess();
         var periphNames = getConnectedPeripheralNames();
 
-        if (!Objects.equal(periphNames, oldPeriphNames)) {
+        if (!Objects.equals(periphNames, oldPeriphNames)) {
             sendPeripheralChanges(player, "chat.computercraft.wired_modem.peripheral_disconnected", oldPeriphNames);
             sendPeripheralChanges(player, "chat.computercraft.wired_modem.peripheral_connected", periphNames);
         }

@@ -19,8 +19,6 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -36,8 +34,6 @@ import java.util.function.Function;
  * @param <R> The upgrade serialiser to register for.
  */
 public abstract class UpgradeDataProvider<T extends UpgradeBase, R extends UpgradeSerialiser<? extends T>> implements DataProvider {
-    private static final Logger LOGGER = LogManager.getLogger();
-
     private final PackOutput output;
     private final String name;
     private final String folder;

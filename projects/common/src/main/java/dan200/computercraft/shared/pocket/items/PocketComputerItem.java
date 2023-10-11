@@ -4,7 +4,6 @@
 
 package dan200.computercraft.shared.pocket.items;
 
-import com.google.common.base.Objects;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.Mount;
@@ -44,6 +43,7 @@ import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
 
 public class PocketComputerItem extends Item implements IComputerItem, IMedia, IColouredItem {
     private static final String NBT_UPGRADE = "Upgrade";
@@ -97,7 +97,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
 
         // Sync label
         var label = computer.getLabel();
-        if (!Objects.equal(label, getLabel(stack))) {
+        if (!Objects.equals(label, getLabel(stack))) {
             changed = true;
             setLabel(stack, label);
         }

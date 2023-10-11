@@ -13,13 +13,16 @@ import dan200.computercraft.api.network.wired.WiredSender;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 public final class WiredNodeImpl implements WiredNode {
     private @Nullable Set<PacketReceiver> receivers;
 
     final WiredElement element;
-    Map<String, IPeripheral> peripherals = Collections.emptyMap();
+    Map<String, IPeripheral> peripherals = Map.of();
 
     final HashSet<WiredNodeImpl> neighbours = new HashSet<>();
     volatile WiredNetworkImpl network;

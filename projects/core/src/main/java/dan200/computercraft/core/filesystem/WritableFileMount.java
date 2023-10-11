@@ -4,7 +4,6 @@
 
 package dan200.computercraft.core.filesystem;
 
-import com.google.common.collect.Sets;
 import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.WritableMount;
 import org.slf4j.Logger;
@@ -28,8 +27,8 @@ public class WritableFileMount extends FileMount implements WritableMount {
     private static final Logger LOG = LoggerFactory.getLogger(WritableFileMount.class);
 
     static final long MINIMUM_FILE_SIZE = 500;
-    private static final Set<OpenOption> WRITE_OPTIONS = Sets.newHashSet(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-    private static final Set<OpenOption> APPEND_OPTIONS = Sets.newHashSet(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+    private static final Set<OpenOption> WRITE_OPTIONS = Set.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    private static final Set<OpenOption> APPEND_OPTIONS = Set.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 
     protected final File rootFile;
     private final long capacity;

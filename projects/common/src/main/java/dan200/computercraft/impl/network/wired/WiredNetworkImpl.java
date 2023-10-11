@@ -4,7 +4,6 @@
 
 package dan200.computercraft.impl.network.wired;
 
-import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.network.Packet;
 import dan200.computercraft.api.network.wired.WiredNetwork;
 import dan200.computercraft.api.network.wired.WiredNode;
@@ -260,7 +259,7 @@ final class WiredNetworkImpl implements WiredNetwork {
             var change = WiredNetworkChangeImpl.changeOf(oldPeripherals, newPeripherals);
             if (change.isEmpty()) return;
 
-            wired.peripherals = ImmutableMap.copyOf(newPeripherals);
+            wired.peripherals = Map.copyOf(newPeripherals);
 
             // Detach the old peripherals then remove them.
             peripherals.keySet().removeAll(change.peripheralsRemoved().keySet());

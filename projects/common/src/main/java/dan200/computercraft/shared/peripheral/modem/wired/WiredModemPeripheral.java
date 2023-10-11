@@ -4,7 +4,6 @@
 
 package dan200.computercraft.shared.peripheral.modem.wired;
 
-import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.*;
@@ -429,7 +428,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
         public Map<String, IPeripheral> getAvailablePeripherals() {
             if (!attached) throw new NotAttachedException();
             synchronized (element.getRemotePeripherals()) {
-                return ImmutableMap.copyOf(element.getRemotePeripherals());
+                return Map.copyOf(element.getRemotePeripherals());
             }
         }
 

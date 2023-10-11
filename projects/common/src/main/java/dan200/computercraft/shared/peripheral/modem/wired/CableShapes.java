@@ -4,9 +4,9 @@
 
 package dan200.computercraft.shared.peripheral.modem.wired;
 
-import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
 import dan200.computercraft.shared.util.DirectionUtil;
+import net.minecraft.Util;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -21,16 +21,14 @@ public final class CableShapes {
     private static final double MAX = 1 - MIN;
 
     private static final VoxelShape SHAPE_CABLE_CORE = Shapes.box(MIN, MIN, MIN, MAX, MAX, MAX);
-    private static final EnumMap<Direction, VoxelShape> SHAPE_CABLE_ARM =
-        new EnumMap<>(new ImmutableMap.Builder<Direction, VoxelShape>()
-            .put(Direction.DOWN, Shapes.box(MIN, 0, MIN, MAX, MIN, MAX))
-            .put(Direction.UP, Shapes.box(MIN, MAX, MIN, MAX, 1, MAX))
-            .put(Direction.NORTH, Shapes.box(MIN, MIN, 0, MAX, MAX, MIN))
-            .put(Direction.SOUTH, Shapes.box(MIN, MIN, MAX, MAX, MAX, 1))
-            .put(Direction.WEST, Shapes.box(0, MIN, MIN, MIN, MAX, MAX))
-            .put(Direction.EAST, Shapes.box(MAX, MIN, MIN, 1, MAX, MAX))
-            .build()
-        );
+    private static final EnumMap<Direction, VoxelShape> SHAPE_CABLE_ARM = Util.make(new EnumMap<>(Direction.class), m -> {
+        m.put(Direction.DOWN, Shapes.box(MIN, 0, MIN, MAX, MIN, MAX));
+        m.put(Direction.UP, Shapes.box(MIN, MAX, MIN, MAX, 1, MAX));
+        m.put(Direction.NORTH, Shapes.box(MIN, MIN, 0, MAX, MAX, MIN));
+        m.put(Direction.SOUTH, Shapes.box(MIN, MIN, MAX, MAX, MAX, 1));
+        m.put(Direction.WEST, Shapes.box(0, MIN, MIN, MIN, MAX, MAX));
+        m.put(Direction.EAST, Shapes.box(MAX, MIN, MIN, 1, MAX, MAX));
+    });
 
     private static final VoxelShape[] SHAPES = new VoxelShape[(1 << 6) * 7];
     private static final VoxelShape[] CABLE_SHAPES = new VoxelShape[1 << 6];

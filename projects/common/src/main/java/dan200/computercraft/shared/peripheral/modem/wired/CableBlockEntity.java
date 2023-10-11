@@ -4,7 +4,6 @@
 
 package dan200.computercraft.shared.peripheral.modem.wired;
 
-import com.google.common.base.Objects;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.network.wired.WiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -32,6 +31,7 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
+import java.util.Objects;
 
 public class CableBlockEntity extends BlockEntity {
     private static final String NBT_PERIPHERAL_ENABLED = "PeripheralAccess";
@@ -181,7 +181,7 @@ public class CableBlockEntity extends BlockEntity {
         var oldName = peripheral.getConnectedName();
         togglePeripheralAccess();
         var newName = peripheral.getConnectedName();
-        if (!Objects.equal(newName, oldName)) {
+        if (!Objects.equals(newName, oldName)) {
             if (oldName != null) {
                 player.displayClientMessage(Component.translatable("chat.computercraft.wired_modem.peripheral_disconnected",
                     ChatHelpers.copy(oldName)), false);
