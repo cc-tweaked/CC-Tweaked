@@ -7,9 +7,9 @@ import cc.tweaked.gradle.clientClasses
 import cc.tweaked.gradle.commonClasses
 
 plugins {
-    id("cc-tweaked.publishing")
     id("cc-tweaked.vanilla")
     id("cc-tweaked.gametest")
+    id("cc-tweaked.publishing")
 }
 
 minecraft {
