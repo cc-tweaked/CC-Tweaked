@@ -5,7 +5,7 @@ module: [kind=event] mouse_up
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 This event is fired when a mouse button is released or a held mouse leaves the computer's terminal.

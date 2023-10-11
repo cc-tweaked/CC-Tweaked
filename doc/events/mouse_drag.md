@@ -6,7 +6,7 @@ see: mouse_click For when a mouse button is initially pressed.
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 This event is fired every time the mouse is moved while a mouse button is being held.

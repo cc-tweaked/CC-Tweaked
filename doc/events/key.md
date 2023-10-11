@@ -5,7 +5,7 @@ module: [kind=event] key
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 This event is fired when any key is pressed while the terminal is focused.

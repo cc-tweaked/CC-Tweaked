@@ -6,7 +6,7 @@ see: keys For a lookup table of the given keys.
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 Fired whenever a key is released (or the terminal is closed while a key was being pressed).

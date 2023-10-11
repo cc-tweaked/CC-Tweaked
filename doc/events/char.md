@@ -6,7 +6,7 @@ see: key To listen to any key press.
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 The [`char`] event is fired when a character is typed on the keyboard.

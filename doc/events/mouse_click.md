@@ -5,7 +5,7 @@ module: [kind=event] mouse_click
 <!--
 SPDX-FileCopyrightText: 2021 The CC: Tweaked Developers
 
-SPDX-License-Identifier: LicenseRef-CCPL
+SPDX-License-Identifier: MPL-2.0
 -->
 
 This event is fired when the terminal is clicked with a mouse. This event is only fired on advanced computers (including
