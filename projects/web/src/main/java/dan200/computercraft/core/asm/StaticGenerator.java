@@ -19,7 +19,9 @@ import org.teavm.metaprogramming.ReflectClass;
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -39,7 +41,7 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public final class StaticGenerator<T> {
     private static final String METHOD_NAME = "apply";
-    private static final String[] EXCEPTIONS = new String[]{Type.getInternalName(LuaException.class)};
+    private static final String[] EXCEPTIONS = new String[]{ Type.getInternalName(LuaException.class) };
 
     private static final String INTERNAL_METHOD_RESULT = Type.getInternalName(MethodResult.class);
     private static final String DESC_METHOD_RESULT = Type.getDescriptor(MethodResult.class);
@@ -67,7 +69,7 @@ public final class StaticGenerator<T> {
         this.context = context;
         this.createClass = createClass;
 
-        interfaces = new String[]{Type.getInternalName(base)};
+        interfaces = new String[]{ Type.getInternalName(base) };
 
         var methodDesc = new StringBuilder().append("(Ljava/lang/Object;");
         for (var klass : context) methodDesc.append(Type.getDescriptor(klass));
@@ -245,7 +247,7 @@ public final class StaticGenerator<T> {
                 mw.visitTypeInsn(NEW, INTERNAL_COERCED);
                 mw.visitInsn(DUP);
                 mw.visitVarInsn(ALOAD, 2 + context.size());
-                Reflect.loadInt(mw, argIndex);
+                loadInt(mw, argIndex);
                 mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, "getStringCoerced", "(I)Ljava/lang/String;", true);
                 mw.visitMethodInsn(INVOKESPECIAL, INTERNAL_COERCED, "<init>", "(Ljava/lang/Object;)V", false);
                 return true;
@@ -258,16 +260,16 @@ public final class StaticGenerator<T> {
 
             if (Enum.class.isAssignableFrom(klass) && klass != Enum.class) {
                 mw.visitVarInsn(ALOAD, 2 + context.size());
-                Reflect.loadInt(mw, argIndex);
+                loadInt(mw, argIndex);
                 mw.visitLdcInsn(Type.getType(klass));
                 mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, "optEnum", "(ILjava/lang/Class;)Ljava/util/Optional;", true);
                 return true;
             }
 
-            var name = Reflect.getLuaName(Primitives.unwrap(klass), unsafe);
+            var name = getLuaName(Primitives.unwrap(klass), unsafe);
             if (name != null) {
                 mw.visitVarInsn(ALOAD, 2 + context.size());
-                Reflect.loadInt(mw, argIndex);
+                loadInt(mw, argIndex);
                 mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, "opt" + name, "(I)Ljava/util/Optional;", true);
                 return true;
             }
@@ -275,19 +277,19 @@ public final class StaticGenerator<T> {
 
         if (Enum.class.isAssignableFrom(arg) && arg != Enum.class) {
             mw.visitVarInsn(ALOAD, 2 + context.size());
-            Reflect.loadInt(mw, argIndex);
+            loadInt(mw, argIndex);
             mw.visitLdcInsn(Type.getType(arg));
             mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, "getEnum", "(ILjava/lang/Class;)Ljava/lang/Enum;", true);
             mw.visitTypeInsn(CHECKCAST, Type.getInternalName(arg));
             return true;
         }
 
-        var name = arg == Object.class ? "" : Reflect.getLuaName(arg, unsafe);
+        var name = arg == Object.class ? "" : getLuaName(arg, unsafe);
         if (name != null) {
             if (Reflect.getRawType(method, genericArg, false) == null) return null;
 
             mw.visitVarInsn(ALOAD, 2 + context.size());
-            Reflect.loadInt(mw, argIndex);
+            loadInt(mw, argIndex);
             mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, "get" + name, "(I)" + Type.getDescriptor(arg), true);
             return true;
         }
@@ -295,6 +297,31 @@ public final class StaticGenerator<T> {
         System.err.printf("Unknown parameter type %s for method %s.%s.\n",
             arg.getName(), method.getDeclaringClass().getName(), method.getName());
         return null;
+    }
+
+    @Nullable
+    private static String getLuaName(Class<?> klass, boolean unsafe) {
+        if (klass.isPrimitive()) {
+            if (klass == int.class) return "Int";
+            if (klass == boolean.class) return "Boolean";
+            if (klass == double.class) return "Double";
+            if (klass == long.class) return "Long";
+        } else {
+            if (klass == Map.class) return "Table";
+            if (klass == String.class) return "String";
+            if (klass == ByteBuffer.class) return "Bytes";
+            if (klass == LuaTable.class && unsafe) return "TableUnsafe";
+        }
+
+        return null;
+    }
+
+    private static void loadInt(MethodVisitor visitor, int value) {
+        if (value >= -1 && value <= 5) {
+            visitor.visitInsn(ICONST_0 + value);
+        } else {
+            visitor.visitLdcInsn(value);
+        }
     }
 
     @SuppressWarnings("Guava")

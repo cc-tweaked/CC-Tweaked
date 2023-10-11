@@ -24,13 +24,13 @@ dependencies {
     implementation(libs.netty.socks)
     implementation(libs.netty.proxy)
     implementation(libs.slf4j)
-    implementation(libs.asm)
 
     testFixturesImplementation(libs.slf4j)
     testFixturesApi(platform(libs.kotlin.platform))
     testFixturesApi(libs.bundles.test)
     testFixturesApi(libs.bundles.kotlin)
 
+    testImplementation(libs.asm)
     testImplementation(libs.bundles.test)
     testRuntimeOnly(libs.bundles.testRuntime)
     testRuntimeOnly(libs.slf4j.simple)

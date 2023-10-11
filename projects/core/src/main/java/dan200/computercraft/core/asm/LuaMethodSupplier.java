@@ -6,6 +6,7 @@ package dan200.computercraft.core.asm;
 
 import dan200.computercraft.api.lua.IDynamicLuaObject;
 import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.methods.LuaMethod;
 import dan200.computercraft.core.methods.MethodSupplier;
@@ -20,7 +21,14 @@ import java.util.Objects;
  * method supplier}. It should not be used directly.
  */
 public final class LuaMethodSupplier {
-    private static final Generator<LuaMethod> GENERATOR = new Generator<>(LuaMethod.class, List.of(ILuaContext.class),
+    private static final Generator<LuaMethod> GENERATOR = new Generator<>(List.of(ILuaContext.class),
+        m -> (target, context, args) -> {
+            try {
+                return (MethodResult) m.invokeExact(target, context, args);
+            } catch (Throwable t) {
+                throw ResultHelpers.throwUnchecked(t);
+            }
+        },
         m -> (target, context, args) -> {
             var escArgs = args.escapes();
             return context.executeMainThreadTask(() -> ResultHelpers.checkNormalResult(m.apply(target, context, escArgs)));

@@ -18,7 +18,10 @@ import org.objectweb.asm.Opcodes;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import static dan200.computercraft.test.core.ContramapMatcher.contramap;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -26,7 +29,9 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GeneratorTest {
-    private static final MethodSupplierImpl<LuaMethod> GENERATOR = (MethodSupplierImpl<LuaMethod>) LuaMethodSupplier.create(List.of());
+    private static final MethodSupplierImpl<LuaMethod> GENERATOR = (MethodSupplierImpl<LuaMethod>) LuaMethodSupplier.create(
+        GenericMethod.getMethods(new StaticMethod()).toList()
+    );
 
     @Test
     public void testBasic() {
@@ -67,6 +72,13 @@ public class GeneratorTest {
     @Test
     public void testNonInstance() {
         assertThat(GENERATOR.getMethods(NonInstance.class), is(empty()));
+    }
+
+    @Test
+    public void testStaticMethod() throws LuaException {
+        var methods = GENERATOR.getMethods(StaticMethodTarget.class);
+        assertThat(methods, contains(named("go")));
+        assertThat(apply(methods, new StaticMethodTarget(), "go", "Hello", 123), is(MethodResult.of()));
     }
 
     @Test
@@ -166,6 +178,20 @@ public class GeneratorTest {
     public static class NonInstance {
         @LuaFunction
         public static void go() {
+        }
+    }
+
+    public static class StaticMethodTarget {
+    }
+
+    public static class StaticMethod implements GenericSource {
+        @Override
+        public String id() {
+            return "source";
+        }
+
+        @LuaFunction
+        public static void go(StaticMethodTarget target, String arg1, int arg2, ILuaContext context) {
         }
     }
 

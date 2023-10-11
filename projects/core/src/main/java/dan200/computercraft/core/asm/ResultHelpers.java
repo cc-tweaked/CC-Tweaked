@@ -22,4 +22,13 @@ final class ResultHelpers {
 
         return result.getResult();
     }
+
+    static RuntimeException throwUnchecked(Throwable t) {
+        return throwUnchecked0(t);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends Throwable> T throwUnchecked0(Throwable t) throws T {
+        throw (T) t;
+    }
 }
