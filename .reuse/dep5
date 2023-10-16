@@ -62,10 +62,22 @@ Copyright: 2011 Daniel Ratcliffe
 License: LicenseRef-CCPL
 
 Files:
-  projects/common/src/main/resources/assets/computercraft/lang/*
+  projects/common/src/main/resources/assets/computercraft/lang/cs_cz.json
+  projects/common/src/main/resources/assets/computercraft/lang/ko_kr.json
+  projects/common/src/main/resources/assets/computercraft/lang/pl_pl.json
+  projects/common/src/main/resources/assets/computercraft/lang/pt_br.json
+  projects/common/src/main/resources/assets/computercraft/lang/ru_ru.json
+  projects/common/src/main/resources/assets/computercraft/lang/uk_ua.json
+  projects/common/src/main/resources/assets/computercraft/lang/zh_cn.json
 Comment: Community-contributed license files
 Copyright: 2017 The CC: Tweaked Developers
 License: LicenseRef-CCPL
+
+Files:
+  projects/common/src/main/resources/assets/computercraft/lang/*
+Comment: Community-contributed license files
+Copyright: 2017 The CC: Tweaked Developers
+License: MPL-2.0
 
 Files:
   .github/*
