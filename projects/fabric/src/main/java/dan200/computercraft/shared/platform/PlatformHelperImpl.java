@@ -14,12 +14,12 @@ import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.node.wired.WiredElementLookup;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralLookup;
+import dan200.computercraft.impl.Peripherals;
 import dan200.computercraft.mixin.ArgumentTypeInfosAccessor;
 import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
-import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
@@ -202,7 +202,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public ComponentAccess<IPeripheral> createPeripheralAccess(Consumer<Direction> invalidate) {
-        return new PeripheralAccessImpl();
+        return new PeripheralAccessImpl(invalidate);
     }
 
     @Override
@@ -476,8 +476,11 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     private static final class PeripheralAccessImpl extends ComponentAccessImpl<IPeripheral> {
-        private PeripheralAccessImpl() {
+        private final Runnable[] invalidators = new Runnable[6];
+
+        private PeripheralAccessImpl(Consumer<Direction> invalidate) {
             super(PeripheralLookup.get());
+            for (var dir : Direction.values()) invalidators[dir.ordinal()] = () -> invalidate.accept(dir);
         }
 
         @Nullable
@@ -487,7 +490,8 @@ public class PlatformHelperImpl implements PlatformHelper {
             if (result != null) return result;
 
             var cache = caches[direction.ordinal()];
-            return GenericPeripheralProvider.getPeripheral(level, cache.getPos(), direction.getOpposite(), cache.getBlockEntity());
+            var invalidate = invalidators[direction.ordinal()];
+            return Peripherals.getGenericPeripheral(level, cache.getPos(), direction.getOpposite(), cache.getBlockEntity(), invalidate);
         }
     }
 }

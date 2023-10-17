@@ -4,11 +4,11 @@
 
 package dan200.computercraft.shared.util;
 
+import dan200.computercraft.shared.platform.InvalidateCallback;
 import net.minecraft.core.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nullable;
 
@@ -32,18 +32,11 @@ public final class CapabilityUtil {
         }
     }
 
-    public static <T> void addListener(LazyOptional<T> p, NonNullConsumer<? super LazyOptional<T>> invalidate) {
-        // We can make this safe with invalidate::accept, but then we're allocating it's just kind of absurd.
-        @SuppressWarnings("unchecked")
-        var safeInvalidate = (NonNullConsumer<LazyOptional<T>>) invalidate;
-        p.addListener(safeInvalidate);
-    }
-
     @Nullable
-    public static <T> T unwrap(LazyOptional<T> p, NonNullConsumer<? super LazyOptional<T>> invalidate) {
+    public static <T> T unwrap(LazyOptional<T> p, InvalidateCallback invalidate) {
         if (!p.isPresent()) return null;
 
-        addListener(p, invalidate);
+        p.addListener(invalidate.castConsumer());
         return p.orElseThrow(NullPointerException::new);
     }
 

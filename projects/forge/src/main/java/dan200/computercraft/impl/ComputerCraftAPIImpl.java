@@ -11,7 +11,6 @@ import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.impl.detail.DetailRegistryImpl;
 import dan200.computercraft.shared.details.FluidData;
-import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -45,7 +44,7 @@ public final class ComputerCraftAPIImpl extends AbstractComputerCraftAPI impleme
 
     @Override
     public void registerGenericCapability(Capability<?> capability) {
-        GenericPeripheralProvider.addCapability(capability);
+        Peripherals.registerGenericCapability(capability);
     }
 
     @Override

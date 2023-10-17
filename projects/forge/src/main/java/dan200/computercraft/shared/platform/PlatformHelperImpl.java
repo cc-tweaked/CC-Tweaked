@@ -63,7 +63,6 @@ import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.crafting.conditions.ModLoadedCondition;
 import net.minecraftforge.common.extensions.IForgeMenuType;
-import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -429,20 +428,19 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     private abstract static class ComponentAccessImpl<T> implements ComponentAccess<T> {
-        private final NonNullConsumer<Object>[] invalidators;
+        private final InvalidateCallback[] invalidators;
         private @Nullable Level level;
         private @Nullable BlockPos pos;
 
         ComponentAccessImpl(Consumer<Direction> invalidate) {
             // Generate a cache of invalidation functions so we can guarantee we only ever have one registered per
             // capability - there's no way to remove these callbacks!
-            @SuppressWarnings({ "unchecked", "rawtypes" })
-            var invalidators = this.invalidators = new NonNullConsumer[6];
-            for (var dir : Direction.values()) invalidators[dir.ordinal()] = x -> invalidate.accept(dir);
+            var invalidators = this.invalidators = new InvalidateCallback[6];
+            for (var dir : Direction.values()) invalidators[dir.ordinal()] = () -> invalidate.accept(dir);
         }
 
         @Nullable
-        protected abstract T get(ServerLevel world, BlockPos pos, Direction side, NonNullConsumer<Object> invalidate);
+        protected abstract T get(ServerLevel world, BlockPos pos, Direction side, InvalidateCallback invalidate);
 
         @Nullable
         @Override
@@ -463,7 +461,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
         @Nullable
         @Override
-        protected IPeripheral get(ServerLevel world, BlockPos pos, Direction side, NonNullConsumer<Object> invalidate) {
+        protected IPeripheral get(ServerLevel world, BlockPos pos, Direction side, InvalidateCallback invalidate) {
             return Peripherals.getPeripheral(world, pos, side, invalidate);
         }
     }
@@ -478,7 +476,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
         @Nullable
         @Override
-        protected T get(ServerLevel world, BlockPos pos, Direction side, NonNullConsumer<Object> invalidate) {
+        protected T get(ServerLevel world, BlockPos pos, Direction side, InvalidateCallback invalidate) {
             if (!world.isLoaded(pos)) return null;
 
             var blockEntity = world.getBlockEntity(pos);

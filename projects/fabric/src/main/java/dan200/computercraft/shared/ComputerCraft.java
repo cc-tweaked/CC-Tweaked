@@ -8,6 +8,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.FabricDetailRegistries;
 import dan200.computercraft.api.node.wired.WiredElementLookup;
 import dan200.computercraft.api.peripheral.PeripheralLookup;
+import dan200.computercraft.impl.Peripherals;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.config.ConfigSpec;
@@ -100,6 +101,8 @@ public class ComputerCraft {
         FabricDetailRegistries.FLUID_VARIANT.addProvider(FluidDetails::fill);
 
         ComputerCraftAPI.registerGenericSource(new InventoryMethods());
+
+        Peripherals.addGenericLookup((world, pos, state, blockEntity, side, invalidate) -> InventoryMethods.extractContainer(world, pos, state, blockEntity, side));
     }
 
     private record ReloadListener(String name, PreparableReloadListener listener)
