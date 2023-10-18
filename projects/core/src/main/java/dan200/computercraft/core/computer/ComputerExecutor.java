@@ -10,6 +10,7 @@ import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.apis.*;
+import dan200.computercraft.core.computer.computerthread.ComputerThread;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.lua.ILuaMachine;

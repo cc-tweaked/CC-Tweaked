@@ -5,6 +5,7 @@
 package dan200.computercraft.core.computer;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import dan200.computercraft.core.computer.computerthread.ComputerThread;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.lua.MachineResult;
 

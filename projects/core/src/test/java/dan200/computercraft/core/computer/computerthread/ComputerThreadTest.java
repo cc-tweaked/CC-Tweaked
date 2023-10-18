@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package dan200.computercraft.core.computer;
+package dan200.computercraft.core.computer.computerthread;
 
 import dan200.computercraft.core.lua.MachineResult;
 import dan200.computercraft.test.core.ConcurrentHelpers;

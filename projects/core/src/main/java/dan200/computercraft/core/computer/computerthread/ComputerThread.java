@@ -2,12 +2,14 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package dan200.computercraft.core.computer;
+package dan200.computercraft.core.computer.computerthread;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.Logging;
+import dan200.computercraft.core.computer.ComputerExecutor;
+import dan200.computercraft.core.computer.TimeoutState;
 import dan200.computercraft.core.util.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
