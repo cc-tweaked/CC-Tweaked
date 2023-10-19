@@ -10,6 +10,8 @@ import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.apis.*;
+import dan200.computercraft.core.computer.computerthread.ComputerScheduler;
+import dan200.computercraft.core.computer.computerthread.ComputerThread;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.lua.ILuaMachine;
@@ -17,7 +19,6 @@ import dan200.computercraft.core.lua.MachineEnvironment;
 import dan200.computercraft.core.lua.MachineException;
 import dan200.computercraft.core.methods.LuaMethod;
 import dan200.computercraft.core.methods.MethodSupplier;
-import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.core.util.Nullability;
@@ -25,13 +26,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -54,7 +55,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * One final responsibility for the executor is calling {@link ILuaAPI#update()} every tick, via the {@link #tick()}
  * method. This should only be called when the computer is actually on ({@link #isOn}).
  */
-final class ComputerExecutor {
+final class ComputerExecutor implements ComputerScheduler.Worker {
     private static final Logger LOG = LoggerFactory.getLogger(ComputerExecutor.class);
     private static final int QUEUE_LIMIT = 256;
 
@@ -62,9 +63,7 @@ final class ComputerExecutor {
     private final ComputerEnvironment computerEnvironment;
     private final MetricsObserver metrics;
     private final List<ApiWrapper> apis = new ArrayList<>();
-    private final ComputerThread scheduler;
     private final MethodSupplier<LuaMethod> luaMethods;
-    final TimeoutState timeout;
 
     private @Nullable FileSystem fileSystem;
 
@@ -92,33 +91,10 @@ final class ComputerExecutor {
     private final ReentrantLock isOnLock = new ReentrantLock();
 
     /**
-     * A lock used for any changes to {@link #eventQueue}, {@link #command} or {@link #onComputerQueue}. This will be
-     * used on the main thread, so locks should be kept as brief as possible.
+     * A lock used for any changes to {@link #eventQueue} or {@link #command}. This will be used on the main thread,
+     * so locks should be kept as brief as possible.
      */
     private final Object queueLock = new Object();
-
-    /**
-     * Determines if this executor is present within {@link ComputerThread}.
-     *
-     * @see #queueLock
-     * @see #enqueue()
-     * @see #afterWork()
-     */
-    volatile boolean onComputerQueue = false;
-
-    /**
-     * The amount of time this computer has used on a theoretical machine which shares work evenly amongst computers.
-     *
-     * @see ComputerThread
-     */
-    long virtualRuntime = 0;
-
-    /**
-     * The last time at which we updated {@link #virtualRuntime}.
-     *
-     * @see ComputerThread
-     */
-    long vRuntimeStart;
 
     /**
      * The command that {@link #work()} should execute on the computer thread.
@@ -129,6 +105,7 @@ final class ComputerExecutor {
      * Note, if command is not {@code null}, then some command is scheduled to be executed. Otherwise it is not
      * currently in the queue (or is currently being executed).
      */
+    @GuardedBy("queueLock")
     private volatile @Nullable StateCommand command;
 
     /**
@@ -136,43 +113,45 @@ final class ComputerExecutor {
      * <p>
      * Note, this should be empty if this computer is off - it is cleared on shutdown and when turning on again.
      */
+    @GuardedBy("queueLock")
     private final Queue<Event> eventQueue = new ArrayDeque<>(4);
 
     /**
-     * Whether we interrupted an event and so should resume it instead of executing another task.
+     * Whether this computer was paused (and so should resume without pulling an event) or not.
      *
+     * @see #timeRemaining
      * @see #work()
      * @see #resumeMachine(String, Object[])
      */
-    private boolean interruptedEvent = false;
+    private boolean wasPaused;
+
+    /**
+     * The amount of time this computer can run for before being interrupted. This is only defined when
+     * {@link #wasPaused} is set.
+     */
+    private long timeRemaining = 0;
 
     /**
      * Whether this executor has been closed, and will no longer accept any incoming commands or events.
      *
      * @see #queueStop(boolean, boolean)
      */
+    @GuardedBy("queueLock")
     private boolean closed;
 
     private @Nullable WritableMount rootMount;
 
-    /**
-     * The thread the executor is running on. This is non-null when performing work. We use this to ensure we're only
-     * doing one bit of work at one time.
-     *
-     * @see ComputerThread
-     */
-    final AtomicReference<Thread> executingThread = new AtomicReference<>();
-
     private final ILuaMachine.Factory luaFactory;
+
+    private final ComputerScheduler.Executor executor;
 
     ComputerExecutor(Computer computer, ComputerEnvironment computerEnvironment, ComputerContext context) {
         this.computer = computer;
         this.computerEnvironment = computerEnvironment;
         metrics = computerEnvironment.getMetrics();
         luaFactory = context.luaFactory();
-        scheduler = context.computerScheduler();
         luaMethods = context.luaMethods();
-        timeout = new TimeoutState(scheduler);
+        executor = context.computerScheduler().createExecutor(this, metrics);
 
         var environment = computer.getEnvironment();
 
@@ -192,6 +171,11 @@ final class ComputerExecutor {
         }
     }
 
+    @Override
+    public int getComputerID() {
+        return computer.getID();
+    }
+
     boolean isOn() {
         return isOn;
     }
@@ -200,10 +184,6 @@ final class ComputerExecutor {
         var fileSystem = this.fileSystem;
         if (fileSystem == null) throw new IllegalStateException("FileSystem has not been created yet");
         return fileSystem;
-    }
-
-    Computer getComputer() {
-        return computer;
     }
 
     void addApi(ILuaAPI api) {
@@ -219,8 +199,8 @@ final class ComputerExecutor {
             if (closed || isOn || command != null) return;
 
             command = StateCommand.TURN_ON;
-            enqueue();
         }
+        enqueue();
     }
 
     /**
@@ -245,24 +225,31 @@ final class ComputerExecutor {
             }
 
             command = newCommand;
-            enqueue();
         }
+        enqueue();
     }
 
     /**
      * Abort this whole computer due to a timeout. This will immediately destroy the Lua machine,
      * and then schedule a shutdown.
      */
-    void abort() {
-        immediateFail(StateCommand.ABORT);
+    @Override
+    public void abortWithTimeout() {
+        immediateFail(StateCommand.ABORT_WITH_TIMEOUT);
     }
 
     /**
      * Abort this whole computer due to an internal error. This will immediately destroy the Lua machine,
      * and then schedule a shutdown.
      */
-    void fastFail() {
-        immediateFail(StateCommand.ERROR);
+    @Override
+    public void abortWithError() {
+        immediateFail(StateCommand.ABORT_WITH_ERROR);
+    }
+
+    @Override
+    public void unload() {
+        queueStop(false, true);
     }
 
     private void immediateFail(StateCommand command) {
@@ -293,17 +280,15 @@ final class ComputerExecutor {
             if (closed || command != null || eventQueue.size() >= QUEUE_LIMIT) return;
 
             eventQueue.offer(new Event(event, args));
-            enqueue();
         }
+        enqueue();
     }
 
     /**
      * Add this executor to the {@link ComputerThread} if not already there.
      */
     private void enqueue() {
-        synchronized (queueLock) {
-            if (!onComputerQueue) scheduler.queue(this);
-        }
+        executor.submit();
     }
 
     /**
@@ -384,7 +369,7 @@ final class ComputerExecutor {
         // Create the lua machine
         try (var bios = biosStream) {
             return luaFactory.create(new MachineEnvironment(
-                new LuaContext(computer), metrics, timeout,
+                new LuaContext(computer), metrics, executor.timeoutState(),
                 () -> apis.stream().map(ApiWrapper::api).iterator(),
                 luaMethods,
                 computer.getGlobalEnvironment().getHostString()
@@ -404,7 +389,6 @@ final class ComputerExecutor {
         try {
             // Reset the terminal and event queue
             computer.getTerminal().reset();
-            interruptedEvent = false;
             synchronized (queueLock) {
                 eventQueue.clear();
             }
@@ -432,15 +416,15 @@ final class ComputerExecutor {
             isOnLock.unlock();
         }
 
-        // Now actually start the computer, now that everything is set up.
-        resumeMachine(null, null);
+        // Mark the Lua VM as ready to be executed next time.
+        wasPaused = true;
+        timeRemaining = TimeoutState.TIMEOUT;
     }
 
     private void shutdown() throws InterruptedException {
         isOnLock.lockInterruptibly();
         try {
-            isOn = false;
-            interruptedEvent = false;
+            isOn = wasPaused = false;
             synchronized (queueLock) {
                 eventQueue.clear();
             }
@@ -469,36 +453,6 @@ final class ComputerExecutor {
     }
 
     /**
-     * Called before calling {@link #work()}, setting up any important state.
-     */
-    void beforeWork() {
-        vRuntimeStart = System.nanoTime();
-        timeout.startTimer();
-    }
-
-    /**
-     * Called after executing {@link #work()}.
-     *
-     * @return If we have more work to do.
-     */
-    boolean afterWork() {
-        if (interruptedEvent) {
-            timeout.pauseTimer();
-        } else {
-            timeout.stopTimer();
-        }
-
-        metrics.observe(Metrics.COMPUTER_TASKS, timeout.nanoCurrent());
-
-        if (interruptedEvent) return true;
-
-        synchronized (queueLock) {
-            if (eventQueue.isEmpty() && command == null) return onComputerQueue = false;
-            return true;
-        }
-    }
-
-    /**
      * The main worker function, called by {@link ComputerThread}.
      * <p>
      * This either executes a {@link StateCommand} or attempts to run an event
@@ -507,15 +461,15 @@ final class ComputerExecutor {
      * @see #command
      * @see #eventQueue
      */
-    void work() throws InterruptedException {
-        if (interruptedEvent && !closed) {
-            interruptedEvent = false;
-            if (machine != null) {
-                resumeMachine(null, null);
-                return;
-            }
+    @Override
+    public void work() throws InterruptedException {
+        workImpl();
+        synchronized (queueLock) {
+            if (wasPaused || command != null || !eventQueue.isEmpty()) enqueue();
         }
+    }
 
+    private void workImpl() throws InterruptedException {
         StateCommand command;
         Event event = null;
         synchronized (queueLock) {
@@ -523,7 +477,7 @@ final class ComputerExecutor {
             this.command = null;
 
             // If we've no command, pull something from the event queue instead.
-            if (command == null) {
+            if (command == null && !wasPaused) {
                 if (!isOn) {
                     // We're not on and had no command, but we had work queued. This should never happen, so clear
                     // the event queue just in case.
@@ -536,6 +490,7 @@ final class ComputerExecutor {
         }
 
         if (command != null) {
+            wasPaused = false;
             switch (command) {
                 case TURN_ON -> {
                     if (isOn) return;
@@ -552,23 +507,29 @@ final class ComputerExecutor {
                     shutdown();
                     computer.turnOn();
                 }
-                case ABORT -> {
+                case ABORT_WITH_TIMEOUT -> {
                     if (!isOn) return;
                     displayFailure("Error running computer", TimeoutState.ABORT_MESSAGE);
                     shutdown();
                 }
-                case ERROR -> {
+                case ABORT_WITH_ERROR -> {
                     if (!isOn) return;
                     displayFailure("Error running computer", "An internal error occurred, see logs.");
                     shutdown();
                 }
             }
+        } else if (wasPaused) {
+            executor.setRemainingTime(timeRemaining);
+            resumeMachine(null, null);
         } else if (event != null) {
+            executor.setRemainingTime(TimeoutState.TIMEOUT);
             resumeMachine(event.name, event.args);
         }
     }
 
-    void printState(StringBuilder out) {
+    @Override
+    @SuppressWarnings("GuardedBy")
+    public void writeState(StringBuilder out) {
         out.append("Enqueued command: ").append(command).append('\n');
         out.append("Enqueued events: ").append(eventQueue.size()).append('\n');
 
@@ -599,19 +560,23 @@ final class ComputerExecutor {
 
     private void resumeMachine(@Nullable String event, @Nullable Object[] args) throws InterruptedException {
         var result = Nullability.assertNonNull(machine).handleEvent(event, args);
-        interruptedEvent = result.isPause();
-        if (!result.isError()) return;
-
-        displayFailure("Error running computer", result.getMessage());
-        shutdown();
+        if (result.isError()) {
+            displayFailure("Error running computer", result.getMessage());
+            shutdown();
+        } else if (result.isPause()) {
+            wasPaused = true;
+            timeRemaining = executor.getRemainingTime();
+        } else {
+            wasPaused = false;
+        }
     }
 
     private enum StateCommand {
         TURN_ON,
         SHUTDOWN,
         REBOOT,
-        ABORT,
-        ERROR,
+        ABORT_WITH_TIMEOUT,
+        ABORT_WITH_ERROR,
     }
 
     private record Event(String name, @Nullable Object[] args) {

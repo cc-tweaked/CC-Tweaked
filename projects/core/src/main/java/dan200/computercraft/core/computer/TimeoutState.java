@@ -5,6 +5,8 @@
 package dan200.computercraft.core.computer;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import dan200.computercraft.core.computer.computerthread.ComputerScheduler;
+import dan200.computercraft.core.computer.computerthread.ManagedTimeoutState;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.lua.MachineResult;
 
@@ -24,90 +26,54 @@ import java.util.concurrent.TimeUnit;
  * (namely, throwing a "Too long without yielding" error).
  * <p>
  * Now, if a computer still does not stop after that period, they're behaving really badly. 1.5 seconds after a soft
- * abort ({@link #ABORT_TIMEOUT}), we trigger a hard abort (note, this is done from the computer thread manager). This
- * will destroy the entire Lua runtime and shut the computer down.
+ * abort ({@link #ABORT_TIMEOUT}), we trigger a hard abort. This will destroy the entire Lua runtime and shut the
+ * computer down.
  * <p>
  * The Lua runtime is also allowed to pause execution if there are other computers contesting for work. All computers
- * are allowed to run for {@link ComputerThread#scaledPeriod()} nanoseconds (see {@link #currentDeadline}). After that
- * period, if any computers are waiting to be executed then we'll set the paused flag to true ({@link #isPaused()}.
+ * are guaranteed to run for some time. After that period, if any computers are waiting to be executed then we'll set
+ * the paused flag to true ({@link #isPaused()}.
  *
- * @see ComputerThread
+ * @see ComputerScheduler
+ * @see ManagedTimeoutState
  * @see ILuaMachine
  * @see MachineResult#isPause()
  */
-public final class TimeoutState {
+public abstract class TimeoutState {
     /**
-     * The total time a task is allowed to run before aborting in nanoseconds.
+     * The time (in nanoseconds) are computer is allowed to run for its long-running tasks, such as startup and
+     * shutdown.
      */
-    static final long TIMEOUT = TimeUnit.MILLISECONDS.toNanos(7000);
+    public static final long BASE_TIMEOUT = TimeUnit.SECONDS.toNanos(30);
+
+    /**
+     * The total time the Lua VM is allowed to run before aborting in nanoseconds.
+     */
+    public static final long TIMEOUT = TimeUnit.MILLISECONDS.toNanos(7000);
 
     /**
      * The time the task is allowed to run after each abort in nanoseconds.
      */
-    static final long ABORT_TIMEOUT = TimeUnit.MILLISECONDS.toNanos(1500);
+    public static final long ABORT_TIMEOUT = TimeUnit.MILLISECONDS.toNanos(1500);
 
     /**
      * The error message to display when we trigger an abort.
      */
     public static final String ABORT_MESSAGE = "Too long without yielding";
 
-    private final ComputerThread scheduler;
     @GuardedBy("this")
     private final List<Runnable> listeners = new ArrayList<>(0);
 
-    private boolean paused;
-    private boolean softAbort;
-    private volatile boolean hardAbort;
-
-    /**
-     * When the cumulative time would have started had the whole event been processed in one go.
-     */
-    private long cumulativeStart;
-
-    /**
-     * How much cumulative time has elapsed. This is effectively {@code cumulativeStart - currentStart}.
-     */
-    private long cumulativeElapsed;
-
-    /**
-     * When this execution round started.
-     */
-    private long currentStart;
-
-    /**
-     * When this execution round should look potentially be paused.
-     */
-    private long currentDeadline;
-
-    public TimeoutState(ComputerThread scheduler) {
-        this.scheduler = scheduler;
-    }
-
-    long nanoCumulative() {
-        return System.nanoTime() - cumulativeStart;
-    }
-
-    long nanoCurrent() {
-        return System.nanoTime() - currentStart;
-    }
+    protected boolean paused;
+    protected boolean softAbort;
+    protected volatile boolean hardAbort;
 
     /**
      * Recompute the {@link #isSoftAborted()} and {@link #isPaused()} flags.
+     * <p>
+     * Normally this will be called automatically by the {@link ComputerScheduler}, but it may be useful to call this
+     * manually if the most up-to-date information is needed.
      */
-    public synchronized void refresh() {
-        // Important: The weird arithmetic here is important, as nanoTime may return negative values, and so we
-        // need to handle overflow.
-        var now = System.nanoTime();
-        var changed = false;
-        if (!paused && (paused = currentDeadline - now <= 0 && scheduler.hasPendingWork())) { // now >= currentDeadline
-            changed = true;
-        }
-        if (!softAbort && (softAbort = now - cumulativeStart - TIMEOUT >= 0)) { // now - cumulativeStart >= TIMEOUT
-            changed = true;
-        }
-
-        if (changed) updateListeners();
-    }
+    public abstract void refresh();
 
     /**
      * Whether we should pause execution of this machine.
@@ -117,7 +83,7 @@ public final class TimeoutState {
      *
      * @return Whether we should pause execution.
      */
-    public boolean isPaused() {
+    public final boolean isPaused() {
         return paused;
     }
 
@@ -126,7 +92,7 @@ public final class TimeoutState {
      *
      * @return {@code true} if we should throw a timeout error.
      */
-    public boolean isSoftAborted() {
+    public final boolean isSoftAborted() {
         return softAbort;
     }
 
@@ -135,64 +101,22 @@ public final class TimeoutState {
      *
      * @return {@code true} if the machine should be forcibly shut down.
      */
-    public boolean isHardAborted() {
+    public final boolean isHardAborted() {
         return hardAbort;
     }
 
-    /**
-     * If the machine should be forcibly aborted.
-     */
-    void hardAbort() {
-        softAbort = hardAbort = true;
-        synchronized (this) {
-            updateListeners();
-        }
-    }
-
-    /**
-     * Start the current and cumulative timers again.
-     */
-    void startTimer() {
-        var now = System.nanoTime();
-        currentStart = now;
-        currentDeadline = now + scheduler.scaledPeriod();
-        // Compute the "nominal start time".
-        cumulativeStart = now - cumulativeElapsed;
-    }
-
-    /**
-     * Pauses the cumulative time, to be resumed by {@link #startTimer()}.
-     *
-     * @see #nanoCumulative()
-     */
-    synchronized void pauseTimer() {
-        // We set the cumulative time to difference between current time and "nominal start time".
-        cumulativeElapsed = System.nanoTime() - cumulativeStart;
-        paused = false;
-        updateListeners();
-    }
-
-    /**
-     * Resets the cumulative time and resets the abort flags.
-     */
-    synchronized void stopTimer() {
-        cumulativeElapsed = 0;
-        paused = softAbort = hardAbort = false;
-        updateListeners();
-    }
-
     @GuardedBy("this")
-    private void updateListeners() {
+    protected final void updateListeners() {
         for (var listener : listeners) listener.run();
     }
 
-    public synchronized void addListener(Runnable listener) {
+    public final synchronized void addListener(Runnable listener) {
         Objects.requireNonNull(listener, "listener cannot be null");
         listeners.add(listener);
         listener.run();
     }
 
-    public synchronized void removeListener(Runnable listener) {
+    public final synchronized void removeListener(Runnable listener) {
         Objects.requireNonNull(listener, "listener cannot be null");
         listeners.remove(listener);
     }

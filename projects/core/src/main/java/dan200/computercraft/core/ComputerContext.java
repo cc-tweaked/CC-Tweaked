@@ -8,8 +8,9 @@ import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.asm.LuaMethodSupplier;
 import dan200.computercraft.core.asm.PeripheralMethodSupplier;
-import dan200.computercraft.core.computer.ComputerThread;
 import dan200.computercraft.core.computer.GlobalEnvironment;
+import dan200.computercraft.core.computer.computerthread.ComputerScheduler;
+import dan200.computercraft.core.computer.computerthread.ComputerThread;
 import dan200.computercraft.core.computer.mainthread.MainThreadScheduler;
 import dan200.computercraft.core.computer.mainthread.NoWorkMainThreadScheduler;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
@@ -31,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  */
 public final class ComputerContext {
     private final GlobalEnvironment globalEnvironment;
-    private final ComputerThread computerScheduler;
+    private final ComputerScheduler computerScheduler;
     private final MainThreadScheduler mainThreadScheduler;
     private final ILuaMachine.Factory luaFactory;
     private final List<ILuaAPIFactory> apiFactories;
@@ -39,7 +40,7 @@ public final class ComputerContext {
     private final MethodSupplier<PeripheralMethod> peripheralMethods;
 
     ComputerContext(
-        GlobalEnvironment globalEnvironment, ComputerThread computerScheduler,
+        GlobalEnvironment globalEnvironment, ComputerScheduler computerScheduler,
         MainThreadScheduler mainThreadScheduler, ILuaMachine.Factory luaFactory,
         List<ILuaAPIFactory> apiFactories, MethodSupplier<LuaMethod> luaMethods,
         MethodSupplier<PeripheralMethod> peripheralMethods
@@ -68,7 +69,7 @@ public final class ComputerContext {
      *
      * @return The current computer thread manager.
      */
-    public ComputerThread computerScheduler() {
+    public ComputerScheduler computerScheduler() {
         return computerScheduler;
     }
 
@@ -162,7 +163,7 @@ public final class ComputerContext {
      */
     public static class Builder {
         private final GlobalEnvironment environment;
-        private int threads = 1;
+        private @Nullable ComputerScheduler computerScheduler = null;
         private @Nullable MainThreadScheduler mainThreadScheduler;
         private @Nullable ILuaMachine.Factory luaFactory;
         private @Nullable List<ILuaAPIFactory> apiFactories;
@@ -173,7 +174,7 @@ public final class ComputerContext {
         }
 
         /**
-         * Set the number of threads the {@link ComputerThread} will use.
+         * Set the {@link #computerScheduler()} to use {@link ComputerThread} with a given number of threads.
          *
          * @param threads The number of threads to use.
          * @return {@code this}, for chaining
@@ -181,7 +182,20 @@ public final class ComputerContext {
          */
         public Builder computerThreads(int threads) {
             if (threads < 1) throw new IllegalArgumentException("Threads must be >= 1");
-            this.threads = threads;
+            return computerScheduler(new ComputerThread(threads));
+        }
+
+        /**
+         * Set the {@link ComputerScheduler} for this context.
+         *
+         * @param scheduler The computer thread scheduler.
+         * @return {@code this}, for chaining
+         * @see ComputerContext#mainThreadScheduler()
+         */
+        public Builder computerScheduler(ComputerScheduler scheduler) {
+            Objects.requireNonNull(scheduler);
+            if (computerScheduler != null) throw new IllegalStateException("Computer scheduler already specified");
+            computerScheduler = scheduler;
             return this;
         }
 
@@ -250,7 +264,7 @@ public final class ComputerContext {
         public ComputerContext build() {
             return new ComputerContext(
                 environment,
-                new ComputerThread(threads),
+                computerScheduler == null ? new ComputerThread(1) : computerScheduler,
                 mainThreadScheduler == null ? new NoWorkMainThreadScheduler() : mainThreadScheduler,
                 luaFactory == null ? CobaltLuaMachine::new : luaFactory,
                 apiFactories == null ? List.of() : apiFactories,
