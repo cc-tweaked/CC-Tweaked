@@ -112,7 +112,9 @@ SPDX-License-Identifier: MPL-2.0
         <module name="LambdaParameterName" />
         <module name="LocalFinalVariableName" />
         <module name="LocalVariableName" />
-        <module name="MemberName" />
+        <module name="MemberName">
+            <property name="format" value="^\$?[a-z][a-zA-Z0-9]*$" />
+        </module>
         <module name="MethodName">
             <property name="format" value="^(computercraft\$)?[a-z][a-zA-Z0-9]*$" />
         </module>
@@ -122,7 +124,7 @@ SPDX-License-Identifier: MPL-2.0
         </module>
         <module name="ParameterName" />
         <module name="StaticVariableName">
-            <property name="format" value="^[a-z][a-zA-Z0-9]*|CAPABILITY(_[A-Z_]+)?$" />
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$" />
         </module>
         <module name="TypeName" />
 

@@ -5,57 +5,110 @@
 package dan200.computercraft.core.computer.computerthread;
 
 import cc.tweaked.web.js.Callbacks;
+import dan200.computercraft.core.computer.TimeoutState;
+import dan200.computercraft.core.metrics.MetricsObserver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.teavm.jso.browser.TimerHandler;
 
 import java.util.ArrayDeque;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A reimplementation of {@link ComputerThread} which, well, avoids any threading!
+ * An implementation of {@link ComputerScheduler} which executes work as soon as possible via
+ * {@link Callbacks#setImmediate(TimerHandler)}.
  * <p>
- * This instead just exucutes work as soon as possible via {@link Callbacks#setImmediate(TimerHandler)}. Timeouts are
- * instead handled via polling, see {@link cc.tweaked.web.builder.PatchCobalt}.
+ * Timeouts are instead handled via polling, see {@link cc.tweaked.web.builder.PatchCobalt}.
+ *
+ * @see ComputerThread
  */
-public class TComputerThread {
-    private static final ArrayDeque<ComputerExecutor> executors = new ArrayDeque<>();
-    private final TimerHandler callback = this::workOnce;
+public class TComputerThread implements ComputerScheduler {
+    private static final Logger LOG = LoggerFactory.getLogger(TComputerThread.class);
+    private static final long SCALED_PERIOD = 50 * 1_000_000L;
+
+    private static final ArrayDeque<ExecutorImpl> executors = new ArrayDeque<>();
+    private static final TimerHandler callback = TComputerThread::workOnce;
 
     public TComputerThread(int threads) {
     }
 
-    public void queue(ComputerExecutor executor) {
-        if (executor.onComputerQueue) throw new IllegalStateException("Cannot queue already queued executor");
-        executor.onComputerQueue = true;
-
-        if (executors.isEmpty()) Callbacks.setImmediate(callback);
-        executors.add(executor);
+    @Override
+    public Executor createExecutor(Worker worker, MetricsObserver metrics) {
+        return new ExecutorImpl(worker);
     }
 
-    private void workOnce() {
+    private static void workOnce() {
         var executor = executors.poll();
         if (executor == null) throw new IllegalStateException("Working, but executor is null");
-        if (!executor.onComputerQueue) throw new IllegalArgumentException("Working but not on queue");
 
         executor.beforeWork();
         try {
-            executor.work();
+            executor.worker.work();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("Error running computer", e);
+            executor.worker.abortWithError();
         }
+        executor.afterWork();
 
-        if (executor.afterWork()) executors.push(executor);
         if (!executors.isEmpty()) Callbacks.setImmediate(callback);
     }
 
-    public boolean hasPendingWork() {
-        return true;
-    }
-
-    public long scaledPeriod() {
-        return 50 * 1_000_000L;
-    }
-
+    @Override
     public boolean stop(long timeout, TimeUnit unit) {
         return true;
+    }
+
+    /**
+     * The {@link Executor} for our scheduler.
+     */
+    private static final class ExecutorImpl implements ComputerScheduler.Executor {
+        final ComputerScheduler.Worker worker;
+        private final TimeoutImpl timeout = new TimeoutImpl();
+        private boolean onQueue;
+
+        private ExecutorImpl(Worker worker) {
+            this.worker = worker;
+        }
+
+        @Override
+        public void submit() {
+            if (onQueue) return;
+            onQueue = true;
+
+            if (executors.isEmpty()) Callbacks.setImmediate(callback);
+            executors.add(this);
+        }
+
+        void beforeWork() {
+            if (!onQueue) throw new IllegalArgumentException("Working but not on queue");
+            onQueue = false;
+            timeout.startTimer(SCALED_PERIOD);
+        }
+
+        void afterWork() {
+            timeout.reset();
+        }
+
+        @Override
+        public TimeoutState timeoutState() {
+            return timeout;
+        }
+
+        @Override
+        public long getRemainingTime() {
+            return timeout.getRemainingTime();
+        }
+
+        @Override
+        public void setRemainingTime(long time) {
+            timeout.setRemainingTime(time);
+        }
+    }
+
+    private static final class TimeoutImpl extends ManagedTimeoutState {
+        @Override
+        protected boolean shouldPause() {
+            return true;
+        }
     }
 }
