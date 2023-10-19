@@ -185,7 +185,7 @@ val luaJavadoc by tasks.registering(Javadoc::class) {
     source(project(":core").sourceSets.main.get().java)
     source(project(":common").sourceSets.main.get().java)
 
-    setDestinationDir(buildDir.resolve("docs/luaJavadoc"))
+    destinationDir = layout.buildDirectory.dir("docs/luaJavadoc").get().asFile
     classpath = sourceSets.main.get().compileClasspath
 
     val options = options as StandardJavadocDocletOptions
@@ -237,7 +237,7 @@ tasks.assemble { dependsOn("jarJar") }
 // Check tasks
 
 tasks.test {
-    systemProperty("cct.test-files", buildDir.resolve("tmp/testFiles").absolutePath)
+    systemProperty("cct.test-files", layout.buildDirectory.dir("tmp/testFiles").getAbsolutePath())
 }
 
 val lintLua by tasks.registering(IlluaminateExec::class) {
@@ -266,7 +266,7 @@ val runGametest by tasks.registering(JavaExec::class) {
 
     setRunConfig(minecraft.runs["gameTestServer"])
 
-    systemProperty("cctest.gametest-report", project.buildDir.resolve("test-results/$name.xml").absolutePath)
+    systemProperty("cctest.gametest-report", layout.buildDirectory.dir("test-results/$name.xml").getAbsolutePath())
 }
 cct.jacoco(runGametest)
 tasks.check { dependsOn(runGametest) }

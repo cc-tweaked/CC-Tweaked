@@ -169,7 +169,7 @@ loom {
             configureForGameTest(this)
 
             property("fabric-api.gametest")
-            property("fabric-api.gametest.report-file", project.buildDir.resolve("test-results/runGametest.xml").absolutePath)
+            property("fabric-api.gametest.report-file", layout.buildDirectory.dir("test-results/runGametest.xml").getAbsolutePath())
             runDir("run/gametest")
         }
     }

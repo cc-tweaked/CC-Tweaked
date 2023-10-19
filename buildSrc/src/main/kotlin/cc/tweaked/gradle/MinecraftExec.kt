@@ -58,7 +58,7 @@ abstract class ClientJavaExec : JavaExec() {
         if (!clientDebug) systemProperty("cctest.client", "")
         if (renderdoc) environment("LD_PRELOAD", "/usr/lib/librenderdoc.so")
         systemProperty("cctest.gametest-report", testResults.get().asFile.absoluteFile)
-        workingDir(project.buildDir.resolve("gametest").resolve(name))
+        workingDir(project.layout.buildDirectory.dir("gametest/$name"))
     }
 
     init {

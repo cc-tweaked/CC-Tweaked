@@ -173,7 +173,7 @@ abstract class CCTweakedExtension(
     }
 
     fun <T> jacoco(task: NamedDomainObjectProvider<T>) where T : Task, T : JavaForkOptions {
-        val classDump = project.buildDir.resolve("jacocoClassDump/${task.name}")
+        val classDump = project.layout.buildDirectory.dir("jacocoClassDump/${task.name}")
         val reportTaskName = "jacoco${task.name.capitalized()}Report"
 
         val jacoco = project.extensions.getByType(JacocoPluginExtension::class.java)
@@ -185,7 +185,7 @@ abstract class CCTweakedExtension(
             jacoco.applyTo(this)
             extensions.configure(JacocoTaskExtension::class.java) {
                 includes = listOf("dan200.computercraft.*")
-                classDumpDir = classDump
+                classDumpDir = classDump.get().asFile
 
                 // Older versions of modlauncher don't include a protection domain (and thus no code
                 // source). Jacoco skips such classes by default, so we need to explicitly include them.

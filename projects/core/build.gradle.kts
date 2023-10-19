@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
+import cc.tweaked.gradle.getAbsolutePath
+
 plugins {
     `java-library`
     `java-test-fixtures`
@@ -45,7 +47,7 @@ tasks.processResources {
 }
 
 tasks.test {
-    systemProperty("cct.test-files", buildDir.resolve("tmp/testFiles").absolutePath)
+    systemProperty("cct.test-files", layout.buildDirectory.dir("tmp/testFiles").getAbsolutePath())
 }
 
 tasks.testFixturesJar {
