@@ -12,7 +12,6 @@ import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
 import dan200.computercraft.core.filesystem.MemoryMount;
-import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.MetricsObserver;
 
 import java.io.File;
@@ -27,7 +26,7 @@ import java.net.URL;
  * A basic implementation of {@link ComputerEnvironment} and {@link GlobalEnvironment}, suitable for a context which
  * will only run a single computer.
  */
-public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment, MetricsObserver {
+public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment {
     private final WritableMount mount;
 
     public BasicEnvironment() {
@@ -55,7 +54,7 @@ public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment,
 
     @Override
     public MetricsObserver getMetrics() {
-        return this;
+        return MetricsObserver.discard();
     }
 
     @Override
@@ -123,13 +122,5 @@ public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment,
         } catch (URISyntaxException e) {
             return new File(url.getPath());
         }
-    }
-
-    @Override
-    public void observe(Metric.Counter counter) {
-    }
-
-    @Override
-    public void observe(Metric.Event event, long value) {
     }
 }

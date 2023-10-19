@@ -31,4 +31,13 @@ public interface MetricsObserver {
      * @param value The value corresponding to this event.
      */
     void observe(Metric.Event event, long value);
+
+    /**
+     * Get a {@link MetricsObserver} which discards all metrics.
+     *
+     * @return An observer which discards all metrics.
+     */
+    static MetricsObserver discard() {
+        return DiscardingMetricsObserver.INSTANCE;
+    }
 }

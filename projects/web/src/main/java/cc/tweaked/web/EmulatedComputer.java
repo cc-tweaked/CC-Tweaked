@@ -19,7 +19,6 @@ import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.filesystem.MemoryMount;
-import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.core.terminal.Terminal;
 import org.slf4j.Logger;
@@ -37,7 +36,7 @@ import java.util.Arrays;
  * <p>
  * This is exposed to Javascript via the {@link ComputerHandle} interface.
  */
-class EmulatedComputer implements ComputerEnvironment, ComputerHandle, MetricsObserver {
+class EmulatedComputer implements ComputerEnvironment, ComputerHandle {
     private static final Logger LOG = LoggerFactory.getLogger(EmulatedComputer.class);
 
     private static final ComputerSide[] SIDES = ComputerSide.values();
@@ -124,15 +123,7 @@ class EmulatedComputer implements ComputerEnvironment, ComputerHandle, MetricsOb
 
     @Override
     public MetricsObserver getMetrics() {
-        return this;
-    }
-
-    @Override
-    public void observe(Metric.Counter counter) {
-    }
-
-    @Override
-    public void observe(Metric.Event event, long value) {
+        return MetricsObserver.discard();
     }
 
     @Override
