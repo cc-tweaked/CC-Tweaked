@@ -37,6 +37,7 @@ import net.minecraft.world.item.Items
 import net.minecraft.world.item.enchantment.Enchantments
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.FenceBlock
+import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.array
@@ -84,6 +85,26 @@ class Turtle_Test {
                 .assertArrayEquals(true, message = "Placed lava")
         }
         thenExecute { helper.assertBlockPresent(Blocks.LAVA, BlockPos(2, 2, 2)) }
+    }
+
+    /**
+     * Checks turtles can write to signs.
+     *
+     * @see [#1611](https://github.com/cc-tweaked/CC-Tweaked/issues/1611)
+     */
+    @GameTest
+    fun Place_sign(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer {
+            turtle.place(ObjectArguments("Test\nmessage")).await()
+                .assertArrayEquals(true, message = "Placed sign")
+        }
+        thenExecute {
+            val sign = helper.getBlockEntity(BlockPos(2, 2, 1), BlockEntityType.SIGN)
+            val lines = listOf("", "Test", "message", "")
+            for ((i, line) in lines.withIndex()) {
+                assertEquals(line, sign.frontText.getMessage(i, false).string, "Line $i")
+            }
+        }
     }
 
     /**

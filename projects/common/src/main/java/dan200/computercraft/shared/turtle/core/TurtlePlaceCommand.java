@@ -27,7 +27,6 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
@@ -186,7 +185,7 @@ public class TurtlePlaceCommand implements TurtleCommand {
                 tile = world.getBlockEntity(position.relative(side));
             }
 
-            if (tile instanceof SignBlockEntity) setSignText(world, tile, message);
+            if (tile instanceof SignBlockEntity sign) setSignText(world, sign, message);
         }
 
         return placed;
@@ -220,23 +219,20 @@ public class TurtlePlaceCommand implements TurtleCommand {
         return InteractionResult.PASS;
     }
 
-    private static void setSignText(Level world, BlockEntity tile, String message) {
-        var signTile = (SignBlockEntity) tile;
-        var split = Splitter.on('\n').splitToList(message);
-        var firstLine = split.size() <= 2 ? 1 : 0;
+    private static void setSignText(Level world, SignBlockEntity sign, String message) {
+        var lines = Splitter.on('\n').splitToList(message);
+        var firstLine = lines.size() <= 2 ? 1 : 0;
 
         var signText = new SignText();
-        for (var i = 0; i < 4; i++) {
-            if (i >= firstLine && i < firstLine + split.size()) {
-                var line = split.get(i - firstLine);
-                signText.setMessage(i, line.length() > 15
-                    ? Component.literal(line.substring(0, 15))
-                    : Component.literal(line)
-                );
-            }
+        for (int i = 0, len = Math.min(lines.size(), 4); i < len; i++) {
+            var line = lines.get(i);
+            signText = signText.setMessage(i + firstLine, line.length() > 15
+                ? Component.literal(line.substring(0, 15))
+                : Component.literal(line)
+            );
         }
-        signTile.setText(signText, true);
-        world.sendBlockUpdated(tile.getBlockPos(), tile.getBlockState(), tile.getBlockState(), Block.UPDATE_ALL);
+        sign.setText(signText, true);
+        world.sendBlockUpdated(sign.getBlockPos(), sign.getBlockState(), sign.getBlockState(), Block.UPDATE_ALL);
     }
 
     private static final class ErrorMessage {
