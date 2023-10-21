@@ -56,10 +56,10 @@ final class WiredNetworkImpl implements WiredNetwork {
                     // Move all nodes across into this network, destroying the original nodes.
                     nodes.addAll(otherNodes);
                     for (var node : otherNodes) node.network = this;
-                    other.nodes = Collections.emptySet();
+                    other.nodes = Set.of();
 
                     // Move all peripherals across,
-                    other.peripherals = Collections.emptyMap();
+                    other.peripherals = Map.of();
                     peripherals.putAll(otherPeripherals);
 
                     if (!thisPeripherals.isEmpty()) {
@@ -216,7 +216,7 @@ final class WiredNetworkImpl implements WiredNetwork {
             try {
                 // We special case the original node: detaching all peripherals when needed.
                 wired.network = wiredNetwork;
-                wired.peripherals = Collections.emptyMap();
+                wired.peripherals = Map.of();
 
                 // Ensure every network is finalised
                 for (var network : maximals) {
@@ -332,7 +332,7 @@ final class WiredNetworkImpl implements WiredNetwork {
             // Detach the old peripherals then remove them from the old network
             wired.network = wiredNetwork;
             wired.neighbours.clear();
-            wired.peripherals = Collections.emptyMap();
+            wired.peripherals = Map.of();
 
             // Broadcast the change
             if (!peripherals.isEmpty()) WiredNetworkChangeImpl.removed(peripherals).broadcast(wired);

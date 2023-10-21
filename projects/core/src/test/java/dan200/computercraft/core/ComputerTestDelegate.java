@@ -195,7 +195,7 @@ public class ComputerTestDelegate {
         DynamicNodeBuilder(String name, String path, Executable executor) {
             this.name = name;
             this.uri = getUri(path);
-            this.children = Collections.emptyMap();
+            this.children = Map.of();
             this.executor = executor;
         }
 
@@ -295,7 +295,7 @@ public class ComputerTestDelegate {
 
         @LuaFunction
         public final Collection<String> getNamesRemote() {
-            return Collections.singleton("remote_1");
+            return List.of("remote_1");
         }
 
         @LuaFunction
@@ -315,7 +315,7 @@ public class ComputerTestDelegate {
 
         @LuaFunction
         public final Object[] getMethodsRemote(String name) {
-            return name.equals("remote_1") ? new Object[]{ Collections.singletonList("func") } : null;
+            return name.equals("remote_1") ? new Object[]{ List.of("func") } : null;
         }
     }
 

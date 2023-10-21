@@ -12,7 +12,6 @@ import dan200.computercraft.core.apis.ComputerAccess;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -43,7 +42,7 @@ public class ComputerSystem extends ComputerAccess implements IComputerSystem {
     @Override
     public Map<String, IPeripheral> getAvailablePeripherals() {
         // TODO: Should this return peripherals on the current computer?
-        return Collections.emptyMap();
+        return Map.of();
     }
 
     @Nullable

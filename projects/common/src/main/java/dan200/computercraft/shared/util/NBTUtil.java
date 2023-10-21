@@ -20,7 +20,6 @@ import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +37,7 @@ public final class NBTUtil {
             try {
                 var ctor = CompoundTag.class.getDeclaredConstructor(Map.class);
                 ctor.setAccessible(true);
-                EMPTY_TAG = ctor.newInstance(Collections.emptyMap());
+                EMPTY_TAG = ctor.newInstance(Map.of());
             } catch (ReflectiveOperationException e) {
                 throw new RuntimeException(e);
             }

@@ -35,7 +35,7 @@ class Monitor_Test {
 
             val toSet = BlockInput(
                 ModRegistry.Blocks.MONITOR_ADVANCED.get().defaultBlockState(),
-                Collections.emptySet(),
+                emptySet(),
                 tag,
             )
 

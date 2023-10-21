@@ -12,7 +12,7 @@ import dan200.computercraft.core.apis.handles.EncodedReadableHandle;
 import dan200.computercraft.core.apis.handles.HandleGeneric;
 import dan200.computercraft.core.methods.ObjectSource;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -74,6 +74,6 @@ public class HttpResponseHandle implements ObjectSource {
 
     @Override
     public Iterable<Object> getExtra() {
-        return Collections.singletonList(reader);
+        return List.of(reader);
     }
 }

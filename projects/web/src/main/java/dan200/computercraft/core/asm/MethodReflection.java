@@ -74,7 +74,7 @@ public class MethodReflection {
             .build(CacheLoader.from(Internal::getMethodsImpl));
 
         private static final StaticGenerator<LuaMethod> GENERATOR = new StaticGenerator<>(
-            LuaMethod.class, Collections.singletonList(ILuaContext.class), Internal::createClass
+            LuaMethod.class, List.of(ILuaContext.class), Internal::createClass
         );
 
         static List<NamedMethod<ReflectClass<LuaMethod>>> getMethods(Class<?> klass) {

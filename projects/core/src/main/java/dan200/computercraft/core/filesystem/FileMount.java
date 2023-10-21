@@ -14,7 +14,6 @@ import java.nio.channels.SeekableByteChannel;
 import java.nio.file.FileSystemException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -22,7 +21,7 @@ import java.util.Set;
  * A {@link Mount} implementation which provides read-only access to a directory.
  */
 public class FileMount implements Mount {
-    private static final Set<OpenOption> READ_OPTIONS = Collections.singleton(StandardOpenOption.READ);
+    private static final Set<OpenOption> READ_OPTIONS = Set.of(StandardOpenOption.READ);
 
     protected final Path root;
 

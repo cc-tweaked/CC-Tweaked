@@ -7,7 +7,6 @@ package dan200.computercraft.api.peripheral;
 import dan200.computercraft.api.lua.LuaFunction;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -35,7 +34,7 @@ public interface IPeripheral {
      * @see PeripheralType#getAdditionalTypes()
      */
     default Set<String> getAdditionalTypes() {
-        return Collections.emptySet();
+        return Set.of();
     }
 
     /**

@@ -12,7 +12,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
-import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -33,7 +32,7 @@ public final class PlayerCreativeLootCondition implements LootItemCondition {
 
     @Override
     public Set<LootContextParam<?>> getReferencedContextParams() {
-        return Collections.singleton(LootContextParams.THIS_ENTITY);
+        return Set.of(LootContextParams.THIS_ENTITY);
     }
 
     @Override

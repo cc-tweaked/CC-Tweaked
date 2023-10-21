@@ -6,7 +6,6 @@ package dan200.computercraft.api.peripheral;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -16,7 +15,7 @@ import java.util.Set;
  * lexicographically smallest non-empty name being chosen.
  */
 public final class PeripheralType {
-    private static final PeripheralType UNTYPED = new PeripheralType(null, Collections.emptySet());
+    private static final PeripheralType UNTYPED = new PeripheralType(null, Set.of());
 
     private final @Nullable String type;
     private final Set<String> additionalTypes;
@@ -46,7 +45,7 @@ public final class PeripheralType {
      */
     public static PeripheralType ofType(String type) {
         checkTypeName("type cannot be null or empty");
-        return new PeripheralType(type, Collections.emptySet());
+        return new PeripheralType(type, Set.of());
     }
 
     /**
@@ -118,8 +117,8 @@ public final class PeripheralType {
     }
 
     private static Set<String> getTypes(Collection<String> types) {
-        if (types.isEmpty()) return Collections.emptySet();
-        if (types.size() == 1) return Collections.singleton(types.iterator().next());
+        if (types.isEmpty()) return Set.of();
+        if (types.size() == 1) return Set.of(types.iterator().next());
         return Set.copyOf(types);
     }
 }

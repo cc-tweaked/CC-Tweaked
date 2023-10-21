@@ -22,7 +22,7 @@ import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Collections;
+import java.util.List;
 
 @JeiPlugin
 public class JEIComputerCraft implements IModPlugin {
@@ -61,7 +61,7 @@ public class JEIComputerCraft implements IModPlugin {
         var category = registry.createRecipeLookup(RecipeTypes.CRAFTING);
         category.get().forEach(wrapper -> {
             if (RecipeModHelpers.shouldRemoveRecipe(wrapper.getId())) {
-                registry.hideRecipes(RecipeTypes.CRAFTING, Collections.singleton(wrapper));
+                registry.hideRecipes(RecipeTypes.CRAFTING, List.of(wrapper));
             }
         });
     }

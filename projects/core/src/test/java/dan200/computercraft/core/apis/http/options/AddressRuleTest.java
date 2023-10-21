@@ -10,7 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.InetSocketAddress;
-import java.util.Collections;
+import java.util.List;
 import java.util.OptionalInt;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AddressRuleTest {
     @Test
     public void matchesPort() {
-        Iterable<AddressRule> rules = Collections.singletonList(AddressRule.parse(
+        Iterable<AddressRule> rules = List.of(AddressRule.parse(
             "127.0.0.1", OptionalInt.of(8080),
             Action.ALLOW.toPartial()
         ));

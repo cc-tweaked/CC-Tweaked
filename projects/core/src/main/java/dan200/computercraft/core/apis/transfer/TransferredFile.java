@@ -9,7 +9,7 @@ import dan200.computercraft.core.apis.handles.BinaryReadableHandle;
 import dan200.computercraft.core.methods.ObjectSource;
 
 import java.nio.channels.SeekableByteChannel;
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -42,6 +42,6 @@ public class TransferredFile implements ObjectSource {
 
     @Override
     public Iterable<Object> getExtra() {
-        return Collections.singleton(handle);
+        return List.of(handle);
     }
 }

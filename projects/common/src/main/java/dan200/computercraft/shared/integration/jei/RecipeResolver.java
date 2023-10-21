@@ -15,7 +15,6 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 
-import java.util.Collections;
 import java.util.List;
 
 class RecipeResolver implements IRecipeManagerPlugin {
@@ -24,36 +23,36 @@ class RecipeResolver implements IRecipeManagerPlugin {
     @Override
     public <V> List<RecipeType<?>> getRecipeTypes(IFocus<V> focus) {
         var value = focus.getTypedValue().getIngredient();
-        if (!(value instanceof ItemStack stack)) return Collections.emptyList();
+        if (!(value instanceof ItemStack stack)) return List.of();
 
         return switch (focus.getRole()) {
             case INPUT ->
                 stack.getItem() instanceof TurtleItem || stack.getItem() instanceof PocketComputerItem || resolver.isUpgrade(stack)
-                    ? Collections.singletonList(RecipeTypes.CRAFTING)
-                    : Collections.emptyList();
+                    ? List.of(RecipeTypes.CRAFTING)
+                    : List.of();
             case OUTPUT -> stack.getItem() instanceof TurtleItem || stack.getItem() instanceof PocketComputerItem
-                ? Collections.singletonList(RecipeTypes.CRAFTING)
-                : Collections.emptyList();
-            default -> Collections.emptyList();
+                ? List.of(RecipeTypes.CRAFTING)
+                : List.of();
+            default -> List.of();
         };
     }
 
     @Override
     public <T, V> List<T> getRecipes(IRecipeCategory<T> recipeCategory, IFocus<V> focus) {
         if (!(focus.getTypedValue().getIngredient() instanceof ItemStack stack) || recipeCategory.getRecipeType() != RecipeTypes.CRAFTING) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         return switch (focus.getRole()) {
             case INPUT -> cast(resolver.findRecipesWithInput(stack));
             case OUTPUT -> cast(resolver.findRecipesWithOutput(stack));
-            default -> Collections.emptyList();
+            default -> List.of();
         };
     }
 
     @Override
     public <T> List<T> getRecipes(IRecipeCategory<T> recipeCategory) {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

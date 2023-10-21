@@ -30,7 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 
 public class CableBlockEntity extends BlockEntity {
@@ -274,7 +274,7 @@ public class CableBlockEntity extends BlockEntity {
         if (!canAttachPeripheral() && peripheralAccessAllowed) {
             peripheralAccessAllowed = false;
             peripheral.detach();
-            node.updatePeripherals(Collections.emptyMap());
+            node.updatePeripherals(Map.of());
             setChanged();
             updateBlockState();
         }
@@ -291,7 +291,7 @@ public class CableBlockEntity extends BlockEntity {
             peripheral.detach();
 
             peripheralAccessAllowed = false;
-            node.updatePeripherals(Collections.emptyMap());
+            node.updatePeripherals(Map.of());
         }
 
         updateBlockState();

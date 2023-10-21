@@ -33,7 +33,6 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -219,7 +218,7 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
 
     private void alert(Component title, Component message) {
         OptionScreen.show(minecraft, title, message,
-            Collections.singletonList(OptionScreen.newButton(OK, b -> minecraft.setScreen(this))),
+            List.of(OptionScreen.newButton(OK, b -> minecraft.setScreen(this))),
             () -> minecraft.setScreen(this)
         );
     }

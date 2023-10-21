@@ -114,7 +114,7 @@ public class UpgradeRecipeGenerator<T> {
             // Suggest possible upgrades which can be applied to this turtle
             var left = item.getUpgradeWithData(stack, TurtleSide.LEFT);
             var right = item.getUpgradeWithData(stack, TurtleSide.RIGHT);
-            if (left != null && right != null) return Collections.emptyList();
+            if (left != null && right != null) return List.of();
 
             List<T> recipes = new ArrayList<>();
             var ingredient = Ingredient.of(stack);
@@ -135,7 +135,7 @@ public class UpgradeRecipeGenerator<T> {
         } else if (stack.getItem() instanceof PocketComputerItem) {
             // Suggest possible upgrades which can be applied to this turtle
             var back = PocketComputerItem.getUpgrade(stack);
-            if (back != null) return Collections.emptyList();
+            if (back != null) return List.of();
 
             List<T> recipes = new ArrayList<>();
             var ingredient = Ingredient.of(stack);
@@ -148,7 +148,7 @@ public class UpgradeRecipeGenerator<T> {
         } else {
             // If this item is usable as an upgrade, find all possible recipes.
             var upgrades = upgradeItemLookup.get(stack.getItem());
-            if (upgrades == null) return Collections.emptyList();
+            if (upgrades == null) return List.of();
 
             List<T> recipes = null;
             var multiple = false;
@@ -169,7 +169,7 @@ public class UpgradeRecipeGenerator<T> {
                 }
             }
 
-            return recipes == null ? Collections.emptyList() : Collections.unmodifiableList(recipes);
+            return recipes == null ? List.of() : Collections.unmodifiableList(recipes);
         }
     }
 
@@ -215,7 +215,7 @@ public class UpgradeRecipeGenerator<T> {
 
             return Collections.unmodifiableList(recipes);
         } else {
-            return Collections.emptyList();
+            return List.of();
         }
     }
 

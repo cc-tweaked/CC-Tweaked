@@ -10,7 +10,7 @@ import net.jqwik.api.arbitraries.SizableArbitrary;
 import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.Spliterators;
 import java.util.function.Consumer;
@@ -74,7 +74,7 @@ public final class ArbitraryByteBuffer implements SizableArbitrary<ByteBuffer> {
 
     @Override
     public EdgeCases<ByteBuffer> edgeCases(int maxEdgeCases) {
-        return EdgeCases.fromSuppliers(Arrays.asList(
+        return EdgeCases.fromSuppliers(List.of(
             () -> new ShrinkableBuffer(allocateRandom(minSize, new Random()), minSize),
             () -> new ShrinkableBuffer(allocateRandom(getMaxSize(), new Random()), minSize)
         ));

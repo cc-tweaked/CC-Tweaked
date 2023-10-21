@@ -240,14 +240,14 @@ public class WiredModemFullBlockEntity extends BlockEntity {
             peripheralAccessAllowed = false;
 
             for (var peripheral : peripherals) peripheral.detach();
-            node.updatePeripherals(Collections.emptyMap());
+            node.updatePeripherals(Map.of());
         }
 
         updateBlockState();
     }
 
     private Set<String> getConnectedPeripheralNames() {
-        if (!peripheralAccessAllowed) return Collections.emptySet();
+        if (!peripheralAccessAllowed) return Set.of();
 
         Set<String> peripherals = new HashSet<>(6);
         for (var peripheral : this.peripherals) {
@@ -258,7 +258,7 @@ public class WiredModemFullBlockEntity extends BlockEntity {
     }
 
     private Map<String, IPeripheral> getConnectedPeripherals() {
-        if (!peripheralAccessAllowed) return Collections.emptyMap();
+        if (!peripheralAccessAllowed) return Map.of();
 
         Map<String, IPeripheral> peripherals = new HashMap<>(6);
         for (var peripheral : this.peripherals) peripheral.extendMap(peripherals);

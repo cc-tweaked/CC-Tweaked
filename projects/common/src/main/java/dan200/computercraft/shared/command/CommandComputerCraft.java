@@ -89,7 +89,7 @@ public final class CommandComputerCraft {
                     RequiredArgumentBuilder.<CommandSourceStack, ComputersArgumentType.ComputersSupplier>argument("computer", manyComputers())
                         .suggests((context, builder) -> Suggestions.empty())
                 )
-                .argManyValue("args", StringArgumentType.string(), Collections.emptyList())
+                .argManyValue("args", StringArgumentType.string(), List.of())
                 .executes((c, a) -> queue(getComputersArgument(c, "computer"), a)))
 
             .then(command("view")
@@ -300,7 +300,7 @@ public final class CommandComputerCraft {
         return 1;
     }
 
-    private static final List<AggregatedMetric> DEFAULT_FIELDS = Arrays.asList(
+    private static final List<AggregatedMetric> DEFAULT_FIELDS = List.of(
         new AggregatedMetric(Metrics.COMPUTER_TASKS, Aggregate.COUNT),
         new AggregatedMetric(Metrics.COMPUTER_TASKS, Aggregate.NONE),
         new AggregatedMetric(Metrics.COMPUTER_TASKS, Aggregate.AVG)

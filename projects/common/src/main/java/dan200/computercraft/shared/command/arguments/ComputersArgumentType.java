@@ -32,7 +32,7 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
     private static final ComputersArgumentType MANY = new ComputersArgumentType(false);
     private static final ComputersArgumentType SOME = new ComputersArgumentType(true);
 
-    private static final List<String> EXAMPLES = Arrays.asList(
+    private static final List<String> EXAMPLES = List.of(
         "0", "#0", "@Label", "~Advanced"
     );
 
@@ -75,7 +75,7 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
             var instance = reader.readInt();
             computers = s -> {
                 var computer = ServerContext.get(s.getServer()).registry().get(instance);
-                return computer == null ? Collections.emptyList() : Collections.singletonList(computer);
+                return computer == null ? List.of() : List.of(computer);
             };
         }
 

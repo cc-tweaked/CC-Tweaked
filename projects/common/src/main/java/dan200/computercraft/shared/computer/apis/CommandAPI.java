@@ -134,12 +134,12 @@ public class CommandAPI implements ILuaAPI {
     public final List<String> list(IArguments args) throws LuaException {
         var server = computer.getLevel().getServer();
 
-        if (server == null) return Collections.emptyList();
+        if (server == null) return List.of();
         CommandNode<CommandSourceStack> node = server.getCommands().getDispatcher().getRoot();
         for (var j = 0; j < args.count(); j++) {
             var name = args.getString(j);
             node = node.getChild(name);
-            if (!(node instanceof LiteralCommandNode)) return Collections.emptyList();
+            if (!(node instanceof LiteralCommandNode)) return List.of();
         }
 
         List<String> result = new ArrayList<>();

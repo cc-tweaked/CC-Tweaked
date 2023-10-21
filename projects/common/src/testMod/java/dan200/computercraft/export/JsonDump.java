@@ -52,8 +52,8 @@ public class JsonDump {
             inputs[pos] = itemIds;
         }
 
-        private static final Set<Item> canonicalItem = new HashSet<>(Arrays.asList(
+        private static final Set<Item> canonicalItem = Set.of(
             Items.GLASS_PANE, Items.STONE, Items.CHEST
-        ));
+        );
     }
 }

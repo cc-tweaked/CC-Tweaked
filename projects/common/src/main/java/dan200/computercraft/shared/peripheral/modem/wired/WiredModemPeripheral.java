@@ -68,7 +68,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
 
     @Override
     public Set<String> getAdditionalTypes() {
-        return Collections.singleton("peripheral_hub");
+        return Set.of("peripheral_hub");
     }
 
     //region Peripheral methods
@@ -88,7 +88,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
     @LuaFunction
     public final Collection<String> getNamesRemote(IComputerAccess computer) {
         var wrappers = getWrappers(computer);
-        return wrappers == null ? Collections.emptySet() : wrappers.keySet();
+        return wrappers == null ? Set.of() : wrappers.keySet();
     }
 
     /**

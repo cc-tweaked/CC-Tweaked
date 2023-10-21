@@ -103,7 +103,7 @@ public final class WiredModemLocalPeripheral {
 
     public Map<String, IPeripheral> toMap() {
         return peripheral == null
-            ? Collections.emptyMap()
+            ? Map.of()
             : Collections.singletonMap(type + "_" + id, peripheral);
     }
 

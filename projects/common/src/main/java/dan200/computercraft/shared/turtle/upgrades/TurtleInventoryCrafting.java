@@ -70,7 +70,7 @@ public class TurtleInventoryCrafting implements CraftingContainer {
         if (recipe == null) return null;
 
         // Special case: craft(0) just returns an empty list if crafting was possible
-        if (maxCount == 0) return Collections.emptyList();
+        if (maxCount == 0) return List.of();
 
         var player = TurtlePlayer.get(turtle).player();
 

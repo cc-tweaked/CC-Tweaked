@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 final class WiredNetworkChangeImpl implements WiredNetworkChange {
-    private static final WiredNetworkChangeImpl EMPTY = new WiredNetworkChangeImpl(Collections.emptyMap(), Collections.emptyMap());
+    private static final WiredNetworkChangeImpl EMPTY = new WiredNetworkChangeImpl(Map.of(), Map.of());
 
     private final Map<String, IPeripheral> removed;
     private final Map<String, IPeripheral> added;
@@ -27,11 +27,11 @@ final class WiredNetworkChangeImpl implements WiredNetworkChange {
     }
 
     static WiredNetworkChangeImpl added(Map<String, IPeripheral> added) {
-        return added.isEmpty() ? EMPTY : new WiredNetworkChangeImpl(Collections.emptyMap(), Collections.unmodifiableMap(added));
+        return added.isEmpty() ? EMPTY : new WiredNetworkChangeImpl(Map.of(), Collections.unmodifiableMap(added));
     }
 
     static WiredNetworkChangeImpl removed(Map<String, IPeripheral> removed) {
-        return removed.isEmpty() ? EMPTY : new WiredNetworkChangeImpl(Collections.unmodifiableMap(removed), Collections.emptyMap());
+        return removed.isEmpty() ? EMPTY : new WiredNetworkChangeImpl(Collections.unmodifiableMap(removed), Map.of());
     }
 
     static WiredNetworkChangeImpl changeOf(Map<String, IPeripheral> oldPeripherals, Map<String, IPeripheral> newPeripherals) {
@@ -39,9 +39,9 @@ final class WiredNetworkChangeImpl implements WiredNetworkChange {
         if (oldPeripherals.isEmpty() && newPeripherals.isEmpty()) {
             return EMPTY;
         } else if (oldPeripherals.isEmpty()) {
-            return new WiredNetworkChangeImpl(Collections.emptyMap(), newPeripherals);
+            return new WiredNetworkChangeImpl(Map.of(), newPeripherals);
         } else if (newPeripherals.isEmpty()) {
-            return new WiredNetworkChangeImpl(oldPeripherals, Collections.emptyMap());
+            return new WiredNetworkChangeImpl(oldPeripherals, Map.of());
         }
 
         Map<String, IPeripheral> added = new HashMap<>(newPeripherals);

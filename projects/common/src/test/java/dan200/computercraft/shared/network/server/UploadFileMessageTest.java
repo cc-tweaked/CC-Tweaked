@@ -16,7 +16,6 @@ import org.hamcrest.Matcher;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -110,7 +109,7 @@ public class UploadFileMessageTest {
     @Provide
     Arbitrary<FileUpload> fileUpload() {
         return Combinators.combine(
-            Arbitraries.oneOf(Arrays.asList(
+            Arbitraries.oneOf(List.of(
                 // 1.16 doesn't correctly handle unicode file names. We'll be generous in our tests here.
                 Arbitraries.strings().ofMinLength(1).ascii().ofMaxLength(MAX_FILE_NAME),
                 Arbitraries.strings().ofMinLength(1).ofMaxLength(MAX_FILE_NAME / 4)

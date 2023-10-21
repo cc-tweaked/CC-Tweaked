@@ -48,8 +48,8 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends 
     private final String kind;
     private final ResourceKey<Registry<R>> registry;
 
-    private Map<String, UpgradeWrapper<R, T>> current = Collections.emptyMap();
-    private Map<T, UpgradeWrapper<R, T>> currentWrappers = Collections.emptyMap();
+    private Map<String, UpgradeWrapper<R, T>> current = Map.of();
+    private Map<T, UpgradeWrapper<R, T>> currentWrappers = Map.of();
 
     public UpgradeManager(String kind, String path, ResourceKey<Registry<R>> registry) {
         super(GSON, path);

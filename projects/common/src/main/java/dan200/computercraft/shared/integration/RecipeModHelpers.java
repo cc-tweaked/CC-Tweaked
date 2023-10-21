@@ -9,14 +9,12 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -24,7 +22,6 @@ import java.util.function.Supplier;
  * Utilities for recipe mod plugins (such as JEI).
  */
 public final class RecipeModHelpers {
-    static final List<ComputerFamily> MAIN_FAMILIES = Arrays.asList(ComputerFamily.NORMAL, ComputerFamily.ADVANCED);
     static final List<Supplier<TurtleItem>> TURTLES = List.of(ModRegistry.Items.TURTLE_NORMAL, ModRegistry.Items.TURTLE_ADVANCED);
     static final List<Supplier<PocketComputerItem>> POCKET_COMPUTERS = List.of(ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED);
 

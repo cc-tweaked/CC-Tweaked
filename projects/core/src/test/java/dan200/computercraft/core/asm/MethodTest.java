@@ -14,7 +14,7 @@ import dan200.computercraft.core.methods.ObjectSource;
 import org.junit.jupiter.api.Test;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -169,7 +169,7 @@ public class MethodTest {
 
         @Override
         public Iterable<Object> getExtra() {
-            return Collections.singletonList(new GeneratorTest.Basic());
+            return List.of(new GeneratorTest.Basic());
         }
     }
 

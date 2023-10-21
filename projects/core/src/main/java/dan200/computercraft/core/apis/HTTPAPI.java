@@ -18,7 +18,6 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 
-import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -83,7 +82,7 @@ public class HTTPAPI implements ILuaAPI {
             var options = args.getTable(0);
             address = getStringField(options, "url");
             postString = optStringField(options, "body", null);
-            headerTable = optTableField(options, "headers", Collections.emptyMap());
+            headerTable = optTableField(options, "headers", Map.of());
             binary = optBooleanField(options, "binary", false);
             requestMethod = optStringField(options, "method", null);
             redirect = optBooleanField(options, "redirect", true);
@@ -92,7 +91,7 @@ public class HTTPAPI implements ILuaAPI {
             // Get URL and post information
             address = args.getString(0);
             postString = args.optString(1, null);
-            headerTable = args.optTable(2, Collections.emptyMap());
+            headerTable = args.optTable(2, Map.of());
             binary = args.optBoolean(3, false);
             requestMethod = null;
             redirect = true;
@@ -154,11 +153,11 @@ public class HTTPAPI implements ILuaAPI {
         if (args.get(0) instanceof Map) {
             var options = args.getTable(0);
             address = getStringField(options, "url");
-            headerTable = optTableField(options, "headers", Collections.emptyMap());
+            headerTable = optTableField(options, "headers", Map.of());
             timeoutArg = optRealField(options, "timeout");
         } else {
             address = args.getString(0);
-            headerTable = args.optTable(1, Collections.emptyMap());
+            headerTable = args.optTable(1, Map.of());
             timeoutArg = Optional.empty();
         }
 
