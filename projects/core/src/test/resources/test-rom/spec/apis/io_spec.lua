@@ -75,7 +75,7 @@ describe("The io library", function()
     describe("io.lines", function()
         it("validates arguments", function()
             io.lines(nil)
-            expect.error(io.lines, ""):eq("/: No such file")
+            expect.error(io.lines, ""):eq("/: Not a file")
             expect.error(io.lines, false):eq("bad argument #1 (string expected, got boolean)")
         end)
 

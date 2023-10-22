@@ -17,14 +17,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static dan200.computercraft.core.filesystem.MountHelpers.*;
+
 /**
  * An abstract mount which stores its file tree in memory.
  *
  * @param <T> The type of file.
  */
 public abstract class AbstractInMemoryMount<T extends AbstractInMemoryMount.FileEntry<T>> implements Mount {
-    protected static final String NO_SUCH_FILE = "No such file";
-
     @Nullable
     protected T root;
 
@@ -57,7 +57,8 @@ public abstract class AbstractInMemoryMount<T extends AbstractInMemoryMount.File
     @Override
     public final void list(String path, List<String> contents) throws IOException {
         var file = get(path);
-        if (file == null || file.children == null) throw new FileOperationException(path, "Not a directory");
+        if (file == null) throw new FileOperationException(path, NO_SUCH_FILE);
+        if (file.children == null) throw new FileOperationException(path, NOT_A_DIRECTORY);
 
         contents.addAll(file.children.keySet());
     }
@@ -82,7 +83,8 @@ public abstract class AbstractInMemoryMount<T extends AbstractInMemoryMount.File
     @Override
     public final SeekableByteChannel openForRead(String path) throws IOException {
         var file = get(path);
-        if (file == null || file.isDirectory()) throw new FileOperationException(path, NO_SUCH_FILE);
+        if (file == null) throw new FileOperationException(path, NO_SUCH_FILE);
+        if (file.isDirectory()) throw new FileOperationException(path, NOT_A_FILE);
         return openForRead(path, file);
     }
 

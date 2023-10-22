@@ -22,14 +22,13 @@ import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.util.*;
 
-import static dan200.computercraft.core.filesystem.WritableFileMount.MINIMUM_FILE_SIZE;
+import static dan200.computercraft.core.filesystem.MountHelpers.*;
 
 /**
  * A basic {@link Mount} which stores files and directories in-memory.
  */
 public final class MemoryMount extends AbstractInMemoryMount<MemoryMount.FileEntry> implements WritableMount {
     private static final byte[] EMPTY = new byte[0];
-    private static final FileTime EPOCH = FileTime.from(Instant.EPOCH);
 
     private final long capacity;
 
@@ -80,7 +79,7 @@ public final class MemoryMount extends AbstractInMemoryMount<MemoryMount.FileEnt
 
     @Override
     protected SeekableByteChannel openForRead(String path, FileEntry file) throws IOException {
-        if (file.contents == null) throw new FileOperationException(path, "File is a directory");
+        if (file.contents == null) throw new FileOperationException(path, NOT_A_FILE);
         return new EntryChannel(file, 0);
     }
 
@@ -119,7 +118,7 @@ public final class MemoryMount extends AbstractInMemoryMount<MemoryMount.FileEnt
             if (nextEntry == null) {
                 lastEntry.children.put(part, nextEntry = FileEntry.newDir());
             } else if (nextEntry.children == null) {
-                throw new FileOperationException(path, "File exists");
+                throw new FileOperationException(path, FILE_EXISTS);
             }
 
             lastEntry = nextEntry;
@@ -129,7 +128,7 @@ public final class MemoryMount extends AbstractInMemoryMount<MemoryMount.FileEnt
 
     @Override
     public void delete(String path) throws IOException {
-        if (path.isEmpty()) throw new AccessDeniedException("Access denied");
+        if (path.isEmpty()) throw new AccessDeniedException(ACCESS_DENIED);
         var node = getParentAndName(path);
         if (node != null) node.parent().remove(node.name());
     }
@@ -139,23 +138,23 @@ public final class MemoryMount extends AbstractInMemoryMount<MemoryMount.FileEnt
         if (dest.startsWith(source)) throw new FileOperationException(source, "Cannot move a directory inside itself");
 
         var sourceParent = getParentAndName(source);
-        if (sourceParent == null || !sourceParent.exists()) throw new FileOperationException(source, "No such file");
+        if (sourceParent == null || !sourceParent.exists()) throw new FileOperationException(source, NO_SUCH_FILE);
 
         var destParent = getParentAndName(dest);
         if (destParent == null) throw new FileOperationException(dest, "Parent directory does not exist");
-        if (destParent.exists()) throw new FileOperationException(dest, "File exists");
+        if (destParent.exists()) throw new FileOperationException(dest, FILE_EXISTS);
 
         destParent.put(sourceParent.parent().remove(sourceParent.name()));
     }
 
     private FileEntry getForWrite(String path) throws FileOperationException {
-        if (path.isEmpty()) throw new FileOperationException(path, "Cannot write to directory");
+        if (path.isEmpty()) throw new FileOperationException(path, CANNOT_WRITE_TO_DIRECTORY);
 
         var parent = getParentAndName(path);
         if (parent == null) throw new FileOperationException(path, "Parent directory does not exist");
 
         var file = parent.get();
-        if (file != null && file.isDirectory()) throw new FileOperationException(path, "Cannot write to directory");
+        if (file != null && file.isDirectory()) throw new FileOperationException(path, CANNOT_WRITE_TO_DIRECTORY);
         if (file == null) parent.put(file = FileEntry.newFile());
 
         return file;

@@ -24,6 +24,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import static dan200.computercraft.core.filesystem.MountHelpers.*;
+
 public class FileSystem {
     /**
      * Maximum depth that {@link #copyRecursive(String, MountWrapper, String, MountWrapper, int)} will descend into.
@@ -206,9 +208,9 @@ public class FileSystem {
         sourcePath = sanitizePath(sourcePath);
         destPath = sanitizePath(destPath);
 
-        if (isReadOnly(sourcePath) || isReadOnly(destPath)) throw new FileSystemException("Access denied");
-        if (!exists(sourcePath)) throw new FileSystemException("No such file");
-        if (exists(destPath)) throw new FileSystemException("File exists");
+        if (isReadOnly(sourcePath) || isReadOnly(destPath)) throw new FileSystemException(ACCESS_DENIED);
+        if (!exists(sourcePath)) throw new FileSystemException(NO_SUCH_FILE);
+        if (exists(destPath)) throw new FileSystemException(FILE_EXISTS);
         if (contains(sourcePath, destPath)) throw new FileSystemException("Can't move a directory inside itself");
 
         var mount = getMount(sourcePath);
@@ -223,15 +225,9 @@ public class FileSystem {
     public synchronized void copy(String sourcePath, String destPath) throws FileSystemException {
         sourcePath = sanitizePath(sourcePath);
         destPath = sanitizePath(destPath);
-        if (isReadOnly(destPath)) {
-            throw new FileSystemException("/" + destPath + ": Access denied");
-        }
-        if (!exists(sourcePath)) {
-            throw new FileSystemException("/" + sourcePath + ": No such file");
-        }
-        if (exists(destPath)) {
-            throw new FileSystemException("/" + destPath + ": File exists");
-        }
+        if (isReadOnly(destPath)) throw new FileSystemException("/" + destPath + ": " + ACCESS_DENIED);
+        if (!exists(sourcePath)) throw new FileSystemException("/" + sourcePath + ": " + NO_SUCH_FILE);
+        if (exists(destPath)) throw new FileSystemException("/" + destPath + ": " + FILE_EXISTS);
         if (contains(sourcePath, destPath)) {
             throw new FileSystemException("/" + sourcePath + ": Can't copy a directory inside itself");
         }
@@ -264,7 +260,7 @@ public class FileSystem {
                 // Copy bytes as fast as we can
                 ByteStreams.copy(source, destination);
             } catch (AccessDeniedException e) {
-                throw new FileSystemException("Access denied");
+                throw new FileSystemException(ACCESS_DENIED);
             } catch (IOException e) {
                 throw FileSystemException.of(e);
             }

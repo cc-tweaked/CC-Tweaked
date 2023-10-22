@@ -7,6 +7,8 @@ package dan200.computercraft.core.filesystem;
 import java.io.IOException;
 import java.io.Serial;
 
+import static dan200.computercraft.core.filesystem.MountHelpers.ACCESS_DENIED;
+
 public class FileSystemException extends Exception {
     @Serial
     private static final long serialVersionUID = -2500631644868104029L;
@@ -20,6 +22,6 @@ public class FileSystemException extends Exception {
     }
 
     public static String getMessage(IOException e) {
-        return e.getMessage() == null ? "Access denied" : e.getMessage();
+        return e.getMessage() == null ? ACCESS_DENIED : e.getMessage();
     }
 }

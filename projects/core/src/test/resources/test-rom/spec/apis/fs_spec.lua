@@ -82,8 +82,8 @@ describe("The fs library", function()
         end)
 
         it("fails on non-existent nodes", function()
-            expect.error(fs.list, "rom/x"):eq("/rom/x: Not a directory")
-            expect.error(fs.list, "x"):eq("/x: Not a directory")
+            expect.error(fs.list, "rom/x"):eq("/rom/x: No such file")
+            expect.error(fs.list, "x"):eq("/x: No such file")
         end)
     end)
 
@@ -160,8 +160,8 @@ describe("The fs library", function()
     describe("fs.open", function()
         describe("reading", function()
             it("fails on directories", function()
-                expect { fs.open("rom", "r") }:same { nil, "/rom: No such file" }
-                expect { fs.open("", "r") }:same { nil, "/: No such file" }
+                expect { fs.open("rom", "r") }:same { nil, "/rom: Not a file" }
+                expect { fs.open("", "r") }:same { nil, "/: Not a file" }
             end)
 
             it("fails on non-existent nodes", function()

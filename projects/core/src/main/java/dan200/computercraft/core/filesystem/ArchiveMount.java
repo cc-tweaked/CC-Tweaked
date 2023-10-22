@@ -21,8 +21,6 @@ import java.util.concurrent.TimeUnit;
  * @param <T> The type of file.
  */
 public abstract class ArchiveMount<T extends ArchiveMount.FileEntry<T>> extends AbstractInMemoryMount<T> {
-    protected static final String NO_SUCH_FILE = "No such file";
-
     /**
      * Limit the entire cache to 64MiB.
      */

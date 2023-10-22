@@ -20,13 +20,14 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Set;
 
+import static dan200.computercraft.core.filesystem.MountHelpers.*;
+
 /**
  * A {@link WritableFileMount} implementation which provides read-write access to a directory.
  */
 public class WritableFileMount extends FileMount implements WritableMount {
     private static final Logger LOG = LoggerFactory.getLogger(WritableFileMount.class);
 
-    static final long MINIMUM_FILE_SIZE = 500;
     private static final Set<OpenOption> WRITE_OPTIONS = Set.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     private static final Set<OpenOption> APPEND_OPTIONS = Set.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 
@@ -49,7 +50,7 @@ public class WritableFileMount extends FileMount implements WritableMount {
         try {
             Files.createDirectories(root);
         } catch (IOException e) {
-            throw new FileOperationException("Access denied");
+            throw new FileOperationException(ACCESS_DENIED);
         }
     }
 
@@ -78,7 +79,7 @@ public class WritableFileMount extends FileMount implements WritableMount {
         create();
         var file = resolveFile(path);
         if (file.exists()) {
-            if (!file.isDirectory()) throw new FileOperationException(path, "File exists");
+            if (!file.isDirectory()) throw new FileOperationException(path, FILE_EXISTS);
             return;
         }
 
@@ -90,19 +91,19 @@ public class WritableFileMount extends FileMount implements WritableMount {
         }
 
         if (getRemainingSpace() < dirsToCreate * MINIMUM_FILE_SIZE) {
-            throw new FileOperationException(path, "Out of space");
+            throw new FileOperationException(path, OUT_OF_SPACE);
         }
 
         if (file.mkdirs()) {
             usedSpace += dirsToCreate * MINIMUM_FILE_SIZE;
         } else {
-            throw new FileOperationException(path, "Access denied");
+            throw new FileOperationException(path, ACCESS_DENIED);
         }
     }
 
     @Override
     public void delete(String path) throws IOException {
-        if (path.isEmpty()) throw new FileOperationException(path, "Access denied");
+        if (path.isEmpty()) throw new FileOperationException(path, ACCESS_DENIED);
 
         if (created()) {
             var file = resolveFile(path);
@@ -125,7 +126,7 @@ public class WritableFileMount extends FileMount implements WritableMount {
         if (success) {
             usedSpace -= Math.max(MINIMUM_FILE_SIZE, fileSize);
         } else {
-            throw new IOException("Access denied");
+            throw new IOException(ACCESS_DENIED);
         }
     }
 
@@ -133,8 +134,8 @@ public class WritableFileMount extends FileMount implements WritableMount {
     public void rename(String source, String dest) throws FileOperationException {
         var sourceFile = resolvePath(source);
         var destFile = resolvePath(dest);
-        if (!Files.exists(sourceFile)) throw new FileOperationException(source, "No such file");
-        if (Files.exists(destFile)) throw new FileOperationException(dest, "File exists");
+        if (!Files.exists(sourceFile)) throw new FileOperationException(source, NO_SUCH_FILE);
+        if (Files.exists(destFile)) throw new FileOperationException(dest, FILE_EXISTS);
 
         if (destFile.startsWith(sourceFile)) {
             throw new FileOperationException(source, "Cannot move a directory inside itself");
@@ -164,9 +165,9 @@ public class WritableFileMount extends FileMount implements WritableMount {
         var file = resolvePath(path);
         var attributes = tryGetAttributes(path, file);
         if (attributes == null) {
-            if (getRemainingSpace() < MINIMUM_FILE_SIZE) throw new FileOperationException(path, "Out of space");
+            if (getRemainingSpace() < MINIMUM_FILE_SIZE) throw new FileOperationException(path, OUT_OF_SPACE);
         } else if (attributes.isDirectory()) {
-            throw new FileOperationException(path, "Cannot write to directory");
+            throw new FileOperationException(path, CANNOT_WRITE_TO_DIRECTORY);
         } else {
             usedSpace -= Math.max(attributes.size(), MINIMUM_FILE_SIZE);
         }
@@ -187,9 +188,9 @@ public class WritableFileMount extends FileMount implements WritableMount {
         var file = resolvePath(path);
         var attributes = tryGetAttributes(path, file);
         if (attributes == null) {
-            if (getRemainingSpace() < MINIMUM_FILE_SIZE) throw new FileOperationException(path, "Out of space");
+            if (getRemainingSpace() < MINIMUM_FILE_SIZE) throw new FileOperationException(path, OUT_OF_SPACE);
         } else if (attributes.isDirectory()) {
-            throw new FileOperationException(path, "Cannot write to directory");
+            throw new FileOperationException(path, CANNOT_WRITE_TO_DIRECTORY);
         }
 
         // Allowing seeking when appending is not recommended, so we use a separate channel.
@@ -228,7 +229,7 @@ public class WritableFileMount extends FileMount implements WritableMount {
                 ignoredBytesLeft = 0;
 
                 var bytesLeft = capacity - usedSpace;
-                if (newBytes > bytesLeft) throw new IOException("Out of space");
+                if (newBytes > bytesLeft) throw new IOException(OUT_OF_SPACE);
                 usedSpace += newBytes;
             }
         }

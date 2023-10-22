@@ -16,6 +16,7 @@ import org.opentest4j.TestAbortedException;
 import java.io.IOException;
 import java.util.stream.Stream;
 
+import static dan200.computercraft.core.filesystem.MountHelpers.MINIMUM_FILE_SIZE;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -74,7 +75,7 @@ public interface WritableMountContract {
 
         assertTrue(mount.isDirectory("a/b/c"));
 
-        assertEquals(CAPACITY - 500 * 3, mount.getRemainingSpace());
+        assertEquals(CAPACITY - MINIMUM_FILE_SIZE * 3, mount.getRemainingSpace());
         assertEquals(access.computeRemainingSpace(), access.mount().getRemainingSpace(), "Free space is inconsistent");
     }
 
@@ -108,7 +109,7 @@ public interface WritableMountContract {
 
         Mounts.writeFile(mount, "hello.txt", "");
         assertEquals(0, mount.getSize("hello.txt"));
-        assertEquals(CAPACITY - 500, mount.getRemainingSpace());
+        assertEquals(CAPACITY - MINIMUM_FILE_SIZE, mount.getRemainingSpace());
         assertEquals(access.computeRemainingSpace(), access.mount().getRemainingSpace(), "Free space is inconsistent");
     }
 
