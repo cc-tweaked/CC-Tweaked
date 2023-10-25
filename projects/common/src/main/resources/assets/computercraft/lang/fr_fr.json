@@ -74,9 +74,8 @@
     "gui.computercraft.config.computer_space_limit.tooltip": "La limite d'espace du disque pour les ordinateurs et les tortues, en octets.",
     "gui.computercraft.config.default_computer_settings": "Configuration d'Ordinateur par défaut",
     "gui.computercraft.config.default_computer_settings.tooltip": "Une liste séparée par des virgules des paramètres système par défaut à définir sur les nouveaux ordinateurs.\nExemple : \"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\"\ndésactivera toute saisie semi-automatique.",
-    "gui.computercraft.config.disable_lua51_features": "Désactiver les particularités de Lua 5.1",
-    "gui.computercraft.config.disable_lua51_features.tooltip": "Définir sur true pour désactiver les fonctions Lua 5.1 qui seront supprimées dans une future mise à jour.\nUtile pour assurer la compatibilité ascendante de vos programmes actuels.",
     "gui.computercraft.config.disabled_generic_methods": "Méthodes génériques désactivées",
+    "gui.computercraft.config.disabled_generic_methods.tooltip": "Une liste de méthodes génériques ou de méthodes source à désactiver.\nLes méthodes génériques sont ajoutées à un bloc ou bloc-entité lorsque aucune implémentation explicite de périphérique n'est disponible. Cela inclut les méthodes liées à l'inventaire (ex. inventory.getItemDetail, inventory.pushItems) et, avec Forge, les méthodes fluid_storage et energy_storage.\nLes méthodes de cette liste peuvent être groupées (computercraft:inventory) ou individuelles (computercraft:inventory#pushItems).\n",
     "gui.computercraft.config.execution": "Exécution",
     "gui.computercraft.config.execution.computer_threads": "Threads d'ordinateur",
     "gui.computercraft.config.execution.computer_threads.tooltip": "Définissez le nombre de threads sur lesquels les ordinateurs peuvent s'exécuter. Un nombre plus élevé signifie\nque plus d'ordinateurs peuvent fonctionner à la fois, mais peut induire un décalage. Veuillez noter que\ncertains mods peuvent ne pas fonctionner avec un nombre de threads supérieur à 1. À utiliser avec prudence.\nPlage : > 1",
@@ -200,6 +199,8 @@
     "item.computercraft.printed_pages": "Pages imprimées",
     "item.computercraft.treasure_disk": "Disquette",
     "itemGroup.computercraft": "ComputerCraft",
+    "tag.item.computercraft.computer": "Ordinateurs",
+    "tag.item.computercraft.wired_modem": "Modems câblés",
     "tracking_field.computercraft.avg": "%s (moyenne)",
     "tracking_field.computercraft.computer_tasks.name": "Tâches",
     "tracking_field.computercraft.count": "%s (compte)",
@@ -221,8 +222,5 @@
     "upgrade.minecraft.diamond_hoe.adjective": "Fermière",
     "upgrade.minecraft.diamond_pickaxe.adjective": "Mineuse",
     "upgrade.minecraft.diamond_shovel.adjective": "Excavatrice",
-    "upgrade.minecraft.diamond_sword.adjective": "De Combat",
-    "gui.computercraft.config.disabled_generic_methods.tooltip": "Une liste de méthodes génériques ou de méthodes source à désactiver.\nLes méthodes génériques sont ajoutées à un bloc ou bloc-entité lorsque aucune implémentation explicite de périphérique n'est disponible. Cela inclut les méthodes liées à l'inventaire (ex. inventory.getItemDetail, inventory.pushItems) et, avec Forge, les méthodes fluid_storage et energy_storage.\nLes méthodes de cette liste peuvent être groupées (computercraft:inventory) ou individuelles (computercraft:inventory#pushItems).\n",
-    "tag.item.computercraft.computer": "Ordinateurs",
-    "tag.item.computercraft.wired_modem": "Modems câblés"
+    "upgrade.minecraft.diamond_sword.adjective": "De Combat"
 }

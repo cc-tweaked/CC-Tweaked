@@ -70,7 +70,6 @@
     "commands.computercraft.view.synopsis": "Titta på datorns terminal.",
     "gui.computercraft.config.computer_space_limit": "Dator maximalt utrymme (bytes)",
     "gui.computercraft.config.default_computer_settings": "Standard Datorinställningar",
-    "gui.computercraft.config.disable_lua51_features": "Avaktivera Lua 5.1 funktioner",
     "gui.computercraft.config.execution.computer_threads": "Dator trådar",
     "gui.computercraft.config.floppy_space_limit": "Diskett maximalt utrymme (bytes)",
     "gui.computercraft.config.http": "HTTP",

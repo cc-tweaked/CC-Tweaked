@@ -74,8 +74,6 @@
   "gui.computercraft.config.computer_space_limit.tooltip": "The disk space limit for computers and turtles, in bytes.",
   "gui.computercraft.config.default_computer_settings": "Default Computer settings",
   "gui.computercraft.config.default_computer_settings.tooltip": "A comma separated list of default system settings to set on new computers.\nExample: \"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\"\nwill disable all autocompletion.",
-  "gui.computercraft.config.disable_lua51_features": "Disable Lua 5.1 features",
-  "gui.computercraft.config.disable_lua51_features.tooltip": "Set this to true to disable Lua 5.1 functions that will be removed in a future\nupdate. Useful for ensuring forward compatibility of your programs now.",
   "gui.computercraft.config.disabled_generic_methods": "Disabled generic methods",
   "gui.computercraft.config.disabled_generic_methods.tooltip": "A list of generic methods or method sources to disable. Generic methods are\nmethods added to a block/block entity when there is no explicit peripheral\nprovider. This includes inventory methods (i.e. inventory.getItemDetail,\ninventory.pushItems), and (if on Forge), the fluid_storage and energy_storage\nmethods.\nMethods in this list can either be a whole group of methods (computercraft:inventory)\nor a single method (computercraft:inventory#pushItems).\n",
   "gui.computercraft.config.execution": "Execution",

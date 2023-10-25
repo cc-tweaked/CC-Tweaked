@@ -38,7 +38,6 @@
     "commands.computercraft.turn_on.synopsis": "Liga computadores remotamente.",
     "gui.computercraft.config.computer_space_limit": "Limite de espaço dos Computadores (bytes)",
     "gui.computercraft.config.default_computer_settings": "Configurações padrão para Computadores",
-    "gui.computercraft.config.disable_lua51_features": "Desabilitar funcionalidade da Lua 5.1",
     "gui.computercraft.config.execution.computer_threads": "Threads por computador",
     "gui.computercraft.config.floppy_space_limit": "Limite de espaço dos Disquetes (bytes)",
     "gui.computercraft.config.http": "HTTP",

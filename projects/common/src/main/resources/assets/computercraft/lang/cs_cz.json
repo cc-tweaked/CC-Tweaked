@@ -74,8 +74,6 @@
     "gui.computercraft.config.computer_space_limit.tooltip": "Limit diskového místa pro počítače a roboty, v bytech.",
     "gui.computercraft.config.default_computer_settings": "Vychozí nastavení počítače",
     "gui.computercraft.config.default_computer_settings.tooltip": "Čárkami oddělený seznam základních systémových nastavení pro nastavení na nových počítačích.\nPříklad: \"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\"\nvypne všechno automatické vyplňování.",
-    "gui.computercraft.config.disable_lua51_features": "Vypnout Lua 5.1 funkce",
-    "gui.computercraft.config.disable_lua51_features.tooltip": "Nastav toto na pravdivou hodnotu pro vypnutí Lua 5.1 funkcí které budou odstraněny v budoucí\naktualizaci. Dobré pro ověření kompatibilty tvých programů nyní a předem.",
     "gui.computercraft.config.disabled_generic_methods": "Vypnuté obecné metody",
     "gui.computercraft.config.execution": "Spuštení",
     "gui.computercraft.config.execution.computer_threads": "Počítačová vlákna",

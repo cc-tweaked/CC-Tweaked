@@ -27,6 +27,7 @@
     "commands.computercraft.desc": "Der /computercraft Befehl enthält verschiedene Werkzeuge um Computer zu debuggen, kontrollieren oder mit ihnen zu interagieren.",
     "commands.computercraft.dump.action": "Zeigt mehr Informationen über einen Computer",
     "commands.computercraft.dump.desc": "Zeigt den Status aller Computer oder genauere Informationen über einen angegebenen Computer. Der Computer kann entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) oder seinen Namen (z.B. \"@Mein Computer\") angegeben werden.",
+    "commands.computercraft.dump.open_path": "Siehe die Dateien dieses Computers.",
     "commands.computercraft.dump.synopsis": "Zeigt den Status eines Computers.",
     "commands.computercraft.generic.additional_rows": "%d zusätzliche Zeilen…",
     "commands.computercraft.generic.exception": "Unbehandelte Ausnahme (%s)",
@@ -68,12 +69,11 @@
     "commands.computercraft.view.not_player": "Konnte Terminal für Nicht-Spieler nicht öffnen",
     "commands.computercraft.view.synopsis": "Zeigt das Terminal eines Computers.",
     "gui.computercraft.config.command_require_creative": "Kommando-Computer benötigen den Kreativ-Modus",
+    "gui.computercraft.config.command_require_creative.tooltip": "Benötigt Spieler sowohl im Kreativ-Spielmodus, als auch ein Operator zu sein,\num mit Kommando-Computern zu interagieren. Dies entspricht dem standardmäßigen Verhalten von Befehlsblöcken.",
     "gui.computercraft.config.computer_space_limit": "Speicherplatz von Computern (Bytes)",
     "gui.computercraft.config.computer_space_limit.tooltip": "Das Speicherplatzlimit für Computer und Turtles in Bytes.",
     "gui.computercraft.config.default_computer_settings": "Computer-Standardeinstellungen",
     "gui.computercraft.config.default_computer_settings.tooltip": "eine mit Komma separierte Liste an standardmäßige Systemeinstellungen für neuen Computern.\nBeispiel: \"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\"\nwürde jegliche Autovervollständigung deaktivieren.",
-    "gui.computercraft.config.disable_lua51_features": "Lua 5.1-Funktionen deaktivieren",
-    "gui.computercraft.config.disable_lua51_features.tooltip": "Beim aktivieren werden die Lua 5.1 Funktionieren deaktiviert, die in zukünftigen\nUpdates sowieso entfernt werden. Auf dieser Weise kann vorwärts Kompatibilität für Programme sichergestellt werden.",
     "gui.computercraft.config.disabled_generic_methods": "Generische Methoden deaktiviert.",
     "gui.computercraft.config.disabled_generic_methods.tooltip": "Eine Liste an generischen Methoden oder Methodenquellen zum deaktivieren.\nGenerische Methoden sind Methoden die zu einem block/block entity hinzugefügt werden, insofern kein expliziter Peripheral Provider\ngefunden wurde. Mitbetroffen sind Inventarmethoden (d.h. inventory.getItemDetail,\ninventory.pushItems) und, wenn in Forge gespielt wird, die fluid_storage und energy_storage\nMethoden.\nMethoden in dieser Liste können entweder Gruppen von Methoden (wie computercraft:inventory)\noder einzelne Methoden (wie computercraft:inventory#pushItems) sein.\n",
     "gui.computercraft.config.execution": "Ausführung",
@@ -130,7 +130,5 @@
     "upgrade.minecraft.diamond_hoe.adjective": "Ackerbau",
     "upgrade.minecraft.diamond_pickaxe.adjective": "Bergbau",
     "upgrade.minecraft.diamond_shovel.adjective": "Graben",
-    "upgrade.minecraft.diamond_sword.adjective": "Nahkampf",
-    "commands.computercraft.dump.open_path": "Siehe die Dateien dieses Computers.",
-    "gui.computercraft.config.command_require_creative.tooltip": "Benötigt Spieler sowohl im Kreativ-Spielmodus, als auch ein Operator zu sein,\num mit Kommando-Computern zu interagieren. Dies entspricht dem standardmäßigen Verhalten von Befehlsblöcken."
+    "upgrade.minecraft.diamond_sword.adjective": "Nahkampf"
 }

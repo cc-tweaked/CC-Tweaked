@@ -33,7 +33,6 @@
     "commands.computercraft.shutdown.synopsis": "Apague las computadoras de forma remota.",
     "gui.computercraft.config.computer_space_limit": "Límite de memoria de ordenadores (en bytes)",
     "gui.computercraft.config.default_computer_settings": "Configuración de Ordenador por defecto",
-    "gui.computercraft.config.disable_lua51_features": "Deshabilitar funciones de Lua 5.1",
     "gui.computercraft.config.floppy_space_limit": "Límite de memoria de disquetes (en bytes)",
     "gui.computercraft.config.http.enabled": "Habilitar API de HTTP",
     "gui.computercraft.config.log_computer_errors": "Grabar errores periféricos",

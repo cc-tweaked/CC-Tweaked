@@ -78,7 +78,6 @@ public class CobaltLuaMachine implements ILuaMachine {
         Bit32Lib.add(state, globals);
         globals.rawset("_HOST", ValueFactory.valueOf(environment.hostString()));
         globals.rawset("_CC_DEFAULT_SETTINGS", ValueFactory.valueOf(CoreConfig.defaultComputerSettings));
-        if (CoreConfig.disableLua51Features) globals.rawset("_CC_DISABLE_LUA51_FEATURES", Constants.TRUE);
 
         // Add default APIs
         for (var api : environment.apis()) addAPI(globals, api);

@@ -70,7 +70,6 @@
     "commands.computercraft.view.synopsis": "컴퓨터의 터미널을 보기",
     "gui.computercraft.config.computer_space_limit": "컴퓨터 공간 제한 (바이트)",
     "gui.computercraft.config.default_computer_settings": "기본 컴퓨터 설정",
-    "gui.computercraft.config.disable_lua51_features": "Lua 5.1 기능 미사용",
     "gui.computercraft.config.execution": "실행",
     "gui.computercraft.config.execution.computer_threads": "컴퓨터 쓰레드",
     "gui.computercraft.config.execution.max_main_computer_time": "컴퓨터 시간 당 서버 제한",

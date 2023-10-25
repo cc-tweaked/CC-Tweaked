@@ -30,7 +30,6 @@ public final class ConfigSpec {
     public static final ConfigFile.Value<Integer> computerSpaceLimit;
     public static final ConfigFile.Value<Integer> floppySpaceLimit;
     public static final ConfigFile.Value<Integer> maximumFilesOpen;
-    public static final ConfigFile.Value<Boolean> disableLua51Features;
     public static final ConfigFile.Value<String> defaultComputerSettings;
     public static final ConfigFile.Value<Boolean> logComputerErrors;
     public static final ConfigFile.Value<Boolean> commandRequireCreative;
@@ -114,12 +113,6 @@ public final class ConfigSpec {
             maximumFilesOpen = builder
                 .comment("Set how many files a computer can have open at the same time. Set to 0 for unlimited.")
                 .defineInRange("maximum_open_files", CoreConfig.maximumFilesOpen, 0, Integer.MAX_VALUE);
-
-            disableLua51Features = builder
-                .comment("""
-                    Set this to true to disable Lua 5.1 functions that will be removed in a future
-                    update. Useful for ensuring forward compatibility of your programs now.""")
-                .define("disable_lua51_features", CoreConfig.disableLua51Features);
 
             defaultComputerSettings = builder
                 .comment("""
@@ -395,7 +388,6 @@ public final class ConfigSpec {
         Config.floppySpaceLimit = floppySpaceLimit.get();
         Config.uploadMaxSize = uploadMaxSize.get();
         CoreConfig.maximumFilesOpen = maximumFilesOpen.get();
-        CoreConfig.disableLua51Features = disableLua51Features.get();
         CoreConfig.defaultComputerSettings = defaultComputerSettings.get();
         Config.commandRequireCreative = commandRequireCreative.get();
 

@@ -68,7 +68,6 @@
     "commands.computercraft.view.synopsis": "查看计算机的终端.",
     "gui.computercraft.config.computer_space_limit": "计算机空间限制(字节)",
     "gui.computercraft.config.default_computer_settings": "默认计算机设置",
-    "gui.computercraft.config.disable_lua51_features": "禁用Lua 5.1功能",
     "gui.computercraft.config.execution": "执行",
     "gui.computercraft.config.execution.computer_threads": "计算机线程数",
     "gui.computercraft.config.execution.max_main_computer_time": "服务器计算机tick时间限制",

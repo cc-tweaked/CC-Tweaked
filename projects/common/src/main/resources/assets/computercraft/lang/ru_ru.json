@@ -74,8 +74,6 @@
     "gui.computercraft.config.computer_space_limit.tooltip": "Лимит места на дисках компьютеров и черепашек, в байтах.",
     "gui.computercraft.config.default_computer_settings": "Настройки Компьютера по умолчанию",
     "gui.computercraft.config.default_computer_settings.tooltip": "Разделенный запятыми список системных настроек по умолчанию на новых компьютерах.\nНапример: \"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\"\nотключит всё автодополнение.",
-    "gui.computercraft.config.disable_lua51_features": "Отключить функции Lua 5.1",
-    "gui.computercraft.config.disable_lua51_features.tooltip": "Поставьте, чтобы отключить функции из Lua 5.1, которые будут убраны в будущих\nобновлениях. Полезно для того, чтобы улучшить совместимость вперед ваших программ.",
     "gui.computercraft.config.execution": "Выполнение",
     "gui.computercraft.config.execution.computer_threads": "Потоки компьютера",
     "gui.computercraft.config.execution.computer_threads.tooltip": "Устанавливает количество потоков, на которых работают компьютеры. Большее число\nозначает, что больше компьютеров сможет работать одновременно, но может привести к лагу.\nОбратите внимание, что некоторые моды могут не работать с более чем одним потоком. Используйте с осторожностью.\nОграничение: > 1",

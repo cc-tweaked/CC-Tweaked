@@ -74,8 +74,6 @@
     "gui.computercraft.config.computer_space_limit.tooltip": "Limite di spazio di archiviazione per i computer e le tartarughe, in byte.",
     "gui.computercraft.config.default_computer_settings": "Impostazioni Computer predefinite",
     "gui.computercraft.config.default_computer_settings.tooltip": "Una lista di impostazioni predefinite per i nuovi computer, separate da virgola.\nEsempio: \"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\"\ndisattiverà tutti gli autocompletamenti.",
-    "gui.computercraft.config.disable_lua51_features": "Disattiva features Lua 5.1",
-    "gui.computercraft.config.disable_lua51_features.tooltip": "Imposta a \"true\" per disattivare le funzionalità di Lua 5.1 che saranno rimosse in un\naggiornamento futuro. Utile per assicurare futura compatibilità con i tuoi programmi.",
     "gui.computercraft.config.execution": "Esecuzione",
     "gui.computercraft.config.execution.computer_threads": "Threads computer",
     "gui.computercraft.config.execution.computer_threads.tooltip": "Imposta la quantità di thread che possono eseguire i computer. Un numero più alto significa\nche più computer possono essere eseguiti alla volta, ma può indurre a lag. Alcune mod potrebbero\nnon funzionare con numeri di thread maggiore a 1. Usare con cautela.\nRange: > 1",
