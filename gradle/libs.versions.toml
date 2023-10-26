@@ -45,7 +45,6 @@ rubidium = "0.6.1"
 sodium = "mc1.20-0.4.10"
 
 # Testing
-byteBuddy = "1.14.7"
 hamcrest = "2.2"
 jqwik = "1.7.4"
 junit = "5.10.0"
@@ -97,6 +96,7 @@ slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 # Minecraft mods
 fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
+fabric-junit = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fabric-loader" }
 fabricPermissions = { module = "me.lucko:fabric-permissions-api", version.ref = "fabricPermissions" }
 emi = { module = "dev.emi:emi-xplat-mojmap", version.ref = "emi" }
 iris = { module = "maven.modrinth:iris", version.ref = "iris" }
@@ -114,8 +114,6 @@ rubidium = { module = "maven.modrinth:rubidium", version.ref = "rubidium" }
 sodium = { module = "maven.modrinth:sodium", version.ref = "sodium" }
 
 # Testing
-byteBuddyAgent = { module = "net.bytebuddy:byte-buddy-agent", version.ref = "byteBuddy" }
-byteBuddy = { module = "net.bytebuddy:byte-buddy", version.ref = "byteBuddy" }
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
 jqwik-api = { module = "net.jqwik:jqwik-api", version.ref = "jqwik" }
 jqwik-engine = { module = "net.jqwik:jqwik-engine", version.ref = "jqwik" }
@@ -135,6 +133,7 @@ errorProne-plugin = { module = "net.ltgt.gradle:gradle-errorprone-plugin", versi
 errorProne-testHelpers = { module = "com.google.errorprone:error_prone_test_helpers", version.ref = "errorProne-core" }
 fabric-loom = { module = "net.fabricmc:fabric-loom", version.ref = "fabric-loom" }
 forgeGradle = { module = "net.minecraftforge.gradle:ForgeGradle", version.ref = "forgeGradle" }
+ideaExt = { module = "gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext", version.ref = "ideaExt" }
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 librarian = { module = "org.parchmentmc:librarian", version.ref = "librarian" }
 minotaur = { module = "com.modrinth.minotaur:Minotaur", version.ref = "minotaur" }
@@ -154,7 +153,6 @@ vineflower = { module = "io.github.juuxel:loom-vineflower", version.ref = "vinef
 [plugins]
 forgeGradle = { id = "net.minecraftforge.gradle", version.ref = "forgeGradle" }
 githubRelease = { id = "com.github.breadmoirai.github-release", version.ref = "githubRelease" }
-ideaExt = { id = "org.jetbrains.gradle.plugin.idea-ext", version.ref = "ideaExt" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 librarian = { id = "org.parchmentmc.librarian.forgegradle", version.ref = "librarian" }
 mixinGradle = { id = "org.spongepowered.mixin", version.ref = "mixinGradle" }

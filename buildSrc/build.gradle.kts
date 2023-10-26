@@ -50,10 +50,11 @@ dependencies {
     implementation(libs.curseForgeGradle)
     implementation(libs.fabric.loom)
     implementation(libs.forgeGradle)
+    implementation(libs.ideaExt)
     implementation(libs.librarian)
     implementation(libs.minotaur)
-    implementation(libs.vineflower)
     implementation(libs.vanillaGradle)
+    implementation(libs.vineflower)
 }
 
 gradlePlugin {
