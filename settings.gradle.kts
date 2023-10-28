@@ -63,6 +63,7 @@ include(":forge-api")
 include(":forge")
 
 include(":lints")
+include(":standalone")
 include(":web")
 
 for (project in rootProject.children) {

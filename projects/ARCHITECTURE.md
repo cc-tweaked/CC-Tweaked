@@ -62,6 +62,9 @@ mentioning:
  - `lints`: This defines an [ErrorProne] plugin which adds a couple of compile-time checks to our code. This is what
    enforces that no client-specific code is used inside the `main` source set (and a couple of other things!).
 
+ - `standalone`: This contains a standalone UI for computers, allowing debugging and development of CraftOS without
+   launching Minecraft.
+
  - `web`: This contains the additional tooling for building [the documentation website][tweaked.cc], such as support for
    rendering recipes
 

@@ -153,14 +153,11 @@ class EmulatedComputer implements ComputerEnvironment, ComputerHandle {
 
     @Override
     public void transferFiles(FileContents[] files) {
-        computer.queueEvent(TransferredFiles.EVENT, new Object[]{
-            new TransferredFiles(
-                Arrays.stream(files)
-                    .map(x -> new TransferredFile(x.getName(), new ArrayByteChannel(bytesOfBuffer(x.getContents()))))
-                    .toList(),
-                () -> {
-                }),
-        });
+        computer.queueEvent(TransferredFiles.EVENT, new Object[]{ new TransferredFiles(
+            Arrays.stream(files)
+                .map(x -> new TransferredFile(x.getName(), new ArrayByteChannel(bytesOfBuffer(x.getContents()))))
+                .toList()
+        ) });
     }
 
     @Override

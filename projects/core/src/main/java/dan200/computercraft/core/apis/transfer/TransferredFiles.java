@@ -6,6 +6,7 @@ package dan200.computercraft.core.apis.transfer;
 
 import dan200.computercraft.api.lua.LuaFunction;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -18,13 +19,17 @@ public class TransferredFiles {
     public static final String EVENT = "file_transfer";
 
     private final AtomicBoolean consumed = new AtomicBoolean(false);
-    private final Runnable onConsumed;
+    private final @Nullable Runnable onConsumed;
 
     private final List<TransferredFile> files;
 
-    public TransferredFiles(List<TransferredFile> files, Runnable onConsumed) {
+    public TransferredFiles(List<TransferredFile> files, @Nullable Runnable onConsumed) {
         this.files = files;
         this.onConsumed = onConsumed;
+    }
+
+    public TransferredFiles(List<TransferredFile> files) {
+        this(files, null);
     }
 
     /**
@@ -40,6 +45,6 @@ public class TransferredFiles {
 
     private void consumed() {
         if (consumed.getAndSet(true)) return;
-        onConsumed.run();
+        if (onConsumed != null) onConsumed.run();
     }
 }

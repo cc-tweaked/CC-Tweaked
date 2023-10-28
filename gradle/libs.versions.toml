@@ -21,6 +21,7 @@ autoService = "1.1.1"
 checkerFramework = "3.32.0"
 cobalt = "0.7.3"
 cobalt-next = "0.7.4" # Not a real version, used to constrain the version we accept.
+commonsCli = "1.3.1"
 fastutil = "8.5.9"
 guava = "31.1-jre"
 jetbrainsAnnotations = "24.0.1"
@@ -61,14 +62,15 @@ githubRelease = "2.4.1"
 ideaExt = "1.1.7"
 illuaminate = "0.1.0-44-g9ee0055"
 librarian = "1.+"
+lwjgl = "3.3.1"
 minotaur = "2.+"
 mixinGradle = "0.7.+"
 nullAway = "0.9.9"
 spotless = "6.21.0"
 taskTree = "2.1.1"
+teavm = "0.9.0-SQUID.1"
 vanillaGradle = "0.2.1-SNAPSHOT"
 vineflower = "1.11.0"
-teavm = "0.9.0-SQUID.1"
 
 [libraries]
 # Normal dependencies
@@ -77,6 +79,7 @@ asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
 autoService = { module = "com.google.auto.service:auto-service", version.ref = "autoService" }
 checkerFramework = { module = "org.checkerframework:checker-qual", version.ref = "checkerFramework" }
 cobalt = { module = "org.squiddev:Cobalt", version.ref = "cobalt" }
+commonsCli = { module = "commons-cli:commons-cli", version.ref = "commonsCli" }
 fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
 forgeSpi = { module = "net.minecraftforge:forgespi", version.ref = "forgeSpi" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
@@ -121,6 +124,12 @@ junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.re
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+
+# LWJGL
+lwjgl-bom = { module = "org.lwjgl:lwjgl-bom", version.ref = "lwjgl" }
+lwjgl-core = { module = "org.lwjgl:lwjgl" }
+lwjgl-opengl = { module = "org.lwjgl:lwjgl-opengl" }
+lwjgl-glfw = { module = "org.lwjgl:lwjgl-glfw" }
 
 # Build tools
 cctJavadoc = { module = "cc.tweaked:cct-javadoc", version.ref = "cctJavadoc" }
