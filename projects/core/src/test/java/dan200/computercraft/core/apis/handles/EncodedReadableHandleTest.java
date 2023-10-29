@@ -5,56 +5,62 @@
 package dan200.computercraft.core.apis.handles;
 
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.core.apis.ObjectWrapper;
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.CharArrayReader;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EncodedReadableHandleTest {
     @Test
     public void testReadChar() throws LuaException {
-        var wrapper = fromLength(5);
-        assertEquals("A", wrapper.callOf("read"));
+        var handle = fromLength(5);
+        assertEquals("A", cast(String.class, handle.read(Optional.empty())));
     }
 
     @Test
     public void testReadShortComplete() throws LuaException {
-        var wrapper = fromLength(10);
-        assertEquals("AAAAA", wrapper.callOf("read", 5));
+        var handle = fromLength(10);
+        assertEquals("AAAAA", cast(String.class, handle.read(Optional.of(5))));
     }
 
     @Test
     public void testReadShortPartial() throws LuaException {
-        var wrapper = fromLength(5);
-        assertEquals("AAAAA", wrapper.callOf("read", 10));
+        var handle = fromLength(5);
+        assertEquals("AAAAA", cast(String.class, handle.read(Optional.of(10))));
     }
 
 
     @Test
     public void testReadLongComplete() throws LuaException {
-        var wrapper = fromLength(10000);
-        assertEquals(9000, wrapper.<String>callOf("read", 9000).length());
+        var handle = fromLength(10000);
+        assertEquals(9000, cast(String.class, handle.read(Optional.of(9000))).length());
     }
 
     @Test
     public void testReadLongPartial() throws LuaException {
-        var wrapper = fromLength(10000);
-        assertEquals(10000, wrapper.<String>callOf("read", 11000).length());
+        var handle = fromLength(10000);
+        assertEquals(10000, cast(String.class, handle.read(Optional.of(11000))).length());
     }
 
     @Test
     public void testReadLongPartialSmaller() throws LuaException {
-        var wrapper = fromLength(1000);
-        assertEquals(1000, wrapper.<String>callOf("read", 11000).length());
+        var handle = fromLength(1000);
+        assertEquals(1000, cast(String.class, handle.read(Optional.of(11000))).length());
     }
 
-    private static ObjectWrapper fromLength(int length) {
+    private static EncodedReadableHandle fromLength(int length) {
         var input = new char[length];
         Arrays.fill(input, 'A');
-        return new ObjectWrapper(new EncodedReadableHandle(new BufferedReader(new CharArrayReader(input))));
+        return new EncodedReadableHandle(new BufferedReader(new CharArrayReader(input)));
+    }
+
+    private static <T> T cast(Class<T> type, @Nullable Object[] values) {
+        if (values == null || values.length < 1) throw new NullPointerException();
+        return type.cast(values[0]);
     }
 }

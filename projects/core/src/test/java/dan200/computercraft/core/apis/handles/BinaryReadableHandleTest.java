@@ -5,71 +5,77 @@
 package dan200.computercraft.core.apis.handles;
 
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.core.apis.ObjectWrapper;
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BinaryReadableHandleTest {
     @Test
     public void testReadChar() throws LuaException {
-        var wrapper = fromLength(5);
-        assertEquals('A', (int) wrapper.callOf(Integer.class, "read"));
+        var handle = fromLength(5);
+        assertEquals('A', cast(Integer.class, handle.read(Optional.empty())));
     }
 
     @Test
     public void testReadShortComplete() throws LuaException {
-        var wrapper = fromLength(10);
-        assertEquals(5, wrapper.<ByteBuffer>callOf("read", 5).remaining());
+        var handle = fromLength(10);
+        assertEquals(5, cast(ByteBuffer.class, handle.read(Optional.of(5))).remaining());
     }
 
     @Test
     public void testReadShortPartial() throws LuaException {
-        var wrapper = fromLength(5);
-        assertEquals(5, wrapper.<ByteBuffer>callOf("read", 10).remaining());
+        var handle = fromLength(5);
+        assertEquals(5, cast(ByteBuffer.class, handle.read(Optional.of(10))).remaining());
     }
 
     @Test
     public void testReadLongComplete() throws LuaException {
-        var wrapper = fromLength(10000);
-        assertEquals(9000, wrapper.<byte[]>callOf("read", 9000).length);
+        var handle = fromLength(10000);
+        assertEquals(9000, cast(byte[].class, handle.read(Optional.of(9000))).length);
     }
 
     @Test
     public void testReadLongPartial() throws LuaException {
-        var wrapper = fromLength(10000);
-        assertEquals(10000, wrapper.<byte[]>callOf("read", 11000).length);
+        var handle = fromLength(10000);
+        assertEquals(10000, cast(byte[].class, handle.read(Optional.of(11000))).length);
     }
 
     @Test
     public void testReadLongPartialSmaller() throws LuaException {
-        var wrapper = fromLength(1000);
-        assertEquals(1000, wrapper.<ByteBuffer>callOf("read", 11000).remaining());
+        var handle = fromLength(1000);
+        assertEquals(1000, cast(ByteBuffer.class, handle.read(Optional.of(11000))).remaining());
     }
 
     @Test
     public void testReadLine() throws LuaException {
-        var wrapper = new ObjectWrapper(BinaryReadableHandle.of(new ArrayByteChannel("hello\r\nworld\r!".getBytes(StandardCharsets.UTF_8))));
-        assertArrayEquals("hello".getBytes(StandardCharsets.UTF_8), wrapper.callOf("readLine"));
-        assertArrayEquals("world\r!".getBytes(StandardCharsets.UTF_8), wrapper.callOf("readLine"));
-        assertNull(wrapper.call("readLine"));
+        var handle = BinaryReadableHandle.of(new ArrayByteChannel("hello\r\nworld\r!".getBytes(StandardCharsets.UTF_8)));
+        assertArrayEquals("hello".getBytes(StandardCharsets.UTF_8), cast(byte[].class, handle.readLine(Optional.empty())));
+        assertArrayEquals("world\r!".getBytes(StandardCharsets.UTF_8), cast(byte[].class, handle.readLine(Optional.empty())));
+        assertNull(handle.readLine(Optional.empty()));
     }
 
     @Test
     public void testReadLineTrailing() throws LuaException {
-        var wrapper = new ObjectWrapper(BinaryReadableHandle.of(new ArrayByteChannel("hello\r\nworld\r!".getBytes(StandardCharsets.UTF_8))));
-        assertArrayEquals("hello\r\n".getBytes(StandardCharsets.UTF_8), wrapper.callOf("readLine", true));
-        assertArrayEquals("world\r!".getBytes(StandardCharsets.UTF_8), wrapper.callOf("readLine", true));
-        assertNull(wrapper.call("readLine", true));
+        var handle = BinaryReadableHandle.of(new ArrayByteChannel("hello\r\nworld\r!".getBytes(StandardCharsets.UTF_8)));
+        assertArrayEquals("hello\r\n".getBytes(StandardCharsets.UTF_8), cast(byte[].class, handle.readLine(Optional.of(true))));
+        assertArrayEquals("world\r!".getBytes(StandardCharsets.UTF_8), cast(byte[].class, handle.readLine(Optional.of(true))));
+        assertNull(handle.readLine(Optional.of(true)));
     }
 
-    private static ObjectWrapper fromLength(int length) {
+    private static BinaryReadableHandle fromLength(int length) {
         var input = new byte[length];
         Arrays.fill(input, (byte) 'A');
-        return new ObjectWrapper(BinaryReadableHandle.of(new ArrayByteChannel(input)));
+        return BinaryReadableHandle.of(new ArrayByteChannel(input));
+    }
+
+    private static <T> T cast(Class<T> type, @Nullable Object[] values) {
+        if (values == null || values.length < 1) throw new NullPointerException();
+        return type.cast(values[0]);
     }
 }

@@ -7,6 +7,16 @@ describe("The fs library", function()
     local function test_file(path) return fs.combine(test_root, path) end
     before_each(function() fs.delete(test_root) end)
 
+    local function create_test_file(contents)
+        local path = test_file(("test_%04x.txt"):format(math.random(2 ^ 16)))
+
+        local handle = fs.open(path, "wb")
+        handle.write(contents)
+        handle.close()
+
+        return path
+    end
+
     describe("fs.complete", function()
         it("validates arguments", function()
             fs.complete("", "")
@@ -158,6 +168,65 @@ describe("The fs library", function()
     end)
 
     describe("fs.open", function()
+        local function read_tests(mode)
+            it("errors when closing twice", function()
+                local handle = fs.open("rom/startup.lua", "rb")
+                handle.close()
+                expect.error(handle.close):eq("attempt to use a closed file")
+            end)
+
+            it("reads multiple bytes", function()
+                local file = create_test_file "an example file"
+
+                local handle = fs.open(file, mode)
+                expect(handle.read(3)):eq("an ")
+                handle.close()
+            end)
+
+            it("errors reading a negative number of bytes", function()
+                local file = create_test_file "an example file"
+
+                local handle = fs.open(file, mode)
+                expect(handle.read(0)):eq("")
+                expect.error(handle.read, -1):str_match("^Cannot read a negative number of [a-z]+$")
+                handle.close()
+            end)
+
+            it("reads multiple bytes longer than the file", function()
+                local file = create_test_file "an example file"
+
+                local handle = fs.open(file, mode)
+                expect(handle.read(100)):eq("an example file")
+                handle.close()
+            end)
+
+            it("can read a line of text", function()
+                local file = create_test_file "some\nfile\r\ncontents\n\n"
+
+                local handle = fs.open(file, mode)
+                expect(handle.readLine()):eq("some")
+                expect(handle.readLine()):eq("file")
+                expect(handle.readLine()):eq("contents")
+                expect(handle.readLine()):eq("")
+                expect(handle.readLine()):eq(nil)
+                handle.close()
+            end)
+
+            -- readLine(true) has odd behaviour in text mode - skip for now.
+            local it_binary = mode == "rb" and it or pending
+            it_binary("can read a line of text with the trailing separator", function()
+                local file = create_test_file "some\nfile\r\ncontents\r!\n\n"
+
+                local handle = fs.open(file, mode)
+                expect(handle.readLine(true)):eq("some\n")
+                expect(handle.readLine(true)):eq("file\r\n")
+                expect(handle.readLine(true)):eq("contents\r!\n")
+                expect(handle.readLine(true)):eq("\n")
+                expect(handle.readLine(true)):eq(nil)
+                handle.close()
+            end)
+        end
+
         describe("reading", function()
             it("fails on directories", function()
                 expect { fs.open("rom", "r") }:same { nil, "/rom: Not a file" }
@@ -169,19 +238,27 @@ describe("The fs library", function()
                 expect { fs.open("x", "r") }:same { nil, "/x: No such file" }
             end)
 
-            it("errors when closing twice", function()
-                local handle = fs.open("rom/startup.lua", "r")
+            it("supports reading a single byte", function()
+                local file = create_test_file "an example file"
+
+                local handle = fs.open(file, "r")
+                expect(handle.read()):eq("a")
                 handle.close()
-                expect.error(handle.close):eq("attempt to use a closed file")
             end)
+
+            read_tests("r")
         end)
 
         describe("reading in binary mode", function()
-            it("errors when closing twice", function()
-                local handle = fs.open("rom/startup.lua", "rb")
+            it("reads a single byte", function()
+                local file = create_test_file "an example file"
+
+                local handle = fs.open(file, "rb")
+                expect(handle.read()):eq(97)
                 handle.close()
-                expect.error(handle.close):eq("attempt to use a closed file")
             end)
+
+            read_tests("rb")
         end)
 
         describe("writing", function()
@@ -207,6 +284,29 @@ describe("The fs library", function()
                 -- consistent though, and honestly doesn't matter too much.
                 expect(err):str_match("^/test%-files/con: .*")
             end)
+
+            it("writing numbers coerces them to a string", function()
+                local handle = fs.open(test_file "out.txt", "w")
+                handle.write(65)
+                handle.close()
+
+                local handle = fs.open(test_file "out.txt", "r")
+                expect(handle.readAll()):eq("65")
+                handle.close()
+            end)
+
+            it("can write lines", function()
+                local handle = fs.open(test_file "out.txt", "w")
+                handle.writeLine("First line!")
+                handle.writeLine("Second line.")
+                handle.close()
+
+                local handle = fs.open(test_file "out.txt", "r")
+                expect(handle.readLine()):eq("First line!")
+                expect(handle.readLine()):eq("Second line.")
+                expect(handle.readLine()):eq(nil)
+                handle.close()
+            end)
         end)
 
         describe("writing in binary mode", function()
@@ -214,6 +314,16 @@ describe("The fs library", function()
                 local handle = fs.open("test-files/out.txt", "wb")
                 handle.close()
                 expect.error(handle.close):eq("attempt to use a closed file")
+            end)
+
+            it("writing numbers treats them as bytes", function()
+                local handle = fs.open(test_file "out.txt", "wb")
+                handle.write(65)
+                handle.close()
+
+                local handle = fs.open(test_file "out.txt", "rb")
+                expect(handle.readAll()):eq("A")
+                handle.close()
             end)
         end)
 

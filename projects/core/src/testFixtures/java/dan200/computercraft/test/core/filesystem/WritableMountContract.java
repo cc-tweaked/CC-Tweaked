@@ -114,6 +114,30 @@ public interface WritableMountContract {
     }
 
     @Test
+    default void Writing_uses_latest_file_size() throws IOException {
+        var access = createExisting(CAPACITY);
+        var mount = access.mount();
+
+        var handle = mount.openForWrite("file.txt");
+        handle.write(LuaValues.encode(LONG_CONTENTS));
+        assertEquals(CAPACITY - LONG_CONTENTS.length(), mount.getRemainingSpace());
+        assertEquals(access.computeRemainingSpace(), access.mount().getRemainingSpace(), "Free space is inconsistent");
+
+        var handle2 = mount.openForWrite("file.txt");
+
+        handle.write(LuaValues.encode("test"));
+        assertEquals(CAPACITY - LONG_CONTENTS.length() - 4, mount.getRemainingSpace());
+        assertEquals(access.computeRemainingSpace(), access.mount().getRemainingSpace(), "Free space is inconsistent");
+
+        handle2.close();
+        handle.close();
+
+        mount.delete("file.txt");
+        assertEquals(CAPACITY, mount.getRemainingSpace());
+        assertEquals(access.computeRemainingSpace(), access.mount().getRemainingSpace(), "Free space is inconsistent");
+    }
+
+    @Test
     default void Append_jumps_to_file_end() throws IOException {
         var access = createExisting(CAPACITY);
         var mount = access.mount();

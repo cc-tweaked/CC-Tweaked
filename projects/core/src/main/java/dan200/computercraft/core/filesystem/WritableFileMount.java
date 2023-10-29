@@ -175,7 +175,7 @@ public class WritableFileMount extends FileMount implements WritableMount {
         usedSpace += MINIMUM_FILE_SIZE;
 
         try {
-            return new CountingChannel(Files.newByteChannel(file, WRITE_OPTIONS), MINIMUM_FILE_SIZE, true);
+            return new CountingChannel(Files.newByteChannel(file, WRITE_OPTIONS), true);
         } catch (IOException e) {
             throw remapException(path, e);
         }
@@ -195,11 +195,7 @@ public class WritableFileMount extends FileMount implements WritableMount {
 
         // Allowing seeking when appending is not recommended, so we use a separate channel.
         try {
-            return new CountingChannel(
-                Files.newByteChannel(file, APPEND_OPTIONS),
-                Math.max(MINIMUM_FILE_SIZE - (attributes == null ? 0 : attributes.size()), 0),
-                false
-            );
+            return new CountingChannel(Files.newByteChannel(file, APPEND_OPTIONS), false);
         } catch (IOException e) {
             throw remapException(path, e);
         }
@@ -207,31 +203,33 @@ public class WritableFileMount extends FileMount implements WritableMount {
 
     private class CountingChannel implements SeekableByteChannel {
         private final SeekableByteChannel channel;
-        private long ignoredBytesLeft;
         private final boolean canSeek;
 
-        CountingChannel(SeekableByteChannel channel, long bytesToIgnore, boolean canSeek) {
+        CountingChannel(SeekableByteChannel channel, boolean canSeek) {
             this.channel = channel;
-            ignoredBytesLeft = bytesToIgnore;
             this.canSeek = canSeek;
         }
 
         @Override
         public int write(ByteBuffer b) throws IOException {
-            count(b.remaining());
-            return channel.write(b);
-        }
+            var toWrite = b.remaining();
 
-        void count(long n) throws IOException {
-            ignoredBytesLeft -= n;
-            if (ignoredBytesLeft < 0) {
-                var newBytes = -ignoredBytesLeft;
-                ignoredBytesLeft = 0;
-
-                var bytesLeft = capacity - usedSpace;
-                if (newBytes > bytesLeft) throw new IOException(OUT_OF_SPACE);
-                usedSpace += newBytes;
+            // If growing the file, make sure we have space for it.
+            var newPosition = Math.addExact(channel.position(), toWrite);
+            var newBytes = newPosition - Math.max(MINIMUM_FILE_SIZE, channel.size());
+            if (newBytes > 0) {
+                var newUsedSpace = Math.addExact(usedSpace, newBytes);
+                if (newUsedSpace > capacity) throw new IOException(OUT_OF_SPACE);
+                usedSpace = newUsedSpace;
             }
+
+            var written = channel.write(b);
+
+            // Some safety checks to check our file size accounting is reasonable.
+            if (written != toWrite) throw new IllegalStateException("Not all bytes were written");
+            assert channel.position() == newPosition : "Position is consistent";
+
+            return written;
         }
 
         @Override
@@ -248,16 +246,7 @@ public class WritableFileMount extends FileMount implements WritableMount {
         public SeekableByteChannel position(long newPosition) throws IOException {
             if (!isOpen()) throw new ClosedChannelException();
             if (!canSeek) throw new UnsupportedOperationException("File does not support seeking");
-            if (newPosition < 0) {
-                throw new IllegalArgumentException("Cannot seek before the beginning of the stream");
-            }
-
-            var delta = newPosition - channel.position();
-            if (delta < 0) {
-                ignoredBytesLeft -= delta;
-            } else {
-                count(delta);
-            }
+            if (newPosition < 0) throw new IllegalArgumentException("Cannot seek before the beginning of the stream");
 
             return channel.position(newPosition);
         }

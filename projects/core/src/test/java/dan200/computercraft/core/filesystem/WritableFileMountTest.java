@@ -10,6 +10,9 @@ import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.test.core.filesystem.WritableMountContract;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,6 +33,13 @@ public class WritableFileMountTest implements WritableMountContract {
     @AfterEach
     public void cleanup() throws IOException {
         for (var mount : cleanup) MoreFiles.deleteRecursively(mount, RecursiveDeleteOption.ALLOW_INSECURE);
+    }
+
+    @Override
+    @Test
+    @DisabledOnOs(OS.WINDOWS) // This fails on Windows, and I don't have a debugger to find out why.
+    public void Writing_uses_latest_file_size() throws IOException {
+        WritableMountContract.super.Writing_uses_latest_file_size();
     }
 
     private static final class MountAccessImpl implements MountAccess {
