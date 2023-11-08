@@ -79,20 +79,6 @@ describe("The Lua base library", function()
     end)
 
     describe("load", function()
-        it("validates arguments", function()
-            load("")
-            load(function()
-            end)
-            load("", "")
-            load("", "", "")
-            load("", "", "", _ENV)
-
-            expect.error(load, nil):eq("bad argument #1 (function or string expected, got nil)")
-            expect.error(load, "", false):eq("bad argument #2 (string expected, got boolean)")
-            expect.error(load, "", "", false):eq("bad argument #3 (string expected, got boolean)")
-            expect.error(load, "", "", "", false):eq("bad argument #4 (table expected, got boolean)")
-        end)
-
         local function generator(parts)
             return coroutine.wrap(function()
                 for i = 1, #parts do

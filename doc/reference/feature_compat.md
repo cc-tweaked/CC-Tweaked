@@ -9,17 +9,19 @@ SPDX-License-Identifier: MPL-2.0
 -->
 
 # Lua 5.2/5.3 features in CC: Tweaked
-CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However, Cobalt and CC:T implement additional features from Lua 5.2 and 5.3 (as well as some deprecated 5.0 features) that are not available in base 5.1. This page lists all of the compatibility for these newer versions.
+CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.2. However, Cobalt and CC:T implement additional
+features from Lua 5.2 and 5.3 (as well as some deprecated 5.0 and 5.1 features). This page lists all of the
+compatibility for these newer versions.
 
 ## Lua 5.2
 | Feature                                                       | Supported? | Notes                                                             |
 |---------------------------------------------------------------|------------|-------------------------------------------------------------------|
-| `goto`/labels                                                 | ❌         |                                                                   |
-| `_ENV`                                                        | 🔶         | The `_ENV` global points to `getfenv()`, but it cannot be set.    |
+| `goto`/labels                                                 | ✔          |                                                                   |
+| `_ENV`                                                        | ✔          |                                                                   |
 | `\z` escape                                                   | ✔          |                                                                   |
 | `\xNN` escape                                                 | ✔          |                                                                   |
 | Hex literal fractional/exponent parts                         | ✔          |                                                                   |
-| Empty statements                                              | ❌         |                                                                   |
+| Empty statements                                              | ✔          |                                                                   |
 | `__len` metamethod                                            | ✔          |                                                                   |
 | `__ipairs` metamethod                                         | ❌         | Deprecated in Lua 5.3. `ipairs` uses `__len`/`__index` instead.   |
 | `__pairs` metamethod                                          | ✔          |                                                                   |
@@ -27,12 +29,12 @@ CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However,
 | `collectgarbage` isrunning, generational, incremental options | ❌         | `collectgarbage` does not exist in CC:T.                          |
 | New `load` syntax                                             | ✔          |                                                                   |
 | `loadfile` mode parameter                                     | ✔          | Supports both 5.1 and 5.2+ syntax.                                |
-| Removed `loadstring`                                          | 🔶         | Only if `disable_lua51_features` is enabled in the configuration. |
-| Removed `getfenv`, `setfenv`                                  | 🔶         | Only if `disable_lua51_features` is enabled in the configuration. |
+| Removed `loadstring`                                          | ❌         |                                                                   |
+| Removed `getfenv`, `setfenv`                                  | 🔶         | Only supports closures with an `_ENV` upvalue.                    |
 | `rawlen` function                                             | ✔          |                                                                   |
 | Negative index to `select`                                    | ✔          |                                                                   |
-| Removed `unpack`                                              | 🔶         | Only if `disable_lua51_features` is enabled in the configuration. |
-| Arguments to `xpcall`                                         | ✔         |                                                                   |
+| Removed `unpack`                                              | ❌         |                                                                   |
+| Arguments to `xpcall`                                         | ✔          |                                                                   |
 | Second return value from `coroutine.running`                  | ✔          |                                                                   |
 | Removed `module`                                              | ✔          |                                                                   |
 | `package.loaders` -> `package.searchers`                      | ❌         |                                                                   |
@@ -40,14 +42,14 @@ CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However,
 | `package.config`                                              | ✔          |                                                                   |
 | `package.searchpath`                                          | ✔          |                                                                   |
 | Removed `package.seeall`                                      | ✔          |                                                                   |
-| `string.dump` on functions with upvalues (blanks them out)    | ✔          |                                                                   |
-| `string.rep` separator                                        | ✔         |                                                                   |
+| `string.dump` on functions with upvalues (blanks them out)    | ❌         | `string.dump` is not supported                                    |
+| `string.rep` separator                                        | ✔          |                                                                   |
 | `%g` match group                                              | ❌         |                                                                   |
 | Removal of `%z` match group                                   | ❌         |                                                                   |
-| Removed `table.maxn`                                          | 🔶         | Only if `disable_lua51_features` is enabled in the configuration. |
+| Removed `table.maxn`                                          | ❌         |                                                                   |
 | `table.pack`/`table.unpack`                                   | ✔          |                                                                   |
 | `math.log` base argument                                      | ✔          |                                                                   |
-| Removed `math.log10`                                          | 🔶         | Only if `disable_lua51_features` is enabled in the configuration. |
+| Removed `math.log10`                                          | ❌         |                                                                   |
 | `*L` mode to `file:read`                                      | ✔          |                                                                   |
 | `os.execute` exit type + return value                         | ❌         | `os.execute` does not exist in CC:T.                              |
 | `os.exit` close argument                                      | ❌         | `os.exit` does not exist in CC:T.                                 |
@@ -61,7 +63,7 @@ CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However,
 | Tail call hooks                                               | ❌         |                                                                   |
 | `=` prefix for chunks                                         | ✔          |                                                                   |
 | Yield across C boundary                                       | ✔          |                                                                   |
-| Removal of ambiguity error                                    | ❌         |                                                                   |
+| Removal of ambiguity error                                    | ✔          |                                                                   |
 | Identifiers may no longer use locale-dependent letters        | ✔          |                                                                   |
 | Ephemeron tables                                              | ❌         |                                                                   |
 | Identical functions may be reused                             | ❌         | Removed in Lua 5.4                                                |

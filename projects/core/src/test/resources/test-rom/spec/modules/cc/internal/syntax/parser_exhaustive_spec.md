@@ -9,32 +9,6 @@ generate for each one. This is _not_ a complete collection of all possible
 errors, but is a useful guide for where we might be providing terrible messages.
 
 ```lua
-break while
--- Line 1: unexpected symbol near <eof> (program)
-```
-
-```txt
-Unexpected while. Expected a statement.
-   |
- 1 | break while
-   |       ^^^^^
-```
-
-
-```lua
-do end true
--- Line 1: unexpected symbol near 'true' (program)
-```
-
-```txt
-Unexpected true. Expected a statement.
-   |
- 1 | do end true
-   |        ^^^^
-```
-
-
-```lua
 do until
 -- Line 1: 'end' expected near 'until' (program)
 ```
@@ -60,6 +34,35 @@ Unexpected true.
    |
  1 | ... true
    |     ^^^^
+```
+
+
+```lua
+:: xyz while
+-- Line 1: '::' expected near 'while' (program)
+```
+
+```txt
+Unexpected while.
+   |
+ 1 | :: xyz while
+   | ^^ Label was started here.
+   |
+ 1 | :: xyz while
+   |        ^^^^^ Tip: Try adding :: here.
+```
+
+
+```lua
+:: while
+-- Line 1: <name> expected near 'while' (program)
+```
+
+```txt
+Unexpected while.
+   |
+ 1 | :: while
+   |    ^^^^^
 ```
 
 
@@ -850,6 +853,20 @@ Unexpected while.
 
 
 ```lua
+xyz while
+-- Line 1: syntax error near 'while' (program)
+```
+
+```txt
+Unexpected symbol after name.
+   |
+ 1 | xyz while
+   |     ^
+Did you mean to assign this or call it as a function?
+```
+
+
+```lua
 if xyz then else until
 -- Line 1: 'end' expected near 'until' (program)
 ```
@@ -1060,22 +1077,6 @@ Unexpected while. Expected an expression.
 
 
 ```lua {repl_exprs}
-{ xyz , while
--- Line 1: unexpected symbol near 'while' (repl_exprs)
-```
-
-```txt
-Unexpected while. Are you missing a closing bracket?
-   |
- 1 | { xyz , while
-   | ^ Brackets were opened here.
-   |
- 1 | { xyz , while
-   |         ^^^^^ Unexpected while here.
-```
-
-
-```lua {repl_exprs}
 { xyz = xyz while
 -- Line 1: '}' expected near 'while' (repl_exprs)
 ```
@@ -1101,6 +1102,22 @@ Unexpected while. Expected an expression.
    |
  1 | { xyz = while
    |         ^^^^^
+```
+
+
+```lua {repl_exprs}
+{ xyz ; while
+-- Line 1: unexpected symbol near 'while' (repl_exprs)
+```
+
+```txt
+Unexpected while. Are you missing a closing bracket?
+   |
+ 1 | { xyz ; while
+   | ^ Brackets were opened here.
+   |
+ 1 | { xyz ; while
+   |         ^^^^^ Unexpected while here.
 ```
 
 

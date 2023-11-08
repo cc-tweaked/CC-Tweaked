@@ -535,6 +535,28 @@ function errors.unexpected_end(start_pos, end_pos)
     }
 end
 
+--[[- A label statement was opened but not closed.
+
+@tparam number open_start The start position of the opening label.
+@tparam number open_end The end position of the opening label.
+@tparam number tok_start The start position of the current token.
+@return The resulting parse error.
+]]
+function errors.unclosed_label(open_start, open_end, token, start_pos, end_pos)
+    expect(1, open_start, "number")
+    expect(2, open_end, "number")
+    expect(3, token, "number")
+    expect(4, start_pos, "number")
+    expect(5, end_pos, "number")
+
+    return {
+        "Unexpected " .. token_names[token] .. ".",
+        annotate(open_start, open_end, "Label was started here."),
+        annotate(start_pos, end_pos, "Tip: Try adding " .. code("::") .. " here."),
+
+    }
+end
+
 --------------------------------------------------------------------------------
 -- Generic parsing errors
 --------------------------------------------------------------------------------

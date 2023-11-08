@@ -188,6 +188,9 @@ local function format(value)
     -- TODO: Look into something like mbs's pretty printer.
     if type(value) == "string" and value:find("\n") then
         return "<<<\n" .. value .. "\n>>>"
+    elseif type(value) == "string" then
+        local escaped = value:gsub("[^%g ]", function(x) return ("\\x%02x"):format(x:byte()) end)
+        return "\"" .. escaped .. "\""
     else
         local ok, res = pcall(textutils.serialise, value)
         if ok then return res else return tostring(value) end

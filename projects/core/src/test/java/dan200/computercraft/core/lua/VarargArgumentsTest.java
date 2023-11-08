@@ -7,6 +7,7 @@ package dan200.computercraft.core.lua;
 import dan200.computercraft.api.lua.LuaException;
 import org.junit.jupiter.api.Test;
 import org.squiddev.cobalt.Constants;
+import org.squiddev.cobalt.LuaError;
 import org.squiddev.cobalt.LuaTable;
 import org.squiddev.cobalt.ValueFactory;
 
@@ -18,7 +19,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class VarargArgumentsTest {
     private static LuaTable tableWithCustomType() {
         var metatable = new LuaTable();
-        metatable.rawset(Constants.NAME, ValueFactory.valueOf("some type"));
+        try {
+            metatable.rawset(Constants.NAME, ValueFactory.valueOf("some type"));
+        } catch (LuaError e) {
+            throw new IllegalStateException("Cannot create metatable", e);
+        }
 
         var table = new LuaTable();
         table.setMetatable(null, metatable);

@@ -73,20 +73,20 @@ public class CobaltLuaMachine implements ILuaMachine {
             .build();
 
         // Set up our global table.
-        var globals = state.getMainThread().getfenv();
-        CoreLibraries.debugGlobals(state);
-        Bit32Lib.add(state, globals);
-        globals.rawset("_HOST", ValueFactory.valueOf(environment.hostString()));
-        globals.rawset("_CC_DEFAULT_SETTINGS", ValueFactory.valueOf(CoreConfig.defaultComputerSettings));
-
-        // Add default APIs
-        for (var api : environment.apis()) addAPI(globals, api);
-
-        // And load the BIOS
         try {
+            var globals = state.globals();
+            CoreLibraries.debugGlobals(state);
+            Bit32Lib.add(state, globals);
+            globals.rawset("_HOST", ValueFactory.valueOf(environment.hostString()));
+            globals.rawset("_CC_DEFAULT_SETTINGS", ValueFactory.valueOf(CoreConfig.defaultComputerSettings));
+
+            // Add default APIs
+            for (var api : environment.apis()) addAPI(globals, api);
+
+            // And load the BIOS
             var value = LoadState.load(state, bios, "@bios.lua", globals);
-            mainRoutine = new LuaThread(state, value, globals);
-        } catch (CompileException e) {
+            mainRoutine = new LuaThread(state, value);
+        } catch (LuaError | CompileException e) {
             throw new MachineException(Nullability.assertNonNull(e.getMessage()));
         }
 
@@ -171,7 +171,7 @@ public class CobaltLuaMachine implements ILuaMachine {
         return found ? table : null;
     }
 
-    private LuaValue toValue(@Nullable Object object, @Nullable IdentityHashMap<Object, LuaValue> values) {
+    private LuaValue toValue(@Nullable Object object, @Nullable IdentityHashMap<Object, LuaValue> values) throws LuaError {
         if (object == null) return Constants.NIL;
         if (object instanceof Number num) return ValueFactory.valueOf(num.doubleValue());
         if (object instanceof Boolean bool) return ValueFactory.valueOf(bool);
@@ -235,7 +235,7 @@ public class CobaltLuaMachine implements ILuaMachine {
         return Constants.NIL;
     }
 
-    Varargs toValues(@Nullable Object[] objects) {
+    Varargs toValues(@Nullable Object[] objects) throws LuaError {
         if (objects == null || objects.length == 0) return Constants.NONE;
         if (objects.length == 1) return toValue(objects[0], null);
 
