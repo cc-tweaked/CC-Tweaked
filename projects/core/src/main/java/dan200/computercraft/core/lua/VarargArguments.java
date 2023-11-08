@@ -114,6 +114,13 @@ final class VarargArguments implements IArguments {
     }
 
     @Override
+    public ByteBuffer getBytesCoerced(int index) {
+        checkAccessible();
+        var arg = varargs.arg(index + 1);
+        return arg instanceof LuaString s ? s.toBuffer() : LuaValues.encode(arg.toString());
+    }
+
+    @Override
     public String getType(int index) {
         checkAccessible();
 

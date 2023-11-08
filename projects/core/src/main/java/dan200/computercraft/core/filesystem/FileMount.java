@@ -12,20 +12,17 @@ import dan200.computercraft.api.filesystem.Mount;
 import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.FileSystemException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
-import java.util.Set;
 
-import static dan200.computercraft.core.filesystem.MountHelpers.NOT_A_FILE;
-import static dan200.computercraft.core.filesystem.MountHelpers.NO_SUCH_FILE;
+import static dan200.computercraft.api.filesystem.MountConstants.*;
 
 /**
  * A {@link Mount} implementation which provides read-only access to a directory.
  */
 public class FileMount implements Mount {
-    private static final Set<OpenOption> READ_OPTIONS = Set.of(StandardOpenOption.READ);
-
     protected final Path root;
 
     public FileMount(Path root) {
@@ -108,7 +105,7 @@ public class FileMount implements Mount {
     protected FileOperationException remapException(String fallbackPath, IOException exn) {
         return exn instanceof FileSystemException fsExn
             ? remapException(fallbackPath, fsExn)
-            : new FileOperationException(fallbackPath, exn.getMessage() == null ? MountHelpers.ACCESS_DENIED : exn.getMessage());
+            : new FileOperationException(fallbackPath, exn.getMessage() == null ? ACCESS_DENIED : exn.getMessage());
     }
 
     /**

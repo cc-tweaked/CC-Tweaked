@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static dan200.computercraft.core.filesystem.MountHelpers.*;
+import static dan200.computercraft.api.filesystem.MountConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

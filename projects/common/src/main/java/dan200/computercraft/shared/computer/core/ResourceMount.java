@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static dan200.computercraft.core.filesystem.MountHelpers.NO_SUCH_FILE;
+import static dan200.computercraft.api.filesystem.MountConstants.NO_SUCH_FILE;
 
 /**
  * A mount backed by Minecraft's {@link ResourceManager}.

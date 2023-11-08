@@ -28,7 +28,7 @@ describe("The io library", function()
     end
 
     local function setup()
-        write_file(file, "\"�lo\"{a}\nsecond line\nthird line \n�fourth_line\n\n\9\9  3450\n")
+        write_file(file, "\"\225lo\"{a}\nsecond line\nthird line \n\225fourth_line\n\n\9\9  3450\n")
     end
 
     describe("io.close", function()
@@ -223,14 +223,14 @@ describe("The io library", function()
             io.input(file)
 
             expect(io.read(0)):eq("")   -- not eof
-            expect(io.read(5, '*l')):eq('"�lo"')
+            expect(io.read(5, '*l')):eq('"\225lo"')
             expect(io.read(0)):eq("")
             expect(io.read()):eq("second line")
             local x = io.input():seek()
             expect(io.read()):eq("third line ")
             assert(io.input():seek("set", x))
             expect(io.read('*l')):eq("third line ")
-            expect(io.read(1)):eq("�")
+            expect(io.read(1)):eq("\225")
             expect(io.read(#"fourth_line")):eq("fourth_line")
             assert(io.input():seek("cur", -#"fourth_line"))
             expect(io.read()):eq("fourth_line")
@@ -304,8 +304,8 @@ describe("The io library", function()
 
             expect(io.output():seek("set")):equal(0)
 
-            assert(io.write('"�lo"', "{a}\n", "second line\n", "third line \n"))
-            assert(io.write('�fourth_line'))
+            assert(io.write('"\225lo"', "{a}\n", "second line\n", "third line \n"))
+            assert(io.write('\225fourth_line'))
 
             io.output(io.stdout)
             expect(io.output()):equals(io.stdout)

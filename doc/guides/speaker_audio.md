@@ -134,7 +134,7 @@ accepts blocks of DFPWM data and converts it to a list of 8-bit amplitudes, whic
 As mentioned above, [`speaker.playAudio`] accepts at most 128×1024 samples in one go. DFPMW uses a single bit for each
 sample, which means we want to process our audio in chunks of 16×1024 bytes (16KiB). In order to do this, we use
 [`io.lines`], which provides a nice way to loop over chunks of a file. You can of course just use [`fs.open`] and
-[`fs.BinaryReadHandle.read`] if you prefer.
+[`fs.ReadHandle.read`] if you prefer.
 
 ## Processing audio
 As mentioned near the beginning of this guide, PCM audio is pretty easy to work with as it's just a list of amplitudes.

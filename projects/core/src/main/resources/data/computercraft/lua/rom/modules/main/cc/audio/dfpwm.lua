@@ -9,8 +9,8 @@ DFPWM (Dynamic Filter Pulse Width Modulation) is an audio codec designed by Grea
 format compared to raw PCM data, only using 1 bit per sample, but is simple enough to simple enough to encode and decode
 in real time.
 
-Typically DFPWM audio is read from [the filesystem][`fs.BinaryReadHandle`] or a [a web request][`http.Response`] as a
-string, and converted a format suitable for [`speaker.playAudio`].
+Typically DFPWM audio is read from [the filesystem][`fs.ReadHandle`] or a [a web request][`http.Response`] as a string,
+and converted a format suitable for [`speaker.playAudio`].
 
 ## Encoding and decoding files
 This modules exposes two key functions, [`make_decoder`] and [`make_encoder`], which construct a new decoder or encoder.

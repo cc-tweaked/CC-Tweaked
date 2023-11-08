@@ -10,7 +10,7 @@ import dan200.computercraft.test.core.filesystem.MountContract;
 import dan200.computercraft.test.core.filesystem.WritableMountContract;
 import org.opentest4j.TestAbortedException;
 
-import static dan200.computercraft.core.filesystem.MountHelpers.EPOCH;
+import static dan200.computercraft.api.filesystem.MountConstants.EPOCH;
 
 public class MemoryMountTest implements MountContract, WritableMountContract {
     @Override

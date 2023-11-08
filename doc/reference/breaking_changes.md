@@ -32,6 +32,8 @@ as documentation for breaking changes and "gotchas" one should look out for betw
      environment.
    - Support for dumping functions (`string.dump`) and loading binary chunks has been removed.
 
+ - File handles, HTTP requests and websockets now always use the original bytes rather than encoding/decoding to UTF-8.
+
 ## Minecraft 1.13 {#mc-1.13}
  - The "key code" for [`key`] and [`key_up`] events has changed, due to Minecraft updating to LWJGL 3. Make sure you're
    using the constants provided by the [`keys`] API, rather than hard-coding numerical values.

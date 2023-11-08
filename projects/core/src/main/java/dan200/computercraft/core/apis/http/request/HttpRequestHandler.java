@@ -6,8 +6,7 @@ package dan200.computercraft.core.apis.http.request;
 
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
-import dan200.computercraft.core.apis.handles.BinaryReadableHandle;
-import dan200.computercraft.core.apis.handles.EncodedReadableHandle;
+import dan200.computercraft.core.apis.handles.ReadHandle;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.Options;
@@ -188,9 +187,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
         // Prepare to queue an event
         var contents = new ArrayByteChannel(bytes);
-        var reader = request.isBinary()
-            ? BinaryReadableHandle.of(contents)
-            : new EncodedReadableHandle(EncodedReadableHandle.open(contents, responseCharset));
+        var reader = new ReadHandle(contents, request.isBinary());
         var stream = new HttpResponseHandle(reader, status.code(), status.reasonPhrase(), headers);
 
         if (status.code() >= 200 && status.code() < 400) {

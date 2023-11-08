@@ -31,7 +31,7 @@ describe("The import program", function()
             for _, event in pairs(queue) do assert(coroutine.resume(co, table.unpack(event))) end
         end)
 
-        local handle = fs.open("transfer.txt", "rb")
+        local handle = fs.open("transfer.txt", "r")
         local contents = handle.readAll()
         handle.close()
 

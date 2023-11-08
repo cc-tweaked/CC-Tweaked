@@ -4,22 +4,22 @@
 
 package dan200.computercraft.core.apis;
 
+import dan200.computercraft.api.filesystem.MountConstants;
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.core.apis.handles.BinaryReadableHandle;
-import dan200.computercraft.core.apis.handles.BinaryWritableHandle;
-import dan200.computercraft.core.apis.handles.EncodedReadableHandle;
-import dan200.computercraft.core.apis.handles.EncodedWritableHandle;
+import dan200.computercraft.core.apis.handles.ReadHandle;
+import dan200.computercraft.core.apis.handles.ReadWriteHandle;
+import dan200.computercraft.core.apis.handles.WriteHandle;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.metrics.Metrics;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
+import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
+import java.util.*;
 
 /**
  * Interact with the computer's files and filesystem, allowing you to manipulate files, directories and paths. This
@@ -55,6 +55,9 @@ import java.util.function.Function;
  * @cc.module fs
  */
 public class FSAPI implements ILuaAPI {
+    private static final Set<OpenOption> READ_EXTENDED = Set.of(StandardOpenOption.READ, StandardOpenOption.WRITE);
+    private static final Set<OpenOption> WRITE_EXTENDED = union(Set.of(StandardOpenOption.READ), MountConstants.WRITE_OPTIONS);
+
     private final IAPIEnvironment environment;
     private @Nullable FileSystem fileSystem = null;
 
@@ -301,8 +304,6 @@ public class FSAPI implements ILuaAPI {
         }
     }
 
-    // FIXME: Add individual handle type documentation
-
     /**
      * Opens a file for reading or writing at a path.
      * <p>
@@ -311,10 +312,13 @@ public class FSAPI implements ILuaAPI {
      * <li><strong>"r"</strong>: Read mode</li>
      * <li><strong>"w"</strong>: Write mode</li>
      * <li><strong>"a"</strong>: Append mode</li>
+     * <li><strong>"r+"</strong>: Update mode (allows reading and writing), all data is preserved</li>
+     * <li><strong>"w+"</strong>: Update mode, all data is erased.</li>
      * </ul>
      * <p>
      * The mode may also have a "b" at the end, which opens the file in "binary
-     * mode". This allows you to read binary files, as well as seek within a file.
+     * mode". This changes {@link ReadHandle#read(Optional)} and {@link WriteHandle#write(IArguments)}
+     * to read/write single bytes as numbers rather than strings.
      *
      * @param path The path to the file to open.
      * @param mode The mode to open the file with.
@@ -354,42 +358,38 @@ public class FSAPI implements ILuaAPI {
      * file.write("Just testing some code")
      * file.close() -- Remember to call close, otherwise changes may not be written!
      * }</pre>
+     * @cc.changed 1.109.0 Add support for update modes ({@code r+} and {@code w+}).
+     * @cc.changed 1.109.0 Opening a file in non-binary mode now uses the raw bytes of the file rather than encoding to
+     * UTF-8.
      */
     @LuaFunction
     public final Object[] open(String path, String mode) throws LuaException {
+        if (mode.isEmpty()) throw new LuaException(MountConstants.UNSUPPORTED_MODE);
+
+        var binary = mode.indexOf('b') >= 0;
         try (var ignored = environment.time(Metrics.FS_OPS)) {
             switch (mode) {
-                case "r" -> {
-                    // Open the file for reading, then create a wrapper around the reader
-                    var reader = getFileSystem().openForRead(path, EncodedReadableHandle::openUtf8);
-                    return new Object[]{ new EncodedReadableHandle(reader.get(), reader) };
+                case "r", "rb" -> {
+                    var reader = getFileSystem().openForRead(path);
+                    return new Object[]{ new ReadHandle(reader.get(), reader, binary) };
                 }
-                case "w" -> {
-                    // Open the file for writing, then create a wrapper around the writer
-                    var writer = getFileSystem().openForWrite(path, false, EncodedWritableHandle::openUtf8);
-                    return new Object[]{ new EncodedWritableHandle(writer.get(), writer) };
+                case "w", "wb" -> {
+                    var writer = getFileSystem().openForWrite(path, MountConstants.WRITE_OPTIONS);
+                    return new Object[]{ WriteHandle.of(writer.get(), writer, binary, true) };
                 }
-                case "a" -> {
-                    // Open the file for appending, then create a wrapper around the writer
-                    var writer = getFileSystem().openForWrite(path, true, EncodedWritableHandle::openUtf8);
-                    return new Object[]{ new EncodedWritableHandle(writer.get(), writer) };
+                case "a", "ab" -> {
+                    var writer = getFileSystem().openForWrite(path, MountConstants.APPEND_OPTIONS);
+                    return new Object[]{ WriteHandle.of(writer.get(), writer, binary, false) };
                 }
-                case "rb" -> {
-                    // Open the file for binary reading, then create a wrapper around the reader
-                    var reader = getFileSystem().openForRead(path, Function.identity());
-                    return new Object[]{ BinaryReadableHandle.of(reader.get(), reader) };
+                case "r+", "r+b" -> {
+                    var reader = getFileSystem().openForWrite(path, READ_EXTENDED);
+                    return new Object[]{ new ReadWriteHandle(reader.get(), reader, binary) };
                 }
-                case "wb" -> {
-                    // Open the file for binary writing, then create a wrapper around the writer
-                    var writer = getFileSystem().openForWrite(path, false, Function.identity());
-                    return new Object[]{ BinaryWritableHandle.of(writer.get(), writer, true) };
+                case "w+", "w+b" -> {
+                    var writer = getFileSystem().openForWrite(path, WRITE_EXTENDED);
+                    return new Object[]{ new ReadWriteHandle(writer.get(), writer, binary) };
                 }
-                case "ab" -> {
-                    // Open the file for binary appending, then create a wrapper around the reader
-                    var writer = getFileSystem().openForWrite(path, true, Function.identity());
-                    return new Object[]{ BinaryWritableHandle.of(writer.get(), writer, false) };
-                }
-                default -> throw new LuaException("Unsupported mode");
+                default -> throw new LuaException(MountConstants.UNSUPPORTED_MODE);
             }
         } catch (FileSystemException e) {
             return new Object[]{ null, e.getMessage() };
@@ -497,5 +497,12 @@ public class FSAPI implements ILuaAPI {
         } catch (FileSystemException e) {
             throw new LuaException(e.getMessage());
         }
+    }
+
+    private static Set<OpenOption> union(Set<OpenOption> a, Set<OpenOption> b) {
+        Set<OpenOption> union = new HashSet<>();
+        union.addAll(a);
+        union.addAll(b);
+        return Set.copyOf(union);
     }
 }

@@ -45,7 +45,7 @@ local function get(sUrl)
 
     write("Connecting to " .. sUrl .. "... ")
 
-    local response = http.get(sUrl , nil , true)
+    local response = http.get(sUrl)
     if not response then
         print("Failed.")
         return nil

@@ -51,15 +51,15 @@ class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
 
         var frame = (WebSocketFrame) msg;
         if (frame instanceof TextWebSocketFrame textFrame) {
-            var data = textFrame.text();
+            var data = NetworkUtils.toBytes(textFrame.content());
 
-            websocket.environment().observe(Metrics.WEBSOCKET_INCOMING, data.length());
+            websocket.environment().observe(Metrics.WEBSOCKET_INCOMING, data.length);
             websocket.environment().queueEvent(MESSAGE_EVENT, websocket.address(), data, false);
         } else if (frame instanceof BinaryWebSocketFrame) {
-            var converted = NetworkUtils.toBytes(frame.content());
+            var data = NetworkUtils.toBytes(frame.content());
 
-            websocket.environment().observe(Metrics.WEBSOCKET_INCOMING, converted.length);
-            websocket.environment().queueEvent(MESSAGE_EVENT, websocket.address(), converted, true);
+            websocket.environment().observe(Metrics.WEBSOCKET_INCOMING, data.length);
+            websocket.environment().queueEvent(MESSAGE_EVENT, websocket.address(), data, true);
         } else if (frame instanceof CloseWebSocketFrame closeFrame) {
             websocket.close(closeFrame.statusCode(), closeFrame.reasonText());
         }

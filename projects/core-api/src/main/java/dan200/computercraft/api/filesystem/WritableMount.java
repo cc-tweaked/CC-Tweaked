@@ -7,8 +7,13 @@ package dan200.computercraft.api.filesystem;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileAttribute;
+import java.util.Set;
 
 /**
  * Represents a part of a virtual filesystem that can be mounted onto a computer using {@link IComputerAccess#mount(String, Mount)}
@@ -51,22 +56,51 @@ public interface WritableMount extends Mount {
     void rename(String source, String dest) throws IOException;
 
     /**
-     * Opens a file with a given path, and returns an {@link OutputStream} for writing to it.
+     * Opens a file with a given path, and returns an {@link SeekableByteChannel} for writing to it.
      *
      * @param path A file path in normalised format, relative to the mount location. ie: "programs/myprogram".
-     * @return A stream for writing to.
+     * @return A channel for writing to.
      * @throws IOException If the file could not be opened for writing.
+     * @deprecated Replaced with more the generic {@link #openFile(String, Set)}.
      */
+    @Deprecated(forRemoval = true)
     SeekableByteChannel openForWrite(String path) throws IOException;
 
     /**
-     * Opens a file with a given path, and returns an {@link OutputStream} for appending to it.
+     * Opens a file with a given path, and returns an {@link SeekableByteChannel} for appending to it.
      *
      * @param path A file path in normalised format, relative to the mount location. ie: "programs/myprogram".
-     * @return A stream for writing to.
+     * @return A channel for writing to.
+     * @throws IOException If the file could not be opened for writing.
+     * @deprecated Replaced with more the generic {@link #openFile(String, Set)}.
+     */
+    @Deprecated(forRemoval = true)
+    SeekableByteChannel openForAppend(String path) throws IOException;
+
+    /**
+     * Opens a file with a given path, and returns an {@link SeekableByteChannel}.
+     * <p>
+     * This allows opening a file in a variety of options, much like {@link FileChannel#open(Path, Set, FileAttribute[])}.
+     * <p>
+     * At minimum, the option sets {@link MountConstants#READ_OPTIONS}, {@link MountConstants#WRITE_OPTIONS} and
+     * {@link MountConstants#APPEND_OPTIONS} should be supported. It is recommended any valid combination of
+     * {@link StandardOpenOption#READ}, {@link StandardOpenOption#WRITE}, {@link StandardOpenOption#CREATE},
+     * {@link StandardOpenOption#TRUNCATE_EXISTING} and {@link StandardOpenOption#APPEND} are supported.
+     * <p>
+     * Unsupported modes (or combinations of modes) should throw an exception with the message
+     * {@link MountConstants#UNSUPPORTED_MODE "Unsupported mode"}.
+     *
+     * @param path    A file path in normalised format, relative to the mount location. ie: "programs/myprogram".
+     * @param options For options used for opening a file.
+     * @return A channel for writing to.
      * @throws IOException If the file could not be opened for writing.
      */
-    SeekableByteChannel openForAppend(String path) throws IOException;
+    default SeekableByteChannel openFile(String path, Set<OpenOption> options) throws IOException {
+        if (options.equals(MountConstants.READ_OPTIONS)) return openForRead(path);
+        if (options.equals(MountConstants.WRITE_OPTIONS)) return openForWrite(path);
+        if (options.equals(MountConstants.APPEND_OPTIONS)) return openForAppend(path);
+        throw new IOException(MountConstants.UNSUPPORTED_MODE);
+    }
 
     /**
      * Get the amount of free space on the mount, in bytes. You should decrease this value as the user writes to the

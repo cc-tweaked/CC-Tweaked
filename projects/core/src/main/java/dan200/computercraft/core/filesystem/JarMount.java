@@ -18,7 +18,8 @@ import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import static dan200.computercraft.core.filesystem.MountHelpers.NO_SUCH_FILE;
+import static dan200.computercraft.api.filesystem.MountConstants.EPOCH;
+import static dan200.computercraft.api.filesystem.MountConstants.NO_SUCH_FILE;
 
 /**
  * A mount which reads zip/jar files.
@@ -97,6 +98,6 @@ public final class JarMount extends ArchiveMount<JarMount.FileEntry> implements 
     }
 
     private static FileTime orEpoch(@Nullable FileTime time) {
-        return time == null ? MountHelpers.EPOCH : time;
+        return time == null ? EPOCH : time;
     }
 }

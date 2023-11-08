@@ -4,6 +4,7 @@
 
 package dan200.computercraft.test.core.filesystem;
 
+import dan200.computercraft.api.filesystem.MountConstants;
 import dan200.computercraft.api.filesystem.WritableMount;
 
 import java.io.IOException;
@@ -26,7 +27,7 @@ public final class Mounts {
      * @throws IOException If writing fails.
      */
     public static void writeFile(WritableMount mount, String path, String contents) throws IOException {
-        try (var handle = Channels.newWriter(mount.openForWrite(path), StandardCharsets.UTF_8)) {
+        try (var handle = Channels.newWriter(mount.openFile(path, MountConstants.WRITE_OPTIONS), StandardCharsets.UTF_8)) {
             handle.write(contents);
         }
     }

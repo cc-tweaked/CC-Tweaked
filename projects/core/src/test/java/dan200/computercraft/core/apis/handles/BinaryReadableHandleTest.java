@@ -54,7 +54,7 @@ public class BinaryReadableHandleTest {
 
     @Test
     public void testReadLine() throws LuaException {
-        var handle = BinaryReadableHandle.of(new ArrayByteChannel("hello\r\nworld\r!".getBytes(StandardCharsets.UTF_8)));
+        var handle = new ReadHandle(new ArrayByteChannel("hello\r\nworld\r!".getBytes(StandardCharsets.UTF_8)), false);
         assertArrayEquals("hello".getBytes(StandardCharsets.UTF_8), cast(byte[].class, handle.readLine(Optional.empty())));
         assertArrayEquals("world\r!".getBytes(StandardCharsets.UTF_8), cast(byte[].class, handle.readLine(Optional.empty())));
         assertNull(handle.readLine(Optional.empty()));
@@ -62,16 +62,16 @@ public class BinaryReadableHandleTest {
 
     @Test
     public void testReadLineTrailing() throws LuaException {
-        var handle = BinaryReadableHandle.of(new ArrayByteChannel("hello\r\nworld\r!".getBytes(StandardCharsets.UTF_8)));
+        var handle = new ReadHandle(new ArrayByteChannel("hello\r\nworld\r!".getBytes(StandardCharsets.UTF_8)), false);
         assertArrayEquals("hello\r\n".getBytes(StandardCharsets.UTF_8), cast(byte[].class, handle.readLine(Optional.of(true))));
         assertArrayEquals("world\r!".getBytes(StandardCharsets.UTF_8), cast(byte[].class, handle.readLine(Optional.of(true))));
         assertNull(handle.readLine(Optional.of(true)));
     }
 
-    private static BinaryReadableHandle fromLength(int length) {
+    private static ReadHandle fromLength(int length) {
         var input = new byte[length];
         Arrays.fill(input, (byte) 'A');
-        return BinaryReadableHandle.of(new ArrayByteChannel(input));
+        return new ReadHandle(new ArrayByteChannel(input), true);
     }
 
     private static <T> T cast(Class<T> type, @Nullable Object[] values) {

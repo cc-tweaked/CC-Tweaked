@@ -14,22 +14,19 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.NonReadableChannelException;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Set;
 
-import static dan200.computercraft.core.filesystem.MountHelpers.*;
+import static dan200.computercraft.api.filesystem.MountConstants.*;
+
 
 /**
  * A {@link WritableFileMount} implementation which provides read-write access to a directory.
  */
 public class WritableFileMount extends FileMount implements WritableMount {
     private static final Logger LOG = LoggerFactory.getLogger(WritableFileMount.class);
-
-    private static final Set<OpenOption> WRITE_OPTIONS = Set.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-    private static final Set<OpenOption> APPEND_OPTIONS = Set.of(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 
     protected final File rootFile;
     private final long capacity;
@@ -159,43 +156,46 @@ public class WritableFileMount extends FileMount implements WritableMount {
     }
 
     @Override
-    public SeekableByteChannel openForWrite(String path) throws FileOperationException {
-        create();
-
-        var file = resolvePath(path);
-        var attributes = tryGetAttributes(path, file);
-        if (attributes == null) {
-            if (getRemainingSpace() < MINIMUM_FILE_SIZE) throw new FileOperationException(path, OUT_OF_SPACE);
-        } else if (attributes.isDirectory()) {
-            throw new FileOperationException(path, CANNOT_WRITE_TO_DIRECTORY);
-        } else {
-            usedSpace -= Math.max(attributes.size(), MINIMUM_FILE_SIZE);
-        }
-
-        usedSpace += MINIMUM_FILE_SIZE;
-
-        try {
-            return new CountingChannel(Files.newByteChannel(file, WRITE_OPTIONS), true);
-        } catch (IOException e) {
-            throw remapException(path, e);
-        }
+    @Deprecated(forRemoval = true)
+    public SeekableByteChannel openForWrite(String path) throws IOException {
+        return openFile(path, WRITE_OPTIONS);
     }
 
     @Override
-    public SeekableByteChannel openForAppend(String path) throws FileOperationException {
+    @Deprecated(forRemoval = true)
+    public SeekableByteChannel openForAppend(String path) throws IOException {
+        return openFile(path, APPEND_OPTIONS);
+    }
+
+    @Override
+    public SeekableByteChannel openFile(String path, Set<OpenOption> options) throws IOException {
+        var flags = FileFlags.of(options);
+
+        if (path.isEmpty()) {
+            throw new FileOperationException(path, flags.create() ? CANNOT_WRITE_TO_DIRECTORY : NOT_A_FILE);
+        }
+
         create();
 
         var file = resolvePath(path);
         var attributes = tryGetAttributes(path, file);
+        if (attributes != null && attributes.isDirectory()) {
+            throw new FileOperationException(path, flags.create() ? CANNOT_WRITE_TO_DIRECTORY : NOT_A_FILE);
+        }
+
         if (attributes == null) {
+            if (!flags.create()) throw new FileOperationException(path, NO_SUCH_FILE);
+
             if (getRemainingSpace() < MINIMUM_FILE_SIZE) throw new FileOperationException(path, OUT_OF_SPACE);
-        } else if (attributes.isDirectory()) {
-            throw new FileOperationException(path, CANNOT_WRITE_TO_DIRECTORY);
+            usedSpace += MINIMUM_FILE_SIZE;
+        } else if (flags.truncate()) {
+            usedSpace -= Math.max(attributes.size(), MINIMUM_FILE_SIZE);
+            usedSpace += MINIMUM_FILE_SIZE;
         }
 
         // Allowing seeking when appending is not recommended, so we use a separate channel.
         try {
-            return new CountingChannel(Files.newByteChannel(file, APPEND_OPTIONS), false);
+            return new CountingChannel(Files.newByteChannel(file, options));
         } catch (IOException e) {
             throw remapException(path, e);
         }
@@ -203,11 +203,9 @@ public class WritableFileMount extends FileMount implements WritableMount {
 
     private class CountingChannel implements SeekableByteChannel {
         private final SeekableByteChannel channel;
-        private final boolean canSeek;
 
-        CountingChannel(SeekableByteChannel channel, boolean canSeek) {
+        CountingChannel(SeekableByteChannel channel) {
             this.channel = channel;
-            this.canSeek = canSeek;
         }
 
         @Override
@@ -245,7 +243,6 @@ public class WritableFileMount extends FileMount implements WritableMount {
         @Override
         public SeekableByteChannel position(long newPosition) throws IOException {
             if (!isOpen()) throw new ClosedChannelException();
-            if (!canSeek) throw new UnsupportedOperationException("File does not support seeking");
             if (newPosition < 0) throw new IllegalArgumentException("Cannot seek before the beginning of the stream");
 
             return channel.position(newPosition);
@@ -257,9 +254,8 @@ public class WritableFileMount extends FileMount implements WritableMount {
         }
 
         @Override
-        public int read(ByteBuffer dst) throws ClosedChannelException {
-            if (!channel.isOpen()) throw new ClosedChannelException();
-            throw new NonReadableChannelException();
+        public int read(ByteBuffer dst) throws IOException {
+            return channel.read(dst);
         }
 
         @Override
