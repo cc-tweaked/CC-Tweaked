@@ -47,7 +47,7 @@ final class Generator<T> {
 
     private static final Map<Class<?>, ArgMethods> argMethods;
     private static final ArgMethods ARG_TABLE_UNSAFE;
-    private static final MethodHandle ARG_GET_OBJECT, ARG_GET_ENUM, ARG_OPT_ENUM, ARG_GET_STRING_COERCED;
+    private static final MethodHandle ARG_GET_OBJECT, ARG_GET_ENUM, ARG_OPT_ENUM, ARG_GET_STRING_COERCED, ARG_GET_BYTES_COERCED;
 
     private record ArgMethods(MethodHandle get, MethodHandle opt) {
         public static ArgMethods of(Class<?> type, String name) throws ReflectiveOperationException {
@@ -84,9 +84,14 @@ final class Generator<T> {
             ARG_OPT_ENUM = LOOKUP.findVirtual(IArguments.class, "optEnum", MethodType.methodType(Optional.class, int.class, Class.class));
 
             // Create a new Coerced<>(args.getStringCoerced(_)) function.
+            var mkCoerced = LOOKUP.findConstructor(Coerced.class, MethodType.methodType(void.class, Object.class));
             ARG_GET_STRING_COERCED = MethodHandles.filterReturnValue(
                 setReturn(LOOKUP.findVirtual(IArguments.class, "getStringCoerced", MethodType.methodType(String.class, int.class)), Object.class),
-                LOOKUP.findConstructor(Coerced.class, MethodType.methodType(void.class, Object.class))
+                mkCoerced
+            );
+            ARG_GET_BYTES_COERCED = MethodHandles.filterReturnValue(
+                setReturn(LOOKUP.findVirtual(IArguments.class, "getBytesCoerced", MethodType.methodType(ByteBuffer.class, int.class)), Object.class),
+                mkCoerced
             );
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
@@ -265,6 +270,7 @@ final class Generator<T> {
             if (klass == null) return null;
 
             if (klass == String.class) return MethodHandles.insertArguments(ARG_GET_STRING_COERCED, 1, argIndex);
+            if (klass == ByteBuffer.class) return MethodHandles.insertArguments(ARG_GET_BYTES_COERCED, 1, argIndex);
         }
 
         if (argType == Optional.class) {

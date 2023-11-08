@@ -8,8 +8,8 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.util.StringUtil;
 import dan200.computercraft.shared.computer.core.InputHandler;
-import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -112,26 +112,8 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     private void paste() {
-        var clipboard = Minecraft.getInstance().keyboardHandler.getClipboard();
-
-        // Clip to the first occurrence of \r or \n
-        var newLineIndex1 = clipboard.indexOf('\r');
-        var newLineIndex2 = clipboard.indexOf('\n');
-        if (newLineIndex1 >= 0 && newLineIndex2 >= 0) {
-            clipboard = clipboard.substring(0, Math.min(newLineIndex1, newLineIndex2));
-        } else if (newLineIndex1 >= 0) {
-            clipboard = clipboard.substring(0, newLineIndex1);
-        } else if (newLineIndex2 >= 0) {
-            clipboard = clipboard.substring(0, newLineIndex2);
-        }
-
-        // Filter the string
-        clipboard = SharedConstants.filterText(clipboard);
-        if (!clipboard.isEmpty()) {
-            // Clip to 512 characters and queue the event
-            if (clipboard.length() > 512) clipboard = clipboard.substring(0, 512);
-            computer.queueEvent("paste", new Object[]{ clipboard });
-        }
+        var clipboard = StringUtil.normaliseClipboardString(Minecraft.getInstance().keyboardHandler.getClipboard());
+        if (!clipboard.isEmpty()) computer.queueEvent("paste", new Object[]{ clipboard });
     }
 
     @Override

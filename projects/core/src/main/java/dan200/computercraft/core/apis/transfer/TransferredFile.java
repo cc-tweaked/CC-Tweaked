@@ -5,7 +5,7 @@
 package dan200.computercraft.core.apis.transfer;
 
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.core.apis.handles.BinaryReadableHandle;
+import dan200.computercraft.core.apis.handles.ReadHandle;
 import dan200.computercraft.core.methods.ObjectSource;
 
 import java.nio.channels.SeekableByteChannel;
@@ -15,19 +15,19 @@ import java.util.Optional;
 /**
  * A binary file handle that has been transferred to this computer.
  * <p>
- * This inherits all methods of {@link BinaryReadableHandle binary file handles}, meaning you can use the standard
- * {@link BinaryReadableHandle#read(Optional) read functions} to access the contents of the file.
+ * This inherits all methods of {@link ReadHandle binary file handles}, meaning you can use the standard
+ * {@link ReadHandle#read(Optional) read functions} to access the contents of the file.
  *
  * @cc.module [kind=event] file_transfer.TransferredFile
- * @see BinaryReadableHandle
+ * @see ReadHandle
  */
 public class TransferredFile implements ObjectSource {
     private final String name;
-    private final BinaryReadableHandle handle;
+    private final ReadHandle handle;
 
     public TransferredFile(String name, SeekableByteChannel contents) {
         this.name = name;
-        handle = BinaryReadableHandle.of(contents);
+        handle = new ReadHandle(contents, true);
     }
 
     /**

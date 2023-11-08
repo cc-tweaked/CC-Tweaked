@@ -21,6 +21,19 @@ of the mod should run fine on later versions.
 However, some changes to the underlying game, or CC: Tweaked's own internals may break some programs. This page serves
 as documentation for breaking changes and "gotchas" one should look out for between versions.
 
+## CC: Tweaked 1.109.0 {#cct-1.109}
+
+ - Update to Lua 5.2:
+   - Support for Lua 5.0's pseudo-argument `arg` has been removed. You should always use `...` for varargs.
+   - Environments are no longer baked into the runtime, and instead use the `_ENV` local or upvalue. `getfenv`/`setfenv`
+     now only work on Lua functions with an `_ENV` upvalue. `getfenv` will return the global environment when called
+     with other functions, and `setfenv` will have no effect.
+   - `load`/`loadstring` defaults to using the global environment (`_G`) rather than the current coroutine's
+     environment.
+   - Support for dumping functions (`string.dump`) and loading binary chunks has been removed.
+
+ - File handles, HTTP requests and websockets now always use the original bytes rather than encoding/decoding to UTF-8.
+
 ## Minecraft 1.13 {#mc-1.13}
  - The "key code" for [`key`] and [`key_up`] events has changed, due to Minecraft updating to LWJGL 3. Make sure you're
    using the constants provided by the [`keys`] API, rather than hard-coding numerical values.

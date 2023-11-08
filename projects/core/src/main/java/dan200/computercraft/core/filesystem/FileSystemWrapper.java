@@ -27,11 +27,11 @@ import java.lang.ref.WeakReference;
 public class FileSystemWrapper<T extends Closeable> implements TrackingCloseable {
     private final FileSystem fileSystem;
     final MountWrapper mount;
-    private final ChannelWrapper<T> closeable;
+    private final T closeable;
     final WeakReference<FileSystemWrapper<?>> self;
     private boolean isOpen = true;
 
-    FileSystemWrapper(FileSystem fileSystem, MountWrapper mount, ChannelWrapper<T> closeable, ReferenceQueue<FileSystemWrapper<?>> queue) {
+    FileSystemWrapper(FileSystem fileSystem, MountWrapper mount, T closeable, ReferenceQueue<FileSystemWrapper<?>> queue) {
         this.fileSystem = fileSystem;
         this.mount = mount;
         this.closeable = closeable;
@@ -56,6 +56,6 @@ public class FileSystemWrapper<T extends Closeable> implements TrackingCloseable
     }
 
     public T get() {
-        return closeable.get();
+        return closeable;
     }
 }

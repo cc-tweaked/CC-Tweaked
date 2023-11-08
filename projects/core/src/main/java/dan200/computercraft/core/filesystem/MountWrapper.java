@@ -11,11 +11,14 @@ import dan200.computercraft.api.filesystem.WritableMount;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.OptionalLong;
+import java.util.Set;
 
-import static dan200.computercraft.core.filesystem.MountHelpers.*;
+import static dan200.computercraft.api.filesystem.MountConstants.*;
 
 class MountWrapper {
     private final String label;
@@ -164,45 +167,20 @@ class MountWrapper {
         }
     }
 
-    public SeekableByteChannel openForWrite(String path) throws FileSystemException {
+    public SeekableByteChannel openForWrite(String path, Set<OpenOption> options) throws FileSystemException {
         if (writableMount == null) throw exceptionOf(path, ACCESS_DENIED);
 
         path = toLocal(path);
         try {
-            if (mount.exists(path) && mount.isDirectory(path)) {
-                throw localExceptionOf(path, CANNOT_WRITE_TO_DIRECTORY);
-            } else {
-                if (!path.isEmpty()) {
-                    var dir = FileSystem.getDirectory(path);
-                    if (!dir.isEmpty() && !mount.exists(path)) {
-                        writableMount.makeDirectory(dir);
-                    }
-                }
-                return writableMount.openForWrite(path);
+            if (mount.isDirectory(path)) {
+                throw localExceptionOf(path, options.contains(StandardOpenOption.CREATE) ? CANNOT_WRITE_TO_DIRECTORY : NOT_A_FILE);
             }
-        } catch (IOException e) {
-            throw localExceptionOf(path, e);
-        }
-    }
-
-    public SeekableByteChannel openForAppend(String path) throws FileSystemException {
-        if (writableMount == null) throw exceptionOf(path, ACCESS_DENIED);
-
-        path = toLocal(path);
-        try {
-            if (!mount.exists(path)) {
-                if (!path.isEmpty()) {
-                    var dir = FileSystem.getDirectory(path);
-                    if (!dir.isEmpty() && !mount.exists(path)) {
-                        writableMount.makeDirectory(dir);
-                    }
-                }
-                return writableMount.openForWrite(path);
-            } else if (mount.isDirectory(path)) {
-                throw localExceptionOf(path, CANNOT_WRITE_TO_DIRECTORY);
-            } else {
-                return writableMount.openForAppend(path);
+            if (options.contains(StandardOpenOption.CREATE)) {
+                var dir = FileSystem.getDirectory(path);
+                if (!dir.isEmpty() && !mount.exists(path)) writableMount.makeDirectory(dir);
             }
+
+            return writableMount.openFile(path, options);
         } catch (IOException e) {
             throw localExceptionOf(path, e);
         }
@@ -220,9 +198,7 @@ class MountWrapper {
         if (e instanceof java.nio.file.FileSystemException ex) {
             // This error will contain the absolute path, leaking information about where MC is installed. We drop that,
             // just taking the reason. We assume that the error refers to the input path.
-            var message = ex.getReason();
-            if (message == null) message = ACCESS_DENIED;
-            return localExceptionOf(localPath, message);
+            return localExceptionOf(localPath, MountHelpers.getReason(ex));
         }
 
         return FileSystemException.of(e);

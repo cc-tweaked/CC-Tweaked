@@ -57,7 +57,6 @@ repositories {
 
         filter {
             includeGroup("cc.tweaked")
-            includeModule("org.squiddev", "Cobalt")
             // Things we mirror
             includeGroup("commoble.morered")
             includeGroup("dev.architectury")

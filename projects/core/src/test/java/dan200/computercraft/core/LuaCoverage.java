@@ -10,6 +10,8 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.squiddev.cobalt.LuaError;
+import org.squiddev.cobalt.LuaState;
 import org.squiddev.cobalt.Prototype;
 import org.squiddev.cobalt.compiler.CompileException;
 import org.squiddev.cobalt.compiler.LuaC;
@@ -108,9 +110,9 @@ class LuaCoverage {
         Queue<Prototype> queue = new ArrayDeque<>();
 
         try (InputStream stream = new FileInputStream(file)) {
-            var proto = LuaC.compile(stream, "@" + file.getPath());
+            var proto = LuaC.compile(new LuaState(), stream, "@" + file.getPath());
             queue.add(proto);
-        } catch (CompileException e) {
+        } catch (LuaError | CompileException e) {
             throw new IllegalStateException("Cannot compile", e);
         }
 

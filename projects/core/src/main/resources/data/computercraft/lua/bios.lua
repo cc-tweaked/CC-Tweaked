@@ -18,33 +18,6 @@ do
     expect = f().expect
 end
 
-if _VERSION == "Lua 5.1" then
-    -- If we're on Lua 5.1, install parts of the Lua 5.2/5.3 API so that programs can be written against it
-    local nativeload = load
-
-    function load(x, name, mode, env)
-        expect(1, x, "function", "string")
-        expect(2, name, "string", "nil")
-        expect(3, mode, "string", "nil")
-        expect(4, env, "table", "nil")
-
-        local ok, p1, p2 = pcall(function()
-            local result, err = nativeload(x, name, mode, env)
-            if result and env then
-                env._ENV = env
-            end
-            return result, err
-        end)
-        if ok then
-            return p1, p2
-        else
-            error(p1, 2)
-        end
-    end
-
-    loadstring = function(string, chunkname) return nativeload(string, chunkname) end
-end
-
 -- Inject a stub for the old bit library
 _G.bit = {
     bnot = bit32.bnot,
@@ -58,7 +31,7 @@ _G.bit = {
 
 -- Install lua parts of the os api
 function os.version()
-    return "CraftOS 1.8"
+    return "CraftOS 1.9"
 end
 
 function os.pullEventRaw(sFilter)

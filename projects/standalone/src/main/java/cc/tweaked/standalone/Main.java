@@ -204,7 +204,7 @@ public class Main {
         }
 
         // Add all our callbacks
-        glfwSetKeyCallback(window, (w, key, scancode, action, mods) -> inputState.onKeyEvent(key, action, mods));
+        glfwSetKeyCallback(window, (w, key, scancode, action, mods) -> inputState.onKeyEvent(w, key, action, mods));
         glfwSetCharModsCallback(window, (w, codepoint, mods) -> inputState.onCharEvent(codepoint));
         glfwSetDropCallback(window, (w, count, files) -> inputState.onFileDrop(count, files));
         glfwSetMouseButtonCallback(window, (w, button, action, mods) -> inputState.onMouseClick(button, action));

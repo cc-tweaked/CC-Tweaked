@@ -5,6 +5,7 @@
 package dan200.computercraft.core;
 
 import com.google.common.base.Splitter;
+import dan200.computercraft.api.filesystem.MountConstants;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
@@ -105,7 +106,7 @@ public class ComputerTestDelegate {
         for (var child : children) mount.delete(child);
 
         // And add our startup file
-        try (var channel = mount.openForWrite("startup.lua");
+        try (var channel = mount.openFile("startup.lua", MountConstants.WRITE_OPTIONS);
              var writer = Channels.newWriter(channel, StandardCharsets.UTF_8.newEncoder(), -1)) {
             writer.write("loadfile('test-rom/mcfly.lua', nil, _ENV)('test-rom/spec') cct_test.finish()");
         }

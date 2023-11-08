@@ -307,7 +307,7 @@ end
 -- @since 1.55
 function input(file)
     if type_of(file) == "string" then
-        local res, err = open(file, "rb")
+        local res, err = open(file, "r")
         if not res then error(err, 2) end
         currentInput = res
     elseif type_of(file) == "table" and getmetatable(file) == handleMetatable then
@@ -349,7 +349,7 @@ end
 function lines(filename, ...)
     expect(1, filename, "string", "nil")
     if filename then
-        local ok, err = open(filename, "rb")
+        local ok, err = open(filename, "r")
         if not ok then error(err, 2) end
 
         -- We set this magic flag to mark this file as being opened by io.lines and so should be
@@ -381,7 +381,7 @@ function open(filename, mode)
     expect(1, filename, "string")
     expect(2, mode, "string", "nil")
 
-    local sMode = mode and mode:gsub("%+", "") or "rb"
+    local sMode = mode and mode:gsub("%+", "") or "r"
     local file, err = fs.open(filename, sMode)
     if not file then return nil, err end
 

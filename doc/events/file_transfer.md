@@ -12,7 +12,7 @@ SPDX-License-Identifier: MPL-2.0
 The [`file_transfer`] event is queued when a user drags-and-drops a file on an open computer.
 
 This event contains a single argument of type [`TransferredFiles`], which can be used to [get the files to be
-transferred][`TransferredFiles.getFiles`]. Each file returned is a [binary file handle][`fs.BinaryReadHandle`] with an
+transferred][`TransferredFiles.getFiles`]. Each file returned is a [binary file handle][`fs.ReadHandle`] with an
 additional [getName][`TransferredFile.getName`] method.
 
 ## Return values

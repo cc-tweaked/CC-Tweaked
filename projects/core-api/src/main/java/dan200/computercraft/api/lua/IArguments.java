@@ -196,6 +196,19 @@ public interface IArguments {
     }
 
     /**
+     * Get the argument, converting it to the raw-byte representation of its string by following Lua conventions.
+     * <p>
+     * This is equivalent to {@link #getStringCoerced(int)}, but then
+     *
+     * @param index The argument number.
+     * @return The argument's value. This is a <em>read only</em> buffer.
+     * @throws LuaException If the argument cannot be converted to Java.
+     */
+    default ByteBuffer getBytesCoerced(int index) throws LuaException {
+        return LuaValues.encode(getStringCoerced(index));
+    }
+
+    /**
      * Get a string argument as an enum value.
      *
      * @param index The argument number.

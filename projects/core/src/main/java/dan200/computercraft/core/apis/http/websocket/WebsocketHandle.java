@@ -8,6 +8,11 @@ import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.options.Options;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -24,6 +29,8 @@ import static dan200.computercraft.core.apis.http.websocket.WebsocketClient.MESS
  * @see dan200.computercraft.core.apis.HTTPAPI#websocket On how to open a websocket.
  */
 public class WebsocketHandle {
+    private static final CharsetDecoder DECODER = StandardCharsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPLACE);
+
     private final IAPIEnvironment environment;
     private final String address;
     private final WebsocketClient websocket;
@@ -68,18 +75,23 @@ public class WebsocketHandle {
      * @cc.changed 1.81.0 Added argument for binary mode.
      */
     @LuaFunction
-    public final void send(Coerced<String> message, Optional<Boolean> binary) throws LuaException {
+    public final void send(Coerced<ByteBuffer> message, Optional<Boolean> binary) throws LuaException {
         checkOpen();
 
         var text = message.value();
-        if (options.websocketMessage() != 0 && text.length() > options.websocketMessage()) {
+        if (options.websocketMessage() != 0 && text.remaining() > options.websocketMessage()) {
             throw new LuaException("Message is too large");
         }
 
         if (binary.orElse(false)) {
-            websocket.sendBinary(LuaValues.encode(text));
+            websocket.sendBinary(text);
         } else {
-            websocket.sendText(text);
+            try {
+                websocket.sendText(DECODER.decode(text).toString());
+            } catch (CharacterCodingException e) {
+                // This shouldn't happen, but worth mentioning.
+                throw new LuaException("Message is not valid UTF8");
+            }
         }
     }
 

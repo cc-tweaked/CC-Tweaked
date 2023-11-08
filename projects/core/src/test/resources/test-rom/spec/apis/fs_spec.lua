@@ -212,9 +212,7 @@ describe("The fs library", function()
                 handle.close()
             end)
 
-            -- readLine(true) has odd behaviour in text mode - skip for now.
-            local it_binary = mode == "rb" and it or pending
-            it_binary("can read a line of text with the trailing separator", function()
+            it("can read a line of text with the trailing separator", function()
                 local file = create_test_file "some\nfile\r\ncontents\r!\n\n"
 
                 local handle = fs.open(file, mode)
@@ -238,7 +236,7 @@ describe("The fs library", function()
                 expect { fs.open("x", "r") }:same { nil, "/x: No such file" }
             end)
 
-            it("supports reading a single byte", function()
+            it("reads a single byte", function()
                 local file = create_test_file "an example file"
 
                 local handle = fs.open(file, "r")
@@ -259,6 +257,28 @@ describe("The fs library", function()
             end)
 
             read_tests("rb")
+        end)
+
+        describe("opening in r+ mode", function()
+            it("fails when reading non-files", function()
+                expect { fs.open("x", "r+") }:same { nil, "/x: No such file" }
+                expect { fs.open("", "r+") }:same { nil, "/: Not a file" }
+            end)
+
+            read_tests("r+")
+
+            it("can read and write to a file", function()
+                local file = create_test_file "an example file"
+
+                local handle = fs.open(file, "r+")
+                expect(handle.read(3)):eq("an ")
+
+                handle.write("exciting file")
+                expect(handle.seek("cur")):eq(16)
+
+                handle.seek("set", 0)
+                expect(handle.readAll()):eq("an exciting file")
+            end)
         end)
 
         describe("writing", function()
@@ -324,6 +344,29 @@ describe("The fs library", function()
                 local handle = fs.open(test_file "out.txt", "rb")
                 expect(handle.readAll()):eq("A")
                 handle.close()
+            end)
+        end)
+
+        describe("opening in w+ mode", function()
+            it("can write a file", function()
+                local handle = fs.open(test_file "out.txt", "w+")
+                handle.write("hello")
+                handle.seek("set", 0)
+                expect(handle.readAll()):eq("hello")
+
+                handle.write(", world!")
+                handle.seek("set", 0)
+                handle.write("H")
+
+                handle.seek("set", 0)
+                expect(handle.readAll()):eq("Hello, world!")
+            end)
+
+            it("truncates an existing file", function()
+                local file = create_test_file "an example file"
+
+                local handle = fs.open(file, "w+")
+                expect(handle.readAll()):eq("")
             end)
         end)
 

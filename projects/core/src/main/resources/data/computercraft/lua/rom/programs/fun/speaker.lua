@@ -48,9 +48,9 @@ elseif cmd == "play" then
     local handle, err
     if http and file:match("^https?://") then
         print("Downloading...")
-        handle, err = http.get{ url = file, binary = true }
+        handle, err = http.get(file)
     else
-        handle, err = fs.open(file, "rb")
+        handle, err = fs.open(file, "r")
     end
 
     if not handle then

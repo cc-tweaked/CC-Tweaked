@@ -16,15 +16,14 @@ import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.nio.channels.Channel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.OpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 
-import static dan200.computercraft.core.filesystem.MountHelpers.*;
+import static dan200.computercraft.api.filesystem.MountConstants.*;
 
 public class FileSystem {
     /**
@@ -37,7 +36,7 @@ public class FileSystem {
 
     private final Map<String, MountWrapper> mounts = new HashMap<>();
 
-    private final HashMap<WeakReference<FileSystemWrapper<?>>, ChannelWrapper<?>> openFiles = new HashMap<>();
+    private final HashMap<WeakReference<FileSystemWrapper<?>>, SeekableByteChannel> openFiles = new HashMap<>();
     private final ReferenceQueue<FileSystemWrapper<?>> openFileQueue = new ReferenceQueue<>();
 
     public FileSystem(String rootLabel, Mount rootMount) throws FileSystemException {
@@ -256,7 +255,7 @@ public class FileSystem {
         } else {
             // Copy a file:
             try (var source = sourceMount.openForRead(sourcePath);
-                 var destination = destinationMount.openForWrite(destinationPath)) {
+                 var destination = destinationMount.openForWrite(destinationPath, WRITE_OPTIONS)) {
                 // Copy bytes as fast as we can
                 ByteStreams.copy(source, destination);
             } catch (AccessDeniedException e) {
@@ -276,18 +275,16 @@ public class FileSystem {
         }
     }
 
-    private synchronized <T extends Closeable> FileSystemWrapper<T> openFile(MountWrapper mount, Channel channel, T file) throws FileSystemException {
+    private synchronized FileSystemWrapper<SeekableByteChannel> openFile(MountWrapper mount, SeekableByteChannel channel) throws FileSystemException {
         synchronized (openFiles) {
             if (CoreConfig.maximumFilesOpen > 0 &&
                 openFiles.size() >= CoreConfig.maximumFilesOpen) {
-                IoUtil.closeQuietly(file);
                 IoUtil.closeQuietly(channel);
                 throw new FileSystemException("Too many files already open");
             }
 
-            var channelWrapper = new ChannelWrapper<T>(file, channel);
-            var fsWrapper = new FileSystemWrapper<T>(this, mount, channelWrapper, openFileQueue);
-            openFiles.put(fsWrapper.self, channelWrapper);
+            var fsWrapper = new FileSystemWrapper<>(this, mount, channel, openFileQueue);
+            openFiles.put(fsWrapper.self, channel);
             return fsWrapper;
         }
     }
@@ -298,22 +295,22 @@ public class FileSystem {
         }
     }
 
-    public synchronized <T extends Closeable> FileSystemWrapper<T> openForRead(String path, Function<SeekableByteChannel, T> open) throws FileSystemException {
+    public synchronized FileSystemWrapper<SeekableByteChannel> openForRead(String path) throws FileSystemException {
         cleanup();
 
         path = sanitizePath(path);
         var mount = getMount(path);
         var channel = mount.openForRead(path);
-        return openFile(mount, channel, open.apply(channel));
+        return openFile(mount, channel);
     }
 
-    public synchronized <T extends Closeable> FileSystemWrapper<T> openForWrite(String path, boolean append, Function<SeekableByteChannel, T> open) throws FileSystemException {
+    public synchronized FileSystemWrapper<SeekableByteChannel> openForWrite(String path, Set<OpenOption> options) throws FileSystemException {
         cleanup();
 
         path = sanitizePath(path);
         var mount = getMount(path);
-        var channel = append ? mount.openForAppend(path) : mount.openForWrite(path);
-        return openFile(mount, channel, open.apply(channel));
+        var channel = mount.openForWrite(path, options);
+        return openFile(mount, channel);
     }
 
     public synchronized long getFreeSpace(String path) throws FileSystemException {

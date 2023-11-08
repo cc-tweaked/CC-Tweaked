@@ -32,12 +32,12 @@ local tokens = require "cc.internal.syntax.parser".tokens
 local sub, find = string.sub, string.find
 
 local keywords = {
-    ["and"]      = tokens.AND,      ["break"] = tokens.BREAK, ["do"]    = tokens.DO,    ["else"]   = tokens.ELSE,
-    ["elseif"]   = tokens.ELSEIF,   ["end"]   = tokens.END,   ["false"] = tokens.FALSE, ["for"]    = tokens.FOR,
-    ["function"] = tokens.FUNCTION, ["if"]    = tokens.IF,    ["in"]    = tokens.IN,    ["local"]  = tokens.LOCAL,
-    ["nil"]      = tokens.NIL,      ["not"]   = tokens.NOT,   ["or"]    = tokens.OR,    ["repeat"] = tokens.REPEAT,
-    ["return"]   = tokens.RETURN,   ["then"]  = tokens.THEN,  ["true"]  = tokens.TRUE,  ["until"]  = tokens.UNTIL,
-    ["while"]    = tokens.WHILE,
+    ["and"]      = tokens.AND,      ["break"]  = tokens.BREAK,  ["do"]    = tokens.DO,    ["else"] = tokens.ELSE,
+    ["elseif"]   = tokens.ELSEIF,   ["end"]    = tokens.END,    ["false"] = tokens.FALSE, ["for"]  = tokens.FOR,
+    ["function"] = tokens.FUNCTION, ["goto"]   = tokens.GOTO,   ["if"]    = tokens.IF,    ["in"]   = tokens.IN,
+    ["local"]    = tokens.LOCAL,    ["nil"]    = tokens.NIL,    ["not"]   = tokens.NOT,   ["or"]   = tokens.OR,
+    ["repeat"]   = tokens.REPEAT,   ["return"] = tokens.RETURN, ["then"]  = tokens.THEN,  ["true"] = tokens.TRUE,
+    ["until"]    = tokens.UNTIL,    ["while"]  = tokens.WHILE,
 }
 
 --- Lex a newline character
@@ -292,12 +292,15 @@ local function lex_token(context, str, pos)
         local next_pos = pos + 1
         if sub(str, next_pos, next_pos) == "=" then return tokens.LE, next_pos end
         return tokens.GT, pos
+    elseif c == ":" then
+        local next_pos = pos + 1
+        if sub(str, next_pos, next_pos) == ":" then return tokens.DOUBLE_COLON, next_pos end
+        return tokens.COLON, pos
     elseif c == "~" and sub(str, pos + 1, pos + 1) == "=" then return tokens.NE, pos + 1
 
     -- Single character tokens
     elseif c == "," then return tokens.COMMA, pos
     elseif c == ";" then return tokens.SEMICOLON, pos
-    elseif c == ":" then return tokens.COLON, pos
     elseif c == "(" then return tokens.OPAREN, pos
     elseif c == ")" then return tokens.CPAREN, pos
     elseif c == "]" then return tokens.CSQUARE, pos

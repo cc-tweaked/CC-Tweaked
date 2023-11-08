@@ -66,9 +66,8 @@ end
 @tparam string url   The url to request
 @tparam[opt] { [string] = string } headers Additional headers to send as part
 of this request.
-@tparam[opt] boolean binary Whether to make a binary HTTP request. If true,
-the body will not be UTF-8 encoded, and the received response will not be
-decoded.
+@tparam[opt=false] boolean binary Whether the [response handle][`fs.ReadHandle`]
+should be opened in binary mode.
 
 @tparam[2] {
   url = string, headers? = { [string] = string },
@@ -89,6 +88,8 @@ error or connection timeout.
 @changed 1.80pr1.6 Added support for table argument.
 @changed 1.86.0 Added PATCH and TRACE methods.
 @changed 1.105.0 Added support for custom timeouts.
+@changed 1.109.0 The returned response now reads the body as raw bytes, rather
+                 than decoding from UTF-8.
 
 @usage Make a request to [example.tweaked.cc](https://example.tweaked.cc),
 and print the returned page.
@@ -118,9 +119,8 @@ end
 @tparam string body  The body of the POST request.
 @tparam[opt] { [string] = string } headers Additional headers to send as part
 of this request.
-@tparam[opt] boolean binary Whether to make a binary HTTP request. If true,
-the body will not be UTF-8 encoded, and the received response will not be
-decoded.
+@tparam[opt=false] boolean binary Whether the [response handle][`fs.ReadHandle`]
+should be opened in binary mode.
 
 @tparam[2] {
   url = string, body? = string, headers? = { [string] = string },
@@ -142,6 +142,8 @@ error or connection timeout.
 @changed 1.80pr1.6 Added support for table argument.
 @changed 1.86.0 Added PATCH and TRACE methods.
 @changed 1.105.0 Added support for custom timeouts.
+@changed 1.109.0 The returned response now reads the body as raw bytes, rather
+                 than decoding from UTF-8.
 ]]
 function post(_url, _post, _headers, _binary)
     if type(_url) == "table" then
@@ -166,9 +168,8 @@ once the request has completed.
 request. If specified, a `POST` request will be made instead.
 @tparam[opt] { [string] = string } headers Additional headers to send as part
 of this request.
-@tparam[opt] boolean binary Whether to make a binary HTTP request. If true,
-the body will not be UTF-8 encoded, and the received response will not be
-decoded.
+@tparam[opt=false] boolean binary Whether the [response handle][`fs.ReadHandle`]
+should be opened in binary mode.
 
 @tparam[2] {
   url = string, body? = string, headers? = { [string] = string },
@@ -194,6 +195,8 @@ from above are passed in as fields instead (for instance,
 @changed 1.80pr1.6 Added support for table argument.
 @changed 1.86.0 Added PATCH and TRACE methods.
 @changed 1.105.0 Added support for custom timeouts.
+@changed 1.109.0 The returned response now reads the body as raw bytes, rather
+                 than decoding from UTF-8.
 ]]
 function request(_url, _post, _headers, _binary)
     local url
@@ -296,6 +299,8 @@ these options behave.
 @since 1.80pr1.3
 @changed 1.95.3 Added User-Agent to default headers.
 @changed 1.105.0 Added support for table argument and custom timeout.
+@changed 1.109.0 Non-binary websocket messages now use the raw bytes rather than
+                 using UTF-8.
 @see websocket_success
 @see websocket_failure
 ]]
@@ -346,6 +351,8 @@ from above are passed in as fields instead (for instance,
 @changed 1.80pr1.3 No longer asynchronous.
 @changed 1.95.3 Added User-Agent to default headers.
 @changed 1.105.0 Added support for table argument and custom timeout.
+@changed 1.109.0 Non-binary websocket messages now use the raw bytes rather than
+                 using UTF-8.
 
 @usage Connect to an echo websocket and send a message.
 

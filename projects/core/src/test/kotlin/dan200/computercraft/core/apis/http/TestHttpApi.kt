@@ -6,10 +6,11 @@ package dan200.computercraft.core.apis.http
 
 import dan200.computercraft.api.lua.Coerced
 import dan200.computercraft.api.lua.LuaException
+import dan200.computercraft.api.lua.LuaValues
 import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.core.CoreConfig
 import dan200.computercraft.core.apis.HTTPAPI
-import dan200.computercraft.core.apis.handles.EncodedReadableHandle
+import dan200.computercraft.core.apis.handles.ReadHandle
 import dan200.computercraft.core.apis.http.HttpServer.URL
 import dan200.computercraft.core.apis.http.HttpServer.WS_URL
 import dan200.computercraft.core.apis.http.HttpServer.runServer
@@ -58,8 +59,8 @@ class TestHttpApi {
                 assertThat(result, array(equalTo("http_success"), equalTo(URL), isA(HttpResponseHandle::class.java)))
 
                 val handle = result[2] as HttpResponseHandle
-                val reader = handle.extra.iterator().next() as EncodedReadableHandle
-                assertThat(reader.readAll(), array(equalTo("Hello, world!")))
+                val reader = handle.extra.iterator().next() as ReadHandle
+                assertThat(reader.readAll(), array(equalTo("Hello, world!".toByteArray())))
             }
         }
     }
@@ -75,10 +76,10 @@ class TestHttpApi {
                 assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(WS_URL), isA(WebsocketHandle::class.java)))
 
                 val websocket = connectEvent[2] as WebsocketHandle
-                websocket.send(Coerced("Hello"), Optional.of(false))
+                websocket.send(Coerced(LuaValues.encode("Hello")), Optional.of(false))
 
                 val message = websocket.receive(Optional.empty()).await()
-                assertThat("Received a return message", message, array(equalTo("HELLO"), equalTo(false)))
+                assertThat("Received a return message", message, array(equalTo("HELLO".toByteArray()), equalTo(false)))
 
                 websocket.close()
 
@@ -110,7 +111,7 @@ class TestHttpApi {
                 )
 
                 assertThrows<LuaException>("Throws an exception when sending") {
-                    websocket.send(Coerced("hello"), Optional.of(false))
+                    websocket.send(Coerced(LuaValues.encode("hello")), Optional.of(false))
                 }
             }
         }

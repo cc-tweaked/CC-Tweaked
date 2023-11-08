@@ -8,6 +8,7 @@ import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.core.apis.transfer.TransferredFile;
 import dan200.computercraft.core.apis.transfer.TransferredFiles;
 import dan200.computercraft.core.computer.Computer;
+import dan200.computercraft.core.util.StringUtil;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWDropCallback;
 import org.lwjgl.glfw.GLFWKeyCallbackI;
@@ -54,16 +55,24 @@ public class InputState {
         }
     }
 
-    public void onKeyEvent(int key, int action, int modifiers) {
+    public void onKeyEvent(long window, int key, int action, int modifiers) {
         switch (action) {
-            case GLFW.GLFW_PRESS, GLFW.GLFW_REPEAT -> keyPressed(key, modifiers);
+            case GLFW.GLFW_PRESS, GLFW.GLFW_REPEAT -> keyPressed(window, key, modifiers);
             case GLFW.GLFW_RELEASE -> keyReleased(key);
         }
     }
 
-    private void keyPressed(int key, int modifiers) {
+    private void keyPressed(long window, int key, int modifiers) {
         if (key == GLFW.GLFW_KEY_ESCAPE) return;
 
+        if (key == GLFW.GLFW_KEY_V && modifiers == GLFW.GLFW_MOD_CONTROL) {
+            var string = GLFW.glfwGetClipboardString(window);
+            if (string != null) {
+                var clipboard = StringUtil.normaliseClipboardString(string);
+                if (!clipboard.isEmpty()) computer.queueEvent("paste", new Object[]{ clipboard });
+            }
+            return;
+        }
 
         if ((modifiers & GLFW.GLFW_MOD_CONTROL) != 0) {
             switch (key) {

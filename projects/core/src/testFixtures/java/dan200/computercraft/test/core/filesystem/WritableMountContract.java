@@ -4,6 +4,7 @@
 
 package dan200.computercraft.test.core.filesystem;
 
+import dan200.computercraft.api.filesystem.MountConstants;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.LuaValues;
 import dan200.computercraft.test.core.ReplaceUnderscoresDisplayNameGenerator;
@@ -16,7 +17,7 @@ import org.opentest4j.TestAbortedException;
 import java.io.IOException;
 import java.util.stream.Stream;
 
-import static dan200.computercraft.core.filesystem.MountHelpers.MINIMUM_FILE_SIZE;
+import static dan200.computercraft.api.filesystem.MountConstants.MINIMUM_FILE_SIZE;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -118,12 +119,12 @@ public interface WritableMountContract {
         var access = createExisting(CAPACITY);
         var mount = access.mount();
 
-        var handle = mount.openForWrite("file.txt");
+        var handle = mount.openFile("file.txt", MountConstants.WRITE_OPTIONS);
         handle.write(LuaValues.encode(LONG_CONTENTS));
         assertEquals(CAPACITY - LONG_CONTENTS.length(), mount.getRemainingSpace());
         assertEquals(access.computeRemainingSpace(), access.mount().getRemainingSpace(), "Free space is inconsistent");
 
-        var handle2 = mount.openForWrite("file.txt");
+        var handle2 = mount.openFile("file.txt", MountConstants.WRITE_OPTIONS);
 
         handle.write(LuaValues.encode("test"));
         assertEquals(CAPACITY - LONG_CONTENTS.length() - 4, mount.getRemainingSpace());
@@ -144,7 +145,7 @@ public interface WritableMountContract {
 
         Mounts.writeFile(mount, "a.txt", "example");
 
-        try (var handle = mount.openForAppend("a.txt")) {
+        try (var handle = mount.openFile("a.txt", MountConstants.APPEND_OPTIONS)) {
             assertEquals(7, handle.position());
             handle.write(LuaValues.encode(" text"));
             assertEquals(12, handle.position());

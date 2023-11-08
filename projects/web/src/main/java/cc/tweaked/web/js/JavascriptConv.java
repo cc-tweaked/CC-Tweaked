@@ -16,6 +16,7 @@ import org.teavm.jso.typedarrays.ArrayBuffer;
 import org.teavm.jso.typedarrays.Int8Array;
 
 import javax.annotation.Nullable;
+import java.nio.ByteBuffer;
 
 /**
  * Utility methods for converting between Java and Javascript representations.
@@ -78,5 +79,11 @@ public class JavascriptConv {
      */
     public static byte[] asByteArray(ArrayBuffer view) {
         return asByteArray(Int8Array.create(view));
+    }
+
+    public static Int8Array toArray(ByteBuffer buffer) {
+        var array = Int8Array.create(buffer.remaining());
+        for (var i = 0; i < array.getLength(); i++) array.set(i, buffer.get(i));
+        return array;
     }
 }

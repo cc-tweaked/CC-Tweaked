@@ -417,6 +417,49 @@ Unexpected end.
 Your program contains more ends than needed. Check each block (if, for, function, ...) only has one end.
 ```
 
+## `goto` and labels
+We `goto` the same as normal identifiers.
+
+```lua
+goto 2
+```
+
+```txt
+Unexpected symbol after name.
+   |
+ 1 | goto 2
+   |      ^
+Did you mean to assign this or call it as a function?
+```
+
+Labels have a basic closing check:
+```lua
+::foo
+```
+
+```txt
+Unexpected end of file.
+   |
+ 1 | ::foo
+   | ^^ Label was started here.
+   |
+ 1 | ::foo
+   |      ^ Tip: Try adding :: here.
+```
+
+But we do nothing fancy for just a `::`
+
+```lua
+::
+```
+
+```txt
+Unexpected end of file.
+   |
+ 1 | ::
+   |   ^
+```
+
 # Function calls
 
 ## Additional commas

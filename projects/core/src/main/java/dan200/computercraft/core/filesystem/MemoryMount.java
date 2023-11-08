@@ -17,12 +17,13 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.OpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.util.*;
 
-import static dan200.computercraft.core.filesystem.MountHelpers.*;
+import static dan200.computercraft.api.filesystem.MountConstants.*;
 
 /**
  * A basic {@link Mount} which stores files and directories in-memory.
@@ -147,33 +148,44 @@ public final class MemoryMount extends AbstractInMemoryMount<MemoryMount.FileEnt
         destParent.put(sourceParent.parent().remove(sourceParent.name()));
     }
 
-    private FileEntry getForWrite(String path) throws FileOperationException {
-        if (path.isEmpty()) throw new FileOperationException(path, CANNOT_WRITE_TO_DIRECTORY);
+    @Override
+    @Deprecated(forRemoval = true)
+    public SeekableByteChannel openForWrite(String path) throws IOException {
+        return openFile(path, WRITE_OPTIONS);
+    }
+
+    @Override
+    @Deprecated(forRemoval = true)
+    public SeekableByteChannel openForAppend(String path) throws IOException {
+        return openFile(path, APPEND_OPTIONS);
+    }
+
+    @Override
+    public SeekableByteChannel openFile(String path, Set<OpenOption> options) throws IOException {
+        var flags = FileFlags.of(options);
+
+        if (path.isEmpty()) {
+            throw new FileOperationException(path, flags.create() ? CANNOT_WRITE_TO_DIRECTORY : NOT_A_FILE);
+        }
 
         var parent = getParentAndName(path);
-        if (parent == null) throw new FileOperationException(path, "Parent directory does not exist");
+        if (parent == null) throw new FileOperationException(path, NO_SUCH_FILE);
 
         var file = parent.get();
-        if (file != null && file.isDirectory()) throw new FileOperationException(path, CANNOT_WRITE_TO_DIRECTORY);
-        if (file == null) parent.put(file = FileEntry.newFile());
+        if (file != null && file.isDirectory()) {
+            throw new FileOperationException(path, flags.create() ? CANNOT_WRITE_TO_DIRECTORY : NOT_A_FILE);
+        }
 
-        return file;
-    }
+        if (file == null) {
+            if (!flags.create()) throw new FileOperationException(path, NO_SUCH_FILE);
+            parent.put(file = FileEntry.newFile());
+        } else if (flags.truncate()) {
+            file.contents = EMPTY;
+            file.length = 0;
+        }
 
-    @Override
-    public SeekableByteChannel openForWrite(String path) throws IOException {
-        var file = getForWrite(path);
-
-        // Truncate the file.
-        file.contents = EMPTY;
-        file.length = 0;
-        return new EntryChannel(file, 0);
-    }
-
-    @Override
-    public SeekableByteChannel openForAppend(String path) throws IOException {
-        var file = getForWrite(path);
-        return new EntryChannel(file, file.length);
+        // Files are always read AND write, so don't need to do anything fancy here!
+        return new EntryChannel(file, flags.append() ? file.length : 0);
     }
 
     @Override

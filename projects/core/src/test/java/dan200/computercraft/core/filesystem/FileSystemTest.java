@@ -5,11 +5,12 @@
 package dan200.computercraft.core.filesystem;
 
 import com.google.common.io.Files;
+import dan200.computercraft.api.filesystem.MountConstants;
 import dan200.computercraft.api.filesystem.WritableMount;
-import dan200.computercraft.api.lua.Coerced;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.ObjectArguments;
 import dan200.computercraft.core.TestFiles;
-import dan200.computercraft.core.apis.handles.EncodedWritableHandle;
+import dan200.computercraft.core.apis.handles.WriteHandle;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -43,19 +44,19 @@ public class FileSystemTest {
         var fs = mkFs();
 
         {
-            var writer = fs.openForWrite("out.txt", false, EncodedWritableHandle::openUtf8);
-            var handle = new EncodedWritableHandle(writer.get(), writer);
-            handle.write(new Coerced<>("This is a long line"));
-            handle.doClose();
+            var writer = fs.openForWrite("out.txt", MountConstants.WRITE_OPTIONS);
+            var handle = WriteHandle.of(writer.get(), writer, false, true);
+            handle.write(new ObjectArguments("This is a long line"));
+            handle.close();
         }
 
         assertEquals("This is a long line", Files.asCharSource(new File(ROOT, "out.txt"), StandardCharsets.UTF_8).read());
 
         {
-            var writer = fs.openForWrite("out.txt", false, EncodedWritableHandle::openUtf8);
-            var handle = new EncodedWritableHandle(writer.get(), writer);
-            handle.write(new Coerced<>("Tiny line"));
-            handle.doClose();
+            var writer = fs.openForWrite("out.txt", MountConstants.WRITE_OPTIONS);
+            var handle = WriteHandle.of(writer.get(), writer, false, true);
+            handle.write(new ObjectArguments("Tiny line"));
+            handle.close();
         }
 
         assertEquals("Tiny line", Files.asCharSource(new File(ROOT, "out.txt"), StandardCharsets.UTF_8).read());
@@ -67,12 +68,12 @@ public class FileSystemTest {
         WritableMount mount = new WritableFileMount(new File(ROOT, "child"), CAPACITY);
         fs.mountWritable("disk", "disk", mount);
 
-        var writer = fs.openForWrite("disk/out.txt", false, EncodedWritableHandle::openUtf8);
-        var handle = new EncodedWritableHandle(writer.get(), writer);
+        var writer = fs.openForWrite("disk/out.txt", MountConstants.WRITE_OPTIONS);
+        var handle = WriteHandle.of(writer.get(), writer, false, true);
 
         fs.unmount("disk");
 
-        var err = assertThrows(LuaException.class, () -> handle.write(new Coerced<>("Tiny line")));
+        var err = assertThrows(LuaException.class, () -> handle.write(new ObjectArguments("Tiny line")));
         assertEquals("attempt to use a closed file", err.getMessage());
     }
 

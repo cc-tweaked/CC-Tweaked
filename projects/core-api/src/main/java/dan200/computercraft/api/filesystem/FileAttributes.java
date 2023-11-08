@@ -7,7 +7,8 @@ package dan200.computercraft.api.filesystem;
 import javax.annotation.Nullable;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
-import java.time.Instant;
+
+import static dan200.computercraft.api.filesystem.MountConstants.EPOCH;
 
 /**
  * A simple version of {@link BasicFileAttributes}, which provides what information a {@link Mount} already exposes.
@@ -20,8 +21,6 @@ import java.time.Instant;
 public record FileAttributes(
     boolean isDirectory, long size, FileTime creationTime, FileTime lastModifiedTime
 ) implements BasicFileAttributes {
-    private static final FileTime EPOCH = FileTime.from(Instant.EPOCH);
-
     /**
      * Create a new {@link FileAttributes} instance with the {@linkplain #creationTime() creation time} and
      * {@linkplain #lastModifiedTime() last modified time} set to the Unix epoch.

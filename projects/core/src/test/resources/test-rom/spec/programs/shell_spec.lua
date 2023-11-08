@@ -214,7 +214,7 @@ describe("The shell", function()
             local lines = {}
             for i = 1, 5 do lines[i] = win.getLine(i):gsub(" +$", "") end
             expect(lines):same {
-                "CraftOS 1.8",
+                "CraftOS 1.9",
                 "> xyz",
                 "Transferring transfer.txt",
                 "> xyz",

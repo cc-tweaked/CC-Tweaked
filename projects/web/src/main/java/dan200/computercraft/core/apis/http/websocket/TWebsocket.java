@@ -70,10 +70,7 @@ public class TWebsocket extends Resource<TWebsocket> implements WebsocketClient 
     @Override
     public void sendBinary(ByteBuffer message) {
         if (websocket == null) return;
-
-        var array = Int8Array.create(message.remaining());
-        for (var i = 0; i < array.getLength(); i++) array.set(i, message.get(i));
-        websocket.send(array);
+        websocket.send(JavascriptConv.toArray(message));
     }
 
     @Override

@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
 import java.util.Locale;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -57,21 +57,21 @@ public class HttpRequest extends Resource<HttpRequest> {
     final AtomicInteger redirects;
 
     public HttpRequest(
-        ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment, String address, @Nullable String postText,
+        ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment, String address, @Nullable ByteBuffer postBody,
         HttpHeaders headers, boolean binary, boolean followRedirects, int timeout
     ) {
         super(limiter);
         this.environment = environment;
         this.address = address;
-        postBuffer = postText != null
-            ? Unpooled.wrappedBuffer(postText.getBytes(StandardCharsets.UTF_8))
+        postBuffer = postBody != null
+            ? Unpooled.wrappedBuffer(postBody)
             : Unpooled.buffer(0);
         this.headers = headers;
         this.binary = binary;
         redirects = new AtomicInteger(followRedirects ? MAX_REDIRECTS : 0);
         this.timeout = timeout;
 
-        if (postText != null) {
+        if (postBody != null) {
             if (!headers.contains(HttpHeaderNames.CONTENT_TYPE)) {
                 headers.set(HttpHeaderNames.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=utf-8");
             }

@@ -9,9 +9,7 @@ import cc.tweaked.web.js.JavascriptConv;
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
-import dan200.computercraft.core.apis.handles.BinaryReadableHandle;
-import dan200.computercraft.core.apis.handles.EncodedReadableHandle;
-import dan200.computercraft.core.apis.handles.HandleGeneric;
+import dan200.computercraft.core.apis.handles.ReadHandle;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.Resource;
 import dan200.computercraft.core.apis.http.ResourceGroup;
@@ -24,10 +22,9 @@ import org.teavm.jso.ajax.XMLHttpRequest;
 import org.teavm.jso.typedarrays.ArrayBuffer;
 
 import javax.annotation.Nullable;
-import java.io.BufferedReader;
-import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 import java.util.HashMap;
 import java.util.Locale;
@@ -44,24 +41,24 @@ public class THttpRequest extends Resource<THttpRequest> {
     private final IAPIEnvironment environment;
 
     private final String address;
-    private final @Nullable String postBuffer;
+    private final @Nullable ByteBuffer postBuffer;
     private final HttpHeaders headers;
     private final boolean binary;
     private final boolean followRedirects;
 
     public THttpRequest(
-        ResourceGroup<THttpRequest> limiter, IAPIEnvironment environment, String address, @Nullable String postText,
+        ResourceGroup<THttpRequest> limiter, IAPIEnvironment environment, String address, @Nullable ByteBuffer postBody,
         HttpHeaders headers, boolean binary, boolean followRedirects, int timeout
     ) {
         super(limiter);
         this.environment = environment;
         this.address = address;
-        postBuffer = postText;
+        postBuffer = postBody;
         this.headers = headers;
         this.binary = binary;
         this.followRedirects = followRedirects;
 
-        if (postText != null) {
+        if (postBody != null) {
             if (!headers.contains(HttpHeaderNames.CONTENT_TYPE)) {
                 headers.set(HttpHeaderNames.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=utf-8");
             }
@@ -97,7 +94,7 @@ public class THttpRequest extends Resource<THttpRequest> {
         try {
             var request = XMLHttpRequest.create();
             request.setOnReadyStateChange(() -> onResponseStateChange(request));
-            request.setResponseType(binary ? "arraybuffer" : "text");
+            request.setResponseType("arraybuffer");
             var address = uri.toASCIIString();
             request.open(method.toString(), Main.CORS_PROXY.isEmpty() ? address : Main.CORS_PROXY.replace("{}", address));
             for (var iterator = headers.iteratorAsString(); iterator.hasNext(); ) {
@@ -105,7 +102,7 @@ public class THttpRequest extends Resource<THttpRequest> {
                 request.setRequestHeader(header.getKey(), header.getValue());
             }
             request.setRequestHeader("X-CC-Redirect", followRedirects ? "true" : "false");
-            request.send(postBuffer);
+            request.send(postBuffer == null ? null : JavascriptConv.toArray(postBuffer));
             checkClosed();
         } catch (Exception e) {
             failure("Could not connect");
@@ -120,14 +117,9 @@ public class THttpRequest extends Resource<THttpRequest> {
             return;
         }
 
-        HandleGeneric reader;
-        if (binary) {
-            ArrayBuffer buffer = request.getResponse().cast();
-            SeekableByteChannel contents = new ArrayByteChannel(JavascriptConv.asByteArray(buffer));
-            reader = BinaryReadableHandle.of(contents);
-        } else {
-            reader = new EncodedReadableHandle(new BufferedReader(new StringReader(request.getResponseText())));
-        }
+        ArrayBuffer buffer = request.getResponse().cast();
+        SeekableByteChannel contents = new ArrayByteChannel(JavascriptConv.asByteArray(buffer));
+        var reader = new ReadHandle(contents, binary);
 
         Map<String, String> responseHeaders = new HashMap<>();
         for (var header : request.getAllResponseHeaders().split("\r\n")) {
