@@ -95,10 +95,10 @@ function pullEventRaw(filter) end
 -- nearest multiple of 0.05.
 function sleep(time) end
 
---- Get the current CraftOS version (for example, `CraftOS 1.8`).
+--- Get the current CraftOS version (for example, `CraftOS 1.9`).
 --
 -- This is defined by `bios.lua`. For the current version of CC:Tweaked, this
--- should return `CraftOS 1.8`.
+-- should return `CraftOS 1.9`.
 --
 -- @treturn string The current CraftOS version.
 -- @usage os.version()
