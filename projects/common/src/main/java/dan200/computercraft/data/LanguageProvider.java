@@ -174,6 +174,7 @@ public final class LanguageProvider implements DataProvider {
         // Metrics
         add(Metrics.COMPUTER_TASKS, "Tasks");
         add(Metrics.SERVER_TASKS, "Server tasks");
+        add(Metrics.JAVA_ALLOCATION, "Java Allocations");
         add(Metrics.PERIPHERAL_OPS, "Peripheral calls");
         add(Metrics.FS_OPS, "Filesystem operations");
         add(Metrics.HTTP_REQUESTS, "HTTP requests");

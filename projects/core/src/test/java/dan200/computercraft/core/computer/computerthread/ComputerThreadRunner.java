@@ -5,10 +5,12 @@
 package dan200.computercraft.core.computer.computerthread;
 
 import dan200.computercraft.core.computer.TimeoutState;
+import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import javax.annotation.concurrent.GuardedBy;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -81,14 +83,15 @@ public class ComputerThreadRunner implements AutoCloseable {
         void run(ComputerScheduler.Executor executor) throws InterruptedException;
     }
 
-    public final class Worker implements ComputerScheduler.Worker {
+    public final class Worker implements ComputerScheduler.Worker, MetricsObserver {
         private final Task run;
         private final ComputerScheduler.Executor executor;
+        private long[] totals = new long[16];
         volatile int executed = 0;
 
         private Worker(ComputerScheduler scheduler, Task run) {
             this.run = run;
-            this.executor = scheduler.createExecutor(this, MetricsObserver.discard());
+            this.executor = scheduler.createExecutor(this, this);
         }
 
         public ComputerScheduler.Executor executor() {
@@ -137,6 +140,26 @@ public class ComputerThreadRunner implements AutoCloseable {
 
         @Override
         public void abortWithError() {
+        }
+
+        private synchronized void observeImpl(Metric metric, long value) {
+            if (metric.id() >= totals.length) totals = Arrays.copyOf(totals, Math.max(metric.id(), totals.length * 2));
+            totals[metric.id()] += value;
+        }
+
+        @Override
+        public void observe(Metric.Counter counter) {
+            observeImpl(counter, 1);
+        }
+
+        @Override
+        public void observe(Metric.Event event, long value) {
+            observeImpl(event, value);
+        }
+
+        public long getMetric(Metric metric) {
+            var totals = this.totals;
+            return metric.id() < totals.length ? totals[metric.id()] : 0;
         }
     }
 }

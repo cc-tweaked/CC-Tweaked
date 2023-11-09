@@ -14,6 +14,8 @@ public final class Metrics {
     public static final Metric.Event COMPUTER_TASKS = new Metric.Event("computer_tasks", "ns", Metric::formatTime);
     public static final Metric.Event SERVER_TASKS = new Metric.Event("server_tasks", "ns", Metric::formatTime);
 
+    public static final Metric.Event JAVA_ALLOCATION = new Metric.Event("java_allocation", "bytes", Metric::formatBytes);
+
     public static final Metric.Event PERIPHERAL_OPS = new Metric.Event("peripheral", "ns", Metric::formatTime);
     public static final Metric.Event FS_OPS = new Metric.Event("fs", "ns", Metric::formatTime);
 

@@ -5,22 +5,21 @@
 package dan200.computercraft.core.computer.computerthread;
 
 import dan200.computercraft.core.computer.TimeoutState;
+import dan200.computercraft.core.metrics.Metrics;
+import dan200.computercraft.core.metrics.ThreadAllocations;
 import dan200.computercraft.test.core.ConcurrentHelpers;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Timeout(value = 15)
@@ -91,5 +90,22 @@ public class ComputerThreadTest {
         manager.createLoopingComputer();
 
         manager.startAndWait(computer);
+    }
+
+    @Test
+    public void testAllocationTracking() throws Exception {
+        Assumptions.assumeTrue(ThreadAllocations.isSupported(), "Allocation tracking is supported");
+
+        var size = 1024 * 1024 * 64;
+        var computer = manager.createWorker((executor, timeout) -> {
+            // Allocate some slab of memory. We try to blackhole the allocated object, but it's pretty naive
+            // so who knows how useful it'll be.
+            assertNotEquals(0, Objects.toString(new byte[size]).length());
+        });
+        manager.startAndWait(computer);
+
+        assertThat(computer.getMetric(Metrics.JAVA_ALLOCATION), allOf(
+            greaterThan((long) size), lessThan((long) (size + (size >> 2)))
+        ));
     }
 }
