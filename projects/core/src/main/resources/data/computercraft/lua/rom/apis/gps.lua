@@ -148,7 +148,7 @@ function locate(_nTimeout, _bDebug)
             local sSide, sChannel, sReplyChannel, tMessage, nDistance = p1, p2, p3, p4, p5
             if sSide == sModemSide and sChannel == CHANNEL_GPS and sReplyChannel == CHANNEL_GPS and nDistance then
                 -- Received the correct message from the correct modem: use it to determine position
-                if type(tMessage) == "table" and #tMessage == 4 and tonumber(tMessage[1]) and tonumber(tMessage[2]) and tonumber(tMessage[3]) and tonumber(tMessage[4]) then
+                if type(tMessage) == "table" and #tMessage == 4 and tonumber(tMessage[1]) and tonumber(tMessage[2]) and tonumber(tMessage[3]) then
                     local tFix = { vPosition = vector.new(tMessage[1], tMessage[2], tMessage[3]), nDistance = tonumber(tMessage[4]) and tMessage[4] or nDistance }
                     if _bDebug then
                         print(tFix.nDistance .. " metres from " .. tostring(tFix.vPosition))
