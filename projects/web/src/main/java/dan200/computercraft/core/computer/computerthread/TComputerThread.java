@@ -28,6 +28,7 @@ public class TComputerThread implements ComputerScheduler {
 
     private static final ArrayDeque<ExecutorImpl> executors = new ArrayDeque<>();
     private static final TimerHandler callback = TComputerThread::workOnce;
+    private static boolean enqueued;
 
     public TComputerThread(int threads) {
     }
@@ -38,6 +39,8 @@ public class TComputerThread implements ComputerScheduler {
     }
 
     private static void workOnce() {
+        enqueued = false;
+
         var executor = executors.poll();
         if (executor == null) throw new IllegalStateException("Working, but executor is null");
 
@@ -50,7 +53,14 @@ public class TComputerThread implements ComputerScheduler {
         }
         executor.afterWork();
 
-        if (!executors.isEmpty()) Callbacks.setImmediate(callback);
+        if (!executors.isEmpty()) enqueue();
+    }
+
+    private static void enqueue() {
+        if (enqueued) return;
+
+        enqueued = true;
+        Callbacks.setImmediate(callback);
     }
 
     @Override
@@ -75,8 +85,8 @@ public class TComputerThread implements ComputerScheduler {
             if (onQueue) return;
             onQueue = true;
 
-            if (executors.isEmpty()) Callbacks.setImmediate(callback);
             executors.add(this);
+            enqueue();
         }
 
         void beforeWork() {

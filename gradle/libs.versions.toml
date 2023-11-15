@@ -68,7 +68,7 @@ mixinGradle = "0.7.+"
 nullAway = "0.9.9"
 spotless = "6.21.0"
 taskTree = "2.1.1"
-teavm = "0.10.0-SQUID.1"
+teavm = "0.10.0-SQUID.2"
 vanillaGradle = "0.2.1-SNAPSHOT"
 vineflower = "1.11.0"
 

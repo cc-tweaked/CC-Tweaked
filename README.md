@@ -42,7 +42,6 @@ repositories {
     url "https://squiddev.cc/maven/"
     content {
       includeGroup("cc.tweaked")
-      includeModule("org.squiddev", "Cobalt")
     }
   }
 }
