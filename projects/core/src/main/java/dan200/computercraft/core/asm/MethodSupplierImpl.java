@@ -110,7 +110,7 @@ final class MethodSupplierImpl<T> implements MethodSupplier<T> {
                 continue;
             }
 
-            var instance = generator.getMethod(method).orElse(null);
+            var instance = generator.getInstanceMethod(method).orElse(null);
             if (instance == null) continue;
 
             if (methods == null) methods = new ArrayList<>();
@@ -121,7 +121,7 @@ final class MethodSupplierImpl<T> implements MethodSupplier<T> {
         for (var method : genericMethods) {
             if (!method.target.isAssignableFrom(klass)) continue;
 
-            var instance = generator.getMethod(method.method).orElse(null);
+            var instance = generator.getGenericMethod(method).orElse(null);
             if (instance == null) continue;
 
             if (methods == null) methods = new ArrayList<>();

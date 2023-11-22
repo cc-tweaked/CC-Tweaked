@@ -18,10 +18,7 @@ import javax.annotation.Nullable;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.function.Function;
@@ -106,9 +103,14 @@ final class Generator<T> {
     private final Function<MethodHandle, T> factory;
     private final Function<T, T> wrap;
 
-    private final LoadingCache<Method, Optional<T>> methodCache = CacheBuilder
+    private final LoadingCache<Method, Optional<T>> instanceCache = CacheBuilder
         .newBuilder()
-        .build(CacheLoader.from(catching(this::build, Optional.empty())));
+        .build(CacheLoader.from(catching(this::buildInstanceMethod, Optional.empty())));
+
+    private final LoadingCache<GenericMethod, Optional<T>> genericCache = CacheBuilder
+        .newBuilder()
+        .weakKeys()
+        .build(CacheLoader.from(catching(this::buildGenericMethod, Optional.empty())));
 
     Generator(List<Class<?>> context, Function<MethodHandle, T> factory, Function<T, T> wrap) {
         this.context = context;
@@ -131,65 +133,94 @@ final class Generator<T> {
         }
     }
 
-    Optional<T> getMethod(Method method) {
-        return methodCache.getUnchecked(method);
+    Optional<T> getInstanceMethod(Method method) {
+        return instanceCache.getUnchecked(method);
     }
 
-    private Optional<T> build(Method method) {
-        var name = method.getDeclaringClass().getName() + "." + method.getName();
-        var modifiers = method.getModifiers();
+    Optional<T> getGenericMethod(GenericMethod method) {
+        return genericCache.getUnchecked(method);
+    }
 
-        // Instance methods must be final - this prevents them being overridden and potentially exposed twice.
-        if (!Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers)) {
-            LOG.warn("Lua Method {} should be final.", name);
+    /**
+     * Check if a {@link LuaFunction}-annotated method can be used in this context.
+     *
+     * @param method The method to check.
+     * @return Whether the method is valid.
+     */
+    private boolean checkMethod(Method method) {
+        if (method.isBridge()) {
+            LOG.debug("Skipping bridge Lua Method {}.{}", method.getDeclaringClass().getName(), method.getName());
+            return false;
         }
 
-        if (!Modifier.isPublic(modifiers)) {
-            LOG.error("Lua Method {} should be a public method.", name);
-            return Optional.empty();
-        }
-
-        if (!Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-            LOG.error("Lua Method {} should be on a public class.", name);
-            return Optional.empty();
-        }
-
-        LOG.debug("Generating method wrapper for {}.", name);
-
+        // Check we don't throw additional exceptions.
         var exceptions = method.getExceptionTypes();
         for (var exception : exceptions) {
             if (exception != LuaException.class) {
-                LOG.error("Lua Method {} cannot throw {}.", name, exception.getName());
-                return Optional.empty();
+                LOG.error("Lua Method {}.{} cannot throw {}.", method.getDeclaringClass().getName(), method.getName(), exception.getName());
+                return false;
             }
         }
 
+        // unsafe can only be used on the computer thread, so reject it for mainThread functions.
         var annotation = method.getAnnotation(LuaFunction.class);
         if (annotation.unsafe() && annotation.mainThread()) {
-            LOG.error("Lua Method {} cannot use unsafe and mainThread", name);
-            return Optional.empty();
+            LOG.error("Lua Method {}.{} cannot use unsafe and mainThread.", method.getDeclaringClass().getName(), method.getName());
+            return false;
         }
 
-        try {
-            var originalHandle = LOOKUP.unreflect(method);
-
-            List<Type> parameters;
-            if (Modifier.isStatic(modifiers)) {
-                var allParameters = method.getGenericParameterTypes();
-                parameters = Arrays.asList(allParameters).subList(1, allParameters.length);
-            } else {
-                parameters = Arrays.asList(method.getGenericParameterTypes());
-            }
-
-            var handle = buildMethodHandle(method, originalHandle, parameters, annotation.unsafe());
-            if (handle == null) return Optional.empty();
-
-            var instance = factory.apply(handle);
-            return Optional.of(annotation.mainThread() ? wrap.apply(instance) : instance);
-        } catch (ReflectiveOperationException | RuntimeException e) {
-            LOG.error("Error generating wrapper for {}.", name, e);
-            return Optional.empty();
+        // Instance methods must be final - this prevents them being overridden and potentially exposed twice.
+        var modifiers = method.getModifiers();
+        if (!Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers)) {
+            LOG.warn("Lua Method {}.{} should be final.", method.getDeclaringClass().getName(), method.getName());
         }
+
+        return true;
+    }
+
+    private Optional<T> buildInstanceMethod(Method method) {
+        if (!checkMethod(method)) return Optional.empty();
+
+        var handle = tryUnreflect(method);
+        if (handle == null) return Optional.empty();
+
+        return build(method, handle, Arrays.asList(method.getGenericParameterTypes()));
+    }
+
+    private Optional<T> buildGenericMethod(GenericMethod method) {
+        if (!checkMethod(method.method)) return Optional.empty();
+
+        var handle = tryUnreflect(method.method);
+        if (handle == null) return Optional.empty();
+
+        var parameters = Arrays.asList(method.method.getGenericParameterTypes());
+        return build(
+            method.method,
+            Modifier.isStatic(method.method.getModifiers()) ? handle : handle.bindTo(method.source),
+            parameters.subList(1, parameters.size()) // Drop the instance argument.
+        );
+    }
+
+    /**
+     * Generate our {@link T} instance for a specific method.
+     * <p>
+     * This {@linkplain #buildMethodHandle(Member, MethodHandle, List, boolean)} builds the method handle, and then
+     * wraps it with {@link #factory}.
+     *
+     * @param method     The original method, for reflection and error reporting.
+     * @param handle     The method handle to execute.
+     * @param parameters The generic parameters to this method handle.
+     * @return The generated method, or {@link Optional#empty()} if an error occurred.
+     */
+    private Optional<T> build(Method method, MethodHandle handle, List<Type> parameters) {
+        LOG.debug("Generating method wrapper for {}.{}.", method.getDeclaringClass().getName(), method.getName());
+
+        var annotation = method.getAnnotation(LuaFunction.class);
+        var wrappedHandle = buildMethodHandle(method, handle, parameters, annotation.unsafe());
+        if (wrappedHandle == null) return Optional.empty();
+
+        var instance = factory.apply(wrappedHandle);
+        return Optional.of(annotation.mainThread() ? wrap.apply(instance) : instance);
     }
 
     /**
@@ -202,8 +233,7 @@ final class Generator<T> {
      * @param unsafe         Whether to allow unsafe argument getters.
      * @return The wrapped method handle.
      */
-    @Nullable
-    private MethodHandle buildMethodHandle(Member method, MethodHandle handle, List<Type> parameterTypes, boolean unsafe) {
+    private @Nullable MethodHandle buildMethodHandle(Member method, MethodHandle handle, List<Type> parameterTypes, boolean unsafe) {
         if (handle.type().parameterCount() != parameterTypes.size() + 1) {
             throw new IllegalArgumentException("Argument lists are mismatched");
         }
@@ -263,8 +293,7 @@ final class Generator<T> {
         }
     }
 
-    @Nullable
-    private static MethodHandle loadArg(Member method, boolean unsafe, Class<?> argType, Type genericArg, int argIndex) {
+    private static @Nullable MethodHandle loadArg(Member method, boolean unsafe, Class<?> argType, Type genericArg, int argIndex) {
         if (argType == Coerced.class) {
             var klass = Reflect.getRawType(method, TypeToken.of(genericArg).resolveType(Reflect.COERCED_IN).getType(), false);
             if (klass == null) return null;
@@ -312,6 +341,22 @@ final class Generator<T> {
         return null;
     }
 
+    /**
+     * A wrapper over {@link MethodHandles.Lookup#unreflect(Method)} which discards errors.
+     *
+     * @param method The method to unreflect.
+     * @return The resulting handle, or {@code null} if it cannot be unreflected.
+     */
+    private static @Nullable MethodHandle tryUnreflect(Method method) {
+        try {
+            method.setAccessible(true);
+            return LOOKUP.unreflect(method);
+        } catch (SecurityException | InaccessibleObjectException | IllegalAccessException e) {
+            LOG.error("Lua Method {}.{} is not accessible.", method.getDeclaringClass().getName(), method.getName());
+            return null;
+        }
+    }
+
     @SuppressWarnings("Guava")
     static <T, U> com.google.common.base.Function<T, U> catching(Function<T, U> function, U def) {
         return x -> {
@@ -320,7 +365,7 @@ final class Generator<T> {
             } catch (Exception | LinkageError e) {
                 // LinkageError due to possible codegen bugs and NoClassDefFoundError. The latter occurs when fetching
                 // methods on a class which references non-existent (i.e. client-only) types.
-                LOG.error("Error generating @LuaFunctions", e);
+                LOG.error("Error generating @LuaFunction for {}", x, e);
                 return def;
             }
         };

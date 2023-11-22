@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static dan200.computercraft.test.core.ContramapMatcher.contramap;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GeneratorTest {
     private static final MethodSupplierImpl<LuaMethod> GENERATOR = (MethodSupplierImpl<LuaMethod>) LuaMethodSupplier.create(
-        GenericMethod.getMethods(new StaticMethod()).toList()
+        Stream.of(new StaticGeneric(), new InstanceGeneric()).flatMap(GenericMethod::getMethods).toList()
     );
 
     @Test
@@ -65,8 +66,10 @@ public class GeneratorTest {
     }
 
     @Test
-    public void testNonPublicClass() {
-        assertThat(GENERATOR.getMethods(NonPublic.class), is(empty()));
+    public void testNonPublicClass() throws LuaException {
+        var methods = GENERATOR.getMethods(NonPublic.class);
+        assertThat(methods, contains(named("go")));
+        assertThat(apply(methods, new NonPublic(), "go"), is(MethodResult.of()));
     }
 
     @Test
@@ -75,10 +78,18 @@ public class GeneratorTest {
     }
 
     @Test
-    public void testStaticMethod() throws LuaException {
-        var methods = GENERATOR.getMethods(StaticMethodTarget.class);
-        assertThat(methods, contains(named("go")));
-        assertThat(apply(methods, new StaticMethodTarget(), "go", "Hello", 123), is(MethodResult.of()));
+    public void testStaticGenericMethod() throws LuaException {
+        var methods = GENERATOR.getMethods(GenericMethodTarget.class);
+        assertThat(methods, hasItem(named("goStatic")));
+        assertThat(apply(methods, new GenericMethodTarget(), "goStatic", "Hello", 123), is(MethodResult.of()));
+    }
+
+
+    @Test
+    public void testInstanceGenericrMethod() throws LuaException {
+        var methods = GENERATOR.getMethods(GenericMethodTarget.class);
+        assertThat(methods, hasItem(named("goInstance")));
+        assertThat(apply(methods, new GenericMethodTarget(), "goInstance", "Hello", 123), is(MethodResult.of()));
     }
 
     @Test
@@ -181,17 +192,28 @@ public class GeneratorTest {
         }
     }
 
-    public static class StaticMethodTarget {
+    public static class GenericMethodTarget {
     }
 
-    public static class StaticMethod implements GenericSource {
+    public static class StaticGeneric implements GenericSource {
         @Override
         public String id() {
-            return "source";
+            return "static";
         }
 
         @LuaFunction
-        public static void go(StaticMethodTarget target, String arg1, int arg2, ILuaContext context) {
+        public static void goStatic(GenericMethodTarget target, String arg1, int arg2, ILuaContext context) {
+        }
+    }
+
+    public static class InstanceGeneric implements GenericSource {
+        @Override
+        public String id() {
+            return "instance";
+        }
+
+        @LuaFunction
+        public void goInstance(GenericMethodTarget target, String arg1, int arg2, ILuaContext context) {
         }
     }
 

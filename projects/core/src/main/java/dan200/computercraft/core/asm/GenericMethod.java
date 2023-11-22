@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -56,15 +55,10 @@ public final class GenericMethod {
         Class<?> klass = source.getClass();
         var type = source instanceof GenericPeripheral generic ? generic.getType() : null;
 
-        return Arrays.stream(klass.getDeclaredMethods())
+        return Arrays.stream(klass.getMethods())
             .map(method -> {
                 var annotation = method.getAnnotation(LuaFunction.class);
                 if (annotation == null) return null;
-
-                if (!Modifier.isStatic(method.getModifiers())) {
-                    LOG.error("GenericSource method {}.{} should be static.", method.getDeclaringClass(), method.getName());
-                    return null;
-                }
 
                 var types = method.getGenericParameterTypes();
                 if (types.length == 0) {
