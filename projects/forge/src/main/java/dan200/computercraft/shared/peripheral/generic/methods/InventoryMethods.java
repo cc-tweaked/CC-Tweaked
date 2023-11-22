@@ -31,6 +31,7 @@ import static dan200.computercraft.core.util.ArgumentHelpers.assertBetween;
  * Methods for interacting with inventories.
  *
  * @cc.module inventory
+ * @cc.see item_transportation For a detailed guide on how to use these methods.
  * @cc.since 1.94.0
  */
 public class InventoryMethods implements GenericPeripheral {

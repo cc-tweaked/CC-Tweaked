@@ -29,6 +29,7 @@ import static dan200.computercraft.shared.util.ArgumentHelpers.getRegistryEntry;
  * Methods for interacting with tanks and other fluid storage blocks.
  *
  * @cc.module fluid_storage
+ * @cc.see fluid_transportation For a detailed guide on how to use these methods.
  * @cc.since 1.94.0
  */
 public class FluidMethods implements GenericPeripheral {
