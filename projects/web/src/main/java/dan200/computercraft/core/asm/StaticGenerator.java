@@ -87,18 +87,13 @@ public final class StaticGenerator<T> {
         var name = method.getDeclaringClass().getName() + "." + method.getName();
         var modifiers = method.getModifiers();
 
-        // Instance methods must be final - this prevents them being overridden and potentially exposed twice.
-        if (!Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers)) {
+        // Methods must be final - this prevents them being overridden and potentially exposed twice.
+        if (!Modifier.isFinal(modifiers) && !Modifier.isFinal(method.getDeclaringClass().getModifiers())) {
             System.err.printf("Lua Method %s should be final.\n", name);
         }
 
-        if (!Modifier.isPublic(modifiers)) {
+        if (!Modifier.isPublic(modifiers) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
             System.err.printf("Lua Method %s should be a public method.\n", name);
-            return Optional.empty();
-        }
-
-        if (!Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-            System.err.printf("Lua Method %s should be on a public class.\n", name);
             return Optional.empty();
         }
 
@@ -116,11 +111,8 @@ public final class StaticGenerator<T> {
             return Optional.empty();
         }
 
-        // We have some rather ugly handling of static methods in both here and the main generate function. Static methods
-        // only come from generic sources, so this should be safe.
-        var target = Modifier.isStatic(modifiers) ? method.getParameterTypes()[0] : method.getDeclaringClass();
-
         try {
+            var target = method.getDeclaringClass();
             var bytes = generate(classPrefix + method.getDeclaringClass().getSimpleName() + "$" + method.getName(), target, method, annotation.unsafe());
             if (bytes == null) return Optional.empty();
 
@@ -170,11 +162,9 @@ public final class StaticGenerator<T> {
             var mw = cw.visitMethod(ACC_PUBLIC, METHOD_NAME, methodDesc, null, EXCEPTIONS);
             mw.visitCode();
 
-            // If we're an instance method, load the target as the first argument.
-            if (!Modifier.isStatic(targetMethod.getModifiers())) {
-                mw.visitVarInsn(ALOAD, 1);
-                mw.visitTypeInsn(CHECKCAST, Type.getInternalName(target));
-            }
+            // Load the target as the first argument.
+            mw.visitVarInsn(ALOAD, 1);
+            mw.visitTypeInsn(CHECKCAST, Type.getInternalName(target));
 
             var argIndex = 0;
             for (var genericArg : targetMethod.getGenericParameterTypes()) {
@@ -184,7 +174,7 @@ public final class StaticGenerator<T> {
             }
 
             mw.visitMethodInsn(
-                Modifier.isStatic(targetMethod.getModifiers()) ? INVOKESTATIC : INVOKEVIRTUAL,
+                INVOKEVIRTUAL,
                 Type.getInternalName(targetMethod.getDeclaringClass()), targetMethod.getName(),
                 Type.getMethodDescriptor(targetMethod), false
             );
@@ -244,12 +234,10 @@ public final class StaticGenerator<T> {
             if (klass == null) return null;
 
             if (klass == String.class) {
-                mw.visitTypeInsn(NEW, INTERNAL_COERCED);
-                mw.visitInsn(DUP);
-                mw.visitVarInsn(ALOAD, 2 + context.size());
-                loadInt(mw, argIndex);
-                mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, "getStringCoerced", "(I)Ljava/lang/String;", true);
-                mw.visitMethodInsn(INVOKESPECIAL, INTERNAL_COERCED, "<init>", "(Ljava/lang/Object;)V", false);
+                loadCoerced(mw, argIndex, "getStringCoerced", "(I)Ljava/lang/String;");
+                return true;
+            } else if (klass == ByteBuffer.class) {
+                loadCoerced(mw, argIndex, "getBytesCoerced", "(I)Ljava/nio/ByteBuffer;");
                 return true;
             }
         }
@@ -322,6 +310,15 @@ public final class StaticGenerator<T> {
         } else {
             visitor.visitLdcInsn(value);
         }
+    }
+
+    private void loadCoerced(MethodVisitor mw, int argIndex, String getter, String getterType) {
+        mw.visitTypeInsn(NEW, INTERNAL_COERCED);
+        mw.visitInsn(DUP);
+        mw.visitVarInsn(ALOAD, 2 + context.size());
+        loadInt(mw, argIndex);
+        mw.visitMethodInsn(INVOKEINTERFACE, INTERNAL_ARGUMENTS, getter, getterType, true);
+        mw.visitMethodInsn(INVOKESPECIAL, INTERNAL_COERCED, "<init>", "(Ljava/lang/Object;)V", false);
     }
 
     @SuppressWarnings("Guava")

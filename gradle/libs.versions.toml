@@ -51,7 +51,7 @@ jqwik = "1.7.4"
 junit = "5.10.0"
 
 # Build tools
-cctJavadoc = "1.8.1"
+cctJavadoc = "1.8.2"
 checkstyle = "10.12.3"
 curseForgeGradle = "1.0.14"
 errorProne-core = "2.21.1"

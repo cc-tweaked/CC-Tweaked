@@ -4,14 +4,11 @@
 
 package dan200.computercraft.shared.peripheral.generic.methods;
 
-import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.PeripheralType;
 import dan200.computercraft.shared.platform.FabricContainerTransfer;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -32,37 +29,30 @@ import java.util.Optional;
 import static dan200.computercraft.core.util.ArgumentHelpers.assertBetween;
 
 /**
- * Methods for interacting with inventories. This mirrors the Forge version.
+ * Inventory methods for Fabric's {@link SlottedStorage} and {@link ItemVariant}s.
+ * <p>
+ * The generic peripheral system doesn't (currently) support generics, and so we need to wrap this in a
+ * {@link StorageWrapper} box.
  */
 @SuppressWarnings("UnstableApiUsage")
-public class InventoryMethods implements GenericPeripheral {
-    @Override
-    public PeripheralType getType() {
-        return PeripheralType.ofAdditional("inventory");
-    }
-
-    @Override
-    public String id() {
-        return ComputerCraftAPI.MOD_ID + ":inventory";
-    }
-
+public final class InventoryMethods extends AbstractInventoryMethods<InventoryMethods.StorageWrapper> {
     /**
      * Wrapper over a {@link SlottedStorage}.
-     * <p>
-     * The generic peripheral system doesn't (currently) support generics, and so we need put the inventory in a box.
      *
      * @param storage The underlying storage
      */
     public record StorageWrapper(SlottedStorage<ItemVariant> storage) {
     }
 
+    @Override
     @LuaFunction(mainThread = true)
-    public static int size(StorageWrapper inventory) {
+    public int size(StorageWrapper inventory) {
         return inventory.storage().getSlots().size();
     }
 
+    @Override
     @LuaFunction(mainThread = true)
-    public static Map<Integer, Map<String, ?>> list(StorageWrapper inventory) {
+    public Map<Integer, Map<String, ?>> list(StorageWrapper inventory) {
         Map<Integer, Map<String, ?>> result = new HashMap<>();
         var slots = inventory.storage().getSlots();
         var size = slots.size();
@@ -74,23 +64,26 @@ public class InventoryMethods implements GenericPeripheral {
         return result;
     }
 
+    @Override
     @Nullable
     @LuaFunction(mainThread = true)
-    public static Map<String, ?> getItemDetail(StorageWrapper inventory, int slot) throws LuaException {
+    public Map<String, ?> getItemDetail(StorageWrapper inventory, int slot) throws LuaException {
         assertBetween(slot, 1, inventory.storage().getSlotCount(), "Slot out of range (%s)");
 
         var stack = toStack(inventory.storage().getSlot(slot - 1));
         return stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(stack);
     }
 
+    @Override
     @LuaFunction(mainThread = true)
-    public static long getItemLimit(StorageWrapper inventory, int slot) throws LuaException {
+    public long getItemLimit(StorageWrapper inventory, int slot) throws LuaException {
         assertBetween(slot, 1, inventory.storage().getSlotCount(), "Slot out of range (%s)");
         return inventory.storage().getSlot(slot - 1).getCapacity();
     }
 
+    @Override
     @LuaFunction(mainThread = true)
-    public static int pushItems(
+    public int pushItems(
         StorageWrapper from, IComputerAccess computer,
         String toName, int fromSlot, Optional<Integer> limit, Optional<Integer> toSlot
     ) throws LuaException {
@@ -112,8 +105,9 @@ public class InventoryMethods implements GenericPeripheral {
         return moveItem(fromStorage, fromSlot - 1, to, toSlot.orElse(0) - 1, actualLimit);
     }
 
+    @Override
     @LuaFunction(mainThread = true)
-    public static int pullItems(
+    public int pullItems(
         StorageWrapper to, IComputerAccess computer,
         String fromName, int fromSlot, Optional<Integer> limit, Optional<Integer> toSlot
     ) throws LuaException {

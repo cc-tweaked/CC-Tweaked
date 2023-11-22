@@ -94,7 +94,7 @@ val illuaminateDocs by tasks.registering(cc.tweaked.gradle.IlluaminateExecToDir:
     // Sources
     inputs.files(rootProject.fileTree("doc")).withPropertyName("docs")
     inputs.files(project(":core").fileTree("src/main/resources/data/computercraft/lua")).withPropertyName("lua rom")
-    inputs.files(project(":forge").tasks.named("luaJavadoc"))
+    inputs.files(project(":common").tasks.named("luaJavadoc"))
     // Assets
     inputs.files(rollup)
 

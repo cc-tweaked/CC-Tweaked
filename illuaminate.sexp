@@ -6,7 +6,7 @@
 
 (sources
   /doc/
-  /projects/forge/build/docs/luaJavadoc/
+  /projects/common/build/docs/luaJavadoc/
   /projects/core/src/main/resources/data/computercraft/lua/bios.lua
   /projects/core/src/main/resources/data/computercraft/lua/rom/
   /projects/core/src/test/resources/test-rom
@@ -36,7 +36,7 @@
 
   (library-path
     /doc/stub/
-    /projects/forge/build/docs/luaJavadoc/
+    /projects/common/build/docs/luaJavadoc/
 
     /projects/core/src/main/resources/data/computercraft/lua/rom/apis/
     /projects/core/src/main/resources/data/computercraft/lua/rom/apis/command/
@@ -88,7 +88,7 @@
   (/doc/stub/
    /projects/core/src/main/resources/data/computercraft/lua/bios.lua
    /projects/core/src/main/resources/data/computercraft/lua/rom/apis/
-   /projects/forge/build/docs/luaJavadoc/)
+   /projects/common/build/docs/luaJavadoc/)
   (linters -var:unused-global)
   (lint (allow-toplevel-global true)))
 

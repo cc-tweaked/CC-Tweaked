@@ -11,6 +11,7 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.metrics.Metrics;
+import dan200.computercraft.shared.peripheral.generic.methods.AbstractInventoryMethods;
 import dan200.computercraft.shared.turtle.core.*;
 
 import java.util.Optional;
@@ -749,7 +750,7 @@ public class TurtleAPI implements ILuaAPI {
      * --  count = 13,
      * -- }
      * }</pre>
-     * @see dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods#getItemDetail Describes the information returned by a detailed query.
+     * @see AbstractInventoryMethods#getItemDetail Describes the information returned by a detailed query.
      */
     @LuaFunction
     public final MethodResult getItemDetail(ILuaContext context, Optional<Integer> slot, Optional<Boolean> detailed) throws LuaException {

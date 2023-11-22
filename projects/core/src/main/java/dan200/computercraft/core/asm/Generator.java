@@ -171,7 +171,7 @@ final class Generator<T> {
 
         // Instance methods must be final - this prevents them being overridden and potentially exposed twice.
         var modifiers = method.getModifiers();
-        if (!Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers)) {
+        if (!Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers) && !Modifier.isFinal(method.getDeclaringClass().getModifiers())) {
             LOG.warn("Lua Method {}.{} should be final.", method.getDeclaringClass().getName(), method.getName());
         }
 
