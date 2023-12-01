@@ -10,6 +10,7 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.metrics.ComputerMetricsObserver;
 import dan200.computercraft.shared.computer.metrics.GlobalMetrics;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,29 +22,31 @@ import java.util.Map;
  */
 public class BasicComputerMetricsObserver implements ComputerMetricsObserver {
     private final GlobalMetrics owner;
-    private boolean tracking = false;
 
+    @GuardedBy("this")
     private final List<ComputerMetrics> timings = new ArrayList<>();
+
+    @GuardedBy("this")
     private final Map<ServerComputer, ComputerMetrics> timingLookup = new MapMaker().weakKeys().makeMap();
 
     public BasicComputerMetricsObserver(GlobalMetrics owner) {
         this.owner = owner;
     }
 
-    public synchronized void start() {
-        if (!tracking) owner.addObserver(this);
-        tracking = true;
+    public void start() {
+        if (!owner.addObserver(this)) return;
 
-        timings.clear();
-        timingLookup.clear();
+        synchronized (this) {
+            timings.clear();
+            timingLookup.clear();
+        }
     }
 
-    public synchronized boolean stop() {
-        if (!tracking) return false;
-
-        owner.removeObserver(this);
-        tracking = false;
-        timingLookup.clear();
+    public boolean stop() {
+        if (!owner.removeObserver(this)) return false;
+        synchronized (this) {
+            timingLookup.clear();
+        }
         return true;
     }
 
@@ -57,6 +60,7 @@ public class BasicComputerMetricsObserver implements ComputerMetricsObserver {
         return new ArrayList<>(timings);
     }
 
+    @GuardedBy("this")
     private ComputerMetrics getMetrics(ServerComputer computer) {
         var existing = timingLookup.get(computer);
         if (existing != null) return existing;

@@ -46,12 +46,14 @@ public final class GlobalMetrics {
      * Add a new global metrics observer. This will receive metrics data for all computers.
      *
      * @param tracker The observer to add.
+     * @return Whether the observer was added. {@code false} if the observer was already registered.
      */
-    public void addObserver(ComputerMetricsObserver tracker) {
+    public boolean addObserver(ComputerMetricsObserver tracker) {
         synchronized (lock) {
-            if (trackers.contains(tracker)) return;
+            if (trackers.contains(tracker)) return false;
             trackers.add(tracker);
             enabled = true;
+            return true;
         }
     }
 
@@ -59,11 +61,13 @@ public final class GlobalMetrics {
      * Remove a previously-registered global metrics observer.
      *
      * @param tracker The observer to add.
+     * @return Whether the observer was removed. {@code false} if the observer was not registered.
      */
-    public void removeObserver(ComputerMetricsObserver tracker) {
+    public boolean removeObserver(ComputerMetricsObserver tracker) {
         synchronized (lock) {
-            trackers.remove(tracker);
+            var changed = trackers.remove(tracker);
             enabled = !trackers.isEmpty();
+            return changed;
         }
     }
 
