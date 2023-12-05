@@ -10,30 +10,30 @@ SPDX-License-Identifier: MPL-2.0
 -->
 
 # Transferring information wirelessly using Rednet
-Being able to send data between computers is an important feature for various 
-programs, including turtle controllers and distributed banking systems. The 
+Being able to send data between computers is an important feature for various
+programs, including turtle controllers and distributed banking systems.
 [modem](https://tweaked.cc/peripheral/modem.html) peripheral enables computers
-and turtles to transmit and receive messages from other computers, and the 
-[Rednet](https://tweaked.cc/module/rednet.html) API allows sending messages 
-directly to computers by ID, as well as adding hostname lookup and message 
-repeating. This guide will show how to use the Rednet API to send and receive 
+and turtles to transmit and receive messages from other computers, and
+[Rednet](https://tweaked.cc/module/rednet.html) API allows sending messages
+directly to computers by ID, as well as adding hostname lookup and message
+repeating. This guide will show how to use the Rednet API to send and receive
 data, as well as some tips on usage.
 
 ## Getting started
-To begin using Rednet, you will need at least two computers (or turtles) with 
+To begin using Rednet, you will need at least two computers (or turtles) with
 modems attached. There are three different types of modems available:
 
-- Wireless Modems are the simplest to craft. They have a limited range - 
+- Wireless Modems are the simplest to craft. They have a limited range -
 computers that are too far from each other won't be able to receive each others'
 messages. They also don't work across dimensions.
 - Ender Modems have infinite range and work across dimensions, but they require
-an Eye of Ender to craft. But because they're infinite, messages sent will be 
-received by every computer on the server, which could be concerning for 
+an Eye of Ender to craft. But because they're infinite, messages sent will be
+received by every computer on the server, which could be concerning for
 multiplayer servers where security is required.
-- Wired Modems transmit messages through a wire. They don't have limited range, 
+- Wired Modems transmit messages through a wire. They don't have limited range,
 but they'll only send messages to computers connected to the same wire. They can
-also connect remote peripherals, including inventories like chests. There are 
-two variations: the "half width" modems connect to computers directly, while 
+also connect remote peripherals, including inventories like chests. There are
+two variations: the "half width" modems connect to computers directly, while
 "full block" modems can connect to turtles, and can function as wires as well.
 
 To attach a modem to a computer block, simply hold shift and right-click on the
@@ -288,7 +288,7 @@ that each contribute to the security of a message. They have different purposes,
 so you'll need to pick and choose which ones apply to your use case.
 
 > [Expert zone][!WARNING]
-> 
+>
 > These terms may be hard to understand for beginners. Cryptography is a very
 > complex field, and uses a lot of terms that may be unfamiliar to novices. This
 > guide attempts to boil it down to more understandable terms, but even so, it
