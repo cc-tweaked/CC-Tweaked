@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -97,7 +98,7 @@ public class Main {
         } catch (ParseException e) {
             System.err.println(e.getLocalizedMessage());
 
-            var writer = new PrintWriter(System.err);
+            var writer = new PrintWriter(System.err, false, StandardCharsets.UTF_8);
             new HelpFormatter().printUsage(writer, HelpFormatter.DEFAULT_WIDTH, "standalone.jar", options);
             writer.flush();
 
