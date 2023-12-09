@@ -46,10 +46,17 @@ Before using Rednet, your program needs to open it. Opening Rednet will tell the
 modem to start listening for messages from other computers. The
 [`rednet.open`](https://tweaked.cc/module/rednet.html#v:open) function takes the
 side of the modem to open as a string. On pocket computers, this will always be
-`back`. For example, if your modem is on the left side, you would use this code:
+`back`. For example, if your modem is on the left side of the computer, you
+would use this code:
 
 ```lua
 rednet.open("left")
+```
+
+You can also use this code to open every attached modem at once:
+
+```lua
+peripheral.find("modem", rednet.open) -- (Ab)uses peripheral.find's filter parameter to run rednet.open for each modem found.
 ```
 
 Always run this function before you do anything with Rednet - otherwise, it may
