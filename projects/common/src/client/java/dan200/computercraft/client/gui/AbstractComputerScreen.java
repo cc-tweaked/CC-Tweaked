@@ -19,6 +19,7 @@ import dan200.computercraft.shared.network.server.UploadFileMessage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -144,6 +145,11 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
             || super.mouseDragged(x, y, button, deltaX, deltaY);
     }
 
+    @Override
+    public void setFocused(@Nullable GuiEventListener listener) {
+        // Don't clear and re-focus if we're already focused.
+        if (listener != getFocused()) super.setFocused(listener);
+    }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {

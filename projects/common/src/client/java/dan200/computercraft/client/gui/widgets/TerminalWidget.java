@@ -246,7 +246,7 @@ public class TerminalWidget extends AbstractWidget {
             keysDown.clear();
 
             // When blurring, we should make the last mouse button go up
-            if (lastMouseButton > 0) {
+            if (lastMouseButton >= 0) {
                 computer.mouseUp(lastMouseButton + 1, lastMouseX + 1, lastMouseY + 1);
                 lastMouseButton = -1;
             }
