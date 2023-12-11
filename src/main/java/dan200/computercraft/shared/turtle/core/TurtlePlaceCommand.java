@@ -280,10 +280,11 @@ public class TurtlePlaceCommand implements ITurtleCommand
             InteractionResult resultUseFirst = stack.onItemUseFirst( context );
             if( resultUseFirst != InteractionResult.PASS ) return resultUseFirst;
 
-            var block = turtlePlayer.level.getBlockState(hit.getBlockPos());
-            if (event.getUseBlock() != Result.DENY && !block.isAir() && adjacent && block.is( TURTLE_CAN_USE )) {
-                var useResult = block.use(turtlePlayer.level, turtlePlayer, InteractionHand.MAIN_HAND, hit);
-                if (useResult.consumesAction()) return useResult;
+            var block = turtlePlayer.level.getBlockState( hit.getBlockPos() );
+            if ( event.getUseBlock() != Result.DENY && !block.isAir() && adjacent && block.is( TURTLE_CAN_USE ) )
+            {
+                var useResult = block.use( turtlePlayer.level, turtlePlayer, InteractionHand.MAIN_HAND, hit );
+                if ( useResult.consumesAction() ) return useResult;
             }
 
             InteractionResult resultUseOn = stack.useOn( context );
