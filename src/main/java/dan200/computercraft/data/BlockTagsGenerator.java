@@ -60,7 +60,10 @@ class BlockTagsGenerator extends BlockTagsProvider
 
         tag( TURTLE_SWORD_BREAKABLE ).addTags( BlockTags.WOOL ).add( Blocks.COBWEB );
 
-        tag( TURTLE_CAN_USE ).addTag( BlockTags.CAULDRONS ).addTag( BlockTags.BEEHIVES );
+        tag( TURTLE_CAN_USE )
+            .addTag( BlockTags.CAULDRONS )
+            .addTag( BlockTags.BEEHIVES )
+            .add( Blocks.COMPOSTER );
 
         // Make all blocks aside from command computer mineable.
         tag( BlockTags.MINEABLE_WITH_PICKAXE ).add(
