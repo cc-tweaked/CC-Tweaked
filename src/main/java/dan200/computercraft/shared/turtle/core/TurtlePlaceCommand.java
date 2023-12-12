@@ -43,6 +43,8 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 
+import static dan200.computercraft.api.ComputerCraftTags.Blocks.TURTLE_CAN_USE;
+
 public class TurtlePlaceCommand implements ITurtleCommand
 {
     private final InteractDirection direction;
@@ -210,7 +212,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
     private static boolean deployOnBlock(
         @Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, BlockPos position, Direction side,
-        Object[] extraArguments, boolean allowReplace, ErrorMessage outErrorMessage
+        Object[] extraArguments, boolean adjacent, ErrorMessage outErrorMessage
     )
     {
         // Re-orient the fake player
@@ -227,7 +229,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         // Check if there's something suitable to place onto
         BlockHitResult hit = new BlockHitResult( new Vec3( hitX, hitY, hitZ ), side, position, false );
         UseOnContext context = new UseOnContext( turtlePlayer, InteractionHand.MAIN_HAND, hit );
-        if( !canDeployOnBlock( new BlockPlaceContext( context ), turtle, turtlePlayer, position, side, allowReplace, outErrorMessage ) )
+        if( !canDeployOnBlock( new BlockPlaceContext( context ), turtle, turtlePlayer, position, side, adjacent, outErrorMessage ) )
         {
             return false;
         }
@@ -235,7 +237,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         Item item = stack.getItem();
         BlockEntity existingTile = turtle.getLevel().getBlockEntity( position );
 
-        boolean placed = doDeployOnBlock( stack, turtlePlayer, position, context, hit ).consumesAction();
+        boolean placed = doDeployOnBlock( stack, turtlePlayer, position, context, hit, adjacent ).consumesAction();
 
         // Set text on signs
         if( placed && item instanceof SignItem && extraArguments != null && extraArguments.length >= 1 && extraArguments[0] instanceof String message )
@@ -261,11 +263,13 @@ public class TurtlePlaceCommand implements ITurtleCommand
      * @param position     The block we're deploying against's position.
      * @param context      The context of this place action.
      * @param hit          Where the block we're placing against was clicked.
+     * @param adjacent     If the block is directly adjacent to the turtle, and so can be interacted with via
+     *                     {@link BlockState#use(Level, Player, InteractionHand, BlockHitResult)}.
      * @return If this item was deployed.
      * @see net.minecraft.server.level.ServerPlayerGameMode#useItemOn  For the original implementation.
      */
     private static InteractionResult doDeployOnBlock(
-        @Nonnull ItemStack stack, TurtlePlayer turtlePlayer, BlockPos position, UseOnContext context, BlockHitResult hit
+        @Nonnull ItemStack stack, TurtlePlayer turtlePlayer, BlockPos position, UseOnContext context, BlockHitResult hit, boolean adjacent
     )
     {
         PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock( turtlePlayer, InteractionHand.MAIN_HAND, position, hit );
@@ -273,14 +277,18 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         if( event.getUseItem() != Result.DENY )
         {
-            InteractionResult result = stack.onItemUseFirst( context );
-            if( result != InteractionResult.PASS ) return result;
-        }
+            InteractionResult resultUseFirst = stack.onItemUseFirst( context );
+            if( resultUseFirst != InteractionResult.PASS ) return resultUseFirst;
 
-        if( event.getUseItem() != Result.DENY )
-        {
-            InteractionResult result = stack.useOn( context );
-            if( result != InteractionResult.PASS ) return result;
+            var block = turtlePlayer.level.getBlockState( hit.getBlockPos() );
+            if ( event.getUseBlock() != Result.DENY && !block.isAir() && adjacent && block.is( TURTLE_CAN_USE ) )
+            {
+                var useResult = block.use( turtlePlayer.level, turtlePlayer, InteractionHand.MAIN_HAND, hit );
+                if ( useResult.consumesAction() ) return useResult;
+            }
+
+            InteractionResult resultUseOn = stack.useOn( context );
+            if( resultUseOn != InteractionResult.PASS ) return resultUseOn;
         }
 
         Item item = stack.getItem();
