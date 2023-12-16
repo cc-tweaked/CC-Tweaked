@@ -10,9 +10,11 @@ import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.attributes.TestSuiteType
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.reporting.ReportingExtension
@@ -73,11 +75,17 @@ abstract class CCTweakedExtension(
      */
     val sourceDirectories: SetProperty<SourceSetReference> = project.objects.setProperty(SourceSetReference::class.java)
 
+    /**
+     * Dependencies excluded from published artifacts.
+     */
+    private val excludedDeps: ListProperty<Dependency> = project.objects.listProperty(Dependency::class.java)
+
     /** All source sets referenced by this project. */
     val sourceSets = sourceDirectories.map { x -> x.map { it.sourceSet } }
 
     init {
         sourceDirectories.finalizeValueOnRead()
+        excludedDeps.finalizeValueOnRead()
         project.afterEvaluate { sourceDirectories.disallowChanges() }
     }
 
@@ -244,6 +252,20 @@ abstract class CCTweakedExtension(
                 ),
             ),
         ).resolve().single()
+    }
+
+    /**
+     * Exclude a dependency from being publisehd in Maven.
+     */
+    fun exclude(dep: Dependency) {
+        excludedDeps.add(dep)
+    }
+
+    /**
+     * Configure a [MavenDependencySpec].
+     */
+    fun configureExcludes(spec: MavenDependencySpec) {
+        for (dep in excludedDeps.get()) spec.exclude(dep)
     }
 
     companion object {

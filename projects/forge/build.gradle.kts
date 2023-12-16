@@ -131,9 +131,9 @@ dependencies {
     libs.bundles.externalMods.forge.runtime.get().map { runtimeOnly(fg.deobf(it)) }
 
     // Depend on our other projects.
-    api(commonClasses(project(":forge-api")))
-    api(clientClasses(project(":forge-api")))
-    implementation(project(":core"))
+    api(commonClasses(project(":forge-api"))) { cct.exclude(this) }
+    clientApi(clientClasses(project(":forge-api"))) { cct.exclude(this) }
+    implementation(project(":core")) { cct.exclude(this) }
 
     minecraftEmbed(libs.cobalt) {
         jarJar.ranged(this, "[${libs.versions.cobalt.asProvider().get()},${libs.versions.cobalt.next.get()})")
@@ -254,7 +254,7 @@ publishing {
             artifact(tasks.jarJar)
 
             mavenDependencies {
-                exclude(dependencies.create("cc.tweaked:"))
+                cct.configureExcludes(this)
                 exclude(libs.jei.forge.get())
             }
         }

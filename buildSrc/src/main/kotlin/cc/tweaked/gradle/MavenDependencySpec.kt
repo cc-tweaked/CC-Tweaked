@@ -6,6 +6,8 @@ package cc.tweaked.gradle
 
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.MinimalExternalModuleDependency
+import org.gradle.api.artifacts.ProjectDependency
+import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.specs.Spec
 
@@ -26,8 +28,13 @@ class MavenDependencySpec {
 
     fun exclude(dep: Dependency) {
         exclude {
+            // We have to cheat a little for project dependencies, as the project name doesn't match the artifact group.
+            val name = when (dep) {
+                is ProjectDependency -> dep.dependencyProject.extensions.getByType(BasePluginExtension::class.java).archivesName.get()
+                else -> dep.name
+            }
             (dep.group.isNullOrEmpty() || dep.group == it.groupId) &&
-                (dep.name.isNullOrEmpty() || dep.name == it.artifactId) &&
+                (name.isNullOrEmpty() || name == it.artifactId) &&
                 (dep.version.isNullOrEmpty() || dep.version == it.version)
         }
     }

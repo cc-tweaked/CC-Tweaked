@@ -48,7 +48,7 @@ addRemappedConfiguration("testWithIris")
 
 dependencies {
     clientCompileOnly(variantOf(libs.emi) { classifier("api") })
-    modImplementation(libs.bundles.externalMods.fabric)
+    modImplementation(libs.bundles.externalMods.fabric) { cct.exclude(this) }
     modCompileOnly(libs.bundles.externalMods.fabric.compile) {
         exclude("net.fabricmc", "fabric-loader")
         exclude("net.fabricmc.fabric-api")
@@ -72,9 +72,9 @@ dependencies {
     include(libs.nightConfig.toml)
 
     // Pull in our other projects. See comments in MinecraftConfigurations on this nastiness.
-    api(commonClasses(project(":fabric-api")))
-    clientApi(clientClasses(project(":fabric-api")))
-    implementation(project(":core"))
+    api(commonClasses(project(":fabric-api"))) { cct.exclude(this) }
+    clientApi(clientClasses(project(":fabric-api"))) { cct.exclude(this) }
+    implementation(project(":core")) { cct.exclude(this) }
     // These are transitive deps of :core, so we don't need these deps. However, we want them to appear as runtime deps
     // in our POM, and this is the easiest way.
     runtimeOnly(libs.cobalt)
@@ -168,7 +168,11 @@ loom {
             configureForGameTest(this)
 
             property("fabric-api.gametest")
-            property("fabric-api.gametest.report-file", layout.buildDirectory.dir("test-results/runGametest.xml").getAbsolutePath())
+            property(
+                "fabric-api.gametest.report-file",
+                layout.buildDirectory.dir("test-results/runGametest.xml")
+                    .getAbsolutePath(),
+            )
             runDir("run/gametest")
         }
     }
@@ -258,9 +262,7 @@ publishing {
     publications {
         named("maven", MavenPublication::class) {
             mavenDependencies {
-                exclude(dependencies.create("cc.tweaked:"))
-                exclude(libs.jei.fabric.get())
-                exclude(libs.modmenu.get())
+                cct.configureExcludes(this)
             }
         }
     }
