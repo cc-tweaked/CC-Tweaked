@@ -1,9 +1,8 @@
-New features in CC: Tweaked 1.109.1
+New features in CC: Tweaked 1.109.2
+
+* `math.random` now uses Lua 5.4's random number generator.
 
 Several bug fixes:
-* Fix `mouse_drag` event not firing for right and middle mouse buttons.
-* Fix crash when syntax errors involve `goto` or `::`.
-* Fix deadlock occuring when adding/removing observers.
-* Allow placing seeds into compostor barrels with `turtle.place()`.
+* Fix errors involving `goto` statements having the wrong line number.
 
 Type "help changelog" to see the full version history.
