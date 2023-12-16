@@ -30,12 +30,12 @@ The code for this is split into three separate components:
 ## Static content
 Rendering the static portion of the website is fortunately much simpler.
 
- - Doc generation: This is mostly handled in various Gradle files. The Forge Gradle script uses [cct-javadoc] to convert
+ - Doc generation: This is mostly handled in various Gradle files. The `common` project uses [cct-javadoc] to convert
    Javadoc on our peripherals and APIs to LDoc/[illuaminate] compatible documentation. This is then fed into illuaminate
    which spits out HTML.
 
- - `src/htmlTransform`: We do a small amount of post-processing on the HTML in order. This project does syntax
-   highlighting of non-Lua code blocks, and replaces special `<mc-recipe>` tags with a rendered view of a given
+ - `src/htmlTransform`: We do a small amount of post-processing on the HTML, which is performed by this tool. This includes
+   syntax highlighting of non-Lua code blocks, and replacing special `<mc-recipe>` tags with a rendered view of a given
    Minecraft recipe.
 
 [TeaVM]: https://github.com/konsoletyper/teavm "TeaVM - Compiler of Java bytecode to JavaScript"
