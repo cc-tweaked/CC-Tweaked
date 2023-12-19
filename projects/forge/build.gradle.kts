@@ -136,7 +136,8 @@ dependencies {
     implementation(project(":core")) { cct.exclude(this) }
 
     minecraftEmbed(libs.cobalt) {
-        jarJar.ranged(this, "[${libs.versions.cobalt.asProvider().get()},${libs.versions.cobalt.next.get()})")
+        val version = libs.versions.cobalt.get()
+        jarJar.ranged(this, "[$version,${getNextVersion(version)})")
     }
     minecraftEmbed(libs.jzlib) {
         jarJar.ranged(this, "[${libs.versions.jzlib.get()},)")

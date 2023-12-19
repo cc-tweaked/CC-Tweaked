@@ -76,6 +76,12 @@ dependencies {
     val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
     checkstyle(libs.findLibrary("checkstyle").get())
 
+    constraints {
+        checkstyle("org.codehaus.plexus:plexus-container-default:2.1.1") {
+            because("2.1.0 depends on deprecated Google collections module")
+        }
+    }
+
     errorprone(libs.findLibrary("errorProne-core").get())
     errorprone(libs.findLibrary("nullAway").get())
 }
@@ -201,6 +207,7 @@ spotless {
     val ktlintConfig = mapOf(
         "ktlint_standard_no-wildcard-imports" to "disabled",
         "ktlint_standard_class-naming" to "disabled",
+        "ktlint_standard_function-naming" to "disabled",
         "ij_kotlin_allow_trailing_comma" to "true",
         "ij_kotlin_allow_trailing_comma_on_call_site" to "true",
     )

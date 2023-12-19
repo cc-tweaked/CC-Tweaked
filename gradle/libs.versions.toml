@@ -10,28 +10,29 @@
 fabric-api = "0.86.1+1.20.1"
 fabric-loader = "0.14.21"
 forge = "47.1.0"
-forgeSpi = "6.0.0"
+forgeSpi = "7.0.1"
 mixin = "0.8.5"
 parchment = "2023.08.20"
 parchmentMc = "1.20.1"
 
-# Normal dependencies
-asm = "9.5"
-autoService = "1.1.1"
-checkerFramework = "3.32.0"
-cobalt = "0.8.1"
-cobalt-next = "0.8.2" # Not a real version, used to constrain the version we accept.
-commonsCli = "1.3.1"
+# Core dependencies (these versions are tied to the version Minecraft uses)
 fastutil = "8.5.9"
 guava = "31.1-jre"
-jetbrainsAnnotations = "24.0.1"
+netty = "4.1.82.Final"
+slf4j = "2.0.1"
+
+# Core dependencies (independent of Minecraft)
+asm = "9.6"
+autoService = "1.1.1"
+checkerFramework = "3.42.0"
+cobalt = "0.8.1"
+commonsCli = "1.6.0"
+jetbrainsAnnotations = "24.1.0"
 jsr305 = "3.0.2"
 jzlib = "1.1.3"
-kotlin = "1.8.10"
-kotlin-coroutines = "1.6.4"
-netty = "4.1.82.Final"
+kotlin = "1.9.21"
+kotlin-coroutines = "1.7.3"
 nightConfig = "3.6.7"
-slf4j = "2.0.1"
 
 # Minecraft mods
 emi = "1.0.8+1.20.1"
@@ -47,29 +48,31 @@ sodium = "mc1.20-0.4.10"
 
 # Testing
 hamcrest = "2.2"
-jqwik = "1.7.4"
-junit = "5.10.0"
+jqwik = "1.8.2"
+junit = "5.10.1"
 
 # Build tools
 cctJavadoc = "1.8.2"
-checkstyle = "10.12.3"
+checkstyle = "10.12.6"
 curseForgeGradle = "1.0.14"
-errorProne-core = "2.21.1"
+errorProne-core = "2.23.0"
 errorProne-plugin = "3.1.0"
-fabric-loom = "1.3.7"
+fabric-loom = "1.3.9"
 forgeGradle = "6.0.8"
-githubRelease = "2.4.1"
+githubRelease = "2.5.2"
+gradleVersions = "0.50.0"
 ideaExt = "1.1.7"
 illuaminate = "0.1.0-44-g9ee0055"
 librarian = "1.+"
-lwjgl = "3.3.1"
+lwjgl = "3.3.3"
 minotaur = "2.+"
-mixinGradle = "0.7.+"
+mixinGradle = "0.7.38"
 nullAway = "0.9.9"
-spotless = "6.21.0"
+spotless = "6.23.3"
 taskTree = "2.1.1"
 teavm = "0.10.0-SQUID.2"
 vanillaGradle = "0.2.1-SNAPSHOT"
+versionCatalogUpdate = "0.8.1"
 vineflower = "1.11.0"
 
 [libraries]
@@ -162,10 +165,12 @@ vineflower = { module = "io.github.juuxel:loom-vineflower", version.ref = "vinef
 [plugins]
 forgeGradle = { id = "net.minecraftforge.gradle", version.ref = "forgeGradle" }
 githubRelease = { id = "com.github.breadmoirai.github-release", version.ref = "githubRelease" }
+gradleVersions = { id = "com.github.ben-manes.versions", version.ref = "gradleVersions" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 librarian = { id = "org.parchmentmc.librarian.forgegradle", version.ref = "librarian" }
 mixinGradle = { id = "org.spongepowered.mixin", version.ref = "mixinGradle" }
 taskTree = { id = "com.dorongold.task-tree", version.ref = "taskTree" }
+versionCatalogUpdate = { id = "nl.littlerobots.version-catalog-update", version.ref = "versionCatalogUpdate" }
 
 [bundles]
 annotations = ["jsr305", "checkerFramework", "jetbrainsAnnotations"]
@@ -184,5 +189,5 @@ test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]
 testRuntime = ["junit-jupiter-engine", "jqwik-engine"]
 
 # Build tools
-teavm-api = [ "teavm-jso", "teavm-jso-apis", "teavm-platform", "teavm-classlib", "teavm-metaprogramming-api" ]
-teavm-tooling = [ "teavm-tooling", "teavm-metaprogramming-impl", "teavm-jso-impl" ]
+teavm-api = ["teavm-jso", "teavm-jso-apis", "teavm-platform", "teavm-classlib", "teavm-metaprogramming-api"]
+teavm-tooling = ["teavm-tooling", "teavm-metaprogramming-impl", "teavm-jso-impl"]

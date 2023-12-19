@@ -13,6 +13,8 @@ plugins {
     publishing
     alias(libs.plugins.taskTree)
     alias(libs.plugins.githubRelease)
+    alias(libs.plugins.gradleVersions)
+    alias(libs.plugins.versionCatalogUpdate)
     id("org.jetbrains.gradle.plugin.idea-ext")
     id("cc-tweaked")
 }
@@ -101,4 +103,10 @@ idea.project.settings.compiler.javac {
             }
         }
         .toMap()
+}
+
+versionCatalogUpdate {
+    sortByKey.set(false)
+    pin { versions.addAll("fastutil", "guava", "netty", "slf4j") }
+    keep { keepUnusedLibraries.set(true) }
 }

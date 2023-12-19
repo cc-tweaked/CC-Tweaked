@@ -109,6 +109,15 @@ class MinecraftConfigurations private constructor(private val project: Project) 
         project.extensions.configure(CCTweakedExtension::class.java) {
             sourceDirectories.add(SourceSetReference.internal(client))
         }
+
+        // Register a task to check there are no conflicts with the core project.
+        val checkDependencyConsistency =
+            project.tasks.register("checkDependencyConsistency", DependencyCheck::class.java) {
+                // We need to check both the main and client classpath *configurations*, as the actual configuration
+                configuration.add(configurations.named(main.runtimeClasspathConfigurationName))
+                configuration.add(configurations.named(client.runtimeClasspathConfigurationName))
+            }
+        project.tasks.named("check") { dependsOn(checkDependencyConsistency) }
     }
 
     private fun setupOutgoing(sourceSet: SourceSet, suffix: String = "") {

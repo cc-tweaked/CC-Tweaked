@@ -5,6 +5,8 @@
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
+    alias(libs.plugins.gradleVersions)
+    alias(libs.plugins.versionCatalogUpdate)
 }
 
 // Duplicated in settings.gradle.kts
@@ -74,4 +76,10 @@ gradlePlugin {
             implementationClass = "cc.tweaked.gradle.NodePlugin"
         }
     }
+}
+
+versionCatalogUpdate {
+    sortByKey.set(false)
+    keep { keepUnusedLibraries.set(true) }
+    catalogFile.set(file("../gradle/libs.versions.toml"))
 }
