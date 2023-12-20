@@ -90,6 +90,30 @@ class TestHttpApi {
     }
 
     @Test
+    fun `Errors if too many websocket messages are sent`() {
+        runServer {
+            LuaTaskRunner.runTest {
+                val httpApi = addApi(HTTPAPI(environment))
+                assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(WS_URL)), array(equalTo(true)))
+
+                val connectEvent = pullEvent()
+                assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(WS_URL), isA(WebsocketHandle::class.java)))
+
+                val websocket = connectEvent[2] as WebsocketHandle
+                val error = assertThrows<LuaException> {
+                    for (i in 0 until 10_000) {
+                        websocket.send(Coerced(LuaValues.encode("Hello")), Optional.of(false))
+                    }
+                }
+
+                websocket.close()
+
+                assertThat(error.message, equalTo("Too many ongoing websocket messages"))
+            }
+        }
+    }
+
+    @Test
     fun `Queues an event when the socket is externally closed`() {
         runServer { stop ->
             LuaTaskRunner.runTest {

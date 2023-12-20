@@ -5,14 +5,13 @@
 package dan200.computercraft.core.apis.http.websocket;
 
 import com.google.common.base.Strings;
+import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.IAPIEnvironment;
-import dan200.computercraft.core.apis.http.HTTPRequestException;
-import dan200.computercraft.core.apis.http.NetworkUtils;
-import dan200.computercraft.core.apis.http.Resource;
-import dan200.computercraft.core.apis.http.ResourceGroup;
+import dan200.computercraft.core.apis.http.*;
 import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.core.metrics.Metrics;
+import dan200.computercraft.core.util.AtomicHelpers;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -24,10 +23,8 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketClientProtocolHandler;
-import io.netty.handler.codec.http.websocketx.WebSocketVersion;
+import io.netty.handler.codec.http.websocketx.*;
+import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +32,7 @@ import javax.annotation.Nullable;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Provides functionality to verify and connect to a remote websocket.
@@ -56,6 +54,9 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
     private final String address;
     private final HttpHeaders headers;
     private final int timeout;
+
+    private final AtomicInteger inFlight = new AtomicInteger(0);
+    private final GenericFutureListener<? extends io.netty.util.concurrent.Future<? super Void>> onSend = f -> inFlight.decrementAndGet();
 
     public Websocket(ResourceGroup<Websocket> limiter, IAPIEnvironment environment, URI uri, String address, HttpHeaders headers, int timeout) {
         super(limiter);
@@ -170,18 +171,27 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
     }
 
     @Override
-    public void sendText(String message) {
-        environment.observe(Metrics.WEBSOCKET_OUTGOING, message.length());
-
-        var channel = channel();
-        if (channel != null) channel.writeAndFlush(new TextWebSocketFrame(message));
+    public void sendText(String message) throws LuaException {
+        sendMessage(new TextWebSocketFrame(message), message.length());
     }
 
     @Override
-    public void sendBinary(ByteBuffer message) {
-        environment.observe(Metrics.WEBSOCKET_OUTGOING, message.remaining());
+    public void sendBinary(ByteBuffer message) throws LuaException {
+        long size = message.remaining();
+        sendMessage(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(message)), size);
+    }
 
+    private void sendMessage(WebSocketFrame frame, long size) throws LuaException {
         var channel = channel();
-        if (channel != null) channel.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(message)));
+        if (channel == null) return;
+
+        // Grow the number of in-flight requests, aborting if we've hit the limit. This is then decremented when the
+        // promise finishes.
+        if (!AtomicHelpers.incrementToLimit(inFlight, ResourceQueue.DEFAULT_LIMIT)) {
+            throw new LuaException("Too many ongoing websocket messages");
+        }
+
+        environment.observe(Metrics.WEBSOCKET_OUTGOING, size);
+        channel.writeAndFlush(frame).addListener(onSend);
     }
 }
