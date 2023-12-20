@@ -6,11 +6,15 @@ package cc.tweaked.standalone;
 
 
 import dan200.computercraft.core.ComputerContext;
+import dan200.computercraft.core.CoreConfig;
+import dan200.computercraft.core.apis.http.options.Action;
+import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
 import org.apache.commons.cli.*;
+import org.jetbrains.annotations.Contract;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
@@ -20,13 +24,16 @@ import org.lwjgl.system.MemoryStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
+import java.util.OptionalInt;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
@@ -53,7 +60,7 @@ public class Main {
         public static final Pattern PATTERN = Pattern.compile("^(\\d+)x(\\d+)$");
     }
 
-    private static <T> T getParsedOptionValue(CommandLine cli, String opt, Class<T> klass) throws ParseException {
+    private static <T> T getParsedOptionValue(CommandLine cli, Option opt, Class<T> klass) throws ParseException {
         var res = cli.getOptionValue(opt);
         if (klass == Path.class) {
             try {
@@ -71,30 +78,47 @@ public class Main {
         }
     }
 
+    @Contract("_, _, _, !null -> !null")
+    private static <T> @Nullable T getParsedOptionValue(CommandLine cli, Option opt, Class<T> klass, @Nullable T defaultValue) throws ParseException {
+        return cli.hasOption(opt) ? getParsedOptionValue(cli, opt, klass) : defaultValue;
+    }
+
     public static void main(String[] args) throws InterruptedException {
         var options = new Options();
-        options.addOption(Option.builder("r").argName("PATH").longOpt("resources").hasArg()
+        Option resourceOpt, computerOpt, termSizeOpt, allowLocalDomainsOpt, helpOpt;
+        options.addOption(resourceOpt = Option.builder("r").argName("PATH").longOpt("resources").hasArg()
             .desc("The path to the resources directory")
             .build());
-        options.addOption(Option.builder("c").argName("PATH").longOpt("computer").hasArg()
+        options.addOption(computerOpt = Option.builder("c").argName("PATH").longOpt("computer").hasArg()
             .desc("The root directory of the computer. Defaults to a temporary directory.")
             .build());
-        options.addOption(Option.builder("t").argName("WIDTHxHEIGHT").longOpt("term-size").hasArg()
-            .desc("The size of the terminal, defaults to 51x19")
+        options.addOption(termSizeOpt = Option.builder("t").argName("WIDTHxHEIGHT").longOpt("term-size").hasArg()
+            .desc("The size of the terminal, defaults to 51x19.")
+            .build());
+        options.addOption(allowLocalDomainsOpt = Option.builder("L").longOpt("allow-local-domains")
+            .desc("Allow accessing local domains with the HTTP API.")
             .build());
 
-        options.addOption(new Option("h", "help", false, "Print help message"));
+        options.addOption(helpOpt = Option.builder("h").longOpt("help")
+            .desc("Print help message")
+            .build());
 
         Path resourcesDirectory;
         Path computerDirectory;
         TermSize termSize;
+        boolean allowLocalDomains;
         try {
             var cli = new DefaultParser().parse(options, args);
-            if (!cli.hasOption("r")) throw new ParseException("--resources directory is required");
+            if (cli.hasOption(helpOpt)) {
+                new HelpFormatter().printHelp("standalone.jar", options, true);
+                return;
+            }
+            if (!cli.hasOption(resourceOpt)) throw new ParseException("--resources directory is required");
 
-            resourcesDirectory = getParsedOptionValue(cli, "r", Path.class);
-            computerDirectory = cli.hasOption("c") ? getParsedOptionValue(cli, "c", Path.class) : null;
-            termSize = cli.hasOption("t") ? getParsedOptionValue(cli, "t", TermSize.class) : TermSize.DEFAULT;
+            resourcesDirectory = getParsedOptionValue(cli, resourceOpt, Path.class);
+            computerDirectory = getParsedOptionValue(cli, computerOpt, Path.class, null);
+            termSize = getParsedOptionValue(cli, termSizeOpt, TermSize.class, TermSize.DEFAULT);
+            allowLocalDomains = cli.hasOption(allowLocalDomainsOpt);
         } catch (ParseException e) {
             System.err.println(e.getLocalizedMessage());
 
@@ -104,6 +128,10 @@ public class Main {
 
             System.exit(1);
             return;
+        }
+
+        if (allowLocalDomains) {
+            CoreConfig.httpRules = List.of(AddressRule.parse("*", OptionalInt.empty(), Action.ALLOW.toPartial()));
         }
 
         var context = ComputerContext.builder(new StandaloneGlobalEnvironment(resourcesDirectory)).build();
