@@ -79,6 +79,8 @@ class TagProvider {
             ModRegistry.Blocks.WIRED_MODEM_FULL.get(),
             ModRegistry.Blocks.CABLE.get()
         );
+
+        tags.tag(BlockTags.WITHER_IMMUNE).add(ModRegistry.Blocks.COMPUTER_COMMAND.get());
     }
 
     public static void itemTags(ItemTagConsumer tags) {

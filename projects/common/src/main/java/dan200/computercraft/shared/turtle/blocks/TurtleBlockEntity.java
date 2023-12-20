@@ -38,6 +38,7 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
+import java.util.function.IntSupplier;
 
 public class TurtleBlockEntity extends AbstractComputerBlockEntity implements BasicContainer {
     public static final int INVENTORY_SIZE = 16;
@@ -53,13 +54,17 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     private final NonNullList<ItemStack> inventory = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
     private final NonNullList<ItemStack> inventorySnapshot = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
     private boolean inventoryChanged = false;
+
+    private final IntSupplier fuelLimit;
+
     private TurtleBrain brain = new TurtleBrain(this);
     private MoveState moveState = MoveState.NOT_MOVED;
     private @Nullable IPeripheral peripheral;
     private @Nullable Runnable onMoved;
 
-    public TurtleBlockEntity(BlockEntityType<? extends TurtleBlockEntity> type, BlockPos pos, BlockState state, ComputerFamily family) {
+    public TurtleBlockEntity(BlockEntityType<? extends TurtleBlockEntity> type, BlockPos pos, BlockState state, IntSupplier fuelLimit, ComputerFamily family) {
         super(type, pos, state, family);
+        this.fuelLimit = fuelLimit;
     }
 
     boolean hasMoved() {
@@ -172,8 +177,6 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
         return hasPeripheralUpgradeOnSide(localSide);
     }
 
-    // IDirectionalTile
-
     @Override
     public Direction getDirection() {
         return getBlockState().getValue(TurtleBlock.FACING);
@@ -271,6 +274,10 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     }
 
     // Privates
+
+    public int getFuelLimit() {
+        return fuelLimit.getAsInt();
+    }
 
     private boolean hasPeripheralUpgradeOnSide(ComputerSide side) {
         ITurtleUpgrade upgrade;

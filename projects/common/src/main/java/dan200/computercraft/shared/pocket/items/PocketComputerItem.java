@@ -12,7 +12,6 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.impl.PocketUpgrades;
-import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerContext;
@@ -58,14 +57,6 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
     public PocketComputerItem(Properties settings, ComputerFamily family) {
         super(settings);
         this.family = family;
-    }
-
-    public static ItemStack create(int id, @Nullable String label, int colour, ComputerFamily family, @Nullable UpgradeData<IPocketUpgrade> upgrade) {
-        return switch (family) {
-            case NORMAL -> ModRegistry.Items.POCKET_COMPUTER_NORMAL.get().create(id, label, colour, upgrade);
-            case ADVANCED -> ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get().create(id, label, colour, upgrade);
-            default -> ItemStack.EMPTY;
-        };
     }
 
     public ItemStack create(int id, @Nullable String label, int colour, @Nullable UpgradeData<IPocketUpgrade> upgrade) {
@@ -243,17 +234,16 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         return IComputerItem.super.getLabel(stack);
     }
 
-    @Override
     public ComputerFamily getFamily() {
         return family;
     }
 
     @Override
-    public ItemStack withFamily(ItemStack stack, ComputerFamily family) {
-        return create(
+    public ItemStack changeItem(ItemStack stack, Item newItem) {
+        return newItem instanceof PocketComputerItem pocket ? pocket.create(
             getComputerID(stack), getLabel(stack), getColour(stack),
-            family, getUpgradeWithData(stack)
-        );
+            getUpgradeWithData(stack)
+        ) : ItemStack.EMPTY;
     }
 
     // IMedia

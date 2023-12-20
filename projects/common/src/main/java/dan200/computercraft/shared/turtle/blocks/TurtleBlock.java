@@ -10,7 +10,6 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlock;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlockEntity;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.platform.RegistryEntry;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
@@ -52,6 +51,16 @@ import static dan200.computercraft.shared.util.WaterloggableHelpers.getFluidStat
 public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implements SimpleWaterloggedBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
+    /**
+     * The explosion resistance to use when a turtle is "immune" to explosions.
+     * <p>
+     * This is used as the default explosion resistance for advanced turtles, and the resistance for entity-based
+     * explosions (e.g. creepers).
+     *
+     * @see #getExplosionResistance(BlockState, BlockGetter, BlockPos, Explosion)
+     */
+    public static final float IMMUNE_EXPLOSION_RESISTANCE = 2000f;
+
     private static final VoxelShape DEFAULT_SHAPE = Shapes.box(
         0.125, 0.125, 0.125,
         0.875, 0.875, 0.875
@@ -59,8 +68,8 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
 
     private final BlockEntityTicker<TurtleBlockEntity> clientTicker = (level, pos, state, computer) -> computer.clientTick();
 
-    public TurtleBlock(Properties settings, ComputerFamily family, RegistryEntry<BlockEntityType<TurtleBlockEntity>> type) {
-        super(settings, family, type);
+    public TurtleBlock(Properties settings, RegistryEntry<BlockEntityType<TurtleBlockEntity>> type) {
+        super(settings, type);
         registerDefaultState(getStateDefinition().any()
             .setValue(FACING, Direction.NORTH)
             .setValue(WATERLOGGED, false)
@@ -149,20 +158,21 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
     @ForgeOverride
     public float getExplosionResistance(BlockState state, BlockGetter world, BlockPos pos, Explosion explosion) {
         var exploder = explosion.getDirectSourceEntity();
-        if (getFamily() == ComputerFamily.ADVANCED || exploder instanceof LivingEntity || exploder instanceof AbstractHurtingProjectile) {
-            return 2000;
+        if (exploder instanceof LivingEntity || exploder instanceof AbstractHurtingProjectile) {
+            return IMMUNE_EXPLOSION_RESISTANCE;
         }
 
-        return explosionResistance;
+        return getExplosionResistance();
     }
 
     @Override
     protected ItemStack getItem(AbstractComputerBlockEntity tile) {
         if (!(tile instanceof TurtleBlockEntity turtle)) return ItemStack.EMPTY;
+        if (!(asItem() instanceof TurtleItem item)) return ItemStack.EMPTY;
 
         var access = turtle.getAccess();
-        return TurtleItem.create(
-            turtle.getComputerID(), turtle.getLabel(), access.getColour(), turtle.getFamily(),
+        return item.create(
+            turtle.getComputerID(), turtle.getLabel(), access.getColour(),
             withPersistedData(access.getUpgradeWithData(TurtleSide.LEFT)),
             withPersistedData(access.getUpgradeWithData(TurtleSide.RIGHT)),
             access.getFuelLevel(), turtle.getOverlay()

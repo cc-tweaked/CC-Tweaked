@@ -1,7 +1,6 @@
 {
   "type": "computercraft:computer_upgrade",
   "category": "redstone",
-  "family": "advanced",
   "key": {"#": {"tag": "c:gold_ingots"}, "C": {"item": "computercraft:pocket_computer_normal"}},
   "pattern": ["###", "#C#", "# #"],
   "result": {"item": "computercraft:pocket_computer_advanced"},

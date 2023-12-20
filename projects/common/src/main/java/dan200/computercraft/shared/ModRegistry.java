@@ -34,6 +34,7 @@ import dan200.computercraft.shared.computer.inventory.ViewComputerMenu;
 import dan200.computercraft.shared.computer.items.CommandComputerItem;
 import dan200.computercraft.shared.computer.items.ComputerItem;
 import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
+import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
 import dan200.computercraft.shared.data.ConstantLootConditionSerializer;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
@@ -139,19 +140,17 @@ public final class ModRegistry {
         }
 
         public static final RegistryEntry<ComputerBlock<ComputerBlockEntity>> COMPUTER_NORMAL = REGISTRY.register("computer_normal",
-            () -> new ComputerBlock<>(computerProperties().mapColor(MapColor.STONE), ComputerFamily.NORMAL, BlockEntities.COMPUTER_NORMAL));
+            () -> new ComputerBlock<>(computerProperties().mapColor(MapColor.STONE), BlockEntities.COMPUTER_NORMAL));
         public static final RegistryEntry<ComputerBlock<ComputerBlockEntity>> COMPUTER_ADVANCED = REGISTRY.register("computer_advanced",
-            () -> new ComputerBlock<>(computerProperties().mapColor(MapColor.GOLD), ComputerFamily.ADVANCED, BlockEntities.COMPUTER_ADVANCED));
+            () -> new ComputerBlock<>(computerProperties().mapColor(MapColor.GOLD), BlockEntities.COMPUTER_ADVANCED));
 
-        public static final RegistryEntry<ComputerBlock<CommandComputerBlockEntity>> COMPUTER_COMMAND = REGISTRY.register("computer_command", () -> new CommandComputerBlock<>(
-            computerProperties().strength(-1, 6000000.0F),
-            ComputerFamily.COMMAND, BlockEntities.COMPUTER_COMMAND
-        ));
+        public static final RegistryEntry<ComputerBlock<CommandComputerBlockEntity>> COMPUTER_COMMAND = REGISTRY.register("computer_command",
+            () -> new CommandComputerBlock<>(computerProperties().strength(-1, 6000000.0F), BlockEntities.COMPUTER_COMMAND));
 
         public static final RegistryEntry<TurtleBlock> TURTLE_NORMAL = REGISTRY.register("turtle_normal",
-            () -> new TurtleBlock(turtleProperties().mapColor(MapColor.STONE), ComputerFamily.NORMAL, BlockEntities.TURTLE_NORMAL));
+            () -> new TurtleBlock(turtleProperties().mapColor(MapColor.STONE), BlockEntities.TURTLE_NORMAL));
         public static final RegistryEntry<TurtleBlock> TURTLE_ADVANCED = REGISTRY.register("turtle_advanced",
-            () -> new TurtleBlock(turtleProperties().mapColor(MapColor.GOLD), ComputerFamily.ADVANCED, BlockEntities.TURTLE_ADVANCED));
+            () -> new TurtleBlock(turtleProperties().mapColor(MapColor.GOLD).explosionResistance(TurtleBlock.IMMUNE_EXPLOSION_RESISTANCE), BlockEntities.TURTLE_ADVANCED));
 
         public static final RegistryEntry<SpeakerBlock> SPEAKER = REGISTRY.register("speaker", () -> new SpeakerBlock(properties().mapColor(MapColor.STONE)));
         public static final RegistryEntry<DiskDriveBlock> DISK_DRIVE = REGISTRY.register("disk_drive", () -> new DiskDriveBlock(properties().mapColor(MapColor.STONE)));
@@ -192,9 +191,9 @@ public final class ModRegistry {
             ofBlock(Blocks.COMPUTER_COMMAND, (p, s) -> new CommandComputerBlockEntity(BlockEntities.COMPUTER_COMMAND.get(), p, s));
 
         public static final RegistryEntry<BlockEntityType<TurtleBlockEntity>> TURTLE_NORMAL =
-            ofBlock(Blocks.TURTLE_NORMAL, (p, s) -> new TurtleBlockEntity(BlockEntities.TURTLE_NORMAL.get(), p, s, ComputerFamily.NORMAL));
+            ofBlock(Blocks.TURTLE_NORMAL, (p, s) -> new TurtleBlockEntity(BlockEntities.TURTLE_NORMAL.get(), p, s, () -> Config.turtleFuelLimit, ComputerFamily.NORMAL));
         public static final RegistryEntry<BlockEntityType<TurtleBlockEntity>> TURTLE_ADVANCED =
-            ofBlock(Blocks.TURTLE_ADVANCED, (p, s) -> new TurtleBlockEntity(BlockEntities.TURTLE_ADVANCED.get(), p, s, ComputerFamily.ADVANCED));
+            ofBlock(Blocks.TURTLE_ADVANCED, (p, s) -> new TurtleBlockEntity(BlockEntities.TURTLE_ADVANCED.get(), p, s, () -> Config.advancedTurtleFuelLimit, ComputerFamily.ADVANCED));
 
         public static final RegistryEntry<BlockEntityType<SpeakerBlockEntity>> SPEAKER =
             ofBlock(Blocks.SPEAKER, (p, s) -> new SpeakerBlockEntity(BlockEntities.SPEAKER.get(), p, s));
@@ -311,7 +310,10 @@ public final class ModRegistry {
             () -> new MenuType<>(PrinterMenu::new, FeatureFlags.VANILLA_SET));
 
         public static final RegistryEntry<MenuType<HeldItemMenu>> PRINTOUT = REGISTRY.register("printout",
-            () -> ContainerData.toType(HeldItemContainerData::new, HeldItemMenu::createPrintout));
+            () -> ContainerData.toType(
+                HeldItemContainerData::new,
+                (id, inventory, data) -> new HeldItemMenu(Menus.PRINTOUT.get(), id, inventory.player, data.getHand())
+            ));
 
         public static final RegistryEntry<MenuType<ViewComputerMenu>> VIEW_COMPUTER = REGISTRY.register("view_computer",
             () -> ContainerData.toType(ComputerContainerData::new, ViewComputerMenu::new));
@@ -371,11 +373,11 @@ public final class ModRegistry {
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<ClearColourRecipe>> DYEABLE_ITEM_CLEAR = simple("clear_colour", ClearColourRecipe::new);
         public static final RegistryEntry<RecipeSerializer<TurtleRecipe>> TURTLE = REGISTRY.register("turtle", () -> TurtleRecipe.validatingSerialiser(TurtleRecipe::of));
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<TurtleUpgradeRecipe>> TURTLE_UPGRADE = simple("turtle_upgrade", TurtleUpgradeRecipe::new);
-        public static final RegistryEntry<RecipeSerializer<TurtleOverlayRecipe>> TURTLE_OVERLAY = REGISTRY.register("turtle_overlay", TurtleOverlayRecipe.Serializer::new);
+        public static final RegistryEntry<RecipeSerializer<TurtleOverlayRecipe>> TURTLE_OVERLAY = REGISTRY.register("turtle_overlay", TurtleOverlayRecipe.Serialiser::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<PocketComputerUpgradeRecipe>> POCKET_COMPUTER_UPGRADE = simple("pocket_computer_upgrade", PocketComputerUpgradeRecipe::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<PrintoutRecipe>> PRINTOUT = simple("printout", PrintoutRecipe::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<DiskRecipe>> DISK = simple("disk", DiskRecipe::new);
-        public static final RegistryEntry<RecipeSerializer<ComputerUpgradeRecipe>> COMPUTER_UPGRADE = REGISTRY.register("computer_upgrade", ComputerUpgradeRecipe.Serializer::new);
+        public static final RegistryEntry<RecipeSerializer<ComputerUpgradeRecipe>> COMPUTER_UPGRADE = REGISTRY.register("computer_upgrade", () -> CustomShapedRecipe.validatingSerialiser(ComputerUpgradeRecipe::of));
     }
 
     public static class Permissions {
@@ -464,8 +466,8 @@ public final class ModRegistry {
      * Register any objects which must be done on the main thread.
      */
     public static void registerMainThread() {
-        CauldronInteraction.WATER.put(ModRegistry.Items.TURTLE_NORMAL.get(), TurtleItem.CAULDRON_INTERACTION);
-        CauldronInteraction.WATER.put(ModRegistry.Items.TURTLE_ADVANCED.get(), TurtleItem.CAULDRON_INTERACTION);
+        CauldronInteraction.WATER.put(Items.TURTLE_NORMAL.get(), TurtleItem.CAULDRON_INTERACTION);
+        CauldronInteraction.WATER.put(Items.TURTLE_ADVANCED.get(), TurtleItem.CAULDRON_INTERACTION);
     }
 
     private static void addTurtle(CreativeModeTab.Output out, TurtleItem turtle) {

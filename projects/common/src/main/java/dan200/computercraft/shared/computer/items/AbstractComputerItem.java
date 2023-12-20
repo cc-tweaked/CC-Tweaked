@@ -8,7 +8,6 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlock;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.config.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -22,11 +21,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public abstract class AbstractComputerItem extends BlockItem implements IComputerItem, IMedia {
-    private final ComputerFamily family;
-
     public AbstractComputerItem(AbstractComputerBlock<?> block, Properties settings) {
         super(block, settings);
-        family = block.getFamily();
     }
 
     @Override
@@ -44,13 +40,6 @@ public abstract class AbstractComputerItem extends BlockItem implements ICompute
     public @Nullable String getLabel(ItemStack stack) {
         return IComputerItem.super.getLabel(stack);
     }
-
-    @Override
-    public final ComputerFamily getFamily() {
-        return family;
-    }
-
-    // IMedia implementation
 
     @Override
     public boolean setLabel(ItemStack stack, @Nullable String label) {

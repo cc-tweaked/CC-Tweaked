@@ -1,7 +1,6 @@
 {
   "type": "computercraft:computer_upgrade",
   "category": "redstone",
-  "family": "advanced",
   "key": {
     "#": {"tag": "c:gold_ingots"},
     "B": {"item": "minecraft:gold_block"},

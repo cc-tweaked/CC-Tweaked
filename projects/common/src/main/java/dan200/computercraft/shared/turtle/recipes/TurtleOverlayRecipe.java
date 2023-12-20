@@ -58,7 +58,7 @@ public class TurtleOverlayRecipe extends CustomShapelessRecipe {
         return ModRegistry.RecipeSerializers.TURTLE_OVERLAY.get();
     }
 
-    public static class Serializer implements RecipeSerializer<TurtleOverlayRecipe> {
+    public static class Serialiser implements RecipeSerializer<TurtleOverlayRecipe> {
         @Override
         public TurtleOverlayRecipe fromJson(ResourceLocation id, JsonObject json) {
             var recipe = ShapelessRecipeSpec.fromJson(json);

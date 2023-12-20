@@ -13,7 +13,6 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.RecipeIngredients;
 import dan200.computercraft.shared.platform.RegistryWrappers;
@@ -38,7 +37,6 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -106,14 +104,13 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     private void turtleUpgrades(Consumer<FinishedRecipe> add) {
         for (var turtleItem : turtleItems()) {
             var base = turtleItem.create(-1, null, -1, null, null, 0, null);
-
-            var nameId = turtleItem.getFamily().name().toLowerCase(Locale.ROOT);
+            var name = RegistryWrappers.ITEMS.getKey(turtleItem);
 
             for (var upgrade : turtleUpgrades.getGeneratedUpgrades()) {
                 var result = turtleItem.create(-1, null, -1, null, UpgradeData.ofDefault(upgrade), -1, null);
                 ShapedRecipeBuilder
                     .shaped(RecipeCategory.REDSTONE, result.getItem())
-                    .group(String.format("%s:turtle_%s", ComputerCraftAPI.MOD_ID, nameId))
+                    .group(name.toString())
                     .pattern("#T")
                     .define('T', base.getItem())
                     .define('#', upgrade.getCraftingItem().getItem())
@@ -121,9 +118,7 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                         inventoryChange(base.getItem(), upgrade.getCraftingItem().getItem()))
                     .save(
                         RecipeWrapper.wrap(ModRegistry.RecipeSerializers.IMPOSTOR_SHAPED.get(), add).withResultTag(result.getTag()),
-                        new ResourceLocation(ComputerCraftAPI.MOD_ID, String.format("turtle_%s/%s/%s",
-                            nameId, upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()
-                        ))
+                        name.withSuffix(String.format("/%s/%s", upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()))
                     );
             }
         }
@@ -141,15 +136,13 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     private void pocketUpgrades(Consumer<FinishedRecipe> add) {
         for (var pocket : pocketComputerItems()) {
             var base = pocket.create(-1, null, -1, null);
-            if (base.isEmpty()) continue;
-
-            var nameId = pocket.getFamily().name().toLowerCase(Locale.ROOT);
+            var name = RegistryWrappers.ITEMS.getKey(pocket).withPath(x -> x.replace("pocket_computer_", "pocket_"));
 
             for (var upgrade : pocketUpgrades.getGeneratedUpgrades()) {
                 var result = pocket.create(-1, null, -1, UpgradeData.ofDefault(upgrade));
                 ShapedRecipeBuilder
                     .shaped(RecipeCategory.REDSTONE, result.getItem())
-                    .group(String.format("%s:pocket_%s", ComputerCraftAPI.MOD_ID, nameId))
+                    .group(name.toString())
                     .pattern("#")
                     .pattern("P")
                     .define('P', base.getItem())
@@ -158,9 +151,7 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                         inventoryChange(base.getItem(), upgrade.getCraftingItem().getItem()))
                     .save(
                         RecipeWrapper.wrap(ModRegistry.RecipeSerializers.IMPOSTOR_SHAPED.get(), add).withResultTag(result.getTag()),
-                        new ResourceLocation(ComputerCraftAPI.MOD_ID, String.format("pocket_%s/%s/%s",
-                            nameId, upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()
-                        ))
+                        name.withSuffix(String.format("/%s/%s", upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()))
                     );
             }
         }
@@ -190,12 +181,10 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     private void turtleOverlay(Consumer<FinishedRecipe> add, String overlay, Consumer<ShapelessRecipeBuilder> build) {
         for (var turtleItem : turtleItems()) {
             var base = turtleItem.create(-1, null, -1, null, null, 0, null);
-
-            var nameId = turtleItem.getFamily().name().toLowerCase(Locale.ROOT);
-            var group = "%s:turtle_%s_overlay".formatted(ComputerCraftAPI.MOD_ID, nameId);
+            var name = RegistryWrappers.ITEMS.getKey(turtleItem);
 
             var builder = ShapelessRecipeBuilder.shapeless(RecipeCategory.REDSTONE, base.getItem())
-                .group(group)
+                .group(name.withSuffix("_overlay").toString())
                 .unlockedBy("has_turtle", inventoryChange(base.getItem()));
             build.accept(builder);
             builder
@@ -204,7 +193,7 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                     RecipeWrapper
                         .wrap(ModRegistry.RecipeSerializers.TURTLE_OVERLAY.get(), add)
                         .withExtraData(x -> x.addProperty("overlay", new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/" + overlay).toString())),
-                    new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_%s_overlays/%s".formatted(nameId, overlay))
+                    name.withSuffix("_overlays/" + overlay)
                 );
         }
     }
@@ -253,7 +242,7 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .define('C', ModRegistry.Items.COMPUTER_NORMAL.get())
             .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.COMPUTER_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
             .save(
-                RecipeWrapper.wrap(ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)),
+                RecipeWrapper.wrap(ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get(), add),
                 new ResourceLocation(ComputerCraftAPI.MOD_ID, "computer_advanced_upgrade")
             );
 
@@ -277,7 +266,7 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .define('C', ModRegistry.Items.COMPUTER_NORMAL.get())
             .define('I', ingredients.woodenChest())
             .unlockedBy("has_computer", inventoryChange(ModRegistry.Items.COMPUTER_NORMAL.get()))
-            .save(RecipeWrapper.wrap(ModRegistry.RecipeSerializers.TURTLE.get(), add).withExtraData(family(ComputerFamily.NORMAL)));
+            .save(RecipeWrapper.wrap(ModRegistry.RecipeSerializers.TURTLE.get(), add));
 
         ShapedRecipeBuilder
             .shaped(RecipeCategory.REDSTONE, ModRegistry.Blocks.TURTLE_ADVANCED.get())
@@ -288,7 +277,7 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .define('C', ModRegistry.Items.COMPUTER_ADVANCED.get())
             .define('I', ingredients.woodenChest())
             .unlockedBy("has_computer", inventoryChange(ModRegistry.Items.COMPUTER_NORMAL.get()))
-            .save(RecipeWrapper.wrap(ModRegistry.RecipeSerializers.TURTLE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)));
+            .save(RecipeWrapper.wrap(ModRegistry.RecipeSerializers.TURTLE.get(), add));
 
         ShapedRecipeBuilder
             .shaped(RecipeCategory.REDSTONE, ModRegistry.Blocks.TURTLE_ADVANCED.get())
@@ -300,7 +289,7 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .define('B', ingredients.goldBlock())
             .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.TURTLE_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
             .save(
-                RecipeWrapper.wrap(ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)),
+                RecipeWrapper.wrap(ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get(), add),
                 new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_advanced_upgrade")
             );
 
@@ -367,7 +356,7 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .define('C', ModRegistry.Items.POCKET_COMPUTER_NORMAL.get())
             .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
             .save(
-                RecipeWrapper.wrap(ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)),
+                RecipeWrapper.wrap(ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get(), add),
                 new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_computer_advanced_upgrade")
             );
 
@@ -517,10 +506,6 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         var tag = new CompoundTag();
         tag.put(PlayerHeadItem.TAG_SKULL_OWNER, owner);
         return tag;
-    }
-
-    private static Consumer<JsonObject> family(ComputerFamily family) {
-        return json -> json.addProperty("family", family.getSerializedName());
     }
 
     private static void addSpecial(Consumer<FinishedRecipe> add, SimpleCraftingRecipeSerializer<?> special) {

@@ -4,8 +4,6 @@
 
 package dan200.computercraft.shared.common;
 
-import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.network.container.HeldItemContainerData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
@@ -26,10 +24,6 @@ public class HeldItemMenu extends AbstractContainerMenu {
 
         this.hand = hand;
         stack = player.getItemInHand(hand).copy();
-    }
-
-    public static HeldItemMenu createPrintout(int id, Inventory inventory, HeldItemContainerData data) {
-        return new HeldItemMenu(ModRegistry.Menus.PRINTOUT.get(), id, inventory.player, data.getHand());
     }
 
     public ItemStack getStack() {

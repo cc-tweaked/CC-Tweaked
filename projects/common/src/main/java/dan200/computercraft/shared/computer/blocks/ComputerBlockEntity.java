@@ -32,11 +32,9 @@ public class ComputerBlockEntity extends AbstractComputerBlockEntity {
 
     @Override
     protected ServerComputer createComputer(int id) {
-        var family = getFamily();
         return new ServerComputer(
             (ServerLevel) getLevel(), getBlockPos(), id, label,
-            family, Config.computerTermWidth,
-            Config.computerTermHeight
+            getFamily(), Config.computerTermWidth, Config.computerTermHeight
         );
     }
 

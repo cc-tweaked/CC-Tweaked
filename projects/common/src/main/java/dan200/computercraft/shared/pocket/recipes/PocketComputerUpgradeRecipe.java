@@ -81,7 +81,6 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
         if (upgrade == null) return ItemStack.EMPTY;
 
         // Construct the new stack
-        var family = itemComputer.getFamily();
         var computerID = itemComputer.getComputerID(computer);
         var label = itemComputer.getLabel(computer);
         var colour = itemComputer.getColour(computer);

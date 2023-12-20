@@ -11,7 +11,6 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.client.platform.ClientPlatformHelper;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.Holiday;
 import net.minecraft.client.Minecraft;
@@ -21,7 +20,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -29,8 +27,6 @@ import net.minecraft.world.phys.HitResult;
 import javax.annotation.Nullable;
 
 public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBlockEntity> {
-    private static final ModelResourceLocation NORMAL_TURTLE_MODEL = new ModelResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_normal", "inventory");
-    private static final ModelResourceLocation ADVANCED_TURTLE_MODEL = new ModelResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_advanced", "inventory");
     private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
     private static final ResourceLocation ELF_OVERLAY_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_elf_overlay");
 
@@ -40,13 +36,6 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
     public TurtleBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
         renderer = context.getBlockEntityRenderDispatcher();
         font = context.getFont();
-    }
-
-    public static ResourceLocation getTurtleModel(ComputerFamily family, boolean coloured) {
-        return switch (family) {
-            default -> coloured ? COLOUR_TURTLE_MODEL : NORMAL_TURTLE_MODEL;
-            case ADVANCED -> coloured ? COLOUR_TURTLE_MODEL : ADVANCED_TURTLE_MODEL;
-        };
     }
 
     public static @Nullable ResourceLocation getTurtleOverlayModel(@Nullable ResourceLocation overlay, boolean christmas) {
@@ -78,7 +67,6 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
             var matrix = transform.last().pose();
             var opacity = (int) (mc.options.getBackgroundOpacity(0.25f) * 255) << 24;
             var width = -font.width(label) / 2.0f;
-            // TODO: Check this looks okay
             font.drawInBatch(label, width, (float) 0, 0x20ffffff, false, matrix, buffers, Font.DisplayMode.SEE_THROUGH, opacity, lightmapCoord);
             font.drawInBatch(label, width, (float) 0, 0xffffffff, false, matrix, buffers, Font.DisplayMode.NORMAL, 0, lightmapCoord);
 
@@ -96,10 +84,18 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
 
         // Render the turtle
         var colour = turtle.getColour();
-        var family = turtle.getFamily();
         var overlay = turtle.getOverlay();
 
-        renderModel(transform, buffers, lightmapCoord, overlayLight, getTurtleModel(family, colour != -1), colour == -1 ? null : new int[]{ colour });
+        if (colour == -1) {
+            // Render the turtle using its item model.
+            var modelManager = Minecraft.getInstance().getItemRenderer().getItemModelShaper();
+            var model = modelManager.getItemModel(turtle.getBlockState().getBlock().asItem());
+            if (model == null) model = modelManager.getModelManager().getMissingModel();
+            renderModel(transform, buffers, lightmapCoord, overlayLight, model, null);
+        } else {
+            // Otherwise render it using the colour item.
+            renderModel(transform, buffers, lightmapCoord, overlayLight, COLOUR_TURTLE_MODEL, new int[]{ colour });
+        }
 
         // Render the overlay
         var overlayModel = getTurtleOverlayModel(overlay, Holiday.getCurrent() == Holiday.CHRISTMAS);

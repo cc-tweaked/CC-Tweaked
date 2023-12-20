@@ -395,11 +395,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     @Override
     public int getFuelLimit() {
-        if (owner.getFamily() == ComputerFamily.ADVANCED) {
-            return Config.advancedTurtleFuelLimit;
-        } else {
-            return Config.turtleFuelLimit;
-        }
+        return owner.getFuelLimit();
     }
 
     @Override

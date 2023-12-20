@@ -4,9 +4,8 @@
 
 package dan200.computercraft.shared.computer.blocks;
 
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
-import dan200.computercraft.shared.computer.items.ComputerItemFactory;
+import dan200.computercraft.shared.computer.items.ComputerItem;
 import dan200.computercraft.shared.platform.RegistryEntry;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -25,8 +24,8 @@ public class ComputerBlock<T extends ComputerBlockEntity> extends AbstractComput
     public static final EnumProperty<ComputerState> STATE = EnumProperty.create("state", ComputerState.class);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public ComputerBlock(Properties settings, ComputerFamily family, RegistryEntry<BlockEntityType<T>> type) {
-        super(settings, family, type);
+    public ComputerBlock(Properties settings, RegistryEntry<BlockEntityType<T>> type) {
+        super(settings, type);
         registerDefaultState(defaultBlockState()
             .setValue(FACING, Direction.NORTH)
             .setValue(STATE, ComputerState.OFF)
@@ -46,6 +45,9 @@ public class ComputerBlock<T extends ComputerBlockEntity> extends AbstractComput
 
     @Override
     protected ItemStack getItem(AbstractComputerBlockEntity tile) {
-        return tile instanceof ComputerBlockEntity ? ComputerItemFactory.create((ComputerBlockEntity) tile) : ItemStack.EMPTY;
+        if (!(tile instanceof ComputerBlockEntity computer)) return ItemStack.EMPTY;
+        if (!(asItem() instanceof ComputerItem item)) return ItemStack.EMPTY;
+
+        return item.create(computer.getComputerID(), computer.getLabel());
     }
 }

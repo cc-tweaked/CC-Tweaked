@@ -4,57 +4,44 @@
 
 package dan200.computercraft.shared.computer.recipe;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.DataResult;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.recipe.ShapedRecipeSpec;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
 /**
- * A recipe which "upgrades" a {@linkplain IComputerItem computer}, converting it from one {@linkplain ComputerFamily
- * family} to another.
+ * A recipe which "upgrades" a {@linkplain IComputerItem computer}, converting to it a new item (for instance a normal
+ * turtle to an advanced one).
+ *
+ * @see IComputerItem#changeItem(ItemStack, Item)
  */
 public final class ComputerUpgradeRecipe extends ComputerConvertRecipe {
-    private final ComputerFamily family;
+    private final Item result;
 
-    private ComputerUpgradeRecipe(ResourceLocation identifier, ShapedRecipeSpec recipe, ComputerFamily family) {
+    private ComputerUpgradeRecipe(ResourceLocation identifier, ShapedRecipeSpec recipe) {
         super(identifier, recipe);
-        this.family = family;
+        this.result = recipe.result().getItem();
+    }
+
+    public static DataResult<ComputerUpgradeRecipe> of(ResourceLocation id, ShapedRecipeSpec recipe) {
+        if (!(recipe.result().getItem() instanceof IComputerItem)) {
+            return DataResult.error(() -> recipe.result().getItem() + " is not a computer item");
+        }
+
+        return DataResult.success(new ComputerUpgradeRecipe(id, recipe));
     }
 
     @Override
     protected ItemStack convert(IComputerItem item, ItemStack stack) {
-        return item.withFamily(stack, family);
+        return item.changeItem(stack, result);
     }
 
     @Override
     public RecipeSerializer<ComputerUpgradeRecipe> getSerializer() {
         return ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get();
-    }
-
-    public static class Serializer implements RecipeSerializer<ComputerUpgradeRecipe> {
-        @Override
-        public ComputerUpgradeRecipe fromJson(ResourceLocation identifier, JsonObject json) {
-            var recipe = ShapedRecipeSpec.fromJson(json);
-            var family = ComputerFamily.getFamily(json, "family");
-            return new ComputerUpgradeRecipe(identifier, recipe, family);
-        }
-
-        @Override
-        public ComputerUpgradeRecipe fromNetwork(ResourceLocation identifier, FriendlyByteBuf buf) {
-            var recipe = ShapedRecipeSpec.fromNetwork(buf);
-            var family = buf.readEnum(ComputerFamily.class);
-            return new ComputerUpgradeRecipe(identifier, recipe, family);
-        }
-
-        @Override
-        public void toNetwork(FriendlyByteBuf buf, ComputerUpgradeRecipe recipe) {
-            recipe.toSpec().toNetwork(buf);
-            buf.writeEnum(recipe.family);
-        }
     }
 }

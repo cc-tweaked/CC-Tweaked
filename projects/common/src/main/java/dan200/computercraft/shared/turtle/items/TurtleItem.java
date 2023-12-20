@@ -10,9 +10,7 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.TurtleUpgrades;
-import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.AbstractComputerItem;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
 import dan200.computercraft.shared.util.NBTUtil;
@@ -20,6 +18,7 @@ import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 
@@ -30,20 +29,6 @@ import static dan200.computercraft.shared.turtle.core.TurtleBrain.*;
 public class TurtleItem extends AbstractComputerItem implements IColouredItem {
     public TurtleItem(TurtleBlock block, Properties settings) {
         super(block, settings);
-    }
-
-    public static ItemStack create(
-        int id, @Nullable String label, int colour, ComputerFamily family,
-        @Nullable UpgradeData<ITurtleUpgrade> leftUpgrade, @Nullable UpgradeData<ITurtleUpgrade> rightUpgrade,
-        int fuelLevel, @Nullable ResourceLocation overlay
-    ) {
-        return switch (family) {
-            case NORMAL ->
-                ModRegistry.Items.TURTLE_NORMAL.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay);
-            case ADVANCED ->
-                ModRegistry.Items.TURTLE_ADVANCED.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay);
-            default -> ItemStack.EMPTY;
-        };
     }
 
     public ItemStack create(
@@ -119,13 +104,13 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
     }
 
     @Override
-    public ItemStack withFamily(ItemStack stack, ComputerFamily family) {
-        return create(
+    public ItemStack changeItem(ItemStack stack, Item newItem) {
+        return newItem instanceof TurtleItem turtle ? turtle.create(
             getComputerID(stack), getLabel(stack),
-            getColour(stack), family,
+            getColour(stack),
             getUpgradeWithData(stack, TurtleSide.LEFT), getUpgradeWithData(stack, TurtleSide.RIGHT),
             getFuelLevel(stack), getOverlay(stack)
-        );
+        ) : ItemStack.EMPTY;
     }
 
     public @Nullable ITurtleUpgrade getUpgrade(ItemStack stack, TurtleSide side) {

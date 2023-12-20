@@ -1,7 +1,6 @@
 {
   "type": "computercraft:turtle",
   "category": "redstone",
-  "family": "normal",
   "key": {
     "#": {"tag": "c:iron_ingots"},
     "C": {"item": "computercraft:computer_normal"},

@@ -4,7 +4,6 @@
 
 package dan200.computercraft.shared.computer.blocks;
 
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.platform.RegistryEntry;
 import net.minecraft.world.level.block.GameMasterBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -17,7 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
  * @see dan200.computercraft.shared.computer.items.CommandComputerItem
  */
 public class CommandComputerBlock<T extends CommandComputerBlockEntity> extends ComputerBlock<T> implements GameMasterBlock {
-    public CommandComputerBlock(Properties settings, ComputerFamily family, RegistryEntry<BlockEntityType<T>> type) {
-        super(settings, family, type);
+    public CommandComputerBlock(Properties settings, RegistryEntry<BlockEntityType<T>> type) {
+        super(settings, type);
     }
 }

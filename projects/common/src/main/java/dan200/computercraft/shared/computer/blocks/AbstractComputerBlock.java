@@ -7,7 +7,6 @@ package dan200.computercraft.shared.computer.blocks;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.common.IBundledRedstoneBlock;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.platform.RegistryEntry;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
@@ -42,13 +41,11 @@ import javax.annotation.Nullable;
 public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntity> extends HorizontalDirectionalBlock implements IBundledRedstoneBlock, EntityBlock {
     private static final ResourceLocation DROP = new ResourceLocation(ComputerCraftAPI.MOD_ID, "computer");
 
-    private final ComputerFamily family;
     protected final RegistryEntry<BlockEntityType<T>> type;
     private final BlockEntityTicker<T> serverTicker = (level, pos, state, computer) -> computer.serverTick();
 
-    protected AbstractComputerBlock(Properties settings, ComputerFamily family, RegistryEntry<BlockEntityType<T>> type) {
+    protected AbstractComputerBlock(Properties settings, RegistryEntry<BlockEntityType<T>> type) {
         super(settings);
-        this.family = family;
         this.type = type;
     }
 
@@ -81,10 +78,6 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
     }
 
     protected abstract ItemStack getItem(AbstractComputerBlockEntity tile);
-
-    public ComputerFamily getFamily() {
-        return family;
-    }
 
     @Override
     @Deprecated

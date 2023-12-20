@@ -5,8 +5,8 @@
 package dan200.computercraft.shared.computer.items;
 
 import dan200.computercraft.shared.computer.blocks.ComputerBlock;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
@@ -24,9 +24,9 @@ public class ComputerItem extends AbstractComputerItem {
     }
 
     @Override
-    public ItemStack withFamily(ItemStack stack, ComputerFamily family) {
-        var result = ComputerItemFactory.create(getComputerID(stack), null, family);
-        if (stack.hasCustomHoverName()) result.setHoverName(stack.getHoverName());
-        return result;
+    public ItemStack changeItem(ItemStack stack, Item newItem) {
+        return newItem instanceof ComputerItem computer
+            ? computer.create(getComputerID(stack), getLabel(stack))
+            : ItemStack.EMPTY;
     }
 }

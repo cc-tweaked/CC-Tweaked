@@ -4,7 +4,7 @@
 
 package dan200.computercraft.shared.computer.items;
 
-import dan200.computercraft.shared.computer.core.ComputerFamily;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
@@ -21,7 +21,15 @@ public interface IComputerItem {
         return stack.hasCustomHoverName() ? stack.getHoverName().getString() : null;
     }
 
-    ComputerFamily getFamily();
-
-    ItemStack withFamily(ItemStack stack, ComputerFamily family);
+    /**
+     * Create a new stack, changing the underlying item.
+     * <p>
+     * This should copy the computer's data to a different item of the same type (for instance, converting a normal
+     * computer to an advanced one).
+     *
+     * @param stack   The current computer stack.
+     * @param newItem The new item.
+     * @return The new stack, possibly {@linkplain ItemStack#EMPTY empty} if {@code newItem} is of the same type.
+     */
+    ItemStack changeItem(ItemStack stack, Item newItem);
 }

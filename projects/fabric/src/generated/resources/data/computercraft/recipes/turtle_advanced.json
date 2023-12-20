@@ -1,7 +1,6 @@
 {
   "type": "computercraft:turtle",
   "category": "redstone",
-  "family": "advanced",
   "key": {
     "#": {"tag": "c:gold_ingots"},
     "C": {"item": "computercraft:computer_advanced"},
