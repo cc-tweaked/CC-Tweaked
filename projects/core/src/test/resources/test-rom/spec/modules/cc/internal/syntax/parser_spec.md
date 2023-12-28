@@ -478,6 +478,7 @@ Unexpected ) in function call.
  1 | f(2, )
    |    ^ Tip: Try removing this ,.
 ```
+
 ```lua
 f(2, 3, )
 ```
@@ -490,4 +491,18 @@ Unexpected ) in function call.
    |
  1 | f(2, 3, )
    |       ^ Tip: Try removing this ,.
+```
+
+```lua
+x:f(2, 3, )
+```
+
+```txt
+Unexpected ) in function call.
+   |
+ 1 | x:f(2, 3, )
+   |           ^
+   |
+ 1 | x:f(2, 3, )
+   |         ^ Tip: Try removing this ,.
 ```
