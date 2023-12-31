@@ -79,5 +79,12 @@ describe("cc.require", function()
                 "  [^:]*some_module.lua:1: unexpected symbol near '1'$"
             )
         end)
+
+        it("uses shell.package_path for package loading", function()
+            setup("test-files/some_module.lua", "return 123")
+            settings.set("shell.package_path", "/test_files/?.lua")
+            local require, package = mk()
+            expect(require("some_module")):eq(123)
+        end)
     end)
 end)
