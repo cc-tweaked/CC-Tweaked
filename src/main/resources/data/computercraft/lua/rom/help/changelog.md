@@ -1,3 +1,7 @@
+# New features in CC: Tweaked 1.101.4
+
+* Turtles can now right click items "into" certain blocks (cauldrons and hives by default, configurable with the `computercraft:turtle_can_use` block tag). (samuelWilliams99)
+
 # New features in CC: Tweaked 1.101.3
 
 * Improve syntax errors when missing commas in tables, and on trailing commas in parameter lists.
