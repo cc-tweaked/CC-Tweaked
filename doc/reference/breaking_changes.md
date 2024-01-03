@@ -21,7 +21,7 @@ of the mod should run fine on later versions.
 However, some changes to the underlying game, or CC: Tweaked's own internals may break some programs. This page serves
 as documentation for breaking changes and "gotchas" one should look out for between versions.
 
-## CC: Tweaked 1.109.0 to 1.109.1 {#cct-1.109}
+## CC: Tweaked 1.109.0 to 1.109.2 {#cct-1.109}
 
  - Update to Lua 5.2:
    - Support for Lua 5.0's pseudo-argument `arg` has been removed. You should always use `...` for varargs.
