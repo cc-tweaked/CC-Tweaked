@@ -4,7 +4,9 @@
 
 package dan200.computercraft.shared.network.client;
 
+import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
+import dan200.computercraft.shared.network.NetworkMessages;
 import net.minecraft.network.FriendlyByteBuf;
 
 
@@ -20,12 +22,17 @@ public class PocketComputerDeletedClientMessage implements NetworkMessage<Client
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeVarInt(instanceId);
     }
 
     @Override
     public void handle(ClientNetworkContext context) {
         context.handlePocketComputerDeleted(instanceId);
+    }
+
+    @Override
+    public MessageType<PocketComputerDeletedClientMessage> type() {
+        return NetworkMessages.POCKET_COMPUTER_DELETED;
     }
 }

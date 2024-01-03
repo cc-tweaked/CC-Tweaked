@@ -6,7 +6,9 @@ package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.computer.upload.UploadResult;
+import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
+import dan200.computercraft.shared.network.NetworkMessages;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -43,7 +45,7 @@ public class UploadResultMessage implements NetworkMessage<ClientNetworkContext>
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeVarInt(containerId);
         buf.writeEnum(result);
         if (result == UploadResult.ERROR) buf.writeComponent(Nullability.assertNonNull(errorMessage));
@@ -52,5 +54,10 @@ public class UploadResultMessage implements NetworkMessage<ClientNetworkContext>
     @Override
     public void handle(ClientNetworkContext context) {
         context.handleUploadResult(containerId, result, errorMessage);
+    }
+
+    @Override
+    public MessageType<UploadResultMessage> type() {
+        return NetworkMessages.UPLOAD_RESULT;
     }
 }

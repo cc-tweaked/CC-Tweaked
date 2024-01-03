@@ -5,12 +5,11 @@
 package dan200.computercraft.shared.platform;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.server.ServerNetworkContext;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -47,20 +46,15 @@ public final class NetworkHandler {
     }
 
     public static void setup() {
-        IntSet usedIds = new IntOpenHashSet();
-        NetworkMessages.register(new NetworkMessages.PacketRegistry() {
-            @Override
-            public <T extends NetworkMessage<ClientNetworkContext>> void registerClientbound(int id, Class<T> type, Function<FriendlyByteBuf, T> decoder) {
-                if (!usedIds.add(id)) throw new IllegalArgumentException("Already have a packet with id " + id);
-                registerMainThread(id, NetworkDirection.PLAY_TO_CLIENT, type, decoder, x -> ClientNetworkContext.get());
-            }
+        for (var type : NetworkMessages.getServerbound()) {
+            var forgeType = (MessageTypeImpl<? extends NetworkMessage<ServerNetworkContext>>) type;
+            registerMainThread(forgeType, NetworkDirection.PLAY_TO_SERVER, c -> () -> assertNonNull(c.getSender()));
+        }
 
-            @Override
-            public <T extends NetworkMessage<ServerNetworkContext>> void registerServerbound(int id, Class<T> type, Function<FriendlyByteBuf, T> decoder) {
-                if (!usedIds.add(id)) throw new IllegalArgumentException("Already have a packet with id " + id);
-                registerMainThread(id, NetworkDirection.PLAY_TO_SERVER, type, decoder, c -> () -> assertNonNull(c.getSender()));
-            }
-        });
+        for (var type : NetworkMessages.getClientbound()) {
+            var forgeType = (MessageTypeImpl<? extends NetworkMessage<ClientNetworkContext>>) type;
+            registerMainThread(forgeType, NetworkDirection.PLAY_TO_CLIENT, x -> ClientNetworkContext.get());
+        }
     }
 
     static void sendToPlayer(NetworkMessage<ClientNetworkContext> packet, ServerPlayer player) {
@@ -96,19 +90,16 @@ public final class NetworkHandler {
      *
      * @param <T>       The type of the packet to send.
      * @param <H>       The context this packet is evaluated under.
-     * @param type      The class of the type of packet to send.
-     * @param id        The identifier for this packet type.
+     * @param type      The message type to register.
      * @param direction A network direction which will be asserted before any processing of this message occurs
-     * @param decoder   The factory for this type of packet.
      * @param handler   Gets or constructs the handler for this packet.
      */
     static <H, T extends NetworkMessage<H>> void registerMainThread(
-        int id, NetworkDirection direction, Class<T> type, Function<FriendlyByteBuf, T> decoder,
-        Function<NetworkEvent.Context, H> handler
+        MessageTypeImpl<T> type, NetworkDirection direction, Function<NetworkEvent.Context, H> handler
     ) {
-        network.messageBuilder(type, id, direction)
-            .encoder(NetworkMessage::toBytes)
-            .decoder(decoder)
+        network.messageBuilder(type.klass(), type.id(), direction)
+            .encoder(NetworkMessage::write)
+            .decoder(type.reader())
             .consumerMainThread((packet, contextSup) -> {
                 try {
                     packet.handle(handler.apply(contextSup.get()));
@@ -118,5 +109,10 @@ public final class NetworkHandler {
                 }
             })
             .add();
+    }
+
+    public record MessageTypeImpl<T extends NetworkMessage<?>>(
+        int id, Class<T> klass, Function<FriendlyByteBuf, T> reader
+    ) implements MessageType<T> {
     }
 }

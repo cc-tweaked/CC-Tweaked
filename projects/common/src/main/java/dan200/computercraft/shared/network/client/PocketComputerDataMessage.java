@@ -7,7 +7,9 @@ package dan200.computercraft.shared.network.client;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
+import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
+import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import net.minecraft.network.FriendlyByteBuf;
 
@@ -35,7 +37,7 @@ public class PocketComputerDataMessage implements NetworkMessage<ClientNetworkCo
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeVarInt(instanceId);
         buf.writeEnum(state);
         buf.writeVarInt(lightState);
@@ -45,5 +47,10 @@ public class PocketComputerDataMessage implements NetworkMessage<ClientNetworkCo
     @Override
     public void handle(ClientNetworkContext context) {
         context.handlePocketComputerData(instanceId, state, lightState, terminal);
+    }
+
+    @Override
+    public MessageType<PocketComputerDataMessage> type() {
+        return NetworkMessages.POCKET_COMPUTER_DATA;
     }
 }

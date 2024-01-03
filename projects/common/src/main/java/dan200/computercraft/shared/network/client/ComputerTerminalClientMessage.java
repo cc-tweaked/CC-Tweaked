@@ -5,7 +5,9 @@
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.computer.terminal.TerminalState;
+import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
+import dan200.computercraft.shared.network.NetworkMessages;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
@@ -25,7 +27,7 @@ public class ComputerTerminalClientMessage implements NetworkMessage<ClientNetwo
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeVarInt(containerId);
         terminal.write(buf);
     }
@@ -33,5 +35,10 @@ public class ComputerTerminalClientMessage implements NetworkMessage<ClientNetwo
     @Override
     public void handle(ClientNetworkContext context) {
         context.handleComputerTerminal(containerId, terminal);
+    }
+
+    @Override
+    public MessageType<ComputerTerminalClientMessage> type() {
+        return NetworkMessages.COMPUTER_TERMINAL;
     }
 }

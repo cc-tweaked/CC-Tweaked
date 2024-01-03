@@ -28,7 +28,7 @@ public abstract class ComputerServerMessage implements NetworkMessage<ServerNetw
 
     @Override
     @OverridingMethodsMustInvokeSuper
-    public void toBytes(FriendlyByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeVarInt(containerId);
     }
 

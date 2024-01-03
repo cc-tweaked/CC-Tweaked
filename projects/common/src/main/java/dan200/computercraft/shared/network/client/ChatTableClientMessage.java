@@ -5,7 +5,9 @@
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.command.text.TableBuilder;
+import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
+import dan200.computercraft.shared.network.NetworkMessages;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 
@@ -43,7 +45,7 @@ public class ChatTableClientMessage implements NetworkMessage<ClientNetworkConte
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeUtf(table.getId(), MAX_LEN);
         buf.writeVarInt(table.getColumns());
         buf.writeBoolean(table.getHeaders() != null);
@@ -62,5 +64,10 @@ public class ChatTableClientMessage implements NetworkMessage<ClientNetworkConte
     @Override
     public void handle(ClientNetworkContext context) {
         context.handleChatTable(table);
+    }
+
+    @Override
+    public MessageType<ChatTableClientMessage> type() {
+        return NetworkMessages.CHAT_TABLE;
     }
 }

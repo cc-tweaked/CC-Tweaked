@@ -13,6 +13,7 @@ import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.details.FluidDetails;
+import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
@@ -20,7 +21,7 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableBlockEntity;
 import dan200.computercraft.shared.peripheral.modem.wired.WiredModemFullBlockEntity;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemBlockEntity;
 import dan200.computercraft.shared.platform.FabricConfigFile;
-import dan200.computercraft.shared.platform.NetworkHandler;
+import dan200.computercraft.shared.platform.FabricMessageType;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -28,6 +29,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resources.ResourceLocation;
@@ -45,7 +47,12 @@ public class ComputerCraft {
     private static final LevelResource SERVERCONFIG = new LevelResource("serverconfig");
 
     public static void init() {
-        NetworkHandler.init();
+        for (var type : NetworkMessages.getServerbound()) {
+            ServerPlayNetworking.registerGlobalReceiver(
+                FabricMessageType.toFabricType(type), (packet, player, sender) -> packet.payload().handle(() -> player)
+            );
+        }
+
         ModRegistry.register();
         ModRegistry.registerMainThread();
 

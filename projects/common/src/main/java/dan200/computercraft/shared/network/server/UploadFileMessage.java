@@ -9,6 +9,8 @@ import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.config.Config;
+import dan200.computercraft.shared.network.MessageType;
+import dan200.computercraft.shared.network.NetworkMessages;
 import io.netty.handler.codec.DecoderException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -91,8 +93,8 @@ public class UploadFileMessage extends ComputerServerMessage {
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
-        super.toBytes(buf);
+    public void write(FriendlyByteBuf buf) {
+        super.write(buf);
         buf.writeUUID(uuid);
         buf.writeByte(flag);
 
@@ -165,5 +167,10 @@ public class UploadFileMessage extends ComputerServerMessage {
         if ((flag & FLAG_FIRST) != 0) input.startUpload(uuid, assertNonNull(files));
         input.continueUpload(uuid, slices);
         if ((flag & FLAG_LAST) != 0) input.finishUpload(player, uuid);
+    }
+
+    @Override
+    public MessageType<UploadFileMessage> type() {
+        return NetworkMessages.UPLOAD_FILE;
     }
 }

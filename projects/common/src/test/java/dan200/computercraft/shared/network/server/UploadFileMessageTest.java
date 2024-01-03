@@ -63,7 +63,7 @@ public class UploadFileMessageTest {
     private static List<UploadFileMessage> roundtripPackets(List<UploadFileMessage> packets) {
         return packets.stream().map(packet -> {
             var buffer = new FriendlyByteBuf(Unpooled.directBuffer());
-            packet.toBytes(buffer);
+            packet.write(buffer);
             // We include things like file size in the packet, but not in the count, so grant a slightly larger threshold.
             assertThat("Packet is too large", buffer.writerIndex(), lessThanOrEqualTo(MAX_PACKET_SIZE + 128));
             if ((packet.flag & FLAG_LAST) == 0) {

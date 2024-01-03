@@ -10,6 +10,7 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.config.ConfigFile;
+import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
@@ -163,6 +164,18 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      * @param menu   The menu data.
      */
     void openMenu(Player player, MenuProvider owner, ContainerData menu);
+
+    /**
+     * Create a new {@link MessageType}.
+     *
+     * @param id      The descriminator for this message type.
+     * @param channel The channel name for this message type.
+     * @param klass   The type of this message.
+     * @param reader  The function which reads the packet from a buffer. Should be the inverse to {@link NetworkMessage#write(FriendlyByteBuf)}.
+     * @param <T>     The type of this message.
+     * @return The new {@link MessageType} instance.
+     */
+    <T extends NetworkMessage<?>> MessageType<T> createMessageType(int id, ResourceLocation channel, Class<T> klass, FriendlyByteBuf.Reader<T> reader);
 
     /**
      * Send a message to a specific player.

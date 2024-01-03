@@ -4,7 +4,9 @@
 
 package dan200.computercraft.shared.network.client;
 
+import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
+import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -43,7 +45,7 @@ public class PlayRecordClientMessage implements NetworkMessage<ClientNetworkCont
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
         buf.writeNullable(soundEvent, (b, e) -> e.writeToNetwork(b));
         buf.writeNullable(name, FriendlyByteBuf::writeUtf);
@@ -52,5 +54,10 @@ public class PlayRecordClientMessage implements NetworkMessage<ClientNetworkCont
     @Override
     public void handle(ClientNetworkContext context) {
         context.handlePlayRecord(pos, soundEvent, name);
+    }
+
+    @Override
+    public MessageType<PlayRecordClientMessage> type() {
+        return NetworkMessages.PLAY_RECORD;
     }
 }

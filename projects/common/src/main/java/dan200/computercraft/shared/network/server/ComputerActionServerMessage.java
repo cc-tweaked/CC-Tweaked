@@ -5,6 +5,8 @@
 package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
+import dan200.computercraft.shared.network.MessageType;
+import dan200.computercraft.shared.network.NetworkMessages;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
@@ -23,8 +25,8 @@ public class ComputerActionServerMessage extends ComputerServerMessage {
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
-        super.toBytes(buf);
+    public void write(FriendlyByteBuf buf) {
+        super.write(buf);
         buf.writeEnum(action);
     }
 
@@ -35,6 +37,11 @@ public class ComputerActionServerMessage extends ComputerServerMessage {
             case REBOOT -> container.getInput().reboot();
             case SHUTDOWN -> container.getInput().shutdown();
         }
+    }
+
+    @Override
+    public MessageType<ComputerActionServerMessage> type() {
+        return NetworkMessages.COMPUTER_ACTION;
     }
 
     public enum Action {

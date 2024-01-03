@@ -4,7 +4,9 @@
 
 package dan200.computercraft.shared.network.client;
 
+import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
+import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerBlockEntity;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.network.FriendlyByteBuf;
@@ -47,7 +49,7 @@ public class SpeakerAudioClientMessage implements NetworkMessage<ClientNetworkCo
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeUUID(source);
         pos.write(buf);
         buf.writeFloat(volume);
@@ -57,5 +59,10 @@ public class SpeakerAudioClientMessage implements NetworkMessage<ClientNetworkCo
     @Override
     public void handle(ClientNetworkContext context) {
         context.handleSpeakerAudio(source, pos, volume);
+    }
+
+    @Override
+    public MessageType<SpeakerAudioClientMessage> type() {
+        return NetworkMessages.SPEAKER_AUDIO;
     }
 }

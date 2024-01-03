@@ -10,9 +10,9 @@ import dan200.computercraft.client.model.FoiledModel;
 import dan200.computercraft.client.render.ModelRenderer;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.server.ServerNetworkContext;
-import dan200.computercraft.shared.platform.NetworkHandler;
+import dan200.computercraft.shared.platform.FabricMessageType;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -29,7 +29,7 @@ public class ClientPlatformHelperImpl implements ClientPlatformHelper {
 
     @Override
     public void sendToServer(NetworkMessage<ServerNetworkContext> message) {
-        Minecraft.getInstance().player.connection.send(NetworkHandler.encodeServer(message));
+        ClientPlayNetworking.send(FabricMessageType.toFabricPacket(message));
     }
 
     @Override

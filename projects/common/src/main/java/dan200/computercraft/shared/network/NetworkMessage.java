@@ -18,13 +18,20 @@ import net.minecraft.network.FriendlyByteBuf;
  */
 public interface NetworkMessage<T> {
     /**
+     * Get the type of this message.
+     *
+     * @return The type of this message.
+     */
+    MessageType<?> type();
+
+    /**
      * Write this packet to a buffer.
      * <p>
      * This may be called on any thread, so this should be a pure operation.
      *
      * @param buf The buffer to write data to.
      */
-    void toBytes(FriendlyByteBuf buf);
+    void write(FriendlyByteBuf buf);
 
     /**
      * Handle this {@link NetworkMessage}.

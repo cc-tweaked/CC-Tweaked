@@ -5,6 +5,8 @@
 package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
+import dan200.computercraft.shared.network.MessageType;
+import dan200.computercraft.shared.network.NetworkMessages;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
@@ -37,8 +39,8 @@ public class MouseEventServerMessage extends ComputerServerMessage {
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
-        super.toBytes(buf);
+    public void write(FriendlyByteBuf buf) {
+        super.write(buf);
         buf.writeByte(type);
         buf.writeVarInt(arg);
         buf.writeVarInt(x);
@@ -54,5 +56,10 @@ public class MouseEventServerMessage extends ComputerServerMessage {
             case TYPE_UP -> input.mouseUp(arg, x, y);
             case TYPE_SCROLL -> input.mouseScroll(arg, x, y);
         }
+    }
+
+    @Override
+    public MessageType<MouseEventServerMessage> type() {
+        return NetworkMessages.MOUSE_EVENT;
     }
 }

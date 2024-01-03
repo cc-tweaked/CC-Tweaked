@@ -17,6 +17,7 @@ import dan200.computercraft.api.peripheral.PeripheralLookup;
 import dan200.computercraft.impl.Peripherals;
 import dan200.computercraft.mixin.ArgumentTypeInfosAccessor;
 import dan200.computercraft.shared.config.ConfigFile;
+import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
@@ -27,6 +28,8 @@ import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiCache;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.resource.conditions.v1.DefaultResourceConditions;
@@ -44,6 +47,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -171,30 +176,41 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
+    public <T extends NetworkMessage<?>> MessageType<T> createMessageType(int id, ResourceLocation channel, Class<T> klass, FriendlyByteBuf.Reader<T> reader) {
+        return new FabricMessageType<>(channel, reader);
+    }
+
+    private Packet<ClientGamePacketListener> encodeClientbound(NetworkMessage<ClientNetworkContext> message) {
+        var buf = PacketByteBufs.create();
+        message.write(buf);
+        return ServerPlayNetworking.createS2CPacket(FabricMessageType.toFabricType(message.type()).getId(), buf);
+    }
+
+    @Override
     public void sendToPlayer(NetworkMessage<ClientNetworkContext> message, ServerPlayer player) {
-        player.connection.send(NetworkHandler.encodeClient(message));
+        player.connection.send(encodeClientbound(message));
     }
 
     @Override
     public void sendToPlayers(NetworkMessage<ClientNetworkContext> message, Collection<ServerPlayer> players) {
         if (players.isEmpty()) return;
-        var packet = NetworkHandler.encodeClient(message);
+        var packet = encodeClientbound(message);
         for (var player : players) player.connection.send(packet);
     }
 
     @Override
     public void sendToAllPlayers(NetworkMessage<ClientNetworkContext> message, MinecraftServer server) {
-        server.getPlayerList().broadcastAll(NetworkHandler.encodeClient(message));
+        server.getPlayerList().broadcastAll(encodeClientbound(message));
     }
 
     @Override
     public void sendToAllAround(NetworkMessage<ClientNetworkContext> message, ServerLevel level, Vec3 pos, float distance) {
-        level.getServer().getPlayerList().broadcast(null, pos.x, pos.y, pos.z, distance, level.dimension(), NetworkHandler.encodeClient(message));
+        level.getServer().getPlayerList().broadcast(null, pos.x, pos.y, pos.z, distance, level.dimension(), encodeClientbound(message));
     }
 
     @Override
     public void sendToAllTracking(NetworkMessage<ClientNetworkContext> message, LevelChunk chunk) {
-        var packet = NetworkHandler.encodeClient(message);
+        var packet = encodeClientbound(message);
         for (var player : ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false)) {
             player.connection.send(packet);
         }

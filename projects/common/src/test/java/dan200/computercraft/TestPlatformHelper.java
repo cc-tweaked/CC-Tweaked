@@ -13,6 +13,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.impl.AbstractComputerCraftAPI;
 import dan200.computercraft.impl.ComputerCraftAPIService;
 import dan200.computercraft.shared.config.ConfigFile;
+import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
@@ -166,6 +167,13 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     @Override
     public void openMenu(Player player, MenuProvider owner, ContainerData menu) {
         throw new UnsupportedOperationException("Cannot open menu inside tests");
+    }
+
+    @Override
+    public <T extends NetworkMessage<?>> MessageType<T> createMessageType(int id, ResourceLocation channel, Class<T> klass, FriendlyByteBuf.Reader<T> reader) {
+        record TypeImpl<T extends NetworkMessage<?>>(Function<FriendlyByteBuf, T> reader) implements MessageType<T> {
+        }
+        return new TypeImpl<>(reader);
     }
 
     @Override

@@ -7,6 +7,8 @@ package dan200.computercraft.shared.network.server;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.computer.menu.ServerInputHandler;
+import dan200.computercraft.shared.network.MessageType;
+import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -37,8 +39,8 @@ public class QueueEventServerMessage extends ComputerServerMessage {
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
-        super.toBytes(buf);
+    public void write(FriendlyByteBuf buf) {
+        super.write(buf);
         buf.writeUtf(event);
         buf.writeNbt(args == null ? null : NBTUtil.encodeObjects(args));
     }
@@ -46,5 +48,10 @@ public class QueueEventServerMessage extends ComputerServerMessage {
     @Override
     protected void handle(ServerNetworkContext context, ComputerMenu container) {
         container.getInput().queueEvent(event, args);
+    }
+
+    @Override
+    public MessageType<QueueEventServerMessage> type() {
+        return NetworkMessages.QUEUE_EVENT;
     }
 }

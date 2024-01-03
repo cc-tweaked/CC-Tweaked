@@ -29,7 +29,7 @@ class PlayRecordClientMessageTest {
     @Property
     public void testRoundTrip(@ForAll("message") PlayRecordClientMessage message) {
         var buffer = new FriendlyByteBuf(Unpooled.directBuffer());
-        message.toBytes(buffer);
+        message.write(buffer);
 
         var converted = new PlayRecordClientMessage(buffer);
         assertEquals(buffer.readableBytes(), 0, "Whole packet was read");

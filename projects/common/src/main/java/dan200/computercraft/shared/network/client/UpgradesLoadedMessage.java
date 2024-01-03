@@ -13,7 +13,9 @@ import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.impl.UpgradeManager;
+import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
+import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -27,7 +29,7 @@ import java.util.Objects;
 /**
  * Syncs turtle and pocket upgrades to the client.
  */
-public class UpgradesLoadedMessage implements NetworkMessage<ClientNetworkContext> {
+public final class UpgradesLoadedMessage implements NetworkMessage<ClientNetworkContext> {
     private final Map<String, UpgradeManager.UpgradeWrapper<TurtleUpgradeSerialiser<?>, ITurtleUpgrade>> turtleUpgrades;
     private final Map<String, UpgradeManager.UpgradeWrapper<PocketUpgradeSerialiser<?>, IPocketUpgrade>> pocketUpgrades;
 
@@ -65,7 +67,7 @@ public class UpgradesLoadedMessage implements NetworkMessage<ClientNetworkContex
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         toBytes(buf, TurtleUpgradeSerialiser.registryId(), turtleUpgrades);
         toBytes(buf, PocketUpgradeSerialiser.registryId(), pocketUpgrades);
     }
@@ -94,5 +96,10 @@ public class UpgradesLoadedMessage implements NetworkMessage<ClientNetworkContex
     public void handle(ClientNetworkContext context) {
         TurtleUpgrades.instance().loadFromNetwork(turtleUpgrades);
         PocketUpgrades.instance().loadFromNetwork(pocketUpgrades);
+    }
+
+    @Override
+    public MessageType<UpgradesLoadedMessage> type() {
+        return NetworkMessages.UPGRADES_LOADED;
     }
 }

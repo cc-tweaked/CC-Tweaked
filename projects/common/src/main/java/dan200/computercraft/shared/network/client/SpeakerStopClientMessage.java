@@ -4,7 +4,9 @@
 
 package dan200.computercraft.shared.network.client;
 
+import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
+import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerBlockEntity;
 import net.minecraft.network.FriendlyByteBuf;
 
@@ -29,12 +31,17 @@ public class SpeakerStopClientMessage implements NetworkMessage<ClientNetworkCon
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeUUID(source);
     }
 
     @Override
     public void handle(ClientNetworkContext context) {
         context.handleSpeakerStop(source);
+    }
+
+    @Override
+    public MessageType<SpeakerStopClientMessage> type() {
+        return NetworkMessages.SPEAKER_STOP;
     }
 }
