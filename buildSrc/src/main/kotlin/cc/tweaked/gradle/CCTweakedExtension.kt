@@ -255,7 +255,7 @@ abstract class CCTweakedExtension(
     }
 
     /**
-     * Exclude a dependency from being publisehd in Maven.
+     * Exclude a dependency from being published in Maven.
      */
     fun exclude(dep: Dependency) {
         excludedDeps.add(dep)

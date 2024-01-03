@@ -180,7 +180,6 @@ kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 externalMods-common = ["jei-api", "nightConfig-core", "nightConfig-toml"]
 externalMods-forge-compile = ["moreRed", "oculus", "jei-api"]
 externalMods-forge-runtime = ["jei-forge"]
-externalMods-fabric = ["nightConfig-core", "nightConfig-toml"]
 externalMods-fabric-compile = ["fabricPermissions", "iris", "jei-api", "rei-api", "rei-builtin"]
 externalMods-fabric-runtime = ["jei-fabric", "modmenu"]
 
