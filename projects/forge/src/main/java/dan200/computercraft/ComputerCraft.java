@@ -12,6 +12,7 @@ import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
+import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.details.FluidData;
@@ -23,6 +24,7 @@ import dan200.computercraft.shared.platform.ForgeConfigFile;
 import dan200.computercraft.shared.platform.NetworkHandler;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -99,5 +101,10 @@ public final class ComputerCraft {
         } else if (config.getType() == ModConfig.Type.CLIENT) {
             ConfigSpec.syncClient(path);
         }
+    }
+
+    @SubscribeEvent
+    public static void onCreativeTab(BuildCreativeModeTabContentsEvent event) {
+        CommonHooks.onBuildCreativeTab(event.getTabKey(), event.getParameters(), event);
     }
 }
