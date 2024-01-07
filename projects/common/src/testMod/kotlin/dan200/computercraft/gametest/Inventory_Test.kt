@@ -24,7 +24,7 @@ class Inventory_Test {
      *
      * @see <https://github.com/cc-tweaked/cc-restitched/issues/121>
      */
-    @GameTest(required = false)
+    @GameTest
     fun Checks_valid_item(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
             getApi<PeripheralAPI>().call(
