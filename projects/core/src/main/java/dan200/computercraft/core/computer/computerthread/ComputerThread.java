@@ -835,8 +835,8 @@ public final class ComputerThread implements ComputerScheduler {
                 var allocated = ThreadAllocations.getAllocatedBytes(current) - info.allocatedBytes();
                 if (allocated > 0) {
                     metrics.observe(Metrics.JAVA_ALLOCATION, allocated);
-                } else {
-                    LOG.warn("Allocated a negative number of bytes!");
+                } else if (allocated < 0) {
+                    LOG.warn("Allocated a negative number of bytes ({})!", allocated);
                 }
             }
 
