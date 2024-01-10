@@ -150,7 +150,7 @@ public final class NBTUtil {
             case Tag.TAG_LIST: {
                 var list = (ListTag) tag;
                 Map<Integer, Object> map = new HashMap<>(list.size());
-                for (var i = 0; i < list.size(); i++) map.put(i, toLua(list.get(i)));
+                for (var i = 0; i < list.size(); i++) map.put(i + 1, toLua(list.get(i)));
                 return map;
             }
             case Tag.TAG_BYTE_ARRAY: {
