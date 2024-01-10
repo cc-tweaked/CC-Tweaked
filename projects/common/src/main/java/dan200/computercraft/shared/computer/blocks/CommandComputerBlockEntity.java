@@ -20,28 +20,24 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CommandComputerBlockEntity extends ComputerBlockEntity {
     public class CommandReceiver implements CommandSource {
-        private final Map<Integer, String> output = new HashMap<>();
+        private final List<String> output = new ArrayList<>();
 
         public void clearOutput() {
             output.clear();
         }
 
-        public Map<Integer, String> getOutput() {
-            return output;
-        }
-
-        public Map<Integer, String> copyOutput() {
-            return new HashMap<>(output);
+        public List<String> copyOutput() {
+            return new ArrayList<>(output);
         }
 
         @Override
         public void sendSystemMessage(Component textComponent) {
-            output.put(output.size() + 1, textComponent.getString());
+            output.add(textComponent.getString());
         }
 
         @Override
