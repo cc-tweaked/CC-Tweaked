@@ -76,6 +76,6 @@ as documentation for breaking changes and "gotchas" one should look out for betw
  - Programs containing `/` are looked up in the current directory and are no longer looked up on the path. For instance,
    you can no longer type `turtle/excavate` to run `/rom/programs/turtle/excavate.lua`.
 
-[flattening]: https://minecraft.wiki.com/w/Java_Edition_1.13/Flattening
+[flattening]: https://minecraft.wiki/w/Java_Edition_1.13/Flattening
 [legal_data_pack]: https://minecraft.gamepedia.com/Tutorials/Creating_a_data_pack#Legal_characters
 [datapack-example]: https://github.com/cc-tweaked/datapack-example "An example datapack for CC: Tweaked"
