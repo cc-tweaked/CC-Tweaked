@@ -19,9 +19,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class NBTUtil {
     private static final Logger LOG = LoggerFactory.getLogger(NBTUtil.class);
@@ -149,20 +147,20 @@ public final class NBTUtil {
             }
             case Tag.TAG_LIST: {
                 var list = (ListTag) tag;
-                Map<Integer, Object> map = new HashMap<>(list.size());
-                for (var i = 0; i < list.size(); i++) map.put(i + 1, toLua(list.get(i)));
+                List<Object> map = new ArrayList<>(list.size());
+                for (var value : list) map.add(toLua(value));
                 return map;
             }
             case Tag.TAG_BYTE_ARRAY: {
                 var array = ((ByteArrayTag) tag).getAsByteArray();
-                Map<Integer, Byte> map = new HashMap<>(array.length);
-                for (var i = 0; i < array.length; i++) map.put(i + 1, array[i]);
+                List<Byte> map = new ArrayList<>(array.length);
+                for (var b : array) map.add(b);
                 return map;
             }
             case Tag.TAG_INT_ARRAY: {
                 var array = ((IntArrayTag) tag).getAsIntArray();
-                Map<Integer, Integer> map = new HashMap<>(array.length);
-                for (var i = 0; i < array.length; i++) map.put(i + 1, array[i]);
+                List<Integer> map = new ArrayList<>(array.length);
+                for (var j : array) map.add(j);
                 return map;
             }
 
