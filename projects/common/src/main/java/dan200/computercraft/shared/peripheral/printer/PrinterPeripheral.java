@@ -15,14 +15,44 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 
 /**
- * The printer peripheral allows pages and books to be printed.
+ * The printer peripheral allows printing text onto pages. These pages can then be crafted together into printed pages
+ * or books.
  * <p>
- * ## Recipe
+ * Printers require ink (one of the coloured dyes) and paper in order to function. Once loaded, a new page can be
+ * started with {@link #newPage()}. Then the printer can be used similarly to a normal terminal; {@linkplain
+ * #write(Coerced) text can be written}, and {@linkplain #setCursorPos(int, int) the cursor moved}. Once all text has
+ * been printed, {@link #endPage()} should be called to finally print the page.
+ * <p>
+ * ## Recipes
  * <div class="recipe-container">
  *     <mc-recipe recipe="computercraft:printer"></mc-recipe>
+ *     <mc-recipe recipe="computercraft:printed_pages"></mc-recipe>
+ *     <mc-recipe recipe="computercraft:printed_book"></mc-recipe>
  * </div>
  *
+ * @cc.usage Print a page titled "Hello" with a small message on it.
+ *
+ * <pre>{@code
+ * local printer = peripheral.find("printer")
+ *
+ * -- Start a new page, or print an error.
+ * if not printer.newPage() then
+ *   error("Cannot start a new page. Do you have ink and paper?")
+ * end
+ *
+ * -- Write to the page
+ * printer.setPageTitle("Hello")
+ * printer.write("This is my first page")
+ * printer.setCursorPos(1, 3)
+ * printer.write("This is two lines below.")
+ *
+ * -- And finally print the page!
+ * if not printer.endPage() then
+ *   error("Cannot end the page. Is there enough space?")
+ * end
+ * }</pre>
  * @cc.module printer
+ * @cc.see cc.strings.wrap To wrap text before printing it.
  */
 public class PrinterPeripheral implements IPeripheral {
     private final PrinterBlockEntity printer;

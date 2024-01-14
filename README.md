@@ -75,8 +75,8 @@ minecraft {
 ```
 
 You should also be careful to only use classes within the `dan200.computercraft.api` package. Non-API classes are
-subject to change at any point. If you depend on functionality outside the API, file an issue, and we can look into
-exposing more features.
+subject to change at any point. If you depend on functionality outside the API (or need to mixin to CC:T), please file
+an issue to let me know!
 
 We bundle the API sources with the jar, so documentation should be easily viewable within your editor. Alternatively,
 the generated documentation [can be browsed online](https://tweaked.cc/javadoc/).
