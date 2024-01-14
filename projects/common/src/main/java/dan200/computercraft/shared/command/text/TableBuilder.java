@@ -7,7 +7,7 @@ package dan200.computercraft.shared.command.text;
 import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.command.CommandUtils;
 import dan200.computercraft.shared.network.client.ChatTableClientMessage;
-import dan200.computercraft.shared.platform.PlatformHelper;
+import dan200.computercraft.shared.network.server.ServerNetworking;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -105,7 +105,7 @@ public class TableBuilder {
         if (CommandUtils.isPlayer(source)) {
             trim(18);
             var player = (ServerPlayer) Nullability.assertNonNull(source.getEntity());
-            PlatformHelper.get().sendToPlayer(new ChatTableClientMessage(this), player);
+            ServerNetworking.sendToPlayer(new ChatTableClientMessage(this), player);
         } else {
             trim(100);
             new ServerTableFormatter(source).display(this);

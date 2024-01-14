@@ -20,9 +20,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
@@ -44,12 +45,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -178,46 +177,12 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     <T extends NetworkMessage<?>> MessageType<T> createMessageType(int id, ResourceLocation channel, Class<T> klass, FriendlyByteBuf.Reader<T> reader);
 
     /**
-     * Send a message to a specific player.
+     * Convert a clientbound {@link NetworkMessage} to a Minecraft {@link Packet}.
      *
-     * @param message The message to send.
-     * @param player  The player to send it to.
+     * @param message The messsge to convert.
+     * @return The converted message.
      */
-    void sendToPlayer(NetworkMessage<ClientNetworkContext> message, ServerPlayer player);
-
-    /**
-     * Send a message to a set of players.
-     *
-     * @param message The message to send.
-     * @param players The players to send it to.
-     */
-    void sendToPlayers(NetworkMessage<ClientNetworkContext> message, Collection<ServerPlayer> players);
-
-    /**
-     * Send a message to all players.
-     *
-     * @param message The message to send.
-     * @param server  The current server.
-     */
-    void sendToAllPlayers(NetworkMessage<ClientNetworkContext> message, MinecraftServer server);
-
-    /**
-     * Send a message to all players around a point.
-     *
-     * @param message  The message to send.
-     * @param level    The level the point is in.
-     * @param pos      The centre position.
-     * @param distance The distance to the centre players must be within.
-     */
-    void sendToAllAround(NetworkMessage<ClientNetworkContext> message, ServerLevel level, Vec3 pos, float distance);
-
-    /**
-     * Send a message to all players tracking a chunk.
-     *
-     * @param message The message to send.
-     * @param chunk   The chunk players must be tracking.
-     */
-    void sendToAllTracking(NetworkMessage<ClientNetworkContext> message, LevelChunk chunk);
+    Packet<ClientGamePacketListener> createPacket(NetworkMessage<ClientNetworkContext> message);
 
     /**
      * Create a {@link ComponentAccess} for surrounding peripherals.

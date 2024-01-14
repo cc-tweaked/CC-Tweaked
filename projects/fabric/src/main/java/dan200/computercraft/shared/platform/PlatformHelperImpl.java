@@ -51,8 +51,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
@@ -77,13 +75,15 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.*;
 
 @AutoService(dan200.computercraft.impl.PlatformHelper.class)
@@ -177,40 +177,11 @@ public class PlatformHelperImpl implements PlatformHelper {
         return new FabricMessageType<>(channel, reader);
     }
 
-    private Packet<ClientGamePacketListener> encodeClientbound(NetworkMessage<ClientNetworkContext> message) {
+    @Override
+    public Packet<ClientGamePacketListener> createPacket(NetworkMessage<ClientNetworkContext> message) {
         var buf = PacketByteBufs.create();
         message.write(buf);
         return ServerPlayNetworking.createS2CPacket(FabricMessageType.toFabricType(message.type()).getId(), buf);
-    }
-
-    @Override
-    public void sendToPlayer(NetworkMessage<ClientNetworkContext> message, ServerPlayer player) {
-        player.connection.send(encodeClientbound(message));
-    }
-
-    @Override
-    public void sendToPlayers(NetworkMessage<ClientNetworkContext> message, Collection<ServerPlayer> players) {
-        if (players.isEmpty()) return;
-        var packet = encodeClientbound(message);
-        for (var player : players) player.connection.send(packet);
-    }
-
-    @Override
-    public void sendToAllPlayers(NetworkMessage<ClientNetworkContext> message, MinecraftServer server) {
-        server.getPlayerList().broadcastAll(encodeClientbound(message));
-    }
-
-    @Override
-    public void sendToAllAround(NetworkMessage<ClientNetworkContext> message, ServerLevel level, Vec3 pos, float distance) {
-        level.getServer().getPlayerList().broadcast(null, pos.x, pos.y, pos.z, distance, level.dimension(), encodeClientbound(message));
-    }
-
-    @Override
-    public void sendToAllTracking(NetworkMessage<ClientNetworkContext> message, LevelChunk chunk) {
-        var packet = encodeClientbound(message);
-        for (var player : ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false)) {
-            player.connection.send(packet);
-        }
     }
 
     @Override

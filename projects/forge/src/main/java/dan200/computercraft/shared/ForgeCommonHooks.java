@@ -9,6 +9,7 @@ import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.computer.blocks.ComputerBlockEntity;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
+import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveBlockEntity;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlockEntity;
@@ -17,7 +18,6 @@ import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemBlockE
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import dan200.computercraft.shared.peripheral.printer.PrinterBlockEntity;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerBlockEntity;
-import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.CapabilityProvider;
 import dan200.computercraft.shared.util.SidedCapabilityProvider;
@@ -81,9 +81,9 @@ public class ForgeCommonHooks {
     public static void onDatapackSync(OnDatapackSyncEvent event) {
         var packet = new UpgradesLoadedMessage();
         if (event.getPlayer() == null) {
-            PlatformHelper.get().sendToAllPlayers(packet, event.getPlayerList().getServer());
+            ServerNetworking.sendToAllPlayers(packet, event.getPlayerList().getServer());
         } else {
-            PlatformHelper.get().sendToPlayer(packet, event.getPlayer());
+            ServerNetworking.sendToPlayer(packet, event.getPlayer());
         }
     }
 

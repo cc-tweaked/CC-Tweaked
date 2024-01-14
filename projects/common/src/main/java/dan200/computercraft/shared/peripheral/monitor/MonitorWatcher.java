@@ -7,7 +7,7 @@ package dan200.computercraft.shared.peripheral.monitor;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.client.MonitorClientMessage;
-import dan200.computercraft.shared.platform.PlatformHelper;
+import dan200.computercraft.shared.network.server.ServerNetworking;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -40,7 +40,7 @@ public final class MonitorWatcher {
             if (serverMonitor == null || monitor.enqueued) continue;
 
             var state = getState(monitor, serverMonitor);
-            PlatformHelper.get().sendToPlayer(new MonitorClientMessage(monitor.getBlockPos(), state), player);
+            ServerNetworking.sendToPlayer(new MonitorClientMessage(monitor.getBlockPos(), state), player);
         }
     }
 
@@ -66,7 +66,7 @@ public final class MonitorWatcher {
             }
 
             var state = getState(tile, monitor);
-            PlatformHelper.get().sendToAllTracking(new MonitorClientMessage(pos, state), chunk);
+            ServerNetworking.sendToAllTracking(new MonitorClientMessage(pos, state), chunk);
 
             limit -= state.size();
         }

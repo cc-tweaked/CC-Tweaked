@@ -7,7 +7,7 @@ package dan200.computercraft.shared.peripheral.speaker;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
-import dan200.computercraft.shared.platform.PlatformHelper;
+import dan200.computercraft.shared.network.server.ServerNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -32,7 +32,7 @@ public class SpeakerBlockEntity extends BlockEntity {
     public void setRemoved() {
         super.setRemoved();
         if (level != null && !level.isClientSide) {
-            PlatformHelper.get().sendToAllPlayers(new SpeakerStopClientMessage(peripheral.getSource()), Nullability.assertNonNull(getLevel().getServer()));
+            ServerNetworking.sendToAllPlayers(new SpeakerStopClientMessage(peripheral.getSource()), Nullability.assertNonNull(getLevel().getServer()));
         }
     }
 

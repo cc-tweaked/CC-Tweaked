@@ -11,7 +11,7 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.AbstractContainerBlockEntity;
 import dan200.computercraft.shared.network.client.PlayRecordClientMessage;
-import dan200.computercraft.shared.platform.PlatformHelper;
+import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -315,7 +315,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
     }
 
     private void sendMessage(PlayRecordClientMessage message) {
-        PlatformHelper.get().sendToAllAround(message, (ServerLevel) getLevel(), Vec3.atCenterOf(getBlockPos()), 64);
+        ServerNetworking.sendToAllAround(message, (ServerLevel) getLevel(), Vec3.atCenterOf(getBlockPos()), 64);
     }
 
     @Override

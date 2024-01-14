@@ -5,26 +5,25 @@
 package dan200.computercraft.shared.platform;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.impl.Services;
 import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.server.ServerNetworkContext;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
+import javax.annotation.Nullable;
 import java.util.function.Function;
 
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
@@ -53,36 +52,18 @@ public final class NetworkHandler {
 
         for (var type : NetworkMessages.getClientbound()) {
             var forgeType = (MessageTypeImpl<? extends NetworkMessage<ClientNetworkContext>>) type;
-            registerMainThread(forgeType, NetworkDirection.PLAY_TO_CLIENT, x -> ClientNetworkContext.get());
+            registerMainThread(forgeType, NetworkDirection.PLAY_TO_CLIENT, x -> ClientHolder.get());
         }
     }
 
-    static void sendToPlayer(NetworkMessage<ClientNetworkContext> packet, ServerPlayer player) {
-        network.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+    @SuppressWarnings("unchecked")
+    public static Packet<ClientGamePacketListener> createClientboundPacket(NetworkMessage<ClientNetworkContext> packet) {
+        return (Packet<ClientGamePacketListener>) network.toVanillaPacket(packet, NetworkDirection.PLAY_TO_CLIENT);
     }
 
-    static void sendToPlayers(NetworkMessage<ClientNetworkContext> packet, Collection<ServerPlayer> players) {
-        if (players.isEmpty()) return;
-
-        var vanillaPacket = network.toVanillaPacket(packet, NetworkDirection.PLAY_TO_CLIENT);
-        for (var player : players) player.connection.send(vanillaPacket);
-    }
-
-    static void sendToAllPlayers(NetworkMessage<ClientNetworkContext> packet) {
-        network.send(PacketDistributor.ALL.noArg(), packet);
-    }
-
-    static void sendToAllAround(NetworkMessage<ClientNetworkContext> packet, Level world, Vec3 pos, double range) {
-        var target = new PacketDistributor.TargetPoint(pos.x, pos.y, pos.z, range, world.dimension());
-        network.send(PacketDistributor.NEAR.with(() -> target), packet);
-    }
-
-    static void sendToAllTracking(NetworkMessage<ClientNetworkContext> packet, LevelChunk chunk) {
-        network.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), packet);
-    }
-
-    public static void sendToServer(NetworkMessage<ServerNetworkContext> packet) {
-        network.sendToServer(packet);
+    @SuppressWarnings("unchecked")
+    public static Packet<ServerGamePacketListener> createServerboundPacket(NetworkMessage<ServerNetworkContext> packet) {
+        return (Packet<ServerGamePacketListener>) network.toVanillaPacket(packet, NetworkDirection.PLAY_TO_SERVER);
     }
 
     /**
@@ -114,5 +95,25 @@ public final class NetworkHandler {
     public record MessageTypeImpl<T extends NetworkMessage<?>>(
         int id, Class<T> klass, Function<FriendlyByteBuf, T> reader
     ) implements MessageType<T> {
+    }
+
+    /**
+     * This holds an instance of {@link ClientNetworkContext}. This is a separate class to ensure that the instance is
+     * lazily created when needed on the client.
+     */
+    private static final class ClientHolder {
+        private static final @Nullable ClientNetworkContext INSTANCE;
+        private static final @Nullable Throwable ERROR;
+
+        static {
+            var helper = Services.tryLoad(ClientNetworkContext.class);
+            INSTANCE = helper.instance();
+            ERROR = helper.error();
+        }
+
+        static ClientNetworkContext get() {
+            var instance = INSTANCE;
+            return instance == null ? Services.raise(ClientNetworkContext.class, ERROR) : instance;
+        }
     }
 }

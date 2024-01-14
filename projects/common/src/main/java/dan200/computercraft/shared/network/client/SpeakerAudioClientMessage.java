@@ -11,11 +11,8 @@ import dan200.computercraft.shared.peripheral.speaker.SpeakerBlockEntity;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.network.FriendlyByteBuf;
 
-import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.UUID;
-
-import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 /**
  * Starts a sound on the client.
@@ -27,7 +24,7 @@ import static dan200.computercraft.core.util.Nullability.assertNonNull;
 public class SpeakerAudioClientMessage implements NetworkMessage<ClientNetworkContext> {
     private final UUID source;
     private final SpeakerPosition.Message pos;
-    private final @Nullable ByteBuffer content;
+    private final ByteBuffer content;
     private final float volume;
 
     public SpeakerAudioClientMessage(UUID source, SpeakerPosition pos, float volume, ByteBuffer content) {
@@ -42,10 +39,9 @@ public class SpeakerAudioClientMessage implements NetworkMessage<ClientNetworkCo
         pos = SpeakerPosition.Message.read(buf);
         volume = buf.readFloat();
 
-        // TODO: Remove this, so we no longer need a getter for ClientNetworkContext. However, doing so without
-        //  leaking or redundantly copying the buffer is hard.
-        ClientNetworkContext.get().handleSpeakerAudioPush(source, buf);
-        content = null;
+        var bytes = new byte[buf.readableBytes()];
+        buf.readBytes(bytes);
+        content = ByteBuffer.wrap(bytes);
     }
 
     @Override
@@ -53,12 +49,12 @@ public class SpeakerAudioClientMessage implements NetworkMessage<ClientNetworkCo
         buf.writeUUID(source);
         pos.write(buf);
         buf.writeFloat(volume);
-        buf.writeBytes(assertNonNull(content).duplicate());
+        buf.writeBytes(content.duplicate());
     }
 
     @Override
     public void handle(ClientNetworkContext context) {
-        context.handleSpeakerAudio(source, pos, volume);
+        context.handleSpeakerAudio(source, pos, volume, content);
     }
 
     @Override

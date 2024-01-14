@@ -4,6 +4,7 @@
 
 package dan200.computercraft.client.platform;
 
+import com.google.auto.service.AutoService;
 import dan200.computercraft.client.ClientTableFormatter;
 import dan200.computercraft.client.gui.AbstractComputerScreen;
 import dan200.computercraft.client.gui.OptionScreen;
@@ -17,30 +18,30 @@ import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
+import java.nio.ByteBuffer;
 import java.util.UUID;
 
 /**
- * The base implementation of {@link ClientNetworkContext}.
- * <p>
- * This should be extended by mod loader specific modules with the remaining abstract methods.
+ * The client-side implementation of {@link ClientNetworkContext}.
  */
-public abstract class AbstractClientNetworkContext implements ClientNetworkContext {
+@AutoService(ClientNetworkContext.class)
+public final class ClientNetworkContextImpl implements ClientNetworkContext {
     @Override
-    public final void handleChatTable(TableBuilder table) {
+    public void handleChatTable(TableBuilder table) {
         ClientTableFormatter.INSTANCE.display(table);
     }
 
     @Override
-    public final void handleComputerTerminal(int containerId, TerminalState terminal) {
+    public void handleComputerTerminal(int containerId, TerminalState terminal) {
         Player player = Minecraft.getInstance().player;
         if (player != null && player.containerMenu.containerId == containerId && player.containerMenu instanceof ComputerMenu menu) {
             menu.updateTerminal(terminal);
@@ -48,7 +49,7 @@ public abstract class AbstractClientNetworkContext implements ClientNetworkConte
     }
 
     @Override
-    public final void handleMonitorData(BlockPos pos, TerminalState terminal) {
+    public void handleMonitorData(BlockPos pos, TerminalState terminal) {
         var player = Minecraft.getInstance().player;
         if (player == null) return;
 
@@ -59,44 +60,46 @@ public abstract class AbstractClientNetworkContext implements ClientNetworkConte
     }
 
     @Override
-    public final void handlePocketComputerData(int instanceId, ComputerState state, int lightState, TerminalState terminal) {
+    public void handlePlayRecord(BlockPos pos, @Nullable SoundEvent sound, @Nullable String name) {
+        var mc = Minecraft.getInstance();
+        ClientPlatformHelper.get().playStreamingMusic(pos, sound);
+        if (name != null) mc.gui.setNowPlaying(Component.literal(name));
+    }
+
+    @Override
+    public void handlePocketComputerData(int instanceId, ComputerState state, int lightState, TerminalState terminal) {
         var computer = ClientPocketComputers.get(instanceId, terminal.colour);
         computer.setState(state, lightState);
         if (terminal.hasTerminal()) computer.setTerminal(terminal);
     }
 
     @Override
-    public final void handlePocketComputerDeleted(int instanceId) {
+    public void handlePocketComputerDeleted(int instanceId) {
         ClientPocketComputers.remove(instanceId);
     }
 
     @Override
-    public final void handleSpeakerAudio(UUID source, SpeakerPosition.Message position, float volume) {
-        SpeakerManager.getSound(source).playAudio(reifyPosition(position), volume);
+    public void handleSpeakerAudio(UUID source, SpeakerPosition.Message position, float volume, ByteBuffer buffer) {
+        SpeakerManager.getSound(source).playAudio(reifyPosition(position), volume, buffer);
     }
 
     @Override
-    public final void handleSpeakerAudioPush(UUID source, ByteBuf buffer) {
-        SpeakerManager.getSound(source).pushAudio(buffer);
-    }
-
-    @Override
-    public final void handleSpeakerMove(UUID source, SpeakerPosition.Message position) {
+    public void handleSpeakerMove(UUID source, SpeakerPosition.Message position) {
         SpeakerManager.moveSound(source, reifyPosition(position));
     }
 
     @Override
-    public final void handleSpeakerPlay(UUID source, SpeakerPosition.Message position, ResourceLocation sound, float volume, float pitch) {
+    public void handleSpeakerPlay(UUID source, SpeakerPosition.Message position, ResourceLocation sound, float volume, float pitch) {
         SpeakerManager.getSound(source).playSound(reifyPosition(position), sound, volume, pitch);
     }
 
     @Override
-    public final void handleSpeakerStop(UUID source) {
+    public void handleSpeakerStop(UUID source) {
         SpeakerManager.stopSound(source);
     }
 
     @Override
-    public final void handleUploadResult(int containerId, UploadResult result, @Nullable Component errorMessage) {
+    public void handleUploadResult(int containerId, UploadResult result, @Nullable Component errorMessage) {
         var minecraft = Minecraft.getInstance();
 
         var screen = OptionScreen.unwrap(minecraft.screen);

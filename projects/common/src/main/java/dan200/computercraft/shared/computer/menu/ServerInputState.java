@@ -11,7 +11,7 @@ import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.client.UploadResultMessage;
-import dan200.computercraft.shared.platform.PlatformHelper;
+import dan200.computercraft.shared.network.server.ServerNetworking;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.network.chat.Component;
@@ -138,7 +138,7 @@ public class ServerInputState<T extends AbstractContainerMenu & ComputerMenu> im
             return;
         }
 
-        PlatformHelper.get().sendToPlayer(finishUpload(uploader), uploader);
+        ServerNetworking.sendToPlayer(finishUpload(uploader), uploader);
     }
 
     private UploadResultMessage finishUpload(ServerPlayer player) {
@@ -159,7 +159,7 @@ public class ServerInputState<T extends AbstractContainerMenu & ComputerMenu> im
                 toUpload.stream().map(x -> new TransferredFile(x.getName(), new ByteBufferChannel(x.getBytes()))).toList(),
                 () -> {
                     if (player.isAlive() && player.containerMenu == owner) {
-                        PlatformHelper.get().sendToPlayer(UploadResultMessage.consumed(owner), player);
+                        ServerNetworking.sendToPlayer(UploadResultMessage.consumed(owner), player);
                     }
                 }),
         });

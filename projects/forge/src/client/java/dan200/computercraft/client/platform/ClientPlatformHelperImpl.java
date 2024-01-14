@@ -11,11 +11,16 @@ import dan200.computercraft.client.render.ModelRenderer;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.server.ServerNetworkContext;
 import dan200.computercraft.shared.platform.NetworkHandler;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.model.data.ModelData;
@@ -39,8 +44,8 @@ public class ClientPlatformHelperImpl implements ClientPlatformHelper {
     }
 
     @Override
-    public void sendToServer(NetworkMessage<ServerNetworkContext> message) {
-        NetworkHandler.sendToServer(message);
+    public Packet<ServerGamePacketListener> createPacket(NetworkMessage<ServerNetworkContext> message) {
+        return NetworkHandler.createServerboundPacket(message);
     }
 
     @Override
@@ -53,5 +58,10 @@ public class ClientPlatformHelperImpl implements ClientPlatformHelper {
                 ModelRenderer.renderQuads(transform, buffer, quads, lightmapCoord, overlayLight, tints);
             }
         }
+    }
+
+    @Override
+    public void playStreamingMusic(BlockPos pos, @Nullable SoundEvent sound) {
+        Minecraft.getInstance().levelRenderer.playStreamingMusic(sound, pos, null);
     }
 }

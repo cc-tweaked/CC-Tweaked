@@ -20,7 +20,7 @@ import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
-import dan200.computercraft.shared.platform.PlatformHelper;
+import dan200.computercraft.shared.network.server.ServerNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -142,7 +142,7 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
 
         for (var player : server.getPlayerList().getPlayers()) {
             if (player.containerMenu instanceof ComputerMenu && ((ComputerMenu) player.containerMenu).getComputer() == this) {
-                PlatformHelper.get().sendToPlayer(createPacket.apply(player.containerMenu), player);
+                ServerNetworking.sendToPlayer(createPacket.apply(player.containerMenu), player);
             }
         }
     }

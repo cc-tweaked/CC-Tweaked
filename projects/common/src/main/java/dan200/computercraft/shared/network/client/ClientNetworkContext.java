@@ -4,30 +4,24 @@
 
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.impl.Services;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 
 import javax.annotation.Nullable;
+import java.nio.ByteBuffer;
 import java.util.UUID;
 
 /**
  * The context under which clientbound packets are evaluated.
  */
 public interface ClientNetworkContext {
-    static ClientNetworkContext get() {
-        var instance = Instance.INSTANCE;
-        return instance == null ? Services.raise(ClientNetworkContext.class, Instance.ERROR) : instance;
-    }
-
     void handleChatTable(TableBuilder table);
 
     void handleComputerTerminal(int containerId, TerminalState terminal);
@@ -40,9 +34,7 @@ public interface ClientNetworkContext {
 
     void handlePocketComputerDeleted(int instanceId);
 
-    void handleSpeakerAudio(UUID source, SpeakerPosition.Message position, float volume);
-
-    void handleSpeakerAudioPush(UUID source, ByteBuf buffer);
+    void handleSpeakerAudio(UUID source, SpeakerPosition.Message position, float volume, ByteBuffer audio);
 
     void handleSpeakerMove(UUID source, SpeakerPosition.Message position);
 
@@ -51,18 +43,4 @@ public interface ClientNetworkContext {
     void handleSpeakerStop(UUID source);
 
     void handleUploadResult(int containerId, UploadResult result, @Nullable Component errorMessage);
-
-    final class Instance {
-        static final @Nullable ClientNetworkContext INSTANCE;
-        static final @Nullable Throwable ERROR;
-
-        static {
-            var helper = Services.tryLoad(ClientNetworkContext.class);
-            INSTANCE = helper.instance();
-            ERROR = helper.error();
-        }
-
-        private Instance() {
-        }
-    }
 }

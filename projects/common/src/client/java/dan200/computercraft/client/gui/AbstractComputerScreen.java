@@ -7,7 +7,7 @@ package dan200.computercraft.client.gui;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.DynamicImageButton;
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
-import dan200.computercraft.client.platform.ClientPlatformHelper;
+import dan200.computercraft.client.network.ClientNetworking;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.InputHandler;
@@ -207,7 +207,7 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
             return;
         }
 
-        if (toUpload.size() > 0) UploadFileMessage.send(menu, toUpload, ClientPlatformHelper.get()::sendToServer);
+        if (toUpload.size() > 0) UploadFileMessage.send(menu, toUpload, ClientNetworking::sendToServer);
     }
 
     public void uploadResult(UploadResult result, @Nullable Component message) {

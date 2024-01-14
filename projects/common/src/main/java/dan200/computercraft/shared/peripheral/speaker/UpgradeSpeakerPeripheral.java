@@ -6,7 +6,7 @@ package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
-import dan200.computercraft.shared.platform.PlatformHelper;
+import dan200.computercraft.shared.network.server.ServerNetworking;
 
 
 /**
@@ -25,6 +25,6 @@ public abstract class UpgradeSpeakerPeripheral extends SpeakerPeripheral {
         var server = level.getServer();
         if (server == null || server.isStopped()) return;
 
-        PlatformHelper.get().sendToAllPlayers(new SpeakerStopClientMessage(getSource()), server);
+        ServerNetworking.sendToAllPlayers(new SpeakerStopClientMessage(getSource()), server);
     }
 }

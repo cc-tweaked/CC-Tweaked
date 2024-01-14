@@ -6,6 +6,7 @@ package dan200.computercraft.client;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.model.CustomModelLoader;
+import dan200.computercraft.impl.Services;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.network.NetworkMessages;
@@ -31,9 +32,10 @@ import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public class ComputerCraftClient {
     public static void init() {
+        var clientNetwork = Services.load(ClientNetworkContext.class);
         for (var type : NetworkMessages.getClientbound()) {
             ClientPlayNetworking.registerGlobalReceiver(
-                FabricMessageType.toFabricType(type), (packet, player, responseSender) -> packet.payload().handle(ClientNetworkContext.get())
+                FabricMessageType.toFabricType(type), (packet, player, responseSender) -> packet.payload().handle(clientNetwork)
             );
         }
 
