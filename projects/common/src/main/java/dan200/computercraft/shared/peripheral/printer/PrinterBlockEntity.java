@@ -225,7 +225,9 @@ public final class PrinterBlockEntity extends AbstractContainerBlockEntity imple
         var stack = PrintoutItem.createSingleFromTitleAndText(pageTitle, lines, colours);
         for (var slot : BOTTOM_SLOTS) {
             if (inventory.get(slot).isEmpty()) {
-                setItem(slot, stack);
+                inventory.set(slot, stack);
+                updateBlockState();
+                setChanged();
                 printing = false;
                 return true;
             }
