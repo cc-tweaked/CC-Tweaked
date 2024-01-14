@@ -177,12 +177,12 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     }
 
     @Override
-    public ComponentAccess<IPeripheral> createPeripheralAccess(Consumer<Direction> invalidate) {
+    public ComponentAccess<IPeripheral> createPeripheralAccess(BlockEntity owner, Consumer<Direction> invalidate) {
         throw new UnsupportedOperationException("Cannot interact with the world inside tests");
     }
 
     @Override
-    public ComponentAccess<WiredElement> createWiredElementAccess(Consumer<Direction> invalidate) {
+    public ComponentAccess<WiredElement> createWiredElementAccess(BlockEntity owner, Consumer<Direction> invalidate) {
         throw new UnsupportedOperationException("Cannot interact with the world inside tests");
     }
 

@@ -18,7 +18,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -60,7 +59,7 @@ public class CableBlockEntity extends BlockEntity {
 
     private boolean invalidPeripheral;
     private boolean peripheralAccessAllowed;
-    private final WiredModemLocalPeripheral peripheral = new WiredModemLocalPeripheral(this::queueRefreshPeripheral);
+    private final WiredModemLocalPeripheral peripheral = new WiredModemLocalPeripheral(PlatformHelper.get().createPeripheralAccess(this, x -> queueRefreshPeripheral()));
     private @Nullable Runnable modemChanged;
 
     private boolean connectionsFormed = false;
@@ -88,7 +87,7 @@ public class CableBlockEntity extends BlockEntity {
         }
     };
 
-    private final ComponentAccess<WiredElement> connectedElements = PlatformHelper.get().createWiredElementAccess(x -> connectionsChanged());
+    private final ComponentAccess<WiredElement> connectedElements = PlatformHelper.get().createWiredElementAccess(this, x -> connectionsChanged());
 
     public CableBlockEntity(BlockEntityType<? extends CableBlockEntity> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -249,7 +248,7 @@ public class CableBlockEntity extends BlockEntity {
             var offset = current.relative(facing);
             if (!world.isLoaded(offset)) continue;
 
-            var element = connectedElements.get((ServerLevel) world, current, facing);
+            var element = connectedElements.get(facing);
             if (element == null) continue;
 
             var node = element.getNode();

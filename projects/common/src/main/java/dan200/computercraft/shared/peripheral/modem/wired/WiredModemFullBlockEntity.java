@@ -17,7 +17,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -81,15 +80,15 @@ public class WiredModemFullBlockEntity extends BlockEntity {
     private final WiredModemElement element = new FullElement(this);
     private final WiredNode node = element.getNode();
 
-    private final ComponentAccess<WiredElement> connectedElements = PlatformHelper.get().createWiredElementAccess(x -> connectionsChanged());
+    private final ComponentAccess<WiredElement> connectedElements = PlatformHelper.get().createWiredElementAccess(this, x -> connectionsChanged());
 
     private int invalidSides = 0;
 
     public WiredModemFullBlockEntity(BlockEntityType<WiredModemFullBlockEntity> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+        var peripheralAccess = PlatformHelper.get().createPeripheralAccess(this, this::queueRefreshPeripheral);
         for (var i = 0; i < peripherals.length; i++) {
-            var facing = Direction.from3DDataValue(i);
-            peripherals[i] = new WiredModemLocalPeripheral(() -> queueRefreshPeripheral(facing));
+            peripherals[i] = new WiredModemLocalPeripheral(peripheralAccess);
         }
     }
 
@@ -216,7 +215,7 @@ public class WiredModemFullBlockEntity extends BlockEntity {
             var offset = current.relative(facing);
             if (!world.isLoaded(offset)) continue;
 
-            var element = connectedElements.get((ServerLevel) getLevel(), getBlockPos(), facing);
+            var element = connectedElements.get(facing);
             if (element == null) continue;
 
             node.connectTo(element.getNode());

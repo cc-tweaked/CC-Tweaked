@@ -83,10 +83,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.function.*;
 
 @AutoService(dan200.computercraft.impl.PlatformHelper.class)
@@ -217,13 +214,13 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public ComponentAccess<IPeripheral> createPeripheralAccess(Consumer<Direction> invalidate) {
-        return new PeripheralAccessImpl(invalidate);
+    public ComponentAccess<IPeripheral> createPeripheralAccess(BlockEntity owner, Consumer<Direction> invalidate) {
+        return new PeripheralAccessImpl(owner, invalidate);
     }
 
     @Override
-    public ComponentAccess<WiredElement> createWiredElementAccess(Consumer<Direction> invalidate) {
-        return new ComponentAccessImpl<>(WiredElementLookup.get());
+    public ComponentAccess<WiredElement> createWiredElementAccess(BlockEntity owner, Consumer<Direction> invalidate) {
+        return new ComponentAccessImpl<>(owner, WiredElementLookup.get());
     }
 
     @Override
@@ -464,50 +461,49 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     private static class ComponentAccessImpl<T> implements ComponentAccess<T> {
+        private final BlockEntity owner;
         private final BlockApiLookup<T, Direction> lookup;
         @SuppressWarnings({ "unchecked", "rawtypes" })
         final BlockApiCache<T, Direction>[] caches = new BlockApiCache[6];
-        private @Nullable Level level;
-        private @Nullable BlockPos pos;
 
-        private ComponentAccessImpl(BlockApiLookup<T, Direction> lookup) {
+        private ComponentAccessImpl(BlockEntity owner, BlockApiLookup<T, Direction> lookup) {
+            this.owner = owner;
             this.lookup = lookup;
         }
 
         @Nullable
         @Override
-        public T get(ServerLevel level, BlockPos pos, Direction direction) {
-            if (this.level != null && this.level != level) throw new IllegalStateException("Level has changed");
-            if (this.pos != null && this.pos != pos) throw new IllegalStateException("Position has changed");
-
-            this.level = level;
-            this.pos = pos;
+        public T get(Direction direction) {
             var cache = caches[direction.ordinal()];
             if (cache == null) {
-                cache = caches[direction.ordinal()] = BlockApiCache.create(lookup, level, pos.relative(direction));
+                cache = caches[direction.ordinal()] = BlockApiCache.create(lookup, getLevel(), owner.getBlockPos().relative(direction));
             }
 
             return cache.find(direction.getOpposite());
+        }
+
+        private ServerLevel getLevel() {
+            return Objects.requireNonNull((ServerLevel) owner.getLevel(), "Block entity is not in a level");
         }
     }
 
     private static final class PeripheralAccessImpl extends ComponentAccessImpl<IPeripheral> {
         private final Runnable[] invalidators = new Runnable[6];
 
-        private PeripheralAccessImpl(Consumer<Direction> invalidate) {
-            super(PeripheralLookup.get());
+        private PeripheralAccessImpl(BlockEntity owner, Consumer<Direction> invalidate) {
+            super(owner, PeripheralLookup.get());
             for (var dir : Direction.values()) invalidators[dir.ordinal()] = () -> invalidate.accept(dir);
         }
 
         @Nullable
         @Override
-        public IPeripheral get(ServerLevel level, BlockPos pos, Direction direction) {
-            var result = super.get(level, pos, direction);
+        public IPeripheral get(Direction direction) {
+            var result = super.get(direction);
             if (result != null) return result;
 
             var cache = caches[direction.ordinal()];
             var invalidate = invalidators[direction.ordinal()];
-            return Peripherals.getGenericPeripheral(level, cache.getPos(), direction.getOpposite(), cache.getBlockEntity(), invalidate);
+            return Peripherals.getGenericPeripheral(cache.getWorld(), cache.getPos(), direction.getOpposite(), cache.getBlockEntity(), invalidate);
         }
     }
 }

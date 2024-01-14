@@ -25,7 +25,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -51,7 +50,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     private boolean fresh = false;
 
     private int invalidSides = 0;
-    private final ComponentAccess<IPeripheral> peripherals = PlatformHelper.get().createPeripheralAccess(d -> invalidSides |= 1 << d.ordinal());
+    private final ComponentAccess<IPeripheral> peripherals = PlatformHelper.get().createPeripheralAccess(this, d -> invalidSides |= 1 << d.ordinal());
 
     private LockCode lockCode = LockCode.NO_LOCK;
 
@@ -218,7 +217,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         var localDir = remapToLocalSide(dir);
         if (isPeripheralBlockedOnSide(localDir)) return;
 
-        var peripheral = peripherals.get((ServerLevel) getLevel(), getBlockPos(), dir);
+        var peripheral = peripherals.get(dir);
         computer.setPeripheral(localDir, peripheral);
     }
 

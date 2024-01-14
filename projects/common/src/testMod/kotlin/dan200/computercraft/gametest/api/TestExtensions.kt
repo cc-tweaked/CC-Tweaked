@@ -4,6 +4,7 @@
 
 package dan200.computercraft.gametest.api
 
+import dan200.computercraft.api.peripheral.IPeripheral
 import dan200.computercraft.gametest.core.ManagedComputers
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.mixin.gametest.GameTestInfoAccessor
@@ -21,6 +22,8 @@ import net.minecraft.world.Container
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.entity.BarrelBlockEntity
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
@@ -206,9 +209,17 @@ private fun GameTestHelper.assertContainerExactlyImpl(pos: BlockPos, container: 
     }
 }
 
+/**
+ * A nasty hack to get a peripheral at a given position, by creating a dummy [BlockEntity].
+ */
+private fun GameTestHelper.getPeripheralAt(pos: BlockPos, direction: Direction): IPeripheral? {
+    val be = BarrelBlockEntity(absolutePos(pos).relative(direction), Blocks.BARREL.defaultBlockState())
+    be.setLevel(level)
+    return PlatformHelper.get().createPeripheralAccess(be) { }.get(direction.opposite)
+}
+
 fun GameTestHelper.assertPeripheral(pos: BlockPos, direction: Direction = Direction.UP, type: String) {
-    val peripheral = PlatformHelper.get().createPeripheralAccess { }
-        .get(level, absolutePos(pos).relative(direction), direction.opposite)
+    val peripheral = getPeripheralAt(pos, direction)
     when {
         peripheral == null -> fail("No peripheral at position", pos)
         peripheral.type != type -> fail("Peripheral is of type ${peripheral.type}, expected $type", pos)
@@ -216,8 +227,7 @@ fun GameTestHelper.assertPeripheral(pos: BlockPos, direction: Direction = Direct
 }
 
 fun GameTestHelper.assertNoPeripheral(pos: BlockPos, direction: Direction = Direction.UP) {
-    val peripheral = PlatformHelper.get().createPeripheralAccess { }
-        .get(level, absolutePos(pos).relative(direction), direction.opposite)
+    val peripheral = getPeripheralAt(pos, direction)
     if (peripheral != null) fail("Expected no peripheral, got a ${peripheral.type}", pos)
 }
 

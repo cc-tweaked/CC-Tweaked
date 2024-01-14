@@ -8,12 +8,10 @@ import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.platform.ComponentAccess;
-import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
@@ -38,8 +36,8 @@ public final class WiredModemLocalPeripheral {
     private @Nullable IPeripheral peripheral;
     private final ComponentAccess<IPeripheral> peripherals;
 
-    public WiredModemLocalPeripheral(Runnable invalidate) {
-        peripherals = PlatformHelper.get().createPeripheralAccess(x -> invalidate.run());
+    public WiredModemLocalPeripheral(ComponentAccess<IPeripheral> peripherals) {
+        this.peripherals = peripherals;
     }
 
     /**
@@ -126,7 +124,7 @@ public final class WiredModemLocalPeripheral {
 
         if (world.getBlockState(offset).is(ComputerCraftTags.Blocks.PERIPHERAL_HUB_IGNORE)) return null;
 
-        var peripheral = peripherals.get((ServerLevel) world, pos, direction);
+        var peripheral = peripherals.get(direction);
         return peripheral instanceof WiredModemPeripheral ? null : peripheral;
     }
 }

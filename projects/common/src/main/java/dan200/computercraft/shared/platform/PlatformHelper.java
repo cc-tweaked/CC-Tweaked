@@ -222,20 +222,22 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     /**
      * Create a {@link ComponentAccess} for surrounding peripherals.
      *
+     * @param owner      The block entity requesting surrounding peripherals.
      * @param invalidate The function to call when a neighbouring peripheral potentially changes. This <em>MAY NOT</em>
      *                   include all changes, and so block updates should still be listened to.
      * @return The peripheral component access.
      */
-    ComponentAccess<IPeripheral> createPeripheralAccess(Consumer<Direction> invalidate);
+    ComponentAccess<IPeripheral> createPeripheralAccess(BlockEntity owner, Consumer<Direction> invalidate);
 
     /**
      * Create a {@link ComponentAccess} for surrounding wired nodes.
      *
+     * @param owner      The block entity requesting surrounding wired elements.
      * @param invalidate The function to call when a neighbouring wired node potentially changes. This <em>MAY NOT</em>
      *                   include all changes, and so block updates should still be listened to.
      * @return The peripheral component access.
      */
-    ComponentAccess<WiredElement> createWiredElementAccess(Consumer<Direction> invalidate);
+    ComponentAccess<WiredElement> createWiredElementAccess(BlockEntity owner, Consumer<Direction> invalidate);
 
     /**
      * Determine if there is a wired element in the given direction. This is equivalent to

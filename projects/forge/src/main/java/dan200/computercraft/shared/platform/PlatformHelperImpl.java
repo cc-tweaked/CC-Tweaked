@@ -189,13 +189,13 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public ComponentAccess<IPeripheral> createPeripheralAccess(Consumer<Direction> invalidate) {
-        return new PeripheralAccess(invalidate);
+    public ComponentAccess<IPeripheral> createPeripheralAccess(BlockEntity owner, Consumer<Direction> invalidate) {
+        return new PeripheralAccess(owner, invalidate);
     }
 
     @Override
-    public ComponentAccess<WiredElement> createWiredElementAccess(Consumer<Direction> invalidate) {
-        return new CapabilityAccess<>(Capabilities.CAPABILITY_WIRED_ELEMENT, invalidate);
+    public ComponentAccess<WiredElement> createWiredElementAccess(BlockEntity owner, Consumer<Direction> invalidate) {
+        return new CapabilityAccess<>(owner, Capabilities.CAPABILITY_WIRED_ELEMENT, invalidate);
     }
 
     @Override
@@ -434,11 +434,12 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     private abstract static class ComponentAccessImpl<T> implements ComponentAccess<T> {
+        private final BlockEntity owner;
         private final InvalidateCallback[] invalidators;
-        private @Nullable Level level;
-        private @Nullable BlockPos pos;
 
-        ComponentAccessImpl(Consumer<Direction> invalidate) {
+        ComponentAccessImpl(BlockEntity owner, Consumer<Direction> invalidate) {
+            this.owner = owner;
+
             // Generate a cache of invalidation functions so we can guarantee we only ever have one registered per
             // capability - there's no way to remove these callbacks!
             var invalidators = this.invalidators = new InvalidateCallback[6];
@@ -450,19 +451,19 @@ public class PlatformHelperImpl implements PlatformHelper {
 
         @Nullable
         @Override
-        public T get(ServerLevel level, BlockPos pos, Direction direction) {
-            if (this.level != null && this.level != level) throw new IllegalStateException("Level has changed");
-            if (this.pos != null && this.pos != pos) throw new IllegalStateException("Position has changed");
-
-            this.level = level;
-            this.pos = pos;
-            return get(level, pos.relative(direction), direction.getOpposite(), invalidators[direction.ordinal()]);
+        public T get(Direction direction) {
+            return get(getLevel(), owner.getBlockPos().relative(direction), direction.getOpposite(), invalidators[direction.ordinal()]);
         }
+
+        final ServerLevel getLevel() {
+            return Objects.requireNonNull((ServerLevel) owner.getLevel(), "Block entity is not in a level");
+        }
+
     }
 
     private static class PeripheralAccess extends ComponentAccessImpl<IPeripheral> {
-        PeripheralAccess(Consumer<Direction> invalidate) {
-            super(invalidate);
+        PeripheralAccess(BlockEntity owner, Consumer<Direction> invalidate) {
+            super(owner, invalidate);
         }
 
         @Nullable
@@ -475,8 +476,8 @@ public class PlatformHelperImpl implements PlatformHelper {
     private static class CapabilityAccess<T> extends ComponentAccessImpl<T> {
         private final Capability<T> capability;
 
-        CapabilityAccess(Capability<T> capability, Consumer<Direction> invalidate) {
-            super(invalidate);
+        CapabilityAccess(BlockEntity owner, Capability<T> capability, Consumer<Direction> invalidate) {
+            super(owner, invalidate);
             this.capability = capability;
         }
 
