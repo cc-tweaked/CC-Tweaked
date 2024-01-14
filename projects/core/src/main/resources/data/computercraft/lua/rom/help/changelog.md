@@ -6,7 +6,7 @@ Several bug fixes:
 * Error if too many websocket messages are queued to be sent at once.
 * Fix trailing-comma on method calls (e.g. `x:f(a, )` not using our custom error message.
 * Fix internal compiler error when using `goto` as the first statement in an `if` block.
-* Fix incorrect incorrect resizing of a tables' hash part when adding and removing keys.
+* Fix incorrect resizing of a tables' hash part when adding and removing keys.
 
 # New features in CC: Tweaked 1.109.2
 
