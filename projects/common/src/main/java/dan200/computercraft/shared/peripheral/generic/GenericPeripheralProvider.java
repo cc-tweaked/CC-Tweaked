@@ -11,7 +11,7 @@ import dan200.computercraft.core.methods.PeripheralMethod;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public final class GenericPeripheralProvider<C extends Runnable> {
         if (!lookups.contains(lookup)) lookups.add(lookup);
     }
 
-    public void forEachMethod(MethodSupplier<PeripheralMethod> methods, Level level, BlockPos pos, Direction side, BlockEntity blockEntity, C invalidate, MethodSupplier.TargetedConsumer<PeripheralMethod> consumer) {
+    public void forEachMethod(MethodSupplier<PeripheralMethod> methods, ServerLevel level, BlockPos pos, Direction side, BlockEntity blockEntity, C invalidate, MethodSupplier.TargetedConsumer<PeripheralMethod> consumer) {
         methods.forEachMethod(blockEntity, consumer);
 
         for (var lookup : lookups) {
@@ -53,17 +53,11 @@ public final class GenericPeripheralProvider<C extends Runnable> {
     }
 
     @Nullable
-    public IPeripheral getPeripheral(Level level, BlockPos pos, Direction side, @Nullable BlockEntity blockEntity, C invalidate) {
+    public IPeripheral getPeripheral(ServerLevel level, BlockPos pos, Direction side, @Nullable BlockEntity blockEntity, C invalidate) {
         if (blockEntity == null) return null;
 
-        var server = level.getServer();
-        if (server == null) {
-            LOG.warn("Fetching peripherals on a non-server level {}.", level, new IllegalStateException("Fetching peripherals on a non-server level."));
-            return null;
-        }
-
         var builder = new GenericPeripheralBuilder();
-        forEachMethod(ServerContext.get(server).peripheralMethods(), level, pos, side, blockEntity, invalidate, builder::addMethod);
+        forEachMethod(ServerContext.get(level.getServer()).peripheralMethods(), level, pos, side, blockEntity, invalidate, builder::addMethod);
         return builder.toPeripheral(blockEntity, side);
     }
 }

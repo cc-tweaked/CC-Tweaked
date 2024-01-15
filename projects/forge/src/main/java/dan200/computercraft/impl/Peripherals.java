@@ -12,7 +12,7 @@ import dan200.computercraft.shared.platform.InvalidateCallback;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
@@ -61,7 +61,7 @@ public final class Peripherals {
     private record CapabilityLookup<T>(Capability<T> capability) implements ComponentLookup<InvalidateCallback> {
         @Nullable
         @Override
-        public T find(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity, Direction side, InvalidateCallback invalidate) {
+        public T find(ServerLevel level, BlockPos pos, BlockState state, BlockEntity blockEntity, Direction side, InvalidateCallback invalidate) {
             return CapabilityUtil.unwrap(CapabilityUtil.getCapability(blockEntity, this.capability(), side), invalidate);
         }
     }
@@ -72,12 +72,9 @@ public final class Peripherals {
     }
 
     @Nullable
-    public static IPeripheral getPeripheral(Level world, BlockPos pos, Direction side, InvalidateCallback invalidate) {
-        return world.isInWorldBounds(pos) && !world.isClientSide ? getPeripheralAt(world, pos, side, invalidate) : null;
-    }
+    public static IPeripheral getPeripheral(ServerLevel world, BlockPos pos, Direction side, InvalidateCallback invalidate) {
+        if (!world.isInWorldBounds(pos)) return null;
 
-    @Nullable
-    private static IPeripheral getPeripheralAt(Level world, BlockPos pos, Direction side, InvalidateCallback invalidate) {
         var block = world.getBlockEntity(pos);
         if (block != null) {
             var peripheral = block.getCapability(CAPABILITY_PERIPHERAL, side);

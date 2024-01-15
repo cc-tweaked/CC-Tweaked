@@ -6,7 +6,7 @@ package dan200.computercraft.shared.peripheral.generic;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -32,5 +32,5 @@ public interface ComponentLookup<C extends Runnable> {
      * @return The found component, or {@code null} if not present.
      */
     @Nullable
-    Object find(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity, Direction side, C invalidate);
+    Object find(ServerLevel level, BlockPos pos, BlockState state, BlockEntity blockEntity, Direction side, C invalidate);
 }

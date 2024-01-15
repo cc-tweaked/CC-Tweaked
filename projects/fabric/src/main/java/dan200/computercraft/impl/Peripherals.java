@@ -9,7 +9,7 @@ import dan200.computercraft.shared.peripheral.generic.ComponentLookup;
 import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nullable;
@@ -29,7 +29,7 @@ public final class Peripherals {
         genericProvider.registerLookup(lookup);
     }
 
-    public static @Nullable IPeripheral getGenericPeripheral(Level level, BlockPos pos, Direction side, @Nullable BlockEntity blockEntity, Runnable invalidate) {
+    public static @Nullable IPeripheral getGenericPeripheral(ServerLevel level, BlockPos pos, Direction side, @Nullable BlockEntity blockEntity, Runnable invalidate) {
         return genericProvider.getPeripheral(level, pos, side, blockEntity, invalidate);
     }
 }
