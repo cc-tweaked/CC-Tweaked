@@ -105,7 +105,8 @@ public class MonitorBlock extends HorizontalDirectionalBlock implements EntityBl
             monitor.monitorTouched(
                 (float) (hit.getLocation().x - hit.getBlockPos().getX()),
                 (float) (hit.getLocation().y - hit.getBlockPos().getY()),
-                (float) (hit.getLocation().z - hit.getBlockPos().getZ())
+                (float) (hit.getLocation().z - hit.getBlockPos().getZ()),
+                player.getName().getString()
             );
         }
 

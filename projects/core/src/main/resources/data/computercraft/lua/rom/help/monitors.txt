@@ -19,5 +19,5 @@ setPaletteColor( color, r, g, b )
 getPaletteColor( color )
 
 Events fired by the Monitor:
-"monitor_touch" when an Advanced Monitor is touched by the player. Arguments are name, x, y
+"monitor_touch" when an Advanced Monitor is touched by the player. Arguments are name, x, y, playerName
 "monitor_resize" when the size of a Monitor changes. Argument is the name of the monitor.

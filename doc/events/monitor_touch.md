@@ -15,12 +15,13 @@ The [`monitor_touch`] event is fired when an adjacent or networked Advanced Moni
 2. [`string`]: The side or network ID of the monitor that was touched.
 3. [`number`]: The X coordinate of the touch, in characters.
 4. [`number`]: The Y coordinate of the touch, in characters.
+5. [`string`]: The name of the player who touched the monitor.
 
 ## Example
 Prints a message when a monitor is touched:
 ```lua
 while true do
-  local event, side, x, y = os.pullEvent("monitor_touch")
-  print("The monitor on side " .. side .. " was touched at (" .. x .. ", " .. y .. ")")
+  local event, side, x, y, player = os.pullEvent("monitor_touch")
+  print("The monitor on side " .. side .. " was touched at (" .. x .. ", " .. y .. ") by " .. player)
 end
 ```

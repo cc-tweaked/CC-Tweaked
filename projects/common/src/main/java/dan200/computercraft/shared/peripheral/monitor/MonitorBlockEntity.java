@@ -455,7 +455,7 @@ public class MonitorBlockEntity extends BlockEntity {
     }
     // endregion
 
-    void monitorTouched(float xPos, float yPos, float zPos) {
+    void monitorTouched(float xPos, float yPos, float zPos, String player) {
         if (!advanced) return;
 
         var pair = XYPair
@@ -478,7 +478,7 @@ public class MonitorBlockEntity extends BlockEntity {
         var xCharPos = (int) Math.min(originTerminal.getWidth(), Math.max((pair.x() - RENDER_BORDER - RENDER_MARGIN) / xCharWidth + 1.0, 1.0));
         var yCharPos = (int) Math.min(originTerminal.getHeight(), Math.max((pair.y() - RENDER_BORDER - RENDER_MARGIN) / yCharHeight + 1.0, 1.0));
 
-        eachComputer(c -> c.queueEvent("monitor_touch", c.getAttachmentName(), xCharPos, yCharPos));
+        eachComputer(c -> c.queueEvent("monitor_touch", c.getAttachmentName(), xCharPos, yCharPos, player));
     }
 
     private void eachComputer(Consumer<IComputerAccess> fun) {
