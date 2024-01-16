@@ -4,12 +4,10 @@
 
 package dan200.computercraft.api.client.turtle;
 
-import dan200.computercraft.api.client.ComputerCraftAPIClient;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.nbt.CompoundTag;
@@ -21,9 +19,13 @@ import java.util.List;
 
 /**
  * Provides models for a {@link ITurtleUpgrade}.
+ * <p>
+ * Use {@code dan200.computercraft.api.client.FabricComputerCraftAPIClient#registerTurtleUpgradeModeller} to register a
+ * modeller on Fabric and {@code dan200.computercraft.api.client.turtle.RegisterTurtleModellersEvent} to register one
+ * on Forge
  *
  * @param <T> The type of turtle upgrade this modeller applies to.
- * @see ComputerCraftAPIClient#registerTurtleUpgradeModeller(TurtleUpgradeSerialiser, TurtleUpgradeModeller) To register a modeller.
+ * @see RegisterTurtleUpgradeModeller For multi-loader registration support.
  */
 public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
     /**

@@ -5,8 +5,8 @@
 package dan200.computercraft.client;
 
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.client.ComputerCraftAPIClient;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
+import dan200.computercraft.api.client.turtle.RegisterTurtleUpgradeModeller;
 import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.render.RenderTypes;
@@ -60,18 +60,6 @@ public final class ClientRegistry {
      * Register any client-side objects which don't have to be done on the main thread.
      */
     public static void register() {
-        ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.SPEAKER.get(), TurtleUpgradeModeller.sided(
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_left"),
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_right")
-        ));
-        ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.WORKBENCH.get(), TurtleUpgradeModeller.sided(
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_left"),
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_right")
-        ));
-        ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_NORMAL.get(), new TurtleModemModeller(false));
-        ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_ADVANCED.get(), new TurtleModemModeller(true));
-        ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.TOOL.get(), TurtleUpgradeModeller.flatItem());
-
         BlockEntityRenderers.register(ModRegistry.BlockEntities.MONITOR_NORMAL.get(), MonitorBlockEntityRenderer::new);
         BlockEntityRenderers.register(ModRegistry.BlockEntities.MONITOR_ADVANCED.get(), MonitorBlockEntityRenderer::new);
         BlockEntityRenderers.register(ModRegistry.BlockEntities.TURTLE_NORMAL.get(), TurtleBlockEntityRenderer::new);
@@ -101,6 +89,20 @@ public final class ClientRegistry {
             (stack, world, player, random) -> IColouredItem.getColourBasic(stack) != -1 ? 1 : 0,
             ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED
         );
+    }
+
+    public static void registerTurtleModellers(RegisterTurtleUpgradeModeller register) {
+        register.register(ModRegistry.TurtleSerialisers.SPEAKER.get(), TurtleUpgradeModeller.sided(
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_left"),
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_right")
+        ));
+        register.register(ModRegistry.TurtleSerialisers.WORKBENCH.get(), TurtleUpgradeModeller.sided(
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_left"),
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_right")
+        ));
+        register.register(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_NORMAL.get(), new TurtleModemModeller(false));
+        register.register(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_ADVANCED.get(), new TurtleModemModeller(true));
+        register.register(ModRegistry.TurtleSerialisers.TOOL.get(), TurtleUpgradeModeller.flatItem());
     }
 
     @SafeVarargs
