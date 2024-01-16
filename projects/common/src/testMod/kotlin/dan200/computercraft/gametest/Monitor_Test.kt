@@ -21,7 +21,6 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Blocks
 import org.junit.jupiter.api.Assertions.*
-import java.util.*
 
 class Monitor_Test {
     @GameTest

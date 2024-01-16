@@ -7,7 +7,10 @@ package dan200.computercraft.gametest
 import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.core.apis.PeripheralAPI
 import dan200.computercraft.core.computer.ComputerSide
-import dan200.computercraft.gametest.api.*
+import dan200.computercraft.gametest.api.getBlockEntity
+import dan200.computercraft.gametest.api.sequence
+import dan200.computercraft.gametest.api.thenOnComputer
+import dan200.computercraft.gametest.api.thenStartComputer
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock
 import dan200.computercraft.test.core.assertArrayEquals

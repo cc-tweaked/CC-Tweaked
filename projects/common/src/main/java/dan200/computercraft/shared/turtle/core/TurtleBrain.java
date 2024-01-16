@@ -42,7 +42,6 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 import static dan200.computercraft.shared.common.IColouredItem.NBT_COLOUR;
 import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
@@ -58,8 +57,6 @@ public class TurtleBrain implements TurtleAccessInternal {
     private static final String NBT_SLOT = "Slot";
 
     private static final int ANIM_DURATION = 8;
-
-    public static final Predicate<Entity> PUSHABLE_ENTITY = entity -> !entity.isSpectator() && entity.getPistonPushReaction() != PushReaction.IGNORE;
 
     private TurtleBlockEntity owner;
     private @Nullable GameProfile owningPlayer;
@@ -694,7 +691,7 @@ public class TurtleBrain implements TurtleAccessInternal {
                     }
 
                     var aabb = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
-                    var list = world.getEntitiesOfClass(Entity.class, aabb, PUSHABLE_ENTITY);
+                    var list = world.getEntitiesOfClass(Entity.class, aabb, TurtleBrain::canPush);
                     if (!list.isEmpty()) {
                         double pushStep = 1.0f / ANIM_DURATION;
                         var pushStepX = moveDir.getStepX() * pushStep;
@@ -735,6 +732,10 @@ public class TurtleBrain implements TurtleAccessInternal {
                 lastAnimationProgress = 0;
             }
         }
+    }
+
+    private static boolean canPush(Entity entity) {
+        return !entity.isSpectator() && entity.getPistonPushReaction() != PushReaction.IGNORE;
     }
 
     private float getAnimationFraction(float f) {

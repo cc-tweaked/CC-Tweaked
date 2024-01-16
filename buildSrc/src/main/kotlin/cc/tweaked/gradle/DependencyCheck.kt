@@ -7,12 +7,15 @@ package cc.tweaked.gradle
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.MinimalExternalModuleDependency
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.component.ModuleComponentSelector
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.DependencyResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.language.base.plugins.LifecycleBasePlugin
@@ -21,9 +24,25 @@ abstract class DependencyCheck : DefaultTask() {
     @get:Input
     abstract val configuration: ListProperty<Configuration>
 
+    /**
+     * A mapping of module coordinates (`group:module`) to versions, overriding the requested version.
+     */
+    @get:Input
+    abstract val overrides: MapProperty<String, String>
+
     init {
         description = "Check :core's dependencies are consistent with Minecraft's."
         group = LifecycleBasePlugin.VERIFICATION_GROUP
+
+        configuration.finalizeValueOnRead()
+        overrides.finalizeValueOnRead()
+    }
+
+    /**
+     * Override a module with a different version.
+     */
+    fun override(module: Provider<MinimalExternalModuleDependency>, version: String) {
+        overrides.putAll(project.provider { mutableMapOf(module.get().module.toString() to version) })
     }
 
     @TaskAction
@@ -60,7 +79,8 @@ abstract class DependencyCheck : DefaultTask() {
         ) {
             // If the version is different between the requested and selected version, report an error.
             val selected = dependency.selected.moduleVersion!!.version
-            if (requested.version != selected) {
+            val requestedVersion = overrides.get()["${requested.group}:${requested.module}"] ?: requested.version
+            if (requestedVersion != selected) {
                 logger.error("Requested dependency {} (via {}) but got version {}", requested, from, selected)
                 return false
             }

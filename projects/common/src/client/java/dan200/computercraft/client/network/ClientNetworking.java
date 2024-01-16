@@ -12,7 +12,10 @@ import net.minecraft.client.Minecraft;
 /**
  * Methods for sending packets from clients to the server.
  */
-public class ClientNetworking {
+public final class ClientNetworking {
+    private ClientNetworking() {
+    }
+
     /**
      * Send a network message to the server.
      *

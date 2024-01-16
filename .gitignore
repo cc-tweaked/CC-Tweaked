@@ -7,6 +7,7 @@
 /logs
 /build
 /projects/*/logs
+/projects/fabric/fabricloader.log
 /projects/*/build
 /buildSrc/build
 /out

@@ -27,12 +27,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
-import java.util.function.Predicate;
 
 public final class WorldUtil {
-    @SuppressWarnings("UnnecessaryLambda")
-    private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && x.isAlive() && x.isPickable();
-
     public static boolean isLiquidBlock(Level world, BlockPos pos) {
         if (!world.isInWorldBounds(pos)) return false;
         return world.getBlockState(pos).liquid();
@@ -84,7 +80,7 @@ public final class WorldUtil {
         Entity bestEntity = null;
         Vec3 bestHit = null;
 
-        for (var entity : level.getEntities(source, bounds, WorldUtil.CAN_COLLIDE)) {
+        for (var entity : level.getEntities(source, bounds, WorldUtil::canCollide)) {
             var aabb = entity.getBoundingBox().inflate(entity.getPickRadius());
 
             // clip doesn't work when inside the entity. Just assume we've got a perfect match and break.
@@ -107,6 +103,10 @@ public final class WorldUtil {
         }
 
         return bestEntity == null ? null : new EntityHitResult(bestEntity, bestHit);
+    }
+
+    private static boolean canCollide(Entity entity) {
+        return entity != null && entity.isAlive() && entity.isPickable();
     }
 
     public static Vec3 getRayStart(Player entity) {

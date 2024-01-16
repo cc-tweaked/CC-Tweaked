@@ -19,7 +19,6 @@ import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.inventory.TransientCraftingContainer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
-import net.minecraft.world.item.crafting.CraftingRecipe
 import net.minecraft.world.item.crafting.RecipeType
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.*
@@ -37,11 +36,11 @@ class Recipe_Test {
             container.setItem(0, ItemStack(Items.SKELETON_SKULL))
             container.setItem(1, ItemStack(ModRegistry.Items.COMPUTER_ADVANCED.get()))
 
-            val recipe: Optional<CraftingRecipe> = context.level.server.recipeManager
+            val recipe = context.level.server.recipeManager
                 .getRecipeFor(RecipeType.CRAFTING, container, context.level)
-            if (!recipe.isPresent) throw GameTestAssertException("No recipe matches")
+                .orElseThrow { GameTestAssertException("No recipe matches") }
 
-            val result = recipe.get().assemble(container, context.level.registryAccess())
+            val result = recipe.assemble(container, context.level.registryAccess())
 
             val profile = GameProfile(UUID.fromString("f3c8d69b-0776-4512-8434-d1b2165909eb"), "dan200")
 

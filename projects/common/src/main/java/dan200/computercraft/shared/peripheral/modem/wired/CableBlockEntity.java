@@ -63,6 +63,7 @@ public class CableBlockEntity extends BlockEntity {
     private @Nullable Runnable modemChanged;
 
     private boolean connectionsFormed = false;
+    private boolean connectionsChanged = false;
 
     private final WiredModemElement cable = new CableElement();
     private final WiredNode node = cable.getNode();
@@ -87,7 +88,7 @@ public class CableBlockEntity extends BlockEntity {
         }
     };
 
-    private final ComponentAccess<WiredElement> connectedElements = PlatformHelper.get().createWiredElementAccess(this, x -> connectionsChanged());
+    private final ComponentAccess<WiredElement> connectedElements = PlatformHelper.get().createWiredElementAccess(this, x -> scheduleConnectionsChanged());
 
     public CableBlockEntity(BlockEntityType<? extends CableBlockEntity> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -236,10 +237,18 @@ public class CableBlockEntity extends BlockEntity {
                 updateConnectedPeripherals();
             }
         }
+
+        if (connectionsChanged) connectionsChanged();
+    }
+
+    private void scheduleConnectionsChanged() {
+        connectionsChanged = true;
+        TickScheduler.schedule(tickToken);
     }
 
     void connectionsChanged() {
         if (getLevel().isClientSide) return;
+        connectionsChanged = false;
 
         var state = getBlockState();
         var world = getLevel();

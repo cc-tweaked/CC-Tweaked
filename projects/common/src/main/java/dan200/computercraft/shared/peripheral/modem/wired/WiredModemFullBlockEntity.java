@@ -74,13 +74,14 @@ public class WiredModemFullBlockEntity extends BlockEntity {
     private final WiredModemLocalPeripheral[] peripherals = new WiredModemLocalPeripheral[6];
 
     private boolean connectionsFormed = false;
+    private boolean connectionsChanged = false;
 
     private final TickScheduler.Token tickToken = new TickScheduler.Token(this);
     private final ModemState modemState = new ModemState(() -> TickScheduler.schedule(tickToken));
     private final WiredModemElement element = new FullElement(this);
     private final WiredNode node = element.getNode();
 
-    private final ComponentAccess<WiredElement> connectedElements = PlatformHelper.get().createWiredElementAccess(this, x -> connectionsChanged());
+    private final ComponentAccess<WiredElement> connectedElements = PlatformHelper.get().createWiredElementAccess(this, x -> scheduleConnectionsChanged());
 
     private int invalidSides = 0;
 
@@ -204,10 +205,18 @@ public class WiredModemFullBlockEntity extends BlockEntity {
                 updateConnectedPeripherals();
             }
         }
+
+        if (connectionsChanged) connectionsChanged();
+    }
+
+    private void scheduleConnectionsChanged() {
+        connectionsChanged = true;
+        TickScheduler.schedule(tickToken);
     }
 
     private void connectionsChanged() {
         if (getLevel().isClientSide) return;
+        connectionsChanged = false;
 
         var world = getLevel();
         var current = getBlockPos();
