@@ -48,13 +48,8 @@ import java.util.function.Function;
  * }
  * }</pre>
  * <p>
- * Finally, we need to register a model for our upgrade. This is done with
- * {@link dan200.computercraft.api.client.ComputerCraftAPIClient#registerTurtleUpgradeModeller}:
- *
- * <pre>{@code
- * // Register our model inside FMLClientSetupEvent
- * ComputerCraftAPIClient.registerTurtleUpgradeModeller(MY_UPGRADE.get(), TurtleUpgradeModeller.flatItem())
- * }</pre>
+ * Finally, we need to register a model for our upgrade. The way to do this varies on mod loader, see
+ * {@link dan200.computercraft.api.client.turtle.TurtleUpgradeModeller} for more information.
  * <p>
  * {@link TurtleUpgradeDataProvider} provides a data provider to aid with generating these JSON files.
  *

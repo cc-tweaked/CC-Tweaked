@@ -5,6 +5,7 @@
 package dan200.computercraft.client;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.client.FabricComputerCraftAPIClient;
 import dan200.computercraft.client.model.CustomModelLoader;
 import dan200.computercraft.impl.Services;
 import dan200.computercraft.shared.ModRegistry;
@@ -40,6 +41,7 @@ public class ComputerCraftClient {
         }
 
         ClientRegistry.register();
+        ClientRegistry.registerTurtleModellers(FabricComputerCraftAPIClient::registerTurtleUpgradeModeller);
         ClientRegistry.registerItemColours(ColorProviderRegistry.ITEM::register);
         ClientRegistry.registerMainThread();
 
