@@ -17,6 +17,7 @@ import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
 import dan200.computercraft.shared.network.client.PocketComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
+import dan200.computercraft.shared.pocket.peripherals.PocketNFCPeripheral;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -33,6 +34,7 @@ import java.util.*;
 
 public class PocketServerComputer extends ServerComputer implements IPocketAccess {
     private @Nullable IPocketUpgrade upgrade;
+    private final PocketNFCPeripheral nfc = new PocketNFCPeripheral(this);
     private @Nullable Entity entity;
     private ItemStack stack = ItemStack.EMPTY;
 
@@ -141,6 +143,9 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
         this.entity = entity;
         this.stack = stack;
+
+        if (getPeripheral(ComputerSide.TOP) != nfc) setPeripheral(ComputerSide.TOP, nfc);
+        nfc.update(this);
 
         if (this.upgrade != upgrade) {
             this.upgrade = upgrade;
