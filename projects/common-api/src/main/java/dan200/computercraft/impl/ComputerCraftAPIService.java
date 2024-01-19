@@ -24,6 +24,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus;
@@ -60,6 +61,8 @@ public interface ComputerCraftAPIService {
     void registerMediaProvider(MediaProvider provider);
 
     PacketNetwork getWirelessNetwork(MinecraftServer server);
+
+    PacketNetwork getNfcNetwork(MinecraftServer server, Entity entity);
 
     void registerAPIFactory(ILuaAPIFactory factory);
 

@@ -144,8 +144,8 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         this.entity = entity;
         this.stack = stack;
 
-        if (getPeripheral(ComputerSide.TOP) != nfc) setPeripheral(ComputerSide.TOP, nfc);
         nfc.update(this);
+        if (getPeripheral(ComputerSide.TOP) != nfc) setPeripheral(ComputerSide.TOP, nfc);
 
         if (this.upgrade != upgrade) {
             this.upgrade = upgrade;
