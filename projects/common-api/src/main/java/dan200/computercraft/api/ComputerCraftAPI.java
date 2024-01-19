@@ -166,6 +166,7 @@ public final class ComputerCraftAPI {
      * Attempt to get the NFC network for a player.
      *
      * @param server The current Minecraft server.
+     * @param entity The entity whose NFC network should be obtained.
      * @return The NFC network, or {@code null} if it could not be fetched.
      */
     public static PacketNetwork getNfcNetwork(MinecraftServer server, Entity entity) {

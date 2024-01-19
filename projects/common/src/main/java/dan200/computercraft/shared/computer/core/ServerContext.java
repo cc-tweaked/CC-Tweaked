@@ -216,7 +216,7 @@ public final class ServerContext {
      * Get a player's NFC network.
      * <p>
      * Use {@link ComputerCraftAPI#getNfcNetwork(MinecraftServer, Entity)} instead of this method.
-     *
+     * @param entity The entity whose NFC network should be obtained.
      * @return The NFC network.
      */
     public PacketNetwork nfcNetwork(Entity entity) {
