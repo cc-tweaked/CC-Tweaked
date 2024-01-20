@@ -54,7 +54,7 @@ public class PocketComputerData {
         };
         int[] channels = new int[3];
         for (int i = 0; i < 3; i++) {
-            channels[i] = (int)Math.sqrt((Math.pow(rgb[i][0], 2)*weight + Math.pow(rgb[i][1], 2)*(1-weight))/2);
+            channels[i] = (int)Math.sqrt(Math.pow(rgb[i][0], 2)*weight + Math.pow(rgb[i][1], 2)*(1-weight));
         }
         int color = 0;
         for (int channel : channels) {
