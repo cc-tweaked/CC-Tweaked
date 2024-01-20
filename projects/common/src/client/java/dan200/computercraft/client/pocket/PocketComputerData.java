@@ -39,7 +39,7 @@ public class PocketComputerData {
             } else if (primaryLightColour == -1) {
                 return secondaryLightColour;
             } else {
-                double weight = ((Math.sin(((double)(FrameInfo.getTick() % 41) / 40)*Math.PI*2)+1)/2);
+                double weight = (Math.sin(((double)(FrameInfo.getTick() % 41) / 40) * Math.PI * 2) + 1) / 2;
                 return blend(primaryLightColour, secondaryLightColour, weight);
             }
         }
@@ -48,13 +48,13 @@ public class PocketComputerData {
 
     private static int blend(int a, int b, double weight) {
         int[][] rgb = {
-            { a >> 16,  b >> 16 },
+            { a >> 16, b >> 16 },
             { (a & 0x00ff00) >> 8, (b & 0x00ff00) >> 8 },
-            { a & 0x0000ff, b & 0x0000ff }
+            { a & 0x0000ff, b & 0x0000ff },
         };
         int[] channels = new int[3];
         for (int i = 0; i < 3; i++) {
-            channels[i] = (int)Math.sqrt(Math.pow(rgb[i][0], 2)*weight + Math.pow(rgb[i][1], 2)*(1-weight));
+            channels[i] = (int)Math.sqrt(Math.pow(rgb[i][0], 2) * weight + Math.pow(rgb[i][1], 2) * (1 - weight));
         }
         int color = 0;
         for (int channel : channels) {
