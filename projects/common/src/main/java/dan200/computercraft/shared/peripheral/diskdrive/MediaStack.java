@@ -13,19 +13,14 @@ import javax.annotation.Nullable;
 
 /**
  * An immutable snapshot of the current disk. This allows us to read the stack in a thread-safe manner.
+ *
+ * @param stack An immutable {@link ItemStack}.
+ * @param media The associated {@link IMedia} instance for this stack.
  */
-final class MediaStack {
+record MediaStack(ItemStack stack, @Nullable IMedia media) {
     static final MediaStack EMPTY = new MediaStack(ItemStack.EMPTY, null);
 
-    final ItemStack stack;
-    final @Nullable IMedia media;
-
-    private MediaStack(ItemStack stack, @Nullable IMedia media) {
-        this.stack = stack;
-        this.media = media;
-    }
-
-    public static MediaStack of(ItemStack stack) {
+    static MediaStack of(ItemStack stack) {
         if (stack.isEmpty()) return EMPTY;
 
         var freshStack = stack.copy();

@@ -51,7 +51,7 @@ public class DiskDrivePeripheral implements IPeripheral {
      */
     @LuaFunction
     public final boolean isDiskPresent() {
-        return !diskDrive.getMedia().stack.isEmpty();
+        return !diskDrive.getMedia().stack().isEmpty();
     }
 
     /**
@@ -64,7 +64,7 @@ public class DiskDrivePeripheral implements IPeripheral {
     @LuaFunction
     public final Object[] getDiskLabel() {
         var media = diskDrive.getMedia();
-        return media.media == null ? null : new Object[]{ media.media.getLabel(media.stack) };
+        return media.media() == null ? null : new Object[]{ media.media().getLabel(media.stack()) };
     }
 
     /**
@@ -80,15 +80,11 @@ public class DiskDrivePeripheral implements IPeripheral {
      */
     @LuaFunction(mainThread = true)
     public final void setDiskLabel(Optional<String> label) throws LuaException {
-        var media = diskDrive.getMedia();
-        if (media.media == null) return;
-
-        // We're on the main thread so the stack and media should be in sync.
-        var stack = diskDrive.getDiskStack();
-        if (!media.media.setLabel(stack, label.map(StringUtil::normaliseLabel).orElse(null))) {
-            throw new LuaException("Disk label cannot be changed");
+        switch (diskDrive.setDiskLabel(label.map(StringUtil::normaliseLabel).orElse(null))) {
+            case NOT_ALLOWED -> throw new LuaException("Disk label cannot be changed");
+            case CHANGED, NO_MEDIA -> {
+            }
         }
-        diskDrive.updateDiskStack(stack);
     }
 
     /**
@@ -172,7 +168,7 @@ public class DiskDrivePeripheral implements IPeripheral {
     @Nullable
     @LuaFunction
     public final Object[] getDiskID() {
-        var disk = diskDrive.getMedia().stack;
+        var disk = diskDrive.getMedia().stack();
         return disk.getItem() instanceof DiskItem ? new Object[]{ DiskItem.getDiskID(disk) } : null;
     }
 

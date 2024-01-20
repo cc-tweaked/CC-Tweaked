@@ -5,6 +5,7 @@
 package dan200.computercraft.gametest
 
 import dan200.computercraft.core.apis.FSAPI
+import dan200.computercraft.core.util.Colour
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.media.items.DiskItem
@@ -19,6 +20,9 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.RedStoneWireBlock
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.array
+import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Assertions.assertEquals
 
 class Disk_Drive_Test {
@@ -49,10 +53,44 @@ class Disk_Drive_Test {
      * A mount is initially attached, and then removed when the disk is ejected.
      */
     @GameTest
+    fun Queues_event(helper: GameTestHelper) = helper.sequence {
+        val pos = BlockPos(1, 2, 2)
+
+        var started = false
+        var disk = false
+        var ejected = false
+        thenStartComputer {
+            // thenOnComputer discards events, so instead we need to track our state transitions.
+            started = true
+
+            val diskEvent = pullEvent("disk")
+            assertThat(diskEvent, array(equalTo("disk"), equalTo("right")))
+
+            disk = true
+
+            val ejectEvent = pullEvent("disk_eject")
+            assertThat(ejectEvent, array(equalTo("disk_eject"), equalTo("right")))
+
+            ejected = true
+        }
+
+        thenWaitUntil { helper.assertTrue(started, "Computer not started") }
+        thenExecute { helper.setContainerItem(pos, 0, ItemStack(Items.DIRT)) }
+        thenWaitUntil { helper.assertTrue(disk, "disk not inserted") }
+        thenExecute { helper.setContainerItem(pos, 0, ItemStack.EMPTY) }
+        thenWaitUntil { helper.assertTrue(ejected, "disk not ejected") }
+    }
+
+    /**
+     * A mount is initially attached, and then removed when the disk is ejected.
+     */
+    @GameTest
     fun Adds_removes_mount(helper: GameTestHelper) = helper.sequence {
         thenOnComputer { } // Wait for the computer to start up
-        thenIdle(2) // Let the disk drive tick once to create the mount
-        thenOnComputer { // Then actually assert things!
+        thenExecute {
+            helper.setContainerItem(BlockPos(1, 2, 2), 0, DiskItem.createFromIDAndColour(1, null, Colour.BLACK.hex))
+        }
+        thenOnComputer {
             getApi<FSAPI>().getDrive("disk").assertArrayEquals("right")
             callPeripheral("right", "ejectDisk")
         }

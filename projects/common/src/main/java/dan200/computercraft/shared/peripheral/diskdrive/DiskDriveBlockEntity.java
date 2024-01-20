@@ -7,6 +7,7 @@ package dan200.computercraft.shared.peripheral.diskdrive;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.filesystem.WritableMount;
+import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.AbstractContainerBlockEntity;
@@ -32,6 +33,28 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * The underlying block entity for disk drives. This holds the main logic for the {@linkplain DiskDrivePeripheral disk
+ * drive peripheral}, such as handling mounts and {@linkplain DiskDrivePeripheral#playAudio() playing audio}.
+ * <p>
+ * Most disk drive peripheral methods execute on the computer thread (largely due to historic reasons). This causes some
+ * problems, as the disk item could be read by both the computer thread (via peripheral calls) and main thread (via
+ * Minecraft inventory interaction).
+ * <p>
+ * To solve this, we use an immutable {@link MediaStack}, which holds an immutable version of the current
+ * {@link ItemStack} (and its corresponding {@link IMedia}). When the {@linkplain #setChanged() inventory is changed},
+ * we {@linkplain #updateMedia() update the media stack} and recompute mounts.
+ * <p>
+ * This is somewhat complicated by {@link #attach(IComputerAccess)}. As that can happen on the computer thread and
+ * may mutate the stack (when {@link IMedia#createDataMount(ItemStack, ServerLevel)} assigns an ID for the first time),
+ * we need a way to safely update the inventory. To solve this, all internal non-inventory interactions with disk drives
+ * treat the media stack as the "primary" stack. This allows us to atomically update it, and then sync it back to the
+ * main inventory ({@link #updateMediaStack(ItemStack, boolean)}) either directly ({@link #updateDiskFromMedia()}) or
+ * on the next block tick ({@link #stackDirty}). This does mean there's a one-tick delay where the inventory may be
+ * out-of-date, but that should happen very rarely.
+ *
+ * @see DiskDrivePeripheral
+ */
 public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
     private static final String NBT_ITEM = "Item";
 
@@ -42,11 +65,13 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
 
     private final DiskDrivePeripheral peripheral = new DiskDrivePeripheral(this);
 
-    private final @GuardedBy("this") Map<IComputerAccess, MountInfo> computers = new HashMap<>();
-
     private final NonNullList<ItemStack> inventory = NonNullList.withSize(1, ItemStack.EMPTY);
 
+    @GuardedBy("this")
+    private final Map<IComputerAccess, MountInfo> computers = new HashMap<>();
+    @GuardedBy("this")
     private MediaStack media = MediaStack.EMPTY;
+    @GuardedBy("this")
     private @Nullable Mount mount;
 
     private boolean recordPlaying = false;
@@ -54,7 +79,12 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
     // then read them when ticking.
     private final AtomicReference<RecordCommand> recordQueued = new AtomicReference<>(null);
     private final AtomicBoolean ejectQueued = new AtomicBoolean(false);
-    private final AtomicBoolean mountQueued = new AtomicBoolean(false);
+
+    /**
+     * Whether the stack in {@link #media} has been modified on the computer thread, and needs to be written back to the
+     * inventory on the main thread.
+     */
+    private final AtomicBoolean stackDirty = new AtomicBoolean(false);
 
     public DiskDriveBlockEntity(BlockEntityType<DiskDriveBlockEntity> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -66,7 +96,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
 
     @Override
     public void clearRemoved() {
-        updateItem();
+        updateMedia();
     }
 
     @Override
@@ -93,12 +123,14 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
     }
 
     void serverTick() {
+        if (stackDirty.getAndSet(false)) updateDiskFromMedia();
         if (ejectQueued.getAndSet(false)) ejectContents();
 
         var recordQueued = this.recordQueued.getAndSet(null);
         if (recordQueued != null) {
             switch (recordQueued) {
                 case PLAY -> {
+                    var media = getMedia();
                     var record = media.getAudio();
                     if (record != null) {
                         recordPlaying = true;
@@ -112,12 +144,6 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
                 }
             }
         }
-
-        if (mountQueued.get()) {
-            synchronized (this) {
-                mountAll();
-            }
-        }
     }
 
     @Override
@@ -127,38 +153,46 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
 
     @Override
     public void setChanged() {
-        if (level != null && !level.isClientSide) updateItem();
+        if (level != null && !level.isClientSide) updateMedia();
         super.setChanged();
     }
 
-    private void updateItem() {
-        var newDisk = getDiskStack();
-        if (ItemStack.isSameItemSameTags(newDisk, media.stack)) return;
+    /**
+     * Called on the server after the item has changed. This unmounts the old media and mounts the new one.
+     */
+    private synchronized void updateMedia() {
+        var newStack = getDiskStack();
+        if (ItemStack.isSameItemSameTags(newStack, media.stack())) return;
 
-        var media = MediaStack.of(newDisk);
+        var newMedia = MediaStack.of(newStack);
 
-        if (newDisk.isEmpty()) {
+        if (newStack.isEmpty()) {
             updateBlockState(DiskDriveState.EMPTY);
         } else {
-            updateBlockState(media.media != null ? DiskDriveState.FULL : DiskDriveState.INVALID);
+            updateBlockState(newMedia.media() != null ? DiskDriveState.FULL : DiskDriveState.INVALID);
         }
 
-        synchronized (this) {
-            // Unmount old disk
-            if (!this.media.stack.isEmpty()) {
-                for (var computer : computers.entrySet()) unmountDisk(computer.getKey(), computer.getValue());
+        // Unmount old disk
+        if (!media.stack().isEmpty()) {
+            for (var computer : computers.entrySet()) unmountDisk(computer.getKey(), computer.getValue());
+        }
+
+        // Stop music
+        if (recordPlaying) {
+            stopRecord();
+            recordPlaying = false;
+        }
+
+        // Use our new media, and (if needed) mount the new disk.
+        mount = null;
+        media = newMedia;
+        stackDirty.set(false);
+
+        if (!newStack.isEmpty() && !computers.isEmpty()) {
+            var mount = getOrCreateMount(true);
+            for (var entry : computers.entrySet()) {
+                mountDisk(entry.getKey(), entry.getValue(), mount);
             }
-
-            // Stop music
-            if (recordPlaying) {
-                stopRecord();
-                recordPlaying = false;
-            }
-
-            mount = null;
-            this.media = media;
-
-            mountAll();
         }
     }
 
@@ -166,7 +200,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
         return getItem(0);
     }
 
-    MediaStack getMedia() {
+    synchronized MediaStack getMedia() {
         return media;
     }
 
@@ -181,16 +215,31 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
     }
 
     /**
-     * Update the current disk stack, assuming the underlying item does not change. Unlike
-     * {@link #setDiskStack(ItemStack)} this will not change any mounts.
-     *
-     * @param stack The new disk stack.
+     * Update the inventory's disk stack from the media stack. Unlike {@link #setDiskStack(ItemStack)} this will not
+     * change any mounts.
      */
-    void updateDiskStack(ItemStack stack) {
-        setItem(0, stack);
-        if (!ItemStack.isSameItemSameTags(stack, media.stack)) {
-            media = MediaStack.of(stack);
-            super.setChanged();
+    private synchronized void updateDiskFromMedia() {
+        // Write back the item to the main inventory, and then mark it as dirty.
+        setItem(0, media.stack().copy());
+        super.setChanged();
+    }
+
+    /**
+     * Atomically update {@link #media}'s stack, then sync it back to the main inventory.
+     *
+     * @param stack     The original stack.
+     * @param immediate Whether to do this immediately (when called from the main thread) or asynchronously (when called
+     *                  from the computer thread).
+     */
+    @GuardedBy("this")
+    private void updateMediaStack(ItemStack stack, boolean immediate) {
+        if (ItemStack.isSameItemSameTags(media.stack(), stack)) return;
+        media = new MediaStack(stack, media.media());
+
+        if (immediate) {
+            updateDiskFromMedia();
+        } else {
+            stackDirty.set(true);
         }
     }
 
@@ -212,7 +261,9 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
         synchronized (this) {
             var info = new MountInfo();
             computers.put(computer, info);
-            mountQueued.set(true);
+            if (!media.stack().isEmpty()) {
+                mountDisk(computer, info, getOrCreateMount(level instanceof ServerLevel l && l.getServer().isSameThread()));
+            }
         }
     }
 
@@ -234,53 +285,50 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
         ejectQueued.set(true);
     }
 
-    /**
-     * Add our mount to all computers.
-     */
-    @GuardedBy("this")
-    private void mountAll() {
-        doMountAll();
-        mountQueued.set(false);
+    synchronized MountResult setDiskLabel(@Nullable String label) {
+        if (media.media() == null) return MountResult.NO_MEDIA;
+
+        // Set the label, and write it back to the media stack.
+        var stack = media.stack().copy();
+        if (!media.media().setLabel(stack, label)) return MountResult.NOT_ALLOWED;
+        updateMediaStack(stack, true);
+
+        return MountResult.CHANGED;
     }
 
-    /**
-     * The worker for {@link #mountAll()}. This is responsible for creating the mount and placing it on all computers.
-     */
     @GuardedBy("this")
-    private void doMountAll() {
-        if (computers.isEmpty() || media.media == null) return;
+    private @Nullable Mount getOrCreateMount(boolean immediate) {
+        if (media.media() == null) return null;
+        if (mount != null) return mount;
 
-        if (mount == null) {
-            var stack = getDiskStack();
-            mount = media.media.createDataMount(stack, (ServerLevel) level);
-            setDiskStack(stack);
-        }
+        // Set the id (if needed) and write it back to the media stack.
+        var stack = media.stack().copy();
+        mount = media.media().createDataMount(stack, (ServerLevel) level);
+        updateMediaStack(stack, immediate);
 
-        if (mount == null) return;
+        return mount;
+    }
 
-        for (var entry : computers.entrySet()) {
-            var computer = entry.getKey();
-            var info = entry.getValue();
-            if (info.mountPath != null) continue;
-
-            if (mount instanceof WritableMount writable) {
-                // Try mounting at the lowest numbered "disk" name we can
-                var n = 1;
-                while (info.mountPath == null) {
-                    info.mountPath = computer.mountWritable(n == 1 ? "disk" : "disk" + n, writable);
-                    n++;
-                }
-            } else {
-                // Try mounting at the lowest numbered "disk" name we can
-                var n = 1;
-                while (info.mountPath == null) {
-                    info.mountPath = computer.mount(n == 1 ? "disk" : "disk" + n, mount);
-                    n++;
-                }
+    private static void mountDisk(IComputerAccess computer, MountInfo info, @Nullable Mount mount) {
+        if (mount instanceof WritableMount writable) {
+            // Try mounting at the lowest numbered "disk" name we can
+            var n = 1;
+            while (info.mountPath == null) {
+                info.mountPath = computer.mountWritable(n == 1 ? "disk" : "disk" + n, writable);
+                n++;
             }
-
-            computer.queueEvent("disk", computer.getAttachmentName());
+        } else if (mount != null) {
+            // Try mounting at the lowest numbered "disk" name we can
+            var n = 1;
+            while (info.mountPath == null) {
+                info.mountPath = computer.mount(n == 1 ? "disk" : "disk" + n, mount);
+                n++;
+            }
+        } else {
+            assert info.mountPath == null : "Mount path should be null";
         }
+
+        computer.queueEvent("disk", computer.getAttachmentName());
     }
 
     private static void unmountDisk(IComputerAccess computer, MountInfo info) {
@@ -326,5 +374,11 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
     private enum RecordCommand {
         PLAY,
         STOP,
+    }
+
+    enum MountResult {
+        NO_MEDIA,
+        NOT_ALLOWED,
+        CHANGED,
     }
 }

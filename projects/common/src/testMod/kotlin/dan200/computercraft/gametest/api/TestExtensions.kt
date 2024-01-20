@@ -169,6 +169,16 @@ fun <T : Comparable<T>> GameTestHelper.assertBlockHas(pos: BlockPos, property: P
 }
 
 /**
+ * Get a [Container] at a given position.
+ */
+fun GameTestHelper.getContainerAt(pos: BlockPos): Container =
+    when (val container = getBlockEntity(pos)) {
+        is Container -> container
+        null -> failVerbose("Expected a container at $pos, found nothing", pos)
+        else -> failVerbose("Expected a container at $pos, found ${getName(container.type)}", pos)
+    }
+
+/**
  * Assert a container contains exactly these items and no more.
  *
  * @param pos The position of the container.
@@ -176,10 +186,7 @@ fun <T : Comparable<T>> GameTestHelper.assertBlockHas(pos: BlockPos, property: P
  * first `n` slots - the remaining are required to be empty.
  */
 fun GameTestHelper.assertContainerExactly(pos: BlockPos, items: List<ItemStack>) =
-    when (val container = getBlockEntity(pos) ?: failVerbose("Expected a container at $pos, found nothing", pos)) {
-        is Container -> assertContainerExactlyImpl(pos, container, items)
-        else -> failVerbose("Expected a container at $pos, found ${getName(container.type)}", pos)
-    }
+    assertContainerExactlyImpl(pos, getContainerAt(pos), items)
 
 /**
  * Assert an container contains exactly these items and no more.
@@ -286,4 +293,14 @@ fun GameTestHelper.setBlock(pos: BlockPos, state: BlockInput) = state.place(leve
  */
 fun GameTestHelper.modifyBlock(pos: BlockPos, modify: (BlockState) -> BlockState) {
     setBlock(pos, modify(getBlockState(pos)))
+}
+
+/**
+ * Update items in the container at [pos], setting the item in the specified [slot] to [item], and then marking it
+ * changed.
+ */
+fun GameTestHelper.setContainerItem(pos: BlockPos, slot: Int, item: ItemStack) {
+    val container = getContainerAt(pos)
+    container.setItem(slot, item)
+    container.setChanged()
 }
