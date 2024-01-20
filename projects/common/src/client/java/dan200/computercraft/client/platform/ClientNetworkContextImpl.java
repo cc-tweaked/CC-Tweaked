@@ -67,9 +67,9 @@ public final class ClientNetworkContextImpl implements ClientNetworkContext {
     }
 
     @Override
-    public void handlePocketComputerData(int instanceId, ComputerState state, int lightState, TerminalState terminal) {
+    public void handlePocketComputerData(int instanceId, ComputerState state, int primaryLightState, int secondaryLightState, TerminalState terminal) {
         var computer = ClientPocketComputers.get(instanceId, terminal.colour);
-        computer.setState(state, lightState);
+        computer.setState(state, primaryLightState, secondaryLightState);
         if (terminal.hasTerminal()) computer.setTerminal(terminal);
     }
 

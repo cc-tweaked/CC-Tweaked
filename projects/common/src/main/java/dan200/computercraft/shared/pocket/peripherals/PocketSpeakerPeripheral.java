@@ -43,6 +43,6 @@ public class PocketSpeakerPeripheral extends UpgradeSpeakerPeripheral {
 
         super.update();
 
-        access.setLight(madeSound() ? 0x3320fc : -1);
+        access.setLightPrimary(madeSound() ? 0x3320fc : -1);
     }
 }

@@ -25,7 +25,7 @@ public class PocketNFCPeripheral extends PocketModemPeripheral {
         setLocation(access);
 
         var state = getModemState();
-        if (state.pollChanged()) access.setLight(state.isOpen() ? 0xf39d20 : -1);
+        if (state.pollChanged()) access.setLightSecondary(state.isOpen() ? 0xf39d20 : -1);
     }
 
     @Override

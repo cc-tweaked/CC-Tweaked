@@ -24,6 +24,10 @@ public final class FrameInfo {
         return renderFrame;
     }
 
+    public static int getTick() {
+        return tick;
+    }
+
     public static void onTick() {
         tick++;
     }

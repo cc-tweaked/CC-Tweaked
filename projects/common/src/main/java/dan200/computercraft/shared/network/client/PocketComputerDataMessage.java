@@ -19,20 +19,23 @@ import net.minecraft.network.FriendlyByteBuf;
 public class PocketComputerDataMessage implements NetworkMessage<ClientNetworkContext> {
     private final int instanceId;
     private final ComputerState state;
-    private final int lightState;
+    private final int primaryLightState;
+    private final int secondaryLightState;
     private final TerminalState terminal;
 
     public PocketComputerDataMessage(PocketServerComputer computer, boolean sendTerminal) {
         instanceId = computer.getInstanceID();
         state = computer.getState();
-        lightState = computer.getLight();
+        primaryLightState = computer.getLightPrimary();
+        secondaryLightState = computer.getLightSecondary();
         terminal = sendTerminal ? computer.getTerminalState() : new TerminalState((NetworkedTerminal) null);
     }
 
     public PocketComputerDataMessage(FriendlyByteBuf buf) {
         instanceId = buf.readVarInt();
         state = buf.readEnum(ComputerState.class);
-        lightState = buf.readVarInt();
+        primaryLightState = buf.readVarInt();
+        secondaryLightState = buf.readVarInt();
         terminal = new TerminalState(buf);
     }
 
@@ -40,13 +43,14 @@ public class PocketComputerDataMessage implements NetworkMessage<ClientNetworkCo
     public void write(FriendlyByteBuf buf) {
         buf.writeVarInt(instanceId);
         buf.writeEnum(state);
-        buf.writeVarInt(lightState);
+        buf.writeVarInt(primaryLightState);
+        buf.writeVarInt(secondaryLightState);
         terminal.write(buf);
     }
 
     @Override
     public void handle(ClientNetworkContext context) {
-        context.handlePocketComputerData(instanceId, state, lightState, terminal);
+        context.handlePocketComputerData(instanceId, state, primaryLightState, secondaryLightState, terminal);
     }
 
     @Override

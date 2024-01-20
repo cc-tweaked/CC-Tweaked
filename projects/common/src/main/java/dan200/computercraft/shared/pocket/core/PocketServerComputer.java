@@ -38,8 +38,10 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     private @Nullable Entity entity;
     private ItemStack stack = ItemStack.EMPTY;
 
-    private int lightColour = -1;
-    private boolean lightChanged = false;
+    private int primaryLightColour = -1;
+    private boolean primaryLightChanged = false;
+    private int secondaryLightColour = -1;
+    private boolean secondaryLightChanged = false;
 
     private final Set<ServerPlayer> tracking = new HashSet<>();
 
@@ -77,17 +79,31 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     }
 
     @Override
-    public int getLight() {
-        return lightColour;
+    public int getLightPrimary() {
+        return primaryLightColour;
     }
 
     @Override
-    public void setLight(int colour) {
+    public void setLightPrimary(int colour) {
         if (colour < 0 || colour > 0xFFFFFF) colour = -1;
 
-        if (lightColour == colour) return;
-        lightColour = colour;
-        lightChanged = true;
+        if (primaryLightColour == colour) return;
+        primaryLightColour = colour;
+        primaryLightChanged = true;
+    }
+
+    @Override
+    public int getLightSecondary() {
+        return secondaryLightColour;
+    }
+
+    @Override
+    public void setLightSecondary(int colour) {
+        if (colour < 0 || colour > 0xFFFFFF) colour = -1;
+
+        if (secondaryLightColour == colour) return;
+        secondaryLightColour = colour;
+        secondaryLightChanged = true;
     }
 
     @Override
@@ -161,8 +177,9 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         tracking.removeIf(player -> !player.isAlive() || player.level() != getLevel());
 
         // And now find any new players, add them to the tracking list, and broadcast state where appropriate.
-        var sendState = hasOutputChanged() || lightChanged;
-        lightChanged = false;
+        var sendState = hasOutputChanged() || primaryLightChanged || secondaryLightChanged;
+        primaryLightChanged = false;
+        secondaryLightChanged = false;
         if (sendState) {
             // Broadcast the state to all players
             tracking.addAll(getLevel().players());
