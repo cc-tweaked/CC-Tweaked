@@ -224,7 +224,7 @@ public final class ConfigSpec {
                 .defineInRange("max_requests", CoreConfig.httpMaxRequests, 0, Integer.MAX_VALUE);
 
             httpMaxWebsockets = builder
-                .comment("The number of websockets a computer can have open at one time. Set to 0 for unlimited.")
+                .comment("The number of websockets a computer can have open at one time.")
                 .defineInRange("max_websockets", CoreConfig.httpMaxWebsockets, 1, Integer.MAX_VALUE);
 
             builder

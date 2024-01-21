@@ -98,7 +98,7 @@
   "gui.computercraft.config.http.max_requests": "Maximum concurrent requests",
   "gui.computercraft.config.http.max_requests.tooltip": "The number of http requests a computer can make at one time. Additional requests\nwill be queued, and sent when the running requests have finished. Set to 0 for\nunlimited.\nRange: > 0",
   "gui.computercraft.config.http.max_websockets": "Maximum concurrent websockets",
-  "gui.computercraft.config.http.max_websockets.tooltip": "The number of websockets a computer can have open at one time. Set to 0 for unlimited.\nRange: > 1",
+  "gui.computercraft.config.http.max_websockets.tooltip": "The number of websockets a computer can have open at one time.\nRange: > 1",
   "gui.computercraft.config.http.proxy": "Proxy",
   "gui.computercraft.config.http.proxy.host": "Host name",
   "gui.computercraft.config.http.proxy.host.tooltip": "The hostname or IP address of the proxy server.",
