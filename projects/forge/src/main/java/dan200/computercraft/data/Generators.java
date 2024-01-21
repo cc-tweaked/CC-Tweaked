@@ -51,12 +51,12 @@ public class Generators {
     ) implements DataProviders.GeneratorSink {
         @Override
         public <T extends DataProvider> T add(DataProvider.Factory<T> factory) {
-            return generator.addProvider(factory);
+            return generator.addProvider(p -> new PrettyDataProvider<>(factory.create(p))).provider();
         }
 
         @Override
         public <T> void addFromCodec(String name, PackType type, String directory, Codec<T> codec, Consumer<BiConsumer<ResourceLocation, T>> output) {
-            generator.addProvider(out -> {
+            add(out -> {
                 Map<ResourceLocation, T> map = new HashMap<>();
                 output.accept(map::put);
                 return new JsonCodecProvider<>(out, existingFiles, ComputerCraftAPI.MOD_ID, JsonOps.INSTANCE, type, directory, codec, map);

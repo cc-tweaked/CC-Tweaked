@@ -22,11 +22,10 @@ import java.util.List;
 
 /**
  * Alternative version of {@link JsonWriter} which attempts to lay out the JSON in a more compact format.
- * <p>
- * Yes, this is at least a little deranged.
+ *
+ * @see PrettyDataProvider
  */
 public class PrettyJsonWriter extends JsonWriter {
-    public static final boolean ENABLED = System.getProperty("cct.pretty-json") != null;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     private static final int MAX_WIDTH = 120;
@@ -45,25 +44,12 @@ public class PrettyJsonWriter extends JsonWriter {
     }
 
     /**
-     * Create a JSON writer. This will either be a pretty or normal version, depending on whether the global flag is
-     * set.
-     *
-     * @param out The writer to emit to.
-     * @return The constructed JSON writer.
-     */
-    public static JsonWriter createWriter(Writer out) {
-        return ENABLED ? new PrettyJsonWriter(out) : new JsonWriter(out);
-    }
-
-    /**
      * Reformat a JSON string with our pretty printer.
      *
      * @param contents The string to reformat.
      * @return The reformatted string.
      */
     public static byte[] reformat(byte[] contents) {
-        if (!ENABLED) return contents;
-
         JsonElement object;
         try (var reader = new InputStreamReader(new ByteArrayInputStream(contents), StandardCharsets.UTF_8)) {
             object = GSON.fromJson(reader, JsonElement.class);

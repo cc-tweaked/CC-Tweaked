@@ -58,7 +58,6 @@ minecraft {
                 "--existing", project(":common").file("src/main/resources/"),
                 "--existing", file("src/main/resources/"),
             )
-            property("cct.pretty-json", "true")
         }
 
         fun RunConfig.configureForGameTest() {
@@ -110,7 +109,6 @@ mixin {
     add(sourceSets.main.get(), "computercraft.refmap.json")
     add(sourceSets.client.get(), "client-computercraft.refmap.json")
 
-    config("computercraft.mixins.json")
     config("computercraft-client.mixins.json")
     config("computercraft-client.forge.mixins.json")
 }

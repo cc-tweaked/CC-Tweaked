@@ -36,20 +36,28 @@ import java.util.function.Consumer;
 public class FabricDataGenerators implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator generator) {
-        var pack = generator.createPack();
-        DataProviders.add(new PlatformGeneratorsImpl(pack));
-        pack.addProvider((out, reg) -> addName("Conventional Tags", new MoreConventionalTagsProvider(out, reg)));
+        var pack = new PlatformGeneratorsImpl(generator.createPack());
+        DataProviders.add(pack);
+        pack.addWithRegistries((out, reg) -> addName("Conventional Tags", new MoreConventionalTagsProvider(out, reg)));
     }
 
     private record PlatformGeneratorsImpl(FabricDataGenerator.Pack generator) implements DataProviders.GeneratorSink {
+        public <T extends DataProvider> T addWithFabricOutput(FabricDataGenerator.Pack.Factory<T> factory) {
+            return generator.addProvider((FabricDataOutput p) -> new PrettyDataProvider<>(factory.create(p))).provider();
+        }
+
+        public <T extends DataProvider> T addWithRegistries(FabricDataGenerator.Pack.RegistryDependentFactory<T> factory) {
+            return generator.addProvider((r, p) -> new PrettyDataProvider<>(factory.create(r, p))).provider();
+        }
+
         @Override
         public <T extends DataProvider> T add(DataProvider.Factory<T> factory) {
-            return generator.addProvider(factory);
+            return generator.addProvider((PackOutput p) -> new PrettyDataProvider<>(factory.create(p))).provider();
         }
 
         @Override
         public <T> void addFromCodec(String name, PackType type, String directory, Codec<T> codec, Consumer<BiConsumer<ResourceLocation, T>> output) {
-            generator.addProvider((FabricDataOutput out) -> {
+            addWithFabricOutput((FabricDataOutput out) -> {
                 var ourType = switch (type) {
                     case SERVER_DATA -> PackOutput.Target.DATA_PACK;
                     case CLIENT_RESOURCES -> PackOutput.Target.RESOURCE_PACK;
@@ -71,7 +79,7 @@ public class FabricDataGenerators implements DataGeneratorEntrypoint {
         @Override
         public void lootTable(List<LootTableProvider.SubProviderEntry> tables) {
             for (var table : tables) {
-                generator.addProvider((FabricDataOutput out) -> new SimpleFabricLootTableProvider(out, table.paramSet()) {
+                addWithFabricOutput((FabricDataOutput out) -> new SimpleFabricLootTableProvider(out, table.paramSet()) {
                     @Override
                     public void generate(BiConsumer<ResourceLocation, LootTable.Builder> exporter) {
                         table.provider().get().generate(exporter);
@@ -82,7 +90,7 @@ public class FabricDataGenerators implements DataGeneratorEntrypoint {
 
         @Override
         public TagsProvider<Block> blockTags(Consumer<TagProvider.TagConsumer<Block>> tags) {
-            return generator.addProvider((out, registries) -> new FabricTagProvider.BlockTagProvider(out, registries) {
+            return addWithRegistries((out, registries) -> new FabricTagProvider.BlockTagProvider(out, registries) {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
                     tags.accept(x -> new TagProvider.TagAppender<>(RegistryWrappers.BLOCKS, getOrCreateRawBuilder(x)));
@@ -92,7 +100,7 @@ public class FabricDataGenerators implements DataGeneratorEntrypoint {
 
         @Override
         public TagsProvider<Item> itemTags(Consumer<TagProvider.ItemTagConsumer> tags, TagsProvider<Block> blocks) {
-            return generator.addProvider((out, registries) -> new FabricTagProvider.ItemTagProvider(out, registries, (FabricTagProvider.BlockTagProvider) blocks) {
+            return addWithRegistries((out, registries) -> new FabricTagProvider.ItemTagProvider(out, registries, (FabricTagProvider.BlockTagProvider) blocks) {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
                     var self = this;
@@ -113,7 +121,7 @@ public class FabricDataGenerators implements DataGeneratorEntrypoint {
 
         @Override
         public void models(Consumer<BlockModelGenerators> blocks, Consumer<ItemModelGenerators> items) {
-            generator.addProvider((FabricDataOutput out) -> new FabricModelProvider(out) {
+            addWithFabricOutput((FabricDataOutput out) -> new FabricModelProvider(out) {
                 @Override
                 public void generateBlockStateModels(BlockModelGenerators generator) {
                     blocks.accept(generator);

@@ -146,7 +146,6 @@ loom {
             client()
 
             runDir("run/dataGen")
-            property("cct.pretty-json")
             property("fabric-api.datagen")
             property("fabric-api.datagen.output-dir", file("src/generated/resources").absolutePath)
             property("fabric-api.datagen.strict-validation")
