@@ -100,8 +100,8 @@ public abstract class AbstractHandle {
     /**
      * Read a number of bytes from this file.
      *
-     * @param countArg The number of bytes to read. When absent, a single byte will be read <em>as a number</em>. This
-     *                 may be 0 to determine we are at the end of the file.
+     * @param countArg The number of bytes to read. This may be 0 to determine we are at the end of the file. When
+     *                 absent, a single byte will be read.
      * @return The read bytes.
      * @throws LuaException When trying to read a negative number of bytes.
      * @throws LuaException If the file has been closed.

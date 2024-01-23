@@ -32,7 +32,7 @@ public record PrettyDataProvider<T extends DataProvider>(T provider) implements 
     }
 
     private record Output(CachedOutput output) implements CachedOutput {
-        @SuppressWarnings("unused")
+        @SuppressWarnings("deprecation")
         private static final HashFunction HASH_FUNCTION = Hashing.sha1();
 
         @Override
