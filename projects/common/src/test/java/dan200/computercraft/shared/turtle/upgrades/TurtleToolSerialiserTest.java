@@ -4,6 +4,18 @@
 
 package dan200.computercraft.shared.turtle.upgrades;
 
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Arbitrary;
+import net.jqwik.api.Builders;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
+import net.jqwik.api.Provide;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleToolDurability;
 import dan200.computercraft.test.core.StructuralEquality;
@@ -11,8 +23,8 @@ import dan200.computercraft.test.shared.MinecraftArbitraries;
 import dan200.computercraft.test.shared.MinecraftEqualities;
 import dan200.computercraft.test.shared.NetworkSupport;
 import dan200.computercraft.test.shared.WithMinecraft;
-import net.jqwik.api.*;
-import net.minecraft.core.registries.Registries;
+
+import javax.annotation.Nullable;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -20,6 +32,67 @@ import static org.hamcrest.MatcherAssert.assertThat;
 class TurtleToolSerialiserTest {
     static {
         WithMinecraft.Setup.bootstrap(); // @Property doesn't run test lifecycle methods.
+    }
+
+    static class TurtleToolBuilder {
+        ResourceLocation id;
+        String adjective;
+        Item craftItem;
+        ItemStack toolItem;
+        float damageMulitiplier;
+        boolean allowEnchantments;
+        TurtleToolDurability consumeDurability;
+        @Nullable TagKey<Block> breakable;
+        String peripheralType;
+
+        public TurtleToolBuilder withId(ResourceLocation id) {
+            this.id = id;
+            return this;
+        }
+
+        public TurtleToolBuilder withAdjective(String adjective) {
+            this.adjective = adjective;
+            return this;
+        }
+
+        public TurtleToolBuilder withCraftItem(Item craftItem) {
+            this.craftItem = craftItem;
+            return this;
+        }
+
+        public TurtleToolBuilder withToolItem(ItemStack toolItem) {
+            this.toolItem = toolItem;
+            return this;
+        }
+
+        public TurtleToolBuilder withDamageMultiplier(float damageMulitiplier) {
+            this.damageMulitiplier = damageMulitiplier;
+            return this;
+        }
+
+        public TurtleToolBuilder withAllowEnchantments(boolean allowEnchantments) {
+            this.allowEnchantments = allowEnchantments;
+            return this;
+        }
+
+        public TurtleToolBuilder withConsumeDurability(TurtleToolDurability consumeDurability) {
+            this.consumeDurability = consumeDurability;
+            return this;
+        }
+
+        public TurtleToolBuilder withBreakable(@Nullable TagKey<Block> breakable) {
+            this.breakable = breakable;
+            return this;
+        }
+
+        public TurtleToolBuilder withPeripheralType(String peripheralType) {
+            this.peripheralType = peripheralType;
+            return this;
+        }
+
+        public TurtleTool build() {
+            return new TurtleTool(id, adjective, craftItem, toolItem, damageMulitiplier, allowEnchantments, consumeDurability, breakable, peripheralType);
+        }
     }
 
     /**
@@ -41,16 +114,18 @@ class TurtleToolSerialiserTest {
 
     @Provide
     Arbitrary<TurtleTool> tool() {
-        return Combinators.combine(
-            MinecraftArbitraries.resourceLocation(),
-            Arbitraries.strings().ofMaxLength(100),
-            MinecraftArbitraries.item(),
-            MinecraftArbitraries.itemStack(),
-            Arbitraries.floats(),
-            Arbitraries.of(true, false),
-            Arbitraries.of(TurtleToolDurability.values()),
-            MinecraftArbitraries.tagKey(Registries.BLOCK)
-        ).as(TurtleTool::new);
+
+        return Builders.withBuilder(() -> new TurtleToolBuilder())
+            .use(MinecraftArbitraries.resourceLocation()).in((builder, resourceLocation) -> builder.withId(resourceLocation))
+            .use(Arbitraries.strings().ofMaxLength(100)).in((builder, adjective) -> builder.withAdjective(adjective))
+            .use(MinecraftArbitraries.item()).in((builder, craftItem) -> builder.withCraftItem(craftItem))
+            .use(MinecraftArbitraries.itemStack()).in((builder, toolItem) -> builder.withToolItem(toolItem))
+            .use(Arbitraries.floats()).in((builder, damageMulitiplier) -> builder.withDamageMultiplier(damageMulitiplier))
+            .use(Arbitraries.of(true, false)).in((builder, allowEnchantments) -> builder.withAllowEnchantments(allowEnchantments))
+            .use(Arbitraries.of(TurtleToolDurability.values())).in((builder, consumeDurability) -> builder.withConsumeDurability(consumeDurability))
+            .use(MinecraftArbitraries.tagKey(Registries.BLOCK)).in((builder, breakable) -> builder.withBreakable(breakable))
+            .use(Arbitraries.strings().ofMaxLength(100)).in((builder, peripheralType) -> builder.withPeripheralType(peripheralType))
+            .build(builder -> builder.build());
     }
 
     private static final StructuralEquality<TurtleTool> equality = StructuralEquality.all(

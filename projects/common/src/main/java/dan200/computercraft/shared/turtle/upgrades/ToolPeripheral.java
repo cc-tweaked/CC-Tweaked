@@ -1,8 +1,5 @@
 package dan200.computercraft.shared.turtle.upgrades;
 
-
-import javax.annotation.Nullable;
-
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.MethodResult;
@@ -12,7 +9,9 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.turtle.core.InteractDirection;
 import dan200.computercraft.shared.turtle.core.TurtleToolCommand;
 
-public class ToolPeripheral implements IPeripheral{
+import javax.annotation.Nullable;
+
+public class ToolPeripheral implements IPeripheral {
     private final ITurtleAccess turtle;
     private final TurtleSide side;
     private final String type;
