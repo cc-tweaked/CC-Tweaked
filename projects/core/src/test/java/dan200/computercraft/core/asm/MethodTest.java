@@ -67,8 +67,8 @@ public class MethodTest {
     public void testPeripheralThrow() {
         ComputerBootstrap.run(
             "local throw = peripheral.wrap('top')\n" +
-                "local _, err = pcall(throw.thisThread) assert(err == 'pcall: !', err)\n" +
-                "local _, err = pcall(throw.mainThread) assert(err == 'pcall: !', err)",
+                "local _, err = pcall(function() throw.thisThread() end) assert(err == '/test.lua:2: !', (\"thisThread: %q\"):format(err))\n" +
+                "local _, err = pcall(function() throw.mainThread() end) assert(err == '/test.lua:3: !', (\"mainThread: %q\"):format(err))\n",
             x -> x.getEnvironment().setPeripheral(ComputerSide.TOP, new PeripheralThrow()),
             50
         );

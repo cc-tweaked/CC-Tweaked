@@ -164,9 +164,7 @@ public class CobaltLuaMachine implements ILuaMachine {
     private LuaTable wrapLuaObject(Object object) {
         var table = new LuaTable();
         var found = luaMethods.forEachMethod(object, (target, name, method, info) ->
-            table.rawset(name, info != null && info.nonYielding()
-                ? new BasicFunction(this, method, target, context, name)
-                : new ResultInterpreterFunction(this, method, target, context, name)));
+            table.rawset(name, new ResultInterpreterFunction(this, method, target, context, name)));
 
         return found ? table : null;
     }

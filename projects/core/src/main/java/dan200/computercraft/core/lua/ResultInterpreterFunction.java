@@ -73,7 +73,7 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
     }
 
     @Override
-    protected Varargs resumeThis(LuaState state, Container container, Varargs args) throws LuaError, UnwindThrowable {
+    public Varargs resume(LuaState state, Container container, Varargs args) throws LuaError, UnwindThrowable {
         MethodResult results;
         var arguments = CobaltLuaMachine.toObjects(args);
         try {
@@ -98,6 +98,6 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
         if (!exception.hasLevel() && adjust == 0) return new LuaError(exception.getMessage());
 
         var level = exception.getLevel();
-        return new LuaError(exception.getMessage(), level <= 0 ? level : level + adjust + 1);
+        return new LuaError(exception.getMessage(), level <= 0 ? level : level + adjust);
     }
 }
