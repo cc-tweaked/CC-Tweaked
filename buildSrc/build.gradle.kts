@@ -56,7 +56,6 @@ dependencies {
     implementation(libs.librarian)
     implementation(libs.minotaur)
     implementation(libs.vanillaGradle)
-    implementation(libs.vineflower)
 }
 
 gradlePlugin {
