@@ -1,11 +1,14 @@
-New features in CC: Tweaked 1.109.3
-
-* Command computers now display in the operator items creative tab.
+New features in CC: Tweaked 1.109.4
 
 Several bug fixes:
-* Error if too many websocket messages are queued to be sent at once.
-* Fix trailing-comma on method calls (e.g. `x:f(a, )` not using our custom error message.
-* Fix internal compiler error when using `goto` as the first statement in an `if` block.
-* Fix incorrect resizing of a tables' hash part when adding and removing keys.
+* Don't log warnings when a computer allocates no bytes.
+* Fix incorrect list index in command computer's NBT conversion (lonevox).
+* Fix `endPage()` not updating the printer's block state.
+* Several documentation improvements (znepb).
+* Correctly mount disks before computer startup, not afterwards.
+* Update to Cobalt 0.9
+  * Debug hooks are now correctly called for every function.
+  * Fix several minor inconsistencies with `debug.getinfo`.
+  * Fix Lua tables being sized incorrectly when created from varargs.
 
 Type "help changelog" to see the full version history.
