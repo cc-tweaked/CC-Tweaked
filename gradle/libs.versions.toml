@@ -14,6 +14,7 @@ forgeSpi = "7.0.1"
 mixin = "0.8.5"
 parchment = "2023.08.20"
 parchmentMc = "1.20.1"
+yarn = "1.20.1+build.10"
 
 # Core dependencies (these versions are tied to the version Minecraft uses)
 fastutil = "8.5.9"
@@ -71,7 +72,7 @@ nullAway = "0.9.9"
 spotless = "6.23.3"
 taskTree = "2.1.1"
 teavm = "0.10.0-SQUID.2"
-vanillaGradle = "0.2.1-SNAPSHOT"
+vanillaExtract = "0.1.1"
 versionCatalogUpdate = "0.8.1"
 
 [libraries]
@@ -158,7 +159,8 @@ teavm-metaprogramming-api = { module = "org.teavm:teavm-metaprogramming-api", ve
 teavm-metaprogramming-impl = { module = "org.teavm:teavm-metaprogramming-impl", version.ref = "teavm" }
 teavm-platform = { module = "org.teavm:teavm-platform", version.ref = "teavm" }
 teavm-tooling = { module = "org.teavm:teavm-tooling", version.ref = "teavm" }
-vanillaGradle = { module = "org.spongepowered:vanillagradle", version.ref = "vanillaGradle" }
+vanillaExtract = { module = "cc.tweaked.vanilla-extract:plugin", version.ref = "vanillaExtract" }
+yarn = { module = "net.fabricmc:yarn", version.ref = "yarn" }
 
 [plugins]
 forgeGradle = { id = "net.minecraftforge.gradle", version.ref = "forgeGradle" }

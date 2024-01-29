@@ -29,17 +29,17 @@ repositories {
         }
     }
 
-    maven("https://repo.spongepowered.org/repository/maven-public/") {
-        name = "Sponge"
-        content {
-            includeGroup("org.spongepowered")
-        }
-    }
-
     maven("https://maven.fabricmc.net/") {
         name = "Fabric"
         content {
             includeGroup("net.fabricmc")
+        }
+    }
+
+    maven("https://squiddev.cc/maven") {
+        name = "SquidDev"
+        content {
+            includeGroup("cc.tweaked.vanilla-extract")
         }
     }
 }
@@ -55,7 +55,7 @@ dependencies {
     implementation(libs.ideaExt)
     implementation(libs.librarian)
     implementation(libs.minotaur)
-    implementation(libs.vanillaGradle)
+    implementation(libs.vanillaExtract)
 }
 
 gradlePlugin {

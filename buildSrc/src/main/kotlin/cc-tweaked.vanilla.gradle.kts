@@ -10,25 +10,31 @@ import cc.tweaked.gradle.MinecraftConfigurations
 
 plugins {
     id("cc-tweaked.java-convention")
-    id("org.spongepowered.gradle.vanilla")
+    id("cc.tweaked.vanilla-extract")
 }
 
 plugins.apply(CCTweakedPlugin::class.java)
 
 val mcVersion: String by extra
 
+val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
+
 minecraft {
     version(mcVersion)
+
+    mappings {
+        parchment(libs.findVersion("parchmentMc").get().toString(), libs.findVersion("parchment").get().toString())
+    }
+
+    unpick(libs.findLibrary("yarn").get())
 }
 
 dependencies {
-    val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
-
     // Depend on error prone annotations to silence a lot of compile warnings.
-    compileOnlyApi(libs.findLibrary("errorProne.annotations").get())
+    compileOnly(libs.findLibrary("errorProne.annotations").get())
 }
 
-MinecraftConfigurations.setup(project)
+MinecraftConfigurations.setupBasic(project)
 
 extensions.configure(CCTweakedExtension::class.java) {
     linters(minecraft = true, loader = null)

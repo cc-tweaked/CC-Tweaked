@@ -22,6 +22,14 @@ configurations {
     register("cctJavadoc")
 }
 
+repositories {
+    maven("https://maven.minecraftforge.net/") {
+        content {
+            includeModule("org.spongepowered", "mixin")
+        }
+    }
+}
+
 dependencies {
     // Pull in our other projects. See comments in MinecraftConfigurations on this nastiness.
     implementation(project(":core"))
