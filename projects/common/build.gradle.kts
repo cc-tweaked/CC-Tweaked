@@ -80,7 +80,7 @@ val luaJavadoc by tasks.registering(Javadoc::class) {
 
     javadocTool.set(
         javaToolchains.javadocToolFor {
-            languageVersion.set(cc.tweaked.gradle.CCTweakedPlugin.JAVA_VERSION)
+            languageVersion.set(CCTweakedPlugin.JAVA_VERSION)
         },
     )
 }
