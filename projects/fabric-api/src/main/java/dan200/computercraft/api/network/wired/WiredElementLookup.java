@@ -2,10 +2,9 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package dan200.computercraft.api.node.wired;
+package dan200.computercraft.api.network.wired;
 
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.network.wired.WiredElement;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;

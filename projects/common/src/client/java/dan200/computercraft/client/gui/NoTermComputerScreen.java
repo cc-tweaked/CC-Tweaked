@@ -63,9 +63,9 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
     }
 
     @Override
-    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
-        minecraft.player.getInventory().swapPaint(pDelta);
-        return super.mouseScrolled(pMouseX, pMouseY, pDelta);
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        minecraft.player.getInventory().swapPaint(scrollX);
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override

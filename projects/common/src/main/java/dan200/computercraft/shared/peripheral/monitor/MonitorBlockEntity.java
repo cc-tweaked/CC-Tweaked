@@ -5,7 +5,6 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
 import com.google.common.annotations.VisibleForTesting;
-import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
@@ -507,7 +506,6 @@ public class MonitorBlockEntity extends BlockEntity {
         computers.remove(computer);
     }
 
-    @ForgeOverride
     public AABB getRenderBoundingBox() {
         // We attempt to cache the bounding box to save having to do property lookups (and allocations!) on every frame.
         // Unfortunately the AABB does depend on quite a lot of state, so we need to add a bunch of extra fields -

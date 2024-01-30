@@ -195,7 +195,7 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta, double deltaY) {
         if (!inTermRegion(mouseX, mouseY)) return false;
         if (!hasMouseSupport() || delta == 0) return false;
 

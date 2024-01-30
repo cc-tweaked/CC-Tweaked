@@ -4,11 +4,12 @@
 
 package dan200.computercraft.shared.recipe;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.ShapedRecipePattern;
 
 /**
  * A description of a {@link ShapedRecipe}.
@@ -17,27 +18,26 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
  * deserialisation of {@link ShapedRecipe}-like recipes.
  *
  * @param properties The common properties of this recipe.
- * @param template   The shaped template of the recipe.
+ * @param pattern    The shaped template of the recipe.
  * @param result     The result of the recipe.
  */
-public record ShapedRecipeSpec(RecipeProperties properties, ShapedTemplate template, ItemStack result) {
-    public static ShapedRecipeSpec fromJson(JsonObject json) {
-        var properties = RecipeProperties.fromJson(json);
-        var template = ShapedTemplate.fromJson(json);
-        var result = RecipeUtil.itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
-        return new ShapedRecipeSpec(properties, template, result);
-    }
+public record ShapedRecipeSpec(RecipeProperties properties, ShapedRecipePattern pattern, ItemStack result) {
+    public static final MapCodec<ShapedRecipeSpec> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        RecipeProperties.CODEC.forGetter(ShapedRecipeSpec::properties),
+        ShapedRecipePattern.MAP_CODEC.forGetter(ShapedRecipeSpec::pattern),
+        MoreCodecs.ITEM_STACK_WITH_NBT.fieldOf("result").forGetter(ShapedRecipeSpec::result)
+    ).apply(instance, ShapedRecipeSpec::new));
 
     public static ShapedRecipeSpec fromNetwork(FriendlyByteBuf buffer) {
         var properties = RecipeProperties.fromNetwork(buffer);
-        var template = ShapedTemplate.fromNetwork(buffer);
+        var template = ShapedRecipePattern.fromNetwork(buffer);
         var result = buffer.readItem();
         return new ShapedRecipeSpec(properties, template, result);
     }
 
     public void toNetwork(FriendlyByteBuf buffer) {
         properties().toNetwork(buffer);
-        template().toNetwork(buffer);
+        pattern().toNetwork(buffer);
         buffer.writeItem(result());
     }
 }

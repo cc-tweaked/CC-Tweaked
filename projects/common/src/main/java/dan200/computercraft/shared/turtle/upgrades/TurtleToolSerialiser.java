@@ -6,9 +6,9 @@ package dan200.computercraft.shared.turtle.upgrades;
 
 import com.google.gson.JsonObject;
 import dan200.computercraft.api.turtle.TurtleToolDurability;
-import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.api.upgrades.UpgradeBase;
-import dan200.computercraft.shared.platform.RegistryWrappers;
+import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.Block;
 
 import java.util.Objects;
 
-public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<TurtleTool> {
+public final class TurtleToolSerialiser implements UpgradeSerialiser<TurtleTool> {
     public static final TurtleToolSerialiser INSTANCE = new TurtleToolSerialiser();
 
     private TurtleToolSerialiser() {
@@ -29,7 +29,7 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
     public TurtleTool fromJson(ResourceLocation id, JsonObject object) {
         var adjective = GsonHelper.getAsString(object, "adjective", UpgradeBase.getDefaultAdjective(id));
         var toolItem = GsonHelper.getAsItem(object, "item");
-        var craftingItem = GsonHelper.getAsItem(object, "craftingItem", toolItem);
+        var craftingItem = GsonHelper.getAsItem(object, "craftingItem", toolItem).value();
         var damageMultiplier = GsonHelper.getAsFloat(object, "damageMultiplier", 3.0f);
         var allowEnchantments = GsonHelper.getAsBoolean(object, "allowEnchantments", false);
         var consumeDurability = TurtleToolDurability.CODEC.byName(GsonHelper.getAsString(object, "consumeDurability", null), TurtleToolDurability.NEVER);
@@ -46,7 +46,7 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
     @Override
     public TurtleTool fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
         var adjective = buffer.readUtf();
-        var craftingItem = buffer.readById(RegistryWrappers.ITEMS);
+        var craftingItem = buffer.readById(BuiltInRegistries.ITEM);
         Objects.requireNonNull(craftingItem, "Unknown crafting item");
         var toolItem = buffer.readItem();
         // damageMultiplier and breakable aren't used by the client, but we need to construct the upgrade exactly
@@ -62,7 +62,7 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
     @Override
     public void toNetwork(FriendlyByteBuf buffer, TurtleTool upgrade) {
         buffer.writeUtf(upgrade.getUnlocalisedAdjective());
-        buffer.writeId(RegistryWrappers.ITEMS, upgrade.getCraftingItem().getItem());
+        buffer.writeId(BuiltInRegistries.ITEM, upgrade.getCraftingItem().getItem());
         buffer.writeItem(upgrade.item);
         buffer.writeFloat(upgrade.damageMulitiplier);
         buffer.writeBoolean(upgrade.allowEnchantments);

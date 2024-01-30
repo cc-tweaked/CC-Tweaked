@@ -5,8 +5,9 @@
 package dan200.computercraft.data;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
-import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 
@@ -21,7 +22,7 @@ class PocketUpgradeProvider extends PocketUpgradeDataProvider {
     }
 
     @Override
-    protected void addUpgrades(Consumer<Upgrade<PocketUpgradeSerialiser<?>>> addUpgrade) {
+    protected void addUpgrades(Consumer<Upgrade<UpgradeSerialiser<? extends IPocketUpgrade>>> addUpgrade) {
         addUpgrade.accept(simpleWithCustomItem(id("speaker"), PocketUpgradeSerialisers.SPEAKER.get(), Items.SPEAKER.get()));
         simpleWithCustomItem(id("wireless_modem_normal"), PocketUpgradeSerialisers.WIRELESS_MODEM_NORMAL.get(), Items.WIRELESS_MODEM_NORMAL.get()).add(addUpgrade);
         simpleWithCustomItem(id("wireless_modem_advanced"), PocketUpgradeSerialisers.WIRELESS_MODEM_ADVANCED.get(), Items.WIRELESS_MODEM_ADVANCED.get()).add(addUpgrade);

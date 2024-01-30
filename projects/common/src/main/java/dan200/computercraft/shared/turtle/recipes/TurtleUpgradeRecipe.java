@@ -11,7 +11,6 @@ import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -20,8 +19,8 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 public final class TurtleUpgradeRecipe extends CustomRecipe {
-    public TurtleUpgradeRecipe(ResourceLocation id, CraftingBookCategory category) {
-        super(id, category);
+    public TurtleUpgradeRecipe(CraftingBookCategory category) {
+        super(category);
     }
 
     @Override

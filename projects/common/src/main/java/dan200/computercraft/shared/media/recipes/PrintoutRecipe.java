@@ -8,7 +8,6 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -22,8 +21,8 @@ public final class PrintoutRecipe extends CustomRecipe {
     private final Ingredient leather;
     private final Ingredient string;
 
-    public PrintoutRecipe(ResourceLocation id, CraftingBookCategory category) {
-        super(id, category);
+    public PrintoutRecipe(CraftingBookCategory category) {
+        super(category);
 
         var ingredients = PlatformHelper.get().getRecipeIngredients();
         leather = ingredients.leather();

@@ -6,8 +6,12 @@ package dan200.computercraft.api.turtle;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.upgrades.UpgradeBase;
+import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import dan200.computercraft.impl.ComputerCraftAPIService;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
 
 import javax.annotation.Nullable;
 
@@ -16,15 +20,54 @@ import javax.annotation.Nullable;
  * peripheral.
  * <p>
  * Turtle upgrades are defined in two stages. First, one creates a {@link ITurtleUpgrade} subclass and corresponding
- * {@link TurtleUpgradeSerialiser} instance, which are then registered in a Forge registry.
+ * {@link UpgradeSerialiser} instance, which are then registered in a registry.
  * <p>
  * You then write a JSON file in your mod's {@literal data/} folder. This is then parsed when the world is loaded, and
- * the upgrade registered internally. See the documentation in {@link TurtleUpgradeSerialiser} for details on this process
- * and where files should be located.
+ * the upgrade automatically registered. It is recommended this is done via {@linkplain TurtleUpgradeDataProvider data
+ * generators}.
  *
- * @see TurtleUpgradeSerialiser For how to register a turtle upgrade.
+ * <h2>Example</h2>
+ * <pre>{@code
+ * // We use Forge's DeferredRegister to register our serialiser. Fabric mods may register their serialiser directly.
+ * static final DeferredRegister<UpgradeSerialiser<? extends ITurtleUpgrade>> SERIALISERS = DeferredRegister.create(ITurtleUpgrade.serialiserRegistryKey(), "my_mod");
+ *
+ * // Register a new upgrade serialiser called "my_upgrade".
+ * public static final RegistryObject<UpgradeSerialiser<MyUpgrade>> MY_UPGRADE =
+ *     SERIALISERS.register( "my_upgrade", () -> TurtleUpgradeSerialiser.simple( MyUpgrade::new ) );
+ *
+ * // Then in your constructor
+ * SERIALISERS.register( bus );
+ * }</pre>
+ * <p>
+ * We can then define a new upgrade using JSON by placing the following in
+ * {@literal data/<my_mod>/computercraft/turtle_upgrades/<my_upgrade_id>.json}}.
+ *
+ * <pre>{@code
+ * {
+ *     "type": my_mod:my_upgrade",
+ * }
+ * }</pre>
+ * <p>
+ * {@link TurtleUpgradeDataProvider} provides a data provider to aid with generating these JSON files.
+ * <p>
+ * Finally, we need to register a model for our upgrade, see
+ * {@link dan200.computercraft.api.client.turtle.TurtleUpgradeModeller} for more information.
+ *
+ * <pre>{@code
+ * // Register our model inside FMLClientSetupEvent
+ * ComputerCraftAPIClient.registerTurtleUpgradeModeller(MY_UPGRADE.get(), TurtleUpgradeModeller.flatItem())
+ * }</pre>
  */
 public interface ITurtleUpgrade extends UpgradeBase {
+    /**
+     * The registry key for upgrade serialisers.
+     *
+     * @return The registry key.
+     */
+    static ResourceKey<Registry<UpgradeSerialiser<? extends ITurtleUpgrade>>> serialiserRegistryKey() {
+        return ComputerCraftAPIService.get().turtleUpgradeRegistryId();
+    }
+
     /**
      * Return whether this turtle adds a tool or a peripheral to the turtle.
      *

@@ -5,7 +5,6 @@
 package dan200.computercraft.data;
 
 import com.mojang.serialization.Codec;
-import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
@@ -14,6 +13,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.SimpleFabricLootTableProvider;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -93,7 +93,7 @@ public class FabricDataGenerators implements DataGeneratorEntrypoint {
             return addWithRegistries((out, registries) -> new FabricTagProvider.BlockTagProvider(out, registries) {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
-                    tags.accept(x -> new TagProvider.TagAppender<>(RegistryWrappers.BLOCKS, getOrCreateRawBuilder(x)));
+                    tags.accept(x -> new TagProvider.TagAppender<>(BuiltInRegistries.BLOCK, getOrCreateRawBuilder(x)));
                 }
             });
         }
@@ -107,7 +107,7 @@ public class FabricDataGenerators implements DataGeneratorEntrypoint {
                     tags.accept(new TagProvider.ItemTagConsumer() {
                         @Override
                         public TagProvider.TagAppender<Item> tag(TagKey<Item> tag) {
-                            return new TagProvider.TagAppender<>(RegistryWrappers.ITEMS, getOrCreateRawBuilder(tag));
+                            return new TagProvider.TagAppender<>(BuiltInRegistries.ITEM, getOrCreateRawBuilder(tag));
                         }
 
                         @Override

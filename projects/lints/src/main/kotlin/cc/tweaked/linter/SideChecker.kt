@@ -93,7 +93,7 @@ internal class SideProvider {
     private fun fromAnnotationStream(annotations: Stream<out AnnotationMirror>) =
         annotations.flatMap {
             when (it.annotationType.toString()) {
-                "net.minecraftforge.api.distmarker.OnlyIn" -> {
+                "net.neoforged.api.distmarker.OnlyIn" -> {
                     val value = it.getValue("value", AnnotationGetters.enum<Side>())!!
                     Stream.of(value)
                 }

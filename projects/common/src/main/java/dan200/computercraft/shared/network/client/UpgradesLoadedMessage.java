@@ -5,18 +5,16 @@
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.api.pocket.IPocketUpgrade;
-import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.impl.PocketUpgrades;
+import dan200.computercraft.impl.RegistryHelper;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.impl.UpgradeManager;
 import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.NetworkMessages;
-import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
@@ -24,14 +22,13 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Syncs turtle and pocket upgrades to the client.
  */
 public final class UpgradesLoadedMessage implements NetworkMessage<ClientNetworkContext> {
-    private final Map<String, UpgradeManager.UpgradeWrapper<TurtleUpgradeSerialiser<?>, ITurtleUpgrade>> turtleUpgrades;
-    private final Map<String, UpgradeManager.UpgradeWrapper<PocketUpgradeSerialiser<?>, IPocketUpgrade>> pocketUpgrades;
+    private final Map<String, UpgradeManager.UpgradeWrapper<ITurtleUpgrade>> turtleUpgrades;
+    private final Map<String, UpgradeManager.UpgradeWrapper<IPocketUpgrade>> pocketUpgrades;
 
     public UpgradesLoadedMessage() {
         turtleUpgrades = TurtleUpgrades.instance().getUpgradeWrappers();
@@ -39,28 +36,28 @@ public final class UpgradesLoadedMessage implements NetworkMessage<ClientNetwork
     }
 
     public UpgradesLoadedMessage(FriendlyByteBuf buf) {
-        turtleUpgrades = fromBytes(buf, TurtleUpgradeSerialiser.registryId());
-        pocketUpgrades = fromBytes(buf, PocketUpgradeSerialiser.registryId());
+        turtleUpgrades = fromBytes(buf, ITurtleUpgrade.serialiserRegistryKey());
+        pocketUpgrades = fromBytes(buf, IPocketUpgrade.serialiserRegistryKey());
     }
 
-    private <R extends UpgradeSerialiser<? extends T>, T extends UpgradeBase> Map<String, UpgradeManager.UpgradeWrapper<R, T>> fromBytes(
-        FriendlyByteBuf buf, ResourceKey<Registry<R>> registryKey
+    private <T extends UpgradeBase> Map<String, UpgradeManager.UpgradeWrapper<T>> fromBytes(
+        FriendlyByteBuf buf, ResourceKey<Registry<UpgradeSerialiser<? extends T>>> registryKey
     ) {
-        var registry = PlatformHelper.get().wrap(registryKey);
+        var registry = RegistryHelper.getRegistry(registryKey);
 
         var size = buf.readVarInt();
-        Map<String, UpgradeManager.UpgradeWrapper<R, T>> upgrades = new HashMap<>(size);
+        Map<String, UpgradeManager.UpgradeWrapper<T>> upgrades = new HashMap<>(size);
         for (var i = 0; i < size; i++) {
             var id = buf.readUtf();
 
             var serialiserId = buf.readResourceLocation();
-            var serialiser = registry.tryGet(serialiserId);
+            var serialiser = registry.get(serialiserId);
             if (serialiser == null) throw new IllegalStateException("Unknown serialiser " + serialiserId);
 
             var upgrade = serialiser.fromNetwork(new ResourceLocation(id), buf);
             var modId = buf.readUtf();
 
-            upgrades.put(id, new UpgradeManager.UpgradeWrapper<R, T>(id, upgrade, serialiser, modId));
+            upgrades.put(id, new UpgradeManager.UpgradeWrapper<T>(id, upgrade, serialiser, modId));
         }
 
         return upgrades;
@@ -68,14 +65,14 @@ public final class UpgradesLoadedMessage implements NetworkMessage<ClientNetwork
 
     @Override
     public void write(FriendlyByteBuf buf) {
-        toBytes(buf, TurtleUpgradeSerialiser.registryId(), turtleUpgrades);
-        toBytes(buf, PocketUpgradeSerialiser.registryId(), pocketUpgrades);
+        toBytes(buf, ITurtleUpgrade.serialiserRegistryKey(), turtleUpgrades);
+        toBytes(buf, IPocketUpgrade.serialiserRegistryKey(), pocketUpgrades);
     }
 
-    private <R extends UpgradeSerialiser<? extends T>, T extends UpgradeBase> void toBytes(
-        FriendlyByteBuf buf, ResourceKey<Registry<R>> registryKey, Map<String, UpgradeManager.UpgradeWrapper<R, T>> upgrades
+    private <T extends UpgradeBase> void toBytes(
+        FriendlyByteBuf buf, ResourceKey<Registry<UpgradeSerialiser<? extends T>>> registryKey, Map<String, UpgradeManager.UpgradeWrapper<T>> upgrades
     ) {
-        var registry = PlatformHelper.get().wrap(registryKey);
+        var registry = RegistryHelper.getRegistry(registryKey);
 
         buf.writeVarInt(upgrades.size());
         for (var entry : upgrades.entrySet()) {
@@ -85,7 +82,7 @@ public final class UpgradesLoadedMessage implements NetworkMessage<ClientNetwork
             @SuppressWarnings("unchecked")
             var unwrappedSerialiser = (UpgradeSerialiser<T>) serialiser;
 
-            buf.writeResourceLocation(Objects.requireNonNull(registry.getKey(serialiser), "Serialiser is not registered!"));
+            buf.writeResourceLocation(RegistryHelper.getKeyOrThrow(registry, serialiser));
             unwrappedSerialiser.toNetwork(buf, entry.getValue().upgrade());
 
             buf.writeUtf(entry.getValue().modId());

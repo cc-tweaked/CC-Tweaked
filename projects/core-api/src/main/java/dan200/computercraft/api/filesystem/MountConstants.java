@@ -59,7 +59,7 @@ public final class MountConstants {
     public static final String FILE_EXISTS = "File exists";
 
     /**
-     * The error message used when trying to {@linkplain WritableMount#openForWrite(String) opening a directory to read}.
+     * The error message used when trying to open a directory to read.
      */
     public static final String CANNOT_WRITE_TO_DIRECTORY = "Cannot write to directory";
 

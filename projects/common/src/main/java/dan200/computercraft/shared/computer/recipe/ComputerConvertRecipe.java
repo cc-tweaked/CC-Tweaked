@@ -8,7 +8,6 @@ import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.recipe.CustomShapedRecipe;
 import dan200.computercraft.shared.recipe.ShapedRecipeSpec;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -17,8 +16,8 @@ import net.minecraft.world.level.Level;
  * A recipe which converts a computer from one form into another.
  */
 public abstract class ComputerConvertRecipe extends CustomShapedRecipe {
-    public ComputerConvertRecipe(ResourceLocation identifier, ShapedRecipeSpec recipe) {
-        super(identifier, recipe);
+    public ComputerConvertRecipe(ShapedRecipeSpec recipe) {
+        super(recipe);
     }
 
     protected abstract ItemStack convert(IComputerItem item, ItemStack stack);

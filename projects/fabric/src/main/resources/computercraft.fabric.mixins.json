@@ -8,11 +8,11 @@
     },
     "mixins": [
         "ArgumentTypeInfosAccessor",
-        "ChunkMapMixin",
         "EntityMixin",
         "ExplosionDamageCalculatorMixin",
         "ItemEntityMixin",
         "ItemMixin",
+        "PlayerChunkSenderMixin",
         "ServerLevelMixin",
         "TagEntryAccessor",
         "TagsProviderMixin"

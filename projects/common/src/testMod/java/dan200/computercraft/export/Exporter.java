@@ -17,8 +17,9 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.data.PrettyJsonWriter;
 import dan200.computercraft.gametest.core.TestHooks;
-import dan200.computercraft.shared.platform.RegistryWrappers;
+import dan200.computercraft.impl.RegistryHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -74,23 +75,25 @@ public class Exporter {
         Set<Item> items = new HashSet<>();
 
         // First find all CC items
-        for (var item : RegistryWrappers.ITEMS) {
-            if (RegistryWrappers.ITEMS.getKey(item).getNamespace().equals(ComputerCraftAPI.MOD_ID)) items.add(item);
+        for (var item : BuiltInRegistries.ITEM) {
+            if (RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, item).getNamespace().equals(ComputerCraftAPI.MOD_ID)) {
+                items.add(item);
+            }
         }
 
         // Now find all CC recipes.
         var level = Minecraft.getInstance().level;
         for (var recipe : level.getRecipeManager().getAllRecipesFor(RecipeType.CRAFTING)) {
-            var result = recipe.getResultItem(level.registryAccess());
-            if (!RegistryWrappers.ITEMS.getKey(result.getItem()).getNamespace().equals(ComputerCraftAPI.MOD_ID)) {
+            var result = recipe.value().getResultItem(level.registryAccess());
+            if (!RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, result.getItem()).getNamespace().equals(ComputerCraftAPI.MOD_ID)) {
                 continue;
             }
             if (result.hasTag()) {
-                TestHooks.LOG.warn("Skipping recipe {} as it has NBT", recipe.getId());
+                TestHooks.LOG.warn("Skipping recipe {} as it has NBT", recipe.id());
                 continue;
             }
 
-            if (recipe instanceof ShapedRecipe shaped) {
+            if (recipe.value() instanceof ShapedRecipe shaped) {
                 var converted = new JsonDump.Recipe(result);
 
                 for (var x = 0; x < shaped.getWidth(); x++) {
@@ -102,8 +105,8 @@ public class Exporter {
                     }
                 }
 
-                dump.recipes.put(recipe.getId().toString(), converted);
-            } else if (recipe instanceof ShapelessRecipe shapeless) {
+                dump.recipes.put(recipe.id().toString(), converted);
+            } else if (recipe.value() instanceof ShapelessRecipe shapeless) {
                 var converted = new JsonDump.Recipe(result);
 
                 var ingredients = shapeless.getIngredients();
@@ -111,7 +114,7 @@ public class Exporter {
                     converted.setInput(i, ingredients.get(i), items);
                 }
 
-                dump.recipes.put(recipe.getId().toString(), converted);
+                dump.recipes.put(recipe.id().toString(), converted);
             } else {
                 TestHooks.LOG.info("Don't know how to handle recipe {}", recipe);
             }
@@ -126,7 +129,7 @@ public class Exporter {
 
         for (var item : items) {
             var stack = new ItemStack(item);
-            var location = RegistryWrappers.ITEMS.getKey(item);
+            var location = RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, item);
 
             dump.itemNames.put(location.toString(), stack.getHoverName().getString());
             renderer.captureRender(itemDir.resolve(location.getNamespace()).resolve(location.getPath() + ".png"),

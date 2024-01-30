@@ -7,7 +7,6 @@ package dan200.computercraft.mixin.client;
 import dan200.computercraft.client.ClientHooks;
 import dan200.computercraft.client.ClientRegistry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.main.GameConfig;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
@@ -24,15 +23,9 @@ class MinecraftMixin {
     @Final
     private ReloadableResourceManager resourceManager;
 
-    @Inject(method = "clearLevel(Lnet/minecraft/client/gui/screens/Screen;)V", at = @At("HEAD"))
+    @Inject(method = "updateLevelInEngines", at = @At("HEAD"))
     @SuppressWarnings("UnusedMethod")
-    private void clearLevel(Screen screen, CallbackInfo ci) {
-        ClientHooks.onWorldUnload();
-    }
-
-    @Inject(method = "setLevel", at = @At("HEAD"))
-    @SuppressWarnings("UnusedMethod")
-    private void setLevel(ClientLevel screen, CallbackInfo ci) {
+    private void updateLevelInEngines(ClientLevel screen, CallbackInfo ci) {
         ClientHooks.onWorldUnload();
     }
 
@@ -44,7 +37,8 @@ class MinecraftMixin {
             ordinal = 0
         )
     )
-    public void beforeInitialResourceReload(GameConfig gameConfig, CallbackInfo ci) {
+    @SuppressWarnings("UnusedMethod")
+    private void beforeInitialResourceReload(GameConfig gameConfig, CallbackInfo ci) {
         ClientRegistry.registerReloadListeners(resourceManager::registerReloadListener, (Minecraft) (Object) this);
     }
 }

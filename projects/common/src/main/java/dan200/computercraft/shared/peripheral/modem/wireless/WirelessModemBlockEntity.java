@@ -7,6 +7,7 @@ package dan200.computercraft.shared.peripheral.modem.wireless;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -51,7 +52,6 @@ public class WirelessModemBlockEntity extends BlockEntity {
     private final boolean advanced;
 
     private final ModemPeripheral modem;
-    private @Nullable Runnable modemChanged;
     private final TickScheduler.Token tickToken = new TickScheduler.Token(this);
 
     public WirelessModemBlockEntity(BlockEntityType<? extends WirelessModemBlockEntity> type, BlockPos pos, BlockState state, boolean advanced) {
@@ -77,7 +77,7 @@ public class WirelessModemBlockEntity extends BlockEntity {
     public void setBlockState(BlockState state) {
         var direction = getDirection();
         super.setBlockState(state);
-        if (getDirection() != direction && modemChanged != null) modemChanged.run();
+        if (getDirection() != direction) PlatformHelper.get().invalidateComponent(this);
     }
 
     void blockTick() {
@@ -99,9 +99,5 @@ public class WirelessModemBlockEntity extends BlockEntity {
     @Nullable
     public IPeripheral getPeripheral(@Nullable Direction direction) {
         return direction == null || getDirection() == direction ? modem : null;
-    }
-
-    public void onModemChanged(Runnable callback) {
-        modemChanged = callback;
     }
 }

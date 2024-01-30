@@ -17,6 +17,7 @@ import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.container.BasicContainer;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.inventory.TurtleMenu;
@@ -60,7 +61,6 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     private TurtleBrain brain = new TurtleBrain(this);
     private MoveState moveState = MoveState.NOT_MOVED;
     private @Nullable IPeripheral peripheral;
-    private @Nullable Runnable onMoved;
 
     public TurtleBlockEntity(BlockEntityType<? extends TurtleBlockEntity> type, BlockPos pos, BlockState state, IntSupplier fuelLimit, ComputerFamily family) {
         super(type, pos, state, family);
@@ -304,7 +304,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
 
         // Mark the other turtle as having moved, and so its peripheral is dead.
         copy.moveState = MoveState.MOVED;
-        if (onMoved != null) onMoved.run();
+        PlatformHelper.get().invalidateComponent(this);
     }
 
     @Nullable
@@ -312,10 +312,6 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
         if (hasMoved()) return null;
         if (peripheral != null) return peripheral;
         return peripheral = new ComputerPeripheral("turtle", this);
-    }
-
-    public void onMoved(Runnable onMoved) {
-        this.onMoved = onMoved;
     }
 
     @Nullable

@@ -5,7 +5,7 @@
 package dan200.computercraft.api.client.turtle;
 
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 
 /**
  * A functional interface to register a {@link TurtleUpgradeModeller} for a class of turtle upgrades.
@@ -22,5 +22,5 @@ public interface RegisterTurtleUpgradeModeller {
      * @param modeller   The upgrade modeller.
      * @param <T>        The type of the turtle upgrade.
      */
-    <T extends ITurtleUpgrade> void register(TurtleUpgradeSerialiser<T> serialiser, TurtleUpgradeModeller<T> modeller);
+    <T extends ITurtleUpgrade> void register(UpgradeSerialiser<T> serialiser, TurtleUpgradeModeller<T> modeller);
 }

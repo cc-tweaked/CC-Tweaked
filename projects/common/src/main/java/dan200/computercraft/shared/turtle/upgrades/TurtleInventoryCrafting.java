@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
@@ -55,7 +56,7 @@ public class TurtleInventoryCrafting implements CraftingContainer {
         }
 
         // Check the actual crafting
-        return turtle.getLevel().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, this, turtle.getLevel()).orElse(null);
+        return turtle.getLevel().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, this, turtle.getLevel()).map(RecipeHolder::value).orElse(null);
     }
 
     @Nullable

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 modLoader="javafml"
-loaderVersion="[30,)"
+loaderVersion="[1,)"
 
 issueTrackerURL="https://github.com/cc-tweaked/CC-Tweaked/issues"
 displayURL="https://github.com/cc-tweaked/CC-Tweaked"
@@ -22,7 +22,10 @@ A test framework for ensuring CC: Tweaked works correctly.
 
 [[dependencies.cctest]]
 modId="computercraft"
-mandatory=true
+type="required"
 versionRange="[1.0,)"
 ordering="AFTER"
 side="BOTH"
+
+[[mixins]]
+config="computercraft-gametest.mixins.json"

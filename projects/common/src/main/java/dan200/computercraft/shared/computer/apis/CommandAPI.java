@@ -56,12 +56,20 @@ public class CommandAPI implements ILuaAPI {
         var receiver = computer.getReceiver();
         try {
             receiver.clearOutput();
-            var result = commandManager.performPrefixedCommand(computer.getSource(), command);
-            return new Object[]{ result > 0, receiver.copyOutput(), result };
+            var state = new CommandState();
+            var source = computer.getSource().withCallback((success, x) -> {
+                if (success) state.successes++;
+            });
+            commandManager.performPrefixedCommand(source, command);
+            return new Object[]{ state.successes > 0, receiver.copyOutput(), state.successes };
         } catch (Throwable t) {
             LOG.error(Logging.JAVA_ERROR, "Error running command.", t);
             return new Object[]{ false, createOutput("Java Exception Thrown: " + t) };
         }
+    }
+
+    private static final class CommandState {
+        int successes;
     }
 
     private static Map<?, ?> getBlockInfo(Level world, BlockPos pos) {

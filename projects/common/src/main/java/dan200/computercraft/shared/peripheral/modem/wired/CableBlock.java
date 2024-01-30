@@ -140,12 +140,12 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
 
     @Override
     @Deprecated
-    public ItemStack getCloneItemStack(BlockGetter world, BlockPos pos, BlockState state) {
+    public ItemStack getCloneItemStack(LevelReader world, BlockPos pos, BlockState state) {
         return state.getValue(CABLE) ? new ItemStack(ModRegistry.Items.CABLE.get()) : new ItemStack(ModRegistry.Items.WIRED_MODEM.get());
     }
 
     @ForgeOverride
-    public ItemStack getCloneItemStack(BlockState state, @Nullable HitResult hit, BlockGetter world, BlockPos pos, Player player) {
+    public ItemStack getCloneItemStack(BlockState state, @Nullable HitResult hit, LevelReader world, BlockPos pos, Player player) {
         var modem = state.getValue(MODEM).getFacing();
         boolean cable = state.getValue(CABLE);
 

@@ -4,12 +4,12 @@
 
 package dan200.computercraft.test.shared;
 
-import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
 import net.jqwik.api.Combinators;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -25,7 +25,7 @@ import java.util.List;
  * {@link Arbitrary} implementations for Minecraft types.
  */
 public final class MinecraftArbitraries {
-    public static <T> Arbitrary<T> ofRegistry(RegistryWrappers.RegistryWrapper<T> registry) {
+    public static <T> Arbitrary<T> ofRegistry(Registry<T> registry) {
         return Arbitraries.of(registry.stream().toList());
     }
 
@@ -34,7 +34,7 @@ public final class MinecraftArbitraries {
     }
 
     public static Arbitrary<Item> item() {
-        return ofRegistry(RegistryWrappers.ITEMS);
+        return ofRegistry(BuiltInRegistries.ITEM);
     }
 
     public static Arbitrary<ItemStack> nonEmptyItemStack() {

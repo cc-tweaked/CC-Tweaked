@@ -15,10 +15,11 @@ import dan200.computercraft.api.media.MediaProvider;
 import dan200.computercraft.api.network.PacketNetwork;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.network.wired.WiredNode;
-import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
+import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.BundledRedstoneProvider;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleRefuelHandler;
-import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.core.filesystem.WritableFileMount;
 import dan200.computercraft.impl.detail.DetailRegistryImpl;
 import dan200.computercraft.impl.network.wired.WiredNodeImpl;
@@ -44,8 +45,8 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     private final DetailRegistry<ItemStack> itemStackDetails = new DetailRegistryImpl<>(ItemDetails::fillBasic);
     private final DetailRegistry<BlockReference> blockDetails = new DetailRegistryImpl<>(BlockDetails::fillBasic);
 
-    protected static final ResourceKey<Registry<TurtleUpgradeSerialiser<?>>> turtleUpgradeRegistryId = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_upgrade_serialiser"));
-    protected static final ResourceKey<Registry<PocketUpgradeSerialiser<?>>> pocketUpgradeRegistryId = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_upgrade_serialiser"));
+    protected static final ResourceKey<Registry<UpgradeSerialiser<? extends ITurtleUpgrade>>> turtleUpgradeRegistryId = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_upgrade_serialiser"));
+    protected static final ResourceKey<Registry<UpgradeSerialiser<? extends IPocketUpgrade>>> pocketUpgradeRegistryId = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_upgrade_serialiser"));
 
     public static @Nullable InputStream getResourceFile(MinecraftServer server, String domain, String subPath) {
         var manager = server.getResourceManager();
@@ -116,12 +117,12 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     }
 
     @Override
-    public final ResourceKey<Registry<TurtleUpgradeSerialiser<?>>> turtleUpgradeRegistryId() {
+    public final ResourceKey<Registry<UpgradeSerialiser<? extends ITurtleUpgrade>>> turtleUpgradeRegistryId() {
         return turtleUpgradeRegistryId;
     }
 
     @Override
-    public final ResourceKey<Registry<PocketUpgradeSerialiser<?>>> pocketUpgradeRegistryId() {
+    public final ResourceKey<Registry<UpgradeSerialiser<? extends IPocketUpgrade>>> pocketUpgradeRegistryId() {
         return pocketUpgradeRegistryId;
     }
 

@@ -4,10 +4,11 @@
 
 package dan200.computercraft.shared.peripheral.modem.wired;
 
+import dan200.computercraft.impl.RegistryHelper;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
@@ -50,7 +51,7 @@ public abstract class CableBlockItem extends BlockItem {
     @Override
     public String getDescriptionId() {
         if (translationKey == null) {
-            translationKey = Util.makeDescriptionId("block", RegistryWrappers.ITEMS.getKey(this));
+            translationKey = Util.makeDescriptionId("block", RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, this));
         }
         return translationKey;
     }

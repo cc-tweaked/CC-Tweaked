@@ -6,7 +6,7 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.FabricDetailRegistries;
-import dan200.computercraft.api.node.wired.WiredElementLookup;
+import dan200.computercraft.api.network.wired.WiredElementLookup;
 import dan200.computercraft.api.peripheral.PeripheralLookup;
 import dan200.computercraft.impl.Peripherals;
 import dan200.computercraft.shared.command.CommandComputerCraft;
@@ -33,6 +33,7 @@ import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -85,13 +86,17 @@ public class ComputerCraft {
 
         // Register hooks
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-            ((FabricConfigFile) ConfigSpec.serverSpec).load(server.getWorldPath(SERVERCONFIG).resolve(ComputerCraftAPI.MOD_ID + "-server.toml"));
+            ((FabricConfigFile) ConfigSpec.serverSpec).load(
+                server.getWorldPath(SERVERCONFIG).resolve(ComputerCraftAPI.MOD_ID + "-server.toml"),
+                FabricLoader.getInstance().getConfigDir().resolve(ComputerCraftAPI.MOD_ID + "-server.toml")
+            );
             CommonHooks.onServerStarting(server);
         });
         ServerLifecycleEvents.SERVER_STOPPED.register(s -> {
             CommonHooks.onServerStopped();
             ((FabricConfigFile) ConfigSpec.serverSpec).unload();
         });
+        ServerLifecycleEvents.SERVER_STARTED.register(CommonHooks::onServerStarted);
         ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> ServerNetworking.sendToPlayer(new UpgradesLoadedMessage(), player));
 
         ServerTickEvents.START_SERVER_TICK.register(CommonHooks::onServerTickStart);
@@ -116,7 +121,7 @@ public class ComputerCraft {
 
         ComputerCraftAPI.registerGenericSource(new InventoryMethods());
 
-        Peripherals.addGenericLookup((world, pos, state, blockEntity, side, invalidate) -> InventoryMethods.extractContainer(world, pos, state, blockEntity, side));
+        Peripherals.addGenericLookup(InventoryMethods::extractContainer);
     }
 
     private record ReloadListener(String name, PreparableReloadListener listener)

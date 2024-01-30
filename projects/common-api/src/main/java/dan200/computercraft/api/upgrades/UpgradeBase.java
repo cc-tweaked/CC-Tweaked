@@ -9,7 +9,6 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.impl.PlatformHelper;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -100,7 +99,7 @@ public interface UpgradeBase {
      * The default check requires that any non-capability NBT is exactly the same as the
      * crafting item, but this may be relaxed for your upgrade.
      * <p>
-     * This is based on {@code net.minecraftforge.common.crafting.StrictNBTIngredient}'s check.
+     * This is based on {@code net.neoforged.common.crafting.StrictNBTIngredient}'s check.
      *
      * @param stack The stack to check. This is guaranteed to be non-empty and have the same item as
      *              {@link #getCraftingItem()}.
@@ -111,12 +110,12 @@ public interface UpgradeBase {
 
         // A more expanded form of ItemStack.areShareTagsEqual, but allowing an empty tag to be equal to a
         // null one.
-        var shareTag = PlatformHelper.get().getShareTag(stack);
-        var craftingShareTag = PlatformHelper.get().getShareTag(crafting);
-        if (shareTag == craftingShareTag) return true;
-        if (shareTag == null) return Objects.requireNonNull(craftingShareTag).isEmpty();
-        if (craftingShareTag == null) return shareTag.isEmpty();
-        return shareTag.equals(craftingShareTag);
+        var tag = stack.getTag();
+        var craftingTag = crafting.getTag();
+        if (tag == craftingTag) return true;
+        if (tag == null) return Objects.requireNonNull(craftingTag).isEmpty();
+        if (craftingTag == null) return tag.isEmpty();
+        return tag.equals(craftingTag);
     }
 
     /**

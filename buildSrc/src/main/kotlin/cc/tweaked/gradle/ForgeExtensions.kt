@@ -4,20 +4,32 @@
 
 package cc.tweaked.gradle
 
-import net.minecraftforge.gradle.common.util.RunConfig
-import net.minecraftforge.gradle.common.util.runs.setRunConfigInternal
+import net.neoforged.gradle.common.runs.run.RunImpl
+import net.neoforged.gradle.common.runs.tasks.RunExec
+import net.neoforged.gradle.dsl.common.runs.run.Run
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.JavaExec
 import org.gradle.jvm.toolchain.JavaToolchainService
-import java.nio.file.Files
 
 /**
  * Set [JavaExec] task to run a given [RunConfig].
+ *
+ * See also [RunExec].
  */
-fun JavaExec.setRunConfig(config: RunConfig) {
-    dependsOn("prepareRuns")
-    setRunConfigInternal(project, this, config)
-    doFirst("Create working directory") { Files.createDirectories(workingDir.toPath()) }
+fun JavaExec.setRunConfig(config: Run) {
+    mainClass.set(config.mainClass)
+    workingDir = config.workingDirectory.get().asFile
+    argumentProviders.add { config.programArguments.get() }
+    jvmArgumentProviders.add { config.jvmArguments.get() }
+
+    environment(config.environmentVariables.get())
+    systemProperties(config.systemProperties.get())
+
+    config.modSources.get().forEach { classpath(it.runtimeClasspath) }
+    classpath(config.classpath)
+    classpath(config.dependencies.get().configuration)
+
+    (config as RunImpl).taskDependencies.forEach { dependsOn(it) }
 
     javaLauncher.set(
         project.extensions.getByType(JavaToolchainService::class.java)

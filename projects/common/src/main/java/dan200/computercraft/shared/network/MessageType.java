@@ -4,6 +4,9 @@
 
 package dan200.computercraft.shared.network;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+
 /**
  * A type of message to send over the network.
  * <p>
@@ -15,4 +18,11 @@ package dan200.computercraft.shared.network;
  * @see NetworkMessage#type()
  */
 public interface MessageType<T extends NetworkMessage<?>> {
+    /**
+     * Get the id of this message type. This will be used as the custom packet channel name.
+     *
+     * @return The id of this message type.
+     * @see CustomPacketPayload#id()
+     */
+    ResourceLocation id();
 }

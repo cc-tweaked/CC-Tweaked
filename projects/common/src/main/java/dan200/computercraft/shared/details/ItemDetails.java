@@ -5,11 +5,13 @@
 package dan200.computercraft.shared.details;
 
 import com.google.gson.JsonParseException;
-import dan200.computercraft.shared.platform.RegistryWrappers;
 import dan200.computercraft.shared.util.NBTUtil;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -22,7 +24,7 @@ import java.util.*;
  */
 public class ItemDetails {
     public static void fillBasic(Map<? super String, Object> data, ItemStack stack) {
-        data.put("name", DetailHelpers.getId(RegistryWrappers.ITEMS, stack.getItem()));
+        data.put("name", DetailHelpers.getId(BuiltInRegistries.ITEM, stack.getItem()));
         data.put("count", stack.getCount());
         var hash = NBTUtil.getNBTHash(stack.getTag());
         if (hash != null) data.put("nbt", hash);
@@ -42,9 +44,7 @@ public class ItemDetails {
         }
 
         data.put("tags", DetailHelpers.getTags(stack.getTags()));
-
-        // Include deprecated itemGroups field
-        data.put("itemGroups", List.of());
+        data.put("itemGroups", getItemGroups(stack));
 
         var tag = stack.getTag();
         if (tag != null && tag.contains("display", Tag.TAG_COMPOUND)) {
@@ -81,6 +81,27 @@ public class ItemDetails {
         } catch (JsonParseException e) {
             return null;
         }
+    }
+
+    /**
+     * Retrieve all item groups an item stack pertains to.
+     *
+     * @param stack Stack to analyse
+     * @return A filled list that contains pairs of item group IDs and their display names.
+     */
+    private static List<Map<String, Object>> getItemGroups(ItemStack stack) {
+        return CreativeModeTabs.allTabs().stream()
+            .filter(x -> x.shouldDisplay() && x.getType() == CreativeModeTab.Type.CATEGORY && x.contains(stack))
+            .map(group -> {
+                Map<String, Object> groupData = new HashMap<>(2);
+
+                var id = BuiltInRegistries.CREATIVE_MODE_TAB.getKey(group);
+                if (id != null) groupData.put("id", id.toString());
+
+                groupData.put("displayName", group.getDisplayName().getString());
+                return groupData;
+            })
+            .toList();
     }
 
     /**
@@ -126,7 +147,7 @@ public class ItemDetails {
             var enchantment = entry.getKey();
             var level = entry.getValue();
             var enchant = new HashMap<String, Object>(3);
-            enchant.put("name", DetailHelpers.getId(RegistryWrappers.ENCHANTMENTS, enchantment));
+            enchant.put("name", DetailHelpers.getId(BuiltInRegistries.ENCHANTMENT, enchantment));
             enchant.put("level", level);
             enchant.put("displayName", enchantment.getFullname(level).getString());
             enchants.add(enchant);

@@ -4,7 +4,6 @@
 
 package dan200.computercraft.shared.integration;
 
-import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
@@ -15,13 +14,12 @@ import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import net.minecraft.core.NonNullList;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.ShapedRecipePattern;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -38,17 +36,14 @@ import static dan200.computercraft.shared.integration.RecipeModHelpers.TURTLES;
  * @see RecipeModHelpers
  */
 public class UpgradeRecipeGenerator<T> {
-    private static final ResourceLocation TURTLE_UPGRADE = new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_upgrade");
-    private static final ResourceLocation POCKET_UPGRADE = new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_upgrade");
-
-    private final Function<CraftingRecipe, T> wrap;
+    private final Function<ShapedRecipe, T> wrap;
 
     private final Map<Item, List<UpgradeInfo>> upgradeItemLookup = new HashMap<>();
     private final List<UpgradeInfo> pocketUpgrades = new ArrayList<>();
     private final List<UpgradeInfo> turtleUpgrades = new ArrayList<>();
     private boolean initialised = false;
 
-    public UpgradeRecipeGenerator(Function<CraftingRecipe, T> wrap) {
+    public UpgradeRecipeGenerator(Function<ShapedRecipe, T> wrap) {
         this.wrap = wrap;
     }
 
@@ -235,11 +230,19 @@ public class UpgradeRecipeGenerator<T> {
     }
 
     private T pocket(Ingredient upgrade, Ingredient pocketComputer, ItemStack result) {
-        return wrap.apply(new ShapedRecipe(POCKET_UPGRADE, "", CraftingBookCategory.MISC, 1, 2, NonNullList.of(Ingredient.EMPTY, upgrade, pocketComputer), result));
+        return wrap.apply(new ShapedRecipe(
+            "", CraftingBookCategory.MISC,
+            new ShapedRecipePattern(1, 2, NonNullList.of(Ingredient.EMPTY, upgrade, pocketComputer), Optional.empty()),
+            result
+        ));
     }
 
     private T turtle(Ingredient left, Ingredient right, ItemStack result) {
-        return wrap.apply(new ShapedRecipe(TURTLE_UPGRADE, "", CraftingBookCategory.MISC, 2, 1, NonNullList.of(Ingredient.EMPTY, left, right), result));
+        return wrap.apply(new ShapedRecipe(
+            "", CraftingBookCategory.MISC,
+            new ShapedRecipePattern(2, 1, NonNullList.of(Ingredient.EMPTY, left, right), Optional.empty()),
+            result
+        ));
     }
 
     private class UpgradeInfo {

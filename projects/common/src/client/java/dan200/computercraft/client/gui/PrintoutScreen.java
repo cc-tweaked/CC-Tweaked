@@ -64,15 +64,15 @@ public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
     }
 
     @Override
-    public boolean mouseScrolled(double x, double y, double delta) {
-        if (super.mouseScrolled(x, y, delta)) return true;
-        if (delta < 0) {
+    public boolean mouseScrolled(double x, double y, double deltaX, double deltaY) {
+        if (super.mouseScrolled(x, y, deltaX, deltaY)) return true;
+        if (deltaX < 0) {
             // Scroll up goes to the next page
             if (page < pages - 1) page++;
             return true;
         }
 
-        if (delta > 0) {
+        if (deltaX > 0) {
             // Scroll down goes to the previous page
             if (page > 0) page--;
             return true;
@@ -91,14 +91,12 @@ public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         // We must take the background further back in order to not overlap with our printed pages.
         graphics.pose().pushPose();
         graphics.pose().translate(0, 0, -1);
-        renderBackground(graphics);
+        super.renderBackground(graphics, mouseX, mouseY, partialTicks);
         graphics.pose().popPose();
-
-        super.render(graphics, mouseX, mouseY, partialTicks);
     }
 
     @Override

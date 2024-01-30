@@ -29,6 +29,11 @@ public record FabricMessageType<T extends NetworkMessage<?>>(
         this(PacketType.create(id, b -> new PacketWrapper<>(reader.apply(b))));
     }
 
+    @Override
+    public ResourceLocation id() {
+        return type().getId();
+    }
+
     public static <T extends NetworkMessage<?>> PacketType<PacketWrapper<T>> toFabricType(MessageType<T> type) {
         return ((FabricMessageType<T>) type).type();
     }

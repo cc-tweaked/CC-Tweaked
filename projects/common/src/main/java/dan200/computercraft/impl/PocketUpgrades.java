@@ -6,19 +6,18 @@ package dan200.computercraft.impl;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
-import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 
 import java.util.stream.Stream;
 
 public final class PocketUpgrades {
-    private static final UpgradeManager<PocketUpgradeSerialiser<?>, IPocketUpgrade> registry = new UpgradeManager<>(
-        "pocket computer upgrade", "computercraft/pocket_upgrades", PocketUpgradeSerialiser.registryId()
+    private static final UpgradeManager<IPocketUpgrade> registry = new UpgradeManager<>(
+        "pocket computer upgrade", "computercraft/pocket_upgrades", IPocketUpgrade.serialiserRegistryKey()
     );
 
     private PocketUpgrades() {
     }
 
-    public static UpgradeManager<PocketUpgradeSerialiser<?>, IPocketUpgrade> instance() {
+    public static UpgradeManager<IPocketUpgrade> instance() {
         return registry;
     }
 

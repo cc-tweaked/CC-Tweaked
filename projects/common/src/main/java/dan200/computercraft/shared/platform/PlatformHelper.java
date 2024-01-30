@@ -21,7 +21,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.common.ClientCommonPacketListener;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -84,15 +84,6 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     ConfigFile.Builder createConfigBuilder();
 
     /**
-     * Wrap a Minecraft registry in our own abstraction layer.
-     *
-     * @param registry The registry to wrap.
-     * @param <T>      The type of object stored in this registry.
-     * @return The wrapped registry.
-     */
-    <T> RegistryWrappers.RegistryWrapper<T> wrap(ResourceKey<Registry<T>> registry);
-
-    /**
      * Create a registration helper for a specific registry.
      *
      * @param registry The registry we'll add entries to.
@@ -100,17 +91,6 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      * @return The registration helper.
      */
     <T> RegistrationHelper<T> createRegistrationHelper(ResourceKey<Registry<T>> registry);
-
-    /**
-     * A version of {@link #getRegistryObject(ResourceKey, ResourceLocation)} which allows missing entries.
-     *
-     * @param registry The registry to look up this object in.
-     * @param id       The ID to look up.
-     * @param <T>      The type of object the registry stores.
-     * @return The registered object or {@code null}.
-     */
-    @Nullable
-    <T> T tryGetRegistryObject(ResourceKey<Registry<T>> registry, ResourceLocation id);
 
     /**
      * Determine if this resource should be loaded, based on platform-specific loot conditions.
@@ -167,14 +147,12 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     /**
      * Create a new {@link MessageType}.
      *
-     * @param id      The descriminator for this message type.
-     * @param channel The channel name for this message type.
-     * @param klass   The type of this message.
-     * @param reader  The function which reads the packet from a buffer. Should be the inverse to {@link NetworkMessage#write(FriendlyByteBuf)}.
-     * @param <T>     The type of this message.
+     * @param <T>    The type of this message.
+     * @param id     The id for this message type.
+     * @param reader The function which reads the packet from a buffer. Should be the inverse to {@link NetworkMessage#write(FriendlyByteBuf)}.
      * @return The new {@link MessageType} instance.
      */
-    <T extends NetworkMessage<?>> MessageType<T> createMessageType(int id, ResourceLocation channel, Class<T> klass, FriendlyByteBuf.Reader<T> reader);
+    <T extends NetworkMessage<?>> MessageType<T> createMessageType(ResourceLocation id, FriendlyByteBuf.Reader<T> reader);
 
     /**
      * Convert a clientbound {@link NetworkMessage} to a Minecraft {@link Packet}.
@@ -182,7 +160,15 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      * @param message The messsge to convert.
      * @return The converted message.
      */
-    Packet<ClientGamePacketListener> createPacket(NetworkMessage<ClientNetworkContext> message);
+    Packet<ClientCommonPacketListener> createPacket(NetworkMessage<ClientNetworkContext> message);
+
+    /**
+     * Invalidate components on a block enitty.
+     *
+     * @param owner The block entity whose components should be invalidated.
+     */
+    default void invalidateComponent(BlockEntity owner) {
+    }
 
     /**
      * Create a {@link ComponentAccess} for surrounding peripherals.
@@ -334,7 +320,7 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      * @return The distance (in blocks) that a player can reach.
      */
     default double getReachDistance(Player player) {
-        return player.isCreative() ? 5 : 4.5;
+        return Player.getPickRange(player.isCreative());
     }
 
     /**

@@ -125,10 +125,10 @@ public class SpriteRenderer {
     }
 
     public static float u(TextureAtlasSprite sprite, int x, int width) {
-        return sprite.getU((double) x / width * 16);
+        return sprite.getU((float) x / width);
     }
 
     public static float v(TextureAtlasSprite sprite, int y, int height) {
-        return sprite.getV((double) y / height * 16);
+        return sprite.getV((float) y / height);
     }
 }

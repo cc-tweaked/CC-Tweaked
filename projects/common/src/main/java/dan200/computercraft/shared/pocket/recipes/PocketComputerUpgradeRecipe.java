@@ -10,7 +10,6 @@ import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -19,8 +18,8 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 public final class PocketComputerUpgradeRecipe extends CustomRecipe {
-    public PocketComputerUpgradeRecipe(ResourceLocation identifier, CraftingBookCategory category) {
-        super(identifier, category);
+    public PocketComputerUpgradeRecipe(CraftingBookCategory category) {
+        super(category);
     }
 
     @Override

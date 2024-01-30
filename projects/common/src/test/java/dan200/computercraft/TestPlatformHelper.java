@@ -18,16 +18,15 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.platform.*;
-import io.netty.buffer.Unpooled;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.ClientCommonPacketListener;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -54,7 +53,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -76,38 +74,6 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     @Override
     public <T> RegistrationHelper<T> createRegistrationHelper(ResourceKey<Registry<T>> registry) {
         throw new UnsupportedOperationException("Cannot query registry inside tests");
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> Registry<T> getRegistry(ResourceKey<Registry<T>> id) {
-        var registry = (Registry<T>) BuiltInRegistries.REGISTRY.get(id.location());
-        if (registry == null) throw new IllegalArgumentException("Unknown registry " + id);
-        return registry;
-    }
-
-    @Override
-    public <T> ResourceLocation getRegistryKey(ResourceKey<Registry<T>> registry, T object) {
-        var key = getRegistry(registry).getKey(object);
-        if (key == null) throw new IllegalArgumentException(object + " was not registered in " + registry);
-        return key;
-    }
-
-    @Override
-    public <T> T getRegistryObject(ResourceKey<Registry<T>> registry, ResourceLocation id) {
-        var value = getRegistry(registry).get(id);
-        if (value == null) throw new IllegalArgumentException(id + " was not registered in " + registry);
-        return value;
-    }
-
-    @Override
-    public <T> RegistryWrappers.RegistryWrapper<T> wrap(ResourceKey<Registry<T>> registry) {
-        return new RegistryWrapperImpl<>(registry.location(), getRegistry(registry));
-    }
-
-    @Nullable
-    @Override
-    public <T> T tryGetRegistryObject(ResourceKey<Registry<T>> registry, ResourceLocation id) {
-        return getRegistry(registry).get(id);
     }
 
     @Override
@@ -145,21 +111,26 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
         throw new UnsupportedOperationException("Cannot open menu inside tests");
     }
 
-    record TypeImpl<T extends NetworkMessage<?>>(
-        ResourceLocation id, Function<FriendlyByteBuf, T> reader
-    ) implements MessageType<T> {
+    @Override
+    public <T extends NetworkMessage<?>> MessageType<T> createMessageType(ResourceLocation id, FriendlyByteBuf.Reader<T> reader) {
+        record TypeImpl<T extends NetworkMessage<?>>(ResourceLocation id) implements MessageType<T> {
+        }
+        return new TypeImpl<>(id);
     }
 
     @Override
-    public <T extends NetworkMessage<?>> MessageType<T> createMessageType(int id, ResourceLocation channel, Class<T> klass, FriendlyByteBuf.Reader<T> reader) {
-        return new TypeImpl<>(channel, reader);
-    }
+    public Packet<ClientCommonPacketListener> createPacket(NetworkMessage<ClientNetworkContext> message) {
+        return new ClientboundCustomPayloadPacket(new CustomPacketPayload() {
+            @Override
+            public void write(FriendlyByteBuf friendlyByteBuf) {
+                message.write(friendlyByteBuf);
+            }
 
-    @Override
-    public Packet<ClientGamePacketListener> createPacket(NetworkMessage<ClientNetworkContext> message) {
-        var buf = new FriendlyByteBuf(Unpooled.buffer());
-        message.write(buf);
-        return new ClientboundCustomPayloadPacket(((TypeImpl<?>) message.type()).id(), buf);
+            @Override
+            public ResourceLocation id() {
+                return message.type().id();
+            }
+        });
     }
 
     @Override
@@ -251,49 +222,5 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     @Override
     public String getInstalledVersion() {
         return "1.0";
-    }
-
-    private record RegistryWrapperImpl<T>(
-        ResourceLocation name, Registry<T> registry
-    ) implements RegistryWrappers.RegistryWrapper<T> {
-        @Override
-        public int getId(T object) {
-            return registry.getId(object);
-        }
-
-        @Override
-        public ResourceLocation getKey(T object) {
-            var key = registry.getKey(object);
-            if (key == null) throw new IllegalArgumentException(object + " was not registered in " + name);
-            return key;
-        }
-
-        @Override
-        public T get(ResourceLocation location) {
-            var object = registry.get(location);
-            if (object == null) throw new IllegalArgumentException(location + " was not registered in " + name);
-            return object;
-        }
-
-        @Nullable
-        @Override
-        public T tryGet(ResourceLocation location) {
-            return registry.get(location);
-        }
-
-        @Override
-        public @Nullable T byId(int id) {
-            return registry.byId(id);
-        }
-
-        @Override
-        public int size() {
-            return registry.size();
-        }
-
-        @Override
-        public Iterator<T> iterator() {
-            return registry.iterator();
-        }
     }
 }

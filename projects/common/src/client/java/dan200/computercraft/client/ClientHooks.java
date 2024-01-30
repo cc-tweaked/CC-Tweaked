@@ -108,7 +108,7 @@ public final class ClientHooks {
      */
     public static void addBlockDebugInfo(Consumer<String> addText) {
         var minecraft = Minecraft.getInstance();
-        if (!minecraft.options.renderDebug || minecraft.level == null) return;
+        if (!minecraft.getDebugOverlay().showDebugScreen() || minecraft.level == null) return;
         if (minecraft.hitResult == null || minecraft.hitResult.getType() != HitResult.Type.BLOCK) return;
 
         var tile = minecraft.level.getBlockEntity(((BlockHitResult) minecraft.hitResult).getBlockPos());
@@ -138,7 +138,7 @@ public final class ClientHooks {
      * @param addText A callback which adds a single line of text.
      */
     public static void addGameDebugInfo(Consumer<String> addText) {
-        if (MonitorBlockEntityRenderer.hasRenderedThisFrame() && Minecraft.getInstance().options.renderDebug) {
+        if (MonitorBlockEntityRenderer.hasRenderedThisFrame() && Minecraft.getInstance().getDebugOverlay().showDebugScreen()) {
             addText.accept("[CC:T] Monitor renderer: " + MonitorBlockEntityRenderer.currentRenderer());
         }
     }

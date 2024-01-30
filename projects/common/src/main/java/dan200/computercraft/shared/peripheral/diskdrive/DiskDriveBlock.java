@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.peripheral.diskdrive;
 
+import com.mojang.serialization.MapCodec;
 import dan200.computercraft.impl.MediaProviders;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.HorizontalContainerBlock;
@@ -26,6 +27,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import javax.annotation.Nullable;
 
 public class DiskDriveBlock extends HorizontalContainerBlock {
+    private static final MapCodec<DiskDriveBlock> CODEC = simpleCodec(DiskDriveBlock::new);
+
     public static final EnumProperty<DiskDriveState> STATE = EnumProperty.create("state", DiskDriveState.class);
 
     private static final BlockEntityTicker<DiskDriveBlockEntity> serverTicker = (level, pos, state, drive) -> drive.serverTick();
@@ -41,6 +44,11 @@ public class DiskDriveBlock extends HorizontalContainerBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> properties) {
         properties.add(FACING, STATE);
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
     }
 
     @Override

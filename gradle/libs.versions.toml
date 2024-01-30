@@ -7,20 +7,20 @@
 # Minecraft
 # MC version is specified in gradle.properties, as we need that in settings.gradle.
 # Remember to update corresponding versions in fabric.mod.json/mods.toml
-fabric-api = "0.86.1+1.20.1"
-fabric-loader = "0.14.21"
-forge = "47.1.0"
-forgeSpi = "7.0.1"
+fabric-api = "0.93.1+1.20.4"
+fabric-loader = "0.15.3"
+neoForge = "20.4.142-beta"
+neoForgeSpi = "8.0.1"
 mixin = "0.8.5"
-parchment = "2023.08.20"
-parchmentMc = "1.20.1"
-yarn = "1.20.1+build.10"
+parchment = "2023.12.31"
+parchmentMc = "1.20.3"
+yarn = "1.20.4+build.3"
 
 # Core dependencies (these versions are tied to the version Minecraft uses)
-fastutil = "8.5.9"
-guava = "31.1-jre"
-netty = "4.1.82.Final"
-slf4j = "2.0.1"
+fastutil = "8.5.12"
+guava = "32.1.2-jre"
+netty = "4.1.97.Final"
+slf4j = "2.0.7"
 
 # Core dependencies (independent of Minecraft)
 asm = "9.6"
@@ -36,14 +36,14 @@ kotlin-coroutines = "1.7.3"
 nightConfig = "3.6.7"
 
 # Minecraft mods
-emi = "1.0.8+1.20.1"
+emi = "1.0.30+1.20.4"
 fabricPermissions = "0.3.20230723"
-iris = "1.6.4+1.20"
-jei = "15.2.0.22"
-modmenu = "7.1.0"
+iris = "1.6.14+1.20.4"
+jei = "16.0.0.28"
+modmenu = "9.0.0"
 moreRed = "4.0.0.4"
 oculus = "1.2.5"
-rei = "12.0.626"
+rei = "14.0.688"
 rubidium = "0.6.1"
 sodium = "mc1.20-0.4.10"
 
@@ -55,19 +55,17 @@ junit = "5.10.1"
 # Build tools
 cctJavadoc = "1.8.2"
 checkstyle = "10.12.6"
-curseForgeGradle = "1.0.14"
+curseForgeGradle = "1.1.18"
 errorProne-core = "2.23.0"
 errorProne-plugin = "3.1.0"
 fabric-loom = "1.5.7"
-forgeGradle = "6.0.20"
 githubRelease = "2.5.2"
 gradleVersions = "0.50.0"
 ideaExt = "1.1.7"
 illuaminate = "0.1.0-44-g9ee0055"
-librarian = "1.+"
 lwjgl = "3.3.3"
-minotaur = "2.+"
-mixinGradle = "0.7.38"
+minotaur = "2.8.7"
+neoGradle = "7.0.84"
 nullAway = "0.9.9"
 spotless = "6.23.3"
 taskTree = "2.1.1"
@@ -84,7 +82,7 @@ checkerFramework = { module = "org.checkerframework:checker-qual", version.ref =
 cobalt = { module = "cc.tweaked:cobalt", version.ref = "cobalt" }
 commonsCli = { module = "commons-cli:commons-cli", version.ref = "commonsCli" }
 fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
-forgeSpi = { module = "net.minecraftforge:forgespi", version.ref = "forgeSpi" }
+neoForgeSpi = { module = "net.neoforged:neoforgespi", version.ref = "neoForgeSpi" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 jetbrainsAnnotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsAnnotations" }
 jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "jsr305" }
@@ -106,9 +104,9 @@ fabric-junit = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fab
 fabricPermissions = { module = "me.lucko:fabric-permissions-api", version.ref = "fabricPermissions" }
 emi = { module = "dev.emi:emi-xplat-mojmap", version.ref = "emi" }
 iris = { module = "maven.modrinth:iris", version.ref = "iris" }
-jei-api = { module = "mezz.jei:jei-1.20.1-common-api", version.ref = "jei" }
-jei-fabric = { module = "mezz.jei:jei-1.20.1-fabric", version.ref = "jei" }
-jei-forge = { module = "mezz.jei:jei-1.20.1-forge", version.ref = "jei" }
+jei-api = { module = "mezz.jei:jei-1.20.2-common-api", version.ref = "jei" }
+jei-fabric = { module = "mezz.jei:jei-1.20.2-fabric", version.ref = "jei" }
+jei-forge = { module = "mezz.jei:jei-1.20.2-forge", version.ref = "jei" }
 mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
 moreRed = { module = "commoble.morered:morered-1.20.1", version.ref = "moreRed" }
@@ -144,11 +142,10 @@ errorProne-core = { module = "com.google.errorprone:error_prone_core", version.r
 errorProne-plugin = { module = "net.ltgt.gradle:gradle-errorprone-plugin", version.ref = "errorProne-plugin" }
 errorProne-testHelpers = { module = "com.google.errorprone:error_prone_test_helpers", version.ref = "errorProne-core" }
 fabric-loom = { module = "net.fabricmc:fabric-loom", version.ref = "fabric-loom" }
-forgeGradle = { module = "net.minecraftforge.gradle:ForgeGradle", version.ref = "forgeGradle" }
 ideaExt = { module = "gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext", version.ref = "ideaExt" }
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-librarian = { module = "org.parchmentmc:librarian", version.ref = "librarian" }
 minotaur = { module = "com.modrinth.minotaur:Minotaur", version.ref = "minotaur" }
+neoGradle-userdev = { module = "net.neoforged.gradle:userdev", version.ref = "neoGradle" }
 nullAway = { module = "com.uber.nullaway:nullaway", version.ref = "nullAway" }
 spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 teavm-classlib = { module = "org.teavm:teavm-classlib", version.ref = "teavm" }
@@ -163,12 +160,9 @@ vanillaExtract = { module = "cc.tweaked.vanilla-extract:plugin", version.ref = "
 yarn = { module = "net.fabricmc:yarn", version.ref = "yarn" }
 
 [plugins]
-forgeGradle = { id = "net.minecraftforge.gradle", version.ref = "forgeGradle" }
 githubRelease = { id = "com.github.breadmoirai.github-release", version.ref = "githubRelease" }
 gradleVersions = { id = "com.github.ben-manes.versions", version.ref = "gradleVersions" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-librarian = { id = "org.parchmentmc.librarian.forgegradle", version.ref = "librarian" }
-mixinGradle = { id = "org.spongepowered.mixin", version.ref = "mixinGradle" }
 taskTree = { id = "com.dorongold.task-tree", version.ref = "taskTree" }
 versionCatalogUpdate = { id = "nl.littlerobots.version-catalog-update", version.ref = "versionCatalogUpdate" }
 
@@ -179,9 +173,9 @@ kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 # Minecraft
 externalMods-common = ["jei-api", "nightConfig-core", "nightConfig-toml"]
 externalMods-forge-compile = ["moreRed", "oculus", "jei-api"]
-externalMods-forge-runtime = ["jei-forge"]
+externalMods-forge-runtime = []
 externalMods-fabric-compile = ["fabricPermissions", "iris", "jei-api", "rei-api", "rei-builtin"]
-externalMods-fabric-runtime = ["jei-fabric", "modmenu"]
+externalMods-fabric-runtime = []
 
 # Testing
 test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]

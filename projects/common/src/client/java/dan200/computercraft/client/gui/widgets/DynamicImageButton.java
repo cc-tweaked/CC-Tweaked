@@ -43,19 +43,15 @@ public class DynamicImageButton extends Button {
 
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        var message = this.message.get();
+        setMessage(message.message());
+        setTooltip(message.tooltip());
+
         var texture = this.texture.get(isHoveredOrFocused());
 
         RenderSystem.disableDepthTest();
         graphics.blit(getX(), getY(), 0, width, height, texture);
         RenderSystem.enableDepthTest();
-    }
-
-    @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        var message = this.message.get();
-        setMessage(message.message());
-        setTooltip(message.tooltip());
-        super.render(graphics, mouseX, mouseY, partialTicks);
     }
 
     public record HintedMessage(Component message, Tooltip tooltip) {

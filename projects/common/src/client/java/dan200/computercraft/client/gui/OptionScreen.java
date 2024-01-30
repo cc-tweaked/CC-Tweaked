@@ -86,8 +86,6 @@ public final class OptionScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        renderBackground(graphics);
-
         // Render the actual texture.
         graphics.blit(BACKGROUND, x, y, 0, 0, innerWidth, PADDING);
         graphics.blit(BACKGROUND,

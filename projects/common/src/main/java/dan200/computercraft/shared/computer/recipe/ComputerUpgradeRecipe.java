@@ -8,7 +8,6 @@ import com.mojang.serialization.DataResult;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.recipe.ShapedRecipeSpec;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -22,17 +21,17 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 public final class ComputerUpgradeRecipe extends ComputerConvertRecipe {
     private final Item result;
 
-    private ComputerUpgradeRecipe(ResourceLocation identifier, ShapedRecipeSpec recipe) {
-        super(identifier, recipe);
+    public ComputerUpgradeRecipe(ShapedRecipeSpec recipe) {
+        super(recipe);
         this.result = recipe.result().getItem();
     }
 
-    public static DataResult<ComputerUpgradeRecipe> of(ResourceLocation id, ShapedRecipeSpec recipe) {
+    public static DataResult<ComputerUpgradeRecipe> of(ShapedRecipeSpec recipe) {
         if (!(recipe.result().getItem() instanceof IComputerItem)) {
             return DataResult.error(() -> recipe.result().getItem() + " is not a computer item");
         }
 
-        return DataResult.success(new ComputerUpgradeRecipe(id, recipe));
+        return DataResult.success(new ComputerUpgradeRecipe(recipe));
     }
 
     @Override

@@ -44,9 +44,20 @@ public class FabricConfigFile implements ConfigFile {
         this.onChange = onChange;
     }
 
-    public synchronized void load(Path path) {
+    /**
+     * Load the config from one or more possible paths.
+     * <p>
+     * Config files will be loaded from the first path which exists. If none exists, a file at the last location will
+     * be chosen.
+     *
+     * @param paths The list of paths to load from.
+     */
+    public synchronized void load(Path... paths) {
+        if (paths.length == 0) throw new IllegalArgumentException("Must pass at least one path");
+
         closeConfig();
 
+        var path = Arrays.stream(paths).filter(Files::exists).findFirst().orElseGet(() -> paths[paths.length - 1]);
         var config = this.config = CommentedFileConfig.builder(path).sync()
             .onFileNotFound(FileNotFoundAction.READ_NOTHING)
             .writingMode(WritingMode.REPLACE)

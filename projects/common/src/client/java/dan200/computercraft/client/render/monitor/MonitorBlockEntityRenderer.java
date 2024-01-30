@@ -9,6 +9,7 @@ import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
+import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.integration.ShaderMod;
 import dan200.computercraft.client.render.RenderTypes;
@@ -25,6 +26,7 @@ import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.world.phys.AABB;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
@@ -253,6 +255,11 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
     @Override
     public int getViewDistance() {
         return Config.monitorDistance;
+    }
+
+    @ForgeOverride
+    public AABB getRenderBoundingBox(MonitorBlockEntity monitor) {
+        return monitor.getRenderBoundingBox();
     }
 
     /**

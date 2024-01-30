@@ -10,6 +10,7 @@ import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.turtle.upgrades.TurtleModem;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +41,7 @@ public class TurtleModemModeller implements TurtleUpgradeModeller<TurtleModem> {
     }
 
     @Override
-    public TransformedModel getModel(TurtleModem upgrade, @Nullable ITurtleAccess turtle, TurtleSide side) {
+    public TransformedModel getModel(TurtleModem upgrade, @Nullable ITurtleAccess turtle, TurtleSide side, CompoundTag data) {
         var active = false;
         if (turtle != null) {
             var turtleNBT = turtle.getUpgradeNBTData(side);

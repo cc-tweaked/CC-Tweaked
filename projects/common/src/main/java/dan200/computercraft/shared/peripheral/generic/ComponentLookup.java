@@ -15,10 +15,8 @@ import javax.annotation.Nullable;
 /**
  * Extract some component (for instance a capability on Forge, or a {@code BlockApiLookup} on Fabric) from a block and
  * block entity.
- *
- * @param <C> A platform-specific type, used for the invalidation callback.
  */
-public interface ComponentLookup<C extends Runnable> {
+public interface ComponentLookup {
     /**
      * Extract some component from a block in the world.
      *
@@ -28,9 +26,8 @@ public interface ComponentLookup<C extends Runnable> {
      * @param blockEntity The block entity at that position.
      * @param side        The side of the block to extract the component from. Implementations should try to use a
      *                    sideless lookup first, but may fall back to a sided lookup if needed.
-     * @param invalidate  An invalidation function to call if this component changes.
      * @return The found component, or {@code null} if not present.
      */
     @Nullable
-    Object find(ServerLevel level, BlockPos pos, BlockState state, BlockEntity blockEntity, Direction side, C invalidate);
+    Object find(ServerLevel level, BlockPos pos, BlockState state, BlockEntity blockEntity, Direction side);
 }

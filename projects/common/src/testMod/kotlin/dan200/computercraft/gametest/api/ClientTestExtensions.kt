@@ -5,12 +5,13 @@
 package dan200.computercraft.gametest.api
 
 import dan200.computercraft.gametest.core.MinecraftExtensions
+import dan200.computercraft.impl.RegistryHelper
 import dan200.computercraft.mixin.gametest.GameTestSequenceAccessor
-import dan200.computercraft.shared.platform.RegistryWrappers
 import net.minecraft.client.Minecraft
 import net.minecraft.client.Screenshot
 import net.minecraft.client.gui.screens.inventory.MenuAccess
 import net.minecraft.core.BlockPos
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.gametest.framework.GameTestAssertException
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.gametest.framework.GameTestSequence
@@ -121,7 +122,7 @@ class ClientTestHelper {
      * Get the currently open [AbstractContainerMenu], ensuring it is of a specific type.
      */
     fun <T : AbstractContainerMenu> getOpenMenu(type: MenuType<T>): T {
-        fun getName(type: MenuType<*>) = RegistryWrappers.MENU.getKey(type)
+        fun getName(type: MenuType<*>) = RegistryHelper.getKeyOrThrow(BuiltInRegistries.MENU, type)
 
         val screen = minecraft.screen
         @Suppress("UNCHECKED_CAST")
