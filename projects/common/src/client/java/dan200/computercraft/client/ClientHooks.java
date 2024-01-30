@@ -17,8 +17,6 @@ import dan200.computercraft.client.render.monitor.MonitorRenderState;
 import dan200.computercraft.client.sound.SpeakerManager;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.command.CommandComputerCraft;
-import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
@@ -28,7 +26,6 @@ import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.PauseAwareTimer;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -43,7 +40,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.util.function.Consumer;
 
 /**
@@ -69,10 +65,6 @@ public final class ClientHooks {
         MonitorRenderState.destroyAll();
         SpeakerManager.reset();
         ClientPocketComputers.reset();
-    }
-
-    public static boolean onChatMessage(String message) {
-        return handleOpenComputerCommand(message);
     }
 
     public static boolean drawHighlight(PoseStack transform, MultiBufferSource bufferSource, Camera camera, BlockHitResult hit) {
@@ -107,34 +99,6 @@ public final class ClientHooks {
 
     public static void onPlayStreaming(SoundEngine engine, Channel channel, AudioStream stream) {
         SpeakerManager.onPlayStreaming(engine, channel, stream);
-    }
-
-    /**
-     * Handle the {@link CommandComputerCraft#OPEN_COMPUTER} "clientside command". This isn't a true command, as we
-     * don't want it to actually be visible to the user.
-     *
-     * @param message The current chat message.
-     * @return Whether to cancel sending this message.
-     */
-    private static boolean handleOpenComputerCommand(String message) {
-        if (!message.startsWith(CommandComputerCraft.OPEN_COMPUTER)) return false;
-
-        var server = Minecraft.getInstance().getSingleplayerServer();
-        if (server == null) return false;
-
-        var idStr = message.substring(CommandComputerCraft.OPEN_COMPUTER.length()).trim();
-        int id;
-        try {
-            id = Integer.parseInt(idStr);
-        } catch (NumberFormatException ignore) {
-            return false;
-        }
-
-        var file = new File(ServerContext.get(server).storageDir().toFile(), "computer/" + id);
-        if (!file.isDirectory()) return false;
-
-        Util.getPlatform().openFile(file);
-        return true;
     }
 
     /**

@@ -7,7 +7,8 @@
         "defaultRequire": 1
     },
     "client": [
-        "BlockRenderDispatcherMixin"
+        "BlockRenderDispatcherMixin",
+	"ClientPacketListenerMixin"
     ],
     "refmap": "client-computercraft.refmap.json"
 }

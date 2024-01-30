@@ -39,7 +39,6 @@ dependencies {
     compileOnly(libs.bundles.externalMods.common)
     clientCompileOnly(variantOf(libs.emi) { classifier("api") })
 
-    compileOnly(libs.mixin)
     annotationProcessorEverywhere(libs.autoService)
     testFixturesAnnotationProcessor(libs.autoService)
 
@@ -47,6 +46,7 @@ dependencies {
     testImplementation(libs.bundles.test)
     testRuntimeOnly(libs.bundles.testRuntime)
 
+    testModCompileOnly(libs.mixin)
     testModImplementation(testFixtures(project(":core")))
     testModImplementation(testFixtures(project(":common")))
     testModImplementation(libs.bundles.kotlin)

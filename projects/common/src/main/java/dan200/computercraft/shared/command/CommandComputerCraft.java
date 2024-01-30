@@ -54,7 +54,12 @@ import static net.minecraft.commands.Commands.literal;
 
 public final class CommandComputerCraft {
     public static final UUID SYSTEM_UUID = new UUID(0, 0);
-    public static final String OPEN_COMPUTER = "computercraft open-computer ";
+
+    /**
+     * The client-side command to open the folder. Ideally this would live under the main {@code computercraft}
+     * namespace, but unfortunately that overrides commands, rather than merging them.
+     */
+    public static final String CLIENT_OPEN_FOLDER = "computercraft-computer-folder";
 
     private CommandComputerCraft() {
     }
@@ -389,7 +394,7 @@ public final class CommandComputerCraft {
 
         return link(
             text("\u270E"),
-            "/" + OPEN_COMPUTER + id,
+            "/" + CLIENT_OPEN_FOLDER + " " + id,
             Component.translatable("commands.computercraft.dump.open_path")
         );
     }

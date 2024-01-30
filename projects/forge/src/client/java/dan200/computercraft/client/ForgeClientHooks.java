@@ -6,11 +6,9 @@ package dan200.computercraft.client;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.sound.SpeakerSound;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.CustomizeGuiOverlayEvent;
-import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.client.event.RenderHighlightEvent;
-import net.minecraftforge.client.event.RenderItemInFrameEvent;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.event.sound.PlayStreamingSourceEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.level.LevelEvent;
@@ -77,5 +75,10 @@ public final class ForgeClientHooks {
     public static void playStreaming(PlayStreamingSourceEvent event) {
         if (!(event.getSound() instanceof SpeakerSound sound) || sound.getStream() == null) return;
         ClientHooks.onPlayStreaming(event.getEngine(), event.getChannel(), sound.getStream());
+    }
+
+    @SubscribeEvent
+    public static void registerClientCommands(RegisterClientCommandsEvent event) {
+        ClientRegistry.registerClientCommands(event.getDispatcher(), CommandSourceStack::sendFailure);
     }
 }

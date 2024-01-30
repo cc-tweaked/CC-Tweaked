@@ -4,9 +4,13 @@
 
 package dan200.computercraft.client;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.api.client.turtle.RegisterTurtleUpgradeModeller;
+import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.render.RenderTypes;
@@ -16,11 +20,14 @@ import dan200.computercraft.client.turtle.TurtleModemModeller;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.common.IColouredItem;
+import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import dan200.computercraft.shared.computer.inventory.ViewComputerMenu;
 import dan200.computercraft.shared.media.items.DiskItem;
 import dan200.computercraft.shared.media.items.TreasureDiskItem;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -30,6 +37,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceProvider;
@@ -39,6 +47,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nullable;
+import java.io.File;
 import java.io.IOException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -180,5 +189,46 @@ public final class ClientRegistry {
         public float call(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int layer) {
             return function.unclampedCall(stack, level, entity, layer);
         }
+    }
+
+    /**
+     * Register client-side commands.
+     *
+     * @param dispatcher The dispatcher to register the commands to.
+     * @param sendError  A function to send an error message.
+     * @param <T>        The type of the client-side command context.
+     */
+    public static <T> void registerClientCommands(CommandDispatcher<T> dispatcher, BiConsumer<T, Component> sendError) {
+        dispatcher.register(LiteralArgumentBuilder.<T>literal(CommandComputerCraft.CLIENT_OPEN_FOLDER)
+            .requires(x -> Minecraft.getInstance().getSingleplayerServer() != null)
+            .then(RequiredArgumentBuilder.<T, Integer>argument("computer_id", IntegerArgumentType.integer(0))
+                .executes(c -> handleOpenComputerCommand(c.getSource(), sendError, c.getArgument("computer_id", Integer.class)))
+            ));
+    }
+
+    /**
+     * Handle the {@link CommandComputerCraft#CLIENT_OPEN_FOLDER} command.
+     *
+     * @param context   The command context.
+     * @param sendError A function to send an error message.
+     * @param id        The computer's id.
+     * @param <T>       The type of the client-side command context.
+     * @return {@code 1} if a folder was opened, {@code 0} otherwise.
+     */
+    private static <T> int handleOpenComputerCommand(T context, BiConsumer<T, Component> sendError, int id) {
+        var server = Minecraft.getInstance().getSingleplayerServer();
+        if (server == null) {
+            sendError.accept(context, Component.literal("Not on a single-player server"));
+            return 0;
+        }
+
+        var file = new File(ServerContext.get(server).storageDir().toFile(), "computer/" + id);
+        if (!file.isDirectory()) {
+            sendError.accept(context, Component.literal("Computer's folder does not exist"));
+            return 0;
+        }
+
+        Util.getPlatform().openFile(file);
+        return 1;
     }
 }

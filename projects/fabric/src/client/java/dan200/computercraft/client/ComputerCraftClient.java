@@ -16,6 +16,8 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.platform.FabricConfigFile;
 import dan200.computercraft.shared.platform.FabricMessageType;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.model.loading.v1.PreparableModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -80,6 +82,10 @@ public class ComputerCraftClient {
 
             return cable.getCloneItemStack(state, hit, level, pos, player);
         });
+
+        ClientCommandRegistrationCallback.EVENT.register(
+            (dispatcher, registryAccess) -> ClientRegistry.registerClientCommands(dispatcher, FabricClientCommandSource::sendError)
+        );
 
         ((FabricConfigFile) ConfigSpec.clientSpec).load(FabricLoader.getInstance().getConfigDir().resolve(ComputerCraftAPI.MOD_ID + "-client.toml"));
     }

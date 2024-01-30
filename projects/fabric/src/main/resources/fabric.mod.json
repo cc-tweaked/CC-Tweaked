@@ -39,10 +39,6 @@
     "mixins": [
         "computercraft.fabric.mixins.json",
         {
-            "config": "computercraft-client.mixins.json",
-            "environment": "client"
-        },
-        {
             "config": "computercraft-client.fabric.mixins.json",
             "environment": "client"
         }
