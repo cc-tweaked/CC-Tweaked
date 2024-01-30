@@ -8,7 +8,7 @@
     },
     "client": [
         "BlockRenderDispatcherMixin",
-	"ClientPacketListenerMixin"
+        "ClientPacketListenerMixin"
     ],
     "refmap": "client-computercraft.refmap.json"
 }
