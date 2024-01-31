@@ -7,8 +7,9 @@ package dan200.computercraft.api.turtle;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.upgrades.UpgradeDataProvider;
-import dan200.computercraft.impl.PlatformHelper;
-import net.minecraft.core.registries.Registries;
+import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import dan200.computercraft.impl.RegistryHelper;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -29,13 +30,13 @@ import java.util.function.Consumer;
  * {@link #addUpgrades(Consumer)} function, construct each upgrade, and pass them off to the provided consumer to
  * generate them.
  *
- * @see TurtleUpgradeSerialiser
+ * @see ITurtleUpgrade
  */
-public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITurtleUpgrade, TurtleUpgradeSerialiser<?>> {
+public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITurtleUpgrade> {
     private static final ResourceLocation TOOL_ID = new ResourceLocation(ComputerCraftAPI.MOD_ID, "tool");
 
     public TurtleUpgradeDataProvider(PackOutput output) {
-        super(output, "Turtle Upgrades", "computercraft/turtle_upgrades", TurtleUpgradeSerialiser.registryId());
+        super(output, "Turtle Upgrades", "computercraft/turtle_upgrades", ITurtleUpgrade.serialiserRegistryKey());
     }
 
     /**
@@ -57,7 +58,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
      */
     public static class ToolBuilder {
         private final ResourceLocation id;
-        private final TurtleUpgradeSerialiser<?> serialiser;
+        private final UpgradeSerialiser<? extends ITurtleUpgrade> serialiser;
         private final Item toolItem;
         private @Nullable String adjective;
         private @Nullable Item craftingItem;
@@ -66,7 +67,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
         private boolean allowEnchantments = false;
         private TurtleToolDurability consumeDurability = TurtleToolDurability.NEVER;
 
-        ToolBuilder(ResourceLocation id, TurtleUpgradeSerialiser<?> serialiser, Item toolItem) {
+        ToolBuilder(ResourceLocation id, UpgradeSerialiser<? extends ITurtleUpgrade> serialiser, Item toolItem) {
             this.id = id;
             this.serialiser = serialiser;
             this.toolItem = toolItem;
@@ -149,12 +150,12 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
          *
          * @param add The callback given to {@link #addUpgrades(Consumer)}.
          */
-        public void add(Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> add) {
+        public void add(Consumer<Upgrade<UpgradeSerialiser<? extends ITurtleUpgrade>>> add) {
             add.accept(new Upgrade<>(id, serialiser, s -> {
-                s.addProperty("item", PlatformHelper.get().getRegistryKey(Registries.ITEM, toolItem).toString());
+                s.addProperty("item", RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, toolItem).toString());
                 if (adjective != null) s.addProperty("adjective", adjective);
                 if (craftingItem != null) {
-                    s.addProperty("craftItem", PlatformHelper.get().getRegistryKey(Registries.ITEM, craftingItem).toString());
+                    s.addProperty("craftItem", RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, craftingItem).toString());
                 }
                 if (damageMultiplier != null) s.addProperty("damageMultiplier", damageMultiplier);
                 if (breakable != null) s.addProperty("breakable", breakable.location().toString());

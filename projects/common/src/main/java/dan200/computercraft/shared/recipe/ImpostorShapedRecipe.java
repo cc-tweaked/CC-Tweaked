@@ -6,7 +6,6 @@ package dan200.computercraft.shared.recipe;
 
 import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CustomRecipe;
@@ -20,8 +19,8 @@ import net.minecraft.world.level.Level;
  * This is used to represent examples for our {@link CustomRecipe}s.
  */
 public final class ImpostorShapedRecipe extends CustomShapedRecipe {
-    public ImpostorShapedRecipe(ResourceLocation id, ShapedRecipeSpec recipe) {
-        super(id, recipe);
+    public ImpostorShapedRecipe(ShapedRecipeSpec recipe) {
+        super(recipe);
     }
 
     @Override

@@ -40,7 +40,7 @@ class Recipe_Test {
                 .getRecipeFor(RecipeType.CRAFTING, container, context.level)
                 .orElseThrow { GameTestAssertException("No recipe matches") }
 
-            val result = recipe.assemble(container, context.level.registryAccess())
+            val result = recipe.value.assemble(container, context.level.registryAccess())
 
             val profile = GameProfile(UUID.fromString("f3c8d69b-0776-4512-8434-d1b2165909eb"), "dan200")
 

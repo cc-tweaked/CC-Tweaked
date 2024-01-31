@@ -60,7 +60,6 @@ public class CableBlockEntity extends BlockEntity {
     private boolean invalidPeripheral;
     private boolean peripheralAccessAllowed;
     private final WiredModemLocalPeripheral peripheral = new WiredModemLocalPeripheral(PlatformHelper.get().createPeripheralAccess(this, x -> queueRefreshPeripheral()));
-    private @Nullable Runnable modemChanged;
 
     private boolean connectionsFormed = false;
     private boolean connectionsChanged = false;
@@ -121,7 +120,7 @@ public class CableBlockEntity extends BlockEntity {
         super.setBlockState(state);
 
         // We invalidate both the modem and element if the modem's direction is different.
-        if (getMaybeDirection() != direction && modemChanged != null) modemChanged.run();
+        if (getMaybeDirection() != direction) PlatformHelper.get().invalidateComponent(this);
     }
 
     @Nullable
@@ -273,7 +272,7 @@ public class CableBlockEntity extends BlockEntity {
 
     void modemChanged() {
         // Tell anyone who cares that the connection state has changed
-        if (modemChanged != null) modemChanged.run();
+        PlatformHelper.get().invalidateComponent(this);
 
         if (getLevel().isClientSide) return;
 
@@ -324,10 +323,6 @@ public class CableBlockEntity extends BlockEntity {
     @Nullable
     public IPeripheral getPeripheral(@Nullable Direction direction) {
         return direction == null || getMaybeDirection() == direction ? modem : null;
-    }
-
-    public void onModemChanged(Runnable callback) {
-        modemChanged = callback;
     }
 
     boolean hasCable() {

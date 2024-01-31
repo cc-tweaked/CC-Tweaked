@@ -8,25 +8,14 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
 
-        maven("https://maven.minecraftforge.net") {
-            name = "Forge"
+        maven("https://maven.neoforged.net/releases") {
+            name = "NeoForge"
             content {
                 includeGroup("net.minecraftforge")
-                includeGroup("net.minecraftforge.gradle")
-            }
-        }
-
-        maven("https://maven.parchmentmc.org") {
-            name = "Librarian"
-            content {
-                includeGroupByRegex("^org\\.parchmentmc.*")
-            }
-        }
-
-        maven("https://repo.spongepowered.org/repository/maven-public/") {
-            name = "Sponge"
-            content {
-                includeGroup("org.spongepowered")
+                includeGroup("net.neoforged")
+                includeGroup("net.neoforged.gradle")
+                includeModule("codechicken", "DiffPatch")
+                includeModule("net.covers1624", "Quack")
             }
         }
 
@@ -42,14 +31,6 @@ pluginManagement {
             name = "SquidDev"
             content {
                 includeGroup("cc.tweaked.vanilla-extract")
-            }
-        }
-    }
-
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == "org.spongepowered.mixin") {
-                useModule("org.spongepowered:mixingradle:${requested.version}")
             }
         }
     }

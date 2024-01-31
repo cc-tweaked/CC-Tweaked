@@ -5,13 +5,15 @@
 package dan200.computercraft.shared;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.serialization.Codec;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.DetailProvider;
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.media.IMedia;
-import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
-import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
+import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
@@ -36,7 +38,6 @@ import dan200.computercraft.shared.computer.items.ComputerItem;
 import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
-import dan200.computercraft.shared.data.ConstantLootConditionSerializer;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.details.BlockDetails;
@@ -263,29 +264,29 @@ public final class ModRegistry {
     }
 
     public static class TurtleSerialisers {
-        static final RegistrationHelper<TurtleUpgradeSerialiser<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(TurtleUpgradeSerialiser.registryId());
+        static final RegistrationHelper<UpgradeSerialiser<? extends ITurtleUpgrade>> REGISTRY = PlatformHelper.get().createRegistrationHelper(ITurtleUpgrade.serialiserRegistryKey());
 
-        public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleSpeaker>> SPEAKER =
-            REGISTRY.register("speaker", () -> TurtleUpgradeSerialiser.simpleWithCustomItem(TurtleSpeaker::new));
-        public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleCraftingTable>> WORKBENCH =
-            REGISTRY.register("workbench", () -> TurtleUpgradeSerialiser.simpleWithCustomItem(TurtleCraftingTable::new));
-        public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleModem>> WIRELESS_MODEM_NORMAL =
-            REGISTRY.register("wireless_modem_normal", () -> TurtleUpgradeSerialiser.simpleWithCustomItem((id, item) -> new TurtleModem(id, item, false)));
-        public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleModem>> WIRELESS_MODEM_ADVANCED =
-            REGISTRY.register("wireless_modem_advanced", () -> TurtleUpgradeSerialiser.simpleWithCustomItem((id, item) -> new TurtleModem(id, item, true)));
+        public static final RegistryEntry<UpgradeSerialiser<TurtleSpeaker>> SPEAKER =
+            REGISTRY.register("speaker", () -> UpgradeSerialiser.simpleWithCustomItem(TurtleSpeaker::new));
+        public static final RegistryEntry<UpgradeSerialiser<TurtleCraftingTable>> WORKBENCH =
+            REGISTRY.register("workbench", () -> UpgradeSerialiser.simpleWithCustomItem(TurtleCraftingTable::new));
+        public static final RegistryEntry<UpgradeSerialiser<TurtleModem>> WIRELESS_MODEM_NORMAL =
+            REGISTRY.register("wireless_modem_normal", () -> UpgradeSerialiser.simpleWithCustomItem((id, item) -> new TurtleModem(id, item, false)));
+        public static final RegistryEntry<UpgradeSerialiser<TurtleModem>> WIRELESS_MODEM_ADVANCED =
+            REGISTRY.register("wireless_modem_advanced", () -> UpgradeSerialiser.simpleWithCustomItem((id, item) -> new TurtleModem(id, item, true)));
 
-        public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleTool>> TOOL = REGISTRY.register("tool", () -> TurtleToolSerialiser.INSTANCE);
+        public static final RegistryEntry<UpgradeSerialiser<TurtleTool>> TOOL = REGISTRY.register("tool", () -> TurtleToolSerialiser.INSTANCE);
     }
 
     public static class PocketUpgradeSerialisers {
-        static final RegistrationHelper<PocketUpgradeSerialiser<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(PocketUpgradeSerialiser.registryId());
+        static final RegistrationHelper<UpgradeSerialiser<? extends IPocketUpgrade>> REGISTRY = PlatformHelper.get().createRegistrationHelper(IPocketUpgrade.serialiserRegistryKey());
 
-        public static final RegistryEntry<PocketUpgradeSerialiser<PocketSpeaker>> SPEAKER =
-            REGISTRY.register("speaker", () -> PocketUpgradeSerialiser.simpleWithCustomItem(PocketSpeaker::new));
-        public static final RegistryEntry<PocketUpgradeSerialiser<PocketModem>> WIRELESS_MODEM_NORMAL =
-            REGISTRY.register("wireless_modem_normal", () -> PocketUpgradeSerialiser.simpleWithCustomItem((id, item) -> new PocketModem(id, item, false)));
-        public static final RegistryEntry<PocketUpgradeSerialiser<PocketModem>> WIRELESS_MODEM_ADVANCED =
-            REGISTRY.register("wireless_modem_advanced", () -> PocketUpgradeSerialiser.simpleWithCustomItem((id, item) -> new PocketModem(id, item, true)));
+        public static final RegistryEntry<UpgradeSerialiser<PocketSpeaker>> SPEAKER =
+            REGISTRY.register("speaker", () -> UpgradeSerialiser.simpleWithCustomItem(PocketSpeaker::new));
+        public static final RegistryEntry<UpgradeSerialiser<PocketModem>> WIRELESS_MODEM_NORMAL =
+            REGISTRY.register("wireless_modem_normal", () -> UpgradeSerialiser.simpleWithCustomItem((id, item) -> new PocketModem(id, item, false)));
+        public static final RegistryEntry<UpgradeSerialiser<PocketModem>> WIRELESS_MODEM_ADVANCED =
+            REGISTRY.register("wireless_modem_advanced", () -> UpgradeSerialiser.simpleWithCustomItem((id, item) -> new PocketModem(id, item, true)));
     }
 
     public static class Menus {
@@ -347,13 +348,13 @@ public final class ModRegistry {
         static final RegistrationHelper<LootItemConditionType> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registries.LOOT_CONDITION_TYPE);
 
         public static final RegistryEntry<LootItemConditionType> BLOCK_NAMED = REGISTRY.register("block_named",
-            () -> ConstantLootConditionSerializer.type(BlockNamedEntityLootCondition.INSTANCE));
+            () -> new LootItemConditionType(Codec.unit(BlockNamedEntityLootCondition.INSTANCE)));
 
         public static final RegistryEntry<LootItemConditionType> PLAYER_CREATIVE = REGISTRY.register("player_creative",
-            () -> ConstantLootConditionSerializer.type(PlayerCreativeLootCondition.INSTANCE));
+            () -> new LootItemConditionType(Codec.unit(PlayerCreativeLootCondition.INSTANCE)));
 
         public static final RegistryEntry<LootItemConditionType> HAS_ID = REGISTRY.register("has_id",
-            () -> ConstantLootConditionSerializer.type(HasComputerIdLootCondition.INSTANCE));
+            () -> new LootItemConditionType(Codec.unit(HasComputerIdLootCondition.INSTANCE)));
     }
 
     public static class RecipeSerializers {
@@ -466,8 +467,8 @@ public final class ModRegistry {
      * Register any objects which must be done on the main thread.
      */
     public static void registerMainThread() {
-        CauldronInteraction.WATER.put(Items.TURTLE_NORMAL.get(), TurtleItem.CAULDRON_INTERACTION);
-        CauldronInteraction.WATER.put(Items.TURTLE_ADVANCED.get(), TurtleItem.CAULDRON_INTERACTION);
+        CauldronInteraction.WATER.map().put(Items.TURTLE_NORMAL.get(), TurtleItem.CAULDRON_INTERACTION);
+        CauldronInteraction.WATER.map().put(Items.TURTLE_ADVANCED.get(), TurtleItem.CAULDRON_INTERACTION);
     }
 
     private static void addTurtle(CreativeModeTab.Output out, TurtleItem turtle) {

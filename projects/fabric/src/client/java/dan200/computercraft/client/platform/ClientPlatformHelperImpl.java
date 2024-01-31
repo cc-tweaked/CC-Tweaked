@@ -12,7 +12,6 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.server.ServerNetworkContext;
 import dan200.computercraft.shared.platform.FabricMessageType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -22,7 +21,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ServerGamePacketListener;
+import net.minecraft.network.protocol.common.ServerCommonPacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
@@ -34,10 +33,8 @@ public class ClientPlatformHelperImpl implements ClientPlatformHelper {
     private static final RandomSource random = RandomSource.create(0);
 
     @Override
-    public Packet<ServerGamePacketListener> createPacket(NetworkMessage<ServerNetworkContext> message) {
-        var buf = PacketByteBufs.create();
-        message.write(buf);
-        return ClientPlayNetworking.createC2SPacket(FabricMessageType.toFabricType(message.type()).getId(), buf);
+    public Packet<ServerCommonPacketListener> createPacket(NetworkMessage<ServerNetworkContext> message) {
+        return ClientPlayNetworking.createC2SPacket(FabricMessageType.toFabricPacket(message));
     }
 
     @Override

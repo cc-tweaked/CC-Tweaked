@@ -8,9 +8,10 @@ plugins {
 }
 
 repositories {
-    maven("https://maven.minecraftforge.net") {
-        content {
-            includeGroup("net.minecraftforge")
+    exclusiveContent {
+        forRepositories(maven("https://maven.neoforged.net/releases"))
+        filter {
+            includeGroup("net.neoforged")
             includeGroup("cpw.mods")
         }
     }
@@ -23,7 +24,7 @@ dependencies {
 
     testImplementation(libs.bundles.test)
     testImplementation(libs.errorProne.testHelpers)
-    testImplementation(libs.forgeSpi)
+    testImplementation(libs.neoForgeSpi)
     testCompileOnly(project(":core-api"))
     testRuntimeOnly(libs.bundles.testRuntime)
 }

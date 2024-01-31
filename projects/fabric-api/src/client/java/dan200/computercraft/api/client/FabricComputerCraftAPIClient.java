@@ -6,14 +6,13 @@ package dan200.computercraft.api.client;
 
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
-import dan200.computercraft.impl.client.ComputerCraftAPIClientService;
+import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import dan200.computercraft.impl.client.FabricComputerCraftAPIClientService;
 
 /**
- * The Fabric-specific entrypoint for ComputerCraft's API.
+ * The Fabric-specific entrypoint for ComputerCraft's client-side API.
  *
  * @see dan200.computercraft.api.ComputerCraftAPI The main API
- * @see dan200.computercraft.api.client.ComputerCraftAPIClient The main client-side API
  */
 public final class FabricComputerCraftAPIClient {
     private FabricComputerCraftAPIClient() {
@@ -32,11 +31,11 @@ public final class FabricComputerCraftAPIClient {
      * @param modeller   The upgrade modeller.
      * @param <T>        The type of the turtle upgrade.
      */
-    public static <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller(TurtleUpgradeSerialiser<T> serialiser, TurtleUpgradeModeller<T> modeller) {
+    public static <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller(UpgradeSerialiser<T> serialiser, TurtleUpgradeModeller<T> modeller) {
         getInstance().registerTurtleUpgradeModeller(serialiser, modeller);
     }
 
-    private static ComputerCraftAPIClientService getInstance() {
-        return ComputerCraftAPIClientService.get();
+    private static FabricComputerCraftAPIClientService getInstance() {
+        return FabricComputerCraftAPIClientService.get();
     }
 }

@@ -56,7 +56,7 @@ object ClientTestHooks {
     fun onOpenScreen(screen: Screen): Boolean = when {
         enabled && !loadedWorld && (screen is TitleScreen || screen is AccessibilityOnboardingScreen) -> {
             loadedWorld = true
-            openWorld()
+            openWorld(screen)
             true
         }
 
@@ -66,7 +66,7 @@ object ClientTestHooks {
     /**
      * Open or create our test world immediately on game launch.
      */
-    private fun openWorld() {
+    private fun openWorld(screen: Screen) {
         val minecraft = Minecraft.getInstance()
 
         // Clear some options before we get any further.
@@ -81,7 +81,7 @@ object ClientTestHooks {
 
         if (minecraft.levelSource.levelExists(LEVEL_NAME)) {
             LOG.info("World already exists, opening.")
-            minecraft.createWorldOpenFlows().loadLevel(minecraft.screen, LEVEL_NAME)
+            minecraft.createWorldOpenFlows().checkForBackupAndLoad(LEVEL_NAME) { minecraft.setScreen(screen) }
         } else {
             LOG.info("World does not exist, creating it.")
             val rules = GameRules()
@@ -93,7 +93,9 @@ object ClientTestHooks {
                 LEVEL_NAME,
                 LevelSettings("Test Level", GameType.CREATIVE, false, Difficulty.EASY, true, rules, WorldDataConfiguration.DEFAULT),
                 WorldOptions(WorldOptions.randomSeed(), false, false),
-            ) { WorldPresets.createNormalWorldDimensions(it) }
+                { WorldPresets.createNormalWorldDimensions(it) },
+                screen,
+            )
         }
     }
 
@@ -171,7 +173,7 @@ object ClientTestHooks {
             minecraft.execute {
                 LOG.info("Stopping client.")
                 minecraft.level!!.disconnect()
-                minecraft.clearLevel()
+                minecraft.disconnect()
                 minecraft.stop()
 
                 exitProcess(

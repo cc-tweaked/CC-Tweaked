@@ -75,17 +75,14 @@ public abstract class AbstractInventoryMethods<T> implements GenericPeripheral {
      * <p>
      * The returned information contains the same information as each item in
      * {@link #list}, as well as additional details like the display name
-     * (`displayName`), and item and item durability (`damage`, `maxDamage`, `durability`).
+     * (`displayName`), item groups (`itemGroups`), which are the creative tabs
+     * an item will appear under, and item and item durability (`damage`,
+     * `maxDamage`, `durability`).
      * <p>
      * Some items include more information (such as enchantments) - it is
      * recommended to print it out using [`textutils.serialize`] or in the Lua
      * REPL, to explore what is available.
      * <p>
-     * > [Deprecated fields][!INFO]
-     * > Older versions of CC: Tweaked exposed an {@code itemGroups} field, listing the
-     * > creative tabs an item was available under. This information is no longer available on
-     * > more recent versions of the game, and so this field will always be empty. Do not use this
-     * > field in new code!
      *
      * @param inventory The current inventory.
      * @param slot      The slot to get information about.

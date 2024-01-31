@@ -7,7 +7,6 @@ package dan200.computercraft.shared.common;
 import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -20,8 +19,8 @@ import net.minecraft.world.level.Level;
  * Craft a wet sponge with a {@linkplain IColouredItem dyable item} to remove its dye.
  */
 public final class ClearColourRecipe extends CustomRecipe {
-    public ClearColourRecipe(ResourceLocation id, CraftingBookCategory category) {
-        super(id, category);
+    public ClearColourRecipe(CraftingBookCategory category) {
+        super(category);
     }
 
     @Override

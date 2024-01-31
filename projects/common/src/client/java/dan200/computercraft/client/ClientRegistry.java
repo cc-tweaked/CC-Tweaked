@@ -31,6 +31,8 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -42,6 +44,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -79,17 +83,6 @@ public final class ClientRegistry {
      * Register any client-side objects which must be done on the main thread.
      */
     public static void registerMainThread() {
-        MenuScreens.<AbstractComputerMenu, ComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.COMPUTER.get(), ComputerScreen::new);
-        MenuScreens.<AbstractComputerMenu, ComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.POCKET_COMPUTER.get(), ComputerScreen::new);
-        MenuScreens.<AbstractComputerMenu, NoTermComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.POCKET_COMPUTER_NO_TERM.get(), NoTermComputerScreen::new);
-        MenuScreens.register(ModRegistry.Menus.TURTLE.get(), TurtleScreen::new);
-
-        MenuScreens.register(ModRegistry.Menus.PRINTER.get(), PrinterScreen::new);
-        MenuScreens.register(ModRegistry.Menus.DISK_DRIVE.get(), DiskDriveScreen::new);
-        MenuScreens.register(ModRegistry.Menus.PRINTOUT.get(), PrintoutScreen::new);
-
-        MenuScreens.<ViewComputerMenu, ComputerScreen<ViewComputerMenu>>register(ModRegistry.Menus.VIEW_COMPUTER.get(), ComputerScreen::new);
-
         registerItemProperty("state",
             new UnclampedPropertyFunction((stack, world, player, random) -> ClientPocketComputers.get(stack).getState().ordinal()),
             ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED
@@ -98,6 +91,23 @@ public final class ClientRegistry {
             (stack, world, player, random) -> IColouredItem.getColourBasic(stack) != -1 ? 1 : 0,
             ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED
         );
+    }
+
+    public static void registerMenuScreens(RegisterMenuScreen register) {
+        register.<AbstractComputerMenu, ComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.COMPUTER.get(), ComputerScreen::new);
+        register.<AbstractComputerMenu, ComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.POCKET_COMPUTER.get(), ComputerScreen::new);
+        register.<AbstractComputerMenu, NoTermComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.POCKET_COMPUTER_NO_TERM.get(), NoTermComputerScreen::new);
+        register.register(ModRegistry.Menus.TURTLE.get(), TurtleScreen::new);
+
+        register.register(ModRegistry.Menus.PRINTER.get(), PrinterScreen::new);
+        register.register(ModRegistry.Menus.DISK_DRIVE.get(), DiskDriveScreen::new);
+        register.register(ModRegistry.Menus.PRINTOUT.get(), PrintoutScreen::new);
+
+        register.<ViewComputerMenu, ComputerScreen<ViewComputerMenu>>register(ModRegistry.Menus.VIEW_COMPUTER.get(), ComputerScreen::new);
+    }
+
+    public interface RegisterMenuScreen {
+        <M extends AbstractContainerMenu, U extends Screen & MenuAccess<M>> void register(MenuType<? extends M> type, MenuScreens.ScreenConstructor<M, U> factory);
     }
 
     public static void registerTurtleModellers(RegisterTurtleUpgradeModeller register) {

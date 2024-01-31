@@ -17,13 +17,12 @@ import dan200.computercraft.shared.computer.metrics.basic.Aggregate;
 import dan200.computercraft.shared.computer.metrics.basic.AggregatedMetric;
 import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.config.ConfigSpec;
-import dan200.computercraft.shared.platform.RegistryWrappers;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -272,12 +271,12 @@ public final class LanguageProvider implements DataProvider {
 
     private Stream<String> getExpectedKeys() {
         return Stream.of(
-            RegistryWrappers.BLOCKS.stream()
-                .filter(x -> RegistryWrappers.BLOCKS.getKey(x).getNamespace().equals(ComputerCraftAPI.MOD_ID))
-                .map(Block::getDescriptionId),
-            RegistryWrappers.ITEMS.stream()
-                .filter(x -> RegistryWrappers.ITEMS.getKey(x).getNamespace().equals(ComputerCraftAPI.MOD_ID))
-                .map(Item::getDescriptionId),
+            BuiltInRegistries.BLOCK.holders()
+                .filter(x -> x.key().location().getNamespace().equals(ComputerCraftAPI.MOD_ID))
+                .map(x -> x.value().getDescriptionId()),
+            BuiltInRegistries.ITEM.holders()
+                .filter(x -> x.key().location().getNamespace().equals(ComputerCraftAPI.MOD_ID))
+                .map(x -> x.value().getDescriptionId()),
             turtleUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),
             pocketUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),
             Metric.metrics().values().stream().map(x -> AggregatedMetric.TRANSLATION_PREFIX + x.name() + ".name"),

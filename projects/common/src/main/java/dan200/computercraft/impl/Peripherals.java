@@ -16,20 +16,18 @@ import javax.annotation.Nullable;
 
 /**
  * The registry for peripheral providers.
- * <p>
- * This lives in the {@code impl} package despite it not being part of the public API, in order to mirror Forge's class.
  */
 public final class Peripherals {
-    private static final GenericPeripheralProvider<Runnable> genericProvider = new GenericPeripheralProvider<>();
+    private static final GenericPeripheralProvider genericProvider = new GenericPeripheralProvider();
 
     private Peripherals() {
     }
 
-    public static void addGenericLookup(ComponentLookup<? super Runnable> lookup) {
+    public static void addGenericLookup(ComponentLookup lookup) {
         genericProvider.registerLookup(lookup);
     }
 
-    public static @Nullable IPeripheral getGenericPeripheral(ServerLevel level, BlockPos pos, Direction side, @Nullable BlockEntity blockEntity, Runnable invalidate) {
-        return genericProvider.getPeripheral(level, pos, side, blockEntity, invalidate);
+    public static @Nullable IPeripheral getGenericPeripheral(ServerLevel level, BlockPos pos, Direction side, @Nullable BlockEntity blockEntity) {
+        return genericProvider.getPeripheral(level, pos, side, blockEntity);
     }
 }

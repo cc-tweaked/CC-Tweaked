@@ -4,6 +4,8 @@
 
 package dan200.computercraft.shared.turtle.blocks;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
@@ -13,6 +15,7 @@ import dan200.computercraft.shared.computer.blocks.AbstractComputerBlockEntity;
 import dan200.computercraft.shared.platform.RegistryEntry;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
+import dan200.computercraft.shared.util.BlockCodecs;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import dan200.computercraft.shared.util.WaterloggableHelpers;
 import net.minecraft.core.BlockPos;
@@ -49,6 +52,11 @@ import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
 import static dan200.computercraft.shared.util.WaterloggableHelpers.getFluidStateForPlacement;
 
 public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implements SimpleWaterloggedBlock {
+    private static final MapCodec<TurtleBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        BlockCodecs.propertiesCodec(),
+        BlockCodecs.blockEntityCodec(x -> x.type)
+    ).apply(instance, TurtleBlock::new));
+
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     /**
@@ -79,6 +87,11 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, WATERLOGGED);
+    }
+
+    @Override
+    protected MapCodec<? extends TurtleBlock> codec() {
+        return CODEC;
     }
 
     @Override

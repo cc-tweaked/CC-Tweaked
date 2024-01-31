@@ -5,7 +5,7 @@
 package dan200.computercraft.shared.details;
 
 import dan200.computercraft.api.detail.BlockReference;
-import dan200.computercraft.shared.platform.RegistryWrappers;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.state.properties.Property;
 
 import java.util.HashMap;
@@ -15,7 +15,7 @@ public class BlockDetails {
     public static void fillBasic(Map<? super String, Object> data, BlockReference block) {
         var state = block.state();
 
-        data.put("name", DetailHelpers.getId(RegistryWrappers.BLOCKS, state.getBlock()));
+        data.put("name", DetailHelpers.getId(BuiltInRegistries.BLOCK, state.getBlock()));
 
         Map<Object, Object> stateTable = new HashMap<>();
         for (Map.Entry<Property<?>, ? extends Comparable<?>> entry : state.getValues().entrySet()) {

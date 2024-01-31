@@ -9,12 +9,12 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.shared.platform.ForgeContainerTransfer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -109,11 +109,14 @@ public final class InventoryMethods extends AbstractInventoryMethods<IItemHandle
 
     @Nullable
     private static IItemHandler extractHandler(@Nullable Object object) {
-        if (object instanceof BlockEntity blockEntity && blockEntity.isRemoved()) return null;
+        if (object instanceof BlockEntity blockEntity) {
+            if (blockEntity.isRemoved()) return null;
 
-        if (object instanceof ICapabilityProvider provider) {
-            var cap = provider.getCapability(ForgeCapabilities.ITEM_HANDLER);
-            if (cap.isPresent()) return cap.orElseThrow(NullPointerException::new);
+            var level = blockEntity.getLevel();
+            if (!(level instanceof ServerLevel serverLevel)) return null;
+
+            var result = serverLevel.getCapability(Capabilities.ItemHandler.BLOCK, blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, null);
+            if (result != null) return result;
         }
 
         if (object instanceof IItemHandler handler) return handler;

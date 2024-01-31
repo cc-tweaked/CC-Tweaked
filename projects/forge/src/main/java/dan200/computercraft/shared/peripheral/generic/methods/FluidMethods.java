@@ -8,12 +8,12 @@ import dan200.computercraft.api.detail.ForgeDetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.shared.platform.RegistryWrappers;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -46,7 +46,7 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
         String toName, Optional<Integer> limit, Optional<String> fluidName
     ) throws LuaException {
         var fluid = fluidName.isPresent()
-            ? getRegistryEntry(fluidName.get(), "fluid", RegistryWrappers.FLUIDS)
+            ? getRegistryEntry(fluidName.get(), "fluid", BuiltInRegistries.FLUID)
             : null;
 
         // Find location to transfer to
@@ -71,7 +71,7 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
         String fromName, Optional<Integer> limit, Optional<String> fluidName
     ) throws LuaException {
         var fluid = fluidName.isPresent()
-            ? getRegistryEntry(fluidName.get(), "fluid", RegistryWrappers.FLUIDS)
+            ? getRegistryEntry(fluidName.get(), "fluid", BuiltInRegistries.FLUID)
             : null;
 
         // Find location to transfer to
@@ -91,11 +91,14 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
 
     @Nullable
     private static IFluidHandler extractHandler(@Nullable Object object) {
-        if (object instanceof BlockEntity blockEntity && blockEntity.isRemoved()) return null;
+        if (object instanceof BlockEntity blockEntity) {
+            if (blockEntity.isRemoved()) return null;
 
-        if (object instanceof ICapabilityProvider provider) {
-            var cap = provider.getCapability(ForgeCapabilities.FLUID_HANDLER);
-            if (cap.isPresent()) return cap.orElseThrow(NullPointerException::new);
+            var level = blockEntity.getLevel();
+            if (!(level instanceof ServerLevel serverLevel)) return null;
+
+            var result = serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, null);
+            if (result != null) return result;
         }
 
         if (object instanceof IFluidHandler handler) return handler;

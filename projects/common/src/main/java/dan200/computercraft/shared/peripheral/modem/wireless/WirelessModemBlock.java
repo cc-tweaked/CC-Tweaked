@@ -4,8 +4,10 @@
 
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
+import com.mojang.serialization.MapCodec;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
 import dan200.computercraft.shared.platform.RegistryEntry;
+import dan200.computercraft.shared.util.BlockCodecs;
 import dan200.computercraft.shared.util.WaterloggableHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -31,6 +33,8 @@ import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
 import static dan200.computercraft.shared.util.WaterloggableHelpers.getFluidStateForPlacement;
 
 public class WirelessModemBlock extends DirectionalBlock implements SimpleWaterloggedBlock, EntityBlock {
+    private static final MapCodec<WirelessModemBlock> CODEC = BlockCodecs.blockWithBlockEntityCodec(WirelessModemBlock::new, x -> x.type);
+
     public static final BooleanProperty ON = BooleanProperty.create("on");
 
     private final RegistryEntry<? extends BlockEntityType<? extends WirelessModemBlockEntity>> type;
@@ -48,6 +52,11 @@ public class WirelessModemBlock extends DirectionalBlock implements SimpleWaterl
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, ON, WATERLOGGED);
+    }
+
+    @Override
+    protected MapCodec<? extends WirelessModemBlock> codec() {
+        return CODEC;
     }
 
     @Override

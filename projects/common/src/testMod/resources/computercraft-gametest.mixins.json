@@ -11,6 +11,7 @@
         "GameTestInfoAccessor",
         "GameTestSequenceAccessor",
         "GameTestSequenceMixin",
+        "StructureTemplateManagerMixin",
         "TestCommandAccessor"
     ],
     "client": [

@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ServerGamePacketListener;
+import net.minecraft.network.protocol.common.ServerCommonPacketListener;
 import net.minecraft.sounds.SoundEvent;
 
 import javax.annotation.Nullable;
@@ -27,7 +27,7 @@ public interface ClientPlatformHelper extends dan200.computercraft.impl.client.C
      * @param message The messsge to convert.
      * @return The converted message.
      */
-    Packet<ServerGamePacketListener> createPacket(NetworkMessage<ServerNetworkContext> message);
+    Packet<ServerCommonPacketListener> createPacket(NetworkMessage<ServerNetworkContext> message);
 
     /**
      * Render a {@link BakedModel}, using any loader-specific hooks.

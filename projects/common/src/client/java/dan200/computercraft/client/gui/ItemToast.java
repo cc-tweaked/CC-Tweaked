@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
 
@@ -18,6 +19,7 @@ import java.util.List;
  * A {@link Toast} implementation which displays an arbitrary message along with an optional {@link ItemStack}.
  */
 public class ItemToast implements Toast {
+    private static final ResourceLocation TEXTURE = new ResourceLocation("toast/recipe");
     public static final Object TRANSFER_NO_RESPONSE_TOKEN = new Object();
 
     private static final long DISPLAY_TIME = 7000L;
@@ -79,7 +81,7 @@ public class ItemToast implements Toast {
         }
 
         if (width == 160 && message.size() <= 1) {
-            graphics.blit(TEXTURE, 0, 0, 0, 64, width, height());
+            graphics.blitSprite(TEXTURE, 0, 0, width, height());
         } else {
 
             var height = height();
@@ -109,14 +111,14 @@ public class ItemToast implements Toast {
     }
 
     private static void renderBackgroundRow(GuiGraphics graphics, int x, int u, int y, int height) {
-        var leftOffset = 5;
+        var leftOffset = u == 0 ? 20 : 5;
         var rightOffset = Math.min(60, x - leftOffset);
 
-        graphics.blit(TEXTURE, 0, y, 0, 32 + u, leftOffset, height);
+        graphics.blitSprite(TEXTURE, 160, 32, 0, u, 0, y, leftOffset, height);
         for (var k = leftOffset; k < x - rightOffset; k += 64) {
-            graphics.blit(TEXTURE, k, y, 32, 32 + u, Math.min(64, x - k - rightOffset), height);
+            graphics.blitSprite(TEXTURE, 160, 32, 32, u, k, y, Math.min(64, x - k - rightOffset), height);
         }
 
-        graphics.blit(TEXTURE, x - rightOffset, y, 160 - rightOffset, 32 + u, rightOffset, height);
+        graphics.blitSprite(TEXTURE, 160, 32, 160 - rightOffset, u, x - rightOffset, y, rightOffset, height);
     }
 }

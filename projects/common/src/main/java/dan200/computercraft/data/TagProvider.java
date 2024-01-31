@@ -5,8 +5,9 @@
 package dan200.computercraft.data;
 
 import dan200.computercraft.api.ComputerCraftTags;
+import dan200.computercraft.impl.RegistryHelper;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.platform.RegistryWrappers;
+import net.minecraft.core.Registry;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.tags.BlockTags;
@@ -111,9 +112,9 @@ class TagProvider {
         TagAppender<T> tag(TagKey<T> tag);
     }
 
-    public record TagAppender<T>(RegistryWrappers.RegistryWrapper<T> registry, TagBuilder builder) {
+    public record TagAppender<T>(Registry<T> registry, TagBuilder builder) {
         public TagAppender<T> add(T object) {
-            builder.addElement(registry.getKey(object));
+            builder.addElement(RegistryHelper.getKeyOrThrow(registry, object));
             return this;
         }
 

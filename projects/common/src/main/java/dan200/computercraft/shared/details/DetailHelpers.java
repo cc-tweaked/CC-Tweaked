@@ -4,8 +4,9 @@
 
 package dan200.computercraft.shared.details;
 
-import dan200.computercraft.shared.platform.RegistryWrappers;
+import dan200.computercraft.impl.RegistryHelper;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.tags.TagKey;
 
 import java.util.Map;
@@ -24,7 +25,7 @@ public final class DetailHelpers {
         return tags.collect(Collectors.toMap(x -> x.location().toString(), x -> true));
     }
 
-    public static <T> String getId(RegistryWrappers.RegistryWrapper<T> registry, T entry) {
-        return registry.getKey(entry).toString();
+    public static <T> String getId(Registry<T> registry, T entry) {
+        return RegistryHelper.getKeyOrThrow(registry, entry).toString();
     }
 }

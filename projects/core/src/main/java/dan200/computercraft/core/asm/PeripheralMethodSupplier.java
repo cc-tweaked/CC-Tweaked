@@ -31,8 +31,8 @@ public final class PeripheralMethodSupplier {
             }
         },
         m -> (target, context, computer, args) -> {
-            var escArgs = args.escapes();
-            return context.executeMainThreadTask(() -> ResultHelpers.checkNormalResult(m.apply(target, context, computer, escArgs)));
+            args.escapes();
+            return context.executeMainThreadTask(() -> ResultHelpers.checkNormalResult(m.apply(target, context, computer, args)));
         }
     );
     private static final IntCache<PeripheralMethod> DYNAMIC = new IntCache<>(

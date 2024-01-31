@@ -10,10 +10,8 @@ import cc.tweaked.gradle.IdeaRunConfigurations
 import cc.tweaked.gradle.MinecraftConfigurations
 
 plugins {
-    id("net.minecraftforge.gradle")
-    // We must apply java-convention after Forge, as we need the fg extension to be present.
     id("cc-tweaked.java-convention")
-    id("org.parchmentmc.librarian.forgegradle")
+    id("net.neoforged.gradle.userdev")
 }
 
 plugins.apply(CCTweakedPlugin::class.java)
@@ -21,24 +19,24 @@ plugins.apply(CCTweakedPlugin::class.java)
 val mcVersion: String by extra
 
 minecraft {
-    val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
-    mappings("parchment", "${libs.findVersion("parchmentMc").get()}-${libs.findVersion("parchment").get()}-$mcVersion")
+    modIdentifier("computercraft")
+}
 
-    accessTransformer(project(":forge").file("src/main/resources/META-INF/accesstransformer.cfg"))
+subsystems {
+    parchment {
+        val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
+        minecraftVersion = libs.findVersion("parchmentMc").get().toString()
+        mappingsVersion = libs.findVersion("parchment").get().toString()
+    }
+}
+
+dependencies {
+    val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
+    implementation("net.neoforged:neoforge:${libs.findVersion("neoForge").get()}")
 }
 
 MinecraftConfigurations.setup(project)
 
 extensions.configure(CCTweakedExtension::class.java) {
     linters(minecraft = true, loader = "forge")
-}
-
-dependencies {
-    val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
-    "minecraft"("net.minecraftforge:forge:$mcVersion-${libs.findVersion("forge").get()}")
-}
-
-tasks.configureEach {
-    // genIntellijRuns isn't registered until much later, so we need this silly hijinks.
-    if (name == "genIntellijRuns") doLast { IdeaRunConfigurations(project).patch() }
 }

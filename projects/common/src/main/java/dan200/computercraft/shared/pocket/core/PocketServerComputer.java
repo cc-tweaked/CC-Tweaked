@@ -4,7 +4,6 @@
 
 package dan200.computercraft.shared.pocket.core;
 
-import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
@@ -19,7 +18,6 @@ import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -29,7 +27,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class PocketServerComputer extends ServerComputer implements IPocketAccess {
     private @Nullable IPocketUpgrade upgrade;
@@ -102,12 +103,6 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     public void invalidatePeripheral() {
         var peripheral = upgrade == null ? null : upgrade.createPeripheral(this);
         setPeripheral(ComputerSide.BACK, peripheral);
-    }
-
-    @Override
-    @Deprecated(forRemoval = true)
-    public Map<ResourceLocation, IPeripheral> getUpgrades() {
-        return upgrade == null ? Map.of() : Collections.singletonMap(upgrade.getUpgradeID(), getPeripheral(ComputerSide.BACK));
     }
 
     public @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {

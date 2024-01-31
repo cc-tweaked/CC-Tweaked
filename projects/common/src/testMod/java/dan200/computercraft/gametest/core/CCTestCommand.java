@@ -63,7 +63,7 @@ class CCTestCommand {
 
                 var structureBlock = (StructureBlockEntity) player.level().getBlockEntity(pos);
                 if (structureBlock == null) return error(context.getSource(), "No nearby structure block");
-                var info = GameTestRegistry.getTestFunction(structureBlock.getStructurePath());
+                var info = GameTestRegistry.getTestFunction(structureBlock.getMetaData());
 
                 // Kill the existing armor stand
                 player
@@ -89,14 +89,14 @@ class CCTestCommand {
 
                 var structureBlock = (StructureBlockEntity) player.level().getBlockEntity(pos);
                 if (structureBlock == null) return error(context.getSource(), "No nearby structure block");
-                var info = GameTestRegistry.getTestFunction(structureBlock.getStructurePath());
+                var info = GameTestRegistry.getTestFunction(structureBlock.getMetaData());
 
                 var item = ModRegistry.Items.COMPUTER_ADVANCED.get().create(1, info.getTestName());
                 if (!player.getInventory().add(item)) {
                     var itemEntity = player.drop(item, false);
                     if (itemEntity != null) {
                         itemEntity.setNoPickUpDelay();
-                        itemEntity.setThrower(player.getUUID());
+                        itemEntity.setThrower(player);
                     }
                 }
 

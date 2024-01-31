@@ -6,7 +6,7 @@ package dan200.computercraft.shared.platform;
 
 import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.util.Trie;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -18,15 +18,15 @@ import java.util.stream.Stream;
  * A {@link ConfigFile} which wraps Forge's config implementation.
  */
 public final class ForgeConfigFile implements ConfigFile {
-    private final ForgeConfigSpec spec;
+    private final ModConfigSpec spec;
     private final Trie<String, ConfigFile.Entry> entries;
 
-    public ForgeConfigFile(ForgeConfigSpec spec, Trie<String, Entry> entries) {
+    public ForgeConfigFile(ModConfigSpec spec, Trie<String, Entry> entries) {
         this.spec = spec;
         this.entries = entries;
     }
 
-    public ForgeConfigSpec spec() {
+    public ModConfigSpec spec() {
         return spec;
     }
 
@@ -42,10 +42,10 @@ public final class ForgeConfigFile implements ConfigFile {
     }
 
     /**
-     * Wraps {@link ForgeConfigSpec.Builder} into our own config builder abstraction.
+     * Wraps {@link ModConfigSpec.Builder} into our own config builder abstraction.
      */
     static class Builder extends ConfigFile.Builder {
-        private final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+        private final ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         private final Trie<String, ConfigFile.Entry> entries = new Trie<>();
 
         private void translation(String name) {
@@ -80,7 +80,7 @@ public final class ForgeConfigFile implements ConfigFile {
             return this;
         }
 
-        private <T> ConfigFile.Value<T> defineValue(ForgeConfigSpec.ConfigValue<T> value) {
+        private <T> ConfigFile.Value<T> defineValue(ModConfigSpec.ConfigValue<T> value) {
             var wrapped = new ValueImpl<>(value);
             entries.setValue(value.getPath(), wrapped);
             return wrapped;
@@ -129,7 +129,7 @@ public final class ForgeConfigFile implements ConfigFile {
 
     private static final class GroupImpl implements ConfigFile.Group {
         private final List<String> path;
-        private @Nullable ForgeConfigSpec owner;
+        private @Nullable ModConfigSpec owner;
 
         private GroupImpl(List<String> path) {
             this.path = path;
@@ -149,14 +149,14 @@ public final class ForgeConfigFile implements ConfigFile {
     }
 
     private static final class ValueImpl<T> implements ConfigFile.Value<T> {
-        private final ForgeConfigSpec.ConfigValue<T> value;
-        private @Nullable ForgeConfigSpec owner;
+        private final ModConfigSpec.ConfigValue<T> value;
+        private @Nullable ModConfigSpec owner;
 
-        private ValueImpl(ForgeConfigSpec.ConfigValue<T> value) {
+        private ValueImpl(ModConfigSpec.ConfigValue<T> value) {
             this.value = value;
         }
 
-        private ForgeConfigSpec.ValueSpec spec() {
+        private ModConfigSpec.ValueSpec spec() {
             if (owner == null) throw new IllegalStateException("Config has not been built yet");
             return owner.getSpec().get(value.getPath());
         }

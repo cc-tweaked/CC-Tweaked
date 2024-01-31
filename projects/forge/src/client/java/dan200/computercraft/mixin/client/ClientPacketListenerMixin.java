@@ -6,7 +6,7 @@ package dan200.computercraft.mixin.client;
 
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraftforge.client.ClientCommandHandler;
+import net.neoforged.neoforge.client.ClientCommandHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

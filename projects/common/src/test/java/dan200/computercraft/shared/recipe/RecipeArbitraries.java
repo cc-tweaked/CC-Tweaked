@@ -12,6 +12,9 @@ import net.jqwik.api.Combinators;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.ShapedRecipePattern;
+
+import java.util.Optional;
 
 /**
  * {@link Arbitrary} implementations for recipes.
@@ -20,7 +23,8 @@ public final class RecipeArbitraries {
     public static Arbitrary<RecipeProperties> recipeProperties() {
         return Combinators.combine(
             Arbitraries.strings().ofMinLength(1).withChars("abcdefghijklmnopqrstuvwxyz_"),
-            Arbitraries.of(CraftingBookCategory.values())
+            Arbitraries.of(CraftingBookCategory.values()),
+            Arbitraries.of(true, false)
         ).as(RecipeProperties::new);
     }
 
@@ -32,18 +36,18 @@ public final class RecipeArbitraries {
         ).as(ShapelessRecipeSpec::new);
     }
 
-    public static Arbitrary<ShapedTemplate> shapedTemplate() {
+    public static Arbitrary<ShapedRecipePattern> shapedPattern() {
         return Combinators.combine(Arbitraries.integers().between(1, 3), Arbitraries.integers().between(1, 3))
             .as(IntIntImmutablePair::new)
             .flatMap(x -> MinecraftArbitraries.ingredient().array(Ingredient[].class).ofSize(x.leftInt() * x.rightInt())
-                .map(i -> new ShapedTemplate(x.leftInt(), x.rightInt(), NonNullList.of(Ingredient.EMPTY, i)))
+                .map(i -> new ShapedRecipePattern(x.leftInt(), x.rightInt(), NonNullList.of(Ingredient.EMPTY, i), Optional.empty()))
             );
     }
 
     public static Arbitrary<ShapedRecipeSpec> shapedRecipeSpec() {
         return Combinators.combine(
             recipeProperties(),
-            shapedTemplate(),
+            shapedPattern(),
             MinecraftArbitraries.nonEmptyItemStack()
         ).as(ShapedRecipeSpec::new);
     }

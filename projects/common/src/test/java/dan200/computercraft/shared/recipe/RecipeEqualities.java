@@ -6,6 +6,7 @@ package dan200.computercraft.shared.recipe;
 
 import dan200.computercraft.test.core.StructuralEquality;
 import dan200.computercraft.test.shared.MinecraftEqualities;
+import net.minecraft.world.item.crafting.ShapedRecipePattern;
 
 /**
  * {@link StructuralEquality} implementations for recipes.
@@ -20,15 +21,15 @@ public final class RecipeEqualities {
         StructuralEquality.at("result", ShapelessRecipeSpec::result, MinecraftEqualities.itemStack)
     );
 
-    public static final StructuralEquality<ShapedTemplate> shapedTemplate = StructuralEquality.all(
-        StructuralEquality.at("width", ShapedTemplate::width),
-        StructuralEquality.at("height", ShapedTemplate::height),
-        StructuralEquality.at("ingredients", ShapedTemplate::ingredients, MinecraftEqualities.ingredient.list())
+    public static final StructuralEquality<ShapedRecipePattern> shapedPattern = StructuralEquality.all(
+        StructuralEquality.at("width", ShapedRecipePattern::width),
+        StructuralEquality.at("height", ShapedRecipePattern::height),
+        StructuralEquality.at("ingredients", ShapedRecipePattern::ingredients, MinecraftEqualities.ingredient.list())
     );
 
     public static final StructuralEquality<ShapedRecipeSpec> shapedRecipeSpec = StructuralEquality.all(
         StructuralEquality.at("properties", ShapedRecipeSpec::properties),
-        StructuralEquality.at("ingredients", ShapedRecipeSpec::template, shapedTemplate),
+        StructuralEquality.at("ingredients", ShapedRecipeSpec::pattern, shapedPattern),
         StructuralEquality.at("result", ShapedRecipeSpec::result, MinecraftEqualities.itemStack)
     );
 }

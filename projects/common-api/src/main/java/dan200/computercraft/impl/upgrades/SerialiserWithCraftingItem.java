@@ -23,27 +23,27 @@ import java.util.function.BiFunction;
  * @param <T> The upgrade that this class can serialise and deserialise.
  */
 @ApiStatus.Internal
-public abstract class SerialiserWithCraftingItem<T extends UpgradeBase> implements UpgradeSerialiser<T> {
+public final class SerialiserWithCraftingItem<T extends UpgradeBase> implements UpgradeSerialiser<T> {
     private final BiFunction<ResourceLocation, ItemStack, T> factory;
 
-    protected SerialiserWithCraftingItem(BiFunction<ResourceLocation, ItemStack, T> factory) {
+    public SerialiserWithCraftingItem(BiFunction<ResourceLocation, ItemStack, T> factory) {
         this.factory = factory;
     }
 
     @Override
-    public final T fromJson(ResourceLocation id, JsonObject object) {
+    public T fromJson(ResourceLocation id, JsonObject object) {
         var item = GsonHelper.getAsItem(object, "item");
         return factory.apply(id, new ItemStack(item));
     }
 
     @Override
-    public final T fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
+    public T fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
         var item = buffer.readItem();
         return factory.apply(id, item);
     }
 
     @Override
-    public final void toNetwork(FriendlyByteBuf buffer, T upgrade) {
+    public void toNetwork(FriendlyByteBuf buffer, T upgrade) {
         buffer.writeItem(upgrade.getCraftingItem());
     }
 }

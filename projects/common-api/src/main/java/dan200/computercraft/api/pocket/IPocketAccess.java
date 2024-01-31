@@ -4,15 +4,12 @@
 
 package dan200.computercraft.api.pocket;
 
-import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
-import java.util.Map;
 
 /**
  * Wrapper class for pocket computers.
@@ -90,13 +87,4 @@ public interface IPocketAccess {
      * entity} changes.
      */
     void invalidatePeripheral();
-
-    /**
-     * Get a list of all upgrades for the pocket computer.
-     *
-     * @return A collection of all upgrade names.
-     * @deprecated This is a relic of a previous API, which no longer makes sense with newer versions of ComputerCraft.
-     */
-    @Deprecated(forRemoval = true)
-    Map<ResourceLocation, IPeripheral> getUpgrades();
 }

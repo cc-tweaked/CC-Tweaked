@@ -4,8 +4,10 @@
 
 package dan200.computercraft.shared.peripheral.monitor;
 
+import com.mojang.serialization.MapCodec;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.RegistryEntry;
+import dan200.computercraft.shared.util.BlockCodecs;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -33,6 +35,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import javax.annotation.Nullable;
 
 public class MonitorBlock extends HorizontalDirectionalBlock implements EntityBlock {
+    private static final MapCodec<MonitorBlock> CODEC = BlockCodecs.blockWithBlockEntityCodec(MonitorBlock::new, x -> x.type);
+
     public static final DirectionProperty ORIENTATION = DirectionProperty.create("orientation",
         Direction.UP, Direction.DOWN, Direction.NORTH);
 
@@ -55,6 +59,11 @@ public class MonitorBlock extends HorizontalDirectionalBlock implements EntityBl
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(ORIENTATION, FACING, STATE);
+    }
+
+    @Override
+    protected MapCodec<? extends MonitorBlock> codec() {
+        return CODEC;
     }
 
     @Override

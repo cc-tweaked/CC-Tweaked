@@ -11,7 +11,6 @@ import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -24,8 +23,8 @@ import net.minecraft.world.level.Level;
 public class DiskRecipe extends CustomRecipe {
     private final Ingredient redstone;
 
-    public DiskRecipe(ResourceLocation id, CraftingBookCategory category) {
-        super(id, category);
+    public DiskRecipe(CraftingBookCategory category) {
+        super(category);
         redstone = PlatformHelper.get().getRecipeIngredients().redstone();
     }
 

@@ -60,7 +60,7 @@ public class JEIComputerCraft implements IModPlugin {
         // Hide all upgrade recipes
         var category = registry.createRecipeLookup(RecipeTypes.CRAFTING);
         category.get().forEach(wrapper -> {
-            if (RecipeModHelpers.shouldRemoveRecipe(wrapper.getId())) {
+            if (RecipeModHelpers.shouldRemoveRecipe(wrapper.id())) {
                 registry.hideRecipes(RecipeTypes.CRAFTING, List.of(wrapper));
             }
         });

@@ -56,28 +56,6 @@ public interface WritableMount extends Mount {
     void rename(String source, String dest) throws IOException;
 
     /**
-     * Opens a file with a given path, and returns an {@link SeekableByteChannel} for writing to it.
-     *
-     * @param path A file path in normalised format, relative to the mount location. ie: "programs/myprogram".
-     * @return A channel for writing to.
-     * @throws IOException If the file could not be opened for writing.
-     * @deprecated Replaced with more the generic {@link #openFile(String, Set)}.
-     */
-    @Deprecated(forRemoval = true)
-    SeekableByteChannel openForWrite(String path) throws IOException;
-
-    /**
-     * Opens a file with a given path, and returns an {@link SeekableByteChannel} for appending to it.
-     *
-     * @param path A file path in normalised format, relative to the mount location. ie: "programs/myprogram".
-     * @return A channel for writing to.
-     * @throws IOException If the file could not be opened for writing.
-     * @deprecated Replaced with more the generic {@link #openFile(String, Set)}.
-     */
-    @Deprecated(forRemoval = true)
-    SeekableByteChannel openForAppend(String path) throws IOException;
-
-    /**
      * Opens a file with a given path, and returns an {@link SeekableByteChannel}.
      * <p>
      * This allows opening a file in a variety of options, much like {@link FileChannel#open(Path, Set, FileAttribute[])}.
@@ -95,12 +73,7 @@ public interface WritableMount extends Mount {
      * @return A channel for writing to.
      * @throws IOException If the file could not be opened for writing.
      */
-    default SeekableByteChannel openFile(String path, Set<OpenOption> options) throws IOException {
-        if (options.equals(MountConstants.READ_OPTIONS)) return openForRead(path);
-        if (options.equals(MountConstants.WRITE_OPTIONS)) return openForWrite(path);
-        if (options.equals(MountConstants.APPEND_OPTIONS)) return openForAppend(path);
-        throw new IOException(MountConstants.UNSUPPORTED_MODE);
-    }
+    SeekableByteChannel openFile(String path, Set<OpenOption> options) throws IOException;
 
     /**
      * Get the amount of free space on the mount, in bytes. You should decrease this value as the user writes to the

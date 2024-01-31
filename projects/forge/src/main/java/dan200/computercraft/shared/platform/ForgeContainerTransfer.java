@@ -5,7 +5,7 @@
 package dan200.computercraft.shared.platform;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 
 public class ForgeContainerTransfer implements ContainerTransfer.Slotted {
     private final IItemHandler handler;

@@ -10,7 +10,6 @@ import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.computer.recipe.ComputerConvertRecipe;
 import dan200.computercraft.shared.recipe.ShapedRecipeSpec;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
@@ -20,17 +19,17 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 public final class TurtleRecipe extends ComputerConvertRecipe {
     private final TurtleItem turtle;
 
-    private TurtleRecipe(ResourceLocation id, ShapedRecipeSpec recipe, TurtleItem turtle) {
-        super(id, recipe);
+    private TurtleRecipe(ShapedRecipeSpec recipe, TurtleItem turtle) {
+        super(recipe);
         this.turtle = turtle;
     }
 
-    public static DataResult<TurtleRecipe> of(ResourceLocation id, ShapedRecipeSpec recipe) {
+    public static DataResult<TurtleRecipe> of(ShapedRecipeSpec recipe) {
         if (!(recipe.result().getItem() instanceof TurtleItem turtle)) {
             return DataResult.error(() -> recipe.result().getItem() + " is not a turtle item");
         }
 
-        return DataResult.success(new TurtleRecipe(id, recipe, turtle));
+        return DataResult.success(new TurtleRecipe(recipe, turtle));
     }
 
     @Override

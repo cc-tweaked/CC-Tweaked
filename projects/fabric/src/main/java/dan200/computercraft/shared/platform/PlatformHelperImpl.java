@@ -11,7 +11,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.WiredElement;
-import dan200.computercraft.api.node.wired.WiredElementLookup;
+import dan200.computercraft.api.network.wired.WiredElementLookup;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralLookup;
 import dan200.computercraft.impl.Peripherals;
@@ -28,7 +28,6 @@ import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiCache;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
@@ -48,7 +47,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.common.ClientCommonPacketListener;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -81,7 +80,6 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.*;
@@ -106,33 +104,8 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public <T> ResourceLocation getRegistryKey(ResourceKey<Registry<T>> registry, T object) {
-        var key = getRegistry(registry).getKey(object);
-        if (key == null) throw new IllegalArgumentException(object + " was not registered in " + registry);
-        return key;
-    }
-
-    @Override
-    public <T> T getRegistryObject(ResourceKey<Registry<T>> registry, ResourceLocation id) {
-        var value = getRegistry(registry).get(id);
-        if (value == null) throw new IllegalArgumentException(id + " was not registered in " + registry);
-        return value;
-    }
-
-    @Override
-    public <T> RegistryWrappers.RegistryWrapper<T> wrap(ResourceKey<Registry<T>> registry) {
-        return new RegistryWrapperImpl<>(registry.location(), getRegistry(registry));
-    }
-
-    @Override
     public <T> RegistrationHelper<T> createRegistrationHelper(ResourceKey<Registry<T>> registry) {
         return new RegistrationHelperImpl<>(getRegistry(registry));
-    }
-
-    @Nullable
-    @Override
-    public <T> T tryGetRegistryObject(ResourceKey<Registry<T>> registry, ResourceLocation id) {
-        return getRegistry(registry).get(id);
     }
 
     @Override
@@ -173,20 +146,18 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public <T extends NetworkMessage<?>> MessageType<T> createMessageType(int id, ResourceLocation channel, Class<T> klass, FriendlyByteBuf.Reader<T> reader) {
+    public <T extends NetworkMessage<?>> MessageType<T> createMessageType(ResourceLocation channel, FriendlyByteBuf.Reader<T> reader) {
         return new FabricMessageType<>(channel, reader);
     }
 
     @Override
-    public Packet<ClientGamePacketListener> createPacket(NetworkMessage<ClientNetworkContext> message) {
-        var buf = PacketByteBufs.create();
-        message.write(buf);
-        return ServerPlayNetworking.createS2CPacket(FabricMessageType.toFabricType(message.type()).getId(), buf);
+    public Packet<ClientCommonPacketListener> createPacket(NetworkMessage<ClientNetworkContext> message) {
+        return ServerPlayNetworking.createS2CPacket(FabricMessageType.toFabricPacket(message));
     }
 
     @Override
     public ComponentAccess<IPeripheral> createPeripheralAccess(BlockEntity owner, Consumer<Direction> invalidate) {
-        return new PeripheralAccessImpl(owner, invalidate);
+        return new PeripheralAccessImpl(owner);
     }
 
     @Override
@@ -322,50 +293,6 @@ public class PlatformHelperImpl implements PlatformHelper {
         return stack.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
     }
 
-    private record RegistryWrapperImpl<T>(
-        ResourceLocation name, Registry<T> registry
-    ) implements RegistryWrappers.RegistryWrapper<T> {
-        @Override
-        public int getId(T object) {
-            return registry.getId(object);
-        }
-
-        @Override
-        public ResourceLocation getKey(T object) {
-            var key = registry.getKey(object);
-            if (key == null) throw new IllegalArgumentException(object + " was not registered in " + name);
-            return key;
-        }
-
-        @Override
-        public T get(ResourceLocation location) {
-            var object = registry.get(location);
-            if (object == null) throw new IllegalArgumentException(location + " was not registered in " + name);
-            return object;
-        }
-
-        @Nullable
-        @Override
-        public T tryGet(ResourceLocation location) {
-            return registry.get(location);
-        }
-
-        @Override
-        public @Nullable T byId(int id) {
-            return registry.byId(id);
-        }
-
-        @Override
-        public int size() {
-            return registry.size();
-        }
-
-        @Override
-        public Iterator<T> iterator() {
-            return registry.iterator();
-        }
-    }
-
     private static final class RegistrationHelperImpl<T> implements RegistrationHelper<T> {
         private final Registry<T> registry;
         private final List<RegistryEntryImpl<? extends T>> entries = new ArrayList<>();
@@ -459,11 +386,8 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     private static final class PeripheralAccessImpl extends ComponentAccessImpl<IPeripheral> {
-        private final Runnable[] invalidators = new Runnable[6];
-
-        private PeripheralAccessImpl(BlockEntity owner, Consumer<Direction> invalidate) {
+        private PeripheralAccessImpl(BlockEntity owner) {
             super(owner, PeripheralLookup.get());
-            for (var dir : Direction.values()) invalidators[dir.ordinal()] = () -> invalidate.accept(dir);
         }
 
         @Nullable
@@ -473,8 +397,7 @@ public class PlatformHelperImpl implements PlatformHelper {
             if (result != null) return result;
 
             var cache = caches[direction.ordinal()];
-            var invalidate = invalidators[direction.ordinal()];
-            return Peripherals.getGenericPeripheral(cache.getWorld(), cache.getPos(), direction.getOpposite(), cache.getBlockEntity(), invalidate);
+            return Peripherals.getGenericPeripheral(cache.getWorld(), cache.getPos(), direction.getOpposite(), cache.getBlockEntity());
         }
     }
 }

@@ -63,6 +63,12 @@ public final class CommonHooks {
         ComputerMBean.start(server);
     }
 
+    public static void onServerStarted(MinecraftServer server) {
+        // ItemDetails requires creative tabs to be populated, however by default this is done lazily on the client and
+        // not at all on the server! We instead do this once on server startup.
+        CreativeModeTabs.tryRebuildTabContents(server.getWorldData().enabledFeatures(), false, server.registryAccess());
+    }
+
     public static void onServerStopped() {
         resetState();
     }

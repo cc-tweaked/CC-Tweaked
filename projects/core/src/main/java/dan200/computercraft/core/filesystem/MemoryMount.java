@@ -149,18 +149,6 @@ public final class MemoryMount extends AbstractInMemoryMount<MemoryMount.FileEnt
     }
 
     @Override
-    @Deprecated(forRemoval = true)
-    public SeekableByteChannel openForWrite(String path) throws IOException {
-        return openFile(path, WRITE_OPTIONS);
-    }
-
-    @Override
-    @Deprecated(forRemoval = true)
-    public SeekableByteChannel openForAppend(String path) throws IOException {
-        return openFile(path, APPEND_OPTIONS);
-    }
-
-    @Override
     public SeekableByteChannel openFile(String path, Set<OpenOption> options) throws IOException {
         var flags = FileFlags.of(options);
 

@@ -4,7 +4,8 @@
 
 package dan200.computercraft.shared.turtle.recipes;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.recipe.CustomShapelessRecipe;
@@ -13,7 +14,6 @@ import dan200.computercraft.shared.turtle.items.TurtleItem;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -25,13 +25,12 @@ import net.minecraft.world.item.crafting.ShapelessRecipe;
 public class TurtleOverlayRecipe extends CustomShapelessRecipe {
     private final ResourceLocation overlay;
 
-    public TurtleOverlayRecipe(ResourceLocation id, ShapelessRecipeSpec spec, ResourceLocation overlay) {
-        super(id, spec);
+    public TurtleOverlayRecipe(ShapelessRecipeSpec spec, ResourceLocation overlay) {
+        super(spec);
         this.overlay = overlay;
     }
 
-    private static ItemStack make(ItemStack stack, ResourceLocation overlay) {
-        var turtle = (TurtleItem) stack.getItem();
+    private static ItemStack make(ItemStack stack, TurtleItem turtle, ResourceLocation overlay) {
         return turtle.create(
             turtle.getComputerID(stack),
             turtle.getLabel(stack),
@@ -47,7 +46,7 @@ public class TurtleOverlayRecipe extends CustomShapelessRecipe {
     public ItemStack assemble(CraftingContainer inventory, RegistryAccess registryAccess) {
         for (var i = 0; i < inventory.getContainerSize(); i++) {
             var stack = inventory.getItem(i);
-            if (stack.getItem() instanceof TurtleItem) return make(stack, overlay);
+            if (stack.getItem() instanceof TurtleItem turtle) return make(stack, turtle, overlay);
         }
 
         return ItemStack.EMPTY;
@@ -59,19 +58,20 @@ public class TurtleOverlayRecipe extends CustomShapelessRecipe {
     }
 
     public static class Serialiser implements RecipeSerializer<TurtleOverlayRecipe> {
+        private static final Codec<TurtleOverlayRecipe> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ShapelessRecipeSpec.CODEC.forGetter(CustomShapelessRecipe::toSpec),
+            ResourceLocation.CODEC.fieldOf("overlay").forGetter(x -> x.overlay)
+        ).apply(instance, TurtleOverlayRecipe::new));
         @Override
-        public TurtleOverlayRecipe fromJson(ResourceLocation id, JsonObject json) {
-            var recipe = ShapelessRecipeSpec.fromJson(json);
-            var overlay = new ResourceLocation(GsonHelper.getAsString(json, "overlay"));
-
-            return new TurtleOverlayRecipe(id, recipe, overlay);
+        public Codec<TurtleOverlayRecipe> codec() {
+            return CODEC;
         }
 
         @Override
-        public TurtleOverlayRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
+        public TurtleOverlayRecipe fromNetwork(FriendlyByteBuf buffer) {
             var recipe = ShapelessRecipeSpec.fromNetwork(buffer);
             var overlay = buffer.readResourceLocation();
-            return new TurtleOverlayRecipe(id, recipe, overlay);
+            return new TurtleOverlayRecipe(recipe, overlay);
         }
 
         @Override

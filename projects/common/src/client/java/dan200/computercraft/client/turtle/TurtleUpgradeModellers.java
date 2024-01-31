@@ -10,15 +10,13 @@ import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
-import dan200.computercraft.impl.PlatformHelper;
+import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import dan200.computercraft.impl.RegistryHelper;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.impl.UpgradeManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -29,12 +27,10 @@ import java.util.stream.Stream;
  * A registry of {@link TurtleUpgradeModeller}s.
  */
 public final class TurtleUpgradeModellers {
-    private static final Logger LOG = LoggerFactory.getLogger(TurtleUpgradeModellers.class);
-
-    private static final TurtleUpgradeModeller<ITurtleUpgrade> NULL_TURTLE_MODELLER = (upgrade, turtle, side) ->
+    private static final TurtleUpgradeModeller<ITurtleUpgrade> NULL_TURTLE_MODELLER = (upgrade, turtle, side, data) ->
         new TransformedModel(Minecraft.getInstance().getModelManager().getMissingModel(), Transformation.identity());
 
-    private static final Map<TurtleUpgradeSerialiser<?>, TurtleUpgradeModeller<?>> turtleModels = new ConcurrentHashMap<>();
+    private static final Map<UpgradeSerialiser<? extends ITurtleUpgrade>, TurtleUpgradeModeller<?>> turtleModels = new ConcurrentHashMap<>();
     private static volatile boolean fetchedModels;
 
     /**
@@ -48,15 +44,12 @@ public final class TurtleUpgradeModellers {
     private TurtleUpgradeModellers() {
     }
 
-    public static <T extends ITurtleUpgrade> void register(TurtleUpgradeSerialiser<T> serialiser, TurtleUpgradeModeller<T> modeller) {
+    public static <T extends ITurtleUpgrade> void register(UpgradeSerialiser<T> serialiser, TurtleUpgradeModeller<T> modeller) {
         if (fetchedModels) {
-            // TODO(1.20.4): Replace with an error.
-            LOG.warn(
-                "Turtle upgrade serialiser {} was registered too late, its models may not be loaded correctly. If you are " +
-                    "the mod author, you may be using a deprecated API - see https://github.com/cc-tweaked/CC-Tweaked/pull/1684 " +
-                    "for further information.",
-                PlatformHelper.get().getRegistryKey(TurtleUpgradeSerialiser.registryId(), serialiser)
-            );
+            throw new IllegalStateException(String.format(
+                "Turtle upgrade serialiser %s must be registered before models are baked.",
+                RegistryHelper.getKeyOrThrow(RegistryHelper.getRegistry(ITurtleUpgrade.serialiserRegistryKey()), serialiser)
+            ));
         }
 
         if (turtleModels.putIfAbsent(serialiser, modeller) != null) {
@@ -67,13 +60,13 @@ public final class TurtleUpgradeModellers {
     public static TransformedModel getModel(ITurtleUpgrade upgrade, ITurtleAccess access, TurtleSide side) {
         @SuppressWarnings("unchecked")
         var modeller = (TurtleUpgradeModeller<ITurtleUpgrade>) modelCache.computeIfAbsent(upgrade, TurtleUpgradeModellers::getModeller);
-        return modeller.getModel(upgrade, access, side);
+        return modeller.getModel(upgrade, access, side, access.getUpgradeNBTData(side));
     }
 
     public static TransformedModel getModel(ITurtleUpgrade upgrade, CompoundTag data, TurtleSide side) {
         @SuppressWarnings("unchecked")
         var modeller = (TurtleUpgradeModeller<ITurtleUpgrade>) modelCache.computeIfAbsent(upgrade, TurtleUpgradeModellers::getModeller);
-        return modeller.getModel(upgrade, data, side);
+        return modeller.getModel(upgrade, null, side, data);
     }
 
     private static TurtleUpgradeModeller<?> getModeller(ITurtleUpgrade upgradeA) {

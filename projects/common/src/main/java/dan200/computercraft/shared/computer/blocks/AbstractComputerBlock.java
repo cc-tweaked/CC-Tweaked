@@ -99,7 +99,7 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
 
     @Override
     @Deprecated
-    public ItemStack getCloneItemStack(BlockGetter world, BlockPos pos, BlockState state) {
+    public ItemStack getCloneItemStack(LevelReader world, BlockPos pos, BlockState state) {
         var tile = world.getBlockEntity(pos);
         if (tile instanceof AbstractComputerBlockEntity computer) {
             var result = getItem(computer);
@@ -117,9 +117,9 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
     }
 
     @Override
-    public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
-        super.playerWillDestroy(world, pos, state, player);
-        if (!(world instanceof ServerLevel serverWorld)) return;
+    public BlockState playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+        var result = super.playerWillDestroy(world, pos, state, player);
+        if (!(world instanceof ServerLevel serverWorld)) return result;
 
         // We drop the item here instead of doing it in the harvest method, as we should
         // drop computers for creative players too.
@@ -138,6 +138,8 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
 
             state.spawnAfterBreak(serverWorld, pos, player.getMainHandItem(), true);
         }
+
+        return result;
     }
 
     @Override

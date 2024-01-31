@@ -6,8 +6,9 @@ package dan200.computercraft.data;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.ComputerCraftTags.Blocks;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
-import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 
@@ -22,7 +23,7 @@ class TurtleUpgradeProvider extends TurtleUpgradeDataProvider {
     }
 
     @Override
-    protected void addUpgrades(Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> addUpgrade) {
+    protected void addUpgrades(Consumer<Upgrade<UpgradeSerialiser<? extends ITurtleUpgrade>>> addUpgrade) {
         simpleWithCustomItem(id("speaker"), TurtleSerialisers.SPEAKER.get(), Items.SPEAKER.get()).add(addUpgrade);
         simpleWithCustomItem(vanilla("crafting_table"), TurtleSerialisers.WORKBENCH.get(), net.minecraft.world.item.Items.CRAFTING_TABLE).add(addUpgrade);
         simpleWithCustomItem(id("wireless_modem_normal"), TurtleSerialisers.WIRELESS_MODEM_NORMAL.get(), Items.WIRELESS_MODEM_NORMAL.get()).add(addUpgrade);

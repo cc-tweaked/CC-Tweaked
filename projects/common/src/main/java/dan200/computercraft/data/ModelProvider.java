@@ -5,8 +5,9 @@
 package dan200.computercraft.data;
 
 import com.google.gson.JsonElement;
-import dan200.computercraft.shared.platform.RegistryWrappers;
+import dan200.computercraft.impl.RegistryHelper;
 import net.minecraft.Util;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -67,7 +68,7 @@ public class ModelProvider implements DataProvider {
         blocks.accept(new BlockModelGenerators(addBlockState, addModel, explicitItems::add));
         items.accept(new ItemModelGenerators(addModel));
 
-        for (var block : RegistryWrappers.BLOCKS) {
+        for (var block : BuiltInRegistries.BLOCK) {
             if (!blockStates.containsKey(block)) continue;
 
             var item = Item.BY_BLOCK.get(block);
@@ -80,7 +81,7 @@ public class ModelProvider implements DataProvider {
         }
 
         List<CompletableFuture<?>> futures = new ArrayList<>();
-        saveCollection(output, futures, blockStates, x -> blockStatePath.json(RegistryWrappers.BLOCKS.getKey(x)));
+        saveCollection(output, futures, blockStates, x -> blockStatePath.json(RegistryHelper.getKeyOrThrow(BuiltInRegistries.BLOCK, x)));
         saveCollection(output, futures, models, modelPath::json);
         return Util.sequenceFailFast(futures);
     }

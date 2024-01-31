@@ -10,7 +10,7 @@ import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import net.irisshaders.iris.api.v0.IrisApi;
 import net.irisshaders.iris.api.v0.IrisTextVertexSink;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 import java.nio.ByteBuffer;
 import java.util.Optional;

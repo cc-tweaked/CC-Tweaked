@@ -31,27 +31,26 @@ import java.util.stream.Collectors;
 /**
  * Manages turtle and pocket computer upgrades.
  *
- * @param <R> The type of upgrade serialisers.
  * @param <T> The type of upgrade.
  * @see TurtleUpgrades
  * @see PocketUpgrades
  */
-public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends UpgradeBase> extends SimpleJsonResourceReloadListener {
+public class UpgradeManager<T extends UpgradeBase> extends SimpleJsonResourceReloadListener {
     private static final Logger LOG = LoggerFactory.getLogger(UpgradeManager.class);
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
-    public record UpgradeWrapper<R extends UpgradeSerialiser<? extends T>, T extends UpgradeBase>(
-        String id, T upgrade, R serialiser, String modId
+    public record UpgradeWrapper<T extends UpgradeBase>(
+        String id, T upgrade, UpgradeSerialiser<? extends T> serialiser, String modId
     ) {
     }
 
     private final String kind;
-    private final ResourceKey<Registry<R>> registry;
+    private final ResourceKey<Registry<UpgradeSerialiser<? extends T>>> registry;
 
-    private Map<String, UpgradeWrapper<R, T>> current = Map.of();
-    private Map<T, UpgradeWrapper<R, T>> currentWrappers = Map.of();
+    private Map<String, UpgradeWrapper<T>> current = Map.of();
+    private Map<T, UpgradeWrapper<T>> currentWrappers = Map.of();
 
-    public UpgradeManager(String kind, String path, ResourceKey<Registry<R>> registry) {
+    public UpgradeManager(String kind, String path, ResourceKey<Registry<UpgradeSerialiser<? extends T>>> registry) {
         super(GSON, path);
         this.kind = kind;
         this.registry = registry;
@@ -64,7 +63,7 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends 
     }
 
     @Nullable
-    public UpgradeWrapper<R, T> getWrapper(T upgrade) {
+    public UpgradeWrapper<T> getWrapper(T upgrade) {
         return currentWrappers.get(upgrade);
     }
 
@@ -92,16 +91,17 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends 
         return currentWrappers.keySet();
     }
 
-    public Map<String, UpgradeWrapper<R, T>> getUpgradeWrappers() {
+    public Map<String, UpgradeWrapper<T>> getUpgradeWrappers() {
         return current;
     }
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> upgrades, ResourceManager manager, ProfilerFiller profiler) {
-        Map<String, UpgradeWrapper<R, T>> newUpgrades = new HashMap<>();
+        var registry = RegistryHelper.getRegistry(this.registry);
+        Map<String, UpgradeWrapper<T>> newUpgrades = new HashMap<>();
         for (var element : upgrades.entrySet()) {
             try {
-                loadUpgrade(newUpgrades, element.getKey(), element.getValue());
+                loadUpgrade(registry, newUpgrades, element.getKey(), element.getValue());
             } catch (IllegalArgumentException | JsonParseException e) {
                 LOG.error("Error loading {} {} from JSON file", kind, element.getKey(), e);
             }
@@ -112,12 +112,12 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends 
         LOG.info("Loaded {} {}s", current.size(), kind);
     }
 
-    private void loadUpgrade(Map<String, UpgradeWrapper<R, T>> current, ResourceLocation id, JsonElement json) {
+    private void loadUpgrade(Registry<UpgradeSerialiser<? extends T>> registry, Map<String, UpgradeWrapper<T>> current, ResourceLocation id, JsonElement json) {
         var root = GsonHelper.convertToJsonObject(json, "top element");
         if (!PlatformHelper.get().shouldLoadResource(root)) return;
 
         var serialiserId = new ResourceLocation(GsonHelper.getAsString(root, "type"));
-        var serialiser = PlatformHelper.get().tryGetRegistryObject(registry, serialiserId);
+        var serialiser = registry.get(serialiserId);
         if (serialiser == null) throw new JsonSyntaxException("Unknown upgrade type '" + serialiserId + "'");
 
         // TODO: Can we track which mod this resource came from and use that instead? It's theoretically possible,
@@ -130,11 +130,11 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends 
             throw new IllegalArgumentException("Upgrade " + id + " from " + serialiser + " was incorrectly given id " + upgrade.getUpgradeID());
         }
 
-        var result = new UpgradeWrapper<R, T>(id.toString(), upgrade, serialiser, modId);
+        var result = new UpgradeWrapper<T>(id.toString(), upgrade, serialiser, modId);
         current.put(result.id(), result);
     }
 
-    public void loadFromNetwork(Map<String, UpgradeWrapper<R, T>> newUpgrades) {
+    public void loadFromNetwork(Map<String, UpgradeWrapper<T>> newUpgrades) {
         current = Collections.unmodifiableMap(newUpgrades);
         currentWrappers = newUpgrades.values().stream().collect(Collectors.toUnmodifiableMap(UpgradeWrapper::upgrade, x -> x));
     }

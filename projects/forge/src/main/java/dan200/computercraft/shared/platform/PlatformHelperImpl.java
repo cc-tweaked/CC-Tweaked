@@ -9,34 +9,39 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.serialization.JsonOps;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.WiredElement;
+import dan200.computercraft.api.network.wired.WiredElementCapability;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.PeripheralCapability;
 import dan200.computercraft.impl.Peripherals;
-import dan200.computercraft.shared.Capabilities;
 import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
-import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.common.ClientCommonPacketListener;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.*;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -55,29 +60,28 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.ToolActions;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.conditions.ICondition;
-import net.minecraftforge.common.crafting.conditions.ModLoadedCondition;
-import net.minecraftforge.common.extensions.IForgeMenuType;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLLoader;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistry;
-import net.minecraftforge.registries.RegistryManager;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.Event;
+import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.neoforge.capabilities.BlockCapability;
+import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.ToolActions;
+import net.neoforged.neoforge.common.conditions.ConditionalOps;
+import net.neoforged.neoforge.common.conditions.ICondition;
+import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.*;
 
 @AutoService(dan200.computercraft.impl.PlatformHelper.class)
@@ -93,49 +97,26 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public <T> ResourceLocation getRegistryKey(ResourceKey<Registry<T>> registry, T object) {
-        var key = RegistryManager.ACTIVE.getRegistry(registry).getKey(object);
-        if (key == null) throw new IllegalArgumentException(object + " was not registered in " + registry);
-        return key;
-    }
-
-    @Override
-    public <T> T getRegistryObject(ResourceKey<Registry<T>> registry, ResourceLocation id) {
-        var value = RegistryManager.ACTIVE.getRegistry(registry).getValue(id);
-        if (value == null) throw new IllegalArgumentException(id + " was not registered in " + registry);
-        return value;
-    }
-
-    @Override
-    public <T> RegistryWrappers.RegistryWrapper<T> wrap(ResourceKey<Registry<T>> key) {
-        return new RegistryWrapperImpl<>(key.location(), RegistryManager.ACTIVE.getRegistry(key));
-    }
-
-    @Override
     public <T> RegistrationHelper<T> createRegistrationHelper(ResourceKey<Registry<T>> registry) {
         return new RegistrationHelperImpl<>(DeferredRegister.create(registry, ComputerCraftAPI.MOD_ID));
     }
 
-    @Nullable
-    @Override
-    public <K> K tryGetRegistryObject(ResourceKey<Registry<K>> registry, ResourceLocation id) {
-        return RegistryManager.ACTIVE.getRegistry(registry).getValue(id);
-    }
-
     @Override
     public boolean shouldLoadResource(JsonObject object) {
-        return ICondition.shouldRegisterEntry(object);
+        return ICondition.conditionsMatched(JsonOps.INSTANCE, object);
     }
 
     @Override
     public void addRequiredModCondition(JsonObject object, String modId) {
-        var conditions = GsonHelper.getAsJsonArray(object, "forge:conditions", null);
+        // FIXME: Test this, though maybe this should be implemented a different way anyway?
+        var conditions = GsonHelper.getAsJsonArray(object, ConditionalOps.DEFAULT_CONDITIONS_KEY, null);
         if (conditions == null) {
             conditions = new JsonArray();
-            object.add("forge:conditions", conditions);
+            object.add(ConditionalOps.DEFAULT_CONDITIONS_KEY, conditions);
         }
 
-        conditions.add(CraftingHelper.serialize(new ModLoadedCondition(modId)));
+        conditions.add(ICondition.CODEC.encodeStart(JsonOps.INSTANCE, new ModLoadedCondition(modId)).getOrThrow(false, x -> {
+        }));
     }
 
     @Override
@@ -150,22 +131,27 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> createMenuType(Function<FriendlyByteBuf, T> reader, ContainerData.Factory<C, T> factory) {
-        return IForgeMenuType.create((id, player, data) -> factory.create(id, player, reader.apply(data)));
+        return IMenuTypeExtension.create((id, player, data) -> factory.create(id, player, reader.apply(data)));
     }
 
     @Override
     public void openMenu(Player player, MenuProvider owner, ContainerData menu) {
-        NetworkHooks.openScreen((ServerPlayer) player, owner, menu::toBytes);
+        ((ServerPlayer) player).openMenu(owner, menu::toBytes);
     }
 
     @Override
-    public <T extends NetworkMessage<?>> MessageType<T> createMessageType(int id, ResourceLocation channel, Class<T> klass, FriendlyByteBuf.Reader<T> reader) {
-        return new NetworkHandler.MessageTypeImpl<>(id, klass, reader);
+    public <T extends NetworkMessage<?>> MessageType<T> createMessageType(ResourceLocation id, FriendlyByteBuf.Reader<T> reader) {
+        return new ForgeMessageType<>(id, b -> new ForgeMessageType.Payload<>(reader.apply(b)));
     }
 
     @Override
-    public Packet<ClientGamePacketListener> createPacket(NetworkMessage<ClientNetworkContext> message) {
-        return NetworkHandler.createClientboundPacket(message);
+    public Packet<ClientCommonPacketListener> createPacket(NetworkMessage<ClientNetworkContext> message) {
+        return new ClientboundCustomPayloadPacket(ForgeMessageType.createPayload(message));
+    }
+
+    @Override
+    public void invalidateComponent(BlockEntity owner) {
+        owner.invalidateCapabilities();
     }
 
     @Override
@@ -175,15 +161,13 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public ComponentAccess<WiredElement> createWiredElementAccess(BlockEntity owner, Consumer<Direction> invalidate) {
-        return new CapabilityAccess<>(owner, Capabilities.CAPABILITY_WIRED_ELEMENT, invalidate);
+        return new ComponentAccessImpl<>(owner, WiredElementCapability.get(), invalidate);
     }
 
     @Override
     public boolean hasWiredElementIn(Level level, BlockPos pos, Direction direction) {
         if (!level.isLoaded(pos)) return false;
-
-        var blockEntity = level.getBlockEntity(pos.relative(direction));
-        return blockEntity != null && blockEntity.getCapability(Capabilities.CAPABILITY_WIRED_ELEMENT, direction.getOpposite()).isPresent();
+        return level.getCapability(WiredElementCapability.get(), pos.relative(direction), direction.getOpposite()) != null;
     }
 
     @Override
@@ -194,28 +178,11 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Nullable
     @Override
     public ContainerTransfer getContainer(ServerLevel level, BlockPos pos, Direction side) {
-        var block = level.getBlockState(pos);
-        if (block.getBlock() instanceof WorldlyContainerHolder holder) {
-            var container = holder.getContainer(block, level, pos);
-            return new ForgeContainerTransfer(new SidedInvWrapper(container, side));
-        }
-
-        var blockEntity = level.getBlockEntity(pos);
-        if (blockEntity != null) {
-            var inventory = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, side);
-            if (inventory.isPresent()) {
-                return new ForgeContainerTransfer(inventory.orElseThrow(NullPointerException::new));
-            }
-        }
+        var inventory = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, side);
+        if (inventory != null) return new ForgeContainerTransfer(inventory);
 
         var entity = InventoryUtil.getEntityContainer(level, pos, side);
         return entity == null ? null : new ForgeContainerTransfer(new InvWrapper(entity));
-    }
-
-    @Nullable
-    @Override
-    public CompoundTag getShareTag(ItemStack item) {
-        return item.getShareTag();
     }
 
     @Override
@@ -260,7 +227,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public int getBurnTime(ItemStack stack) {
-        return ForgeHooks.getBurnTime(stack, null);
+        return CommonHooks.getBurnTime(stack, null);
     }
 
     @Override
@@ -275,20 +242,20 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public List<ItemStack> getRecipeRemainingItems(ServerPlayer player, Recipe<CraftingContainer> recipe, CraftingContainer container) {
-        ForgeHooks.setCraftingPlayer(player);
+        CommonHooks.setCraftingPlayer(player);
         var result = recipe.getRemainingItems(container);
-        ForgeHooks.setCraftingPlayer(null);
+        CommonHooks.setCraftingPlayer(null);
         return result;
     }
 
     @Override
     public void onItemCrafted(ServerPlayer player, CraftingContainer container, ItemStack stack) {
-        ForgeEventFactory.firePlayerCraftingEvent(player, stack, container);
+        EventHooks.firePlayerCraftingEvent(player, stack, container);
     }
 
     @Override
     public boolean onNotifyNeighbour(Level level, BlockPos pos, BlockState block, Direction direction) {
-        return !ForgeEventFactory.onNeighborNotify(level, pos, block, EnumSet.of(direction), false).isCanceled();
+        return !EventHooks.onNeighborNotify(level, pos, block, EnumSet.of(direction), false).isCanceled();
     }
 
     @Override
@@ -308,14 +275,14 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public InteractionResult canAttackEntity(ServerPlayer player, Entity entity) {
-        return ForgeHooks.onPlayerAttackTarget(player, entity) ? InteractionResult.PASS : InteractionResult.SUCCESS;
+        return CommonHooks.onPlayerAttackTarget(player, entity) ? InteractionResult.PASS : InteractionResult.SUCCESS;
     }
 
     @Override
     public boolean interactWithEntity(ServerPlayer player, Entity entity, Vec3 hitPos) {
         // Our behaviour is slightly different here - we call onInteractEntityAt before the interact methods, while
         // Forge does the call afterwards (on the server, not on the client).
-        var interactAt = ForgeHooks.onInteractEntityAt(player, entity, hitPos, InteractionHand.MAIN_HAND);
+        var interactAt = CommonHooks.onInteractEntityAt(player, entity, hitPos, InteractionHand.MAIN_HAND);
         if (interactAt == null) {
             interactAt = entity.interactAt(player, hitPos.subtract(entity.position()), InteractionHand.MAIN_HAND);
         }
@@ -327,7 +294,7 @@ public class PlatformHelperImpl implements PlatformHelper {
     public InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit, Predicate<BlockState> canUseBlock) {
         var level = player.level();
         var pos = hit.getBlockPos();
-        var event = ForgeHooks.onRightClickBlock(player, InteractionHand.MAIN_HAND, pos, hit);
+        var event = CommonHooks.onRightClickBlock(player, InteractionHand.MAIN_HAND, pos, hit);
         if (event.isCanceled()) return event.getCancellationResult();
 
         var context = new UseOnContext(player, InteractionHand.MAIN_HAND, hit);
@@ -345,63 +312,19 @@ public class PlatformHelperImpl implements PlatformHelper {
         return event.getUseItem() == Event.Result.DENY ? InteractionResult.PASS : stack.useOn(context);
     }
 
-    private record RegistryWrapperImpl<T>(
-        ResourceLocation name, ForgeRegistry<T> registry
-    ) implements RegistryWrappers.RegistryWrapper<T> {
+    private record RegistrationHelperImpl<R>(DeferredRegister<R> registry) implements RegistrationHelper<R> {
         @Override
-        public int getId(T object) {
-            return registry.getID(object);
-        }
-
-        @Override
-        public ResourceLocation getKey(T object) {
-            var key = registry.getKey(object);
-            if (key == null) throw new IllegalStateException(object + " was not registered in " + name);
-            return key;
-        }
-
-        @Override
-        public T get(ResourceLocation location) {
-            var object = registry.getValue(location);
-            if (object == null) throw new IllegalStateException(location + " was not registered in " + name);
-            return object;
-        }
-
-        @Nullable
-        @Override
-        public T tryGet(ResourceLocation location) {
-            return registry.getValue(location);
-        }
-
-        @Override
-        public @Nullable T byId(int id) {
-            return registry.getValue(id);
-        }
-
-        @Override
-        public int size() {
-            return registry.getKeys().size();
-        }
-
-        @Override
-        public Iterator<T> iterator() {
-            return registry.iterator();
-        }
-    }
-
-    private record RegistrationHelperImpl<T>(DeferredRegister<T> registry) implements RegistrationHelper<T> {
-        @Override
-        public <U extends T> RegistryEntry<U> register(String name, Supplier<U> create) {
+        public <T extends R> RegistryEntry<T> register(String name, Supplier<T> create) {
             return new RegistryEntryImpl<>(registry().register(name, create));
         }
 
         @Override
         public void register() {
-            registry().register(FMLJavaModLoadingContext.get().getModEventBus());
+            registry().register(ComputerCraft.getEventBus());
         }
     }
 
-    private record RegistryEntryImpl<T>(RegistryObject<T> object) implements RegistryEntry<T> {
+    private record RegistryEntryImpl<R, T extends R>(DeferredHolder<R, T> object) implements RegistryEntry<T> {
         @Override
         public ResourceLocation id() {
             return object().getId();
@@ -413,61 +336,52 @@ public class PlatformHelperImpl implements PlatformHelper {
         }
     }
 
-    private abstract static class ComponentAccessImpl<T> implements ComponentAccess<T> {
+    private static class ComponentAccessImpl<T> implements ComponentAccess<T> {
         private final BlockEntity owner;
-        private final InvalidateCallback[] invalidators;
+        private final BlockCapability<T, Direction> capability;
+        private final Consumer<Direction> invalidate;
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        final BlockCapabilityCache<T, Direction>[] caches = new BlockCapabilityCache[6];
 
-        ComponentAccessImpl(BlockEntity owner, Consumer<Direction> invalidate) {
+        ComponentAccessImpl(BlockEntity owner, BlockCapability<T, Direction> capability, Consumer<Direction> invalidate) {
             this.owner = owner;
-
-            // Generate a cache of invalidation functions so we can guarantee we only ever have one registered per
-            // capability - there's no way to remove these callbacks!
-            var invalidators = this.invalidators = new InvalidateCallback[6];
-            for (var dir : Direction.values()) invalidators[dir.ordinal()] = () -> invalidate.accept(dir);
+            this.capability = capability;
+            this.invalidate = invalidate;
         }
-
-        @Nullable
-        protected abstract T get(ServerLevel world, BlockPos pos, Direction side, InvalidateCallback invalidate);
 
         @Nullable
         @Override
         public T get(Direction direction) {
-            return get(getLevel(), owner.getBlockPos().relative(direction), direction.getOpposite(), invalidators[direction.ordinal()]);
+            var level = getLevel();
+            var cache = caches[direction.ordinal()];
+            if (cache == null) {
+                cache = caches[direction.ordinal()] = BlockCapabilityCache.create(
+                    capability, level, owner.getBlockPos().relative(direction),
+                    direction.getOpposite(), () -> !owner.isRemoved(), () -> this.invalidate.accept(direction)
+                );
+            }
+
+            return cache.getCapability();
         }
 
         final ServerLevel getLevel() {
             return Objects.requireNonNull((ServerLevel) owner.getLevel(), "Block entity is not in a level");
         }
-
     }
 
     private static class PeripheralAccess extends ComponentAccessImpl<IPeripheral> {
         PeripheralAccess(BlockEntity owner, Consumer<Direction> invalidate) {
-            super(owner, invalidate);
+            super(owner, PeripheralCapability.get(), invalidate);
         }
 
         @Nullable
         @Override
-        protected IPeripheral get(ServerLevel world, BlockPos pos, Direction side, InvalidateCallback invalidate) {
-            return Peripherals.getPeripheral(world, pos, side, invalidate);
-        }
-    }
+        public IPeripheral get(Direction direction) {
+            var result = super.get(direction);
+            if (result != null) return result;
 
-    private static class CapabilityAccess<T> extends ComponentAccessImpl<T> {
-        private final Capability<T> capability;
-
-        CapabilityAccess(BlockEntity owner, Capability<T> capability, Consumer<Direction> invalidate) {
-            super(owner, invalidate);
-            this.capability = capability;
-        }
-
-        @Nullable
-        @Override
-        protected T get(ServerLevel world, BlockPos pos, Direction side, InvalidateCallback invalidate) {
-            if (!world.isLoaded(pos)) return null;
-
-            var blockEntity = world.getBlockEntity(pos);
-            return blockEntity != null ? CapabilityUtil.unwrap(blockEntity.getCapability(capability, side), invalidate) : null;
+            var cache = caches[direction.ordinal()];
+            return Peripherals.getGenericPeripheral(cache.level(), cache.pos(), cache.context(), cache.level().getBlockEntity(cache.pos()));
         }
     }
 }
