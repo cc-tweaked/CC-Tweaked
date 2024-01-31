@@ -50,13 +50,6 @@ tasks.test {
     systemProperty("cct.test-files", layout.buildDirectory.dir("tmp/testFiles").getAbsolutePath())
 }
 
-tasks.testFixturesJar {
-    manifest {
-        // Ensure the test fixtures jar loads as a mod. Thanks FML >_>.
-        attributes("FMLModType" to "GAMELIBRARY")
-    }
-}
-
 val checkChangelog by tasks.registering(cc.tweaked.gradle.CheckChangelog::class) {
     version.set(modVersion)
     whatsNew.set(file("src/main/resources/data/computercraft/lua/rom/help/whatsnew.md"))

@@ -63,18 +63,15 @@ minecraft {
         fun RunConfig.configureForGameTest() {
             val old = lazyTokens["minecraft_classpath"]
             lazyToken("minecraft_classpath") {
-                // We do some terrible hacks here to basically find all things not already on the runtime classpath
-                // and add them. /Except/ for our source sets, as those need to load inside the Minecraft classpath.
-                val testMod = configurations["testModRuntimeClasspath"].resolve()
-                val implementation = configurations.runtimeClasspath.get().resolve()
-                val new = (testMod - implementation)
-                    .asSequence()
-                    .filter { it.isFile && !it.name.endsWith("-test-fixtures.jar") }
-                    .map { it.absolutePath }
-                    .joinToString(File.pathSeparator)
+                // Add all files in testMinecraftLibrary to the classpath.
+                val allFiles = mutableSetOf<String>()
 
                 val oldVal = old?.get()
-                if (oldVal.isNullOrEmpty()) new else oldVal + File.pathSeparator + new
+                if (!oldVal.isNullOrEmpty()) allFiles.addAll(oldVal.split(File.pathSeparatorChar))
+
+                for (file in configurations["testMinecraftLibrary"].resolve()) allFiles.add(file.absolutePath)
+
+                allFiles.joinToString(File.pathSeparator)
             }
 
             property("cctest.sources", project(":common").file("src/testMod/resources/data/cctest").absolutePath)
@@ -84,6 +81,7 @@ minecraft {
             mods.register("cctest") {
                 source(sourceSets["testMod"])
                 source(sourceSets["testFixtures"])
+                source(project(":core").sourceSets["testFixtures"])
             }
         }
 
@@ -113,6 +111,13 @@ mixin {
 
 configurations {
     minecraftLibrary { extendsFrom(minecraftEmbed.get()) }
+
+    val testMinecraftLibrary by registering {
+        isCanBeResolved = true
+        isCanBeConsumed = false
+        // Prevent ending up with multiple versions of libraries on the classpath.
+        shouldResolveConsistentlyWith(minecraftLibrary.get())
+    }
 }
 
 dependencies {
@@ -160,6 +165,10 @@ dependencies {
 
     testModImplementation(testFixtures(project(":core")))
     testModImplementation(testFixtures(project(":forge")))
+
+    // Ensure our test fixture dependencies are on the classpath
+    "testMinecraftLibrary"(libs.bundles.kotlin)
+    "testMinecraftLibrary"(libs.bundles.test)
 
     testFixturesImplementation(testFixtures(project(":core")))
 }
