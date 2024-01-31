@@ -257,7 +257,7 @@ while true do
             offset = print_height - content_height
             draw()
         elseif param == keys.q then
-            sleep(0) -- Super janky, but consumes stray "char" events.
+            require "cc.internal.event".discard_char()
             break
         end
     elseif event == "mouse_scroll" then

@@ -88,6 +88,7 @@ for i = 1, #wrapped do
     term.write(wrapped[i])
 end
 os.pullEvent('key')
+require "cc.internal.event".discard_char()
 ]]
 
 -- Menus
