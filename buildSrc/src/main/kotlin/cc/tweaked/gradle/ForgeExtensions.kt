@@ -10,6 +10,7 @@ import net.neoforged.gradle.dsl.common.runs.run.Run
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.JavaExec
 import org.gradle.jvm.toolchain.JavaToolchainService
+import java.nio.file.Files
 
 /**
  * Set [JavaExec] task to run a given [RunConfig].
@@ -35,4 +36,6 @@ fun JavaExec.setRunConfig(config: Run) {
         project.extensions.getByType(JavaToolchainService::class.java)
             .launcherFor(project.extensions.getByType(JavaPluginExtension::class.java).toolchain),
     )
+
+    doFirst("Create working directory") { Files.createDirectories(workingDir.toPath()) }
 }
