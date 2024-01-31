@@ -40,7 +40,7 @@ jobs:
       run: ./gradlew downloadAssets || ./gradlew downloadAssets
 
     - name: 🧪 Run integration tests
-      run: ./gradlew runGametest
+      run: ./gradlew runGametest || cat projects/forge/run/testServer/logs/latest.log
 
     - name: 🧪 Run client tests
       run: ./gradlew runGametestClient # Not checkClient, as no point running rendering tests.
