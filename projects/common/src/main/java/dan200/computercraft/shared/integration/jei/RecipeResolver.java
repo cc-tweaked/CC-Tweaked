@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.integration.jei;
 
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.integration.UpgradeRecipeGenerator;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
@@ -12,13 +13,16 @@ import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.advanced.IRecipeManagerPlugin;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.List;
 
 class RecipeResolver implements IRecipeManagerPlugin {
-    private final UpgradeRecipeGenerator<CraftingRecipe> resolver = new UpgradeRecipeGenerator<>(x -> x);
+    private static final ResourceLocation RECIPE_ID = new ResourceLocation(ComputerCraftAPI.MOD_ID, "upgrade");
+    private final UpgradeRecipeGenerator<RecipeHolder<CraftingRecipe>> resolver = new UpgradeRecipeGenerator<>(x -> new RecipeHolder<>(RECIPE_ID, x));
 
     @Override
     public <V> List<RecipeType<?>> getRecipeTypes(IFocus<V> focus) {
@@ -44,8 +48,8 @@ class RecipeResolver implements IRecipeManagerPlugin {
         }
 
         return switch (focus.getRole()) {
-            case INPUT -> cast(resolver.findRecipesWithInput(stack));
-            case OUTPUT -> cast(resolver.findRecipesWithOutput(stack));
+            case INPUT -> cast(RecipeTypes.CRAFTING, resolver.findRecipesWithInput(stack));
+            case OUTPUT -> cast(RecipeTypes.CRAFTING, resolver.findRecipesWithOutput(stack));
             default -> List.of();
         };
     }
@@ -56,7 +60,7 @@ class RecipeResolver implements IRecipeManagerPlugin {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static <T, U> List<T> cast(List<U> from) {
+    private static <T, U> List<T> cast(RecipeType<U> ignoredType, List<U> from) {
         return (List) from;
     }
 }

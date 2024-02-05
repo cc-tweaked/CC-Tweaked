@@ -39,7 +39,7 @@ nightConfig = "3.6.7"
 emi = "1.0.30+1.20.4"
 fabricPermissions = "0.3.20230723"
 iris = "1.6.14+1.20.4"
-jei = "16.0.0.28"
+jei = "17.3.0.48"
 modmenu = "9.0.0"
 moreRed = "4.0.0.4"
 oculus = "1.2.5"
@@ -104,9 +104,9 @@ fabric-junit = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fab
 fabricPermissions = { module = "me.lucko:fabric-permissions-api", version.ref = "fabricPermissions" }
 emi = { module = "dev.emi:emi-xplat-mojmap", version.ref = "emi" }
 iris = { module = "maven.modrinth:iris", version.ref = "iris" }
-jei-api = { module = "mezz.jei:jei-1.20.2-common-api", version.ref = "jei" }
-jei-fabric = { module = "mezz.jei:jei-1.20.2-fabric", version.ref = "jei" }
-jei-forge = { module = "mezz.jei:jei-1.20.2-forge", version.ref = "jei" }
+jei-api = { module = "mezz.jei:jei-1.20.4-common-api", version.ref = "jei" }
+jei-fabric = { module = "mezz.jei:jei-1.20.4-fabric", version.ref = "jei" }
+jei-forge = { module = "mezz.jei:jei-1.20.4-forge", version.ref = "jei" }
 mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
 moreRed = { module = "commoble.morered:morered-1.20.1", version.ref = "moreRed" }
@@ -175,7 +175,7 @@ externalMods-common = ["jei-api", "nightConfig-core", "nightConfig-toml"]
 externalMods-forge-compile = ["moreRed", "oculus", "jei-api"]
 externalMods-forge-runtime = []
 externalMods-fabric-compile = ["fabricPermissions", "iris", "jei-api", "rei-api", "rei-builtin"]
-externalMods-fabric-runtime = []
+externalMods-fabric-runtime = ["jei-fabric", "modmenu"]
 
 # Testing
 test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]
