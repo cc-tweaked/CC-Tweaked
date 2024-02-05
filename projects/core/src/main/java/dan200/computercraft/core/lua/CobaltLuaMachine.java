@@ -25,7 +25,6 @@ import org.squiddev.cobalt.lib.Bit32Lib;
 import org.squiddev.cobalt.lib.CoreLibraries;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serial;
 import java.nio.ByteBuffer;
@@ -49,7 +48,7 @@ public class CobaltLuaMachine implements ILuaMachine {
 
     private @Nullable String eventFilter = null;
 
-    public CobaltLuaMachine(MachineEnvironment environment, InputStream bios) throws MachineException, IOException {
+    public CobaltLuaMachine(MachineEnvironment environment, InputStream bios) throws MachineException {
         timeout = environment.timeout();
         context = environment.context();
         luaMethods = environment.luaMethods();
@@ -81,7 +80,7 @@ public class CobaltLuaMachine implements ILuaMachine {
             globals.rawset("_CC_DEFAULT_SETTINGS", ValueFactory.valueOf(CoreConfig.defaultComputerSettings));
 
             // Add default APIs
-            for (var api : environment.apis()) addAPI(globals, api);
+            for (var api : environment.apis()) addAPI(state, globals, api);
 
             // And load the BIOS
             var value = LoadState.load(state, bios, "@bios.lua", globals);
@@ -93,7 +92,7 @@ public class CobaltLuaMachine implements ILuaMachine {
         timeout.addListener(timeoutListener);
     }
 
-    private void addAPI(LuaTable globals, ILuaAPI api) {
+    private void addAPI(LuaState state, LuaTable globals, ILuaAPI api) throws LuaError {
         // Add the methods of an API to the global table
         var table = wrapLuaObject(api);
         if (table == null) {
@@ -103,6 +102,9 @@ public class CobaltLuaMachine implements ILuaMachine {
 
         var names = api.getNames();
         for (var name : names) globals.rawset(name, table);
+
+        var moduleName = api.getModuleName();
+        if (moduleName != null) state.registry().getSubTable(Constants.LOADED).rawset(moduleName, table);
     }
 
     private void updateTimeout() {

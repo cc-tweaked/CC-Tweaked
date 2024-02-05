@@ -89,6 +89,16 @@ public class MethodTest {
             x -> x.addApi(new ReturnFunction()), 50);
     }
 
+
+    @Test
+    public void testModule() {
+        ComputerBootstrap.run(
+            """
+            assert(require "test.module".func() == 123)
+            """,
+            x -> x.addApi(new IsModule()), 50);
+    }
+
     public static class MainThread implements ILuaAPI, IPeripheral {
         public final String thread = Thread.currentThread().getName();
 
@@ -206,7 +216,7 @@ public class MethodTest {
         }
 
         @Override
-        public MethodResult callMethod(ILuaContext context, int method, IArguments arguments) throws LuaException {
+        public MethodResult callMethod(ILuaContext context, int method, IArguments arguments) {
             return MethodResult.of();
         }
 
@@ -225,6 +235,23 @@ public class MethodTest {
         @Override
         public String[] getNames() {
             return new String[]{ "func" };
+        }
+    }
+
+    public static class IsModule implements ILuaAPI {
+        @Override
+        public String[] getNames() {
+            return new String[0];
+        }
+
+        @Override
+        public @Nullable String getModuleName() {
+            return "test.module";
+        }
+
+        @LuaFunction
+        public final int func() {
+            return 123;
         }
     }
 }
