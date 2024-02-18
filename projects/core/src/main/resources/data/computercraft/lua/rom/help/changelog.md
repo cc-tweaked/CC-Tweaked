@@ -1,3 +1,11 @@
+# New features in CC: Tweaked 1.109.6
+
+* Improve several Lua parser error messages.
+* Allow addon mods to register `require`able modules.
+
+Several bug fixes:
+* Fix weak tables becoming malformed when keys are GCed.
+
 # New features in CC: Tweaked 1.109.5
 
 * Add a new `/computercraft-computer-folder` command to open a computer's folder

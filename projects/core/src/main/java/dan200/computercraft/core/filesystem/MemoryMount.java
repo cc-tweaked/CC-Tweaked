@@ -263,9 +263,9 @@ public final class MemoryMount extends AbstractInMemoryMount<MemoryMount.FileEnt
             checkClosed();
 
             var backing = Nullability.assertNonNull(entry.contents);
-            if (position >= backing.length) return -1;
+            if (position >= entry.length) return -1;
 
-            var remaining = Math.min(backing.length - (int) position, destination.remaining());
+            var remaining = Math.min(entry.length - (int) position, destination.remaining());
             destination.put(backing, (int) position, remaining);
             position += remaining;
             return remaining;
@@ -273,7 +273,7 @@ public final class MemoryMount extends AbstractInMemoryMount<MemoryMount.FileEnt
 
         private byte[] ensureCapacity(int capacity) {
             var contents = Nullability.assertNonNull(entry.contents);
-            if (capacity >= entry.length) {
+            if (capacity >= contents.length) {
                 var newCapacity = Math.max(capacity, contents.length << 1);
                 contents = entry.contents = Arrays.copyOf(contents, newCapacity);
             }

@@ -347,7 +347,7 @@ function ( xyz , while
 ```
 
 ```txt
-Unexpected while.
+Unexpected while. Expected a variable name.
    |
  1 | function ( xyz , while
    |                  ^^^^^
@@ -483,11 +483,11 @@ xyz , xyz while
 ```
 
 ```txt
-Unexpected symbol after name.
+Unexpected while after name.
    |
  1 | xyz , xyz while
    |           ^
-Did you mean to assign this or call it as a function?
+Did you mean to assign this?
 ```
 
 
@@ -831,7 +831,7 @@ xyz while
 ```
 
 ```txt
-Unexpected symbol after name.
+Unexpected while after name.
    |
  1 | xyz while
    |     ^
@@ -858,7 +858,7 @@ xyz while
 ```
 
 ```txt
-Unexpected symbol after name.
+Unexpected while after name.
    |
  1 | xyz while
    |     ^
@@ -1056,7 +1056,7 @@ local while
 ```
 
 ```txt
-Unexpected while.
+Unexpected while. Expected a variable name.
    |
  1 | local while
    |       ^^^^^
@@ -1272,7 +1272,7 @@ repeat --[[eof]]
 ```
 
 ```txt
-Unexpected end of file. Expected a statement.
+Unexpected end of file. Expected a variable name.
    |
  2 | -- Line 1: 'until' expected near <eof> (program)
    |                                                 ^
@@ -1389,7 +1389,7 @@ while
 ```
 
 ```txt
-Unexpected while.
+Unexpected while. Expected an expression.
    |
  1 | while
    | ^^^^^

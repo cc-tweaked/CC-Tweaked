@@ -38,6 +38,20 @@ Unexpected = in expression.
 Tip: Wrap the preceding expression in [ and ] to use it as a table key.
 ```
 
+and also
+
+```lua
+return { x + 1 = 1 }
+```
+
+```txt
+Unexpected = in expression.
+   |
+ 1 | return { x + 1 = 1 }
+   |                ^
+Tip: Wrap the preceding expression in [ and ] to use it as a table key.
+```
+
 Note this doesn't occur if this there's already a table key here:
 
 ```lua
@@ -102,6 +116,7 @@ Unexpected end of file. Are you missing a closing bracket?
 ```
 
 ## Missing commas in tables
+We try to detect missing commas in tables, and print an appropriate error message.
 
 ```lua
 return { 1 2 }
@@ -129,6 +144,39 @@ Unexpected number in table.
  1 | return { 1, 2 3 }
    |              ^ Are you missing a comma here?
 ```
+
+This also works with table keys.
+
+```lua
+print({ x = 1 y = 2 })
+```
+
+```txt
+Unexpected identifier in table.
+   |
+ 1 | print({ x = 1 y = 2 })
+   |               ^
+   |
+ 1 | print({ x = 1 y = 2 })
+   |              ^ Are you missing a comma here?
+```
+
+```lua
+print({ ["x"] = 1 ["y"] = 2 })
+```
+
+```txt
+Unexpected [ in table.
+   |
+ 1 | print({ ["x"] = 1 ["y"] = 2 })
+   |                   ^
+   |
+ 1 | print({ ["x"] = 1 ["y"] = 2 })
+   |                  ^ Are you missing a comma here?
+```
+
+We gracefully handle the case where we are actually missing a closing brace.
+
 ```lua
 print({ 1, )
 ```
@@ -172,7 +220,7 @@ local _ = 1
 ```
 
 ```txt
-Unexpected symbol after variable.
+Unexpected local after name.
    |
  1 | term.clear
    |           ^ Expected something before the end of the line.
@@ -186,7 +234,7 @@ x 1
 ```
 
 ```txt
-Unexpected symbol after name.
+Unexpected number after name.
    |
  1 | x 1
    |   ^
@@ -200,10 +248,38 @@ term.clear
 ```
 
 ```txt
-Unexpected symbol after variable.
+Unexpected end of file after name.
    |
  1 | term.clear
    |           ^ Expected something before the end of the line.
+Tip: Use () to call with no arguments.
+```
+
+When we've got a list of variables, we only suggest assigning it.
+
+```lua
+term.clear, foo
+```
+
+```txt
+Unexpected end of file after name.
+   |
+ 1 | term.clear, foo
+   |                ^
+Did you mean to assign this?
+```
+
+And when we've got a partial expression, we only suggest calling it.
+
+```lua
+(a + b)
+```
+
+```txt
+Unexpected end of file after name.
+   |
+ 1 | (a + b)
+   |        ^ Expected something before the end of the line.
 Tip: Use () to call with no arguments.
 ```
 
@@ -425,7 +501,7 @@ goto 2
 ```
 
 ```txt
-Unexpected symbol after name.
+Unexpected number after name.
    |
  1 | goto 2
    |      ^
@@ -458,6 +534,31 @@ Unexpected end of file.
    |
  1 | ::
    |   ^
+```
+
+## Missing function arguments
+We provide an error message for missing arguments in function definitions:
+
+```lua
+function f
+```
+
+```txt
+Unexpected end of file. Expected ( to start function arguments.
+   |
+ 1 | function f
+   |           ^
+```
+
+```lua
+return function
+```
+
+```txt
+Unexpected end of file. Expected ( to start function arguments.
+   |
+ 1 | return function
+   |                ^
 ```
 
 # Function calls

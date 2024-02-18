@@ -105,6 +105,10 @@
    /projects/core/src/main/resources/data/computercraft/lua/rom/apis/turtle/turtle.lua)
   (linters -var:deprecated))
 
+;; Suppress unused variable warnings in the parser.
+(at /projects/core/src/main/resources/data/computercraft/lua/rom/modules/main/cc/internal/syntax/parser.lua
+  (linters -var:unused))
+
 (at /projects/core/src/test/resources/test-rom
   ; We should still be able to test deprecated members.
   (linters -var:deprecated)

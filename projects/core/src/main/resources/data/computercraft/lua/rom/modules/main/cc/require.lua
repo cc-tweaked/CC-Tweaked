@@ -124,13 +124,22 @@ local function make_package(env, dir)
     local package = {}
     package.loaded = {
         _G = _G,
-        bit32 = bit32,
-        coroutine = coroutine,
-        math = math,
         package = package,
-        string = string,
-        table = table,
     }
+
+    -- Copy everything from the global package table to this instance.
+    --
+    -- This table is an internal implementation detail - it is NOT intended to
+    -- be extended by user code.
+    local registry = debug.getregistry()
+    if registry and type(registry._LOADED) == "table" then
+        for k, v in next, registry._LOADED do
+            if type(k) == "string" then
+                package.loaded[k] = v
+            end
+        end
+    end
+
     package.path = "?;?.lua;?/init.lua;/rom/modules/main/?;/rom/modules/main/?.lua;/rom/modules/main/?/init.lua"
     if turtle then
         package.path = package.path .. ";/rom/modules/turtle/?;/rom/modules/turtle/?.lua;/rom/modules/turtle/?/init.lua"

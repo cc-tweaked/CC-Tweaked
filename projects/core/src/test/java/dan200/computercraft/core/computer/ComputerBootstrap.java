@@ -15,6 +15,7 @@ import dan200.computercraft.core.computer.mainthread.MainThreadConfig;
 import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.test.core.computer.BasicEnvironment;
+import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ public class ComputerBootstrap {
     private static final int TPS = 20;
     public static final int MAX_TIME = 10;
 
-    public static void run(String program, Consumer<Computer> setup, int maxTimes) {
+    public static void run(@Language("lua") String program, Consumer<Computer> setup, int maxTimes) {
         var mount = new MemoryMount()
             .addFile("test.lua", program)
             .addFile("startup.lua", "assertion.assert(pcall(loadfile('test.lua', nil, _ENV))) os.shutdown()");
@@ -39,7 +40,7 @@ public class ComputerBootstrap {
         run(mount, setup, maxTimes);
     }
 
-    public static void run(String program, int maxTimes) {
+    public static void run(@Language("lua") String program, int maxTimes) {
         run(program, x -> {
         }, maxTimes);
     }

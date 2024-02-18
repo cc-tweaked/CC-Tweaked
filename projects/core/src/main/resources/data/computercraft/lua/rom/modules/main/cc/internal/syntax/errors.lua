@@ -453,32 +453,53 @@ function errors.local_function_dot(local_start, local_end, dot_start, dot_end)
     }
 end
 
---[[- A statement of the form `x.y z`
+--[[- A statement of the form `x.y`
 
+@tparam number token The token id.
 @tparam number pos The position right after this name.
 @return The resulting parse error.
 ]]
-function errors.standalone_name(pos)
-    expect(1, pos, "number")
+function errors.standalone_name(token, pos)
+    expect(1, token, "number")
+    expect(2, pos, "number")
 
     return {
-        "Unexpected symbol after name.",
+        "Unexpected " .. token_names[token] .. " after name.",
         annotate(pos),
         "Did you mean to assign this or call it as a function?",
+    }
+end
+
+--[[- A statement of the form `x.y, z`
+
+@tparam number token The token id.
+@tparam number pos The position right after this name.
+@return The resulting parse error.
+]]
+function errors.standalone_names(token, pos)
+    expect(1, token, "number")
+    expect(2, pos, "number")
+
+    return {
+        "Unexpected " .. token_names[token] .. " after name.",
+        annotate(pos),
+        "Did you mean to assign this?",
     }
 end
 
 --[[- A statement of the form `x.y`. This is similar to [`standalone_name`], but
 when the next token is on another line.
 
+@tparam number token The token id.
 @tparam number pos The position right after this name.
 @return The resulting parse error.
 ]]
-function errors.standalone_name_call(pos)
-    expect(1, pos, "number")
+function errors.standalone_name_call(token, pos)
+    expect(1, token, "number")
+    expect(2, pos, "number")
 
     return {
-        "Unexpected symbol after variable.",
+        "Unexpected " .. token_names[token] .. " after name.",
         annotate(pos + 1, "Expected something before the end of the line."),
         "Tip: Use " .. code("()") .. " to call with no arguments.",
     }
