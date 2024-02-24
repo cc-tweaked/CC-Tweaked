@@ -5,6 +5,7 @@
 package dan200.computercraft.api.network.wired;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Map;
 
@@ -22,6 +23,7 @@ import java.util.Map;
  *
  * @see WiredNode#getNetwork()
  */
+@ApiStatus.NonExtendable
 public interface WiredNetwork {
     /**
      * Create a connection between two nodes.
@@ -35,7 +37,9 @@ public interface WiredNetwork {
      * @throws IllegalArgumentException If {@code left} and {@code right} are equal.
      * @see WiredNode#connectTo(WiredNode)
      * @see WiredNetwork#connect(WiredNode, WiredNode)
+     * @deprecated Use {@link WiredNode#connectTo(WiredNode)}
      */
+    @Deprecated
     boolean connect(WiredNode left, WiredNode right);
 
     /**
@@ -50,7 +54,9 @@ public interface WiredNetwork {
      * @throws IllegalArgumentException If {@code left} and {@code right} are equal.
      * @see WiredNode#disconnectFrom(WiredNode)
      * @see WiredNetwork#connect(WiredNode, WiredNode)
+     * @deprecated Use {@link WiredNode#disconnectFrom(WiredNode)}
      */
+    @Deprecated
     boolean disconnect(WiredNode left, WiredNode right);
 
     /**
@@ -64,7 +70,9 @@ public interface WiredNetwork {
      * only element.
      * @throws IllegalArgumentException If the node is not in the network.
      * @see WiredNode#remove()
+     * @deprecated Use {@link WiredNode#remove()}
      */
+    @Deprecated
     boolean remove(WiredNode node);
 
     /**
@@ -77,6 +85,8 @@ public interface WiredNetwork {
      * @param peripherals The new peripherals for this node.
      * @throws IllegalArgumentException If the node is not in the network.
      * @see WiredNode#updatePeripherals(Map)
+     * @deprecated Use {@link WiredNode#updatePeripherals(Map)}
      */
+    @Deprecated
     void updatePeripherals(WiredNode node, Map<String, IPeripheral> peripherals);
 }

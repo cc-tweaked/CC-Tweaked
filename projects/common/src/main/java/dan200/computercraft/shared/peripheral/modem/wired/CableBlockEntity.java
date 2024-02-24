@@ -264,8 +264,8 @@ public class CableBlockEntity extends BlockEntity {
             if (CableBlock.canConnectIn(state, facing)) {
                 // If we can connect to it then do so
                 this.node.connectTo(node);
-            } else if (this.node.getNetwork() == node.getNetwork()) {
-                // Otherwise if we're on the same network then attempt to void it.
+            } else {
+                // Otherwise break the connectoin.
                 this.node.disconnectFrom(node);
             }
         }
