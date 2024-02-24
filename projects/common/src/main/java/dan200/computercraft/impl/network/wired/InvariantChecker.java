@@ -4,45 +4,66 @@
 
 package dan200.computercraft.impl.network.wired;
 
+import org.jetbrains.annotations.Contract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+
 /**
- * Verifies certain elements of a network are "well formed".
+ * Verifies certain elements of a network are well-formed.
  * <p>
- * This adds substantial overhead to network modification, and so should only be enabled
- * in a development environment.
+ * This adds substantial overhead to network modification, and so is only enabled when assertions are enabled.
  */
-public final class InvariantChecker {
+final class InvariantChecker {
     private static final Logger LOG = LoggerFactory.getLogger(InvariantChecker.class);
-    private static final boolean ENABLED = false;
 
     private InvariantChecker() {
     }
 
-    public static void checkNode(WiredNodeImpl node) {
-        if (!ENABLED) return;
+    static void checkNode(WiredNodeImpl node) {
+        assert checkNodeImpl(node) : "Node invariants failed. See logs.";
+    }
 
-        var network = node.network;
-        if (network == null) {
-            LOG.error("Node's network is null", new Exception());
-            return;
+    private static boolean checkNodeImpl(WiredNodeImpl node) {
+        var okay = true;
+
+        if (node.currentSet != null) {
+            okay = false;
+            LOG.error("{}: currentSet was not cleared.", node);
         }
 
-        if (network.nodes == null || !network.nodes.contains(node)) {
-            LOG.error("Node's network does not contain node", new Exception());
+        var network = makeNullable(node.network);
+        if (network == null) {
+            okay = false;
+            LOG.error("{}: Node's network is null.", node);
+        } else if (makeNullable(network.nodes) == null || !network.nodes.contains(node)) {
+            okay = false;
+            LOG.error("{}: Node's network does not contain node.", node);
         }
 
         for (var neighbour : node.neighbours) {
             if (!neighbour.neighbours.contains(node)) {
-                LOG.error("Neighbour is missing node", new Exception());
+                okay = false;
+                LOG.error("{}: Neighbour {}'s neighbour set does not contain origianl node.", node, neighbour);
             }
         }
+
+        return okay;
     }
 
-    public static void checkNetwork(WiredNetworkImpl network) {
-        if (!ENABLED) return;
+    static void checkNetwork(WiredNetworkImpl network) {
+        assert checkNetworkImpl(network) : "Network invariants failed. See logs.";
+    }
 
-        for (var node : network.nodes) checkNode(node);
+    private static boolean checkNetworkImpl(WiredNetworkImpl network) {
+        var okay = true;
+        for (var node : network.nodes) okay &= checkNodeImpl(node);
+        return okay;
+    }
+
+    @Contract("")
+    private static <T> @Nullable T makeNullable(T object) {
+        return object;
     }
 }

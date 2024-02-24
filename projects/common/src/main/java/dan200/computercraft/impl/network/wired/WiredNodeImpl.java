@@ -27,6 +27,14 @@ public final class WiredNodeImpl implements WiredNode {
     final HashSet<WiredNodeImpl> neighbours = new HashSet<>();
     volatile WiredNetworkImpl network;
 
+    /**
+     * A temporary field used when checking network connectivity.
+     *
+     * @see WiredNetworkImpl#remove(WiredNode)
+     */
+    @Nullable
+    NodeSet currentSet;
+
     public WiredNodeImpl(WiredElement element) {
         this.element = element;
         network = new WiredNetworkImpl(this);
