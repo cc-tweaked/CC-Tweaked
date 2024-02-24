@@ -46,6 +46,9 @@ dependencies {
     testImplementation(libs.bundles.test)
     testRuntimeOnly(libs.bundles.testRuntime)
 
+    testImplementation(libs.jmh)
+    testAnnotationProcessor(libs.jmh.processor)
+
     testModCompileOnly(libs.mixin)
     testModImplementation(testFixtures(project(":core")))
     testModImplementation(testFixtures(project(":common")))
