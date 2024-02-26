@@ -22,11 +22,15 @@ import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.CapabilityProvider;
 import dan200.computercraft.shared.util.SidedCapabilityProvider;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.event.*;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.level.ChunkEvent;
+import net.minecraftforge.event.level.ChunkTicketLevelUpdatedEvent;
 import net.minecraftforge.event.level.ChunkWatchEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
@@ -68,8 +72,20 @@ public class ForgeCommonHooks {
     }
 
     @SubscribeEvent
+    public static void onChunkUnload(ChunkEvent.Unload event) {
+        if (event.getLevel() instanceof ServerLevel && event.getChunk() instanceof LevelChunk chunk) {
+            CommonHooks.onServerChunkUnload(chunk);
+        }
+    }
+
+    @SubscribeEvent
     public static void onChunkWatch(ChunkWatchEvent.Watch event) {
         CommonHooks.onChunkWatch(event.getChunk(), event.getPlayer());
+    }
+
+    @SubscribeEvent
+    public static void onChunkTicketLevelChanged(ChunkTicketLevelUpdatedEvent event) {
+        CommonHooks.onChunkTicketLevelChanged(event.getLevel(), event.getChunkPos(), event.getOldTicketLevel(), event.getNewTicketLevel());
     }
 
     @SubscribeEvent

@@ -265,7 +265,7 @@ public class CableBlockEntity extends BlockEntity {
                 // If we can connect to it then do so
                 this.node.connectTo(node);
             } else {
-                // Otherwise break the connectoin.
+                // Otherwise break the connection.
                 this.node.disconnectFrom(node);
             }
         }

@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.world.entity.Entity;
@@ -72,8 +73,17 @@ public final class CommonHooks {
         NetworkUtils.reset();
     }
 
+    public static void onServerChunkUnload(LevelChunk chunk) {
+        if (!(chunk.getLevel() instanceof ServerLevel)) throw new IllegalArgumentException("Not a server chunk.");
+        TickScheduler.onChunkUnload(chunk);
+    }
+
     public static void onChunkWatch(LevelChunk chunk, ServerPlayer player) {
         MonitorWatcher.onWatch(chunk, player);
+    }
+
+    public static void onChunkTicketLevelChanged(ServerLevel level, long chunkPos, int oldLevel, int newLevel) {
+        TickScheduler.onChunkTicketChanged(level, chunkPos, oldLevel, newLevel);
     }
 
     public static final ResourceLocation TREASURE_DISK_LOOT = new ResourceLocation(ComputerCraftAPI.MOD_ID, "treasure_disk");
