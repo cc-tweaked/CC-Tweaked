@@ -32,6 +32,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -98,6 +99,11 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     @Override
     public final PacketNetwork getWirelessNetwork(MinecraftServer server) {
         return ServerContext.get(server).wirelessNetwork();
+    }
+
+    @Override
+    public final PacketNetwork getNfcNetwork(MinecraftServer server, Entity entity) {
+        return ServerContext.get(server).nfcNetwork(entity);
     }
 
     @Override

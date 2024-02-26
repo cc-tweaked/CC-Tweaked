@@ -22,6 +22,7 @@ import dan200.computercraft.impl.ComputerCraftAPIService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -159,6 +160,17 @@ public final class ComputerCraftAPI {
      */
     public static PacketNetwork getWirelessNetwork(MinecraftServer server) {
         return getInstance().getWirelessNetwork(server);
+    }
+
+    /**
+     * Attempt to get the NFC network for a player.
+     *
+     * @param server The current Minecraft server.
+     * @param entity The entity whose NFC network should be obtained.
+     * @return The NFC network, or {@code null} if it could not be fetched.
+     */
+    public static PacketNetwork getNfcNetwork(MinecraftServer server, Entity entity) {
+        return getInstance().getNfcNetwork(server, entity);
     }
 
     /**

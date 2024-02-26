@@ -17,6 +17,7 @@ import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
 import dan200.computercraft.shared.network.client.PocketComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
+import dan200.computercraft.shared.pocket.peripherals.PocketNFCPeripheral;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -33,11 +34,14 @@ import java.util.*;
 
 public class PocketServerComputer extends ServerComputer implements IPocketAccess {
     private @Nullable IPocketUpgrade upgrade;
+    private final PocketNFCPeripheral nfc = new PocketNFCPeripheral(this);
     private @Nullable Entity entity;
     private ItemStack stack = ItemStack.EMPTY;
 
-    private int lightColour = -1;
-    private boolean lightChanged = false;
+    private int primaryLightColour = -1;
+    private boolean primaryLightChanged = false;
+    private int secondaryLightColour = -1;
+    private boolean secondaryLightChanged = false;
 
     private final Set<ServerPlayer> tracking = new HashSet<>();
 
@@ -75,17 +79,31 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     }
 
     @Override
-    public int getLight() {
-        return lightColour;
+    public int getLightPrimary() {
+        return primaryLightColour;
     }
 
     @Override
-    public void setLight(int colour) {
+    public void setLightPrimary(int colour) {
         if (colour < 0 || colour > 0xFFFFFF) colour = -1;
 
-        if (lightColour == colour) return;
-        lightColour = colour;
-        lightChanged = true;
+        if (primaryLightColour == colour) return;
+        primaryLightColour = colour;
+        primaryLightChanged = true;
+    }
+
+    @Override
+    public int getLightSecondary() {
+        return secondaryLightColour;
+    }
+
+    @Override
+    public void setLightSecondary(int colour) {
+        if (colour < 0 || colour > 0xFFFFFF) colour = -1;
+
+        if (secondaryLightColour == colour) return;
+        secondaryLightColour = colour;
+        secondaryLightChanged = true;
     }
 
     @Override
@@ -142,6 +160,9 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         this.entity = entity;
         this.stack = stack;
 
+        nfc.update(this);
+        if (getPeripheral(ComputerSide.TOP) != nfc) setPeripheral(ComputerSide.TOP, nfc);
+
         if (this.upgrade != upgrade) {
             this.upgrade = upgrade;
             invalidatePeripheral();
@@ -156,8 +177,9 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         tracking.removeIf(player -> !player.isAlive() || player.level() != getLevel());
 
         // And now find any new players, add them to the tracking list, and broadcast state where appropriate.
-        var sendState = hasOutputChanged() || lightChanged;
-        lightChanged = false;
+        var sendState = hasOutputChanged() || primaryLightChanged || secondaryLightChanged;
+        primaryLightChanged = false;
+        secondaryLightChanged = false;
         if (sendState) {
             // Broadcast the state to all players
             tracking.addAll(getLevel().players());

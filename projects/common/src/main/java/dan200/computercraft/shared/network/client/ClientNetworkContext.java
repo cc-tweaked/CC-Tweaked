@@ -30,7 +30,7 @@ public interface ClientNetworkContext {
 
     void handlePlayRecord(BlockPos pos, @Nullable SoundEvent sound, @Nullable String name);
 
-    void handlePocketComputerData(int instanceId, ComputerState state, int lightState, TerminalState terminal);
+    void handlePocketComputerData(int instanceId, ComputerState state, int primaryLightColor, int secondaryLightColor, TerminalState terminal);
 
     void handlePocketComputerDeleted(int instanceId);
 

@@ -47,22 +47,40 @@ public interface IPocketAccess {
     void setColour(int colour);
 
     /**
-     * Get the colour of this pocket computer's light as a RGB number.
+     * Get the primary colour of this pocket computer's light as a RGB number.
      *
-     * @return The colour this light is. This will be a RGB colour between {@code 0x000000} and {@code 0xFFFFFF} or
+     * @return The primary colour this light is. This will be a RGB colour between {@code 0x000000} and {@code 0xFFFFFF} or
      * -1 if it has no colour.
-     * @see #setLight(int)
+     * @see #setLightPrimary(int)
      */
-    int getLight();
+    int getLightPrimary();
 
     /**
-     * Set the colour of the pocket computer's light to a RGB number.
+     * Set the primary colour of the pocket computer's light to a RGB number.
      *
-     * @param colour The colour this modem's light will be changed to. This should be a RGB colour between
+     * @param colour The primary colour this modem's light will be changed to. This should be a RGB colour between
      *               {@code 0x000000} and {@code 0xFFFFFF} or -1 to reset to the default colour.
-     * @see #getLight()
+     * @see #getLightPrimary()
      */
-    void setLight(int colour);
+    void setLightPrimary(int colour);
+
+    /**
+     * Get the secondary colour of this pocket computer's light as a RGB number.
+     *
+     * @return The secondary colour this light is. This will be a RGB colour between {@code 0x000000} and {@code 0xFFFFFF} or
+     * -1 if it has no colour.
+     * @see #setLightSecondary(int)
+     */
+    int getLightSecondary();
+
+    /**
+     * Set the secondary colour of the pocket computer's light to a RGB number.
+     *
+     * @param colour The secondary colour this modem's light will be changed to. This should be a RGB colour between
+     *               {@code 0x000000} and {@code 0xFFFFFF} or -1 to reset to the default colour.
+     * @see #getLightSecondary()
+     */
+    void setLightSecondary(int colour);
 
     /**
      * Get the upgrade-specific NBT.

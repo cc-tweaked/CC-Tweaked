@@ -34,6 +34,6 @@ public class PocketModem extends AbstractPocketUpgrade {
         modem.setLocation(access);
 
         var state = modem.getModemState();
-        if (state.pollChanged()) access.setLight(state.isOpen() ? 0xBA0000 : -1);
+        if (state.pollChanged()) access.setLightPrimary(state.isOpen() ? 0xBA0000 : -1);
     }
 }

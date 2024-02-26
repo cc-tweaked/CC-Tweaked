@@ -4,6 +4,7 @@
 
 package dan200.computercraft.client.pocket;
 
+import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
@@ -24,14 +25,42 @@ import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 public class PocketComputerData {
     private final NetworkedTerminal terminal;
     private ComputerState state = ComputerState.OFF;
-    private int lightColour = -1;
+    private int primaryLightColour = -1;
+    private int secondaryLightColour = -1;
 
     public PocketComputerData(boolean colour) {
         terminal = new NetworkedTerminal(Config.pocketTermWidth, Config.pocketTermHeight, colour);
     }
 
     public int getLightState() {
-        return state != ComputerState.OFF ? lightColour : -1;
+        if (state != ComputerState.OFF) {
+            if (secondaryLightColour == -1) {
+                return primaryLightColour;
+            } else if (primaryLightColour == -1) {
+                return secondaryLightColour;
+            } else {
+                double weight = (Math.sin(((double)(FrameInfo.getTick() % 41) / 40) * Math.PI * 2) + 1) / 2;
+                return blend(primaryLightColour, secondaryLightColour, weight);
+            }
+        }
+        return -1;
+    }
+
+    private static int blend(int a, int b, double weight) {
+        int[][] rgb = {
+            { a >> 16, b >> 16 },
+            { (a & 0x00ff00) >> 8, (b & 0x00ff00) >> 8 },
+            { a & 0x0000ff, b & 0x0000ff },
+        };
+        int[] channels = new int[3];
+        for (int i = 0; i < 3; i++) {
+            channels[i] = (int)Math.sqrt(Math.pow(rgb[i][0], 2) * weight + Math.pow(rgb[i][1], 2) * (1 - weight));
+        }
+        int color = 0;
+        for (int channel : channels) {
+            color = (color << 8) + channel;
+        }
+        return color;
     }
 
     public Terminal getTerminal() {
@@ -42,9 +71,10 @@ public class PocketComputerData {
         return state;
     }
 
-    public void setState(ComputerState state, int lightColour) {
+    public void setState(ComputerState state, int primaryLightColour, int secondaryLightColor) {
         this.state = state;
-        this.lightColour = lightColour;
+        this.primaryLightColour = primaryLightColour;
+        this.secondaryLightColour = secondaryLightColor;
     }
 
     public void setTerminal(TerminalState state) {

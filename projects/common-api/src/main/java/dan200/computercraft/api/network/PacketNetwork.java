@@ -53,4 +53,19 @@ public interface PacketNetwork {
      * @see PacketReceiver#receiveDifferentDimension(Packet)
      */
     void transmitInterdimensional(Packet packet);
+
+    static void tryTransmit(PacketReceiver receiver, Packet packet, double range, boolean interdimensional) {
+        var sender = packet.sender();
+        if (receiver.getLevel() == sender.getLevel()) {
+            var receiveRange = Math.max(range, receiver.getRange()); // Ensure range is symmetrical
+            var distanceSq = receiver.getPosition().distanceToSqr(sender.getPosition());
+            if (interdimensional || receiver.isInterdimensional() || distanceSq <= receiveRange * receiveRange) {
+                receiver.receiveSameDimension(packet, Math.sqrt(distanceSq));
+            }
+        } else {
+            if (interdimensional || receiver.isInterdimensional()) {
+                receiver.receiveDifferentDimension(packet);
+            }
+        }
+    }
 }

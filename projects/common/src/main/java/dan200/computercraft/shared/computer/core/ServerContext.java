@@ -22,10 +22,12 @@ import dan200.computercraft.impl.GenericSources;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.computer.metrics.GlobalMetrics;
 import dan200.computercraft.shared.config.ConfigSpec;
+import dan200.computercraft.shared.peripheral.modem.wireless.NFCNetworkManager;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.util.IDAssigner;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.LevelResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +66,7 @@ public final class ServerContext {
     private final MainThread mainThread;
     private final IDAssigner idAssigner;
     private final WirelessNetwork wirelessNetwork = new WirelessNetwork();
+    private final NFCNetworkManager nfcNetworkManager = new NFCNetworkManager();
     private final Path storageDir;
 
     private ServerContext(MinecraftServer server) {
@@ -207,6 +210,18 @@ public final class ServerContext {
      */
     public PacketNetwork wirelessNetwork() {
         return wirelessNetwork;
+    }
+
+    /**
+     * Get a player's NFC network.
+     * <p>
+     * Use {@link ComputerCraftAPI#getNfcNetwork(MinecraftServer, Entity)} instead of this method.
+     * @param entity The entity whose NFC network should be obtained.
+     * @return The NFC network.
+     */
+    public PacketNetwork nfcNetwork(Entity entity) {
+        PacketNetwork network = nfcNetworkManager.get(entity);
+        return network == null ? nfcNetworkManager.addNetwork(entity) : network;
     }
 
     private record Environment(MinecraftServer server) implements GlobalEnvironment {
