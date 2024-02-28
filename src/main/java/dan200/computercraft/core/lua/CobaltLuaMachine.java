@@ -54,12 +54,17 @@ public class CobaltLuaMachine implements ILuaMachine {
             .errorReporter((e, m) -> CCTweaked.LOG.log(Level.SEVERE, "Error occurred in Lua VM. Execution will continue:\n" + m.get(), e))
             .build();
 
-        globals = state.getMainThread().getfenv();
-        CoreLibraries.debugGlobals(state);
-        Bit32Lib.add(state, globals);
+        globals = state.globals();
 
-        globals.rawset("_HOST", valueOf("ComputerCraft " + ComputerCraft.getVersion() + " (" + Loader.instance().getMCVersionString() + ")"));
-        globals.rawset("_CC_DEFAULT_SETTINGS", valueOf(""));
+        try {
+            CoreLibraries.debugGlobals(state);
+            Bit32Lib.add(state, globals);
+
+            globals.rawset("_HOST", valueOf("ComputerCraft " + ComputerCraft.getVersion() + " (" + Loader.instance().getMCVersionString() + ")"));
+            globals.rawset("_CC_DEFAULT_SETTINGS", valueOf(""));
+        } catch (LuaError e) {
+            throw new IllegalStateException(e.getMessage());
+        }
     }
 
     @Override
@@ -79,7 +84,7 @@ public class CobaltLuaMachine implements ILuaMachine {
 
         try {
             LuaFunction value = LoadState.load(state, bios, "@bios.lua", globals);
-            mainRoutine = new LuaThread(state, value, globals);
+            mainRoutine = new LuaThread(state, value);
         } catch (Exception e) {
             CCTweaked.LOG.log(Level.SEVERE, "Failed to load bios.lua", e);
             unload();
@@ -207,7 +212,7 @@ public class CobaltLuaMachine implements ILuaMachine {
         return table;
     }
 
-    private LuaValue toValue(Object object, Map<Object, LuaValue> values) {
+    private LuaValue toValue(Object object, Map<Object, LuaValue> values) throws LuaError {
         if (object == null) return Constants.NIL;
         if (object instanceof Number) return valueOf(((Number) object).doubleValue());
         if (object instanceof Boolean) return valueOf((Boolean) object);
@@ -260,7 +265,7 @@ public class CobaltLuaMachine implements ILuaMachine {
         return Constants.NIL;
     }
 
-    Varargs toValues(Object[] objects) {
+    Varargs toValues(Object[] objects) throws LuaError {
         if (objects == null || objects.length == 0) return Constants.NONE;
 
         Map<Object, LuaValue> result = new IdentityHashMap<>(0);

@@ -77,7 +77,7 @@ dependencies {
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
     compileOnly("org.jetbrains:annotations:24.0.1")
     modImplementation("maven.modrinth:computercraft:1.50")
-    "shade"("org.squiddev:Cobalt")
+    "shade"("cc.tweaked:cobalt")
 
     "buildTools"("cc.tweaked.cobalt:build-tools")
 }

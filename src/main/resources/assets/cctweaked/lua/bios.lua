@@ -18,58 +18,20 @@ do
     expect = f().expect
 end
 
-if _VERSION == "Lua 5.1" then
-    -- If we're on Lua 5.1, install parts of the Lua 5.2/5.3 API so that programs can be written against it
-    local nativeload = load
-
-    function load(x, name, mode, env)
-        expect(1, x, "function", "string")
-        expect(2, name, "string", "nil")
-        expect(3, mode, "string", "nil")
-        expect(4, env, "table", "nil")
-
-        local ok, p1, p2 = pcall(function()
-            local result, err = nativeload(x, name, mode, env)
-            if result and env then
-                env._ENV = env
-            end
-            return result, err
-        end)
-        if ok then
-            return p1, p2
-        else
-            error(p1, 2)
-        end
-    end
-
-    if _CC_DISABLE_LUA51_FEATURES then
-        -- Remove the Lua 5.1 features that will be removed when we update to Lua 5.2, for compatibility testing.
-        -- See "disable_lua51_functions" in ComputerCraft.cfg
-        setfenv = nil
-        getfenv = nil
-        loadstring = nil
-        unpack = nil
-        math.log10 = nil
-        table.maxn = nil
-    else
-        loadstring = function(string, chunkname) return nativeload(string, chunkname) end
-
-        -- Inject a stub for the old bit library
-        _G.bit = {
-            bnot = bit32.bnot,
-            band = bit32.band,
-            bor = bit32.bor,
-            bxor = bit32.bxor,
-            brshift = bit32.arshift,
-            blshift = bit32.lshift,
-            blogic_rshift = bit32.rshift,
-        }
-    end
-end
+-- Inject a stub for the old bit library
+_G.bit = {
+    bnot = bit32.bnot,
+    band = bit32.band,
+    bor = bit32.bor,
+    bxor = bit32.bxor,
+    brshift = bit32.arshift,
+    blshift = bit32.lshift,
+    blogic_rshift = bit32.rshift,
+}
 
 -- Install lua parts of the os api
 function os.version()
-    return "CraftOS 1.8"
+    return "CraftOS 1.9"
 end
 
 function os.pullEventRaw(sFilter)
