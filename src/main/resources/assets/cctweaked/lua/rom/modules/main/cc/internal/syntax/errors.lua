@@ -58,6 +58,7 @@ local token_names = setmetatable({
     [tokens.DO] = code("do"),
     [tokens.DOT] = code("."),
     [tokens.DOTS] = code("..."),
+    [tokens.DOUBLE_COLON] = code("::"),
     [tokens.ELSE] = code("else"),
     [tokens.ELSEIF] = code("elseif"),
     [tokens.END] = code("end"),
@@ -67,6 +68,7 @@ local token_names = setmetatable({
     [tokens.FOR] = code("for"),
     [tokens.FUNCTION] = code("function"),
     [tokens.GE] = code(">="),
+    [tokens.GOTO] = code("goto"),
     [tokens.GT] = code(">"),
     [tokens.IF] = code("if"),
     [tokens.IN] = code("in"),
@@ -451,32 +453,53 @@ function errors.local_function_dot(local_start, local_end, dot_start, dot_end)
     }
 end
 
---[[- A statement of the form `x.y z`
+--[[- A statement of the form `x.y`
 
+@tparam number token The token id.
 @tparam number pos The position right after this name.
 @return The resulting parse error.
 ]]
-function errors.standalone_name(pos)
-    expect(1, pos, "number")
+function errors.standalone_name(token, pos)
+    expect(1, token, "number")
+    expect(2, pos, "number")
 
     return {
-        "Unexpected symbol after name.",
+        "Unexpected " .. token_names[token] .. " after name.",
         annotate(pos),
         "Did you mean to assign this or call it as a function?",
+    }
+end
+
+--[[- A statement of the form `x.y, z`
+
+@tparam number token The token id.
+@tparam number pos The position right after this name.
+@return The resulting parse error.
+]]
+function errors.standalone_names(token, pos)
+    expect(1, token, "number")
+    expect(2, pos, "number")
+
+    return {
+        "Unexpected " .. token_names[token] .. " after name.",
+        annotate(pos),
+        "Did you mean to assign this?",
     }
 end
 
 --[[- A statement of the form `x.y`. This is similar to [`standalone_name`], but
 when the next token is on another line.
 
+@tparam number token The token id.
 @tparam number pos The position right after this name.
 @return The resulting parse error.
 ]]
-function errors.standalone_name_call(pos)
-    expect(1, pos, "number")
+function errors.standalone_name_call(token, pos)
+    expect(1, token, "number")
+    expect(2, pos, "number")
 
     return {
-        "Unexpected symbol after variable.",
+        "Unexpected " .. token_names[token] .. " after name.",
         annotate(pos + 1, "Expected something before the end of the line."),
         "Tip: Use " .. code("()") .. " to call with no arguments.",
     }
@@ -532,6 +555,28 @@ function errors.unexpected_end(start_pos, end_pos)
         "Your program contains more " .. code("end") .. "s than needed. Check " ..
         "each block (" .. code("if") .. ", " .. code("for") .. ", " ..
         code("function") .. ", ...) only has one " .. code("end") .. ".",
+    }
+end
+
+--[[- A label statement was opened but not closed.
+
+@tparam number open_start The start position of the opening label.
+@tparam number open_end The end position of the opening label.
+@tparam number tok_start The start position of the current token.
+@return The resulting parse error.
+]]
+function errors.unclosed_label(open_start, open_end, token, start_pos, end_pos)
+    expect(1, open_start, "number")
+    expect(2, open_end, "number")
+    expect(3, token, "number")
+    expect(4, start_pos, "number")
+    expect(5, end_pos, "number")
+
+    return {
+        "Unexpected " .. token_names[token] .. ".",
+        annotate(open_start, open_end, "Label was started here."),
+        annotate(start_pos, end_pos, "Tip: Try adding " .. code("::") .. " here."),
+
     }
 end
 

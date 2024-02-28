@@ -448,20 +448,25 @@ do
     end
 end
 
-local function serializeJSONImpl(t, tTracking, options)
+local function serializeJSONImpl(t, tracking, options)
     local sType = type(t)
     if t == empty_json_array then return "[]"
     elseif t == json_null then return "null"
 
     elseif sType == "table" then
-        if tTracking[t] ~= nil then
-            error("Cannot serialize table with recursive entries", 0)
+        if tracking[t] ~= nil then
+            if tracking[t] == false then
+                error("Cannot serialize table with repeated entries", 0)
+            else
+                error("Cannot serialize table with recursive entries", 0)
+            end
         end
-        tTracking[t] = true
+        tracking[t] = true
 
+        local result
         if next(t) == nil then
             -- Empty tables are simple
-            return "{}"
+            result = "{}"
         else
             -- Other tables take more work
             local sObjectResult = "{"
@@ -469,14 +474,14 @@ local function serializeJSONImpl(t, tTracking, options)
             local nObjectSize = 0
             local nArraySize = 0
             local largestArrayIndex = 0
-            local bNBTStyle = options and options.nbt_style
+            local bNBTStyle = options.nbt_style
             for k, v in pairs(t) do
                 if type(k) == "string" then
                     local sEntry
                     if bNBTStyle then
-                        sEntry = tostring(k) .. ":" .. serializeJSONImpl(v, tTracking, options)
+                        sEntry = tostring(k) .. ":" .. serializeJSONImpl(v, tracking, options)
                     else
-                        sEntry = serializeJSONString(k, options) .. ":" .. serializeJSONImpl(v, tTracking, options)
+                        sEntry = serializeJSONString(k, options) .. ":" .. serializeJSONImpl(v, tracking, options)
                     end
                     if nObjectSize == 0 then
                         sObjectResult = sObjectResult .. sEntry
@@ -493,7 +498,7 @@ local function serializeJSONImpl(t, tTracking, options)
                 if t[k] == nil then --if the array is nil at index k the value is "null" as to keep the unused indexes in between used ones.
                     sEntry = "null"
                 else -- if the array index does not point to a nil we serialise it's content.
-                    sEntry = serializeJSONImpl(t[k], tTracking, options)
+                    sEntry = serializeJSONImpl(t[k], tracking, options)
                 end
                 if nArraySize == 0 then
                     sArrayResult = sArrayResult .. sEntry
@@ -505,11 +510,18 @@ local function serializeJSONImpl(t, tTracking, options)
             sObjectResult = sObjectResult .. "}"
             sArrayResult = sArrayResult .. "]"
             if nObjectSize > 0 or nArraySize == 0 then
-                return sObjectResult
+                result = sObjectResult
             else
-                return sArrayResult
+                result = sArrayResult
             end
         end
+
+        if options.allow_repetitions then
+            tracking[t] = nil
+        else
+            tracking[t] = false
+        end
+        return result
 
     elseif sType == "string" then
         return serializeJSONString(t, options)
@@ -844,10 +856,16 @@ This is largely intended for interacting with various functions from the
 
 @param[1] t The value to serialise. Like [`textutils.serialise`], this should not
 contain recursive tables or functions.
-@tparam[1,opt] { nbt_style? = boolean, unicode_strings? = boolean } options Options for serialisation.
-- `nbt_style`: Whether to produce NBT-style JSON (non-quoted keys) instead of standard JSON.
-- `unicode_strings`: Whether to treat strings as containing UTF-8 characters instead of
-   using the default 8-bit character set.
+@tparam[1,opt] {
+    nbt_style? = boolean,
+    unicode_strings? = boolean,
+    allow_repetitions? = boolean
+} options Options for serialisation.
+ - `nbt_style`: Whether to produce NBT-style JSON (non-quoted keys) instead of standard JSON.
+ - `unicode_strings`: Whether to treat strings as containing UTF-8 characters instead of
+    using the default 8-bit character set.
+ - `allow_repetitions`: Relax the check for recursive tables, allowing them to appear multiple
+   times (as long as tables do not appear inside themselves).
 
 @param[2] t The value to serialise. Like [`textutils.serialise`], this should not
 contain recursive tables or functions.
@@ -868,6 +886,7 @@ functions and tables which appear multiple times.
 
 @since 1.7
 @changed 1.106.0 Added `options` overload and `unicode_strings` option.
+@changed 1.109.0 Added `allow_repetitions` option.
 
 @see textutils.json_null Use to serialise a JSON `null` value.
 @see textutils.empty_json_array Use to serialise a JSON empty array.
@@ -880,6 +899,9 @@ function serializeJSON(t, options)
     elseif type(options) == "table" then
         field(options, "nbt_style", "boolean", "nil")
         field(options, "unicode_strings", "boolean", "nil")
+        field(options, "allow_repetitions", "boolean", "nil")
+    else
+        options = {}
     end
 
     local tTracking = {}

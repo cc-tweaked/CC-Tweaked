@@ -35,6 +35,7 @@ local term = _ENV
 -- @since 1.31
 -- @usage
 -- Redirect to a monitor on the right of the computer.
+--
 --     term.redirect(peripheral.wrap("right"))
 term.redirect = function(target)
     expect(1, target, "table")
