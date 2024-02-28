@@ -6,7 +6,6 @@ isOpen( channel )
 close( channel )
 closeAll()
 transmit( channel, replyChannel, message )
-isWireless()
 
 Events fired by Modems:
 "modem_message" when a message is received on an open channel. Arguments are name, channel, replyChannel, message, distance

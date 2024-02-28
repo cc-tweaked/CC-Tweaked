@@ -109,7 +109,7 @@ function locate(_nTimeout, _bDebug)
     -- Find a modem
     local sModemSide = nil
     for _, sSide in ipairs(rs.getSides()) do
-        if peripheral.getType(sSide) == "modem" and peripheral.call(sSide, "isWireless") then
+        if peripheral.getType(sSide) == "modem" then
             sModemSide = sSide
             break
         end
