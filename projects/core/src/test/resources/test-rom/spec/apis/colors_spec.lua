@@ -92,6 +92,11 @@ describe("The colors library", function()
         it("floors colors", function()
             expect(colors.toBlit(16385)):eq("e")
         end)
+
+        it("errors on out-of-range colours", function()
+            expect.error(colors.toBlit, -120):eq("Colour out of range")
+            expect.error(colors.toBlit, 0x10000):eq("Colour out of range")
+        end)
     end)
 
     describe("colors.fromBlit", function()

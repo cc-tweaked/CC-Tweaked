@@ -58,7 +58,14 @@ describe("The window library", function()
             w.setTextColour(colors.white)
 
             expect.error(w.setTextColour, nil):eq("bad argument #1 (number expected, got nil)")
-            expect.error(w.setTextColour, -5):eq("Invalid color (got -5)")
+            expect.error(w.setTextColour, -5):eq("Colour out of range")
+        end)
+
+        it("supports invalid combined colours", function()
+            local w = mk()
+            w.setTextColour(colours.combine(colours.red, colours.green))
+
+            expect(w.getTextColour()):eq(colours.red)
         end)
     end)
 
@@ -69,7 +76,7 @@ describe("The window library", function()
             w.setPaletteColour(colors.white, 0x000000)
 
             expect.error(w.setPaletteColour, nil):eq("bad argument #1 (number expected, got nil)")
-            expect.error(w.setPaletteColour, -5):eq("Invalid color (got -5)")
+            expect.error(w.setPaletteColour, -5):eq("Colour out of range")
             expect.error(w.setPaletteColour, colors.white):eq("bad argument #2 (number expected, got nil)")
             expect.error(w.setPaletteColour, colors.white, 1, false):eq("bad argument #3 (number expected, got boolean)")
             expect.error(w.setPaletteColour, colors.white, 1, nil, 1):eq("bad argument #3 (number expected, got nil)")
@@ -82,7 +89,7 @@ describe("The window library", function()
             local w = mk()
             w.getPaletteColour(colors.white)
             expect.error(w.getPaletteColour, nil):eq("bad argument #1 (number expected, got nil)")
-            expect.error(w.getPaletteColour, -5):eq("Invalid color (got -5)")
+            expect.error(w.getPaletteColour, -5):eq("Colour out of range")
         end)
     end)
 
@@ -92,7 +99,7 @@ describe("The window library", function()
             w.setBackgroundColour(colors.white)
 
             expect.error(w.setBackgroundColour, nil):eq("bad argument #1 (number expected, got nil)")
-            expect.error(w.setBackgroundColour, -5):eq("Invalid color (got -5)")
+            expect.error(w.setBackgroundColour, -5):eq("Colour out of range")
         end)
     end)
 
