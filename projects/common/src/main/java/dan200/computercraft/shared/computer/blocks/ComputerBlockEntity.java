@@ -51,7 +51,7 @@ public class ComputerBlockEntity extends AbstractComputerBlockEntity {
     protected void updateBlockState(ComputerState newState) {
         var existing = getBlockState();
         if (existing.getValue(ComputerBlock.STATE) != newState) {
-            getLevel().setBlock(getBlockPos(), existing.setValue(ComputerBlock.STATE, newState), 3);
+            getLevel().setBlock(getBlockPos(), existing.setValue(ComputerBlock.STATE, newState), ComputerBlock.UPDATE_CLIENTS);
         }
     }
 

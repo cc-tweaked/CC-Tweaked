@@ -30,7 +30,7 @@ public abstract class CableBlockItem extends BlockItem {
         // TODO: Check entity collision.
         if (!state.canSurvive(world, pos)) return false;
 
-        world.setBlock(pos, state, 3);
+        world.setBlockAndUpdate(pos, state);
         var soundType = state.getBlock().getSoundType(state);
         world.playSound(null, pos, soundType.getPlaceSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
 

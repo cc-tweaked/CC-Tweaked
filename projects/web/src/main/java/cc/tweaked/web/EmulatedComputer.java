@@ -30,6 +30,7 @@ import org.teavm.jso.typedarrays.ArrayBuffer;
 import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Manages the core lifecycle of an emulated {@link Computer}.
@@ -46,6 +47,9 @@ class EmulatedComputer implements ComputerEnvironment, ComputerHandle {
     private final ComputerDisplay computerAccess;
     private boolean disposed = false;
     private final MemoryMount mount = new MemoryMount();
+
+    private @Nullable String oldLabel;
+    private boolean oldOn;
 
     EmulatedComputer(ComputerContext context, ComputerDisplay computerAccess) {
         this.computerAccess = computerAccess;
@@ -68,8 +72,10 @@ class EmulatedComputer implements ComputerEnvironment, ComputerHandle {
             LOG.error("Error when ticking computer", e);
         }
 
-        if (computer.pollAndResetChanged()) {
-            computerAccess.setState(computer.getLabel(), computer.isOn());
+        var newLabel = computer.getLabel();
+        var newOn = computer.isOn();
+        if (!Objects.equals(oldLabel, newLabel) || oldOn != newOn) {
+            computerAccess.setState(oldLabel = newLabel, oldOn = newOn);
         }
 
         for (var side : SIDES) {

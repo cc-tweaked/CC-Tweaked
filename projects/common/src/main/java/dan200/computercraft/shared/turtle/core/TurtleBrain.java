@@ -296,7 +296,7 @@ public class TurtleBrain implements TurtleAccessInternal {
                         oldWorld.removeBlock(oldPos, false);
 
                         // Make sure everybody knows about it
-                        newTurtle.updateOutput();
+                        newTurtle.updateRedstone();
                         newTurtle.updateInputsImmediately();
                         return true;
                     }

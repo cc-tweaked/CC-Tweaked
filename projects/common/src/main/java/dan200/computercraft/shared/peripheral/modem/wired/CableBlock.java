@@ -127,7 +127,7 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
             item = new ItemStack(ModRegistry.Items.CABLE.get());
         }
 
-        world.setBlock(pos, correctConnections(world, pos, newState), 3);
+        world.setBlockAndUpdate(pos, correctConnections(world, pos, newState));
 
         cable.modemChanged();
         cable.connectionsChanged();

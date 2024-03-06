@@ -42,7 +42,6 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
     private final NetworkedTerminal terminal;
     private final AtomicBoolean terminalChanged = new AtomicBoolean(false);
 
-    private boolean changedLastFrame;
     private int ticksSincePing;
 
     public ServerComputer(
@@ -96,10 +95,7 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
 
     public void tickServer() {
         ticksSincePing++;
-
         computer.tick();
-
-        changedLastFrame = computer.pollAndResetChanged();
         if (terminalChanged.getAndSet(false)) onTerminalChanged();
     }
 
@@ -119,8 +115,8 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
         return ticksSincePing > 100;
     }
 
-    public boolean hasOutputChanged() {
-        return changedLastFrame;
+    public int pollAndResetChanges() {
+        return computer.pollAndResetChanges();
     }
 
     public int register() {
@@ -167,7 +163,7 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
     }
 
     public ComputerState getState() {
-        if (!isOn()) return ComputerState.OFF;
+        if (!computer.isOn()) return ComputerState.OFF;
         return computer.isBlinking() ? ComputerState.BLINKING : ComputerState.ON;
     }
 

@@ -15,8 +15,7 @@ import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.terminal.Terminal;
 
 import javax.annotation.Nullable;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -54,9 +53,9 @@ public class Computer {
     private final AtomicLong lastTaskId = new AtomicLong();
 
     // Additional state about the computer and its environment.
-    private boolean blinking = false;
     private final Environment internalEnvironment;
-    private final AtomicBoolean externalOutputChanged = new AtomicBoolean();
+
+    private final AtomicInteger externalOutputChanges = new AtomicInteger();
 
     private boolean startRequested;
     private int ticksSinceStart = -1;
@@ -140,10 +139,7 @@ public class Computer {
     }
 
     public void setLabel(@Nullable String label) {
-        if (!Objects.equals(label, this.label)) {
-            this.label = label;
-            externalOutputChanged.set(true);
-        }
+        this.label = label;
     }
 
     public void tick() {
@@ -164,28 +160,24 @@ public class Computer {
         internalEnvironment.tick();
 
         // Propagate the environment's output to the world.
-        if (internalEnvironment.updateOutput()) externalOutputChanged.set(true);
-
-        // Set output changed if the terminal has changed from blinking to not
-        var blinking = terminal.getCursorBlink() &&
-            terminal.getCursorX() >= 0 && terminal.getCursorX() < terminal.getWidth() &&
-            terminal.getCursorY() >= 0 && terminal.getCursorY() < terminal.getHeight();
-        if (blinking != this.blinking) {
-            this.blinking = blinking;
-            externalOutputChanged.set(true);
-        }
+        externalOutputChanges.accumulateAndGet(internalEnvironment.updateOutput(), (x, y) -> x | y);
     }
 
-    void markChanged() {
-        externalOutputChanged.set(true);
-    }
-
-    public boolean pollAndResetChanged() {
-        return externalOutputChanged.getAndSet(false);
+    /**
+     * Get a bitmask returning which sides on the computer have changed, resetting the internal state.
+     *
+     * @return What sides on the computer have changed.
+     */
+    public int pollAndResetChanges() {
+        return externalOutputChanges.getAndSet(0);
     }
 
     public boolean isBlinking() {
-        return isOn() && blinking;
+        if (!isOn() || !terminal.getCursorBlink()) return false;
+
+        var cursorX = terminal.getCursorX();
+        var cursorY = terminal.getCursorY();
+        return cursorX >= 0 && cursorX < terminal.getWidth() && cursorY >= 0 && cursorY < terminal.getHeight();
     }
 
     public void addApi(ILuaAPI api) {

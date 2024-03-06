@@ -222,22 +222,22 @@ public final class Environment implements IAPIEnvironment {
      *
      * @return If the outputs have changed.
      */
-    boolean updateOutput() {
+    int updateOutput() {
         // Mark output as changed if the internal redstone has changed
         synchronized (internalOutput) {
-            if (!internalOutputChanged) return false;
+            if (!internalOutputChanged) return 0;
 
-            var changed = false;
+            var changed = 0;
 
             for (var i = 0; i < ComputerSide.COUNT; i++) {
                 if (externalOutput[i] != internalOutput[i]) {
                     externalOutput[i] = internalOutput[i];
-                    changed = true;
+                    changed |= 1 << i;
                 }
 
                 if (externalBundledOutput[i] != internalBundledOutput[i]) {
                     externalBundledOutput[i] = internalBundledOutput[i];
-                    changed = true;
+                    changed |= 1 << i;
                 }
             }
 

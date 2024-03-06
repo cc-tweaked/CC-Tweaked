@@ -11,6 +11,7 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
@@ -37,7 +38,10 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     private ItemStack stack = ItemStack.EMPTY;
 
     private int lightColour = -1;
-    private boolean lightChanged = false;
+
+    // The state the previous tick, used to determine if the state needs to be sent to the client.
+    private int oldLightColour = -1;
+    private @Nullable ComputerState oldComputerState;
 
     private final Set<ServerPlayer> tracking = new HashSet<>();
 
@@ -82,10 +86,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public void setLight(int colour) {
         if (colour < 0 || colour > 0xFFFFFF) colour = -1;
-
-        if (lightColour == colour) return;
         lightColour = colour;
-        lightChanged = true;
     }
 
     @Override
@@ -156,9 +157,11 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         tracking.removeIf(player -> !player.isAlive() || player.level() != getLevel());
 
         // And now find any new players, add them to the tracking list, and broadcast state where appropriate.
-        var sendState = hasOutputChanged() || lightChanged;
-        lightChanged = false;
-        if (sendState) {
+        var state = getState();
+        if (oldLightColour != lightColour || oldComputerState != state) {
+            oldComputerState = state;
+            oldLightColour = lightColour;
+
             // Broadcast the state to all players
             tracking.addAll(getLevel().players());
             ServerNetworking.sendToPlayers(new PocketComputerDataMessage(this, false), tracking);
