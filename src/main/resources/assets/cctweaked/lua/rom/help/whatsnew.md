@@ -1,7 +1,9 @@
-New features in CC: Tweaked 1.108.1
+New features in CC: Tweaked 1.109.6
+
+* Improve several Lua parser error messages.
+* Allow addon mods to register `require`able modules.
 
 Several bug fixes:
-* Prevent no-opped players breaking or placing command computers.
-* Allow using `@LuaFunction`-annotated methods on classes defined in child classloaders.
+* Fix weak tables becoming malformed when keys are GCed.
 
 Type "help changelog" to see the full version history.

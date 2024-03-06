@@ -1,3 +1,97 @@
+# New features in CC: Tweaked 1.109.6
+
+* Improve several Lua parser error messages.
+* Allow addon mods to register `require`able modules.
+
+Several bug fixes:
+* Fix weak tables becoming malformed when keys are GCed.
+
+# New features in CC: Tweaked 1.109.5
+
+* Add a new `/computercraft-computer-folder` command to open a computer's folder
+  in singleplayer.
+
+Several bug fixes:
+* Discard characters being typed into the editor when closing `edit`'s `Run` screen.
+
+# New features in CC: Tweaked 1.109.4
+
+Several bug fixes:
+* Don't log warnings when a computer allocates no bytes.
+* Fix incorrect list index in command computer's NBT conversion (lonevox).
+* Fix `endPage()` not updating the printer's block state.
+* Several documentation improvements (znepb).
+* Correctly mount disks before computer startup, not afterwards.
+* Update to Cobalt 0.9
+  * Debug hooks are now correctly called for every function.
+  * Fix several minor inconsistencies with `debug.getinfo`.
+  * Fix Lua tables being sized incorrectly when created from varargs.
+
+# New features in CC: Tweaked 1.109.3
+
+* Command computers now display in the operator items creative tab.
+
+Several bug fixes:
+* Error if too many websocket messages are queued to be sent at once.
+* Fix trailing-comma on method calls (e.g. `x:f(a, )` not using our custom error message.
+* Fix internal compiler error when using `goto` as the first statement in an `if` block.
+* Fix incorrect resizing of a tables' hash part when adding and removing keys.
+
+# New features in CC: Tweaked 1.109.2
+
+* `math.random` now uses Lua 5.4's random number generator.
+
+Several bug fixes:
+* Fix errors involving `goto` statements having the wrong line number.
+
+# New features in CC: Tweaked 1.109.1
+
+Several bug fixes:
+* Fix `mouse_drag` event not firing for right and middle mouse buttons.
+* Fix crash when syntax errors involve `goto` or `::`.
+* Fix deadlock occuring when adding/removing observers.
+* Allow placing seeds into compostor barrels with `turtle.place()`.
+
+# New features in CC: Tweaked 1.109.0
+
+* Update to Lua 5.2
+  * `getfenv`/`setfenv` now only work on Lua functions.
+  * Add support for `goto`.
+  * Remove support for dumping and loading binary chunks.
+* File handles, HTTP requests and websocket messages now use raw bytes rather than converting to UTF-8.
+* Add `allow_repetitions` option to `textutils.serialiseJSON`.
+* Track memory allocated by computers.
+
+Several bug fixes:
+* Fix error when using position captures and backreferences in string patterns (e.g. `()(%1)`).
+* Fix formatting non-real numbers with `%d`.
+
+# New features in CC: Tweaked 1.108.4
+
+* Rewrite `@LuaFunction` generation to use `MethodHandle`s instead of ASM.
+* Refactor `ComputerThread` to provide a cleaner interface.
+* Remove `disable_lua51_features` config option.
+* Update several translations (Sammy).
+
+Several bug fixes:
+* Fix monitor peripheral becoming "detached" after breaking and replacing a monitor.
+* Fix signs being empty when placed.
+* Fix several inconsistencies with mount error messages.
+
+# New features in CC: Tweaked 1.108.3
+
+Several bug fixes:
+* Fix disconnect when joining a dedicated server.
+
+# New features in CC: Tweaked 1.108.2
+
+* Add a tag for which blocks wired modems should ignore.
+
+Several bug fixes:
+* Fix monitors sometimes being warped after resizing.
+* Fix the skull recipes using the wrong UUID format.
+* Fix paint canvas not always being redrawn after a term resize.
+
 # New features in CC: Tweaked 1.108.1
 
 Several bug fixes:
