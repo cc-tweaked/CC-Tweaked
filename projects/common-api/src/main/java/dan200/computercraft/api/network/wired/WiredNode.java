@@ -53,9 +53,7 @@ public interface WiredNode extends PacketNetwork {
      * @return {@code true} if a connection was created or {@code false} if the connection already exists.
      * @see WiredNode#disconnectFrom(WiredNode)
      */
-    default boolean connectTo(WiredNode node) {
-        return getNetwork().connect(this, node);
-    }
+    boolean connectTo(WiredNode node);
 
     /**
      * Destroy a connection between this node and another.
@@ -66,9 +64,7 @@ public interface WiredNode extends PacketNetwork {
      * @return {@code true} if a connection was destroyed or {@code false} if no connection exists.
      * @see WiredNode#connectTo(WiredNode)
      */
-    default boolean disconnectFrom(WiredNode node) {
-        return getNetwork() == node.getNetwork() && getNetwork().disconnect(this, node);
-    }
+    boolean disconnectFrom(WiredNode node);
 
     /**
      * Sever all connections this node has, removing it from this network.
@@ -80,9 +76,7 @@ public interface WiredNode extends PacketNetwork {
      * only element.
      * @throws IllegalArgumentException If the node is not in the network.
      */
-    default boolean remove() {
-        return getNetwork().remove(this);
-    }
+    boolean remove();
 
     /**
      * Mark this node's peripherals as having changed.
@@ -92,7 +86,5 @@ public interface WiredNode extends PacketNetwork {
      *
      * @param peripherals The new peripherals for this node.
      */
-    default void updatePeripherals(Map<String, IPeripheral> peripherals) {
-        getNetwork().updatePeripherals(this, peripherals);
-    }
+    void updatePeripherals(Map<String, IPeripheral> peripherals);
 }

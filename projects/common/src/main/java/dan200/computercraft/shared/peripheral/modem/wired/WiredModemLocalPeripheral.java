@@ -15,7 +15,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.Map;
 
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
@@ -86,11 +85,6 @@ public final class WiredModemLocalPeripheral {
         return peripheral != null ? type + "_" + id : null;
     }
 
-    @Nullable
-    public IPeripheral getPeripheral() {
-        return peripheral;
-    }
-
     public boolean hasPeripheral() {
         return peripheral != null;
     }
@@ -100,9 +94,7 @@ public final class WiredModemLocalPeripheral {
     }
 
     public Map<String, IPeripheral> toMap() {
-        return peripheral == null
-            ? Map.of()
-            : Collections.singletonMap(type + "_" + id, peripheral);
+        return peripheral == null ? Map.of() : Map.of(type + "_" + id, peripheral);
     }
 
     public void write(CompoundTag tag, String suffix) {

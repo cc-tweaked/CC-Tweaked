@@ -41,6 +41,26 @@ public final class WiredNodeImpl implements WiredNode {
     }
 
     @Override
+    public boolean connectTo(WiredNode node) {
+        return network.connect(this, node);
+    }
+
+    @Override
+    public boolean disconnectFrom(WiredNode node) {
+        return network == ((WiredNodeImpl) node).network && network.disconnect(this, node);
+    }
+
+    @Override
+    public boolean remove() {
+        return network.remove(this);
+    }
+
+    @Override
+    public void updatePeripherals(Map<String, IPeripheral> peripherals) {
+        network.updatePeripherals(this, peripherals);
+    }
+
+    @Override
     public synchronized void addReceiver(PacketReceiver receiver) {
         if (receivers == null) receivers = new HashSet<>();
         receivers.add(receiver);
