@@ -101,7 +101,7 @@ public class ComputerBootstrap {
             try {
                 context.ensureClosed(1, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
-                throw new IllegalStateException("Runtime thread was interrupted", e);
+                Thread.currentThread().interrupt();
             }
         }
     }

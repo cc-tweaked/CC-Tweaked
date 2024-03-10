@@ -4,6 +4,7 @@
 
 package dan200.computercraft.core.apis.http.options;
 
+import com.google.errorprone.annotations.Immutable;
 import com.google.errorprone.annotations.concurrent.LazyInit;
 
 import javax.annotation.Nullable;
@@ -11,6 +12,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
+@Immutable
 public final class PartialOptions {
     public static final PartialOptions DEFAULT = new PartialOptions(
         null, OptionalLong.empty(), OptionalLong.empty(), OptionalInt.empty(), Optional.empty()

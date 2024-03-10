@@ -4,6 +4,7 @@
 
 package dan200.computercraft.core.apis.http.options;
 
+import com.google.errorprone.annotations.Immutable;
 
 /**
  * Options for a given HTTP request or websocket, which control its resource constraints.
@@ -14,5 +15,6 @@ package dan200.computercraft.core.apis.http.options;
  * @param websocketMessage The maximum size of a websocket message (outgoing and incoming).
  * @param useProxy         Whether to use the configured proxy.
  */
+@Immutable
 public record Options(Action action, long maxUpload, long maxDownload, int websocketMessage, boolean useProxy) {
 }

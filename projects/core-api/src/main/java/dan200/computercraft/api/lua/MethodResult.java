@@ -116,6 +116,7 @@ public final class MethodResult {
      * @return The method result which represents this yield.
      * @see #pullEvent(String, ILuaCallback)
      */
+    @SuppressWarnings("NamedLikeContextualKeyword")
     public static MethodResult yield(@Nullable Object[] arguments, ILuaCallback callback) {
         Objects.requireNonNull(callback, "callback cannot be null");
         return new MethodResult(arguments, callback);
