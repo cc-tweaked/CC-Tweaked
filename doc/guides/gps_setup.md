@@ -19,7 +19,7 @@ In order to give the best results, a GPS constellation needs at least four compu
 constellation is redundant, but it does not cause problems.
 
 ## Building a GPS constellation
-<img alt="An example GPS constellation." src="/images/gps-constellation-example.png" class="big-image" />
+<img alt="An example GPS constellation." src="../images/gps-constellation-example.png" class="big-image" />
 
 We are going to build our GPS constellation as shown in the image above. You will need 4 computers and either 4 wireless
 modems or 4 ender modems. Try not to mix ender and wireless modems together as you might get some odd behavior when your

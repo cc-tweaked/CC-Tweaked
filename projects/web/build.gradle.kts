@@ -138,11 +138,6 @@ val docWebsite by tasks.registering(Copy::class) {
 
     from(htmlTransform)
 
-    // Pick up assets from the /docs folder
-    from(rootProject.file("doc")) {
-        include("logo.png")
-        include("images/**")
-    }
     // index.js is provided by illuaminate, but rollup outputs some other chunks
     from(rollup) { exclude("index.js") }
     // Grab illuaminate's assets. HTML files are provided by jsxDocs
