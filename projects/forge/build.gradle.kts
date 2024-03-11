@@ -246,6 +246,12 @@ modPublishing {
     output.set(tasks.jarJar)
 }
 
+// Make sure configureReobfTaskForReobfJarJar runs after compilation
+// see - https://github.com/SpongePowered/MixinGradle/pull/51
+tasks.configureEach {
+    if (name == "configureReobfTaskForReobfJarJar") mustRunAfter(tasks.jarJar)
+}
+
 // Don't publish the slim jar
 for (cfg in listOf(configurations.apiElements, configurations.runtimeElements)) {
     cfg.configure { artifacts.removeIf { it.classifier == "slim" } }
