@@ -14,66 +14,58 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.minecraft.commands.CommandSourceStack;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static dan200.computercraft.shared.command.Exceptions.COMPUTER_ARG_MANY;
-
-public final class ComputerArgumentType implements ArgumentType<ComputerArgumentType.ComputerSupplier> {
+public final class ComputerArgumentType implements ArgumentType<ComputerSelector> {
     private static final ComputerArgumentType INSTANCE = new ComputerArgumentType();
 
-    public static ComputerArgumentType oneComputer() {
-        return INSTANCE;
-    }
+    private static final List<String> EXAMPLES = List.of(
+        "0", "123", "@c[instance_id=123]"
+    );
 
-    public static ServerComputer getComputerArgument(CommandContext<CommandSourceStack> context, String name) throws CommandSyntaxException {
-        return context.getArgument(name, ComputerSupplier.class).unwrap(context.getSource());
+    public static ComputerArgumentType get() {
+        return INSTANCE;
     }
 
     private ComputerArgumentType() {
     }
 
+    /**
+     * Extract a list of computers from a {@link CommandContext} argument.
+     *
+     * @param context The current command context.
+     * @param name    The name of the argument.
+     * @return The found computer(s).
+     */
+    public static List<ServerComputer> getMany(CommandContext<CommandSourceStack> context, String name) {
+        return context.getArgument(name, ComputerSelector.class).find(context.getSource()).toList();
+    }
+
+    /**
+     * Extract a single computer from a {@link CommandContext} argument.
+     *
+     * @param context The current command context.
+     * @param name    The name of the argument.
+     * @return The found computer.
+     * @throws CommandSyntaxException If exactly one computer could not be found.
+     */
+    public static ServerComputer getOne(CommandContext<CommandSourceStack> context, String name) throws CommandSyntaxException {
+        return context.getArgument(name, ComputerSelector.class).findOne(context.getSource());
+    }
+
     @Override
-    public ComputerSupplier parse(StringReader reader) throws CommandSyntaxException {
-        var start = reader.getCursor();
-        var supplier = ComputersArgumentType.someComputers().parse(reader);
-        var selector = reader.getString().substring(start, reader.getCursor());
-
-        return s -> {
-            var computers = supplier.unwrap(s);
-
-            if (computers.size() == 1) return computers.iterator().next();
-
-            var builder = new StringBuilder();
-            var first = true;
-            for (var computer : computers) {
-                if (first) {
-                    first = false;
-                } else {
-                    builder.append(", ");
-                }
-
-                builder.append(computer.getInstanceID());
-            }
-
-
-            // We have an incorrect number of computers: reset and throw an error
-            reader.setCursor(start);
-            throw COMPUTER_ARG_MANY.createWithContext(reader, selector, builder.toString());
-        };
+    public ComputerSelector parse(StringReader reader) throws CommandSyntaxException {
+        return ComputerSelector.parse(reader);
     }
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return ComputersArgumentType.someComputers().listSuggestions(context, builder);
+        return ComputerSelector.suggest(context, builder);
     }
 
     @Override
     public Collection<String> getExamples() {
-        return ComputersArgumentType.someComputers().getExamples();
-    }
-
-    @FunctionalInterface
-    public interface ComputerSupplier {
-        ServerComputer unwrap(CommandSourceStack source) throws CommandSyntaxException;
+        return EXAMPLES;
     }
 }
