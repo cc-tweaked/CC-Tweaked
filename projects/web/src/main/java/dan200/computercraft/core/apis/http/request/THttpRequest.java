@@ -92,7 +92,7 @@ public class THttpRequest extends Resource<THttpRequest> {
         if (isClosed()) return;
 
         try {
-            var request = XMLHttpRequest.create();
+            var request = new XMLHttpRequest();
             request.setOnReadyStateChange(() -> onResponseStateChange(request));
             request.setResponseType("arraybuffer");
             var address = uri.toASCIIString();

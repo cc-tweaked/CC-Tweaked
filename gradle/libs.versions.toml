@@ -55,7 +55,7 @@ jmh = "1.37"
 
 # Build tools
 cctJavadoc = "1.8.2"
-checkstyle = "10.12.6"
+checkstyle = "10.14.1"
 curseForgeGradle = "1.0.14"
 errorProne-core = "2.23.0"
 errorProne-plugin = "3.1.0"

@@ -78,11 +78,11 @@ public class JavascriptConv {
      * @return The wrapped array.
      */
     public static byte[] asByteArray(ArrayBuffer view) {
-        return asByteArray(Int8Array.create(view));
+        return asByteArray(new Int8Array(view));
     }
 
     public static Int8Array toArray(ByteBuffer buffer) {
-        var array = Int8Array.create(buffer.remaining());
+        var array = new Int8Array(buffer.remaining());
         for (var i = 0; i < array.getLength(); i++) array.set(i, buffer.get(i));
         return array;
     }
