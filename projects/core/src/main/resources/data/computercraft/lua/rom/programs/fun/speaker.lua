@@ -107,7 +107,7 @@ elseif cmd == "play" then
 
         handle.read(4)
         start = nil
-        -- Detect several other common audio files.
+    -- Detect several other common audio files.
     elseif start == "OggS" then return report_invalid_format("Ogg")
     elseif start == "fLaC" then return report_invalid_format("FLAC")
     elseif start:sub(1, 3) == "ID3" then return report_invalid_format("MP3")
