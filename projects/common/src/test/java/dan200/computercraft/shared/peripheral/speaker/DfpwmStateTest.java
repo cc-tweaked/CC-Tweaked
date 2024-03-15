@@ -23,7 +23,7 @@ class DfpwmStateTest {
 
         var state = new DfpwmState();
         state.pushBuffer(new ObjectLuaTable(inputTbl), input.length, Optional.empty());
-        var result = state.pullPending(0);
+        var result = state.pullPending(0).audio();
         var contents = new byte[result.remaining()];
         result.get(contents);
 

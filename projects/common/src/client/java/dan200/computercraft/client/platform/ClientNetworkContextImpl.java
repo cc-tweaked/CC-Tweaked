@@ -17,6 +17,7 @@ import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
+import dan200.computercraft.shared.peripheral.speaker.EncodedAudio;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -27,7 +28,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
-import java.nio.ByteBuffer;
 import java.util.UUID;
 
 /**
@@ -79,7 +79,7 @@ public final class ClientNetworkContextImpl implements ClientNetworkContext {
     }
 
     @Override
-    public void handleSpeakerAudio(UUID source, SpeakerPosition.Message position, float volume, ByteBuffer buffer) {
+    public void handleSpeakerAudio(UUID source, SpeakerPosition.Message position, float volume, EncodedAudio buffer) {
         SpeakerManager.getSound(source).playAudio(reifyPosition(position), volume, buffer);
     }
 

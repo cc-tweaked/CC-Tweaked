@@ -37,13 +37,17 @@ class DfpwmState {
     private boolean unplayed = true;
     private long clientEndTime = PauseAwareTimer.getTime();
     private float pendingVolume = 1.0f;
-    private @Nullable ByteBuffer pendingAudio;
+    private @Nullable EncodedAudio pendingAudio;
 
     synchronized boolean pushBuffer(LuaTable<?, ?> table, int size, Optional<Double> volume) throws LuaException {
         if (pendingAudio != null) return false;
 
         var outSize = size / 8;
         var buffer = ByteBuffer.allocate(outSize);
+
+        var initialCharge = charge;
+        var initialStrength = strength;
+        var initialPreviousBit = previousBit;
 
         for (var i = 0; i < outSize; i++) {
             var thisByte = 0;
@@ -80,7 +84,7 @@ class DfpwmState {
 
         buffer.flip();
 
-        pendingAudio = buffer;
+        pendingAudio = new EncodedAudio(initialCharge, initialStrength, initialPreviousBit, buffer);
         pendingVolume = (float) clampVolume(volume.orElse((double) pendingVolume));
         return true;
     }
@@ -89,12 +93,12 @@ class DfpwmState {
         return pendingAudio != null && now >= clientEndTime - CLIENT_BUFFER;
     }
 
-    ByteBuffer pullPending(long now) {
+    EncodedAudio pullPending(long now) {
         var audio = pendingAudio;
         if (audio == null) throw new IllegalStateException("Should not pull pending audio yet");
         pendingAudio = null;
         // Compute when we should consider sending the next packet.
-        clientEndTime = Math.max(now, clientEndTime) + (audio.remaining() * SECOND * 8 / SAMPLE_RATE);
+        clientEndTime = Math.max(now, clientEndTime) + (audio.audio().remaining() * SECOND * 8 / SAMPLE_RATE);
         unplayed = false;
         return audio;
     }
