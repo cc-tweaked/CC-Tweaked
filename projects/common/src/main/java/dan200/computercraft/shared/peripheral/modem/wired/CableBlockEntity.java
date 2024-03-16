@@ -69,22 +69,11 @@ public class CableBlockEntity extends BlockEntity {
     private final WiredNode node = cable.getNode();
     private final TickScheduler.Token tickToken = new TickScheduler.Token(this);
     private final WiredModemPeripheral modem = new WiredModemPeripheral(
-        new ModemState(() -> TickScheduler.schedule(tickToken)),
-        cable
+        new ModemState(() -> TickScheduler.schedule(tickToken)), cable, peripheral, this
     ) {
-        @Override
-        protected WiredModemLocalPeripheral getLocalPeripheral() {
-            return peripheral;
-        }
-
         @Override
         public Vec3 getPosition() {
             return Vec3.atCenterOf(getBlockPos().relative(getDirection()));
-        }
-
-        @Override
-        public Object getTarget() {
-            return CableBlockEntity.this;
         }
     };
 

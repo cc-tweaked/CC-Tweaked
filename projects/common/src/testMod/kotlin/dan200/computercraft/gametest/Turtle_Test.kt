@@ -641,6 +641,9 @@ class Turtle_Test {
         }
     }
 
+    /**
+     * `turtle.suck` only pulls for the current side.
+     */
     @GameTest
     fun Sided_suck(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {

@@ -22,6 +22,7 @@ import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,12 +35,21 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
     private static final Logger LOG = LoggerFactory.getLogger(WiredModemPeripheral.class);
 
     private final WiredModemElement modem;
+    private final WiredModemLocalPeripheral localPeripheral;
+    private final BlockEntity target;
 
     private final Map<IComputerAccess, ConcurrentMap<String, RemotePeripheralWrapper>> peripheralWrappers = new HashMap<>(1);
 
-    public WiredModemPeripheral(ModemState state, WiredModemElement modem) {
+    public WiredModemPeripheral(
+        ModemState state,
+        WiredModemElement modem,
+        WiredModemLocalPeripheral localPeripheral,
+        BlockEntity target
+    ) {
         super(state);
         this.modem = modem;
+        this.localPeripheral = localPeripheral;
+        this.target = target;
     }
 
     //region IPacketSender implementation
@@ -62,8 +72,6 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
     public Level getLevel() {
         return modem.getLevel();
     }
-
-    protected abstract WiredModemLocalPeripheral getLocalPeripheral();
     //endregion
 
     @Override
@@ -207,7 +215,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
      */
     @LuaFunction
     public final @Nullable Object[] getNameLocal() {
-        var local = getLocalPeripheral().getConnectedName();
+        var local = localPeripheral.getConnectedName();
         return local == null ? null : new Object[]{ local };
     }
 
@@ -244,11 +252,13 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
     }
 
     @Override
-    public boolean equals(@Nullable IPeripheral other) {
-        if (other instanceof WiredModemPeripheral otherModem) {
-            return otherModem.modem == modem;
-        }
-        return false;
+    public final boolean equals(@Nullable IPeripheral other) {
+        return other instanceof WiredModemPeripheral otherModem && otherModem.modem == modem;
+    }
+
+    @Override
+    public final Object getTarget() {
+        return target;
     }
     //endregion
 
@@ -271,12 +281,11 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
                 var wrapper = wrappers.remove(name);
                 if (wrapper != null) wrapper.detach();
             }
-
         }
     }
 
     private void attachPeripheralImpl(IComputerAccess computer, ConcurrentMap<String, RemotePeripheralWrapper> peripherals, String periphName, IPeripheral peripheral) {
-        if (!peripherals.containsKey(periphName) && !periphName.equals(getLocalPeripheral().getConnectedName())) {
+        if (!peripherals.containsKey(periphName) && !periphName.equals(localPeripheral.getConnectedName())) {
             var methods = ServerContext.get(((ServerLevel) getLevel()).getServer()).peripheralMethods().getSelfMethods(peripheral);
             var wrapper = new RemotePeripheralWrapper(modem, peripheral, computer, periphName, methods);
             peripherals.put(periphName, wrapper);

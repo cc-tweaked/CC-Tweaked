@@ -295,21 +295,10 @@ public class WiredModemFullBlockEntity extends BlockEntity {
         var peripheral = modems[side.ordinal()];
         if (peripheral != null) return peripheral;
 
-        var localPeripheral = peripherals[side.ordinal()];
-        return modems[side.ordinal()] = new WiredModemPeripheral(modemState, element) {
-            @Override
-            protected WiredModemLocalPeripheral getLocalPeripheral() {
-                return localPeripheral;
-            }
-
+        return modems[side.ordinal()] = new WiredModemPeripheral(modemState, element, peripherals[side.ordinal()], this) {
             @Override
             public Vec3 getPosition() {
                 return Vec3.atCenterOf(getBlockPos().relative(side));
-            }
-
-            @Override
-            public Object getTarget() {
-                return WiredModemFullBlockEntity.this;
             }
         };
     }

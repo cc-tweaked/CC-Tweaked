@@ -11,6 +11,7 @@ import dan200.computercraft.gametest.api.getBlockEntity
 import dan200.computercraft.gametest.api.sequence
 import dan200.computercraft.gametest.api.thenOnComputer
 import dan200.computercraft.gametest.api.thenStartComputer
+import dan200.computercraft.impl.network.wired.WiredNodeImpl
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock
 import dan200.computercraft.test.core.assertArrayEquals
@@ -83,8 +84,46 @@ class Modem_Test {
         thenExecute {
             val modem1 = helper.getBlockEntity(BlockPos(1, 2, 1), ModRegistry.BlockEntities.WIRED_MODEM_FULL.get())
             val modem2 = helper.getBlockEntity(BlockPos(3, 2, 1), ModRegistry.BlockEntities.WIRED_MODEM_FULL.get())
-            assertEquals(modem1.element.node.network, modem2.element.node.network, "On the same network")
+            assertEquals((modem1.element.node as WiredNodeImpl).network, (modem2.element.node as WiredNodeImpl).network, "On the same network")
         }
+    }
+
+    /**
+     * Modems do not include the current peripheral when attached.
+     */
+    @GameTest
+    fun Cable_modem_does_not_report_self(helper: GameTestHelper) = helper.sequence {
+        // Modem does not report the computer as a peripheral.
+        thenOnComputer { assertEquals(listOf("back", "right"), getPeripheralNames()) }
+
+        // However, if we connect the network, the other modem does.
+        thenExecute {
+            helper.setBlock(
+                BlockPos(1, 2, 3),
+                ModRegistry.Blocks.CABLE.get().defaultBlockState().setValue(CableBlock.CABLE, true),
+            )
+        }
+        thenIdle(2)
+        thenOnComputer { assertEquals(listOf("back", "computer_0", "right"), getPeripheralNames()) }
+    }
+
+    /**
+     * Modems do not include the current peripheral when attached.
+     */
+    @GameTest
+    fun Full_block_modem_does_not_report_self(helper: GameTestHelper) = helper.sequence {
+        // Modem does not report the computer as a peripheral.
+        thenOnComputer { assertEquals(listOf("back", "right"), getPeripheralNames()) }
+
+        // However, if we connect the network, the other modem does.
+        thenExecute {
+            helper.setBlock(
+                BlockPos(1, 2, 3),
+                ModRegistry.Blocks.CABLE.get().defaultBlockState().setValue(CableBlock.CABLE, true),
+            )
+        }
+        thenIdle(2)
+        thenOnComputer { assertEquals(listOf("back", "computer_1", "right"), getPeripheralNames()) }
     }
 }
 
