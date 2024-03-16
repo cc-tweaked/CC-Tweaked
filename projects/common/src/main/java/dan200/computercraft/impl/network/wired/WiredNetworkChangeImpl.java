@@ -6,6 +6,7 @@ package dan200.computercraft.impl.network.wired;
 
 import dan200.computercraft.api.network.wired.WiredNetworkChange;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.core.util.PeripheralHelpers;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,7 +53,7 @@ final class WiredNetworkChangeImpl implements WiredNetworkChange {
             var oldValue = entry.getValue();
             if (newPeripherals.containsKey(oldKey)) {
                 var rightValue = added.get(oldKey);
-                if (oldValue.equals(rightValue)) {
+                if (PeripheralHelpers.equals(oldValue, rightValue)) {
                     added.remove(oldKey);
                 } else {
                     removed.put(oldKey, oldValue);

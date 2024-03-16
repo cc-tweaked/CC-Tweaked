@@ -218,8 +218,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
 
         ConcurrentMap<String, RemotePeripheralWrapper> wrappers;
         synchronized (peripheralWrappers) {
-            wrappers = peripheralWrappers.get(computer);
-            if (wrappers == null) peripheralWrappers.put(computer, wrappers = new ConcurrentHashMap<>());
+            wrappers = peripheralWrappers.computeIfAbsent(computer, k -> new ConcurrentHashMap<>());
         }
 
         synchronized (modem.getRemotePeripherals()) {

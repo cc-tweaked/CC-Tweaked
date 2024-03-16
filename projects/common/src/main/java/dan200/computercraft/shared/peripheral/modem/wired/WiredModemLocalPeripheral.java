@@ -6,6 +6,7 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.core.util.PeripheralHelpers;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.platform.ComponentAccess;
 import net.minecraft.core.BlockPos;
@@ -65,7 +66,7 @@ public final class WiredModemLocalPeripheral {
                 this.id = ServerContext.get(assertNonNull(world.getServer())).getNextId("peripheral." + type);
             }
 
-            return oldPeripheral == null || !oldPeripheral.equals(peripheral);
+            return !PeripheralHelpers.equals(oldPeripheral, peripheral);
         }
     }
 
