@@ -38,8 +38,6 @@ public final class RegistryWrappers {
     public interface RegistryWrapper<T> extends IdMap<T> {
         ResourceLocation getKey(T object);
 
-        @Nullable ResourceLocation tryGetKey(T object);
-
         T get(ResourceLocation location);
 
         @Nullable

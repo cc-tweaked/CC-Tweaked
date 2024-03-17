@@ -8,9 +8,9 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralType;
 import dan200.computercraft.core.methods.NamedMethod;
 import dan200.computercraft.core.methods.PeripheralMethod;
-import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,7 @@ final class GenericPeripheralBuilder {
 
         String type;
         if (name == null) {
-            var typeId = RegistryWrappers.BLOCK_ENTITY_TYPES.tryGetKey(blockEntity.getType());
+            var typeId = BlockEntityType.getKey(blockEntity.getType());
             if (typeId == null) {
                 LOG.error(
                     "Block entity {} for {} was not registered. Skipping creating a generic peripheral for it.",
