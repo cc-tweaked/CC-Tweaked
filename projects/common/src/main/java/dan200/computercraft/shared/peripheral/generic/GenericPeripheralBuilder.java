@@ -8,8 +8,11 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralType;
 import dan200.computercraft.core.methods.NamedMethod;
 import dan200.computercraft.core.methods.PeripheralMethod;
+import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -25,6 +28,8 @@ import java.util.Set;
  * See the platform-specific peripheral providers for the usage of this.
  */
 final class GenericPeripheralBuilder {
+    private static final Logger LOG = LoggerFactory.getLogger(GenericPeripheralBuilder.class);
+
     private @Nullable String name;
     private final Set<String> additionalTypes = new HashSet<>(0);
     private final ArrayList<SaturatedMethod> methods = new ArrayList<>();
@@ -33,8 +38,24 @@ final class GenericPeripheralBuilder {
     IPeripheral toPeripheral(BlockEntity blockEntity, Direction side) {
         if (methods.isEmpty()) return null;
 
+        String type;
+        if (name == null) {
+            var typeId = RegistryWrappers.BLOCK_ENTITY_TYPES.tryGetKey(blockEntity.getType());
+            if (typeId == null) {
+                LOG.error(
+                    "Block entity {} for {} was not registered. Skipping creating a generic peripheral for it.",
+                    blockEntity, blockEntity.getBlockState().getBlock()
+                );
+                return null;
+            }
+
+            type = typeId.toString();
+        } else {
+            type = name;
+        }
+
         methods.trimToSize();
-        return new GenericPeripheral(blockEntity, side, name, additionalTypes, methods);
+        return new GenericPeripheral(blockEntity, side, type, additionalTypes, methods);
     }
 
     void addMethod(Object target, String name, PeripheralMethod method, @Nullable NamedMethod<PeripheralMethod> info) {

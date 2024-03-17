@@ -268,6 +268,12 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
             return key;
         }
 
+        @Nullable
+        @Override
+        public ResourceLocation tryGetKey(T object) {
+            return registry.getKey(object);
+        }
+
         @Override
         public T get(ResourceLocation location) {
             var object = registry.get(location);
