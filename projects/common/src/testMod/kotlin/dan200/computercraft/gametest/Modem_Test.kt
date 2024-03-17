@@ -7,19 +7,18 @@ package dan200.computercraft.gametest
 import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.core.apis.PeripheralAPI
 import dan200.computercraft.core.computer.ComputerSide
-import dan200.computercraft.gametest.api.getBlockEntity
-import dan200.computercraft.gametest.api.sequence
-import dan200.computercraft.gametest.api.thenOnComputer
-import dan200.computercraft.gametest.api.thenStartComputer
+import dan200.computercraft.gametest.api.*
 import dan200.computercraft.impl.network.wired.WiredNodeImpl
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock
+import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant
 import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.LuaTaskContext
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
+import net.minecraft.world.level.block.Blocks
 import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -124,6 +123,32 @@ class Modem_Test {
         }
         thenIdle(2)
         thenOnComputer { assertEquals(listOf("back", "computer_1", "right"), getPeripheralNames()) }
+    }
+
+    /**
+     * Test wired modems (without a cable) drop an item when the adjacent block is removed.
+     */
+    @GameTest
+    fun Modem_drops_when_neighbour_removed(helper: GameTestHelper) = helper.sequence {
+        thenExecute {
+            helper.setBlock(BlockPos(2, 3, 2), Blocks.AIR)
+            helper.assertItemEntityPresent(ModRegistry.Items.WIRED_MODEM.get(), BlockPos(2, 2, 2), 0.0)
+            helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 2, 2))
+        }
+    }
+
+    /**
+     * Test wired modems (with a cable) drop an item, but keep their cable when the adjacent block is removed.
+     */
+    @GameTest
+    fun Modem_keeps_cable_when_neighbour_removed(helper: GameTestHelper) = helper.sequence {
+        thenExecute {
+            helper.setBlock(BlockPos(2, 3, 2), Blocks.AIR)
+            helper.assertItemEntityPresent(ModRegistry.Items.WIRED_MODEM.get(), BlockPos(2, 2, 2), 0.0)
+            helper.assertBlockIs(BlockPos(2, 2, 2)) {
+                it.block == ModRegistry.Blocks.CABLE.get() && it.getValue(CableBlock.MODEM) == CableModemVariant.None && it.getValue(CableBlock.CABLE)
+            }
+        }
     }
 }
 

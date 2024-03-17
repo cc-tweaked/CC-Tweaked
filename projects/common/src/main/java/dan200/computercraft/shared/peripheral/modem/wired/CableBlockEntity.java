@@ -7,7 +7,6 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.network.wired.WiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.platform.ComponentAccess;
@@ -20,9 +19,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -68,7 +65,8 @@ public class CableBlockEntity extends BlockEntity {
     ) {
         @Override
         public Vec3 getPosition() {
-            return Vec3.atCenterOf(getBlockPos().relative(getDirection()));
+            var dir = getModemDirection();
+            return Vec3.atCenterOf(dir == null ? getBlockPos() : getBlockPos().relative(dir));
         }
     };
 
@@ -95,45 +93,22 @@ public class CableBlockEntity extends BlockEntity {
     @Override
     @Deprecated
     public void setBlockState(BlockState state) {
-        var direction = getMaybeDirection();
+        var direction = getModemDirection();
         super.setBlockState(state);
 
         // We invalidate both the modem and element if the modem's direction is different.
-        if (getMaybeDirection() != direction && modemChanged != null) modemChanged.run();
+        if (getModemDirection() != direction && modemChanged != null) modemChanged.run();
     }
 
     @Nullable
-    private Direction getMaybeDirection() {
+    private Direction getModemDirection() {
         return getBlockState().getValue(CableBlock.MODEM).getFacing();
     }
 
-    private Direction getDirection() {
-        var direction = getMaybeDirection();
-        return direction == null ? Direction.NORTH : direction;
-    }
-
     void neighborChanged(BlockPos neighbour) {
-        var dir = getDirection();
-        if (neighbour.equals(getBlockPos().relative(dir)) && hasModem() && !getBlockState().canSurvive(getLevel(), getBlockPos())) {
-            if (hasCable()) {
-                // Drop the modem and convert to cable
-                Block.popResource(getLevel(), getBlockPos(), new ItemStack(ModRegistry.Items.WIRED_MODEM.get()));
-                getLevel().setBlockAndUpdate(getBlockPos(), getBlockState().setValue(CableBlock.MODEM, CableModemVariant.None));
-                modemChanged();
-                connectionsChanged();
-            } else {
-                // Drop everything and remove block
-                Block.popResource(getLevel(), getBlockPos(), new ItemStack(ModRegistry.Items.WIRED_MODEM.get()));
-                getLevel().removeBlock(getBlockPos(), false);
-                // This'll call #destroy(), so we don't need to reset the network here.
-            }
-
-            return;
-        }
-
-        if (!level.isClientSide && isPeripheralOn()) {
-            var facing = getDirection();
-            if (getBlockPos().relative(facing).equals(neighbour)) queueRefreshPeripheral();
+        var dir = getModemDirection();
+        if (!level.isClientSide && dir != null && getBlockPos().relative(dir).equals(neighbour) && isPeripheralOn()) {
+            queueRefreshPeripheral();
         }
     }
 
@@ -143,7 +118,6 @@ public class CableBlockEntity extends BlockEntity {
     }
 
     InteractionResult use(Player player) {
-        if (player.isCrouching() || !player.mayBuild()) return InteractionResult.PASS;
         if (!canAttachPeripheral()) return InteractionResult.FAIL;
 
         if (getLevel().isClientSide) return InteractionResult.SUCCESS;
@@ -206,7 +180,7 @@ public class CableBlockEntity extends BlockEntity {
         if (refreshConnections) connectionsChanged();
     }
 
-    private void scheduleConnectionsChanged() {
+    void scheduleConnectionsChanged() {
         refreshConnections = true;
         TickScheduler.schedule(tickToken);
     }
@@ -234,20 +208,14 @@ public class CableBlockEntity extends BlockEntity {
                 this.node.disconnectFrom(node);
             }
         }
-    }
-
-    void modemChanged() {
-        // Tell anyone who cares that the connection state has changed
-        if (modemChanged != null) modemChanged.run();
-
-        if (getLevel().isClientSide) return;
 
         // If we can no longer attach peripherals, then detach any which may have existed
         if (!canAttachPeripheral()) detachPeripheral();
     }
 
     private void attachPeripheral() {
-        if (peripheral.attach(getLevel(), getBlockPos(), getDirection())) updateConnectedPeripherals();
+        var dir = Objects.requireNonNull(getModemDirection(), "Attaching without a modem");
+        if (peripheral.attach(getLevel(), getBlockPos(), dir)) updateConnectedPeripherals();
         updateBlockState();
     }
 
@@ -267,7 +235,7 @@ public class CableBlockEntity extends BlockEntity {
 
     @Nullable
     public IPeripheral getPeripheral(@Nullable Direction direction) {
-        return direction == null || getMaybeDirection() == direction ? modem : null;
+        return direction == null || getModemDirection() == direction ? modem : null;
     }
 
     private boolean isPeripheralOn() {
