@@ -122,7 +122,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         // Update any peripherals that have changed.
         if (invalidSides != 0) {
             for (var direction : DirectionUtil.FACINGS) {
-                if ((invalidSides & (1 << direction.ordinal())) != 0) refreshPeripheral(computer, direction);
+                if (DirectionUtil.isSet(invalidSides, direction)) refreshPeripheral(computer, direction);
             }
         }
 
@@ -294,7 +294,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         // If the position is not any adjacent one, update all inputs. This is pretty terrible, but some redstone mods
         // handle this incorrectly.
         for (var dir : DirectionUtil.FACINGS) updateRedstoneInput(computer, dir, getBlockPos().relative(dir));
-        invalidSides = (1 << 6) - 1; // Mark all peripherals as dirty.
+        invalidSides = DirectionUtil.ALL_SIDES; // Mark all peripherals as dirty.
     }
 
     /**

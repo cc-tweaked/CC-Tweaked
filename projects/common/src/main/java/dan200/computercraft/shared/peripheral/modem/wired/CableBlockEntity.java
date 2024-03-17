@@ -29,12 +29,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
-import java.util.Map;
 import java.util.Objects;
 
 public class CableBlockEntity extends BlockEntity {
-    private static final String NBT_PERIPHERAL_ENABLED = "PeripheralAccess";
-
     private final class CableElement extends WiredModemElement {
         @Override
         public Level getLevel() {
@@ -57,13 +54,11 @@ public class CableBlockEntity extends BlockEntity {
         }
     }
 
-    private boolean invalidPeripheral;
-    private boolean peripheralAccessAllowed;
+    private boolean refreshPeripheral;
     private final WiredModemLocalPeripheral peripheral = new WiredModemLocalPeripheral(PlatformHelper.get().createPeripheralAccess(this, x -> queueRefreshPeripheral()));
     private @Nullable Runnable modemChanged;
 
-    private boolean connectionsFormed = false;
-    private boolean connectionsChanged = false;
+    private boolean refreshConnections = false;
 
     private final WiredModemElement cable = new CableElement();
     private final WiredNode node = cable.getNode();
@@ -83,23 +78,17 @@ public class CableBlockEntity extends BlockEntity {
         super(type, pos, state);
     }
 
-    private void onRemove() {
-        if (level == null || !level.isClientSide) {
-            node.remove();
-            connectionsFormed = false;
-        }
-    }
-
     @Override
     public void setRemoved() {
         super.setRemoved();
         modem.removed();
-        onRemove();
+        if (level == null || !level.isClientSide) node.remove();
     }
 
     @Override
     public void clearRemoved() {
         super.clearRemoved();
+        refreshConnections = refreshPeripheral = true;
         TickScheduler.schedule(tickToken);
     }
 
@@ -142,23 +131,15 @@ public class CableBlockEntity extends BlockEntity {
             return;
         }
 
-        if (!level.isClientSide && peripheralAccessAllowed) {
+        if (!level.isClientSide && isPeripheralOn()) {
             var facing = getDirection();
             if (getBlockPos().relative(facing).equals(neighbour)) queueRefreshPeripheral();
         }
     }
 
     private void queueRefreshPeripheral() {
-        if (invalidPeripheral) return;
-        invalidPeripheral = true;
+        refreshPeripheral = true;
         TickScheduler.schedule(tickToken);
-    }
-
-    private void refreshPeripheral() {
-        invalidPeripheral = false;
-        if (level != null && !isRemoved() && peripheral.attach(level, getBlockPos(), getDirection())) {
-            updateConnectedPeripherals();
-        }
     }
 
     InteractionResult use(Player player) {
@@ -168,8 +149,13 @@ public class CableBlockEntity extends BlockEntity {
         if (getLevel().isClientSide) return InteractionResult.SUCCESS;
 
         var oldName = peripheral.getConnectedName();
-        togglePeripheralAccess();
+        if (isPeripheralOn()) {
+            detachPeripheral();
+        } else {
+            attachPeripheral();
+        }
         var newName = peripheral.getConnectedName();
+
         if (!Objects.equals(newName, oldName)) {
             if (oldName != null) {
                 player.displayClientMessage(Component.translatable("chat.computercraft.wired_modem.peripheral_disconnected",
@@ -187,14 +173,11 @@ public class CableBlockEntity extends BlockEntity {
     @Override
     public void load(CompoundTag nbt) {
         super.load(nbt);
-        // Fallback to the previous (incorrect) key
-        peripheralAccessAllowed = nbt.getBoolean(NBT_PERIPHERAL_ENABLED) || nbt.getBoolean("PeirpheralAccess");
         peripheral.read(nbt, "");
     }
 
     @Override
     public void saveAdditional(CompoundTag nbt) {
-        nbt.putBoolean(NBT_PERIPHERAL_ENABLED, peripheralAccessAllowed);
         peripheral.write(nbt, "");
         super.saveAdditional(nbt);
     }
@@ -203,7 +186,7 @@ public class CableBlockEntity extends BlockEntity {
         var state = getBlockState();
         var oldVariant = state.getValue(CableBlock.MODEM);
         var newVariant = CableModemVariant
-            .from(oldVariant.getFacing(), modem.getModemState().isOpen(), peripheralAccessAllowed);
+            .from(oldVariant.getFacing(), modem.getModemState().isOpen(), peripheral.hasPeripheral());
 
         if (oldVariant != newVariant) {
             level.setBlockAndUpdate(getBlockPos(), state.setValue(CableBlock.MODEM, newVariant));
@@ -213,31 +196,24 @@ public class CableBlockEntity extends BlockEntity {
     void blockTick() {
         if (getLevel().isClientSide) return;
 
-        if (invalidPeripheral) refreshPeripheral();
+        if (refreshPeripheral) {
+            refreshPeripheral = false;
+            if (isPeripheralOn()) attachPeripheral();
+        }
 
         if (modem.getModemState().pollChanged()) updateBlockState();
 
-        if (!connectionsFormed) {
-            connectionsFormed = true;
-
-            connectionsChanged();
-            if (peripheralAccessAllowed) {
-                peripheral.attach(level, worldPosition, getDirection());
-                updateConnectedPeripherals();
-            }
-        }
-
-        if (connectionsChanged) connectionsChanged();
+        if (refreshConnections) connectionsChanged();
     }
 
     private void scheduleConnectionsChanged() {
-        connectionsChanged = true;
+        refreshConnections = true;
         TickScheduler.schedule(tickToken);
     }
 
     void connectionsChanged() {
         if (getLevel().isClientSide) return;
-        connectionsChanged = false;
+        refreshConnections = false;
 
         var state = getBlockState();
         var world = getLevel();
@@ -266,43 +242,22 @@ public class CableBlockEntity extends BlockEntity {
 
         if (getLevel().isClientSide) return;
 
-        // If we can no longer attach peripherals, then detach any
-        // which may have existed
-        if (!canAttachPeripheral() && peripheralAccessAllowed) {
-            peripheralAccessAllowed = false;
-            peripheral.detach();
-            node.updatePeripherals(Map.of());
-            setChanged();
-            updateBlockState();
-        }
+        // If we can no longer attach peripherals, then detach any which may have existed
+        if (!canAttachPeripheral()) detachPeripheral();
     }
 
-    private void togglePeripheralAccess() {
-        if (!peripheralAccessAllowed) {
-            peripheral.attach(level, getBlockPos(), getDirection());
-            if (!peripheral.hasPeripheral()) return;
+    private void attachPeripheral() {
+        if (peripheral.attach(getLevel(), getBlockPos(), getDirection())) updateConnectedPeripherals();
+        updateBlockState();
+    }
 
-            peripheralAccessAllowed = true;
-            node.updatePeripherals(peripheral.toMap());
-        } else {
-            peripheral.detach();
-
-            peripheralAccessAllowed = false;
-            node.updatePeripherals(Map.of());
-        }
-
+    private void detachPeripheral() {
+        if (peripheral.detach()) updateConnectedPeripherals();
         updateBlockState();
     }
 
     private void updateConnectedPeripherals() {
-        var peripherals = peripheral.toMap();
-        if (peripherals.isEmpty()) {
-            // If there are no peripherals then disable access and update the display state.
-            peripheralAccessAllowed = false;
-            updateBlockState();
-        }
-
-        node.updatePeripherals(peripherals);
+        node.updatePeripherals(peripheral.toMap());
     }
 
     @Nullable
@@ -313,6 +268,10 @@ public class CableBlockEntity extends BlockEntity {
     @Nullable
     public IPeripheral getPeripheral(@Nullable Direction direction) {
         return direction == null || getMaybeDirection() == direction ? modem : null;
+    }
+
+    private boolean isPeripheralOn() {
+        return getBlockState().getValue(CableBlock.MODEM).isPeripheralOn();
     }
 
     public void onModemChanged(Runnable callback) {
