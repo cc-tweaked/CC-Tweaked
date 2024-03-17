@@ -13,24 +13,26 @@ import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import net.minecraft.network.FriendlyByteBuf;
 
+import java.util.UUID;
+
 /**
  * Provides additional data about a client computer, such as its ID and current state.
  */
 public class PocketComputerDataMessage implements NetworkMessage<ClientNetworkContext> {
-    private final int instanceId;
+    private final UUID clientId;
     private final ComputerState state;
     private final int lightState;
     private final TerminalState terminal;
 
     public PocketComputerDataMessage(PocketServerComputer computer, boolean sendTerminal) {
-        instanceId = computer.getInstanceID();
+        clientId = computer.getInstanceUUID();
         state = computer.getState();
         lightState = computer.getLight();
         terminal = sendTerminal ? computer.getTerminalState() : new TerminalState((NetworkedTerminal) null);
     }
 
     public PocketComputerDataMessage(FriendlyByteBuf buf) {
-        instanceId = buf.readVarInt();
+        clientId = buf.readUUID();
         state = buf.readEnum(ComputerState.class);
         lightState = buf.readVarInt();
         terminal = new TerminalState(buf);
@@ -38,7 +40,7 @@ public class PocketComputerDataMessage implements NetworkMessage<ClientNetworkCo
 
     @Override
     public void write(FriendlyByteBuf buf) {
-        buf.writeVarInt(instanceId);
+        buf.writeUUID(clientId);
         buf.writeEnum(state);
         buf.writeVarInt(lightState);
         terminal.write(buf);
@@ -46,7 +48,7 @@ public class PocketComputerDataMessage implements NetworkMessage<ClientNetworkCo
 
     @Override
     public void handle(ClientNetworkContext context) {
-        context.handlePocketComputerData(instanceId, state, lightState, terminal);
+        context.handlePocketComputerData(clientId, state, lightState, terminal);
     }
 
     @Override

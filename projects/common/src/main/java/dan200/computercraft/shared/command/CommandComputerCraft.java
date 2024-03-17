@@ -134,7 +134,7 @@ public final class CommandComputerCraft {
             } else if (b.getLevel() == world) {
                 return 1;
             } else {
-                return Integer.compare(a.getInstanceID(), b.getInstanceID());
+                return a.getInstanceUUID().compareTo(b.getInstanceUUID());
             }
         });
 
@@ -159,7 +159,8 @@ public final class CommandComputerCraft {
      */
     private static int dumpComputer(CommandSourceStack source, ServerComputer computer) {
         var table = new TableBuilder("Dump");
-        table.row(header("Instance"), text(Integer.toString(computer.getInstanceID())));
+        table.row(header("Instance ID"), text(Integer.toString(computer.getInstanceID())));
+        table.row(header("Instance UUID"), text(computer.getInstanceUUID().toString()));
         table.row(header("Id"), text(Integer.toString(computer.getID())));
         table.row(header("Label"), text(computer.getLabel()));
         table.row(header("On"), bool(computer.isOn()));
@@ -338,11 +339,7 @@ public final class CommandComputerCraft {
         if (computer == null) {
             out.append("#" + computerId + " ").append(coloured("(unloaded)", ChatFormatting.GRAY));
         } else {
-            out.append(link(
-                text("#" + computerId + " ").append(coloured("(instance " + computer.getInstanceID() + ")", ChatFormatting.GRAY)),
-                makeComputerCommand("dump", computer),
-                Component.translatable("commands.computercraft.dump.action")
-            ));
+            out.append(makeComputerDumpCommand(computer));
         }
 
         // And, if we're a player, some useful links
@@ -370,10 +367,6 @@ public final class CommandComputerCraft {
         }
 
         return out;
-    }
-
-    private static String makeComputerCommand(String command, ServerComputer computer) {
-        return String.format("/computercraft %s @c[instance=%d]", command, computer.getInstanceID());
     }
 
     private static Component linkPosition(CommandSourceStack context, ServerComputer computer) {

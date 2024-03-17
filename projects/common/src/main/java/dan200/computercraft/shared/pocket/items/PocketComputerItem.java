@@ -43,6 +43,7 @@ import net.minecraft.world.level.Level;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public class PocketComputerItem extends Item implements IComputerItem, IMedia, IColouredItem {
     private static final String NBT_UPGRADE = "Upgrade";
@@ -188,10 +189,9 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
     }
 
     public PocketServerComputer createServerComputer(ServerLevel level, Entity entity, @Nullable Container inventory, ItemStack stack) {
-        var sessionID = getSessionID(stack);
 
         var registry = ServerContext.get(level.getServer()).registry();
-        var computer = (PocketServerComputer) registry.get(sessionID, getInstanceID(stack));
+        var computer = (PocketServerComputer) registry.get(getSessionID(stack), getInstanceID(stack));
         if (computer == null) {
             var computerID = getComputerID(stack);
             if (computerID < 0) {
@@ -201,8 +201,9 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
 
             computer = new PocketServerComputer(level, entity.blockPosition(), getComputerID(stack), getLabel(stack), getFamily());
 
-            setInstanceID(stack, computer.register());
-            setSessionID(stack, registry.getSessionID());
+            var tag = stack.getOrCreateTag();
+            tag.putInt(NBT_SESSION, registry.getSessionID());
+            tag.putUUID(NBT_INSTANCE, computer.register());
 
             var upgrade = getUpgrade(stack);
 
@@ -267,22 +268,14 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         return null;
     }
 
-    public static int getInstanceID(ItemStack stack) {
+    public static @Nullable UUID getInstanceID(ItemStack stack) {
         var nbt = stack.getTag();
-        return nbt != null && nbt.contains(NBT_INSTANCE) ? nbt.getInt(NBT_INSTANCE) : -1;
-    }
-
-    private static void setInstanceID(ItemStack stack, int instanceID) {
-        stack.getOrCreateTag().putInt(NBT_INSTANCE, instanceID);
+        return nbt != null && nbt.hasUUID(NBT_INSTANCE) ? nbt.getUUID(NBT_INSTANCE) : null;
     }
 
     private static int getSessionID(ItemStack stack) {
         var nbt = stack.getTag();
         return nbt != null && nbt.contains(NBT_SESSION) ? nbt.getInt(NBT_SESSION) : -1;
-    }
-
-    private static void setSessionID(ItemStack stack, int sessionID) {
-        stack.getOrCreateTag().putInt(NBT_SESSION, sessionID);
     }
 
     private static boolean isMarkedOn(ItemStack stack) {

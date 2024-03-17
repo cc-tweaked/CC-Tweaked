@@ -22,6 +22,7 @@ import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.common.IColouredItem;
+import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import dan200.computercraft.shared.computer.inventory.ViewComputerMenu;
@@ -91,7 +92,10 @@ public final class ClientRegistry {
         MenuScreens.<ViewComputerMenu, ComputerScreen<ViewComputerMenu>>register(ModRegistry.Menus.VIEW_COMPUTER.get(), ComputerScreen::new);
 
         registerItemProperty("state",
-            new UnclampedPropertyFunction((stack, world, player, random) -> ClientPocketComputers.get(stack).getState().ordinal()),
+            new UnclampedPropertyFunction((stack, world, player, random) -> {
+                var computer = ClientPocketComputers.get(stack);
+                return (computer == null ? ComputerState.OFF : computer.getState()).ordinal();
+            }),
             ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED
         );
         registerItemProperty("coloured",
@@ -155,17 +159,14 @@ public final class ClientRegistry {
     }
 
     private static int getPocketColour(ItemStack stack, int layer) {
-        switch (layer) {
-            case 0:
-            default:
-                return 0xFFFFFF;
-            case 1: // Frame colour
-                return IColouredItem.getColourBasic(stack);
-            case 2: { // Light colour
-                var light = ClientPocketComputers.get(stack).getLightState();
-                return light == -1 ? Colour.BLACK.getHex() : light;
+        return switch (layer) {
+            default -> 0xFFFFFF;
+            case 1 -> IColouredItem.getColourBasic(stack); // Frame colour
+            case 2 -> { // Light colour
+                var computer = ClientPocketComputers.get(stack);
+                yield computer == null || computer.getLightState() == -1 ? Colour.BLACK.getHex() : computer.getLightState();
             }
-        }
+        };
     }
 
     private static int getTurtleColour(ItemStack stack, int layer) {

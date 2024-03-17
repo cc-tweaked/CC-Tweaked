@@ -8,14 +8,14 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Random;
+import java.util.*;
 
 public class ServerComputerRegistry {
     private static final Random RANDOM = new Random();
 
     private final int sessionId = RANDOM.nextInt();
-    private final Int2ObjectMap<ServerComputer> computers = new Int2ObjectOpenHashMap<>();
+    private final Int2ObjectMap<ServerComputer> computersByInstanceId = new Int2ObjectOpenHashMap<>();
+    private final Map<UUID, ServerComputer> computersByInstanceUuid = new HashMap<>();
     private int nextInstanceId;
 
     public int getSessionID() {
@@ -28,11 +28,16 @@ public class ServerComputerRegistry {
 
     @Nullable
     public ServerComputer get(int instanceID) {
-        return instanceID >= 0 ? computers.get(instanceID) : null;
+        return instanceID >= 0 ? computersByInstanceId.get(instanceID) : null;
     }
 
     @Nullable
-    public ServerComputer get(int sessionId, int instanceId) {
+    public ServerComputer get(@Nullable UUID instanceID) {
+        return instanceID != null ? computersByInstanceUuid.get(instanceID) : null;
+    }
+
+    @Nullable
+    public ServerComputer get(int sessionId, @Nullable UUID instanceId) {
         return sessionId == this.sessionId ? get(instanceId) : null;
     }
 
@@ -50,28 +55,36 @@ public class ServerComputerRegistry {
         }
     }
 
-    void add(int instanceID, ServerComputer computer) {
-        remove(instanceID);
-        computers.put(instanceID, computer);
-        nextInstanceId = Math.max(nextInstanceId, instanceID + 1);
-    }
+    void add(ServerComputer computer) {
+        var instanceID = computer.getInstanceID();
+        var instanceUUID = computer.getInstanceUUID();
 
-    void remove(int instanceID) {
-        var computer = get(instanceID);
-        if (computer != null) {
-            computer.unload();
-            computer.onRemoved();
+        if (computersByInstanceId.containsKey(instanceID)) {
+            throw new IllegalStateException("Duplicate computer " + instanceID);
         }
 
-        computers.remove(instanceID);
+        if (computersByInstanceUuid.containsKey(instanceUUID)) {
+            throw new IllegalStateException("Duplicate computer " + instanceUUID);
+        }
+
+        computersByInstanceId.put(instanceID, computer);
+        computersByInstanceUuid.put(instanceUUID, computer);
+    }
+
+    void remove(ServerComputer computer) {
+        computer.unload();
+        computer.onRemoved();
+        computersByInstanceId.remove(computer.getInstanceID());
+        computersByInstanceUuid.remove(computer.getInstanceUUID());
     }
 
     void close() {
         for (var computer : getComputers()) computer.unload();
-        computers.clear();
+        computersByInstanceId.clear();
+        computersByInstanceUuid.clear();
     }
 
     public Collection<ServerComputer> getComputers() {
-        return computers.values();
+        return computersByInstanceId.values();
     }
 }

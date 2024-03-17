@@ -30,9 +30,9 @@ public interface ClientNetworkContext {
 
     void handlePlayRecord(BlockPos pos, @Nullable SoundEvent sound, @Nullable String name);
 
-    void handlePocketComputerData(int instanceId, ComputerState state, int lightState, TerminalState terminal);
+    void handlePocketComputerData(UUID instanceId, ComputerState state, int lightState, TerminalState terminal);
 
-    void handlePocketComputerDeleted(int instanceId);
+    void handlePocketComputerDeleted(UUID instanceId);
 
     void handleSpeakerAudio(UUID source, SpeakerPosition.Message position, float volume, EncodedAudio audio);
 

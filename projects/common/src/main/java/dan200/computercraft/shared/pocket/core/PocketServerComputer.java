@@ -190,6 +190,6 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     protected void onRemoved() {
         super.onRemoved();
-        ServerNetworking.sendToAllPlayers(new PocketComputerDeletedClientMessage(getInstanceID()), getLevel().getServer());
+        ServerNetworking.sendToAllPlayers(new PocketComputerDeletedClientMessage(getInstanceUUID()), getLevel().getServer());
     }
 }

@@ -36,13 +36,14 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
+import java.util.UUID;
 
 public abstract class AbstractComputerBlockEntity extends BlockEntity implements IComputerBlockEntity, Nameable, MenuProvider {
     private static final String NBT_ID = "ComputerId";
     private static final String NBT_LABEL = "Label";
     private static final String NBT_ON = "On";
 
-    private int instanceID = -1;
+    private @Nullable UUID instanceID = null;
     private int computerID = -1;
     protected @Nullable String label = null;
     private boolean on = false;
@@ -66,7 +67,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
 
         var computer = getServerComputer();
         if (computer != null) computer.close();
-        instanceID = -1;
+        instanceID = null;
     }
 
     @Override
@@ -401,7 +402,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     }
 
     protected void transferStateFrom(AbstractComputerBlockEntity copy) {
-        if (copy.computerID != computerID || copy.instanceID != instanceID) {
+        if (copy.computerID != computerID || !Objects.equals(copy.instanceID, instanceID)) {
             unload();
             instanceID = copy.instanceID;
             computerID = copy.computerID;
@@ -411,7 +412,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
             lockCode = copy.lockCode;
             BlockEntityHelpers.updateBlock(this);
         }
-        copy.instanceID = -1;
+        copy.instanceID = null;
     }
 
     @Override

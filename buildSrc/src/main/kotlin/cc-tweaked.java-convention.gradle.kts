@@ -113,6 +113,8 @@ sourceSets.all {
             option("NullAway:CastToNonNullMethod", "dan200.computercraft.core.util.Nullability.assertNonNull")
             option("NullAway:CheckOptionalEmptiness")
             option("NullAway:AcknowledgeRestrictiveAnnotations")
+
+            excludedPaths = ".*/jmh_generated/.*"
         }
     }
 }
