@@ -299,6 +299,17 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     }
 
     /**
+     * Called when a neighbour block's shape changes.
+     * <p>
+     * Unlike {@link #neighborChanged(BlockPos)}, we don't update redstone, only peripherals.
+     *
+     * @param direction The side that changed.
+     */
+    public void neighbourShapeChanged(Direction direction) {
+        invalidSides |= 1 << direction.ordinal();
+    }
+
+    /**
      * Update outputs in a specific direction.
      *
      * @param direction The direction to propagate outputs in.

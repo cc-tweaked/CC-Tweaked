@@ -112,7 +112,7 @@ public class CableBlockEntity extends BlockEntity {
         }
     }
 
-    private void queueRefreshPeripheral() {
+    void queueRefreshPeripheral() {
         refreshPeripheral = true;
         TickScheduler.schedule(tickToken);
     }

@@ -16,8 +16,11 @@ import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.LuaTaskContext
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.Blocks
 import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.time.Duration.Companion.milliseconds
@@ -150,6 +153,21 @@ class Modem_Test {
             }
         }
     }
+
+    /**
+     * Check chest peripherals are reattached with a new size.
+     */
+    @GameTest
+    fun Chest_resizes_on_change(context: GameTestHelper) = context.sequence {
+        thenOnComputer {
+            callRemotePeripheral("minecraft:chest_0", "size").assertArrayEquals(27)
+        }
+        thenExecute { context.placeItemAt(ItemStack(Items.CHEST), BlockPos(2, 2, 2), Direction.WEST) }
+        thenIdle(1)
+        thenOnComputer {
+            callRemotePeripheral("minecraft:chest_0", "size").assertArrayEquals(54)
+        }
+    }
 }
 
 private fun LuaTaskContext.findPeripheral(type: String): String? {
@@ -169,7 +187,7 @@ private suspend fun LuaTaskContext.getPeripheralNames(): List<String> {
         if (!peripheral.isPresent(side)) continue
         peripherals.add(side)
 
-        val hasType = peripheral.hasType(side, "modem")
+        val hasType = peripheral.hasType(side, "peripheral_hub")
         if (hasType == null || hasType[0] != true) continue
 
         val names = peripheral.call(context, ObjectArguments(side, "getNamesRemote")).await() ?: continue
@@ -179,4 +197,23 @@ private suspend fun LuaTaskContext.getPeripheralNames(): List<String> {
 
     peripherals.sort()
     return peripherals
+}
+
+private suspend fun LuaTaskContext.callRemotePeripheral(name: String, method: String, vararg args: Any): Array<out Any?>? {
+    val peripheral = getApi<PeripheralAPI>()
+    if (peripheral.isPresent(name)) return peripheral.call(context, ObjectArguments(name, method, *args)).await()
+
+    for (side in ComputerSide.NAMES) {
+        if (!peripheral.isPresent(side)) continue
+
+        val hasType = peripheral.hasType(side, "peripheral_hub")
+        if (hasType == null || hasType[0] != true) continue
+
+        val isPresent = peripheral.call(context, ObjectArguments(side, "isPresentRemote", name)).await() ?: continue
+        if (isPresent[0] as Boolean) {
+            return peripheral.call(context, ObjectArguments(side, "callRemote", name, method, *args)).await()
+        }
+    }
+
+    throw IllegalArgumentException("No such peripheral $name")
 }

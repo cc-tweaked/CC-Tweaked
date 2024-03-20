@@ -196,6 +196,11 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
             if (level.getBlockEntity(pos) instanceof CableBlockEntity cable) cable.scheduleConnectionsChanged();
         }
 
+        var modem = state.getValue(MODEM);
+        if (modem.getFacing() == side && modem.isPeripheralOn() && level.getBlockEntity(pos) instanceof CableBlockEntity cable) {
+            cable.queueRefreshPeripheral();
+        }
+
         return level instanceof Level actualLevel
             ? state.setValue(CONNECTIONS.get(side), doesConnectVisually(state, actualLevel, pos, side))
             : state;
