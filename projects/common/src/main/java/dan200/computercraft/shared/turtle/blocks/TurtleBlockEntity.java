@@ -24,10 +24,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -136,17 +135,8 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
         super.loadServer(nbt);
 
         // Read inventory
-        var nbttaglist = nbt.getList("Items", Tag.TAG_COMPOUND);
-        inventory.clear();
-        inventorySnapshot.clear();
-        for (var i = 0; i < nbttaglist.size(); i++) {
-            var tag = nbttaglist.getCompound(i);
-            var slot = tag.getByte("Slot") & 0xff;
-            if (slot < getContainerSize()) {
-                inventory.set(slot, ItemStack.of(tag));
-                inventorySnapshot.set(slot, inventory.get(slot).copy());
-            }
-        }
+        ContainerHelper.loadAllItems(nbt, inventory);
+        for (var i = 0; i < inventory.size(); i++) inventorySnapshot.set(i, inventory.get(i).copy());
 
         // Read state
         brain.readFromNBT(nbt);
@@ -155,16 +145,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     @Override
     public void saveAdditional(CompoundTag nbt) {
         // Write inventory
-        var nbttaglist = new ListTag();
-        for (var i = 0; i < INVENTORY_SIZE; i++) {
-            if (!inventory.get(i).isEmpty()) {
-                var tag = new CompoundTag();
-                tag.putByte("Slot", (byte) i);
-                inventory.get(i).save(tag);
-                nbttaglist.add(tag);
-            }
-        }
-        nbt.put("Items", nbttaglist);
+        ContainerHelper.saveAllItems(nbt, inventory);
 
         // Write brain
         nbt = brain.writeToNBT(nbt);
