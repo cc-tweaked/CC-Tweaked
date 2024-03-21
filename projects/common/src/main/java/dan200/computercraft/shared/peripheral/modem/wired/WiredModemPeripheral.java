@@ -15,6 +15,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.NotAttachedException;
 import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.apis.PeripheralAPI;
+import dan200.computercraft.core.computer.GuardedLuaContext;
 import dan200.computercraft.core.methods.PeripheralMethod;
 import dan200.computercraft.core.util.LuaUtil;
 import dan200.computercraft.shared.computer.core.ServerContext;
@@ -304,7 +305,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
         return wrappers == null ? null : wrappers.get(remoteName);
     }
 
-    private static class RemotePeripheralWrapper implements IComputerAccess {
+    private static class RemotePeripheralWrapper implements IComputerAccess, GuardedLuaContext.Guard {
         private final WiredModemElement element;
         private final IPeripheral peripheral;
         private final IComputerAccess computer;
@@ -316,6 +317,8 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
 
         private volatile boolean attached;
         private final Set<String> mounts = new HashSet<>();
+
+        private @Nullable GuardedLuaContext contextWrapper;
 
         RemotePeripheralWrapper(WiredModemElement element, IPeripheral peripheral, IComputerAccess computer, String name, Map<String, PeripheralMethod> methods) {
             this.element = element;
@@ -364,7 +367,19 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
         public MethodResult callMethod(ILuaContext context, String methodName, IArguments arguments) throws LuaException {
             var method = methodMap.get(methodName);
             if (method == null) throw new LuaException("No such method " + methodName);
-            return method.apply(peripheral, context, this, arguments);
+
+            // Wrap the ILuaContext. We try to reuse the previous context where possible to avoid allocations.
+            var contextWrapper = this.contextWrapper;
+            if (contextWrapper == null || !contextWrapper.wraps(context)) {
+                contextWrapper = this.contextWrapper = new GuardedLuaContext(context, this);
+            }
+
+            return method.apply(peripheral, contextWrapper, this, arguments);
+        }
+
+        @Override
+        public boolean checkValid() {
+            return attached;
         }
 
         // IComputerAccess implementation
