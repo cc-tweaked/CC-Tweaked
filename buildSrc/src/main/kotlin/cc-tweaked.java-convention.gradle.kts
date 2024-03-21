@@ -40,10 +40,6 @@ repositories {
 
     val mainMaven = maven("https://squiddev.cc/maven") {
         name = "SquidDev"
-        content {
-            // Until https://github.com/SpongePowered/Mixin/pull/593 is merged
-            includeModule("org.spongepowered", "mixin")
-        }
     }
 
     exclusiveContent {

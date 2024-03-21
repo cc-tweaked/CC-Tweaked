@@ -345,6 +345,11 @@ public class PlatformHelperImpl implements PlatformHelper {
         return event.getUseItem() == Event.Result.DENY ? InteractionResult.PASS : stack.useOn(context);
     }
 
+    @Override
+    public boolean canClickRunClientCommand() {
+        return false;
+    }
+
     private record RegistryWrapperImpl<T>(
         ResourceLocation name, ForgeRegistry<T> registry
     ) implements RegistryWrappers.RegistryWrapper<T> {

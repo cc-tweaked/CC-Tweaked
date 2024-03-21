@@ -385,7 +385,7 @@ public final class CommandComputerCraft {
         var file = new File(ServerContext.get(source.getServer()).storageDir().toFile(), "computer/" + id);
         if (!file.isDirectory()) return null;
 
-        return link(
+        return clientLink(
             text("\u270E"),
             "/" + CLIENT_OPEN_FOLDER + " " + id,
             Component.translatable("commands.computercraft.dump.open_path")
