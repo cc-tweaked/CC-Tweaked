@@ -94,10 +94,11 @@ public class CableBlockEntity extends BlockEntity {
     @Deprecated
     public void setBlockState(BlockState state) {
         var direction = getModemDirection();
+        var hasCable = hasCable();
         super.setBlockState(state);
 
-        // We invalidate both the modem and element if the modem's direction is different.
-        if (getModemDirection() != direction && modemChanged != null) modemChanged.run();
+        // We invalidate both the modem and element if the modem direction or cable are different.
+        if (modemChanged != null && (hasCable() != hasCable || getModemDirection() != direction)) modemChanged.run();
     }
 
     @Nullable
