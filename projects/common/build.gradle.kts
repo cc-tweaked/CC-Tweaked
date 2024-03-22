@@ -36,6 +36,7 @@ dependencies {
     implementation(commonClasses(project(":common-api")))
     clientImplementation(clientClasses(project(":common-api")))
 
+    compileOnly(libs.mixin)
     compileOnly(libs.bundles.externalMods.common)
     clientCompileOnly(variantOf(libs.emi) { classifier("api") })
 

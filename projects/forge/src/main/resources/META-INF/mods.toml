@@ -31,4 +31,7 @@ CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles a
     side="BOTH"
 
 [[mixins]]
+config = "computercraft.mixins.json"
+
+[[mixins]]
 config = "computercraft-client.forge.mixins.json"
