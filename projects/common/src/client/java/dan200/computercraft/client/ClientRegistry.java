@@ -78,8 +78,10 @@ public final class ClientRegistry {
 
     /**
      * Register any client-side objects which must be done on the main thread.
+     *
+     * @param itemProperties Callback to register item properties.
      */
-    public static void registerMainThread() {
+    public static void registerMainThread(RegisterItemProperty itemProperties) {
         MenuScreens.<AbstractComputerMenu, ComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.COMPUTER.get(), ComputerScreen::new);
         MenuScreens.<AbstractComputerMenu, ComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.POCKET_COMPUTER.get(), ComputerScreen::new);
         MenuScreens.<AbstractComputerMenu, NoTermComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.POCKET_COMPUTER_NO_TERM.get(), NoTermComputerScreen::new);
@@ -91,14 +93,14 @@ public final class ClientRegistry {
 
         MenuScreens.<ViewComputerMenu, ComputerScreen<ViewComputerMenu>>register(ModRegistry.Menus.VIEW_COMPUTER.get(), ComputerScreen::new);
 
-        registerItemProperty("state",
+        registerItemProperty(itemProperties, "state",
             new UnclampedPropertyFunction((stack, world, player, random) -> {
                 var computer = ClientPocketComputers.get(stack);
                 return (computer == null ? ComputerState.OFF : computer.getState()).ordinal();
             }),
             ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED
         );
-        registerItemProperty("coloured",
+        registerItemProperty(itemProperties, "coloured",
             (stack, world, player, random) -> IColouredItem.getColourBasic(stack) != -1 ? 1 : 0,
             ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED
         );
@@ -119,9 +121,17 @@ public final class ClientRegistry {
     }
 
     @SafeVarargs
-    private static void registerItemProperty(String name, ClampedItemPropertyFunction getter, Supplier<? extends Item>... items) {
+    private static void registerItemProperty(RegisterItemProperty itemProperties, String name, ClampedItemPropertyFunction getter, Supplier<? extends Item>... items) {
         var id = new ResourceLocation(ComputerCraftAPI.MOD_ID, name);
-        for (var item : items) ItemProperties.register(item.get(), id, getter);
+        for (var item : items) itemProperties.register(item.get(), id, getter);
+    }
+
+    /**
+     * Register an item property via {@link ItemProperties#register}. Forge and Fabric expose different methods, so we
+     * supply this via mod-loader-specific code.
+     */
+    public interface RegisterItemProperty {
+        void register(Item item, ResourceLocation name, ClampedItemPropertyFunction property);
     }
 
     public static void registerReloadListeners(Consumer<PreparableReloadListener> register, Minecraft minecraft) {

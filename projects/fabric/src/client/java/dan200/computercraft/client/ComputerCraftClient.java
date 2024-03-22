@@ -27,6 +27,7 @@ import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -45,7 +46,7 @@ public class ComputerCraftClient {
         ClientRegistry.register();
         ClientRegistry.registerTurtleModellers(FabricComputerCraftAPIClient::registerTurtleUpgradeModeller);
         ClientRegistry.registerItemColours(ColorProviderRegistry.ITEM::register);
-        ClientRegistry.registerMainThread();
+        ClientRegistry.registerMainThread(ItemProperties::register);
 
         PreparableModelLoadingPlugin.register(CustomModelLoader::prepare, (state, context) -> {
             ClientRegistry.registerExtraModels(context::addModels);
