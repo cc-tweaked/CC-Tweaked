@@ -60,9 +60,9 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
     @Override
     public void render(MonitorBlockEntity monitor, float partialTicks, PoseStack transform, MultiBufferSource bufferSource, int lightmapCoord, int overlayLight) {
         // Render from the origin monitor
-        var originTerminal = monitor.getClientMonitor();
-
+        var originTerminal = monitor.getOriginClientMonitor();
         if (originTerminal == null) return;
+
         var origin = originTerminal.getOrigin();
         var renderState = originTerminal.getRenderState(MonitorRenderState::new);
         var monitorPos = monitor.getBlockPos();

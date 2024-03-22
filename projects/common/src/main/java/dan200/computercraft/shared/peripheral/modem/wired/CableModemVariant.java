@@ -10,49 +10,57 @@ import net.minecraft.util.StringRepresentable;
 import javax.annotation.Nullable;
 
 public enum CableModemVariant implements StringRepresentable {
-    None("none", null),
-    DownOff("down_off", Direction.DOWN),
-    UpOff("up_off", Direction.UP),
-    NorthOff("north_off", Direction.NORTH),
-    SouthOff("south_off", Direction.SOUTH),
-    WestOff("west_off", Direction.WEST),
-    EastOff("east_off", Direction.EAST),
-    DownOn("down_on", Direction.DOWN),
-    UpOn("up_on", Direction.UP),
-    NorthOn("north_on", Direction.NORTH),
-    SouthOn("south_on", Direction.SOUTH),
-    WestOn("west_on", Direction.WEST),
-    EastOn("east_on", Direction.EAST),
-    DownOffPeripheral("down_off_peripheral", Direction.DOWN),
-    UpOffPeripheral("up_off_peripheral", Direction.UP),
-    NorthOffPeripheral("north_off_peripheral", Direction.NORTH),
-    SouthOffPeripheral("south_off_peripheral", Direction.SOUTH),
-    WestOffPeripheral("west_off_peripheral", Direction.WEST),
-    EastOffPeripheral("east_off_peripheral", Direction.EAST),
-    DownOnPeripheral("down_on_peripheral", Direction.DOWN),
-    UpOnPeripheral("up_on_peripheral", Direction.UP),
-    NorthOnPeripheral("north_on_peripheral", Direction.NORTH),
-    SouthOnPeripheral("south_on_peripheral", Direction.SOUTH),
-    WestOnPeripheral("west_on_peripheral", Direction.WEST),
-    EastOnPeripheral("east_on_peripheral", Direction.EAST);
+    None("none", null, false, false),
+    DownOff("down_off", Direction.DOWN, false, false),
+    UpOff("up_off", Direction.UP, false, false),
+    NorthOff("north_off", Direction.NORTH, false, false),
+    SouthOff("south_off", Direction.SOUTH, false, false),
+    WestOff("west_off", Direction.WEST, false, false),
+    EastOff("east_off", Direction.EAST, false, false),
+    DownOn("down_on", Direction.DOWN, true, false),
+    UpOn("up_on", Direction.UP, true, false),
+    NorthOn("north_on", Direction.NORTH, true, false),
+    SouthOn("south_on", Direction.SOUTH, true, false),
+    WestOn("west_on", Direction.WEST, true, false),
+    EastOn("east_on", Direction.EAST, true, false),
+    DownOffPeripheral("down_off_peripheral", Direction.DOWN, false, true),
+    UpOffPeripheral("up_off_peripheral", Direction.UP, false, true),
+    NorthOffPeripheral("north_off_peripheral", Direction.NORTH, false, true),
+    SouthOffPeripheral("south_off_peripheral", Direction.SOUTH, false, true),
+    WestOffPeripheral("west_off_peripheral", Direction.WEST, false, true),
+    EastOffPeripheral("east_off_peripheral", Direction.EAST, false, true),
+    DownOnPeripheral("down_on_peripheral", Direction.DOWN, true, true),
+    UpOnPeripheral("up_on_peripheral", Direction.UP, true, true),
+    NorthOnPeripheral("north_on_peripheral", Direction.NORTH, true, true),
+    SouthOnPeripheral("south_on_peripheral", Direction.SOUTH, true, true),
+    WestOnPeripheral("west_on_peripheral", Direction.WEST, true, true),
+    EastOnPeripheral("east_on_peripheral", Direction.EAST, true, true);
 
     private static final CableModemVariant[] VALUES = values();
 
     private final String name;
     private final @Nullable Direction facing;
+    private final boolean modemOn, peripheralOn;
 
-    CableModemVariant(String name, @Nullable Direction facing) {
+    CableModemVariant(String name, @Nullable Direction facing, boolean modemOn, boolean peripheralOn) {
         this.name = name;
         this.facing = facing;
+        this.modemOn = modemOn;
+        this.peripheralOn = peripheralOn;
+        if (ordinal() != getIndex(facing, modemOn, peripheralOn)) throw new IllegalStateException("Mismatched ordinal");
     }
 
     public static CableModemVariant from(Direction facing) {
-        return facing == null ? None : VALUES[1 + facing.get3DDataValue()];
+        return VALUES[1 + facing.get3DDataValue()];
+    }
+
+    private static int getIndex(@Nullable Direction facing, boolean modem, boolean peripheral) {
+        var state = (modem ? 1 : 0) + (peripheral ? 2 : 0);
+        return facing == null ? 0 : 1 + 6 * state + facing.get3DDataValue();
     }
 
     public static CableModemVariant from(@Nullable Direction facing, boolean modem, boolean peripheral) {
-        var state = (modem ? 1 : 0) + (peripheral ? 2 : 0);
-        return facing == null ? None : VALUES[1 + 6 * state + facing.get3DDataValue()];
+        return VALUES[getIndex(facing, modem, peripheral)];
     }
 
     @Override
@@ -62,6 +70,14 @@ public enum CableModemVariant implements StringRepresentable {
 
     public @Nullable Direction getFacing() {
         return facing;
+    }
+
+    public boolean isModemOn() {
+        return modemOn;
+    }
+
+    public boolean isPeripheralOn() {
+        return peripheralOn;
     }
 
     @Override

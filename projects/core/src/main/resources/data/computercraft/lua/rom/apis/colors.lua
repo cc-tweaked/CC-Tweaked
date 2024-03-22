@@ -353,7 +353,8 @@ end
 
 --[[- Converts the given color to a paint/blit hex character (0-9a-f).
 
-This is equivalent to converting floor(log_2(color)) to hexadecimal.
+This is equivalent to converting `floor(log_2(color))` to hexadecimal. Values
+outside the range of a valid colour will error.
 
 @tparam number color The color to convert.
 @treturn string The blit hex code of the color.
@@ -367,7 +368,11 @@ colors.toBlit(colors.red)
 ]]
 function toBlit(color)
     expect(1, color, "number")
-    return color_hex_lookup[color] or string.format("%x", math.floor(math.log(color, 2)))
+    local hex = color_hex_lookup[color]
+    if hex then return hex end
+
+    if color < 0 or color > 0xffff then error("Colour out of range", 2) end
+    return string.format("%x", math.floor(math.log(color, 2)))
 end
 
 --[[- Converts the given paint/blit hex character (0-9a-f) to a color.

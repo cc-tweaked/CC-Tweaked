@@ -9,7 +9,7 @@
 # Remember to update corresponding versions in fabric.mod.json/mods.toml
 fabric-api = "0.93.1+1.20.4"
 fabric-loader = "0.15.3"
-neoForge = "20.4.161-beta"
+neoForge = "20.4.210"
 neoForgeSpi = "8.0.1"
 mixin = "0.8.5"
 parchment = "2023.12.31"
@@ -26,7 +26,7 @@ slf4j = "2.0.7"
 asm = "9.6"
 autoService = "1.1.1"
 checkerFramework = "3.42.0"
-cobalt = "0.9.1"
+cobalt = "0.9.2"
 commonsCli = "1.6.0"
 jetbrainsAnnotations = "24.1.0"
 jsr305 = "3.0.2"
@@ -51,10 +51,11 @@ sodium = "mc1.20-0.4.10"
 hamcrest = "2.2"
 jqwik = "1.8.2"
 junit = "5.10.1"
+jmh = "1.37"
 
 # Build tools
 cctJavadoc = "1.8.2"
-checkstyle = "10.12.6"
+checkstyle = "10.14.1"
 curseForgeGradle = "1.1.18"
 errorProne-core = "2.23.0"
 errorProne-plugin = "3.1.0"
@@ -62,15 +63,15 @@ fabric-loom = "1.5.7"
 githubRelease = "2.5.2"
 gradleVersions = "0.50.0"
 ideaExt = "1.1.7"
-illuaminate = "0.1.0-44-g9ee0055"
+illuaminate = "0.1.0-69-gf294ab2"
 lwjgl = "3.3.3"
 minotaur = "2.8.7"
-neoGradle = "7.0.93"
+neoGradle = "7.0.100"
 nullAway = "0.9.9"
 spotless = "6.23.3"
 taskTree = "2.1.1"
-teavm = "0.10.0-SQUID.2"
-vanillaExtract = "0.1.1"
+teavm = "0.10.0-SQUID.3"
+vanillaExtract = "0.1.2"
 versionCatalogUpdate = "0.8.1"
 
 [libraries]
@@ -125,6 +126,8 @@ junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.re
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+jmh = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
+jmh-processor = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
 
 # LWJGL
 lwjgl-bom = { module = "org.lwjgl:lwjgl-bom", version.ref = "lwjgl" }

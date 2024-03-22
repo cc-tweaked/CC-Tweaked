@@ -46,28 +46,32 @@ class LuaCoverage {
     }
 
     void write(Writer out) throws IOException {
-        Files.find(ROOT, Integer.MAX_VALUE, (path, attr) -> attr.isRegularFile()).forEach(path -> {
-            var relative = ROOT.relativize(path);
-            var full = relative.toString().replace('\\', '/');
-            if (!full.endsWith(".lua")) return;
-
-            var possiblePaths = coverage.remove("/" + full);
-            if (possiblePaths == null) possiblePaths = coverage.remove(full);
-            if (possiblePaths == null) {
-                possiblePaths = Int2IntMaps.EMPTY_MAP;
-                LOG.warn("{} has no coverage data", full);
-            }
-
-            try {
-                writeCoverageFor(out, path, possiblePaths);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
+        try (var files = Files.find(ROOT, Integer.MAX_VALUE, (path, attr) -> attr.isRegularFile())) {
+            files.forEach(path -> writeSingleFile(out, path));
+        }
 
         for (var filename : coverage.keySet()) {
             if (filename.startsWith("/test-rom/")) continue;
             LOG.warn("Unknown file {}", filename);
+        }
+    }
+
+    private void writeSingleFile(Writer out, Path path) {
+        var relative = ROOT.relativize(path);
+        var full = relative.toString().replace('\\', '/');
+        if (!full.endsWith(".lua")) return;
+
+        var possiblePaths = coverage.remove("/" + full);
+        if (possiblePaths == null) possiblePaths = coverage.remove(full);
+        if (possiblePaths == null) {
+            possiblePaths = Int2IntMaps.EMPTY_MAP;
+            LOG.warn("{} has no coverage data", full);
+        }
+
+        try {
+            writeCoverageFor(out, path, possiblePaths);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 

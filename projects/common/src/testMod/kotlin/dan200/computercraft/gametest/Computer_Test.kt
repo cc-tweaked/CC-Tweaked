@@ -11,11 +11,15 @@ import dan200.computercraft.core.apis.TermAPI
 import dan200.computercraft.core.computer.ComputerSide
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.shared.ModRegistry
+import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.LeverBlock
 import net.minecraft.world.level.block.RedstoneLampBlock
@@ -99,6 +103,17 @@ class Computer_Test {
             context.assertPeripheral(BlockPos(3, 2, 2), type = "computer")
             context.assertPeripheral(BlockPos(1, 2, 2), type = "turtle")
         }
+    }
+
+    /**
+     * Check chest peripherals are reattached with a new size.
+     */
+    @GameTest
+    fun Chest_resizes_on_change(context: GameTestHelper) = context.sequence {
+        thenOnComputer { callPeripheral("right", "size").assertArrayEquals(27) }
+        thenExecute { context.placeItemAt(ItemStack(Items.CHEST), BlockPos(2, 2, 2), Direction.WEST) }
+        thenIdle(1)
+        thenOnComputer { callPeripheral("right", "size").assertArrayEquals(54) }
     }
 
     /**

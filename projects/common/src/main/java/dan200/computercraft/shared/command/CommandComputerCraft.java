@@ -12,7 +12,8 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.command.arguments.ComputersArgumentType;
+import dan200.computercraft.shared.command.arguments.ComputerArgumentType;
+import dan200.computercraft.shared.command.arguments.ComputerSelector;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -23,6 +24,7 @@ import dan200.computercraft.shared.computer.metrics.basic.AggregatedMetric;
 import dan200.computercraft.shared.computer.metrics.basic.BasicComputerMetricsObserver;
 import dan200.computercraft.shared.computer.metrics.basic.ComputerMetrics;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -42,9 +44,6 @@ import java.util.*;
 import static dan200.computercraft.shared.command.CommandUtils.isPlayer;
 import static dan200.computercraft.shared.command.Exceptions.NOT_TRACKING_EXCEPTION;
 import static dan200.computercraft.shared.command.Exceptions.NO_TIMINGS_EXCEPTION;
-import static dan200.computercraft.shared.command.arguments.ComputerArgumentType.getComputerArgument;
-import static dan200.computercraft.shared.command.arguments.ComputerArgumentType.oneComputer;
-import static dan200.computercraft.shared.command.arguments.ComputersArgumentType.*;
 import static dan200.computercraft.shared.command.arguments.TrackingFieldArgumentType.metric;
 import static dan200.computercraft.shared.command.builder.CommandBuilder.args;
 import static dan200.computercraft.shared.command.builder.CommandBuilder.command;
@@ -70,37 +69,37 @@ public final class CommandComputerCraft {
                 .requires(ModRegistry.Permissions.PERMISSION_DUMP)
                 .executes(c -> dump(c.getSource()))
                 .then(args()
-                    .arg("computer", oneComputer())
-                    .executes(c -> dumpComputer(c.getSource(), getComputerArgument(c, "computer")))))
+                    .arg("computer", ComputerArgumentType.get())
+                    .executes(c -> dumpComputer(c.getSource(), ComputerArgumentType.getOne(c, "computer")))))
 
             .then(command("shutdown")
                 .requires(ModRegistry.Permissions.PERMISSION_SHUTDOWN)
-                .argManyValue("computers", manyComputers(), s -> ServerContext.get(s.getServer()).registry().getComputers())
+                .argManyValue("computers", ComputerArgumentType.get(), ComputerSelector.all())
                 .executes((c, a) -> shutdown(c.getSource(), unwrap(c.getSource(), a))))
 
             .then(command("turn-on")
                 .requires(ModRegistry.Permissions.PERMISSION_TURN_ON)
-                .argManyValue("computers", manyComputers(), s -> ServerContext.get(s.getServer()).registry().getComputers())
+                .argManyValue("computers", ComputerArgumentType.get(), ComputerSelector.all())
                 .executes((c, a) -> turnOn(c.getSource(), unwrap(c.getSource(), a))))
 
             .then(command("tp")
                 .requires(ModRegistry.Permissions.PERMISSION_TP)
-                .arg("computer", oneComputer())
-                .executes(c -> teleport(c.getSource(), getComputerArgument(c, "computer"))))
+                .arg("computer", ComputerArgumentType.get())
+                .executes(c -> teleport(c.getSource(), ComputerArgumentType.getOne(c, "computer"))))
 
             .then(command("queue")
                 .requires(ModRegistry.Permissions.PERMISSION_QUEUE)
                 .arg(
-                    RequiredArgumentBuilder.<CommandSourceStack, ComputersArgumentType.ComputersSupplier>argument("computer", manyComputers())
+                    RequiredArgumentBuilder.<CommandSourceStack, ComputerSelector>argument("computer", ComputerArgumentType.get())
                         .suggests((context, builder) -> Suggestions.empty())
                 )
                 .argManyValue("args", StringArgumentType.string(), List.of())
-                .executes((c, a) -> queue(getComputersArgument(c, "computer"), a)))
+                .executes((c, a) -> queue(ComputerArgumentType.getMany(c, "computer"), a)))
 
             .then(command("view")
                 .requires(ModRegistry.Permissions.PERMISSION_VIEW)
-                .arg("computer", oneComputer())
-                .executes(c -> view(c.getSource(), getComputerArgument(c, "computer"))))
+                .arg("computer", ComputerArgumentType.get())
+                .executes(c -> view(c.getSource(), ComputerArgumentType.getOne(c, "computer"))))
 
             .then(choice("track")
                 .requires(ModRegistry.Permissions.PERMISSION_TRACK)
@@ -135,7 +134,7 @@ public final class CommandComputerCraft {
             } else if (b.getLevel() == world) {
                 return 1;
             } else {
-                return Integer.compare(a.getInstanceID(), b.getInstanceID());
+                return a.getInstanceUUID().compareTo(b.getInstanceUUID());
             }
         });
 
@@ -160,7 +159,8 @@ public final class CommandComputerCraft {
      */
     private static int dumpComputer(CommandSourceStack source, ServerComputer computer) {
         var table = new TableBuilder("Dump");
-        table.row(header("Instance"), text(Integer.toString(computer.getInstanceID())));
+        table.row(header("Instance ID"), text(Integer.toString(computer.getInstanceID())));
+        table.row(header("Instance UUID"), text(computer.getInstanceUUID().toString()));
         table.row(header("Id"), text(Integer.toString(computer.getID())));
         table.row(header("Label"), text(computer.getLabel()));
         table.row(header("On"), bool(computer.isOn()));
@@ -332,29 +332,22 @@ public final class CommandComputerCraft {
 
     // Additional helper functions.
 
-    private static Component linkComputer(CommandSourceStack source, @Nullable ServerComputer serverComputer, int computerId) {
+    private static Component linkComputer(CommandSourceStack source, @Nullable ServerComputer computer, int computerId) {
         var out = Component.literal("");
 
-        // Append the computer instance
-        if (serverComputer == null) {
-            out.append(text("?"));
+        // And instance
+        if (computer == null) {
+            out.append("#" + computerId + " ").append(coloured("(unloaded)", ChatFormatting.GRAY));
         } else {
-            out.append(link(
-                text(Integer.toString(serverComputer.getInstanceID())),
-                "/computercraft dump " + serverComputer.getInstanceID(),
-                Component.translatable("commands.computercraft.dump.action")
-            ));
+            out.append(makeComputerDumpCommand(computer));
         }
 
-        // And ID
-        out.append(" (id " + computerId + ")");
-
         // And, if we're a player, some useful links
-        if (serverComputer != null && isPlayer(source)) {
+        if (computer != null && isPlayer(source)) {
             if (ModRegistry.Permissions.PERMISSION_TP.test(source)) {
                 out.append(" ").append(link(
                     text("\u261b"),
-                    "/computercraft tp " + serverComputer.getInstanceID(),
+                    makeComputerCommand("tp", computer),
                     Component.translatable("commands.computercraft.tp.action")
                 ));
             }
@@ -362,7 +355,7 @@ public final class CommandComputerCraft {
             if (ModRegistry.Permissions.PERMISSION_VIEW.test(source)) {
                 out.append(" ").append(link(
                     text("\u20e2"),
-                    "/computercraft view " + serverComputer.getInstanceID(),
+                    makeComputerCommand("view", computer),
                     Component.translatable("commands.computercraft.view.action")
                 ));
             }
@@ -380,7 +373,7 @@ public final class CommandComputerCraft {
         if (ModRegistry.Permissions.PERMISSION_TP.test(context)) {
             return link(
                 position(computer.getPosition()),
-                "/computercraft tp " + computer.getInstanceID(),
+                makeComputerCommand("tp", computer),
                 Component.translatable("commands.computercraft.tp.action")
             );
         } else {
@@ -392,7 +385,7 @@ public final class CommandComputerCraft {
         var file = new File(ServerContext.get(source.getServer()).storageDir().toFile(), "computer/" + id);
         if (!file.isDirectory()) return null;
 
-        return link(
+        return clientLink(
             text("\u270E"),
             "/" + CLIENT_OPEN_FOLDER + " " + id,
             Component.translatable("commands.computercraft.dump.open_path")
@@ -430,5 +423,11 @@ public final class CommandComputerCraft {
 
         table.display(source);
         return timings.size();
+    }
+
+    public static Set<ServerComputer> unwrap(CommandSourceStack source, Collection<ComputerSelector> suppliers) {
+        Set<ServerComputer> computers = new HashSet<>();
+        for (var supplier : suppliers) supplier.find(source).forEach(computers::add);
+        return computers;
     }
 }

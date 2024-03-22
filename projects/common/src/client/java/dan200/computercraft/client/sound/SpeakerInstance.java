@@ -6,12 +6,12 @@ package dan200.computercraft.client.sound;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.core.util.Nullability;
+import dan200.computercraft.shared.peripheral.speaker.EncodedAudio;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
-import java.nio.ByteBuffer;
 
 /**
  * An instance of a speaker, which is either playing a {@link DfpwmStream} stream or a normal sound.
@@ -25,7 +25,7 @@ public class SpeakerInstance {
     SpeakerInstance() {
     }
 
-    private void pushAudio(ByteBuffer buffer) {
+    private void pushAudio(EncodedAudio buffer) {
         var sound = this.sound;
 
         var stream = currentStream;
@@ -43,7 +43,7 @@ public class SpeakerInstance {
         }
     }
 
-    public void playAudio(SpeakerPosition position, float volume, ByteBuffer buffer) {
+    public void playAudio(SpeakerPosition position, float volume, EncodedAudio buffer) {
         pushAudio(buffer);
 
         var soundManager = Minecraft.getInstance().getSoundManager();

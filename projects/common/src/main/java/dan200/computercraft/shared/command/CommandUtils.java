@@ -28,12 +28,12 @@ public final class CommandUtils {
     @SuppressWarnings("unchecked")
     public static CompletableFuture<Suggestions> suggestOnServer(CommandContext<?> context, Function<CommandContext<CommandSourceStack>, CompletableFuture<Suggestions>> supplier) {
         var source = context.getSource();
-        if (!(source instanceof SharedSuggestionProvider)) {
+        if (!(source instanceof SharedSuggestionProvider shared)) {
             return Suggestions.empty();
         } else if (source instanceof CommandSourceStack) {
             return supplier.apply((CommandContext<CommandSourceStack>) context);
         } else {
-            return ((SharedSuggestionProvider) source).customSuggestion(context);
+            return shared.customSuggestion(context);
         }
     }
 

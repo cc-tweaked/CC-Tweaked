@@ -6,6 +6,7 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.core.util.PeripheralHelpers;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.platform.ComponentAccess;
 import net.minecraft.core.BlockPos;
@@ -15,7 +16,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.Map;
 
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
@@ -66,7 +66,7 @@ public final class WiredModemLocalPeripheral {
                 this.id = ServerContext.get(assertNonNull(world.getServer())).getNextId("peripheral." + type);
             }
 
-            return oldPeripheral == null || !oldPeripheral.equals(peripheral);
+            return !PeripheralHelpers.equals(oldPeripheral, peripheral);
         }
     }
 
@@ -86,11 +86,6 @@ public final class WiredModemLocalPeripheral {
         return peripheral != null ? type + "_" + id : null;
     }
 
-    @Nullable
-    public IPeripheral getPeripheral() {
-        return peripheral;
-    }
-
     public boolean hasPeripheral() {
         return peripheral != null;
     }
@@ -100,9 +95,7 @@ public final class WiredModemLocalPeripheral {
     }
 
     public Map<String, IPeripheral> toMap() {
-        return peripheral == null
-            ? Map.of()
-            : Collections.singletonMap(type + "_" + id, peripheral);
+        return peripheral == null ? Map.of() : Map.of(type + "_" + id, peripheral);
     }
 
     public void write(CompoundTag tag, String suffix) {

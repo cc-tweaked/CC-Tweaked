@@ -20,15 +20,19 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.gametest.framework.*
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.Container
+import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.context.UseOnContext
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.entity.BarrelBlockEntity
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.properties.Property
+import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.phys.Vec3
 import org.hamcrest.Matchers
 import org.hamcrest.StringDescription
 
@@ -305,4 +309,17 @@ fun GameTestHelper.setContainerItem(pos: BlockPos, slot: Int, item: ItemStack) {
     val container = getContainerAt(pos)
     container.setItem(slot, item)
     container.setChanged()
+}
+
+/**
+ * An alternative version ot [GameTestHelper.placeAt], which sets the player's held item first.
+ *
+ * This is required for compatibility with Forge, which uses the in-hand stack, rather than the stack requested.
+ */
+fun GameTestHelper.placeItemAt(stack: ItemStack, pos: BlockPos, direction: Direction) {
+    val player = makeMockPlayer()
+    player.setItemInHand(InteractionHand.MAIN_HAND, stack)
+    val absolutePos = absolutePos(pos.relative(direction))
+    val hit = BlockHitResult(Vec3.atCenterOf(absolutePos), direction, absolutePos, false)
+    stack.useOn(UseOnContext(player, InteractionHand.MAIN_HAND, hit))
 }

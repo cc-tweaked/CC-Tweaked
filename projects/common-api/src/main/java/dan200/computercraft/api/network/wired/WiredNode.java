@@ -6,6 +6,7 @@ package dan200.computercraft.api.network.wired;
 
 import dan200.computercraft.api.network.PacketNetwork;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Map;
 
@@ -22,6 +23,7 @@ import java.util.Map;
  * Wired nodes also provide several convenience methods for interacting with a wired network. These should only ever
  * be used on the main server thread.
  */
+@ApiStatus.NonExtendable
 public interface WiredNode extends PacketNetwork {
     /**
      * The associated element for this network node.
@@ -37,7 +39,9 @@ public interface WiredNode extends PacketNetwork {
      * This should only be used on the server thread.
      *
      * @return This node's network.
+     * @deprecated Use the connect/disconnect/remove methods on {@link WiredNode}.
      */
+    @Deprecated
     WiredNetwork getNetwork();
 
     /**
@@ -47,12 +51,9 @@ public interface WiredNode extends PacketNetwork {
      *
      * @param node The other node to connect to.
      * @return {@code true} if a connection was created or {@code false} if the connection already exists.
-     * @see WiredNetwork#connect(WiredNode, WiredNode)
      * @see WiredNode#disconnectFrom(WiredNode)
      */
-    default boolean connectTo(WiredNode node) {
-        return getNetwork().connect(this, node);
-    }
+    boolean connectTo(WiredNode node);
 
     /**
      * Destroy a connection between this node and another.
@@ -61,13 +62,9 @@ public interface WiredNode extends PacketNetwork {
      *
      * @param node The other node to disconnect from.
      * @return {@code true} if a connection was destroyed or {@code false} if no connection exists.
-     * @throws IllegalArgumentException If {@code node} is not on the same network.
-     * @see WiredNetwork#disconnect(WiredNode, WiredNode)
      * @see WiredNode#connectTo(WiredNode)
      */
-    default boolean disconnectFrom(WiredNode node) {
-        return getNetwork().disconnect(this, node);
-    }
+    boolean disconnectFrom(WiredNode node);
 
     /**
      * Sever all connections this node has, removing it from this network.
@@ -78,11 +75,8 @@ public interface WiredNode extends PacketNetwork {
      * @return Whether this node was removed from the network. One cannot remove a node from a network where it is the
      * only element.
      * @throws IllegalArgumentException If the node is not in the network.
-     * @see WiredNetwork#remove(WiredNode)
      */
-    default boolean remove() {
-        return getNetwork().remove(this);
-    }
+    boolean remove();
 
     /**
      * Mark this node's peripherals as having changed.
@@ -91,9 +85,6 @@ public interface WiredNode extends PacketNetwork {
      * that your network element owns.
      *
      * @param peripherals The new peripherals for this node.
-     * @see WiredNetwork#updatePeripherals(WiredNode, Map)
      */
-    default void updatePeripherals(Map<String, IPeripheral> peripherals) {
-        getNetwork().updatePeripherals(this, peripherals);
-    }
+    void updatePeripherals(Map<String, IPeripheral> peripherals);
 }

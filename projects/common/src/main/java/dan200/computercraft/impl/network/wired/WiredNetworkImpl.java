@@ -8,6 +8,7 @@ import dan200.computercraft.api.network.Packet;
 import dan200.computercraft.api.network.wired.WiredNetwork;
 import dan200.computercraft.api.network.wired.WiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.core.util.Nullability;
 
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -187,10 +188,76 @@ final class WiredNetworkImpl implements WiredNetwork {
                 return true;
             }
 
-            var reachable = reachableNodes(neighbours.iterator().next());
+            assert neighbours.size() >= 2 : "Must have more than one neighbour.";
 
-            // If all nodes are reachable then exit.
-            if (reachable.size() == nodes.size()) {
+            /*
+             Otherwise we need to find all sets of connected nodes within the graph, and split them off into their own
+             networks.
+
+             With our current graph representation[^1], this requires a traversal of the graph, taking O(|V| + |E))
+             time, which can get quite expensive for large graphs. We try to avoid this traversal where possible, by
+             optimising for the case where the graph remains fully connected after removing this node, for instance,
+             removing "A" here:
+
+               A---B            B
+               |   |    =>      |
+               C---D        C---D
+
+             We observe that these sorts of loops tend to be local, and so try to identify them as quickly as possible.
+             To do this, we do a standard breadth-first traversal of the graph starting at the neighbours of the
+             removed node, building sets of connected nodes.
+
+             If, at any point, all nodes visited so far are connected to each other, then we know all remaining nodes
+             will also be connected. This allows us to abort our traversal of the graph, and just remove the node (much
+             like we do in the single neighbour case above).
+
+             Otherwise, we then just create a new network for each disjoint set of connected nodes.
+
+             {^1]:
+               There are efficient (near-logarithmic) algorithms for this (e.g. https://arxiv.org/pdf/1609.05867.pdf),
+               but they are significantly more complex to implement.
+            */
+
+            // Create a new set of nodes for each neighbour, and add them to our queue of nodes to visit.
+            List<WiredNodeImpl> queue = new ArrayList<>();
+            Set<NodeSet> nodeSets = new HashSet<>(neighbours.size());
+            for (var neighbour : neighbours) {
+                nodeSets.add(neighbour.currentSet = new NodeSet());
+                queue.add(neighbour);
+            }
+
+            // Perform a breadth-first search of the graph, starting from the neighbours.
+            graphSearch:
+            for (var i = 0; i < queue.size(); i++) {
+                var enqueuedNode = queue.get(i);
+                for (var neighbour : enqueuedNode.neighbours) {
+                    var nodeSet = Nullability.assertNonNull(enqueuedNode.currentSet).find();
+
+                    // The neighbour has no set and so has not been visited yet. Add it to the current set and enqueue
+                    // it to be visited.
+                    if (neighbour.currentSet == null) {
+                        nodeSet.addNode(neighbour);
+                        queue.add(neighbour);
+                        continue;
+                    }
+
+                    // Otherwise, take the union of the two nodes' sets if needed. If we've only got a single node set
+                    // left, then we know the whole graph is network is connected (even if not all nodes have been
+                    // visited) and so can abort early.
+                    var neighbourSet = neighbour.currentSet.find();
+                    if (nodeSet != neighbourSet) {
+                        var removed = nodeSets.remove(NodeSet.merge(nodeSet, neighbourSet));
+                        assert removed : "Merged set should have been ";
+                        if (nodeSets.size() == 1) break graphSearch;
+                    }
+                }
+            }
+
+            // If we have a single subset, then all nodes are reachable - just clear the set and exit.
+            if (nodeSets.size() == 1) {
+                assert nodeSets.iterator().next().size() == queue.size();
+                for (var neighbour : queue) neighbour.currentSet = null;
+
                 // Broadcast our simple peripheral changes
                 removeSingleNode(wired, wiredNetwork);
                 InvariantChecker.checkNode(wired);
@@ -198,43 +265,46 @@ final class WiredNetworkImpl implements WiredNetwork {
                 return true;
             }
 
-            // A split may cause 2..neighbours.size() separate networks, so we
-            // iterate through our neighbour list, generating child networks.
-            neighbours.removeAll(reachable);
-            var maximals = new ArrayList<WiredNetworkImpl>(neighbours.size() + 1);
-            maximals.add(wiredNetwork);
-            maximals.add(new WiredNetworkImpl(reachable));
+            assert queue.size() == nodes.size() : "Expected queue to contain all nodes.";
 
-            while (!neighbours.isEmpty()) {
-                reachable = reachableNodes(neighbours.iterator().next());
-                neighbours.removeAll(reachable);
-                maximals.add(new WiredNetworkImpl(reachable));
+            // Otherwise we need to create our new networks.
+            var networks = new ArrayList<WiredNetworkImpl>(1 + nodeSets.size());
+            // Add the network we've created for the removed node.
+            networks.add(wiredNetwork);
+            //  And then create a new network for each disjoint subset.
+            for (var set : nodeSets) {
+                var network = new WiredNetworkImpl(new HashSet<>(set.size()));
+                set.setNetwork(network);
+                networks.add(network);
             }
 
-            for (var network : maximals) network.lock.writeLock().lock();
+            for (var network : networks) network.lock.writeLock().lock();
 
             try {
                 // We special case the original node: detaching all peripherals when needed.
                 wired.network = wiredNetwork;
                 wired.peripherals = Map.of();
+                wired.neighbours.clear();
 
-                // Ensure every network is finalised
-                for (var network : maximals) {
-                    for (var child : network.nodes) {
-                        child.network = network;
-                        network.peripherals.putAll(child.peripherals);
-                    }
+                // Add all nodes to their appropriate network.
+                for (var child : queue) {
+                    var network = Nullability.assertNonNull(child.currentSet).network();
+                    child.currentSet = null;
+
+                    child.network = network;
+                    network.nodes.add(child);
+                    network.peripherals.putAll(child.peripherals);
                 }
 
-                for (var network : maximals) InvariantChecker.checkNetwork(network);
+                for (var network : networks) InvariantChecker.checkNetwork(network);
                 InvariantChecker.checkNode(wired);
 
                 // Then broadcast network changes once all nodes are finalised
-                for (var network : maximals) {
+                for (var network : networks) {
                     WiredNetworkChangeImpl.changeOf(peripherals, network.peripherals).broadcast(network.nodes);
                 }
             } finally {
-                for (var network : maximals) network.lock.writeLock().unlock();
+                for (var network : networks) network.lock.writeLock().unlock();
             }
 
             nodes.clear();
@@ -372,23 +442,5 @@ final class WiredNetworkImpl implements WiredNetwork {
         } else {
             throw new IllegalArgumentException("Unknown implementation of IWiredNode: " + node);
         }
-    }
-
-    private static Set<WiredNodeImpl> reachableNodes(WiredNodeImpl start) {
-        Queue<WiredNodeImpl> enqueued = new ArrayDeque<>();
-        var reachable = new HashSet<WiredNodeImpl>();
-
-        reachable.add(start);
-        enqueued.add(start);
-
-        WiredNodeImpl node;
-        while ((node = enqueued.poll()) != null) {
-            for (var neighbour : node.neighbours) {
-                // Otherwise attempt to enqueue this neighbour as well.
-                if (reachable.add(neighbour)) enqueued.add(neighbour);
-            }
-        }
-
-        return reachable;
     }
 }

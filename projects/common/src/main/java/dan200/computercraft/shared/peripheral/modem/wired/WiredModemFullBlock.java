@@ -7,12 +7,14 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -49,13 +51,27 @@ public class WiredModemFullBlock extends Block implements EntityBlock {
 
     @Override
     @Deprecated
-    public final void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos, boolean isMoving) {
-        if (world.getBlockEntity(pos) instanceof WiredModemFullBlockEntity modem) modem.neighborChanged(neighbourPos);
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+        if (state.getValue(PERIPHERAL_ON) && level.getBlockEntity(pos) instanceof WiredModemFullBlockEntity modem) {
+            modem.queueRefreshPeripheral(direction);
+        }
+
+        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+    }
+
+    @Override
+    @Deprecated
+    public final void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos, boolean isMoving) {
+        if (state.getValue(PERIPHERAL_ON) && level.getBlockEntity(pos) instanceof WiredModemFullBlockEntity modem) {
+            modem.neighborChanged(neighbourPos);
+        }
     }
 
     @ForgeOverride
-    public final void onNeighborChange(BlockState state, LevelReader world, BlockPos pos, BlockPos neighbour) {
-        if (world.getBlockEntity(pos) instanceof WiredModemFullBlockEntity modem) modem.neighborChanged(neighbour);
+    public final void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbour) {
+        if (state.getValue(PERIPHERAL_ON) && level.getBlockEntity(pos) instanceof WiredModemFullBlockEntity modem) {
+            modem.neighborChanged(neighbour);
+        }
     }
 
     @Override

@@ -11,6 +11,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.NotAttachedException;
 import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.core.computer.GuardedLuaContext;
 import dan200.computercraft.core.methods.MethodSupplier;
 import dan200.computercraft.core.methods.PeripheralMethod;
 import dan200.computercraft.core.metrics.Metrics;
@@ -26,7 +27,7 @@ import java.util.*;
  * @hidden
  */
 public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChangeListener {
-    private class PeripheralWrapper extends ComputerAccess {
+    private class PeripheralWrapper extends ComputerAccess implements GuardedLuaContext.Guard {
         private final String side;
         private final IPeripheral peripheral;
 
@@ -34,6 +35,8 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         private final Set<String> additionalTypes;
         private final Map<String, PeripheralMethod> methodMap;
         private boolean attached = false;
+
+        private @Nullable GuardedLuaContext contextWrapper;
 
         PeripheralWrapper(IPeripheral peripheral, String side) {
             super(environment);
@@ -91,9 +94,21 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
 
             if (method == null) throw new LuaException("No such method " + methodName);
 
-            try (var ignored = environment.time(Metrics.PERIPHERAL_OPS)) {
-                return method.apply(peripheral, context, this, arguments);
+            // Wrap the ILuaContext. We try to reuse the previous context where possible to avoid allocations - this
+            // should be pretty common as ILuaMachine uses a constant context.
+            var contextWrapper = this.contextWrapper;
+            if (contextWrapper == null || !contextWrapper.wraps(context)) {
+                contextWrapper = this.contextWrapper = new GuardedLuaContext(context, this);
             }
+
+            try (var ignored = environment.time(Metrics.PERIPHERAL_OPS)) {
+                return method.apply(peripheral, contextWrapper, this, arguments);
+            }
+        }
+
+        @Override
+        public boolean checkValid() {
+            return isAttached();
         }
 
         // IComputerAccess implementation

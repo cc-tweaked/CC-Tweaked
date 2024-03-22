@@ -24,6 +24,7 @@ import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemBlockE
 import dan200.computercraft.shared.platform.FabricConfigFile;
 import dan200.computercraft.shared.platform.FabricMessageType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
@@ -101,6 +102,7 @@ public class ComputerCraft {
 
         ServerTickEvents.START_SERVER_TICK.register(CommonHooks::onServerTickStart);
         ServerTickEvents.START_SERVER_TICK.register(s -> CommonHooks.onServerTickEnd());
+        ServerChunkEvents.CHUNK_UNLOAD.register((l, c) -> CommonHooks.onServerChunkUnload(c));
 
         PlayerBlockBreakEvents.BEFORE.register(FabricCommonHooks::onBlockDestroy);
         UseBlockCallback.EVENT.register(FabricCommonHooks::useOnBlock);

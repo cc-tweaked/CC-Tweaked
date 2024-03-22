@@ -312,6 +312,11 @@ public class PlatformHelperImpl implements PlatformHelper {
         return event.getUseItem() == Event.Result.DENY ? InteractionResult.PASS : stack.useOn(context);
     }
 
+    @Override
+    public boolean canClickRunClientCommand() {
+        return false;
+    }
+
     private record RegistrationHelperImpl<R>(DeferredRegister<R> registry) implements RegistrationHelper<R> {
         @Override
         public <T extends R> RegistryEntry<T> register(String name, Supplier<T> create) {

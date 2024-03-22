@@ -22,6 +22,7 @@ import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.common.IColouredItem;
+import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import dan200.computercraft.shared.computer.inventory.ViewComputerMenu;
@@ -81,13 +82,18 @@ public final class ClientRegistry {
 
     /**
      * Register any client-side objects which must be done on the main thread.
+     *
+     * @param itemProperties Callback to register item properties.
      */
-    public static void registerMainThread() {
-        registerItemProperty("state",
-            new UnclampedPropertyFunction((stack, world, player, random) -> ClientPocketComputers.get(stack).getState().ordinal()),
+    public static void registerMainThread(RegisterItemProperty itemProperties) {
+        registerItemProperty(itemProperties, "state",
+            new UnclampedPropertyFunction((stack, world, player, random) -> {
+                var computer = ClientPocketComputers.get(stack);
+                return (computer == null ? ComputerState.OFF : computer.getState()).ordinal();
+            }),
             ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED
         );
-        registerItemProperty("coloured",
+        registerItemProperty(itemProperties, "coloured",
             (stack, world, player, random) -> IColouredItem.getColourBasic(stack) != -1 ? 1 : 0,
             ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED
         );
@@ -125,9 +131,17 @@ public final class ClientRegistry {
     }
 
     @SafeVarargs
-    private static void registerItemProperty(String name, ClampedItemPropertyFunction getter, Supplier<? extends Item>... items) {
+    private static void registerItemProperty(RegisterItemProperty itemProperties, String name, ClampedItemPropertyFunction getter, Supplier<? extends Item>... items) {
         var id = new ResourceLocation(ComputerCraftAPI.MOD_ID, name);
-        for (var item : items) ItemProperties.register(item.get(), id, getter);
+        for (var item : items) itemProperties.register(item.get(), id, getter);
+    }
+
+    /**
+     * Register an item property via {@link ItemProperties#register}. Forge and Fabric expose different methods, so we
+     * supply this via mod-loader-specific code.
+     */
+    public interface RegisterItemProperty {
+        void register(Item item, ResourceLocation name, ClampedItemPropertyFunction property);
     }
 
     public static void registerReloadListeners(Consumer<PreparableReloadListener> register, Minecraft minecraft) {
@@ -165,17 +179,14 @@ public final class ClientRegistry {
     }
 
     private static int getPocketColour(ItemStack stack, int layer) {
-        switch (layer) {
-            case 0:
-            default:
-                return 0xFFFFFF;
-            case 1: // Frame colour
-                return IColouredItem.getColourBasic(stack);
-            case 2: { // Light colour
-                var light = ClientPocketComputers.get(stack).getLightState();
-                return light == -1 ? Colour.BLACK.getHex() : light;
+        return switch (layer) {
+            default -> 0xFFFFFF;
+            case 1 -> IColouredItem.getColourBasic(stack); // Frame colour
+            case 2 -> { // Light colour
+                var computer = ClientPocketComputers.get(stack);
+                yield computer == null || computer.getLightState() == -1 ? Colour.BLACK.getHex() : computer.getLightState();
             }
-        }
+        };
     }
 
     private static int getTurtleColour(ItemStack stack, int layer) {

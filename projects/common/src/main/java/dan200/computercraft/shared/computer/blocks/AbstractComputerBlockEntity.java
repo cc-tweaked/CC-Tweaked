@@ -36,13 +36,14 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
+import java.util.UUID;
 
 public abstract class AbstractComputerBlockEntity extends BlockEntity implements IComputerBlockEntity, Nameable, MenuProvider {
     private static final String NBT_ID = "ComputerId";
     private static final String NBT_LABEL = "Label";
     private static final String NBT_ON = "On";
 
-    private int instanceID = -1;
+    private @Nullable UUID instanceID = null;
     private int computerID = -1;
     protected @Nullable String label = null;
     private boolean on = false;
@@ -66,7 +67,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
 
         var computer = getServerComputer();
         if (computer != null) computer.close();
-        instanceID = -1;
+        instanceID = null;
     }
 
     @Override
@@ -113,19 +114,16 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         return InteractionResult.PASS;
     }
 
-    public void neighborChanged(BlockPos neighbour) {
-        updateInputAt(neighbour);
-    }
-
     protected void serverTick() {
         if (getLevel().isClientSide) return;
         if (computerID < 0 && !startOn) return; // Don't tick if we don't need a computer!
 
         var computer = createServerComputer();
 
+        // Update any peripherals that have changed.
         if (invalidSides != 0) {
             for (var direction : DirectionUtil.FACINGS) {
-                if ((invalidSides & (1 << direction.ordinal())) != 0) refreshPeripheral(computer, direction);
+                if (DirectionUtil.isSet(invalidSides, direction)) refreshPeripheral(computer, direction);
             }
         }
 
@@ -139,16 +137,30 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
 
         fresh = false;
         computerID = computer.getID();
-        label = computer.getLabel();
-        on = computer.isOn();
 
-        // Update the block state if needed. We don't fire a block update intentionally,
-        // as this only really is needed on the client side.
+        // If the on state has changed, mark as as dirty.
+        var newOn = computer.isOn();
+        if (on != newOn) {
+            on = newOn;
+            setChanged();
+        }
+
+        // If the label has changed, mark as dirty and sync to client.
+        var newLabel = computer.getLabel();
+        if (!Objects.equals(label, newLabel)) {
+            label = newLabel;
+            BlockEntityHelpers.updateBlock(this);
+        }
+
+        // Update the block state if needed.
         updateBlockState(computer.getState());
 
-        // TODO: This should ideally be split up into label/id/on (which should save NBT and sync to client) and
-        //  redstone (which should update outputs)
-        if (computer.hasOutputChanged()) updateOutput();
+        var changes = computer.pollAndResetChanges();
+        if (changes != 0) {
+            for (var direction : DirectionUtil.FACINGS) {
+                if ((changes & (1 << remapToLocalSide(direction).ordinal())) != 0) updateRedstoneTo(direction);
+            }
+        }
     }
 
     protected abstract void updateBlockState(ComputerState newState);
@@ -198,11 +210,15 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         return localSide;
     }
 
-    private void updateRedstoneInputs(ServerComputer computer) {
-        var pos = getBlockPos();
-        for (var dir : DirectionUtil.FACINGS) updateRedstoneInput(computer, dir, pos.relative(dir));
-    }
-
+    /**
+     * Update the redstone input on a particular side.
+     * <p>
+     * This is called <em>immediately</em> when a neighbouring block changes (see {@link #neighborChanged(BlockPos)}).
+     *
+     * @param computer  The current server computer.
+     * @param dir       The direction to update in.
+     * @param targetPos The position of the adjacent block, equal to {@code getBlockPos().offset(dir)}.
+     */
     private void updateRedstoneInput(ServerComputer computer, Direction dir, BlockPos targetPos) {
         var offsetSide = dir.getOpposite();
         var localDir = remapToLocalSide(dir);
@@ -211,6 +227,15 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         computer.setBundledRedstoneInput(localDir, BundledRedstone.getOutput(getLevel(), targetPos, offsetSide));
     }
 
+    /**
+     * Update the peripheral on a particular side.
+     * <p>
+     * This is called from {@link #serverTick()}, after a peripheral has been marked as invalid (such as in
+     * {@link #neighborChanged(BlockPos)})
+     *
+     * @param computer The current server computer.
+     * @param dir      The direction to update in.
+     */
     private void refreshPeripheral(ServerComputer computer, Direction dir) {
         invalidSides &= ~(1 << dir.ordinal());
 
@@ -243,7 +268,18 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         }
     }
 
-    private void updateInputAt(BlockPos neighbour) {
+    /**
+     * Called when a neighbour block changes.
+     * <p>
+     * This finds the side the neighbour block is on, and updates the inputs accordingly.
+     * <p>
+     * We do <strong>NOT</strong> update the peripheral immediately. Blocks and block entities are sometimes
+     * inconsistent at the point where an update is received, and so we instead just mark that side as dirty (see
+     * {@link #invalidSides}) and refresh it {@linkplain #serverTick() next tick}.
+     *
+     * @param neighbour The position of the neighbour block.
+     */
+    public void neighborChanged(BlockPos neighbour) {
         var computer = getServerComputer();
         if (computer == null) return;
 
@@ -258,22 +294,39 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
 
         // If the position is not any adjacent one, update all inputs. This is pretty terrible, but some redstone mods
         // handle this incorrectly.
-        updateRedstoneInputs(computer);
-        invalidSides = (1 << 6) - 1; // Mark all peripherals as dirty.
+        for (var dir : DirectionUtil.FACINGS) updateRedstoneInput(computer, dir, getBlockPos().relative(dir));
+        invalidSides = DirectionUtil.ALL_SIDES; // Mark all peripherals as dirty.
     }
 
     /**
-     * Update the block's state and propagate redstone output.
+     * Called when a neighbour block's shape changes.
+     * <p>
+     * Unlike {@link #neighborChanged(BlockPos)}, we don't update redstone, only peripherals.
+     *
+     * @param direction The side that changed.
      */
-    public void updateOutput() {
-        BlockEntityHelpers.updateBlock(this);
-        for (var dir : DirectionUtil.FACINGS) RedstoneUtil.propagateRedstoneOutput(getLevel(), getBlockPos(), dir);
-
-        var computer = getServerComputer();
-        if (computer != null) updateRedstoneInputs(computer);
+    public void neighbourShapeChanged(Direction direction) {
+        invalidSides |= 1 << direction.ordinal();
     }
 
-    protected abstract ServerComputer createComputer(int id);
+    /**
+     * Update outputs in a specific direction.
+     *
+     * @param direction The direction to propagate outputs in.
+     */
+    protected void updateRedstoneTo(Direction direction) {
+        RedstoneUtil.propagateRedstoneOutput(getLevel(), getBlockPos(), direction);
+
+        var computer = getServerComputer();
+        if (computer != null) updateRedstoneInput(computer, direction, getBlockPos().relative(direction));
+    }
+
+    /**
+     * Update all redstone outputs.
+     */
+    public void updateRedstone() {
+        for (var dir : DirectionUtil.FACINGS) updateRedstoneTo(dir);
+    }
 
     @Override
     public final int getComputerID() {
@@ -331,6 +384,8 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         return computer;
     }
 
+    protected abstract ServerComputer createComputer(int id);
+
     @Nullable
     public ServerComputer getServerComputer() {
         return getLevel().isClientSide || getLevel().getServer() == null ? null : ServerContext.get(getLevel().getServer()).registry().get(instanceID);
@@ -358,7 +413,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     }
 
     protected void transferStateFrom(AbstractComputerBlockEntity copy) {
-        if (copy.computerID != computerID || copy.instanceID != instanceID) {
+        if (copy.computerID != computerID || !Objects.equals(copy.instanceID, instanceID)) {
             unload();
             instanceID = copy.instanceID;
             computerID = copy.computerID;
@@ -368,7 +423,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
             lockCode = copy.lockCode;
             BlockEntityHelpers.updateBlock(this);
         }
-        copy.instanceID = -1;
+        copy.instanceID = null;
     }
 
     @Override

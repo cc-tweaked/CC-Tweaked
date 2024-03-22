@@ -105,7 +105,6 @@ internal class SideProvider {
     companion object {
         private val notClientPackages = listOf(
             // Ugly! But we do what we must.
-            "net.fabricmc.fabric.api.client.itemgroup",
             "dan200.computercraft.shared.network.client",
         )
 

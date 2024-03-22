@@ -411,7 +411,6 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
 
             // Initialisation has finished, so let's mark ourselves as on.
             isOn = true;
-            computer.markChanged();
         } finally {
             isOnLock.unlock();
         }
@@ -446,7 +445,6 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
             }
 
             computer.getEnvironment().resetOutput();
-            computer.markChanged();
         } finally {
             isOnLock.unlock();
         }

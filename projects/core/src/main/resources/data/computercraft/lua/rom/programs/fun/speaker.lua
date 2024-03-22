@@ -50,7 +50,7 @@ elseif cmd == "play" then
         print("Downloading...")
         handle, err = http.get(file)
     else
-        handle, err = fs.open(file, "r")
+        handle, err = fs.open(shell.resolve(file), "r")
     end
 
     if not handle then

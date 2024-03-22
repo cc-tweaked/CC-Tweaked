@@ -19,7 +19,6 @@ import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.command.UserLevel;
 import dan200.computercraft.shared.command.arguments.ComputerArgumentType;
-import dan200.computercraft.shared.command.arguments.ComputersArgumentType;
 import dan200.computercraft.shared.command.arguments.RepeatArgumentType;
 import dan200.computercraft.shared.command.arguments.TrackingFieldArgumentType;
 import dan200.computercraft.shared.common.ClearColourRecipe;
@@ -338,8 +337,7 @@ public final class ModRegistry {
 
         static {
             register("tracking_field", TrackingFieldArgumentType.class, TrackingFieldArgumentType.metric());
-            register("computer", ComputerArgumentType.class, ComputerArgumentType.oneComputer());
-            register("computers", ComputersArgumentType.class, new ComputersArgumentType.Info());
+            register("computer", ComputerArgumentType.class, ComputerArgumentType.get());
             registerUnsafe("repeat", RepeatArgumentType.class, new RepeatArgumentType.Info());
         }
     }

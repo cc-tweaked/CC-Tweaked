@@ -65,7 +65,7 @@ public class ComputerThreadRunner implements AutoCloseable {
             } finally {
                 errorLock.unlock();
             }
-        } while (worker.executed == 0 || thread.hasPendingWork());
+        } while (!worker.executed || thread.hasPendingWork());
     }
 
     @GuardedBy("errorLock")
@@ -87,7 +87,7 @@ public class ComputerThreadRunner implements AutoCloseable {
         private final Task run;
         private final ComputerScheduler.Executor executor;
         private long[] totals = new long[16];
-        volatile int executed = 0;
+        private volatile boolean executed = false;
 
         private Worker(ComputerScheduler scheduler, Task run) {
             this.run = run;
@@ -102,7 +102,7 @@ public class ComputerThreadRunner implements AutoCloseable {
         public void work() {
             try {
                 run.run(executor);
-                executed++;
+                executed = true;
             } catch (Throwable e) {
                 errorLock.lock();
                 try {

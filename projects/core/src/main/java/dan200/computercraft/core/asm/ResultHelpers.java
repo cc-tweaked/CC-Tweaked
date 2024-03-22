@@ -27,7 +27,7 @@ final class ResultHelpers {
         return throwUnchecked0(t);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "TypeParameterUnusedInFormals" })
     private static <T extends Throwable> T throwUnchecked0(Throwable t) throws T {
         throw (T) t;
     }

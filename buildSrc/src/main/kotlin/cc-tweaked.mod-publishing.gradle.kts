@@ -32,7 +32,7 @@ val publishCurseForge by tasks.registering(TaskPublishCurseForge::class) {
     apiToken = findProperty("curseForgeApiKey") ?: ""
     enabled = apiToken != ""
 
-    val mainFile = upload("282001", modPublishing.output.get().archiveFile)
+    val mainFile = upload("282001", modPublishing.output)
     mainFile.changelog =
         "Release notes can be found on the [GitHub repository](https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v$mcVersion-$modVersion)."
     mainFile.changelogType = "markdown"

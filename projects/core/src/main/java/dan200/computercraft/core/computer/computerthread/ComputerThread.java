@@ -518,6 +518,7 @@ public final class ComputerThread implements ComputerScheduler {
             } else {
                 allocations = null;
             }
+            var allocationTime = System.nanoTime();
 
             for (var i = 0; i < workers.length; i++) {
                 var runner = workers[i];
@@ -532,7 +533,7 @@ public final class ComputerThread implements ComputerScheduler {
 
                 // And track the allocated memory.
                 if (allocations != null) {
-                    executor.updateAllocations(new ThreadAllocation(workerThreadIds[i], allocations[i]));
+                    executor.updateAllocations(new ThreadAllocation(workerThreadIds[i], allocations[i], allocationTime));
                 }
 
                 // If we're still within normal execution times (TIMEOUT) or soft abort (ABORT_TIMEOUT),
@@ -814,7 +815,7 @@ public final class ComputerThread implements ComputerScheduler {
 
             if (ThreadAllocations.isSupported()) {
                 var current = Thread.currentThread().getId();
-                THREAD_ALLOCATION.set(this, new ThreadAllocation(current, ThreadAllocations.getAllocatedBytes(current)));
+                THREAD_ALLOCATION.set(this, new ThreadAllocation(current, ThreadAllocations.getAllocatedBytes(current), System.nanoTime()));
             }
         }
 
@@ -832,11 +833,20 @@ public final class ComputerThread implements ComputerScheduler {
                 var info = THREAD_ALLOCATION.getAndSet(this, null);
                 assert info.threadId() == current;
 
-                var allocated = ThreadAllocations.getAllocatedBytes(current) - info.allocatedBytes();
+                var allocatedTotal = ThreadAllocations.getAllocatedBytes(current);
+                var allocated = allocatedTotal - info.allocatedBytes();
                 if (allocated > 0) {
                     metrics.observe(Metrics.JAVA_ALLOCATION, allocated);
                 } else if (allocated < 0) {
-                    LOG.warn("Allocated a negative number of bytes ({})!", allocated);
+                    LOG.warn(
+                        """
+                            Allocated a negative number of bytes ({})!
+                                Previous measurement at t={} on Thread #{} = {}
+                                 Current measurement at t={} on Thread #{} = {}""",
+                        allocated,
+                        info.time(), info.threadId(), info.allocatedBytes(),
+                        System.nanoTime(), current, allocatedTotal
+                    );
                 }
             }
 
@@ -901,7 +911,8 @@ public final class ComputerThread implements ComputerScheduler {
      *
      * @param threadId       The ID of this thread.
      * @param allocatedBytes The amount of memory this thread has allocated.
+     * @param time           The time (in nanoseconds) when this time was computed.
      */
-    private record ThreadAllocation(long threadId, long allocatedBytes) {
+    private record ThreadAllocation(long threadId, long allocatedBytes, long time) {
     }
 }

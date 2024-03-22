@@ -4,6 +4,8 @@
 
 package dan200.computercraft.shared.command.text;
 
+import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.ClickEvent;
@@ -53,6 +55,13 @@ public final class ChatHelpers {
         return link(component, new ClickEvent(ClickEvent.Action.RUN_COMMAND, command), toolTip);
     }
 
+    public static Component clientLink(MutableComponent component, String command, Component toolTip) {
+        var event = PlatformHelper.get().canClickRunClientCommand()
+            ? new ClickEvent(ClickEvent.Action.RUN_COMMAND, command)
+            : new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command);
+        return link(component, event, toolTip);
+    }
+
     public static Component link(Component component, ClickEvent click, Component toolTip) {
         var style = component.getStyle();
 
@@ -71,6 +80,18 @@ public final class ChatHelpers {
         return Component.literal(text).withStyle(s -> s
             .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, text))
             .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("gui.computercraft.tooltip.copy")))
+        );
+    }
+
+    public static String makeComputerCommand(String command, ServerComputer computer) {
+        return String.format("/computercraft %s @c[instance=%s]", command, computer.getInstanceUUID());
+    }
+
+    public static Component makeComputerDumpCommand(ServerComputer computer) {
+        return link(
+            text("#" + computer.getID()),
+            makeComputerCommand("dump", computer),
+            Component.translatable("commands.computercraft.dump.action")
         );
     }
 }

@@ -8,6 +8,7 @@ import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.computer.upload.UploadResult;
+import dan200.computercraft.shared.peripheral.speaker.EncodedAudio;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -15,7 +16,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 
 import javax.annotation.Nullable;
-import java.nio.ByteBuffer;
 import java.util.UUID;
 
 /**
@@ -30,11 +30,11 @@ public interface ClientNetworkContext {
 
     void handlePlayRecord(BlockPos pos, @Nullable SoundEvent sound, @Nullable String name);
 
-    void handlePocketComputerData(int instanceId, ComputerState state, int lightState, TerminalState terminal);
+    void handlePocketComputerData(UUID instanceId, ComputerState state, int lightState, TerminalState terminal);
 
-    void handlePocketComputerDeleted(int instanceId);
+    void handlePocketComputerDeleted(UUID instanceId);
 
-    void handleSpeakerAudio(UUID source, SpeakerPosition.Message position, float volume, ByteBuffer audio);
+    void handleSpeakerAudio(UUID source, SpeakerPosition.Message position, float volume, EncodedAudio audio);
 
     void handleSpeakerMove(UUID source, SpeakerPosition.Message position);
 

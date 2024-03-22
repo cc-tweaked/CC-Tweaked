@@ -13,6 +13,7 @@ import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.command.arguments.ComputerSelector;
 import dan200.computercraft.shared.computer.metrics.basic.Aggregate;
 import dan200.computercraft.shared.computer.metrics.basic.AggregatedMetric;
 import dan200.computercraft.shared.config.ConfigFile;
@@ -165,10 +166,19 @@ public final class LanguageProvider implements DataProvider {
         add("commands.computercraft.generic.exception", "Unhandled exception (%s)");
         add("commands.computercraft.generic.additional_rows", "%d additional rows…");
 
+        // Argument types
+        add("argument.computercraft.computer.instance", "Unique instance ID");
+        add("argument.computercraft.computer.id", "Computer ID");
+        add("argument.computercraft.computer.label", "Computer label");
+        add("argument.computercraft.computer.distance", "Distance to entity");
+        add("argument.computercraft.computer.family", "Computer family");
+
+        // Exceptions
         add("argument.computercraft.computer.no_matching", "No computers matching '%s'");
         add("argument.computercraft.computer.many_matching", "Multiple computers matching '%s' (instances %s)");
         add("argument.computercraft.tracking_field.no_field", "Unknown field '%s'");
         add("argument.computercraft.argument_expected", "Argument expected");
+        add("argument.computercraft.unknown_computer_family", "Unknown computer family '%s'");
 
         // Metrics
         add(Metrics.COMPUTER_TASKS, "Tasks");
@@ -281,7 +291,8 @@ public final class LanguageProvider implements DataProvider {
             pocketUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),
             Metric.metrics().values().stream().map(x -> AggregatedMetric.TRANSLATION_PREFIX + x.name() + ".name"),
             ConfigSpec.serverSpec.entries().map(ConfigFile.Entry::translationKey),
-            ConfigSpec.clientSpec.entries().map(ConfigFile.Entry::translationKey)
+            ConfigSpec.clientSpec.entries().map(ConfigFile.Entry::translationKey),
+            ComputerSelector.options().values().stream().map(ComputerSelector.Option::translationKey)
         ).flatMap(x -> x);
     }
 

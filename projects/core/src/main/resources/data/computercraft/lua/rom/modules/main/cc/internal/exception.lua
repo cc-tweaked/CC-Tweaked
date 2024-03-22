@@ -26,13 +26,51 @@ local function find_frame(thread, file, line)
     end
 end
 
+--[[- Check whether this error is an exception.
+
+Currently we don't provide a stable API for throwing (and propogating) rich
+errors, like those supported by this module. In lieu of that, we describe the
+exception protocol, which may be used by user-written coroutine managers to
+throw exceptions which are pretty-printed by the shell:
+
+An exception is any table with:
+ - The `"exception"` type
+ - A string `message` field,
+ - And a coroutine `thread` fields.
+
+To throw such an exception, the inner loop of your coroutine manager may look
+something like this:
+
+```lua
+local ok, result = coroutine.resume(co, table.unpack(event, 1, event.n))
+if not ok then
+    -- Rethrow non-string errors directly
+    if type(result) ~= "string" then error(result, 0) end
+    -- Otherwise, wrap it into an exception.
+    error(setmetatable({ message = result, thread = co }, {
+        __name = "exception",
+        __tostring = function(self) return self.message end,
+    }))
+end
+```
+
+@param exn Some error object
+@treturn boolean Whether this error is an exception.
+]]
+local function is_exception(exn)
+    if type(exn) ~= "table" then return false end
+
+    local mt = getmetatable(exn)
+    return mt and mt.__name == "exception" and type(rawget(exn, "message")) == "string" and type(rawget(exn, "thread")) == "thread"
+end
+
 --[[- Attempt to call the provided function `func` with the provided arguments.
 
 @tparam function func The function to call.
 @param ... Arguments to this function.
 
 @treturn[1] true If the function ran successfully.
-    @return[1] ... The return values of the function.
+@return[1] ... The return values of the function.
 
 @treturn[2] false If the function failed.
 @return[2] The error message
@@ -51,8 +89,14 @@ local function try(func, ...)
         end
     end
 
-    if not result[1] then return false, result[2], co end
-    return table.unpack(result, 1, result.n)
+    if result[1] then
+        return table.unpack(result, 1, result.n)
+    elseif is_exception(result[2]) then
+        local exn = result[2]
+        return false, rawget(exn, "message"), rawget(exn, "thread")
+    else
+        return false, result[2], co
+    end
 end
 
 --[[- Report additional context about an error.

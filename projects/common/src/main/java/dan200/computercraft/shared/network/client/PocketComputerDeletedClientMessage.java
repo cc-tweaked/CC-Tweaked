@@ -9,21 +9,23 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.NetworkMessages;
 import net.minecraft.network.FriendlyByteBuf;
 
+import java.util.UUID;
+
 
 public class PocketComputerDeletedClientMessage implements NetworkMessage<ClientNetworkContext> {
-    private final int instanceId;
+    private final UUID instanceId;
 
-    public PocketComputerDeletedClientMessage(int instanceId) {
+    public PocketComputerDeletedClientMessage(UUID instanceId) {
         this.instanceId = instanceId;
     }
 
     public PocketComputerDeletedClientMessage(FriendlyByteBuf buffer) {
-        instanceId = buffer.readVarInt();
+        instanceId = buffer.readUUID();
     }
 
     @Override
     public void write(FriendlyByteBuf buf) {
-        buf.writeVarInt(instanceId);
+        buf.writeUUID(instanceId);
     }
 
     @Override

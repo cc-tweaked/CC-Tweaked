@@ -11,6 +11,7 @@ import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.util.PeripheralHelpers;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
@@ -222,22 +223,22 @@ public final class Environment implements IAPIEnvironment {
      *
      * @return If the outputs have changed.
      */
-    boolean updateOutput() {
+    int updateOutput() {
         // Mark output as changed if the internal redstone has changed
         synchronized (internalOutput) {
-            if (!internalOutputChanged) return false;
+            if (!internalOutputChanged) return 0;
 
-            var changed = false;
+            var changed = 0;
 
             for (var i = 0; i < ComputerSide.COUNT; i++) {
                 if (externalOutput[i] != internalOutput[i]) {
                     externalOutput[i] = internalOutput[i];
-                    changed = true;
+                    changed |= 1 << i;
                 }
 
                 if (externalBundledOutput[i] != internalBundledOutput[i]) {
                     externalBundledOutput[i] = internalBundledOutput[i];
-                    changed = true;
+                    changed |= 1 << i;
                 }
             }
 
@@ -268,9 +269,7 @@ public final class Environment implements IAPIEnvironment {
         synchronized (peripherals) {
             var index = side.ordinal();
             var existing = peripherals[index];
-            if ((existing == null && peripheral != null) ||
-                (existing != null && peripheral == null) ||
-                (existing != null && !existing.equals(peripheral))) {
+            if (!PeripheralHelpers.equals(existing, peripheral)) {
                 peripherals[index] = peripheral;
                 if (peripheralListener != null) peripheralListener.onPeripheralChanged(side, peripheral);
             }

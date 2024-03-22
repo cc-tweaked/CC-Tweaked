@@ -4,6 +4,7 @@
 
 package cc.tweaked.web.builder;
 
+import org.teavm.backend.javascript.JSModuleType;
 import org.teavm.common.JsonUtil;
 import org.teavm.tooling.ConsoleTeaVMToolLog;
 import org.teavm.tooling.TeaVMProblemRenderer;
@@ -71,6 +72,7 @@ public class Builder {
         // Then finally start the compiler!
         var tool = new TeaVMTool();
         tool.setTargetType(TeaVMTargetType.JAVASCRIPT);
+        tool.setJsModuleType(JSModuleType.ES2015);
         tool.setTargetDirectory(output.toFile());
         tool.setClassLoader(remapper);
         tool.setMainClass("cc.tweaked.web.Main");

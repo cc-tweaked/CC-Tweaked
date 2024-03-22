@@ -13,6 +13,8 @@ import dan200.computercraft.shared.platform.FabricContainerTransfer;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedSlottedStorage;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -42,6 +44,34 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
      * @param storage The underlying storage
      */
     public record StorageWrapper(SlottedStorage<ItemVariant> storage) {
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (!(obj instanceof StorageWrapper other)) return false;
+
+            var otherStorage = other.storage;
+
+            /*
+             Equality for inventory storage isn't really defined, and most of the time falls back to reference
+             equality.
+              - Vanilla inventories are exposed via InventoryStorage - the creation of this is cached, so will be
+                the same object.
+              - Double chests are combined into a CombinedSlottedStorage. We check the parts are equal.
+            */
+            if (
+                storage instanceof CombinedSlottedStorage<?, ?> cs && storage.getClass() == otherStorage.getClass()
+                    && cs.parts.equals(((CombinedStorage<?, ?>) otherStorage).parts)
+            ) {
+                return true;
+            }
+
+            return storage.equals(otherStorage);
+        }
+
+        @Override
+        public int hashCode() {
+            return storage instanceof CombinedSlottedStorage<?, ?> cs ? cs.parts.hashCode() : storage.hashCode();
+        }
     }
 
     @Override

@@ -9,12 +9,11 @@ import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
-import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.function.Predicate;
 
 @SuppressWarnings("UnstableApiUsage")
 public class FabricContainerTransfer implements ContainerTransfer {
@@ -34,37 +33,31 @@ public class FabricContainerTransfer implements ContainerTransfer {
 
     @Override
     public int moveTo(ContainerTransfer destination, int maxAmount) {
-        var predicate = new GatePredicate<ItemVariant>();
+        var hasItem = false;
 
-        var moved = StorageUtil.move(storage, ((FabricContainerTransfer) destination).storage, predicate, maxAmount, null);
-        if (moved > 0) return moved > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) moved;
+        var destStorage = ((FabricContainerTransfer) destination).storage;
+        for (var slot : storage.nonEmptyViews()) {
+            var resource = slot.getResource();
 
-        // Nasty hack here to check if move() actually found an item in the original inventory. Saves having to
-        // iterate over the source twice.
-        return predicate.hasItem() ? NO_SPACE : NO_ITEMS;
-    }
+            try (var transaction = Transaction.openOuter()) {
+                // Check how much can be extracted and inserted.
+                var maxExtracted = StorageUtil.simulateExtract(slot, resource, maxAmount, transaction);
+                if (maxExtracted == 0) continue;
 
-    /**
-     * A predicate which accepts the first value it sees, and then only those matching that value.
-     *
-     * @param <T> The type of the object to accept.
-     */
-    private static final class GatePredicate<T> implements Predicate<T> {
-        private @Nullable T instance = null;
+                hasItem = true;
 
-        @Override
-        public boolean test(T o) {
-            if (instance == null) {
-                instance = o;
-                return true;
+                var accepted = destStorage.insert(resource, maxExtracted, transaction);
+                if (accepted == 0) continue;
+
+                // Extract or rollback.
+                if (slot.extract(resource, accepted, transaction) == accepted) {
+                    transaction.commit();
+                    return (int) accepted;
+                }
             }
-
-            return instance.equals(o);
         }
 
-        boolean hasItem() {
-            return instance != null;
-        }
+        return hasItem ? NO_SPACE : NO_ITEMS;
     }
 
     private static final class SlottedImpl extends FabricContainerTransfer implements ContainerTransfer.Slotted {

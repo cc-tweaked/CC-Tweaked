@@ -8,12 +8,16 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.event.*;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.level.ChunkEvent;
+import net.neoforged.neoforge.event.level.ChunkTicketLevelUpdatedEvent;
 import net.neoforged.neoforge.event.level.ChunkWatchEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
@@ -53,8 +57,20 @@ public class ForgeCommonHooks {
     }
 
     @SubscribeEvent
+    public static void onChunkUnload(ChunkEvent.Unload event) {
+        if (event.getLevel() instanceof ServerLevel && event.getChunk() instanceof LevelChunk chunk) {
+            CommonHooks.onServerChunkUnload(chunk);
+        }
+    }
+
+    @SubscribeEvent
     public static void onChunkWatch(ChunkWatchEvent.Sent event) {
         CommonHooks.onChunkWatch(event.getChunk(), event.getPlayer());
+    }
+
+    @SubscribeEvent
+    public static void onChunkTicketLevelChanged(ChunkTicketLevelUpdatedEvent event) {
+        CommonHooks.onChunkTicketLevelChanged(event.getLevel(), event.getChunkPos(), event.getOldTicketLevel(), event.getNewTicketLevel());
     }
 
     @SubscribeEvent

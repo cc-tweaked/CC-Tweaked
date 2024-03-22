@@ -23,6 +23,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -174,6 +175,15 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
     public final void onNeighborChange(BlockState state, LevelReader world, BlockPos pos, BlockPos neighbour) {
         var be = world.getBlockEntity(pos);
         if (be instanceof AbstractComputerBlockEntity computer) computer.neighborChanged(neighbour);
+    }
+
+    @Override
+    @Deprecated
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+        var be = level.getBlockEntity(pos);
+        if (be instanceof AbstractComputerBlockEntity computer) computer.neighbourShapeChanged(direction);
+
+        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
 
     @Nullable
