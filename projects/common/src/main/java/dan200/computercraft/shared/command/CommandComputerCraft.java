@@ -159,7 +159,6 @@ public final class CommandComputerCraft {
      */
     private static int dumpComputer(CommandSourceStack source, ServerComputer computer) {
         var table = new TableBuilder("Dump");
-        table.row(header("Instance ID"), text(Integer.toString(computer.getInstanceID())));
         table.row(header("Instance UUID"), text(computer.getInstanceUUID().toString()));
         table.row(header("Id"), text(Integer.toString(computer.getID())));
         table.row(header("Label"), text(computer.getLabel()));

@@ -8,10 +8,12 @@ import dan200.computercraft.api.network.PacketSender;
 
 
 /**
- * An object on a {@link WiredNetwork} capable of sending packets.
+ * An object on a wired network capable of sending packets.
  * <p>
  * Unlike a regular {@link PacketSender}, this must be associated with the node you are attempting to
  * to send the packet from.
+ *
+ * @see WiredElement
  */
 public interface WiredSender extends PacketSender {
     /**

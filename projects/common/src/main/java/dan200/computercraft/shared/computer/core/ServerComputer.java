@@ -31,7 +31,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 public class ServerComputer implements InputHandler, ComputerEnvironment {
-    private final int instanceID;
     private final UUID instanceUUID = UUID.randomUUID();
 
     private ServerLevel level;
@@ -54,7 +53,6 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
         this.family = family;
 
         var context = ServerContext.get(level.getServer());
-        instanceID = context.registry().getUnusedInstanceID();
         terminal = new NetworkedTerminal(terminalWidth, terminalHeight, family != ComputerFamily.NORMAL, this::markTerminalChanged);
         metrics = context.metrics().createMetricObserver(this);
 
@@ -146,10 +144,6 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
     }
 
     protected void onRemoved() {
-    }
-
-    public int getInstanceID() {
-        return instanceID;
     }
 
     public UUID getInstanceUUID() {

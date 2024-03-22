@@ -5,7 +5,6 @@
 package dan200.computercraft.impl.network.wired;
 
 import dan200.computercraft.api.network.wired.WiredElement;
-import dan200.computercraft.api.network.wired.WiredNetwork;
 import dan200.computercraft.api.network.wired.WiredNetworkChange;
 import dan200.computercraft.api.network.wired.WiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -293,8 +292,8 @@ public class NetworkTest {
         }
     }
 
-    private static Set<WiredNodeImpl> nodes(WiredNetwork network) {
-        return ((WiredNetworkImpl) network).nodes;
+    private static Set<WiredNodeImpl> nodes(WiredNetworkImpl network) {
+        return network.nodes;
     }
 
     private static Set<WiredNodeImpl> neighbours(WiredNode node) {

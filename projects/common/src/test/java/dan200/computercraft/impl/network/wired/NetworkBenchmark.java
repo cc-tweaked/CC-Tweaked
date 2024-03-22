@@ -4,7 +4,6 @@
 
 package dan200.computercraft.impl.network.wired;
 
-import dan200.computercraft.api.network.wired.WiredNetwork;
 import dan200.computercraft.impl.network.wired.NetworkTest.NetworkElement;
 import dan200.computercraft.shared.util.DirectionUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -136,8 +135,8 @@ public class NetworkBenchmark {
         }
     }
 
-    private static Object2IntMap<WiredNetwork> countNetworks(Grid<WiredNodeImpl> grid) {
-        Object2IntMap<WiredNetwork> networks = new Object2IntOpenHashMap<>();
+    private static Object2IntMap<WiredNetworkImpl> countNetworks(Grid<WiredNodeImpl> grid) {
+        Object2IntMap<WiredNetworkImpl> networks = new Object2IntOpenHashMap<>();
         grid.forEach((node, pos) -> networks.put(node.network, networks.getOrDefault(node.network, 0) + 1));
         return networks;
     }

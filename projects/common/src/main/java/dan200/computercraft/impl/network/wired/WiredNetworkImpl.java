@@ -5,7 +5,6 @@
 package dan200.computercraft.impl.network.wired;
 
 import dan200.computercraft.api.network.Packet;
-import dan200.computercraft.api.network.wired.WiredNetwork;
 import dan200.computercraft.api.network.wired.WiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.util.Nullability;
@@ -14,7 +13,7 @@ import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-final class WiredNetworkImpl implements WiredNetwork {
+final class WiredNetworkImpl {
     final ReadWriteLock lock = new ReentrantReadWriteLock();
     Set<WiredNodeImpl> nodes;
     private Map<String, IPeripheral> peripherals = new HashMap<>();
@@ -28,7 +27,6 @@ final class WiredNetworkImpl implements WiredNetwork {
         this.nodes = nodes;
     }
 
-    @Override
     public boolean connect(WiredNode nodeU, WiredNode nodeV) {
         var wiredU = checkNode(nodeU);
         var wiredV = checkNode(nodeV);
@@ -88,7 +86,6 @@ final class WiredNetworkImpl implements WiredNetwork {
         }
     }
 
-    @Override
     public boolean disconnect(WiredNode nodeU, WiredNode nodeV) {
         var wiredU = checkNode(nodeU);
         var wiredV = checkNode(nodeV);
@@ -159,7 +156,6 @@ final class WiredNetworkImpl implements WiredNetwork {
         }
     }
 
-    @Override
     public boolean remove(WiredNode node) {
         var wired = checkNode(node);
 
@@ -316,7 +312,6 @@ final class WiredNetworkImpl implements WiredNetwork {
         }
     }
 
-    @Override
     public void updatePeripherals(WiredNode node, Map<String, IPeripheral> newPeripherals) {
         var wired = checkNode(node);
         Objects.requireNonNull(peripherals, "peripherals cannot be null");
