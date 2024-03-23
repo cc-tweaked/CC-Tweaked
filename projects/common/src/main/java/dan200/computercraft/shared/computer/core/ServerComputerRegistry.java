@@ -42,13 +42,14 @@ public class ServerComputerRegistry {
     }
 
     void update() {
-        var it = getComputers().iterator();
+        var it = computersByInstanceId.values().iterator();
         while (it.hasNext()) {
             var computer = it.next();
             if (computer.hasTimedOut()) {
                 computer.unload();
                 computer.onRemoved();
                 it.remove();
+                computersByInstanceUuid.remove(computer.getInstanceUUID());
             } else {
                 computer.tickServer();
             }
