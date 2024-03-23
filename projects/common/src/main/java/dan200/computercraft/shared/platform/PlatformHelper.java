@@ -375,13 +375,4 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      * @see ServerPlayerGameMode#useItemOn(ServerPlayer, Level, ItemStack, InteractionHand, BlockHitResult)
      */
     InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit, Predicate<BlockState> canUseBlock);
-
-    /**
-     * Whether {@link net.minecraft.network.chat.ClickEvent.Action#RUN_COMMAND} can be used to run client commands.
-     *
-     * @return Whether client commands can be triggered from chat components.
-     */
-    default boolean canClickRunClientCommand() {
-        return true;
-    }
 }

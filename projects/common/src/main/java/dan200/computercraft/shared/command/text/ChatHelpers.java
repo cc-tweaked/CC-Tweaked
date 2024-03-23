@@ -5,7 +5,6 @@
 package dan200.computercraft.shared.command.text;
 
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.ClickEvent;
@@ -56,10 +55,7 @@ public final class ChatHelpers {
     }
 
     public static Component clientLink(MutableComponent component, String command, Component toolTip) {
-        var event = PlatformHelper.get().canClickRunClientCommand()
-            ? new ClickEvent(ClickEvent.Action.RUN_COMMAND, command)
-            : new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command);
-        return link(component, event, toolTip);
+        return link(component, new ClickEvent(ClickEvent.Action.RUN_COMMAND, command), toolTip);
     }
 
     public static Component link(Component component, ClickEvent click, Component toolTip) {
