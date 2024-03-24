@@ -43,6 +43,10 @@ if cmd == "stop" then
     for _, speaker in pairs(get_speakers(name)) do speaker.stop() end
 elseif cmd == "play" then
     local _, file, name = ...
+    if not file then
+        error("Usage: speaker play <file or url> [speaker]", 0)
+    end
+
     local speaker = get_speakers(name)[1]
 
     local handle, err
