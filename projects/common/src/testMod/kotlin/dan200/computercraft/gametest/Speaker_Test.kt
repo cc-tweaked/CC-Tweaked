@@ -29,4 +29,15 @@ class Speaker_Test {
             }
         }
     }
+
+    /**
+     * [SpeakerPeripheral.playSound] will not play records.
+     */
+    @GameTest
+    fun Will_not_play_record(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer {
+            callPeripheral("right", "playSound", SoundEvents.MUSIC_DISC_PIGSTEP.location.toString())
+                .assertArrayEquals(false)
+        }
+    }
 }
