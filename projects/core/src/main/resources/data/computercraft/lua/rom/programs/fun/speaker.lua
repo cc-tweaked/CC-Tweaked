@@ -49,6 +49,10 @@ elseif cmd == "play" then
 
     local speaker = get_speakers(name)[1]
 
+    if not file then
+        error("Usage: speaker play <file or url> [speaker]", 0)
+    end
+
     local handle, err
     if http and file:match("^https?://") then
         print("Downloading...")
@@ -132,9 +136,46 @@ elseif cmd == "play" then
     end
 
     handle.close()
+elseif cmd == "sound" then
+    local _, sound, volume, pitch, name = ...
+
+    if not sound then
+        error("Usage: speaker sound <sound> [volume] [pitch] [speaker]", 0)
+        return
+    end
+
+    if volume then
+        volume = tonumber(volume)
+        if not volume then
+            error("Volume must be a number", 0)
+        end
+        if volume < 0 or volume > 3 then
+            error("Volume must be between 0 and 3", 0)
+        end
+    end
+
+    if pitch then
+        pitch = tonumber(pitch)
+        if not pitch then
+            error("Pitch must be a number", 0)
+        end
+        if pitch < 0 or pitch > 2 then
+            error("Pitch must be between 0 and 2", 0)
+        end
+    end
+
+    local speaker = get_speakers(name)[1]
+
+    if speaker.playSound(sound, volume, pitch) then
+        print(("Played sound %q on speaker %q with volume %s and pitch %s."):format(sound, peripheral.getName(speaker),
+            volume or 1, pitch or 1))
+    else
+        error(("Could not play sound %q"):format(sound), 0)
+    end
 else
     local programName = arg[0] or fs.getName(shell.getRunningProgram())
     print("Usage:")
     print(programName .. " play <file or url> [speaker]")
+    print(programName .. " sound <sound> [volume] [pitch] [speaker]")
     print(programName .. " stop [speaker]")
 end

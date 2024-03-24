@@ -117,7 +117,7 @@ shell.setCompletionFunction("rom/programs/fun/dj.lua", completion.build(
     completion.peripheral
 ))
 shell.setCompletionFunction("rom/programs/fun/speaker.lua", completion.build(
-    { completion.choice, { "play ", "stop " } },
+    { completion.choice, { "play ", "sound ", "stop " } },
     function(shell, text, previous)
         if previous[2] == "play" then return completion.file(shell, text, previous, true)
         elseif previous[2] == "stop" then return completion.peripheral(shell, text, previous, false)
