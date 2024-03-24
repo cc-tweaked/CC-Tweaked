@@ -260,7 +260,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         }
 
         synchronized (lock) {
-            if (dfpwmState != null && dfpwmState.isPlaying()) return false;
+            if (pendingSound != null | (dfpwmState != null && dfpwmState.isPlaying())) return false;
             dfpwmState = null;
             pendingSound = new PendingSound<>(identifier, volume, pitch);
             return true;
