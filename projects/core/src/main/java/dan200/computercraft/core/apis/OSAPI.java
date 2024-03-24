@@ -143,27 +143,27 @@ public class OSAPI implements ILuaAPI {
 
     /**
      * Starts a timer that will run for the specified number of seconds. Once
-     * the timer fires, a {@code timer} event will be added to the queue with
-     * the ID returned from this function as the first parameter.
+     * the timer fires, a [`timer`] event will be added to the queue with the ID
+     * returned from this function as the first parameter.
      * <p>
-     * As with [sleep][`os.sleep`], {@code timer} will automatically be rounded up
-     * to the nearest multiple of 0.05 seconds, as it waits for a fixed amount
-     * of world ticks.
+     * As with [sleep][`os.sleep`], the time will automatically be rounded up to
+     * the nearest multiple of 0.05 seconds, as it waits for a fixed amount of
+     * world ticks.
      *
-     * @param timer The number of seconds until the timer fires.
-     * @return The ID of the new timer. This can be used to filter the
-     * {@code timer} event, or {@link #cancelTimer cancel the timer}.
+     * @param time The number of seconds until the timer fires.
+     * @return The ID of the new timer. This can be used to filter the [`timer`]
+     * event, or {@linkplain #cancelTimer cancel the timer}.
      * @throws LuaException If the time is below zero.
      * @see #cancelTimer To cancel a timer.
      */
     @LuaFunction
-    public final int startTimer(double timer) throws LuaException {
-        return apiEnvironment.startTimer(Math.round(checkFinite(0, timer) / 0.05));
+    public final int startTimer(double time) throws LuaException {
+        return apiEnvironment.startTimer(Math.round(checkFinite(0, time) / 0.05));
     }
 
     /**
-     * Cancels a timer previously started with startTimer. This will stop the
-     * timer from firing.
+     * Cancels a timer previously started with {@link #startTimer(double)}. This
+     * will stop the timer from firing.
      *
      * @param token The ID of the timer to cancel.
      * @cc.since 1.6
@@ -399,10 +399,9 @@ public class OSAPI implements ILuaAPI {
      * Returns a date string (or table) using a specified format string and
      * optional time to format.
      * <p>
-     * The format string takes the same formats as C's {@code strftime} function
-     * (http://www.cplusplus.com/reference/ctime/strftime/). In extension, it
-     * can be prefixed with an exclamation mark ({@code !}) to use UTC time
-     * instead of the server's local timezone.
+     * The format string takes the same formats as C's [strftime](http://www.cplusplus.com/reference/ctime/strftime/)
+     * function. The format string can also be prefixed with an exclamation mark
+     * ({@code !}) to use UTC time instead of the server's local timezone.
      * <p>
      * If the format is exactly {@code *t} (optionally prefixed with {@code !}), a
      * table will be returned instead. This table has fields for the year, month,
