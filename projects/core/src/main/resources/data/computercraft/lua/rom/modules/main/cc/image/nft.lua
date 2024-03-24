@@ -89,7 +89,7 @@ end
 --
 -- @tparam table image An image, as returned from [`load`] or [`parse`].
 -- @tparam number xPos The x position to start drawing at.
--- @tparam number xPos The y position to start drawing at.
+-- @tparam number yPos The y position to start drawing at.
 -- @tparam[opt] term.Redirect target The terminal redirect to draw to. Defaults to the
 -- current terminal.
 local function draw(image, xPos, yPos, target)
