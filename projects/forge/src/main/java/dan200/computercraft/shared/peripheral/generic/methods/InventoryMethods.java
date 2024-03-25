@@ -8,7 +8,9 @@ import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.platform.ForgeContainerTransfer;
+import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -73,7 +75,7 @@ public final class InventoryMethods extends AbstractInventoryMethods<IItemHandle
         var location = computer.getAvailablePeripheral(toName);
         if (location == null) throw new LuaException("Target '" + toName + "' does not exist");
 
-        var to = extractHandler(location.getTarget());
+        var to = extractHandler(location);
         if (to == null) throw new LuaException("Target '" + toName + "' is not an inventory");
 
         // Validate slots
@@ -95,7 +97,7 @@ public final class InventoryMethods extends AbstractInventoryMethods<IItemHandle
         var location = computer.getAvailablePeripheral(fromName);
         if (location == null) throw new LuaException("Source '" + fromName + "' does not exist");
 
-        var from = extractHandler(location.getTarget());
+        var from = extractHandler(location);
         if (from == null) throw new LuaException("Source '" + fromName + "' is not an inventory");
 
         // Validate slots
@@ -108,11 +110,14 @@ public final class InventoryMethods extends AbstractInventoryMethods<IItemHandle
     }
 
     @Nullable
-    private static IItemHandler extractHandler(@Nullable Object object) {
+    private static IItemHandler extractHandler(IPeripheral peripheral) {
+        var object = peripheral.getTarget();
+        var direction = peripheral instanceof dan200.computercraft.shared.peripheral.generic.GenericPeripheral sided ? sided.side() : null;
+
         if (object instanceof BlockEntity blockEntity && blockEntity.isRemoved()) return null;
 
         if (object instanceof ICapabilityProvider provider) {
-            var cap = provider.getCapability(ForgeCapabilities.ITEM_HANDLER);
+            var cap = CapabilityUtil.getCapability(provider, ForgeCapabilities.ITEM_HANDLER, direction);
             if (cap.isPresent()) return cap.orElseThrow(NullPointerException::new);
         }
 
