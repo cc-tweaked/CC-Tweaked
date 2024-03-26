@@ -18,10 +18,9 @@ import javax.annotation.Nullable;
  * states, etc...
  */
 public class TerminalState {
-    public final boolean colour;
-
-    public final int width;
-    public final int height;
+    private final boolean colour;
+    private final int width;
+    private final int height;
 
     @Nullable
     private final ByteBuf buffer;

@@ -6,7 +6,6 @@ package dan200.computercraft.client.pocket;
 
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
@@ -47,13 +46,10 @@ public final class ClientPocketComputers {
     public static void setState(UUID instanceId, ComputerState state, int lightColour, TerminalState terminalData) {
         var computer = instances.get(instanceId);
         if (computer == null) {
-            var terminal = new NetworkedTerminal(terminalData.width, terminalData.height, terminalData.colour);
-            instances.put(instanceId, computer = new PocketComputerData(state, lightColour, terminal));
+            instances.put(instanceId, new PocketComputerData(state, lightColour, terminalData));
         } else {
-            computer.setState(state, lightColour);
+            computer.setState(state, lightColour, terminalData);
         }
-
-        if (terminalData.hasTerminal()) terminalData.apply(computer.getTerminal());
     }
 
     public static @Nullable PocketComputerData get(ItemStack stack) {
