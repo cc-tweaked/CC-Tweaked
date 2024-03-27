@@ -5,6 +5,7 @@
 package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.api.ComputerCraftTags;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.TurtleUtil;
@@ -55,17 +56,19 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     final boolean allowEnchantments;
     final TurtleToolDurability consumeDurability;
     final @Nullable TagKey<Block> breakable;
+    final String peripheralType;
 
     public TurtleTool(
         ResourceLocation id, String adjective, Item craftItem, ItemStack toolItem, float damageMulitiplier,
-        boolean allowEnchantments, TurtleToolDurability consumeDurability, @Nullable TagKey<Block> breakable
+        boolean allowEnchantments, TurtleToolDurability consumeDurability, @Nullable TagKey<Block> breakable, String peripheralType
     ) {
-        super(id, TurtleUpgradeType.TOOL, adjective, new ItemStack(craftItem));
+        super(id, TurtleUpgradeType.BOTH, adjective, new ItemStack(craftItem));
         item = toolItem;
         this.damageMulitiplier = damageMulitiplier;
         this.allowEnchantments = allowEnchantments;
         this.consumeDurability = consumeDurability;
         this.breakable = breakable;
+        this.peripheralType = peripheralType;
     }
 
     @Override
@@ -102,6 +105,11 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         var item = super.getUpgradeItem(upgradeData).copy();
         item.setTag(upgradeData.contains(TAG_ITEM_TAG, TAG_COMPOUND) ? upgradeData.getCompound(TAG_ITEM_TAG) : null);
         return item;
+    }
+
+    @Override
+    public IPeripheral createPeripheral(ITurtleAccess turtle, TurtleSide side) {
+        return new ToolPeripheral(turtle, side, peripheralType);
     }
 
     private ItemStack getToolStack(ITurtleAccess turtle, TurtleSide side) {

@@ -32,6 +32,7 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
         var craftingItem = GsonHelper.getAsItem(object, "craftingItem", toolItem);
         var damageMultiplier = GsonHelper.getAsFloat(object, "damageMultiplier", 3.0f);
         var allowEnchantments = GsonHelper.getAsBoolean(object, "allowEnchantments", false);
+        var peripheralType = GsonHelper.getAsString(object, "peripheralType", "");
         var consumeDurability = TurtleToolDurability.CODEC.byName(GsonHelper.getAsString(object, "consumeDurability", null), TurtleToolDurability.NEVER);
 
         TagKey<Block> breakable = null;
@@ -40,7 +41,7 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
             breakable = TagKey.create(Registries.BLOCK, tag);
         }
 
-        return new TurtleTool(id, adjective, craftingItem, new ItemStack(toolItem), damageMultiplier, allowEnchantments, consumeDurability, breakable);
+        return new TurtleTool(id, adjective, craftingItem, new ItemStack(toolItem), damageMultiplier, allowEnchantments, consumeDurability, breakable, peripheralType);
     }
 
     @Override
@@ -54,9 +55,10 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
         var damageMultiplier = buffer.readFloat();
         var allowsEnchantments = buffer.readBoolean();
         var consumesDurability = buffer.readEnum(TurtleToolDurability.class);
+        var peripheralType = buffer.readUtf();
 
         var breakable = buffer.readNullable(b -> TagKey.create(Registries.BLOCK, b.readResourceLocation()));
-        return new TurtleTool(id, adjective, craftingItem, toolItem, damageMultiplier, allowsEnchantments, consumesDurability, breakable);
+        return new TurtleTool(id, adjective, craftingItem, toolItem, damageMultiplier, allowsEnchantments, consumesDurability, breakable, peripheralType);
     }
 
     @Override
@@ -67,6 +69,7 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
         buffer.writeFloat(upgrade.damageMulitiplier);
         buffer.writeBoolean(upgrade.allowEnchantments);
         buffer.writeEnum(upgrade.consumeDurability);
+        buffer.writeUtf(upgrade.peripheralType);
         buffer.writeNullable(upgrade.breakable, (b, x) -> b.writeResourceLocation(x.location()));
     }
 }

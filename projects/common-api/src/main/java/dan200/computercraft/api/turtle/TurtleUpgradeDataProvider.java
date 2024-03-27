@@ -63,6 +63,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
         private @Nullable Item craftingItem;
         private @Nullable Float damageMultiplier = null;
         private @Nullable TagKey<Block> breakable;
+        private String peripheralType = "";
         private boolean allowEnchantments = false;
         private TurtleToolDurability consumeDurability = TurtleToolDurability.NEVER;
 
@@ -93,6 +94,11 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
          */
         public ToolBuilder craftingItem(Item craftingItem) {
             this.craftingItem = craftingItem;
+            return this;
+        }
+
+        public ToolBuilder peripheralType(String peripheralType) {
+            this.peripheralType = peripheralType;
             return this;
         }
 
@@ -162,6 +168,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
                 if (consumeDurability != TurtleToolDurability.NEVER) {
                     s.addProperty("consumeDurability", consumeDurability.getSerializedName());
                 }
+                s.addProperty("peripheralType", peripheralType);
             }));
         }
     }
