@@ -940,10 +940,10 @@ function urlEncode(str)
     return str
 end
 
---- Splits a string in a table 
+--- Splits a string in a table.
 --
--- @tparam string string_to_split The string to split
--- @tparam string pattern At what character/pattern to split the string
+-- @tparam string string_to_split The string to split.
+-- @tparam string pattern At what pattern to split the string.
 -- @treturn table A table containing the splitted strings.
 -- @usage args = textutils.splitString("arg1 arg2", " ")
 -- @since edit this if it goes live (I hope it does)
