@@ -942,25 +942,25 @@ end
 
 --- Splits a string in a table 
 --
--- @tparam string pString The string to split
--- @tparam string pPattern At which character/pattern to split the string
+-- @tparam string string_to_split The string to split
+-- @tparam string pattern At what character/pattern to split the string
 -- @treturn table A table containing the splitted strings.
 -- @usage args = textutils.splitString("arg1 arg2", " ")
 -- @since edit this if it goes live (I hope it does)
-function splitString(pString, pPattern)
+local function split(string_to_split, pattern)
     local Table = {}
-    local fpat = "(.-)" .. pPattern
+    local fpat = "(.-)" .. pattern
     local last_end = 1
-    local s, e, cap = pString:find(fpat, 1)
+    local s, e, cap = string_to_split:find(fpat, 1)
     while s do
         if s ~= 1 or cap ~= "" then
             table.insert(Table, cap)
         end
         last_end = e + 1
-        s, e, cap = pString:find(fpat, last_end)
+        s, e, cap = string_to_split:find(fpat, last_end)
     end
-    if last_end <= #pString then
-        cap = pString:sub(last_end)
+    if last_end <= #string_to_split then
+        cap = string_to_split:sub(last_end)
         table.insert(Table, cap)
     end
     return Table
