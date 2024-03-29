@@ -29,7 +29,7 @@ public final class Services {
      * @throws IllegalStateException When the service cannot be loaded.
      */
     public static <T> T load(Class<T> klass) {
-        var services = ServiceLoader.load(klass).stream().toList();
+        var services = ServiceLoader.load(klass, klass.getClassLoader()).stream().toList();
         return switch (services.size()) {
             case 1 -> services.get(0).get();
             case 0 -> throw new IllegalStateException("Cannot find service for " + klass.getName());

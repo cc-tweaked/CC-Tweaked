@@ -54,7 +54,7 @@ public class TurtleSuckCommand implements TurtleCommand {
                 case ContainerTransfer.NO_SPACE:
                     return TurtleCommandResult.failure("No space for items");
                 case ContainerTransfer.NO_ITEMS:
-                    return TurtleCommandResult.failure("No items to drop");
+                    return TurtleCommandResult.failure("No items to take");
                 default:
                     turtle.playAnimation(TurtleAnimation.WAIT);
                     return TurtleCommandResult.success();

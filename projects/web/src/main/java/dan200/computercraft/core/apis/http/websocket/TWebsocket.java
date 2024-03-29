@@ -40,7 +40,7 @@ public class TWebsocket extends Resource<TWebsocket> implements WebsocketClient 
     public void connect() {
         if (isClosed()) return;
 
-        var client = this.websocket = WebSocket.create(uri.toASCIIString());
+        var client = this.websocket = new WebSocket(uri.toASCIIString());
         client.setBinaryType("arraybuffer");
         client.onOpen(e -> success(Action.ALLOW.toPartial().toOptions()));
         client.onError(e -> {
@@ -50,7 +50,7 @@ public class TWebsocket extends Resource<TWebsocket> implements WebsocketClient 
         client.onMessage(e -> {
             if (isClosed()) return;
             if (JavascriptConv.isArrayBuffer(e.getData())) {
-                var array = Int8Array.create(e.getDataAsArray());
+                var array = new Int8Array(e.getDataAsArray());
                 var contents = new byte[array.getLength()];
                 for (var i = 0; i < contents.length; i++) contents[i] = array.get(i);
                 environment.queueEvent("websocket_message", address, contents, true);

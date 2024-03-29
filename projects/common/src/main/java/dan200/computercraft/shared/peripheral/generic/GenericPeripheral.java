@@ -11,7 +11,7 @@ import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.platform.RegistryWrappers;
+import dan200.computercraft.core.computer.GuardedLuaContext;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -27,13 +27,16 @@ public final class GenericPeripheral implements IDynamicPeripheral {
     private final Set<String> additionalTypes;
     private final List<SaturatedMethod> methods;
 
-    GenericPeripheral(BlockEntity tile, Direction side, @Nullable String name, Set<String> additionalTypes, List<SaturatedMethod> methods) {
+    private @Nullable GuardedLuaContext contextWrapper;
+    private final GuardedLuaContext.Guard guard;
+
+    GenericPeripheral(BlockEntity tile, Direction side, String type, Set<String> additionalTypes, List<SaturatedMethod> methods) {
         this.side = side;
-        var type = RegistryWrappers.BLOCK_ENTITY_TYPES.getKey(tile.getType());
         this.tile = tile;
-        this.type = name != null ? name : type.toString();
+        this.type = type;
         this.additionalTypes = additionalTypes;
         this.methods = methods;
+        this.guard = () -> !tile.isRemoved() && tile.getLevel() != null && tile.getLevel().isLoaded(tile.getBlockPos());
     }
 
     public Direction side() {
@@ -49,7 +52,12 @@ public final class GenericPeripheral implements IDynamicPeripheral {
 
     @Override
     public MethodResult callMethod(IComputerAccess computer, ILuaContext context, int method, IArguments arguments) throws LuaException {
-        return methods.get(method).apply(context, computer, arguments);
+        var contextWrapper = this.contextWrapper;
+        if (contextWrapper == null || !contextWrapper.wraps(context)) {
+            contextWrapper = this.contextWrapper = new GuardedLuaContext(context, guard);
+        }
+
+        return methods.get(method).apply(contextWrapper, computer, arguments);
     }
 
     @Override

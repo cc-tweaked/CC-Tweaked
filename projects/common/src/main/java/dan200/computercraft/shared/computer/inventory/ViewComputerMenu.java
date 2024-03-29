@@ -25,7 +25,7 @@ public class ViewComputerMenu extends ComputerMenuWithoutInventory {
 
     private static boolean canInteractWith(ServerComputer computer, Player player) {
         // If this computer no longer exists then discard it.
-        if (ServerContext.get(computer.getLevel().getServer()).registry().get(computer.getInstanceID()) != computer) {
+        if (ServerContext.get(computer.getLevel().getServer()).registry().get(computer.getInstanceUUID()) != computer) {
             return false;
         }
 

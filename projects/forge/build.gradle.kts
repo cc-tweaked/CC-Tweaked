@@ -8,7 +8,6 @@ import net.minecraftforge.gradle.common.util.RunConfig
 plugins {
     id("cc-tweaked.forge")
     id("cc-tweaked.gametest")
-    alias(libs.plugins.mixinGradle)
     id("cc-tweaked.mod-publishing")
 }
 
@@ -103,12 +102,6 @@ minecraft {
     }
 }
 
-mixin {
-    add(sourceSets.client.get(), "client-computercraft.refmap.json")
-
-    config("computercraft-client.forge.mixins.json")
-}
-
 configurations {
     minecraftLibrary { extendsFrom(minecraftEmbed.get()) }
 
@@ -121,9 +114,6 @@ configurations {
 }
 
 dependencies {
-    annotationProcessor("org.spongepowered:mixin:0.8.5-SQUID:processor")
-    clientAnnotationProcessor("org.spongepowered:mixin:0.8.5-SQUID:processor")
-
     compileOnly(libs.jetbrainsAnnotations)
     annotationProcessorEverywhere(libs.autoService)
 
@@ -244,12 +234,6 @@ tasks.register("checkClient") {
 
 modPublishing {
     output.set(tasks.jarJar)
-}
-
-// Make sure configureReobfTaskForReobfJarJar runs after compilation
-// see - https://github.com/SpongePowered/MixinGradle/pull/51
-tasks.configureEach {
-    if (name == "configureReobfTaskForReobfJarJar") mustRunAfter(tasks.jarJar)
 }
 
 // Don't publish the slim jar

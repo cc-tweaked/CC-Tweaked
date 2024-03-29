@@ -40,10 +40,6 @@ repositories {
 
     val mainMaven = maven("https://squiddev.cc/maven") {
         name = "SquidDev"
-        content {
-            // Until https://github.com/SpongePowered/Mixin/pull/593 is merged
-            includeModule("org.spongepowered", "mixin")
-        }
     }
 
     exclusiveContent {
@@ -113,6 +109,8 @@ sourceSets.all {
             option("NullAway:CastToNonNullMethod", "dan200.computercraft.core.util.Nullability.assertNonNull")
             option("NullAway:CheckOptionalEmptiness")
             option("NullAway:AcknowledgeRestrictiveAnnotations")
+
+            excludedPaths = ".*/jmh_generated/.*"
         }
     }
 }

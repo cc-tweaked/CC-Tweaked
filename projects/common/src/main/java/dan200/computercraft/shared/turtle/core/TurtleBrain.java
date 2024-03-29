@@ -14,6 +14,7 @@ import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.core.util.PeripheralHelpers;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -589,7 +590,7 @@ public class TurtleBrain implements TurtleAccessInternal {
             }
 
             var existing = peripherals.get(side);
-            if (existing == peripheral || (existing != null && peripheral != null && existing.equals(peripheral))) {
+            if (PeripheralHelpers.equals(existing, peripheral)) {
                 // If the peripheral is the same, just use that.
                 peripheral = existing;
             } else {

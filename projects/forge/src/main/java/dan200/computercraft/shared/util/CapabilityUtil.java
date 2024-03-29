@@ -50,8 +50,8 @@ public final class CapabilityUtil {
      * @param <T>        The type of the underlying capability.
      * @return The extracted capability, if present.
      */
-    public static <T> LazyOptional<T> getCapability(ICapabilityProvider provider, Capability<T> capability, Direction side) {
+    public static <T> LazyOptional<T> getCapability(ICapabilityProvider provider, Capability<T> capability, @Nullable Direction side) {
         var cap = provider.getCapability(capability);
-        return cap.isPresent() ? cap : provider.getCapability(capability, side);
+        return !cap.isPresent() && side != null ? provider.getCapability(capability, side) : cap;
     }
 }

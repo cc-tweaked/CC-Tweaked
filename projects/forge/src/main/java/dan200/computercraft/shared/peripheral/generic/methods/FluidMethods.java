@@ -8,7 +8,9 @@ import dan200.computercraft.api.detail.ForgeDetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.platform.RegistryWrappers;
+import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -53,7 +55,7 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
         var location = computer.getAvailablePeripheral(toName);
         if (location == null) throw new LuaException("Target '" + toName + "' does not exist");
 
-        var to = extractHandler(location.getTarget());
+        var to = extractHandler(location);
         if (to == null) throw new LuaException("Target '" + toName + "' is not an tank");
 
         int actualLimit = limit.orElse(Integer.MAX_VALUE);
@@ -78,7 +80,7 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
         var location = computer.getAvailablePeripheral(fromName);
         if (location == null) throw new LuaException("Target '" + fromName + "' does not exist");
 
-        var from = extractHandler(location.getTarget());
+        var from = extractHandler(location);
         if (from == null) throw new LuaException("Target '" + fromName + "' is not an tank");
 
         int actualLimit = limit.orElse(Integer.MAX_VALUE);
@@ -90,11 +92,14 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
     }
 
     @Nullable
-    private static IFluidHandler extractHandler(@Nullable Object object) {
+    private static IFluidHandler extractHandler(IPeripheral peripheral) {
+        var object = peripheral.getTarget();
+        var direction = peripheral instanceof dan200.computercraft.shared.peripheral.generic.GenericPeripheral sided ? sided.side() : null;
+
         if (object instanceof BlockEntity blockEntity && blockEntity.isRemoved()) return null;
 
         if (object instanceof ICapabilityProvider provider) {
-            var cap = provider.getCapability(ForgeCapabilities.FLUID_HANDLER);
+            var cap = CapabilityUtil.getCapability(provider, ForgeCapabilities.FLUID_HANDLER, direction);
             if (cap.isPresent()) return cap.orElseThrow(NullPointerException::new);
         }
 

@@ -43,6 +43,10 @@ if cmd == "stop" then
     for _, speaker in pairs(get_speakers(name)) do speaker.stop() end
 elseif cmd == "play" then
     local _, file, name = ...
+    if not file then
+        error("Usage: speaker play <file or url> [speaker]", 0)
+    end
+
     local speaker = get_speakers(name)[1]
 
     if not file then
@@ -54,7 +58,7 @@ elseif cmd == "play" then
         print("Downloading...")
         handle, err = http.get(file)
     else
-        handle, err = fs.open(file, "r")
+        handle, err = fs.open(shell.resolve(file), "r")
     end
 
     if not handle then

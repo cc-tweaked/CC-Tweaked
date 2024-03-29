@@ -8,6 +8,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.turtle.RegisterTurtleModellersEvent;
 import dan200.computercraft.client.model.turtle.TurtleModelLoader;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
@@ -82,6 +83,6 @@ public final class ForgeClientRegistry {
     @SubscribeEvent
     public static void setupClient(FMLClientSetupEvent event) {
         ClientRegistry.register();
-        event.enqueueWork(ClientRegistry::registerMainThread);
+        event.enqueueWork(() -> ClientRegistry.registerMainThread(ItemProperties::register));
     }
 }

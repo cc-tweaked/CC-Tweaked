@@ -26,11 +26,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
 import javax.annotation.Nullable;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 public class ServerComputer implements InputHandler, ComputerEnvironment {
     private final int instanceID;
+    private final UUID instanceUUID = UUID.randomUUID();
 
     private ServerLevel level;
     private BlockPos position;
@@ -119,9 +121,9 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
         return computer.pollAndResetChanges();
     }
 
-    public int register() {
-        ServerContext.get(level.getServer()).registry().add(instanceID, this);
-        return instanceID;
+    public UUID register() {
+        ServerContext.get(level.getServer()).registry().add(this);
+        return instanceUUID;
     }
 
     void unload() {
@@ -130,7 +132,7 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
 
     public void close() {
         unload();
-        ServerContext.get(level.getServer()).registry().remove(instanceID);
+        ServerContext.get(level.getServer()).registry().remove(this);
     }
 
     private void sendToAllInteracting(Function<AbstractContainerMenu, NetworkMessage<ClientNetworkContext>> createPacket) {
@@ -148,6 +150,10 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
 
     public int getInstanceID() {
         return instanceID;
+    }
+
+    public UUID getInstanceUUID() {
+        return instanceUUID;
     }
 
     public int getID() {

@@ -7,11 +7,11 @@ package dan200.computercraft.shared.network.client;
 import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.NetworkMessages;
+import dan200.computercraft.shared.peripheral.speaker.EncodedAudio;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerBlockEntity;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.network.FriendlyByteBuf;
 
-import java.nio.ByteBuffer;
 import java.util.UUID;
 
 /**
@@ -24,10 +24,10 @@ import java.util.UUID;
 public class SpeakerAudioClientMessage implements NetworkMessage<ClientNetworkContext> {
     private final UUID source;
     private final SpeakerPosition.Message pos;
-    private final ByteBuffer content;
+    private final EncodedAudio content;
     private final float volume;
 
-    public SpeakerAudioClientMessage(UUID source, SpeakerPosition pos, float volume, ByteBuffer content) {
+    public SpeakerAudioClientMessage(UUID source, SpeakerPosition pos, float volume, EncodedAudio content) {
         this.source = source;
         this.pos = pos.asMessage();
         this.content = content;
@@ -38,10 +38,7 @@ public class SpeakerAudioClientMessage implements NetworkMessage<ClientNetworkCo
         source = buf.readUUID();
         pos = SpeakerPosition.Message.read(buf);
         volume = buf.readFloat();
-
-        var bytes = new byte[buf.readableBytes()];
-        buf.readBytes(bytes);
-        content = ByteBuffer.wrap(bytes);
+        content = EncodedAudio.read(buf);
     }
 
     @Override
@@ -49,7 +46,7 @@ public class SpeakerAudioClientMessage implements NetworkMessage<ClientNetworkCo
         buf.writeUUID(source);
         pos.write(buf);
         buf.writeFloat(volume);
-        buf.writeBytes(content.duplicate());
+        content.write(buf);
     }
 
     @Override

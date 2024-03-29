@@ -329,8 +329,6 @@ class Turtle_Test {
 
     /**
      * Checks turtles can be cleaned in cauldrons.
-     *
-     * Currently not required as turtles can no longer right-click cauldrons.
      */
     @GameTest
     fun Cleaned_with_cauldrons(helper: GameTestHelper) = helper.sequence {
@@ -643,7 +641,20 @@ class Turtle_Test {
         }
     }
 
-    // TODO: Turtle sucking from items
+    /**
+     * `turtle.suck` only pulls for the current side.
+     */
+    @GameTest
+    fun Sided_suck(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer {
+            turtle.suckUp(Optional.empty()).await().assertArrayEquals(true)
+            turtle.getItemDetail(context, Optional.empty(), Optional.empty()).await().assertArrayEquals(
+                mapOf("name" to "minecraft:iron_ingot", "count" to 8),
+            )
+
+            turtle.suckUp(Optional.empty()).await().assertArrayEquals(false, "No items to take")
+        }
+    }
 
     /**
      * Render turtles as an item.

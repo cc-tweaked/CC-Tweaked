@@ -11,6 +11,11 @@ public final class DirectionUtil {
     private DirectionUtil() {
     }
 
+    /**
+     * A bitmask indicating all sides.
+     */
+    public static final int ALL_SIDES = (1 << 6) - 1;
+
     public static final Direction[] FACINGS = Direction.values();
 
     public static ComputerSide toLocal(Direction front, Direction dir) {
@@ -30,5 +35,16 @@ public final class DirectionUtil {
             case UP -> 270.0f;
             default -> 0.0f;
         };
+    }
+
+    /**
+     * Determine if a direction is in a bitmask.
+     *
+     * @param mask      The bitmask to test
+     * @param direction The direction to check.
+     * @return Whether the direction is in a bitmask.
+     */
+    public static boolean isSet(int mask, Direction direction) {
+        return (mask & (1 << direction.ordinal())) != 0;
     }
 }

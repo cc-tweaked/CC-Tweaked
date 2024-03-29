@@ -4,12 +4,12 @@
 
 package dan200.computercraft.client.pocket;
 
-import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
-import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
+
+import javax.annotation.Nullable;
 
 /**
  * Clientside data about a pocket computer.
@@ -21,20 +21,22 @@ import dan200.computercraft.shared.pocket.core.PocketServerComputer;
  * @see ClientPocketComputers The registry which holds pocket computers.
  * @see PocketServerComputer The server-side pocket computer.
  */
-public class PocketComputerData {
-    private final NetworkedTerminal terminal;
-    private ComputerState state = ComputerState.OFF;
-    private int lightColour = -1;
+public final class PocketComputerData {
+    private @Nullable NetworkedTerminal terminal;
+    private ComputerState state;
+    private int lightColour;
 
-    public PocketComputerData(boolean colour) {
-        terminal = new NetworkedTerminal(Config.pocketTermWidth, Config.pocketTermHeight, colour);
+    PocketComputerData(ComputerState state, int lightColour, TerminalState terminalData) {
+        this.state = state;
+        this.lightColour = lightColour;
+        if (terminalData.hasTerminal()) terminal = terminalData.create();
     }
 
     public int getLightState() {
         return state != ComputerState.OFF ? lightColour : -1;
     }
 
-    public Terminal getTerminal() {
+    public @Nullable NetworkedTerminal getTerminal() {
         return terminal;
     }
 
@@ -42,12 +44,16 @@ public class PocketComputerData {
         return state;
     }
 
-    public void setState(ComputerState state, int lightColour) {
+    void setState(ComputerState state, int lightColour, TerminalState terminalData) {
         this.state = state;
         this.lightColour = lightColour;
-    }
 
-    public void setTerminal(TerminalState state) {
-        state.apply(terminal);
+        if (terminalData.hasTerminal()) {
+            if (terminal == null) {
+                terminal = terminalData.create();
+            } else {
+                terminalData.apply(terminal);
+            }
+        }
     }
 }

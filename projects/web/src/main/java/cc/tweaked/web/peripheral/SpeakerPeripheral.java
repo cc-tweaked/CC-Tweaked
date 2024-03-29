@@ -53,11 +53,13 @@ public class SpeakerPeripheral implements TickablePeripheral {
     }
 
     @LuaFunction
+    @SuppressWarnings("DoNotCallSuggester")
     public final boolean playNote(String instrumentA, Optional<Double> volumeA, Optional<Double> pitchA) throws LuaException {
         throw new LuaException("Cannot play notes outside of Minecraft");
     }
 
     @LuaFunction
+    @SuppressWarnings("DoNotCallSuggester")
     public final boolean playSound(String name, Optional<Double> volumeA, Optional<Double> pitchA) throws LuaException {
         throw new LuaException("Cannot play sounds outside of Minecraft");
     }
@@ -70,7 +72,7 @@ public class SpeakerPeripheral implements TickablePeripheral {
         if (length <= 0) throw new LuaException("Cannot play empty audio");
         if (length > 128 * 1024) throw new LuaException("Audio data is too large");
 
-        if (audioContext == null) audioContext = AudioContext.create();
+        if (audioContext == null) audioContext = new AudioContext();
         if (state == null || !state.isPlaying()) state = new AudioState(audioContext);
 
         return state.pushBuffer(audio, length, volume);
