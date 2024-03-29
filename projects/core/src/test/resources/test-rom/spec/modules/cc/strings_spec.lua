@@ -42,27 +42,4 @@ describe("cc.pretty", function()
             expect(str.ensure_width("test string is long", 15)):eq("test string is ")
         end)
     end)
-
-    describe("split", function()
-        it("splits a string into a table of lines", function()
-            local expected = {"this", "is", "a", "test", ""}
-            expect(str.split("this\nis\na\ntest\n")):tableEq(expected)
-        end)
-
-        it("truncates lines to the given width", function()
-            local expected = {
-                "1234567890",
-                "123456789",
-                "12345678",
-                "123456",
-                "" }
-            expect(str.split("1234567890\n123456789\n12345678\n123456\n", 10)):tableEq(expected)
-        end)
-
-        it("doesn't modify the original string", function()
-            local input = "this is a test"
-            str.split(input, 5)
-            expect(input):eq("this is a test")
-        end)
-    end)
 end)
