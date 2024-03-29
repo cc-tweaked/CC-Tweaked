@@ -49,10 +49,6 @@ elseif cmd == "play" then
 
     local speaker = get_speakers(name)[1]
 
-    if not file then
-        error("Usage: speaker play <file or url> [speaker]", 0)
-    end
-
     local handle, err
     if http and file:match("^https?://") then
         print("Downloading...")
@@ -167,8 +163,9 @@ elseif cmd == "sound" then
     local speaker = get_speakers(name)[1]
 
     if speaker.playSound(sound, volume, pitch) then
-        print(("Played sound %q on speaker %q with volume %s and pitch %s."):format(sound, peripheral.getName(speaker),
-            volume or 1, pitch or 1))
+        print(("Played sound %q on speaker %q with volume %s and pitch %s."):format(
+            sound, peripheral.getName(speaker), volume or 1, pitch or 1
+        ))
     else
         error(("Could not play sound %q"):format(sound), 0)
     end
