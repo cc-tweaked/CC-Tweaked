@@ -940,37 +940,6 @@ function urlEncode(str)
     return str
 end
 
---- Splits a string in a table.
---
--- @tparam string inputstr The string to split.
--- @tparam string sep The separator to split the string at
--- @tparam nu
--- @treturn table A table containing the splitted strings.
--- @usage args = textutils.splitString("arg1 arg2", " ")
--- @since edit this if it goes live (I hope it does)
-function split(inputstr, sep, split_count)
-    expect(1, inputstr, "string")
-    expect(2, sep, "string", "nil")
-    expect(3, split_count, "number", "nil")
-    if sep == nil then
-        sep = "%s"
-    end
-    if split_count == nil then
-        split_count = -1
-    end
-    local splitted_table = {}
-    local splitted_amount = 0
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-        if splitted_amount == split_count then
-            break
-        else
-            table.insert(splitted_table, str)
-            splitted_amount = splitted_amount + 1
-        end
-    end
-    return splitted_table
-end
-
 local tEmpty = {}
 
 --- Provides a list of possible completions for a partial Lua expression.
