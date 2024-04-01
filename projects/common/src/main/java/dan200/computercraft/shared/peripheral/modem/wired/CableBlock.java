@@ -6,6 +6,7 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.peripheral.modem.ModemShapes;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.WaterloggableHelpers;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -183,7 +184,7 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
 
         // Pop our modem if needed.
         var dir = state.getValue(MODEM).getFacing();
-        if (dir != null && dir.equals(side) && !canSupportCenter(level, otherPos, side.getOpposite())) {
+        if (dir != null && dir.equals(side) && !ModemShapes.canSupport(level, otherPos, side.getOpposite())) {
             // If we've no cable, follow normal Minecraft logic and just remove the block.
             if (!state.getValue(CABLE)) return getFluidState(state).createLegacyBlock();
 
@@ -212,7 +213,7 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
         var facing = state.getValue(MODEM).getFacing();
         if (facing == null) return true;
 
-        return canSupportCenter(world, pos.relative(facing), facing.getOpposite());
+        return ModemShapes.canSupport(world, pos.relative(facing), facing.getOpposite());
     }
 
     @Nullable
