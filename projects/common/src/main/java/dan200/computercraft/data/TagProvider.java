@@ -85,7 +85,7 @@ class TagProvider {
 
         tags.tag(ExternalModTags.Blocks.CREATE_BRITTLE).add(
             ModRegistry.Blocks.CABLE.get(),
-            ModRegistry.Blocks.WIRELESS_MODEM_ADVANCED.get(),
+            ModRegistry.Blocks.WIRELESS_MODEM_NORMAL.get(),
             ModRegistry.Blocks.WIRELESS_MODEM_ADVANCED.get()
         );
     }
