@@ -5,11 +5,16 @@
 package cc.tweaked.standalone;
 
 
+import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.CoreConfig;
+import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.computer.Computer;
+import dan200.computercraft.core.filesystem.FileMount;
+import dan200.computercraft.core.filesystem.FileSystemException;
+import dan200.computercraft.core.filesystem.WritableFileMount;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
@@ -31,6 +36,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
@@ -55,37 +61,58 @@ public class Main {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
     private static final boolean DEBUG = Checks.DEBUG;
 
-    private record TermSize(int width, int height) {
-        public static final TermSize DEFAULT = new TermSize(51, 19);
-        public static final Pattern PATTERN = Pattern.compile("^(\\d+)x(\\d+)$");
-    }
-
-    private static <T> T getParsedOptionValue(CommandLine cli, Option opt, Class<T> klass) throws ParseException {
-        var res = cli.getOptionValue(opt);
-        if (klass == Path.class) {
-            try {
-                return klass.cast(Path.of(res));
-            } catch (InvalidPathException e) {
-                throw new ParseException("'" + res + "' is not a valid path (" + e.getReason() + ")");
-            }
-        } else if (klass == TermSize.class) {
-            var matcher = TermSize.PATTERN.matcher(res);
-            if (!matcher.matches()) throw new ParseException("'" + res + "' is not a valid terminal size.");
-
-            return klass.cast(new TermSize(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2))));
-        } else {
-            return klass.cast(TypeHandler.createValue(res, klass));
+    private static Path parsePath(String path) throws ParseException {
+        try {
+            return Path.of(path);
+        } catch (InvalidPathException e) {
+            throw new ParseException("'" + path + "' is not a valid path (" + e.getReason() + ")");
         }
     }
 
+    private record TermSize(int width, int height) {
+        public static final TermSize DEFAULT = new TermSize(51, 19);
+        public static final Pattern PATTERN = Pattern.compile("^(\\d+)x(\\d+)$");
+
+        public static TermSize parse(String value) throws ParseException {
+            var matcher = TermSize.PATTERN.matcher(value);
+            if (!matcher.matches()) throw new ParseException("'" + value + "' is not a valid terminal size.");
+
+            return new TermSize(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)));
+        }
+    }
+
+    private record MountPaths(Path src, String dest) {
+        public static final Pattern PATTERN = Pattern.compile("^([^:]+):([^:]+)$");
+
+        public static MountPaths parse(String value) throws ParseException {
+            var matcher = MountPaths.PATTERN.matcher(value);
+            if (!matcher.matches()) throw new ParseException("'" + value + "' is not a mount spec.");
+
+            return new MountPaths(parsePath(matcher.group(1)), matcher.group(2));
+        }
+    }
+
+    private interface ValueParser<T> {
+        T parse(String path) throws ParseException;
+    }
+
     @Contract("_, _, _, !null -> !null")
-    private static <T> @Nullable T getParsedOptionValue(CommandLine cli, Option opt, Class<T> klass, @Nullable T defaultValue) throws ParseException {
-        return cli.hasOption(opt) ? getParsedOptionValue(cli, opt, klass) : defaultValue;
+    private static <T> @Nullable T getParsedOptionValue(CommandLine cli, Option opt, ValueParser<T> parser, @Nullable T defaultValue) throws ParseException {
+        return cli.hasOption(opt) ? parser.parse(cli.getOptionValue(opt)) : defaultValue;
+    }
+
+    private static <T> List<T> getParsedOptionValues(CommandLine cli, Option opt, ValueParser<T> parser) throws ParseException {
+        var values = cli.getOptionValues(opt);
+        if (values == null) return List.of();
+
+        List<T> parsedValues = new ArrayList<>(values.length);
+        for (var value : values) parsedValues.add(parser.parse(value));
+        return List.copyOf(parsedValues);
     }
 
     public static void main(String[] args) throws InterruptedException {
         var options = new Options();
-        Option resourceOpt, computerOpt, termSizeOpt, allowLocalDomainsOpt, helpOpt;
+        Option resourceOpt, computerOpt, termSizeOpt, allowLocalDomainsOpt, helpOpt, mountOpt, mountRoOpt;
         options.addOption(resourceOpt = Option.builder("r").argName("PATH").longOpt("resources").hasArg()
             .desc("The path to the resources directory")
             .build());
@@ -98,6 +125,12 @@ public class Main {
         options.addOption(allowLocalDomainsOpt = Option.builder("L").longOpt("allow-local-domains")
             .desc("Allow accessing local domains with the HTTP API.")
             .build());
+        options.addOption(mountOpt = Option.builder().longOpt("mount").hasArg().argName("SRC:DEST")
+            .desc("Mount a folder SRC at directory DEST on the computer.")
+            .build());
+        options.addOption(mountRoOpt = Option.builder().longOpt("mount-ro").hasArg().argName("SRC:DEST")
+            .desc("Mount a read-only folder SRC at directory DEST on the computer.")
+            .build());
 
         options.addOption(helpOpt = Option.builder("h").longOpt("help")
             .desc("Print help message")
@@ -107,6 +140,7 @@ public class Main {
         Path computerDirectory;
         TermSize termSize;
         boolean allowLocalDomains;
+        List<MountPaths> mounts, readOnlyMounts;
         try {
             var cli = new DefaultParser().parse(options, args);
             if (cli.hasOption(helpOpt)) {
@@ -115,10 +149,12 @@ public class Main {
             }
             if (!cli.hasOption(resourceOpt)) throw new ParseException("--resources directory is required");
 
-            resourcesDirectory = getParsedOptionValue(cli, resourceOpt, Path.class);
-            computerDirectory = getParsedOptionValue(cli, computerOpt, Path.class, null);
-            termSize = getParsedOptionValue(cli, termSizeOpt, TermSize.class, TermSize.DEFAULT);
+            resourcesDirectory = parsePath(cli.getOptionValue(resourceOpt));
+            computerDirectory = getParsedOptionValue(cli, computerOpt, Main::parsePath, null);
+            termSize = getParsedOptionValue(cli, termSizeOpt, TermSize::parse, TermSize.DEFAULT);
             allowLocalDomains = cli.hasOption(allowLocalDomainsOpt);
+            mounts = getParsedOptionValues(cli, mountOpt, MountPaths::parse);
+            readOnlyMounts = getParsedOptionValues(cli, mountRoOpt, MountPaths::parse);
         } catch (ParseException e) {
             System.err.println(e.getLocalizedMessage());
 
@@ -143,6 +179,7 @@ public class Main {
                 new Terminal(termSize.width(), termSize.height(), true, () -> isDirty.set(true)),
                 0
             );
+            computer.addApi(new FileMounter(computer.getAPIEnvironment(), readOnlyMounts, mounts));
             computer.turnOn();
 
             runAndInit(gl, computer, isDirty);
@@ -151,6 +188,41 @@ public class Main {
             System.exit(1);
         } finally {
             context.ensureClosed(1, TimeUnit.SECONDS);
+        }
+    }
+
+    /**
+     * An {@link ILuaAPI} which is used to mount additional files, but does not expose any new globals/methods.
+     */
+    private static final class FileMounter implements ILuaAPI {
+        private final IAPIEnvironment environment;
+        private final List<MountPaths> readOnlyMounts;
+        private final List<MountPaths> mounts;
+
+        FileMounter(IAPIEnvironment environment, List<MountPaths> readOnlyMounts, List<MountPaths> mounts) {
+            this.environment = environment;
+            this.readOnlyMounts = readOnlyMounts;
+            this.mounts = mounts;
+        }
+
+        @Override
+        public String[] getNames() {
+            return new String[0];
+        }
+
+        @Override
+        public void startup() {
+            try {
+                var fs = environment.getFileSystem();
+                for (var mount : readOnlyMounts) {
+                    fs.mount(mount.dest(), mount.dest(), new FileMount(mount.src()));
+                }
+                for (var mount : mounts) {
+                    fs.mount(mount.dest(), mount.dest(), new WritableFileMount(mount.src().toFile(), 1_000_000));
+                }
+            } catch (FileSystemException e) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 
