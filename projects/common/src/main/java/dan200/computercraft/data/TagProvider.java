@@ -6,6 +6,7 @@ package dan200.computercraft.data;
 
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.integration.ExternalModTags;
 import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
@@ -81,6 +82,12 @@ class TagProvider {
         );
 
         tags.tag(BlockTags.WITHER_IMMUNE).add(ModRegistry.Blocks.COMPUTER_COMMAND.get());
+
+        tags.tag(ExternalModTags.Blocks.CREATE_BRITTLE).add(
+            ModRegistry.Blocks.CABLE.get(),
+            ModRegistry.Blocks.WIRELESS_MODEM_ADVANCED.get(),
+            ModRegistry.Blocks.WIRELESS_MODEM_ADVANCED.get()
+        );
     }
 
     public static void itemTags(ItemTagConsumer tags) {
