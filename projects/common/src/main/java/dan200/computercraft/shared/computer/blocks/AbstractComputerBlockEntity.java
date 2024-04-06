@@ -223,7 +223,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         var offsetSide = dir.getOpposite();
         var localDir = remapToLocalSide(dir);
 
-        computer.setRedstoneInput(localDir, RedstoneUtil.getRedstoneInput(level, targetPos, dir));
+        computer.setRedstoneInput(localDir, RedstoneUtil.getRedstoneInput(getLevel(), targetPos, dir));
         computer.setBundledRedstoneInput(localDir, BundledRedstone.getOutput(getLevel(), targetPos, offsetSide));
     }
 

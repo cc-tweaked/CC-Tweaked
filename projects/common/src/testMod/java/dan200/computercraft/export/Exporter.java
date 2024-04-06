@@ -33,6 +33,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -79,7 +80,7 @@ public class Exporter {
         }
 
         // Now find all CC recipes.
-        var level = Minecraft.getInstance().level;
+        var level = Objects.requireNonNull(Minecraft.getInstance().level);
         for (var recipe : level.getRecipeManager().getAllRecipesFor(RecipeType.CRAFTING)) {
             var result = recipe.getResultItem(level.registryAccess());
             if (!RegistryWrappers.ITEMS.getKey(result.getItem()).getNamespace().equals(ComputerCraftAPI.MOD_ID)) {

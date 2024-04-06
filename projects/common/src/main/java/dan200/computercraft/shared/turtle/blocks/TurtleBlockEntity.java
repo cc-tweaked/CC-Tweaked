@@ -165,7 +165,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
 
     public void setDirection(Direction dir) {
         if (dir.getAxis() == Direction.Axis.Y) dir = Direction.NORTH;
-        level.setBlockAndUpdate(worldPosition, getBlockState().setValue(TurtleBlock.FACING, dir));
+        getLevel().setBlockAndUpdate(worldPosition, getBlockState().setValue(TurtleBlock.FACING, dir));
 
         updateRedstone();
         updateInputsImmediately();

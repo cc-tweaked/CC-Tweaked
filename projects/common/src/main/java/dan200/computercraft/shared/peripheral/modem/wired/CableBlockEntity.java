@@ -108,7 +108,7 @@ public class CableBlockEntity extends BlockEntity {
 
     void neighborChanged(BlockPos neighbour) {
         var dir = getModemDirection();
-        if (!level.isClientSide && dir != null && getBlockPos().relative(dir).equals(neighbour) && isPeripheralOn()) {
+        if (!getLevel().isClientSide && dir != null && getBlockPos().relative(dir).equals(neighbour) && isPeripheralOn()) {
             queueRefreshPeripheral();
         }
     }
@@ -164,7 +164,7 @@ public class CableBlockEntity extends BlockEntity {
             .from(oldVariant.getFacing(), modem.getModemState().isOpen(), peripheral.hasPeripheral());
 
         if (oldVariant != newVariant) {
-            level.setBlockAndUpdate(getBlockPos(), state.setValue(CableBlock.MODEM, newVariant));
+            getLevel().setBlockAndUpdate(getBlockPos(), state.setValue(CableBlock.MODEM, newVariant));
         }
     }
 

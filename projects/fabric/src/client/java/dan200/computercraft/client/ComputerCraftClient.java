@@ -32,6 +32,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
+import java.util.Objects;
+
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public class ComputerCraftClient {
@@ -77,7 +79,7 @@ public class ComputerCraftClient {
             if (hit.getType() != HitResult.Type.BLOCK) return ItemStack.EMPTY;
 
             var pos = ((BlockHitResult) hit).getBlockPos();
-            var level = Minecraft.getInstance().level;
+            var level = Objects.requireNonNull(Minecraft.getInstance().level);
             var state = level.getBlockState(pos);
             if (!(state.getBlock() instanceof CableBlock cable)) return ItemStack.EMPTY;
 

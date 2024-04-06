@@ -175,7 +175,7 @@ public class MonitorBlockEntity extends BlockEntity {
         } else {
             // Otherwise fetch the origin and attempt to get its monitor
             // Note this may load chunks, but we don't really have a choice here.
-            var te = level.getBlockEntity(toWorldPos(0, 0));
+            var te = getLevel().getBlockEntity(toWorldPos(0, 0));
             if (!(te instanceof MonitorBlockEntity monitor)) return null;
 
             return serverMonitor = monitor.createServerMonitor();
@@ -417,7 +417,7 @@ public class MonitorBlockEntity extends BlockEntity {
 
     @Nullable
     private MonitorBlockEntity tryResizeAt(BlockPos pos, int width, int height) {
-        var tile = level.getBlockEntity(pos);
+        var tile = getLevel().getBlockEntity(pos);
         if (tile instanceof MonitorBlockEntity monitor && isCompatible(monitor)) {
             monitor.resize(width, height);
             return monitor;
