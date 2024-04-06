@@ -55,7 +55,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         // Render the label
         var label = turtle.getLabel();
         var hit = renderer.cameraHitResult;
-        if (label != null && hit.getType() == HitResult.Type.BLOCK && turtle.getBlockPos().equals(((BlockHitResult) hit).getBlockPos())) {
+        if (label != null && hit != null && hit.getType() == HitResult.Type.BLOCK && turtle.getBlockPos().equals(((BlockHitResult) hit).getBlockPos())) {
             var mc = Minecraft.getInstance();
             var font = this.font;
 

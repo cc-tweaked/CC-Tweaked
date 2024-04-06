@@ -7,6 +7,7 @@ package cc.tweaked.linter
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.ImmutableSetMultimap
 import com.uber.nullaway.LibraryModels
+import com.uber.nullaway.LibraryModels.FieldRef.fieldRef
 import com.uber.nullaway.LibraryModels.MethodRef.methodRef
 
 /**
@@ -33,5 +34,10 @@ class MinecraftLibraryModel : LibraryModels {
     override fun nonNullReturns(): ImmutableSet<LibraryModels.MethodRef> = ImmutableSet.of(
         // Reasoning about nullability of BlockEntity.getLevel() is awkward. For now, assume it's non-null.
         methodRef("net.minecraft.world.level.block.entity.BlockEntity", "getLevel()"),
+    )
+
+    override fun nullableFields(): ImmutableSet<LibraryModels.FieldRef> = ImmutableSet.of(
+        // This inherits from Minecraft.hitResult, and so can also be null.
+        fieldRef("net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher", "cameraHitResult"),
     )
 }
