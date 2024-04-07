@@ -195,16 +195,16 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta, double deltaY) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
         if (!inTermRegion(mouseX, mouseY)) return false;
-        if (!hasMouseSupport() || delta == 0) return false;
+        if (!hasMouseSupport() || deltaY == 0) return false;
 
         var charX = (int) ((mouseX - innerX) / FONT_WIDTH);
         var charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
         charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
         charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
 
-        computer.mouseScroll(delta < 0 ? 1 : -1, charX + 1, charY + 1);
+        computer.mouseScroll(deltaY < 0 ? 1 : -1, charX + 1, charY + 1);
 
         lastMouseX = charX;
         lastMouseY = charY;

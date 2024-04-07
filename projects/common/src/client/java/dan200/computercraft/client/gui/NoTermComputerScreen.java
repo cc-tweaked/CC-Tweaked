@@ -6,8 +6,10 @@ package dan200.computercraft.client.gui;
 
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
@@ -16,6 +18,7 @@ import net.minecraft.world.entity.player.Inventory;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
@@ -44,8 +47,8 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
     protected void init() {
         // First ensure we're still grabbing the mouse, so the user can look around. Then reset bits of state that
         // grabbing unsets.
-        minecraft.mouseHandler.grabMouse();
-        minecraft.screen = this;
+        minecraft().mouseHandler.grabMouse();
+        minecraft().screen = this;
         KeyMapping.releaseAll();
 
         super.init();
@@ -64,13 +67,13 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        minecraft.player.getInventory().swapPaint(scrollX);
+        Objects.requireNonNull(minecraft().player).getInventory().swapPaint(scrollY);
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override
     public void onClose() {
-        minecraft.player.closeContainer();
+        Objects.requireNonNull(minecraft().player).closeContainer();
         super.onClose();
     }
 
@@ -93,12 +96,16 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.render(graphics, mouseX, mouseY, partialTicks);
 
-        var font = minecraft.font;
+        var font = minecraft().font;
         var lines = font.split(Component.translatable("gui.computercraft.pocket_computer_overlay"), (int) (width * 0.8));
         var y = 10;
         for (var line : lines) {
-            graphics.drawString(font, line, (width / 2) - (minecraft.font.width(line) / 2), y, 0xFFFFFF, true);
+            graphics.drawString(font, line, (width / 2) - (font.width(line) / 2), y, 0xFFFFFF, true);
             y += 9;
         }
+    }
+
+    private Minecraft minecraft() {
+        return Nullability.assertNonNull(minecraft);
     }
 }

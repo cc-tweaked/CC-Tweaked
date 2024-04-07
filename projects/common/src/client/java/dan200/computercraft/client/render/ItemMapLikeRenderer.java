@@ -17,6 +17,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.Objects;
+
 /**
  * A base class for items which have map-like rendering when held in the hand.
  *
@@ -35,7 +37,7 @@ public abstract class ItemMapLikeRenderer {
     protected abstract void renderItem(PoseStack transform, MultiBufferSource render, ItemStack stack, int light);
 
     public void renderItemFirstPerson(PoseStack transform, MultiBufferSource render, int lightTexture, InteractionHand hand, float pitch, float equipProgress, float swingProgress, ItemStack stack) {
-        Player player = Minecraft.getInstance().player;
+        Player player = Objects.requireNonNull(Minecraft.getInstance().player);
 
         transform.pushPose();
         if (hand == InteractionHand.MAIN_HAND && player.getOffhandItem().isEmpty()) {

@@ -6,7 +6,10 @@ package dan200.computercraft.client.pocket;
 
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
+import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
+
+import javax.annotation.Nullable;
 
 /**
  * Clientside data about a pocket computer.
@@ -19,21 +22,21 @@ import dan200.computercraft.shared.pocket.core.PocketServerComputer;
  * @see PocketServerComputer The server-side pocket computer.
  */
 public final class PocketComputerData {
-    private final NetworkedTerminal terminal;
+    private @Nullable NetworkedTerminal terminal;
     private ComputerState state;
     private int lightColour;
 
-    PocketComputerData(ComputerState state, int lightColour, NetworkedTerminal terminal) {
+    PocketComputerData(ComputerState state, int lightColour, TerminalState terminalData) {
         this.state = state;
         this.lightColour = lightColour;
-        this.terminal = terminal;
+        if (terminalData.hasTerminal()) terminal = terminalData.create();
     }
 
     public int getLightState() {
         return state != ComputerState.OFF ? lightColour : -1;
     }
 
-    public NetworkedTerminal getTerminal() {
+    public @Nullable NetworkedTerminal getTerminal() {
         return terminal;
     }
 
@@ -41,8 +44,16 @@ public final class PocketComputerData {
         return state;
     }
 
-    void setState(ComputerState state, int lightColour) {
+    void setState(ComputerState state, int lightColour, TerminalState terminalData) {
         this.state = state;
         this.lightColour = lightColour;
+
+        if (terminalData.hasTerminal()) {
+            if (terminal == null) {
+                terminal = terminalData.create();
+            } else {
+                terminalData.apply(terminal);
+            }
+        }
     }
 }

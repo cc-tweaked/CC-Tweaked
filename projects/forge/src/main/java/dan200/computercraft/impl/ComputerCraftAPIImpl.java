@@ -10,6 +10,7 @@ import dan200.computercraft.api.detail.DetailRegistry;
 import dan200.computercraft.impl.detail.DetailRegistryImpl;
 import dan200.computercraft.shared.details.FluidData;
 import dan200.computercraft.shared.peripheral.generic.ComponentLookup;
+import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -60,7 +61,7 @@ public final class ComputerCraftAPIImpl extends AbstractComputerCraftAPI impleme
         @Nullable
         @Override
         public T find(ServerLevel level, BlockPos pos, BlockState state, BlockEntity blockEntity, Direction side) {
-            return level.getCapability(capability, pos, state, blockEntity, side);
+            return CapabilityUtil.getCapability(level, capability, pos, state, blockEntity, side);
         }
     }
 }

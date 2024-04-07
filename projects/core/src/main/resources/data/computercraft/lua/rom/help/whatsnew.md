@@ -1,16 +1,14 @@
-New features in CC: Tweaked 1.110.0
+New features in CC: Tweaked 1.110.2
 
-* Add a new `@c[...]` syntax for selecting computers in the `/computercraft` command.
-* Remove custom breaking progress of modems on Forge.
+* Add `speaker sound` command (fatboychummy).
 
 Several bug fixes:
-* Fix client and server DFPWM transcoders getting out of sync.
-* Fix `turtle.suck` reporting incorrect error when failing to suck items.
-* Fix pocket computers displaying state (blinking, modem light) for the wrong computer.
-* Fix crash when wrapping an invalid BE as a generic peripheral.
-* Chest peripherals now reattach when a chest is converted into a double chest.
-* Fix `speaker` program not resolving files relative to the current directory.
-* Skip main-thread tasks if the peripheral is detached.
-* Fix internal Lua VM errors if yielding inside `__tostring`.
+* Improve error when calling `speaker play` with no path (fatboychummy).
+* Prevent playing music discs with `speaker.playSound`.
+* Various documentation fixes (cyberbit).
+* Fix generic peripherals not being able to transfer to some inventories on Forge.
+* Fix rare crash when holding a pocket computer.
+* Fix modems breaking when moved by Create.
+* Fix crash when rendering a turtle through an Immersive Portals portal.
 
 Type "help changelog" to see the full version history.

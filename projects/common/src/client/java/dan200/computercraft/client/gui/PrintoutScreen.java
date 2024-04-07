@@ -66,13 +66,13 @@ public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
     @Override
     public boolean mouseScrolled(double x, double y, double deltaX, double deltaY) {
         if (super.mouseScrolled(x, y, deltaX, deltaY)) return true;
-        if (deltaX < 0) {
+        if (deltaY < 0) {
             // Scroll up goes to the next page
             if (page < pages - 1) page++;
             return true;
         }
 
-        if (deltaX > 0) {
+        if (deltaY > 0) {
             // Scroll down goes to the previous page
             if (page > 0) page--;
             return true;

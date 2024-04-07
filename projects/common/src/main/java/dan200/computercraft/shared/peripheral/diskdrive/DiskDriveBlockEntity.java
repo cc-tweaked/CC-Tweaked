@@ -303,7 +303,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
 
         // Set the id (if needed) and write it back to the media stack.
         var stack = media.stack().copy();
-        mount = media.media().createDataMount(stack, (ServerLevel) level);
+        mount = media.media().createDataMount(stack, (ServerLevel) getLevel());
         updateMediaStack(stack, immediate);
 
         return mount;

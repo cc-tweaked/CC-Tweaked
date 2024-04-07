@@ -41,7 +41,7 @@ class Pocket_Computer_Test {
             val pocketComputer = ClientPocketComputers.get(minecraft.player!!.mainHandItem)!!
             assertEquals(ComputerState.ON, pocketComputer.state)
 
-            val term = pocketComputer.terminal
+            val term = pocketComputer.terminal!!
             assertEquals("Hello, world!", term.getLine(0).toString().trim(), "Terminal contents is synced")
         }
         // Update the terminal contents again.
@@ -57,7 +57,7 @@ class Pocket_Computer_Test {
             val pocketComputer = ClientPocketComputers.get(minecraft.player!!.mainHandItem)!!
             assertEquals(ComputerState.BLINKING, pocketComputer.state)
 
-            val term = pocketComputer.terminal
+            val term = pocketComputer.terminal!!
             assertEquals("Updated text :)", term.getLine(0).toString().trim(), "Terminal contents is synced")
         }
     }

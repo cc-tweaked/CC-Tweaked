@@ -19,15 +19,16 @@ import dan200.computercraft.shared.network.client.SpeakerPlayClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.util.PauseAwareTimer;
-import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 
 import javax.annotation.Nullable;
@@ -252,15 +253,15 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         var volume = (float) clampVolume(checkFinite(1, volumeA.orElse(1.0)));
         var pitch = (float) checkFinite(2, pitchA.orElse(1.0));
 
-        ResourceLocation identifier;
-        try {
-            identifier = new ResourceLocation(name);
-        } catch (ResourceLocationException e) {
-            throw new LuaException("Malformed sound name '" + name + "' ");
-        }
+        var identifier = ResourceLocation.tryParse(name);
+        if (identifier == null) throw new LuaException("Malformed sound name '" + name + "' ");
+
+        // Prevent playing music discs.
+        var soundEvent = BuiltInRegistries.SOUND_EVENT.get(identifier);
+        if (soundEvent != null && RecordItem.getBySound(soundEvent) != null) return false;
 
         synchronized (lock) {
-            if (dfpwmState != null && dfpwmState.isPlaying()) return false;
+            if (pendingSound != null || (dfpwmState != null && dfpwmState.isPlaying())) return false;
             dfpwmState = null;
             pendingSound = new PendingSound<>(identifier, volume, pitch);
             return true;

@@ -1,3 +1,22 @@
+# New features in CC: Tweaked 1.110.2
+
+* Add `speaker sound` command (fatboychummy).
+
+Several bug fixes:
+* Improve error when calling `speaker play` with no path (fatboychummy).
+* Prevent playing music discs with `speaker.playSound`.
+* Various documentation fixes (cyberbit).
+* Fix generic peripherals not being able to transfer to some inventories on Forge.
+* Fix rare crash when holding a pocket computer.
+* Fix modems breaking when moved by Create.
+* Fix crash when rendering a turtle through an Immersive Portals portal.
+
+# New features in CC: Tweaked 1.110.1
+
+Several bug fixes:
+* Fix computers not turning on after they're unloaded/not-ticked for a while.
+* Fix networking cables sometimes not connecting on Forge.
+
 # New features in CC: Tweaked 1.110.0
 
 * Add a new `@c[...]` syntax for selecting computers in the `/computercraft` command.

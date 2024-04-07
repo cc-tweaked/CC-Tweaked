@@ -323,3 +323,16 @@ fun GameTestHelper.placeItemAt(stack: ItemStack, pos: BlockPos, direction: Direc
     val hit = BlockHitResult(Vec3.atCenterOf(absolutePos), direction, absolutePos, false)
     stack.useOn(UseOnContext(player, InteractionHand.MAIN_HAND, hit))
 }
+
+/**
+ * Run a function multiple times until it succeeds.
+ */
+inline fun tryMultipleTimes(count: Int, action: () -> Unit) {
+    for (remaining in count - 1 downTo 0) {
+        try {
+            action()
+        } catch (e: AssertionError) {
+            if (remaining == 0) throw e
+        }
+    }
+}

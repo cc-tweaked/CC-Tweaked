@@ -56,8 +56,11 @@ public final class ClientMonitor {
 
     void read(TerminalState state) {
         if (state.hasTerminal()) {
-            if (terminal == null) terminal = new NetworkedTerminal(state.width, state.height, state.colour);
-            state.apply(terminal);
+            if (terminal == null) {
+                terminal = state.create();
+            } else {
+                state.apply(terminal);
+            }
             terminalChanged = true;
         } else {
             if (terminal != null) {

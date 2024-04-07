@@ -84,7 +84,7 @@ public class WirelessModemBlock extends DirectionalBlock implements SimpleWaterl
     @Deprecated
     public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
         var facing = state.getValue(FACING);
-        return canSupportCenter(world, pos.relative(facing), facing.getOpposite());
+        return ModemShapes.canSupport(world, pos.relative(facing), facing.getOpposite());
     }
 
     @Nullable

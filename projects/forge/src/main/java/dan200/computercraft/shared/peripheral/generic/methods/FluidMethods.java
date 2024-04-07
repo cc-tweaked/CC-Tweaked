@@ -8,6 +8,8 @@ import dan200.computercraft.api.detail.ForgeDetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -53,7 +55,7 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
         var location = computer.getAvailablePeripheral(toName);
         if (location == null) throw new LuaException("Target '" + toName + "' does not exist");
 
-        var to = extractHandler(location.getTarget());
+        var to = extractHandler(location);
         if (to == null) throw new LuaException("Target '" + toName + "' is not an tank");
 
         int actualLimit = limit.orElse(Integer.MAX_VALUE);
@@ -78,7 +80,7 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
         var location = computer.getAvailablePeripheral(fromName);
         if (location == null) throw new LuaException("Target '" + fromName + "' does not exist");
 
-        var from = extractHandler(location.getTarget());
+        var from = extractHandler(location);
         if (from == null) throw new LuaException("Target '" + fromName + "' is not an tank");
 
         int actualLimit = limit.orElse(Integer.MAX_VALUE);
@@ -90,14 +92,17 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
     }
 
     @Nullable
-    private static IFluidHandler extractHandler(@Nullable Object object) {
+    private static IFluidHandler extractHandler(IPeripheral peripheral) {
+        var object = peripheral.getTarget();
+        var direction = peripheral instanceof dan200.computercraft.shared.peripheral.generic.GenericPeripheral sided ? sided.side() : null;
+
         if (object instanceof BlockEntity blockEntity) {
             if (blockEntity.isRemoved()) return null;
 
             var level = blockEntity.getLevel();
             if (!(level instanceof ServerLevel serverLevel)) return null;
 
-            var result = serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, null);
+            var result = CapabilityUtil.getCapability(serverLevel, Capabilities.FluidHandler.BLOCK, blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
             if (result != null) return result;
         }
 
