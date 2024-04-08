@@ -105,6 +105,11 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
         }
     }
 
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        // Skip rendering the background.
+    }
+
     private Minecraft minecraft() {
         return Nullability.assertNonNull(minecraft);
     }
