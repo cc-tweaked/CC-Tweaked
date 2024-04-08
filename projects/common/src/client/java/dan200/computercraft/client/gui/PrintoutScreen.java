@@ -83,19 +83,15 @@ public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
-        // Draw the printout
+        // Push the printout slightly forward, to avoid clipping into the background.
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, 0, 1);
+
         var renderer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
         drawBorder(graphics.pose(), renderer, leftPos, topPos, 0, page, pages, book, FULL_BRIGHT_LIGHTMAP);
         drawText(graphics.pose(), renderer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, PrintoutItem.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours);
         renderer.endBatch();
-    }
 
-    @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        // We must take the background further back in order to not overlap with our printed pages.
-        graphics.pose().pushPose();
-        graphics.pose().translate(0, 0, -1);
-        super.renderBackground(graphics, mouseX, mouseY, partialTicks);
         graphics.pose().popPose();
     }
 
