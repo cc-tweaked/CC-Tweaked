@@ -88,11 +88,6 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     }
 
     @Override
-    protected boolean canNameWithTag(Player player) {
-        return true;
-    }
-
-    @Override
     protected double getInteractRange() {
         return 12.0;
     }

@@ -17,7 +17,6 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
-import net.minecraft.world.InteractionHand
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.Blocks
@@ -140,8 +139,7 @@ class Computer_Test {
         // Teleport the player to the computer and then open it.
         thenExecute {
             context.positionAt(BlockPos(2, 2, 1))
-            val computer = context.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.COMPUTER_ADVANCED.get())
-            computer.use(context.level.randomPlayer!!, InteractionHand.MAIN_HAND)
+            context.useBlock(BlockPos(2, 2, 2), context.level.randomPlayer!!)
         }
         // Assert the terminal is synced to the client.
         thenIdle(2)

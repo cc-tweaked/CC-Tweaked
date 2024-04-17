@@ -8,6 +8,7 @@ import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.computer.items.IComputerItem;
+import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.platform.RegistryEntry;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import net.minecraft.core.BlockPos;
@@ -158,8 +159,19 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
 
     @Override
     @Deprecated
-    public final InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        return world.getBlockEntity(pos) instanceof AbstractComputerBlockEntity computer ? computer.use(player, hand) : InteractionResult.PASS;
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (!player.isCrouching() && level.getBlockEntity(pos) instanceof AbstractComputerBlockEntity computer) {
+            // Regular right click to activate computer
+            if (!level.isClientSide && computer.isUsable(player)) {
+                var serverComputer = computer.createServerComputer();
+                serverComputer.turnOn();
+
+                new ComputerContainerData(serverComputer, getItem(computer)).open(player, computer);
+            }
+            return InteractionResult.sidedSuccess(level.isClientSide);
+        }
+
+        return super.use(state, level, pos, player, hand, hit);
     }
 
     @Override
