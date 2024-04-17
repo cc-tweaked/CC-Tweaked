@@ -72,6 +72,10 @@ class EmulatedComputer implements ComputerDisplay, ComputerActionable {
                 for (const callback of this.callbacks) callback(computer);
             })
             .catch(e => {
+                console.error(e);
+
+                if (this.terminal.sizeX === 0 || this.terminal.sizeY === 0) this.terminal.resize(51, 19);
+
                 const width = this.terminal.sizeX;
                 const fg = "0".repeat(width);
                 const bg = "e".repeat(width);
@@ -83,6 +87,8 @@ class EmulatedComputer implements ComputerDisplay, ComputerActionable {
                     this.terminal.fore[y] = fg;
                     this.terminal.back[y] = bg;
                 }
+
+                this.flushTerminal();
             });
     }
 

@@ -71,7 +71,7 @@ minotaur = "2.+"
 nullAway = "0.10.25"
 spotless = "6.23.3"
 taskTree = "2.1.1"
-teavm = "0.10.0-SQUID.3"
+teavm = "0.10.0-SQUID.4"
 vanillaExtract = "0.1.2"
 versionCatalogUpdate = "0.8.1"
 
@@ -154,6 +154,7 @@ minotaur = { module = "com.modrinth.minotaur:Minotaur", version.ref = "minotaur"
 nullAway = { module = "com.uber.nullaway:nullaway", version.ref = "nullAway" }
 spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 teavm-classlib = { module = "org.teavm:teavm-classlib", version.ref = "teavm" }
+teavm-core = { module = "org.teavm:teavm-core", version.ref = "teavm" }
 teavm-jso = { module = "org.teavm:teavm-jso", version.ref = "teavm" }
 teavm-jso-apis = { module = "org.teavm:teavm-jso-apis", version.ref = "teavm" }
 teavm-jso-impl = { module = "org.teavm:teavm-jso-impl", version.ref = "teavm" }

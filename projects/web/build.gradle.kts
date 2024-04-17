@@ -29,6 +29,7 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.netty.http)
     implementation(libs.slf4j)
+    runtimeOnly(libs.teavm.core) // Contains the TeaVM runtime
 
     "builderCompileOnly"(libs.bundles.annotations)
     "builderImplementation"(libs.bundles.teavm.tooling)
