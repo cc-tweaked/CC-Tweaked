@@ -697,6 +697,20 @@ if term.isColour() then
         type = "boolean",
     })
 end
+
+local sShell
+if term.isColour() and settings.get("bios.use_multishell") then
+    sShell = "rom/programs/advanced/multishell.lua"
+else
+    sShell = "rom/programs/shell.lua"
+end
+
+settings.define("bios.shell_path", {
+    default = sShell,
+    description = "The path the bios executes as the shell. This program is responsible for implementing the shell and multishell API, handling user input, and program execution.",
+    type = "string"
+})
+
 if _CC_DEFAULT_SETTINGS then
     for sPair in string.gmatch(_CC_DEFAULT_SETTINGS, "[^,]+") do
         local sName, sValue = string.match(sPair, "([^=]*)=(.*)")
@@ -728,24 +742,24 @@ if fs.exists(".settings") then
 end
 
 -- Run the shell
+local shellOk
 local ok, err = pcall(parallel.waitForAny,
     function()
-        local sShell
-        if term.isColour() and settings.get("bios.use_multishell") then
-            sShell = "rom/programs/advanced/multishell.lua"
-        else
-            sShell = "rom/programs/shell.lua"
+        shellOk = os.run({}, settings.get("bios.shell_path"))
+        if shellOk then
+            os.run({}, "rom/programs/shutdown.lua")
         end
-        os.run({}, sShell)
-        os.run({}, "rom/programs/shutdown.lua")
     end,
     rednet.run
 )
 
 -- If the shell errored, let the user read it.
 term.redirect(term.native())
-if not ok then
-    printError(err)
+if not (ok and shellOk) then
+    -- if the shell within os.run errored, then the error was already output, and the shell loop exited normally.
+    if not ok then
+        printError(err)
+    end
     pcall(function()
         term.setCursorBlink(false)
         print("Press any key to continue")
