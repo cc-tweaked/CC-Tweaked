@@ -708,7 +708,7 @@ end
 settings.define("bios.shell_path", {
     default = sShell,
     description = "The path the bios executes as the shell. This program is responsible for implementing the shell and multishell API, handling user input, and program execution.",
-    type = "string"
+    type = "string",
 })
 
 if _CC_DEFAULT_SETTINGS then
