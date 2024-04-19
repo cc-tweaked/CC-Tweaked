@@ -450,10 +450,7 @@ function dofile(_sFile)
 end
 
 -- Install the rest of the OS api
-function os.run(_tEnv, _sPath, ...)
-    expect(1, _tEnv, "table")
-    expect(2, _sPath, "string")
-
+local function launch(_tEnv, _sPath, ...)
     local tEnv = _tEnv
     setmetatable(tEnv, { __index = _G })
 
@@ -470,17 +467,21 @@ function os.run(_tEnv, _sPath, ...)
     if fnFile then
         local ok, err = pcall(fnFile, ...)
         if not ok then
-            if err and err ~= "" then
-                printError(err)
-            end
-            return false
+            return false, err
         end
         return true
     end
+    return false, err
+end
+
+function os.run(_tEnv, _sPath, ...)
+    expect(1, _tEnv, "table")
+    expect(2, _sPath, "string")
+    local ok, err = launch(_tEnv, _sPath, ...)
     if err and err ~= "" then
         printError(err)
     end
-    return false
+    return ok
 end
 
 local tAPIsLoading = {}
@@ -742,10 +743,10 @@ if fs.exists(".settings") then
 end
 
 -- Run the shell
-local shellOk
+local shellOk, shellErr
 local ok, err = pcall(parallel.waitForAny,
     function()
-        shellOk = os.run({}, settings.get("bios.shell_path"))
+        shellOk, shellErr = launch({}, settings.get("bios.shell_path"))
         if shellOk then
             os.run({}, "rom/programs/shutdown.lua")
         end
@@ -756,9 +757,10 @@ local ok, err = pcall(parallel.waitForAny,
 -- If the shell errored, let the user read it.
 term.redirect(term.native())
 if not (ok and shellOk) then
-    -- if the shell within os.run errored, then the error was already output, and the shell loop exited normally.
     if not ok then
         printError(err)
+    elseif not shellOk then
+        printError(shellErr)
     end
     pcall(function()
         term.setCursorBlink(false)
