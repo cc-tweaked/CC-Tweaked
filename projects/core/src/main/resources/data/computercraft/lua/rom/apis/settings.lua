@@ -183,7 +183,7 @@ function unset(name)
 end
 
 --- Resets the value of all settings. Equivalent to calling [`settings.unset`]
---- on every setting.
+-- on every setting.
 --
 -- @see settings.unset
 function clear()

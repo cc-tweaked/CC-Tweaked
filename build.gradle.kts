@@ -5,9 +5,8 @@
 import cc.tweaked.gradle.JUnitExt
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
 import net.fabricmc.loom.util.gradle.SourceSetHelper
-import org.jetbrains.gradle.ext.compiler
-import org.jetbrains.gradle.ext.runConfigurations
-import org.jetbrains.gradle.ext.settings
+import org.jetbrains.gradle.ext.*
+import org.jetbrains.gradle.ext.Application
 
 plugins {
     publishing
@@ -86,6 +85,19 @@ idea.project.settings.runConfigurations {
         moduleName = "${idea.project.name}.forge.test"
         packageName = ""
     }
+
+    register<Application>("Standalone") {
+        moduleName = "${idea.project.name}.standalone.main"
+        mainClass = "cc.tweaked.standalone.Main"
+        programParameters = "--resources=projects/core/src/main/resources --term=80x30 --allow-local-domains"
+    }
+}
+
+// Build with the IntelliJ, rather than through Gradle. This may require setting the "Compiler Output" option in
+// "Project Structure".
+idea.project.settings.delegateActions {
+    delegateBuildRunToGradle = false
+    testRunner = ActionDelegationConfig.TestRunner.PLATFORM
 }
 
 idea.project.settings.compiler.javac {
