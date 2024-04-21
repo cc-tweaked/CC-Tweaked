@@ -131,7 +131,7 @@ different.
 First, we require the dfpwm module and call [`cc.audio.dfpwm.make_decoder`] to construct a new decoder. This decoder
 accepts blocks of DFPWM data and converts it to a list of 8-bit amplitudes, which we can then play with our speaker.
 
-As mentioned above, [`speaker.playAudio`] accepts at most 128×1024 samples in one go. DFPMW uses a single bit for each
+As mentioned above, [`speaker.playAudio`] accepts at most 128×1024 samples in one go. DFPWM uses a single bit for each
 sample, which means we want to process our audio in chunks of 16×1024 bytes (16KiB). In order to do this, we use
 [`io.lines`], which provides a nice way to loop over chunks of a file. You can of course just use [`fs.open`] and
 [`fs.ReadHandle.read`] if you prefer.
