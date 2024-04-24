@@ -29,7 +29,7 @@ import static dan200.computercraft.core.apis.http.websocket.WebsocketClient.MESS
  * @see dan200.computercraft.core.apis.HTTPAPI#websocket On how to open a websocket.
  */
 public class WebsocketHandle {
-    private static final CharsetDecoder DECODER = StandardCharsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPLACE);
+    private static final ThreadLocal<CharsetDecoder> DECODER = ThreadLocal.withInitial(() -> StandardCharsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPLACE));
 
     private final IAPIEnvironment environment;
     private final String address;
@@ -87,7 +87,7 @@ public class WebsocketHandle {
             websocket.sendBinary(text);
         } else {
             try {
-                websocket.sendText(DECODER.decode(text).toString());
+                websocket.sendText(DECODER.get().decode(text).toString());
             } catch (CharacterCodingException e) {
                 // This shouldn't happen, but worth mentioning.
                 throw new LuaException("Message is not valid UTF8");
