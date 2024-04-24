@@ -136,7 +136,7 @@
     "gui.computercraft.config.term_sizes": "Velikosti terminálu",
     "gui.computercraft.config.term_sizes.computer": "Počítač",
     "gui.computercraft.config.term_sizes.computer.height": "Výška terminálu",
-    "gui.computercraft.config.term_sizes.computer.height.tooltip": "Rozsash: 1 ~ 255",
+    "gui.computercraft.config.term_sizes.computer.height.tooltip": "Rozsah: 1 ~ 255",
     "gui.computercraft.config.term_sizes.computer.tooltip": "Velikost počítačového terminálu.",
     "gui.computercraft.config.term_sizes.computer.width": "Šířka terminálu",
     "gui.computercraft.config.term_sizes.computer.width.tooltip": "Rozsah: 1 ~ 255",
@@ -177,7 +177,7 @@
     "gui.computercraft.tooltip.turn_off.key": "Zmáčkni Ctrl+S",
     "gui.computercraft.tooltip.turn_on": "Zapnout teno počítač",
     "gui.computercraft.upload.failed": "Nahrávání se nezdařilo",
-    "gui.computercraft.upload.failed.computer_off": "Před nahráním souborů musíš vypnout počítač.",
+    "gui.computercraft.upload.failed.computer_off": "Před nahráním souborů musíš zapnout počítač.",
     "gui.computercraft.upload.failed.corrupted": "Soubory byly porušeny při nahrávání. Prosím zkus to znovu.",
     "gui.computercraft.upload.failed.generic": "Nahrávání souborů se nezdařilo (%s)",
     "gui.computercraft.upload.failed.name_too_long": "Jména souborů pro nahrání jsou příliš dlouhá.",
@@ -216,5 +216,11 @@
     "upgrade.minecraft.diamond_hoe.adjective": "Farmářský",
     "upgrade.minecraft.diamond_pickaxe.adjective": "Těžební",
     "upgrade.minecraft.diamond_shovel.adjective": "Kopací",
-    "upgrade.minecraft.diamond_sword.adjective": "Bojový"
+    "upgrade.minecraft.diamond_sword.adjective": "Bojový",
+    "tag.item.computercraft.computer": "Počítače",
+    "tag.item.computercraft.monitor": "Monitory",
+    "tag.item.computercraft.turtle": "Roboti",
+    "tag.item.computercraft.wired_modem": "Drátové modemy",
+    "gui.computercraft.config.http.proxy": "Proxy",
+    "gui.computercraft.config.upload_max_size.tooltip": "Limit velikosti nahrávaného souboru v bytech. Musí být v rozmezí od 1 KiB do 16 MiB.\nMěj na paměti, že nahrávání souborů je zpracováváno v jednom ticku - velké soubory nebo\nšpatný výkon sítě mohou zpomalit síťové vlákno. A nezapomeň na místo na disku!\nRozsah: 1024 ~ 16777216"
 }

@@ -46,7 +46,7 @@ abstract class NpmInstall : DefaultTask() {
     @TaskAction
     fun install() {
         project.exec {
-            commandLine("npm", "ci")
+            commandLine(ProcessHelpers.getExecutable("npm"), "ci")
             workingDir = projectRoot.get().asFile
         }
     }
@@ -59,6 +59,6 @@ abstract class NpmInstall : DefaultTask() {
 abstract class NpxExecToDir : ExecToDir() {
     init {
         dependsOn(NpmInstall.TASK_NAME)
-        executable = "npx"
+        executable = ProcessHelpers.getExecutable("npx")
     }
 }

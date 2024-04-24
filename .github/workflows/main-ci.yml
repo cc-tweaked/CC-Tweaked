@@ -58,13 +58,13 @@ jobs:
         find projects/forge/build/libs projects/fabric/build/libs -type f -regex '.*[0-9.]+\(-SNAPSHOT\)?\.jar$' -exec bash -c 'cp {} "jars/$(basename {} .jar)-$(git rev-parse HEAD).jar"' \;
 
     - name: 📤 Upload Jar
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: CC-Tweaked
         path: ./jars
 
     - name: 📤 Upload coverage
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
 
   build-core:
     strategy:
@@ -81,24 +81,28 @@ jobs:
     runs-on: ${{ matrix.uses }}
 
     steps:
-    - name: Clone repository
+    - name: 📥 Clone repository
       uses: actions/checkout@v4
 
-    - name: Set up Java
+    - name: 📥 Set up Java
       uses: actions/setup-java@v4
       with:
         java-version: 17
         distribution: 'temurin'
 
-    - name: Setup Gradle
+    - name: 📥 Setup Gradle
       uses: gradle/actions/setup-gradle@v3
       with:
         cache-read-only: ${{ !startsWith(github.ref, 'refs/heads/mc-') }}
 
-    - name: Run tests
+    - name: ⚒️ Build
+      run: |
+        ./gradlew --configure-on-demand :core:assemble :web:assemble
+
+    - name: 🧪 Run tests
       run: |
         ./gradlew --configure-on-demand :core:test
 
-    - name: Parse test reports
+    - name: 🧪 Parse test reports
       run: python3 ./tools/parse-reports.py
       if: ${{ failure() }}

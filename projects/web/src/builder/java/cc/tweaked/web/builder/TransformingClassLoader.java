@@ -68,6 +68,10 @@ public class TransformingClassLoader extends ClassLoader {
     }
 
     private @Nullable Path findUnmappedFile(String name) {
+        // For some odd reason, we try to resolve the generated lambda classes. This includes classes called
+        // things like <linit>lambda, which is an invalid path on Windows. Detect those, and abort early.
+        if (name.indexOf("<") >= 0) return null;
+
         return classpath.stream().map(x -> x.resolve(name)).filter(Files::exists).findFirst().orElse(null);
     }
 
@@ -95,13 +99,18 @@ public class TransformingClassLoader extends ClassLoader {
 
     @Override
     public @Nullable InputStream getResourceAsStream(String name) {
-        if (!name.endsWith(".class")) return super.getResourceAsStream(name);
+        if (!name.endsWith(".class") || name.startsWith("java/") || name.startsWith("javax/")) {
+            return super.getResourceAsStream(name);
+        }
 
         var lastFile = this.lastFile;
         if (lastFile != null && lastFile.name().equals(name)) return new ByteArrayInputStream(lastFile.contents());
 
         var path = findFile(name);
-        if (path == null) return null;
+        if (path == null) {
+            System.out.printf("Cannot find %s. Falling back to system class loader.\n", name);
+            return super.getResourceAsStream(name);
+        }
 
         ClassReader reader;
         try (var stream = Files.newInputStream(path)) {

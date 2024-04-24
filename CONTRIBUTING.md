@@ -29,9 +29,9 @@ automatically with GitHub, so please don't submit PRs adding/changing translatio
 In order to develop CC: Tweaked, you'll need to download the source code and then run it.
 
  - Make sure you've got the following software installed:
-   - Java Development Kit (JDK) installed. This can be downloaded from [Adoptium].
+   - Java Development Kit (JDK). This can be downloaded from [Adoptium].
    - [Git](https://git-scm.com/).
-   - If you want to work on documentation, [NodeJS][node].
+   - [NodeJS][node].
 
  - Download CC: Tweaked's source code:
    ```

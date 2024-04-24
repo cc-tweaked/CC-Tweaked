@@ -13,7 +13,6 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.core.ServerContext;
-import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.platform.ComponentAccess;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
@@ -25,10 +24,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.*;
+import net.minecraft.world.LockCode;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.Nameable;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -76,10 +75,6 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         unload();
     }
 
-    protected boolean canNameWithTag(Player player) {
-        return false;
-    }
-
     protected double getInteractRange() {
         return BlockEntityHelpers.DEFAULT_INTERACT_RANGE;
     }
@@ -87,31 +82,6 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     public boolean isUsable(Player player) {
         return BaseContainerBlockEntity.canUnlock(player, lockCode, getDisplayName())
             && BlockEntityHelpers.isUsable(this, player, getInteractRange());
-    }
-
-    public InteractionResult use(Player player, InteractionHand hand) {
-        var currentItem = player.getItemInHand(hand);
-        if (!currentItem.isEmpty() && currentItem.getItem() == Items.NAME_TAG && canNameWithTag(player) && currentItem.hasCustomHoverName()) {
-            // Label to rename computer
-            if (!getLevel().isClientSide) {
-                setLabel(currentItem.getHoverName().getString());
-                currentItem.shrink(1);
-            }
-            return InteractionResult.sidedSuccess(getLevel().isClientSide);
-        } else if (!player.isCrouching()) {
-            // Regular right click to activate computer
-            if (!getLevel().isClientSide && isUsable(player)) {
-                var computer = createServerComputer();
-                computer.turnOn();
-
-                var stack = getBlockState().getBlock() instanceof AbstractComputerBlock<?>
-                    ? ((AbstractComputerBlock<?>) getBlockState().getBlock()).getItem(this)
-                    : ItemStack.EMPTY;
-                new ComputerContainerData(computer, stack).open(player, this);
-            }
-            return InteractionResult.sidedSuccess(getLevel().isClientSide);
-        }
-        return InteractionResult.PASS;
     }
 
     protected void serverTick() {
@@ -343,7 +313,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         if (getLevel().isClientSide || computerID == id) return;
 
         computerID = id;
-        setChanged();
+        BlockEntityHelpers.updateBlock(this);
     }
 
     @Override
@@ -353,7 +323,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         this.label = label;
         var computer = getServerComputer();
         if (computer != null) computer.setLabel(label);
-        setChanged();
+        BlockEntityHelpers.updateBlock(this);
     }
 
     @Override
