@@ -68,6 +68,10 @@ public class TransformingClassLoader extends ClassLoader {
     }
 
     private @Nullable Path findUnmappedFile(String name) {
+        // For some odd reason, we try to resolve the generated lambda classes. This includes classes called
+        // things like <linit>lambda, which is an invalid path on Windows. Detect those, and abort early.
+        if (name.indexOf("<") >= 0) return null;
+
         return classpath.stream().map(x -> x.resolve(name)).filter(Files::exists).findFirst().orElse(null);
     }
 
