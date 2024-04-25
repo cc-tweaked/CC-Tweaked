@@ -24,6 +24,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.Container;
 import net.minecraft.world.LockCode;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.Nameable;
@@ -75,13 +76,13 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         unload();
     }
 
-    protected double getInteractRange() {
-        return BlockEntityHelpers.DEFAULT_INTERACT_RANGE;
+    protected int getInteractRange() {
+        return Container.DEFAULT_DISTANCE_LIMIT;
     }
 
     public boolean isUsable(Player player) {
         return BaseContainerBlockEntity.canUnlock(player, lockCode, getDisplayName())
-            && BlockEntityHelpers.isUsable(this, player, getInteractRange());
+            && Container.stillValidBlockEntity(this, player, getInteractRange());
     }
 
     protected void serverTick() {

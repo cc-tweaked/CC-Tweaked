@@ -5,9 +5,9 @@
 package dan200.computercraft.shared.common;
 
 import dan200.computercraft.shared.container.BasicContainer;
-import dan200.computercraft.shared.util.BlockEntityHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,6 +29,6 @@ public abstract class AbstractContainerBlockEntity extends BaseContainerBlockEnt
 
     @Override
     public boolean stillValid(Player player) {
-        return BlockEntityHelpers.isUsable(this, player, BlockEntityHelpers.DEFAULT_INTERACT_RANGE);
+        return Container.stillValidBlockEntity(this, player);
     }
 }
