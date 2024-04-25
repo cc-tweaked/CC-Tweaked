@@ -12,17 +12,12 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 
 
 public class MouseEventServerMessage extends ComputerServerMessage {
-    public static final int TYPE_CLICK = 0;
-    public static final int TYPE_DRAG = 1;
-    public static final int TYPE_UP = 2;
-    public static final int TYPE_SCROLL = 3;
-
-    private final int type;
+    private final Action type;
     private final int x;
     private final int y;
     private final int arg;
 
-    public MouseEventServerMessage(AbstractContainerMenu menu, int type, int arg, int x, int y) {
+    public MouseEventServerMessage(AbstractContainerMenu menu, Action type, int arg, int x, int y) {
         super(menu);
         this.type = type;
         this.arg = arg;
@@ -32,7 +27,7 @@ public class MouseEventServerMessage extends ComputerServerMessage {
 
     public MouseEventServerMessage(FriendlyByteBuf buf) {
         super(buf);
-        type = buf.readByte();
+        type = buf.readEnum(Action.class);
         arg = buf.readVarInt();
         x = buf.readVarInt();
         y = buf.readVarInt();
@@ -41,7 +36,7 @@ public class MouseEventServerMessage extends ComputerServerMessage {
     @Override
     public void write(FriendlyByteBuf buf) {
         super.write(buf);
-        buf.writeByte(type);
+        buf.writeEnum(type);
         buf.writeVarInt(arg);
         buf.writeVarInt(x);
         buf.writeVarInt(y);
@@ -51,15 +46,19 @@ public class MouseEventServerMessage extends ComputerServerMessage {
     protected void handle(ServerNetworkContext context, ComputerMenu container) {
         var input = container.getInput();
         switch (type) {
-            case TYPE_CLICK -> input.mouseClick(arg, x, y);
-            case TYPE_DRAG -> input.mouseDrag(arg, x, y);
-            case TYPE_UP -> input.mouseUp(arg, x, y);
-            case TYPE_SCROLL -> input.mouseScroll(arg, x, y);
+            case CLICK -> input.mouseClick(arg, x, y);
+            case DRAG -> input.mouseDrag(arg, x, y);
+            case UP -> input.mouseUp(arg, x, y);
+            case SCROLL -> input.mouseScroll(arg, x, y);
         }
     }
 
     @Override
     public MessageType<MouseEventServerMessage> type() {
         return NetworkMessages.MOUSE_EVENT;
+    }
+
+    public enum Action {
+        CLICK, DRAG, UP, SCROLL,
     }
 }

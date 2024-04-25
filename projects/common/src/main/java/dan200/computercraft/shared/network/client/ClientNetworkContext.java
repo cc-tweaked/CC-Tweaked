@@ -26,11 +26,11 @@ public interface ClientNetworkContext {
 
     void handleComputerTerminal(int containerId, TerminalState terminal);
 
-    void handleMonitorData(BlockPos pos, TerminalState terminal);
+    void handleMonitorData(BlockPos pos, @Nullable TerminalState terminal);
 
     void handlePlayRecord(BlockPos pos, @Nullable SoundEvent sound, @Nullable String name);
 
-    void handlePocketComputerData(UUID instanceId, ComputerState state, int lightState, TerminalState terminal);
+    void handlePocketComputerData(UUID instanceId, ComputerState state, int lightState, @Nullable TerminalState terminal);
 
     void handlePocketComputerDeleted(UUID instanceId);
 

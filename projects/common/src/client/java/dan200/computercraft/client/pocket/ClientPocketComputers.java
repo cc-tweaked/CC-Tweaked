@@ -43,7 +43,7 @@ public final class ClientPocketComputers {
      * @param lightColour  The current colour of the modem light.
      * @param terminalData The current terminal contents.
      */
-    public static void setState(UUID instanceId, ComputerState state, int lightColour, TerminalState terminalData) {
+    public static void setState(UUID instanceId, ComputerState state, int lightColour, @Nullable TerminalState terminalData) {
         var computer = instances.get(instanceId);
         if (computer == null) {
             instances.put(instanceId, new PocketComputerData(state, lightColour, terminalData));

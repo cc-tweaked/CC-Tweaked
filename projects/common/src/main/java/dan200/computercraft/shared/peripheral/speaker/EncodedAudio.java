@@ -21,6 +21,7 @@ public record EncodedAudio(int charge, int strength, boolean previousBit, ByteBu
         buf.writeVarInt(charge());
         buf.writeVarInt(strength());
         buf.writeBoolean(previousBit());
+        buf.writeVarInt(audio.remaining());
         buf.writeBytes(audio().duplicate());
     }
 
@@ -29,7 +30,8 @@ public record EncodedAudio(int charge, int strength, boolean previousBit, ByteBu
         var strength = buf.readVarInt();
         var previousBit = buf.readBoolean();
 
-        var bytes = new byte[buf.readableBytes()];
+        var length = buf.readVarInt();
+        var bytes = new byte[length];
         buf.readBytes(bytes);
 
         return new EncodedAudio(charge, strength, previousBit, ByteBuffer.wrap(bytes));

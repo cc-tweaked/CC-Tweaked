@@ -12,14 +12,10 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 
 
 public class KeyEventServerMessage extends ComputerServerMessage {
-    public static final int TYPE_DOWN = 0;
-    public static final int TYPE_REPEAT = 1;
-    public static final int TYPE_UP = 2;
-
-    private final int type;
+    private final Action type;
     private final int key;
 
-    public KeyEventServerMessage(AbstractContainerMenu menu, int type, int key) {
+    public KeyEventServerMessage(AbstractContainerMenu menu, Action type, int key) {
         super(menu);
         this.type = type;
         this.key = key;
@@ -27,29 +23,33 @@ public class KeyEventServerMessage extends ComputerServerMessage {
 
     public KeyEventServerMessage(FriendlyByteBuf buf) {
         super(buf);
-        type = buf.readByte();
+        type = buf.readEnum(Action.class);
         key = buf.readVarInt();
     }
 
     @Override
     public void write(FriendlyByteBuf buf) {
         super.write(buf);
-        buf.writeByte(type);
+        buf.writeEnum(type);
         buf.writeVarInt(key);
     }
 
     @Override
     protected void handle(ServerNetworkContext context, ComputerMenu container) {
         var input = container.getInput();
-        if (type == TYPE_UP) {
+        if (type == Action.UP) {
             input.keyUp(key);
         } else {
-            input.keyDown(key, type == TYPE_REPEAT);
+            input.keyDown(key, type == Action.REPEAT);
         }
     }
 
     @Override
     public MessageType<KeyEventServerMessage> type() {
         return NetworkMessages.KEY_EVENT;
+    }
+
+    public enum Action {
+        DOWN, REPEAT, UP
     }
 }

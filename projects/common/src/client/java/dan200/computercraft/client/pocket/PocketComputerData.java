@@ -26,10 +26,10 @@ public final class PocketComputerData {
     private ComputerState state;
     private int lightColour;
 
-    PocketComputerData(ComputerState state, int lightColour, TerminalState terminalData) {
+    PocketComputerData(ComputerState state, int lightColour, @Nullable TerminalState terminalData) {
         this.state = state;
         this.lightColour = lightColour;
-        if (terminalData.hasTerminal()) terminal = terminalData.create();
+        if (terminalData != null) terminal = terminalData.create();
     }
 
     public int getLightState() {
@@ -44,11 +44,11 @@ public final class PocketComputerData {
         return state;
     }
 
-    void setState(ComputerState state, int lightColour, TerminalState terminalData) {
+    void setState(ComputerState state, int lightColour, @Nullable TerminalState terminalData) {
         this.state = state;
         this.lightColour = lightColour;
 
-        if (terminalData.hasTerminal()) {
+        if (terminalData != null) {
             if (terminal == null) {
                 terminal = terminalData.create();
             } else {

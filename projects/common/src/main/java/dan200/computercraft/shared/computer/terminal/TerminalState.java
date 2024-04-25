@@ -7,6 +7,7 @@ package dan200.computercraft.shared.computer.terminal;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
+import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nullable;
 
@@ -21,68 +22,49 @@ public class TerminalState {
     private final boolean colour;
     private final int width;
     private final int height;
-
-    @Nullable
     private final ByteBuf buffer;
 
-    public TerminalState(@Nullable NetworkedTerminal terminal) {
-        if (terminal == null) {
-            colour = false;
-            width = height = 0;
-            buffer = null;
-        } else {
-            colour = terminal.isColour();
-            width = terminal.getWidth();
-            height = terminal.getHeight();
+    public TerminalState(NetworkedTerminal terminal) {
+        colour = terminal.isColour();
+        width = terminal.getWidth();
+        height = terminal.getHeight();
 
-            var buf = buffer = Unpooled.buffer();
-            terminal.write(new FriendlyByteBuf(buf));
-        }
+        var buf = buffer = Unpooled.buffer();
+        terminal.write(new FriendlyByteBuf(buf));
+    }
+
+    @Contract("null -> null; !null -> !null")
+    public static @Nullable TerminalState create(@Nullable NetworkedTerminal terminal) {
+        return terminal == null ? null : new TerminalState(terminal);
     }
 
     public TerminalState(FriendlyByteBuf buf) {
         colour = buf.readBoolean();
+        width = buf.readVarInt();
+        height = buf.readVarInt();
 
-        if (buf.readBoolean()) {
-            width = buf.readVarInt();
-            height = buf.readVarInt();
-
-            var length = buf.readVarInt();
-            buffer = buf.readBytes(length);
-        } else {
-            width = height = 0;
-            buffer = null;
-        }
+        var length = buf.readVarInt();
+        buffer = buf.readBytes(length);
     }
 
     public void write(FriendlyByteBuf buf) {
         buf.writeBoolean(colour);
-
-        buf.writeBoolean(buffer != null);
-        if (buffer != null) {
-            buf.writeVarInt(width);
-            buf.writeVarInt(height);
-            buf.writeVarInt(buffer.readableBytes());
-            buf.writeBytes(buffer, buffer.readerIndex(), buffer.readableBytes());
-        }
-    }
-
-    public boolean hasTerminal() {
-        return buffer != null;
+        buf.writeVarInt(width);
+        buf.writeVarInt(height);
+        buf.writeVarInt(buffer.readableBytes());
+        buf.writeBytes(buffer, buffer.readerIndex(), buffer.readableBytes());
     }
 
     public int size() {
-        return buffer == null ? 0 : buffer.readableBytes();
+        return buffer.readableBytes();
     }
 
     public void apply(NetworkedTerminal terminal) {
-        if (buffer == null) throw new NullPointerException("buffer");
         terminal.resize(width, height);
         terminal.read(new FriendlyByteBuf(buffer));
     }
 
     public NetworkedTerminal create() {
-        if (buffer == null) throw new NullPointerException("Terminal does not exist");
         var terminal = new NetworkedTerminal(width, height, colour);
         terminal.read(new FriendlyByteBuf(buffer));
         return terminal;
