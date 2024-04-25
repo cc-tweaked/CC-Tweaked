@@ -43,8 +43,8 @@ public class FabricCommonHooks {
         if (block.getBlock() != ModRegistry.Blocks.DISK_DRIVE.get()) return InteractionResult.PASS;
 
         if (player.isSecondaryUseActive() && doesSneakBypassUse(player.getMainHandItem()) && doesSneakBypassUse(player.getOffhandItem())) {
-            var result = block.use(level, player, hand, hitResult);
-            if (result.consumesAction()) return result;
+            var result = block.useItemOn(player.getMainHandItem(), level, player, hand, hitResult);
+            if (result.consumesAction()) return result.result();
         }
 
         return InteractionResult.PASS;

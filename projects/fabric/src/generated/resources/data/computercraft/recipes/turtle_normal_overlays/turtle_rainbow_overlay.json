@@ -3,15 +3,15 @@
   "category": "redstone",
   "group": "computercraft:turtle_normal_overlay",
   "ingredients": [
-    {"tag": "c:red_dyes"},
-    {"tag": "c:orange_dyes"},
-    {"tag": "c:yellow_dyes"},
-    {"tag": "c:green_dyes"},
-    {"tag": "c:blue_dyes"},
-    {"tag": "c:purple_dyes"},
+    {"tag": "c:dyes/red"},
+    {"tag": "c:dyes/orange"},
+    {"tag": "c:dyes/yellow"},
+    {"tag": "c:dyes/green"},
+    {"tag": "c:dyes/blue"},
+    {"tag": "c:dyes/purple"},
     {"item": "minecraft:stick"},
     {"item": "computercraft:turtle_normal"}
   ],
   "overlay": "computercraft:block/turtle_rainbow_overlay",
-  "result": {"item": "computercraft:turtle_normal"}
+  "result": {"count": 1, "id": "computercraft:turtle_normal"}
 }

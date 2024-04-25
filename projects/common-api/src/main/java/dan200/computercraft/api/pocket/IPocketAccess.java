@@ -5,7 +5,7 @@
 package dan200.computercraft.api.pocket;
 
 import dan200.computercraft.api.upgrades.UpgradeBase;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 
@@ -67,18 +67,19 @@ public interface IPocketAccess {
      * This is persisted between computer reboots and chunk loads.
      *
      * @return The upgrade's NBT.
-     * @see #updateUpgradeNBTData()
-     * @see UpgradeBase#getUpgradeItem(CompoundTag)
+     * @see #setUpgradeData(DataComponentPatch)
+     * @see UpgradeBase#getUpgradeItem(DataComponentPatch)
      * @see UpgradeBase#getUpgradeData(ItemStack)
      */
-    CompoundTag getUpgradeNBTData();
+    DataComponentPatch getUpgradeData();
 
     /**
-     * Mark the upgrade-specific NBT as dirty.
+     * Update the upgrade-specific data.
      *
-     * @see #getUpgradeNBTData()
+     * @param data The new upgrade data.
+     * @see #getUpgradeData()
      */
-    void updateUpgradeNBTData();
+    void setUpgradeData(DataComponentPatch data);
 
     /**
      * Remove the current peripheral and create a new one.

@@ -5,15 +5,15 @@
 package dan200.computercraft.gametest
 
 import dan200.computercraft.core.apis.FSAPI
-import dan200.computercraft.core.util.Colour
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.shared.ModRegistry
-import dan200.computercraft.shared.media.items.DiskItem
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveBlock
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveState
+import dan200.computercraft.shared.util.DataComponentUtil
 import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
+import net.minecraft.core.component.DataComponents
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.network.chat.Component
@@ -88,7 +88,7 @@ class Disk_Drive_Test {
     fun Adds_removes_mount(helper: GameTestHelper) = helper.sequence {
         thenOnComputer { } // Wait for the computer to start up
         thenExecute {
-            helper.setContainerItem(BlockPos(1, 2, 2), 0, DiskItem.createFromIDAndColour(1, null, Colour.BLACK.hex))
+            helper.setContainerItem(BlockPos(1, 2, 2), 0, ItemStack(ModRegistry.Items.DISK.get()))
         }
         thenOnComputer {
             getApi<FSAPI>().getDrive("disk").assertArrayEquals("right")
@@ -106,7 +106,9 @@ class Disk_Drive_Test {
         val drivePos = BlockPos(2, 2, 2)
         thenWaitUntil {
             val drive = helper.getBlockEntity(drivePos, ModRegistry.BlockEntities.DISK_DRIVE.get())
-            if (DiskItem.getDiskID(drive.getItem(0)) == -1) helper.fail("Disk has no item", drivePos)
+            if (!drive.getItem(0).has(ModRegistry.DataComponents.DISK_ID.get())) {
+                helper.fail("Disk has no item", drivePos)
+            }
         }
     }
 
@@ -169,7 +171,7 @@ class Disk_Drive_Test {
         thenExecute {
             helper.level.destroyBlock(helper.absolutePos(BlockPos(2, 2, 2)), true)
             helper.assertExactlyItems(
-                ItemStack(ModRegistry.Items.DISK_DRIVE.get()).setHoverName(Component.literal("My Disk Drive")),
+                DataComponentUtil.createStack(ModRegistry.Items.DISK_DRIVE.get(), DataComponents.CUSTOM_NAME, Component.literal("My Disk Drive")),
                 ItemStack(ModRegistry.Items.TREASURE_DISK.get()),
                 message = "Breaking a disk drive should drop the contents",
             )

@@ -9,12 +9,12 @@ import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.upgrades.UpgradeDataProvider;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.impl.RegistryHelper;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -111,7 +111,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
 
         /**
          * Indicate that this upgrade allows items which have been {@linkplain ItemStack#isEnchanted() enchanted} or have
-         * {@linkplain ItemStack#getAttributeModifiers(EquipmentSlot) custom attribute modifiers}.
+         * {@linkplain DataComponents#ATTRIBUTE_MODIFIERS custom attribute modifiers}.
          *
          * @return The tool builder, for further use.
          */

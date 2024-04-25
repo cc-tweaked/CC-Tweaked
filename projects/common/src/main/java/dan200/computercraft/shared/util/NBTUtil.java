@@ -6,8 +6,9 @@ package dan200.computercraft.shared.util;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.BaseEncoding;
+import com.mojang.serialization.Codec;
 import dan200.computercraft.core.util.Nullability;
-import dan200.computercraft.shared.platform.PlatformHelper;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,40 +27,21 @@ public final class NBTUtil {
     @VisibleForTesting
     static final BaseEncoding ENCODING = BaseEncoding.base16().lowerCase();
 
-    private static final CompoundTag EMPTY_TAG;
-
-    static {
-        // If in a development environment, create a magic immutable compound tag.
-        // We avoid doing this in prod, as I fear it might mess up the JIT inlining things.
-        if (PlatformHelper.get().isDevelopmentEnvironment()) {
-            try {
-                var ctor = CompoundTag.class.getDeclaredConstructor(Map.class);
-                ctor.setAccessible(true);
-                EMPTY_TAG = ctor.newInstance(Map.of());
-            } catch (ReflectiveOperationException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            EMPTY_TAG = new CompoundTag();
-        }
-    }
-
     private NBTUtil() {
     }
 
-    /**
-     * Get a singleton empty {@link CompoundTag}. This tag should never be modified.
-     *
-     * @return The empty compound tag.
-     */
-    public static CompoundTag emptyTag() {
-        if (EMPTY_TAG.size() != 0) LOG.error("The empty tag has been modified.");
-        return EMPTY_TAG;
+    public static <T> @Nullable T decodeFrom(Codec<T> codec, HolderLookup.Provider registries, CompoundTag tag, String key) {
+        var childTag = tag.get(key);
+        return childTag == null ? null : codec.parse(registries.createSerializationContext(NbtOps.INSTANCE), childTag)
+            .resultOrPartial(e -> LOG.warn("Failed to parse NBT: {}", e))
+            .orElse(null);
     }
 
-    public static CompoundTag getCompoundOrEmpty(CompoundTag tag, String key) {
-        var childTag = tag.get(key);
-        return childTag != null && childTag.getId() == Tag.TAG_COMPOUND ? (CompoundTag) childTag : emptyTag();
+    public static <T> void encodeTo(Codec<T> codec, HolderLookup.Provider registries, CompoundTag destination, String key, @Nullable T value) {
+        if (value == null) return;
+        codec.encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), value)
+            .resultOrPartial(e -> LOG.warn("Failed to save NBT: {}", e))
+            .ifPresent(x -> destination.put(key, x));
     }
 
     private static @Nullable Tag toNBTTag(@Nullable Object object) {
@@ -184,7 +166,7 @@ public final class NBTUtil {
     }
 
     @Nullable
-    public static String getNBTHash(@Nullable CompoundTag tag) {
+    public static String getNBTHash(@Nullable Tag tag) {
         if (tag == null) return null;
 
         try {

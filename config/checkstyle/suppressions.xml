@@ -22,4 +22,7 @@ SPDX-License-Identifier: MPL-2.0
 
     <!-- Allow underscores in our test classes. -->
     <suppress checks="MethodName" files=".*(Contract|Test).java" />
+
+    <!-- Allow underscores in Mixin classes -->
+    <suppress checks="TypeName" files=".*[\\/]mixin[\\/].*.java" />
 </suppressions>

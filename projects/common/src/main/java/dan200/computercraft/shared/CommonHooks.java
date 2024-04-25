@@ -14,6 +14,7 @@ import dan200.computercraft.shared.computer.metrics.ComputerMBean;
 import dan200.computercraft.shared.peripheral.monitor.MonitorWatcher;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.TickScheduler;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -28,7 +29,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.entries.LootTableReference;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.NestedLootTable;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 import javax.annotation.Nullable;
@@ -92,9 +94,9 @@ public final class CommonHooks {
         TickScheduler.onChunkTicketChanged(level, chunkPos, oldLevel, newLevel);
     }
 
-    public static final ResourceLocation TREASURE_DISK_LOOT = new ResourceLocation(ComputerCraftAPI.MOD_ID, "treasure_disk");
+    public static final ResourceKey<LootTable> TREASURE_DISK_LOOT = ResourceKey.create(Registries.LOOT_TABLE, new ResourceLocation(ComputerCraftAPI.MOD_ID, "treasure_disk"));
 
-    private static final Set<ResourceLocation> TREASURE_DISK_LOOT_TABLES = Set.of(
+    private static final Set<ResourceKey<LootTable>> TREASURE_DISK_LOOT_TABLES = Set.of(
         BuiltInLootTables.SIMPLE_DUNGEON,
         BuiltInLootTables.ABANDONED_MINESHAFT,
         BuiltInLootTables.STRONGHOLD_CORRIDOR,
@@ -107,13 +109,13 @@ public final class CommonHooks {
         BuiltInLootTables.VILLAGE_CARTOGRAPHER
     );
 
-    public static @Nullable LootPool.Builder getExtraLootPool(ResourceLocation lootTable) {
-        if (!lootTable.getNamespace().equals("minecraft") || !TREASURE_DISK_LOOT_TABLES.contains(lootTable)) {
+    public static @Nullable LootPool.Builder getExtraLootPool(ResourceKey<LootTable> lootTable) {
+        if (!TREASURE_DISK_LOOT_TABLES.contains(lootTable)) {
             return null;
         }
 
         return LootPool.lootPool()
-            .add(LootTableReference.lootTableReference(TREASURE_DISK_LOOT))
+            .add(NestedLootTable.lootTableReference(TREASURE_DISK_LOOT))
             .setRolls(ConstantValue.exactly(1));
     }
 

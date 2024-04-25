@@ -6,7 +6,9 @@ package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.vertex.Tesselator;
 import dan200.computercraft.core.terminal.TextBuffer;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.HeldItemMenu;
+import dan200.computercraft.shared.media.items.PrintoutData;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -35,16 +37,17 @@ public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
 
         imageHeight = Y_SIZE;
 
-        var text = PrintoutItem.getText(container.getStack());
-        this.text = new TextBuffer[text.length];
-        for (var i = 0; i < this.text.length; i++) this.text[i] = new TextBuffer(text[i]);
-
-        var colours = PrintoutItem.getColours(container.getStack());
-        this.colours = new TextBuffer[colours.length];
-        for (var i = 0; i < this.colours.length; i++) this.colours[i] = new TextBuffer(colours[i]);
+        var printout = container.getStack().getOrDefault(ModRegistry.DataComponents.PRINTOUT.get(), PrintoutData.EMPTY);
+        this.text = new TextBuffer[printout.lines().size()];
+        this.colours = new TextBuffer[printout.lines().size()];
+        for (var i = 0; i < this.text.length; i++) {
+            var line = printout.lines().get(i);
+            this.text[i] = new TextBuffer(line.text());
+            this.colours[i] = new TextBuffer(line.foreground());
+        }
 
         page = 0;
-        pages = Math.max(this.text.length / PrintoutItem.LINES_PER_PAGE, 1);
+        pages = Math.max(this.text.length / PrintoutData.LINES_PER_PAGE, 1);
         book = ((PrintoutItem) container.getStack().getItem()).getType() == PrintoutItem.Type.BOOK;
     }
 
@@ -89,7 +92,7 @@ public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
 
         var renderer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
         drawBorder(graphics.pose(), renderer, leftPos, topPos, 0, page, pages, book, FULL_BRIGHT_LIGHTMAP);
-        drawText(graphics.pose(), renderer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, PrintoutItem.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours);
+        drawText(graphics.pose(), renderer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, PrintoutData.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours);
         renderer.endBatch();
 
         graphics.pose().popPose();

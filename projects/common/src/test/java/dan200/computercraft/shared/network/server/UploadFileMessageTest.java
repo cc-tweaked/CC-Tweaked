@@ -11,7 +11,8 @@ import dan200.computercraft.test.shared.FakeContainer;
 import dan200.computercraft.test.shared.WithMinecraft;
 import io.netty.buffer.Unpooled;
 import net.jqwik.api.*;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.hamcrest.Matcher;
 
 import java.nio.ByteBuffer;
@@ -62,8 +63,8 @@ public class UploadFileMessageTest {
      */
     private static List<UploadFileMessage> roundtripPackets(List<UploadFileMessage> packets) {
         return packets.stream().map(packet -> {
-            var buffer = new FriendlyByteBuf(Unpooled.directBuffer());
-            packet.write(buffer);
+            var buffer = new RegistryFriendlyByteBuf(Unpooled.directBuffer(), RegistryAccess.EMPTY);
+            STREAM_CODEC.encode(buffer, packet);
             // We include things like file size in the packet, but not in the count, so grant a slightly larger threshold.
             assertThat("Packet is too large", buffer.writerIndex(), lessThanOrEqualTo(MAX_PACKET_SIZE + 128));
             if ((packet.flag & FLAG_LAST) == 0) {
@@ -75,7 +76,7 @@ public class UploadFileMessageTest {
                 );
             }
 
-            var result = new UploadFileMessage(buffer);
+            var result = UploadFileMessage.STREAM_CODEC.decode(buffer);
 
             buffer.release();
             assertEquals(0, buffer.refCnt(), "Buffer should have no references");

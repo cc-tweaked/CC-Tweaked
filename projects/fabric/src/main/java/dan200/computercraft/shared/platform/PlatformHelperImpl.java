@@ -9,6 +9,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.serialization.JsonOps;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.network.wired.WiredElementLookup;
@@ -17,9 +18,6 @@ import dan200.computercraft.api.peripheral.PeripheralLookup;
 import dan200.computercraft.impl.Peripherals;
 import dan200.computercraft.mixin.ArgumentTypeInfosAccessor;
 import dan200.computercraft.shared.config.ConfigFile;
-import dan200.computercraft.shared.network.MessageType;
-import dan200.computercraft.shared.network.NetworkMessage;
-import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
@@ -28,14 +26,12 @@ import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiCache;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
-import net.fabricmc.fabric.api.resource.conditions.v1.DefaultResourceConditions;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
-import net.fabricmc.fabric.api.tag.convention.v1.ConventionalItemTags;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.loader.api.FabricLoader;
@@ -44,10 +40,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.common.ClientCommonPacketListener;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -70,9 +65,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -82,7 +75,9 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 @AutoService(dan200.computercraft.impl.PlatformHelper.class)
 public class PlatformHelperImpl implements PlatformHelper {
@@ -110,7 +105,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public boolean shouldLoadResource(JsonObject object) {
-        return ResourceConditions.objectMatchesConditions(object);
+        return true; // Done by default in Fabric, so can be skipped
     }
 
     @Override
@@ -121,12 +116,7 @@ public class PlatformHelperImpl implements PlatformHelper {
             object.add(ResourceConditions.CONDITIONS_KEY, conditions);
         }
 
-        conditions.add(DefaultResourceConditions.allModsLoaded(modId).toJson());
-    }
-
-    @Override
-    public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> factory, Block block) {
-        return FabricBlockEntityTypeBuilder.create(factory::apply).addBlock(block).build();
+        conditions.add(ResourceCondition.CODEC.encodeStart(JsonOps.INSTANCE, ResourceConditions.allModsLoaded(modId)).getOrThrow());
     }
 
     @Override
@@ -136,23 +126,13 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> createMenuType(Function<FriendlyByteBuf, T> reader, ContainerData.Factory<C, T> factory) {
-        return new ExtendedScreenHandlerType<>((id, player, data) -> factory.create(id, player, reader.apply(data)));
+    public <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> createMenuType(StreamCodec<RegistryFriendlyByteBuf, T> codec, ContainerData.Factory<C, T> factory) {
+        return new ExtendedScreenHandlerType<>(factory::create, codec);
     }
 
     @Override
     public void openMenu(Player player, MenuProvider owner, ContainerData menu) {
-        player.openMenu(new WrappedMenuProvider(owner, menu));
-    }
-
-    @Override
-    public <T extends NetworkMessage<?>> MessageType<T> createMessageType(ResourceLocation channel, FriendlyByteBuf.Reader<T> reader) {
-        return new FabricMessageType<>(channel, reader);
-    }
-
-    @Override
-    public Packet<ClientCommonPacketListener> createPacket(NetworkMessage<ClientNetworkContext> message) {
-        return ServerPlayNetworking.createS2CPacket(FabricMessageType.toFabricPacket(message));
+        player.openMenu(new WrappedMenuProvider<>(owner, menu));
     }
 
     @Override
@@ -196,10 +176,9 @@ public class PlatformHelperImpl implements PlatformHelper {
             Ingredient.of(ConventionalItemTags.GOLD_INGOTS),
             Ingredient.of(Items.GOLD_BLOCK),
             Ingredient.of(ConventionalItemTags.IRON_INGOTS),
-            Ingredient.of(MoreConventionalTags.SKULLS),
             Ingredient.of(ConventionalItemTags.DYES),
             Ingredient.of(Items.ENDER_PEARL),
-            Ingredient.of(MoreConventionalTags.WOODEN_CHESTS)
+            Ingredient.of(ConventionalItemTags.WOODEN_CHESTS)
         );
     }
 
@@ -286,8 +265,11 @@ public class PlatformHelperImpl implements PlatformHelper {
 
         var block = player.level().getBlockState(hit.getBlockPos());
         if (!block.isAir() && canUseBlock.test(block)) {
-            var useResult = block.use(player.level(), player, InteractionHand.MAIN_HAND, hit);
-            if (useResult.consumesAction()) return useResult;
+            var useResult = block.useItemOn(stack, player.level(), player, InteractionHand.MAIN_HAND, hit);
+            if (useResult.consumesAction()) return useResult.result();
+
+            // TODO(1.20.5): Should we do this unconditionally now? Or at least a better way of configuring it.
+            // TODO(1.20.5:  What to do with useWithoutItem
         }
 
         return stack.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
@@ -340,7 +322,9 @@ public class PlatformHelperImpl implements PlatformHelper {
         }
     }
 
-    private record WrappedMenuProvider(MenuProvider owner, ContainerData menu) implements ExtendedScreenHandlerFactory {
+    private record WrappedMenuProvider<T extends ContainerData>(
+        MenuProvider owner, T menu
+    ) implements ExtendedScreenHandlerFactory<T> {
         @Nullable
         @Override
         public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
@@ -353,8 +337,8 @@ public class PlatformHelperImpl implements PlatformHelper {
         }
 
         @Override
-        public void writeScreenOpeningData(ServerPlayer player, FriendlyByteBuf buf) {
-            menu.toBytes(buf);
+        public T getScreenOpeningData(ServerPlayer player) {
+            return menu;
         }
     }
 

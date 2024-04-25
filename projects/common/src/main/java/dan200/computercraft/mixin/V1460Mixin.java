@@ -7,16 +7,17 @@ package dan200.computercraft.mixin;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.templates.TypeTemplate;
-import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveBlockEntity;
 import dan200.computercraft.shared.peripheral.printer.PrinterBlockEntity;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import net.minecraft.util.datafix.fixes.References;
+import net.minecraft.util.datafix.schemas.NamespacedSchema;
 import net.minecraft.util.datafix.schemas.V1460;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Map;
@@ -37,13 +38,31 @@ class V1460Mixin {
         var map = ci.getReturnValue();
 
         // Basic inventories
-        registerInventory(schema, map, ModRegistry.BlockEntities.TURTLE_NORMAL.id().toString());
-        registerInventory(schema, map, ModRegistry.BlockEntities.TURTLE_ADVANCED.id().toString());
-        registerInventory(schema, map, ModRegistry.BlockEntities.PRINTER.id().toString());
+        registerTurtle(schema, map, "computercraft:turtle_normal");
+        registerTurtle(schema, map, "computercraft:turtle_advanced");
+        registerInventory(schema, map, "computercraft:printer");
 
         // Disk drives contain a single item
-        schema.register(map, ModRegistry.BlockEntities.DISK_DRIVE.id().toString(), () -> DSL.optionalFields(
+        schema.register(map, "computercraft:disk_drive", () -> DSL.optionalFields(
             "Item", References.ITEM_STACK.in(schema)
+        ));
+    }
+
+    private static TypeTemplate upgradeData(Schema schema) {
+        return DSL.or(
+            // Pre-1.20.5 we just use the upgrade ID.
+            DSL.constType(NamespacedSchema.namespacedString()),
+            // In newer versions this is represented as a component.
+            DSL.optionalFields("components", References.DATA_COMPONENTS.in(schema))
+        );
+    }
+
+    @Unique
+    private static void registerTurtle(Schema schema, Map<String, Supplier<TypeTemplate>> map, String name) {
+        schema.register(map, name, () -> DSL.optionalFields(
+            "LeftUpgrade", upgradeData(schema),
+            "RightUpgrade", upgradeData(schema),
+            "Items", DSL.list(References.ITEM_STACK.in(schema))
         ));
     }
 

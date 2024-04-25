@@ -60,20 +60,17 @@ public class WirelessModemBlock extends DirectionalBlock implements SimpleWaterl
     }
 
     @Override
-    @Deprecated
-    public VoxelShape getShape(BlockState blockState, BlockGetter blockView, BlockPos blockPos, CollisionContext context) {
+    protected VoxelShape getShape(BlockState blockState, BlockGetter blockView, BlockPos blockPos, CollisionContext context) {
         return ModemShapes.getBounds(blockState.getValue(FACING));
     }
 
     @Override
-    @Deprecated
-    public FluidState getFluidState(BlockState state) {
+    protected FluidState getFluidState(BlockState state) {
         return WaterloggableHelpers.getFluidState(state);
     }
 
     @Override
-    @Deprecated
-    public BlockState updateShape(BlockState state, Direction side, BlockState otherState, LevelAccessor world, BlockPos pos, BlockPos otherPos) {
+    protected BlockState updateShape(BlockState state, Direction side, BlockState otherState, LevelAccessor world, BlockPos pos, BlockPos otherPos) {
         WaterloggableHelpers.updateShape(state, world, pos);
         return side == state.getValue(FACING) && !state.canSurvive(world, pos)
             ? state.getFluidState().createLegacyBlock()
@@ -81,8 +78,7 @@ public class WirelessModemBlock extends DirectionalBlock implements SimpleWaterl
     }
 
     @Override
-    @Deprecated
-    public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+    protected boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
         var facing = state.getValue(FACING);
         return ModemShapes.canSupport(world, pos.relative(facing), facing.getOpposite());
     }
@@ -96,20 +92,17 @@ public class WirelessModemBlock extends DirectionalBlock implements SimpleWaterl
     }
 
     @Override
-    @Deprecated
-    public BlockState mirror(BlockState state, Mirror mirrorIn) {
+    protected BlockState mirror(BlockState state, Mirror mirrorIn) {
         return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
     }
 
     @Override
-    @Deprecated
-    public BlockState rotate(BlockState state, Rotation rot) {
+    protected BlockState rotate(BlockState state, Rotation rot) {
         return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 
     @Override
-    @Deprecated
-    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource rand) {
+    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource rand) {
         var te = level.getBlockEntity(pos);
         if (te instanceof WirelessModemBlockEntity modem) modem.blockTick();
     }

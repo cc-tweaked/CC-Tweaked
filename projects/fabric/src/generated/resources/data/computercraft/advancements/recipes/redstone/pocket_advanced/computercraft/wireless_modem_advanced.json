@@ -4,8 +4,8 @@
     "has_items": {
       "conditions": {
         "items": [
-          {"items": ["computercraft:pocket_computer_advanced"]},
-          {"items": ["computercraft:wireless_modem_advanced"]}
+          {"items": "computercraft:pocket_computer_advanced"},
+          {"items": "computercraft:wireless_modem_advanced"}
         ]
       },
       "trigger": "minecraft:inventory_changed"
@@ -15,7 +15,6 @@
       "trigger": "minecraft:recipe_unlocked"
     }
   },
-  "requirements": [["has_items", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:pocket_advanced/computercraft/wireless_modem_advanced"]},
-  "sends_telemetry_event": false
+  "requirements": [["has_the_recipe", "has_items"]],
+  "rewards": {"recipes": ["computercraft:pocket_advanced/computercraft/wireless_modem_advanced"]}
 }

@@ -7,6 +7,7 @@ package dan200.computercraft.client;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.FabricComputerCraftAPIClient;
 import dan200.computercraft.client.model.CustomModelLoader;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.impl.Services;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
@@ -14,7 +15,6 @@ import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.platform.FabricConfigFile;
-import dan200.computercraft.shared.platform.FabricMessageType;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -42,7 +42,7 @@ public class ComputerCraftClient {
         var clientNetwork = Services.load(ClientNetworkContext.class);
         for (var type : NetworkMessages.getClientbound()) {
             ClientPlayNetworking.registerGlobalReceiver(
-                FabricMessageType.toFabricType(type), (packet, player, responseSender) -> packet.payload().handle(clientNetwork)
+                type.type(), (packet, responseSender) -> packet.handle(clientNetwork)
             );
         }
 
@@ -70,7 +70,7 @@ public class ComputerCraftClient {
         WorldRenderEvents.BLOCK_OUTLINE.register((context, hitResult) -> {
             var hit = Minecraft.getInstance().hitResult;
             if (hit instanceof BlockHitResult blockHit && blockHit.getBlockPos().equals(hitResult.blockPos())) {
-                return !ClientHooks.drawHighlight(context.matrixStack(), assertNonNull(context.consumers()), context.camera(), blockHit);
+                return !ClientHooks.drawHighlight(Nullability.assertNonNull(context.matrixStack()), assertNonNull(context.consumers()), context.camera(), blockHit);
             } else {
                 return true;
             }

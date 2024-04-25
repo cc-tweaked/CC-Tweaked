@@ -7,26 +7,26 @@
 # Minecraft
 # MC version is specified in gradle.properties, as we need that in settings.gradle.
 # Remember to update corresponding versions in fabric.mod.json/mods.toml
-fabric-api = "0.93.1+1.20.4"
-fabric-loader = "0.15.3"
-neoForge = "20.4.210"
+fabric-api = "0.97.6+1.20.5"
+fabric-loader = "0.15.10"
+neoForge = "20.5.0-beta"
 neoForgeSpi = "8.0.1"
 mixin = "0.8.5"
-parchment = "2023.12.31"
-parchmentMc = "1.20.3"
-yarn = "1.20.4+build.3"
+parchment = "2024.04.14"
+parchmentMc = "1.20.4"
+yarn = "1.20.5+build.1"
 
 # Core dependencies (these versions are tied to the version Minecraft uses)
 fastutil = "8.5.12"
 guava = "32.1.2-jre"
 netty = "4.1.97.Final"
-slf4j = "2.0.7"
+slf4j = "2.0.9"
 
 # Core dependencies (independent of Minecraft)
 asm = "9.6"
 autoService = "1.1.1"
 checkerFramework = "3.42.0"
-cobalt = "0.9.3"
+cobalt = { strictly = "0.9.3" }
 commonsCli = "1.6.0"
 jetbrainsAnnotations = "24.1.0"
 jsr305 = "3.0.2"
@@ -46,6 +46,7 @@ oculus = "1.2.5"
 rei = "14.0.688"
 rubidium = "0.6.1"
 sodium = "mc1.20-0.4.10"
+mixinExtra = "0.3.5"
 
 # Testing
 hamcrest = "2.2"
@@ -66,7 +67,7 @@ ideaExt = "1.1.7"
 illuaminate = "0.1.0-71-g378d86e"
 lwjgl = "3.3.3"
 minotaur = "2.8.7"
-neoGradle = "7.0.100"
+neoGradle = "7.0.107"
 nullAway = "0.10.25"
 spotless = "6.23.3"
 taskTree = "2.1.1"
@@ -109,6 +110,7 @@ jei-api = { module = "mezz.jei:jei-1.20.4-common-api", version.ref = "jei" }
 jei-fabric = { module = "mezz.jei:jei-1.20.4-fabric", version.ref = "jei" }
 jei-forge = { module = "mezz.jei:jei-1.20.4-forge", version.ref = "jei" }
 mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
+mixinExtra = { module = "io.github.llamalad7:mixinextras-common", version.ref = "mixinExtra" }
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
 moreRed = { module = "commoble.morered:morered-1.20.1", version.ref = "moreRed" }
 oculus = { module = "maven.modrinth:oculus", version.ref = "oculus" }
@@ -179,7 +181,7 @@ externalMods-common = ["jei-api", "nightConfig-core", "nightConfig-toml"]
 externalMods-forge-compile = ["moreRed", "oculus", "jei-api"]
 externalMods-forge-runtime = []
 externalMods-fabric-compile = ["fabricPermissions", "iris", "jei-api", "rei-api", "rei-builtin"]
-externalMods-fabric-runtime = ["jei-fabric", "modmenu"]
+externalMods-fabric-runtime = [] # ["jei-fabric", "modmenu"]
 
 # Testing
 test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]

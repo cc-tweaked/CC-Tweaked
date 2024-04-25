@@ -9,7 +9,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import net.minecraft.client.resources.model.UnbakedModel;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
@@ -38,7 +38,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * @param data    Upgrade data instance for current turtle side.
      * @return The model that you wish to be used to render your upgrade.
      */
-    TransformedModel getModel(T upgrade, @Nullable ITurtleAccess turtle, TurtleSide side, CompoundTag data);
+    TransformedModel getModel(T upgrade, @Nullable ITurtleAccess turtle, TurtleSide side, DataComponentPatch data);
 
     /**
      * Get a list of models that this turtle modeller depends on.
@@ -55,7 +55,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
     }
 
     /**
-     * A basic {@link TurtleUpgradeModeller} which renders using the upgrade's {@linkplain ITurtleUpgrade#getUpgradeItem(CompoundTag)}
+     * A basic {@link TurtleUpgradeModeller} which renders using the upgrade's {@linkplain ITurtleUpgrade#getUpgradeItem(DataComponentPatch)}
      * upgrade item}.
      * <p>
      * This uses appropriate transformations for "flat" items, namely those extending the {@literal minecraft:item/generated}
@@ -80,7 +80,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
     static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> sided(ResourceLocation left, ResourceLocation right) {
         return new TurtleUpgradeModeller<>() {
             @Override
-            public TransformedModel getModel(T upgrade, @Nullable ITurtleAccess turtle, TurtleSide side, CompoundTag data) {
+            public TransformedModel getModel(T upgrade, @Nullable ITurtleAccess turtle, TurtleSide side, DataComponentPatch data) {
                 return TransformedModel.of(side == TurtleSide.LEFT ? left : right);
             }
 

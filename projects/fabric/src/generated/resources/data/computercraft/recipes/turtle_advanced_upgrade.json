@@ -1,12 +1,11 @@
 {
-  "type": "computercraft:computer_upgrade",
+  "type": "computercraft:computer_convert",
   "category": "redstone",
   "key": {
-    "#": {"tag": "c:gold_ingots"},
+    "#": {"tag": "c:ingots/gold"},
     "B": {"item": "minecraft:gold_block"},
     "C": {"item": "computercraft:turtle_normal"}
   },
   "pattern": ["###", "#C#", " B "],
-  "result": {"item": "computercraft:turtle_advanced"},
-  "show_notification": true
+  "result": {"count": 1, "id": "computercraft:turtle_advanced"}
 }

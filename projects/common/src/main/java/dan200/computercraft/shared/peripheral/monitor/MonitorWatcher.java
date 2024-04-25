@@ -14,6 +14,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
+import java.util.Optional;
 import java.util.Queue;
 
 public final class MonitorWatcher {
@@ -40,7 +41,7 @@ public final class MonitorWatcher {
             if (serverMonitor == null || monitor.enqueued) continue;
 
             var state = getState(monitor, serverMonitor);
-            ServerNetworking.sendToPlayer(new MonitorClientMessage(monitor.getBlockPos(), state), player);
+            ServerNetworking.sendToPlayer(new MonitorClientMessage(monitor.getBlockPos(), Optional.ofNullable(state)), player);
         }
     }
 
@@ -66,7 +67,7 @@ public final class MonitorWatcher {
             }
 
             var state = getState(tile, monitor);
-            ServerNetworking.sendToAllTracking(new MonitorClientMessage(pos, state), chunk);
+            ServerNetworking.sendToAllTracking(new MonitorClientMessage(pos, Optional.ofNullable(state)), chunk);
 
             limit -= state == null ? 0 : state.size();
         }

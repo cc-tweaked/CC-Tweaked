@@ -15,6 +15,7 @@ import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
@@ -155,15 +156,15 @@ public class WiredModemFullBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
+    public void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadAdditional(nbt, registries);
         for (var i = 0; i < peripherals.length; i++) peripherals[i].read(nbt, Integer.toString(i));
     }
 
     @Override
-    public void saveAdditional(CompoundTag nbt) {
+    public void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
         for (var i = 0; i < peripherals.length; i++) peripherals[i].write(nbt, Integer.toString(i));
-        super.saveAdditional(nbt);
+        super.saveAdditional(nbt, registries);
     }
 
     void blockTick() {

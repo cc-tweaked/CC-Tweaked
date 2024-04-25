@@ -70,14 +70,11 @@ public class JEIComputerCraft implements IModPlugin {
      * Distinguishes turtles by upgrades and family.
      */
     private static final IIngredientSubtypeInterpreter<ItemStack> turtleSubtype = (stack, ctx) -> {
-        var item = stack.getItem();
-        if (!(item instanceof TurtleItem turtle)) return IIngredientSubtypeInterpreter.NONE;
-
         var name = new StringBuilder("turtle:");
 
         // Add left and right upgrades to the identifier
-        var left = turtle.getUpgrade(stack, TurtleSide.LEFT);
-        var right = turtle.getUpgrade(stack, TurtleSide.RIGHT);
+        var left = TurtleItem.getUpgrade(stack, TurtleSide.LEFT);
+        var right = TurtleItem.getUpgrade(stack, TurtleSide.RIGHT);
         if (left != null) name.append(left.getUpgradeID());
         if (left != null && right != null) name.append('|');
         if (right != null) name.append(right.getUpgradeID());
@@ -89,9 +86,6 @@ public class JEIComputerCraft implements IModPlugin {
      * Distinguishes pocket computers by upgrade and family.
      */
     private static final IIngredientSubtypeInterpreter<ItemStack> pocketSubtype = (stack, ctx) -> {
-        var item = stack.getItem();
-        if (!(item instanceof PocketComputerItem)) return IIngredientSubtypeInterpreter.NONE;
-
         var name = new StringBuilder("pocket:");
 
         // Add the upgrade to the identifier
@@ -104,11 +98,5 @@ public class JEIComputerCraft implements IModPlugin {
     /**
      * Distinguishes disks by colour.
      */
-    private static final IIngredientSubtypeInterpreter<ItemStack> diskSubtype = (stack, ctx) -> {
-        var item = stack.getItem();
-        if (!(item instanceof DiskItem disk)) return IIngredientSubtypeInterpreter.NONE;
-
-        var colour = disk.getColour(stack);
-        return colour == -1 ? IIngredientSubtypeInterpreter.NONE : String.format("%06x", colour);
-    };
+    private static final IIngredientSubtypeInterpreter<ItemStack> diskSubtype = (stack, ctx) -> Integer.toString(DiskItem.getColour(stack));
 }

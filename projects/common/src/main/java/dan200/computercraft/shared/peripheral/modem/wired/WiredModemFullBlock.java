@@ -10,7 +10,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -44,14 +43,12 @@ public class WiredModemFullBlock extends Block implements EntityBlock {
     }
 
     @Override
-    @Deprecated
-    public final InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected final InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
         return world.getBlockEntity(pos) instanceof WiredModemFullBlockEntity modem ? modem.use(player) : InteractionResult.PASS;
     }
 
     @Override
-    @Deprecated
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         if (state.getValue(PERIPHERAL_ON) && level.getBlockEntity(pos) instanceof WiredModemFullBlockEntity modem) {
             modem.queueRefreshPeripheral(direction);
         }
@@ -60,8 +57,7 @@ public class WiredModemFullBlock extends Block implements EntityBlock {
     }
 
     @Override
-    @Deprecated
-    public final void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos, boolean isMoving) {
+    protected final void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos, boolean isMoving) {
         if (state.getValue(PERIPHERAL_ON) && level.getBlockEntity(pos) instanceof WiredModemFullBlockEntity modem) {
             modem.neighborChanged(neighbourPos);
         }
@@ -75,8 +71,7 @@ public class WiredModemFullBlock extends Block implements EntityBlock {
     }
 
     @Override
-    @Deprecated
-    public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
+    protected void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
         if (world.getBlockEntity(pos) instanceof WiredModemFullBlockEntity modem) modem.blockTick();
     }
 

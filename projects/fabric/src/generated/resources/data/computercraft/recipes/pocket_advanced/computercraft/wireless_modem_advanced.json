@@ -8,8 +8,8 @@
   },
   "pattern": ["#", "P"],
   "result": {
-    "item": "computercraft:pocket_computer_advanced",
-    "nbt": "{Upgrade:\"computercraft:wireless_modem_advanced\"}"
-  },
-  "show_notification": true
+    "components": {"computercraft:pocket_upgrade": {"id": "computercraft:wireless_modem_advanced"}},
+    "count": 1,
+    "id": "computercraft:pocket_computer_advanced"
+  }
 }

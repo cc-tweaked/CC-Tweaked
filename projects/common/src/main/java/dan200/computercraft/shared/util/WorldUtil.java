@@ -4,7 +4,6 @@
 
 package dan200.computercraft.shared.util;
 
-import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
@@ -114,9 +113,7 @@ public final class WorldUtil {
     }
 
     public static Vec3 getRayEnd(Player player) {
-        var reach = PlatformHelper.get().getReachDistance(player);
-        var look = player.getLookAngle();
-        return getRayStart(player).add(look.x * reach, look.y * reach, look.z * reach);
+        return getRayStart(player).add(player.getLookAngle().scale(player.blockInteractionRange()));
     }
 
     private static final double DROP_SPEED = 0.0172275 * 6;

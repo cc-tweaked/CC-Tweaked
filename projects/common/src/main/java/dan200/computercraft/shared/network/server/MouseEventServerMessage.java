@@ -5,47 +5,48 @@
 package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
-import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessages;
-import net.minecraft.network.FriendlyByteBuf;
+import dan200.computercraft.shared.network.codec.MoreStreamCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
+/**
+ * Queue a mouse event on the currently opened computer.
+ */
+public final class MouseEventServerMessage extends ComputerServerMessage {
+    public static final StreamCodec<RegistryFriendlyByteBuf, MouseEventServerMessage> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.VAR_INT, MouseEventServerMessage::containerId,
+        MoreStreamCodecs.ofEnum(Action.class), x -> x.action,
+        ByteBufCodecs.VAR_INT, x -> x.arg,
+        ByteBufCodecs.VAR_INT, x -> x.x,
+        ByteBufCodecs.VAR_INT, x -> x.y,
+        MouseEventServerMessage::new
+    );
 
-public class MouseEventServerMessage extends ComputerServerMessage {
-    private final Action type;
+    private final Action action;
+    private final int arg;
     private final int x;
     private final int y;
-    private final int arg;
 
-    public MouseEventServerMessage(AbstractContainerMenu menu, Action type, int arg, int x, int y) {
-        super(menu);
-        this.type = type;
-        this.arg = arg;
+    public MouseEventServerMessage(AbstractContainerMenu menu, Action action, int arg, int x, int y) {
+        this(menu.containerId, action, arg, x, y);
+    }
+
+    private MouseEventServerMessage(int id, Action action, int arg, int x, int y) {
+        super(id);
+        this.action = action;
         this.x = x;
         this.y = y;
-    }
-
-    public MouseEventServerMessage(FriendlyByteBuf buf) {
-        super(buf);
-        type = buf.readEnum(Action.class);
-        arg = buf.readVarInt();
-        x = buf.readVarInt();
-        y = buf.readVarInt();
-    }
-
-    @Override
-    public void write(FriendlyByteBuf buf) {
-        super.write(buf);
-        buf.writeEnum(type);
-        buf.writeVarInt(arg);
-        buf.writeVarInt(x);
-        buf.writeVarInt(y);
+        this.arg = arg;
     }
 
     @Override
     protected void handle(ServerNetworkContext context, ComputerMenu container) {
         var input = container.getInput();
-        switch (type) {
+        switch (action) {
             case CLICK -> input.mouseClick(arg, x, y);
             case DRAG -> input.mouseDrag(arg, x, y);
             case UP -> input.mouseUp(arg, x, y);
@@ -54,7 +55,7 @@ public class MouseEventServerMessage extends ComputerServerMessage {
     }
 
     @Override
-    public MessageType<MouseEventServerMessage> type() {
+    public CustomPacketPayload.Type<MouseEventServerMessage> type() {
         return NetworkMessages.MOUSE_EVENT;
     }
 

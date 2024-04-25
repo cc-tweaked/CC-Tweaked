@@ -35,7 +35,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 import java.io.IOException
 import java.net.URI
-import java.net.URL
 import java.util.regex.Pattern
 
 abstract class CCTweakedExtension(
@@ -226,12 +225,12 @@ abstract class CCTweakedExtension(
      * where possible.
      */
     fun downloadFile(label: String, url: String): File {
-        val url = URL(url)
+        val url = URI(url)
         val path = File(url.path)
 
         project.repositories.ivy {
             name = label
-            setUrl(URI(url.protocol, url.userInfo, url.host, url.port, path.parent, null, null))
+            setUrl(URI(url.scheme, url.userInfo, url.host, url.port, path.parent, null, null))
             patternLayout {
                 artifact("[artifact].[ext]")
             }

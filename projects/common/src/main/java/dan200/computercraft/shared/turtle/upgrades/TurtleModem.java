@@ -6,10 +6,11 @@ package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -72,15 +73,14 @@ public class TurtleModem extends AbstractTurtleUpgrade {
             if (peripheral instanceof Peripheral modem) {
                 var state = modem.getModemState();
                 if (state.pollChanged()) {
-                    turtle.getUpgradeNBTData(side).putBoolean("active", state.isOpen());
-                    turtle.updateUpgradeNBTData(side);
+                    turtle.setUpgradeData(side, DataComponentPatch.builder().set(ModRegistry.DataComponents.ON.get(), state.isOpen()).build());
                 }
             }
         }
     }
 
     @Override
-    public CompoundTag getPersistedData(CompoundTag upgradeData) {
-        return new CompoundTag();
+    public DataComponentPatch getPersistedData(DataComponentPatch upgradeData) {
+        return DataComponentPatch.EMPTY;
     }
 }

@@ -6,32 +6,26 @@ package dan200.computercraft.shared.network.container;
 
 import dan200.computercraft.shared.common.HeldItemMenu;
 import dan200.computercraft.shared.media.items.PrintoutItem;
-import net.minecraft.network.FriendlyByteBuf;
+import dan200.computercraft.shared.network.codec.MoreStreamCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.InteractionHand;
 
 /**
  * Opens a printout GUI based on the currently held item.
  *
+ * @param hand The hand holding this item.
  * @see HeldItemMenu
  * @see PrintoutItem
  */
-public class HeldItemContainerData implements ContainerData {
-    private final InteractionHand hand;
-
-    public HeldItemContainerData(InteractionHand hand) {
-        this.hand = hand;
-    }
-
-    public HeldItemContainerData(FriendlyByteBuf buffer) {
-        hand = buffer.readEnum(InteractionHand.class);
-    }
+public record HeldItemContainerData(InteractionHand hand) implements ContainerData {
+    public static final StreamCodec<RegistryFriendlyByteBuf, HeldItemContainerData> STREAM_CODEC = StreamCodec.composite(
+        MoreStreamCodecs.ofEnum(InteractionHand.class), HeldItemContainerData::hand,
+        HeldItemContainerData::new
+    );
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
-        buf.writeEnum(hand);
-    }
-
-    public InteractionHand getHand() {
-        return hand;
+    public void toBytes(RegistryFriendlyByteBuf buf) {
+        STREAM_CODEC.encode(buf, this);
     }
 }

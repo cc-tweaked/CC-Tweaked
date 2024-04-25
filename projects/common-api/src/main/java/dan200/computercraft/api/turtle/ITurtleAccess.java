@@ -12,7 +12,7 @@ import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -229,37 +229,22 @@ public interface ITurtleAccess {
      * @param side The side to get the upgrade from.
      * @return The upgrade on the specified side of the turtle, if there is one.
      * @see #getUpgradeWithData(TurtleSide)
-     * @see #setUpgradeWithData(TurtleSide, UpgradeData)
+     * @see #setUpgrade(TurtleSide, UpgradeData)
      */
     @Nullable
     ITurtleUpgrade getUpgrade(TurtleSide side);
 
     /**
-     * Returns the upgrade on the specified side of the turtle, along with its {@linkplain #getUpgradeNBTData(TurtleSide)
+     * Returns the upgrade on the specified side of the turtle, along with its {@linkplain #getUpgradeData(TurtleSide)
      * update data}.
      *
      * @param side The side to get the upgrade from.
      * @return The upgrade on the specified side of the turtle, along with its upgrade data, if there is one.
      * @see #getUpgradeWithData(TurtleSide)
-     * @see #setUpgradeWithData(TurtleSide, UpgradeData)
+     * @see #setUpgrade(TurtleSide, UpgradeData)
      */
-    default @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(TurtleSide side) {
-        var upgrade = getUpgrade(side);
-        return upgrade == null ? null : UpgradeData.of(upgrade, getUpgradeNBTData(side));
-    }
-
-    /**
-     * Set the upgrade for a given side, resetting peripherals and clearing upgrade specific data.
-     *
-     * @param side    The side to set the upgrade on.
-     * @param upgrade The upgrade to set, may be {@code null} to clear.
-     * @see #getUpgrade(TurtleSide)
-     * @deprecated Use {@link #setUpgradeWithData(TurtleSide, UpgradeData)}
-     */
-    @Deprecated
-    default void setUpgrade(TurtleSide side, @Nullable ITurtleUpgrade upgrade) {
-        setUpgradeWithData(side, upgrade == null ? null : UpgradeData.ofDefault(upgrade));
-    }
+    @Nullable
+    UpgradeData<ITurtleUpgrade> getUpgradeWithData(TurtleSide side);
 
     /**
      * Set the upgrade for a given side and its upgrade data.
@@ -268,7 +253,7 @@ public interface ITurtleAccess {
      * @param upgrade The upgrade to set, may be {@code null} to clear.
      * @see #getUpgradeWithData(TurtleSide)
      */
-    void setUpgradeWithData(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade);
+    void setUpgrade(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade);
 
     /**
      * Returns the peripheral created by the upgrade on the specified side of the turtle, if there is one.
@@ -282,23 +267,23 @@ public interface ITurtleAccess {
     /**
      * Get an upgrade-specific NBT compound, which can be used to store arbitrary data.
      * <p>
-     * This will be persisted across turtle restarts and chunk loads, as well as being synced to the client. You must
-     * call {@link #updateUpgradeNBTData(TurtleSide)} after modifying it.
+     * This will be persisted across turtle restarts and chunk loads, as well as being synced to the client. You can
+     * call {@link #setUpgrade(TurtleSide, UpgradeData)} to modify it.
      *
      * @param side The side to get the upgrade data for.
      * @return The upgrade-specific data.
-     * @see #updateUpgradeNBTData(TurtleSide)
-     * @see UpgradeBase#getUpgradeItem(CompoundTag)
+     * @see #setUpgradeData(TurtleSide, DataComponentPatch)
+     * @see UpgradeBase#getUpgradeItem(DataComponentPatch)
      * @see UpgradeBase#getUpgradeData(ItemStack)
      */
-    CompoundTag getUpgradeNBTData(TurtleSide side);
+    DataComponentPatch getUpgradeData(TurtleSide side);
 
     /**
-     * Mark the upgrade-specific data as dirty on a specific side. This is required for the data to be synced to the
-     * client and persisted.
+     * Update the upgrade-specific data.
      *
-     * @param side The side to mark dirty.
-     * @see #updateUpgradeNBTData(TurtleSide)
+     * @param side The side to set the upgrade data for.
+     * @param data The new upgrade data.
+     * @see #getUpgradeData(TurtleSide)
      */
-    void updateUpgradeNBTData(TurtleSide side);
+    void setUpgradeData(TurtleSide side, DataComponentPatch data);
 }

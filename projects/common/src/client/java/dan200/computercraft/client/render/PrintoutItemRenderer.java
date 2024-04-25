@@ -6,6 +6,8 @@ package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.media.items.PrintoutData;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.EntityType;
@@ -15,8 +17,8 @@ import net.minecraft.world.item.ItemStack;
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
-import static dan200.computercraft.shared.media.items.PrintoutItem.LINES_PER_PAGE;
-import static dan200.computercraft.shared.media.items.PrintoutItem.LINE_MAX_LENGTH;
+import static dan200.computercraft.shared.media.items.PrintoutData.LINES_PER_PAGE;
+import static dan200.computercraft.shared.media.items.PrintoutData.LINE_LENGTH;
 
 /**
  * Emulates map and item-frame rendering for printouts.
@@ -37,8 +39,6 @@ public final class PrintoutItemRenderer extends ItemMapLikeRenderer {
     }
 
     public static void onRenderInFrame(PoseStack transform, MultiBufferSource render, ItemFrame frame, ItemStack stack, int packedLight) {
-        if (!(stack.getItem() instanceof PrintoutItem)) return;
-
         // Move a little bit forward to ensure we're not clipping with the frame
         transform.translate(0.0f, 0.0f, -0.001f);
         transform.mulPose(Axis.ZP.rotationDegrees(180f));
@@ -50,10 +50,12 @@ public final class PrintoutItemRenderer extends ItemMapLikeRenderer {
     }
 
     private static void drawPrintout(PoseStack transform, MultiBufferSource render, ItemStack stack, int light) {
-        var pages = PrintoutItem.getPageCount(stack);
+        var pageData = stack.getOrDefault(ModRegistry.DataComponents.PRINTOUT.get(), PrintoutData.EMPTY);
+
+        var pages = pageData.pages();
         var book = ((PrintoutItem) stack.getItem()).getType() == PrintoutItem.Type.BOOK;
 
-        double width = LINE_MAX_LENGTH * FONT_WIDTH + X_TEXT_MARGIN * 2;
+        double width = LINE_LENGTH * FONT_WIDTH + X_TEXT_MARGIN * 2;
         double height = LINES_PER_PAGE * FONT_HEIGHT + Y_TEXT_MARGIN * 2;
 
         // Non-books will be left aligned
@@ -75,9 +77,6 @@ public final class PrintoutItemRenderer extends ItemMapLikeRenderer {
         transform.translate((max - width) / 2.0, (max - height) / 2.0, 0.0);
 
         drawBorder(transform, render, 0, 0, -0.01f, 0, pages, book, light);
-        drawText(
-            transform, render, X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, light,
-            PrintoutItem.getText(stack), PrintoutItem.getColours(stack)
-        );
+        drawText(transform, render, X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, light, pageData.lines());
     }
 }

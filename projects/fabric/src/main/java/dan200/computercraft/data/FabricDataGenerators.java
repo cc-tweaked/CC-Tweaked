@@ -14,13 +14,13 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.SimpleFabricLootTableProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.data.models.BlockModelGenerators;
 import net.minecraft.data.models.ItemModelGenerators;
 import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.tags.TagKey;
@@ -31,6 +31,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class FabricDataGenerators implements DataGeneratorEntrypoint {
@@ -38,7 +39,6 @@ public class FabricDataGenerators implements DataGeneratorEntrypoint {
     public void onInitializeDataGenerator(FabricDataGenerator generator) {
         var pack = new PlatformGeneratorsImpl(generator.createPack());
         DataProviders.add(pack);
-        pack.addWithRegistries((out, reg) -> addName("Conventional Tags", new MoreConventionalTagsProvider(out, reg)));
     }
 
     private record PlatformGeneratorsImpl(FabricDataGenerator.Pack generator) implements DataProviders.GeneratorSink {
@@ -52,24 +52,29 @@ public class FabricDataGenerators implements DataGeneratorEntrypoint {
 
         @Override
         public <T extends DataProvider> T add(DataProvider.Factory<T> factory) {
-            return generator.addProvider((PackOutput p) -> new PrettyDataProvider<>(factory.create(p))).provider();
+            return addWithFabricOutput(factory::create);
+        }
+
+        @Override
+        public <T extends DataProvider> T add(BiFunction<PackOutput, CompletableFuture<HolderLookup.Provider>, T> factory) {
+            return addWithRegistries(factory::apply);
         }
 
         @Override
         public <T> void addFromCodec(String name, PackType type, String directory, Codec<T> codec, Consumer<BiConsumer<ResourceLocation, T>> output) {
-            addWithFabricOutput((FabricDataOutput out) -> {
+            addWithRegistries((out, registries) -> {
                 var ourType = switch (type) {
                     case SERVER_DATA -> PackOutput.Target.DATA_PACK;
                     case CLIENT_RESOURCES -> PackOutput.Target.RESOURCE_PACK;
                 };
-                return new FabricCodecDataProvider<T>(out, ourType, directory, codec) {
+                return new FabricCodecDataProvider<T>(out, registries, ourType, directory, codec) {
                     @Override
                     public String getName() {
                         return name;
                     }
 
                     @Override
-                    protected void configure(BiConsumer<ResourceLocation, T> provider) {
+                    protected void configure(BiConsumer<ResourceLocation, T> provider, HolderLookup.Provider registries) {
                         output.accept(provider);
                     }
                 };
@@ -79,10 +84,10 @@ public class FabricDataGenerators implements DataGeneratorEntrypoint {
         @Override
         public void lootTable(List<LootTableProvider.SubProviderEntry> tables) {
             for (var table : tables) {
-                addWithFabricOutput((FabricDataOutput out) -> new SimpleFabricLootTableProvider(out, table.paramSet()) {
+                addWithRegistries((out, registries) -> new SimpleFabricLootTableProvider(out, registries, table.paramSet()) {
                     @Override
-                    public void generate(BiConsumer<ResourceLocation, LootTable.Builder> exporter) {
-                        table.provider().get().generate(exporter);
+                    public void generate(HolderLookup.Provider registries, BiConsumer<ResourceKey<LootTable>, LootTable.Builder> exporter) {
+                        table.provider().get().generate(registries, exporter);
                     }
                 });
             }
@@ -133,27 +138,5 @@ public class FabricDataGenerators implements DataGeneratorEntrypoint {
                 }
             });
         }
-    }
-
-
-    /**
-     * Add a name to a data provider to disambiguate them.
-     *
-     * @param suffix   The suffix to add.
-     * @param provider The data provider to wrap.
-     * @return The wrapped data provider.
-     */
-    private static DataProvider addName(String suffix, DataProvider provider) {
-        return new DataProvider() {
-            @Override
-            public CompletableFuture<?> run(CachedOutput output) {
-                return provider.run(output);
-            }
-
-            @Override
-            public String getName() {
-                return provider.getName() + " - " + suffix;
-            }
-        };
     }
 }

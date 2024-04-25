@@ -8,10 +8,6 @@ import com.google.auto.service.AutoService;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.client.model.FoiledModel;
 import dan200.computercraft.client.render.ModelRenderer;
-import dan200.computercraft.shared.network.NetworkMessage;
-import dan200.computercraft.shared.network.server.ServerNetworkContext;
-import dan200.computercraft.shared.platform.FabricMessageType;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -20,8 +16,6 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.common.ServerCommonPacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
@@ -31,11 +25,6 @@ import javax.annotation.Nullable;
 @AutoService(dan200.computercraft.impl.client.ClientPlatformHelper.class)
 public class ClientPlatformHelperImpl implements ClientPlatformHelper {
     private static final RandomSource random = RandomSource.create(0);
-
-    @Override
-    public Packet<ServerCommonPacketListener> createPacket(NetworkMessage<ServerNetworkContext> message) {
-        return ClientPlayNetworking.createC2SPacket(FabricMessageType.toFabricPacket(message));
-    }
 
     @Override
     public BakedModel getModel(ModelManager manager, ResourceLocation location) {

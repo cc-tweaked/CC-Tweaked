@@ -5,7 +5,9 @@
 package dan200.computercraft.test.shared;
 
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
@@ -31,8 +33,8 @@ public final class NetworkSupport {
      * @param <T>   The type of the value to round trip.
      * @return The converted value, for checking equivalency.
      */
-    public static <T> T roundTrip(T value, BiConsumer<T, FriendlyByteBuf> write, Function<FriendlyByteBuf, T> read) {
-        var buffer = new FriendlyByteBuf(Unpooled.directBuffer());
+    public static <T> T roundTrip(T value, BiConsumer<T, RegistryFriendlyByteBuf> write, Function<RegistryFriendlyByteBuf, T> read) {
+        var buffer = new RegistryFriendlyByteBuf(Unpooled.directBuffer(), RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
         write.accept(value, buffer);
 
         var converted = read.apply(buffer);
@@ -50,7 +52,7 @@ public final class NetworkSupport {
      * @param <T>   The type of the value to round trip.
      * @return The converted value, for checking equivalency.
      */
-    public static <T> T roundTripSerialiser(ResourceLocation id, T value, BiConsumer<FriendlyByteBuf, T> write, BiFunction<ResourceLocation, FriendlyByteBuf, T> read) {
+    public static <T> T roundTripSerialiser(ResourceLocation id, T value, BiConsumer<RegistryFriendlyByteBuf, T> write, BiFunction<ResourceLocation, RegistryFriendlyByteBuf, T> read) {
         return roundTrip(value, (x, b) -> write.accept(b, x), b -> read.apply(id, b));
     }
 }

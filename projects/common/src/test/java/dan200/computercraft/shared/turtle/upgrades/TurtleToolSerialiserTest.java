@@ -45,7 +45,7 @@ class TurtleToolSerialiserTest {
             MinecraftArbitraries.resourceLocation(),
             Arbitraries.strings().ofMaxLength(100),
             MinecraftArbitraries.item(),
-            MinecraftArbitraries.itemStack(),
+            MinecraftArbitraries.nonEmptyItemStack(),
             Arbitraries.floats(),
             Arbitraries.of(true, false),
             Arbitraries.of(TurtleToolDurability.values()),

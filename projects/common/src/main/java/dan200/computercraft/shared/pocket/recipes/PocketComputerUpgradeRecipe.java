@@ -9,7 +9,7 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -28,8 +28,8 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess registryAccess) {
-        return ModRegistry.Items.POCKET_COMPUTER_NORMAL.get().create(-1, null, -1, null);
+    public ItemStack getResultItem(HolderLookup.Provider registryAccess) {
+        return new ItemStack(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get());
     }
 
     @Override
@@ -38,7 +38,7 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inventory, RegistryAccess registryAccess) {
+    public ItemStack assemble(CraftingContainer inventory, HolderLookup.Provider registryAccess) {
         // Scan the grid for a pocket computer
         var computer = ItemStack.EMPTY;
         var computerX = -1;
@@ -80,10 +80,9 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
         if (upgrade == null) return ItemStack.EMPTY;
 
         // Construct the new stack
-        var computerID = itemComputer.getComputerID(computer);
-        var label = itemComputer.getLabel(computer);
-        var colour = itemComputer.getColour(computer);
-        return itemComputer.create(computerID, label, colour, upgrade);
+        var result = computer.copyWithCount(1);
+        result.set(ModRegistry.DataComponents.POCKET_UPGRADE.get(), upgrade);
+        return result;
     }
 
     @Override

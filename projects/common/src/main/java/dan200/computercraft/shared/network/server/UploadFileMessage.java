@@ -9,10 +9,12 @@ import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.config.Config;
-import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessages;
 import io.netty.handler.codec.DecoderException;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
 import javax.annotation.Nullable;
@@ -25,6 +27,8 @@ import java.util.function.Consumer;
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public class UploadFileMessage extends ComputerServerMessage {
+    public static final StreamCodec<RegistryFriendlyByteBuf, UploadFileMessage> STREAM_CODEC = StreamCodec.ofMember(UploadFileMessage::write, UploadFileMessage::new);
+
     static final int MAX_PACKET_SIZE = 30 * 1024; // Max packet size is 32767.
     private static final int HEADER_SIZE = 16 + 1; // 16 bytes for the UUID, 4 for the flag.
 
@@ -41,15 +45,15 @@ public class UploadFileMessage extends ComputerServerMessage {
     final @VisibleForTesting List<FileSlice> slices;
 
     UploadFileMessage(AbstractContainerMenu menu, UUID uuid, int flag, @Nullable List<FileUpload> files, List<FileSlice> slices) {
-        super(menu);
+        super(menu.containerId);
         this.uuid = uuid;
         this.flag = flag;
         this.files = files;
         this.slices = slices;
     }
 
-    public UploadFileMessage(FriendlyByteBuf buf) {
-        super(buf);
+    private UploadFileMessage(FriendlyByteBuf buf) {
+        super(buf.readVarInt());
         uuid = buf.readUUID();
         var flag = this.flag = buf.readByte();
 
@@ -92,9 +96,8 @@ public class UploadFileMessage extends ComputerServerMessage {
         }
     }
 
-    @Override
-    public void write(FriendlyByteBuf buf) {
-        super.write(buf);
+    private void write(FriendlyByteBuf buf) {
+        buf.writeVarInt(containerId());
         buf.writeUUID(uuid);
         buf.writeByte(flag);
 
@@ -170,7 +173,7 @@ public class UploadFileMessage extends ComputerServerMessage {
     }
 
     @Override
-    public MessageType<UploadFileMessage> type() {
+    public CustomPacketPayload.Type<UploadFileMessage> type() {
         return NetworkMessages.UPLOAD_FILE;
     }
 }

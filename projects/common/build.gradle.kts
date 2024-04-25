@@ -23,7 +23,7 @@ configurations {
 }
 
 repositories {
-    maven("https://maven.minecraftforge.net/") {
+    maven("https://maven.neoforged.net/") {
         content {
             includeModule("org.spongepowered", "mixin")
         }
@@ -37,6 +37,7 @@ dependencies {
     clientImplementation(clientClasses(project(":common-api")))
 
     compileOnly(libs.mixin)
+    compileOnly(libs.mixinExtra)
     compileOnly(libs.bundles.externalMods.common)
     clientCompileOnly(variantOf(libs.emi) { classifier("api") })
 

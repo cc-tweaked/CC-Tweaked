@@ -20,7 +20,7 @@ public class TurtleCompareToCommand implements TurtleCommand {
     public TurtleCommandResult execute(ITurtleAccess turtle) {
         var selectedStack = turtle.getInventory().getItem(turtle.getSelectedSlot());
         var stack = turtle.getInventory().getItem(slot);
-        return ItemStack.isSameItemSameTags(selectedStack, stack)
+        return ItemStack.isSameItemSameComponents(selectedStack, stack)
             ? TurtleCommandResult.success()
             : TurtleCommandResult.failure();
     }

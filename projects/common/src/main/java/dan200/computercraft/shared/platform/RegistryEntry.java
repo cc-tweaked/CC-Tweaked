@@ -10,7 +10,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ExtraCodecs;
 
 import java.util.function.Supplier;
 
@@ -35,14 +34,13 @@ public interface RegistryEntry<U> extends Supplier<U> {
                 return holder().value();
             }
         }
-        Codec<RegistryEntry<? extends T>> codec = ResourceLocation.CODEC.flatXmap(
+
+        return ResourceLocation.CODEC.flatXmap(
             id -> registry
                 .getHolder(ResourceKey.create(registry.key(), id))
                 .map(x -> DataResult.success(new HolderEntry<>(id, x)))
                 .orElseGet(() -> DataResult.error(() -> "Unknown registry key in " + registry.key() + ": " + id)),
             holder -> DataResult.success(holder.id())
         );
-
-        return ExtraCodecs.overrideLifecycle(codec, x -> registry.lifecycle(x.get()), x -> registry.lifecycle(x.get()));
     }
 }

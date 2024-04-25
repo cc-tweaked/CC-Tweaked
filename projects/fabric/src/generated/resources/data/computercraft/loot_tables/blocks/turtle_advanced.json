@@ -13,7 +13,13 @@
           ]
         }
       ],
-      "entries": [{"type": "minecraft:dynamic", "name": "computercraft:computer"}],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [{"function": "minecraft:copy_components", "source": "block_entity"}],
+          "name": "computercraft:turtle_advanced"
+        }
+      ],
       "rolls": 1.0
     }
   ]

@@ -24,12 +24,10 @@ public class REIComputerCraft implements REIClientPlugin {
     @Override
     public void registerItemComparators(ItemComparatorRegistry registry) {
         registry.register((context, stack) -> {
-            var turtle = (TurtleItem) stack.getItem();
-
             long hash = 1;
 
-            var left = turtle.getUpgrade(stack, TurtleSide.LEFT);
-            var right = turtle.getUpgrade(stack, TurtleSide.RIGHT);
+            var left = TurtleItem.getUpgrade(stack, TurtleSide.LEFT);
+            var right = TurtleItem.getUpgrade(stack, TurtleSide.RIGHT);
             if (left != null) hash = hash * 31 + left.getUpgradeID().hashCode();
             if (right != null) hash = hash * 31 + right.getUpgradeID().hashCode();
 

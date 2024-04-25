@@ -11,7 +11,7 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.impl.client.ClientPlatformHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentPatch;
 import org.joml.Matrix4f;
 
 import javax.annotation.Nullable;
@@ -36,7 +36,7 @@ final class TurtleUpgradeModellers {
 
     private static final class UpgradeItemModeller implements TurtleUpgradeModeller<ITurtleUpgrade> {
         @Override
-        public TransformedModel getModel(ITurtleUpgrade upgrade, @Nullable ITurtleAccess turtle, TurtleSide side, CompoundTag data) {
+        public TransformedModel getModel(ITurtleUpgrade upgrade, @Nullable ITurtleAccess turtle, TurtleSide side, DataComponentPatch data) {
             var stack = upgrade.getUpgradeItem(data);
             var model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(stack);
             if (stack.hasFoil()) model = ClientPlatformHelper.get().createdFoiledModel(model);

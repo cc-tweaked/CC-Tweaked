@@ -7,7 +7,6 @@ package dan200.computercraft.gametest.api
 import dan200.computercraft.api.peripheral.IPeripheral
 import dan200.computercraft.gametest.core.ManagedComputers
 import dan200.computercraft.impl.RegistryHelper
-import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.mixin.gametest.GameTestInfoAccessor
 import dan200.computercraft.mixin.gametest.GameTestSequenceAccessor
 import dan200.computercraft.shared.platform.PlatformHelper
@@ -25,6 +24,7 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.UseOnContext
+import net.minecraft.world.level.GameType
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.entity.BarrelBlockEntity
 import net.minecraft.world.level.block.entity.BlockEntity
@@ -226,7 +226,7 @@ private fun GameTestHelper.assertContainerExactlyImpl(pos: BlockPos, container: 
  */
 private fun GameTestHelper.getPeripheralAt(pos: BlockPos, direction: Direction): IPeripheral? {
     val be = BarrelBlockEntity(absolutePos(pos).relative(direction), Blocks.BARREL.defaultBlockState())
-    be.setLevel(level)
+    be.level = level
     return PlatformHelper.get().createPeripheralAccess(be) { }.get(direction.opposite)
 }
 
@@ -270,14 +270,6 @@ fun <T : BlockEntity> GameTestHelper.getBlockEntity(pos: BlockPos, type: BlockEn
 }
 
 /**
- * Get all entities of a specific type within the test structure.
- */
-fun <T : Entity> GameTestHelper.getEntities(type: EntityType<T>): List<T> {
-    val info = (this as GameTestHelperAccessor).testInfo
-    return level.getEntities(type, info.structureBounds!!) { it.isAlive }
-}
-
-/**
  * Get an [Entity] inside the game structure, requiring there to be a single one.
  */
 fun <T : Entity> GameTestHelper.getEntity(type: EntityType<T>): T {
@@ -317,7 +309,7 @@ fun GameTestHelper.setContainerItem(pos: BlockPos, slot: Int, item: ItemStack) {
  * This is required for compatibility with Forge, which uses the in-hand stack, rather than the stack requested.
  */
 fun GameTestHelper.placeItemAt(stack: ItemStack, pos: BlockPos, direction: Direction) {
-    val player = makeMockPlayer()
+    val player = makeMockPlayer(GameType.CREATIVE)
     player.setItemInHand(InteractionHand.MAIN_HAND, stack)
     val absolutePos = absolutePos(pos.relative(direction))
     val hit = BlockHitResult(Vec3.atCenterOf(absolutePos), direction, absolutePos, false)

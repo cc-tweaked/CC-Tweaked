@@ -4,20 +4,23 @@
 
 package dan200.computercraft.shared.details;
 
-import com.google.gson.JsonParseException;
 import dan200.computercraft.shared.util.NBTUtil;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Data providers for items.
@@ -26,7 +29,9 @@ public class ItemDetails {
     public static void fillBasic(Map<? super String, Object> data, ItemStack stack) {
         data.put("name", DetailHelpers.getId(BuiltInRegistries.ITEM, stack.getItem()));
         data.put("count", stack.getCount());
-        var hash = NBTUtil.getNBTHash(stack.getTag());
+
+        var components = stack.getComponentsPatch();
+        var hash = components.isEmpty() ? null : NBTUtil.getNBTHash(DataComponentPatch.CODEC.encodeStart(NbtOps.INSTANCE, components).result().orElse(null));
         if (hash != null) data.put("nbt", hash);
     }
 
@@ -46,41 +51,14 @@ public class ItemDetails {
         data.put("tags", DetailHelpers.getTags(stack.getTags()));
         data.put("itemGroups", getItemGroups(stack));
 
-        var tag = stack.getTag();
-        if (tag != null && tag.contains("display", Tag.TAG_COMPOUND)) {
-            var displayTag = tag.getCompound("display");
-            if (displayTag.contains("Lore", Tag.TAG_LIST)) {
-                var loreTag = displayTag.getList("Lore", Tag.TAG_STRING);
-                data.put("lore", loreTag.stream()
-                    .map(ItemDetails::parseTextComponent)
-                    .filter(Objects::nonNull)
-                    .map(Component::getString)
-                    .toList());
-            }
-        }
+        var lore = stack.get(DataComponents.LORE);
+        if (lore != null) data.put("lore", lore.lines().stream().map(Component::getString).toList());
 
-        /*
-         * Used to hide some data from ItemStack tooltip.
-         * @see https://minecraft.wiki/w/Tutorials/Command_NBT_tags
-         * @see ItemStack#getTooltip
-         */
-        var hideFlags = tag != null ? tag.getInt("HideFlags") : 0;
-
-        var enchants = getAllEnchants(stack, hideFlags);
+        var enchants = getAllEnchants(stack);
         if (!enchants.isEmpty()) data.put("enchantments", enchants);
 
-        if (tag != null && tag.getBoolean("Unbreakable") && (hideFlags & 4) == 0) {
-            data.put("unbreakable", true);
-        }
-    }
-
-    @Nullable
-    private static Component parseTextComponent(Tag x) {
-        try {
-            return Component.Serializer.fromJson(x.getAsString());
-        } catch (JsonParseException e) {
-            return null;
-        }
+        var unbreakable = stack.get(DataComponents.UNBREAKABLE);
+        if (unbreakable != null && unbreakable.showInTooltip()) data.put("unbreakable", true);
     }
 
     /**
@@ -107,26 +85,13 @@ public class ItemDetails {
     /**
      * Retrieve all visible enchantments from given stack. Try to follow all tooltip rules : order and visibility.
      *
-     * @param stack     Stack to analyse
-     * @param hideFlags An int used as bit field to provide visibility rules.
+     * @param stack Stack to analyse
      * @return A filled list that contain all visible enchantments.
      */
-    private static List<Map<String, Object>> getAllEnchants(ItemStack stack, int hideFlags) {
+    private static List<Map<String, Object>> getAllEnchants(ItemStack stack) {
         var enchants = new ArrayList<Map<String, Object>>(0);
-
-        if (stack.getItem() instanceof EnchantedBookItem && (hideFlags & 32) == 0) {
-            addEnchantments(EnchantedBookItem.getEnchantments(stack), enchants);
-        }
-
-        if (stack.isEnchanted() && (hideFlags & 1) == 0) {
-            /*
-             * Mimic the EnchantmentHelper.getEnchantments(ItemStack stack) behavior without special case for Enchanted book.
-             * I'll do that to have the same data than ones displayed in tooltip.
-             * @see EnchantmentHelper.getEnchantments(ItemStack stack)
-             */
-            addEnchantments(stack.getEnchantmentTags(), enchants);
-        }
-
+        addEnchantments(stack.get(DataComponents.STORED_ENCHANTMENTS), enchants);
+        addEnchantments(stack.get(DataComponents.ENCHANTMENTS), enchants);
         return enchants;
     }
 
@@ -138,18 +103,18 @@ public class ItemDetails {
      * @see EnchantmentHelper
      */
     @SuppressWarnings("NonApiType")
-    private static void addEnchantments(ListTag rawEnchants, ArrayList<Map<String, Object>> enchants) {
-        if (rawEnchants.isEmpty()) return;
+    private static void addEnchantments(@Nullable ItemEnchantments rawEnchants, ArrayList<Map<String, Object>> enchants) {
+        if (rawEnchants == null || rawEnchants.isEmpty()) return;
 
         enchants.ensureCapacity(enchants.size() + rawEnchants.size());
 
-        for (var entry : EnchantmentHelper.deserializeEnchantments(rawEnchants).entrySet()) {
+        for (var entry : rawEnchants.entrySet()) {
             var enchantment = entry.getKey();
-            var level = entry.getValue();
+            var level = entry.getIntValue();
             var enchant = new HashMap<String, Object>(3);
-            enchant.put("name", DetailHelpers.getId(BuiltInRegistries.ENCHANTMENT, enchantment));
+            enchant.put("name", DetailHelpers.getId(BuiltInRegistries.ENCHANTMENT, enchantment.value()));
             enchant.put("level", level);
-            enchant.put("displayName", enchantment.getFullname(level).getString());
+            enchant.put("displayName", enchantment.value().getFullname(level).getString());
             enchants.add(enchant);
         }
     }

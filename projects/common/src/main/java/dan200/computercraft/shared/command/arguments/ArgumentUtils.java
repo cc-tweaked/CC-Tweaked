@@ -14,8 +14,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 
-import java.util.Objects;
-
 /**
  * Utilities for working with arguments.
  *
@@ -45,13 +43,12 @@ public class ArgumentUtils {
 
     @SuppressWarnings("unchecked")
     private static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>> void serializeToNetwork(FriendlyByteBuf buffer, ArgumentTypeInfo<A, T> type, ArgumentTypeInfo.Template<A> template) {
-        buffer.writeId(BuiltInRegistries.COMMAND_ARGUMENT_TYPE, type);
+        buffer.writeVarInt(BuiltInRegistries.COMMAND_ARGUMENT_TYPE.getIdOrThrow(type));
         type.serializeToNetwork((T) template, buffer);
     }
 
     public static ArgumentTypeInfo.Template<?> deserialize(FriendlyByteBuf buffer) {
-        var type = buffer.readById(BuiltInRegistries.COMMAND_ARGUMENT_TYPE);
-        Objects.requireNonNull(type, "Unknown argument type");
+        var type = BuiltInRegistries.COMMAND_ARGUMENT_TYPE.byIdOrThrow(buffer.readVarInt());
         return type.deserializeFromNetwork(buffer);
     }
 

@@ -96,7 +96,7 @@ object ManagedComputers : ILuaMachine.Factory {
                 throw GameTestAssertException(message)
             } else {
                 val pos = computer.position
-                val relativePos = pos.subtract(test.structureBlockPos)
+                val relativePos = pos.subtract(test.structureBlockPos!!)
                 throw GameTestAssertPosException(message, pos, relativePos, (test as GameTestInfoAccessor).`computercraft$getTick`())
             }
         }

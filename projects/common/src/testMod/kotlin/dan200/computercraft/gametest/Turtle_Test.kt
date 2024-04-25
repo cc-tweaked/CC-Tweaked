@@ -30,6 +30,7 @@ import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.item.PrimedTnt
 import net.minecraft.world.item.ItemStack
@@ -232,7 +233,12 @@ class Turtle_Test {
 
             val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
             val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
-            assertEquals(TurtleUpgrades.instance().get("cctest:wooden_pickaxe"), upgrade, "Upgrade is a wooden pickaxe")
+            assertEquals(
+                TurtleUpgrades.instance()
+                    .get(ResourceLocation("cctest", "wooden_pickaxe")),
+                upgrade,
+                "Upgrade is a wooden pickaxe",
+            )
 
             val item = ItemStack(Items.WOODEN_PICKAXE)
             item.damageValue = 1
@@ -256,7 +262,7 @@ class Turtle_Test {
 
             helper.assertUpgradeItem(
                 ItemStack(Items.WOODEN_PICKAXE),
-                UpgradeData.ofDefault(TurtleUpgrades.instance().get("cctest:wooden_pickaxe")),
+                UpgradeData.ofDefault(TurtleUpgrades.instance().get(ResourceLocation("cctest", "wooden_pickaxe"))),
             )
         }
     }
@@ -275,7 +281,7 @@ class Turtle_Test {
             val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
             val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
             assertEquals(
-                TurtleUpgrades.instance().get("cctest:netherite_pickaxe"),
+                TurtleUpgrades.instance().get(ResourceLocation("cctest", "netherite_pickaxe")),
                 upgrade,
                 "Upgrade is a netherite pickaxe",
             )
@@ -283,7 +289,6 @@ class Turtle_Test {
             val item = ItemStack(Items.NETHERITE_PICKAXE)
             item.damageValue = 1
             item.enchant(Enchantments.SILK_TOUCH, 1)
-            item.setRepairCost(1)
 
             helper.assertUpgradeItem(item, turtle.getUpgradeWithData(TurtleSide.LEFT)!!)
         }
@@ -291,7 +296,7 @@ class Turtle_Test {
 
     private fun GameTestHelper.assertUpgradeItem(expected: ItemStack, upgrade: UpgradeData<ITurtleUpgrade>) {
         if (!ItemStack.matches(expected, upgrade.upgradeItem)) {
-            fail("Invalid upgrade item\n Expected => ${expected.tag}\n    Actual => ${upgrade.upgradeItem.tag}")
+            fail("Invalid upgrade item\n Expected => ${expected.componentsPatch}\n    Actual => ${upgrade.upgradeItem.componentsPatch}")
         }
 
         if (!ItemStack.matches(ItemStack(expected.item), upgrade.upgrade.craftingItem)) {

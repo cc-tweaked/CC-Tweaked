@@ -8,16 +8,14 @@ import com.google.gson.JsonObject;
 import dan200.computercraft.api.turtle.TurtleToolDurability;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-
-import java.util.Objects;
 
 public final class TurtleToolSerialiser implements UpgradeSerialiser<TurtleTool> {
     public static final TurtleToolSerialiser INSTANCE = new TurtleToolSerialiser();
@@ -44,11 +42,10 @@ public final class TurtleToolSerialiser implements UpgradeSerialiser<TurtleTool>
     }
 
     @Override
-    public TurtleTool fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
+    public TurtleTool fromNetwork(ResourceLocation id, RegistryFriendlyByteBuf buffer) {
         var adjective = buffer.readUtf();
-        var craftingItem = buffer.readById(BuiltInRegistries.ITEM);
-        Objects.requireNonNull(craftingItem, "Unknown crafting item");
-        var toolItem = buffer.readItem();
+        var craftingItem = ByteBufCodecs.registry(Registries.ITEM).decode(buffer);
+        var toolItem = ItemStack.STREAM_CODEC.decode(buffer);
         // damageMultiplier and breakable aren't used by the client, but we need to construct the upgrade exactly
         // as otherwise syncing on an SP world will overwrite the (shared) upgrade registry with an invalid upgrade!
         var damageMultiplier = buffer.readFloat();
@@ -60,10 +57,10 @@ public final class TurtleToolSerialiser implements UpgradeSerialiser<TurtleTool>
     }
 
     @Override
-    public void toNetwork(FriendlyByteBuf buffer, TurtleTool upgrade) {
+    public void toNetwork(RegistryFriendlyByteBuf buffer, TurtleTool upgrade) {
         buffer.writeUtf(upgrade.getUnlocalisedAdjective());
-        buffer.writeId(BuiltInRegistries.ITEM, upgrade.getCraftingItem().getItem());
-        buffer.writeItem(upgrade.item);
+        ByteBufCodecs.registry(Registries.ITEM).encode(buffer, upgrade.getCraftingItem().getItem());
+        ItemStack.STREAM_CODEC.encode(buffer, upgrade.item);
         buffer.writeFloat(upgrade.damageMulitiplier);
         buffer.writeBoolean(upgrade.allowEnchantments);
         buffer.writeEnum(upgrade.consumeDurability);

@@ -15,6 +15,7 @@ import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import org.joml.Matrix4f;
 
 import static dan200.computercraft.client.render.ComputerBorderRenderer.*;
@@ -61,7 +62,7 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
         // Render the main frame
         var item = (PocketComputerItem) stack.getItem();
         var family = item.getFamily();
-        var frameColour = item.getColour(stack);
+        var frameColour = DyedItemColor.getOrDefault(stack, -1);
 
         var matrix = transform.last().pose();
         renderFrame(matrix, bufferSource, family, frameColour, light, width, height);

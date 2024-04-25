@@ -3,9 +3,13 @@
   "category": "redstone",
   "group": "computercraft:disk",
   "ingredients": [
-    {"tag": "c:redstone_dusts"},
+    {"tag": "c:dusts/redstone"},
     {"item": "minecraft:paper"},
     {"item": "minecraft:light_blue_dye"}
   ],
-  "result": {"item": "computercraft:disk", "nbt": "{Color:10072818}"}
+  "result": {
+    "components": {"minecraft:dyed_color": {"rgb": 10072818, "show_in_tooltip": false}},
+    "count": 1,
+    "id": "computercraft:disk"
+  }
 }

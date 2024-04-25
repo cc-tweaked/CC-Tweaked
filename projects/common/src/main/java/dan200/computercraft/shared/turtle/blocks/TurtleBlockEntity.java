@@ -9,7 +9,9 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlockEntity;
 import dan200.computercraft.shared.computer.blocks.ComputerPeripheral;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -23,7 +25,10 @@ import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.inventory.TurtleMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -33,6 +38,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -89,8 +95,8 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     }
 
     @Override
-    protected int getInteractRange() {
-        return Container.DEFAULT_DISTANCE_LIMIT + 4;
+    protected float getInteractRange() {
+        return Container.DEFAULT_DISTANCE_BUFFER + 4;
     }
 
     @Override
@@ -127,26 +133,65 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     }
 
     @Override
-    public void loadServer(CompoundTag nbt) {
-        super.loadServer(nbt);
+    public void loadServer(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadServer(nbt, registries);
 
         // Read inventory
-        ContainerHelper.loadAllItems(nbt, inventory);
+        ContainerHelper.loadAllItems(nbt, inventory, registries);
         for (var i = 0; i < inventory.size(); i++) inventorySnapshot.set(i, inventory.get(i).copy());
 
         // Read state
-        brain.readFromNBT(nbt);
+        brain.readFromNBT(nbt, registries);
     }
 
     @Override
-    public void saveAdditional(CompoundTag nbt) {
+    public void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
         // Write inventory
-        ContainerHelper.saveAllItems(nbt, inventory);
+        ContainerHelper.saveAllItems(nbt, inventory, registries);
 
         // Write brain
-        nbt = brain.writeToNBT(nbt);
+        brain.writeToNBT(nbt, registries);
 
-        super.saveAdditional(nbt);
+        super.saveAdditional(nbt, registries);
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentInput component) {
+        super.applyImplicitComponents(component);
+
+        var colour = component.get(DataComponents.DYED_COLOR);
+        if (colour != null) brain.setColour(colour.rgb());
+
+        brain.setFuelLevel(component.getOrDefault(ModRegistry.DataComponents.FUEL.get(), 0));
+        brain.setOverlay(component.get(ModRegistry.DataComponents.OVERLAY.get()));
+        brain.setUpgrade(TurtleSide.LEFT, component.get(ModRegistry.DataComponents.LEFT_TURTLE_UPGRADE.get()));
+        brain.setUpgrade(TurtleSide.RIGHT, component.get(ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get()));
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+
+        builder.set(DataComponents.DYED_COLOR, brain.getColour() == -1 ? null : new DyedItemColor(brain.getColour(), false));
+        builder.set(ModRegistry.DataComponents.OVERLAY.get(), brain.getOverlay());
+        builder.set(ModRegistry.DataComponents.FUEL.get(), brain.getFuelLevel());
+        builder.set(ModRegistry.DataComponents.LEFT_TURTLE_UPGRADE.get(), withPersistedData(brain.getUpgradeWithData(TurtleSide.LEFT)));
+        builder.set(ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get(), withPersistedData(brain.getUpgradeWithData(TurtleSide.RIGHT)));
+    }
+
+    private static @Nullable UpgradeData<ITurtleUpgrade> withPersistedData(@Nullable UpgradeData<ITurtleUpgrade> upgrade) {
+        return upgrade == null ? null : UpgradeData.of(upgrade.upgrade(), upgrade.upgrade().getPersistedData(upgrade.data()));
+    }
+
+    @Override
+    @Deprecated
+    public void removeComponentsFromTag(CompoundTag tag) {
+        super.removeComponentsFromTag(tag);
+        tag.remove(TurtleBrain.NBT_COLOUR);
+        tag.remove(TurtleBrain.NBT_FUEL);
+        tag.remove(TurtleBrain.NBT_OVERLAY);
+        tag.remove(TurtleBrain.NBT_LEFT_UPGRADE);
+        tag.remove(TurtleBrain.NBT_RIGHT_UPGRADE);
     }
 
     @Override
@@ -205,7 +250,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     // IInventory
 
     @Override
-    public NonNullList<ItemStack> getContents() {
+    public NonNullList<ItemStack> getItems() {
         return inventory;
     }
 
@@ -238,16 +283,16 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     // Networking stuff
 
     @Override
-    public CompoundTag getUpdateTag() {
-        var nbt = super.getUpdateTag();
-        brain.writeDescription(nbt);
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        var nbt = super.getUpdateTag(registries);
+        brain.writeDescription(nbt, registries);
         return nbt;
     }
 
     @Override
-    public void loadClient(CompoundTag nbt) {
-        super.loadClient(nbt);
-        brain.readDescription(nbt);
+    public void loadClient(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadClient(nbt, registries);
+        brain.readDescription(nbt, registries);
     }
 
     // Privates

@@ -7,7 +7,9 @@
         "defaultRequire": 1
     },
     "mixins": [
-        "V1460Mixin"
+        "V1460Mixin",
+        "V3818_3Mixin",
+        "ItemStackComponentizationFixMixin"
     ],
     "refmap": "computercraft.refmap.json"
 }

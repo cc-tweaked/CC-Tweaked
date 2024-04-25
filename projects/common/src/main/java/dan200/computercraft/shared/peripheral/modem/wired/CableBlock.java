@@ -15,7 +15,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -91,8 +90,7 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     }
 
     @Override
-    @Deprecated
-    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+    protected VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         return CableShapes.getShape(state);
     }
 
@@ -139,7 +137,6 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     }
 
     @Override
-    @Deprecated
     public ItemStack getCloneItemStack(LevelReader world, BlockPos pos, BlockState state) {
         return state.getValue(CABLE) ? new ItemStack(ModRegistry.Items.CABLE.get()) : new ItemStack(ModRegistry.Items.WIRED_MODEM.get());
     }
@@ -167,14 +164,12 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     }
 
     @Override
-    @Deprecated
-    public FluidState getFluidState(BlockState state) {
+    protected FluidState getFluidState(BlockState state) {
         return WaterloggableHelpers.getFluidState(state);
     }
 
     @Override
-    @Deprecated
-    public BlockState updateShape(BlockState state, Direction side, BlockState otherState, LevelAccessor level, BlockPos pos, BlockPos otherPos) {
+    protected BlockState updateShape(BlockState state, Direction side, BlockState otherState, LevelAccessor level, BlockPos pos, BlockPos otherPos) {
         WaterloggableHelpers.updateShape(state, level, pos);
 
         // Should never happen, but handle the case where we've no modem or cable.
@@ -208,8 +203,7 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     }
 
     @Override
-    @Deprecated
-    public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+    protected boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
         var facing = state.getValue(MODEM).getFacing();
         if (facing == null) return true;
 
@@ -248,15 +242,13 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     }
 
     @Override
-    @Deprecated
-    public final InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected final InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
         if (player.isCrouching() || !player.mayBuild()) return InteractionResult.PASS;
         return world.getBlockEntity(pos) instanceof CableBlockEntity modem ? modem.use(player) : InteractionResult.PASS;
     }
 
     @Override
-    @Deprecated
-    public final void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos, boolean isMoving) {
+    protected final void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos, boolean isMoving) {
         if (world.getBlockEntity(pos) instanceof CableBlockEntity modem) modem.neighborChanged(neighbourPos);
     }
 
@@ -266,8 +258,7 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     }
 
     @Override
-    @Deprecated
-    public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
+    protected void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
         if (world.getBlockEntity(pos) instanceof CableBlockEntity modem) modem.blockTick();
     }
 

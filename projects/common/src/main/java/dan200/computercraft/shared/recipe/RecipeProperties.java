@@ -7,8 +7,9 @@ package dan200.computercraft.shared.recipe;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.ExtraCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 
@@ -21,25 +22,19 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
  */
 public record RecipeProperties(String group, CraftingBookCategory category, boolean showNotification) {
     public static final MapCodec<RecipeProperties> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-        ExtraCodecs.strictOptionalField(Codec.STRING, "group", "").forGetter(RecipeProperties::group),
+        Codec.STRING.optionalFieldOf("group", "").forGetter(RecipeProperties::group),
         CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(RecipeProperties::category),
-        ExtraCodecs.strictOptionalField(Codec.BOOL, "show_notification", true).forGetter(RecipeProperties::showNotification)
+        Codec.BOOL.optionalFieldOf("show_notification", true).forGetter(RecipeProperties::showNotification)
     ).apply(instance, RecipeProperties::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, RecipeProperties> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.STRING_UTF8, RecipeProperties::group,
+        CraftingBookCategory.STREAM_CODEC, RecipeProperties::category,
+        ByteBufCodecs.BOOL, RecipeProperties::showNotification,
+        RecipeProperties::new
+    );
 
     public static RecipeProperties of(CraftingRecipe recipe) {
         return new RecipeProperties(recipe.getGroup(), recipe.category(), recipe.showNotification());
-    }
-
-    public static RecipeProperties fromNetwork(FriendlyByteBuf buffer) {
-        var group = buffer.readUtf();
-        var category = buffer.readEnum(CraftingBookCategory.class);
-        var showNotification = buffer.readBoolean();
-        return new RecipeProperties(group, category, showNotification);
-    }
-
-    public void toNetwork(FriendlyByteBuf buffer) {
-        buffer.writeUtf(group());
-        buffer.writeEnum(category());
-        buffer.writeBoolean(showNotification());
     }
 }

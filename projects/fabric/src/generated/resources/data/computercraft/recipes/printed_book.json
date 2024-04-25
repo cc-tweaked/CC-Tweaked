@@ -6,5 +6,5 @@
     {"item": "computercraft:printed_page"},
     {"item": "minecraft:string"}
   ],
-  "result": {"item": "computercraft:printed_book"}
+  "result": {"count": 1, "id": "computercraft:printed_book"}
 }

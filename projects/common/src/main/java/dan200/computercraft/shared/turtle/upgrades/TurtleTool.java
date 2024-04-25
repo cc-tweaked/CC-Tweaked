@@ -14,7 +14,8 @@ import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,7 +24,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
@@ -38,17 +38,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.EntityHitResult;
 
 import javax.annotation.Nullable;
-import java.util.Objects;
 import java.util.function.Function;
-
-import static net.minecraft.nbt.Tag.TAG_COMPOUND;
-import static net.minecraft.nbt.Tag.TAG_LIST;
 
 public class TurtleTool extends AbstractTurtleUpgrade {
     private static final TurtleCommandResult UNBREAKABLE = TurtleCommandResult.failure("Cannot break unbreakable block");
     private static final TurtleCommandResult INEFFECTIVE = TurtleCommandResult.failure("Cannot break block with this tool");
-
-    private static final String TAG_ITEM_TAG = "Tag";
 
     final ItemStack item;
     final float damageMulitiplier;
@@ -76,79 +70,63 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     }
 
     private static boolean isEnchanted(ItemStack stack) {
-        return !stack.isEmpty() && isEnchanted(stack.getTag());
-    }
+        var enchantments = stack.get(DataComponents.ENCHANTMENTS);
+        if (enchantments != null && !enchantments.isEmpty()) return true;
 
-    private static boolean isEnchanted(@Nullable CompoundTag tag) {
-        if (tag == null || tag.isEmpty()) return false;
-        return (tag.contains(ItemStack.TAG_ENCH, TAG_LIST) && !tag.getList(ItemStack.TAG_ENCH, TAG_COMPOUND).isEmpty())
-            || (tag.contains("AttributeModifiers", TAG_LIST) && !tag.getList("AttributeModifiers", TAG_COMPOUND).isEmpty());
-    }
+        var modifiers = stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
+        if (modifiers != null && !modifiers.modifiers().isEmpty()) return true;
 
-    @Override
-    public CompoundTag getUpgradeData(ItemStack stack) {
-        var upgradeData = super.getUpgradeData(stack);
-
-        // Store the item's current tag.
-        var itemTag = stack.getTag();
-        if (itemTag != null) upgradeData.put(TAG_ITEM_TAG, itemTag);
-
-        return upgradeData;
+        return false;
     }
 
     @Override
-    public ItemStack getUpgradeItem(CompoundTag upgradeData) {
+    public DataComponentPatch getUpgradeData(ItemStack stack) {
+        return stack.getComponentsPatch();
+    }
+
+    @Override
+    public ItemStack getUpgradeItem(DataComponentPatch upgradeData) {
         // Copy upgrade data back to the item.
         var item = super.getUpgradeItem(upgradeData).copy();
-        item.setTag(upgradeData.contains(TAG_ITEM_TAG, TAG_COMPOUND) ? upgradeData.getCompound(TAG_ITEM_TAG) : null);
+        item.applyComponents(upgradeData);
         return item;
     }
 
     private ItemStack getToolStack(ITurtleAccess turtle, TurtleSide side) {
-        return getUpgradeItem(turtle.getUpgradeNBTData(side)).copy();
+        return getUpgradeItem(turtle.getUpgradeData(side));
     }
 
-    private void setToolStack(ITurtleAccess turtle, TurtleSide side, ItemStack stack) {
-        var upgradeData = turtle.getUpgradeNBTData(side);
+    private void setToolStack(ITurtleAccess turtle, TurtleSide side, ItemStack oldStack, ItemStack stack) {
+        var upgradeData = turtle.getUpgradeData(side);
 
         var useDurability = switch (consumeDurability) {
             case NEVER -> false;
-            case WHEN_ENCHANTED ->
-                upgradeData.contains(TAG_ITEM_TAG, TAG_COMPOUND) && isEnchanted(upgradeData.getCompound(TAG_ITEM_TAG));
+            case WHEN_ENCHANTED -> isEnchanted(oldStack);
             case ALWAYS -> true;
         };
         if (!useDurability) return;
 
         // If the tool has broken, remove the upgrade!
         if (stack.isEmpty()) {
-            turtle.setUpgradeWithData(side, null);
+            turtle.setUpgrade(side, null);
             return;
         }
 
         // If the tool has changed, no clue what's going on.
         if (stack.getItem() != item.getItem()) return;
 
-        var itemTag = stack.getTag();
-
-        // Early return if the item hasn't changed to avoid redundant syncs with the client.
-        if (Objects.equals(itemTag, upgradeData.get(TAG_ITEM_TAG))) return;
-
-        if (itemTag == null) {
-            upgradeData.remove(TAG_ITEM_TAG);
-        } else {
-            upgradeData.put(TAG_ITEM_TAG, itemTag);
-        }
-
-        turtle.updateUpgradeNBTData(side);
+        turtle.setUpgradeData(side, stack.getComponentsPatch());
     }
 
     private <T> T withEquippedItem(ITurtleAccess turtle, TurtleSide side, Direction direction, Function<TurtlePlayer, T> action) {
         var turtlePlayer = TurtlePlayer.getWithPosition(turtle, turtle.getPosition(), direction);
-        turtlePlayer.loadInventory(getToolStack(turtle, side));
+        var stack = getToolStack(turtle, side);
+
+        turtlePlayer.loadInventory(stack.copy());
 
         var result = action.apply(turtlePlayer);
 
-        setToolStack(turtle, side, turtlePlayer.player().getItemInHand(InteractionHand.MAIN_HAND));
+        setToolStack(turtle, side, stack, turtlePlayer.player().getItemInHand(InteractionHand.MAIN_HAND));
         turtlePlayer.player().getInventory().clearContent();
 
         return result;
@@ -196,7 +174,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         if (hit instanceof EntityHitResult entityHit) {
             // Load up the turtle's inventory
             var stack = getToolStack(turtle, side);
-            turtlePlayer.loadInventory(stack);
+            turtlePlayer.loadInventory(stack.copy());
 
             var hitEntity = entityHit.getEntity();
 
@@ -215,7 +193,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
             TurtleUtil.stopConsuming(turtle);
 
             // Put everything we collected into the turtles inventory.
-            setToolStack(turtle, side, player.getItemInHand(InteractionHand.MAIN_HAND));
+            setToolStack(turtle, side, stack, player.getItemInHand(InteractionHand.MAIN_HAND));
             player.getInventory().clearContent();
         }
 
@@ -238,9 +216,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
      */
     private boolean attack(ServerPlayer player, Direction direction, Entity entity) {
         var baseDamage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE) * damageMulitiplier;
-        var bonusDamage = EnchantmentHelper.getDamageBonus(
-            player.getItemInHand(InteractionHand.MAIN_HAND), entity instanceof LivingEntity target ? target.getMobType() : MobType.UNDEFINED
-        );
+        var bonusDamage = EnchantmentHelper.getDamageBonus(player.getItemInHand(InteractionHand.MAIN_HAND), entity.getType());
         var damage = baseDamage + bonusDamage;
         if (damage <= 0) return false;
 
@@ -252,7 +228,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         var onFire = false;
         if (entity instanceof LivingEntity target && fireAspect > 0 && !target.isOnFire()) {
             onFire = true;
-            target.setSecondsOnFire(1);
+            target.igniteForSeconds(1);
         }
 
         var source = player.damageSources().playerAttack(player);
@@ -285,7 +261,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
 
         // Apply fire aspect
         if (entity instanceof LivingEntity target && fireAspect > 0 && !target.isOnFire()) {
-            target.setSecondsOnFire(4 * fireAspect);
+            target.igniteForSeconds(4 * fireAspect);
         }
 
         return true;

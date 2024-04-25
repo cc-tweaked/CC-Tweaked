@@ -5,8 +5,8 @@
   "key": {"#": {"item": "computercraft:wireless_modem_advanced"}, "T": {"item": "computercraft:turtle_advanced"}},
   "pattern": ["#T"],
   "result": {
-    "item": "computercraft:turtle_advanced",
-    "nbt": "{RightUpgrade:\"computercraft:wireless_modem_advanced\"}"
-  },
-  "show_notification": true
+    "components": {"computercraft:right_turtle_upgrade": {"id": "computercraft:wireless_modem_advanced"}},
+    "count": 1,
+    "id": "computercraft:turtle_advanced"
+  }
 }

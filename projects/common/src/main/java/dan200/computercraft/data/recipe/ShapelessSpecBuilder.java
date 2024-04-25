@@ -13,6 +13,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.ItemLike;
 
 /**
@@ -57,5 +58,9 @@ public final class ShapelessSpecBuilder extends AbstractRecipeBuilder<ShapelessS
     @Override
     protected ShapelessRecipeSpec build(RecipeProperties properties) {
         return new ShapelessRecipeSpec(properties, ingredients, result);
+    }
+
+    public FinishedRecipe build() {
+        return build(spec -> new ShapelessRecipe(spec.properties().group(), spec.properties().category(), spec.result(), spec.ingredients()));
     }
 }

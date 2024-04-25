@@ -13,22 +13,15 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.impl.AbstractComputerCraftAPI;
 import dan200.computercraft.impl.ComputerCraftAPIService;
 import dan200.computercraft.shared.config.ConfigFile;
-import dan200.computercraft.shared.network.MessageType;
-import dan200.computercraft.shared.network.NetworkMessage;
-import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.platform.*;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.common.ClientCommonPacketListener;
-import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -45,18 +38,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 @AutoService({ PlatformHelper.class, dan200.computercraft.impl.PlatformHelper.class, ComputerCraftAPIService.class })
@@ -87,11 +76,6 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     }
 
     @Override
-    public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> factory, Block block) {
-        throw new UnsupportedOperationException("Cannot create BlockEntityType inside tests");
-    }
-
-    @Override
     public <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>, I extends ArgumentTypeInfo<A, T>> I registerArgumentTypeInfo(Class<A> klass, I info) {
         throw new UnsupportedOperationException("Cannot register ArgumentTypeInfo inside tests");
     }
@@ -102,35 +86,13 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     }
 
     @Override
-    public <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> createMenuType(Function<FriendlyByteBuf, T> reader, ContainerData.Factory<C, T> factory) {
+    public <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> createMenuType(StreamCodec<RegistryFriendlyByteBuf, T> reader, ContainerData.Factory<C, T> factory) {
         throw new UnsupportedOperationException("Cannot create MenuType inside tests");
     }
 
     @Override
     public void openMenu(Player player, MenuProvider owner, ContainerData menu) {
         throw new UnsupportedOperationException("Cannot open menu inside tests");
-    }
-
-    @Override
-    public <T extends NetworkMessage<?>> MessageType<T> createMessageType(ResourceLocation id, FriendlyByteBuf.Reader<T> reader) {
-        record TypeImpl<T extends NetworkMessage<?>>(ResourceLocation id) implements MessageType<T> {
-        }
-        return new TypeImpl<>(id);
-    }
-
-    @Override
-    public Packet<ClientCommonPacketListener> createPacket(NetworkMessage<ClientNetworkContext> message) {
-        return new ClientboundCustomPayloadPacket(new CustomPacketPayload() {
-            @Override
-            public void write(FriendlyByteBuf friendlyByteBuf) {
-                message.write(friendlyByteBuf);
-            }
-
-            @Override
-            public ResourceLocation id() {
-                return message.type().id();
-            }
-        });
     }
 
     @Override

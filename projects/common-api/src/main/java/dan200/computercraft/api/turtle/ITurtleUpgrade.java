@@ -10,7 +10,7 @@ import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.impl.ComputerCraftAPIService;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.ResourceKey;
 
 import javax.annotation.Nullable;
@@ -133,7 +133,7 @@ public interface ITurtleUpgrade extends UpgradeBase {
      * @param upgradeData Data that currently stored for this upgrade
      * @return Filtered version of this data.
      */
-    default CompoundTag getPersistedData(CompoundTag upgradeData) {
+    default DataComponentPatch getPersistedData(DataComponentPatch upgradeData) {
         return upgradeData;
     }
 }

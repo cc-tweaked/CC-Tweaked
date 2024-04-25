@@ -4,9 +4,8 @@
   "key": {
     "#": {"item": "minecraft:stone"},
     "N": {"item": "minecraft:note_block"},
-    "R": {"tag": "c:redstone_dusts"}
+    "R": {"tag": "c:dusts/redstone"}
   },
   "pattern": ["###", "#N#", "#R#"],
-  "result": {"item": "computercraft:speaker"},
-  "show_notification": true
+  "result": {"count": 1, "id": "computercraft:speaker"}
 }

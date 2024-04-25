@@ -18,9 +18,6 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralCapability;
 import dan200.computercraft.impl.Peripherals;
 import dan200.computercraft.shared.config.ConfigFile;
-import dan200.computercraft.shared.network.MessageType;
-import dan200.computercraft.shared.network.NetworkMessage;
-import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
@@ -28,10 +25,8 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.common.ClientCommonPacketListener;
-import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -54,9 +49,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -81,8 +74,9 @@ import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.function.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 @AutoService(dan200.computercraft.impl.PlatformHelper.class)
 public class PlatformHelperImpl implements PlatformHelper {
@@ -115,13 +109,7 @@ public class PlatformHelperImpl implements PlatformHelper {
             object.add(ConditionalOps.DEFAULT_CONDITIONS_KEY, conditions);
         }
 
-        conditions.add(ICondition.CODEC.encodeStart(JsonOps.INSTANCE, new ModLoadedCondition(modId)).getOrThrow(false, x -> {
-        }));
-    }
-
-    @Override
-    public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> factory, Block block) {
-        return new BlockEntityType<>(factory::apply, Set.of(block), null);
+        conditions.add(ICondition.CODEC.encodeStart(JsonOps.INSTANCE, new ModLoadedCondition(modId)).getOrThrow());
     }
 
     @Override
@@ -130,23 +118,13 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> createMenuType(Function<FriendlyByteBuf, T> reader, ContainerData.Factory<C, T> factory) {
-        return IMenuTypeExtension.create((id, player, data) -> factory.create(id, player, reader.apply(data)));
+    public <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> createMenuType(StreamCodec<RegistryFriendlyByteBuf, T> codec, ContainerData.Factory<C, T> factory) {
+        return IMenuTypeExtension.create((id, player, data) -> factory.create(id, player, codec.decode(data)));
     }
 
     @Override
     public void openMenu(Player player, MenuProvider owner, ContainerData menu) {
-        ((ServerPlayer) player).openMenu(owner, menu::toBytes);
-    }
-
-    @Override
-    public <T extends NetworkMessage<?>> MessageType<T> createMessageType(ResourceLocation id, FriendlyByteBuf.Reader<T> reader) {
-        return new ForgeMessageType<>(id, b -> new ForgeMessageType.Payload<>(reader.apply(b)));
-    }
-
-    @Override
-    public Packet<ClientCommonPacketListener> createPacket(NetworkMessage<ClientNetworkContext> message) {
-        return new ClientboundCustomPayloadPacket(ForgeMessageType.createPayload(message));
+        player.openMenu(owner, menu::toBytes);
     }
 
     @Override
@@ -189,14 +167,13 @@ public class PlatformHelperImpl implements PlatformHelper {
     public RecipeIngredients getRecipeIngredients() {
         return new RecipeIngredients(
             Ingredient.of(Tags.Items.DUSTS_REDSTONE),
-            Ingredient.of(Tags.Items.STRING),
-            Ingredient.of(Tags.Items.LEATHER),
-            Ingredient.of(Tags.Items.STONE),
+            Ingredient.of(Tags.Items.STRINGS),
+            Ingredient.of(Tags.Items.LEATHERS),
+            Ingredient.of(Tags.Items.STONES),
             Ingredient.of(Tags.Items.GLASS_PANES),
             Ingredient.of(Tags.Items.INGOTS_GOLD),
             Ingredient.of(Tags.Items.STORAGE_BLOCKS_GOLD),
             Ingredient.of(Tags.Items.INGOTS_IRON),
-            Ingredient.of(Tags.Items.HEADS),
             Ingredient.of(Tags.Items.DYES),
             Ingredient.of(Tags.Items.ENDER_PEARLS),
             Ingredient.of(Tags.Items.CHESTS_WOODEN)
@@ -227,7 +204,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public int getBurnTime(ItemStack stack) {
-        return CommonHooks.getBurnTime(stack, null);
+        return stack.getBurnTime(null);
     }
 
     @Override
@@ -261,11 +238,6 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public ServerPlayer createFakePlayer(ServerLevel world, GameProfile profile) {
         return new FakePlayerExt(world, profile);
-    }
-
-    @Override
-    public double getReachDistance(Player player) {
-        return player.getBlockReach();
     }
 
     @Override
@@ -305,8 +277,8 @@ public class PlatformHelperImpl implements PlatformHelper {
 
         var block = level.getBlockState(hit.getBlockPos());
         if (event.getUseBlock() != Event.Result.DENY && !block.isAir() && canUseBlock.test(block)) {
-            var useResult = block.use(level, player, InteractionHand.MAIN_HAND, hit);
-            if (useResult.consumesAction()) return useResult;
+            var useResult = block.useItemOn(stack, level, player, InteractionHand.MAIN_HAND, hit);
+            if (useResult.consumesAction()) return useResult.result();
         }
 
         return event.getUseItem() == Event.Result.DENY ? InteractionResult.PASS : stack.useOn(context);

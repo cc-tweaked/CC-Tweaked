@@ -9,18 +9,19 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.impl.BundledRedstone;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.platform.ComponentAccess;
 import dan200.computercraft.shared.platform.PlatformHelper;
-import dan200.computercraft.shared.util.BlockEntityHelpers;
-import dan200.computercraft.shared.util.DirectionUtil;
-import dan200.computercraft.shared.util.IDAssigner;
-import dan200.computercraft.shared.util.RedstoneUtil;
+import dan200.computercraft.shared.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -76,8 +77,8 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         unload();
     }
 
-    protected int getInteractRange() {
-        return Container.DEFAULT_DISTANCE_LIMIT;
+    protected float getInteractRange() {
+        return Container.DEFAULT_DISTANCE_BUFFER;
     }
 
     public boolean isUsable(Player player) {
@@ -137,7 +138,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     protected abstract void updateBlockState(ComputerState newState);
 
     @Override
-    public void saveAdditional(CompoundTag nbt) {
+    public void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
         // Save ID, label and power state
         if (computerID >= 0) nbt.putInt(NBT_ID, computerID);
         if (label != null) nbt.putString(NBT_LABEL, label);
@@ -145,26 +146,51 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
 
         lockCode.addToTag(nbt);
 
-        super.saveAdditional(nbt);
+        super.saveAdditional(nbt, registries);
     }
 
     @Override
-    public final void load(CompoundTag nbt) {
-        super.load(nbt);
+    public final void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadAdditional(nbt, registries);
         if (level != null && level.isClientSide) {
-            loadClient(nbt);
+            loadClient(nbt, registries);
         } else {
-            loadServer(nbt);
+            loadServer(nbt, registries);
         }
     }
 
-    protected void loadServer(CompoundTag nbt) {
+    protected void loadServer(CompoundTag nbt, HolderLookup.Provider registries) {
         // Load ID, label and power state
         computerID = nbt.contains(NBT_ID) ? nbt.getInt(NBT_ID) : -1;
         label = nbt.contains(NBT_LABEL) ? nbt.getString(NBT_LABEL) : null;
         on = startOn = nbt.getBoolean(NBT_ON);
 
         lockCode = LockCode.fromTag(nbt);
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentInput component) {
+        super.applyImplicitComponents(component);
+        label = DataComponentUtil.getCustomName(component.get(DataComponents.CUSTOM_NAME));
+        computerID = NonNegativeId.getId(component.get(ModRegistry.DataComponents.COMPUTER_ID.get()));
+        lockCode = component.getOrDefault(DataComponents.LOCK, LockCode.NO_LOCK);
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        builder.set(ModRegistry.DataComponents.COMPUTER_ID.get(), NonNegativeId.of(computerID));
+        builder.set(DataComponents.CUSTOM_NAME, label == null ? null : Component.literal(label));
+        if (lockCode != LockCode.NO_LOCK) builder.set(DataComponents.LOCK, lockCode);
+    }
+
+    @Override
+    @Deprecated
+    public void removeComponentsFromTag(CompoundTag tag) {
+        super.removeComponentsFromTag(tag);
+        tag.remove(NBT_ID);
+        tag.remove(NBT_LABEL);
+        tag.remove(LockCode.TAG_LOCK);
     }
 
     protected boolean isPeripheralBlockedOnSide(ComputerSide localSide) {
@@ -370,15 +396,15 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         // We need this for pick block on the client side.
-        var nbt = super.getUpdateTag();
+        var nbt = super.getUpdateTag(registries);
         if (label != null) nbt.putString(NBT_LABEL, label);
         if (computerID >= 0) nbt.putInt(NBT_ID, computerID);
         return nbt;
     }
 
-    protected void loadClient(CompoundTag nbt) {
+    protected void loadClient(CompoundTag nbt, HolderLookup.Provider registries) {
         label = nbt.contains(NBT_LABEL) ? nbt.getString(NBT_LABEL) : null;
         computerID = nbt.contains(NBT_ID) ? nbt.getInt(NBT_ID) : -1;
     }

@@ -40,8 +40,8 @@ public class ImageRenderer implements AutoCloseable {
         RenderSystem.setProjectionMatrix(new Matrix4f().identity().ortho(0, 16, 0, 16, 1000, 3000), VertexSorting.DISTANCE_TO_ORIGIN);
 
         var transform = RenderSystem.getModelViewStack();
-        transform.pushPose();
-        transform.setIdentity();
+        transform.pushMatrix();
+        transform.identity();
         transform.translate(0.0f, 0.0f, -2000.0f);
 
         FogRenderer.setupNoFog();
@@ -50,7 +50,7 @@ public class ImageRenderer implements AutoCloseable {
     public void clearState() {
         if (projectionMatrix == null) throw new IllegalStateException("Not currently rendering");
         RenderSystem.setProjectionMatrix(projectionMatrix, VertexSorting.DISTANCE_TO_ORIGIN);
-        RenderSystem.getModelViewStack().popPose();
+        RenderSystem.getModelViewStack().popMatrix();
     }
 
     public void captureRender(Path output, Runnable render) throws IOException {

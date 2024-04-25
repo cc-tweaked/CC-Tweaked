@@ -89,7 +89,7 @@ public class Exporter {
             if (!RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, result.getItem()).getNamespace().equals(ComputerCraftAPI.MOD_ID)) {
                 continue;
             }
-            if (result.hasTag()) {
+            if (!result.getComponentsPatch().isEmpty()) {
                 TestHooks.LOG.warn("Skipping recipe {} as it has NBT", recipe.id());
                 continue;
             }

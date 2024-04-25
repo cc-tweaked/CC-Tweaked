@@ -11,8 +11,10 @@ import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
+import dan200.computercraft.shared.util.DataComponentUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -105,10 +107,10 @@ public class UpgradeRecipeGenerator<T> {
     public List<T> findRecipesWithInput(ItemStack stack) {
         setupCache();
 
-        if (stack.getItem() instanceof TurtleItem item) {
+        if (stack.getItem() instanceof TurtleItem) {
             // Suggest possible upgrades which can be applied to this turtle
-            var left = item.getUpgradeWithData(stack, TurtleSide.LEFT);
-            var right = item.getUpgradeWithData(stack, TurtleSide.RIGHT);
+            var left = TurtleItem.getUpgradeWithData(stack, TurtleSide.LEFT);
+            var right = TurtleItem.getUpgradeWithData(stack, TurtleSide.RIGHT);
             if (left != null && right != null) return List.of();
 
             List<T> recipes = new ArrayList<>();
@@ -176,11 +178,11 @@ public class UpgradeRecipeGenerator<T> {
      */
     public List<T> findRecipesWithOutput(ItemStack stack) {
         // Find which upgrade this item currently has, and so how we could build it.
-        if (stack.getItem() instanceof TurtleItem item) {
+        if (stack.getItem() instanceof TurtleItem) {
             List<T> recipes = new ArrayList<>(0);
 
-            var left = item.getUpgradeWithData(stack, TurtleSide.LEFT);
-            var right = item.getUpgradeWithData(stack, TurtleSide.RIGHT);
+            var left = TurtleItem.getUpgradeWithData(stack, TurtleSide.LEFT);
+            var right = TurtleItem.getUpgradeWithData(stack, TurtleSide.RIGHT);
 
             // The turtle is facing towards us, so upgrades on the left are actually crafted on the right.
             if (left != null) {
@@ -215,18 +217,16 @@ public class UpgradeRecipeGenerator<T> {
     }
 
     private static ItemStack turtleWith(ItemStack stack, @Nullable UpgradeData<ITurtleUpgrade> left, @Nullable UpgradeData<ITurtleUpgrade> right) {
-        var item = (TurtleItem) stack.getItem();
-        return item.create(
-            item.getComputerID(stack), item.getLabel(stack), item.getColour(stack),
-            left, right, item.getFuelLevel(stack), item.getOverlay(stack)
-        );
+        var newStack = stack.copyWithCount(1);
+        newStack.set(ModRegistry.DataComponents.LEFT_TURTLE_UPGRADE.get(), left);
+        newStack.set(ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get(), right);
+        return stack;
     }
 
     private static ItemStack pocketWith(ItemStack stack, @Nullable UpgradeData<IPocketUpgrade> back) {
-        var item = (PocketComputerItem) stack.getItem();
-        return item.create(
-            item.getComputerID(stack), item.getLabel(stack), item.getColour(stack), back
-        );
+        var newStack = stack.copyWithCount(1);
+        newStack.set(ModRegistry.DataComponents.POCKET_UPGRADE.get(), back);
+        return stack;
     }
 
     private T pocket(Ingredient upgrade, Ingredient pocketComputer, ItemStack result) {
@@ -278,8 +278,8 @@ public class UpgradeRecipeGenerator<T> {
                     var turtleItem = turtleSupplier.get();
                     recipes.add(turtle(
                         ingredient, // Right upgrade, recipe on left
-                        Ingredient.of(turtleItem.create(-1, null, -1, null, null, 0, null)),
-                        turtleItem.create(-1, null, -1, null, UpgradeData.ofDefault(turtle), 0, null)
+                        Ingredient.of(new ItemStack(turtleItem)),
+                        DataComponentUtil.createStack(turtleItem, ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get(), UpgradeData.ofDefault(turtle))
                     ));
                 }
             }
@@ -289,8 +289,8 @@ public class UpgradeRecipeGenerator<T> {
                     var pocketItem = pocketSupplier.get();
                     recipes.add(pocket(
                         ingredient,
-                        Ingredient.of(pocketItem.create(-1, null, -1, null)),
-                        pocketItem.create(-1, null, -1, UpgradeData.ofDefault(pocket))
+                        Ingredient.of(pocketItem),
+                        DataComponentUtil.createStack(pocketItem, ModRegistry.DataComponents.POCKET_UPGRADE.get(), UpgradeData.ofDefault(pocket))
                     ));
                 }
             }

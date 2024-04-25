@@ -4,11 +4,11 @@
 
 package dan200.computercraft.client.pocket;
 
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
-import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
@@ -53,7 +53,7 @@ public final class ClientPocketComputers {
     }
 
     public static @Nullable PocketComputerData get(ItemStack stack) {
-        var id = PocketComputerItem.getInstanceID(stack);
-        return id == null ? null : instances.get(id);
+        var id = stack.get(ModRegistry.DataComponents.COMPUTER.get());
+        return id == null ? null : instances.get(id.instance());
     }
 }

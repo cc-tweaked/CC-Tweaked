@@ -198,7 +198,7 @@ public class TurtlePlaceCommand implements TurtleCommand {
      * @param turtlePlayer The player which represents the turtle
      * @param hit          Where the block we're placing against was clicked.
      * @param adjacent     If the block is directly adjacent to the turtle, and so can be interacted with via
-     *                     {@link BlockState#use(Level, Player, InteractionHand, BlockHitResult)}.
+     *                     {@link BlockState#useItemOn(ItemStack, Level, Player, InteractionHand, BlockHitResult)}.
      * @return If this item was deployed.
      */
     private static InteractionResult doDeployOnBlock(ItemStack stack, TurtlePlayer turtlePlayer, BlockHitResult hit, boolean adjacent) {

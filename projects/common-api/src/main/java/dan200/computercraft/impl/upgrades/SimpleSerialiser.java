@@ -7,7 +7,7 @@ package dan200.computercraft.impl.upgrades;
 import com.google.gson.JsonObject;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -34,11 +34,11 @@ public final class SimpleSerialiser<T extends UpgradeBase> implements UpgradeSer
     }
 
     @Override
-    public T fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
+    public T fromNetwork(ResourceLocation id, RegistryFriendlyByteBuf buffer) {
         return constructor.apply(id);
     }
 
     @Override
-    public void toNetwork(FriendlyByteBuf buffer, T upgrade) {
+    public void toNetwork(RegistryFriendlyByteBuf buffer, T upgrade) {
     }
 }

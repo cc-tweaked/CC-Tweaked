@@ -12,7 +12,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.BlockHitResult;
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
 import java.util.EnumSet;
@@ -53,7 +52,7 @@ public final class MonitorHighlightRenderer {
         // I wish I could think of a better way to do this
         var buffer = bufferSource.getBuffer(RenderType.lines());
         var transform = transformStack.last().pose();
-        var normal = transformStack.last().normal();
+        var normal = transformStack.last();
         if (faces.contains(NORTH) || faces.contains(WEST)) line(buffer, transform, normal, 0, 0, 0, UP);
         if (faces.contains(SOUTH) || faces.contains(WEST)) line(buffer, transform, normal, 0, 0, 1, UP);
         if (faces.contains(NORTH) || faces.contains(EAST)) line(buffer, transform, normal, 1, 0, 0, UP);
@@ -71,7 +70,7 @@ public final class MonitorHighlightRenderer {
         return true;
     }
 
-    private static void line(VertexConsumer buffer, Matrix4f transform, Matrix3f normal, float x, float y, float z, Direction direction) {
+    private static void line(VertexConsumer buffer, Matrix4f transform, PoseStack.Pose normal, float x, float y, float z, Direction direction) {
         buffer
             .vertex(transform, x, y, z)
             .color(0, 0, 0, 0.4f)

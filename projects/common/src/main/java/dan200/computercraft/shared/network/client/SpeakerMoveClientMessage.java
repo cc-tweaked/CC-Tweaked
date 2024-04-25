@@ -4,12 +4,15 @@
 
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerBlockEntity;
+import dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 import java.util.UUID;
 
@@ -18,26 +21,21 @@ import java.util.UUID;
  * <p>
  * Used by speakers to play sounds.
  *
+ * @param source The {@linkplain SpeakerPeripheral#getSource() id} of the speaker playing audio.
+ * @param pos    The new position of the speaker.
  * @see SpeakerBlockEntity
  */
-public class SpeakerMoveClientMessage implements NetworkMessage<ClientNetworkContext> {
-    private final UUID source;
-    private final SpeakerPosition.Message pos;
+public record SpeakerMoveClientMessage(
+    UUID source, SpeakerPosition.Message pos
+) implements NetworkMessage<ClientNetworkContext> {
+    public static final StreamCodec<RegistryFriendlyByteBuf, SpeakerMoveClientMessage> STREAM_CODEC = StreamCodec.composite(
+        UUIDUtil.STREAM_CODEC, SpeakerMoveClientMessage::source,
+        SpeakerPosition.Message.STREAM_CODEC, SpeakerMoveClientMessage::pos,
+        SpeakerMoveClientMessage::new
+    );
 
     public SpeakerMoveClientMessage(UUID source, SpeakerPosition pos) {
-        this.source = source;
-        this.pos = pos.asMessage();
-    }
-
-    public SpeakerMoveClientMessage(FriendlyByteBuf buf) {
-        source = buf.readUUID();
-        pos = SpeakerPosition.Message.read(buf);
-    }
-
-    @Override
-    public void write(FriendlyByteBuf buf) {
-        buf.writeUUID(source);
-        pos.write(buf);
+        this(source, pos.asMessage());
     }
 
     @Override
@@ -46,7 +44,7 @@ public class SpeakerMoveClientMessage implements NetworkMessage<ClientNetworkCon
     }
 
     @Override
-    public MessageType<SpeakerMoveClientMessage> type() {
+    public CustomPacketPayload.Type<SpeakerMoveClientMessage> type() {
         return NetworkMessages.SPEAKER_MOVE;
     }
 }
