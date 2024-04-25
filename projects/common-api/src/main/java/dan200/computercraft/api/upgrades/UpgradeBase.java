@@ -10,11 +10,9 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import net.minecraft.Util;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-
-import java.util.Objects;
 
 /**
  * Common functionality between {@link ITurtleUpgrade} and {@link IPocketUpgrade}.
@@ -56,8 +54,8 @@ public interface UpgradeBase {
     /**
      * Returns the item stack representing a currently equipped turtle upgrade.
      * <p>
-     * While upgrades can store upgrade data ({@link ITurtleAccess#getUpgradeNBTData(TurtleSide)} and
-     * {@link IPocketAccess#getUpgradeNBTData()}}, by default this data is discarded when an upgrade is unequipped,
+     * While upgrades can store upgrade data ({@link ITurtleAccess#getUpgradeData(TurtleSide)} and
+     * {@link IPocketAccess#getUpgradeData()}}, by default this data is discarded when an upgrade is unequipped,
      * and the original item stack is returned.
      * <p>
      * By overriding this method, you can create a new {@link ItemStack} which contains enough data to
@@ -69,24 +67,24 @@ public interface UpgradeBase {
      * @param upgradeData The current upgrade data. This should <strong>NOT</strong> be mutated.
      * @return The item stack returned when unequipping.
      */
-    default ItemStack getUpgradeItem(CompoundTag upgradeData) {
+    default ItemStack getUpgradeItem(DataComponentPatch upgradeData) {
         return getCraftingItem();
     }
 
     /**
      * Extract upgrade data from an {@link ItemStack}.
      * <p>
-     * This upgrade data will be available with {@link ITurtleAccess#getUpgradeNBTData(TurtleSide)} or
-     * {@link IPocketAccess#getUpgradeNBTData()}.
+     * This upgrade data will be available with {@link ITurtleAccess#getUpgradeData(TurtleSide)} or
+     * {@link IPocketAccess#getUpgradeData()}.
      * <p>
-     * This should be an inverse to {@link #getUpgradeItem(CompoundTag)}.
+     * This should be an inverse to {@link #getUpgradeItem(DataComponentPatch)}.
      *
      * @param stack The stack that was equipped by the turtle or pocket computer. This will have the same item as
      *              {@link #getCraftingItem()}.
      * @return The upgrade data that should be set on the turtle or pocket computer.
      */
-    default CompoundTag getUpgradeData(ItemStack stack) {
-        return new CompoundTag();
+    default DataComponentPatch getUpgradeData(ItemStack stack) {
+        return DataComponentPatch.EMPTY;
     }
 
     /**
@@ -96,26 +94,15 @@ public interface UpgradeBase {
      * the original stack. In order to prevent people losing items with enchantments (or
      * repairing items with non-0 damage), we impose additional checks on the item.
      * <p>
-     * The default check requires that any non-capability NBT is exactly the same as the
-     * crafting item, but this may be relaxed for your upgrade.
-     * <p>
-     * This is based on {@code net.neoforged.common.crafting.StrictNBTIngredient}'s check.
+     * The default check requires that any NBT is exactly the same as the crafting item,
+     * but this may be relaxed for your upgrade.
      *
      * @param stack The stack to check. This is guaranteed to be non-empty and have the same item as
      *              {@link #getCraftingItem()}.
      * @return If this stack may be used to equip this upgrade.
      */
     default boolean isItemSuitable(ItemStack stack) {
-        var crafting = getCraftingItem();
-
-        // A more expanded form of ItemStack.areShareTagsEqual, but allowing an empty tag to be equal to a
-        // null one.
-        var tag = stack.getTag();
-        var craftingTag = crafting.getTag();
-        if (tag == craftingTag) return true;
-        if (tag == null) return Objects.requireNonNull(craftingTag).isEmpty();
-        if (craftingTag == null) return tag.isEmpty();
-        return tag.equals(craftingTag);
+        return ItemStack.isSameItemSameComponents(getCraftingItem(), stack);
     }
 
     /**

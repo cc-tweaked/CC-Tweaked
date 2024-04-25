@@ -5,13 +5,9 @@
 package dan200.computercraft.client.platform;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dan200.computercraft.shared.network.NetworkMessage;
-import dan200.computercraft.shared.network.server.ServerNetworkContext;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.common.ServerCommonPacketListener;
 import net.minecraft.sounds.SoundEvent;
 
 import javax.annotation.Nullable;
@@ -20,14 +16,6 @@ public interface ClientPlatformHelper extends dan200.computercraft.impl.client.C
     static ClientPlatformHelper get() {
         return (ClientPlatformHelper) dan200.computercraft.impl.client.ClientPlatformHelper.get();
     }
-
-    /**
-     * Convert a serverbound {@link NetworkMessage} to a Minecraft {@link Packet}.
-     *
-     * @param message The messsge to convert.
-     * @return The converted message.
-     */
-    Packet<ServerCommonPacketListener> createPacket(NetworkMessage<ServerNetworkContext> message);
 
     /**
      * Render a {@link BakedModel}, using any loader-specific hooks.

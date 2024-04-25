@@ -6,7 +6,6 @@ package dan200.computercraft.data.recipe;
 
 import com.mojang.serialization.DataResult;
 import dan200.computercraft.shared.recipe.RecipeProperties;
-import net.minecraft.Util;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
@@ -90,7 +89,7 @@ public abstract class AbstractRecipeBuilder<S extends AbstractRecipeBuilder<S, O
      * @return The "built" recipe.
      */
     public final FinishedRecipe buildOrThrow(Function<O, DataResult<? extends Recipe<?>>> factory) {
-        return build(s -> Util.getOrThrow(factory.apply(s), IllegalStateException::new));
+        return build(s -> factory.apply(s).getOrThrow());
     }
 
     @SuppressWarnings("unchecked")

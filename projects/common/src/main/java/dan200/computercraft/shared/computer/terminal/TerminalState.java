@@ -7,6 +7,7 @@ package dan200.computercraft.shared.computer.terminal;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nullable;
@@ -19,6 +20,8 @@ import javax.annotation.Nullable;
  * states, etc...
  */
 public class TerminalState {
+    public static final StreamCodec<FriendlyByteBuf, TerminalState> STREAM_CODEC = StreamCodec.ofMember(TerminalState::write, TerminalState::new);
+
     private final boolean colour;
     private final int width;
     private final int height;
@@ -38,7 +41,7 @@ public class TerminalState {
         return terminal == null ? null : new TerminalState(terminal);
     }
 
-    public TerminalState(FriendlyByteBuf buf) {
+    private TerminalState(FriendlyByteBuf buf) {
         colour = buf.readBoolean();
         width = buf.readVarInt();
         height = buf.readVarInt();
@@ -47,7 +50,7 @@ public class TerminalState {
         buffer = buf.readBytes(length);
     }
 
-    public void write(FriendlyByteBuf buf) {
+    private void write(FriendlyByteBuf buf) {
         buf.writeBoolean(colour);
         buf.writeVarInt(width);
         buf.writeVarInt(height);

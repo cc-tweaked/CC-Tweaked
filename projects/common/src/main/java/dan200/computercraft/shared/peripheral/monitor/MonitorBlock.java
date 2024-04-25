@@ -13,7 +13,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -87,8 +86,7 @@ public class MonitorBlock extends HorizontalDirectionalBlock implements EntityBl
     }
 
     @Override
-    @Deprecated
-    public final void onRemove(BlockState block, Level world, BlockPos pos, BlockState replace, boolean bool) {
+    protected final void onRemove(BlockState block, Level world, BlockPos pos, BlockState replace, boolean bool) {
         if (block.getBlock() == replace.getBlock()) return;
 
         var tile = world.getBlockEntity(pos);
@@ -97,15 +95,13 @@ public class MonitorBlock extends HorizontalDirectionalBlock implements EntityBl
     }
 
     @Override
-    @Deprecated
-    public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
+    protected void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
         var te = world.getBlockEntity(pos);
         if (te instanceof MonitorBlockEntity monitor) monitor.blockTick();
     }
 
     @Override
-    @Deprecated
-    public final InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected final InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (player.isCrouching() || !(level.getBlockEntity(pos) instanceof MonitorBlockEntity monitor) || monitor.getFront() != hit.getDirection()) {
             return InteractionResult.PASS;
         }

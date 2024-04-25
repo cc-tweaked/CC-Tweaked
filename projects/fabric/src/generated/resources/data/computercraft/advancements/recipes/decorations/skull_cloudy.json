@@ -2,7 +2,7 @@
   "parent": "minecraft:recipes/root",
   "criteria": {
     "has_monitor": {
-      "conditions": {"items": [{"items": ["computercraft:monitor_normal"]}]},
+      "conditions": {"items": [{"items": "computercraft:monitor_normal"}]},
       "trigger": "minecraft:inventory_changed"
     },
     "has_the_recipe": {
@@ -10,7 +10,6 @@
       "trigger": "minecraft:recipe_unlocked"
     }
   },
-  "requirements": [["has_monitor", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:skull_cloudy"]},
-  "sends_telemetry_event": false
+  "requirements": [["has_the_recipe", "has_monitor"]],
+  "rewards": {"recipes": ["computercraft:skull_cloudy"]}
 }

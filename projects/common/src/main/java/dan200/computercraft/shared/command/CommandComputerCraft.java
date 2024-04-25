@@ -260,7 +260,7 @@ public final class CommandComputerCraft {
      */
     private static int view(CommandSourceStack source, ServerComputer computer) throws CommandSyntaxException {
         var player = source.getPlayerOrException();
-        new ComputerContainerData(computer, ItemStack.EMPTY).open(player, new MenuProvider() {
+        new ComputerContainerData(computer, new ItemStack(ModRegistry.Items.COMPUTER_NORMAL.get())).open(player, new MenuProvider() {
             @Override
             public Component getDisplayName() {
                 return Component.translatable("gui.computercraft.view_computer");

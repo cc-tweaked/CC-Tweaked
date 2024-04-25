@@ -11,11 +11,13 @@ import dan200.computercraft.gametest.api.*
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.computer.core.ComputerState
-import dan200.computercraft.shared.pocket.items.PocketComputerItem
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
+import net.minecraft.core.component.DataComponents
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.gametest.framework.GameTestSequence
+import net.minecraft.network.chat.Component
+import net.minecraft.world.item.ItemStack
 import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.random.Random
 
@@ -97,8 +99,9 @@ class Pocket_Computer_Test {
         val testName = (this as GameTestHelperAccessor).testInfo.testName
         val label = testName + (if (name == null) "" else ".$name")
 
-        val item = ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get().create(1, label, -1, null)
-        item.getOrCreateTag().putBoolean(PocketComputerItem.NBT_ON, true)
+        val item = ItemStack(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get())
+        item.set(DataComponents.CUSTOM_NAME, Component.literal(label))
+        item.set(ModRegistry.DataComponents.ON.get(), true)
         player.inventory.setItem(0, item)
     }
 }

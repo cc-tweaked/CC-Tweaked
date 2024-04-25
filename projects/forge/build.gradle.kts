@@ -126,25 +126,11 @@ dependencies {
     clientApi(clientClasses(project(":forge-api"))) { cct.exclude(this) }
     implementation(project(":core")) { cct.exclude(this) }
 
-    "minecraftLibrary"(libs.cobalt) {
-        val version = libs.versions.cobalt.get()
-        jarJar.ranged(this, "[$version,${getNextVersion(version)})")
-    }
-    "minecraftLibrary"(libs.jzlib) {
-        jarJar.ranged(this, "[${libs.versions.jzlib.get()},)")
-    }
-    "minecraftLibrary"(libs.netty.http) {
-        jarJar.ranged(this, "[${libs.versions.netty.get()},)")
-        isTransitive = false
-    }
-    "minecraftLibrary"(libs.netty.socks) {
-        jarJar.ranged(this, "[${libs.versions.netty.get()},)")
-        isTransitive = false
-    }
-    "minecraftLibrary"(libs.netty.proxy) {
-        jarJar.ranged(this, "[${libs.versions.netty.get()},)")
-        isTransitive = false
-    }
+    "minecraftLibrary"(libs.cobalt)
+    "minecraftLibrary"(libs.jzlib)
+    "minecraftLibrary"(libs.netty.http)
+    "minecraftLibrary"(libs.netty.socks)
+    "minecraftLibrary"(libs.netty.proxy)
 
     testFixturesApi(libs.bundles.test)
     testFixturesApi(libs.bundles.kotlin)
@@ -186,6 +172,8 @@ tasks.sourcesJar {
     for (source in cct.sourceDirectories.get()) from(source.sourceSet.allSource)
 }
 
+jarJar.enable()
+
 tasks.jarJar {
     archiveClassifier.set("")
     configuration(project.configurations["minecraftLibrary"])
@@ -201,11 +189,6 @@ tasks.assemble { dependsOn("jarJar") }
 
 tasks.test {
     systemProperty("cct.test-files", layout.buildDirectory.dir("tmp/testFiles").getAbsolutePath())
-}
-
-tasks.checkDependencyConsistency {
-    // Forge pulls in slf4j 2.0.9 instead of 2.0.7, so we need to override that.
-    override(libs.slf4j.asProvider(), "2.0.9")
 }
 
 val runGametest by tasks.registering(JavaExec::class) {
@@ -250,8 +233,6 @@ tasks.withType(GenerateModuleMetadata::class).configureEach { isEnabled = false 
 publishing {
     publications {
         named("maven", MavenPublication::class) {
-            jarJar.component(this)
-
             mavenDependencies {
                 cct.configureExcludes(this)
             }

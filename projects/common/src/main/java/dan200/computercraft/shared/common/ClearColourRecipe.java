@@ -4,9 +4,12 @@
 
 package dan200.computercraft.shared.common;
 
+import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.util.DataComponentUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -16,7 +19,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 /**
- * Craft a wet sponge with a {@linkplain IColouredItem dyable item} to remove its dye.
+ * Craft a wet sponge with a {@linkplain ComputerCraftTags.Items#DYEABLE dyable item} to remove its dye.
  */
 public final class ClearColourRecipe extends CustomRecipe {
     public ClearColourRecipe(CraftingBookCategory category) {
@@ -31,9 +34,9 @@ public final class ClearColourRecipe extends CustomRecipe {
             var stack = inv.getItem(i);
             if (stack.isEmpty()) continue;
 
-            if (stack.getItem() instanceof IColouredItem colourable) {
+            if (stack.is(ComputerCraftTags.Items.DYEABLE)) {
                 if (hasColourable) return false;
-                if (colourable.getColour(stack) == -1) return false;
+                if (!stack.has(DataComponents.DYED_COLOR)) return false;
                 hasColourable = true;
             } else if (stack.getItem() == Items.WET_SPONGE) {
                 if (hasSponge) return false;
@@ -47,19 +50,17 @@ public final class ClearColourRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess) {
+    public ItemStack assemble(CraftingContainer inv, HolderLookup.Provider registryAccess) {
         var colourable = ItemStack.EMPTY;
 
         for (var i = 0; i < inv.getContainerSize(); i++) {
             var stack = inv.getItem(i);
-            if (stack.getItem() instanceof IColouredItem) colourable = stack;
+            if (stack.is(ComputerCraftTags.Items.DYEABLE)) colourable = stack;
         }
 
         if (colourable.isEmpty()) return ItemStack.EMPTY;
 
-        var stack = ((IColouredItem) colourable.getItem()).withColour(colourable, -1);
-        stack.setCount(1);
-        return stack;
+        return DataComponentUtil.createResult(colourable, DataComponents.DYED_COLOR, null);
     }
 
     @Override

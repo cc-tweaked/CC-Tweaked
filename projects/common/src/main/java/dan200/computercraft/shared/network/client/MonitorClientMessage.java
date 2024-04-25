@@ -5,41 +5,38 @@
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.computer.terminal.TerminalState;
-import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.NetworkMessages;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-import javax.annotation.Nullable;
+import java.util.Optional;
 
-public class MonitorClientMessage implements NetworkMessage<ClientNetworkContext> {
-    private final BlockPos pos;
-    private final @Nullable TerminalState state;
-
-    public MonitorClientMessage(BlockPos pos, @Nullable TerminalState state) {
-        this.pos = pos;
-        this.state = state;
-    }
-
-    public MonitorClientMessage(FriendlyByteBuf buf) {
-        pos = buf.readBlockPos();
-        state = buf.readNullable(TerminalState::new);
-    }
-
-    @Override
-    public void write(FriendlyByteBuf buf) {
-        buf.writeBlockPos(pos);
-        buf.writeNullable(state, (b, t) -> t.write(b));
-    }
+/**
+ * Update the terminal contents of a monitor.
+ *
+ * @param pos      The position of the origin monitor.
+ * @param terminal The current monitor terminal.
+ */
+public record MonitorClientMessage(
+    BlockPos pos, Optional<TerminalState> terminal
+) implements NetworkMessage<ClientNetworkContext> {
+    public static final StreamCodec<RegistryFriendlyByteBuf, MonitorClientMessage> STREAM_CODEC = StreamCodec.composite(
+        BlockPos.STREAM_CODEC, MonitorClientMessage::pos,
+        ByteBufCodecs.optional(TerminalState.STREAM_CODEC), MonitorClientMessage::terminal,
+        MonitorClientMessage::new
+    );
 
     @Override
     public void handle(ClientNetworkContext context) {
-        context.handleMonitorData(pos, state);
+        context.handleMonitorData(pos, terminal.orElse(null));
     }
 
     @Override
-    public MessageType<MonitorClientMessage> type() {
+    public CustomPacketPayload.Type<MonitorClientMessage> type() {
         return NetworkMessages.MONITOR_CLIENT;
     }
 }

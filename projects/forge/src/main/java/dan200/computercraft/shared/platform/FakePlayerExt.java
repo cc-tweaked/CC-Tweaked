@@ -17,9 +17,9 @@ import net.neoforged.neoforge.common.util.FakePlayer;
 import javax.annotation.Nullable;
 import java.util.OptionalInt;
 
-import static dan200.computercraft.shared.platform.FakePlayerConstants.MAX_REACH;
-
 class FakePlayerExt extends FakePlayer {
+    private static final EntityDimensions DIMENSIONS = EntityDimensions.fixed(0, 0);
+
     FakePlayerExt(ServerLevel serverLevel, GameProfile profile) {
         super(serverLevel, profile);
     }
@@ -45,18 +45,8 @@ class FakePlayerExt extends FakePlayer {
     }
 
     @Override
-    public float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
-        return 0;
-    }
-
-    @Override
-    public double getBlockReach() {
-        return MAX_REACH;
-    }
-
-    @Override
-    public double getEntityReach() {
-        return MAX_REACH;
+    public EntityDimensions getDefaultDimensions(Pose pose) {
+        return DIMENSIONS;
     }
 
     @Override

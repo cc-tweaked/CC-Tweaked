@@ -1,4 +1,1 @@
-{
-  "replace": false,
-  "values": ["computercraft:cable", "computercraft:wireless_modem_normal", "computercraft:wireless_modem_advanced"]
-}
+{"values": ["computercraft:cable", "computercraft:wireless_modem_normal", "computercraft:wireless_modem_advanced"]}

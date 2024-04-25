@@ -21,13 +21,11 @@ import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.command.CommandComputerCraft;
-import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import dan200.computercraft.shared.computer.inventory.ViewComputerMenu;
 import dan200.computercraft.shared.media.items.DiskItem;
-import dan200.computercraft.shared.media.items.TreasureDiskItem;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColor;
@@ -44,11 +42,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceProvider;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nullable;
@@ -94,7 +94,7 @@ public final class ClientRegistry {
             ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED
         );
         registerItemProperty(itemProperties, "coloured",
-            (stack, world, player, random) -> IColouredItem.getColourBasic(stack) != -1 ? 1 : 0,
+            (stack, world, player, random) -> DyedItemColor.getOrDefault(stack, -1) != -1 ? 1 : 0,
             ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED
         );
     }
@@ -162,12 +162,12 @@ public final class ClientRegistry {
 
     public static void registerItemColours(BiConsumer<ItemColor, ItemLike> register) {
         register.accept(
-            (stack, layer) -> layer == 1 ? ((DiskItem) stack.getItem()).getColour(stack) : 0xFFFFFF,
+            (stack, layer) -> layer == 1 ? DiskItem.getColour(stack) : -1,
             ModRegistry.Items.DISK.get()
         );
 
         register.accept(
-            (stack, layer) -> layer == 1 ? TreasureDiskItem.getColour(stack) : 0xFFFFFF,
+            (stack, layer) -> layer == 1 ? DyedItemColor.getOrDefault(stack, Colour.BLUE.getARGB()) : -1,
             ModRegistry.Items.TREASURE_DISK.get()
         );
 
@@ -180,17 +180,17 @@ public final class ClientRegistry {
 
     private static int getPocketColour(ItemStack stack, int layer) {
         return switch (layer) {
-            default -> 0xFFFFFF;
-            case 1 -> IColouredItem.getColourBasic(stack); // Frame colour
+            default -> -1;
+            case 1 -> DyedItemColor.getOrDefault(stack, -1); // Frame colour
             case 2 -> { // Light colour
                 var computer = ClientPocketComputers.get(stack);
-                yield computer == null || computer.getLightState() == -1 ? Colour.BLACK.getHex() : computer.getLightState();
+                yield computer == null || computer.getLightState() == -1 ? Colour.BLACK.getARGB() : FastColor.ARGB32.opaque(computer.getLightState());
             }
         };
     }
 
     private static int getTurtleColour(ItemStack stack, int layer) {
-        return layer == 0 ? ((IColouredItem) stack.getItem()).getColour(stack) : 0xFFFFFF;
+        return layer == 0 ? DyedItemColor.getOrDefault(stack, -1) : -1;
     }
 
     public static void registerShaders(ResourceProvider resources, BiConsumer<ShaderInstance, Consumer<ShaderInstance>> load) throws IOException {

@@ -14,6 +14,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.*
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.level.GameRules
+import net.minecraft.world.level.block.entity.StructureBlockEntity
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -54,6 +55,11 @@ object TestHooks {
         }
     }
 
+    fun getTestOrigin(server: MinecraftServer): BlockPos {
+        val spawn = server.overworld().sharedSpawnPos
+        return BlockPos(spawn.x, -59, spawn.y)
+    }
+
     @JvmStatic
     fun onServerStarted(server: MinecraftServer) {
         val rules = server.gameRules
@@ -61,7 +67,12 @@ object TestHooks {
         server.overworld().dayTime = Times.NOON
 
         LOG.info("Cleaning up after last run")
-        GameTestRunner.clearAllTests(server.overworld(), BlockPos(0, -60, 0), GameTestTicker.SINGLETON, 200)
+
+        val level = server.overworld()
+        StructureUtils.findStructureBlocks(getTestOrigin(server), 200, level).forEach { pos ->
+            val structure = level.getBlockEntity(pos) as StructureBlockEntity? ?: return@forEach
+            StructureUtils.clearSpaceForStructure(StructureUtils.getStructureBoundingBox(structure), level)
+        }
 
         // Delete server context and add one with a mutable machine factory. This allows us to set the factory for
         // specific test batches without having to reset all computers.
@@ -131,7 +142,10 @@ object TestHooks {
                     StructureUtils.getRotationForRotationSteps(testInfo.rotationSteps),
                     adjustTimeout(testInfo.timeoutTicks),
                     testInfo.setupTicks,
-                    testInfo.required, testInfo.requiredSuccesses, testInfo.attempts,
+                    testInfo.required, testInfo.manualOnly,
+                    testInfo.attempts,
+                    testInfo.requiredSuccesses,
+                    testInfo.skyAccess,
                 ) { value -> safeInvoke(method, value) },
             )
             GameTestRegistry.getAllTestClassNames().add(testClass.simpleName)

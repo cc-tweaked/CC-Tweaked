@@ -8,7 +8,7 @@ import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.shared.common.IColouredItem;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -18,7 +18,8 @@ import dan200.computercraft.shared.network.client.PocketComputerDeletedClientMes
 import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -26,6 +27,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -70,13 +72,13 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
     @Override
     public int getColour() {
-        return IColouredItem.getColourBasic(stack);
+        return DyedItemColor.getOrDefault(stack, -1);
     }
 
     @Override
     public void setColour(int colour) {
-        IColouredItem.setColourBasic(stack, colour);
-        updateUpgradeNBTData();
+        stack.set(DataComponents.DYED_COLOR, colour == -1 ? null : new DyedItemColor(colour, false));
+        setItemChanged();
     }
 
     @Override
@@ -91,12 +93,21 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     }
 
     @Override
-    public CompoundTag getUpgradeNBTData() {
-        return PocketComputerItem.getUpgradeInfo(stack);
+    public DataComponentPatch getUpgradeData() {
+        var upgrade = PocketComputerItem.getUpgradeWithData(stack);
+        return upgrade == null ? DataComponentPatch.EMPTY : upgrade.data();
     }
 
     @Override
-    public void updateUpgradeNBTData() {
+    public void setUpgradeData(DataComponentPatch data) {
+        var upgrade = PocketComputerItem.getUpgrade(stack);
+        if (upgrade == null) return;
+
+        PocketComputerItem.setUpgrade(stack, new UpgradeData<>(upgrade, data));
+        setItemChanged();
+    }
+
+    private void setItemChanged() {
         if (entity instanceof Player player) player.getInventory().setChanged();
     }
 
@@ -107,7 +118,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     }
 
     public @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
-        return upgrade == null ? null : UpgradeData.of(upgrade, getUpgradeNBTData());
+        return upgrade == null ? null : UpgradeData.of(upgrade, getUpgradeData());
     }
 
     /**
@@ -119,8 +130,8 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
      */
     public void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
         synchronized (this) {
-            PocketComputerItem.setUpgrade(stack, upgrade);
-            updateUpgradeNBTData();
+            stack.set(ModRegistry.DataComponents.POCKET_UPGRADE.get(), upgrade);
+            setItemChanged();
             this.upgrade = upgrade == null ? null : upgrade.upgrade();
             invalidatePeripheral();
         }

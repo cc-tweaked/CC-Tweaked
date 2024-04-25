@@ -15,8 +15,11 @@ import net.minecraft.world.entity.player.Player;
 import static dan200.computercraft.shared.platform.FakePlayerConstants.MAX_REACH;
 
 public final class FakePlayer extends net.fabricmc.fabric.api.entity.FakePlayer {
+    private static final EntityDimensions DIMENSIONS = EntityDimensions.fixed(0, 0);
+
     private FakePlayer(ServerLevel serverLevel, GameProfile gameProfile) {
         super(serverLevel, gameProfile);
+        refreshDimensions();
     }
 
     static FakePlayer create(ServerLevel serverLevel, GameProfile profile) {
@@ -33,11 +36,12 @@ public final class FakePlayer extends net.fabricmc.fabric.api.entity.FakePlayer 
     }
 
     @Override
-    public float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
-        return 0;
+    public EntityDimensions getDefaultDimensions(Pose pose) {
+        return DIMENSIONS;
     }
 
     public double getBlockReach() {
+        // TODO: Replace with normal reach attribute
         return MAX_REACH;
     }
 

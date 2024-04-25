@@ -100,7 +100,7 @@ public class TurtleInventoryCrafting implements CraftingContainer {
                 // afterwards).
                 if (existing.isEmpty()) {
                     setItem(slot, remainder);
-                } else if (ItemStack.isSameItemSameTags(existing, remainder)) {
+                } else if (ItemStack.isSameItemSameComponents(existing, remainder)) {
                     remainder.grow(existing.getCount());
                     setItem(slot, remainder);
                 } else {

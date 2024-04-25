@@ -8,18 +8,12 @@ import com.google.auto.service.AutoService;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.client.model.FoiledModel;
 import dan200.computercraft.client.render.ModelRenderer;
-import dan200.computercraft.shared.network.NetworkMessage;
-import dan200.computercraft.shared.network.server.ServerNetworkContext;
-import dan200.computercraft.shared.platform.ForgeMessageType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.common.ServerCommonPacketListener;
-import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
@@ -42,11 +36,6 @@ public class ClientPlatformHelperImpl implements ClientPlatformHelper {
     @Override
     public BakedModel createdFoiledModel(BakedModel model) {
         return new FoiledModel(model);
-    }
-
-    @Override
-    public Packet<ServerCommonPacketListener> createPacket(NetworkMessage<ServerNetworkContext> message) {
-        return new ServerboundCustomPayloadPacket(ForgeMessageType.createPayload(message));
     }
 
     @Override

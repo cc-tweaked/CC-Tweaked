@@ -2,7 +2,7 @@
   "parent": "minecraft:recipes/root",
   "criteria": {
     "has_components": {
-      "conditions": {"items": [{"items": ["computercraft:computer_normal"]}, {"tag": "c:gold_ingots"}]},
+      "conditions": {"items": [{"items": "computercraft:computer_normal"}, {"items": "#c:ingots/gold"}]},
       "trigger": "minecraft:inventory_changed"
     },
     "has_the_recipe": {
@@ -10,7 +10,6 @@
       "trigger": "minecraft:recipe_unlocked"
     }
   },
-  "requirements": [["has_components", "has_the_recipe"]],
-  "rewards": {"recipes": ["computercraft:computer_advanced_upgrade"]},
-  "sends_telemetry_event": false
+  "requirements": [["has_the_recipe", "has_components"]],
+  "rewards": {"recipes": ["computercraft:computer_advanced_upgrade"]}
 }

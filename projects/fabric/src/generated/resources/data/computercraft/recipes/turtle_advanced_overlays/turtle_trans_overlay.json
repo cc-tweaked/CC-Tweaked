@@ -3,12 +3,12 @@
   "category": "redstone",
   "group": "computercraft:turtle_advanced_overlay",
   "ingredients": [
-    {"tag": "c:light_blue_dyes"},
-    {"tag": "c:pink_dyes"},
-    {"tag": "c:white_dyes"},
+    {"tag": "c:dyes/light_blue"},
+    {"tag": "c:dyes/pink"},
+    {"tag": "c:dyes/white"},
     {"item": "minecraft:stick"},
     {"item": "computercraft:turtle_advanced"}
   ],
   "overlay": "computercraft:block/turtle_trans_overlay",
-  "result": {"item": "computercraft:turtle_advanced"}
+  "result": {"count": 1, "id": "computercraft:turtle_advanced"}
 }

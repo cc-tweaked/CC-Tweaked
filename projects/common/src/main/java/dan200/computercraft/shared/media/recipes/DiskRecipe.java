@@ -6,14 +6,16 @@ package dan200.computercraft.shared.media.recipes;
 
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.media.items.DiskItem;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
-import net.minecraft.core.RegistryAccess;
+import dan200.computercraft.shared.util.DataComponentUtil;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -53,7 +55,7 @@ public class DiskRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess) {
+    public ItemStack assemble(CraftingContainer inv, HolderLookup.Provider registryAccess) {
         var tracker = new ColourTracker();
 
         for (var i = 0; i < inv.getContainerSize(); i++) {
@@ -67,7 +69,7 @@ public class DiskRecipe extends CustomRecipe {
             }
         }
 
-        return DiskItem.createFromIDAndColour(-1, null, tracker.hasColour() ? tracker.getColour() : Colour.BLUE.getHex());
+        return DataComponentUtil.createStack(ModRegistry.Items.DISK.get(), DataComponents.DYED_COLOR, new DyedItemColor(tracker.hasColour() ? tracker.getColour() : Colour.BLUE.getHex(), false));
     }
 
     @Override
@@ -76,8 +78,8 @@ public class DiskRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess registryAccess) {
-        return DiskItem.createFromIDAndColour(-1, null, Colour.BLUE.getHex());
+    public ItemStack getResultItem(HolderLookup.Provider registryAccess) {
+        return DataComponentUtil.createStack(ModRegistry.Items.DISK.get(), DataComponents.DYED_COLOR, new DyedItemColor(Colour.BLUE.getHex(), false));
     }
 
     @Override

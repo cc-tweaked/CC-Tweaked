@@ -59,7 +59,7 @@ class UpgradeContainer implements Container {
 
     private ItemStack setUpgradeStack(int slot, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
         var stack = upgrade == null ? ItemStack.EMPTY : upgrade.getUpgradeItem();
-        lastUpgrade.set(slot, UpgradeData.copyOf(upgrade));
+        lastUpgrade.set(slot, upgrade);
         lastStack.set(slot, stack);
         return stack;
     }
@@ -67,7 +67,7 @@ class UpgradeContainer implements Container {
     @Override
     public void setItem(int slot, ItemStack itemStack) {
         var upgrade = TurtleUpgrades.instance().get(itemStack);
-        turtle.setUpgradeWithData(getSide(slot), upgrade);
+        turtle.setUpgrade(getSide(slot), upgrade);
         setUpgradeStack(slot, upgrade);
     }
 

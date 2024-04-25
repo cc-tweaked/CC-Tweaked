@@ -10,7 +10,7 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -29,8 +29,8 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess registryAccess) {
-        return ModRegistry.Items.TURTLE_NORMAL.get().create(-1, null, -1, null, null, 0, null);
+    public ItemStack getResultItem(HolderLookup.Provider registryAccess) {
+        return new ItemStack(ModRegistry.Items.TURTLE_NORMAL.get());
     }
 
     @Override
@@ -39,7 +39,7 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inventory, RegistryAccess registryAccess) {
+    public ItemStack assemble(CraftingContainer inventory, HolderLookup.Provider registryAccess) {
         // Scan the grid for a row containing a turtle and 1 or 2 items
         var leftItem = ItemStack.EMPTY;
         var turtle = ItemStack.EMPTY;
@@ -103,11 +103,10 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
 
         // At this point we have a turtle + 1 or 2 items
         // Get the turtle we already have
-        var itemTurtle = (TurtleItem) turtle.getItem();
         @SuppressWarnings({ "unchecked", "rawtypes" })
         UpgradeData<ITurtleUpgrade>[] upgrades = new UpgradeData[]{
-            itemTurtle.getUpgradeWithData(turtle, TurtleSide.LEFT),
-            itemTurtle.getUpgradeWithData(turtle, TurtleSide.RIGHT),
+            TurtleItem.getUpgradeWithData(turtle, TurtleSide.LEFT),
+            TurtleItem.getUpgradeWithData(turtle, TurtleSide.RIGHT),
         };
 
         // Get the upgrades for the new items
@@ -120,13 +119,10 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
             }
         }
 
-        // Construct the new stack
-        var computerID = itemTurtle.getComputerID(turtle);
-        var label = itemTurtle.getLabel(turtle);
-        var fuelLevel = itemTurtle.getFuelLevel(turtle);
-        var colour = itemTurtle.getColour(turtle);
-        var overlay = itemTurtle.getOverlay(turtle);
-        return itemTurtle.create(computerID, label, colour, upgrades[0], upgrades[1], fuelLevel, overlay);
+        var newStack = turtle.copyWithCount(1);
+        newStack.set(ModRegistry.DataComponents.LEFT_TURTLE_UPGRADE.get(), upgrades[0]);
+        newStack.set(ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get(), upgrades[1]);
+        return newStack;
     }
 
     @Override

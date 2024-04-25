@@ -5,29 +5,33 @@
 package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
-import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessages;
-import net.minecraft.network.FriendlyByteBuf;
+import dan200.computercraft.shared.network.codec.MoreStreamCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
+/**
+ * Turn on, shutdown, or reboot the currently open computer.
+ */
+public final class ComputerActionServerMessage extends ComputerServerMessage {
+    public static final StreamCodec<RegistryFriendlyByteBuf, ComputerActionServerMessage> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.VAR_INT, ComputerActionServerMessage::containerId,
+        MoreStreamCodecs.ofEnum(Action.class), x -> x.action,
+        ComputerActionServerMessage::new
+    );
 
-public class ComputerActionServerMessage extends ComputerServerMessage {
     private final Action action;
 
     public ComputerActionServerMessage(AbstractContainerMenu menu, Action action) {
+        this(menu.containerId, action);
+    }
+
+    private ComputerActionServerMessage(int menu, Action action) {
         super(menu);
         this.action = action;
-    }
-
-    public ComputerActionServerMessage(FriendlyByteBuf buf) {
-        super(buf);
-        action = buf.readEnum(Action.class);
-    }
-
-    @Override
-    public void write(FriendlyByteBuf buf) {
-        super.write(buf);
-        buf.writeEnum(action);
     }
 
     @Override
@@ -40,7 +44,7 @@ public class ComputerActionServerMessage extends ComputerServerMessage {
     }
 
     @Override
-    public MessageType<ComputerActionServerMessage> type() {
+    public CustomPacketPayload.Type<ComputerActionServerMessage> type() {
         return NetworkMessages.COMPUTER_ACTION;
     }
 

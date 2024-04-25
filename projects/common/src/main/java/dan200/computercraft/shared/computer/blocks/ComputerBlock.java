@@ -7,11 +7,9 @@ package dan200.computercraft.shared.computer.blocks;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.shared.computer.core.ComputerState;
-import dan200.computercraft.shared.computer.items.ComputerItem;
 import dan200.computercraft.shared.platform.RegistryEntry;
 import dan200.computercraft.shared.util.BlockCodecs;
 import net.minecraft.core.Direction;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -54,13 +52,5 @@ public class ComputerBlock<T extends ComputerBlockEntity> extends AbstractComput
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext placement) {
         return defaultBlockState().setValue(FACING, placement.getHorizontalDirection().getOpposite());
-    }
-
-    @Override
-    protected ItemStack getItem(AbstractComputerBlockEntity tile) {
-        if (!(tile instanceof ComputerBlockEntity computer)) return ItemStack.EMPTY;
-        if (!(asItem() instanceof ComputerItem item)) return ItemStack.EMPTY;
-
-        return item.create(computer.getComputerID(), computer.getLabel());
     }
 }

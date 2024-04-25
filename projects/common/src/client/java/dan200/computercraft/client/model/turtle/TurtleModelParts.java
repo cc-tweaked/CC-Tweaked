@@ -15,9 +15,11 @@ import dan200.computercraft.client.platform.ClientPlatformHelper;
 import dan200.computercraft.client.render.TurtleBlockEntityRenderer;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
+import dan200.computercraft.shared.util.DataComponentUtil;
 import dan200.computercraft.shared.util.Holiday;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -54,13 +56,6 @@ public final class TurtleModelParts<T> {
         boolean christmas,
         boolean flip
     ) {
-        Combination copy() {
-            if (leftUpgrade == null && rightUpgrade == null) return this;
-            return new Combination(
-                colour, UpgradeData.copyOf(leftUpgrade), UpgradeData.copyOf(rightUpgrade),
-                overlay, christmas, flip
-            );
-        }
     }
 
     private final BakedModel familyModel;
@@ -96,31 +91,18 @@ public final class TurtleModelParts<T> {
 
     public T getModel(ItemStack stack) {
         var combination = getCombination(stack);
-        var existing = modelCache.get(combination);
-        if (existing != null) return existing;
-
-        // Take a defensive copy of the upgrade data, and add it to the cache.
-        var newCombination = combination.copy();
-        var newModel = buildModel.apply(newCombination);
-        modelCache.put(newCombination, newModel);
-        return newModel;
+        return modelCache.computeIfAbsent(combination, buildModel);
     }
 
     private Combination getCombination(ItemStack stack) {
         var christmas = Holiday.getCurrent() == Holiday.CHRISTMAS;
-
-        if (!(stack.getItem() instanceof TurtleItem turtle)) {
-            return new Combination(false, null, null, null, christmas, false);
-        }
-
-        var colour = turtle.getColour(stack);
-        var leftUpgrade = turtle.getUpgradeWithData(stack, TurtleSide.LEFT);
-        var rightUpgrade = turtle.getUpgradeWithData(stack, TurtleSide.RIGHT);
-        var overlay = turtle.getOverlay(stack);
-        var label = turtle.getLabel(stack);
+        var leftUpgrade = TurtleItem.getUpgradeWithData(stack, TurtleSide.LEFT);
+        var rightUpgrade = TurtleItem.getUpgradeWithData(stack, TurtleSide.RIGHT);
+        var overlay = TurtleItem.getOverlay(stack);
+        var label = DataComponentUtil.getCustomName(stack);
         var flip = label != null && (label.equals("Dinnerbone") || label.equals("Grumm"));
 
-        return new Combination(colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip);
+        return new Combination(stack.has(DataComponents.DYED_COLOR), leftUpgrade, rightUpgrade, overlay, christmas, flip);
     }
 
     private List<BakedModel> buildModel(Combination combo) {

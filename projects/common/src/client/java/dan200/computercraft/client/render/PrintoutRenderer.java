@@ -9,11 +9,14 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.TextBuffer;
+import dan200.computercraft.shared.media.items.PrintoutData;
 import net.minecraft.client.renderer.MultiBufferSource;
 import org.joml.Matrix4f;
 
+import java.util.List;
+
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
-import static dan200.computercraft.shared.media.items.PrintoutItem.LINES_PER_PAGE;
+import static dan200.computercraft.shared.media.items.PrintoutData.LINES_PER_PAGE;
 
 /**
  * Renders printed pages or books, either for a GUI ({@link dan200.computercraft.client.gui.PrintoutScreen}) or
@@ -69,13 +72,14 @@ public final class PrintoutRenderer {
         }
     }
 
-    public static void drawText(PoseStack transform, MultiBufferSource bufferSource, int x, int y, int start, int light, String[] text, String[] colours) {
+    public static void drawText(PoseStack transform, MultiBufferSource bufferSource, int x, int y, int start, int light, List<PrintoutData.Line> lines) {
         var buffer = bufferSource.getBuffer(RenderTypes.PRINTOUT_TEXT);
         var emitter = FixedWidthFontRenderer.toVertexConsumer(transform, buffer);
-        for (var line = 0; line < LINES_PER_PAGE && line < text.length; line++) {
+        for (var line = 0; line < LINES_PER_PAGE && line < lines.size(); line++) {
+            var lineContents = lines.get(start + line);
             FixedWidthFontRenderer.drawString(emitter,
                 x, y + line * FONT_HEIGHT,
-                new TextBuffer(text[start + line]), new TextBuffer(colours[start + line]),
+                new TextBuffer(lineContents.text()), new TextBuffer(lineContents.foreground()),
                 Palette.DEFAULT, light
             );
         }

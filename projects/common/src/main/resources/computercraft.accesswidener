@@ -20,7 +20,6 @@ accessible field com/mojang/blaze3d/vertex/VertexBuffer format Lcom/mojang/blaze
 
 # ClientTableFormatter
 accessible field net/minecraft/client/gui/components/ChatComponent allMessages Ljava/util/List;
-accessible method net/minecraft/client/gui/components/ChatComponent refreshTrimmedMessage ()V
 
 # ItemPocketRenderer/ItemPrintoutRenderer
 accessible method net/minecraft/client/renderer/ItemInHandRenderer calculateMapTilt (F)F
@@ -33,3 +32,5 @@ accessible field net/minecraft/client/sounds/SoundEngine executor Lnet/minecraft
 
 # Turtle model
 accessible method net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V
+
+accessible class net/minecraft/util/datafix/fixes/ItemStackComponentizationFix$ItemStackData

@@ -10,7 +10,9 @@ import dan200.computercraft.gametest.api.getBlockEntity
 import dan200.computercraft.gametest.api.sequence
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.peripheral.printer.PrinterBlock
+import dan200.computercraft.shared.util.DataComponentUtil
 import net.minecraft.core.BlockPos
+import net.minecraft.core.component.DataComponents
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.network.chat.Component
@@ -87,7 +89,7 @@ class Printer_Test {
         thenExecute {
             helper.level.destroyBlock(helper.absolutePos(BlockPos(2, 2, 2)), true)
             helper.assertExactlyItems(
-                ItemStack(ModRegistry.Items.PRINTER.get()).setHoverName(Component.literal("My Printer")),
+                DataComponentUtil.createStack(ModRegistry.Items.PRINTER.get(), DataComponents.CUSTOM_NAME, Component.literal("My Printer")),
                 ItemStack(Items.PAPER),
                 ItemStack(Items.BLACK_DYE),
                 message = "Breaking a printer should drop the contents",

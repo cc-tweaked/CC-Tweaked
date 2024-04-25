@@ -7,6 +7,8 @@ accessWidener v1 named
 # Additional access wideners for vanilla code. This is a effectively the subset of Fabric's transitive access wideners
 # that we actually use
 
+accessible class net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier
+
 accessible method net/minecraft/client/renderer/blockentity/BlockEntityRenderers register (Lnet/minecraft/world/level/block/entity/BlockEntityType;Lnet/minecraft/client/renderer/blockentity/BlockEntityRendererProvider;)V
 accessible class net/minecraft/world/item/CreativeModeTab$Output
 accessible field net/minecraft/world/item/CreativeModeTabs OP_BLOCKS Lnet/minecraft/resources/ResourceKey;

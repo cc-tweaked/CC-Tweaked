@@ -14,7 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModLoader;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
 
@@ -23,7 +23,7 @@ import java.io.IOException;
 /**
  * Registers textures and models for items.
  */
-@Mod.EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public final class ForgeClientRegistry {
     private static final Object lock = new Object();
     private static boolean gatheredModellers = false;
@@ -49,7 +49,7 @@ public final class ForgeClientRegistry {
             if (gatheredModellers) return;
 
             gatheredModellers = true;
-            ModLoader.get().postEvent(new RegisterTurtleModellersEvent(TurtleUpgradeModellers::register));
+            ModLoader.postEvent(new RegisterTurtleModellersEvent(TurtleUpgradeModellers::register));
         }
     }
 

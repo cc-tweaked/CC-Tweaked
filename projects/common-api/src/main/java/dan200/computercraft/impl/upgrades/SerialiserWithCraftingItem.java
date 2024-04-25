@@ -7,7 +7,7 @@ package dan200.computercraft.impl.upgrades;
 import com.google.gson.JsonObject;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
@@ -37,13 +37,13 @@ public final class SerialiserWithCraftingItem<T extends UpgradeBase> implements 
     }
 
     @Override
-    public T fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
-        var item = buffer.readItem();
+    public T fromNetwork(ResourceLocation id, RegistryFriendlyByteBuf buffer) {
+        var item = ItemStack.STREAM_CODEC.decode(buffer);
         return factory.apply(id, item);
     }
 
     @Override
-    public void toNetwork(FriendlyByteBuf buffer, T upgrade) {
-        buffer.writeItem(upgrade.getCraftingItem());
+    public void toNetwork(RegistryFriendlyByteBuf buffer, T upgrade) {
+        ItemStack.STREAM_CODEC.encode(buffer, upgrade.getCraftingItem());
     }
 }

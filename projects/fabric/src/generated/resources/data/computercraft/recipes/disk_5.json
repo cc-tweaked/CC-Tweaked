@@ -2,6 +2,10 @@
   "type": "computercraft:impostor_shapeless",
   "category": "redstone",
   "group": "computercraft:disk",
-  "ingredients": [{"tag": "c:redstone_dusts"}, {"item": "minecraft:paper"}, {"item": "minecraft:blue_dye"}],
-  "result": {"item": "computercraft:disk", "nbt": "{Color:3368652}"}
+  "ingredients": [{"tag": "c:dusts/redstone"}, {"item": "minecraft:paper"}, {"item": "minecraft:blue_dye"}],
+  "result": {
+    "components": {"minecraft:dyed_color": {"rgb": 3368652, "show_in_tooltip": false}},
+    "count": 1,
+    "id": "computercraft:disk"
+  }
 }

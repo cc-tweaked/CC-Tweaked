@@ -6,10 +6,12 @@ package dan200.computercraft.api;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -34,6 +36,14 @@ public class ComputerCraftTags {
          * called.
          */
         public static final TagKey<Item> TURTLE_CAN_PLACE = make("turtle_can_place");
+
+        /**
+         * Items which can be dyed.
+         * <p>
+         * This is similar to {@link ItemTags#DYEABLE}, but allows cleaning the item with a sponge, rather than in a
+         * cauldron.
+         */
+        public static final TagKey<Item> DYEABLE = make("dyeable");
 
         private static TagKey<Item> make(String name) {
             return TagKey.create(Registries.ITEM, new ResourceLocation(ComputerCraftAPI.MOD_ID, name));
@@ -75,8 +85,8 @@ public class ComputerCraftTags {
         public static final TagKey<Block> TURTLE_HOE_BREAKABLE = make("turtle_hoe_harvestable");
 
         /**
-         * Block which can be {@linkplain BlockState#use(Level, Player, InteractionHand, BlockHitResult) used} when
-         * calling {@code turtle.place()}.
+         * Block which can be {@linkplain BlockState#useItemOn(ItemStack, Level, Player, InteractionHand, BlockHitResult) used}
+         * when calling {@code turtle.place()}.
          */
         public static final TagKey<Block> TURTLE_CAN_USE = make("turtle_can_use");
 

@@ -1,8 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
-  "key": {"#": {"item": "minecraft:stone"}, "G": {"tag": "c:glass_panes"}, "R": {"tag": "c:redstone_dusts"}},
+  "key": {"#": {"item": "minecraft:stone"}, "G": {"tag": "c:glass_panes"}, "R": {"tag": "c:dusts/redstone"}},
   "pattern": ["###", "#R#", "#G#"],
-  "result": {"item": "computercraft:computer_normal"},
-  "show_notification": true
+  "result": {"count": 1, "id": "computercraft:computer_normal"}
 }

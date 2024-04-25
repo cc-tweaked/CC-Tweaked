@@ -5,47 +5,50 @@
 package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
-import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessages;
-import net.minecraft.network.FriendlyByteBuf;
+import dan200.computercraft.shared.network.codec.MoreStreamCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
+/**
+ * Queue a key event on the currently opened computer.
+ */
+public final class KeyEventServerMessage extends ComputerServerMessage {
+    public static final StreamCodec<RegistryFriendlyByteBuf, KeyEventServerMessage> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.VAR_INT, KeyEventServerMessage::containerId,
+        MoreStreamCodecs.ofEnum(Action.class), x -> x.action,
+        ByteBufCodecs.INT, x -> x.key,
+        KeyEventServerMessage::new
+    );
 
-public class KeyEventServerMessage extends ComputerServerMessage {
-    private final Action type;
+    private final Action action;
     private final int key;
 
-    public KeyEventServerMessage(AbstractContainerMenu menu, Action type, int key) {
-        super(menu);
-        this.type = type;
+    public KeyEventServerMessage(AbstractContainerMenu menu, Action action, int key) {
+        this(menu.containerId, action, key);
+    }
+
+    private KeyEventServerMessage(int id, Action action, int key) {
+        super(id);
+        this.action = action;
         this.key = key;
-    }
-
-    public KeyEventServerMessage(FriendlyByteBuf buf) {
-        super(buf);
-        type = buf.readEnum(Action.class);
-        key = buf.readVarInt();
-    }
-
-    @Override
-    public void write(FriendlyByteBuf buf) {
-        super.write(buf);
-        buf.writeEnum(type);
-        buf.writeVarInt(key);
     }
 
     @Override
     protected void handle(ServerNetworkContext context, ComputerMenu container) {
         var input = container.getInput();
-        if (type == Action.UP) {
-            input.keyUp(key);
-        } else {
-            input.keyDown(key, type == Action.REPEAT);
+        switch (action) {
+            case UP -> input.keyUp(key);
+            case DOWN -> input.keyDown(key, false);
+            case REPEAT -> input.keyDown(key, true);
         }
     }
 
     @Override
-    public MessageType<KeyEventServerMessage> type() {
+    public CustomPacketPayload.Type<KeyEventServerMessage> type() {
         return NetworkMessages.KEY_EVENT;
     }
 

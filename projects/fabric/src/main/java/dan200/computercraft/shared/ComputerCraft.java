@@ -22,7 +22,6 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableBlockEntity;
 import dan200.computercraft.shared.peripheral.modem.wired.WiredModemFullBlockEntity;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemBlockEntity;
 import dan200.computercraft.shared.platform.FabricConfigFile;
-import dan200.computercraft.shared.platform.FabricMessageType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -31,11 +30,14 @@ import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -51,10 +53,11 @@ public class ComputerCraft {
     private static final LevelResource SERVERCONFIG = new LevelResource("serverconfig");
 
     public static void init() {
+        for (var type : NetworkMessages.getServerbound()) registerPayloadType(PayloadTypeRegistry.playC2S(), type);
+        for (var type : NetworkMessages.getClientbound()) registerPayloadType(PayloadTypeRegistry.playS2C(), type);
+
         for (var type : NetworkMessages.getServerbound()) {
-            ServerPlayNetworking.registerGlobalReceiver(
-                FabricMessageType.toFabricType(type), (packet, player, sender) -> packet.payload().handle(() -> player)
-            );
+            ServerPlayNetworking.registerGlobalReceiver(type.type(), (packet, player) -> packet.handle(player::player));
         }
 
         ModRegistry.register();
@@ -107,7 +110,7 @@ public class ComputerCraft {
         PlayerBlockBreakEvents.BEFORE.register(FabricCommonHooks::onBlockDestroy);
         UseBlockCallback.EVENT.register(FabricCommonHooks::useOnBlock);
 
-        LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
+        LootTableEvents.MODIFY.register((id, tableBuilder, source) -> {
             var pool = CommonHooks.getExtraLootPool(id);
             if (pool != null) tableBuilder.withPool(pool);
         });
@@ -124,6 +127,10 @@ public class ComputerCraft {
         ComputerCraftAPI.registerGenericSource(new InventoryMethods());
 
         Peripherals.addGenericLookup(InventoryMethods::extractContainer);
+    }
+
+    private static <B extends FriendlyByteBuf, T extends CustomPacketPayload> void registerPayloadType(PayloadTypeRegistry<B> registry, CustomPacketPayload.TypeAndCodec<B, T> type) {
+        registry.register(type.type(), type.codec());
     }
 
     private record ReloadListener(String name, PreparableReloadListener listener)

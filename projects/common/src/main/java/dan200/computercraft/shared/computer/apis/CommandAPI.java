@@ -78,7 +78,7 @@ public class CommandAPI implements ILuaAPI {
         var table = VanillaDetailRegistries.BLOCK_IN_WORLD.getDetails(block);
 
         var tile = block.blockEntity();
-        if (tile != null) table.put("nbt", NBTUtil.toLua(tile.saveWithFullMetadata()));
+        if (tile != null) table.put("nbt", NBTUtil.toLua(tile.saveWithFullMetadata(world.registryAccess())));
 
         return table;
     }

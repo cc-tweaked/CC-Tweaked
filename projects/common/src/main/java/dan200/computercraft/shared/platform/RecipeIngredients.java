@@ -18,7 +18,6 @@ import net.minecraft.world.item.crafting.Ingredient;
  * @param goldIngot   All {@link Items#GOLD_INGOT} items.
  * @param goldBlock   All {@link Items#GOLD_BLOCK} items.
  * @param ironIngot   All {@link Items#IRON_INGOT} items.
- * @param head        All types of skull (player heads, mob skulls, etc...).
  * @param dye         All dye items.
  * @param enderPearl  All {@link Items#ENDER_PEARL} items.
  * @param woodenChest All wooden chests (both normal and trapped chests).
@@ -32,7 +31,6 @@ public record RecipeIngredients(
     Ingredient goldIngot,
     Ingredient goldBlock,
     Ingredient ironIngot,
-    Ingredient head,
     Ingredient dye,
     Ingredient enderPearl,
     Ingredient woodenChest

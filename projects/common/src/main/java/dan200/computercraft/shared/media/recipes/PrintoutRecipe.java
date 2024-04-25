@@ -5,9 +5,11 @@
 package dan200.computercraft.shared.media.recipes;
 
 import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.media.items.PrintoutData;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.platform.PlatformHelper;
-import net.minecraft.core.RegistryAccess;
+import dan200.computercraft.shared.util.DataComponentUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -16,6 +18,8 @@ import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
+
+import java.util.List;
 
 public final class PrintoutRecipe extends CustomRecipe {
     private final Ingredient leather;
@@ -35,8 +39,8 @@ public final class PrintoutRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess registryAccess) {
-        return PrintoutItem.createMultipleFromTitleAndText(null, null, null);
+    public ItemStack getResultItem(HolderLookup.Provider registryAccess) {
+        return new ItemStack(ModRegistry.Items.PRINTED_PAGES.get());
     }
 
     @Override
@@ -45,7 +49,7 @@ public final class PrintoutRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inventory, RegistryAccess registryAccess) {
+    public ItemStack assemble(CraftingContainer inventory, HolderLookup.Provider registryAccess) {
         // See if we match the recipe, and extract the input disk ID and dye colour
         var numPages = 0;
         var numPrintouts = 0;
@@ -82,43 +86,30 @@ public final class PrintoutRecipe extends CustomRecipe {
         }
 
         // Build some pages with what was passed in
-        if (numPages <= PrintoutItem.MAX_PAGES && stringFound && printoutFound && numPrintouts >= (leatherFound ? 1 : 2)) {
+        if (numPages <= PrintoutData.MAX_PAGES && stringFound && printoutFound && numPrintouts >= (leatherFound ? 1 : 2)) {
             if (printouts == null) throw new IllegalStateException("Printouts must be non-null");
-            var text = new String[numPages * PrintoutItem.LINES_PER_PAGE];
-            var colours = new String[numPages * PrintoutItem.LINES_PER_PAGE];
+            var lines = new PrintoutData.Line[numPages * PrintoutData.LINES_PER_PAGE];
             var line = 0;
 
             for (var printout = 0; printout < numPrintouts; printout++) {
-                var stack = printouts[printout];
-                if (stack.getItem() instanceof PrintoutItem) {
+                var pageText = printouts[printout].get(ModRegistry.DataComponents.PRINTOUT.get());
+                if (pageText != null) {
                     // Add a printout
-                    var pageText = PrintoutItem.getText(printouts[printout]);
-                    var pageColours = PrintoutItem.getColours(printouts[printout]);
-                    for (var pageLine = 0; pageLine < pageText.length; pageLine++) {
-                        text[line] = pageText[pageLine];
-                        colours[line] = pageColours[pageLine];
-                        line++;
-                    }
+                    for (var pageLine : pageText.lines()) lines[line++] = pageLine;
                 } else {
                     // Add a blank page
-                    for (var pageLine = 0; pageLine < PrintoutItem.LINES_PER_PAGE; pageLine++) {
-                        text[line] = "";
-                        colours[line] = "";
-                        line++;
+                    for (var pageLine = 0; pageLine < PrintoutData.LINES_PER_PAGE; pageLine++) {
+                        lines[line++] = PrintoutData.Line.EMPTY;
                     }
                 }
             }
 
-            String title = null;
-            if (printouts[0].getItem() instanceof PrintoutItem) {
-                title = PrintoutItem.getTitle(printouts[0]);
-            }
+            var title = PrintoutItem.getTitle(printouts[0]);
 
-            if (leatherFound) {
-                return PrintoutItem.createBookFromTitleAndText(title, text, colours);
-            } else {
-                return PrintoutItem.createMultipleFromTitleAndText(title, text, colours);
-            }
+            return DataComponentUtil.createStack(
+                leatherFound ? ModRegistry.Items.PRINTED_BOOK.get() : ModRegistry.Items.PRINTED_PAGES.get(),
+                ModRegistry.DataComponents.PRINTOUT.get(), new PrintoutData(title, List.of(lines))
+            );
         }
 
         return ItemStack.EMPTY;

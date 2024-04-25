@@ -4,8 +4,6 @@
 
 package dan200.computercraft.core.util;
 
-import javax.annotation.Nullable;
-
 public enum Colour {
     BLACK(0x111111),
     RED(0xcc4c4c),
@@ -30,15 +28,6 @@ public enum Colour {
         return Colour.VALUES[colour];
     }
 
-    @Nullable
-    public static Colour fromHex(int colour) {
-        for (var entry : VALUES) {
-            if (entry.getHex() == colour) return entry;
-        }
-
-        return null;
-    }
-
     private final int hex;
     private final float red, green, blue;
 
@@ -49,16 +38,22 @@ public enum Colour {
         blue = (hex & 0xFF) / 255.0f;
     }
 
-    public Colour getNext() {
-        return VALUES[(ordinal() + 1) % 16];
-    }
-
-    public Colour getPrevious() {
-        return VALUES[(ordinal() + 15) % 16];
-    }
-
+    /**
+     * Get this colour as a packed 32-bit RGB value.
+     *
+     * @return This colour as an RGB value.
+     */
     public int getHex() {
         return hex;
+    }
+
+    /**
+     * Get this colour as a packed 32-bit ARGB value.
+     *
+     * @return This colour as an ARGB value.
+     */
+    public int getARGB() {
+        return hex | 0xFF000000;
     }
 
     public float getR() {

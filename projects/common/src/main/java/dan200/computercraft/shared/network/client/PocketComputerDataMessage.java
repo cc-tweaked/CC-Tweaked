@@ -5,54 +5,56 @@
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.computer.core.ComputerState;
+import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
-import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.NetworkMessages;
+import dan200.computercraft.shared.network.codec.MoreStreamCodecs;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
  * Provides additional data about a client computer, such as its ID and current state.
+ *
+ * @param id         The {@linkplain ServerComputer#getInstanceUUID() instance id} of the pocket computer.
+ * @param state      Whether the computer is on, off, or blinking.
+ * @param lightState The colour of the light, or {@code -1} if off.
+ * @param terminal   The computer's terminal. This may be absent, in which case the terminal will not be updated on.
  */
-public class PocketComputerDataMessage implements NetworkMessage<ClientNetworkContext> {
-    private final UUID clientId;
-    private final ComputerState state;
-    private final int lightState;
-    private final @Nullable TerminalState terminal;
+public record PocketComputerDataMessage(
+    UUID id, ComputerState state, int lightState, Optional<TerminalState> terminal
+) implements NetworkMessage<ClientNetworkContext> {
+    public static final StreamCodec<RegistryFriendlyByteBuf, PocketComputerDataMessage> STREAM_CODEC = StreamCodec.composite(
+        UUIDUtil.STREAM_CODEC, PocketComputerDataMessage::id,
+        MoreStreamCodecs.ofEnum(ComputerState.class), PocketComputerDataMessage::state,
+        ByteBufCodecs.VAR_INT, PocketComputerDataMessage::lightState,
+        ByteBufCodecs.optional(TerminalState.STREAM_CODEC), PocketComputerDataMessage::terminal,
+        PocketComputerDataMessage::new
+    );
 
     public PocketComputerDataMessage(PocketServerComputer computer, boolean sendTerminal) {
-        clientId = computer.getInstanceUUID();
-        state = computer.getState();
-        lightState = computer.getLight();
-        terminal = sendTerminal ? computer.getTerminalState() : null;
-    }
-
-    public PocketComputerDataMessage(FriendlyByteBuf buf) {
-        clientId = buf.readUUID();
-        state = buf.readEnum(ComputerState.class);
-        lightState = buf.readVarInt();
-        terminal = buf.readNullable(TerminalState::new);
-    }
-
-    @Override
-    public void write(FriendlyByteBuf buf) {
-        buf.writeUUID(clientId);
-        buf.writeEnum(state);
-        buf.writeVarInt(lightState);
-        buf.writeNullable(terminal, (b, t) -> t.write(b));
+        this(
+            computer.getInstanceUUID(),
+            computer.getState(),
+            computer.getLight(),
+            sendTerminal ? Optional.of(computer.getTerminalState()) : Optional.empty()
+        );
     }
 
     @Override
     public void handle(ClientNetworkContext context) {
-        context.handlePocketComputerData(clientId, state, lightState, terminal);
+        context.handlePocketComputerData(id, state, lightState, terminal.orElse(null));
     }
 
     @Override
-    public MessageType<PocketComputerDataMessage> type() {
+    public CustomPacketPayload.Type<PocketComputerDataMessage> type() {
         return NetworkMessages.POCKET_COMPUTER_DATA;
     }
 }

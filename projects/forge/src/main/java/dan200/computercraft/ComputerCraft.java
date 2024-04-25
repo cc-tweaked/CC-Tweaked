@@ -18,8 +18,10 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.details.FluidData;
+import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
+import dan200.computercraft.shared.network.server.ServerNetworkContext;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
 import dan200.computercraft.shared.peripheral.generic.methods.EnergyMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
@@ -28,12 +30,14 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableBlockEntity;
 import dan200.computercraft.shared.peripheral.modem.wired.WiredModemFullBlockEntity;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemBlockEntity;
 import dan200.computercraft.shared.platform.ForgeConfigFile;
-import dan200.computercraft.shared.platform.ForgeMessageType;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
@@ -41,22 +45,24 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
 
 import javax.annotation.Nullable;
 
 @Mod(ComputerCraftAPI.MOD_ID)
-@Mod.EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public final class ComputerCraft {
     private static @Nullable IEventBus eventBus;
 
     public ComputerCraft(IEventBus eventBus) {
         withEventBus(eventBus, ModRegistry::register);
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ((ForgeConfigFile) ConfigSpec.serverSpec).spec());
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ((ForgeConfigFile) ConfigSpec.clientSpec).spec());
+        var container = ModLoadingContext.get().getActiveContainer();
+        container.registerConfig(ModConfig.Type.SERVER, ((ForgeConfigFile) ConfigSpec.serverSpec).spec());
+        container.registerConfig(ModConfig.Type.CLIENT, ((ForgeConfigFile) ConfigSpec.clientSpec).spec());
     }
 
     private static void withEventBus(IEventBus eventBus, Runnable task) {
@@ -93,22 +99,19 @@ public final class ComputerCraft {
     }
 
     @SubscribeEvent
-    public static void registerNetwork(RegisterPayloadHandlerEvent event) {
+    public static void registerNetwork(RegisterPayloadHandlersEvent event) {
         var registrar = event.registrar(ComputerCraftAPI.MOD_ID).versioned(ComputerCraftAPI.getInstalledVersion());
 
-        for (var type : NetworkMessages.getServerbound()) {
-            var forgeType = ForgeMessageType.cast(type);
-            registrar.play(forgeType.id(), forgeType.reader(), builder -> builder.server(
-                (t, context) -> context.workHandler().execute(() -> t.payload().handle(() -> (ServerPlayer) context.player().orElseThrow()))
-            ));
-        }
+        for (var type : NetworkMessages.getServerbound()) registerServerbound(registrar, type);
+        for (var type : NetworkMessages.getClientbound()) registerClientbound(registrar, type);
+    }
 
-        for (var type : NetworkMessages.getClientbound()) {
-            var forgeType = ForgeMessageType.cast(type);
-            registrar.play(forgeType.id(), forgeType.reader(), builder -> builder.client(
-                (t, context) -> context.workHandler().execute(() -> t.payload().handle(ClientHolderHolder.get()))
-            ));
-        }
+    private static <T extends NetworkMessage<ServerNetworkContext>> void registerServerbound(PayloadRegistrar registrar, CustomPacketPayload.TypeAndCodec<RegistryFriendlyByteBuf, T> type) {
+        registrar.playToServer(type.type(), type.codec(), (t, context) -> context.enqueueWork(() -> t.handle(() -> (ServerPlayer) context.player())));
+    }
+
+    private static <T extends NetworkMessage<ClientNetworkContext>> void registerClientbound(PayloadRegistrar registrar, CustomPacketPayload.TypeAndCodec<RegistryFriendlyByteBuf, T> type) {
+        registrar.playToClient(type.type(), type.codec(), (t, context) -> context.enqueueWork(() -> t.handle(ClientHolderHolder.get())));
     }
 
     /**

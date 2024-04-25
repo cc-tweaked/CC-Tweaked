@@ -8,17 +8,18 @@ import com.mojang.authlib.GameProfile
 import dan200.computercraft.gametest.api.Structures
 import dan200.computercraft.gametest.api.sequence
 import dan200.computercraft.shared.ModRegistry
+import net.minecraft.core.component.DataComponentPatch
+import net.minecraft.core.component.DataComponents
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestAssertException
 import net.minecraft.gametest.framework.GameTestHelper
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.NbtUtils
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.inventory.TransientCraftingContainer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
+import net.minecraft.world.item.component.ResolvableProfile
 import net.minecraft.world.item.crafting.RecipeType
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.util.*
@@ -44,10 +45,8 @@ class Recipe_Test {
 
             val profile = GameProfile(UUID.fromString("f3c8d69b-0776-4512-8434-d1b2165909eb"), "dan200")
 
-            val tag = CompoundTag()
-            tag.put("SkullOwner", NbtUtils.writeGameProfile(CompoundTag(), profile))
-
-            assertEquals(tag, result.tag, "Expected NBT tags to be the same")
+            val tag = DataComponentPatch.builder().set(DataComponents.PROFILE, ResolvableProfile(profile)).build()
+            assertEquals(tag, result.componentsPatch, "Expected NBT tags to be the same")
         }
     }
 

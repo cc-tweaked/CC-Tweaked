@@ -12,7 +12,7 @@ import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
 import dan200.computercraft.impl.upgrades.SerialiserWithCraftingItem;
 import dan200.computercraft.impl.upgrades.SimpleSerialiser;
 import net.minecraft.core.Registry;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -58,7 +58,7 @@ public interface UpgradeSerialiser<T extends UpgradeBase> {
      * @param buffer The buffer object to read this upgrade from.
      * @return The constructed upgrade, with a {@link UpgradeBase#getUpgradeID()} equal to {@code id}.
      */
-    T fromNetwork(ResourceLocation id, FriendlyByteBuf buffer);
+    T fromNetwork(ResourceLocation id, RegistryFriendlyByteBuf buffer);
 
     /**
      * Write this upgrade to a network packet, to be sent to the client.
@@ -66,7 +66,7 @@ public interface UpgradeSerialiser<T extends UpgradeBase> {
      * @param buffer  The buffer object to write this upgrade to
      * @param upgrade The upgrade to write.
      */
-    void toNetwork(FriendlyByteBuf buffer, T upgrade);
+    void toNetwork(RegistryFriendlyByteBuf buffer, T upgrade);
 
     /**
      * Create an upgrade serialiser for a simple upgrade. This is similar to a {@link SimpleCraftingRecipeSerializer},

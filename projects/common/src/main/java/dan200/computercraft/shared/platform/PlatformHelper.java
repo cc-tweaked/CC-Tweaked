@@ -10,20 +10,15 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.config.ConfigFile;
-import dan200.computercraft.shared.network.MessageType;
-import dan200.computercraft.shared.network.NetworkMessage;
-import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.common.ClientCommonPacketListener;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
@@ -41,18 +36,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -103,16 +94,6 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     boolean shouldLoadResource(JsonObject object);
 
     /**
-     * Create a new block entity type which serves a particular block.
-     *
-     * @param factory The method which creates a new block entity with this type, typically the constructor.
-     * @param block   The block this block entity exists on.
-     * @param <T>     The type of block entity we're creating.
-     * @return The new block entity type.
-     */
-    <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> factory, Block block);
-
-    /**
      * Register a new argument type.
      *
      * @param klass The argument type we're registering.
@@ -127,13 +108,13 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     /**
      * Create a menu type which sends additional data when opened.
      *
-     * @param reader  Parse the additional container data into a usable type.
+     * @param codec   Parse the additional container data into a usable type.
      * @param factory The factory to create the new menu.
      * @param <C>     The menu/container than we open.
      * @param <T>     The data that we send to the client.
      * @return The menu type for this container.
      */
-    <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> createMenuType(Function<FriendlyByteBuf, T> reader, ContainerData.Factory<C, T> factory);
+    <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> createMenuType(StreamCodec<RegistryFriendlyByteBuf, T> codec, ContainerData.Factory<C, T> factory);
 
     /**
      * Open a container using a specific {@link ContainerData}.
@@ -143,24 +124,6 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      * @param menu   The menu data.
      */
     void openMenu(Player player, MenuProvider owner, ContainerData menu);
-
-    /**
-     * Create a new {@link MessageType}.
-     *
-     * @param <T>    The type of this message.
-     * @param id     The id for this message type.
-     * @param reader The function which reads the packet from a buffer. Should be the inverse to {@link NetworkMessage#write(FriendlyByteBuf)}.
-     * @return The new {@link MessageType} instance.
-     */
-    <T extends NetworkMessage<?>> MessageType<T> createMessageType(ResourceLocation id, FriendlyByteBuf.Reader<T> reader);
-
-    /**
-     * Convert a clientbound {@link NetworkMessage} to a Minecraft {@link Packet}.
-     *
-     * @param message The messsge to convert.
-     * @return The converted message.
-     */
-    Packet<ClientCommonPacketListener> createPacket(NetworkMessage<ClientNetworkContext> message);
 
     /**
      * Invalidate components on a block enitty.
@@ -314,16 +277,6 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     }
 
     /**
-     * Get the distance a player can reach.
-     *
-     * @param player The player who is reaching.
-     * @return The distance (in blocks) that a player can reach.
-     */
-    default double getReachDistance(Player player) {
-        return Player.getPickRange(player.isCreative());
-    }
-
-    /**
      * Check if this item is a tool and has some secondary usage.
      * <p>
      * In practice, this only checks if a tool is a hoe or shovel. We don't want to include things like axes,
@@ -364,7 +317,7 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      * Place an item against a block.
      * <p>
      * Implementations should largely mirror {@link ServerPlayerGameMode#useItemOn(ServerPlayer, Level, ItemStack, InteractionHand, BlockHitResult)}
-     * (including any loader-specific modifications), except the call to {@link BlockState#use(Level, Player, InteractionHand, BlockHitResult)}
+     * (including any loader-specific modifications), except the call to {@link BlockState#useItemOn(ItemStack, Level, Player, InteractionHand, BlockHitResult)}
      * should only be evaluated when {@code canUseBlock} evaluates to true.
      *
      * @param player      The player which is placing this item.

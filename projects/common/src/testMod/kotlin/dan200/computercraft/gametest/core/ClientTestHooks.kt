@@ -14,7 +14,7 @@ import net.minecraft.client.gui.screens.AccessibilityOnboardingScreen
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.TitleScreen
 import net.minecraft.client.tutorial.TutorialSteps
-import net.minecraft.core.BlockPos
+import net.minecraft.core.registries.Registries
 import net.minecraft.gametest.framework.*
 import net.minecraft.server.MinecraftServer
 import net.minecraft.sounds.SoundSource
@@ -23,7 +23,6 @@ import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.GameType
 import net.minecraft.world.level.LevelSettings
 import net.minecraft.world.level.WorldDataConfiguration
-import net.minecraft.world.level.block.Rotation
 import net.minecraft.world.level.levelgen.WorldOptions
 import net.minecraft.world.level.levelgen.presets.WorldPresets
 import org.slf4j.Logger
@@ -81,7 +80,7 @@ object ClientTestHooks {
 
         if (minecraft.levelSource.levelExists(LEVEL_NAME)) {
             LOG.info("World already exists, opening.")
-            minecraft.createWorldOpenFlows().checkForBackupAndLoad(LEVEL_NAME) { minecraft.setScreen(screen) }
+            minecraft.createWorldOpenFlows().openWorld(LEVEL_NAME) { minecraft.setScreen(screen) }
         } else {
             LOG.info("World does not exist, creating it.")
             val rules = GameRules()
@@ -93,7 +92,10 @@ object ClientTestHooks {
                 LEVEL_NAME,
                 LevelSettings("Test Level", GameType.CREATIVE, false, Difficulty.EASY, true, rules, WorldDataConfiguration.DEFAULT),
                 WorldOptions(WorldOptions.randomSeed(), false, false),
-                { WorldPresets.createNormalWorldDimensions(it) },
+                {
+                    it.registryOrThrow(Registries.WORLD_PRESET).getHolderOrThrow(WorldPresets.FLAT).value()
+                        .createWorldDimensions()
+                },
                 screen,
             )
         }
@@ -119,26 +121,29 @@ object ClientTestHooks {
 
                 LOG.info("Server ready, starting.")
 
-                val tests = GameTestRunner.runTestBatches(
-                    GameTestRunner.groupTestsIntoBatches(GameTestRegistry.getAllTestFunctions()),
-                    BlockPos(0, -60, 0),
-                    Rotation.NONE,
+                val tests = GameTestRunner.Builder.fromBatches(
+                    GameTestBatchFactory.fromTestFunction(GameTestRegistry.getAllTestFunctions(), server.overworld()),
                     server.overworld(),
-                    GameTestTicker.SINGLETON,
-                    8,
                 )
-                val testTracker = MultipleTestTracker(tests)
+                    .newStructureSpawner(StructureGridSpawner(TestHooks.getTestOrigin(server), 8))
+                    .build()
+
+                val testTracker = MultipleTestTracker(tests.testInfos)
                 testTracker.addListener(
                     object : GameTestListener {
+                        override fun testPassed(test: GameTestInfo, runner: GameTestRunner) = testFinished()
+                        override fun testFailed(test: GameTestInfo, runner: GameTestRunner) = testFinished()
+                        override fun testStructureLoaded(test: GameTestInfo) = Unit
+                        override fun testAddedForRerun(test: GameTestInfo, newTest: GameTestInfo, runner: GameTestRunner) {
+                        }
+
                         fun testFinished() {
                             for (it in server.playerList.players) it.setupForTest()
                         }
-
-                        override fun testPassed(test: GameTestInfo) = testFinished()
-                        override fun testFailed(test: GameTestInfo) = testFinished()
-                        override fun testStructureLoaded(test: GameTestInfo) = Unit
                     },
                 )
+
+                tests.start()
 
                 LOG.info("{} tests are now running!", testTracker.totalCount)
                 this.testTracker = testTracker

@@ -8,11 +8,13 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.*;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
@@ -26,7 +28,7 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 /**
  * Forge-specific dispatch for {@link CommonHooks}.
  */
-@Mod.EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID)
+@EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID)
 public class ForgeCommonHooks {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -90,7 +92,7 @@ public class ForgeCommonHooks {
 
     @SubscribeEvent
     public static void lootLoad(LootTableLoadEvent event) {
-        var pool = CommonHooks.getExtraLootPool(event.getName());
+        var pool = CommonHooks.getExtraLootPool(ResourceKey.create(Registries.LOOT_TABLE, event.getName()));
         if (pool != null) event.getTable().addPool(pool.build());
     }
 

@@ -63,7 +63,7 @@ public class ForgeContainerTransfer implements ContainerTransfer.Slotted {
             if (movedStack.isEmpty()) {
                 movedStack = stack.copy();
                 if (stack.getMaxStackSize() < maxAmount) maxAmount = stack.getMaxStackSize();
-            } else if (!ItemStack.isSameItemSameTags(stack, movedStack)) {
+            } else if (!ItemStack.isSameItemSameComponents(stack, movedStack)) {
                 continue;
             }
 

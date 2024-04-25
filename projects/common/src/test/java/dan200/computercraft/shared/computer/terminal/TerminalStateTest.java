@@ -23,7 +23,7 @@ public class TerminalStateTest {
         var terminal = randomTerminal();
 
         var buffer = new FriendlyByteBuf(Unpooled.directBuffer());
-        new TerminalState(terminal).write(buffer);
+        TerminalState.STREAM_CODEC.encode(buffer, new TerminalState(terminal));
 
         checkEqual(terminal, read(buffer));
         assertEquals(0, buffer.readableBytes());
@@ -53,6 +53,6 @@ public class TerminalStateTest {
     }
 
     private static NetworkedTerminal read(FriendlyByteBuf buffer) {
-        return new TerminalState(buffer).create();
+        return TerminalState.STREAM_CODEC.decode(buffer).create();
     }
 }

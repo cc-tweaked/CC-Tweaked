@@ -1,12 +1,11 @@
 {
-  "type": "computercraft:turtle",
+  "type": "computercraft:computer_convert",
   "category": "redstone",
   "key": {
-    "#": {"tag": "c:iron_ingots"},
+    "#": {"tag": "c:ingots/iron"},
     "C": {"item": "computercraft:computer_normal"},
-    "I": {"tag": "c:wooden_chests"}
+    "I": {"tag": "c:chests/wooden"}
   },
   "pattern": ["###", "#C#", "#I#"],
-  "result": {"item": "computercraft:turtle_normal"},
-  "show_notification": true
+  "result": {"count": 1, "id": "computercraft:turtle_normal"}
 }

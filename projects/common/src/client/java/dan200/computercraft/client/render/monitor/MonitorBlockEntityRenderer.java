@@ -191,17 +191,23 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
                     });
                 }
 
-                // Our VBO doesn't transform its vertices with the provided pose stack, which means that the inverse view
-                // rotation matrix gives entirely wrong numbers for fog distances. We just set it to the identity which
-                // gives a good enough approximation.
-                var oldInverseRotation = RenderSystem.getInverseViewRotationMatrix();
-                RenderSystem.setInverseViewRotationMatrix(IDENTITY_NORMAL);
+                // Our VBO renders coordinates in monitor-space rather than world space. A full sized monitor (8x6) will
+                // use positions from (0, 0) to (164*FONT_WIDTH, 81*FONT_HEIGHT) = (984, 729). This is far outside the
+                // normal render distance (~200), and the edges of the monitor fade out due to fog.
+                // There's not really a good way around this, at least without using a custom render type (which the VBO
+                // renderer is trying to avoid!). Instead, we just disable fog entirely by setting the fog start to an
+                // absurdly high value.
+                var oldFogStart = RenderSystem.getShaderFogStart();
+                RenderSystem.setShaderFogStart(1e4f);
 
                 RenderTypes.TERMINAL.setupRenderState();
 
+                // Compose the existing model view matrix with our transformation matrix.
+                var modelView = new Matrix4f(RenderSystem.getModelViewMatrix()).mul(matrix);
+
                 // Render background geometry
                 backgroundBuffer.bind();
-                backgroundBuffer.drawWithShader(matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader());
+                backgroundBuffer.drawWithShader(modelView, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader());
 
                 // Render foreground geometry with glPolygonOffset enabled.
                 RenderSystem.polygonOffset(-1.0f, -10.0f);
@@ -209,7 +215,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
 
                 foregroundBuffer.bind();
                 foregroundBuffer.drawWithShader(
-                    matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader(),
+                    modelView, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader(),
                     // As mentioned in the above comment, render the extra cursor quad if it is visible this frame. Each
                     // // quad has an index count of 6.
                     FixedWidthFontRenderer.isCursorVisible(terminal) && FrameInfo.getGlobalCursorBlink()
@@ -222,7 +228,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
                 RenderTypes.TERMINAL.clearRenderState();
                 VertexBuffer.unbind();
 
-                RenderSystem.setInverseViewRotationMatrix(oldInverseRotation);
+                RenderSystem.setShaderFogStart(oldFogStart);
             }
             case BEST -> throw new IllegalStateException("Impossible: Should never use BEST renderer");
         }

@@ -23,8 +23,11 @@ import dan200.computercraft.shared.container.InventoryDelegate;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import dan200.computercraft.shared.util.Holiday;
+import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -44,16 +47,14 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static dan200.computercraft.shared.common.IColouredItem.NBT_COLOUR;
 import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
 
 public class TurtleBrain implements TurtleAccessInternal {
-    public static final String NBT_RIGHT_UPGRADE = "RightUpgrade";
-    public static final String NBT_RIGHT_UPGRADE_DATA = "RightUpgradeNbt";
-    public static final String NBT_LEFT_UPGRADE = "LeftUpgrade";
-    public static final String NBT_LEFT_UPGRADE_DATA = "LeftUpgradeNbt";
     public static final String NBT_FUEL = "Fuel";
     public static final String NBT_OVERLAY = "Overlay";
+    public static final String NBT_COLOUR = "Color";
+    public static final String NBT_LEFT_UPGRADE = "LeftUpgrade";
+    public static final String NBT_RIGHT_UPGRADE = "RightUpgrade";
 
     private static final String NBT_SLOT = "Slot";
 
@@ -67,9 +68,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     private final Queue<TurtleCommandQueueEntry> commandQueue = new ArrayDeque<>();
     private int commandsIssued = 0;
 
-    private final Map<TurtleSide, ITurtleUpgrade> upgrades = new EnumMap<>(TurtleSide.class);
-    private final Map<TurtleSide, IPeripheral> peripherals = new EnumMap<>(TurtleSide.class);
-    private final Map<TurtleSide, CompoundTag> upgradeNBTData = new EnumMap<>(TurtleSide.class);
+    private final UpgradeInstance[] upgrades = { new UpgradeInstance(), new UpgradeInstance() };
 
     private int selectedSlot = 0;
     private int fuelLevel = 0;
@@ -118,59 +117,41 @@ public class TurtleBrain implements TurtleAccessInternal {
         updateAnimation();
 
         // Advance upgrades
-        if (!upgrades.isEmpty()) {
-            for (var entry : upgrades.entrySet()) {
-                entry.getValue().update(this, entry.getKey());
-            }
+        for (var side : TurtleSide.values()) {
+            var upgrade = upgrades[side.ordinal()].upgrade;
+            if (upgrade != null) upgrade.update(this, side);
         }
     }
 
     /**
      * Read common data for saving and client synchronisation.
      *
-     * @param nbt The tag to read from
+     * @param nbt        The tag to read from
+     * @param registries The current registries.
      */
-    private void readCommon(CompoundTag nbt) {
+    private void readCommon(CompoundTag nbt, HolderLookup.Provider registries) {
         // Read fields
         colourHex = nbt.contains(NBT_COLOUR) ? nbt.getInt(NBT_COLOUR) : -1;
         fuelLevel = nbt.contains(NBT_FUEL) ? nbt.getInt(NBT_FUEL) : 0;
         overlay = nbt.contains(NBT_OVERLAY) ? new ResourceLocation(nbt.getString(NBT_OVERLAY)) : null;
 
         // Read upgrades
-        setUpgradeDirect(TurtleSide.LEFT, readUpgrade(nbt, NBT_LEFT_UPGRADE, NBT_LEFT_UPGRADE_DATA));
-        setUpgradeDirect(TurtleSide.RIGHT, readUpgrade(nbt, NBT_RIGHT_UPGRADE, NBT_RIGHT_UPGRADE_DATA));
+        setUpgradeDirect(TurtleSide.LEFT, NBTUtil.decodeFrom(TurtleUpgrades.instance().codec(), registries, nbt, NBT_LEFT_UPGRADE));
+        setUpgradeDirect(TurtleSide.RIGHT, NBTUtil.decodeFrom(TurtleUpgrades.instance().codec(), registries, nbt, NBT_RIGHT_UPGRADE));
     }
 
-    private @Nullable UpgradeData<ITurtleUpgrade> readUpgrade(CompoundTag tag, String upgradeKey, String dataKey) {
-        if (!tag.contains(upgradeKey)) return null;
-        var upgrade = TurtleUpgrades.instance().get(tag.getString(upgradeKey));
-        if (upgrade == null) return null;
-
-        return UpgradeData.of(upgrade, tag.getCompound(dataKey));
-    }
-
-    private void writeCommon(CompoundTag nbt) {
+    private void writeCommon(CompoundTag nbt, HolderLookup.Provider registries) {
         nbt.putInt(NBT_FUEL, fuelLevel);
         if (colourHex != -1) nbt.putInt(NBT_COLOUR, colourHex);
         if (overlay != null) nbt.putString(NBT_OVERLAY, overlay.toString());
 
         // Write upgrades
-        var leftUpgradeId = getUpgradeId(getUpgrade(TurtleSide.LEFT));
-        if (leftUpgradeId != null) nbt.putString(NBT_LEFT_UPGRADE, leftUpgradeId);
-        var rightUpgradeId = getUpgradeId(getUpgrade(TurtleSide.RIGHT));
-        if (rightUpgradeId != null) nbt.putString(NBT_RIGHT_UPGRADE, rightUpgradeId);
-
-        // Write upgrade NBT
-        if (upgradeNBTData.containsKey(TurtleSide.LEFT)) {
-            nbt.put(NBT_LEFT_UPGRADE_DATA, getUpgradeNBTData(TurtleSide.LEFT).copy());
-        }
-        if (upgradeNBTData.containsKey(TurtleSide.RIGHT)) {
-            nbt.put(NBT_RIGHT_UPGRADE_DATA, getUpgradeNBTData(TurtleSide.RIGHT).copy());
-        }
+        NBTUtil.encodeTo(TurtleUpgrades.instance().codec(), registries, nbt, NBT_LEFT_UPGRADE, getUpgradeWithData(TurtleSide.LEFT));
+        NBTUtil.encodeTo(TurtleUpgrades.instance().codec(), registries, nbt, NBT_RIGHT_UPGRADE, getUpgradeWithData(TurtleSide.RIGHT));
     }
 
-    public void readFromNBT(CompoundTag nbt) {
-        readCommon(nbt);
+    public void readFromNBT(CompoundTag nbt, HolderLookup.Provider registries) {
+        readCommon(nbt, registries);
 
         // Read state
         selectedSlot = nbt.getInt(NBT_SLOT);
@@ -187,8 +168,8 @@ public class TurtleBrain implements TurtleAccessInternal {
         }
     }
 
-    public CompoundTag writeToNBT(CompoundTag nbt) {
-        writeCommon(nbt);
+    public void writeToNBT(CompoundTag nbt, HolderLookup.Provider registries) {
+        writeCommon(nbt, registries);
 
         // Write state
         nbt.putInt(NBT_SLOT, selectedSlot);
@@ -202,16 +183,10 @@ public class TurtleBrain implements TurtleAccessInternal {
             owner.putLong("LowerId", owningPlayer.getId().getLeastSignificantBits());
             owner.putString("Name", owningPlayer.getName());
         }
-
-        return nbt;
     }
 
-    private static @Nullable String getUpgradeId(@Nullable ITurtleUpgrade upgrade) {
-        return upgrade != null ? upgrade.getUpgradeID().toString() : null;
-    }
-
-    public void readDescription(CompoundTag nbt) {
-        readCommon(nbt);
+    public void readDescription(CompoundTag nbt, HolderLookup.Provider registries) {
+        readCommon(nbt, registries);
 
         // Animation
         var anim = TurtleAnimation.values()[nbt.getInt("Animation")];
@@ -225,8 +200,8 @@ public class TurtleBrain implements TurtleAccessInternal {
         }
     }
 
-    public void writeDescription(CompoundTag nbt) {
-        writeCommon(nbt);
+    public void writeDescription(CompoundTag nbt, HolderLookup.Provider registries) {
+        writeCommon(nbt, registries);
         nbt.putInt("Animation", animation.ordinal());
     }
 
@@ -484,11 +459,16 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     @Override
     public @Nullable ITurtleUpgrade getUpgrade(TurtleSide side) {
-        return upgrades.get(side);
+        return upgrades[side.ordinal()].upgrade;
     }
 
     @Override
-    public void setUpgradeWithData(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
+    public @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(TurtleSide side) {
+        return upgrades[side.ordinal()].getUpgrade();
+    }
+
+    @Override
+    public void setUpgrade(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
         if (!setUpgradeDirect(side, upgrade) || owner.getLevel() == null) return;
 
         // This is a separate function to avoid updating the block when reading the NBT. We don't need to do this as
@@ -503,39 +483,35 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     private boolean setUpgradeDirect(TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
         // Remove old upgrade
-        var oldUpgrade = upgrades.remove(side);
-        if (oldUpgrade == null && upgrade == null) return false;
+        var instance = upgrades[side.ordinal()];
+        if (instance.upgrade == null && upgrade == null) return false;
 
         // Set new upgrade
-        if (upgrade == null) {
-            upgradeNBTData.remove(side);
-        } else {
-            upgrades.put(side, upgrade.upgrade());
-            upgradeNBTData.put(side, upgrade.data().copy());
-        }
+        instance.setUpgrade(upgrade);
 
-        // Notify clients and create peripherals
-        if (owner.getLevel() != null && !owner.getLevel().isClientSide) {
-            updatePeripherals(owner.createServerComputer());
-        }
+        // Create peripherals
+        if (owner.getLevel() != null && !owner.getLevel().isClientSide) updatePeripherals(owner.createServerComputer());
 
         return true;
     }
 
     @Override
     public @Nullable IPeripheral getPeripheral(TurtleSide side) {
-        return peripherals.get(side);
+        return upgrades[side.ordinal()].peripheral;
     }
 
     @Override
-    public CompoundTag getUpgradeNBTData(TurtleSide side) {
-        var nbt = upgradeNBTData.get(side);
-        if (nbt == null) upgradeNBTData.put(side, nbt = new CompoundTag());
-        return nbt;
+    public DataComponentPatch getUpgradeData(TurtleSide side) {
+        return upgrades[side.ordinal()].data;
     }
 
     @Override
-    public void updateUpgradeNBTData(TurtleSide side) {
+    public void setUpgradeData(TurtleSide side, DataComponentPatch data) {
+        var upgrade = upgrades[side.ordinal()];
+        if (Objects.equals(upgrade.data, data)) return;
+
+        upgrade.data = data;
+        upgrade.cachedUpgradeData = null;
         BlockEntityHelpers.updateBlock(owner);
     }
 
@@ -589,13 +565,13 @@ public class TurtleBrain implements TurtleAccessInternal {
                 peripheral = upgrade.createPeripheral(this, side);
             }
 
-            var existing = peripherals.get(side);
-            if (PeripheralHelpers.equals(existing, peripheral)) {
+            var instance = upgrades[side.ordinal()];
+            if (PeripheralHelpers.equals(instance.peripheral, peripheral)) {
                 // If the peripheral is the same, just use that.
-                peripheral = existing;
+                peripheral = instance.peripheral;
             } else {
                 // Otherwise update our map
-                peripherals.put(side, peripheral);
+                instance.peripheral = peripheral;
             }
 
             // Always update the computer: it may not be the same computer as before!
@@ -767,6 +743,35 @@ public class TurtleBrain implements TurtleAccessInternal {
             if (id.intValue() != command) return pull;
 
             return MethodResult.of(Arrays.copyOfRange(response, 2, response.length));
+        }
+    }
+
+    private static final class UpgradeInstance {
+        private @Nullable ITurtleUpgrade upgrade;
+        private DataComponentPatch data = DataComponentPatch.EMPTY;
+        private @Nullable IPeripheral peripheral;
+
+        private @Nullable UpgradeData<ITurtleUpgrade> cachedUpgradeData;
+
+        public void setUpgrade(@Nullable UpgradeData<ITurtleUpgrade> upgrade) {
+            if (upgrade == null) {
+                this.upgrade = null;
+                data = DataComponentPatch.EMPTY;
+                cachedUpgradeData = null;
+            } else {
+                this.upgrade = upgrade.upgrade();
+                this.data = upgrade.data();
+                this.cachedUpgradeData = upgrade;
+            }
+        }
+
+        public @Nullable UpgradeData<ITurtleUpgrade> getUpgrade() {
+            if (upgrade == null) return null;
+
+            var cached = cachedUpgradeData;
+            if (cached != null) return cached;
+
+            return cachedUpgradeData = UpgradeData.of(upgrade, data);
         }
     }
 }

@@ -6,7 +6,8 @@ package dan200.computercraft.shared.recipe;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
@@ -25,19 +26,13 @@ public record ShapedRecipeSpec(RecipeProperties properties, ShapedRecipePattern 
     public static final MapCodec<ShapedRecipeSpec> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         RecipeProperties.CODEC.forGetter(ShapedRecipeSpec::properties),
         ShapedRecipePattern.MAP_CODEC.forGetter(ShapedRecipeSpec::pattern),
-        MoreCodecs.ITEM_STACK_WITH_NBT.fieldOf("result").forGetter(ShapedRecipeSpec::result)
+        ItemStack.STRICT_CODEC.fieldOf("result").forGetter(ShapedRecipeSpec::result)
     ).apply(instance, ShapedRecipeSpec::new));
 
-    public static ShapedRecipeSpec fromNetwork(FriendlyByteBuf buffer) {
-        var properties = RecipeProperties.fromNetwork(buffer);
-        var template = ShapedRecipePattern.fromNetwork(buffer);
-        var result = buffer.readItem();
-        return new ShapedRecipeSpec(properties, template, result);
-    }
-
-    public void toNetwork(FriendlyByteBuf buffer) {
-        properties().toNetwork(buffer);
-        pattern().toNetwork(buffer);
-        buffer.writeItem(result());
-    }
+    public static final StreamCodec<RegistryFriendlyByteBuf, ShapedRecipeSpec> STREAM_CODEC = StreamCodec.composite(
+        RecipeProperties.STREAM_CODEC, ShapedRecipeSpec::properties,
+        ShapedRecipePattern.STREAM_CODEC, ShapedRecipeSpec::pattern,
+        ItemStack.STREAM_CODEC, ShapedRecipeSpec::result,
+        ShapedRecipeSpec::new
+    );
 }

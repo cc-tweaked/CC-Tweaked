@@ -15,8 +15,10 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -114,14 +116,14 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>> {
         public void serializeToNetwork(RepeatArgumentType.Template arg, FriendlyByteBuf buf) {
             buf.writeBoolean(arg.flatten);
             ArgumentUtils.serializeToNetwork(buf, arg.child);
-            buf.writeComponent(ArgumentUtils.getMessage(arg.some));
+            ComponentSerialization.TRUSTED_CONTEXT_FREE_STREAM_CODEC.encode(buf, ArgumentUtils.getMessage(arg.some));
         }
 
         @Override
         public RepeatArgumentType.Template deserializeFromNetwork(FriendlyByteBuf buf) {
             var isList = buf.readBoolean();
             var child = ArgumentUtils.deserialize(buf);
-            var message = buf.readComponent();
+            var message = ComponentSerialization.TRUSTED_CONTEXT_FREE_STREAM_CODEC.decode(buf);
             return new RepeatArgumentType.Template(this, child, isList, new SimpleCommandExceptionType(message));
         }
 
@@ -134,7 +136,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>> {
         public void serializeToJson(RepeatArgumentType.Template arg, JsonObject json) {
             json.addProperty("flatten", arg.flatten);
             json.add("child", ArgumentUtils.serializeToJson(arg.child));
-            json.addProperty("error", Component.Serializer.toJson(ArgumentUtils.getMessage(arg.some)));
+            json.addProperty("error", Component.Serializer.toJson(ArgumentUtils.getMessage(arg.some), RegistryAccess.EMPTY));
         }
     }
 

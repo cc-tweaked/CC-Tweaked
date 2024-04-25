@@ -5,7 +5,7 @@
 package dan200.computercraft.shared.recipe;
 
 import dan200.computercraft.shared.ModRegistry;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CustomRecipe;
@@ -29,7 +29,7 @@ public final class ImpostorShapelessRecipe extends CustomShapelessRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inventory, RegistryAccess access) {
+    public ItemStack assemble(CraftingContainer inventory, HolderLookup.Provider access) {
         return ItemStack.EMPTY;
     }
 

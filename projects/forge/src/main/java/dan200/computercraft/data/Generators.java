@@ -22,7 +22,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.common.data.JsonCodecProvider;
@@ -32,9 +32,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class Generators {
     @SubscribeEvent
     public static void gather(GatherDataEvent event) {
@@ -50,6 +51,11 @@ public class Generators {
         @Override
         public <T extends DataProvider> T add(DataProvider.Factory<T> factory) {
             return generator.addProvider(p -> new PrettyDataProvider<>(factory.create(p))).provider();
+        }
+
+        @Override
+        public <T extends DataProvider> T add(BiFunction<PackOutput, CompletableFuture<HolderLookup.Provider>, T> factory) {
+            return generator.addProvider(p -> factory.apply(p, registries));
         }
 
         @Override
@@ -70,7 +76,7 @@ public class Generators {
 
         @Override
         public void lootTable(List<LootTableProvider.SubProviderEntry> tables) {
-            add(out -> new LootTableProvider(out, Set.of(), tables));
+            add((out, registries) -> new LootTableProvider(out, Set.of(), tables, registries));
         }
 
         @Override

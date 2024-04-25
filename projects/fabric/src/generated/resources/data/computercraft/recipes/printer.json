@@ -1,8 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
-  "key": {"#": {"item": "minecraft:stone"}, "D": {"tag": "c:dyes"}, "R": {"tag": "c:redstone_dusts"}},
+  "key": {"#": {"item": "minecraft:stone"}, "D": {"tag": "c:dyes"}, "R": {"tag": "c:dusts/redstone"}},
   "pattern": ["###", "#R#", "#D#"],
-  "result": {"item": "computercraft:printer"},
-  "show_notification": true
+  "result": {"count": 1, "id": "computercraft:printer"}
 }

@@ -27,13 +27,11 @@ public class EMIComputerCraft implements EmiPlugin {
         registry.setDefaultComparison(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get(), pocketComparison);
     }
 
-    private static final Comparison turtleComparison = compareStacks((left, right) ->
-        left.getItem() instanceof TurtleItem turtle
-            && turtle.getUpgrade(left, TurtleSide.LEFT) == turtle.getUpgrade(right, TurtleSide.LEFT)
-            && turtle.getUpgrade(left, TurtleSide.RIGHT) == turtle.getUpgrade(right, TurtleSide.RIGHT));
+    private static final Comparison turtleComparison = compareStacks((left, right)
+        -> TurtleItem.getUpgrade(left, TurtleSide.LEFT) == TurtleItem.getUpgrade(right, TurtleSide.LEFT)
+        && TurtleItem.getUpgrade(left, TurtleSide.RIGHT) == TurtleItem.getUpgrade(right, TurtleSide.RIGHT));
 
-    private static final Comparison pocketComparison = compareStacks((left, right) ->
-        left.getItem() instanceof PocketComputerItem && PocketComputerItem.getUpgrade(left) == PocketComputerItem.getUpgrade(right));
+    private static final Comparison pocketComparison = compareStacks((left, right) -> PocketComputerItem.getUpgrade(left) == PocketComputerItem.getUpgrade(right));
 
     private static Comparison compareStacks(BiPredicate<ItemStack, ItemStack> test) {
         return Comparison.of((left, right) -> {

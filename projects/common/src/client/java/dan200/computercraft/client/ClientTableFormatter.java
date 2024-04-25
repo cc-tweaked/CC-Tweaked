@@ -75,7 +75,7 @@ public class ClientTableFormatter implements TableFormatter {
 
         var tag = createTag(table.getId());
         if (chat.allMessages.removeIf(guiMessage -> guiMessage.tag() != null && Objects.equals(guiMessage.tag().logTag(), tag.logTag()))) {
-            chat.refreshTrimmedMessage();
+            chat.rescaleChat();
         }
 
         TableFormatter.super.display(table);

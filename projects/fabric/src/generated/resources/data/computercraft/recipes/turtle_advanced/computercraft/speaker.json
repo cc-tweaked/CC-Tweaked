@@ -4,6 +4,9 @@
   "group": "computercraft:turtle_advanced",
   "key": {"#": {"item": "computercraft:speaker"}, "T": {"item": "computercraft:turtle_advanced"}},
   "pattern": ["#T"],
-  "result": {"item": "computercraft:turtle_advanced", "nbt": "{RightUpgrade:\"computercraft:speaker\"}"},
-  "show_notification": true
+  "result": {
+    "components": {"computercraft:right_turtle_upgrade": {"id": "computercraft:speaker"}},
+    "count": 1,
+    "id": "computercraft:turtle_advanced"
+  }
 }

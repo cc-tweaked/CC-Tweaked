@@ -4,8 +4,8 @@
 
 package dan200.computercraft.api.turtle;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -21,7 +21,7 @@ public enum TurtleToolDurability implements StringRepresentable {
 
     /**
      * The equipped tool consumes durability if it is {@linkplain ItemStack#isEnchanted() enchanted} or has
-     * {@linkplain ItemStack#getAttributeModifiers(EquipmentSlot) custom attribute modifiers}.
+     * {@linkplain DataComponents#ATTRIBUTE_MODIFIERS custom attribute modifiers}.
      */
     WHEN_ENCHANTED("when_enchanted"),
 

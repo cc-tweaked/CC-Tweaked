@@ -10,53 +10,22 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.TurtleUpgrades;
-import dan200.computercraft.shared.common.IColouredItem;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.items.AbstractComputerItem;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
-import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 
 import javax.annotation.Nullable;
 
-import static dan200.computercraft.shared.turtle.core.TurtleBrain.*;
-
-public class TurtleItem extends AbstractComputerItem implements IColouredItem {
+public class TurtleItem extends AbstractComputerItem {
     public TurtleItem(TurtleBlock block, Properties settings) {
         super(block, settings);
-    }
-
-    public ItemStack create(
-        int id, @Nullable String label, int colour,
-        @Nullable UpgradeData<ITurtleUpgrade> leftUpgrade, @Nullable UpgradeData<ITurtleUpgrade> rightUpgrade,
-        int fuelLevel, @Nullable ResourceLocation overlay
-    ) {
-        // Build the stack
-        var stack = new ItemStack(this);
-        if (label != null) stack.setHoverName(Component.literal(label));
-        if (id >= 0) stack.getOrCreateTag().putInt(NBT_ID, id);
-        IColouredItem.setColourBasic(stack, colour);
-        if (fuelLevel > 0) stack.getOrCreateTag().putInt(NBT_FUEL, fuelLevel);
-        if (overlay != null) stack.getOrCreateTag().putString(NBT_OVERLAY, overlay.toString());
-
-        if (leftUpgrade != null) {
-            var tag = stack.getOrCreateTag();
-            tag.putString(NBT_LEFT_UPGRADE, leftUpgrade.upgrade().getUpgradeID().toString());
-            if (!leftUpgrade.data().isEmpty()) tag.put(NBT_LEFT_UPGRADE_DATA, leftUpgrade.data().copy());
-        }
-
-        if (rightUpgrade != null) {
-            var tag = stack.getOrCreateTag();
-            tag.putString(NBT_RIGHT_UPGRADE, rightUpgrade.upgrade().getUpgradeID().toString());
-            if (!rightUpgrade.data().isEmpty()) tag.put(NBT_RIGHT_UPGRADE_DATA, rightUpgrade.data().copy());
-        }
-
-        return stack;
     }
 
     @Override
@@ -103,54 +72,31 @@ public class TurtleItem extends AbstractComputerItem implements IColouredItem {
         return ComputerCraftAPI.MOD_ID;
     }
 
-    @Override
-    public ItemStack changeItem(ItemStack stack, Item newItem) {
-        return newItem instanceof TurtleItem turtle ? turtle.create(
-            getComputerID(stack), getLabel(stack),
-            getColour(stack),
-            getUpgradeWithData(stack, TurtleSide.LEFT), getUpgradeWithData(stack, TurtleSide.RIGHT),
-            getFuelLevel(stack), getOverlay(stack)
-        ) : ItemStack.EMPTY;
+    public static @Nullable ITurtleUpgrade getUpgrade(ItemStack stack, TurtleSide side) {
+        var upgrade = getUpgradeWithData(stack, side);
+        return upgrade == null ? null : upgrade.upgrade();
     }
 
-    public @Nullable ITurtleUpgrade getUpgrade(ItemStack stack, TurtleSide side) {
-        var tag = stack.getTag();
-        if (tag == null) return null;
-
-        var key = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE : NBT_RIGHT_UPGRADE;
-        if (!tag.contains(key)) return null;
-        return TurtleUpgrades.instance().get(tag.getString(key));
+    public static @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(ItemStack stack, TurtleSide side) {
+        return stack.get(side == TurtleSide.LEFT ? ModRegistry.DataComponents.LEFT_TURTLE_UPGRADE.get() : ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get());
     }
 
-    public @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(ItemStack stack, TurtleSide side) {
-        var tag = stack.getTag();
-        if (tag == null) return null;
-
-        var key = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE : NBT_RIGHT_UPGRADE;
-        if (!tag.contains(key)) return null;
-        var upgrade = TurtleUpgrades.instance().get(tag.getString(key));
-        if (upgrade == null) return null;
-        var dataKey = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE_DATA : NBT_RIGHT_UPGRADE_DATA;
-        return UpgradeData.of(upgrade, NBTUtil.getCompoundOrEmpty(tag, dataKey));
+    public static @Nullable ResourceLocation getOverlay(ItemStack stack) {
+        return stack.get(ModRegistry.DataComponents.OVERLAY.get());
     }
 
-    public @Nullable ResourceLocation getOverlay(ItemStack stack) {
-        var tag = stack.getTag();
-        return tag != null && tag.contains(NBT_OVERLAY) ? new ResourceLocation(tag.getString(NBT_OVERLAY)) : null;
-    }
-
-    public int getFuelLevel(ItemStack stack) {
-        var tag = stack.getTag();
-        return tag != null && tag.contains(NBT_FUEL) ? tag.getInt(NBT_FUEL) : 0;
+    public static int getFuelLevel(ItemStack stack) {
+        var fuel = stack.get(ModRegistry.DataComponents.FUEL.get());
+        return fuel == null ? 0 : fuel;
     }
 
     public static final CauldronInteraction CAULDRON_INTERACTION = (blockState, level, pos, player, hand, stack) -> {
-        if (IColouredItem.getColourBasic(stack) == -1) return InteractionResult.PASS;
+        if (!stack.has(DataComponents.DYED_COLOR)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (!level.isClientSide) {
-            IColouredItem.setColourBasic(stack, -1);
+            stack.remove(DataComponents.DYED_COLOR);
             LayeredCauldronBlock.lowerFillLevel(blockState, level, pos);
         }
 
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return ItemInteractionResult.sidedSuccess(level.isClientSide);
     };
 }
