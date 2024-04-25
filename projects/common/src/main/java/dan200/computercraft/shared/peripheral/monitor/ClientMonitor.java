@@ -54,8 +54,8 @@ public final class ClientMonitor {
         return terminal;
     }
 
-    void read(TerminalState state) {
-        if (state.hasTerminal()) {
+    void read(@Nullable TerminalState state) {
+        if (state != null) {
             if (terminal == null) {
                 terminal = state.create();
             } else {

@@ -11,25 +11,26 @@ import dan200.computercraft.shared.network.NetworkMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 
+import javax.annotation.Nullable;
 
 public class MonitorClientMessage implements NetworkMessage<ClientNetworkContext> {
     private final BlockPos pos;
-    private final TerminalState state;
+    private final @Nullable TerminalState state;
 
-    public MonitorClientMessage(BlockPos pos, TerminalState state) {
+    public MonitorClientMessage(BlockPos pos, @Nullable TerminalState state) {
         this.pos = pos;
         this.state = state;
     }
 
     public MonitorClientMessage(FriendlyByteBuf buf) {
         pos = buf.readBlockPos();
-        state = new TerminalState(buf);
+        state = buf.readNullable(TerminalState::new);
     }
 
     @Override
     public void write(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
-        state.write(buf);
+        buf.writeNullable(state, (b, t) -> t.write(b));
     }
 
     @Override

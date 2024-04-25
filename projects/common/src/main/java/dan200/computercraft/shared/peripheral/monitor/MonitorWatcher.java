@@ -68,7 +68,7 @@ public final class MonitorWatcher {
             var state = getState(tile, monitor);
             ServerNetworking.sendToAllTracking(new MonitorClientMessage(pos, state), chunk);
 
-            limit -= state.size();
+            limit -= state == null ? 0 : state.size();
         }
     }
 
@@ -76,9 +76,9 @@ public final class MonitorWatcher {
         return !monitor.isRemoved() && monitor.getXIndex() == 0 && monitor.getYIndex() == 0 ? monitor.getCachedServerMonitor() : null;
     }
 
-    private static TerminalState getState(MonitorBlockEntity tile, ServerMonitor monitor) {
+    private static @Nullable TerminalState getState(MonitorBlockEntity tile, ServerMonitor monitor) {
         var state = tile.cached;
-        if (state == null) state = tile.cached = new TerminalState(monitor.getTerminal());
+        if (state == null) state = tile.cached = TerminalState.create(monitor.getTerminal());
         return state;
     }
 }

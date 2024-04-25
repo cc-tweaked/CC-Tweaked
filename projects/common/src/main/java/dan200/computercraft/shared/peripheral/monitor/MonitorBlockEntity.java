@@ -222,7 +222,7 @@ public class MonitorBlockEntity extends BlockEntity {
         if (xIndex == 0 && yIndex == 0 && clientMonitor == null) clientMonitor = new ClientMonitor(this);
     }
 
-    public final void read(TerminalState state) {
+    public final void read(@Nullable TerminalState state) {
         if (xIndex != 0 || yIndex != 0) {
             LOG.warn("Receiving monitor state for non-origin terminal at {}", getBlockPos());
             return;

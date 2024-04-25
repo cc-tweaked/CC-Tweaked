@@ -97,7 +97,7 @@ jobs:
 
     - name: ⚒️ Build
       run: |
-        ./gradlew --configure-on-demand :core:assemble :web:assemble
+        ./gradlew --configure-on-demand :core:assemble
 
     - name: 🧪 Run tests
       run: |

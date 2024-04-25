@@ -49,7 +49,7 @@ public final class ClientNetworkContextImpl implements ClientNetworkContext {
     }
 
     @Override
-    public void handleMonitorData(BlockPos pos, TerminalState terminal) {
+    public void handleMonitorData(BlockPos pos, @Nullable TerminalState terminal) {
         var player = Minecraft.getInstance().player;
         if (player == null) return;
 
@@ -67,7 +67,7 @@ public final class ClientNetworkContextImpl implements ClientNetworkContext {
     }
 
     @Override
-    public void handlePocketComputerData(UUID instanceId, ComputerState state, int lightState, TerminalState terminal) {
+    public void handlePocketComputerData(UUID instanceId, ComputerState state, int lightState, @Nullable TerminalState terminal) {
         ClientPocketComputers.setState(instanceId, state, lightState, terminal);
     }
 
