@@ -53,7 +53,7 @@ minecraft {
             workingDirectory(file("run"))
             args(
                 "--mod", "computercraft", "--all",
-                "--output", file("src/generated/resources/"),
+                "--output", layout.buildDirectory.dir("generatedResources").getAbsolutePath(),
                 "--existing", project(":common").file("src/main/resources/"),
                 "--existing", file("src/main/resources/"),
             )

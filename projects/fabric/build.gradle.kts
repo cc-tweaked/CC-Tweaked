@@ -147,7 +147,7 @@ loom {
 
             runDir("run/dataGen")
             property("fabric-api.datagen")
-            property("fabric-api.datagen.output-dir", file("src/generated/resources").absolutePath)
+            property("fabric-api.datagen.output-dir", layout.buildDirectory.dir("generatedResources").getAbsolutePath())
             property("fabric-api.datagen.strict-validation")
         }
 

@@ -11,6 +11,12 @@ plugins {
     id("cc-tweaked.publishing")
 }
 
+sourceSets {
+    main {
+        resources.srcDir("src/generated/resources")
+    }
+}
+
 minecraft {
     accessWideners(
         "src/main/resources/computercraft.accesswidener",
@@ -104,4 +110,20 @@ val lintLua by tasks.registering(IlluaminateExec::class) {
 
     doFirst { if (System.getenv("GITHUB_ACTIONS") != null) println("::add-matcher::.github/matchers/illuaminate.json") }
     doLast { if (System.getenv("GITHUB_ACTIONS") != null) println("::remove-matcher owner=illuaminate::") }
+}
+
+val runData by tasks.registering(MergeTrees::class) {
+    output = layout.projectDirectory.dir("src/generated/resources")
+
+    for (loader in listOf("forge", "fabric")) {
+        mustRunAfter(":$loader:runData")
+        source {
+            input {
+                from(project(":$loader").layout.buildDirectory.dir("generatedResources"))
+                exclude(".cache")
+            }
+
+            output = project(":$loader").layout.projectDirectory.dir("src/generated/resources")
+        }
+    }
 }
