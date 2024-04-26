@@ -55,7 +55,7 @@ public class Generators {
 
         @Override
         public <T extends DataProvider> T add(BiFunction<PackOutput, CompletableFuture<HolderLookup.Provider>, T> factory) {
-            return generator.addProvider(p -> factory.apply(p, registries));
+            return generator.addProvider(p -> new PrettyDataProvider<>(factory.apply(p, registries))).provider();
         }
 
         @Override

@@ -37,6 +37,7 @@ Files:
   projects/fabric/src/testMod/resources/computercraft-gametest.fabric.mixins.json
   projects/fabric/src/testMod/resources/fabric.mod.json
   projects/forge/src/client/resources/computercraft-client.forge.mixins.json
+  projects/forge/src/main/resources/computercraft.forge.mixins.json
   projects/web/src/frontend/mount/.settings
   projects/web/src/frontend/mount/example.nfp
   projects/web/src/frontend/mount/example.nft

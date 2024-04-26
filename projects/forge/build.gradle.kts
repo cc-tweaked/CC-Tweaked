@@ -155,7 +155,7 @@ tasks.processResources {
     inputs.property("modVersion", modVersion)
     inputs.property("neoVersion", libs.versions.neoForge.get())
 
-    filesMatching("META-INF/mods.toml") {
+    filesMatching("META-INF/neoforge.mods.toml") {
         expand(mapOf("neoVersion" to libs.versions.neoForge.get(), "file" to mapOf("jarVersion" to modVersion)))
     }
 }

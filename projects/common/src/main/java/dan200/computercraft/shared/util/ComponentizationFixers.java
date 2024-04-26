@@ -7,14 +7,19 @@ package dan200.computercraft.shared.util;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
+import com.mojang.datafixers.types.templates.TypeTemplate;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.OptionalDynamic;
 import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.impl.UpgradeManager;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.PrintoutData;
 import net.minecraft.util.datafix.fixes.ItemStackComponentizationFix;
 import net.minecraft.util.datafix.fixes.References;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -177,5 +182,36 @@ public class ComponentizationFixers {
         }
 
         return newUpgrade;
+    }
+
+    /**
+     * Add our custom data components to the datafixer system.
+     *
+     * @param type The existing component type definition.
+     * @param schema The current schema.
+     * @return The new component type definition.
+     * @see UpgradeManager#codec()
+     * @see ModRegistry.DataComponents#POCKET_UPGRADE
+     * @see ModRegistry.DataComponents#LEFT_TURTLE_UPGRADE
+     * @see ModRegistry.DataComponents#RIGHT_TURTLE_UPGRADE
+     */
+    public static TypeTemplate addExtraTypes(TypeTemplate type, Schema schema) {
+        // Create a codec for UpgradeData
+        var upgradeData = DSL.optionalFields("components", References.DATA_COMPONENTS.in(schema));
+
+        return extraOptionalFields(type,
+            Pair.of("computercraft:pocket_upgrade", upgradeData),
+            Pair.of("computercraft:left_turtle_upgrade", upgradeData),
+            Pair.of("computercraft:right_turtle_upgrade", upgradeData)
+        );
+    }
+
+    @SafeVarargs
+    @SuppressWarnings("varargs")
+    private static TypeTemplate extraOptionalFields(TypeTemplate base, Pair<String, TypeTemplate>... fields) {
+        return DSL.and(Stream.concat(
+            Arrays.stream(fields).map(entry -> DSL.optional(DSL.field(entry.getFirst(), entry.getSecond()))),
+            Stream.of(base)
+        ).toList());
     }
 }

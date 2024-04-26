@@ -6,7 +6,7 @@
 
 # Minecraft
 # MC version is specified in gradle.properties, as we need that in settings.gradle.
-# Remember to update corresponding versions in fabric.mod.json/mods.toml
+# Remember to update corresponding versions in fabric.mod.json/neoforge.mods.toml
 fabric-api = "0.97.6+1.20.5"
 fabric-loader = "0.15.10"
 neoForge = "20.5.0-beta"

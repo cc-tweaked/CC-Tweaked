@@ -169,12 +169,12 @@ public class PlatformHelperImpl implements PlatformHelper {
     public RecipeIngredients getRecipeIngredients() {
         return new RecipeIngredients(
             Ingredient.of(ConventionalItemTags.REDSTONE_DUSTS),
-            Ingredient.of(Items.STRING),
+            Ingredient.of(ConventionalItemTags.STRINGS),
             Ingredient.of(Items.LEATHER),
-            Ingredient.of(Items.STONE),
+            Ingredient.of(ConventionalItemTags.STONES),
             Ingredient.of(ConventionalItemTags.GLASS_PANES),
             Ingredient.of(ConventionalItemTags.GOLD_INGOTS),
-            Ingredient.of(Items.GOLD_BLOCK),
+            Ingredient.of(ConventionalItemTags.STORAGE_BLOCKS_GOLD),
             Ingredient.of(ConventionalItemTags.IRON_INGOTS),
             Ingredient.of(ConventionalItemTags.DYES),
             Ingredient.of(Items.ENDER_PEARL),
