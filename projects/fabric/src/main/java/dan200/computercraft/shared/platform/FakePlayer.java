@@ -12,8 +12,6 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 
-import static dan200.computercraft.shared.platform.FakePlayerConstants.MAX_REACH;
-
 public final class FakePlayer extends net.fabricmc.fabric.api.entity.FakePlayer {
     private static final EntityDimensions DIMENSIONS = EntityDimensions.fixed(0, 0);
 
@@ -38,11 +36,6 @@ public final class FakePlayer extends net.fabricmc.fabric.api.entity.FakePlayer 
     @Override
     public EntityDimensions getDefaultDimensions(Pose pose) {
         return DIMENSIONS;
-    }
-
-    public double getBlockReach() {
-        // TODO: Replace with normal reach attribute
-        return MAX_REACH;
     }
 
     @Override

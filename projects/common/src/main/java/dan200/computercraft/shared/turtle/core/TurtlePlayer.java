@@ -11,8 +11,11 @@ import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +30,11 @@ public final class TurtlePlayer {
         UUID.fromString("0d0c4ca0-4ff1-11e4-916c-0800200c9a66"),
         "[ComputerCraft]"
     );
+
+    /**
+     * The maximum distance this player can reach.
+     */
+    private static final double MAX_REACH = 2;
 
     private final ServerPlayer player;
 
@@ -87,6 +95,15 @@ public final class TurtlePlayer {
         setRotation(turtle.getDirection().toYRot(), 0);
 
         player.getInventory().clearContent();
+
+        // Prevent the turtle reaching too far.
+        trySetAttribute(Attributes.BLOCK_INTERACTION_RANGE, MAX_REACH);
+        trySetAttribute(Attributes.ENTITY_INTERACTION_RANGE, MAX_REACH);
+    }
+
+    private void trySetAttribute(Holder<Attribute> attribute, double value) {
+        var instance = player.getAttribute(attribute);
+        if (instance != null) instance.setBaseValue(value);
     }
 
     public void setPosition(ITurtleAccess turtle, BlockPos position, Direction direction) {
