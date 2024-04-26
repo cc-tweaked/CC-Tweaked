@@ -32,7 +32,7 @@ public abstract class CustomShapedRecipe extends ShapedRecipe {
     public abstract RecipeSerializer<? extends CustomShapedRecipe> getSerializer();
 
     public static <T extends CustomShapedRecipe> RecipeSerializer<T> serialiser(Function<ShapedRecipeSpec, T> factory) {
-        return new BasicRecipeSerialiser<T>(
+        return new BasicRecipeSerialiser<>(
             ShapedRecipeSpec.CODEC.xmap(factory, CustomShapedRecipe::toSpec),
             ShapedRecipeSpec.STREAM_CODEC.map(factory, CustomShapedRecipe::toSpec)
         );

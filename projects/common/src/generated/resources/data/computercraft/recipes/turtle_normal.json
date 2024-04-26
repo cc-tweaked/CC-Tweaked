@@ -1,6 +1,7 @@
 {
-  "type": "computercraft:computer_convert",
+  "type": "computercraft:transform_shaped",
   "category": "redstone",
+  "function": [{"type": "computercraft:copy_components", "from": {"item": "computercraft:computer_normal"}}],
   "key": {
     "#": {"tag": "c:ingots/iron"},
     "C": {"item": "computercraft:computer_normal"},

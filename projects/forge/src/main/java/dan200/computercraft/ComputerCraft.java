@@ -30,6 +30,7 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableBlockEntity;
 import dan200.computercraft.shared.peripheral.modem.wired.WiredModemFullBlockEntity;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemBlockEntity;
 import dan200.computercraft.shared.platform.ForgeConfigFile;
+import dan200.computercraft.shared.recipe.function.RecipeFunction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
@@ -81,6 +82,7 @@ public final class ComputerCraft {
     public static void registerRegistries(NewRegistryEvent event) {
         event.create(new RegistryBuilder<>(ITurtleUpgrade.serialiserRegistryKey()));
         event.create(new RegistryBuilder<>(IPocketUpgrade.serialiserRegistryKey()));
+        event.create(new RegistryBuilder<>(RecipeFunction.REGISTRY).sync(true));
     }
 
     @SubscribeEvent

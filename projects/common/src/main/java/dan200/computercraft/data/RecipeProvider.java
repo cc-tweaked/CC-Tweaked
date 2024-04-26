@@ -18,7 +18,6 @@ import dan200.computercraft.impl.RegistryHelper;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.ClearColourRecipe;
 import dan200.computercraft.shared.common.ColourableRecipe;
-import dan200.computercraft.shared.computer.recipe.ComputerConvertRecipe;
 import dan200.computercraft.shared.media.recipes.DiskRecipe;
 import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.platform.PlatformHelper;
@@ -27,8 +26,10 @@ import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.recipe.ImpostorShapedRecipe;
 import dan200.computercraft.shared.recipe.ImpostorShapelessRecipe;
+import dan200.computercraft.shared.recipe.TransformShapedRecipe;
+import dan200.computercraft.shared.recipe.TransformShapelessRecipe;
+import dan200.computercraft.shared.recipe.function.CopyComponents;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
-import dan200.computercraft.shared.turtle.recipes.TurtleOverlayRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.util.ColourUtils;
 import dan200.computercraft.shared.util.DataComponentUtil;
@@ -194,16 +195,21 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     }
 
     private void turtleOverlay(RecipeOutput add, String overlay, Consumer<ShapelessSpecBuilder> build) {
+        var overlayId = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/" + overlay);
+
         for (var turtleItem : turtleItems()) {
             var name = RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, turtleItem);
 
-            var builder = ShapelessSpecBuilder.shapeless(RecipeCategory.REDSTONE, new ItemStack(turtleItem))
+            var builder = ShapelessSpecBuilder
+                .shapeless(RecipeCategory.REDSTONE, DataComponentUtil.createStack(turtleItem, ModRegistry.DataComponents.OVERLAY.get(), overlayId))
                 .group(name.withSuffix("_overlay").toString())
                 .unlockedBy("has_turtle", inventoryChange(turtleItem));
             build.accept(builder);
             builder
                 .requires(turtleItem)
-                .build(s -> new TurtleOverlayRecipe(s, new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/" + overlay)))
+                .build(s -> new TransformShapelessRecipe(s, List.of(
+                    CopyComponents.builder(turtleItem).exclude(ModRegistry.DataComponents.OVERLAY.get()).build()
+                )))
                 .save(add, name.withSuffix("_overlays/" + overlay));
         }
     }
@@ -251,7 +257,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .define('#', ingredients.goldIngot())
             .define('C', ModRegistry.Items.COMPUTER_NORMAL.get())
             .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.COMPUTER_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
-            .build(ComputerConvertRecipe::new)
+            .build(x -> new TransformShapedRecipe(x, List.of(new CopyComponents(ModRegistry.Items.COMPUTER_NORMAL.get()))))
             .save(add, new ResourceLocation(ComputerCraftAPI.MOD_ID, "computer_advanced_upgrade"));
 
         ShapedRecipeBuilder
@@ -274,7 +280,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .define('C', ModRegistry.Items.COMPUTER_NORMAL.get())
             .define('I', ingredients.woodenChest())
             .unlockedBy("has_computer", inventoryChange(ModRegistry.Items.COMPUTER_NORMAL.get()))
-            .build(ComputerConvertRecipe::new)
+            .build(x -> new TransformShapedRecipe(x, List.of(new CopyComponents(ModRegistry.Items.COMPUTER_NORMAL.get()))))
             .save(add);
 
         ShapedSpecBuilder
@@ -286,7 +292,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .define('C', ModRegistry.Items.COMPUTER_ADVANCED.get())
             .define('I', ingredients.woodenChest())
             .unlockedBy("has_computer", inventoryChange(ModRegistry.Items.COMPUTER_NORMAL.get()))
-            .build(ComputerConvertRecipe::new)
+            .build(x -> new TransformShapedRecipe(x, List.of(new CopyComponents(ModRegistry.Items.COMPUTER_ADVANCED.get()))))
             .save(add);
 
         ShapedSpecBuilder
@@ -298,7 +304,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .define('C', ModRegistry.Items.TURTLE_NORMAL.get())
             .define('B', ingredients.goldBlock())
             .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.TURTLE_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
-            .build(ComputerConvertRecipe::new)
+            .build(x -> new TransformShapedRecipe(x, List.of(new CopyComponents(ModRegistry.Items.TURTLE_NORMAL.get()))))
             .save(add, new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_advanced_upgrade"));
 
         ShapedRecipeBuilder
@@ -363,7 +369,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .define('#', ingredients.goldIngot())
             .define('C', ModRegistry.Items.POCKET_COMPUTER_NORMAL.get())
             .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
-            .build(ComputerConvertRecipe::new)
+            .build(x -> new TransformShapedRecipe(x, List.of(new CopyComponents(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get()))))
             .save(add, new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_computer_advanced_upgrade"));
 
         ShapedRecipeBuilder

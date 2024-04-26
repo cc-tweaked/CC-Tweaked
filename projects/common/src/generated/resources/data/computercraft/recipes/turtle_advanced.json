@@ -1,6 +1,7 @@
 {
-  "type": "computercraft:computer_convert",
+  "type": "computercraft:transform_shaped",
   "category": "redstone",
+  "function": [{"type": "computercraft:copy_components", "from": {"item": "computercraft:computer_advanced"}}],
   "key": {
     "#": {"tag": "c:ingots/gold"},
     "C": {"item": "computercraft:computer_advanced"},

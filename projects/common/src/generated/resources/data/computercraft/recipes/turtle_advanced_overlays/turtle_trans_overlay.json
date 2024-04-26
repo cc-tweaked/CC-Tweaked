@@ -1,6 +1,13 @@
 {
-  "type": "computercraft:turtle_overlay",
+  "type": "computercraft:transform_shapeless",
   "category": "redstone",
+  "function": [
+    {
+      "type": "computercraft:copy_components",
+      "exclude": ["computercraft:overlay"],
+      "from": {"item": "computercraft:turtle_advanced"}
+    }
+  ],
   "group": "computercraft:turtle_advanced_overlay",
   "ingredients": [
     {"tag": "c:dyes/light_blue"},
@@ -9,6 +16,9 @@
     {"item": "minecraft:stick"},
     {"item": "computercraft:turtle_advanced"}
   ],
-  "overlay": "computercraft:block/turtle_trans_overlay",
-  "result": {"count": 1, "id": "computercraft:turtle_advanced"}
+  "result": {
+    "components": {"computercraft:overlay": "computercraft:block/turtle_trans_overlay"},
+    "count": 1,
+    "id": "computercraft:turtle_advanced"
+  }
 }

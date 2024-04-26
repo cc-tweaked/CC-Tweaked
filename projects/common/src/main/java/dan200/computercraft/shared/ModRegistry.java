@@ -37,7 +37,6 @@ import dan200.computercraft.shared.computer.items.AbstractComputerItem;
 import dan200.computercraft.shared.computer.items.CommandComputerItem;
 import dan200.computercraft.shared.computer.items.ComputerItem;
 import dan200.computercraft.shared.computer.items.ServerComputerReference;
-import dan200.computercraft.shared.computer.recipe.ComputerConvertRecipe;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
@@ -71,16 +70,14 @@ import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
-import dan200.computercraft.shared.recipe.CustomShapedRecipe;
-import dan200.computercraft.shared.recipe.CustomShapelessRecipe;
-import dan200.computercraft.shared.recipe.ImpostorShapedRecipe;
-import dan200.computercraft.shared.recipe.ImpostorShapelessRecipe;
+import dan200.computercraft.shared.recipe.*;
+import dan200.computercraft.shared.recipe.function.CopyComponents;
+import dan200.computercraft.shared.recipe.function.RecipeFunction;
 import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.turtle.inventory.TurtleMenu;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
-import dan200.computercraft.shared.turtle.recipes.TurtleOverlayRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.turtle.upgrades.*;
 import dan200.computercraft.shared.util.DataComponentUtil;
@@ -91,14 +88,17 @@ import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.block.Block;
@@ -474,17 +474,32 @@ public final class ModRegistry {
             return REGISTRY.register(name, () -> new SimpleCraftingRecipeSerializer<>(factory));
         }
 
+        private static <T extends Recipe<?>> RegistryEntry<RecipeSerializer<T>> register(String name, MapCodec<T> codec, StreamCodec<RegistryFriendlyByteBuf, T> streamCodec) {
+            return REGISTRY.register(name, () -> new BasicRecipeSerialiser<>(codec, streamCodec));
+        }
+
         public static final RegistryEntry<RecipeSerializer<ImpostorShapedRecipe>> IMPOSTOR_SHAPED = REGISTRY.register("impostor_shaped", () -> CustomShapedRecipe.serialiser(ImpostorShapedRecipe::new));
         public static final RegistryEntry<RecipeSerializer<ImpostorShapelessRecipe>> IMPOSTOR_SHAPELESS = REGISTRY.register("impostor_shapeless", () -> CustomShapelessRecipe.serialiser(ImpostorShapelessRecipe::new));
+
+        public static final RegistryEntry<RecipeSerializer<TransformShapedRecipe>> TRANSFORM_SHAPED = register("transform_shaped", TransformShapedRecipe.CODEC, TransformShapedRecipe.STREAM_CODEC);
+        public static final RegistryEntry<RecipeSerializer<TransformShapelessRecipe>> TRANSFORM_SHAPELESS = register("transform_shapeless", TransformShapelessRecipe.CODEC, TransformShapelessRecipe.STREAM_CODEC);
 
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<ColourableRecipe>> DYEABLE_ITEM = simple("colour", ColourableRecipe::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<ClearColourRecipe>> DYEABLE_ITEM_CLEAR = simple("clear_colour", ClearColourRecipe::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<TurtleUpgradeRecipe>> TURTLE_UPGRADE = simple("turtle_upgrade", TurtleUpgradeRecipe::new);
-        public static final RegistryEntry<RecipeSerializer<TurtleOverlayRecipe>> TURTLE_OVERLAY = REGISTRY.register("turtle_overlay", TurtleOverlayRecipe::serialiser);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<PocketComputerUpgradeRecipe>> POCKET_COMPUTER_UPGRADE = simple("pocket_computer_upgrade", PocketComputerUpgradeRecipe::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<PrintoutRecipe>> PRINTOUT = simple("printout", PrintoutRecipe::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<DiskRecipe>> DISK = simple("disk", DiskRecipe::new);
-        public static final RegistryEntry<RecipeSerializer<ComputerConvertRecipe>> COMPUTER_CONVERT = REGISTRY.register("computer_convert", () -> CustomShapedRecipe.serialiser(ComputerConvertRecipe::new));
+    }
+
+    public static class RecipeFunctions {
+        static final RegistrationHelper<RecipeFunction.Type<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(RecipeFunction.REGISTRY);
+
+        private static <T extends RecipeFunction> RegistryEntry<RecipeFunction.Type<T>> register(String name, MapCodec<T> codec, StreamCodec<RegistryFriendlyByteBuf, T> streamCodec) {
+            return REGISTRY.register(name, () -> new RecipeFunction.Type<>(codec, streamCodec));
+        }
+
+        public static final RegistryEntry<RecipeFunction.Type<CopyComponents>> COPY_COMPONENTS = register("copy_components", CopyComponents.CODEC, CopyComponents.STREAM_CODEC);
     }
 
     public static class Permissions {
@@ -553,6 +568,7 @@ public final class ModRegistry {
         ArgumentTypes.REGISTRY.register();
         LootItemConditionTypes.REGISTRY.register();
         RecipeSerializers.REGISTRY.register();
+        RecipeFunctions.REGISTRY.register();
         Permissions.REGISTRY.register();
         CreativeTabs.REGISTRY.register();
 
