@@ -1,14 +1,9 @@
-New features in CC: Tweaked 1.110.2
+New features in CC: Tweaked 1.110.3
 
-* Add `speaker sound` command (fatboychummy).
+* Update several translations (PatriikPlays).
 
 Several bug fixes:
-* Improve error when calling `speaker play` with no path (fatboychummy).
-* Prevent playing music discs with `speaker.playSound`.
-* Various documentation fixes (cyberbit).
-* Fix generic peripherals not being able to transfer to some inventories on Forge.
-* Fix rare crash when holding a pocket computer.
-* Fix modems breaking when moved by Create.
-* Fix crash when rendering a turtle through an Immersive Portals portal.
+* Fix some errors missing source positions.
+* Correctly handle multiple threads sending websocket messages at once.
 
 Type "help changelog" to see the full version history.
