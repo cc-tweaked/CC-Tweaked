@@ -78,6 +78,10 @@ class Inventory_Test {
      */
     @GameTest
     fun Double_chest_size(helper: GameTestHelper) = helper.sequence {
+        // FIXME: There's several ticks at the start of this test, where the chest sends block updates, which causes the
+        //  peripheral to be (re)created. Wait for those to expire.
+        thenIdle(2)
+
         thenOnComputer {
             getApi<PeripheralAPI>().call(context, ObjectArguments("left", "size")).await()
                 .assertArrayEquals(54, message = "Has 54 slots")
