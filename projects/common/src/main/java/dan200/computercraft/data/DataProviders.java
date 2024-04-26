@@ -8,17 +8,14 @@ import com.mojang.serialization.Codec;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.loot.LootTableProvider.SubProviderEntry;
-import net.minecraft.data.models.BlockModelGenerators;
-import net.minecraft.data.models.ItemModelGenerators;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -39,9 +36,9 @@ public final class DataProviders {
         var blockTags = generator.blockTags(TagProvider::blockTags);
         generator.itemTags(TagProvider::itemTags, blockTags);
 
-        generator.lootTable(LootTableProvider.getTables());
+        generator.add((out, registries) -> new net.minecraft.data.loot.LootTableProvider(out, Set.of(), LootTableProvider.getTables(), registries));
 
-        generator.models(BlockModelProvider::addBlockModels, ItemModelProvider::addItemModels);
+        generator.add(out -> new ModelProvider(out, BlockModelProvider::addBlockModels, ItemModelProvider::addItemModels));
 
         generator.add(out -> new LanguageProvider(out, turtleUpgrades, pocketUpgrades));
 
@@ -62,12 +59,8 @@ public final class DataProviders {
 
         <T> void addFromCodec(String name, PackType type, String directory, Codec<T> codec, Consumer<BiConsumer<ResourceLocation, T>> output);
 
-        void lootTable(List<SubProviderEntry> tables);
-
         TagsProvider<Block> blockTags(Consumer<TagProvider.TagConsumer<Block>> tags);
 
         TagsProvider<Item> itemTags(Consumer<TagProvider.ItemTagConsumer> tags, TagsProvider<Block> blocks);
-
-        void models(Consumer<BlockModelGenerators> blocks, Consumer<ItemModelGenerators> items);
     }
 }

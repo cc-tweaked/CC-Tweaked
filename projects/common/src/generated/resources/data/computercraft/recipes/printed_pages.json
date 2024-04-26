@@ -1,0 +1,10 @@
+{
+  "type": "computercraft:impostor_shapeless",
+  "category": "redstone",
+  "ingredients": [
+    {"item": "computercraft:printed_page"},
+    {"item": "computercraft:printed_page"},
+    {"tag": "c:strings"}
+  ],
+  "result": {"count": 1, "id": "computercraft:printed_pages"}
+}

@@ -8,8 +8,7 @@ Files:
   projects/common/src/main/resources/assets/computercraft/sounds/empty.ogg
   projects/common/src/testMod/resources/data/cctest/computercraft/turtle_upgrades/*
   projects/common/src/testMod/resources/data/cctest/structures/*
-  projects/fabric/src/generated/*
-  projects/forge/src/generated/*
+  projects/*/src/generated/*
   projects/web/src/htmlTransform/export/index.json
   projects/web/src/htmlTransform/export/items/minecraft/*
 Comment: Generated/data files are CC0.

@@ -11,9 +11,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.loot.LootTableProvider;
-import net.minecraft.data.models.BlockModelGenerators;
-import net.minecraft.data.models.ItemModelGenerators;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.resources.ResourceLocation;
@@ -28,8 +25,6 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.common.data.JsonCodecProvider;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -75,11 +70,6 @@ public class Generators {
         }
 
         @Override
-        public void lootTable(List<LootTableProvider.SubProviderEntry> tables) {
-            add((out, registries) -> new LootTableProvider(out, Set.of(), tables, registries));
-        }
-
-        @Override
         public TagsProvider<Block> blockTags(Consumer<TagProvider.TagConsumer<Block>> tags) {
             return add(out -> new BlockTagsProvider(out, registries, ComputerCraftAPI.MOD_ID, existingFiles) {
                 @Override
@@ -108,11 +98,6 @@ public class Generators {
                     });
                 }
             });
-        }
-
-        @Override
-        public void models(Consumer<BlockModelGenerators> blocks, Consumer<ItemModelGenerators> items) {
-            add(out -> new ModelProvider(out, blocks, items));
         }
     }
 }

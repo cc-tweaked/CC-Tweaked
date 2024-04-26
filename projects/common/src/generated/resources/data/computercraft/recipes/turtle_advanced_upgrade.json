@@ -1,0 +1,11 @@
+{
+  "type": "computercraft:computer_convert",
+  "category": "redstone",
+  "key": {
+    "#": {"tag": "c:ingots/gold"},
+    "B": {"tag": "c:storage_blocks/gold"},
+    "C": {"item": "computercraft:turtle_normal"}
+  },
+  "pattern": ["###", "#C#", " B "],
+  "result": {"count": 1, "id": "computercraft:turtle_advanced"}
+}

@@ -61,7 +61,7 @@ runs {
         workingDirectory(file("run"))
         programArguments.addAll(
             "--mod", "computercraft", "--all",
-            "--output", file("src/generated/resources/").absolutePath,
+            "--output", layout.buildDirectory.dir("generatedResources").getAbsolutePath(),
             "--existing", project(":common").file("src/main/resources/").absolutePath,
             "--existing", file("src/main/resources/").absolutePath,
         )

@@ -1,8 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
-  "key": {"#": {"tag": "forge:stone"}, "E": {"tag": "forge:ender_pearls"}},
+  "key": {"#": {"tag": "c:stones"}, "E": {"tag": "c:ender_pearls"}},
   "pattern": ["###", "#E#", "###"],
-  "result": {"item": "computercraft:wireless_modem_normal"},
-  "show_notification": true
+  "result": {"count": 1, "id": "computercraft:wireless_modem_normal"}
 }
