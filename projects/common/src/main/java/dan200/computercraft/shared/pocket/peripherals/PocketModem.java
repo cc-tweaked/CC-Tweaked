@@ -4,17 +4,26 @@
 
 package dan200.computercraft.shared.pocket.peripherals;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.AbstractPocketUpgrade;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 
 public class PocketModem extends AbstractPocketUpgrade {
+    public static final MapCodec<PocketModem> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(x -> x.getCraftingItem().getItem()),
+        Codec.BOOL.fieldOf("advanced").forGetter(x -> x.advanced)
+    ).apply(instance, (item, advanced) -> new PocketModem(new ItemStack(item), advanced)));
+
     private final boolean advanced;
 
     public PocketModem(ItemStack stack, boolean advanced) {
@@ -40,8 +49,6 @@ public class PocketModem extends AbstractPocketUpgrade {
 
     @Override
     public UpgradeType<PocketModem> getType() {
-        return advanced
-            ? ModRegistry.PocketUpgradeTypes.WIRELESS_MODEM_ADVANCED.get()
-            : ModRegistry.PocketUpgradeTypes.WIRELESS_MODEM_NORMAL.get();
+        return ModRegistry.PocketUpgradeTypes.WIRELESS_MODEM.get();
     }
 }

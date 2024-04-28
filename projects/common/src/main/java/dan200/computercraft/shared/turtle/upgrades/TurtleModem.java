@@ -4,6 +4,9 @@
 
 package dan200.computercraft.shared.turtle.upgrades;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.api.upgrades.UpgradeType;
@@ -12,6 +15,7 @@ import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -19,6 +23,11 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 
 public class TurtleModem extends AbstractTurtleUpgrade {
+    public static final MapCodec<TurtleModem> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(x -> x.getCraftingItem().getItem()),
+        Codec.BOOL.fieldOf("advanced").forGetter(TurtleModem::advanced)
+    ).apply(instance, (item, advanced) -> new TurtleModem(new ItemStack(item), advanced)));
+
     private static class Peripheral extends WirelessModemPeripheral {
         private final ITurtleAccess turtle;
 
@@ -55,6 +64,10 @@ public class TurtleModem extends AbstractTurtleUpgrade {
         this.advanced = advanced;
     }
 
+    public boolean advanced() {
+        return advanced;
+    }
+
     @Override
     public IPeripheral createPeripheral(ITurtleAccess turtle, TurtleSide side) {
         return new Peripheral(turtle, advanced);
@@ -86,8 +99,6 @@ public class TurtleModem extends AbstractTurtleUpgrade {
 
     @Override
     public UpgradeType<TurtleModem> getType() {
-        return advanced
-            ? ModRegistry.TurtleUpgradeTypes.WIRELESS_MODEM_ADVANCED.get()
-            : ModRegistry.TurtleUpgradeTypes.WIRELESS_MODEM_NORMAL.get();
+        return ModRegistry.TurtleUpgradeTypes.WIRELESS_MODEM.get();
     }
 }

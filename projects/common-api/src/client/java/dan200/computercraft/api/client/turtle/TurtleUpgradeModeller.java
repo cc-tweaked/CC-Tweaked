@@ -13,8 +13,7 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Provides models for a {@link ITurtleUpgrade}.
@@ -41,17 +40,17 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
     TransformedModel getModel(T upgrade, @Nullable ITurtleAccess turtle, TurtleSide side, DataComponentPatch data);
 
     /**
-     * Get a list of models that this turtle modeller depends on.
+     * Get the models that this turtle modeller depends on.
      * <p>
-     * Models included in this list will be loaded and baked alongside item and block models, and so may be referenced
+     * Models included in this stream will be loaded and baked alongside item and block models, and so may be referenced
      * by {@link TransformedModel#of(ResourceLocation)}. You do not need to override this method if you will load models
      * by other means.
      *
      * @return A list of models that this modeller depends on.
      * @see UnbakedModel#getDependencies()
      */
-    default Collection<ResourceLocation> getDependencies() {
-        return List.of();
+    default Stream<ResourceLocation> getDependencies() {
+        return Stream.of();
     }
 
     /**
@@ -85,8 +84,8 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
             }
 
             @Override
-            public Collection<ResourceLocation> getDependencies() {
-                return List.of(left, right);
+            public Stream<ResourceLocation> getDependencies() {
+                return Stream.of(left, right);
             }
         };
     }

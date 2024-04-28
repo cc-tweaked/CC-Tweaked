@@ -392,10 +392,8 @@ public final class ModRegistry {
             REGISTRY.register("speaker", () -> UpgradeType.simpleWithCustomItem(TurtleSpeaker::new));
         public static final RegistryEntry<UpgradeType<TurtleCraftingTable>> WORKBENCH =
             REGISTRY.register("workbench", () -> UpgradeType.simpleWithCustomItem(TurtleCraftingTable::new));
-        public static final RegistryEntry<UpgradeType<TurtleModem>> WIRELESS_MODEM_NORMAL =
-            REGISTRY.register("wireless_modem_normal", () -> UpgradeType.simpleWithCustomItem(item -> new TurtleModem(item, false)));
-        public static final RegistryEntry<UpgradeType<TurtleModem>> WIRELESS_MODEM_ADVANCED =
-            REGISTRY.register("wireless_modem_advanced", () -> UpgradeType.simpleWithCustomItem(item -> new TurtleModem(item, true)));
+        public static final RegistryEntry<UpgradeType<TurtleModem>> WIRELESS_MODEM =
+            REGISTRY.register("wireless_modem", () -> UpgradeType.create(TurtleModem.CODEC));
 
         public static final RegistryEntry<UpgradeType<TurtleTool>> TOOL = REGISTRY.register("tool", () -> UpgradeType.create(TurtleTool.CODEC));
     }
@@ -405,10 +403,7 @@ public final class ModRegistry {
 
         public static final RegistryEntry<UpgradeType<PocketSpeaker>> SPEAKER =
             REGISTRY.register("speaker", () -> UpgradeType.simpleWithCustomItem(PocketSpeaker::new));
-        public static final RegistryEntry<UpgradeType<PocketModem>> WIRELESS_MODEM_NORMAL =
-            REGISTRY.register("wireless_modem_normal", () -> UpgradeType.simpleWithCustomItem(item -> new PocketModem(item, false)));
-        public static final RegistryEntry<UpgradeType<PocketModem>> WIRELESS_MODEM_ADVANCED =
-            REGISTRY.register("wireless_modem_advanced", () -> UpgradeType.simpleWithCustomItem(item -> new PocketModem(item, true)));
+        public static final RegistryEntry<UpgradeType<PocketModem>> WIRELESS_MODEM = REGISTRY.register("wireless_modem", () -> UpgradeType.create(PocketModem.CODEC));
     }
 
     public static class Menus {

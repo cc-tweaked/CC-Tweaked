@@ -75,6 +75,6 @@ public final class TurtleUpgradeModellers {
 
     public static Stream<ResourceLocation> getDependencies() {
         fetchedModels = true;
-        return turtleModels.values().stream().flatMap(x -> x.getDependencies().stream());
+        return turtleModels.values().stream().flatMap(TurtleUpgradeModeller::getDependencies);
     }
 }
