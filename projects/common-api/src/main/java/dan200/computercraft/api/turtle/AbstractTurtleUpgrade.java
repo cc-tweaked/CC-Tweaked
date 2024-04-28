@@ -4,6 +4,7 @@
 
 package dan200.computercraft.api.turtle;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 
@@ -14,17 +15,21 @@ import net.minecraft.world.item.ItemStack;
  */
 public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade {
     private final TurtleUpgradeType type;
-    private final String adjective;
+    private final Component adjective;
     private final ItemStack stack;
 
-    protected AbstractTurtleUpgrade(TurtleUpgradeType type, String adjective, ItemStack stack) {
+    protected AbstractTurtleUpgrade(TurtleUpgradeType type, Component adjective, ItemStack stack) {
         this.type = type;
         this.adjective = adjective;
         this.stack = stack;
     }
 
+    protected AbstractTurtleUpgrade(TurtleUpgradeType type, String adjective, ItemStack stack) {
+        this(type, Component.translatable(adjective), stack);
+    }
+
     @Override
-    public final String getUnlocalisedAdjective() {
+    public final Component getAdjective() {
         return adjective;
     }
 

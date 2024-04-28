@@ -11,6 +11,7 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import net.minecraft.Util;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -26,13 +27,16 @@ public interface UpgradeBase {
     UpgradeType<?> getType();
 
     /**
-     * Return an unlocalised string to describe this type of computer in item names.
+     * A description of this upgrade for use in item names.
+     * <p>
+     * This should typically be a {@linkplain Component#translatable(String) translation key}, rather than a hard coded
+     * string.
      * <p>
      * Examples of built-in adjectives are "Wireless", "Mining" and "Crafty".
      *
-     * @return The localisation key for this upgrade's adjective.
+     * @return The text component for this upgrade's adjective.
      */
-    String getUnlocalisedAdjective();
+    Component getAdjective();
 
     /**
      * Return an item stack representing the type of item that a computer must be crafted
@@ -107,7 +111,7 @@ public interface UpgradeBase {
      *
      * @param id The upgrade ID.
      * @return The  generated adjective.
-     * @see #getUnlocalisedAdjective()
+     * @see #getAdjective()
      */
     static String getDefaultAdjective(ResourceLocation id) {
         return Util.makeDescriptionId("upgrade", id) + ".adjective";

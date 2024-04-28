@@ -9,7 +9,6 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
 import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
-import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.shared.ModRegistry;
@@ -22,6 +21,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
@@ -287,13 +288,19 @@ public final class LanguageProvider implements DataProvider {
             BuiltInRegistries.ITEM.holders()
                 .filter(x -> x.key().location().getNamespace().equals(ComputerCraftAPI.MOD_ID))
                 .map(x -> x.value().getDescriptionId()),
-            turtleUpgrades.getGeneratedUpgrades().values().stream().map(UpgradeBase::getUnlocalisedAdjective),
-            pocketUpgrades.getGeneratedUpgrades().values().stream().map(UpgradeBase::getUnlocalisedAdjective),
+            turtleUpgrades.getGeneratedUpgrades().values().stream().flatMap(x -> getTranslationKeys(x.getAdjective())),
+            pocketUpgrades.getGeneratedUpgrades().values().stream().flatMap(x -> getTranslationKeys(x.getAdjective())),
             Metric.metrics().values().stream().map(x -> AggregatedMetric.TRANSLATION_PREFIX + x.name() + ".name"),
             ConfigSpec.serverSpec.entries().map(ConfigFile.Entry::translationKey),
             ConfigSpec.clientSpec.entries().map(ConfigFile.Entry::translationKey),
             ComputerSelector.options().values().stream().map(ComputerSelector.Option::translationKey)
         ).flatMap(x -> x);
+    }
+
+    private static Stream<String> getTranslationKeys(Component component) {
+        if (component.getContents() instanceof TranslatableContents contents) return Stream.of(contents.getKey());
+
+        return component.getSiblings().stream().flatMap(LanguageProvider::getTranslationKeys);
     }
 
     private void add(String id, String text) {

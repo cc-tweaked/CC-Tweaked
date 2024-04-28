@@ -127,9 +127,7 @@ public class PocketComputerItem extends Item implements IMedia {
         var baseString = getDescriptionId(stack);
         var upgrade = getUpgrade(stack);
         if (upgrade != null) {
-            return Component.translatable(baseString + ".upgraded",
-                Component.translatable(upgrade.getUnlocalisedAdjective())
-            );
+            return Component.translatable(baseString + ".upgraded", upgrade.getAdjective());
         } else {
             return super.getName(stack);
         }

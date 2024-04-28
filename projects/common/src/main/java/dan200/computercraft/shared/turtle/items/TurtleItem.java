@@ -34,18 +34,11 @@ public class TurtleItem extends AbstractComputerItem {
         var left = getUpgrade(stack, TurtleSide.LEFT);
         var right = getUpgrade(stack, TurtleSide.RIGHT);
         if (left != null && right != null) {
-            return Component.translatable(baseString + ".upgraded_twice",
-                Component.translatable(right.getUnlocalisedAdjective()),
-                Component.translatable(left.getUnlocalisedAdjective())
-            );
+            return Component.translatable(baseString + ".upgraded_twice", right.getAdjective(), left.getAdjective());
         } else if (left != null) {
-            return Component.translatable(baseString + ".upgraded",
-                Component.translatable(left.getUnlocalisedAdjective())
-            );
+            return Component.translatable(baseString + ".upgraded", left.getAdjective());
         } else if (right != null) {
-            return Component.translatable(baseString + ".upgraded",
-                Component.translatable(right.getUnlocalisedAdjective())
-            );
+            return Component.translatable(baseString + ".upgraded", right.getAdjective());
         } else {
             return Component.translatable(baseString);
         }

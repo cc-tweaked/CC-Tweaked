@@ -1,6 +1,6 @@
 {
   "type": "computercraft:tool",
-  "adjective": "upgrade.minecraft.diamond_shovel.adjective",
+  "adjective": {"translate": "upgrade.minecraft.diamond_shovel.adjective"},
   "breakable": "computercraft:turtle_shovel_harvestable",
   "item": "minecraft:diamond_shovel"
 }

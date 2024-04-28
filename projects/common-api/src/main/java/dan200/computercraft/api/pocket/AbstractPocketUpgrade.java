@@ -4,6 +4,7 @@
 
 package dan200.computercraft.api.pocket;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 
@@ -13,16 +14,20 @@ import net.minecraft.world.item.ItemStack;
  * One does not have to use this, but it does provide a convenient template.
  */
 public abstract class AbstractPocketUpgrade implements IPocketUpgrade {
-    private final String adjective;
+    private final Component adjective;
     private final ItemStack stack;
 
-    protected AbstractPocketUpgrade(String adjective, ItemStack stack) {
+    protected AbstractPocketUpgrade(Component adjective, ItemStack stack) {
         this.adjective = adjective;
         this.stack = stack;
     }
 
+    protected AbstractPocketUpgrade(String adjective, ItemStack stack) {
+        this(Component.translatable(adjective), stack);
+    }
+
     @Override
-    public final String getUnlocalisedAdjective() {
+    public final Component getAdjective() {
         return adjective;
     }
 

@@ -13,6 +13,7 @@ import dan200.computercraft.impl.upgrades.TurtleToolSpec;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -58,7 +59,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
     public final class ToolBuilder {
         private final ResourceLocation id;
         private final Item toolItem;
-        private String adjective;
+        private Component adjective;
         private @Nullable Item craftingItem;
         private float damageMultiplier = TurtleToolSpec.DEFAULT_DAMAGE_MULTIPLIER;
         private @Nullable TagKey<Block> breakable;
@@ -67,7 +68,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
 
         ToolBuilder(ResourceLocation id, Item toolItem) {
             this.id = id;
-            adjective = UpgradeBase.getDefaultAdjective(id);
+            adjective = Component.translatable(UpgradeBase.getDefaultAdjective(id));
             this.toolItem = toolItem;
             craftingItem = null;
         }
@@ -78,7 +79,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
          * @param adjective The new adjective to use.
          * @return The tool builder, for further use.
          */
-        public ToolBuilder adjective(String adjective) {
+        public ToolBuilder adjective(Component adjective) {
             this.adjective = adjective;
             return this;
         }

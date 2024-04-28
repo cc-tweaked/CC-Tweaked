@@ -10,6 +10,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.turtle.TurtleToolDurability;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -28,7 +30,7 @@ import java.util.Optional;
  * @param breakable         The items breakable by this tool.
  */
 public record TurtleToolSpec(
-    String adjective,
+    Component adjective,
     Optional<Item> craftItem,
     Item toolItem,
     float damageMultiplier,
@@ -39,7 +41,7 @@ public record TurtleToolSpec(
     public static final float DEFAULT_DAMAGE_MULTIPLIER = 3.0f;
 
     public static final MapCodec<TurtleToolSpec> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-        Codec.STRING.fieldOf("adjective").forGetter(TurtleToolSpec::adjective),
+        ComponentSerialization.CODEC.fieldOf("adjective").forGetter(TurtleToolSpec::adjective),
         BuiltInRegistries.ITEM.byNameCodec().optionalFieldOf("craftingItem").forGetter(TurtleToolSpec::craftItem),
         BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(TurtleToolSpec::toolItem),
         Codec.FLOAT.optionalFieldOf("damageMultiplier", DEFAULT_DAMAGE_MULTIPLIER).forGetter(TurtleToolSpec::damageMultiplier),
