@@ -187,10 +187,10 @@ public class ComponentizationFixers {
     /**
      * Add our custom data components to the datafixer system.
      *
-     * @param type The existing component type definition.
+     * @param type   The existing component type definition.
      * @param schema The current schema.
      * @return The new component type definition.
-     * @see UpgradeManager#codec()
+     * @see UpgradeManager#upgradeDataCodec()
      * @see ModRegistry.DataComponents#POCKET_UPGRADE
      * @see ModRegistry.DataComponents#LEFT_TURTLE_UPGRADE
      * @see ModRegistry.DataComponents#RIGHT_TURTLE_UPGRADE

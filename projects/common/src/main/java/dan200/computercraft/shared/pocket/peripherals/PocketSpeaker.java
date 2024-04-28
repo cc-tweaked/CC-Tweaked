@@ -7,15 +7,16 @@ package dan200.computercraft.shared.pocket.peripherals;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.AbstractPocketUpgrade;
 import dan200.computercraft.api.pocket.IPocketAccess;
+import dan200.computercraft.api.upgrades.UpgradeType;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 
 public class PocketSpeaker extends AbstractPocketUpgrade {
-    public PocketSpeaker(ResourceLocation id, ItemStack item) {
-        super(id, UpgradeSpeakerPeripheral.ADJECTIVE, item);
+    public PocketSpeaker(ItemStack item) {
+        super(UpgradeSpeakerPeripheral.ADJECTIVE, item);
     }
 
     @Nullable
@@ -28,5 +29,10 @@ public class PocketSpeaker extends AbstractPocketUpgrade {
     public void update(IPocketAccess access, @Nullable IPeripheral peripheral) {
         if (!(peripheral instanceof PocketSpeakerPeripheral)) return;
         ((PocketSpeakerPeripheral) peripheral).update();
+    }
+
+    @Override
+    public UpgradeType<PocketSpeaker> getType() {
+        return ModRegistry.PocketUpgradeTypes.SPEAKER.get();
     }
 }

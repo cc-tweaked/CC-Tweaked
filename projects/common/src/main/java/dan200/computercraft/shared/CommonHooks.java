@@ -6,8 +6,6 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.core.apis.http.NetworkUtils;
-import dan200.computercraft.impl.PocketUpgrades;
-import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.metrics.ComputerMBean;
@@ -121,8 +119,6 @@ public final class CommonHooks {
 
     public static void onDatapackReload(BiConsumer<String, PreparableReloadListener> addReload) {
         addReload.accept("mounts", ResourceMount.RELOAD_LISTENER);
-        addReload.accept("turtle_upgrades", TurtleUpgrades.instance());
-        addReload.accept("pocket_upgrades", PocketUpgrades.instance());
     }
 
     public static boolean onEntitySpawn(Entity entity) {

@@ -7,14 +7,15 @@ package dan200.computercraft.data;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
-import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import dan200.computercraft.shared.pocket.peripherals.PocketModem;
+import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Consumer;
 
 import static dan200.computercraft.shared.ModRegistry.Items;
-import static dan200.computercraft.shared.ModRegistry.PocketUpgradeSerialisers;
 
 class PocketUpgradeProvider extends PocketUpgradeDataProvider {
     PocketUpgradeProvider(PackOutput output) {
@@ -22,10 +23,10 @@ class PocketUpgradeProvider extends PocketUpgradeDataProvider {
     }
 
     @Override
-    protected void addUpgrades(Consumer<Upgrade<UpgradeSerialiser<? extends IPocketUpgrade>>> addUpgrade) {
-        addUpgrade.accept(simpleWithCustomItem(id("speaker"), PocketUpgradeSerialisers.SPEAKER.get(), Items.SPEAKER.get()));
-        simpleWithCustomItem(id("wireless_modem_normal"), PocketUpgradeSerialisers.WIRELESS_MODEM_NORMAL.get(), Items.WIRELESS_MODEM_NORMAL.get()).add(addUpgrade);
-        simpleWithCustomItem(id("wireless_modem_advanced"), PocketUpgradeSerialisers.WIRELESS_MODEM_ADVANCED.get(), Items.WIRELESS_MODEM_ADVANCED.get()).add(addUpgrade);
+    protected void addUpgrades(Consumer<Upgrade<IPocketUpgrade>> addUpgrade) {
+        upgrade(id("speaker"), new PocketSpeaker(new ItemStack(Items.SPEAKER.get()))).add(addUpgrade);
+        upgrade(id("wireless_modem_normal"), new PocketModem(new ItemStack(Items.WIRELESS_MODEM_NORMAL.get()), false)).add(addUpgrade);
+        upgrade(id("wireless_modem_advanced"), new PocketModem(new ItemStack(Items.WIRELESS_MODEM_ADVANCED.get()), true)).add(addUpgrade);
     }
 
     private static ResourceLocation id(String id) {

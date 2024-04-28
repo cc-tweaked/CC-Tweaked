@@ -5,6 +5,7 @@
 package dan200.computercraft.shared.integration.jei;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.shared.integration.RecipeModHelpers;
 import dan200.computercraft.shared.integration.UpgradeRecipeGenerator;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
@@ -22,7 +23,7 @@ import java.util.List;
 
 class RecipeResolver implements IRecipeManagerPlugin {
     private static final ResourceLocation RECIPE_ID = new ResourceLocation(ComputerCraftAPI.MOD_ID, "upgrade");
-    private final UpgradeRecipeGenerator<RecipeHolder<CraftingRecipe>> resolver = new UpgradeRecipeGenerator<>(x -> new RecipeHolder<>(RECIPE_ID, x));
+    private final UpgradeRecipeGenerator<RecipeHolder<CraftingRecipe>> resolver = new UpgradeRecipeGenerator<>(x -> new RecipeHolder<>(RECIPE_ID, x), RecipeModHelpers.getEmptyRegistryAccess());
 
     @Override
     public <V> List<RecipeType<?>> getRecipeTypes(IFocus<V> focus) {

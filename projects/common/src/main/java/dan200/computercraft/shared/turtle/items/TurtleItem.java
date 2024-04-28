@@ -57,16 +57,16 @@ public class TurtleItem extends AbstractComputerItem {
         // Determine our "creator mod" from the upgrades. We attempt to find the first non-vanilla/non-CC
         // upgrade (starting from the left).
 
-        var left = getUpgrade(stack, TurtleSide.LEFT);
+        var left = getUpgradeWithData(stack, TurtleSide.LEFT);
         if (left != null) {
-            var mod = TurtleUpgrades.instance().getOwner(left);
-            if (mod != null && !mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
+            var mod = TurtleUpgrades.instance().getOwner(left.holder());
+            if (!mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
         }
 
-        var right = getUpgrade(stack, TurtleSide.RIGHT);
+        var right = getUpgradeWithData(stack, TurtleSide.RIGHT);
         if (right != null) {
-            var mod = TurtleUpgrades.instance().getOwner(right);
-            if (mod != null && !mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
+            var mod = TurtleUpgrades.instance().getOwner(right.holder());
+            if (!mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
         }
 
         return ComputerCraftAPI.MOD_ID;

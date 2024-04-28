@@ -4,6 +4,7 @@
 
 package dan200.computercraft.impl;
 
+import com.mojang.serialization.Codec;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.api.detail.DetailRegistry;
@@ -19,7 +20,8 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.BundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleRefuelHandler;
-import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeType;
+import dan200.computercraft.impl.upgrades.TurtleToolSpec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -68,9 +70,15 @@ public interface ComputerCraftAPIService {
 
     void registerRefuelHandler(TurtleRefuelHandler handler);
 
-    ResourceKey<Registry<UpgradeSerialiser<? extends ITurtleUpgrade>>> turtleUpgradeRegistryId();
+    ResourceKey<Registry<UpgradeType<? extends ITurtleUpgrade>>> turtleUpgradeRegistryId();
 
-    ResourceKey<Registry<UpgradeSerialiser<? extends IPocketUpgrade>>> pocketUpgradeRegistryId();
+    Codec<ITurtleUpgrade> turtleUpgradeCodec();
+
+    ResourceKey<Registry<UpgradeType<? extends IPocketUpgrade>>> pocketUpgradeRegistryId();
+
+    ITurtleUpgrade createTurtleTool(TurtleToolSpec spec);
+
+    Codec<IPocketUpgrade> pocketUpgradeCodec();
 
     DetailRegistry<ItemStack> getItemStackDetailRegistry();
 

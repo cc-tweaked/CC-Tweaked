@@ -5,7 +5,9 @@
 package dan200.computercraft.api.pocket;
 
 import dan200.computercraft.api.upgrades.UpgradeDataProvider;
-import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeType;
+import dan200.computercraft.impl.ComputerCraftAPIService;
+import dan200.computercraft.impl.RegistryHelper;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 
@@ -19,10 +21,10 @@ import java.util.function.Consumer;
  * generate them.
  *
  * @see IPocketUpgrade
- * @see UpgradeSerialiser
+ * @see UpgradeType
  */
 public abstract class PocketUpgradeDataProvider extends UpgradeDataProvider<IPocketUpgrade> {
     public PocketUpgradeDataProvider(PackOutput output) {
-        super(output, "Pocket Computer Upgrades", "computercraft/pocket_upgrades", IPocketUpgrade.serialiserRegistryKey());
+        super(output, "Pocket Computer Upgrades", RegistryHelper.POCKET_UPGRADE, ComputerCraftAPIService.get().pocketUpgradeCodec());
     }
 }

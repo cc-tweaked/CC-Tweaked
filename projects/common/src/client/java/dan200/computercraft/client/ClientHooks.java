@@ -128,8 +128,8 @@ public final class ClientHooks {
     }
 
     private static void addTurtleUpgrade(Consumer<String> out, TurtleBlockEntity turtle, TurtleSide side) {
-        var upgrade = turtle.getUpgrade(side);
-        if (upgrade != null) out.accept(String.format("Upgrade[%s]: %s", side, upgrade.getUpgradeID()));
+        var upgrade = turtle.getAccess().getUpgradeWithData(side);
+        if (upgrade != null) out.accept(String.format("Upgrade[%s]: %s", side, upgrade.holder().key().location()));
     }
 
     /**

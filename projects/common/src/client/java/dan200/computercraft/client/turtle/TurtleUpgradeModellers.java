@@ -10,9 +10,8 @@ import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.impl.RegistryHelper;
-import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.impl.UpgradeManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponentPatch;
@@ -30,7 +29,7 @@ public final class TurtleUpgradeModellers {
     private static final TurtleUpgradeModeller<ITurtleUpgrade> NULL_TURTLE_MODELLER = (upgrade, turtle, side, data) ->
         new TransformedModel(Minecraft.getInstance().getModelManager().getMissingModel(), Transformation.identity());
 
-    private static final Map<UpgradeSerialiser<? extends ITurtleUpgrade>, TurtleUpgradeModeller<?>> turtleModels = new ConcurrentHashMap<>();
+    private static final Map<UpgradeType<? extends ITurtleUpgrade>, TurtleUpgradeModeller<?>> turtleModels = new ConcurrentHashMap<>();
     private static volatile boolean fetchedModels;
 
     /**
@@ -44,15 +43,15 @@ public final class TurtleUpgradeModellers {
     private TurtleUpgradeModellers() {
     }
 
-    public static <T extends ITurtleUpgrade> void register(UpgradeSerialiser<T> serialiser, TurtleUpgradeModeller<T> modeller) {
+    public static <T extends ITurtleUpgrade> void register(UpgradeType<T> type, TurtleUpgradeModeller<T> modeller) {
         if (fetchedModels) {
             throw new IllegalStateException(String.format(
-                "Turtle upgrade serialiser %s must be registered before models are baked.",
-                RegistryHelper.getKeyOrThrow(RegistryHelper.getRegistry(ITurtleUpgrade.serialiserRegistryKey()), serialiser)
+                "Turtle upgrade type %s must be registered before models are baked.",
+                RegistryHelper.getKeyOrThrow(RegistryHelper.getRegistry(ITurtleUpgrade.typeRegistry()), type)
             ));
         }
 
-        if (turtleModels.putIfAbsent(serialiser, modeller) != null) {
+        if (turtleModels.putIfAbsent(type, modeller) != null) {
             throw new IllegalStateException("Modeller already registered for serialiser");
         }
     }
@@ -69,11 +68,8 @@ public final class TurtleUpgradeModellers {
         return modeller.getModel(upgrade, null, side, data);
     }
 
-    private static TurtleUpgradeModeller<?> getModeller(ITurtleUpgrade upgradeA) {
-        var wrapper = TurtleUpgrades.instance().getWrapper(upgradeA);
-        if (wrapper == null) return NULL_TURTLE_MODELLER;
-
-        var modeller = turtleModels.get(wrapper.serialiser());
+    private static TurtleUpgradeModeller<?> getModeller(ITurtleUpgrade upgrade) {
+        var modeller = turtleModels.get(upgrade.getType());
         return modeller == null ? NULL_TURTLE_MODELLER : modeller;
     }
 

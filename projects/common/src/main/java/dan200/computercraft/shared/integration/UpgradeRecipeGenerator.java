@@ -9,12 +9,12 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
-import dan200.computercraft.impl.PocketUpgrades;
-import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import dan200.computercraft.shared.util.DataComponentUtil;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -27,8 +27,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-import static dan200.computercraft.shared.integration.RecipeModHelpers.POCKET_COMPUTERS;
-import static dan200.computercraft.shared.integration.RecipeModHelpers.TURTLES;
+import static dan200.computercraft.shared.integration.RecipeModHelpers.*;
 
 /**
  * Provides dynamic recipe and usage information for upgraded turtle and pocket computers. This is intended to be
@@ -39,14 +38,16 @@ import static dan200.computercraft.shared.integration.RecipeModHelpers.TURTLES;
  */
 public class UpgradeRecipeGenerator<T> {
     private final Function<ShapedRecipe, T> wrap;
+    private final HolderLookup.Provider registries;
 
     private final Map<Item, List<UpgradeInfo>> upgradeItemLookup = new HashMap<>();
     private final List<UpgradeInfo> pocketUpgrades = new ArrayList<>();
     private final List<UpgradeInfo> turtleUpgrades = new ArrayList<>();
     private boolean initialised = false;
 
-    public UpgradeRecipeGenerator(Function<ShapedRecipe, T> wrap) {
+    public UpgradeRecipeGenerator(Function<ShapedRecipe, T> wrap, HolderLookup.Provider registries) {
         this.wrap = wrap;
+        this.registries = registries;
     }
 
     /**
@@ -56,23 +57,25 @@ public class UpgradeRecipeGenerator<T> {
         if (initialised) return;
         initialised = true;
 
-        for (var upgrade : TurtleUpgrades.instance().getUpgrades()) {
+        forEachRegistry(registries, ModRegistry.TURTLE_UPGRADE, holder -> {
+            var upgrade = holder.value();
             var stack = upgrade.getCraftingItem();
             if (stack.isEmpty()) return;
 
-            var info = new UpgradeInfo(stack, upgrade);
+            var info = new UpgradeInfo(stack, upgrade, holder, null);
             upgradeItemLookup.computeIfAbsent(stack.getItem(), k -> new ArrayList<>(1)).add(info);
             turtleUpgrades.add(info);
-        }
+        });
 
-        for (var upgrade : PocketUpgrades.instance().getUpgrades()) {
+        forEachRegistry(registries, ModRegistry.POCKET_UPGRADE, holder -> {
+            var upgrade = holder.value();
             var stack = upgrade.getCraftingItem();
             if (stack.isEmpty()) return;
 
-            var info = new UpgradeInfo(stack, upgrade);
+            var info = new UpgradeInfo(stack, upgrade, null, holder);
             upgradeItemLookup.computeIfAbsent(stack.getItem(), k -> new ArrayList<>(1)).add(info);
             pocketUpgrades.add(info);
-        }
+        });
     }
 
     /**
@@ -248,23 +251,17 @@ public class UpgradeRecipeGenerator<T> {
     private class UpgradeInfo {
         final ItemStack stack;
         final Ingredient ingredient;
-        final @Nullable ITurtleUpgrade turtle;
-        final @Nullable IPocketUpgrade pocket;
+        final @Nullable Holder.Reference<ITurtleUpgrade> turtle;
+        final @Nullable Holder.Reference<IPocketUpgrade> pocket;
         final UpgradeBase upgrade;
         private @Nullable ArrayList<T> recipes;
 
-        UpgradeInfo(ItemStack stack, ITurtleUpgrade turtle) {
+        UpgradeInfo(ItemStack stack, UpgradeBase upgrade, @Nullable Holder.Reference<ITurtleUpgrade> turtle, @Nullable Holder.Reference<IPocketUpgrade> pocket) {
             this.stack = stack;
             ingredient = Ingredient.of(stack);
-            upgrade = this.turtle = turtle;
-            pocket = null;
-        }
-
-        UpgradeInfo(ItemStack stack, IPocketUpgrade pocket) {
-            this.stack = stack;
-            ingredient = Ingredient.of(stack);
-            turtle = null;
-            upgrade = this.pocket = pocket;
+            this.turtle = turtle;
+            this.pocket = pocket;
+            this.upgrade = upgrade;
         }
 
         List<T> getRecipes() {

@@ -59,7 +59,7 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
         if (computer.isEmpty()) return ItemStack.EMPTY;
 
         var itemComputer = (PocketComputerItem) computer.getItem();
-        if (PocketComputerItem.getUpgrade(computer) != null) return ItemStack.EMPTY;
+        if (PocketComputerItem.getUpgradeWithData(computer) != null) return ItemStack.EMPTY;
 
         // Check for upgrades around the item
         UpgradeData<IPocketUpgrade> upgrade = null;
@@ -69,7 +69,7 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
                 if (x == computerX && y == computerY) continue;
 
                 if (x == computerX && y == computerY - 1) {
-                    upgrade = PocketUpgrades.instance().get(item);
+                    upgrade = PocketUpgrades.instance().get(registryAccess, item);
                     if (upgrade == null) return ItemStack.EMPTY;
                 } else if (!item.isEmpty()) {
                     return ItemStack.EMPTY;

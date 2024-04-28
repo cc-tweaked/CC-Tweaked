@@ -6,7 +6,7 @@ package dan200.computercraft.api.turtle;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.upgrades.UpgradeBase;
-import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.impl.ComputerCraftAPIService;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
  * peripheral.
  * <p>
  * Turtle upgrades are defined in two stages. First, one creates a {@link ITurtleUpgrade} subclass and corresponding
- * {@link UpgradeSerialiser} instance, which are then registered in a registry.
+ * {@link UpgradeType} instance, which are then registered in a registry.
  * <p>
  * You then write a JSON file in your mod's {@literal data/} folder. This is then parsed when the world is loaded, and
  * the upgrade automatically registered. It is recommended this is done via {@linkplain TurtleUpgradeDataProvider data
@@ -28,15 +28,15 @@ import javax.annotation.Nullable;
  *
  * <h2>Example</h2>
  * <pre>{@code
- * // We use Forge's DeferredRegister to register our serialiser. Fabric mods may register their serialiser directly.
- * static final DeferredRegister<UpgradeSerialiser<? extends ITurtleUpgrade>> SERIALISERS = DeferredRegister.create(ITurtleUpgrade.serialiserRegistryKey(), "my_mod");
+ * // We use Forge's DeferredRegister to register our upgrade type. Fabric mods may register their type directly.
+ * static final DeferredRegister<UpgradeType<? extends ITurtleUpgrade>> TURTLE_UPGRADES = DeferredRegister.create(ITurtleUpgrade.typeRegistry(), "my_mod");
  *
- * // Register a new upgrade serialiser called "my_upgrade".
- * public static final RegistryObject<UpgradeSerialiser<MyUpgrade>> MY_UPGRADE =
- *     SERIALISERS.register( "my_upgrade", () -> TurtleUpgradeSerialiser.simple( MyUpgrade::new ) );
+ * // Register a new upgrade type called "my_upgrade".
+ * public static final RegistryObject<UpgradeType<MyUpgrade>> MY_UPGRADE =
+ *     TURTLE_UPGRADES.register("my_upgrade", () -> UpgradeType.simple(MyUpgrade::new));
  *
  * // Then in your constructor
- * SERIALISERS.register( bus );
+ * TURTLE_UPGRADES.register(bus);
  * }</pre>
  * <p>
  * We can then define a new upgrade using JSON by placing the following in
@@ -44,7 +44,7 @@ import javax.annotation.Nullable;
  *
  * <pre>{@code
  * {
- *     "type": my_mod:my_upgrade",
+ *     "type": "my_mod:my_upgrade"
  * }
  * }</pre>
  * <p>
@@ -60,13 +60,21 @@ import javax.annotation.Nullable;
  */
 public interface ITurtleUpgrade extends UpgradeBase {
     /**
-     * The registry key for upgrade serialisers.
+     * The registry key for turtle upgrade types.
      *
      * @return The registry key.
      */
-    static ResourceKey<Registry<UpgradeSerialiser<? extends ITurtleUpgrade>>> serialiserRegistryKey() {
+    static ResourceKey<Registry<UpgradeType<? extends ITurtleUpgrade>>> typeRegistry() {
         return ComputerCraftAPIService.get().turtleUpgradeRegistryId();
     }
+
+    /**
+     * Get the type of this upgrade.
+     *
+     * @return The type of this upgrade.
+     */
+    @Override
+    UpgradeType<? extends ITurtleUpgrade> getType();
 
     /**
      * Return whether this turtle adds a tool or a peripheral to the turtle.
@@ -74,7 +82,7 @@ public interface ITurtleUpgrade extends UpgradeBase {
      * @return The type of upgrade this is.
      * @see TurtleUpgradeType for the differences between them.
      */
-    TurtleUpgradeType getType();
+    TurtleUpgradeType getUpgradeType();
 
     /**
      * Will only be called for peripheral upgrades. Creates a peripheral for a turtle being placed using this upgrade.

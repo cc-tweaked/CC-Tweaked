@@ -180,7 +180,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     }
 
     private static @Nullable UpgradeData<ITurtleUpgrade> withPersistedData(@Nullable UpgradeData<ITurtleUpgrade> upgrade) {
-        return upgrade == null ? null : UpgradeData.of(upgrade.upgrade(), upgrade.upgrade().getPersistedData(upgrade.data()));
+        return upgrade == null ? null : UpgradeData.of(upgrade.holder(), upgrade.upgrade().getPersistedData(upgrade.data()));
     }
 
     @Override
@@ -313,7 +313,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
             default:
                 return false;
         }
-        return upgrade != null && upgrade.getType().isPeripheral();
+        return upgrade != null && upgrade.getUpgradeType().isPeripheral();
     }
 
     public void transferStateFrom(TurtleBlockEntity copy) {

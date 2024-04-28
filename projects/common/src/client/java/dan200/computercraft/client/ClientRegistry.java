@@ -117,17 +117,17 @@ public final class ClientRegistry {
     }
 
     public static void registerTurtleModellers(RegisterTurtleUpgradeModeller register) {
-        register.register(ModRegistry.TurtleSerialisers.SPEAKER.get(), TurtleUpgradeModeller.sided(
+        register.register(ModRegistry.TurtleUpgradeTypes.SPEAKER.get(), TurtleUpgradeModeller.sided(
             new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_left"),
             new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_right")
         ));
-        register.register(ModRegistry.TurtleSerialisers.WORKBENCH.get(), TurtleUpgradeModeller.sided(
+        register.register(ModRegistry.TurtleUpgradeTypes.WORKBENCH.get(), TurtleUpgradeModeller.sided(
             new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_left"),
             new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_right")
         ));
-        register.register(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_NORMAL.get(), new TurtleModemModeller(false));
-        register.register(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_ADVANCED.get(), new TurtleModemModeller(true));
-        register.register(ModRegistry.TurtleSerialisers.TOOL.get(), TurtleUpgradeModeller.flatItem());
+        register.register(ModRegistry.TurtleUpgradeTypes.WIRELESS_MODEM_NORMAL.get(), new TurtleModemModeller(false));
+        register.register(ModRegistry.TurtleUpgradeTypes.WIRELESS_MODEM_ADVANCED.get(), new TurtleModemModeller(true));
+        register.register(ModRegistry.TurtleUpgradeTypes.TOOL.get(), TurtleUpgradeModeller.flatItem());
     }
 
     @SafeVarargs

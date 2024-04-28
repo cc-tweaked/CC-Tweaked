@@ -13,7 +13,6 @@ import dan200.computercraft.api.upgrades.UpgradeData
 import dan200.computercraft.core.apis.PeripheralAPI
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.gametest.core.TestHooks
-import dan200.computercraft.impl.TurtleUpgrades
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.mixin.gametest.GameTestInfoAccessor
 import dan200.computercraft.shared.ModRegistry
@@ -234,7 +233,7 @@ class Turtle_Test {
             val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
             val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
             assertEquals(
-                TurtleUpgrades.instance()
+                helper.level.registryAccess().registryOrThrow(ModRegistry.TURTLE_UPGRADE)
                     .get(ResourceLocation("cctest", "wooden_pickaxe")),
                 upgrade,
                 "Upgrade is a wooden pickaxe",
@@ -262,7 +261,10 @@ class Turtle_Test {
 
             helper.assertUpgradeItem(
                 ItemStack(Items.WOODEN_PICKAXE),
-                UpgradeData.ofDefault(TurtleUpgrades.instance().get(ResourceLocation("cctest", "wooden_pickaxe"))),
+                UpgradeData.ofDefault(
+                    helper.level.registryAccess().registryOrThrow(ModRegistry.TURTLE_UPGRADE)
+                        .getHolder(ResourceLocation("cctest", "wooden_pickaxe")).orElseThrow(),
+                ),
             )
         }
     }
@@ -281,7 +283,8 @@ class Turtle_Test {
             val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
             val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
             assertEquals(
-                TurtleUpgrades.instance().get(ResourceLocation("cctest", "netherite_pickaxe")),
+                helper.level.registryAccess().registryOrThrow(ModRegistry.TURTLE_UPGRADE)
+                    .get(ResourceLocation("cctest", "netherite_pickaxe")),
                 upgrade,
                 "Upgrade is a netherite pickaxe",
             )
@@ -299,8 +302,8 @@ class Turtle_Test {
             fail("Invalid upgrade item\n Expected => ${expected.componentsPatch}\n    Actual => ${upgrade.upgradeItem.componentsPatch}")
         }
 
-        if (!ItemStack.matches(ItemStack(expected.item), upgrade.upgrade.craftingItem)) {
-            fail("Original upgrade item has changed (is now ${upgrade.upgrade.craftingItem})")
+        if (!ItemStack.matches(ItemStack(expected.item), upgrade.upgrade().craftingItem)) {
+            fail("Original upgrade item has changed (is now ${upgrade.upgrade().craftingItem})")
         }
     }
 

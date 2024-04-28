@@ -5,17 +5,20 @@
 package dan200.computercraft.data;
 
 import com.mojang.serialization.Codec;
+import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.registries.RegistryPatchGenerator;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -31,7 +34,14 @@ public final class DataProviders {
     public static void add(GeneratorSink generator) {
         var turtleUpgrades = generator.add(TurtleUpgradeProvider::new);
         var pocketUpgrades = generator.add(PocketUpgradeProvider::new);
-        generator.add((out, registries) -> new RecipeProvider(out, registries, turtleUpgrades, pocketUpgrades));
+
+        generator.add((out, registries) -> {
+            var builder = new RegistrySetBuilder();
+            builder.add(ModRegistry.TURTLE_UPGRADE, bs -> turtleUpgrades.getGeneratedUpgrades().forEach(bs::register));
+            builder.add(ModRegistry.POCKET_UPGRADE, bs -> pocketUpgrades.getGeneratedUpgrades().forEach(bs::register));
+
+            return new RecipeProvider(out, generator.createPatchedRegistries(registries, builder).thenApply(RegistrySetBuilder.PatchedRegistries::full));
+        });
 
         var blockTags = generator.blockTags(TagProvider::blockTags);
         generator.itemTags(TagProvider::itemTags, blockTags);
@@ -62,5 +72,18 @@ public final class DataProviders {
         TagsProvider<Block> blockTags(Consumer<TagProvider.TagConsumer<Block>> tags);
 
         TagsProvider<Item> itemTags(Consumer<TagProvider.ItemTagConsumer> tags, TagsProvider<Block> blocks);
+
+        /**
+         * Extend our registries with additional entries.
+         *
+         * @param registries The existing registries.
+         * @param patch      The new registries to apply.
+         * @return The built registries.
+         */
+        default CompletableFuture<RegistrySetBuilder.PatchedRegistries> createPatchedRegistries(
+            CompletableFuture<HolderLookup.Provider> registries, RegistrySetBuilder patch
+        ) {
+            return RegistryPatchGenerator.createLookup(registries, patch);
+        }
     }
 }

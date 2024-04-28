@@ -4,8 +4,12 @@
 
 package dan200.computercraft.shared.turtle.upgrades;
 
+import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.turtle.*;
+import dan200.computercraft.api.upgrades.UpgradeType;
+import dan200.computercraft.impl.upgrades.TurtleToolSpec;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
@@ -16,7 +20,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -27,7 +30,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
@@ -41,25 +43,26 @@ import javax.annotation.Nullable;
 import java.util.function.Function;
 
 public class TurtleTool extends AbstractTurtleUpgrade {
+    public static final MapCodec<TurtleTool> CODEC = TurtleToolSpec.CODEC.xmap(TurtleTool::new, x -> x.spec);
+
     private static final TurtleCommandResult UNBREAKABLE = TurtleCommandResult.failure("Cannot break unbreakable block");
     private static final TurtleCommandResult INEFFECTIVE = TurtleCommandResult.failure("Cannot break block with this tool");
 
+    final TurtleToolSpec spec;
     final ItemStack item;
     final float damageMulitiplier;
     final boolean allowEnchantments;
     final TurtleToolDurability consumeDurability;
     final @Nullable TagKey<Block> breakable;
 
-    public TurtleTool(
-        ResourceLocation id, String adjective, Item craftItem, ItemStack toolItem, float damageMulitiplier,
-        boolean allowEnchantments, TurtleToolDurability consumeDurability, @Nullable TagKey<Block> breakable
-    ) {
-        super(id, TurtleUpgradeType.TOOL, adjective, new ItemStack(craftItem));
-        item = toolItem;
-        this.damageMulitiplier = damageMulitiplier;
-        this.allowEnchantments = allowEnchantments;
-        this.consumeDurability = consumeDurability;
-        this.breakable = breakable;
+    public TurtleTool(TurtleToolSpec spec) {
+        super(TurtleUpgradeType.TOOL, spec.adjective(), new ItemStack(spec.craftItem().orElse(spec.toolItem())));
+        this.spec = spec;
+        item = new ItemStack(spec.toolItem());
+        this.damageMulitiplier = spec.damageMultiplier();
+        this.allowEnchantments = spec.allowEnchantments();
+        this.consumeDurability = spec.consumeDurability();
+        this.breakable = spec.breakable().orElse(null);
     }
 
     @Override
@@ -327,5 +330,10 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         return state.is(ComputerCraftTags.Blocks.TURTLE_ALWAYS_BREAKABLE)
             // Allow breaking any "instabreak" block.
             || state.getDestroySpeed(reader, pos) == 0;
+    }
+
+    @Override
+    public UpgradeType<TurtleTool> getType() {
+        return ModRegistry.TurtleUpgradeTypes.TOOL.get();
     }
 }

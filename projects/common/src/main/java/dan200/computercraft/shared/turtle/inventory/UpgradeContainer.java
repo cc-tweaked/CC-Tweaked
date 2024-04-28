@@ -66,7 +66,7 @@ class UpgradeContainer implements Container {
 
     @Override
     public void setItem(int slot, ItemStack itemStack) {
-        var upgrade = TurtleUpgrades.instance().get(itemStack);
+        var upgrade = TurtleUpgrades.instance().get(turtle.getLevel().registryAccess(), itemStack);
         turtle.setUpgrade(getSide(slot), upgrade);
         setUpgradeStack(slot, upgrade);
     }

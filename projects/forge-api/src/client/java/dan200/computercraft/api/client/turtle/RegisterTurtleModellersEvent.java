@@ -6,7 +6,7 @@ package dan200.computercraft.api.client.turtle;
 
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
-import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeType;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
@@ -33,7 +33,7 @@ public class RegisterTurtleModellersEvent extends Event implements IModBusEvent,
      * {@inheritDoc}
      */
     @Override
-    public <T extends ITurtleUpgrade> void register(UpgradeSerialiser<T> serialiser, TurtleUpgradeModeller<T> modeller) {
-        dispatch.register(serialiser, modeller);
+    public <T extends ITurtleUpgrade> void register(UpgradeType<T> type, TurtleUpgradeModeller<T> modeller) {
+        dispatch.register(type, modeller);
     }
 }

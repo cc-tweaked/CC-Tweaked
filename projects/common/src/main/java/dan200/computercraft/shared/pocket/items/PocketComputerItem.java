@@ -150,15 +150,9 @@ public class PocketComputerItem extends Item implements IMedia {
     @Nullable
     @ForgeOverride
     public String getCreatorModId(ItemStack stack) {
-        var upgrade = getUpgrade(stack);
-        if (upgrade != null) {
-            // If we're a non-vanilla, non-CC upgrade then return whichever mod this upgrade
-            // belongs to.
-            var mod = PocketUpgrades.instance().getOwner(upgrade);
-            if (mod != null && !mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
-        }
+        var upgrade = getUpgradeWithData(stack);
+        return upgrade != null ? PocketUpgrades.instance().getOwner(upgrade.holder()) : ComputerCraftAPI.MOD_ID;
 
-        return ComputerCraftAPI.MOD_ID;
     }
 
     public PocketServerComputer createServerComputer(ServerLevel level, Entity entity, @Nullable Container inventory, ItemStack stack) {

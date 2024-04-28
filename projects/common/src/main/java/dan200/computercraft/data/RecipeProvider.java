@@ -8,8 +8,6 @@ import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.JsonOps;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
-import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.data.recipe.ShapedSpecBuilder;
@@ -61,28 +59,43 @@ import net.minecraft.world.level.block.Blocks;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static dan200.computercraft.api.ComputerCraftTags.Items.COMPUTER;
 import static dan200.computercraft.api.ComputerCraftTags.Items.WIRED_MODEM;
 
 final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     private final RecipeIngredients ingredients = PlatformHelper.get().getRecipeIngredients();
-    private final TurtleUpgradeDataProvider turtleUpgrades;
-    private final PocketUpgradeDataProvider pocketUpgrades;
 
-    RecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, TurtleUpgradeDataProvider turtleUpgrades, PocketUpgradeDataProvider pocketUpgrades) {
+    private final CompletableFuture<HolderLookup.Provider> registries;
+
+    RecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         super(output, registries);
-        this.turtleUpgrades = turtleUpgrades;
-        this.pocketUpgrades = pocketUpgrades;
+        this.registries = registries;
+    }
+
+    private HolderLookup.Provider registries() {
+        try {
+            return registries.get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupted");
+        } catch (ExecutionException e) {
+            var cause = e.getCause();
+            throw cause instanceof RuntimeException rt ? rt : new RuntimeException("Unexpected error", cause);
+        }
     }
 
     @Override
     public void buildRecipes(RecipeOutput add) {
+        var registries = registries();
+
         basicRecipes(add);
         diskColours(add);
-        pocketUpgrades(add);
-        turtleUpgrades(add);
+        pocketUpgrades(add, registries);
+        turtleUpgrades(add, registries);
         turtleOverlays(add);
 
         addSpecial(add, new PrintoutRecipe(CraftingBookCategory.MISC));
@@ -119,15 +132,17 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     /**
      * Register a crafting recipe for each turtle upgrade.
      *
-     * @param add The callback to add recipes.
+     * @param add        The callback to add recipes.
+     * @param registries The currently available registries.
      */
-    private void turtleUpgrades(RecipeOutput add) {
+    private void turtleUpgrades(RecipeOutput add, HolderLookup.Provider registries) {
         for (var turtleItem : turtleItems()) {
             var name = RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, turtleItem);
 
-            for (var upgrade : turtleUpgrades.getGeneratedUpgrades()) {
+            registries.lookup(ModRegistry.TURTLE_UPGRADE).map(HolderLookup::listElements).orElse(Stream.empty()).forEach(upgradeHolder -> {
+                var upgrade = upgradeHolder.value();
                 ShapedSpecBuilder
-                    .shaped(RecipeCategory.REDSTONE, DataComponentUtil.createStack(turtleItem, ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get(), UpgradeData.ofDefault(upgrade)))
+                    .shaped(RecipeCategory.REDSTONE, DataComponentUtil.createStack(turtleItem, ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get(), UpgradeData.ofDefault(upgradeHolder)))
                     .group(name.toString())
                     .pattern("#T")
                     .define('T', turtleItem)
@@ -136,9 +151,9 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                     .build(ImpostorShapedRecipe::new)
                     .save(
                         add,
-                        name.withSuffix(String.format("/%s/%s", upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()))
+                        name.withSuffix(String.format("/%s/%s", upgradeHolder.key().location().getNamespace(), upgradeHolder.key().location().getPath()))
                     );
-            }
+            });
         }
     }
 
@@ -149,15 +164,17 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     /**
      * Register a crafting recipe for each pocket upgrade.
      *
-     * @param add The callback to add recipes.
+     * @param add        The callback to add recipes.
+     * @param registries The currently available registries.
      */
-    private void pocketUpgrades(RecipeOutput add) {
+    private void pocketUpgrades(RecipeOutput add, HolderLookup.Provider registries) {
         for (var pocket : pocketComputerItems()) {
             var name = RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, pocket).withPath(x -> x.replace("pocket_computer_", "pocket_"));
 
-            for (var upgrade : pocketUpgrades.getGeneratedUpgrades()) {
+            registries.lookup(ModRegistry.POCKET_UPGRADE).map(HolderLookup::listElements).orElse(Stream.empty()).forEach(upgradeHolder -> {
+                var upgrade = upgradeHolder.value();
                 ShapedSpecBuilder
-                    .shaped(RecipeCategory.REDSTONE, DataComponentUtil.createStack(pocket, ModRegistry.DataComponents.POCKET_UPGRADE.get(), UpgradeData.ofDefault(upgrade)))
+                    .shaped(RecipeCategory.REDSTONE, DataComponentUtil.createStack(pocket, ModRegistry.DataComponents.POCKET_UPGRADE.get(), UpgradeData.ofDefault(upgradeHolder)))
                     .group(name.toString())
                     .pattern("#")
                     .pattern("P")
@@ -167,9 +184,9 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                     .build(ImpostorShapedRecipe::new)
                     .save(
                         add,
-                        name.withSuffix(String.format("/%s/%s", upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()))
+                        name.withSuffix(String.format("/%s/%s", upgradeHolder.key().location().getNamespace(), upgradeHolder.key().location().getPath()))
                     );
-            }
+            });
         }
     }
 

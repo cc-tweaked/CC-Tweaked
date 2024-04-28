@@ -4,6 +4,7 @@
 
 package dan200.computercraft.impl;
 
+import com.mojang.serialization.Codec;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.api.detail.DetailRegistry;
@@ -19,14 +20,16 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.BundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleRefuelHandler;
-import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.core.filesystem.WritableFileMount;
 import dan200.computercraft.impl.detail.DetailRegistryImpl;
 import dan200.computercraft.impl.network.wired.WiredNodeImpl;
+import dan200.computercraft.impl.upgrades.TurtleToolSpec;
 import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.details.BlockDetails;
 import dan200.computercraft.shared.details.ItemDetails;
+import dan200.computercraft.shared.turtle.upgrades.TurtleTool;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -45,8 +48,8 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     private final DetailRegistry<ItemStack> itemStackDetails = new DetailRegistryImpl<>(ItemDetails::fillBasic);
     private final DetailRegistry<BlockReference> blockDetails = new DetailRegistryImpl<>(BlockDetails::fillBasic);
 
-    protected static final ResourceKey<Registry<UpgradeSerialiser<? extends ITurtleUpgrade>>> turtleUpgradeRegistryId = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_upgrade_serialiser"));
-    protected static final ResourceKey<Registry<UpgradeSerialiser<? extends IPocketUpgrade>>> pocketUpgradeRegistryId = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_upgrade_serialiser"));
+    protected static final ResourceKey<Registry<UpgradeType<? extends ITurtleUpgrade>>> turtleUpgradeRegistryId = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_upgrade_type"));
+    protected static final ResourceKey<Registry<UpgradeType<? extends IPocketUpgrade>>> pocketUpgradeRegistryId = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_upgrade_type"));
 
     public static @Nullable InputStream getResourceFile(MinecraftServer server, String domain, String subPath) {
         var manager = server.getResourceManager();
@@ -117,13 +120,28 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     }
 
     @Override
-    public final ResourceKey<Registry<UpgradeSerialiser<? extends ITurtleUpgrade>>> turtleUpgradeRegistryId() {
+    public final ResourceKey<Registry<UpgradeType<? extends ITurtleUpgrade>>> turtleUpgradeRegistryId() {
         return turtleUpgradeRegistryId;
     }
 
     @Override
-    public final ResourceKey<Registry<UpgradeSerialiser<? extends IPocketUpgrade>>> pocketUpgradeRegistryId() {
+    public Codec<ITurtleUpgrade> turtleUpgradeCodec() {
+        return TurtleUpgrades.instance().upgradeCodec();
+    }
+
+    @Override
+    public ITurtleUpgrade createTurtleTool(TurtleToolSpec spec) {
+        return new TurtleTool(spec);
+    }
+
+    @Override
+    public final ResourceKey<Registry<UpgradeType<? extends IPocketUpgrade>>> pocketUpgradeRegistryId() {
         return pocketUpgradeRegistryId;
+    }
+
+    @Override
+    public Codec<IPocketUpgrade> pocketUpgradeCodec() {
+        return PocketUpgrades.instance().upgradeCodec();
     }
 
     @Override

@@ -1,0 +1,6 @@
+{
+  "type": "computercraft:tool",
+  "adjective": "upgrade.minecraft.diamond_axe.adjective",
+  "damageMultiplier": 6.0,
+  "item": "minecraft:diamond_axe"
+}

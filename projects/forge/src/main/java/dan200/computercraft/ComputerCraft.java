@@ -12,7 +12,9 @@ import dan200.computercraft.api.network.wired.WiredElementCapability;
 import dan200.computercraft.api.peripheral.PeripheralCapability;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.Services;
+import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.Config;
@@ -48,6 +50,7 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
 
@@ -80,9 +83,15 @@ public final class ComputerCraft {
 
     @SubscribeEvent
     public static void registerRegistries(NewRegistryEvent event) {
-        event.create(new RegistryBuilder<>(ITurtleUpgrade.serialiserRegistryKey()));
-        event.create(new RegistryBuilder<>(IPocketUpgrade.serialiserRegistryKey()));
+        event.create(new RegistryBuilder<>(ITurtleUpgrade.typeRegistry()));
+        event.create(new RegistryBuilder<>(IPocketUpgrade.typeRegistry()));
         event.create(new RegistryBuilder<>(RecipeFunction.REGISTRY).sync(true));
+    }
+
+    @SubscribeEvent
+    public static void registerDynamicRegistries(DataPackRegistryEvent.NewRegistry event) {
+        event.dataPackRegistry(ModRegistry.TURTLE_UPGRADE, TurtleUpgrades.instance().upgradeCodec(), TurtleUpgrades.instance().upgradeCodec());
+        event.dataPackRegistry(ModRegistry.POCKET_UPGRADE, PocketUpgrades.instance().upgradeCodec(), PocketUpgrades.instance().upgradeCodec());
     }
 
     @SubscribeEvent

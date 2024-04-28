@@ -6,7 +6,7 @@ package dan200.computercraft.api.pocket;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.upgrades.UpgradeBase;
-import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.impl.ComputerCraftAPIService;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
  * A peripheral which can be equipped to the back side of a pocket computer.
  * <p>
  * Pocket upgrades are defined in two stages. First, one creates a {@link IPocketUpgrade} subclass and corresponding
- * {@link UpgradeSerialiser} instance, which are then registered in a registry.
+ * {@link UpgradeType} instance, which are then registered in a registry.
  * <p>
  * You then write a JSON file in your mod's {@literal data/} folder. This is then parsed when the world is loaded, and
  * the upgrade automatically registered. It is recommended this is done via {@linkplain PocketUpgradeDataProvider data
@@ -26,15 +26,15 @@ import javax.annotation.Nullable;
  *
  * <h2>Example</h2>
  * <pre>{@code
- * // We use Forge's DeferredRegister to register our serialiser. Fabric mods may register their serialiser directly.
- * static final DeferredRegister<UpgradeSerialiser<? extends IPocketUpgrade>> SERIALISERS = DeferredRegister.create(IPocketUpgrade.serialiserRegistryKey(), "my_mod");
+ * // We use Forge's DeferredRegister to register our upgrade type. Fabric mods may register their type directly.
+ * static final DeferredRegister<UpgradeType<? extends IPocketUpgrade>> POCKET_UPGRADES = DeferredRegister.create(IPocketUpgrade.typeRegistry(), "my_mod");
  *
- * // Register a new upgrade serialiser called "my_upgrade".
- * public static final RegistryObject<UpgradeSerialiser<MyUpgrade>> MY_UPGRADE =
- *     SERIALISERS.register("my_upgrade", () -> UpgradeSerialiser.simple(MyUpgrade::new));
+ * // Register a new upgrade upgrade type called "my_upgrade".
+ * public static final RegistryObject<UpgradeType<MyUpgrade>> MY_UPGRADE =
+ *     POCKET_UPGRADES.register("my_upgrade", () -> UpgradeType.simple(new MyUpgrade()));
  *
  * // Then in your constructor
- * SERIALISERS.register(bus);
+ * POCKET_UPGRADES.register(bus);
  * }</pre>
  * <p>
  * We can then define a new upgrade using JSON by placing the following in
@@ -49,13 +49,21 @@ import javax.annotation.Nullable;
  */
 public interface IPocketUpgrade extends UpgradeBase {
     /**
-     * The registry key for upgrade serialisers.
+     * The registry key for pocket upgrade types.
      *
      * @return The registry key.
      */
-    static ResourceKey<Registry<UpgradeSerialiser<? extends IPocketUpgrade>>> serialiserRegistryKey() {
+    static ResourceKey<Registry<UpgradeType<? extends IPocketUpgrade>>> typeRegistry() {
         return ComputerCraftAPIService.get().pocketUpgradeRegistryId();
     }
+
+    /**
+     * Get the type of this upgrade.
+     *
+     * @return The type of this upgrade.
+     */
+    @Override
+    UpgradeType<? extends IPocketUpgrade> getType();
 
     /**
      * Creates a peripheral for the pocket computer.

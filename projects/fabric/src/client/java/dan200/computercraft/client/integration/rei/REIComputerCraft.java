@@ -12,7 +12,9 @@ import dan200.computercraft.shared.turtle.items.TurtleItem;
 import dev.architectury.event.EventResult;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.display.DisplayRegistry;
+import me.shedaniel.rei.api.client.registry.entry.EntryRegistry;
 import me.shedaniel.rei.api.common.entry.comparison.ItemComparatorRegistry;
+import me.shedaniel.rei.api.common.util.EntryStacks;
 import me.shedaniel.rei.plugin.common.BuiltinPlugin;
 
 /**
@@ -26,18 +28,25 @@ public class REIComputerCraft implements REIClientPlugin {
         registry.register((context, stack) -> {
             long hash = 1;
 
-            var left = TurtleItem.getUpgrade(stack, TurtleSide.LEFT);
-            var right = TurtleItem.getUpgrade(stack, TurtleSide.RIGHT);
-            if (left != null) hash = hash * 31 + left.getUpgradeID().hashCode();
-            if (right != null) hash = hash * 31 + right.getUpgradeID().hashCode();
+            var left = TurtleItem.getUpgradeWithData(stack, TurtleSide.LEFT);
+            var right = TurtleItem.getUpgradeWithData(stack, TurtleSide.RIGHT);
+            if (left != null) hash = hash * 31 + left.holder().key().location().hashCode();
+            if (right != null) hash = hash * 31 + right.holder().key().location().hashCode();
 
             return hash;
         }, ModRegistry.Items.TURTLE_NORMAL.get(), ModRegistry.Items.TURTLE_ADVANCED.get());
 
         registry.register((context, stack) -> {
-            var upgrade = PocketComputerItem.getUpgrade(stack);
-            return upgrade == null ? 1 : upgrade.getUpgradeID().hashCode();
+            var upgrade = PocketComputerItem.getUpgradeWithData(stack);
+            return upgrade == null ? 1 : upgrade.holder().key().location().hashCode();
         }, ModRegistry.Items.POCKET_COMPUTER_NORMAL.get(), ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get());
+    }
+
+    @Override
+    public void registerEntries(EntryRegistry registry) {
+        for (var stack : RecipeModHelpers.getExtraStacks(RecipeModHelpers.getEmptyRegistryAccess())) {
+            registry.addEntry(EntryStacks.of(stack));
+        }
     }
 
     @Override

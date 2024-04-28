@@ -1,5 +1,6 @@
 {
     "type": "computercraft:tool",
+    "adjective": "upgrade.minecraft.diamond_pickaxe.adjective",
     "item": "minecraft:wooden_pickaxe",
     "consumeDurability": "always"
 }

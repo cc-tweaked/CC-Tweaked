@@ -19,15 +19,11 @@ import net.minecraft.world.item.ItemStack;
  */
 public interface UpgradeBase {
     /**
-     * Gets a unique identifier representing this type of turtle upgrade. eg: "computercraft:wireless_modem"
-     * or "my_mod:my_upgrade".
-     * <p>
-     * You should use a unique resource domain to ensure this upgrade is uniquely identified.
-     * The upgrade will fail registration if an already used ID is specified.
+     * Get the type of this upgrade.
      *
-     * @return The unique ID for this upgrade.
+     * @return The type of this upgrade.
      */
-    ResourceLocation getUpgradeID();
+    UpgradeType<?> getType();
 
     /**
      * Return an unlocalised string to describe this type of computer in item names.

@@ -9,9 +9,10 @@ import dan200.computercraft.api.turtle.AbstractTurtleUpgrade;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
+import dan200.computercraft.api.upgrades.UpgradeType;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
@@ -36,8 +37,8 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade {
         }
     }
 
-    public TurtleSpeaker(ResourceLocation id, ItemStack item) {
-        super(id, TurtleUpgradeType.PERIPHERAL, UpgradeSpeakerPeripheral.ADJECTIVE, item);
+    public TurtleSpeaker(ItemStack item) {
+        super(TurtleUpgradeType.PERIPHERAL, UpgradeSpeakerPeripheral.ADJECTIVE, item);
     }
 
     @Override
@@ -49,5 +50,10 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade {
     public void update(ITurtleAccess turtle, TurtleSide turtleSide) {
         var peripheral = turtle.getPeripheral(turtleSide);
         if (peripheral instanceof Peripheral speaker) speaker.update();
+    }
+
+    @Override
+    public UpgradeType<TurtleSpeaker> getType() {
+        return ModRegistry.TurtleUpgradeTypes.SPEAKER.get();
     }
 }

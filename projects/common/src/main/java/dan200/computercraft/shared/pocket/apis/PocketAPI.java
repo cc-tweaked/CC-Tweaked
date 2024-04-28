@@ -107,11 +107,11 @@ public class PocketAPI implements ILuaAPI {
         }
     }
 
-    private static @Nullable UpgradeData<IPocketUpgrade> findUpgrade(NonNullList<ItemStack> inv, int start, @Nullable UpgradeData<IPocketUpgrade> previous) {
+    private @Nullable UpgradeData<IPocketUpgrade> findUpgrade(NonNullList<ItemStack> inv, int start, @Nullable UpgradeData<IPocketUpgrade> previous) {
         for (var i = 0; i < inv.size(); i++) {
             var invStack = inv.get((i + start) % inv.size());
             if (!invStack.isEmpty()) {
-                var newUpgrade = PocketUpgrades.instance().get(invStack);
+                var newUpgrade = PocketUpgrades.instance().get(computer.getLevel().registryAccess(), invStack);
 
                 if (newUpgrade != null && !Objects.equals(newUpgrade, previous)) {
                     // Consume an item from this stack and exit the loop

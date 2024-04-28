@@ -5,27 +5,22 @@
 package dan200.computercraft.api.upgrades;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 import dan200.computercraft.impl.PlatformHelper;
-import dan200.computercraft.impl.RegistryHelper;
-import dan200.computercraft.impl.upgrades.SerialiserWithCraftingItem;
-import dan200.computercraft.impl.upgrades.SimpleSerialiser;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * A data generator/provider for turtle and pocket computer upgrades. This should not be extended directly, instead see
@@ -36,51 +31,29 @@ import java.util.function.Function;
 public abstract class UpgradeDataProvider<T extends UpgradeBase> implements DataProvider {
     private final PackOutput output;
     private final String name;
-    private final String folder;
-    private final Registry<UpgradeSerialiser<? extends T>> registry;
+    private final ResourceKey<Registry<T>> registryName;
+    private final Codec<T> codec;
 
-    private @Nullable List<T> upgrades;
+    private @Nullable Map<ResourceKey<T>, T> upgrades;
 
     @ApiStatus.Internal
-    protected UpgradeDataProvider(PackOutput output, String name, String folder, ResourceKey<Registry<UpgradeSerialiser<? extends T>>> registry) {
+    protected UpgradeDataProvider(PackOutput output, String name, ResourceKey<Registry<T>> registryName, Codec<T> codec) {
         this.output = output;
         this.name = name;
-        this.folder = folder;
-        this.registry = RegistryHelper.getRegistry(registry);
+        this.registryName = registryName;
+        this.codec = codec;
     }
 
     /**
-     * Register an upgrade using a {@linkplain UpgradeSerialiser#simple(Function) "simple" serialiser}.
+     * Add a new upgrade.
      *
-     * @param id         The ID of the upgrade to create.
-     * @param serialiser The simple serialiser.
+     * @param id      The ID of the upgrade to create.
+     * @param upgrade The upgrade to add.
      * @return The constructed upgrade, ready to be passed off to {@link #addUpgrades(Consumer)}'s consumer.
      */
-    public final Upgrade<UpgradeSerialiser<? extends T>> simple(ResourceLocation id, UpgradeSerialiser<? extends T> serialiser) {
-        if (!(serialiser instanceof SimpleSerialiser)) {
-            throw new IllegalStateException(serialiser + " must be a simple() seriaiser.");
-        }
-
-        return new Upgrade<>(id, serialiser, s -> {
+    protected final Upgrade<T> upgrade(ResourceLocation id, T upgrade) {
+        return new Upgrade<>(id, upgrade, j -> {
         });
-    }
-
-    /**
-     * Register an upgrade using a {@linkplain UpgradeSerialiser#simple(Function) simple serialiser}.
-     *
-     * @param id         The ID of the upgrade to create.
-     * @param serialiser The simple serialiser.
-     * @param item       The crafting upgrade for this item.
-     * @return The constructed upgrade, ready to be passed off to {@link #addUpgrades(Consumer)}'s consumer.
-     */
-    public final Upgrade<UpgradeSerialiser<? extends T>> simpleWithCustomItem(ResourceLocation id, UpgradeSerialiser<? extends T> serialiser, Item item) {
-        if (!(serialiser instanceof SerialiserWithCraftingItem)) {
-            throw new IllegalStateException(serialiser + " must be a simpleWithCustomItem() serialiser.");
-        }
-
-        return new Upgrade<>(id, serialiser, s ->
-            s.addProperty("item", RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, item).toString())
-        );
     }
 
     /**
@@ -88,40 +61,36 @@ public abstract class UpgradeDataProvider<T extends UpgradeBase> implements Data
      * <p>
      * <strong>Example usage:</strong>
      * <pre>{@code
-     * protected void addUpgrades(Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> addUpgrade) {
-     *     simple(new ResourceLocation("mymod", "speaker"), SPEAKER_SERIALISER.get()).add(addUpgrade);
+     * protected void addUpgrades(Consumer<Upgrade<ITurtleUpgrade>> addUpgrade) {
+     *     upgrade(new ResourceLocation("mymod", "speaker"), new TurtleSpeaker(new ItemStack(Items.NOTE_BLOCK))).add(addUpgrade);
      * }
      * }</pre>
      *
      * @param addUpgrade A callback used to register an upgrade.
      */
-    protected abstract void addUpgrades(Consumer<Upgrade<UpgradeSerialiser<? extends T>>> addUpgrade);
+    protected abstract void addUpgrades(Consumer<Upgrade<T>> addUpgrade);
 
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
-        var base = output.getOutputFolder().resolve("data");
+        var base = output.createPathProvider(PackOutput.Target.DATA_PACK, registryName.location().getNamespace() + "/" + registryName.location().getPath());
 
-        Set<ResourceLocation> seen = new HashSet<>();
-        List<T> upgrades = new ArrayList<>();
+        Map<ResourceKey<T>, T> upgrades = new LinkedHashMap<>();
+
         List<CompletableFuture<?>> futures = new ArrayList<>();
         addUpgrades(upgrade -> {
-            if (!seen.add(upgrade.id())) throw new IllegalStateException("Duplicate upgrade " + upgrade.id());
+            var id = ResourceKey.create(registryName, upgrade.id);
+            if (upgrades.containsKey(id)) throw new IllegalStateException("Duplicate upgrade " + upgrade.id);
 
-            var json = new JsonObject();
-            json.addProperty("type", RegistryHelper.getKeyOrThrow(registry, upgrade.serialiser()).toString());
-            upgrade.serialise().accept(json);
+            var json = (JsonObject) codec.encodeStart(JsonOps.INSTANCE, upgrade.upgrade).getOrThrow();
+            upgrade.serialise.accept(json);
 
-            futures.add(DataProvider.saveStable(cache, json, base.resolve(upgrade.id().getNamespace() + "/" + folder + "/" + upgrade.id().getPath() + ".json")));
+            futures.add(DataProvider.saveStable(cache, json, base.json(upgrade.id)));
 
-            try {
-                var result = upgrade.serialiser().fromJson(upgrade.id(), json);
-                upgrades.add(result);
-            } catch (IllegalArgumentException | JsonParseException e) {
-                LOGGER.error("Failed to parse {} {}", name, upgrade.id(), e);
-            }
+            upgrades.put(id, upgrade.upgrade);
         });
 
-        this.upgrades = Collections.unmodifiableList(upgrades);
+        this.upgrades = Collections.unmodifiableMap(upgrades);
+
         return Util.sequenceFailFast(futures);
     }
 
@@ -130,34 +99,39 @@ public abstract class UpgradeDataProvider<T extends UpgradeBase> implements Data
         return name;
     }
 
-    public final UpgradeSerialiser<? extends T> existingSerialiser(ResourceLocation id) {
-        var result = registry.get(id);
-        if (result == null) throw new IllegalArgumentException("No such serialiser " + id);
-        return result;
-    }
-
-    public List<T> getGeneratedUpgrades() {
-        if (upgrades == null) throw new IllegalStateException("Upgrades have not been generated yet");
+    /**
+     * Get all registered upgrades.
+     *
+     * @return The map of registered upgrades.
+     */
+    public Map<ResourceKey<T>, T> getGeneratedUpgrades() {
+        var upgrades = this.upgrades;
+        if (upgrades == null) throw new IllegalStateException("Upgrades are not available yet");
         return upgrades;
     }
 
     /**
      * A constructed upgrade instance, produced {@link #addUpgrades(Consumer)}.
      *
-     * @param id         The ID for this upgrade.
-     * @param serialiser The serialiser which reads and writes this upgrade.
-     * @param serialise  Augment the generated JSON with additional fields.
-     * @param <R>        The type of upgrade serialiser.
+     * @param <T> The type of upgrade.
      */
-    public record Upgrade<R extends UpgradeSerialiser<?>>(
-        ResourceLocation id, R serialiser, Consumer<JsonObject> serialise
-    ) {
+    public static final class Upgrade<T extends UpgradeBase> {
+        private final ResourceLocation id;
+        private final T upgrade;
+        private final Consumer<JsonObject> serialise;
+
+        private Upgrade(ResourceLocation id, T upgrade, Consumer<JsonObject> serialise) {
+            this.id = id;
+            this.upgrade = upgrade;
+            this.serialise = serialise;
+        }
+
         /**
          * Convenience method for registering an upgrade.
          *
          * @param add The callback given to {@link #addUpgrades(Consumer)}
          */
-        public void add(Consumer<Upgrade<R>> add) {
+        public void add(Consumer<Upgrade<T>> add) {
             add.accept(this);
         }
 
@@ -170,8 +144,8 @@ public abstract class UpgradeDataProvider<T extends UpgradeBase> implements Data
          * @param modId The id of the mod.
          * @return A new upgrade instance.
          */
-        public Upgrade<R> requireMod(String modId) {
-            return new Upgrade<>(id, serialiser, json -> {
+        public Upgrade<T> requireMod(String modId) {
+            return new Upgrade<>(id, upgrade, json -> {
                 PlatformHelper.get().addRequiredModCondition(json, modId);
                 serialise.accept(json);
             });

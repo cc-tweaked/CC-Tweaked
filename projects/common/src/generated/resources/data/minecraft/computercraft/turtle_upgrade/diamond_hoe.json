@@ -1,0 +1,6 @@
+{
+  "type": "computercraft:tool",
+  "adjective": "upgrade.minecraft.diamond_hoe.adjective",
+  "breakable": "computercraft:turtle_hoe_harvestable",
+  "item": "minecraft:diamond_hoe"
+}

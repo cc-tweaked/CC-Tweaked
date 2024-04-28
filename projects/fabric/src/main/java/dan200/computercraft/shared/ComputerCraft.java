@@ -9,13 +9,13 @@ import dan200.computercraft.api.detail.FabricDetailRegistries;
 import dan200.computercraft.api.network.wired.WiredElementLookup;
 import dan200.computercraft.api.peripheral.PeripheralLookup;
 import dan200.computercraft.impl.Peripherals;
+import dan200.computercraft.impl.PocketUpgrades;
+import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.details.FluidDetails;
 import dan200.computercraft.shared.network.NetworkMessages;
-import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
-import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlockEntity;
@@ -29,6 +29,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -64,6 +65,9 @@ public class ComputerCraft {
         }
 
         FabricRegistryBuilder.createSimple(RecipeFunction.REGISTRY).attribute(RegistryAttribute.SYNCED).buildAndRegister();
+
+        DynamicRegistries.registerSynced(ModRegistry.TURTLE_UPGRADE, TurtleUpgrades.instance().upgradeCodec());
+        DynamicRegistries.registerSynced(ModRegistry.POCKET_UPGRADE, PocketUpgrades.instance().upgradeCodec());
 
         ModRegistry.register();
         ModRegistry.registerMainThread();
@@ -106,7 +110,6 @@ public class ComputerCraft {
             ((FabricConfigFile) ConfigSpec.serverSpec).unload();
         });
         ServerLifecycleEvents.SERVER_STARTED.register(CommonHooks::onServerStarted);
-        ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> ServerNetworking.sendToPlayer(new UpgradesLoadedMessage(), player));
 
         ServerTickEvents.START_SERVER_TICK.register(CommonHooks::onServerTickStart);
         ServerTickEvents.START_SERVER_TICK.register(s -> CommonHooks.onServerTickEnd());

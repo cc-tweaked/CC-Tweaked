@@ -113,7 +113,7 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
         var items = new ItemStack[]{ rightItem, leftItem };
         for (var i = 0; i < 2; i++) {
             if (!items[i].isEmpty()) {
-                var itemUpgrade = TurtleUpgrades.instance().get(items[i]);
+                var itemUpgrade = TurtleUpgrades.instance().get(registryAccess, items[i]);
                 if (itemUpgrade == null || upgrades[i] != null) return ItemStack.EMPTY;
                 upgrades[i] = itemUpgrade;
             }

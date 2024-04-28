@@ -287,8 +287,8 @@ public final class LanguageProvider implements DataProvider {
             BuiltInRegistries.ITEM.holders()
                 .filter(x -> x.key().location().getNamespace().equals(ComputerCraftAPI.MOD_ID))
                 .map(x -> x.value().getDescriptionId()),
-            turtleUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),
-            pocketUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),
+            turtleUpgrades.getGeneratedUpgrades().values().stream().map(UpgradeBase::getUnlocalisedAdjective),
+            pocketUpgrades.getGeneratedUpgrades().values().stream().map(UpgradeBase::getUnlocalisedAdjective),
             Metric.metrics().values().stream().map(x -> AggregatedMetric.TRANSLATION_PREFIX + x.name() + ".name"),
             ConfigSpec.serverSpec.entries().map(ConfigFile.Entry::translationKey),
             ConfigSpec.clientSpec.entries().map(ConfigFile.Entry::translationKey),

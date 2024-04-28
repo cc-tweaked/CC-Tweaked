@@ -25,7 +25,7 @@ public class TurtleEquipCommand implements TurtleCommand {
         UpgradeData<ITurtleUpgrade> newUpgrade;
         var selectedStack = turtle.getInventory().getItem(turtle.getSelectedSlot());
         if (!selectedStack.isEmpty()) {
-            newUpgrade = TurtleUpgrades.instance().get(selectedStack);
+            newUpgrade = TurtleUpgrades.instance().get(turtle.getLevel().registryAccess(), selectedStack);
             if (newUpgrade == null) return TurtleCommandResult.failure("Not a valid upgrade");
         } else {
             newUpgrade = null;

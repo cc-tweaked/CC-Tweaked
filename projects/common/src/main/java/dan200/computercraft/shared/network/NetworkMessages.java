@@ -42,7 +42,6 @@ public final class NetworkMessages {
     public static final CustomPacketPayload.Type<SpeakerPlayClientMessage> SPEAKER_PLAY = registerClientbound("speaker_play", SpeakerPlayClientMessage.STREAM_CODEC);
     public static final CustomPacketPayload.Type<SpeakerStopClientMessage> SPEAKER_STOP = registerClientbound("speaker_stop", SpeakerStopClientMessage.STREAM_CODEC);
     public static final CustomPacketPayload.Type<UploadResultMessage> UPLOAD_RESULT = registerClientbound("upload_result", UploadResultMessage.STREAM_CODEC);
-    public static final CustomPacketPayload.Type<UpgradesLoadedMessage> UPGRADES_LOADED = registerClientbound("upgrades_loaded", UpgradesLoadedMessage.STREAM_CODEC);
 
     private NetworkMessages() {
     }

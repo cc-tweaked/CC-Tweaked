@@ -26,6 +26,7 @@ import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.particles.ParticleTypes;
@@ -119,7 +120,7 @@ public class TurtleBrain implements TurtleAccessInternal {
         // Advance upgrades
         for (var side : TurtleSide.values()) {
             var upgrade = upgrades[side.ordinal()].upgrade;
-            if (upgrade != null) upgrade.update(this, side);
+            if (upgrade != null) upgrade.value().update(this, side);
         }
     }
 
@@ -136,8 +137,8 @@ public class TurtleBrain implements TurtleAccessInternal {
         overlay = nbt.contains(NBT_OVERLAY) ? new ResourceLocation(nbt.getString(NBT_OVERLAY)) : null;
 
         // Read upgrades
-        setUpgradeDirect(TurtleSide.LEFT, NBTUtil.decodeFrom(TurtleUpgrades.instance().codec(), registries, nbt, NBT_LEFT_UPGRADE));
-        setUpgradeDirect(TurtleSide.RIGHT, NBTUtil.decodeFrom(TurtleUpgrades.instance().codec(), registries, nbt, NBT_RIGHT_UPGRADE));
+        setUpgradeDirect(TurtleSide.LEFT, NBTUtil.decodeFrom(TurtleUpgrades.instance().upgradeDataCodec(), registries, nbt, NBT_LEFT_UPGRADE));
+        setUpgradeDirect(TurtleSide.RIGHT, NBTUtil.decodeFrom(TurtleUpgrades.instance().upgradeDataCodec(), registries, nbt, NBT_RIGHT_UPGRADE));
     }
 
     private void writeCommon(CompoundTag nbt, HolderLookup.Provider registries) {
@@ -146,8 +147,8 @@ public class TurtleBrain implements TurtleAccessInternal {
         if (overlay != null) nbt.putString(NBT_OVERLAY, overlay.toString());
 
         // Write upgrades
-        NBTUtil.encodeTo(TurtleUpgrades.instance().codec(), registries, nbt, NBT_LEFT_UPGRADE, getUpgradeWithData(TurtleSide.LEFT));
-        NBTUtil.encodeTo(TurtleUpgrades.instance().codec(), registries, nbt, NBT_RIGHT_UPGRADE, getUpgradeWithData(TurtleSide.RIGHT));
+        NBTUtil.encodeTo(TurtleUpgrades.instance().upgradeDataCodec(), registries, nbt, NBT_LEFT_UPGRADE, getUpgradeWithData(TurtleSide.LEFT));
+        NBTUtil.encodeTo(TurtleUpgrades.instance().upgradeDataCodec(), registries, nbt, NBT_RIGHT_UPGRADE, getUpgradeWithData(TurtleSide.RIGHT));
     }
 
     public void readFromNBT(CompoundTag nbt, HolderLookup.Provider registries) {
@@ -459,7 +460,8 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     @Override
     public @Nullable ITurtleUpgrade getUpgrade(TurtleSide side) {
-        return upgrades[side.ordinal()].upgrade;
+        var upgrade = upgrades[side.ordinal()].upgrade;
+        return upgrade == null ? null : upgrade.value();
     }
 
     @Override
@@ -561,7 +563,7 @@ public class TurtleBrain implements TurtleAccessInternal {
         for (var side : TurtleSide.values()) {
             var upgrade = getUpgrade(side);
             IPeripheral peripheral = null;
-            if (upgrade != null && upgrade.getType().isPeripheral()) {
+            if (upgrade != null && upgrade.getUpgradeType().isPeripheral()) {
                 peripheral = upgrade.createPeripheral(this, side);
             }
 
@@ -747,7 +749,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     }
 
     private static final class UpgradeInstance {
-        private @Nullable ITurtleUpgrade upgrade;
+        private @Nullable Holder.Reference<ITurtleUpgrade> upgrade;
         private DataComponentPatch data = DataComponentPatch.EMPTY;
         private @Nullable IPeripheral peripheral;
 
@@ -759,7 +761,7 @@ public class TurtleBrain implements TurtleAccessInternal {
                 data = DataComponentPatch.EMPTY;
                 cachedUpgradeData = null;
             } else {
-                this.upgrade = upgrade.upgrade();
+                this.upgrade = upgrade.holder();
                 this.data = upgrade.data();
                 this.cachedUpgradeData = upgrade;
             }

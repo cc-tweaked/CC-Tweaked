@@ -27,7 +27,7 @@ public class TurtleToolCommand implements TurtleCommand {
             if (this.side != null && this.side != side) continue;
 
             var upgrade = turtle.getUpgrade(side);
-            if (upgrade == null || !upgrade.getType().isTool()) continue;
+            if (upgrade == null || !upgrade.getUpgradeType().isTool()) continue;
 
             var result = upgrade.useTool(turtle, side, verb, direction.toWorldDir(turtle));
             if (result.isSuccess()) {

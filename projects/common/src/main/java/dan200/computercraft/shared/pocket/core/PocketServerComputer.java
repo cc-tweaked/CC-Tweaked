@@ -100,10 +100,10 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
     @Override
     public void setUpgradeData(DataComponentPatch data) {
-        var upgrade = PocketComputerItem.getUpgrade(stack);
+        var upgrade = PocketComputerItem.getUpgradeWithData(stack);
         if (upgrade == null) return;
 
-        PocketComputerItem.setUpgrade(stack, new UpgradeData<>(upgrade, data));
+        PocketComputerItem.setUpgrade(stack, new UpgradeData<>(upgrade.holder(), data));
         setItemChanged();
     }
 
@@ -118,7 +118,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     }
 
     public @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
-        return upgrade == null ? null : UpgradeData.of(upgrade, getUpgradeData());
+        return PocketComputerItem.getUpgradeWithData(stack);
     }
 
     /**

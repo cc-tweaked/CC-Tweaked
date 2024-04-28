@@ -52,7 +52,7 @@ public class JEIComputerCraft implements IModPlugin {
         var registry = runtime.getRecipeManager();
 
         // Register all turtles/pocket computers (not just vanilla upgrades) as upgrades on JEI.
-        var upgradeItems = RecipeModHelpers.getExtraStacks();
+        var upgradeItems = RecipeModHelpers.getExtraStacks(RecipeModHelpers.getEmptyRegistryAccess());
         if (!upgradeItems.isEmpty()) {
             runtime.getIngredientManager().addIngredientsAtRuntime(VanillaTypes.ITEM_STACK, upgradeItems);
         }
@@ -73,11 +73,11 @@ public class JEIComputerCraft implements IModPlugin {
         var name = new StringBuilder("turtle:");
 
         // Add left and right upgrades to the identifier
-        var left = TurtleItem.getUpgrade(stack, TurtleSide.LEFT);
-        var right = TurtleItem.getUpgrade(stack, TurtleSide.RIGHT);
-        if (left != null) name.append(left.getUpgradeID());
+        var left = TurtleItem.getUpgradeWithData(stack, TurtleSide.LEFT);
+        var right = TurtleItem.getUpgradeWithData(stack, TurtleSide.RIGHT);
+        if (left != null) name.append(left.holder().key().location());
         if (left != null && right != null) name.append('|');
-        if (right != null) name.append(right.getUpgradeID());
+        if (right != null) name.append(right.holder().key().location());
 
         return name.toString();
     };
@@ -89,8 +89,8 @@ public class JEIComputerCraft implements IModPlugin {
         var name = new StringBuilder("pocket:");
 
         // Add the upgrade to the identifier
-        var upgrade = PocketComputerItem.getUpgrade(stack);
-        if (upgrade != null) name.append(upgrade.getUpgradeID());
+        var upgrade = PocketComputerItem.getUpgradeWithData(stack);
+        if (upgrade != null) name.append(upgrade.holder().key().location());
 
         return name.toString();
     };

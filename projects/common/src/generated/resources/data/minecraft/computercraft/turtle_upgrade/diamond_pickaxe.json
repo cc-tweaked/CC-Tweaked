@@ -1,0 +1,5 @@
+{
+  "type": "computercraft:tool",
+  "adjective": "upgrade.minecraft.diamond_pickaxe.adjective",
+  "item": "minecraft:diamond_pickaxe"
+}

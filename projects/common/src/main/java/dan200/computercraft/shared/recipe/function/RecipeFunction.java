@@ -7,9 +7,9 @@ package dan200.computercraft.shared.recipe.function;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.impl.RegistryHelper;
 import dan200.computercraft.shared.recipe.TransformShapedRecipe;
 import dan200.computercraft.shared.recipe.TransformShapelessRecipe;
+import dan200.computercraft.shared.util.SafeDispatchCodec;
 import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -44,7 +44,7 @@ public interface RecipeFunction {
     /**
      * The codec to read and write {@link RecipeFunction}s with.
      */
-    Codec<RecipeFunction> CODEC = Codec.lazyInitialized(() -> RegistryHelper.getRegistry(REGISTRY).byNameCodec().dispatch(RecipeFunction::getType, Type::codec));
+    Codec<RecipeFunction> CODEC = SafeDispatchCodec.ofRegistry(REGISTRY, RecipeFunction::getType, Type::codec);
 
     /**
      * A codec for a list of functions.

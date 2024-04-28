@@ -6,12 +6,12 @@ package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
+import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -50,8 +50,8 @@ public class TurtleModem extends AbstractTurtleUpgrade {
 
     private final boolean advanced;
 
-    public TurtleModem(ResourceLocation id, ItemStack stack, boolean advanced) {
-        super(id, TurtleUpgradeType.PERIPHERAL, advanced ? WirelessModemPeripheral.ADVANCED_ADJECTIVE : WirelessModemPeripheral.NORMAL_ADJECTIVE, stack);
+    public TurtleModem(ItemStack stack, boolean advanced) {
+        super(TurtleUpgradeType.PERIPHERAL, advanced ? WirelessModemPeripheral.ADVANCED_ADJECTIVE : WirelessModemPeripheral.NORMAL_ADJECTIVE, stack);
         this.advanced = advanced;
     }
 
@@ -82,5 +82,12 @@ public class TurtleModem extends AbstractTurtleUpgrade {
     @Override
     public DataComponentPatch getPersistedData(DataComponentPatch upgradeData) {
         return DataComponentPatch.EMPTY;
+    }
+
+    @Override
+    public UpgradeType<TurtleModem> getType() {
+        return advanced
+            ? ModRegistry.TurtleUpgradeTypes.WIRELESS_MODEM_ADVANCED.get()
+            : ModRegistry.TurtleUpgradeTypes.WIRELESS_MODEM_NORMAL.get();
     }
 }

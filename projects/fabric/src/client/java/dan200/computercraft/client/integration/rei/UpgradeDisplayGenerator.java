@@ -4,6 +4,7 @@
 
 package dan200.computercraft.client.integration.rei;
 
+import dan200.computercraft.shared.integration.RecipeModHelpers;
 import dan200.computercraft.shared.integration.UpgradeRecipeGenerator;
 import me.shedaniel.rei.api.client.registry.display.DynamicDisplayGenerator;
 import me.shedaniel.rei.api.common.display.basic.BasicDisplay;
@@ -23,7 +24,7 @@ import java.util.Optional;
  * Provides custom recipe and usage hints for pocket/turtle upgrades.
  */
 class UpgradeDisplayGenerator implements DynamicDisplayGenerator<DefaultCraftingDisplay<?>> {
-    private final UpgradeRecipeGenerator<DefaultCraftingDisplay<?>> resolver = new UpgradeRecipeGenerator<>(GeneratedShapedDisplay::new);
+    private final UpgradeRecipeGenerator<DefaultCraftingDisplay<?>> resolver = new UpgradeRecipeGenerator<>(GeneratedShapedDisplay::new, RecipeModHelpers.getEmptyRegistryAccess());
 
     @Override
     public Optional<List<DefaultCraftingDisplay<?>>> getRecipeFor(EntryStack<?> entry) {
