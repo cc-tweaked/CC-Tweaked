@@ -27,7 +27,7 @@ class GameRendererMixin {
     private Map<String, ShaderInstance> shaders;
 
     @Inject(method = "reloadShaders", at = @At(value = "TAIL"))
-    @SuppressWarnings("UnusedMethod")
+    @SuppressWarnings("unused")
     private void onReloadShaders(ResourceProvider resourceManager, CallbackInfo ci) {
         try {
             ClientRegistry.registerShaders(resourceManager, (shader, callback) -> {

@@ -22,7 +22,7 @@ public class WorldOpenFlowsMixin {
      * @reason Makes it easier to run tests. We can switch to an @Inject if this becomes a problem.
      */
     @Overwrite
-    @SuppressWarnings("UnusedMethod")
+    @SuppressWarnings("unused")
     private void askForBackup(Screen screen, String level, boolean customised, Runnable action) {
         action.run();
     }

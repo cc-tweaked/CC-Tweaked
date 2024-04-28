@@ -94,9 +94,8 @@ sourceSets.all {
             check("InlineMeSuggester", CheckSeverity.OFF) // Minecraft uses @Deprecated liberally
             // Too many false positives right now. Maybe we need an indirection for it later on.
             check("ReferenceEquality", CheckSeverity.OFF)
-            check("UnusedVariable", CheckSeverity.OFF) // Too many false positives with records.
+            check("EnumOrdinal", CheckSeverity.OFF) // For now. We could replace most of these with EnumMap.
             check("OperatorPrecedence", CheckSeverity.OFF) // For now.
-            check("AlreadyChecked", CheckSeverity.OFF) // Seems to be broken?
             check("NonOverridingEquals", CheckSeverity.OFF) // Peripheral.equals makes this hard to avoid
             check("FutureReturnValueIgnored", CheckSeverity.OFF) // Too many false positives with Netty
 

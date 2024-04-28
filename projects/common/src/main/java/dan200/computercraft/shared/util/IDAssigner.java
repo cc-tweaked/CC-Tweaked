@@ -33,7 +33,6 @@ public final class IDAssigner {
 
     private final Path idFile;
     private final Path newIdFile;
-    private boolean atomicMove = true;
     private @Nullable Map<String, Integer> ids;
 
     public IDAssigner(Path path) {

@@ -31,7 +31,7 @@ class MultiPlayerGameModeMixin {
         cancellable = true,
         locals = LocalCapture.CAPTURE_FAILHARD
     )
-    @SuppressWarnings("UnusedMethod")
+    @SuppressWarnings("unused")
     private void onBlockBreak(BlockPos pos, CallbackInfoReturnable<Boolean> cir, Level level, BlockState state, Block block) {
         if (!FabricCommonHooks.onBlockDestroy(level, minecraft.player, pos, state, null)) cir.setReturnValue(true);
     }

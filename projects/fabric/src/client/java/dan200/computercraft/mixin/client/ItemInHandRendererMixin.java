@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ItemInHandRenderer.class)
 class ItemInHandRendererMixin {
     @Inject(method = "renderArmWithItem", at = @At("HEAD"), cancellable = true)
-    @SuppressWarnings("UnusedMethod")
+    @SuppressWarnings("unused")
     private void onRenderItem(
         AbstractClientPlayer player, float partialTicks, float pitch, InteractionHand hand, float swingProgress, ItemStack stack,
         float equippedProgress, PoseStack transform, MultiBufferSource buffer, int combinedLight, CallbackInfo ci

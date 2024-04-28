@@ -25,13 +25,13 @@ class MinecraftMixin {
     private ReloadableResourceManager resourceManager;
 
     @Inject(method = "clearLevel(Lnet/minecraft/client/gui/screens/Screen;)V", at = @At("HEAD"))
-    @SuppressWarnings("UnusedMethod")
+    @SuppressWarnings("unused")
     private void clearLevel(Screen screen, CallbackInfo ci) {
         ClientHooks.onWorldUnload();
     }
 
     @Inject(method = "setLevel", at = @At("HEAD"))
-    @SuppressWarnings("UnusedMethod")
+    @SuppressWarnings("unused")
     private void setLevel(ClientLevel screen, CallbackInfo ci) {
         ClientHooks.onWorldUnload();
     }
@@ -44,6 +44,7 @@ class MinecraftMixin {
             ordinal = 0
         )
     )
+    @SuppressWarnings("unused")
     public void beforeInitialResourceReload(GameConfig gameConfig, CallbackInfo ci) {
         ClientRegistry.registerReloadListeners(resourceManager::registerReloadListener, (Minecraft) (Object) this);
     }

@@ -13,8 +13,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -29,8 +27,6 @@ import java.util.Objects;
  * @param <C> A platform-specific type, used for the invalidation callback.
  */
 public final class GenericPeripheralProvider<C extends Runnable> {
-    private static final Logger LOG = LoggerFactory.getLogger(GenericPeripheralProvider.class);
-
     private final List<ComponentLookup<? super C>> lookups = new ArrayList<>();
 
     /**
