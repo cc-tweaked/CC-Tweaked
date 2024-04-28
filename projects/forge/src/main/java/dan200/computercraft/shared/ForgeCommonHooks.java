@@ -16,7 +16,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
@@ -25,6 +24,7 @@ import net.neoforged.neoforge.event.level.ChunkWatchEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /**
  * Forge-specific dispatch for {@link CommonHooks}.
@@ -32,11 +32,13 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 @EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID)
 public class ForgeCommonHooks {
     @SubscribeEvent
-    public static void onServerTick(TickEvent.ServerTickEvent event) {
-        switch (event.phase) {
-            case START -> CommonHooks.onServerTickStart(event.getServer());
-            case END -> CommonHooks.onServerTickEnd();
-        }
+    public static void onServerTick(ServerTickEvent.Pre event) {
+        CommonHooks.onServerTickStart(event.getServer());
+    }
+
+    @SubscribeEvent
+    public static void onServerTick(ServerTickEvent.Post event) {
+        CommonHooks.onServerTickStart(event.getServer());
     }
 
     @SubscribeEvent

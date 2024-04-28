@@ -22,11 +22,7 @@ class FakePlayerExt extends FakePlayer {
 
     FakePlayerExt(ServerLevel serverLevel, GameProfile profile) {
         super(serverLevel, profile);
-    }
-
-    @Override
-    public void doTick() {
-        super.doTick();
+        refreshDimensions();
     }
 
     @Override

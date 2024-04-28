@@ -12,16 +12,12 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 
-public final class FakePlayer extends net.fabricmc.fabric.api.entity.FakePlayer {
+final class FakePlayer extends net.fabricmc.fabric.api.entity.FakePlayer {
     private static final EntityDimensions DIMENSIONS = EntityDimensions.fixed(0, 0);
 
-    private FakePlayer(ServerLevel serverLevel, GameProfile gameProfile) {
+    FakePlayer(ServerLevel serverLevel, GameProfile gameProfile) {
         super(serverLevel, gameProfile);
         refreshDimensions();
-    }
-
-    static FakePlayer create(ServerLevel serverLevel, GameProfile profile) {
-        return new FakePlayer(serverLevel, profile);
     }
 
     @Override

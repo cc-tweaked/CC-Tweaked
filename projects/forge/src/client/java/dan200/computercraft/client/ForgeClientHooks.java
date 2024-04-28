@@ -12,7 +12,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.event.sound.PlayStreamingSourceEvent;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
 /**
@@ -24,13 +23,13 @@ public final class ForgeClientHooks {
     }
 
     @SubscribeEvent
-    public static void onTick(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) ClientHooks.onTick();
+    public static void onTick(ClientTickEvent.Pre event) {
+        ClientHooks.onTick();
     }
 
     @SubscribeEvent
-    public static void onRenderTick(TickEvent.RenderTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) ClientHooks.onRenderTick();
+    public static void onRenderTick(RenderFrameEvent.Pre event) {
+        ClientHooks.onRenderTick();
     }
 
     @SubscribeEvent

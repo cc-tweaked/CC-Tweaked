@@ -15,8 +15,8 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 @Mod("cctest")
 public class TestMod {
@@ -34,9 +34,7 @@ public class TestMod {
     private static void onInitializeClient() {
         var bus = NeoForge.EVENT_BUS;
 
-        bus.addListener((TickEvent.ServerTickEvent e) -> {
-            if (e.phase == TickEvent.Phase.START) ClientTestHooks.onServerTick(e.getServer());
-        });
+        bus.addListener((ServerTickEvent.Pre e) -> ClientTestHooks.onServerTick(e.getServer()));
         bus.addListener((ScreenEvent.Opening e) -> {
             if (ClientTestHooks.onOpenScreen(e.getScreen())) e.setCanceled(true);
         });

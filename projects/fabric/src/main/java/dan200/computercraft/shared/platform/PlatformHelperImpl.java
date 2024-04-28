@@ -236,7 +236,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public ServerPlayer createFakePlayer(ServerLevel world, GameProfile name) {
-        return FakePlayer.create(world, name);
+        return new FakePlayer(world, name);
     }
 
     @Override

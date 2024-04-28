@@ -109,7 +109,7 @@ sourceSets.main { resources.srcDir("src/generated/resources") }
 
 loom {
     accessWidenerPath.set(project(":common").file("src/main/resources/computercraft.accesswidener"))
-    mixin.defaultRefmapName.set("computercraft.refmap.json")
+    mixin.useLegacyMixinAp = false
 
     mods {
         register("computercraft") {
