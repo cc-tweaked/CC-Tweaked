@@ -14,6 +14,7 @@ import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
+import dan200.computercraft.shared.util.DataComponentUtil;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
@@ -49,37 +50,26 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     private static final TurtleCommandResult INEFFECTIVE = TurtleCommandResult.failure("Cannot break block with this tool");
 
     final TurtleToolSpec spec;
-    final ItemStack item;
-    final float damageMulitiplier;
-    final boolean allowEnchantments;
-    final TurtleToolDurability consumeDurability;
     final @Nullable TagKey<Block> breakable;
 
     public TurtleTool(TurtleToolSpec spec) {
-        super(TurtleUpgradeType.TOOL, spec.adjective(), new ItemStack(spec.craftItem().orElse(spec.toolItem())));
+        super(TurtleUpgradeType.TOOL, spec.adjective(), new ItemStack(spec.item()));
         this.spec = spec;
-        item = new ItemStack(spec.toolItem());
-        this.damageMulitiplier = spec.damageMultiplier();
-        this.allowEnchantments = spec.allowEnchantments();
-        this.consumeDurability = spec.consumeDurability();
         this.breakable = spec.breakable().orElse(null);
     }
 
     @Override
     public boolean isItemSuitable(ItemStack stack) {
-        if (consumeDurability == TurtleToolDurability.NEVER && stack.isDamaged()) return false;
-        if (!allowEnchantments && isEnchanted(stack)) return false;
+        if (spec.consumeDurability() == TurtleToolDurability.NEVER && stack.isDamaged()) return false;
+        if (!spec.allowEnchantments() && isEnchanted(stack)) return false;
         return true;
     }
 
     private static boolean isEnchanted(ItemStack stack) {
-        var enchantments = stack.get(DataComponents.ENCHANTMENTS);
-        if (enchantments != null && !enchantments.isEmpty()) return true;
-
-        var modifiers = stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
-        if (modifiers != null && !modifiers.modifiers().isEmpty()) return true;
-
-        return false;
+        // Only check whether the stack has been modified. We ignore components on the original item.
+        var patch = stack.getComponentsPatch();
+        return DataComponentUtil.isPresent(patch, DataComponents.ENCHANTMENTS, x -> !x.isEmpty())
+            || DataComponentUtil.isPresent(patch, DataComponents.ATTRIBUTE_MODIFIERS, x -> !x.modifiers().isEmpty());
     }
 
     @Override
@@ -100,9 +90,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     }
 
     private void setToolStack(ITurtleAccess turtle, TurtleSide side, ItemStack oldStack, ItemStack stack) {
-        var upgradeData = turtle.getUpgradeData(side);
-
-        var useDurability = switch (consumeDurability) {
+        var useDurability = switch (spec.consumeDurability()) {
             case NEVER -> false;
             case WHEN_ENCHANTED -> isEnchanted(oldStack);
             case ALWAYS -> true;
@@ -116,7 +104,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         }
 
         // If the tool has changed, no clue what's going on.
-        if (stack.getItem() != item.getItem()) return;
+        if (stack.getItem() != spec.item()) return;
 
         turtle.setUpgradeData(side, stack.getComponentsPatch());
     }
@@ -218,7 +206,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
      * @see Player#attack(Entity)
      */
     private boolean attack(ServerPlayer player, Direction direction, Entity entity) {
-        var baseDamage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE) * damageMulitiplier;
+        var baseDamage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE) * spec.damageMultiplier();
         var bonusDamage = EnchantmentHelper.getDamageBonus(player.getItemInHand(InteractionHand.MAIN_HAND), entity.getType());
         var damage = baseDamage + bonusDamage;
         if (damage <= 0) return false;

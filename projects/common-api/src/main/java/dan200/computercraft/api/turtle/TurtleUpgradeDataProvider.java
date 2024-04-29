@@ -58,7 +58,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
      */
     public final class ToolBuilder {
         private final ResourceLocation id;
-        private final Item toolItem;
+        private final Item item;
         private Component adjective;
         private @Nullable Item craftingItem;
         private float damageMultiplier = TurtleToolSpec.DEFAULT_DAMAGE_MULTIPLIER;
@@ -66,33 +66,21 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
         private boolean allowEnchantments = false;
         private TurtleToolDurability consumeDurability = TurtleToolDurability.NEVER;
 
-        ToolBuilder(ResourceLocation id, Item toolItem) {
+        ToolBuilder(ResourceLocation id, Item item) {
             this.id = id;
             adjective = Component.translatable(UpgradeBase.getDefaultAdjective(id));
-            this.toolItem = toolItem;
+            this.item = item;
             craftingItem = null;
         }
 
         /**
-         * Specify a custom adjective for this tool. By default this takes its adjective from the tool item.
+         * Specify a custom adjective for this tool. By default this takes its adjective from the upgrade id.
          *
          * @param adjective The new adjective to use.
          * @return The tool builder, for further use.
          */
         public ToolBuilder adjective(Component adjective) {
             this.adjective = adjective;
-            return this;
-        }
-
-        /**
-         * Specify a custom item which is used to craft this upgrade. By default this is the same as the provided tool
-         * item, but you may wish to override it.
-         *
-         * @param craftingItem The item used to craft this upgrade.
-         * @return The tool builder, for further use.
-         */
-        public ToolBuilder craftingItem(Item craftingItem) {
-            this.craftingItem = craftingItem;
             return this;
         }
 
@@ -152,8 +140,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
         public void add(Consumer<Upgrade<ITurtleUpgrade>> add) {
             upgrade(id, ComputerCraftAPIService.get().createTurtleTool(new TurtleToolSpec(
                 adjective,
-                Optional.ofNullable(craftingItem),
-                toolItem,
+                item,
                 damageMultiplier,
                 allowEnchantments,
                 consumeDurability,

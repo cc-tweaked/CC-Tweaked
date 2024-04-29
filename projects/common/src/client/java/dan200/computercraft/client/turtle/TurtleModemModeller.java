@@ -11,6 +11,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.turtle.upgrades.TurtleModem;
+import dan200.computercraft.shared.util.DataComponentUtil;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -23,8 +24,7 @@ import java.util.stream.Stream;
 public class TurtleModemModeller implements TurtleUpgradeModeller<TurtleModem> {
     @Override
     public TransformedModel getModel(TurtleModem upgrade, @Nullable ITurtleAccess turtle, TurtleSide side, DataComponentPatch data) {
-        var component = data.get(ModRegistry.DataComponents.ON.get());
-        var active = component != null && component.isPresent() && component.get();
+        var active = DataComponentUtil.isPresent(data, ModRegistry.DataComponents.ON.get(), x -> x);
 
         var models = upgrade.advanced() ? ModemModels.ADVANCED : ModemModels.NORMAL;
         return side == TurtleSide.LEFT

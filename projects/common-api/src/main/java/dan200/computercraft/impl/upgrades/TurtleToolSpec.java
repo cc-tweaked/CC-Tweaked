@@ -22,8 +22,7 @@ import java.util.Optional;
  * The template for a turtle tool.
  *
  * @param adjective         The adjective for this tool.
- * @param craftItem         The item used to craft this tool.
- * @param toolItem          The actual tool used.
+ * @param item              The tool used.
  * @param damageMultiplier  The damage multiplier for this tool.
  * @param allowEnchantments Whether to allow enchantments.
  * @param consumeDurability When to consume durability.
@@ -31,8 +30,7 @@ import java.util.Optional;
  */
 public record TurtleToolSpec(
     Component adjective,
-    Optional<Item> craftItem,
-    Item toolItem,
+    Item item,
     float damageMultiplier,
     boolean allowEnchantments,
     TurtleToolDurability consumeDurability,
@@ -42,8 +40,7 @@ public record TurtleToolSpec(
 
     public static final MapCodec<TurtleToolSpec> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         ComponentSerialization.CODEC.fieldOf("adjective").forGetter(TurtleToolSpec::adjective),
-        BuiltInRegistries.ITEM.byNameCodec().optionalFieldOf("craftingItem").forGetter(TurtleToolSpec::craftItem),
-        BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(TurtleToolSpec::toolItem),
+        BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(TurtleToolSpec::item),
         Codec.FLOAT.optionalFieldOf("damageMultiplier", DEFAULT_DAMAGE_MULTIPLIER).forGetter(TurtleToolSpec::damageMultiplier),
         Codec.BOOL.optionalFieldOf("allowEnchantments", false).forGetter(TurtleToolSpec::allowEnchantments),
         TurtleToolDurability.CODEC.optionalFieldOf("consumeDurability", TurtleToolDurability.NEVER).forGetter(TurtleToolSpec::consumeDurability),
