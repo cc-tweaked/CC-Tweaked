@@ -76,6 +76,45 @@ def unstitch_corners(input_file: pathlib.Path, family: str):
         sidebar.save(output_dir / f"sidebar_{family}.png")
 
 
+def unstitch_turtle(input_file: pathlib.Path, family: str, *, dy: int = 0):
+    input = Image.open(input_file)
+    output_dir = input_file.parent
+
+    fragments = [
+        ("bottom", 22, 0, 24, 22, Image.Transpose.ROTATE_180),
+        ("top", 46, 0, 24, 22, Image.Transpose.FLIP_LEFT_RIGHT),
+        ("right", 0, 22, 22, 24, Image.Transpose.ROTATE_180),
+        ("back", 22, 22, 24, 24, Image.Transpose.ROTATE_180),
+        ("left", 46, 22, 22, 24, Image.Transpose.ROTATE_180),
+        ("front", 68, 22, 24, 24, Image.Transpose.ROTATE_180),
+    ]
+
+    for suffix, x, y, w, h, transform in fragments:
+        if family == "elf_overlay" and suffix == "bottom":
+            continue
+
+        slice = input.crop(box(x, dy + y, w, h)).transpose(transform)
+
+        fragment = Image.new("RGBA", (32, 32))
+        fragment.paste(slice)
+        fragment.save(output_dir / f"turtle_{family}_{suffix}.png")
+
+    backpack = Image.new("RGBA", (32, 32))
+    backpack.paste(
+        input.crop(box(70, dy + 4, 28, 14)).transpose(Image.Transpose.ROTATE_180),
+        (0, 4),
+    )
+    backpack.paste(
+        input.crop(box(74, dy + 0, 20, 4)).transpose(Image.Transpose.ROTATE_180),
+        (4, 18),
+    )
+    backpack.paste(
+        input.crop(box(94, dy + 0, 20, 4)).transpose(Image.Transpose.FLIP_LEFT_RIGHT),
+        (4, 0),
+    )
+    backpack.save(output_dir / f"turtle_{family}_backpack.png")
+
+
 def main() -> None:
     spec = argparse.ArgumentParser()
     spec.add_argument("dir", type=pathlib.Path)
@@ -96,6 +135,18 @@ def main() -> None:
         if path.exists():
             unstitch_corners(path, family)
             transformed.append(path)
+
+    for family in ("normal", "advanced", "elf_overlay"):
+        path = texture_path / "block" / f"turtle_{family}.png"
+        if path.exists():
+            unstitch_turtle(path, family)
+            transformed.append(path)
+
+    path = texture_path / "block" / f"turtle_colour.png"
+    if path.exists():
+        unstitch_turtle(path, "colour_frame")
+        unstitch_turtle(path, "colour_body", dy=46)
+        transformed.append(path)
 
     if len(transformed) == 0:
         print("No files were transformed")
