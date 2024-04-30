@@ -1,1 +1,12 @@
-{"parent": "computercraft:block/turtle_base", "textures": {"texture": "computercraft:block/turtle_normal"}}
+{
+  "parent": "computercraft:block/turtle_base",
+  "textures": {
+    "back": "computercraft:block/turtle_normal_back",
+    "backpack": "computercraft:block/turtle_normal_backpack",
+    "bottom": "computercraft:block/turtle_normal_bottom",
+    "front": "computercraft:block/turtle_normal_front",
+    "left": "computercraft:block/turtle_normal_left",
+    "right": "computercraft:block/turtle_normal_right",
+    "top": "computercraft:block/turtle_normal_top"
+  }
+}

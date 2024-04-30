@@ -98,7 +98,6 @@ abstract class MergeTrees : DefaultTask() {
         }
 
         val sharedFiles = files.entries.asSequence().filter { (_, v) -> v.found == sources.size }.map { (k, _) -> k }.toList()
-        println(sharedFiles)
 
         // Copy shared files to the common directory
         fsOperations.sync {
