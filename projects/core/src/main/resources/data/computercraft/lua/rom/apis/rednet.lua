@@ -149,7 +149,7 @@ function isOpen(modem)
 end
 
 --[[- Allows a computer or turtle with an attached modem to send a message
-intended for a sycomputer with a specific ID. At least one such modem must first
+intended for a computer with a specific ID. At least one such modem must first
 be [opened][`rednet.open`] before sending is possible.
 
 Assuming the target was in range and also had a correctly opened modem, the
