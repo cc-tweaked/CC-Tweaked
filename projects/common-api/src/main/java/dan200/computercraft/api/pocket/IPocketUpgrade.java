@@ -4,12 +4,14 @@
 
 package dan200.computercraft.api.pocket;
 
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.impl.ComputerCraftAPIService;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
@@ -21,11 +23,11 @@ import javax.annotation.Nullable;
  * {@link UpgradeType} instance, which are then registered in a registry.
  * <p>
  * You then write a JSON file in your mod's {@literal data/} folder. This is then parsed when the world is loaded, and
- * the upgrade automatically registered. It is recommended this is done via {@linkplain PocketUpgradeDataProvider data
- * generators}.
+ * the upgrade automatically registered. It is recommended this is done via
+ * <a href="../upgrades/UpgradeType.html#datagen">data generators</a>.
  *
  * <h2>Example</h2>
- * <pre>{@code
+ * {@snippet lang="java" :
  * // We use Forge's DeferredRegister to register our upgrade type. Fabric mods may register their type directly.
  * static final DeferredRegister<UpgradeType<? extends IPocketUpgrade>> POCKET_UPGRADES = DeferredRegister.create(IPocketUpgrade.typeRegistry(), "my_mod");
  *
@@ -35,19 +37,19 @@ import javax.annotation.Nullable;
  *
  * // Then in your constructor
  * POCKET_UPGRADES.register(bus);
- * }</pre>
+ * }
  * <p>
  * We can then define a new upgrade using JSON by placing the following in
- * {@code data/<my_mod>/computercraft/pocket_upgrades/<my_upgrade_id>.json}.
- * <pre>{@code
+ * {@code data/<my_mod>/computercraft/pocket_upgrade/<my_upgrade_id>.json}.
+ * {@snippet lang="json" :
  * {
- *     "type": my_mod:my_upgrade",
+ *     "type": "my_mod:my_upgrade"
  * }
- * }</pre>
- * <p>
- * {@link PocketUpgradeDataProvider} provides a data provider to aid with generating these JSON files.
+ * }
  */
 public interface IPocketUpgrade extends UpgradeBase {
+    ResourceKey<Registry<IPocketUpgrade>> REGISTRY = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_upgrade"));
+
     /**
      * The registry key for pocket upgrade types.
      *

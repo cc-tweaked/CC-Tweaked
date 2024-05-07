@@ -11,7 +11,6 @@ import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.container.BasicContainer;
 import dan200.computercraft.shared.container.BasicWorldlyContainer;
 import dan200.computercraft.shared.media.items.PrintoutData;
-import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.util.ColourUtils;
 import dan200.computercraft.shared.util.DataComponentUtil;
 import net.minecraft.core.BlockPos;
@@ -172,8 +171,7 @@ public final class PrinterBlockEntity extends AbstractContainerBlockEntity imple
 
     static boolean isPaper(ItemStack stack) {
         var item = stack.getItem();
-        return item == Items.PAPER
-            || (item instanceof PrintoutItem printout && printout.getType() == PrintoutItem.Type.PAGE);
+        return item == Items.PAPER || item == ModRegistry.Items.PRINTED_PAGE.get();
     }
 
     private boolean canInputPage() {

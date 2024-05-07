@@ -8,6 +8,8 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.FabricDetailRegistries;
 import dan200.computercraft.api.network.wired.WiredElementLookup;
 import dan200.computercraft.api.peripheral.PeripheralLookup;
+import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.impl.Peripherals;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
@@ -66,8 +68,8 @@ public class ComputerCraft {
 
         FabricRegistryBuilder.createSimple(RecipeFunction.REGISTRY).attribute(RegistryAttribute.SYNCED).buildAndRegister();
 
-        DynamicRegistries.registerSynced(ModRegistry.TURTLE_UPGRADE, TurtleUpgrades.instance().upgradeCodec());
-        DynamicRegistries.registerSynced(ModRegistry.POCKET_UPGRADE, PocketUpgrades.instance().upgradeCodec());
+        DynamicRegistries.registerSynced(ITurtleUpgrade.REGISTRY, TurtleUpgrades.instance().upgradeCodec());
+        DynamicRegistries.registerSynced(IPocketUpgrade.REGISTRY, PocketUpgrades.instance().upgradeCodec());
 
         ModRegistry.register();
         ModRegistry.registerMainThread();

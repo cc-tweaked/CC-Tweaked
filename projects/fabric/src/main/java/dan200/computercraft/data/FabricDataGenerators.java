@@ -5,41 +5,40 @@
 package dan200.computercraft.data;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.Lifecycle;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricCodecDataProvider;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricDynamicRegistryProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
-import net.minecraft.core.*;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
-import net.minecraft.resources.RegistryDataLoader;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 public class FabricDataGenerators implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator generator) {
-        var pack = new PlatformGeneratorsImpl(generator.createPack());
+        var pack = new PlatformGeneratorsImpl(generator.createPack(), generator.getRegistries());
         DataProviders.add(pack);
     }
 
-    private record PlatformGeneratorsImpl(FabricDataGenerator.Pack generator) implements DataProviders.GeneratorSink {
+    private record PlatformGeneratorsImpl(
+        FabricDataGenerator.Pack generator, CompletableFuture<HolderLookup.Provider> registries
+    ) implements DataProviders.GeneratorSink {
         public <T extends DataProvider> T addWithFabricOutput(FabricDataGenerator.Pack.Factory<T> factory) {
             return generator.addProvider((FabricDataOutput p) -> new PrettyDataProvider<>(factory.create(p))).provider();
         }
@@ -51,11 +50,6 @@ public class FabricDataGenerators implements DataGeneratorEntrypoint {
         @Override
         public <T extends DataProvider> T add(DataProvider.Factory<T> factory) {
             return addWithFabricOutput(factory::create);
-        }
-
-        @Override
-        public <T extends DataProvider> T add(BiFunction<PackOutput, CompletableFuture<HolderLookup.Provider>, T> factory) {
-            return addWithRegistries(factory::apply);
         }
 
         @Override
@@ -111,61 +105,24 @@ public class FabricDataGenerators implements DataGeneratorEntrypoint {
         }
 
         @Override
-        public CompletableFuture<RegistrySetBuilder.PatchedRegistries> createPatchedRegistries(CompletableFuture<HolderLookup.Provider> registries, RegistrySetBuilder patch) {
-            return registries.thenApply(oldRegistries -> {
-                var factory = new Cloner.Factory();
-                DynamicRegistries.getDynamicRegistries().forEach(registryData -> registryData.runWithArguments(factory::addCodec));
-                return patch.buildPatch(RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY), new DynamicRegistryLookup(oldRegistries), factory);
+        public void registries(CompletableFuture<RegistrySetBuilder.PatchedRegistries> registries) {
+            addWithFabricOutput(out -> new FabricDynamicRegistryProvider(out, registries.thenApply(RegistrySetBuilder.PatchedRegistries::patches)) {
+                @Override
+                public String getName() {
+                    return "Registries";
+                }
+
+                @Override
+                protected void configure(HolderLookup.Provider registries, Entries entries) {
+                    for (var reg : DynamicRegistries.getDynamicRegistries()) {
+                        registries.lookupOrThrow(reg.key()).listElements().forEach(x -> register(entries, x));
+                    }
+                }
+
+                private static <T> void register(Entries entries, Holder.Reference<T> reference) {
+                    entries.add(reference.key(), reference.value());
+                }
             });
-        }
-
-        /**
-         * A {@link HolderLookup.Provider} implementation that adds any Fabric dynamic registry, if missing.
-         *
-         * @param parent The parent registry.
-         */
-        private record DynamicRegistryLookup(HolderLookup.Provider parent) implements HolderLookup.Provider {
-            @Override
-            public Stream<ResourceKey<? extends Registry<?>>> listRegistries() {
-                return Stream.concat(
-                    parent.listRegistries(),
-                    DynamicRegistries.getDynamicRegistries().stream().map(RegistryDataLoader.RegistryData::key)
-                ).distinct();
-            }
-
-            @Override
-            public <T> Optional<HolderLookup.RegistryLookup<T>> lookup(ResourceKey<? extends Registry<? extends T>> registryKey) {
-                return parent.lookup(registryKey).or(() -> Optional.of(new EmptyRegistry<>(registryKey)));
-            }
-        }
-
-        private record EmptyRegistry<T>(
-            ResourceKey<? extends Registry<? extends T>> key
-        ) implements HolderLookup.RegistryLookup<T> {
-            @Override
-            public Lifecycle registryLifecycle() {
-                return Lifecycle.stable();
-            }
-
-            @Override
-            public Stream<Holder.Reference<T>> listElements() {
-                return Stream.empty();
-            }
-
-            @Override
-            public Stream<HolderSet.Named<T>> listTags() {
-                return Stream.empty();
-            }
-
-            @Override
-            public Optional<Holder.Reference<T>> get(ResourceKey<T> resourceKey) {
-                return Optional.empty();
-            }
-
-            @Override
-            public Optional<HolderSet.Named<T>> get(TagKey<T> tagKey) {
-                return Optional.empty();
-            }
         }
     }
 }

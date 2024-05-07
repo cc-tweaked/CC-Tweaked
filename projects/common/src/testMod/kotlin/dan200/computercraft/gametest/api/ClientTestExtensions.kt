@@ -5,8 +5,8 @@
 package dan200.computercraft.gametest.api
 
 import dan200.computercraft.gametest.core.MinecraftExtensions
-import dan200.computercraft.impl.RegistryHelper
 import dan200.computercraft.mixin.gametest.GameTestSequenceAccessor
+import dan200.computercraft.shared.util.RegistryHelper
 import net.minecraft.client.Minecraft
 import net.minecraft.client.Screenshot
 import net.minecraft.client.gui.screens.inventory.MenuAccess

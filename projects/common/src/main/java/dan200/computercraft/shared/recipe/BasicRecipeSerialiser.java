@@ -6,7 +6,7 @@ package dan200.computercraft.shared.recipe;
 
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
-import dan200.computercraft.impl.RegistryHelper;
+import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

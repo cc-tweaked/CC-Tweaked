@@ -18,7 +18,6 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.impl.PocketUpgrades;
-import dan200.computercraft.impl.RegistryHelper;
 import dan200.computercraft.shared.command.UserLevel;
 import dan200.computercraft.shared.command.arguments.ComputerArgumentType;
 import dan200.computercraft.shared.command.arguments.RepeatArgumentType;
@@ -91,7 +90,6 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Registry;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -99,7 +97,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
@@ -129,9 +126,6 @@ import java.util.function.UnaryOperator;
 public final class ModRegistry {
     private ModRegistry() {
     }
-
-    public static final ResourceKey<Registry<ITurtleUpgrade>> TURTLE_UPGRADE = RegistryHelper.TURTLE_UPGRADE;
-    public static final ResourceKey<Registry<IPocketUpgrade>> POCKET_UPGRADE = RegistryHelper.POCKET_UPGRADE;
 
     public static final class Blocks {
         static final RegistrationHelper<Block> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registries.BLOCK);
@@ -602,7 +596,7 @@ public final class ModRegistry {
 
     private static void addTurtle(CreativeModeTab.Output out, TurtleItem turtle, HolderLookup.Provider registries) {
         out.accept(new ItemStack(turtle));
-        registries.lookupOrThrow(TURTLE_UPGRADE).listElements()
+        registries.lookupOrThrow(ITurtleUpgrade.REGISTRY).listElements()
             .filter(ModRegistry::isOurUpgrade)
             .map(x -> DataComponentUtil.createStack(turtle, DataComponents.RIGHT_TURTLE_UPGRADE.get(), UpgradeData.ofDefault(x)))
             .forEach(out::accept);
@@ -610,7 +604,7 @@ public final class ModRegistry {
 
     private static void addPocket(CreativeModeTab.Output out, PocketComputerItem pocket, HolderLookup.Provider registries) {
         out.accept(new ItemStack(pocket));
-        registries.lookupOrThrow(POCKET_UPGRADE).listElements()
+        registries.lookupOrThrow(IPocketUpgrade.REGISTRY).listElements()
             .filter(ModRegistry::isOurUpgrade)
             .map(x -> DataComponentUtil.createStack(pocket, DataComponents.POCKET_UPGRADE.get(), UpgradeData.ofDefault(x))).forEach(out::accept);
     }

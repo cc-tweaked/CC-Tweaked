@@ -5,6 +5,8 @@
 package dan200.computercraft.shared.integration;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
@@ -60,14 +62,14 @@ public final class RecipeModHelpers {
         List<ItemStack> upgradeItems = new ArrayList<>();
         for (var turtleSupplier : TURTLES) {
             var turtle = turtleSupplier.get();
-            forEachRegistry(registries, ModRegistry.TURTLE_UPGRADE, upgrade ->
+            forEachRegistry(registries, ITurtleUpgrade.REGISTRY, upgrade ->
                 upgradeItems.add(DataComponentUtil.createStack(turtle, ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get(), UpgradeData.ofDefault(upgrade)))
             );
         }
 
         for (var pocketSupplier : POCKET_COMPUTERS) {
             var pocket = pocketSupplier.get();
-            forEachRegistry(registries, ModRegistry.POCKET_UPGRADE, upgrade ->
+            forEachRegistry(registries, IPocketUpgrade.REGISTRY, upgrade ->
                 upgradeItems.add(DataComponentUtil.createStack(pocket, ModRegistry.DataComponents.POCKET_UPGRADE.get(), UpgradeData.ofDefault(upgrade)))
             );
         }

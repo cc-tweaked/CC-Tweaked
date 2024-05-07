@@ -56,7 +56,6 @@ repositories {
             includeGroup("mezz.jei")
             includeGroup("org.teavm")
             includeModule("com.terraformersmc", "modmenu")
-            includeModule("me.lucko", "fabric-permissions-api")
         }
     }
 }

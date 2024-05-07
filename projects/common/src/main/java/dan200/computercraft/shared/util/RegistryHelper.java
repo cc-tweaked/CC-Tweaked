@@ -2,11 +2,8 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package dan200.computercraft.impl;
+package dan200.computercraft.shared.util;
 
-import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.pocket.IPocketUpgrade;
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
@@ -18,9 +15,6 @@ import org.jetbrains.annotations.ApiStatus;
  */
 @ApiStatus.Internal
 public final class RegistryHelper {
-    public static final ResourceKey<Registry<ITurtleUpgrade>> TURTLE_UPGRADE = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_upgrade"));
-    public static final ResourceKey<Registry<IPocketUpgrade>> POCKET_UPGRADE = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_upgrade"));
-
     private RegistryHelper() {
     }
 

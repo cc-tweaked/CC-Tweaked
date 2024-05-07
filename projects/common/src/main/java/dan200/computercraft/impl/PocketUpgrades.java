@@ -5,11 +5,10 @@
 package dan200.computercraft.impl;
 
 import dan200.computercraft.api.pocket.IPocketUpgrade;
-import dan200.computercraft.shared.ModRegistry;
 
 public final class PocketUpgrades {
     private static final UpgradeManager<IPocketUpgrade> registry = new UpgradeManager<>(
-        IPocketUpgrade.typeRegistry(), ModRegistry.POCKET_UPGRADE, IPocketUpgrade::getType
+        IPocketUpgrade.typeRegistry(), IPocketUpgrade.REGISTRY, IPocketUpgrade::getType
     );
 
     private PocketUpgrades() {

@@ -90,8 +90,8 @@ public final class ComputerCraft {
 
     @SubscribeEvent
     public static void registerDynamicRegistries(DataPackRegistryEvent.NewRegistry event) {
-        event.dataPackRegistry(ModRegistry.TURTLE_UPGRADE, TurtleUpgrades.instance().upgradeCodec(), TurtleUpgrades.instance().upgradeCodec());
-        event.dataPackRegistry(ModRegistry.POCKET_UPGRADE, PocketUpgrades.instance().upgradeCodec(), PocketUpgrades.instance().upgradeCodec());
+        event.dataPackRegistry(ITurtleUpgrade.REGISTRY, TurtleUpgrades.instance().upgradeCodec(), TurtleUpgrades.instance().upgradeCodec());
+        event.dataPackRegistry(IPocketUpgrade.REGISTRY, PocketUpgrades.instance().upgradeCodec(), PocketUpgrades.instance().upgradeCodec());
     }
 
     @SubscribeEvent

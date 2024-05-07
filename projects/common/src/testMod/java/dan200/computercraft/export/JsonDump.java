@@ -4,7 +4,7 @@
 
 package dan200.computercraft.export;
 
-import dan200.computercraft.impl.RegistryHelper;
+import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;

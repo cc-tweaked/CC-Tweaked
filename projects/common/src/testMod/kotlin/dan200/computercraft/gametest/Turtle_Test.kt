@@ -233,7 +233,7 @@ class Turtle_Test {
             val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
             val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
             assertEquals(
-                helper.level.registryAccess().registryOrThrow(ModRegistry.TURTLE_UPGRADE)
+                helper.level.registryAccess().registryOrThrow(ITurtleUpgrade.REGISTRY)
                     .get(ResourceLocation("cctest", "wooden_pickaxe")),
                 upgrade,
                 "Upgrade is a wooden pickaxe",
@@ -262,7 +262,7 @@ class Turtle_Test {
             helper.assertUpgradeItem(
                 ItemStack(Items.WOODEN_PICKAXE),
                 UpgradeData.ofDefault(
-                    helper.level.registryAccess().registryOrThrow(ModRegistry.TURTLE_UPGRADE)
+                    helper.level.registryAccess().registryOrThrow(ITurtleUpgrade.REGISTRY)
                         .getHolder(ResourceLocation("cctest", "wooden_pickaxe")).orElseThrow(),
                 ),
             )
@@ -283,7 +283,7 @@ class Turtle_Test {
             val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
             val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
             assertEquals(
-                helper.level.registryAccess().registryOrThrow(ModRegistry.TURTLE_UPGRADE)
+                helper.level.registryAccess().registryOrThrow(ITurtleUpgrade.REGISTRY)
                     .get(ResourceLocation("cctest", "netherite_pickaxe")),
                 upgrade,
                 "Upgrade is a netherite pickaxe",

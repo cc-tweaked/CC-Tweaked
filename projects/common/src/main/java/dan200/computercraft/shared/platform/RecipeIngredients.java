@@ -13,7 +13,6 @@ import net.minecraft.world.item.crafting.Ingredient;
  * @param redstone    All {@link Items#REDSTONE} items.
  * @param string      All {@link Items#STRING} items.
  * @param leather     All {@link Items#LEATHER} items.
- * @param stone       All {@link Items#STONE} items.
  * @param glassPane   All {@link Items#GLASS_PANE} items.
  * @param goldIngot   All {@link Items#GOLD_INGOT} items.
  * @param goldBlock   All {@link Items#GOLD_BLOCK} items.
@@ -26,7 +25,6 @@ public record RecipeIngredients(
     Ingredient redstone,
     Ingredient string,
     Ingredient leather,
-    Ingredient stone,
     Ingredient glassPane,
     Ingredient goldIngot,
     Ingredient goldBlock,

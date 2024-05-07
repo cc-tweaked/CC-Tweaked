@@ -64,7 +64,7 @@ public final class PrintoutRecipe extends CustomRecipe {
                     if (stack.getItem() instanceof PrintoutItem printout && printout.getType() != PrintoutItem.Type.BOOK) {
                         if (printouts == null) printouts = new ItemStack[9];
                         printouts[numPrintouts] = stack;
-                        numPages += PrintoutItem.getPageCount(stack);
+                        numPages += PrintoutData.getOrEmpty(stack).pages();
                         numPrintouts++;
                         printoutFound = true;
                     } else if (stack.getItem() == Items.PAPER) {
@@ -104,7 +104,7 @@ public final class PrintoutRecipe extends CustomRecipe {
                 }
             }
 
-            var title = PrintoutItem.getTitle(printouts[0]);
+            var title = PrintoutData.getOrEmpty(printouts[0]).title();
 
             return DataComponentUtil.createStack(
                 leatherFound ? ModRegistry.Items.PRINTED_BOOK.get() : ModRegistry.Items.PRINTED_PAGES.get(),

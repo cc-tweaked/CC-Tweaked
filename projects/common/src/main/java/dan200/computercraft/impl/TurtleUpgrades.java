@@ -5,11 +5,10 @@
 package dan200.computercraft.impl;
 
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.shared.ModRegistry;
 
 public final class TurtleUpgrades {
     private static final UpgradeManager<ITurtleUpgrade> registry = new UpgradeManager<>(
-        ITurtleUpgrade.typeRegistry(), ModRegistry.TURTLE_UPGRADE, ITurtleUpgrade::getType
+        ITurtleUpgrade.typeRegistry(), ITurtleUpgrade.REGISTRY, ITurtleUpgrade::getType
     );
 
     private TurtleUpgrades() {

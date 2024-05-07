@@ -4,7 +4,7 @@
 
 package dan200.computercraft.shared.details;
 
-import dan200.computercraft.impl.RegistryHelper;
+import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.tags.TagKey;

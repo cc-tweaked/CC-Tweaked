@@ -6,7 +6,6 @@ package dan200.computercraft.shared.util;
 
 import com.mojang.serialization.*;
 import com.mojang.serialization.codecs.KeyDispatchCodec;
-import dan200.computercraft.impl.RegistryHelper;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 

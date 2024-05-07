@@ -5,7 +5,7 @@
 package dan200.computercraft.data;
 
 import com.google.gson.JsonElement;
-import dan200.computercraft.impl.RegistryHelper;
+import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.Util;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;

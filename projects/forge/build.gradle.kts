@@ -89,7 +89,7 @@ runs {
     }
 
     val gameTestClient by registering {
-        configure(runTypes.client)
+        configure(runTypes.named("client"))
 
         workingDirectory(file("run/testClient"))
         configureForGameTest()
@@ -120,6 +120,8 @@ dependencies {
     clientCompileOnly(variantOf(libs.emi) { classifier("api") })
     compileOnly(libs.bundles.externalMods.forge.compile)
     runtimeOnly(libs.bundles.externalMods.forge.runtime) { cct.exclude(this) }
+
+    implementation("net.neoforged:neoforge:${libs.versions.neoForge.get()}")
 
     // Depend on our other projects.
     api(commonClasses(project(":forge-api"))) { cct.exclude(this) }

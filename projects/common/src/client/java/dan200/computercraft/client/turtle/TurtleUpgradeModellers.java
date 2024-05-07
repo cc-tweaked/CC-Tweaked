@@ -11,14 +11,12 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeType;
-import dan200.computercraft.impl.RegistryHelper;
-import dan200.computercraft.impl.UpgradeManager;
+import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
@@ -31,14 +29,6 @@ public final class TurtleUpgradeModellers {
 
     private static final Map<UpgradeType<? extends ITurtleUpgrade>, TurtleUpgradeModeller<?>> turtleModels = new ConcurrentHashMap<>();
     private static volatile boolean fetchedModels;
-
-    /**
-     * In order to avoid a double lookup of {@link ITurtleUpgrade} to {@link UpgradeManager.UpgradeWrapper} to
-     * {@link TurtleUpgradeModeller}, we maintain a cache here.
-     * <p>
-     * Turtle upgrades may be removed as part of datapack reloads, so we use a weak map to avoid the memory leak.
-     */
-    private static final WeakHashMap<ITurtleUpgrade, TurtleUpgradeModeller<?>> modelCache = new WeakHashMap<>();
 
     private TurtleUpgradeModellers() {
     }
@@ -57,20 +47,17 @@ public final class TurtleUpgradeModellers {
     }
 
     public static TransformedModel getModel(ITurtleUpgrade upgrade, ITurtleAccess access, TurtleSide side) {
-        @SuppressWarnings("unchecked")
-        var modeller = (TurtleUpgradeModeller<ITurtleUpgrade>) modelCache.computeIfAbsent(upgrade, TurtleUpgradeModellers::getModeller);
-        return modeller.getModel(upgrade, access, side, access.getUpgradeData(side));
+        return getModeller(upgrade).getModel(upgrade, access, side, access.getUpgradeData(side));
     }
 
     public static TransformedModel getModel(ITurtleUpgrade upgrade, DataComponentPatch data, TurtleSide side) {
-        @SuppressWarnings("unchecked")
-        var modeller = (TurtleUpgradeModeller<ITurtleUpgrade>) modelCache.computeIfAbsent(upgrade, TurtleUpgradeModellers::getModeller);
-        return modeller.getModel(upgrade, null, side, data);
+        return getModeller(upgrade).getModel(upgrade, null, side, data);
     }
 
-    private static TurtleUpgradeModeller<?> getModeller(ITurtleUpgrade upgrade) {
+    @SuppressWarnings("unchecked")
+    private static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> getModeller(T upgrade) {
         var modeller = turtleModels.get(upgrade.getType());
-        return modeller == null ? NULL_TURTLE_MODELLER : modeller;
+        return (TurtleUpgradeModeller<T>) (modeller == null ? NULL_TURTLE_MODELLER : modeller);
     }
 
     public static Stream<ResourceLocation> getDependencies() {

@@ -7,6 +7,7 @@ package dan200.computercraft.data;
 import com.mojang.serialization.Codec;
 import dan200.computercraft.api.ComputerCraftAPI;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
@@ -21,13 +22,13 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
+import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.common.data.JsonCodecProvider;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
@@ -46,11 +47,6 @@ public class Generators {
         @Override
         public <T extends DataProvider> T add(DataProvider.Factory<T> factory) {
             return generator.addProvider(p -> new PrettyDataProvider<>(factory.create(p))).provider();
-        }
-
-        @Override
-        public <T extends DataProvider> T add(BiFunction<PackOutput, CompletableFuture<HolderLookup.Provider>, T> factory) {
-            return generator.addProvider(p -> new PrettyDataProvider<>(factory.apply(p, registries))).provider();
         }
 
         @Override
@@ -98,6 +94,11 @@ public class Generators {
                     });
                 }
             });
+        }
+
+        @Override
+        public void registries(CompletableFuture<RegistrySetBuilder.PatchedRegistries> registries) {
+            add(out -> new DatapackBuiltinEntriesProvider(out, registries, null));
         }
     }
 }

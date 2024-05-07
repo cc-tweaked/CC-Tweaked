@@ -4,7 +4,7 @@
 
 package dan200.computercraft.shared.peripheral.modem.wired;
 
-import dan200.computercraft.impl.RegistryHelper;
+import dan200.computercraft.shared.util.RegistryHelper;
 import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;

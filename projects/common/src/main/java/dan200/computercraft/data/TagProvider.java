@@ -5,7 +5,7 @@
 package dan200.computercraft.data;
 
 import dan200.computercraft.api.ComputerCraftTags;
-import dan200.computercraft.impl.RegistryHelper;
+import dan200.computercraft.shared.util.RegistryHelper;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.integration.ExternalModTags;
 import net.minecraft.core.Registry;

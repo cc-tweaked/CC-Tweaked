@@ -17,7 +17,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.data.PrettyJsonWriter;
 import dan200.computercraft.gametest.core.TestHooks;
-import dan200.computercraft.impl.RegistryHelper;
+import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;

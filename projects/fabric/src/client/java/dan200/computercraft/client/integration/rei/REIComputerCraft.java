@@ -7,15 +7,22 @@ package dan200.computercraft.client.integration.rei;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.integration.RecipeModHelpers;
+import dan200.computercraft.shared.platform.RegistryEntry;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import dev.architectury.event.EventResult;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.display.DisplayRegistry;
+import me.shedaniel.rei.api.client.registry.entry.CollapsibleEntryRegistry;
 import me.shedaniel.rei.api.client.registry.entry.EntryRegistry;
+import me.shedaniel.rei.api.common.display.basic.BasicDisplay;
 import me.shedaniel.rei.api.common.entry.comparison.ItemComparatorRegistry;
+import me.shedaniel.rei.api.common.entry.type.VanillaEntryTypes;
 import me.shedaniel.rei.api.common.util.EntryStacks;
 import me.shedaniel.rei.plugin.common.BuiltinPlugin;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 
 /**
  * REI integration for ComputerCraft.
@@ -40,13 +47,28 @@ public class REIComputerCraft implements REIClientPlugin {
             var upgrade = PocketComputerItem.getUpgradeWithData(stack);
             return upgrade == null ? 1 : upgrade.holder().key().location().hashCode();
         }, ModRegistry.Items.POCKET_COMPUTER_NORMAL.get(), ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get());
+
+        registry.register((context, stack) -> DyedItemColor.getOrDefault(stack, -1), ModRegistry.Items.DISK.get());
     }
 
     @Override
     public void registerEntries(EntryRegistry registry) {
-        for (var stack : RecipeModHelpers.getExtraStacks(RecipeModHelpers.getEmptyRegistryAccess())) {
+        for (var stack : RecipeModHelpers.getExtraStacks(BasicDisplay.registryAccess())) {
             registry.addEntry(EntryStacks.of(stack));
         }
+    }
+
+    @Override
+    public void registerCollapsibleEntries(CollapsibleEntryRegistry registry) {
+        addCollapsableGroup(registry, ModRegistry.Items.TURTLE_NORMAL);
+        addCollapsableGroup(registry, ModRegistry.Items.TURTLE_ADVANCED);
+        addCollapsableGroup(registry, ModRegistry.Items.POCKET_COMPUTER_NORMAL);
+        addCollapsableGroup(registry, ModRegistry.Items.POCKET_COMPUTER_ADVANCED);
+    }
+
+    private static void addCollapsableGroup(CollapsibleEntryRegistry registry, RegistryEntry<? extends Item> holder) {
+        var item = holder.get();
+        registry.group(holder.id(), new ItemStack(item).getDisplayName(), VanillaEntryTypes.ITEM, x -> x.getValue().is(item));
     }
 
     @Override

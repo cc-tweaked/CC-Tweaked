@@ -57,7 +57,7 @@ public class UpgradeRecipeGenerator<T> {
         if (initialised) return;
         initialised = true;
 
-        forEachRegistry(registries, ModRegistry.TURTLE_UPGRADE, holder -> {
+        forEachRegistry(registries, ITurtleUpgrade.REGISTRY, holder -> {
             var upgrade = holder.value();
             var stack = upgrade.getCraftingItem();
             if (stack.isEmpty()) return;
@@ -67,7 +67,7 @@ public class UpgradeRecipeGenerator<T> {
             turtleUpgrades.add(info);
         });
 
-        forEachRegistry(registries, ModRegistry.POCKET_UPGRADE, holder -> {
+        forEachRegistry(registries, IPocketUpgrade.REGISTRY, holder -> {
             var upgrade = holder.value();
             var stack = upgrade.getCraftingItem();
             if (stack.isEmpty()) return;
@@ -223,13 +223,13 @@ public class UpgradeRecipeGenerator<T> {
         var newStack = stack.copyWithCount(1);
         newStack.set(ModRegistry.DataComponents.LEFT_TURTLE_UPGRADE.get(), left);
         newStack.set(ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get(), right);
-        return stack;
+        return newStack;
     }
 
     private static ItemStack pocketWith(ItemStack stack, @Nullable UpgradeData<IPocketUpgrade> back) {
         var newStack = stack.copyWithCount(1);
         newStack.set(ModRegistry.DataComponents.POCKET_UPGRADE.get(), back);
-        return stack;
+        return newStack;
     }
 
     private T pocket(Ingredient upgrade, Ingredient pocketComputer, ItemStack result) {

@@ -30,11 +30,6 @@ subsystems {
     }
 }
 
-dependencies {
-    val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
-    implementation("net.neoforged:neoforge:${libs.findVersion("neoForge").get()}")
-}
-
 MinecraftConfigurations.setup(project)
 
 extensions.configure(CCTweakedExtension::class.java) {

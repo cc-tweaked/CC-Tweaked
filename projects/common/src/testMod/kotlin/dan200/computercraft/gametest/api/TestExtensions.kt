@@ -6,10 +6,10 @@ package dan200.computercraft.gametest.api
 
 import dan200.computercraft.api.peripheral.IPeripheral
 import dan200.computercraft.gametest.core.ManagedComputers
-import dan200.computercraft.impl.RegistryHelper
 import dan200.computercraft.mixin.gametest.GameTestInfoAccessor
 import dan200.computercraft.mixin.gametest.GameTestSequenceAccessor
 import dan200.computercraft.shared.platform.PlatformHelper
+import dan200.computercraft.shared.util.RegistryHelper
 import dan200.computercraft.test.core.computer.LuaTaskContext
 import dan200.computercraft.test.shared.ItemStackMatcher.isStack
 import net.minecraft.commands.arguments.blocks.BlockInput

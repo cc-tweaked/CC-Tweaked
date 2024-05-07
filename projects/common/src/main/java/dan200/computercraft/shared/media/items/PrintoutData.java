@@ -8,7 +8,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.shared.ModRegistry;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.component.DataComponentHolder;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
@@ -91,6 +93,10 @@ public record PrintoutData(String title, List<Line> lines) {
         if ((lines.size() % LINES_PER_PAGE) != 0) return DataResult.error(() -> "Not enough lines for a page");
         if (lines.size() > LINES_PER_PAGE * MAX_PAGES) return DataResult.error(() -> "Too many pages");
         return DataResult.success(lines);
+    }
+
+    public static PrintoutData getOrEmpty(DataComponentHolder holder) {
+        return holder.getOrDefault(ModRegistry.DataComponents.PRINTOUT.get(), EMPTY);
     }
 
     /**

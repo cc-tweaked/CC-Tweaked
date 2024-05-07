@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 /**
  * Indicates if an equipped turtle item will consume durability.
  *
- * @see TurtleUpgradeDataProvider.ToolBuilder#consumeDurability(TurtleToolDurability)
+ * @see TurtleToolBuilder#consumeDurability(TurtleToolDurability)
  */
 public enum TurtleToolDurability implements StringRepresentable {
     /**

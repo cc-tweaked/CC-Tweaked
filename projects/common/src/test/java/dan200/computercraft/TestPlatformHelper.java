@@ -5,7 +5,6 @@
 package dan200.computercraft;
 
 import com.google.auto.service.AutoService;
-import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.network.wired.WiredElement;
@@ -48,13 +47,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-@AutoService({ PlatformHelper.class, dan200.computercraft.impl.PlatformHelper.class, ComputerCraftAPIService.class })
+@AutoService({ PlatformHelper.class, ComputerCraftAPIService.class })
 public class TestPlatformHelper extends AbstractComputerCraftAPI implements PlatformHelper {
-    @Override
-    public boolean isDevelopmentEnvironment() {
-        return true;
-    }
-
     @Override
     public ConfigFile.Builder createConfigBuilder() {
         throw new UnsupportedOperationException("Cannot create config file inside tests");
@@ -63,16 +57,6 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     @Override
     public <T> RegistrationHelper<T> createRegistrationHelper(ResourceKey<Registry<T>> registry) {
         throw new UnsupportedOperationException("Cannot query registry inside tests");
-    }
-
-    @Override
-    public boolean shouldLoadResource(JsonObject object) {
-        throw new UnsupportedOperationException("Cannot use resource conditions");
-    }
-
-    @Override
-    public void addRequiredModCondition(JsonObject object, String modId) {
-        throw new UnsupportedOperationException("Cannot use resource conditions");
     }
 
     @Override

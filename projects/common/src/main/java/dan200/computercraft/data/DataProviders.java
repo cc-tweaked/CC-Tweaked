@@ -5,7 +5,9 @@
 package dan200.computercraft.data;
 
 import com.mojang.serialization.Codec;
-import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import net.minecraft.Util;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.DataProvider;
@@ -20,7 +22,6 @@ import net.minecraft.world.level.block.Block;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 /**
@@ -32,25 +33,25 @@ public final class DataProviders {
     }
 
     public static void add(GeneratorSink generator) {
-        var turtleUpgrades = generator.add(TurtleUpgradeProvider::new);
-        var pocketUpgrades = generator.add(PocketUpgradeProvider::new);
+        var fullRegistryPatch = RegistryPatchGenerator.createLookup(
+            generator.registries(),
+            Util.make(new RegistrySetBuilder(), builder -> {
+                builder.add(ITurtleUpgrade.REGISTRY, TurtleUpgradeProvider::addUpgrades);
+                builder.add(IPocketUpgrade.REGISTRY, PocketUpgradeProvider::addUpgrades);
+            }));
+        var fullRegistries = fullRegistryPatch.thenApply(RegistrySetBuilder.PatchedRegistries::full);
 
-        generator.add((out, registries) -> {
-            var builder = new RegistrySetBuilder();
-            builder.add(ModRegistry.TURTLE_UPGRADE, bs -> turtleUpgrades.getGeneratedUpgrades().forEach(bs::register));
-            builder.add(ModRegistry.POCKET_UPGRADE, bs -> pocketUpgrades.getGeneratedUpgrades().forEach(bs::register));
-
-            return new RecipeProvider(out, generator.createPatchedRegistries(registries, builder).thenApply(RegistrySetBuilder.PatchedRegistries::full));
-        });
+        generator.registries(fullRegistryPatch);
+        generator.add(out -> new RecipeProvider(out, fullRegistries));
 
         var blockTags = generator.blockTags(TagProvider::blockTags);
         generator.itemTags(TagProvider::itemTags, blockTags);
 
-        generator.add((out, registries) -> new net.minecraft.data.loot.LootTableProvider(out, Set.of(), LootTableProvider.getTables(), registries));
+        generator.add(out -> new net.minecraft.data.loot.LootTableProvider(out, Set.of(), LootTableProvider.getTables(), fullRegistries));
 
         generator.add(out -> new ModelProvider(out, BlockModelProvider::addBlockModels, ItemModelProvider::addItemModels));
 
-        generator.add(out -> new LanguageProvider(out, turtleUpgrades, pocketUpgrades));
+        generator.add(out -> new LanguageProvider(out, fullRegistries));
 
         // Unfortunately we rely on some client-side classes in this code. We just load in the client side data provider
         // and invoke that.
@@ -63,9 +64,9 @@ public final class DataProviders {
     }
 
     public interface GeneratorSink {
-        <T extends DataProvider> T add(DataProvider.Factory<T> factory);
+        CompletableFuture<HolderLookup.Provider> registries();
 
-        <T extends DataProvider> T add(BiFunction<PackOutput, CompletableFuture<HolderLookup.Provider>, T> factory);
+        <T extends DataProvider> T add(DataProvider.Factory<T> factory);
 
         <T> void addFromCodec(String name, PackType type, String directory, Codec<T> codec, Consumer<BiConsumer<ResourceLocation, T>> output);
 
@@ -74,16 +75,10 @@ public final class DataProviders {
         TagsProvider<Item> itemTags(Consumer<TagProvider.ItemTagConsumer> tags, TagsProvider<Block> blocks);
 
         /**
-         * Extend our registries with additional entries.
+         * Build new dynamic registries and save them to a pack.
          *
-         * @param registries The existing registries.
-         * @param patch      The new registries to apply.
-         * @return The built registries.
+         * @param registries The patched registries to write.
          */
-        default CompletableFuture<RegistrySetBuilder.PatchedRegistries> createPatchedRegistries(
-            CompletableFuture<HolderLookup.Provider> registries, RegistrySetBuilder patch
-        ) {
-            return RegistryPatchGenerator.createLookup(registries, patch);
-        }
+        void registries(CompletableFuture<RegistrySetBuilder.PatchedRegistries> registries);
     }
 }

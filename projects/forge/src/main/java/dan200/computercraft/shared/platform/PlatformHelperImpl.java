@@ -5,11 +5,8 @@
 package dan200.computercraft.shared.platform;
 
 import com.google.auto.service.AutoService;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.serialization.JsonOps;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.WiredElement;
@@ -32,7 +29,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -54,16 +50,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.Event;
-import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.ToolActions;
-import net.neoforged.neoforge.common.conditions.ConditionalOps;
-import net.neoforged.neoforge.common.conditions.ICondition;
-import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
@@ -78,13 +70,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-@AutoService(dan200.computercraft.impl.PlatformHelper.class)
+@AutoService(PlatformHelper.class)
 public class PlatformHelperImpl implements PlatformHelper {
-    @Override
-    public boolean isDevelopmentEnvironment() {
-        return !FMLLoader.isProduction();
-    }
-
     @Override
     public ConfigFile.Builder createConfigBuilder() {
         return new ForgeConfigFile.Builder();
@@ -93,23 +80,6 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public <T> RegistrationHelper<T> createRegistrationHelper(ResourceKey<Registry<T>> registry) {
         return new RegistrationHelperImpl<>(DeferredRegister.create(registry, ComputerCraftAPI.MOD_ID));
-    }
-
-    @Override
-    public boolean shouldLoadResource(JsonObject object) {
-        return ICondition.conditionsMatched(JsonOps.INSTANCE, object);
-    }
-
-    @Override
-    public void addRequiredModCondition(JsonObject object, String modId) {
-        // FIXME: Test this, though maybe this should be implemented a different way anyway?
-        var conditions = GsonHelper.getAsJsonArray(object, ConditionalOps.DEFAULT_CONDITIONS_KEY, null);
-        if (conditions == null) {
-            conditions = new JsonArray();
-            object.add(ConditionalOps.DEFAULT_CONDITIONS_KEY, conditions);
-        }
-
-        conditions.add(ICondition.CODEC.encodeStart(JsonOps.INSTANCE, new ModLoadedCondition(modId)).getOrThrow());
     }
 
     @Override
@@ -169,7 +139,6 @@ public class PlatformHelperImpl implements PlatformHelper {
             Ingredient.of(Tags.Items.DUSTS_REDSTONE),
             Ingredient.of(Tags.Items.STRINGS),
             Ingredient.of(Tags.Items.LEATHERS),
-            Ingredient.of(Tags.Items.STONES),
             Ingredient.of(Tags.Items.GLASS_PANES),
             Ingredient.of(Tags.Items.INGOTS_GOLD),
             Ingredient.of(Tags.Items.STORAGE_BLOCKS_GOLD),

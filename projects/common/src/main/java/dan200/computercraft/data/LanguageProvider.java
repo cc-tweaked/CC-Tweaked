@@ -7,8 +7,8 @@ package dan200.computercraft.data;
 import com.google.gson.JsonObject;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.ComputerCraftTags;
-import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
-import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
+import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.shared.ModRegistry;
@@ -17,6 +17,7 @@ import dan200.computercraft.shared.computer.metrics.basic.Aggregate;
 import dan200.computercraft.shared.computer.metrics.basic.AggregatedMetric;
 import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.config.ConfigSpec;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -34,27 +35,28 @@ import java.util.stream.Stream;
 
 public final class LanguageProvider implements DataProvider {
     private final PackOutput output;
-    private final TurtleUpgradeDataProvider turtleUpgrades;
-    private final PocketUpgradeDataProvider pocketUpgrades;
+    private final CompletableFuture<HolderLookup.Provider> registries;
 
     private final Map<String, String> translations = new HashMap<>();
 
-    public LanguageProvider(PackOutput output, TurtleUpgradeDataProvider turtleUpgrades, PocketUpgradeDataProvider pocketUpgrades) {
+    public LanguageProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         this.output = output;
-        this.turtleUpgrades = turtleUpgrades;
-        this.pocketUpgrades = pocketUpgrades;
+        this.registries = registries;
     }
 
     @Override
     public CompletableFuture<?> run(CachedOutput cachedOutput) {
         addTranslations();
-        getExpectedKeys().forEach(x -> {
-            if (!translations.containsKey(x)) throw new IllegalStateException("No translation for " + x);
-        });
 
-        var json = new JsonObject();
-        for (var pair : translations.entrySet()) json.addProperty(pair.getKey(), pair.getValue());
-        return DataProvider.saveStable(cachedOutput, json, output.getOutputFolder().resolve("assets/" + ComputerCraftAPI.MOD_ID + "/lang/en_us.json"));
+        return registries.thenCompose(registries -> {
+            getExpectedKeys(registries).forEach(x -> {
+                if (!translations.containsKey(x)) throw new IllegalStateException("No translation for " + x);
+            });
+
+            var json = new JsonObject();
+            for (var pair : translations.entrySet()) json.addProperty(pair.getKey(), pair.getValue());
+            return DataProvider.saveStable(cachedOutput, json, output.getOutputFolder().resolve("assets/" + ComputerCraftAPI.MOD_ID + "/lang/en_us.json"));
+        });
     }
 
     @Override
@@ -280,7 +282,7 @@ public final class LanguageProvider implements DataProvider {
         addConfigEntry(ConfigSpec.uploadNagDelay, "Upload nag delay");
     }
 
-    private Stream<String> getExpectedKeys() {
+    private Stream<String> getExpectedKeys(HolderLookup.Provider registries) {
         return Stream.of(
             BuiltInRegistries.BLOCK.holders()
                 .filter(x -> x.key().location().getNamespace().equals(ComputerCraftAPI.MOD_ID))
@@ -288,8 +290,8 @@ public final class LanguageProvider implements DataProvider {
             BuiltInRegistries.ITEM.holders()
                 .filter(x -> x.key().location().getNamespace().equals(ComputerCraftAPI.MOD_ID))
                 .map(x -> x.value().getDescriptionId()),
-            turtleUpgrades.getGeneratedUpgrades().values().stream().flatMap(x -> getTranslationKeys(x.getAdjective())),
-            pocketUpgrades.getGeneratedUpgrades().values().stream().flatMap(x -> getTranslationKeys(x.getAdjective())),
+            registries.lookupOrThrow(ITurtleUpgrade.REGISTRY).listElements().flatMap(x -> getTranslationKeys(x.value().getAdjective())),
+            registries.lookupOrThrow(IPocketUpgrade.REGISTRY).listElements().flatMap(x -> getTranslationKeys(x.value().getAdjective())),
             Metric.metrics().values().stream().map(x -> AggregatedMetric.TRANSLATION_PREFIX + x.name() + ".name"),
             ConfigSpec.serverSpec.entries().map(ConfigFile.Entry::translationKey),
             ConfigSpec.clientSpec.entries().map(ConfigFile.Entry::translationKey),

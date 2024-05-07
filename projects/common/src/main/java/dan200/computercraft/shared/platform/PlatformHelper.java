@@ -4,11 +4,11 @@
 
 package dan200.computercraft.shared.platform;
 
-import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.impl.Services;
 import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.util.InventoryUtil;
@@ -47,25 +47,18 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
- * This extends {@linkplain dan200.computercraft.impl.PlatformHelper the API's loader abstraction layer}, adding
- * additional methods used by the actual mod.
+ * Abstraction layer for Forge and Fabric. See implementations for more details.
  */
-public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper {
+public interface PlatformHelper {
     /**
      * Get the current {@link PlatformHelper} instance.
      *
      * @return The current instance.
      */
     static PlatformHelper get() {
-        return (PlatformHelper) dan200.computercraft.impl.PlatformHelper.get();
+        var instance = Instance.INSTANCE;
+        return instance == null ? Services.raise(PlatformHelper.class, Instance.ERROR) : instance;
     }
-
-    /**
-     * Check if we're running in a development environment.
-     *
-     * @return If we're running in a development environment.
-     */
-    boolean isDevelopmentEnvironment();
 
     /**
      * Create a new config builder.
@@ -82,16 +75,6 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      * @return The registration helper.
      */
     <T> RegistrationHelper<T> createRegistrationHelper(ResourceKey<Registry<T>> registry);
-
-    /**
-     * Determine if this resource should be loaded, based on platform-specific loot conditions.
-     * <p>
-     * This should only be called from the {@code apply} stage of a reload listener.
-     *
-     * @param object The root JSON object of this resource.
-     * @return If this resource should be loaded.
-     */
-    boolean shouldLoadResource(JsonObject object);
 
     /**
      * Register a new argument type.
@@ -328,4 +311,21 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      * @see ServerPlayerGameMode#useItemOn(ServerPlayer, Level, ItemStack, InteractionHand, BlockHitResult)
      */
     InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit, Predicate<BlockState> canUseBlock);
+
+
+    final class Instance {
+        static final @Nullable PlatformHelper INSTANCE;
+        static final @Nullable Throwable ERROR;
+
+        static {
+            // We don't want class initialisation to fail here (as that results in confusing errors). Instead, capture
+            // the error and rethrow it when accessing. This should be JITted away in the common case.
+            var helper = Services.tryLoad(PlatformHelper.class);
+            INSTANCE = helper.instance();
+            ERROR = helper.error();
+        }
+
+        private Instance() {
+        }
+    }
 }

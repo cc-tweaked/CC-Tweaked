@@ -5,11 +5,8 @@
 package dan200.computercraft.shared.platform;
 
 import com.google.auto.service.AutoService;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.serialization.JsonOps;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.network.wired.WiredElementLookup;
@@ -27,14 +24,11 @@ import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiCache;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
-import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
-import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -49,7 +43,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -79,13 +72,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-@AutoService(dan200.computercraft.impl.PlatformHelper.class)
+@AutoService(PlatformHelper.class)
 public class PlatformHelperImpl implements PlatformHelper {
-    @Override
-    public boolean isDevelopmentEnvironment() {
-        return FabricLoader.getInstance().isDevelopmentEnvironment();
-    }
-
     @Override
     public ConfigFile.Builder createConfigBuilder() {
         return new FabricConfigFile.Builder();
@@ -101,22 +89,6 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public <T> RegistrationHelper<T> createRegistrationHelper(ResourceKey<Registry<T>> registry) {
         return new RegistrationHelperImpl<>(getRegistry(registry));
-    }
-
-    @Override
-    public boolean shouldLoadResource(JsonObject object) {
-        return true; // Done by default in Fabric, so can be skipped
-    }
-
-    @Override
-    public void addRequiredModCondition(JsonObject object, String modId) {
-        var conditions = GsonHelper.getAsJsonArray(object, ResourceConditions.CONDITIONS_KEY, null);
-        if (conditions == null) {
-            conditions = new JsonArray();
-            object.add(ResourceConditions.CONDITIONS_KEY, conditions);
-        }
-
-        conditions.add(ResourceCondition.CODEC.encodeStart(JsonOps.INSTANCE, ResourceConditions.allModsLoaded(modId)).getOrThrow());
     }
 
     @Override
@@ -171,7 +143,6 @@ public class PlatformHelperImpl implements PlatformHelper {
             Ingredient.of(ConventionalItemTags.REDSTONE_DUSTS),
             Ingredient.of(ConventionalItemTags.STRINGS),
             Ingredient.of(Items.LEATHER),
-            Ingredient.of(ConventionalItemTags.STONES),
             Ingredient.of(ConventionalItemTags.GLASS_PANES),
             Ingredient.of(ConventionalItemTags.GOLD_INGOTS),
             Ingredient.of(ConventionalItemTags.STORAGE_BLOCKS_GOLD),

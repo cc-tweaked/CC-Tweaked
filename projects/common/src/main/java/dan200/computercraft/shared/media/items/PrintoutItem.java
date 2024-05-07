@@ -35,7 +35,7 @@ public class PrintoutItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag options) {
-        var title = getTitle(stack);
+        var title = PrintoutData.getOrEmpty(stack).title();
         if (!title.isEmpty()) list.add(Component.literal(title));
     }
 
@@ -50,15 +50,5 @@ public class PrintoutItem extends Item {
 
     public Type getType() {
         return type;
-    }
-
-    public static String getTitle(ItemStack stack) {
-        var nbt = stack.get(ModRegistry.DataComponents.PRINTOUT.get());
-        return nbt == null ? "" : nbt.title();
-    }
-
-    public static int getPageCount(ItemStack stack) {
-        var nbt = stack.get(ModRegistry.DataComponents.PRINTOUT.get());
-        return nbt == null ? 1 : nbt.pages();
     }
 }
