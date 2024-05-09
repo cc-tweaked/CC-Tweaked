@@ -130,6 +130,7 @@ loom {
     runs {
         configureEach {
             ideConfigGenerated(true)
+            property("fabric-tag-conventions-v2.missingTagTranslationWarning", "VERBOSE")
         }
 
         named("client") {

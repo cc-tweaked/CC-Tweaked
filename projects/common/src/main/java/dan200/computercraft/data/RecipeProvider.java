@@ -98,7 +98,6 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         turtleUpgrades(add, registries);
         turtleOverlays(add);
 
-        addSpecial(add, new PrintoutRecipe(CraftingBookCategory.MISC));
         addSpecial(add, new DiskRecipe(CraftingBookCategory.MISC));
         addSpecial(add, new ColourableRecipe(CraftingBookCategory.MISC));
         addSpecial(add, new ClearColourRecipe(CraftingBookCategory.MISC));
@@ -470,21 +469,25 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .build()
             .save(add, new ResourceLocation(ComputerCraftAPI.MOD_ID, "skull_dan200"));
 
+        var pages = Ingredient.of(
+            ModRegistry.Items.PRINTED_PAGE.get(),
+            ModRegistry.Items.PRINTED_PAGES.get(),
+            Items.PAPER
+        );
+
         ShapelessSpecBuilder
             .shapeless(RecipeCategory.REDSTONE, ModRegistry.Items.PRINTED_PAGES.get())
-            .requires(ModRegistry.Items.PRINTED_PAGE.get(), 2)
             .requires(ingredients.string())
-            .unlockedBy("has_printer", inventoryChange(ModRegistry.Blocks.PRINTER.get()))
-            .build(ImpostorShapelessRecipe::new)
+            .unlockedBy("has_printer", inventoryChange(ModRegistry.Items.PRINTER.get()))
+            .build(x -> new PrintoutRecipe(x, pages, 2))
             .save(add);
 
         ShapelessSpecBuilder
             .shapeless(RecipeCategory.REDSTONE, ModRegistry.Items.PRINTED_BOOK.get())
             .requires(ingredients.leather())
-            .requires(ModRegistry.Items.PRINTED_PAGE.get(), 1)
             .requires(ingredients.string())
-            .unlockedBy("has_printer", inventoryChange(ModRegistry.Blocks.PRINTER.get()))
-            .build(ImpostorShapelessRecipe::new)
+            .unlockedBy("has_printer", inventoryChange(ModRegistry.Items.PRINTER.get()))
+            .build(x -> new PrintoutRecipe(x, pages, 1))
             .save(add);
     }
 

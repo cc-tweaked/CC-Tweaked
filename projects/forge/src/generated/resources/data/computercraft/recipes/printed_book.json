@@ -1,6 +1,12 @@
 {
-  "type": "computercraft:impostor_shapeless",
+  "type": "computercraft:printout",
   "category": "redstone",
-  "ingredients": [{"tag": "c:leathers"}, {"item": "computercraft:printed_page"}, {"tag": "c:strings"}],
+  "ingredients": [{"tag": "c:leathers"}, {"tag": "c:strings"}],
+  "min_printouts": 1,
+  "printout": [
+    {"item": "computercraft:printed_page"},
+    {"item": "computercraft:printed_pages"},
+    {"item": "minecraft:paper"}
+  ],
   "result": {"count": 1, "id": "computercraft:printed_book"}
 }

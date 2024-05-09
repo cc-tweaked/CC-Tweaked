@@ -49,4 +49,13 @@ public record ShapelessRecipeSpec(RecipeProperties properties, NonNullList<Ingre
         ItemStack.STREAM_CODEC, ShapelessRecipeSpec::result,
         ShapelessRecipeSpec::new
     );
+
+    /**
+     * Create a basic {@link ShapelessRecipe} from this spec.
+     *
+     * @return The newly constructed recipe.
+     */
+    public ShapelessRecipe create() {
+        return new ShapelessRecipe(properties().group(), properties().category(), result(), ingredients());
+    }
 }

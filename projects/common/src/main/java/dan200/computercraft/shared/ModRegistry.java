@@ -249,12 +249,16 @@ public final class ModRegistry {
         public static final RegistryEntry<TreasureDiskItem> TREASURE_DISK =
             REGISTRY.register("treasure_disk", () -> new TreasureDiskItem(properties().stacksTo(1)));
 
+        private static Item.Properties printoutProperties() {
+            return properties().stacksTo(1).component(DataComponents.PRINTOUT.get(), PrintoutData.EMPTY);
+        }
+
         public static final RegistryEntry<PrintoutItem> PRINTED_PAGE = REGISTRY.register("printed_page",
-            () -> new PrintoutItem(properties().stacksTo(1), PrintoutItem.Type.PAGE));
+            () -> new PrintoutItem(printoutProperties(), PrintoutItem.Type.PAGE));
         public static final RegistryEntry<PrintoutItem> PRINTED_PAGES = REGISTRY.register("printed_pages",
-            () -> new PrintoutItem(properties().stacksTo(1), PrintoutItem.Type.PAGES));
+            () -> new PrintoutItem(printoutProperties(), PrintoutItem.Type.PAGES));
         public static final RegistryEntry<PrintoutItem> PRINTED_BOOK = REGISTRY.register("printed_book",
-            () -> new PrintoutItem(properties().stacksTo(1), PrintoutItem.Type.BOOK));
+            () -> new PrintoutItem(printoutProperties(), PrintoutItem.Type.BOOK));
 
         public static final RegistryEntry<BlockItem> SPEAKER = ofBlock(Blocks.SPEAKER, BlockItem::new);
         public static final RegistryEntry<BlockItem> DISK_DRIVE = ofBlock(Blocks.DISK_DRIVE, BlockItem::new);
@@ -488,7 +492,7 @@ public final class ModRegistry {
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<ClearColourRecipe>> DYEABLE_ITEM_CLEAR = simple("clear_colour", ClearColourRecipe::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<TurtleUpgradeRecipe>> TURTLE_UPGRADE = simple("turtle_upgrade", TurtleUpgradeRecipe::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<PocketComputerUpgradeRecipe>> POCKET_COMPUTER_UPGRADE = simple("pocket_computer_upgrade", PocketComputerUpgradeRecipe::new);
-        public static final RegistryEntry<SimpleCraftingRecipeSerializer<PrintoutRecipe>> PRINTOUT = simple("printout", PrintoutRecipe::new);
+        public static final RegistryEntry<RecipeSerializer<PrintoutRecipe>> PRINTOUT = register("printout", PrintoutRecipe.CODEC, PrintoutRecipe.STREAM_CODEC);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<DiskRecipe>> DISK = simple("disk", DiskRecipe::new);
     }
 
@@ -560,8 +564,8 @@ public final class ModRegistry {
     public static void register() {
         Blocks.REGISTRY.register();
         BlockEntities.REGISTRY.register();
-        Items.REGISTRY.register();
         DataComponents.REGISTRY.register();
+        Items.REGISTRY.register();
         TurtleUpgradeTypes.REGISTRY.register();
         PocketUpgradeTypes.REGISTRY.register();
         Menus.REGISTRY.register();
