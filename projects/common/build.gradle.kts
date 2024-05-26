@@ -127,3 +127,5 @@ val runData by tasks.registering(MergeTrees::class) {
         }
     }
 }
+
+tasks.withType(GenerateModuleMetadata::class).configureEach { isEnabled = false }
