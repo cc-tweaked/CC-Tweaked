@@ -309,10 +309,10 @@ public class FSAPI implements ILuaAPI {
      * <p>
      * The {@code mode} string can be any of the following:
      * <ul>
-     * <li><strong>"r"</strong>: Read mode</li>
-     * <li><strong>"w"</strong>: Write mode</li>
-     * <li><strong>"a"</strong>: Append mode</li>
-     * <li><strong>"r+"</strong>: Update mode (allows reading and writing), all data is preserved</li>
+     * <li><strong>"r"</strong>: Read mode.</li>
+     * <li><strong>"w"</strong>: Write mode.</li>
+     * <li><strong>"a"</strong>: Append mode.</li>
+     * <li><strong>"r+"</strong>: Update mode (allows reading and writing), all data is preserved.</li>
      * <li><strong>"w+"</strong>: Update mode, all data is erased.</li>
      * </ul>
      * <p>
