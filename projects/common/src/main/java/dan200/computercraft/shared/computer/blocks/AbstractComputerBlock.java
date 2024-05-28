@@ -5,16 +5,13 @@
 package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.annotations.ForgeOverride;
-import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.platform.RegistryEntry;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -34,8 +31,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import javax.annotation.Nullable;
 
 public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntity> extends HorizontalDirectionalBlock implements IBundledRedstoneBlock, EntityBlock {
-    private static final ResourceLocation DROP = new ResourceLocation(ComputerCraftAPI.MOD_ID, "computer");
-
     protected final RegistryEntry<BlockEntityType<T>> type;
     private final BlockEntityTicker<T> serverTicker = (level, pos, state, computer) -> computer.serverTick();
 
@@ -152,12 +147,6 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
         if (be instanceof AbstractComputerBlockEntity computer) computer.neighbourShapeChanged(direction);
 
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
-    }
-
-    @Nullable
-    @Override
-    protected MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
-        return level.getBlockEntity(pos) instanceof AbstractComputerBlockEntity computer ? computer : null;
     }
 
     @Override

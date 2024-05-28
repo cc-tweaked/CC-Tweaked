@@ -24,7 +24,7 @@ class ChunkMapMixin {
     ServerLevel level;
 
     @Inject(method = "updateChunkScheduling", at = @At("HEAD"))
-    @SuppressWarnings("UnusedMethod")
+    @SuppressWarnings("unused")
     private void onUpdateChunkScheduling(long chunkPos, int newLevel, @Nullable ChunkHolder holder, int oldLevel, CallbackInfoReturnable<ChunkHolder> callback) {
         CommonHooks.onChunkTicketLevelChanged(level, chunkPos, oldLevel, newLevel);
     }

@@ -27,7 +27,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.phys.AABB;
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -47,8 +46,6 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
      * the monitor frame and contents.
      */
     private static final float MARGIN = (float) (MonitorBlockEntity.RENDER_MARGIN * 1.1);
-
-    private static final Matrix3f IDENTITY_NORMAL = new Matrix3f().identity();
 
     private static @Nullable ByteBuffer backingBuffer;
 

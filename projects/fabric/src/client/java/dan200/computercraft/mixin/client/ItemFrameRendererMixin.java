@@ -22,7 +22,7 @@ class ItemFrameRendererMixin {
         at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionf;)V", ordinal = 2, shift = At.Shift.AFTER),
         cancellable = true
     )
-    @SuppressWarnings("UnusedMethod")
+    @SuppressWarnings("unused")
     private void render(ItemFrame entity, float yaw, float partialTicks, PoseStack pose, MultiBufferSource buffers, int light, CallbackInfo ci) {
         if (ClientHooks.onRenderItemFrame(pose, buffers, entity, entity.getItem(), light)) {
             ci.cancel();

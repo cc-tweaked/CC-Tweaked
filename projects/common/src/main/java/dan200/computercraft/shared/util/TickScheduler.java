@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.util;
 
+import com.google.errorprone.annotations.Keep;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ChunkLevel;
@@ -132,6 +133,7 @@ public final class TickScheduler {
         /**
          * The current state of this token.
          */
+        @Keep
         private volatile State $state = State.IDLE;
 
         public Token(BlockEntity owner) {

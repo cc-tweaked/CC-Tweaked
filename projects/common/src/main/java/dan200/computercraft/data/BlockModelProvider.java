@@ -38,6 +38,9 @@ import static net.minecraft.data.models.model.TextureMapping.getBlockTexture;
 
 class BlockModelProvider {
     private static final TextureSlot CURSOR = TextureSlot.create("cursor");
+    private static final TextureSlot LEFT = TextureSlot.create("left");
+    private static final TextureSlot RIGHT = TextureSlot.create("right");
+    private static final TextureSlot BACKPACK = TextureSlot.create("backpack");
 
     private static final ModelTemplate COMPUTER_ON = new ModelTemplate(
         Optional.of(new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/computer_on")),
@@ -58,7 +61,7 @@ class BlockModelProvider {
     private static final ModelTemplate TURTLE = new ModelTemplate(
         Optional.of(new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_base")),
         Optional.empty(),
-        TextureSlot.TEXTURE
+        TextureSlot.FRONT, TextureSlot.BACK, TextureSlot.TOP, TextureSlot.BOTTOM, LEFT, RIGHT, BACKPACK
     );
     private static final ModelTemplate TURTLE_UPGRADE_LEFT = new ModelTemplate(
         Optional.of(new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_upgrade_base_left")),
@@ -167,7 +170,16 @@ class BlockModelProvider {
     }
 
     private static void registerTurtle(BlockModelGenerators generators, TurtleBlock block) {
-        var model = TURTLE.create(block, TextureMapping.defaultTexture(block), generators.modelOutput);
+        var model = TURTLE.create(block, new TextureMapping()
+                .put(TextureSlot.FRONT, getBlockTexture(block, "_front"))
+                .put(TextureSlot.BACK, getBlockTexture(block, "_back"))
+                .put(TextureSlot.TOP, getBlockTexture(block, "_top"))
+                .put(TextureSlot.BOTTOM, getBlockTexture(block, "_bottom"))
+                .put(LEFT, getBlockTexture(block, "_left"))
+                .put(RIGHT, getBlockTexture(block, "_right"))
+                .put(BACKPACK, getBlockTexture(block, "_backpack")),
+            generators.modelOutput
+        );
         generators.blockStateOutput.accept(
             MultiVariantGenerator.multiVariant(block, Variant.variant().with(VariantProperties.MODEL, model))
                 .with(createHorizontalFacingDispatch())

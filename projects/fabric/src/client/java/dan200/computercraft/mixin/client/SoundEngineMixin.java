@@ -26,13 +26,13 @@ class SoundEngineMixin {
     private static SoundEngine self;
 
     @Inject(method = "play", at = @At(value = "HEAD"))
-    @SuppressWarnings("UnusedMethod")
+    @SuppressWarnings("unused")
     private void playSound(SoundInstance sound, CallbackInfo ci) {
         self = (SoundEngine) (Object) this;
     }
 
     @Inject(at = @At("TAIL"), method = "method_19755")
-    @SuppressWarnings("UnusedMethod")
+    @SuppressWarnings("unused")
     private static void onStream(AudioStream stream, Channel channel, CallbackInfo ci) {
         SpeakerManager.onPlayStreaming(assertNonNull(self), channel, stream);
     }

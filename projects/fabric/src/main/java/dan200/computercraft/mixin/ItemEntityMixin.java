@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ItemEntity.class)
 abstract class ItemEntityMixin {
     @Inject(method = "tick", at = @At("HEAD"))
-    @SuppressWarnings("UnusedMethod")
+    @SuppressWarnings("unused")
     private void onTick(CallbackInfo ci) {
         var stack = getItem();
         if (stack.getItem() instanceof PocketComputerItem pocket) {

@@ -42,6 +42,7 @@ class GameTestSequenceMixin {
     }
 
     @Shadow
+    @SuppressWarnings("unused")
     private void tick(long tick) {
     }
 }

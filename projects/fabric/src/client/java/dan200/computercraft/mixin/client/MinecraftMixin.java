@@ -24,7 +24,7 @@ class MinecraftMixin {
     private ReloadableResourceManager resourceManager;
 
     @Inject(method = "updateLevelInEngines", at = @At("HEAD"))
-    @SuppressWarnings("UnusedMethod")
+    @SuppressWarnings("unused")
     private void updateLevelInEngines(ClientLevel screen, CallbackInfo ci) {
         ClientHooks.onWorldUnload();
     }
@@ -37,7 +37,7 @@ class MinecraftMixin {
             ordinal = 0
         )
     )
-    @SuppressWarnings("UnusedMethod")
+    @SuppressWarnings("unused")
     private void beforeInitialResourceReload(GameConfig gameConfig, CallbackInfo ci) {
         ClientRegistry.registerReloadListeners(resourceManager::registerReloadListener, (Minecraft) (Object) this);
     }

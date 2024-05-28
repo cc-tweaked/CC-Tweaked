@@ -218,5 +218,18 @@
     "upgrade.minecraft.diamond_hoe.adjective": "Contadina",
     "upgrade.minecraft.diamond_pickaxe.adjective": "Minatrice",
     "upgrade.minecraft.diamond_shovel.adjective": "Scavatrice",
-    "upgrade.minecraft.diamond_sword.adjective": "Da Combattimento"
+    "upgrade.minecraft.diamond_sword.adjective": "Da Combattimento",
+    "tag.item.computercraft.computer": "Computer",
+    "tag.item.computercraft.wired_modem": "Modem cablati",
+    "argument.computercraft.computer.distance": "Distanza dall'entità",
+    "argument.computercraft.computer.family": "Famiglia computer",
+    "argument.computercraft.computer.id": "ID computer",
+    "argument.computercraft.computer.instance": "ID istanza unica",
+    "argument.computercraft.computer.label": "Etichetta computer",
+    "argument.computercraft.unknown_computer_family": "Famiglia computer '%s' sconosciuta",
+    "gui.computercraft.config.disabled_generic_methods": "Metodi generici disattivati",
+    "gui.computercraft.config.disabled_generic_methods.tooltip": "Una lista di metodi generici o sorgenti di metodi da disattivare. I metodi generici sono\nmetodi aggiunti a blocchi/entità blocchi quando non c'è un provider della periferica esplicito.\nQuesto include metodi dell'inventario (ad es. inventory.getItemDetail, inventory.pushItems) e,\nse su Forge, i metodi fluid_storage e energy_storage.\nI metodi in questa lista possono essere sia un gruppo intero di metodi (computer:inventory)\no un singolo metodo (computer:inventory#pushItems).\n",
+    "tag.item.computercraft.monitor": "Monitor",
+    "tag.item.computercraft.turtle": "Tartarughe",
+    "tracking_field.computercraft.java_allocation.name": "Allocazioni Java"
 }

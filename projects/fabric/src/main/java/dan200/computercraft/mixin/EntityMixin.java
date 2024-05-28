@@ -20,7 +20,7 @@ class EntityMixin {
         at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"),
         cancellable = true
     )
-    @SuppressWarnings("UnusedMethod")
+    @SuppressWarnings("unused")
     private void spawnAtLocation(ItemStack stack, float yOffset, CallbackInfoReturnable<ItemEntity> cb) {
         if (CommonHooks.onLivingDrop((Entity) (Object) this, stack)) cb.setReturnValue(null);
     }

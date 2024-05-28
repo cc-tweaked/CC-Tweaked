@@ -365,24 +365,26 @@ end
 -- or [`nil`], plus an error message.
 --
 -- The `mode` string can be any of the following:
---  - **"r"**: Read mode
---  - **"w"**: Write mode
---  - **"a"**: Append mode
+--  - **"r"**: Read mode.
+--  - **"w"**: Write mode.
+--  - **"a"**: Append mode.
+--  - **"r+"**: Update mode (allows reading and writing), all data is preserved.
+--  - **"w+"**: Update mode, all data is erased.
 --
 -- The mode may also have a `b` at the end, which opens the file in "binary
--- mode". This allows you to read binary files, as well as seek within a file.
+-- mode". This has no impact on functionality.
 --
 -- @tparam string filename The name of the file to open.
--- @tparam[opt] string mode The mode to open the file with. This defaults to `rb`.
+-- @tparam[opt] string mode The mode to open the file with. This defaults to `r`.
 -- @treturn[1] Handle The opened file.
 -- @treturn[2] nil In case of an error.
 -- @treturn[2] string The reason the file could not be opened.
+-- @changed 1.111.0 Add support for `r+` and `w+`.
 function open(filename, mode)
     expect(1, filename, "string")
     expect(2, mode, "string", "nil")
 
-    local sMode = mode and mode:gsub("%+", "") or "r"
-    local file, err = fs.open(filename, sMode)
+    local file, err = fs.open(filename, mode or "r")
     if not file then return nil, err end
 
     return make_file(file)

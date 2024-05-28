@@ -253,7 +253,6 @@ public record ComputerSelector(
     }
 
     private static final class Builder {
-        private OptionalInt instanceId = OptionalInt.empty();
         private @Nullable UUID instanceUuid = null;
         private OptionalInt computerId = OptionalInt.empty();
         private @Nullable String label;

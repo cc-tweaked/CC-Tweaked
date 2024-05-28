@@ -329,4 +329,19 @@ describe("The io library", function()
             expect(read_all(file)):eq("alo\n " .. t .. " ;end of file\n")
         end)
     end)
+
+    describe("read/write handles", function()
+        it("can read and write to a file", function()
+            write_file(file, "an example file")
+
+            local handle = io.open(file, "r+")
+            expect(handle:read(3)):eq("an ")
+
+            handle:write("exciting file")
+            expect(handle:seek("cur")):eq(16)
+
+            handle:seek("set", 0)
+            expect(handle:read("*a")):eq("an exciting file")
+        end)
+    end)
 end)

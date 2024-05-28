@@ -225,12 +225,12 @@ abstract class CCTweakedExtension(
      * where possible.
      */
     fun downloadFile(label: String, url: String): File {
-        val url = URI(url)
-        val path = File(url.path)
+        val uri = URI(url)
+        val path = File(uri.path)
 
         project.repositories.ivy {
             name = label
-            setUrl(URI(url.scheme, url.userInfo, url.host, url.port, path.parent, null, null))
+            setUrl(URI(uri.scheme, uri.userInfo, uri.host, uri.port, path.parent, null, null))
             patternLayout {
                 artifact("[artifact].[ext]")
             }

@@ -19,7 +19,7 @@ When a computer starts, it reads the current value of settings from the
     settings.define("my.setting", {
         description = "An example setting",
         default = 123,
-        type = number,
+        type = "number",
     })
     print("my.setting = " .. settings.get("my.setting")) -- 123
 
