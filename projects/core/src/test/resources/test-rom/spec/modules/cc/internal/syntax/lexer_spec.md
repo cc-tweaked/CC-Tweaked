@@ -265,6 +265,7 @@ if a != b then end
 if a ~= b then end
 if a && b then end
 if a || b then end
+if ! a then end
 ```
 
 ```txt
@@ -307,6 +308,16 @@ Tip: Replace this with or to check if either value is true.
 4:9-4:9 IDENT b
 4:11-4:14 THEN then
 4:16-4:18 END end
+5:1-5:2 IF if
+Unexpected character.
+   |
+ 5 | if ! a then end
+   |    ^
+Tip: Replace this with not to negate a boolean.
+5:4-5:4 NOT !
+5:6-5:6 IDENT a
+5:8-5:11 THEN then
+5:13-5:15 END end
 ```
 
 For entirely unknown glyphs we should just give up and return an `ERROR` token.
