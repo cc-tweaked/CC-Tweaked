@@ -8,6 +8,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.computer.blocks.ComputerBlockEntity;
 import dan200.computercraft.shared.config.Config;
+import dan200.computercraft.shared.integration.Optifine;
 import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
@@ -29,6 +30,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.event.*;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.ChunkEvent;
 import net.minecraftforge.event.level.ChunkTicketLevelUpdatedEvent;
 import net.minecraftforge.event.level.ChunkWatchEvent;
@@ -59,6 +61,11 @@ public class ForgeCommonHooks {
     @SubscribeEvent
     public static void onServerStarting(ServerStartingEvent event) {
         CommonHooks.onServerStarting(event.getServer());
+    }
+
+    @SubscribeEvent
+    public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+        Optifine.warnAboutOptifine(event.getEntity()::sendSystemMessage);
     }
 
     @SubscribeEvent
