@@ -102,7 +102,7 @@
     "item.computercraft.pocket_computer_normal.upgraded": "%s手提计算机",
     "item.computercraft.printed_book": "打印书",
     "item.computercraft.printed_page": "打印纸",
-    "item.computercraft.printed_pages": "打印纸",
+    "item.computercraft.printed_pages": "打印纸簇",
     "item.computercraft.treasure_disk": "软盘",
     "itemGroup.computercraft": "ComputerCraft",
     "tracking_field.computercraft.fs.name": "文件系统操作",
