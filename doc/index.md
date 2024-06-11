@@ -38,7 +38,7 @@ little daunting getting started. Thankfully, there's several fantastic tutorials
 
  - [Direwolf20's ComputerCraft tutorials](https://www.youtube.com/watch?v=wrUHUhfCY5A "ComputerCraft Tutorial Episode 1 - HELP! and Hello World")
  - [Sethbling's ComputerCraft series](https://www.youtube.com/watch?v=DSsx4VSe-Uk "Programming Tutorial with Minecraft Turtles -- Ep. 1: Intro to Turtles and If-Then-Else_End")
- - [Lyqyd's Computer Basics 1](http://www.computercraft.info/forums2/index.php?/topic/15033-computer-basics-i/ "Computer Basics I")
+ - [Lyqyd's Computer Basics 1](https://ccf.squiddev.cc/forums2/index.php?/topic/15033-computer-basics-i/ "Computer Basics I")
 
 Once you're a little more familiar with the mod, the sidebar and links below provide more detailed documentation on the
 various APIs and peripherals provided by the mod.
