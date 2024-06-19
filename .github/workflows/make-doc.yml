@@ -11,30 +11,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Clone repository
+    - name: 📥 Clone repository
       uses: actions/checkout@v4
 
-    - name: Set up Java
+    - name: 📥 Set up Java
       uses: actions/setup-java@v4
       with:
         java-version: 17
         distribution: 'temurin'
 
-    - name: Setup Gradle
+    - name: 📥 Setup Gradle
       uses: gradle/actions/setup-gradle@v3
       with:
         cache-read-only: ${{ !startsWith(github.ref, 'refs/heads/mc-') }}
 
-    - name: Build with Gradle
-      run: ./gradlew compileJava --no-daemon || ./gradlew compileJava --no-daemon
+    - name: ⚒️ Generate documentation
+      run: ./gradlew docWebsite --no-daemon
 
-    - name: Generate documentation
-      run: ./gradlew docWebsite :common-api:javadoc  --no-daemon
-
-    - name: Upload documentation
-      run: .github/workflows/make-doc.sh 2> /dev/null
-      env:
-        SSH_KEY:  ${{ secrets.SSH_KEY  }}
-        SSH_USER: ${{ secrets.SSH_USER }}
-        SSH_HOST: ${{ secrets.SSH_HOST }}
-        SSH_PORT: ${{ secrets.SSH_PORT }}
+    - name: 📤 Upload Jar
+      uses: actions/upload-artifact@v4
+      with:
+        name: Documentation
+        path: ./projects/web/build/site/
