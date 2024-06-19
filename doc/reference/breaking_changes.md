@@ -77,5 +77,5 @@ as documentation for breaking changes and "gotchas" one should look out for betw
    you can no longer type `turtle/excavate` to run `/rom/programs/turtle/excavate.lua`.
 
 [flattening]: https://minecraft.wiki/w/Java_Edition_1.13/Flattening
-[legal_data_pack]: https://minecraft.gamepedia.com/Tutorials/Creating_a_data_pack#Legal_characters
+[legal_data_pack]: https://minecraft.wiki/w/Tutorials/Creating_a_data_pack#Legal_characters
 [datapack-example]: https://github.com/cc-tweaked/datapack-example "An example datapack for CC: Tweaked"
