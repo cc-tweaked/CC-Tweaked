@@ -21,8 +21,7 @@ public class TurtleCraftCommand implements TurtleCommand {
     @Override
     public TurtleCommandResult execute(ITurtleAccess turtle) {
         // Craft the item
-        var crafting = new TurtleInventoryCrafting(turtle);
-        var results = crafting.doCrafting(turtle.getLevel(), limit);
+        var results = TurtleInventoryCrafting.craft(turtle, limit);
         if (results == null) return TurtleCommandResult.failure("No matching recipes");
 
         // Store or drop any remainders

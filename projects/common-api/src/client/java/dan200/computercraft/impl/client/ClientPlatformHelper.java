@@ -4,6 +4,7 @@
 
 package dan200.computercraft.impl.client;
 
+import dan200.computercraft.api.client.ModelLocation;
 import dan200.computercraft.impl.Services;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
@@ -17,13 +18,28 @@ import javax.annotation.Nullable;
 @ApiStatus.Internal
 public interface ClientPlatformHelper {
     /**
-     * Equivalent to {@link ModelManager#getModel(ModelResourceLocation)} but for arbitrary {@link ResourceLocation}s.
+     * Get a model from a resource.
      *
-     * @param manager  The model manager.
-     * @param location The model location.
+     * @param manager          The model manager.
+     * @param resourceLocation The model resourceLocation.
      * @return The baked model.
+     * @see ModelLocation
      */
-    BakedModel getModel(ModelManager manager, ResourceLocation location);
+    BakedModel getModel(ModelManager manager, ResourceLocation resourceLocation);
+
+    /**
+     * Set a model from a {@link ModelResourceLocation} or {@link ResourceLocation}.
+     * <p>
+     * This is largely equivalent to {@code resourceLocation == null ? manager.getModel(modelLocation) : getModel(manager, resourceLocation)},
+     * but allows pre-computing {@code modelLocation} (if needed).
+     *
+     * @param manager          The model manager.
+     * @param modelLocation    The location of the model to load.
+     * @param resourceLocation The location of the resource, if trying to load from a resource.
+     * @return The baked model.
+     * @see ModelLocation
+     */
+    BakedModel getModel(ModelManager manager, ModelResourceLocation modelLocation, @Nullable ResourceLocation resourceLocation);
 
     /**
      * Wrap this model in a version which renders a foil/enchantment glint.

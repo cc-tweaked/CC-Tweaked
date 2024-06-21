@@ -9,12 +9,10 @@ import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.StackedContents;
-import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
@@ -24,87 +22,101 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class TurtleInventoryCrafting implements CraftingContainer {
+public class TurtleInventoryCrafting {
     public static final int WIDTH = 3;
     public static final int HEIGHT = 3;
-    public static final int SIZE = WIDTH * HEIGHT;
 
-    private final ITurtleAccess turtle;
-    private int xStart = 0;
-    private int yStart = 0;
-
-    @SuppressWarnings("ConstantConditions")
-    public TurtleInventoryCrafting(ITurtleAccess turtle) {
-        this.turtle = turtle;
+    private TurtleInventoryCrafting() {
     }
 
-    @Nullable
-    private Recipe<CraftingContainer> tryCrafting(int xStart, int yStart) {
-        this.xStart = xStart;
-        this.yStart = yStart;
-
+    private static @Nullable FoundRecipe tryCrafting(Level level, Container inventory, int xStart, int yStart) {
         // Check the non-relevant parts of the inventory are empty
         for (var x = 0; x < TurtleBlockEntity.INVENTORY_WIDTH; x++) {
             for (var y = 0; y < TurtleBlockEntity.INVENTORY_HEIGHT; y++) {
-                if (x < this.xStart || x >= this.xStart + 3 ||
-                    y < this.yStart || y >= this.yStart + 3) {
-                    if (!turtle.getInventory().getItem(x + y * TurtleBlockEntity.INVENTORY_WIDTH).isEmpty()) {
+                if (x < xStart || x >= xStart + WIDTH || y < yStart || y >= yStart + HEIGHT) {
+                    if (!inventory.getItem(x + y * TurtleBlockEntity.INVENTORY_WIDTH).isEmpty()) {
                         return null;
                     }
                 }
             }
         }
 
-        // Check the actual crafting
-        return turtle.getLevel().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, this, turtle.getLevel()).map(RecipeHolder::value).orElse(null);
+        var input = CraftingInput.ofPositioned(WIDTH, HEIGHT, new AbstractList<>() {
+            @Override
+            public ItemStack get(int index) {
+                var x = xStart + index % WIDTH;
+                var y = yStart + index / WIDTH;
+                return x >= 0 && x < TurtleBlockEntity.INVENTORY_WIDTH && y >= 0 && y < TurtleBlockEntity.INVENTORY_HEIGHT
+                    ? inventory.getItem(x + y * TurtleBlockEntity.INVENTORY_WIDTH)
+                    : ItemStack.EMPTY;
+            }
+
+            @Override
+            public int size() {
+                return WIDTH * HEIGHT;
+            }
+        });
+        var recipe = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input.input(), level).orElse(null);
+        return recipe == null ? null : new FoundRecipe(recipe.value(), input.input(), input.left() + xStart, input.top() + yStart);
     }
 
     @Nullable
-    public List<ItemStack> doCrafting(Level world, int maxCount) {
-        if (world.isClientSide || !(world instanceof ServerLevel)) return null;
+    public static List<ItemStack> craft(ITurtleAccess turtle, int maxCount) {
+        var level = turtle.getLevel();
+        if (level.isClientSide || !(level instanceof ServerLevel)) return null;
+
+        var inventory = turtle.getInventory();
 
         // Find out what we can craft
-        var recipe = tryCrafting(0, 0);
-        if (recipe == null) recipe = tryCrafting(0, 1);
-        if (recipe == null) recipe = tryCrafting(1, 0);
-        if (recipe == null) recipe = tryCrafting(1, 1);
-        if (recipe == null) return null;
+        var candidate = tryCrafting(level, inventory, 0, 0);
+        if (candidate == null) candidate = tryCrafting(level, inventory, 0, 1);
+        if (candidate == null) candidate = tryCrafting(level, inventory, 1, 0);
+        if (candidate == null) candidate = tryCrafting(level, inventory, 1, 1);
+        if (candidate == null) return null;
 
         // Special case: craft(0) just returns an empty list if crafting was possible
         if (maxCount == 0) return List.of();
 
+        var recipe = candidate.recipe();
+        var input = candidate.input();
+        var xStart = candidate.xStart();
+        var yStart = candidate.xStart();
+
         var player = TurtlePlayer.get(turtle).player();
 
         var results = new ArrayList<ItemStack>();
-        for (var i = 0; i < maxCount && recipe.matches(this, world); i++) {
-            var result = recipe.assemble(this, world.registryAccess());
+        for (var i = 0; i < maxCount && recipe.matches(input, level); i++) {
+            var result = recipe.assemble(input, level.registryAccess());
             if (result.isEmpty()) break;
             results.add(result);
 
-            result.onCraftedBy(world, player, result.getCount());
-            PlatformHelper.get().onItemCrafted(player, this, result);
+            result.onCraftedBy(level, player, result.getCount());
+            PlatformHelper.get().onItemCrafted(player, input, result);
 
-            var remainders = PlatformHelper.get().getRecipeRemainingItems(player, recipe, this);
-            for (var slot = 0; slot < remainders.size(); slot++) {
-                var existing = getItem(slot);
-                var remainder = remainders.get(slot);
+            var remainders = PlatformHelper.get().getRecipeRemainingItems(player, recipe, input);
+            for (int y = 0; y < input.height(); y++) {
+                for (int x = 0; x < input.width(); x++) {
+                    int slot = xStart + x + (y + yStart) * WIDTH;
+                    var existing = inventory.getItem(slot);
+                    var remainder = remainders.get(x + y * input.width());
 
-                if (!existing.isEmpty()) {
-                    removeItem(slot, 1);
-                    existing = getItem(slot);
-                }
+                    if (!existing.isEmpty()) {
+                        inventory.removeItem(slot, 1);
+                        existing = inventory.getItem(slot);
+                    }
 
-                if (remainder.isEmpty()) continue;
+                    if (remainder.isEmpty()) continue;
 
-                // Either update the current stack or add it to the remainder list (to be inserted into the inventory
-                // afterwards).
-                if (existing.isEmpty()) {
-                    setItem(slot, remainder);
-                } else if (ItemStack.isSameItemSameComponents(existing, remainder)) {
-                    remainder.grow(existing.getCount());
-                    setItem(slot, remainder);
-                } else {
-                    results.add(remainder);
+                    // Either update the current stack or add it to the remainder list (to be inserted into the inventory
+                    // afterwards).
+                    if (existing.isEmpty()) {
+                        inventory.setItem(slot, existing);
+                    } else if (ItemStack.isSameItemSameComponents(existing, remainder)) {
+                        remainder.grow(existing.getCount());
+                        inventory.setItem(slot, remainder);
+                    } else {
+                        results.add(remainder);
+                    }
                 }
             }
         }
@@ -112,102 +124,6 @@ public class TurtleInventoryCrafting implements CraftingContainer {
         return Collections.unmodifiableList(results);
     }
 
-    @Override
-    public int getWidth() {
-        return WIDTH;
-    }
-
-    @Override
-    public int getHeight() {
-        return HEIGHT;
-    }
-
-    private int modifyIndex(int index) {
-        var x = xStart + index % getWidth();
-        var y = yStart + index / getHeight();
-        return x >= 0 && x < TurtleBlockEntity.INVENTORY_WIDTH && y >= 0 && y < TurtleBlockEntity.INVENTORY_HEIGHT
-            ? x + y * TurtleBlockEntity.INVENTORY_WIDTH
-            : -1;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        for (int i = 0; i < SIZE; i++) {
-            if (!getItem(i).isEmpty()) return false;
-        }
-        return true;
-    }
-
-    @Override
-    public int getContainerSize() {
-        return SIZE;
-    }
-
-    @Override
-    public ItemStack getItem(int i) {
-        return turtle.getInventory().getItem(modifyIndex(i));
-    }
-
-    @Override
-    public ItemStack removeItemNoUpdate(int i) {
-        return turtle.getInventory().removeItemNoUpdate(modifyIndex(i));
-    }
-
-    @Override
-    public ItemStack removeItem(int i, int size) {
-        return turtle.getInventory().removeItem(modifyIndex(i), size);
-    }
-
-    @Override
-    public void setItem(int i, ItemStack stack) {
-        turtle.getInventory().setItem(modifyIndex(i), stack);
-    }
-
-    @Override
-    public int getMaxStackSize() {
-        return turtle.getInventory().getMaxStackSize();
-    }
-
-    @Override
-    public void setChanged() {
-        turtle.getInventory().setChanged();
-    }
-
-    @Override
-    public boolean stillValid(Player player) {
-        return true;
-    }
-
-    @Override
-    public boolean canPlaceItem(int i, ItemStack stack) {
-        return turtle.getInventory().canPlaceItem(modifyIndex(i), stack);
-    }
-
-    @Override
-    public void clearContent() {
-        for (var i = 0; i < SIZE; i++) {
-            var j = modifyIndex(i);
-            turtle.getInventory().setItem(j, ItemStack.EMPTY);
-        }
-    }
-
-    @Override
-    public void fillStackedContents(StackedContents contents) {
-        for (int i = 0; i < SIZE; i++) contents.accountSimpleStack(getItem(i));
-    }
-
-    @Override
-    public List<ItemStack> getItems() {
-        return new AbstractList<>() {
-            @Override
-            public ItemStack get(int index) {
-                return getItem(index);
-            }
-
-            @Override
-            public int size() {
-                return SIZE;
-            }
-        };
+    private record FoundRecipe(Recipe<CraftingInput> recipe, CraftingInput input, int xStart, int yStart) {
     }
 }

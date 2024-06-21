@@ -118,10 +118,10 @@ public class SpriteRenderer {
      */
     public void blit(
         int x, int y, int width, int height, float u0, float v0, float u1, float v1) {
-        builder.vertex(transform, x, y + height, z).color(r, g, b, 255).uv(u0, v1).uv2(light).endVertex();
-        builder.vertex(transform, x + width, y + height, z).color(r, g, b, 255).uv(u1, v1).uv2(light).endVertex();
-        builder.vertex(transform, x + width, y, z).color(r, g, b, 255).uv(u1, v0).uv2(light).endVertex();
-        builder.vertex(transform, x, y, z).color(r, g, b, 255).uv(u0, v0).uv2(light).endVertex();
+        builder.addVertex(transform, x, y + height, z).setColor(r, g, b, 255).setUv(u0, v1).setLight(light);
+        builder.addVertex(transform, x + width, y + height, z).setColor(r, g, b, 255).setUv(u1, v1).setLight(light);
+        builder.addVertex(transform, x + width, y, z).setColor(r, g, b, 255).setUv(u1, v0).setLight(light);
+        builder.addVertex(transform, x, y, z).setColor(r, g, b, 255).setUv(u0, v0).setLight(light);
     }
 
     public static float u(TextureAtlasSprite sprite, int x, int width) {

@@ -23,8 +23,8 @@ import static dan200.computercraft.shared.turtle.inventory.TurtleMenu.*;
  * The GUI for turtles.
  */
 public class TurtleScreen extends AbstractComputerScreen<TurtleMenu> {
-    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/turtle_normal.png");
-    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/turtle_advanced.png");
+    private static final ResourceLocation BACKGROUND_NORMAL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "textures/gui/turtle_normal.png");
+    private static final ResourceLocation BACKGROUND_ADVANCED = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "textures/gui/turtle_advanced.png");
 
     private static final int TEX_WIDTH = 278;
     private static final int TEX_HEIGHT = 217;

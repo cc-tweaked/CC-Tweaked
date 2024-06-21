@@ -31,7 +31,7 @@ public final class ExternalModTags {
         public static final TagKey<Block> CREATE_BRITTLE = make("create", "brittle");
 
         private static TagKey<Block> make(String mod, String name) {
-            return TagKey.create(Registries.BLOCK, new ResourceLocation(mod, name));
+            return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(mod, name));
         }
     }
 }

@@ -12,14 +12,10 @@ import dan200.computercraft.shared.util.ColourUtils;
 import dan200.computercraft.shared.util.DataComponentUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.DyedItemColor;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CustomRecipe;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 
 public class DiskRecipe extends CustomRecipe {
@@ -31,11 +27,11 @@ public class DiskRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean matches(CraftingContainer inv, Level world) {
+    public boolean matches(CraftingInput inv, Level world) {
         var paperFound = false;
         var redstoneFound = false;
 
-        for (var i = 0; i < inv.getContainerSize(); i++) {
+        for (var i = 0; i < inv.size(); i++) {
             var stack = inv.getItem(i);
 
             if (!stack.isEmpty()) {
@@ -55,10 +51,10 @@ public class DiskRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inv, HolderLookup.Provider registryAccess) {
+    public ItemStack assemble(CraftingInput inv, HolderLookup.Provider registryAccess) {
         var tracker = new ColourTracker();
 
-        for (var i = 0; i < inv.getContainerSize(); i++) {
+        for (var i = 0; i < inv.size(); i++) {
             var stack = inv.getItem(i);
 
             if (stack.isEmpty()) continue;

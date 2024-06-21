@@ -5,6 +5,7 @@
 package dan200.computercraft.client.turtle;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.client.ModelLocation;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.api.turtle.ITurtleAccess;
@@ -38,23 +39,23 @@ public class TurtleModemModeller implements TurtleUpgradeModeller<TurtleModem> {
     }
 
     private record ModemModels(
-        ResourceLocation leftOffModel, ResourceLocation rightOffModel,
-        ResourceLocation leftOnModel, ResourceLocation rightOnModel
+        ModelLocation leftOffModel, ModelLocation rightOffModel,
+        ModelLocation leftOnModel, ModelLocation rightOnModel
     ) {
         private static final ModemModels NORMAL = create("normal");
         private static final ModemModels ADVANCED = create("advanced");
 
         public static ModemModels create(String type) {
             return new ModemModels(
-                new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_off_left"),
-                new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_off_right"),
-                new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_on_left"),
-                new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_on_right")
+                ModelLocation.resource(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_off_left")),
+                ModelLocation.resource(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_off_right")),
+                ModelLocation.resource(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_on_left")),
+                ModelLocation.resource(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_on_right"))
             );
         }
 
         public Stream<ResourceLocation> getDependencies() {
-            return Stream.of(leftOffModel, rightOffModel, leftOnModel, rightOnModel);
+            return Stream.of(leftOffModel, rightOffModel, leftOnModel, rightOnModel).flatMap(ModelLocation::getDependencies);
         }
     }
 }

@@ -15,6 +15,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralCapability;
 import dan200.computercraft.impl.Peripherals;
 import dan200.computercraft.shared.config.ConfigFile;
+import dan200.computercraft.shared.container.ListContainer;
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
@@ -36,12 +37,12 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
@@ -49,7 +50,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.Event;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -187,7 +187,7 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public List<ItemStack> getRecipeRemainingItems(ServerPlayer player, Recipe<CraftingContainer> recipe, CraftingContainer container) {
+    public List<ItemStack> getRecipeRemainingItems(ServerPlayer player, Recipe<CraftingInput> recipe, CraftingInput container) {
         CommonHooks.setCraftingPlayer(player);
         var result = recipe.getRemainingItems(container);
         CommonHooks.setCraftingPlayer(null);
@@ -195,8 +195,8 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public void onItemCrafted(ServerPlayer player, CraftingContainer container, ItemStack stack) {
-        EventHooks.firePlayerCraftingEvent(player, stack, container);
+    public void onItemCrafted(ServerPlayer player, CraftingInput container, ItemStack stack) {
+        EventHooks.firePlayerCraftingEvent(player, stack, new ListContainer(container.items()));
     }
 
     @Override
@@ -239,18 +239,18 @@ public class PlatformHelperImpl implements PlatformHelper {
         if (event.isCanceled()) return event.getCancellationResult();
 
         var context = new UseOnContext(player, InteractionHand.MAIN_HAND, hit);
-        if (event.getUseItem() != Event.Result.DENY) {
+        if (!event.getUseItem().isFalse()) {
             var result = stack.onItemUseFirst(context);
             if (result != InteractionResult.PASS) return result;
         }
 
         var block = level.getBlockState(hit.getBlockPos());
-        if (event.getUseBlock() != Event.Result.DENY && !block.isAir() && canUseBlock.test(block)) {
+        if (!event.getUseBlock().isFalse() && !block.isAir() && canUseBlock.test(block)) {
             var useResult = block.useItemOn(stack, level, player, InteractionHand.MAIN_HAND, hit);
             if (useResult.consumesAction()) return useResult.result();
         }
 
-        return event.getUseItem() == Event.Result.DENY ? InteractionResult.PASS : stack.useOn(context);
+        return event.getUseItem().isFalse() ? InteractionResult.PASS : stack.useOn(context);
     }
 
     private record RegistrationHelperImpl<R>(DeferredRegister<R> registry) implements RegistrationHelper<R> {

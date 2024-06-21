@@ -23,6 +23,6 @@ class PocketUpgradeProvider {
     }
 
     private static ResourceKey<IPocketUpgrade> id(String id) {
-        return ResourceKey.create(IPocketUpgrade.REGISTRY, new ResourceLocation(ComputerCraftAPI.MOD_ID, id));
+        return ResourceKey.create(IPocketUpgrade.REGISTRY, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, id));
     }
 }

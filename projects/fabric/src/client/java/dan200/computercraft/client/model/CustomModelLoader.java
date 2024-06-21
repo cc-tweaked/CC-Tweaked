@@ -106,10 +106,11 @@ public final class CustomModelLoader {
      * @return The wrapped model.
      */
     public BakedModel wrapModel(ModelModifier.AfterBake.Context ctx, BakedModel baked) {
-        if (!ctx.id().getNamespace().equals(ComputerCraftAPI.MOD_ID)) return baked;
+        var id = ctx.resourceId();
+        if (id == null || !id.getNamespace().equals(ComputerCraftAPI.MOD_ID)) return baked;
         if (!(ctx.sourceModel() instanceof BlockModel model)) return baked;
 
-        var emissive = getEmissive(ctx.id(), model);
+        var emissive = getEmissive(id, model);
         return emissive == null ? baked : EmissiveBakedModel.wrap(baked, ctx.textureGetter().apply(model.getMaterial(emissive)));
     }
 

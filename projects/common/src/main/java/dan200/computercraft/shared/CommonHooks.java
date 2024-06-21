@@ -92,7 +92,7 @@ public final class CommonHooks {
         TickScheduler.onChunkTicketChanged(level, chunkPos, oldLevel, newLevel);
     }
 
-    public static final ResourceKey<LootTable> TREASURE_DISK_LOOT = ResourceKey.create(Registries.LOOT_TABLE, new ResourceLocation(ComputerCraftAPI.MOD_ID, "treasure_disk"));
+    public static final ResourceKey<LootTable> TREASURE_DISK_LOOT = ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "treasure_disk"));
 
     private static final Set<ResourceKey<LootTable>> TREASURE_DISK_LOOT_TABLES = Set.of(
         BuiltInLootTables.SIMPLE_DUNGEON,

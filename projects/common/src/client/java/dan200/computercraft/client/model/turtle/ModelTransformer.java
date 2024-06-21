@@ -4,11 +4,9 @@
 
 package dan200.computercraft.client.model.turtle;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
 import com.mojang.math.Transformation;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.FaceBakery;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import org.joml.Matrix4f;
@@ -29,8 +27,8 @@ import java.util.List;
 public class ModelTransformer {
     private static final int[] INVERSE_ORDER = new int[]{ 3, 2, 1, 0 };
 
-    private static final int STRIDE = DefaultVertexFormat.BLOCK.getIntegerSize();
-    private static final int POS_OFFSET = findOffset(DefaultVertexFormat.BLOCK, DefaultVertexFormat.ELEMENT_POSITION);
+    private static final int STRIDE = FaceBakery.VERTEX_INT_SIZE;
+    private static final int POS_OFFSET = 0;
 
     protected final Matrix4f transformation;
     protected final boolean invert;
@@ -90,14 +88,5 @@ public class ModelTransformer {
     }
 
     private record TransformedQuads(List<BakedQuad> original, List<BakedQuad> transformed) {
-    }
-
-    private static int findOffset(VertexFormat format, VertexFormatElement element) {
-        var offset = 0;
-        for (var other : format.getElements()) {
-            if (other == element) return offset / Integer.BYTES;
-            offset += element.getByteSize();
-        }
-        throw new IllegalArgumentException("Cannot find " + element + " in " + format);
     }
 }

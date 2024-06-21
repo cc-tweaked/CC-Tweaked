@@ -4,7 +4,6 @@
 
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.vertex.Tesselator;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.HeldItemMenu;
@@ -12,7 +11,6 @@ import dan200.computercraft.shared.media.items.PrintoutData;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.lwjgl.glfw.GLFW;
@@ -90,10 +88,8 @@ public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
         graphics.pose().pushPose();
         graphics.pose().translate(0, 0, 1);
 
-        var renderer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        drawBorder(graphics.pose(), renderer, leftPos, topPos, 0, page, pages, book, FULL_BRIGHT_LIGHTMAP);
-        drawText(graphics.pose(), renderer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, PrintoutData.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours);
-        renderer.endBatch();
+        drawBorder(graphics.pose(), graphics.bufferSource(), leftPos, topPos, 0, page, pages, book, FULL_BRIGHT_LIGHTMAP);
+        drawText(graphics.pose(), graphics.bufferSource(), leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, PrintoutData.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours);
 
         graphics.pose().popPose();
     }

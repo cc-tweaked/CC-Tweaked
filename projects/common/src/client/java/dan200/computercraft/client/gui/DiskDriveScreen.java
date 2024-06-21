@@ -15,7 +15,7 @@ import net.minecraft.world.entity.player.Inventory;
  * The GUI for disk drives.
  */
 public class DiskDriveScreen extends AbstractContainerScreen<DiskDriveMenu> {
-    private static final ResourceLocation BACKGROUND = new ResourceLocation("computercraft", "textures/gui/disk_drive.png");
+    private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath("computercraft", "textures/gui/disk_drive.png");
 
     public DiskDriveScreen(DiskDriveMenu container, Inventory player, Component title) {
         super(container, player, title);

@@ -15,7 +15,7 @@ import net.minecraft.world.entity.player.Inventory;
  * The GUI for printers.
  */
 public class PrinterScreen extends AbstractContainerScreen<PrinterMenu> {
-    private static final ResourceLocation BACKGROUND = new ResourceLocation("computercraft", "textures/gui/printer.png");
+    private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath("computercraft", "textures/gui/printer.png");
 
     public PrinterScreen(PrinterMenu container, Inventory player, Component title) {
         super(container, player, title);

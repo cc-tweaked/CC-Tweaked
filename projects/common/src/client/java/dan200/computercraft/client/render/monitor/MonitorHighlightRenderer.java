@@ -72,18 +72,16 @@ public final class MonitorHighlightRenderer {
 
     private static void line(VertexConsumer buffer, Matrix4f transform, PoseStack.Pose normal, float x, float y, float z, Direction direction) {
         buffer
-            .vertex(transform, x, y, z)
-            .color(0, 0, 0, 0.4f)
-            .normal(normal, direction.getStepX(), direction.getStepY(), direction.getStepZ())
-            .endVertex();
+            .addVertex(transform, x, y, z)
+            .setColor(0, 0, 0, 0.4f)
+            .setNormal(normal, direction.getStepX(), direction.getStepY(), direction.getStepZ());
         buffer
-            .vertex(transform,
+            .addVertex(transform,
                 x + direction.getStepX(),
                 y + direction.getStepY(),
                 z + direction.getStepZ()
             )
-            .color(0, 0, 0, 0.4f)
-            .normal(normal, direction.getStepX(), direction.getStepY(), direction.getStepZ())
-            .endVertex();
+            .setColor(0, 0, 0, 0.4f)
+            .setNormal(normal, direction.getStepX(), direction.getStepY(), direction.getStepZ());
     }
 }

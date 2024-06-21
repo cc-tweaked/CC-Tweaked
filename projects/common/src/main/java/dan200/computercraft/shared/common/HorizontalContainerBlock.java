@@ -62,13 +62,7 @@ public abstract class HorizontalContainerBlock extends BaseEntityBlock {
 
     @Override
     protected final void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (state.is(newState.getBlock())) return;
-
-        if (level.getBlockEntity(pos) instanceof BaseContainerBlockEntity container) {
-            Containers.dropContents(level, pos, container);
-            level.updateNeighbourForOutputSignal(pos, this);
-        }
-
+        Containers.dropContentsOnDestroy(state, newState, level, pos);
         super.onRemove(state, level, pos, newState, isMoving);
     }
 

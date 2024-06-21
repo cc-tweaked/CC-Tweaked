@@ -14,6 +14,7 @@ import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.util.NonNegativeId;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -49,7 +50,7 @@ public class DiskItem extends Item implements IMedia {
     }
 
     @Override
-    public @Nullable String getLabel(ItemStack stack) {
+    public @Nullable String getLabel(HolderLookup.Provider registries, ItemStack stack) {
         var label = stack.get(DataComponents.CUSTOM_NAME);
         return label != null ? label.getString() : null;
     }

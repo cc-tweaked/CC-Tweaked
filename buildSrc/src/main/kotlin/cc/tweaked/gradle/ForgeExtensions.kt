@@ -31,9 +31,9 @@ fun JavaExec.setRunConfig(config: Run) {
     environment(config.environmentVariables.get())
     systemProperties(config.systemProperties.get())
 
-    config.modSources.get().forEach { classpath(it.runtimeClasspath) }
+    config.modSources.all().get().values().forEach { classpath(it.runtimeClasspath) }
     classpath(config.classpath)
-    classpath(config.dependencies.get().configuration)
+    classpath(config.dependencies.get().runtimeConfiguration)
 
     (config as RunImpl).taskDependencies.forEach { dependsOn(it) }
 

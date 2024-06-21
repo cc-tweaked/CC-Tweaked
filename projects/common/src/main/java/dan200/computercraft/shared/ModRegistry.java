@@ -100,7 +100,10 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.Recipe;
@@ -580,9 +583,8 @@ public final class ModRegistry {
         ComputerCraftAPI.registerBundledRedstoneProvider(new DefaultBundledRedstoneProvider());
         ComputerCraftAPI.registerRefuelHandler(new FurnaceRefuelHandler());
         ComputerCraftAPI.registerMediaProvider(stack -> {
-            var item = stack.getItem();
-            if (item instanceof IMedia media) return media;
-            if (item instanceof RecordItem) return RecordMedia.INSTANCE;
+            if (stack.getItem() instanceof IMedia media) return media;
+            if (stack.has(net.minecraft.core.component.DataComponents.JUKEBOX_PLAYABLE)) return RecordMedia.INSTANCE;
             return null;
         });
 

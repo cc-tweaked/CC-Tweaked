@@ -22,7 +22,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
     public void onInitialize() {
         TestHooks.init();
 
-        var phase = new ResourceLocation(ComputerCraftAPI.MOD_ID, "test_mod");
+        var phase = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "test_mod");
         ServerLifecycleEvents.SERVER_STARTED.addPhaseOrdering(Event.DEFAULT_PHASE, phase);
         ServerLifecycleEvents.SERVER_STARTED.register(phase, TestHooks::onServerStarted);
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> CCTestCommand.register(dispatcher));

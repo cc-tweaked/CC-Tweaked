@@ -22,13 +22,13 @@ import dan200.computercraft.shared.util.PauseAwareTimer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 
 import javax.annotation.Nullable;
@@ -242,7 +242,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
      * @return Whether the sound could be played.
      * @throws LuaException If the sound name was invalid.
      * @cc.usage Play a creeper hiss with the speaker.
-     *
+     * <p>
      * <pre data-peripheral="speaker">{@code
      * local speaker = peripheral.find("speaker")
      * speaker.playSound("entity.creeper.primed")
@@ -258,7 +258,11 @@ public abstract class SpeakerPeripheral implements IPeripheral {
 
         // Prevent playing music discs.
         var soundEvent = BuiltInRegistries.SOUND_EVENT.get(identifier);
-        if (soundEvent != null && RecordItem.getBySound(soundEvent) != null) return false;
+        // FIXME: Build a set of sound events, and cache this.
+        var level = Objects.requireNonNull(getPosition().level());
+        if (soundEvent != null && level.registryAccess().registry(Registries.JUKEBOX_SONG).orElseThrow().stream().anyMatch(x -> x.soundEvent().value() == soundEvent)) {
+            return false;
+        }
 
         synchronized (lock) {
             if (pendingSound != null || (dfpwmState != null && dfpwmState.isPlaying())) return false;
@@ -293,18 +297,18 @@ public abstract class SpeakerPeripheral implements IPeripheral {
      * given to {@link #playAudio}.
      * @cc.since 1.100
      * @cc.usage Read an audio file, decode it using [`cc.audio.dfpwm`], and play it using the speaker.
-     *
+     * <p>
      * <pre data-peripheral="speaker">{@code
      * local dfpwm = require("cc.audio.dfpwm")
      * local speaker = peripheral.find("speaker")
-     *
+     * <p>
      * local decoder = dfpwm.make_decoder()
      * for chunk in io.lines("data/example.dfpwm", 16 * 1024) do
-     *     local buffer = decoder(chunk)
-     *
-     *     while not speaker.playAudio(buffer) do
-     *         os.pullEvent("speaker_audio_empty")
-     *     end
+     * local buffer = decoder(chunk)
+     * <p>
+     * while not speaker.playAudio(buffer) do
+     * os.pullEvent("speaker_audio_empty")
+     * end
      * end
      * }</pre>
      * @cc.see cc.audio.dfpwm Provides utilities for decoding DFPWM audio files into a format which can be played by

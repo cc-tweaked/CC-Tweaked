@@ -22,7 +22,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import java.util.List;
 
 class RecipeResolver implements IRecipeManagerPlugin {
-    private static final ResourceLocation RECIPE_ID = new ResourceLocation(ComputerCraftAPI.MOD_ID, "upgrade");
+    private static final ResourceLocation RECIPE_ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "upgrade");
     private final UpgradeRecipeGenerator<RecipeHolder<CraftingRecipe>> resolver = new UpgradeRecipeGenerator<>(x -> new RecipeHolder<>(RECIPE_ID, x), RecipeModHelpers.getEmptyRegistryAccess());
 
     @Override

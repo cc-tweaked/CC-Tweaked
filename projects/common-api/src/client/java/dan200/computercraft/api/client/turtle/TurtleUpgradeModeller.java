@@ -4,6 +4,7 @@
 
 package dan200.computercraft.api.client.turtle;
 
+import dan200.computercraft.api.client.ModelLocation;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
@@ -77,6 +78,18 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * @return The constructed modeller.
      */
     static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> sided(ResourceLocation left, ResourceLocation right) {
+        return sided(ModelLocation.resource(left), ModelLocation.resource(right));
+    }
+
+    /**
+     * Construct a {@link TurtleUpgradeModeller} which has a single model for the left and right side.
+     *
+     * @param left  The model to use on the left.
+     * @param right The model to use on the right.
+     * @param <T>   The type of the turtle upgrade.
+     * @return The constructed modeller.
+     */
+    static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> sided(ModelLocation left, ModelLocation right) {
         return new TurtleUpgradeModeller<>() {
             @Override
             public TransformedModel getModel(T upgrade, @Nullable ITurtleAccess turtle, TurtleSide side, DataComponentPatch data) {
@@ -85,7 +98,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
 
             @Override
             public Stream<ResourceLocation> getDependencies() {
-                return Stream.of(left, right);
+                return Stream.of(left, right).flatMap(ModelLocation::getDependencies);
             }
         };
     }

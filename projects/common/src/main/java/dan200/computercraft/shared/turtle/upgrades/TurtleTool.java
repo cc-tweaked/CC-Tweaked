@@ -27,12 +27,8 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -206,6 +202,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
      * @see Player#attack(Entity)
      */
     private boolean attack(ServerPlayer player, Direction direction, Entity entity) {
+        /*
         var baseDamage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE) * spec.damageMultiplier();
         var bonusDamage = EnchantmentHelper.getDamageBonus(player.getItemInHand(InteractionHand.MAIN_HAND), entity.getType());
         var damage = baseDamage + bonusDamage;
@@ -242,20 +239,20 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         }
 
         // Apply remaining enchantments
-        if (entity instanceof LivingEntity target) EnchantmentHelper.doPostHurtEffects(target, player);
-        EnchantmentHelper.doPostDamageEffects(player, entity);
+        boolean doPostHurt = false;
+        if (entity instanceof LivingEntity target) {
+            doPostHurt = player.getItemInHand(InteractionHand.MAIN_HAND).hurtEnemy(target, player);
+        }
+
+        EnchantmentHelper.doPostAttackEffects(player.serverLevel(), entity, source);
 
         // Damage the original item stack.
-        if (entity instanceof LivingEntity target) {
-            player.getItemInHand(InteractionHand.MAIN_HAND).hurtEnemy(target, player);
+        if (entity instanceof LivingEntity target && doPostHurt) {
+            player.getItemInHand(InteractionHand.MAIN_HAND).postHurtEnemy(target, player);
         }
 
-        // Apply fire aspect
-        if (entity instanceof LivingEntity target && fireAspect > 0 && !target.isOnFire()) {
-            target.igniteForSeconds(4 * fireAspect);
-        }
-
-        return true;
+        return true;*/
+        return false;
     }
 
     private TurtleCommandResult dig(ITurtleAccess turtle, TurtleSide side, Direction direction) {

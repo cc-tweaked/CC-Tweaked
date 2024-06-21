@@ -148,7 +148,7 @@ public class ComputerCraft {
 
         @Override
         public ResourceLocation getFabricId() {
-            return new ResourceLocation(ComputerCraftAPI.MOD_ID, name);
+            return ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name);
         }
 
         @Override

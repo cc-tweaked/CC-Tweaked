@@ -36,7 +36,7 @@ class Speaker_Test {
     @GameTest
     fun Will_not_play_record(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            callPeripheral("right", "playSound", SoundEvents.MUSIC_DISC_PIGSTEP.location.toString())
+            callPeripheral("right", "playSound", SoundEvents.MUSIC_DISC_PIGSTEP.key().location().toString())
                 .assertArrayEquals(false)
         }
     }

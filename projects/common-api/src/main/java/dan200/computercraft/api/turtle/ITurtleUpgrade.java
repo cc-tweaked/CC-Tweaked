@@ -57,7 +57,7 @@ public interface ITurtleUpgrade extends UpgradeBase {
     /**
      * The registry in which turtle upgrades are stored.
      */
-    ResourceKey<Registry<ITurtleUpgrade>> REGISTRY = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_upgrade"));
+    ResourceKey<Registry<ITurtleUpgrade>> REGISTRY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_upgrade"));
 
     /**
      * Create a {@link ResourceKey} for a turtle upgrade given a {@link ResourceLocation}.

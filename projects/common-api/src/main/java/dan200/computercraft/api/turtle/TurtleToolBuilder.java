@@ -35,7 +35,7 @@ import java.util.Optional;
  * import net.minecraft.world.item.Items;
  *
  * public void registerTool(BootstrapContext<ITurtleUpgrade> upgrades) {
- *   TurtleToolBuilder.tool(new ResourceLocation("my_mod", "wooden_pickaxe"), Items.WOODEN_PICKAXE).register(upgrades);
+ *   TurtleToolBuilder.tool(ResourceLocation.fromNamespaceAndPath("my_mod", "wooden_pickaxe"), Items.WOODEN_PICKAXE).register(upgrades);
  * }
  *}
  */

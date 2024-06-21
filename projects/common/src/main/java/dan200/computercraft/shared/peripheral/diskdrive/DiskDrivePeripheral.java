@@ -64,7 +64,7 @@ public class DiskDrivePeripheral implements IPeripheral {
     @LuaFunction
     public final Object[] getDiskLabel() {
         var media = diskDrive.getMedia();
-        return media.media() == null ? null : new Object[]{ media.media().getLabel(media.stack()) };
+        return media.media() == null ? null : new Object[]{ media.media().getLabel(diskDrive.getLevel().registryAccess(), media.stack()) };
     }
 
     /**
@@ -117,7 +117,7 @@ public class DiskDrivePeripheral implements IPeripheral {
      */
     @LuaFunction
     public final boolean hasAudio() {
-        return diskDrive.getMedia().getAudio() != null;
+        return diskDrive.getMedia().getAudio(diskDrive.getLevel().registryAccess()) != null;
     }
 
     /**
@@ -130,7 +130,10 @@ public class DiskDrivePeripheral implements IPeripheral {
     @Nullable
     public final Object getAudioTitle() {
         var stack = diskDrive.getMedia();
-        return stack.media() != null ? stack.getAudioTitle() : false;
+        if (stack.media() == null) return false;
+
+        var audio = stack.getAudio(diskDrive.getLevel().registryAccess());
+        return audio == null ? null : audio.value().description().getString();
     }
 
     /**

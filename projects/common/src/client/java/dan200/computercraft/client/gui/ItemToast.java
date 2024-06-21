@@ -19,7 +19,7 @@ import java.util.List;
  * A {@link Toast} implementation which displays an arbitrary message along with an optional {@link ItemStack}.
  */
 public class ItemToast implements Toast {
-    private static final ResourceLocation TEXTURE = new ResourceLocation("toast/recipe");
+    private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("toast/recipe");
     public static final Object TRANSFER_NO_RESPONSE_TOKEN = new Object();
 
     private static final long DISPLAY_TIME = 7000L;

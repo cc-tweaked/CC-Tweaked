@@ -11,8 +11,8 @@ import dan200.computercraft.shared.recipe.function.RecipeFunction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 
@@ -41,7 +41,7 @@ public class TransformShapelessRecipe extends CustomShapelessRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inventory, HolderLookup.Provider registryAccess) {
+    public ItemStack assemble(CraftingInput inventory, HolderLookup.Provider registryAccess) {
         var result = super.assemble(inventory, registryAccess);
         for (var function : functions) result = function.apply(inventory, result);
         return result;

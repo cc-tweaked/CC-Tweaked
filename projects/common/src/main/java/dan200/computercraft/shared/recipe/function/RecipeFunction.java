@@ -16,8 +16,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 
 import java.util.List;
@@ -39,7 +39,7 @@ public interface RecipeFunction {
     /**
      * The registry where {@link RecipeFunction}s are registered.
      */
-    ResourceKey<Registry<Type<?>>> REGISTRY = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "recipe_function"));
+    ResourceKey<Registry<Type<?>>> REGISTRY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "recipe_function"));
 
     /**
      * The codec to read and write {@link RecipeFunction}s with.
@@ -75,7 +75,7 @@ public interface RecipeFunction {
      * @param result    The result item to modify. This may be mutated in place.
      * @return The new result item. This may be {@code result}.
      */
-    ItemStack apply(CraftingContainer container, ItemStack result);
+    ItemStack apply(CraftingInput container, ItemStack result);
 
     /**
      * Properties about a type of {@link RecipeFunction}. These are stored in {@linkplain #REGISTRY a Minecraft

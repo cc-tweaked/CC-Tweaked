@@ -41,7 +41,7 @@ public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
     private ResourceManager manager;
 
     public static ResourceMount get(String namespace, String subPath, ResourceManager manager) {
-        var path = new ResourceLocation(namespace, subPath);
+        var path = ResourceLocation.fromNamespaceAndPath(namespace, subPath);
         synchronized (MOUNT_CACHE) {
             var mount = MOUNT_CACHE.get(path);
             if (mount == null) MOUNT_CACHE.put(path, mount = new ResourceMount(namespace, subPath, manager));
@@ -60,7 +60,7 @@ public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
         var hasAny = false;
         String existingNamespace = null;
 
-        var newRoot = new FileEntry(new ResourceLocation(namespace, subPath));
+        var newRoot = new FileEntry(ResourceLocation.fromNamespaceAndPath(namespace, subPath));
         for (var file : manager.listResources(subPath, s -> true).keySet()) {
             existingNamespace = file.getNamespace();
 
@@ -88,7 +88,7 @@ public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
     }
 
     private FileEntry createEntry(String path) {
-        return new FileEntry(new ResourceLocation(namespace, subPath + "/" + path));
+        return new FileEntry(ResourceLocation.fromNamespaceAndPath(namespace, subPath + "/" + path));
     }
 
     @Override

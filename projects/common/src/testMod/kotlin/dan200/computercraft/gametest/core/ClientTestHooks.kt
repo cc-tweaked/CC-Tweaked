@@ -125,7 +125,7 @@ object ClientTestHooks {
                     GameTestBatchFactory.fromTestFunction(GameTestRegistry.getAllTestFunctions(), server.overworld()),
                     server.overworld(),
                 )
-                    .newStructureSpawner(StructureGridSpawner(TestHooks.getTestOrigin(server), 8))
+                    .newStructureSpawner(StructureGridSpawner(TestHooks.getTestOrigin(server), 8, false))
                     .build()
 
                 val testTracker = MultipleTestTracker(tests.testInfos)

@@ -5,9 +5,11 @@
 package dan200.computercraft.client.render.monitor;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.client.FrameInfo;
@@ -18,6 +20,7 @@ import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.client.render.vbo.DirectBuffers;
 import dan200.computercraft.client.render.vbo.DirectVertexBuffer;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
@@ -31,6 +34,7 @@ import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
+import org.lwjgl.system.MemoryUtil;
 
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
@@ -160,13 +164,12 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
                 var shader = RenderTypes.getMonitorTextureBufferShader();
                 shader.setupUniform(renderState.tboUniform);
 
-                var buffer = Tesselator.getInstance().getBuilder();
-                buffer.begin(RenderTypes.MONITOR_TBO.mode(), RenderTypes.MONITOR_TBO.format());
+                var buffer = Tesselator.getInstance().begin(RenderTypes.MONITOR_TBO.mode(), RenderTypes.MONITOR_TBO.format());
                 tboVertex(buffer, matrix, -xMargin, -yMargin);
                 tboVertex(buffer, matrix, -xMargin, pixelHeight + yMargin);
                 tboVertex(buffer, matrix, pixelWidth + xMargin, -yMargin);
                 tboVertex(buffer, matrix, pixelWidth + xMargin, pixelHeight + yMargin);
-                RenderTypes.MONITOR_TBO.end(buffer, VertexSorting.DISTANCE_TO_ORIGIN);
+                RenderTypes.MONITOR_TBO.draw(Nullability.assertNonNull(buffer.build()));
             }
             case VBO -> {
                 var backgroundBuffer = assertNonNull(renderState.backgroundBuffer);
@@ -242,13 +245,13 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
 
     private static void tboVertex(VertexConsumer builder, Matrix4f matrix, float x, float y) {
         // We encode position in the UV, as that's not transformed by the matrix.
-        builder.vertex(matrix, x, y, 0).uv(x, y).endVertex();
+        builder.addVertex(matrix, x, y, 0).setUv(x, y);
     }
 
     private static ByteBuffer getBuffer(int capacity) {
         var buffer = backingBuffer;
         if (buffer == null || buffer.capacity() < capacity) {
-            buffer = backingBuffer = buffer == null ? MemoryTracker.create(capacity) : MemoryTracker.resize(buffer, capacity);
+            buffer = backingBuffer = buffer == null ? MemoryUtil.memAlloc(capacity) : MemoryUtil.memRealloc(buffer, capacity);
         }
 
         buffer.clear();

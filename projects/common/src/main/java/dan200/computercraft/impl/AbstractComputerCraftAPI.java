@@ -48,12 +48,12 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     private final DetailRegistry<ItemStack> itemStackDetails = new DetailRegistryImpl<>(ItemDetails::fillBasic);
     private final DetailRegistry<BlockReference> blockDetails = new DetailRegistryImpl<>(BlockDetails::fillBasic);
 
-    protected static final ResourceKey<Registry<UpgradeType<? extends ITurtleUpgrade>>> turtleUpgradeRegistryId = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_upgrade_type"));
-    protected static final ResourceKey<Registry<UpgradeType<? extends IPocketUpgrade>>> pocketUpgradeRegistryId = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_upgrade_type"));
+    protected static final ResourceKey<Registry<UpgradeType<? extends ITurtleUpgrade>>> turtleUpgradeRegistryId = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_upgrade_type"));
+    protected static final ResourceKey<Registry<UpgradeType<? extends IPocketUpgrade>>> pocketUpgradeRegistryId = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_upgrade_type"));
 
     public static @Nullable InputStream getResourceFile(MinecraftServer server, String domain, String subPath) {
         var manager = server.getResourceManager();
-        var resource = manager.getResource(new ResourceLocation(domain, subPath)).orElse(null);
+        var resource = manager.getResource(ResourceLocation.fromNamespaceAndPath(domain, subPath)).orElse(null);
         if (resource == null) return null;
         try {
             return resource.open();

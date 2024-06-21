@@ -32,7 +32,7 @@ import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMA
  * {@link DirectFixedWidthFontRenderer}.
  */
 public final class FixedWidthFontRenderer {
-    public static final ResourceLocation FONT = new ResourceLocation("computercraft", "textures/gui/term_font.png");
+    public static final ResourceLocation FONT = ResourceLocation.fromNamespaceAndPath("computercraft", "textures/gui/term_font.png");
 
     public static final int FONT_HEIGHT = 9;
     public static final int FONT_WIDTH = 6;
@@ -221,9 +221,9 @@ public final class FixedWidthFontRenderer {
         var consumer = c.consumer();
         byte r = rgba[0], g = rgba[1], b = rgba[2], a = rgba[3];
 
-        consumer.vertex(poseMatrix, x1, y1, z).color(r, g, b, a).uv(u1, v1).uv2(light).endVertex();
-        consumer.vertex(poseMatrix, x1, y2, z).color(r, g, b, a).uv(u1, v2).uv2(light).endVertex();
-        consumer.vertex(poseMatrix, x2, y2, z).color(r, g, b, a).uv(u2, v2).uv2(light).endVertex();
-        consumer.vertex(poseMatrix, x2, y1, z).color(r, g, b, a).uv(u2, v1).uv2(light).endVertex();
+        consumer.addVertex(poseMatrix, x1, y1, z).setColor(r, g, b, a).setUv(u1, v1).setLight(light);
+        consumer.addVertex(poseMatrix, x1, y2, z).setColor(r, g, b, a).setUv(u1, v2).setLight(light);
+        consumer.addVertex(poseMatrix, x2, y2, z).setColor(r, g, b, a).setUv(u2, v2).setLight(light);
+        consumer.addVertex(poseMatrix, x2, y1, z).setColor(r, g, b, a).setUv(u2, v1).setLight(light);
     }
 }

@@ -46,7 +46,7 @@ public class ComputerCraftTags {
         public static final TagKey<Item> DYEABLE = make("dyeable");
 
         private static TagKey<Item> make(String name) {
-            return TagKey.create(Registries.ITEM, new ResourceLocation(ComputerCraftAPI.MOD_ID, name));
+            return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name));
         }
     }
 
@@ -91,7 +91,7 @@ public class ComputerCraftTags {
         public static final TagKey<Block> TURTLE_CAN_USE = make("turtle_can_use");
 
         private static TagKey<Block> make(String name) {
-            return TagKey.create(Registries.BLOCK, new ResourceLocation(ComputerCraftAPI.MOD_ID, name));
+            return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name));
         }
     }
 }

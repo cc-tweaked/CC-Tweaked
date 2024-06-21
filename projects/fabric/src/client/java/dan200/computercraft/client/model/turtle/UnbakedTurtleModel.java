@@ -22,7 +22,7 @@ import java.util.function.Function;
  * {@link TurtleModel}.
  */
 public final class UnbakedTurtleModel implements UnbakedModel {
-    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
+    private static final ResourceLocation COLOUR_TURTLE_MODEL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
 
     private final ResourceLocation model;
 
@@ -31,7 +31,7 @@ public final class UnbakedTurtleModel implements UnbakedModel {
     }
 
     public static UnbakedModel parse(JsonObject json) {
-        var model = new ResourceLocation(GsonHelper.getAsString(json, "model"));
+        var model = ResourceLocation.parse(GsonHelper.getAsString(json, "model"));
         return new UnbakedTurtleModel(model);
     }
 
@@ -47,7 +47,7 @@ public final class UnbakedTurtleModel implements UnbakedModel {
     }
 
     @Override
-    public BakedModel bake(ModelBaker bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState transform, ResourceLocation location) {
+    public BakedModel bake(ModelBaker bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState transform) {
         var mainModel = bakery.bake(model, transform);
         if (mainModel == null) throw new NullPointerException(model + " failed to bake");
 

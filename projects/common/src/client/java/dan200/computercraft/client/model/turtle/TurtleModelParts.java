@@ -85,7 +85,7 @@ public final class TurtleModelParts<T> {
     public TurtleModelParts(BakedModel familyModel, BakedModel colourModel, ModelTransformer transformer, Function<List<BakedModel>, T> combineModel) {
         this.familyModel = familyModel;
         this.colourModel = colourModel;
-        this.transformer = x -> transformer.transform(x.getModel(), x.getMatrix());
+        this.transformer = x -> transformer.transform(x.model(), x.matrix());
         buildModel = x -> combineModel.apply(buildModel(x));
     }
 
@@ -127,7 +127,7 @@ public final class TurtleModelParts<T> {
     private void addUpgrade(List<BakedModel> parts, Transformation transformation, TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
         if (upgrade == null) return;
         var model = TurtleUpgradeModellers.getModel(upgrade.upgrade(), upgrade.data(), side);
-        parts.add(transform(model.getModel(), transformation.compose(model.getMatrix())));
+        parts.add(transform(model.model(), transformation.compose(model.matrix())));
     }
 
     private BakedModel transform(BakedModel model, Transformation transformation) {
