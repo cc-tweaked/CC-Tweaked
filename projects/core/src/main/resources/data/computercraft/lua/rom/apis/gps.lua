@@ -23,7 +23,7 @@ just the same. For example, you might build a GPS cluster according to [this
 tutorial][1], using z to account for height, or you might use y to account for
 height in the way that Minecraft's debug screen displays.
 
-[1]: http://www.computercraft.info/forums2/index.php?/topic/3088-how-to-guide-gps-global-position-system/
+[1]: https://ccf.squiddev.cc/forums2/index.php?/topic/3088-how-to-guide-gps-global-position-system/
 
 @module gps
 @since 1.31

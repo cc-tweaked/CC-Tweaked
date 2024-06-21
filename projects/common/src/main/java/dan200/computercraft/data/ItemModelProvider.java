@@ -36,13 +36,13 @@ public final class ItemModelProvider {
     }
 
     private static void registerPocketComputer(ItemModelGenerators generators, ResourceLocation id, boolean off) {
-        createFlatItem(generators, addSuffix(id, "_blinking"),
+        createFlatItem(generators, id.withSuffix("_blinking"),
             new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/pocket_computer_blink"),
             id,
             new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/pocket_computer_light")
         );
 
-        createFlatItem(generators, addSuffix(id, "_on"),
+        createFlatItem(generators, id.withSuffix("_on"),
             new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/pocket_computer_on"),
             id,
             new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/pocket_computer_light")
@@ -93,9 +93,5 @@ public final class ItemModelProvider {
 
         new ModelTemplate(Optional.of(new ResourceLocation("item/generated")), Optional.empty(), slots)
             .create(model, mapping, generators.output);
-    }
-
-    private static ResourceLocation addSuffix(ResourceLocation location, String suffix) {
-        return new ResourceLocation(location.getNamespace(), location.getPath() + suffix);
     }
 }

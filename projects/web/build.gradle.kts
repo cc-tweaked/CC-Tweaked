@@ -145,6 +145,8 @@ val docWebsite by tasks.registering(Copy::class) {
     from(illuaminateDocs) { exclude("**/*.html") }
     // And item/block images from the data export
     from(file("src/htmlTransform/export/items")) { into("images/items") }
+    // Add the common-api (and core-api) javadoc
+    from(project(":common-api").tasks.named("javadoc")) { into("javadoc") }
 
     into(layout.buildDirectory.dir("site"))
 }

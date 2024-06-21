@@ -130,5 +130,18 @@
     "upgrade.minecraft.diamond_hoe.adjective": "Ackerbau",
     "upgrade.minecraft.diamond_pickaxe.adjective": "Bergbau",
     "upgrade.minecraft.diamond_shovel.adjective": "Graben",
-    "upgrade.minecraft.diamond_sword.adjective": "Nahkampf"
+    "upgrade.minecraft.diamond_sword.adjective": "Nahkampf",
+    "argument.computercraft.computer.id": "Computer ID",
+    "argument.computercraft.computer.instance": "einzigartige Instanz ID",
+    "argument.computercraft.computer.label": "Computer name",
+    "argument.computercraft.unknown_computer_family": "Unbekannte computer familie '%s'",
+    "gui.computercraft.config.floppy_space_limit.tooltip": "Die maximale Dateisystem Größe von Disketten (in bytes).",
+    "gui.computercraft.config.http.bandwidth": "Bandbreite",
+    "gui.computercraft.config.http.bandwidth.global_upload": "Globales upload limit",
+    "gui.computercraft.config.http.bandwidth.global_download.tooltip": "Die maximale Geschwindigkeit aller Computer in bytes/s mit der Heruntergeladen werden kann.\nBereich: > 1",
+    "gui.computercraft.config.http.bandwidth.global_download": "Globales download limit",
+    "gui.computercraft.config.http.bandwidth.tooltip": "Limitiert die Bandbreite der Computer.",
+    "argument.computercraft.computer.family": "Computer familie",
+    "gui.computercraft.config.execution.max_main_global_time.tooltip": "Die maximale Zeit in millisekunden, in der Aufgaben ausgeführt werden.\nAnmerkung: Diese Zeit wird höchstwarscheinlich überschritten und dient nur als ungefähre Grenze.\nLimit: > 1",
+    "gui.computercraft.config.http.bandwidth.global_upload.tooltip": "Die maximale Hochladungs Geschwindigkeit aller Computer in bytes/s.\nBereich: > 1"
 }

@@ -8,6 +8,7 @@ import dan200.computercraft.core.apis.FSAPI
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveBlock
+import dan200.computercraft.shared.peripheral.diskdrive.DiskDrivePeripheral
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveState
 import dan200.computercraft.shared.util.DataComponentUtil
 import dan200.computercraft.test.core.assertArrayEquals
@@ -39,6 +40,17 @@ class Disk_Drive_Test {
 
             callPeripheral("right", "getAudioTitle")
                 .assertArrayEquals("C418 - 13", message = "Correct audio title")
+        }
+    }
+
+    /**
+     * [DiskDrivePeripheral] returns `false` when the item is not a disk (or is absent).
+     */
+    @GameTest
+    fun Audio_title_when_empty(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer {
+            callPeripheral("right", "getAudioTitle")
+                .assertArrayEquals(false, message = "Correct audio title")
         }
     }
 

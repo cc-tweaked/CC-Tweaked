@@ -180,7 +180,7 @@ public class CommandAPI implements ILuaAPI {
      * blocks at once.
      * <p>
      * Blocks are traversed by ascending y level, followed by z and x - the returned
-     * table may be indexed using `x + z*width + y*depth*depth`.
+     * table may be indexed using `x + z*width + y*width*depth + 1`.
      *
      * @param minX      The start x coordinate of the range to query.
      * @param minY      The start y coordinate of the range to query.
@@ -194,6 +194,25 @@ public class CommandAPI implements ILuaAPI {
      * @throws LuaException If trying to get information about more than 4096 blocks.
      * @cc.since 1.76
      * @cc.changed 1.99 Added {@code dimension} argument.
+     *
+     * @cc.usage Print out all blocks in a cube around the computer.
+     *
+     * <pre>{@code
+     * -- Get a 3x3x3 cube around the computer
+     * local x, y, z = commands.getBlockPosition()
+     * local min_x, min_y, min_z, max_x, max_y, max_z = x - 1, y - 1, z - 1, x + 1, y + 1, z + 1
+     * local blocks = commands.getBlockInfos(min_x, min_y, min_z, max_x, max_y, max_z)
+     *
+     * -- Then loop over all blocks and print them out.
+     * local width, height, depth = max_x - min_x + 1, max_y - min_y + 1, max_z - min_z + 1
+     * for x = min_x, max_x do
+     *   for y = min_y, max_y do
+     *     for z = min_z, max_z do
+     *       print(("%d, %d %d => %s"):format(x, y, z, blocks[(x - min_x) + (z - min_z) * width + (y - min_y) * width * depth + 1].name))
+     *     end
+     *   end
+     * end
+     * }</pre>
      */
     @LuaFunction(mainThread = true)
     public final List<Map<?, ?>> getBlockInfos(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Optional<String> dimension) throws LuaException {
