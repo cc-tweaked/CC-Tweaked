@@ -129,7 +129,8 @@ public class DiskDrivePeripheral implements IPeripheral {
     @LuaFunction
     @Nullable
     public final Object getAudioTitle() {
-        return diskDrive.getMedia().getAudioTitle();
+        var stack = diskDrive.getMedia();
+        return stack.media() != null ? stack.getAudioTitle() : false;
     }
 
     /**
