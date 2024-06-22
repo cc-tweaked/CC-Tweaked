@@ -293,9 +293,6 @@ public final class ModRegistry {
         public static final RegistryEntry<MenuType<ComputerMenuWithoutInventory>> COMPUTER = REGISTRY.register("computer",
             () -> ContainerData.toType(ComputerContainerData::new, (id, inv, data) -> new ComputerMenuWithoutInventory(Menus.COMPUTER.get(), id, inv, data)));
 
-        public static final RegistryEntry<MenuType<ComputerMenuWithoutInventory>> POCKET_COMPUTER = REGISTRY.register("pocket_computer",
-            () -> ContainerData.toType(ComputerContainerData::new, (id, inv, data) -> new ComputerMenuWithoutInventory(Menus.POCKET_COMPUTER.get(), id, inv, data)));
-
         public static final RegistryEntry<MenuType<ComputerMenuWithoutInventory>> POCKET_COMPUTER_NO_TERM = REGISTRY.register("pocket_computer_no_term",
             () -> ContainerData.toType(ComputerContainerData::new, (id, inv, data) -> new ComputerMenuWithoutInventory(Menus.POCKET_COMPUTER_NO_TERM.get(), id, inv, data)));
 
