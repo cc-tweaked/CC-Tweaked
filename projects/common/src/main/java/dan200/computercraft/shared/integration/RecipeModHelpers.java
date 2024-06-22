@@ -15,7 +15,6 @@ import dan200.computercraft.shared.util.DataComponentUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -75,18 +74,6 @@ public final class RecipeModHelpers {
         }
 
         return upgradeItems;
-    }
-
-    /**
-     * A temporary function to denote places where we need a {@link HolderLookup.Provider} within our recipe mods, but
-     * don't have access to one.
-     *
-     * @return The empty recipe mod access.
-     * @deprecated We should get the registry access from a more sensible place.
-     */
-    @Deprecated
-    public static HolderLookup.Provider getEmptyRegistryAccess() {
-        return RegistryAccess.EMPTY;
     }
 
     static <T> void forEachRegistry(HolderLookup.Provider registries, ResourceKey<Registry<T>> registry, Consumer<Holder.Reference<T>> consumer) {

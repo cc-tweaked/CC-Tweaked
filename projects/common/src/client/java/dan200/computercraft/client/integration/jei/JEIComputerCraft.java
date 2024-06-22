@@ -19,6 +19,8 @@ import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter;
 import mezz.jei.api.registration.IAdvancedRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -44,7 +46,7 @@ public class JEIComputerCraft implements IModPlugin {
 
     @Override
     public void registerAdvanced(IAdvancedRegistration registry) {
-        registry.addRecipeManagerPlugin(new RecipeResolver());
+        registry.addRecipeManagerPlugin(new RecipeResolver(getRegistryAccess()));
     }
 
     @Override
@@ -52,7 +54,7 @@ public class JEIComputerCraft implements IModPlugin {
         var registry = runtime.getRecipeManager();
 
         // Register all turtles/pocket computers (not just vanilla upgrades) as upgrades on JEI.
-        var upgradeItems = RecipeModHelpers.getExtraStacks(RecipeModHelpers.getEmptyRegistryAccess());
+        var upgradeItems = RecipeModHelpers.getExtraStacks(getRegistryAccess());
         if (!upgradeItems.isEmpty()) {
             runtime.getIngredientManager().addIngredientsAtRuntime(VanillaTypes.ITEM_STACK, upgradeItems);
         }
@@ -99,4 +101,8 @@ public class JEIComputerCraft implements IModPlugin {
      * Distinguishes disks by colour.
      */
     private static final IIngredientSubtypeInterpreter<ItemStack> diskSubtype = (stack, ctx) -> Integer.toString(DiskItem.getColour(stack));
+
+    private static RegistryAccess getRegistryAccess() {
+        return Minecraft.getInstance().level.registryAccess();
+    }
 }
