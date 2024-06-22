@@ -8,7 +8,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.apis.IAPIEnvironment;
+import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
@@ -74,31 +74,20 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
         return level;
     }
 
-    public void setLevel(ServerLevel level) {
-        this.level = level;
-    }
-
     public BlockPos getPosition() {
         return position;
     }
 
-    public void setPosition(BlockPos pos) {
-        position = new BlockPos(pos);
-    }
-
-    public IAPIEnvironment getAPIEnvironment() {
-        return computer.getAPIEnvironment();
-    }
-
-    public Computer getComputer() {
-        return computer;
+    public void setPosition(ServerLevel level, BlockPos pos) {
+        this.level = level;
+        position = pos.immutable();
     }
 
     protected void markTerminalChanged() {
         terminalChanged.set(true);
     }
 
-    public void tickServer() {
+    protected void tickServer() {
         ticksSincePing++;
         computer.tick();
         if (terminalChanged.getAndSet(false)) onTerminalChanged();
@@ -116,10 +105,15 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
         ticksSincePing = 0;
     }
 
-    public boolean hasTimedOut() {
+    boolean hasTimedOut() {
         return ticksSincePing > 100;
     }
 
+    /**
+     * Get a bitmask returning which sides on the computer have changed, resetting the internal state.
+     *
+     * @return What sides on the computer have changed.
+     */
     public int pollAndResetChanges() {
         return computer.pollAndResetChanges();
     }
@@ -189,25 +183,21 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
 
     @Override
     public void turnOn() {
-        // Turn on
         computer.turnOn();
     }
 
     @Override
     public void shutdown() {
-        // Shutdown
         computer.shutdown();
     }
 
     @Override
     public void reboot() {
-        // Reboot
         computer.reboot();
     }
 
     @Override
     public void queueEvent(String event, @Nullable Object[] arguments) {
-        // Queue event
         computer.queueEvent(event, arguments);
     }
 
@@ -257,6 +247,10 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
     @Override
     public MetricsObserver getMetrics() {
         return metrics;
+    }
+
+    public WorkMonitor getMainThreadMonitor() {
+        return computer.getMainThreadMonitor();
     }
 
     @Override

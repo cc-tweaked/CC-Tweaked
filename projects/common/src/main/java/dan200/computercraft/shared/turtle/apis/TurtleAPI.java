@@ -9,8 +9,9 @@ import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.metrics.Metrics;
+import dan200.computercraft.core.metrics.MetricsObserver;
+import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.peripheral.generic.methods.AbstractInventoryMethods;
 import dan200.computercraft.shared.turtle.core.*;
 
@@ -64,11 +65,11 @@ import java.util.Optional;
  * @cc.since 1.3
  */
 public class TurtleAPI implements ILuaAPI {
-    private final IAPIEnvironment environment;
+    private final MetricsObserver metrics;
     private final TurtleAccessInternal turtle;
 
-    public TurtleAPI(IAPIEnvironment environment, TurtleAccessInternal turtle) {
-        this.environment = environment;
+    public TurtleAPI(ServerComputer computer, TurtleAccessInternal turtle) {
+        this.metrics = computer.getMetrics();
         this.turtle = turtle;
     }
 
@@ -78,7 +79,7 @@ public class TurtleAPI implements ILuaAPI {
     }
 
     private MethodResult trackCommand(TurtleCommand command) {
-        environment.observe(Metrics.TURTLE_OPS);
+        metrics.observe(Metrics.TURTLE_OPS);
         return turtle.executeCommand(command);
     }
 
@@ -169,7 +170,7 @@ public class TurtleAPI implements ILuaAPI {
      */
     @LuaFunction
     public final MethodResult dig(Optional<TurtleSide> side) {
-        environment.observe(Metrics.TURTLE_OPS);
+        metrics.observe(Metrics.TURTLE_OPS);
         return trackCommand(TurtleToolCommand.dig(InteractDirection.FORWARD, side.orElse(null)));
     }
 
@@ -184,7 +185,7 @@ public class TurtleAPI implements ILuaAPI {
      */
     @LuaFunction
     public final MethodResult digUp(Optional<TurtleSide> side) {
-        environment.observe(Metrics.TURTLE_OPS);
+        metrics.observe(Metrics.TURTLE_OPS);
         return trackCommand(TurtleToolCommand.dig(InteractDirection.UP, side.orElse(null)));
     }
 
@@ -199,7 +200,7 @@ public class TurtleAPI implements ILuaAPI {
      */
     @LuaFunction
     public final MethodResult digDown(Optional<TurtleSide> side) {
-        environment.observe(Metrics.TURTLE_OPS);
+        metrics.observe(Metrics.TURTLE_OPS);
         return trackCommand(TurtleToolCommand.dig(InteractDirection.DOWN, side.orElse(null)));
     }
 

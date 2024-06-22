@@ -72,10 +72,9 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         return result;
     }
 
-    private boolean tick(ItemStack stack, Level world, Entity entity, PocketServerComputer computer) {
+    private boolean tick(ItemStack stack, Entity entity, PocketServerComputer computer) {
         var upgrade = getUpgrade(stack);
 
-        computer.setLevel((ServerLevel) world);
         computer.updateValues(entity, stack, upgrade);
 
         var changed = false;
@@ -113,7 +112,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         var computer = createServerComputer((ServerLevel) world, entity, inventory, stack);
         computer.keepAlive();
 
-        var changed = tick(stack, world, entity, computer);
+        var changed = tick(stack, entity, computer);
         if (changed && inventory != null) inventory.setChanged();
     }
 
@@ -123,7 +122,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         if (level.isClientSide || level.getServer() == null) return false;
 
         var computer = getServerComputer(level.getServer(), stack);
-        if (computer != null && tick(stack, entity.level(), entity, computer)) entity.setItem(stack.copy());
+        if (computer != null && tick(stack, entity, computer)) entity.setItem(stack.copy());
         return false;
     }
 
@@ -215,7 +214,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
 
             if (inventory != null) inventory.setChanged();
         }
-        computer.setLevel(level);
+
         return computer;
     }
 

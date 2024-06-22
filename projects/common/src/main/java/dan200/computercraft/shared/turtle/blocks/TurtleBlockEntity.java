@@ -78,7 +78,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
             getFamily(), Config.turtleTermWidth,
             Config.turtleTermHeight
         );
-        computer.addAPI(new TurtleAPI(computer.getAPIEnvironment(), brain));
+        computer.addAPI(new TurtleAPI(computer, brain));
         brain.setupComputer(computer);
         return computer;
     }
