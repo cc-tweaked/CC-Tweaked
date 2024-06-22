@@ -50,7 +50,7 @@ public class PocketComputerMenuProvider implements MenuProvider {
                 var stack = p.getItemInHand(hand);
                 return stack.getItem() == item && PocketComputerItem.getServerComputer(assertNonNull(entity.level().getServer()), stack) == computer;
             },
-            computer, item.getFamily()
+            computer
         );
     }
 }

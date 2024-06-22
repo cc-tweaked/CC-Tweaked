@@ -25,7 +25,6 @@ import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
-import dan200.computercraft.shared.computer.inventory.ViewComputerMenu;
 import dan200.computercraft.shared.media.items.DiskItem;
 import dan200.computercraft.shared.media.items.TreasureDiskItem;
 import net.minecraft.Util;
@@ -89,8 +88,6 @@ public final class ClientRegistry {
         MenuScreens.register(ModRegistry.Menus.PRINTER.get(), PrinterScreen::new);
         MenuScreens.register(ModRegistry.Menus.DISK_DRIVE.get(), DiskDriveScreen::new);
         MenuScreens.register(ModRegistry.Menus.PRINTOUT.get(), PrintoutScreen::new);
-
-        MenuScreens.<ViewComputerMenu, ComputerScreen<ViewComputerMenu>>register(ModRegistry.Menus.VIEW_COMPUTER.get(), ComputerScreen::new);
 
         registerItemProperty(itemProperties, "state",
             new UnclampedPropertyFunction((stack, world, player, random) -> {

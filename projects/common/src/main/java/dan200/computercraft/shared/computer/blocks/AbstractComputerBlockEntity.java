@@ -81,7 +81,8 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     }
 
     public boolean isUsable(Player player) {
-        return BaseContainerBlockEntity.canUnlock(player, lockCode, getDisplayName())
+        return getFamily().checkUsable(player)
+            && BaseContainerBlockEntity.canUnlock(player, lockCode, getDisplayName())
             && Container.stillValidBlockEntity(this, player, getInteractRange());
     }
 

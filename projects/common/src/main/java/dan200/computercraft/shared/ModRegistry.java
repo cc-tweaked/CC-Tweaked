@@ -29,7 +29,6 @@ import dan200.computercraft.shared.computer.blocks.ComputerBlock;
 import dan200.computercraft.shared.computer.blocks.ComputerBlockEntity;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
-import dan200.computercraft.shared.computer.inventory.ViewComputerMenu;
 import dan200.computercraft.shared.computer.items.CommandComputerItem;
 import dan200.computercraft.shared.computer.items.ComputerItem;
 import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
@@ -310,9 +309,6 @@ public final class ModRegistry {
                 HeldItemContainerData::new,
                 (id, inventory, data) -> new HeldItemMenu(Menus.PRINTOUT.get(), id, inventory.player, data.getHand())
             ));
-
-        public static final RegistryEntry<MenuType<ViewComputerMenu>> VIEW_COMPUTER = REGISTRY.register("view_computer",
-            () -> ContainerData.toType(ComputerContainerData::new, ViewComputerMenu::new));
     }
 
     static class ArgumentTypes {

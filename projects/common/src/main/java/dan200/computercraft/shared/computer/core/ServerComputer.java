@@ -23,6 +23,7 @@ import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
 import javax.annotation.Nullable;
@@ -94,7 +95,6 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
         terminalChanged.set(true);
     }
 
-
     public void tickServer() {
         ticksSincePing++;
         computer.tick();
@@ -133,6 +133,17 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
     public void close() {
         unload();
         ServerContext.get(level.getServer()).registry().remove(this);
+    }
+
+    /**
+     * Check whether this computer is usable by a player.
+     *
+     * @param player The player trying to use this computer.
+     * @return Whether this computer can be used.
+     */
+    public final boolean checkUsable(Player player) {
+        return ServerContext.get(level.getServer()).registry().get(instanceUUID) == this
+            && getFamily().checkUsable(player);
     }
 
     private void sendToAllInteracting(Function<AbstractContainerMenu, NetworkMessage<ClientNetworkContext>> createPacket) {
