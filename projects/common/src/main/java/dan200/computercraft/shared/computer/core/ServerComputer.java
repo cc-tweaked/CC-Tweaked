@@ -13,6 +13,7 @@ import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.metrics.MetricsObserver;
+import dan200.computercraft.shared.computer.apis.CommandAPI;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
@@ -61,6 +62,8 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
 
         computer = new Computer(context.computerContext(), this, terminal, computerID);
         computer.setLabel(label);
+
+        if (family == ComputerFamily.COMMAND) addAPI(new CommandAPI(this));
     }
 
     public ComputerFamily getFamily() {

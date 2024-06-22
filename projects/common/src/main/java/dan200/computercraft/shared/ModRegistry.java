@@ -24,7 +24,6 @@ import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import dan200.computercraft.shared.common.HeldItemMenu;
 import dan200.computercraft.shared.computer.blocks.CommandComputerBlock;
-import dan200.computercraft.shared.computer.blocks.CommandComputerBlockEntity;
 import dan200.computercraft.shared.computer.blocks.ComputerBlock;
 import dan200.computercraft.shared.computer.blocks.ComputerBlockEntity;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -141,8 +140,7 @@ public final class ModRegistry {
             () -> new ComputerBlock<>(computerProperties().mapColor(MapColor.STONE), BlockEntities.COMPUTER_NORMAL));
         public static final RegistryEntry<ComputerBlock<ComputerBlockEntity>> COMPUTER_ADVANCED = REGISTRY.register("computer_advanced",
             () -> new ComputerBlock<>(computerProperties().mapColor(MapColor.GOLD), BlockEntities.COMPUTER_ADVANCED));
-
-        public static final RegistryEntry<ComputerBlock<CommandComputerBlockEntity>> COMPUTER_COMMAND = REGISTRY.register("computer_command",
+        public static final RegistryEntry<ComputerBlock<ComputerBlockEntity>> COMPUTER_COMMAND = REGISTRY.register("computer_command",
             () -> new CommandComputerBlock<>(computerProperties().strength(-1, 6000000.0F), BlockEntities.COMPUTER_COMMAND));
 
         public static final RegistryEntry<TurtleBlock> TURTLE_NORMAL = REGISTRY.register("turtle_normal",
@@ -185,8 +183,8 @@ public final class ModRegistry {
             ofBlock(Blocks.COMPUTER_NORMAL, (p, s) -> new ComputerBlockEntity(BlockEntities.COMPUTER_NORMAL.get(), p, s, ComputerFamily.NORMAL));
         public static final RegistryEntry<BlockEntityType<ComputerBlockEntity>> COMPUTER_ADVANCED =
             ofBlock(Blocks.COMPUTER_ADVANCED, (p, s) -> new ComputerBlockEntity(BlockEntities.COMPUTER_ADVANCED.get(), p, s, ComputerFamily.ADVANCED));
-        public static final RegistryEntry<BlockEntityType<CommandComputerBlockEntity>> COMPUTER_COMMAND =
-            ofBlock(Blocks.COMPUTER_COMMAND, (p, s) -> new CommandComputerBlockEntity(BlockEntities.COMPUTER_COMMAND.get(), p, s));
+        public static final RegistryEntry<BlockEntityType<ComputerBlockEntity>> COMPUTER_COMMAND =
+            ofBlock(Blocks.COMPUTER_COMMAND, (p, s) -> new ComputerBlockEntity(BlockEntities.COMPUTER_COMMAND.get(), p, s, ComputerFamily.COMMAND));
 
         public static final RegistryEntry<BlockEntityType<TurtleBlockEntity>> TURTLE_NORMAL =
             ofBlock(Blocks.TURTLE_NORMAL, (p, s) -> new TurtleBlockEntity(BlockEntities.TURTLE_NORMAL.get(), p, s, () -> Config.turtleFuelLimit, ComputerFamily.NORMAL));
