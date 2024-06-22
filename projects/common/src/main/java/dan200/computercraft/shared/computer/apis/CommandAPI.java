@@ -10,15 +10,19 @@ import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.Logging;
-import dan200.computercraft.shared.computer.blocks.CommandComputerBlockEntity;
+import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.util.NBTUtil;
+import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +35,10 @@ import java.util.*;
 public class CommandAPI implements ILuaAPI {
     private static final Logger LOG = LoggerFactory.getLogger(CommandAPI.class);
 
-    private final CommandComputerBlockEntity computer;
+    private final ServerComputer computer;
+    private final OutputReceiver receiver = new OutputReceiver();
 
-    public CommandAPI(CommandComputerBlockEntity computer) {
+    public CommandAPI(ServerComputer computer) {
         this.computer = computer;
     }
 
@@ -48,15 +53,14 @@ public class CommandAPI implements ILuaAPI {
 
     private Object[] doCommand(String command) {
         var server = computer.getLevel().getServer();
-        if (server == null || !server.isCommandBlockEnabled()) {
+        if (!server.isCommandBlockEnabled()) {
             return new Object[]{ false, createOutput("Command blocks disabled by server") };
         }
 
         var commandManager = server.getCommands();
-        var receiver = computer.getReceiver();
         try {
             receiver.clearOutput();
-            var result = commandManager.performPrefixedCommand(computer.getSource(), command);
+            var result = commandManager.performPrefixedCommand(getSource(), command);
             return new Object[]{ result > 0, receiver.copyOutput(), result };
         } catch (Throwable t) {
             LOG.error(Logging.JAVA_ERROR, "Error running command.", t);
@@ -134,7 +138,6 @@ public class CommandAPI implements ILuaAPI {
     public final List<String> list(IArguments args) throws LuaException {
         var server = computer.getLevel().getServer();
 
-        if (server == null) return List.of();
         CommandNode<CommandSourceStack> node = server.getCommands().getDispatcher().getRoot();
         for (var j = 0; j < args.count(); j++) {
             var name = args.getString(j);
@@ -161,7 +164,7 @@ public class CommandAPI implements ILuaAPI {
     @LuaFunction
     public final Object[] getBlockPosition() {
         // This is probably safe to do on the Lua thread. Probably.
-        var pos = computer.getBlockPos();
+        var pos = computer.getPosition();
         return new Object[]{ pos.getX(), pos.getY(), pos.getZ() };
     }
 
@@ -186,7 +189,6 @@ public class CommandAPI implements ILuaAPI {
      * @throws LuaException If trying to get information about more than 4096 blocks.
      * @cc.since 1.76
      * @cc.changed 1.99 Added {@code dimension} argument.
-     *
      * @cc.usage Print out all blocks in a cube around the computer.
      *
      * <pre>{@code
@@ -220,7 +222,7 @@ public class CommandAPI implements ILuaAPI {
             Math.max(minY, maxY),
             Math.max(minZ, maxZ)
         );
-        if (world == null || !world.isInWorldBounds(min) || !world.isInWorldBounds(max)) {
+        if (!world.isInWorldBounds(min) || !world.isInWorldBounds(max)) {
             throw new LuaException("Co-ordinates out of range");
         }
 
@@ -265,10 +267,9 @@ public class CommandAPI implements ILuaAPI {
     }
 
     private Level getLevel(Optional<String> id) throws LuaException {
-        var currentLevel = (ServerLevel) computer.getLevel();
-        if (currentLevel == null) throw new LuaException("No world exists");
+        var currentLevel = computer.getLevel();
 
-        if (!id.isPresent()) return currentLevel;
+        if (id.isEmpty()) return currentLevel;
 
         var dimensionId = ResourceLocation.tryParse(id.get());
         if (dimensionId == null) throw new LuaException("Invalid dimension name");
@@ -277,5 +278,53 @@ public class CommandAPI implements ILuaAPI {
         if (level == null) throw new LuaException("Unknown dimension");
 
         return level;
+    }
+
+    private CommandSourceStack getSource() {
+        var name = "@";
+        var label = computer.getLabel();
+        if (label != null) name = label;
+
+        return new CommandSourceStack(receiver,
+            Vec3.atCenterOf(computer.getPosition()), Vec2.ZERO,
+            computer.getLevel(), 2,
+            name, Component.literal(name),
+            computer.getLevel().getServer(), null
+        );
+    }
+
+    /**
+     * A {@link CommandSource} that consumes output messages and stores them to a list.
+     */
+    private final class OutputReceiver implements CommandSource {
+        private final List<String> output = new ArrayList<>();
+
+        void clearOutput() {
+            output.clear();
+        }
+
+        List<String> copyOutput() {
+            return List.copyOf(output);
+        }
+
+        @Override
+        public void sendSystemMessage(Component textComponent) {
+            output.add(textComponent.getString());
+        }
+
+        @Override
+        public boolean acceptsSuccess() {
+            return true;
+        }
+
+        @Override
+        public boolean acceptsFailure() {
+            return true;
+        }
+
+        @Override
+        public boolean shouldInformAdmins() {
+            return computer.getLevel().getGameRules().getBoolean(GameRules.RULE_COMMANDBLOCKOUTPUT);
+        }
     }
 }
