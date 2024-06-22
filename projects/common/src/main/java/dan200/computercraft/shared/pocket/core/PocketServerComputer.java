@@ -138,10 +138,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     }
 
     public synchronized void updateValues(@Nullable Entity entity, ItemStack stack, @Nullable IPocketUpgrade upgrade) {
-        if (entity != null) {
-            setLevel((ServerLevel) entity.getCommandSenderWorld());
-            setPosition(entity.blockPosition());
-        }
+        if (entity != null) setPosition((ServerLevel) entity.level(), entity.blockPosition());
 
         // If a new entity has picked it up then rebroadcast the terminal to them
         if (entity != this.entity && entity instanceof ServerPlayer) markTerminalChanged();
@@ -156,7 +153,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     }
 
     @Override
-    public void tickServer() {
+    protected void tickServer() {
         super.tickServer();
 
         // Find any players which have gone missing and remove them from the tracking list.

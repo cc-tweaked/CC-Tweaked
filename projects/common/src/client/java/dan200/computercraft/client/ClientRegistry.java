@@ -24,7 +24,6 @@ import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
-import dan200.computercraft.shared.computer.inventory.ViewComputerMenu;
 import dan200.computercraft.shared.media.items.DiskItem;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -101,15 +100,12 @@ public final class ClientRegistry {
 
     public static void registerMenuScreens(RegisterMenuScreen register) {
         register.<AbstractComputerMenu, ComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.COMPUTER.get(), ComputerScreen::new);
-        register.<AbstractComputerMenu, ComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.POCKET_COMPUTER.get(), ComputerScreen::new);
         register.<AbstractComputerMenu, NoTermComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.POCKET_COMPUTER_NO_TERM.get(), NoTermComputerScreen::new);
         register.register(ModRegistry.Menus.TURTLE.get(), TurtleScreen::new);
 
         register.register(ModRegistry.Menus.PRINTER.get(), PrinterScreen::new);
         register.register(ModRegistry.Menus.DISK_DRIVE.get(), DiskDriveScreen::new);
         register.register(ModRegistry.Menus.PRINTOUT.get(), PrintoutScreen::new);
-
-        register.<ViewComputerMenu, ComputerScreen<ViewComputerMenu>>register(ModRegistry.Menus.VIEW_COMPUTER.get(), ComputerScreen::new);
     }
 
     public interface RegisterMenuScreen {

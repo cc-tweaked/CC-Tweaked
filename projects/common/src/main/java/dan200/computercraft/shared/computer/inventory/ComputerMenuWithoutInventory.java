@@ -4,7 +4,6 @@
 
 package dan200.computercraft.shared.computer.inventory;
 
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.container.InvisibleSlot;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
@@ -23,9 +22,9 @@ import java.util.function.Predicate;
 public class ComputerMenuWithoutInventory extends AbstractComputerMenu {
     public ComputerMenuWithoutInventory(
         MenuType<? extends AbstractComputerMenu> type, int id, Inventory player, Predicate<Player> canUse,
-        ServerComputer computer, ComputerFamily family
+        ServerComputer computer
     ) {
-        super(type, id, canUse, family, computer, null);
+        super(type, id, canUse, computer.getFamily(), computer, null);
         addSlots(player);
     }
 

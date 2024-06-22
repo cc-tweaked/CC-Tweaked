@@ -45,12 +45,12 @@ public class PocketComputerMenuProvider implements MenuProvider {
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity) {
         return new ComputerMenuWithoutInventory(
-            isTypingOnly ? ModRegistry.Menus.POCKET_COMPUTER_NO_TERM.get() : ModRegistry.Menus.POCKET_COMPUTER.get(), id, inventory,
+            isTypingOnly ? ModRegistry.Menus.POCKET_COMPUTER_NO_TERM.get() : ModRegistry.Menus.COMPUTER.get(), id, inventory,
             p -> {
                 var stack = p.getItemInHand(hand);
                 return stack.getItem() == item && PocketComputerItem.getServerComputer(assertNonNull(entity.level().getServer()), stack) == computer;
             },
-            computer, item.getFamily()
+            computer
         );
     }
 }

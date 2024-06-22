@@ -266,8 +266,7 @@ public class TurtleBrain implements TurtleAccessInternal {
                         newTurtle.transferStateFrom(oldOwner);
 
                         var computer = newTurtle.createServerComputer();
-                        computer.setLevel((ServerLevel) world);
-                        computer.setPosition(pos);
+                        computer.setPosition((ServerLevel) world, pos);
 
                         // Remove the old turtle
                         oldWorld.removeBlock(oldPos, false);
@@ -586,7 +585,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
         // If we've got a computer, ensure that we're allowed to perform work.
         var computer = owner.getServerComputer();
-        if (computer != null && !computer.getComputer().getMainThreadMonitor().canWork()) return;
+        if (computer != null && !computer.getMainThreadMonitor().canWork()) return;
 
         // Pull a new command
         var nextCommand = commandQueue.poll();
@@ -599,7 +598,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
         // Dispatch the callback
         if (computer == null) return;
-        computer.getComputer().getMainThreadMonitor().trackWork(end - start, TimeUnit.NANOSECONDS);
+        computer.getMainThreadMonitor().trackWork(end - start, TimeUnit.NANOSECONDS);
         var callbackID = nextCommand.callbackID();
         if (callbackID < 0) return;
 

@@ -18,7 +18,7 @@ import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.core.ServerContext;
-import dan200.computercraft.shared.computer.inventory.ViewComputerMenu;
+import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
 import dan200.computercraft.shared.computer.metrics.basic.Aggregate;
 import dan200.computercraft.shared.computer.metrics.basic.AggregatedMetric;
 import dan200.computercraft.shared.computer.metrics.basic.BasicComputerMetricsObserver;
@@ -268,7 +268,7 @@ public final class CommandComputerCraft {
 
             @Override
             public AbstractContainerMenu createMenu(int id, Inventory player, Player entity) {
-                return new ViewComputerMenu(id, player, computer);
+                return new ComputerMenuWithoutInventory(ModRegistry.Menus.COMPUTER.get(), id, player, p -> true, computer);
             }
         });
         return 1;

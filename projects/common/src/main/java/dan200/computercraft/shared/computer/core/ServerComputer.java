@@ -8,11 +8,12 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.apis.IAPIEnvironment;
+import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.metrics.MetricsObserver;
+import dan200.computercraft.shared.computer.apis.CommandAPI;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
@@ -23,6 +24,7 @@ import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
 import javax.annotation.Nullable;
@@ -58,6 +60,8 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
 
         computer = new Computer(context.computerContext(), this, terminal, computerID);
         computer.setLabel(label);
+
+        if (family == ComputerFamily.COMMAND) addAPI(new CommandAPI(this));
     }
 
     public ComputerFamily getFamily() {
@@ -68,32 +72,20 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
         return level;
     }
 
-    public void setLevel(ServerLevel level) {
-        this.level = level;
-    }
-
     public BlockPos getPosition() {
         return position;
     }
 
-    public void setPosition(BlockPos pos) {
-        position = new BlockPos(pos);
-    }
-
-    public IAPIEnvironment getAPIEnvironment() {
-        return computer.getAPIEnvironment();
-    }
-
-    public Computer getComputer() {
-        return computer;
+    public void setPosition(ServerLevel level, BlockPos pos) {
+        this.level = level;
+        position = pos.immutable();
     }
 
     protected void markTerminalChanged() {
         terminalChanged.set(true);
     }
 
-
-    public void tickServer() {
+    protected void tickServer() {
         ticksSincePing++;
         computer.tick();
         if (terminalChanged.getAndSet(false)) onTerminalChanged();
@@ -111,10 +103,15 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
         ticksSincePing = 0;
     }
 
-    public boolean hasTimedOut() {
+    boolean hasTimedOut() {
         return ticksSincePing > 100;
     }
 
+    /**
+     * Get a bitmask returning which sides on the computer have changed, resetting the internal state.
+     *
+     * @return What sides on the computer have changed.
+     */
     public int pollAndResetChanges() {
         return computer.pollAndResetChanges();
     }
@@ -131,6 +128,17 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
     public void close() {
         unload();
         ServerContext.get(level.getServer()).registry().remove(this);
+    }
+
+    /**
+     * Check whether this computer is usable by a player.
+     *
+     * @param player The player trying to use this computer.
+     * @return Whether this computer can be used.
+     */
+    public final boolean checkUsable(Player player) {
+        return ServerContext.get(level.getServer()).registry().get(instanceUUID) == this
+            && getFamily().checkUsable(player);
     }
 
     private void sendToAllInteracting(Function<AbstractContainerMenu, NetworkMessage<ClientNetworkContext>> createPacket) {
@@ -169,25 +177,21 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
 
     @Override
     public void turnOn() {
-        // Turn on
         computer.turnOn();
     }
 
     @Override
     public void shutdown() {
-        // Shutdown
         computer.shutdown();
     }
 
     @Override
     public void reboot() {
-        // Reboot
         computer.reboot();
     }
 
     @Override
     public void queueEvent(String event, @Nullable Object[] arguments) {
-        // Queue event
         computer.queueEvent(event, arguments);
     }
 
@@ -237,6 +241,10 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
     @Override
     public MetricsObserver getMetrics() {
         return metrics;
+    }
+
+    public WorkMonitor getMainThreadMonitor() {
+        return computer.getMainThreadMonitor();
     }
 
     @Override

@@ -25,7 +25,7 @@ public class PocketModemPeripheral extends WirelessModemPeripheral {
     void setLocation(IPocketAccess access) {
         var entity = access.getEntity();
         if (entity != null) {
-            level = entity.getCommandSenderWorld();
+            level = entity.level();
             position = entity.getEyePosition(1);
         }
     }

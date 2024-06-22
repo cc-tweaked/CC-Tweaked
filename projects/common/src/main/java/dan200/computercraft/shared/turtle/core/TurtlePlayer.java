@@ -60,7 +60,7 @@ public final class TurtlePlayer {
 
         var player = brain.cachedPlayer;
         if (player == null || player.player.getGameProfile() != getProfile(access.getOwningPlayer())
-            || player.player.getCommandSenderWorld() != access.getLevel()) {
+            || player.player.level() != access.getLevel()) {
             player = brain.cachedPlayer = create(brain);
         } else {
             player.setState(access);

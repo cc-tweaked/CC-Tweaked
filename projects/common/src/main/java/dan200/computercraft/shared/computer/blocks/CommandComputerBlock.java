@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
  * @param <T> The type of the computer block entity.
  * @see dan200.computercraft.shared.computer.items.CommandComputerItem
  */
-public class CommandComputerBlock<T extends CommandComputerBlockEntity> extends ComputerBlock<T> implements GameMasterBlock {
+public class CommandComputerBlock<T extends ComputerBlockEntity> extends ComputerBlock<T> implements GameMasterBlock {
     private static final MapCodec<CommandComputerBlock<?>> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         BlockCodecs.propertiesCodec(),
         BlockCodecs.blockEntityCodec(x -> x.type)

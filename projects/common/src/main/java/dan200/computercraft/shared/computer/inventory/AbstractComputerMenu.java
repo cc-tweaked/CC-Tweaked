@@ -59,7 +59,7 @@ public abstract class AbstractComputerMenu extends AbstractContainerMenu impleme
 
     @Override
     public boolean stillValid(Player player) {
-        return canUse.test(player);
+        return (computer == null || computer.checkUsable(player)) && canUse.test(player);
     }
 
     public ComputerFamily getFamily() {
