@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package dan200.computercraft.shared.integration.jei;
+package dan200.computercraft.client.integration.jei;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.TurtleSide;

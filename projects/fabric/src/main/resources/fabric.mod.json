@@ -27,7 +27,7 @@
             "dan200.computercraft.data.FabricDataGenerators"
         ],
         "jei_mod_plugin": [
-            "dan200.computercraft.shared.integration.jei.JEIComputerCraft"
+            "dan200.computercraft.client.integration.jei.JEIComputerCraft"
         ],
         "rei_client": [
             "dan200.computercraft.client.integration.rei.REIComputerCraft"
