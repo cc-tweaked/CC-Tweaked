@@ -48,7 +48,7 @@ public class MoreStreamCodecs {
 
             @Override
             public void encode(B buffer, NonNullList<C> list) {
-                var count = buffer.writeVarInt(list.size());
+                buffer.writeVarInt(list.size());
                 for (var entry : list) codec.encode(buffer, entry);
             }
         };

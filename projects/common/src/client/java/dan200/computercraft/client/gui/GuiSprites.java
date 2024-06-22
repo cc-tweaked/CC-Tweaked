@@ -21,7 +21,7 @@ import java.util.stream.Stream;
  * Sprite sheet for all GUI texutres in the mod.
  */
 public final class GuiSprites extends TextureAtlasHolder {
-    public static final ResourceLocation SPRITE_SHEET = new ResourceLocation(ComputerCraftAPI.MOD_ID, "gui");
+    public static final ResourceLocation SPRITE_SHEET = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui");
     public static final ResourceLocation TEXTURE = SPRITE_SHEET.withPath(x -> "textures/atlas/" + x + ".png");
 
     public static final ButtonTextures TURNED_OFF = button("turned_off");
@@ -35,16 +35,16 @@ public final class GuiSprites extends TextureAtlasHolder {
 
     private static ButtonTextures button(String name) {
         return new ButtonTextures(
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "gui/buttons/" + name),
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "gui/buttons/" + name + "_hover")
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/buttons/" + name),
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/buttons/" + name + "_hover")
         );
     }
 
     private static ComputerTextures computer(String name, boolean pocket, boolean sidebar) {
         return new ComputerTextures(
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "gui/border_" + name),
-            pocket ? new ResourceLocation(ComputerCraftAPI.MOD_ID, "gui/pocket_bottom_" + name) : null,
-            sidebar ? new ResourceLocation(ComputerCraftAPI.MOD_ID, "gui/sidebar_" + name) : null
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/border_" + name),
+            pocket ? ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/pocket_bottom_" + name) : null,
+            sidebar ? ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/sidebar_" + name) : null
         );
     }
 

@@ -27,8 +27,8 @@ import net.minecraft.world.phys.HitResult;
 import javax.annotation.Nullable;
 
 public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBlockEntity> {
-    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
-    private static final ResourceLocation ELF_OVERLAY_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_elf_overlay");
+    private static final ResourceLocation COLOUR_TURTLE_MODEL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
+    private static final ResourceLocation ELF_OVERLAY_MODEL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_elf_overlay");
 
     private final BlockEntityRenderDispatcher renderer;
     private final Font font;
@@ -121,8 +121,8 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         transform.translate(0.0f, -0.5f, -0.5f);
 
         var model = TurtleUpgradeModellers.getModel(upgrade, turtle.getAccess(), side);
-        applyTransformation(transform, model.getMatrix());
-        renderModel(transform, buffers, lightmapCoord, overlayLight, model.getModel(), null);
+        applyTransformation(transform, model.matrix());
+        renderModel(transform, buffers, lightmapCoord, overlayLight, model.model(), null);
 
         transform.popPose();
     }

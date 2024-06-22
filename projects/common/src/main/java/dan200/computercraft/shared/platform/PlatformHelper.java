@@ -28,12 +28,12 @@ import net.minecraft.world.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -217,7 +217,7 @@ public interface PlatformHelper {
      * @param container The crafting container.
      * @return A list of items to return to the player after crafting.
      */
-    List<ItemStack> getRecipeRemainingItems(ServerPlayer player, Recipe<CraftingContainer> recipe, CraftingContainer container);
+    List<ItemStack> getRecipeRemainingItems(ServerPlayer player, Recipe<CraftingInput> recipe, CraftingInput container);
 
     /**
      * Fire an event after crafting has occurred.
@@ -226,7 +226,7 @@ public interface PlatformHelper {
      * @param container The current crafting container.
      * @param stack     The resulting stack from crafting.
      */
-    void onItemCrafted(ServerPlayer player, CraftingContainer container, ItemStack stack);
+    void onItemCrafted(ServerPlayer player, CraftingInput container, ItemStack stack);
 
     /**
      * Check whether we should notify neighbours in a particular direction.

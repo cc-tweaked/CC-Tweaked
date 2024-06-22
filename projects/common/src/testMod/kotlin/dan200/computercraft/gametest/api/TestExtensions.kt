@@ -177,7 +177,7 @@ fun <T : Comparable<T>> GameTestHelper.assertBlockHas(pos: BlockPos, property: P
  * Get a [Container] at a given position.
  */
 fun GameTestHelper.getContainerAt(pos: BlockPos): Container =
-    when (val container = getBlockEntity(pos)) {
+    when (val container: BlockEntity = getBlockEntity(pos)) {
         is Container -> container
         null -> failVerbose("Expected a container at $pos, found nothing", pos)
         else -> failVerbose("Expected a container at $pos, found ${getName(container.type)}", pos)
@@ -226,7 +226,7 @@ private fun GameTestHelper.assertContainerExactlyImpl(pos: BlockPos, container: 
  */
 private fun GameTestHelper.getPeripheralAt(pos: BlockPos, direction: Direction): IPeripheral? {
     val be = BarrelBlockEntity(absolutePos(pos).relative(direction), Blocks.BARREL.defaultBlockState())
-    be.level = level
+    be.setLevel(level)
     return PlatformHelper.get().createPeripheralAccess(be) { }.get(direction.opposite)
 }
 
@@ -260,10 +260,9 @@ private fun getName(type: BlockEntityType<*>): ResourceLocation =
  * Get a [BlockEntity] of a specific type.
  */
 fun <T : BlockEntity> GameTestHelper.getBlockEntity(pos: BlockPos, type: BlockEntityType<T>): T {
-    val tile = getBlockEntity(pos)
+    val tile: BlockEntity = getBlockEntity(pos)
     @Suppress("UNCHECKED_CAST")
     return when {
-        tile == null -> failVerbose("Expected ${getName(type)}, but no tile was there", pos)
         tile.type != type -> failVerbose("Expected ${getName(type)} but got ${getName(tile.type)}", pos)
         else -> tile as T
     }

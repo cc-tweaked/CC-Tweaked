@@ -21,8 +21,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -31,6 +33,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
@@ -207,32 +211,30 @@ public class TurtleTool extends AbstractTurtleUpgrade {
      */
     private boolean attack(ServerPlayer player, Direction direction, Entity entity) {
         var baseDamage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE) * spec.damageMultiplier();
-        var bonusDamage = EnchantmentHelper.getDamageBonus(player.getItemInHand(InteractionHand.MAIN_HAND), entity.getType());
-        var damage = baseDamage + bonusDamage;
-        if (damage <= 0) return false;
-
-        var knockBack = EnchantmentHelper.getKnockbackBonus(player);
-
-        // We follow the logic in Player.attack of setting the entity on fire before attacking, so it's burning when it
-        // (possibly) dies.
-        var fireAspect = EnchantmentHelper.getFireAspect(player);
-        var onFire = false;
-        if (entity instanceof LivingEntity target && fireAspect > 0 && !target.isOnFire()) {
-            onFire = true;
-            target.igniteForSeconds(1);
-        }
-
+        var tool = player.getWeaponItem();
         var source = player.damageSources().playerAttack(player);
-        if (!entity.hurt(source, damage)) {
-            // If we failed to damage the entity, undo us setting the entity on fire.
-            if (onFire) entity.clearFire();
-            return false;
+        var bonusDamage = EnchantmentHelper.modifyDamage(player.serverLevel(), tool, entity, source, baseDamage) - baseDamage;
+
+        // If this is a projectile, attempt to deflect it instead.
+        if (entity.getType().is(EntityTypeTags.REDIRECTABLE_PROJECTILE) && entity instanceof Projectile projectile &&
+            projectile.deflect(ProjectileDeflection.AIM_DEFLECT, player, player, true)
+        ) {
+            return true;
         }
+
+        if (baseDamage <= 0 && bonusDamage <= 0) return false;
+
+        var entityVelocity = entity.getDeltaMovement();
+
+        // Compute the total damage, and deal it out.
+        var damage = baseDamage + bonusDamage + tool.getItem().getAttackDamageBonus(entity, baseDamage, source);
+        if (!entity.hurt(source, damage)) return false;
 
         // Special case for armor stands: attack twice to guarantee destroy
         if (entity.isAlive() && entity instanceof ArmorStand) entity.hurt(source, damage);
 
         // Apply knockback
+        var knockBack = EnchantmentHelper.modifyKnockback(player.serverLevel(), tool, entity, source, (float) player.getAttributeValue(Attributes.ATTACK_KNOCKBACK));
         if (knockBack > 0) {
             if (entity instanceof LivingEntity target) {
                 target.knockback(knockBack * 0.5, -direction.getStepX(), -direction.getStepZ());
@@ -241,18 +243,20 @@ public class TurtleTool extends AbstractTurtleUpgrade {
             }
         }
 
-        // Apply remaining enchantments
-        if (entity instanceof LivingEntity target) EnchantmentHelper.doPostHurtEffects(target, player);
-        EnchantmentHelper.doPostDamageEffects(player, entity);
-
-        // Damage the original item stack.
-        if (entity instanceof LivingEntity target) {
-            player.getItemInHand(InteractionHand.MAIN_HAND).hurtEnemy(target, player);
+        if (entity instanceof ServerPlayer otherPlayer && entity.hurtMarked) {
+            otherPlayer.connection.send(new ClientboundSetEntityMotionPacket(entity));
+            entity.hurtMarked = false;
+            entity.setDeltaMovement(entityVelocity);
         }
 
-        // Apply fire aspect
-        if (entity instanceof LivingEntity target && fireAspect > 0 && !target.isOnFire()) {
-            target.igniteForSeconds(4 * fireAspect);
+        var didHurt = entity instanceof LivingEntity target && tool.hurtEnemy(target, player);
+
+        // Apply remaining enchantments
+        EnchantmentHelper.doPostAttackEffects(player.serverLevel(), entity, source);
+
+        // Damage the original item stack.
+        if (!tool.isEmpty() && entity instanceof LivingEntity && didHurt) {
+            tool.postHurtEnemy((LivingEntity) entity, player);
         }
 
         return true;

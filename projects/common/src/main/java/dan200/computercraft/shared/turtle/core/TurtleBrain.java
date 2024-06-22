@@ -134,7 +134,7 @@ public class TurtleBrain implements TurtleAccessInternal {
         // Read fields
         colourHex = nbt.contains(NBT_COLOUR) ? nbt.getInt(NBT_COLOUR) : -1;
         fuelLevel = nbt.contains(NBT_FUEL) ? nbt.getInt(NBT_FUEL) : 0;
-        overlay = nbt.contains(NBT_OVERLAY) ? new ResourceLocation(nbt.getString(NBT_OVERLAY)) : null;
+        overlay = nbt.contains(NBT_OVERLAY) ? ResourceLocation.parse(nbt.getString(NBT_OVERLAY)) : null;
 
         // Read upgrades
         setUpgradeDirect(TurtleSide.LEFT, NBTUtil.decodeFrom(TurtleUpgrades.instance().upgradeDataCodec(), registries, nbt, NBT_LEFT_UPGRADE));

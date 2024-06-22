@@ -27,6 +27,7 @@ import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.LuaTaskContext
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
+import net.minecraft.core.registries.Registries
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.resources.ResourceLocation
@@ -234,7 +235,7 @@ class Turtle_Test {
             val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
             assertEquals(
                 helper.level.registryAccess().registryOrThrow(ITurtleUpgrade.REGISTRY)
-                    .get(ResourceLocation("cctest", "wooden_pickaxe")),
+                    .get(ResourceLocation.fromNamespaceAndPath("cctest", "wooden_pickaxe")),
                 upgrade,
                 "Upgrade is a wooden pickaxe",
             )
@@ -263,7 +264,7 @@ class Turtle_Test {
                 ItemStack(Items.WOODEN_PICKAXE),
                 UpgradeData.ofDefault(
                     helper.level.registryAccess().registryOrThrow(ITurtleUpgrade.REGISTRY)
-                        .getHolder(ResourceLocation("cctest", "wooden_pickaxe")).orElseThrow(),
+                        .getHolder(ResourceLocation.fromNamespaceAndPath("cctest", "wooden_pickaxe")).orElseThrow(),
                 ),
             )
         }
@@ -284,14 +285,18 @@ class Turtle_Test {
             val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
             assertEquals(
                 helper.level.registryAccess().registryOrThrow(ITurtleUpgrade.REGISTRY)
-                    .get(ResourceLocation("cctest", "netherite_pickaxe")),
+                    .get(ResourceLocation.fromNamespaceAndPath("cctest", "netherite_pickaxe")),
                 upgrade,
                 "Upgrade is a netherite pickaxe",
             )
 
             val item = ItemStack(Items.NETHERITE_PICKAXE)
             item.damageValue = 1
-            item.enchant(Enchantments.SILK_TOUCH, 1)
+            item.enchant(
+                helper.level.registryAccess().registryOrThrow(Registries.ENCHANTMENT)
+                    .getHolderOrThrow(Enchantments.SILK_TOUCH),
+                1,
+            )
 
             helper.assertUpgradeItem(item, turtle.getUpgradeWithData(TurtleSide.LEFT)!!)
         }

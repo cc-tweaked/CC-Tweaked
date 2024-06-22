@@ -118,12 +118,12 @@ public final class ClientRegistry {
 
     public static void registerTurtleModellers(RegisterTurtleUpgradeModeller register) {
         register.register(ModRegistry.TurtleUpgradeTypes.SPEAKER.get(), TurtleUpgradeModeller.sided(
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_left"),
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_right")
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_left"),
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_right")
         ));
         register.register(ModRegistry.TurtleUpgradeTypes.WORKBENCH.get(), TurtleUpgradeModeller.sided(
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_left"),
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_right")
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_left"),
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_right")
         ));
         register.register(ModRegistry.TurtleUpgradeTypes.WIRELESS_MODEM.get(), new TurtleModemModeller());
         register.register(ModRegistry.TurtleUpgradeTypes.TOOL.get(), TurtleUpgradeModeller.flatItem());
@@ -131,7 +131,7 @@ public final class ClientRegistry {
 
     @SafeVarargs
     private static void registerItemProperty(RegisterItemProperty itemProperties, String name, ClampedItemPropertyFunction getter, Supplier<? extends Item>... items) {
-        var id = new ResourceLocation(ComputerCraftAPI.MOD_ID, name);
+        var id = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name);
         for (var item : items) itemProperties.register(item.get(), id, getter);
     }
 
@@ -155,7 +155,7 @@ public final class ClientRegistry {
     };
 
     public static void registerExtraModels(Consumer<ResourceLocation> register) {
-        for (var model : EXTRA_MODELS) register.accept(new ResourceLocation(ComputerCraftAPI.MOD_ID, model));
+        for (var model : EXTRA_MODELS) register.accept(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, model));
         TurtleUpgradeModellers.getDependencies().forEach(register);
     }
 

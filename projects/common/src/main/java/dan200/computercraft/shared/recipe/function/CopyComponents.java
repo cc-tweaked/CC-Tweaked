@@ -12,8 +12,8 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
@@ -83,8 +83,8 @@ public final class CopyComponents implements RecipeFunction {
     }
 
     @Override
-    public ItemStack apply(CraftingContainer container, ItemStack result) {
-        for (var item : container.getItems()) {
+    public ItemStack apply(CraftingInput container, ItemStack result) {
+        for (var item : container.items()) {
             if (from.test(item)) {
                 applyPatch(item.getComponentsPatch(), result);
                 break;

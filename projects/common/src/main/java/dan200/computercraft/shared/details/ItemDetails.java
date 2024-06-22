@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
@@ -112,9 +113,9 @@ public class ItemDetails {
             var enchantment = entry.getKey();
             var level = entry.getIntValue();
             var enchant = new HashMap<String, Object>(3);
-            enchant.put("name", DetailHelpers.getId(BuiltInRegistries.ENCHANTMENT, enchantment.value()));
+            enchant.put("name", enchantment.getRegisteredName());
             enchant.put("level", level);
-            enchant.put("displayName", enchantment.value().getFullname(level).getString());
+            enchant.put("displayName", Enchantment.getFullname(enchantment, level).getString());
             enchants.add(enchant);
         }
     }

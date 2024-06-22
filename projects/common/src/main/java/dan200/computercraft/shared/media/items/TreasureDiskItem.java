@@ -11,6 +11,7 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.core.filesystem.SubMount;
 import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
@@ -39,7 +40,7 @@ public class TreasureDiskItem extends Item implements IMedia {
     }
 
     @Override
-    public String getLabel(ItemStack stack) {
+    public String getLabel(HolderLookup.Provider registries, ItemStack stack) {
         return TreasureDisk.getTitle(stack);
     }
 

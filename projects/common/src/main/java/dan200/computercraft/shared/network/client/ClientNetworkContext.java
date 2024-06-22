@@ -11,9 +11,10 @@ import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.peripheral.speaker.EncodedAudio;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.item.JukeboxSong;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -28,7 +29,7 @@ public interface ClientNetworkContext {
 
     void handleMonitorData(BlockPos pos, @Nullable TerminalState terminal);
 
-    void handlePlayRecord(BlockPos pos, @Nullable SoundEvent sound, @Nullable String name);
+    void handlePlayRecord(BlockPos pos, @Nullable Holder<JukeboxSong> sound);
 
     void handlePocketComputerData(UUID instanceId, ComputerState state, int lightState, @Nullable TerminalState terminal);
 

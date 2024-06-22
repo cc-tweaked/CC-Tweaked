@@ -11,9 +11,9 @@ import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
@@ -34,23 +34,23 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean matches(CraftingContainer inventory, Level world) {
+    public boolean matches(CraftingInput inventory, Level world) {
         return !assemble(inventory, world.registryAccess()).isEmpty();
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inventory, HolderLookup.Provider registryAccess) {
+    public ItemStack assemble(CraftingInput inventory, HolderLookup.Provider registryAccess) {
         // Scan the grid for a row containing a turtle and 1 or 2 items
         var leftItem = ItemStack.EMPTY;
         var turtle = ItemStack.EMPTY;
         var rightItem = ItemStack.EMPTY;
 
-        for (var y = 0; y < inventory.getHeight(); y++) {
+        for (var y = 0; y < inventory.height(); y++) {
             if (turtle.isEmpty()) {
                 // Search this row for potential turtles
                 var finishedRow = false;
-                for (var x = 0; x < inventory.getWidth(); x++) {
-                    var item = inventory.getItem(x + y * inventory.getWidth());
+                for (var x = 0; x < inventory.width(); x++) {
+                    var item = inventory.getItem(x, y);
                     if (!item.isEmpty()) {
                         if (finishedRow) {
                             return ItemStack.EMPTY;
@@ -87,8 +87,8 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
                 }
             } else {
                 // Turtle is already found, just check this row is empty
-                for (var x = 0; x < inventory.getWidth(); x++) {
-                    var item = inventory.getItem(x + y * inventory.getWidth());
+                for (var x = 0; x < inventory.width(); x++) {
+                    var item = inventory.getItem(x, y);
                     if (!item.isEmpty()) {
                         return ItemStack.EMPTY;
                     }

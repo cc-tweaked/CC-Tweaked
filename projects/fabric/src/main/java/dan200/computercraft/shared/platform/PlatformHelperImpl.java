@@ -51,10 +51,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
@@ -142,7 +142,7 @@ public class PlatformHelperImpl implements PlatformHelper {
         return new RecipeIngredients(
             Ingredient.of(ConventionalItemTags.REDSTONE_DUSTS),
             Ingredient.of(ConventionalItemTags.STRINGS),
-            Ingredient.of(Items.LEATHER),
+            Ingredient.of(ConventionalItemTags.LEATHERS),
             Ingredient.of(ConventionalItemTags.GLASS_PANES),
             Ingredient.of(ConventionalItemTags.GOLD_INGOTS),
             Ingredient.of(ConventionalItemTags.STORAGE_BLOCKS_GOLD),
@@ -192,12 +192,12 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public List<ItemStack> getRecipeRemainingItems(ServerPlayer player, Recipe<CraftingContainer> recipe, CraftingContainer container) {
+    public List<ItemStack> getRecipeRemainingItems(ServerPlayer player, Recipe<CraftingInput> recipe, CraftingInput container) {
         return recipe.getRemainingItems(container);
     }
 
     @Override
-    public void onItemCrafted(ServerPlayer player, CraftingContainer container, ItemStack stack) {
+    public void onItemCrafted(ServerPlayer player, CraftingInput container, ItemStack stack) {
     }
 
     @Override
@@ -256,7 +256,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
         @Override
         public <U extends T> RegistryEntry<U> register(String name, Supplier<U> create) {
-            var entry = new RegistryEntryImpl<>(new ResourceLocation(ComputerCraftAPI.MOD_ID, name), create);
+            var entry = new RegistryEntryImpl<>(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name), create);
             entries.add(entry);
             return entry;
         }

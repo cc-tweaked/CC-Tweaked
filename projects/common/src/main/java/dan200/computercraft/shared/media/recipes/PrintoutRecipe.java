@@ -18,8 +18,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.player.StackedContents;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
@@ -93,7 +93,7 @@ public final class PrintoutRecipe extends ShapelessRecipe {
     }
 
     @Override
-    public boolean matches(CraftingContainer inv, Level world) {
+    public boolean matches(CraftingInput inv, Level world) {
         var stackedContents = new StackedContents();
 
         var inputs = 0;
@@ -101,7 +101,7 @@ public final class PrintoutRecipe extends ShapelessRecipe {
         var pages = 0;
         var hasPrintout = false;
 
-        for (var j = 0; j < inv.getContainerSize(); ++j) {
+        for (var j = 0; j < inv.size(); ++j) {
             var stack = inv.getItem(j);
             if (stack.isEmpty()) continue;
             if (printout.test(stack)) {
@@ -125,9 +125,9 @@ public final class PrintoutRecipe extends ShapelessRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inv, HolderLookup.Provider registries) {
+    public ItemStack assemble(CraftingInput inv, HolderLookup.Provider registries) {
         List<PrintoutData> data = new ArrayList<>();
-        for (var j = 0; j < inv.getContainerSize(); ++j) {
+        for (var j = 0; j < inv.size(); ++j) {
             var stack = inv.getItem(j);
             if (!stack.isEmpty() && printout.test(stack)) data.add(PrintoutData.getOrEmpty(stack));
         }

@@ -48,7 +48,7 @@ import javax.annotation.Nullable;
  * }
  */
 public interface IPocketUpgrade extends UpgradeBase {
-    ResourceKey<Registry<IPocketUpgrade>> REGISTRY = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_upgrade"));
+    ResourceKey<Registry<IPocketUpgrade>> REGISTRY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_upgrade"));
 
     /**
      * The registry key for pocket upgrade types.

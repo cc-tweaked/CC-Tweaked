@@ -4,7 +4,6 @@
 
 package dan200.computercraft.client.render.text;
 
-import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -28,7 +27,7 @@ import static org.lwjgl.system.MemoryUtil.*;
  * <ul>
  *   <li>No transformation matrix (not needed for VBOs).</li>
  *   <li>Only works with {@link DefaultVertexFormat#POSITION_COLOR_TEX_LIGHTMAP}.</li>
- *   <li>The buffer <strong>MUST</strong> be allocated with {@link MemoryTracker}, and not through any other means.</li>
+ *   <li>The buffer <strong>MUST</strong> be allocated with {@link MemoryUtil}, and not through any other means.</li>
  * </ul>
  * <p>
  * Note this is almost an exact copy of {@link FixedWidthFontRenderer}. While the code duplication is unfortunate,

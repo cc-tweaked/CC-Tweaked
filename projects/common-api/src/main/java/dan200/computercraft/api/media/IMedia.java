@@ -7,11 +7,13 @@ package dan200.computercraft.api.media;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.filesystem.WritableMount;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.JukeboxSong;
 
 import javax.annotation.Nullable;
 
@@ -25,11 +27,12 @@ public interface IMedia {
     /**
      * Get a string representing the label of this item. Will be called via {@code disk.getLabel()} in lua.
      *
-     * @param stack The {@link ItemStack} to inspect.
+     * @param registries The currently loaded registries.
+     * @param stack      The {@link ItemStack} to inspect.
      * @return The label. ie: "Dan's Programs".
      */
     @Nullable
-    String getLabel(ItemStack stack);
+    String getLabel(HolderLookup.Provider registries, ItemStack stack);
 
     /**
      * Set a string representing the label of this item. Will be called vi {@code disk.setLabel()} in lua.
@@ -43,26 +46,15 @@ public interface IMedia {
     }
 
     /**
-     * If this disk represents an item with audio (like a record), get the readable name of the audio track. ie:
-     * "Jonathan Coulton - Still Alive"
+     * If this disk represents an item with audio (like a record), get the corresponding {@link JukeboxSong}.
      *
-     * @param stack The {@link ItemStack} to modify.
-     * @return The name, or null if this item does not represent an item with audio.
+     * @param registries The currently loaded registries.
+     * @param stack      The {@link ItemStack} to query.
+     * @return The song, or null if this item does not represent an item with audio.
      */
     @Nullable
-    default String getAudioTitle(ItemStack stack) {
-        return null;
-    }
-
-    /**
-     * If this disk represents an item with audio (like a record), get the resource name of the audio track to play.
-     *
-     * @param stack The {@link ItemStack} to modify.
-     * @return The name, or null if this item does not represent an item with audio.
-     */
-    @Nullable
-    default SoundEvent getAudio(ItemStack stack) {
-        return null;
+    default Holder<JukeboxSong> getAudio(HolderLookup.Provider registries, ItemStack stack) {
+        return JukeboxSong.fromStack(registries, stack).orElse(null);
     }
 
     /**

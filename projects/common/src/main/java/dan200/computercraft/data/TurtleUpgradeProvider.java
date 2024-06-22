@@ -34,11 +34,11 @@ class TurtleUpgradeProvider {
     }
 
     private static ResourceKey<ITurtleUpgrade> id(String id) {
-        return ITurtleUpgrade.createKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, id));
+        return ITurtleUpgrade.createKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, id));
     }
 
     private static ResourceKey<ITurtleUpgrade> vanilla(String id) {
         // Naughty, please don't do this. Mostly here for some semblance of backwards compatibility.
-        return ITurtleUpgrade.createKey(new ResourceLocation("minecraft", id));
+        return ITurtleUpgrade.createKey(ResourceLocation.fromNamespaceAndPath("minecraft", id));
     }
 }

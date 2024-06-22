@@ -28,7 +28,7 @@ import java.util.List;
 public class JEIComputerCraft implements IModPlugin {
     @Override
     public ResourceLocation getPluginUid() {
-        return new ResourceLocation(ComputerCraftAPI.MOD_ID, "jei");
+        return ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "jei");
     }
 
     @Override

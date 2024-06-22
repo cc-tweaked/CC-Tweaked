@@ -28,7 +28,7 @@ import java.util.function.Function;
  * {@link TurtleModel}.
  */
 public final class TurtleModelLoader implements IGeometryLoader<TurtleModelLoader.Unbaked> {
-    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
+    private static final ResourceLocation COLOUR_TURTLE_MODEL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
 
     public static final TurtleModelLoader INSTANCE = new TurtleModelLoader();
 
@@ -37,7 +37,7 @@ public final class TurtleModelLoader implements IGeometryLoader<TurtleModelLoade
 
     @Override
     public Unbaked read(JsonObject modelContents, JsonDeserializationContext deserializationContext) {
-        var model = new ResourceLocation(GsonHelper.getAsString(modelContents, "model"));
+        var model = ResourceLocation.parse(GsonHelper.getAsString(modelContents, "model"));
         return new Unbaked(model);
     }
 
@@ -49,7 +49,7 @@ public final class TurtleModelLoader implements IGeometryLoader<TurtleModelLoade
         }
 
         @Override
-        public BakedModel bake(IGeometryBakingContext owner, ModelBaker bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState transform, ItemOverrides overrides, ResourceLocation modelLocation) {
+        public BakedModel bake(IGeometryBakingContext owner, ModelBaker bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState transform, ItemOverrides overrides) {
             var mainModel = bakery.bake(family, transform, spriteGetter);
             if (mainModel == null) throw new NullPointerException(family + " failed to bake");
 

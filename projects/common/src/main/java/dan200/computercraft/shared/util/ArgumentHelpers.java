@@ -22,7 +22,7 @@ public final class ArgumentHelpers {
     public static <T> T getRegistryEntry(String name, String typeName, Registry<T> registry) throws LuaException {
         ResourceLocation id;
         try {
-            id = new ResourceLocation(name);
+            id = ResourceLocation.parse(name);
         } catch (ResourceLocationException e) {
             id = null;
         }

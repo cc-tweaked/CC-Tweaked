@@ -158,7 +158,7 @@ public final class PrintoutRenderer {
     }
 
     private static void vertex(VertexConsumer buffer, Matrix4f matrix, float x, float y, float z, float u, float v, int light) {
-        buffer.vertex(matrix, x, y, z).color(255, 255, 255, 255).uv(u, v).uv2(light).endVertex();
+        buffer.addVertex(matrix, x, y, z).setColor(255, 255, 255, 255).setUv(u, v).setLight(light);
     }
 
     public static float offsetAt(int page) {

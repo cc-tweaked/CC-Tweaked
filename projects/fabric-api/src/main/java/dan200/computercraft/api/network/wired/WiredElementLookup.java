@@ -14,7 +14,7 @@ import net.minecraft.resources.ResourceLocation;
  * from a block.
  */
 public final class WiredElementLookup {
-    public static final ResourceLocation ID = new ResourceLocation(ComputerCraftAPI.MOD_ID, "wired_node");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "wired_node");
 
     private static final BlockApiLookup<WiredElement, Direction> lookup = BlockApiLookup.get(ID, WiredElement.class, Direction.class);
 

@@ -7,14 +7,14 @@
 # Minecraft
 # MC version is specified in gradle.properties, as we need that in settings.gradle.
 # Remember to update corresponding versions in fabric.mod.json/neoforge.mods.toml
-fabric-api = "0.98.0+1.20.6"
-fabric-loader = "0.15.10"
-neoForge = "20.6.48-beta"
+fabric-api = "0.100.3+1.21"
+fabric-loader = "0.15.11"
+neoForge = "21.0.21-beta"
 neoForgeSpi = "8.0.1"
 mixin = "0.8.5"
-parchment = "2024.05.01"
+parchment = "2024.06.16"
 parchmentMc = "1.20.6"
-yarn = "1.20.6+build.1"
+yarn = "1.21+build.1"
 
 # Core dependencies (these versions are tied to the version Minecraft uses)
 fastutil = "8.5.12"
@@ -36,14 +36,14 @@ kotlin-coroutines = "1.7.3"
 nightConfig = "3.6.7"
 
 # Minecraft mods
-emi = "1.1.5+1.20.6"
+emi = "1.1.7+1.21"
 fabricPermissions = "0.3.1"
 iris = "1.6.14+1.20.4"
-jei = "17.3.0.48"
-modmenu = "9.0.0"
+jei = "19.0.0.1"
+modmenu = "11.0.0-rc.4"
 moreRed = "4.0.0.4"
 oculus = "1.2.5"
-rei = "15.0.728"
+rei = "16.0.729"
 rubidium = "0.6.1"
 sodium = "mc1.20-0.4.10"
 mixinExtra = "0.3.5"
@@ -67,7 +67,7 @@ ideaExt = "1.1.7"
 illuaminate = "0.1.0-73-g43ee16c"
 lwjgl = "3.3.3"
 minotaur = "2.8.7"
-neoGradle = "7.0.116"
+neoGradle = "7.0.145"
 nullAway = "0.10.25"
 spotless = "6.23.3"
 taskTree = "2.1.1"
@@ -106,9 +106,9 @@ fabric-junit = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fab
 fabricPermissions = { module = "me.lucko:fabric-permissions-api", version.ref = "fabricPermissions" }
 emi = { module = "dev.emi:emi-xplat-mojmap", version.ref = "emi" }
 iris = { module = "maven.modrinth:iris", version.ref = "iris" }
-jei-api = { module = "mezz.jei:jei-1.20.4-common-api", version.ref = "jei" }
-jei-fabric = { module = "mezz.jei:jei-1.20.4-fabric", version.ref = "jei" }
-jei-forge = { module = "mezz.jei:jei-1.20.4-forge", version.ref = "jei" }
+jei-api = { module = "mezz.jei:jei-1.21-common-api", version.ref = "jei" }
+jei-fabric = { module = "mezz.jei:jei-1.21-fabric", version.ref = "jei" }
+jei-forge = { module = "mezz.jei:jei-1.21-neoforge", version.ref = "jei" }
 mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
 mixinExtra = { module = "io.github.llamalad7:mixinextras-common", version.ref = "mixinExtra" }
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
@@ -179,9 +179,9 @@ kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 # Minecraft
 externalMods-common = ["jei-api", "nightConfig-core", "nightConfig-toml"]
 externalMods-forge-compile = ["moreRed", "oculus", "jei-api"]
-externalMods-forge-runtime = []
+externalMods-forge-runtime = ["jei-forge"]
 externalMods-fabric-compile = ["fabricPermissions", "iris", "jei-api", "rei-api", "rei-builtin"]
-externalMods-fabric-runtime = [] # ["jei-fabric", "modmenu"]
+externalMods-fabric-runtime = ["jei-fabric", "modmenu"]
 
 # Testing
 test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]

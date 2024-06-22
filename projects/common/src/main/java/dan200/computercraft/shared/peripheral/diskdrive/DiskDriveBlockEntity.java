@@ -15,7 +15,10 @@ import dan200.computercraft.shared.container.BasicContainer;
 import dan200.computercraft.shared.network.client.PlayRecordClientMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.core.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
@@ -131,11 +134,10 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity imp
             switch (recordQueued) {
                 case PLAY -> {
                     var media = getMedia();
-                    var record = media.getAudio();
+                    var record = media.getAudio(getLevel().registryAccess());
                     if (record != null) {
                         recordPlaying = true;
-                        var title = media.getAudioTitle();
-                        sendMessage(new PlayRecordClientMessage(getBlockPos(), Optional.of(Holder.direct(record)), Optional.ofNullable(title)));
+                        sendMessage(new PlayRecordClientMessage(getBlockPos(), Optional.of(record)));
                     }
                 }
                 case STOP -> {

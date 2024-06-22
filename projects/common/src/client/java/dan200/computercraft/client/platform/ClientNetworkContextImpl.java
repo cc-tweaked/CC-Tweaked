@@ -21,10 +21,11 @@ import dan200.computercraft.shared.peripheral.speaker.EncodedAudio;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.JukeboxSong;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
@@ -60,10 +61,12 @@ public final class ClientNetworkContextImpl implements ClientNetworkContext {
     }
 
     @Override
-    public void handlePlayRecord(BlockPos pos, @Nullable SoundEvent sound, @Nullable String name) {
-        var mc = Minecraft.getInstance();
-        ClientPlatformHelper.get().playStreamingMusic(pos, sound);
-        if (name != null) mc.gui.setNowPlaying(Component.literal(name));
+    public void handlePlayRecord(BlockPos pos, @Nullable Holder<JukeboxSong> song) {
+        if (song == null) {
+            Minecraft.getInstance().levelRenderer.stopJukeboxSongAndNotifyNearby(pos);
+        } else {
+            Minecraft.getInstance().levelRenderer.playJukeboxSong(song, pos);
+        }
     }
 
     @Override

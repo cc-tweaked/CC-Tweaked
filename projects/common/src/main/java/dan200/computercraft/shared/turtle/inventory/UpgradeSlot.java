@@ -23,8 +23,8 @@ import javax.annotation.Nullable;
  * @see TurtleMenu
  */
 public class UpgradeSlot extends Slot {
-    public static final ResourceLocation LEFT_UPGRADE = new ResourceLocation(ComputerCraftAPI.MOD_ID, "gui/turtle_upgrade_left");
-    public static final ResourceLocation RIGHT_UPGRADE = new ResourceLocation(ComputerCraftAPI.MOD_ID, "gui/turtle_upgrade_right");
+    public static final ResourceLocation LEFT_UPGRADE = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/turtle_upgrade_left");
+    public static final ResourceLocation RIGHT_UPGRADE = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/turtle_upgrade_right");
 
     private final HolderLookup.Provider registries;
     private final TurtleSide side;

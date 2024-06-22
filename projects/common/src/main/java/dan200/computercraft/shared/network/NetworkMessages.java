@@ -51,7 +51,7 @@ public final class NetworkMessages {
         String channel, StreamCodec<RegistryFriendlyByteBuf, T> codec
     ) {
         if (!seenChannel.add(channel)) throw new IllegalArgumentException("Duplicate channel " + channel);
-        var type = new CustomPacketPayload.Type<T>(new ResourceLocation(ComputerCraftAPI.MOD_ID, channel));
+        var type = new CustomPacketPayload.Type<T>(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, channel));
         messages.add(new CustomPacketPayload.TypeAndCodec<>(type, codec));
         return type;
     }

@@ -25,6 +25,7 @@ import dan200.computercraft.shared.util.DataComponentUtil;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.NonNegativeId;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -189,9 +190,13 @@ public class PocketComputerItem extends Item implements IMedia {
 
     // IMedia
 
-    @Override
-    public @Nullable String getLabel(ItemStack stack) {
+    private @Nullable String getLabel(ItemStack stack) {
         return DataComponentUtil.getCustomName(stack);
+    }
+
+    @Override
+    public @Nullable String getLabel(HolderLookup.Provider registries, ItemStack stack) {
+        return getLabel(stack);
     }
 
     @Override

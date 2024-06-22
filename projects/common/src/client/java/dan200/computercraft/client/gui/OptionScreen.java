@@ -24,7 +24,7 @@ import static dan200.computercraft.core.util.Nullability.assertNonNull;
  * When closed, it returns to the previous screen.
  */
 public final class OptionScreen extends Screen {
-    private static final ResourceLocation BACKGROUND = new ResourceLocation("computercraft", "textures/gui/blank_screen.png");
+    private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath("computercraft", "textures/gui/blank_screen.png");
 
     public static final int BUTTON_WIDTH = 100;
     public static final int BUTTON_HEIGHT = 20;

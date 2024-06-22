@@ -12,6 +12,7 @@ import dan200.computercraft.shared.computer.blocks.AbstractComputerBlock;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.util.DataComponentUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -39,7 +40,7 @@ public class AbstractComputerItem extends BlockItem implements IMedia {
     }
 
     @Override
-    public @Nullable String getLabel(ItemStack stack) {
+    public @Nullable String getLabel(HolderLookup.Provider registries, ItemStack stack) {
         return DataComponentUtil.getCustomName(stack);
     }
 

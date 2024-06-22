@@ -28,7 +28,7 @@ public final class ClientDataProviders {
 
     public static void add(DataProviders.GeneratorSink generator) {
         generator.addFromCodec("Block atlases", PackType.CLIENT_RESOURCES, "atlases", SpriteSources.FILE_CODEC, out -> {
-            out.accept(new ResourceLocation("blocks"), List.of(
+            out.accept(ResourceLocation.withDefaultNamespace("blocks"), List.of(
                 new SingleFile(UpgradeSlot.LEFT_UPGRADE, Optional.empty()),
                 new SingleFile(UpgradeSlot.RIGHT_UPGRADE, Optional.empty())
             ));

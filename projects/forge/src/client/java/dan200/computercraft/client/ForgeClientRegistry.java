@@ -10,6 +10,7 @@ import dan200.computercraft.client.model.turtle.TurtleModelLoader;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -33,7 +34,7 @@ public final class ForgeClientRegistry {
 
     @SubscribeEvent
     public static void registerModelLoaders(ModelEvent.RegisterGeometryLoaders event) {
-        event.register(new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle"), TurtleModelLoader.INSTANCE);
+        event.register(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle"), TurtleModelLoader.INSTANCE);
     }
 
     /**
@@ -56,7 +57,7 @@ public final class ForgeClientRegistry {
     @SubscribeEvent
     public static void registerModels(ModelEvent.RegisterAdditional event) {
         gatherModellers();
-        ClientRegistry.registerExtraModels(event::register);
+        ClientRegistry.registerExtraModels(x -> event.register(ModelResourceLocation.standalone(x)));
     }
 
     @SubscribeEvent

@@ -55,7 +55,7 @@ import java.util.function.Function;
  * public void generate(DataGenerator.PackGenerator output, CompletableFuture<HolderLookup.Provider> registries) {
  *     var newRegistries = RegistryPatchGenerator.createLookup(registries, Util.make(new RegistrySetBuilder(), builder -> {
  *         builder.add(ITurtleUpgrade.REGISTRY, upgrades -> {
- *             upgrades.register(ITurtleUpgrade.createKey(new ResourceLocation("my_mod", "my_upgrade")), new MyUpgrade());
+ *             upgrades.register(ITurtleUpgrade.createKey(ResourceLocation.fromNamespaceAndPath("my_mod", "my_upgrade")), new MyUpgrade());
  *         });
  *     }));
  *     output.addProvider(o -> new DatapackBuiltinEntriesProvider(o, newRegistries, Set.of("my_mod")));

@@ -12,7 +12,6 @@ import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.LootTableProvider.SubProviderEntry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.Block;
@@ -36,12 +35,12 @@ import java.util.function.Supplier;
 class LootTableProvider {
     public static List<SubProviderEntry> getTables() {
         return List.of(
-            new SubProviderEntry(() -> LootTableProvider::registerBlocks, LootContextParamSets.BLOCK),
-            new SubProviderEntry(() -> LootTableProvider::registerGeneric, LootContextParamSets.ALL_PARAMS)
+            new SubProviderEntry(r -> LootTableProvider::registerBlocks, LootContextParamSets.BLOCK),
+            new SubProviderEntry(r -> LootTableProvider::registerGeneric, LootContextParamSets.ALL_PARAMS)
         );
     }
 
-    private static void registerBlocks(HolderLookup.Provider registries, BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add) {
+    private static void registerBlocks(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add) {
         namedBlockDrop(add, ModRegistry.Blocks.DISK_DRIVE);
         selfDrop(add, ModRegistry.Blocks.MONITOR_NORMAL);
         selfDrop(add, ModRegistry.Blocks.MONITOR_ADVANCED);
@@ -78,7 +77,7 @@ class LootTableProvider {
             ));
     }
 
-    private static void registerGeneric(HolderLookup.Provider registries, BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add) {
+    private static void registerGeneric(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add) {
         add.accept(CommonHooks.TREASURE_DISK_LOOT, LootTable.lootTable());
     }
 
