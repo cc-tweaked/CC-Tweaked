@@ -12,6 +12,7 @@ body:
       - 1.18.x
       - 1.19.x
       - 1.20.x
+      - 1.21.x
   validations:
     required: true
 - type: input
