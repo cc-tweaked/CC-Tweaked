@@ -38,7 +38,7 @@ public class ForgeCommonHooks {
 
     @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
-        CommonHooks.onServerTickStart(event.getServer());
+        CommonHooks.onServerTickEnd();
     }
 
     @SubscribeEvent
