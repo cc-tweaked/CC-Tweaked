@@ -175,9 +175,9 @@ public class OSAPI implements ILuaAPI {
     }
 
     /**
-     * Sets an alarm that will fire at the specified in-game time. When it
-     * fires, * an {@code alarm} event will be added to the event queue with the
-     * ID * returned from this function as the first parameter.
+     * Sets an alarm that will fire at the specified {@linkplain #time(IArguments) in-game time}.
+     * When it fires, an {@code alarm} event will be added to the event queue with the
+     * ID returned from this function as the first parameter.
      *
      * @param time The time at which to fire the alarm, in the range [0.0, 24.0).
      * @return The ID of the new alarm. This can be used to filter the
