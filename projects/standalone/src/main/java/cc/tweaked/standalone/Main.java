@@ -360,13 +360,13 @@ public class Main {
 
         // And our VBA
         var termVertexArray = gl.createVertexArray("Terminal VAO");
-        glEnableVertexArrayAttrib(termVertexArray, 0);
-        glVertexArrayAttribFormat(termVertexArray, 0, 2, GL_FLOAT, false, 0); // Position
-        glEnableVertexArrayAttrib(termVertexArray, 1);
-        glVertexArrayAttribFormat(termVertexArray, 1, 2, GL_FLOAT, false, 8); // UV
+        glEnableVertexArrayAttrib(termVertexArray, ATTRIBUTE_POSITION);
+        glVertexArrayAttribFormat(termVertexArray, ATTRIBUTE_POSITION, 2, GL_FLOAT, false, 0); // Position
+        glEnableVertexArrayAttrib(termVertexArray, ATTRIBUTE_UV);
+        glVertexArrayAttribFormat(termVertexArray, ATTRIBUTE_UV, 2, GL_FLOAT, false, 8); // UV
         // FIXME: Can we merge this into one call?
-        glVertexArrayVertexBuffer(termVertexArray, 0, termVertices, 0, 16);
-        glVertexArrayVertexBuffer(termVertexArray, 1, termVertices, 0, 16);
+        glVertexArrayVertexBuffer(termVertexArray, ATTRIBUTE_POSITION, termVertices, 0, 16);
+        glVertexArrayVertexBuffer(termVertexArray, ATTRIBUTE_UV, termVertices, 0, 16);
 
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 

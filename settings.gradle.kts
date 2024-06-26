@@ -38,7 +38,7 @@ pluginManagement {
             }
         }
 
-        maven("https://squiddev.cc/maven") {
+        maven("https://maven.squiddev.cc") {
             name = "SquidDev"
             content {
                 includeGroup("cc.tweaked.vanilla-extract")

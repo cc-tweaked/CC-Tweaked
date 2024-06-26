@@ -8,10 +8,7 @@ body:
     label: Minecraft Version
     description: What version of Minecraft are you using?
     options:
-      - 1.16.x
-      - 1.18.x
-      - 1.19.x
-      - 1.20.x
+      - 1.20.1
       - 1.21.x
   validations:
     required: true
