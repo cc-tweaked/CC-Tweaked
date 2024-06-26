@@ -404,7 +404,7 @@ public class FileSystem {
         return String.join("/", outputParts);
     }
 
-    public static boolean contains(String pathA, String pathB) {
+    private static boolean contains(String pathA, String pathB) {
         pathA = sanitizePath(pathA).toLowerCase(Locale.ROOT);
         pathB = sanitizePath(pathB).toLowerCase(Locale.ROOT);
 
@@ -421,7 +421,7 @@ public class FileSystem {
         }
     }
 
-    public static String toLocal(String path, String location) {
+    static String toLocal(String path, String location) {
         path = sanitizePath(path);
         location = sanitizePath(location);
 

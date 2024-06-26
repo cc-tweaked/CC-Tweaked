@@ -8,6 +8,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
 import java.util.concurrent.TimeUnit;
@@ -81,6 +82,24 @@ public abstract class ArchiveMount<T extends ArchiveMount.FileEntry<T>> extends 
      * @return The contents of the file.
      */
     protected abstract byte[] getFileContents(String path, T file) throws IOException;
+
+    /**
+     * Convert an absolute path to one relative to {@code root}. If this path is not a child of {@code root}, return
+     * {@code null}.
+     *
+     * @param path The full path.
+     * @param root The root directory to be relative to.
+     * @return The relativised path, or {@code null}.
+     */
+    protected static @Nullable String getLocalPath(String path, String root) {
+        // Some packs seem to include files not under the root, so drop them immediately.
+        if (!path.startsWith(root)) return null;
+
+        if (path.length() == root.length()) return "";
+
+        if (path.charAt(root.length()) != '/') return null;
+        return path.substring(root.length() + 1);
+    }
 
     protected static class FileEntry<T extends FileEntry<T>> extends AbstractInMemoryMount.FileEntry<T> {
         long size = -1;

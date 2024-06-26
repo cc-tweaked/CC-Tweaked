@@ -49,10 +49,9 @@ public final class JarMount extends ArchiveMount<JarMount.FileEntry> implements 
         while (zipEntries.hasMoreElements()) {
             var entry = zipEntries.nextElement();
 
-            var entryPath = entry.getName();
-            if (!entryPath.startsWith(subPath)) continue;
+            var localPath = getLocalPath(entry.getName(), subPath);
+            if (localPath == null) continue;
 
-            var localPath = FileSystem.toLocal(entryPath, subPath);
             getOrCreateChild(root, localPath, x -> new FileEntry()).setup(entry);
         }
     }
