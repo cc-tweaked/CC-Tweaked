@@ -129,7 +129,7 @@ class MountWrapper {
     }
 
     public void makeDirectory(String path) throws FileSystemException {
-        if (writableMount == null) throw exceptionOf(path, ACCESS_DENIED);
+        if (writableMount == null) throw new FileSystemException(path, ACCESS_DENIED);
 
         path = toLocal(path);
         try {
@@ -140,7 +140,7 @@ class MountWrapper {
     }
 
     public void delete(String path) throws FileSystemException {
-        if (writableMount == null) throw exceptionOf(path, ACCESS_DENIED);
+        if (writableMount == null) throw new FileSystemException(path, ACCESS_DENIED);
 
         path = toLocal(path);
         try {
@@ -151,7 +151,7 @@ class MountWrapper {
     }
 
     public void rename(String source, String dest) throws FileSystemException {
-        if (writableMount == null) throw exceptionOf(source, ACCESS_DENIED);
+        if (writableMount == null) throw new FileSystemException(source, ACCESS_DENIED);
 
         source = toLocal(source);
         dest = toLocal(dest);
@@ -168,7 +168,7 @@ class MountWrapper {
     }
 
     public SeekableByteChannel openForWrite(String path, Set<OpenOption> options) throws FileSystemException {
-        if (writableMount == null) throw exceptionOf(path, ACCESS_DENIED);
+        if (writableMount == null) throw new FileSystemException(path, ACCESS_DENIED);
 
         path = toLocal(path);
         try {
@@ -206,10 +206,6 @@ class MountWrapper {
 
     private FileSystemException localExceptionOf(String path, String message) {
         if (!location.isEmpty()) path = path.isEmpty() ? location : location + "/" + path;
-        return exceptionOf(path, message);
-    }
-
-    private static FileSystemException exceptionOf(String path, String message) {
-        return new FileSystemException("/" + path + ": " + message);
+        return new FileSystemException(path, message);
     }
 }

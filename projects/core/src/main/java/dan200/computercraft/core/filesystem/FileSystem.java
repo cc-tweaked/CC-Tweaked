@@ -224,11 +224,11 @@ public class FileSystem {
     public synchronized void copy(String sourcePath, String destPath) throws FileSystemException {
         sourcePath = sanitizePath(sourcePath);
         destPath = sanitizePath(destPath);
-        if (isReadOnly(destPath)) throw new FileSystemException("/" + destPath + ": " + ACCESS_DENIED);
-        if (!exists(sourcePath)) throw new FileSystemException("/" + sourcePath + ": " + NO_SUCH_FILE);
-        if (exists(destPath)) throw new FileSystemException("/" + destPath + ": " + FILE_EXISTS);
+        if (isReadOnly(destPath)) throw new FileSystemException(destPath, ACCESS_DENIED);
+        if (!exists(sourcePath)) throw new FileSystemException(sourcePath, NO_SUCH_FILE);
+        if (exists(destPath)) throw new FileSystemException(destPath, FILE_EXISTS);
         if (contains(sourcePath, destPath)) {
-            throw new FileSystemException("/" + sourcePath + ": Can't copy a directory inside itself");
+            throw new FileSystemException(sourcePath, "Can't copy a directory inside itself");
         }
         copyRecursive(sourcePath, getMount(sourcePath), destPath, getMount(destPath), 0);
     }
@@ -341,7 +341,7 @@ public class FileSystem {
             }
         }
         if (match == null) {
-            throw new FileSystemException("/" + path + ": Invalid Path");
+            throw new FileSystemException(path, "Invalid Path");
         }
         return match;
     }
