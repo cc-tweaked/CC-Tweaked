@@ -4,6 +4,7 @@
 
 package dan200.computercraft.gametest
 
+import dan200.computercraft.api.ComputerCraftAPI
 import dan200.computercraft.api.detail.BasicItemDetailProvider
 import dan200.computercraft.api.detail.VanillaDetailRegistries
 import dan200.computercraft.api.lua.ObjectArguments
@@ -21,7 +22,9 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableBlock
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlock
 import dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState
+import dan200.computercraft.shared.turtle.TurtleOverlay
 import dan200.computercraft.shared.turtle.apis.TurtleAPI
+import dan200.computercraft.shared.turtle.items.TurtleItem
 import dan200.computercraft.shared.util.WaterloggableHelpers
 import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.LuaTaskContext
@@ -651,6 +654,27 @@ class Turtle_Test {
             )
 
             if (events != expected) helper.fail("Expected $expected, but received $events")
+        }
+    }
+
+    /**
+     * Loads a structure created on an older version of the game, and checks that data fixers have been applied.
+     */
+    @GameTest
+    fun Data_fixers(helper: GameTestHelper) = helper.sequence {
+        thenExecute {
+            val overlay = helper.level.registryAccess().registryOrThrow(TurtleOverlay.REGISTRY)
+                .get(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "trans_flag"))!!
+            val upgrade = helper.level.registryAccess().registryOrThrow(ITurtleUpgrade.REGISTRY)
+                .get(ResourceLocation.withDefaultNamespace("diamond_pickaxe"))!!
+
+            val turtleBe = helper.getBlockEntity(BlockPos(1, 2, 1), ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            assertEquals(overlay, turtleBe.overlay)
+            assertEquals(upgrade, turtleBe.getUpgrade(TurtleSide.LEFT))
+
+            val turtleItem = turtleBe.getItem(0)
+            assertEquals(overlay, TurtleItem.getOverlay(turtleItem))
+            assertEquals(upgrade, TurtleItem.getUpgrade(turtleItem, TurtleSide.LEFT))
         }
     }
 

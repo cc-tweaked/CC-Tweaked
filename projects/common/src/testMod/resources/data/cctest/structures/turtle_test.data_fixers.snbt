@@ -1,0 +1,39 @@
+{
+    DataVersion: 3465,
+    size: [3, 3, 3],
+    data: [
+        {pos: [0, 0, 0], state: "minecraft:polished_andesite"},
+        {pos: [0, 0, 1], state: "minecraft:polished_andesite"},
+        {pos: [0, 0, 2], state: "minecraft:polished_andesite"},
+        {pos: [1, 0, 0], state: "minecraft:polished_andesite"},
+        {pos: [1, 0, 1], state: "minecraft:polished_andesite"},
+        {pos: [1, 0, 2], state: "minecraft:polished_andesite"},
+        {pos: [2, 0, 0], state: "minecraft:polished_andesite"},
+        {pos: [2, 0, 1], state: "minecraft:polished_andesite"},
+        {pos: [2, 0, 2], state: "minecraft:polished_andesite"},
+        {pos: [0, 1, 0], state: "minecraft:air"},
+        {pos: [0, 1, 1], state: "minecraft:air"},
+        {pos: [0, 1, 2], state: "minecraft:air"},
+        {pos: [1, 1, 0], state: "minecraft:air"},
+        {pos: [1, 1, 1], state: "computercraft:turtle_normal{facing:south,waterlogged:false}", nbt: {ComputerId: 123, Fuel: 0, Items: [{Count: 1b, Slot: 0b, id: "computercraft:turtle_normal", tag: {ComputerId: 123, LeftUpgrade: "minecraft:diamond_pickaxe", Overlay: "computercraft:block/turtle_trans_overlay"}}], LeftUpgrade: "minecraft:diamond_pickaxe", LeftUpgradeNbt: {}, On: 0b, Overlay: "computercraft:block/turtle_trans_overlay", Owner: {LowerId: -4770154215762454977L, Name: "Player436", UpperId: 114963728012426084L}, Slot: 0, id: "computercraft:turtle_normal"}},
+        {pos: [1, 1, 2], state: "minecraft:air"},
+        {pos: [2, 1, 0], state: "minecraft:air"},
+        {pos: [2, 1, 1], state: "minecraft:air"},
+        {pos: [2, 1, 2], state: "minecraft:air"},
+        {pos: [0, 2, 0], state: "minecraft:air"},
+        {pos: [0, 2, 1], state: "minecraft:air"},
+        {pos: [0, 2, 2], state: "minecraft:air"},
+        {pos: [1, 2, 0], state: "minecraft:air"},
+        {pos: [1, 2, 1], state: "minecraft:air"},
+        {pos: [1, 2, 2], state: "minecraft:air"},
+        {pos: [2, 2, 0], state: "minecraft:air"},
+        {pos: [2, 2, 1], state: "minecraft:air"},
+        {pos: [2, 2, 2], state: "minecraft:air"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:polished_andesite",
+        "minecraft:air",
+        "computercraft:turtle_normal{facing:south,waterlogged:false}"
+    ]
+}

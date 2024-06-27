@@ -6,15 +6,18 @@ package dan200.computercraft.data.client;
 
 import dan200.computercraft.client.gui.GuiSprites;
 import dan200.computercraft.data.DataProviders;
+import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.inventory.UpgradeSlot;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.client.renderer.texture.atlas.SpriteSources;
 import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 /**
@@ -26,7 +29,7 @@ public final class ClientDataProviders {
     private ClientDataProviders() {
     }
 
-    public static void add(DataProviders.GeneratorSink generator) {
+    public static void add(DataProviders.GeneratorSink generator, CompletableFuture<HolderLookup.Provider> registries) {
         generator.addFromCodec("Block atlases", PackType.CLIENT_RESOURCES, "atlases", SpriteSources.FILE_CODEC, out -> {
             out.accept(ResourceLocation.withDefaultNamespace("blocks"), List.of(
                 new SingleFile(UpgradeSlot.LEFT_UPGRADE, Optional.empty()),
@@ -43,6 +46,13 @@ public final class ClientDataProviders {
                 GuiSprites.COMPUTER_COMMAND.textures(),
                 GuiSprites.COMPUTER_COLOUR.textures()
             ).flatMap(x -> x).<SpriteSource>map(x -> new SingleFile(x, Optional.empty())).toList());
+        });
+
+        generator.add(pack -> new ExtraModelsProvider(pack, registries) {
+            @Override
+            public Stream<ResourceLocation> getModels(HolderLookup.Provider registries) {
+                return registries.lookupOrThrow(TurtleOverlay.REGISTRY).listElements().map(x -> x.value().model());
+            }
         });
     }
 }

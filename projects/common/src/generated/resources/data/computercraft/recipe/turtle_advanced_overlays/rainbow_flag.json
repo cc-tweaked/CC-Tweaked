@@ -10,14 +10,17 @@
   ],
   "group": "computercraft:turtle_advanced_overlay",
   "ingredients": [
-    {"tag": "c:dyes/light_blue"},
-    {"tag": "c:dyes/pink"},
-    {"tag": "c:dyes/white"},
+    {"tag": "c:dyes/red"},
+    {"tag": "c:dyes/orange"},
+    {"tag": "c:dyes/yellow"},
+    {"tag": "c:dyes/green"},
+    {"tag": "c:dyes/blue"},
+    {"tag": "c:dyes/purple"},
     {"item": "minecraft:stick"},
     {"item": "computercraft:turtle_advanced"}
   ],
   "result": {
-    "components": {"computercraft:overlay": "computercraft:block/turtle_trans_overlay"},
+    "components": {"computercraft:overlay": "computercraft:rainbow_flag"},
     "count": 1,
     "id": "computercraft:turtle_advanced"
   }

@@ -72,6 +72,7 @@ import dan200.computercraft.shared.recipe.*;
 import dan200.computercraft.shared.recipe.function.CopyComponents;
 import dan200.computercraft.shared.recipe.function.RecipeFunction;
 import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
+import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.turtle.inventory.TurtleMenu;
@@ -95,7 +96,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
@@ -320,8 +320,8 @@ public final class ModRegistry {
         /**
          * The overlay on a turtle.
          */
-        public static final RegistryEntry<DataComponentType<ResourceLocation>> OVERLAY = register("overlay", b -> b
-            .persistent(ResourceLocation.CODEC).networkSynchronized(ResourceLocation.STREAM_CODEC)
+        public static final RegistryEntry<DataComponentType<Holder<TurtleOverlay>>> OVERLAY = register("overlay", b -> b
+            .persistent(TurtleOverlay.CODEC).networkSynchronized(TurtleOverlay.STREAM_CODEC)
         );
 
         /**

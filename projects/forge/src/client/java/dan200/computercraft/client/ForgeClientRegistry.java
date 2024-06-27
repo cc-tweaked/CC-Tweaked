@@ -6,6 +6,7 @@ package dan200.computercraft.client;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.turtle.RegisterTurtleModellersEvent;
+import dan200.computercraft.client.model.ExtraModels;
 import dan200.computercraft.client.model.turtle.TurtleModelLoader;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import net.minecraft.client.Minecraft;
@@ -57,7 +58,8 @@ public final class ForgeClientRegistry {
     @SubscribeEvent
     public static void registerModels(ModelEvent.RegisterAdditional event) {
         gatherModellers();
-        ClientRegistry.registerExtraModels(x -> event.register(ModelResourceLocation.standalone(x)));
+        var extraModels = ExtraModels.loadAll(Minecraft.getInstance().getResourceManager());
+        ClientRegistry.registerExtraModels(x -> event.register(ModelResourceLocation.standalone(x)), extraModels);
     }
 
     @SubscribeEvent

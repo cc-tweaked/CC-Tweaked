@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -46,13 +47,15 @@ public final class CustomModelLoader {
 
     private final Map<ResourceLocation, UnbakedModel> models = new HashMap<>();
     private final Map<ResourceLocation, String> emissiveModels = new HashMap<>();
+    private final Collection<ResourceLocation> extraModels;
 
-    private CustomModelLoader() {
+    private CustomModelLoader(Collection<ResourceLocation> extraModels) {
+        this.extraModels = extraModels;
     }
 
     public static CompletableFuture<CustomModelLoader> prepare(ResourceManager resources, Executor executor) {
         return CompletableFuture.supplyAsync(() -> {
-            var loader = new CustomModelLoader();
+            var loader = new CustomModelLoader(ExtraModels.loadAll(resources));
             for (var resource : resources.listResources("models", x -> x.getNamespace().equals(ComputerCraftAPI.MOD_ID) && x.getPath().endsWith(".json")).entrySet()) {
                 loader.loadModel(resource.getKey(), resource.getValue());
             }
@@ -83,6 +86,10 @@ public final class CustomModelLoader {
         } catch (IllegalArgumentException | IOException | JsonParseException e) {
             LOG.error("Couldn't parse model file {} from {}", id, path, e);
         }
+    }
+
+    public Collection<ResourceLocation> getExtraModels() {
+        return extraModels;
     }
 
     /**

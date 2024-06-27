@@ -28,6 +28,7 @@ import dan200.computercraft.shared.recipe.ImpostorShapelessRecipe;
 import dan200.computercraft.shared.recipe.TransformShapedRecipe;
 import dan200.computercraft.shared.recipe.TransformShapelessRecipe;
 import dan200.computercraft.shared.recipe.function.CopyComponents;
+import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.util.ColourUtils;
@@ -45,6 +46,7 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -96,7 +98,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         diskColours(add);
         pocketUpgrades(add, registries);
         turtleUpgrades(add, registries);
-        turtleOverlays(add);
+        turtleOverlays(add, registries);
 
         addSpecial(add, new DiskRecipe(CraftingBookCategory.MISC));
         addSpecial(add, new ColourableRecipe(CraftingBookCategory.MISC));
@@ -189,8 +191,8 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         }
     }
 
-    private void turtleOverlays(RecipeOutput add) {
-        turtleOverlay(add, "turtle_trans_overlay", x -> x
+    private void turtleOverlays(RecipeOutput add, HolderLookup.Provider registries) {
+        turtleOverlay(add, registries, TurtleOverlays.TRANS_FLAG, x -> x
             .unlockedBy("has_dye", inventoryChange(itemPredicate(ingredients.dye())))
             .requires(ColourUtils.getDyeTag(DyeColor.LIGHT_BLUE))
             .requires(ColourUtils.getDyeTag(DyeColor.PINK))
@@ -198,7 +200,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .requires(Items.STICK)
         );
 
-        turtleOverlay(add, "turtle_rainbow_overlay", x -> x
+        turtleOverlay(add, registries, TurtleOverlays.RAINBOW_FLAG, x -> x
             .unlockedBy("has_dye", inventoryChange(itemPredicate(ingredients.dye())))
             .requires(ColourUtils.getDyeTag(DyeColor.RED))
             .requires(ColourUtils.getDyeTag(DyeColor.ORANGE))
@@ -210,14 +212,14 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         );
     }
 
-    private void turtleOverlay(RecipeOutput add, String overlay, Consumer<ShapelessSpecBuilder> build) {
-        var overlayId = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/" + overlay);
+    private void turtleOverlay(RecipeOutput add, HolderLookup.Provider registries, ResourceKey<TurtleOverlay> overlay, Consumer<ShapelessSpecBuilder> build) {
+        var holder = registries.lookupOrThrow(overlay.registryKey()).getOrThrow(overlay);
 
         for (var turtleItem : turtleItems()) {
             var name = RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, turtleItem);
 
             var builder = ShapelessSpecBuilder
-                .shapeless(RecipeCategory.REDSTONE, DataComponentUtil.createStack(turtleItem, ModRegistry.DataComponents.OVERLAY.get(), overlayId))
+                .shapeless(RecipeCategory.REDSTONE, DataComponentUtil.createStack(turtleItem, ModRegistry.DataComponents.OVERLAY.get(), holder))
                 .group(name.withSuffix("_overlay").toString())
                 .unlockedBy("has_turtle", inventoryChange(turtleItem));
             build.accept(builder);
@@ -226,7 +228,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                 .build(s -> new TransformShapelessRecipe(s, List.of(
                     CopyComponents.builder(turtleItem).exclude(ModRegistry.DataComponents.OVERLAY.get()).build()
                 )))
-                .save(add, name.withSuffix("_overlays/" + overlay));
+                .save(add, name.withSuffix("_overlays/" + overlay.location().getPath()));
         }
     }
 

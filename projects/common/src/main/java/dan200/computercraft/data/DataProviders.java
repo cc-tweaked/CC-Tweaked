@@ -7,6 +7,7 @@ package dan200.computercraft.data;
 import com.mojang.serialization.Codec;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.shared.turtle.TurtleOverlay;
 import net.minecraft.Util;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
@@ -38,6 +39,7 @@ public final class DataProviders {
             Util.make(new RegistrySetBuilder(), builder -> {
                 builder.add(ITurtleUpgrade.REGISTRY, TurtleUpgradeProvider::addUpgrades);
                 builder.add(IPocketUpgrade.REGISTRY, PocketUpgradeProvider::addUpgrades);
+                builder.add(TurtleOverlay.REGISTRY, TurtleOverlays::register);
             }));
         var fullRegistries = fullRegistryPatch.thenApply(RegistrySetBuilder.PatchedRegistries::full);
 
@@ -57,7 +59,8 @@ public final class DataProviders {
         // and invoke that.
         try {
             Class.forName("dan200.computercraft.data.client.ClientDataProviders")
-                .getMethod("add", GeneratorSink.class).invoke(null, generator);
+                .getMethod("add", GeneratorSink.class, CompletableFuture.class)
+                .invoke(null, generator, fullRegistries);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }

@@ -82,7 +82,8 @@ public class ComponentizationFixers {
 
         if (item.is(TURTLES)) {
             item.moveTagToComponent("Fuel", "computercraft:fuel");
-            item.moveTagToComponent("Overlay", "computercraft:overlay");
+
+            item.removeTag("Overlay").result().ifPresent(x -> item.setComponent("computercraft:overlay", fixOverlay(x)));
 
             moveUpgradeToComponent(item, ops, "LeftUpgrade", "LeftUpgradeNbt", "computercraft:left_turtle_upgrade");
             moveUpgradeToComponent(item, ops, "RightUpgrade", "RightUpgradeNbt", "computercraft:right_turtle_upgrade");
@@ -152,6 +153,7 @@ public class ComponentizationFixers {
         return typed -> typed.updateTyped(input, output, typed2 -> typed2.update(DSL.remainderFinder(), x -> {
             x = moveUpgradeData(x, "LeftUpgrade", "LeftUpgradeNbt");
             x = moveUpgradeData(x, "RightUpgrade", "RightUpgradeNbt");
+            x = x.update("Overlay", ComponentizationFixers::fixOverlay);
             return x;
         }));
     }
@@ -162,6 +164,20 @@ public class ComponentizationFixers {
         if (upgradeId == null) return ops;
 
         return ops.set(key, createUpgradeData(ops, upgradeId, ops.get(dataKey))).remove(dataKey);
+    }
+
+    private static Dynamic<?> fixOverlay(Dynamic<?> overlay) {
+        // Rewrite known overlays to their new ids.
+        var overlayId = overlay.asString(null);
+        if (overlayId == null) return overlay;
+
+        return switch (overlayId) {
+            // Map known overlays to their new id.
+            case "computercraft:block/turtle_trans_overlay" -> overlay.createString("computercraft:trans_flag");
+            case "computercraft:block/turtle_rainbow_overlay" -> overlay.createString("computercraft:rainbow_flag");
+            // And unknown overlays to a direct entry.
+            default -> overlay.emptyMap().set("model", overlay);
+        };
     }
 
     /**

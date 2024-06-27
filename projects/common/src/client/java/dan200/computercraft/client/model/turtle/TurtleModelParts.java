@@ -12,13 +12,14 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.client.platform.ClientPlatformHelper;
-import dan200.computercraft.client.render.TurtleBlockEntityRenderer;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
+import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import dan200.computercraft.shared.util.DataComponentUtil;
 import dan200.computercraft.shared.util.Holiday;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -52,7 +53,7 @@ public final class TurtleModelParts<T> {
         boolean colour,
         @Nullable UpgradeData<ITurtleUpgrade> leftUpgrade,
         @Nullable UpgradeData<ITurtleUpgrade> rightUpgrade,
-        @Nullable ResourceLocation overlay,
+        @Nullable TurtleOverlay overlay,
         boolean christmas,
         boolean flip
     ) {
@@ -113,15 +114,19 @@ public final class TurtleModelParts<T> {
         var parts = new ArrayList<BakedModel>(4);
         parts.add(transform(combo.colour() ? colourModel : familyModel, transformation));
 
-        var overlayModelLocation = TurtleBlockEntityRenderer.getTurtleOverlayModel(combo.overlay(), combo.christmas());
-        if (overlayModelLocation != null) {
-            parts.add(transform(ClientPlatformHelper.get().getModel(modelManager, overlayModelLocation), transformation));
-        }
+        if (combo.overlay() != null) addPart(parts, modelManager, transformation, combo.overlay().model());
+
+        var showChristmas = TurtleOverlay.showElfOverlay(combo.overlay(), combo.christmas());
+        if (showChristmas) addPart(parts, modelManager, transformation, TurtleOverlay.ELF_MODEL);
 
         addUpgrade(parts, transformation, TurtleSide.LEFT, combo.leftUpgrade());
         addUpgrade(parts, transformation, TurtleSide.RIGHT, combo.rightUpgrade());
 
         return parts;
+    }
+
+    private void addPart(List<BakedModel> parts, ModelManager modelManager, Transformation transformation, ResourceLocation model) {
+        parts.add(transform(ClientPlatformHelper.get().getModel(modelManager, model), transformation));
     }
 
     private void addUpgrade(List<BakedModel> parts, Transformation transformation, TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {

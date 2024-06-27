@@ -12,11 +12,11 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.items.AbstractComputerItem;
+import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
@@ -74,8 +74,9 @@ public class TurtleItem extends AbstractComputerItem {
         return stack.get(side == TurtleSide.LEFT ? ModRegistry.DataComponents.LEFT_TURTLE_UPGRADE.get() : ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get());
     }
 
-    public static @Nullable ResourceLocation getOverlay(ItemStack stack) {
-        return stack.get(ModRegistry.DataComponents.OVERLAY.get());
+    public static @Nullable TurtleOverlay getOverlay(ItemStack stack) {
+        var overlay = stack.get(ModRegistry.DataComponents.OVERLAY.get());
+        return overlay == null ? null : overlay.value();
     }
 
     public static int getFuelLevel(ItemStack stack) {

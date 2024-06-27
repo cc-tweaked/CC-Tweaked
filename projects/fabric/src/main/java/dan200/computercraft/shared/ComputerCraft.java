@@ -25,6 +25,7 @@ import dan200.computercraft.shared.peripheral.modem.wired.WiredModemFullBlockEnt
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemBlockEntity;
 import dan200.computercraft.shared.platform.FabricConfigFile;
 import dan200.computercraft.shared.recipe.function.RecipeFunction;
+import dan200.computercraft.shared.turtle.TurtleOverlay;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -70,6 +71,7 @@ public class ComputerCraft {
 
         DynamicRegistries.registerSynced(ITurtleUpgrade.REGISTRY, TurtleUpgrades.instance().upgradeCodec());
         DynamicRegistries.registerSynced(IPocketUpgrade.REGISTRY, PocketUpgrades.instance().upgradeCodec());
+        DynamicRegistries.registerSynced(TurtleOverlay.REGISTRY, TurtleOverlay.DIRECT_CODEC);
 
         ModRegistry.register();
         ModRegistry.registerMainThread();

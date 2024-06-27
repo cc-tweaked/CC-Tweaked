@@ -53,7 +53,7 @@ public class ComputerCraftClient {
         ClientRegistry.registerMainThread(ItemProperties::register);
 
         PreparableModelLoadingPlugin.register(CustomModelLoader::prepare, (state, context) -> {
-            ClientRegistry.registerExtraModels(context::addModels);
+            ClientRegistry.registerExtraModels(context::addModels, state.getExtraModels());
             context.resolveModel().register(ctx -> state.loadModel(ctx.id()));
             context.modifyModelAfterBake().register((model, ctx) -> model == null ? null : state.wrapModel(ctx, model));
         });

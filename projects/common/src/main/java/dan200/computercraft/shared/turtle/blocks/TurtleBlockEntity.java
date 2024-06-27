@@ -20,6 +20,7 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.container.BasicContainer;
 import dan200.computercraft.shared.platform.PlatformHelper;
+import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.inventory.TurtleMenu;
@@ -30,7 +31,6 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
@@ -222,8 +222,9 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
         return brain.getColour();
     }
 
-    public @Nullable ResourceLocation getOverlay() {
-        return brain.getOverlay();
+    public @Nullable TurtleOverlay getOverlay() {
+        var overlay = brain.getOverlay();
+        return overlay == null ? null : overlay.value();
     }
 
     public ITurtleAccess getAccess() {

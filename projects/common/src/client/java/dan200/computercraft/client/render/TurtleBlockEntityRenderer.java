@@ -11,6 +11,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.client.platform.ClientPlatformHelper;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
+import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.Holiday;
 import net.minecraft.client.Minecraft;
@@ -28,8 +29,7 @@ import net.minecraft.world.phys.HitResult;
 import javax.annotation.Nullable;
 
 public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBlockEntity> {
-    private static final ResourceLocation COLOUR_TURTLE_MODEL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
-    private static final ResourceLocation ELF_OVERLAY_MODEL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_elf_overlay");
+    public static final ResourceLocation COLOUR_TURTLE_MODEL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
 
     private final BlockEntityRenderDispatcher renderer;
     private final Font font;
@@ -37,12 +37,6 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
     public TurtleBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
         renderer = context.getBlockEntityRenderDispatcher();
         font = context.getFont();
-    }
-
-    public static @Nullable ResourceLocation getTurtleOverlayModel(@Nullable ResourceLocation overlay, boolean christmas) {
-        if (overlay != null) return overlay;
-        if (christmas) return ELF_OVERLAY_MODEL;
-        return null;
     }
 
     @Override
@@ -99,10 +93,11 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         }
 
         // Render the overlay
-        var overlayModel = getTurtleOverlayModel(overlay, Holiday.getCurrent() == Holiday.CHRISTMAS);
-        if (overlayModel != null) {
-            renderModel(transform, buffers, lightmapCoord, overlayLight, overlayModel, null);
-        }
+        if (overlay != null) renderModel(transform, buffers, lightmapCoord, overlayLight, overlay.model(), null);
+
+        // And the Christmas overlay.
+        var showChristmas = TurtleOverlay.showElfOverlay(overlay, Holiday.getCurrent() == Holiday.CHRISTMAS);
+        if (showChristmas) renderModel(transform, buffers, lightmapCoord, overlayLight, TurtleOverlay.ELF_MODEL, null);
 
         // Render the upgrades
         renderUpgrade(transform, buffers, lightmapCoord, overlayLight, turtle, TurtleSide.LEFT, partialTicks);

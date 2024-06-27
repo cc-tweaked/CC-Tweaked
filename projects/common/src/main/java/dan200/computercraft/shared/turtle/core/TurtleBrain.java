@@ -20,6 +20,7 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.container.InventoryDelegate;
+import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import dan200.computercraft.shared.util.Holiday;
@@ -32,7 +33,6 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.Container;
@@ -74,7 +74,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     private int selectedSlot = 0;
     private int fuelLevel = 0;
     private int colourHex = -1;
-    private @Nullable ResourceLocation overlay = null;
+    private @Nullable Holder<TurtleOverlay> overlay = null;
 
     private TurtleAnimation animation = TurtleAnimation.NONE;
     private int animationProgress = 0;
@@ -134,7 +134,7 @@ public class TurtleBrain implements TurtleAccessInternal {
         // Read fields
         colourHex = nbt.contains(NBT_COLOUR) ? nbt.getInt(NBT_COLOUR) : -1;
         fuelLevel = nbt.contains(NBT_FUEL) ? nbt.getInt(NBT_FUEL) : 0;
-        overlay = nbt.contains(NBT_OVERLAY) ? ResourceLocation.parse(nbt.getString(NBT_OVERLAY)) : null;
+        overlay = nbt.contains(NBT_OVERLAY) ? NBTUtil.decodeFrom(TurtleOverlay.CODEC, registries, nbt, NBT_OVERLAY) : null;
 
         // Read upgrades
         setUpgradeDirect(TurtleSide.LEFT, NBTUtil.decodeFrom(TurtleUpgrades.instance().upgradeDataCodec(), registries, nbt, NBT_LEFT_UPGRADE));
@@ -144,7 +144,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     private void writeCommon(CompoundTag nbt, HolderLookup.Provider registries) {
         nbt.putInt(NBT_FUEL, fuelLevel);
         if (colourHex != -1) nbt.putInt(NBT_COLOUR, colourHex);
-        if (overlay != null) nbt.putString(NBT_OVERLAY, overlay.toString());
+        if (overlay != null) NBTUtil.encodeTo(TurtleOverlay.CODEC, registries, nbt, NBT_OVERLAY, overlay);
 
         // Write upgrades
         NBTUtil.encodeTo(TurtleUpgrades.instance().upgradeDataCodec(), registries, nbt, NBT_LEFT_UPGRADE, getUpgradeWithData(TurtleSide.LEFT));
@@ -418,11 +418,11 @@ public class TurtleBrain implements TurtleAccessInternal {
         BlockEntityHelpers.updateBlock(owner);
     }
 
-    public @Nullable ResourceLocation getOverlay() {
+    public @Nullable Holder<TurtleOverlay> getOverlay() {
         return overlay;
     }
 
-    public void setOverlay(@Nullable ResourceLocation overlay) {
+    public void setOverlay(@Nullable Holder<TurtleOverlay> overlay) {
         if (!Objects.equals(this.overlay, overlay)) {
             this.overlay = overlay;
             BlockEntityHelpers.updateBlock(owner);

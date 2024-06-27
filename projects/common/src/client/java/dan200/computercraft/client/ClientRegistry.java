@@ -25,6 +25,7 @@ import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import dan200.computercraft.shared.media.items.DiskItem;
+import dan200.computercraft.shared.turtle.TurtleOverlay;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColor;
@@ -53,6 +54,7 @@ import net.minecraft.world.level.ItemLike;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -143,15 +145,14 @@ public final class ClientRegistry {
         register.accept(GuiSprites.initialise(minecraft.getTextureManager()));
     }
 
-    private static final String[] EXTRA_MODELS = new String[]{
-        "block/turtle_colour",
-        "block/turtle_elf_overlay",
-        "block/turtle_rainbow_overlay",
-        "block/turtle_trans_overlay",
+    private static final ResourceLocation[] EXTRA_MODELS = {
+        TurtleOverlay.ELF_MODEL,
+        TurtleBlockEntityRenderer.COLOUR_TURTLE_MODEL,
     };
 
-    public static void registerExtraModels(Consumer<ResourceLocation> register) {
-        for (var model : EXTRA_MODELS) register.accept(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, model));
+    public static void registerExtraModels(Consumer<ResourceLocation> register, Collection<ResourceLocation> extraModels) {
+        for (var model : EXTRA_MODELS) register.accept(model);
+        extraModels.forEach(register);
         TurtleUpgradeModellers.getDependencies().forEach(register);
     }
 
