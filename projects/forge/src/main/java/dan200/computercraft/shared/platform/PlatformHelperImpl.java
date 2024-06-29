@@ -54,8 +54,8 @@ import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.CommonHooks;
+import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.common.ToolActions;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
@@ -211,7 +211,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public boolean hasToolUsage(ItemStack stack) {
-        return stack.canPerformAction(ToolActions.SHOVEL_FLATTEN) || stack.canPerformAction(ToolActions.HOE_TILL);
+        return stack.canPerformAction(ItemAbilities.SHOVEL_FLATTEN) || stack.canPerformAction(ItemAbilities.HOE_TILL);
     }
 
     @Override

@@ -9,6 +9,7 @@ import org.gradle.api.file.FileSystemLocation
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.JavaExec
+import org.gradle.kotlin.dsl.getByName
 import org.gradle.process.BaseExecSpec
 import org.gradle.process.JavaExecSpec
 import org.gradle.process.ProcessForkOptions
@@ -44,6 +45,21 @@ fun JavaExec.copyToFull(spec: JavaExec) {
 
     // Additional ExecSpec options
     copyToExec(spec)
+}
+
+/**
+ * Base this [JavaExec] task on an existing task.
+ */
+fun JavaExec.copyFromTask(task: JavaExec) {
+    for (dep in task.dependsOn) dependsOn(dep)
+    task.copyToFull(this)
+}
+
+/**
+ * Base this [JavaExec] task on an existing task.
+ */
+fun JavaExec.copyFromTask(task: String) {
+    copyFromTask(project.tasks.getByName<JavaExec>(task))
 }
 
 /**

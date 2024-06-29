@@ -40,7 +40,7 @@ runs {
         systemProperty("forge.logging.console.level", "debug")
 
         cct.sourceDirectories.get().forEach {
-            if (it.classes) modSourceAs(it.sourceSet, "computercraft")
+            if (it.classes) modSources.add("computercraft", it.sourceSet)
         }
 
         dependencies {
@@ -74,7 +74,7 @@ runs {
 
         modSource(sourceSets.testMod.get())
         modSource(sourceSets.testFixtures.get())
-        modSourceAs(project(":core").sourceSets.testFixtures.get(), "cctest")
+        modSources.add("cctest", project(":core").sourceSets.testFixtures.get())
 
         jvmArgument("-ea")
 
@@ -199,7 +199,7 @@ val runGametest by tasks.registering(JavaExec::class) {
     dependsOn("cleanRunGametest")
     usesService(MinecraftRunnerService.get(gradle))
 
-    setRunConfig(runs["gameTestServer"])
+    copyFromTask("runGameTestServer")
 
     systemProperty("forge.logging.console.level", "info")
     systemProperty("cctest.gametest-report", layout.buildDirectory.dir("test-results/$name.xml").getAbsolutePath())
