@@ -7,7 +7,6 @@ package dan200.computercraft.shared.computer.core;
 import com.google.common.annotations.VisibleForTesting;
 import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.core.filesystem.ArchiveMount;
-import dan200.computercraft.core.filesystem.FileSystem;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -65,9 +64,10 @@ public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
             existingNamespace = file.getNamespace();
 
             if (!file.getNamespace().equals(namespace)) continue;
-            if (!FileSystem.contains(subPath, file.getPath())) continue; // Some packs seem to include the parent?
 
-            var localPath = FileSystem.toLocal(file.getPath(), subPath);
+            var localPath = getLocalPath(file.getPath(), subPath);
+            if (localPath == null) continue;
+
             try {
                 getOrCreateChild(newRoot, localPath, this::createEntry);
             } catch (ResourceLocationException e) {

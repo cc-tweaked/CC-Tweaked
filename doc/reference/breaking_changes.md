@@ -25,13 +25,13 @@ as documentation for breaking changes and "gotchas" one should look out for betw
 
  - Update to Lua 5.2:
    - Support for Lua 5.0's pseudo-argument `arg` has been removed. You should always use `...` for varargs.
-   - Environments are no longer baked into the runtime, and instead use the `_ENV` local or upvalue. `getfenv`/`setfenv`
-     now only work on Lua functions with an `_ENV` upvalue. `getfenv` will return the global environment when called
-     with other functions, and `setfenv` will have no effect.
-   - `load`/`loadstring` defaults to using the global environment (`_G`) rather than the current coroutine's
+   - Environments are no longer baked into the runtime, and instead use the `_ENV` local or upvalue. [`getfenv`]/[`setfenv`]
+     now only work on Lua functions with an `_ENV` upvalue. [`getfenv`] will return the global environment when called
+     with other functions, and [`setfenv`] will have no effect.
+   - [`load`]/[`loadstring`] defaults to using the global environment (`_G`) rather than the current coroutine's
      environment.
-   - Support for dumping functions (`string.dump`) and loading binary chunks has been removed.
-   - `math.random` now uses Lua 5.4's random number generator.
+   - Support for dumping functions ([`string.dump`]) and loading binary chunks has been removed.
+   - [`math.random`] now uses Lua 5.4's random number generator.
 
  - File handles, HTTP requests and websockets now always use the original bytes rather than encoding/decoding to UTF-8.
 
@@ -44,7 +44,7 @@ as documentation for breaking changes and "gotchas" one should look out for betw
    `keys.enter` constant was queued when the key was pressed)
 
  - Minecraft 1.13 removed the concept of item damage and block metadata (see ["The Flattening"][flattening]). As a
-   result `turtle.inspect` no longer provides block metadata, and `turtle.getItemDetail` no longer provides damage.
+   result [`turtle.inspect`] no longer provides block metadata, and [`turtle.getItemDetail`] no longer provides damage.
 
    - Block states (`turtle.inspect().state`) should provide all the same information as block metadata, but in a much
      more understandable format.
@@ -70,7 +70,7 @@ as documentation for breaking changes and "gotchas" one should look out for betw
  - Unlabelled computers and turtles now keep their ID when broken, meaning that unlabelled computers/items do not stack.
 
 ## ComputerCraft 1.80pr1 {#cc-1.80}
- - Programs run via `shell.run` are now started in their own isolated environment. This means globals set by programs
+ - Programs run via [`shell.run`] are now started in their own isolated environment. This means globals set by programs
    will not be accessible outside of this program.
 
  - Programs containing `/` are looked up in the current directory and are no longer looked up on the path. For instance,

@@ -13,8 +13,12 @@ public class FileSystemException extends Exception {
     @Serial
     private static final long serialVersionUID = -2500631644868104029L;
 
-    FileSystemException(String s) {
-        super(s);
+    FileSystemException(String message) {
+        super(message);
+    }
+
+    FileSystemException(String path, String message) {
+        this("/" + path + ": " + message);
     }
 
     public static FileSystemException of(IOException e) {

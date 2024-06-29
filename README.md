@@ -39,7 +39,7 @@ on is present.
 ```groovy
 repositories {
   maven {
-    url "https://squiddev.cc/maven/"
+    url "https://maven.squiddev.cc"
     content {
       includeGroup("cc.tweaked")
     }

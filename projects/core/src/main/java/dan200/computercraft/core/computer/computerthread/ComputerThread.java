@@ -5,6 +5,7 @@
 package dan200.computercraft.core.computer.computerthread;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.errorprone.annotations.Keep;
 import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.computer.TimeoutState;
@@ -774,6 +775,7 @@ public final class ComputerThread implements ComputerScheduler {
         /**
          * The current state of this worker.
          */
+        @Keep
         private volatile ExecutorState $state = ExecutorState.IDLE;
 
         /**
@@ -784,6 +786,7 @@ public final class ComputerThread implements ComputerScheduler {
          * {@linkplain #afterWork()} finishes executing, we set this back to null and compute the difference between the
          * two, updating the {@link Metrics#JAVA_ALLOCATION} metric.
          */
+        @Keep
         private volatile @Nullable ThreadAllocation $threadAllocation = null;
 
         /**
