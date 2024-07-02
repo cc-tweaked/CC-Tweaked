@@ -84,7 +84,9 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
         var computerID = itemComputer.getComputerID(computer);
         var label = itemComputer.getLabel(computer);
         var colour = itemComputer.getColour(computer);
-        return itemComputer.create(computerID, label, colour, upgrade);
+        var newItemComputer = itemComputer.create(computerID, label, colour, upgrade);
+        newItemComputer.addTagElement("Enchantments", computer.getEnchantmentTags());
+        return newItemComputer;
     }
 
     @Override
