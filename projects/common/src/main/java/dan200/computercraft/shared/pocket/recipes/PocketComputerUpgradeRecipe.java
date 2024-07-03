@@ -81,12 +81,9 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
         if (upgrade == null) return ItemStack.EMPTY;
 
         // Construct the new stack
-        var computerID = itemComputer.getComputerID(computer);
-        var label = itemComputer.getLabel(computer);
-        var colour = itemComputer.getColour(computer);
-        var newItemComputer = itemComputer.create(computerID, label, colour, upgrade);
-        newItemComputer.addTagElement("Enchantments", computer.getEnchantmentTags());
-        return newItemComputer;
+        var newStack = computer.copyWithCount(1);
+        PocketComputerItem.setUpgrade(newStack, upgrade);
+        return newStack;
     }
 
     @Override
