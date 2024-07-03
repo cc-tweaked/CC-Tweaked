@@ -59,7 +59,6 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
 
         if (computer.isEmpty()) return ItemStack.EMPTY;
 
-        var itemComputer = (PocketComputerItem) computer.getItem();
         if (PocketComputerItem.getUpgrade(computer) != null) return ItemStack.EMPTY;
 
         // Check for upgrades around the item
