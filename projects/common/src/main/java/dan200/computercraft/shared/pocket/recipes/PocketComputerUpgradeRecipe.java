@@ -59,7 +59,6 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
 
         if (computer.isEmpty()) return ItemStack.EMPTY;
 
-        var itemComputer = (PocketComputerItem) computer.getItem();
         if (PocketComputerItem.getUpgrade(computer) != null) return ItemStack.EMPTY;
 
         // Check for upgrades around the item
@@ -81,10 +80,9 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
         if (upgrade == null) return ItemStack.EMPTY;
 
         // Construct the new stack
-        var computerID = itemComputer.getComputerID(computer);
-        var label = itemComputer.getLabel(computer);
-        var colour = itemComputer.getColour(computer);
-        return itemComputer.create(computerID, label, colour, upgrade);
+        var newStack = computer.copyWithCount(1);
+        PocketComputerItem.setUpgrade(newStack, upgrade);
+        return newStack;
     }
 
     @Override
