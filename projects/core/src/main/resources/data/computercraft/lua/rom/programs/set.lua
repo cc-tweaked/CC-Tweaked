@@ -7,7 +7,7 @@ local pp = require "cc.pretty"
 local tArgs = { ... }
 if #tArgs == 0 then
     -- "set"
-    for n, sName in ipairs(settings.getNames()) do
+    for _, sName in ipairs(settings.getNames()) do
         pp.print(pp.text(sName, colors.cyan) .. " is " .. pp.pretty(settings.get(sName)))
     end
 elseif #tArgs == 1 then
