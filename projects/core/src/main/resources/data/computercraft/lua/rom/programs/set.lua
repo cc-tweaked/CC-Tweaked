@@ -7,13 +7,9 @@ local pp = require "cc.pretty"
 local tArgs = { ... }
 if #tArgs == 0 then
     -- "set"
-    local _, y = term.getCursorPos()
-    local tSettings = {}
     for n, sName in ipairs(settings.getNames()) do
-        tSettings[n] = textutils.serialize(sName) .. " is " .. textutils.serialize(settings.get(sName))
+        pp.print(pp.text(sName, colors.cyan) .. " is " .. pp.pretty(settings.get(sName)))
     end
-    textutils.pagedPrint(table.concat(tSettings, "\n"), y - 3)
-
 elseif #tArgs == 1 then
     -- "set foo"
     local sName = tArgs[1]
@@ -24,7 +20,6 @@ elseif #tArgs == 1 then
     end
     pp.print(msg)
     if deets.description then print(deets.description) end
-
 else
     -- "set foo bar"
     local sName = tArgs[1]
@@ -45,12 +40,12 @@ else
     local option = settings.getDetails(sName)
     if value == nil then
         settings.unset(sName)
-        print(textutils.serialize(sName) .. " unset")
+        pp.print(pp.text(sName, colors.cyan) .. " unset")
     elseif option.type and option.type ~= type(value) then
         printError(("%s is not a valid %s."):format(textutils.serialize(sValue), option.type))
     else
         settings.set(sName, value)
-        print(textutils.serialize(sName) .. " set to " .. textutils.serialize(value))
+        pp.print(pp.text(sName, colors.cyan) .. " set to " .. pp.pretty(value))
     end
 
     if value ~= option.value then
