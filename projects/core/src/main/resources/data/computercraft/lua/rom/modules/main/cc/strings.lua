@@ -8,7 +8,7 @@
 -- @since 1.95.0
 -- @see textutils For additional string related utilities.
 
-local expect = (require and require("cc.expect") or dofile("rom/modules/main/cc/expect.lua")).expect
+local expect = (require and require("cc.expect") or dofile("rom/modules/main/cc/expect.lua"))
 
 --[[- Wraps a block of text, so that each line fits within the given width.
 
@@ -29,9 +29,10 @@ the terminal.
     end
 ]]
 local function wrap(text, width)
-    expect(1, text, "string")
-    expect(2, width, "number", "nil")
+    expect.expect(1, text, "string")
+    expect.expect(2, width, "number", "nil")
     width = width or term.getSize()
+    expect.range(width, 1)
 
 
     local lines, lines_n, current_line = {}, 0, ""
@@ -97,8 +98,8 @@ end
 -- @usage require "cc.strings".ensure_width("a short string", 20)
 -- @usage require "cc.strings".ensure_width("a rather long string which is truncated", 20)
 local function ensure_width(line, width)
-    expect(1, line, "string")
-    expect(2, width, "number", "nil")
+    expect.expect(1, line, "string")
+    expect.expect(2, width, "number", "nil")
     width = width or term.getSize()
 
     line = line:sub(1, width)
