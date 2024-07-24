@@ -7,9 +7,13 @@
 -- @module textutils
 -- @since 1.2
 
-local expect = dofile("rom/modules/main/cc/expect.lua")
+local pgk_env = setmetatable({}, { __index = _ENV })
+pgk_env.require = dofile("rom/modules/main/cc/require.lua").make(pgk_env, "rom/modules/main")
+local require = pgk_env.require
+
+local expect = require("cc.expect")
 local expect, field = expect.expect, expect.field
-local wrap = dofile("rom/modules/main/cc/strings.lua").wrap
+local wrap = require("cc.strings").wrap
 
 --- Slowly writes string text at current cursor position,
 -- character-by-character.
