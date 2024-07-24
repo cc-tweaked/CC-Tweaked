@@ -44,4 +44,33 @@ describe("cc.strings", function()
             expect(str.ensure_width("test string is long", 15)):eq("test string is ")
         end)
     end)
+
+    describe("split", function()
+        it("splits with empty segments", function()
+            expect(str.split("", "%-")):same { "" }
+            expect(str.split("-", "%-")):same { "", "" }
+            expect(str.split("---", "%-")):same { "", "", "", "" }
+            expect(str.split("-a", "%-")):same { "", "a" }
+            expect(str.split("a-", "%-")):same { "a", "" }
+        end)
+
+        it("cannot split with an empty separator", function()
+            expect.error(str.split, "abc", ""):eq("separator is empty")
+        end)
+
+        it("splits on patterns", function()
+            expect(str.split("a.bcd      ef", "%W+")):same { "a", "bcd", "ef" }
+        end)
+
+        it("splits on literal strings", function()
+            expect(str.split("a-bcd-ef", "-", true)):same { "a", "bcd", "ef" }
+        end)
+
+        it("accepts a limit", function()
+            expect(str.split("foo-bar-baz-qux-quyux", "-", true, 3)):same { "foo", "bar", "baz-qux-quyux" }
+            expect(str.split("foo-bar-baz", "-", true, 5)):same { "foo", "bar", "baz" }
+            expect(str.split("foo-bar-baz", "-", true, 1)):same { "foo-bar-baz" }
+            expect(str.split("foo-bar-baz", "-", true, 1)):same { "foo-bar-baz" }
+        end)
+    end)
 end)
