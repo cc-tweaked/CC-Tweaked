@@ -17,12 +17,11 @@ ensure language files are mostly correct.
 
 import json
 import pathlib
-from collections import OrderedDict
 
 root = pathlib.Path("projects/common/src/main/resources/assets/computercraft/lang")
 
-with open("projects/fabric/src/generated/resources/assets/computercraft/lang/en_us.json", encoding="utf-8") as file:
-    en_us = json.load(file, object_hook=OrderedDict)
+with open("projects/common/src/generated/resources/assets/computercraft/lang/en_us.json", encoding="utf-8") as file:
+    en_us = json.load(file)
 
 for path in root.glob("*.json"):
     if path.name == "en_us.json":
@@ -31,7 +30,7 @@ for path in root.glob("*.json"):
     with path.open(encoding="utf-8") as file:
         lang = json.load(file)
 
-    out = OrderedDict()
+    out = {}
     missing = 0
     for k in en_us.keys():
         if k not in lang:
@@ -46,4 +45,6 @@ for path in root.glob("*.json"):
         file.write("\n")
 
     if missing > 0:
-        print("{} has {} missing translations.".format(path.name, missing))
+        print("{} has {} missing translations. {:.2f}% complete".format(path.name, missing, len(out) / len(en_us) * 100))
+    else:
+        print("{} is complete".format(path.name))
