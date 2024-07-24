@@ -22,7 +22,6 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.javadoc.Javadoc
-import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.gradle.language.jvm.tasks.ProcessResources
 import org.gradle.process.JavaForkOptions
@@ -181,7 +180,7 @@ abstract class CCTweakedExtension(
 
     fun <T> jacoco(task: NamedDomainObjectProvider<T>) where T : Task, T : JavaForkOptions {
         val classDump = project.layout.buildDirectory.dir("jacocoClassDump/${task.name}")
-        val reportTaskName = "jacoco${task.name.capitalized()}Report"
+        val reportTaskName = "jacoco${task.name.capitalise()}Report"
 
         val jacoco = project.extensions.getByType(JacocoPluginExtension::class.java)
         task.configure {

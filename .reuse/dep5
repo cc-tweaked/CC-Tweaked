@@ -4,6 +4,7 @@ Upstream-Name: CC: Tweaked
 Upstream-Contact: Jonathan Coates <git@squiddev.cc>
 
 Files:
+  gradle/gradle-daemon-jvm.properties
   projects/common/src/main/resources/assets/computercraft/sounds.json
   projects/common/src/main/resources/assets/computercraft/sounds/empty.ogg
   projects/common/src/testMod/resources/data/cctest/computercraft/turtle_upgrades/*

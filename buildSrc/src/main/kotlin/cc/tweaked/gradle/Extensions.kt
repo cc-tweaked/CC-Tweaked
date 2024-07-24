@@ -155,3 +155,15 @@ fun getNextVersion(version: String): String {
     if (dashIndex >= 0) out.append(version, dashIndex, version.length)
     return out.toString()
 }
+
+/**
+ * Capitalise the first letter of the string.
+ *
+ * This is a replacement for the now deprecated [String.capitalize].
+ */
+fun String.capitalise(): String {
+    if (isEmpty()) return this
+    val first = this[0]
+    val firstTitle = first.titlecaseChar()
+    return if (first == firstTitle) this else firstTitle + substring(1)
+}
