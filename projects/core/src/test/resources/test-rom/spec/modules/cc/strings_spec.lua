@@ -2,7 +2,7 @@
 --
 -- SPDX-License-Identifier: MPL-2.0
 
-describe("cc.pretty", function()
+describe("cc.strings", function()
     local str = require("cc.strings")
 
     describe("wrap", function()
@@ -11,6 +11,8 @@ describe("cc.pretty", function()
             str.wrap("test string is long", 11)
             expect.error(str.wrap, nil):eq("bad argument #1 (string expected, got nil)")
             expect.error(str.wrap, "", false):eq("bad argument #2 (number expected, got boolean)")
+
+            expect.error(str.wrap, "", 0):eq("number outside of range (expected 0 to be within 1 and inf)")
         end)
 
         it("wraps lines", function()

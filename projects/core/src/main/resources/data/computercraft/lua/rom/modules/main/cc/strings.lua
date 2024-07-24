@@ -8,7 +8,8 @@
 -- @since 1.95.0
 -- @see textutils For additional string related utilities.
 
-local expect = require("cc.expect").expect
+local expect = require("cc.expect")
+local expect, range = expect.expect, expect.range
 
 --[[- Wraps a block of text, so that each line fits within the given width.
 
@@ -32,7 +33,7 @@ local function wrap(text, width)
     expect(1, text, "string")
     expect(2, width, "number", "nil")
     width = width or term.getSize()
-
+    range(width, 1)
 
     local lines, lines_n, current_line = {}, 0, ""
     local function push_line()
