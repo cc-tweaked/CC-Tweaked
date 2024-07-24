@@ -27,6 +27,7 @@ import dan200.computercraft.shared.util.WaterloggableHelpers
 import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.LuaTaskContext
 import dan200.computercraft.test.core.computer.getApi
+import dan200.computercraft.test.shared.ItemStackMatcher.isStack
 import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
@@ -40,8 +41,7 @@ import net.minecraft.world.level.block.FenceBlock
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.array
-import org.hamcrest.Matchers.instanceOf
+import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import java.util.*
@@ -653,6 +653,43 @@ class Turtle_Test {
             )
 
             turtle.suckUp(Optional.empty()).await().assertArrayEquals(false, "No items to take")
+        }
+    }
+
+    /**
+     * `turtle.craft` works as expected
+     */
+    @GameTest
+    fun Craft(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer {
+            callPeripheral("left", "craft", 1).assertArrayEquals(true)
+        }
+        thenExecute {
+            val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            assertThat(
+                "Inventory is as expected.",
+                turtle.contents,
+                contains(
+                    isStack(Items.DIAMOND, 1), isStack(Items.DIAMOND, 1), isStack(Items.DIAMOND, 1), isStack(Items.DIAMOND_PICKAXE, 1),
+                    isStack(ItemStack.EMPTY), isStack(Items.STICK, 1), isStack(ItemStack.EMPTY), isStack(ItemStack.EMPTY),
+                    isStack(ItemStack.EMPTY), isStack(Items.STICK, 1), isStack(ItemStack.EMPTY), isStack(ItemStack.EMPTY),
+                    isStack(ItemStack.EMPTY), isStack(ItemStack.EMPTY), isStack(ItemStack.EMPTY), isStack(ItemStack.EMPTY),
+                ),
+            )
+        }
+    }
+
+    /**
+     * `turtle.equipLeft` equips a tool.
+     */
+    @GameTest
+    fun Equip_tool(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer {
+            turtle.equipLeft().await().assertArrayEquals(true)
+        }
+        thenExecute {
+            val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            assertEquals(TurtleUpgrades.instance().get("minecraft:diamond_pickaxe"), turtle.getUpgrade(TurtleSide.LEFT))
         }
     }
 
