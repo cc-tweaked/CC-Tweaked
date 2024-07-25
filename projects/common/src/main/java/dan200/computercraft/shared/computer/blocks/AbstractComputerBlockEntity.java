@@ -38,7 +38,7 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 
-public abstract class AbstractComputerBlockEntity extends BlockEntity implements IComputerBlockEntity, Nameable, MenuProvider {
+public abstract class AbstractComputerBlockEntity extends BlockEntity implements Nameable, MenuProvider {
     private static final String NBT_ID = "ComputerId";
     private static final String NBT_LABEL = "Label";
     private static final String NBT_ON = "On";
@@ -300,17 +300,14 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         for (var dir : DirectionUtil.FACINGS) updateRedstoneTo(dir);
     }
 
-    @Override
     public final int getComputerID() {
         return computerID;
     }
 
-    @Override
     public final @Nullable String getLabel() {
         return label;
     }
 
-    @Override
     public final void setComputerID(int id) {
         if (getLevel().isClientSide || computerID == id) return;
 
@@ -318,7 +315,6 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         BlockEntityHelpers.updateBlock(this);
     }
 
-    @Override
     public final void setLabel(@Nullable String label) {
         if (getLevel().isClientSide || Objects.equals(this.label, label)) return;
 
@@ -328,7 +324,6 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         BlockEntityHelpers.updateBlock(this);
     }
 
-    @Override
     public ComputerFamily getFamily() {
         return family;
     }

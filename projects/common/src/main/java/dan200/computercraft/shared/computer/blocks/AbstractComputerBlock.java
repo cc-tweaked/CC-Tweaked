@@ -146,7 +146,7 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
         super.setPlacedBy(world, pos, state, placer, stack);
 
         var tile = world.getBlockEntity(pos);
-        if (!world.isClientSide && tile instanceof IComputerBlockEntity computer && stack.getItem() instanceof IComputerItem item) {
+        if (!world.isClientSide && tile instanceof AbstractComputerBlockEntity computer && stack.getItem() instanceof IComputerItem item) {
 
             var id = item.getComputerID(stack);
             if (id != -1) computer.setComputerID(id);
