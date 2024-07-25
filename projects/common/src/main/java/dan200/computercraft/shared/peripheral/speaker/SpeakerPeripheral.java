@@ -273,16 +273,18 @@ public abstract class SpeakerPeripheral implements IPeripheral {
      * Attempt to stream some audio data to the speaker.
      * <p>
      * This accepts a list of audio samples as amplitudes between -128 and 127. These are stored in an internal buffer
-     * and played back at 48kHz. If this buffer is full, this function will return {@literal false}. You should wait for
-     * a [`speaker_audio_empty`] event before trying again.
+     * and played back at 48kHz. If this buffer is full, this function will return {@literal false}. Programs should
+     * wait for a [`speaker_audio_empty`] event before trying to play audio again.
      * <p>
-     * > [!NOTE]
-     * > The speaker only buffers a single call to {@link #playAudio} at once. This means if you try to play a small
-     * > number of samples, you'll have a lot of stutter. You should try to play as many samples in one call as possible
-     * > (up to 128×1024), as this reduces the chances of audio stuttering or halting, especially when the server or
-     * > computer is lagging.
+     * The speaker only buffers a single call to {@link #playAudio} at once. This means if you try to play a small
+     * number of samples, you'll have a lot of stutter. You should try to play as many samples in one call as possible
+     * (up to 128×1024), as this reduces the chances of audio stuttering or halting, especially when the server or
+     * computer is lagging.
      * <p>
-     * [`speaker_audio`] provides a more complete guide to using speakers
+     * While the speaker accepts 8-bit PCM audio, the audio stream is re-encoded before being played. This means that
+     * the supplied samples may not be played out exactly.
+     * <p>
+     * [`speaker_audio`] provides a more complete guide to using speakers.
      *
      * @param context The Lua context.
      * @param audio   The audio data to play.
