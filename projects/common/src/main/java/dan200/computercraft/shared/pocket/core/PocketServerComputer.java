@@ -28,9 +28,12 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 public class PocketServerComputer extends ServerComputer implements IPocketAccess {
     private @Nullable IPocketUpgrade upgrade;
@@ -43,7 +46,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     private int oldLightColour = -1;
     private @Nullable ComputerState oldComputerState;
 
-    private final Set<ServerPlayer> tracking = new HashSet<>();
+    private Set<ServerPlayer> tracking = Set.of();
 
     public PocketServerComputer(ServerLevel world, BlockPos position, int computerID, @Nullable String label, ComputerFamily family) {
         super(world, position, computerID, label, family, Config.pocketTermWidth, Config.pocketTermHeight);
@@ -152,8 +155,9 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     protected void tickServer() {
         super.tickServer();
 
-        // Find any players which have gone missing and remove them from the tracking list.
-        tracking.removeIf(player -> !player.isAlive() || player.level() != getLevel());
+        // Get the new set of players tracking the current position.
+        var newTracking = getLevel().getChunkSource().chunkMap.getPlayers(new ChunkPos(getPosition()), false);
+        var trackingChanged = tracking.size() != newTracking.size() || !tracking.containsAll(newTracking);
 
         // And now find any new players, add them to the tracking list, and broadcast state where appropriate.
         var state = getState();
@@ -162,18 +166,16 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
             oldLightColour = lightColour;
 
             // Broadcast the state to all players
-            tracking.addAll(getLevel().players());
-            ServerNetworking.sendToPlayers(new PocketComputerDataMessage(this, false), tracking);
-        } else {
+            ServerNetworking.sendToPlayers(new PocketComputerDataMessage(this, false), newTracking);
+        } else if (trackingChanged) {
             // Broadcast the state to new players.
-            List<ServerPlayer> added = new ArrayList<>();
-            for (var player : getLevel().players()) {
-                if (tracking.add(player)) added.add(player);
-            }
+            var added = newTracking.stream().filter(x -> !tracking.contains(x)).toList();
             if (!added.isEmpty()) {
                 ServerNetworking.sendToPlayers(new PocketComputerDataMessage(this, false), added);
             }
         }
+
+        if (trackingChanged) tracking = Set.copyOf(newTracking);
     }
 
     @Override
