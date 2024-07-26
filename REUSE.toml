@@ -1,0 +1,110 @@
+# SPDX-FileCopyrightText: 2017 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+
+version = 1
+SPDX-PackageName = "CC: Tweaked"
+SPDX-PackageSupplier = "Jonathan Coates <git@squiddev.cc>"
+SPDX-PackageDownloadLocation = "https://github.com/cc-tweaked/cc-tweaked"
+
+[[annotations]]
+# Generated/data files are CC0.
+SPDX-FileCopyrightText = "The CC: Tweaked Developers"
+SPDX-License-Identifier = "CC0-1.0"
+path = [
+    "gradle/gradle-daemon-jvm.properties",
+    "projects/common/src/main/resources/assets/computercraft/sounds.json",
+    "projects/common/src/main/resources/assets/computercraft/sounds/empty.ogg",
+    "projects/common/src/testMod/resources/data/cctest/computercraft/turtle_upgrades/**",
+    "projects/common/src/testMod/resources/data/cctest/structures/**",
+    "projects/**/src/generated/**",
+    "projects/web/src/htmlTransform/export/index.json",
+    "projects/web/src/htmlTransform/export/items/minecraft/**",
+]
+
+[[annotations]]
+# Several assets where it's inconvenient to create a .license file.
+SPDX-FileCopyrightText = "The CC: Tweaked Developers"
+SPDX-License-Identifier = "MPL-2.0"
+path = [
+    "doc/images/**",
+    "package.json",
+    "package-lock.json",
+    "projects/common/src/client/resources/computercraft-client.mixins.json",
+    "projects/common/src/main/resources/assets/minecraft/shaders/core/computercraft/monitor_tbo.json",
+    "projects/common/src/main/resources/computercraft.mixins.json",
+    "projects/common/src/testMod/resources/computercraft-gametest.mixins.json",
+    "projects/common/src/testMod/resources/data/computercraft/loot_tables/treasure_disk.json",
+    "projects/common/src/testMod/resources/pack.mcmeta",
+    "projects/core/src/main/resources/data/computercraft/lua/rom/modules/command/.ignoreme",
+    "projects/core/src/main/resources/data/computercraft/lua/rom/modules/main/.ignoreme",
+    "projects/core/src/main/resources/data/computercraft/lua/rom/modules/turtle/.ignoreme",
+    "projects/core/src/main/resources/data/computercraft/lua/rom/motd.txt",
+    "projects/fabric-api/src/main/modJson/fabric.mod.json",
+    "projects/fabric/src/client/resources/computercraft-client.fabric.mixins.json",
+    "projects/fabric/src/main/resources/computercraft.fabric.mixins.json",
+    "projects/fabric/src/main/resources/fabric.mod.json",
+    "projects/fabric/src/testMod/resources/computercraft-gametest.fabric.mixins.json",
+    "projects/fabric/src/testMod/resources/fabric.mod.json",
+    "projects/forge/src/client/resources/computercraft-client.forge.mixins.json",
+    "projects/web/src/frontend/mount/.settings",
+    "projects/web/src/frontend/mount/example.nfp",
+    "projects/web/src/frontend/mount/example.nft",
+    "projects/web/src/frontend/mount/expr_template.lua",
+    "projects/web/tsconfig.json",
+]
+
+[[annotations]]
+# Bulk-license original assets as CCPL.
+SPDX-FileCopyrightText = "2011 Daniel Ratcliffe"
+SPDX-License-Identifier = "LicenseRef-CCPL"
+path = [
+    "doc/logo.png",
+    "doc/logo-darkmode.png",
+    "projects/common/src/main/resources/assets/computercraft/models/**",
+    "projects/common/src/main/resources/assets/computercraft/textures/**",
+    "projects/common/src/main/resources/pack.mcmeta",
+    "projects/common/src/main/resources/pack.png",
+    "projects/core/src/main/resources/assets/computercraft/textures/gui/term_font.png",
+    "projects/core/src/main/resources/data/computercraft/lua/rom/autorun/.ignoreme",
+    "projects/core/src/main/resources/data/computercraft/lua/rom/help/**",
+    "projects/core/src/main/resources/data/computercraft/lua/rom/programs/fun/advanced/levels/**",
+    "projects/web/src/htmlTransform/export/items/computercraft/**",
+]
+
+[[annotations]]
+# Community-contributed license files
+SPDX-FileCopyrightText = "2017 The CC: Tweaked Developers"
+SPDX-License-Identifier = "LicenseRef-CCPL"
+path = [
+    "projects/common/src/main/resources/assets/computercraft/lang/cs_cz.json",
+    "projects/common/src/main/resources/assets/computercraft/lang/ko_kr.json",
+    "projects/common/src/main/resources/assets/computercraft/lang/pl_pl.json",
+    "projects/common/src/main/resources/assets/computercraft/lang/pt_br.json",
+    "projects/common/src/main/resources/assets/computercraft/lang/ru_ru.json",
+    "projects/common/src/main/resources/assets/computercraft/lang/uk_ua.json",
+    "projects/common/src/main/resources/assets/computercraft/lang/zh_cn.json",
+]
+
+[[annotations]]
+# Community-contributed license files
+SPDX-FileCopyrightText = "2017 The CC: Tweaked Developers"
+SPDX-License-Identifier = "MPL-2.0"
+path = "projects/common/src/main/resources/assets/computercraft/lang/**"
+
+[[annotations]]
+# GitHub build scripts are CC0. While we could add a header to each file,
+# it's unclear if it will break actions or issue templates in some way.
+SPDX-FileCopyrightText = "Jonathan Coates <git@squiddev.cc>"
+SPDX-License-Identifier = "CC0-1.0"
+path = ".github/**"
+
+[[annotations]]
+path = ["gradle/wrapper/**", "gradlew", "gradlew.bat"]
+SPDX-FileCopyrightText = "Gradle Inc"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = "projects/core/src/test/resources/test-rom/data/json-parsing/**"
+SPDX-FileCopyrightText = "2016 Nicolas Seriot"
+SPDX-License-Identifier = "MIT"
