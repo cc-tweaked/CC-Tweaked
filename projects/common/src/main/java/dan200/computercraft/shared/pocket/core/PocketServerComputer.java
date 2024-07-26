@@ -111,6 +111,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         return upgrade == null ? Map.of() : Collections.singletonMap(upgrade.getUpgradeID(), getPeripheral(ComputerSide.BACK));
     }
 
+    @Override
     public @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
         return upgrade == null ? null : UpgradeData.of(upgrade, getUpgradeNBTData());
     }
@@ -122,6 +123,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
      *
      * @param upgrade The new upgrade to set it to, may be {@code null}.
      */
+    @Override
     public void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
         synchronized (this) {
             PocketComputerItem.setUpgrade(stack, upgrade);

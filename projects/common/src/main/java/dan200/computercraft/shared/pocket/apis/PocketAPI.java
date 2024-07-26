@@ -6,10 +6,10 @@ package dan200.computercraft.shared.pocket.apis;
 
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.PocketUpgrades;
-import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -34,10 +34,10 @@ import java.util.Objects;
  * @cc.module pocket
  */
 public class PocketAPI implements ILuaAPI {
-    private final PocketServerComputer computer;
+    private final IPocketAccess pocket;
 
-    public PocketAPI(PocketServerComputer computer) {
-        this.computer = computer;
+    public PocketAPI(IPocketAccess pocket) {
+        this.pocket = pocket;
     }
 
     @Override
@@ -56,10 +56,10 @@ public class PocketAPI implements ILuaAPI {
      */
     @LuaFunction(mainThread = true)
     public final Object[] equipBack() {
-        var entity = computer.getEntity();
+        var entity = pocket.getEntity();
         if (!(entity instanceof Player player)) return new Object[]{ false, "Cannot find player" };
         var inventory = player.getInventory();
-        var previousUpgrade = computer.getUpgrade();
+        var previousUpgrade = pocket.getUpgrade();
 
         // Attempt to find the upgrade, starting in the main segment, and then looking in the opposite
         // one. We start from the position the item is currently in and loop round to the start.
@@ -73,7 +73,7 @@ public class PocketAPI implements ILuaAPI {
         if (previousUpgrade != null) storeItem(player, previousUpgrade.getUpgradeItem());
 
         // Set the new upgrade
-        computer.setUpgrade(newUpgrade);
+        pocket.setUpgrade(newUpgrade);
 
         return new Object[]{ true };
     }
@@ -87,13 +87,13 @@ public class PocketAPI implements ILuaAPI {
      */
     @LuaFunction(mainThread = true)
     public final Object[] unequipBack() {
-        var entity = computer.getEntity();
+        var entity = pocket.getEntity();
         if (!(entity instanceof Player player)) return new Object[]{ false, "Cannot find player" };
-        var previousUpgrade = computer.getUpgrade();
+        var previousUpgrade = pocket.getUpgrade();
 
         if (previousUpgrade == null) return new Object[]{ false, "Nothing to unequip" };
 
-        computer.setUpgrade(null);
+        pocket.setUpgrade(null);
 
         storeItem(player, previousUpgrade.getUpgradeItem());
 
