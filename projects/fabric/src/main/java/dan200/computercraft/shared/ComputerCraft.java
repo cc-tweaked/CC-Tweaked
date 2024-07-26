@@ -13,6 +13,7 @@ import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.details.FluidDetails;
+import dan200.computercraft.shared.integration.CreateIntegration;
 import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
@@ -34,6 +35,7 @@ import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -119,6 +121,8 @@ public class ComputerCraft {
         ComputerCraftAPI.registerGenericSource(new InventoryMethods());
 
         Peripherals.addGenericLookup((world, pos, state, blockEntity, side, invalidate) -> InventoryMethods.extractContainer(world, pos, state, blockEntity, side));
+
+        if (FabricLoader.getInstance().isModLoaded(CreateIntegration.ID)) CreateIntegration.setup();
     }
 
     private record ReloadListener(String name, PreparableReloadListener listener)

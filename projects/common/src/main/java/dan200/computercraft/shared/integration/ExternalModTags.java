@@ -8,6 +8,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Tags defined by external mods.
@@ -26,9 +27,9 @@ public final class ExternalModTags {
         /**
          * Create's "brittle" tag, used to determine if this block needs to be moved before its neighbours.
          *
-         * @see <a href="https://github.com/Creators-of-Create/Create/blob/mc1.20.1/dev/src/main/java/com/simibubi/create/content/contraptions/BlockMovementChecks.java">{@code BlockMovementChecks}</a>
+         * @see com.simibubi.create.content.contraptions.BlockMovementChecks#isBrittle(BlockState)
          */
-        public static final TagKey<Block> CREATE_BRITTLE = make("create", "brittle");
+        public static final TagKey<Block> CREATE_BRITTLE = make(CreateIntegration.ID, "brittle");
 
         private static TagKey<Block> make(String mod, String name) {
             return TagKey.create(Registries.BLOCK, new ResourceLocation(mod, name));

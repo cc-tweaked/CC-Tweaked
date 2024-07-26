@@ -121,6 +121,11 @@ dependencies {
     libs.bundles.externalMods.forge.compile.get().map { compileOnly(fg.deobf(it)) }
     libs.bundles.externalMods.forge.runtime.get().map { runtimeOnly(fg.deobf(it)) }
 
+    // fg.debof only accepts a closure to configure the dependency, so doesn't work with Kotlin. We create and configure
+    // the dep first, and then pass it off to ForgeGradle.
+    (create(variantOf(libs.create.forge) { classifier("slim") }.get()) as ExternalModuleDependency)
+        .apply { isTransitive = false }.let { compileOnly(fg.deobf(it)) }
+
     // Depend on our other projects.
     api(commonClasses(project(":forge-api"))) { cct.exclude(this) }
     clientApi(clientClasses(project(":forge-api"))) { cct.exclude(this) }

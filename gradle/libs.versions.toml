@@ -46,6 +46,8 @@ oculus = "1.2.5"
 rei = "12.0.626"
 rubidium = "0.6.1"
 sodium = "mc1.20-0.4.10"
+create-forge = "0.5.1.f-33"
+create-fabric = "0.5.1-f-build.1467+mc1.20.1"
 
 # Testing
 hamcrest = "2.2"
@@ -100,11 +102,13 @@ nightConfig-toml = { module = "com.electronwill.night-config:toml", version.ref 
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 # Minecraft mods
-fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
-fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
-fabric-junit = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fabric-loader" }
-fabricPermissions = { module = "me.lucko:fabric-permissions-api", version.ref = "fabricPermissions" }
+create-fabric = { module = "com.simibubi.create:create-fabric-1.20.1", version.ref = "create-fabric" }
+create-forge = { module = "com.simibubi.create:create-1.20.1", version.ref = "create-forge" }
 emi = { module = "dev.emi:emi-xplat-mojmap", version.ref = "emi" }
+fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
+fabric-junit = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fabric-loader" }
+fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
+fabricPermissions = { module = "me.lucko:fabric-permissions-api", version.ref = "fabricPermissions" }
 iris = { module = "maven.modrinth:iris", version.ref = "iris" }
 jei-api = { module = "mezz.jei:jei-1.20.1-common-api", version.ref = "jei" }
 jei-fabric = { module = "mezz.jei:jei-1.20.1-fabric", version.ref = "jei" }
