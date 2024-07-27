@@ -23,7 +23,6 @@ import dan200.computercraft.shared.command.arguments.TrackingFieldArgumentType;
 import dan200.computercraft.shared.common.ClearColourRecipe;
 import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
-import dan200.computercraft.shared.common.HeldItemMenu;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
 import dan200.computercraft.shared.computer.blocks.CommandComputerBlock;
 import dan200.computercraft.shared.computer.blocks.ComputerBlock;
@@ -41,6 +40,7 @@ import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.details.BlockDetails;
 import dan200.computercraft.shared.details.ItemDetails;
 import dan200.computercraft.shared.integration.PermissionRegistry;
+import dan200.computercraft.shared.media.PrintoutMenu;
 import dan200.computercraft.shared.media.items.DiskItem;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.media.items.RecordMedia;
@@ -49,7 +49,6 @@ import dan200.computercraft.shared.media.recipes.DiskRecipe;
 import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.network.container.ContainerData;
-import dan200.computercraft.shared.network.container.HeldItemContainerData;
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveBlock;
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveBlockEntity;
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveMenu;
@@ -309,11 +308,8 @@ public final class ModRegistry {
         public static final RegistryEntry<MenuType<PrinterMenu>> PRINTER = REGISTRY.register("printer",
             () -> new MenuType<>(PrinterMenu::new, FeatureFlags.VANILLA_SET));
 
-        public static final RegistryEntry<MenuType<HeldItemMenu>> PRINTOUT = REGISTRY.register("printout",
-            () -> ContainerData.toType(
-                HeldItemContainerData::new,
-                (id, inventory, data) -> new HeldItemMenu(Menus.PRINTOUT.get(), id, inventory.player, data.getHand())
-            ));
+        public static final RegistryEntry<MenuType<PrintoutMenu>> PRINTOUT = REGISTRY.register("printout",
+            () -> new MenuType<>((i, c) -> PrintoutMenu.createRemote(i), FeatureFlags.VANILLA_SET));
     }
 
     static class ArgumentTypes {
