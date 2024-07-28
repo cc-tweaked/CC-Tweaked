@@ -16,8 +16,10 @@ import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -34,6 +36,7 @@ public final class PocketBrain implements IPocketAccess {
     private final PocketServerComputer computer;
 
     private PocketHolder holder;
+    private Vec3 position;
 
     private boolean dirty = false;
     private @Nullable UpgradeData<IPocketUpgrade> upgrade;
@@ -43,6 +46,7 @@ public final class PocketBrain implements IPocketAccess {
     public PocketBrain(PocketHolder holder, int computerID, @Nullable String label, ComputerFamily family, @Nullable UpgradeData<IPocketUpgrade> upgrade) {
         this.computer = new PocketServerComputer(this, holder, computerID, label, family);
         this.holder = holder;
+        this.position = holder.pos();
         this.upgrade = UpgradeData.copyOf(upgrade);
         invalidatePeripheral();
     }
@@ -66,6 +70,7 @@ public final class PocketBrain implements IPocketAccess {
      * @param newHolder The new holder
      */
     public void updateHolder(PocketHolder newHolder) {
+        position = newHolder.pos();
         computer.setPosition(newHolder.level(), newHolder.blockPos());
 
         var oldHolder = this.holder;
@@ -92,6 +97,18 @@ public final class PocketBrain implements IPocketAccess {
         IColouredItem.setColourBasic(stack, colour);
         PocketComputerItem.setUpgrade(stack, UpgradeData.copyOf(upgrade));
         return true;
+    }
+
+    @Override
+    public ServerLevel getLevel() {
+        return computer.getLevel();
+    }
+
+    @Override
+    public Vec3 getPosition() {
+        // This method can be called from off-thread, and so we must use the cached position rather than rereading
+        // from the holder.
+        return position;
     }
 
     @Override

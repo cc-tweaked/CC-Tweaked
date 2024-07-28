@@ -31,8 +31,6 @@ public class PocketModem extends AbstractPocketUpgrade {
     public void update(IPocketAccess access, @Nullable IPeripheral peripheral) {
         if (!(peripheral instanceof PocketModemPeripheral modem)) return;
 
-        modem.setLocation(access);
-
         var state = modem.getModemState();
         if (state.pollChanged()) access.setLight(state.isOpen() ? 0xBA0000 : -1);
     }

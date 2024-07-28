@@ -14,31 +14,21 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 
 public class PocketModemPeripheral extends WirelessModemPeripheral {
-    private @Nullable Level level = null;
-    private Vec3 position = Vec3.ZERO;
+    private final IPocketAccess access;
 
     public PocketModemPeripheral(boolean advanced, IPocketAccess access) {
         super(new ModemState(), advanced);
-        setLocation(access);
-    }
-
-    void setLocation(IPocketAccess access) {
-        var entity = access.getEntity();
-        if (entity != null) {
-            level = entity.level();
-            position = entity.getEyePosition(1);
-        }
+        this.access = access;
     }
 
     @Override
     public Level getLevel() {
-        if (level == null) throw new IllegalStateException("Using modem before position has been defined");
-        return level;
+        return access.getLevel();
     }
 
     @Override
     public Vec3 getPosition() {
-        return position;
+        return access.getPosition();
     }
 
     @Override

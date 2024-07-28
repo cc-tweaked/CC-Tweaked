@@ -9,8 +9,10 @@ import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
@@ -21,6 +23,20 @@ import java.util.Map;
  */
 @ApiStatus.NonExtendable
 public interface IPocketAccess {
+    /**
+     * Get the level in which the pocket computer exists.
+     *
+     * @return The pocket computer's level.
+     */
+    ServerLevel getLevel();
+
+    /**
+     * Get the position of the pocket computer.
+     *
+     * @return The pocket computer's position.
+     */
+    Vec3 getPosition();
+
     /**
      * Gets the entity holding this item.
      * <p>

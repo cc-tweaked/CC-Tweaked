@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * An object that holds a pocket computer item.
@@ -22,6 +23,13 @@ public sealed interface PocketHolder permits PocketHolder.EntityHolder {
      * @return The holder's level.
      */
     ServerLevel level();
+
+    /**
+     * The position of this holder.
+     *
+     * @return The position of this holder.
+     */
+    Vec3 pos();
 
     /**
      * The block position of this holder.
@@ -57,6 +65,11 @@ public sealed interface PocketHolder permits PocketHolder.EntityHolder {
         @Override
         default ServerLevel level() {
             return (ServerLevel) entity().level();
+        }
+
+        @Override
+        default Vec3 pos() {
+            return entity().getEyePosition();
         }
 
         @Override
