@@ -8,6 +8,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -16,6 +19,20 @@ import javax.annotation.Nullable;
 
 public final class InventoryUtil {
     private InventoryUtil() {
+    }
+
+    /**
+     * Get the inventory slot for a given hand.
+     *
+     * @param player The player to get the slot from.
+     * @param hand   The hand to get.
+     * @return The current slot.
+     */
+    public static int getHandSlot(Player player, InteractionHand hand) {
+        return switch (hand) {
+            case MAIN_HAND -> player.getInventory().selected;
+            case OFF_HAND -> Inventory.SLOT_OFFHAND;
+        };
     }
 
     public static @Nullable Container getEntityContainer(ServerLevel level, BlockPos pos, Direction side) {

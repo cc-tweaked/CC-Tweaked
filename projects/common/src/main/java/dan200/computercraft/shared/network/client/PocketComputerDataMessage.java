@@ -27,7 +27,7 @@ public class PocketComputerDataMessage implements NetworkMessage<ClientNetworkCo
     public PocketComputerDataMessage(PocketServerComputer computer, boolean sendTerminal) {
         clientId = computer.getInstanceUUID();
         state = computer.getState();
-        lightState = computer.getLight();
+        lightState = computer.getBrain().getLight();
         terminal = sendTerminal ? computer.getTerminalState() : null;
     }
 
