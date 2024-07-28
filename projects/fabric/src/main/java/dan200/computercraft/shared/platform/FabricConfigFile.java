@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -203,7 +204,7 @@ public class FabricConfigFile implements ConfigFile {
         }
 
         @Override
-        public <T> Value<List<? extends T>> defineList(String path, List<? extends T> defaultValue, Predicate<Object> elementValidator) {
+        public <T> Value<List<? extends T>> defineList(String path, List<? extends T> defaultValue, Supplier<T> newValue, Predicate<Object> elementValidator) {
             var fullPath = getFullPath(path);
             spec.defineList(fullPath, defaultValue, elementValidator);
             return defineValue(fullPath, takeComment(), defaultValue, Config::getOrElse);

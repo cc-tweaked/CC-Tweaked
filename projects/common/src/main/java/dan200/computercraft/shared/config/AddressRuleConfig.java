@@ -69,6 +69,13 @@ class AddressRuleConfig {
         );
     }
 
+    public static UnmodifiableConfig newRule() {
+        return makeRule(config -> {
+            config.add("host", "example.com");
+            config.add("action", Action.DENY.name().toLowerCase(Locale.ROOT));
+        });
+    }
+
     private static UnmodifiableConfig makeRule(Consumer<CommentedConfig> setup) {
         var config = InMemoryCommentedFormat.defaultInstance().createConfig(LinkedHashMap::new);
         setup.accept(config);

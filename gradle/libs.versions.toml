@@ -7,13 +7,13 @@
 # Minecraft
 # MC version is specified in gradle.properties, as we need that in settings.gradle.
 # Remember to update corresponding versions in fabric.mod.json/neoforge.mods.toml
-fabric-api = "0.100.3+1.21"
+fabric-api = "0.100.7+1.21"
 fabric-loader = "0.15.11"
-neoForge = "21.0.42-beta"
+neoForge = "21.0.143"
 neoForgeSpi = "8.0.1"
 mixin = "0.8.5"
-parchment = "2024.06.16"
-parchmentMc = "1.20.6"
+parchment = "2024.07.28"
+parchmentMc = "1.21"
 yarn = "1.21+build.1"
 
 # Core dependencies (these versions are tied to the version Minecraft uses)

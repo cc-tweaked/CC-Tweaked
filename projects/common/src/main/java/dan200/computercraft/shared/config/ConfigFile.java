@@ -126,7 +126,7 @@ public interface ConfigFile {
 
         public abstract ConfigFile.Value<Integer> defineInRange(String path, int defaultValue, int min, int max);
 
-        public abstract <T> ConfigFile.Value<List<? extends T>> defineList(String path, List<? extends T> defaultValue, Predicate<Object> elementValidator);
+        public abstract <T> ConfigFile.Value<List<? extends T>> defineList(String path, List<? extends T> defaultValue, Supplier<T> newValue, Predicate<Object> elementValidator);
 
         public abstract <V extends Enum<V>> ConfigFile.Value<V> defineEnum(String path, V defaultValue);
 

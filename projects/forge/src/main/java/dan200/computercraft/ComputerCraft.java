@@ -4,7 +4,6 @@
 
 package dan200.computercraft;
 
-import com.electronwill.nightconfig.core.file.FileConfig;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.ForgeComputerCraftAPI;
 import dan200.computercraft.api.detail.ForgeDetailRegistries;
@@ -171,8 +170,7 @@ public final class ComputerCraft {
     private static void syncConfig(ModConfig config) {
         if (!config.getModId().equals(ComputerCraftAPI.MOD_ID)) return;
 
-        var path = config.getConfigData() instanceof FileConfig fileConfig ? fileConfig.getNioPath() : null;
-
+        var path = config.getFullPath();
         if (config.getType() == ModConfig.Type.SERVER && ((ForgeConfigFile) ConfigSpec.serverSpec).spec().isLoaded()) {
             ConfigSpec.syncServer(path);
         } else if (config.getType() == ModConfig.Type.CLIENT) {

@@ -148,7 +148,7 @@ public class PlatformHelperImpl implements PlatformHelper {
             Ingredient.of(ConventionalItemTags.STORAGE_BLOCKS_GOLD),
             Ingredient.of(ConventionalItemTags.IRON_INGOTS),
             Ingredient.of(ConventionalItemTags.DYES),
-            Ingredient.of(Items.ENDER_PEARL),
+            Ingredient.of(ConventionalItemTags.ENDER_PEARLS),
             Ingredient.of(ConventionalItemTags.WOODEN_CHESTS)
         );
     }

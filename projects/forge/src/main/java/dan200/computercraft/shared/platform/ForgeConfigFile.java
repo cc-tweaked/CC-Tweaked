@@ -11,7 +11,9 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -105,9 +107,9 @@ public final class ForgeConfigFile implements ConfigFile {
         }
 
         @Override
-        public <T> ConfigFile.Value<List<? extends T>> defineList(String path, List<? extends T> defaultValue, Predicate<Object> elementValidator) {
+        public <T> ConfigFile.Value<List<? extends T>> defineList(String path, List<? extends T> defaultValue, Supplier<T> newValue, Predicate<Object> elementValidator) {
             translation(path);
-            return defineValue(builder.defineList(path, defaultValue, elementValidator));
+            return defineValue(builder.defineList(path, defaultValue, newValue, elementValidator));
         }
 
         @Override
@@ -168,12 +170,12 @@ public final class ForgeConfigFile implements ConfigFile {
 
         @Override
         public String translationKey() {
-            return spec().getTranslationKey();
+            return Objects.requireNonNull(spec().getTranslationKey(), "No comment for value");
         }
 
         @Override
         public String comment() {
-            return spec().getComment();
+            return Objects.requireNonNull(spec().getComment(), "No comment for value");
         }
     }
 }

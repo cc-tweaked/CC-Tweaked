@@ -15,17 +15,17 @@ import java.util.function.Function;
  * A custom version of {@link ShapedRecipe}, which can be converted to and from a {@link ShapedRecipeSpec}.
  */
 public abstract class CustomShapedRecipe extends ShapedRecipe {
-    private final ShapedRecipePattern pattern;
+    private final ShapedRecipePattern shapedPattern;
     private final ItemStack result;
 
     public CustomShapedRecipe(ShapedRecipeSpec recipe) {
         super(recipe.properties().group(), recipe.properties().category(), recipe.pattern(), recipe.result(), recipe.properties().showNotification());
-        this.pattern = recipe.pattern();
+        this.shapedPattern = recipe.pattern();
         this.result = recipe.result();
     }
 
     public final ShapedRecipeSpec toSpec() {
-        return new ShapedRecipeSpec(RecipeProperties.of(this), pattern, result);
+        return new ShapedRecipeSpec(RecipeProperties.of(this), shapedPattern, result);
     }
 
     @Override

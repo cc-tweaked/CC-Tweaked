@@ -31,7 +31,7 @@ abstract class ItemStackComponentizationFixMixin extends DataFix {
     }
 
     @Inject(method = "fixItemStack", at = @At("TAIL"))
-    @SuppressWarnings("UnusedMethod")
+    @SuppressWarnings("unused")
     private static void fixItemStack(ItemStackComponentizationFix.ItemStackData data, Dynamic<?> ops, CallbackInfo ci) {
         ComponentizationFixers.fixItemComponents(data, ops);
     }

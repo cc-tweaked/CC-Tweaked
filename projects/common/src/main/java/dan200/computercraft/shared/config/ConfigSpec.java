@@ -145,7 +145,7 @@ public final class ConfigSpec {
                     or a single method (computercraft:inventory#pushItems).
                     """)
                 .worldRestart()
-                .defineList("disabled_generic_methods", List.of(), x -> x instanceof String);
+                .defineList("disabled_generic_methods", List.of(), () -> "", x -> x instanceof String);
         }
 
         {
@@ -214,7 +214,7 @@ public final class ConfigSpec {
                      - "max_websocket_message" (optional): The maximum size (in bytes) that a computer can send or
                        receive in one websocket packet.
                      - "use_proxy" (optional): Enable use of the HTTP/SOCKS proxy if it is configured.""")
-                .defineList("rules", AddressRuleConfig.defaultRules(), x -> x instanceof UnmodifiableConfig);
+                .defineList("rules", AddressRuleConfig.defaultRules(), AddressRuleConfig::newRule, x -> x instanceof UnmodifiableConfig);
 
             httpMaxRequests = builder
                 .comment("""

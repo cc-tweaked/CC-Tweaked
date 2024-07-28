@@ -36,7 +36,7 @@ import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
+import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
@@ -122,7 +122,7 @@ public class ComputerCraft {
         PlayerBlockBreakEvents.BEFORE.register(FabricCommonHooks::onBlockDestroy);
         UseBlockCallback.EVENT.register(FabricCommonHooks::useOnBlock);
 
-        LootTableEvents.MODIFY.register((id, tableBuilder, source) -> {
+        LootTableEvents.MODIFY.register((id, tableBuilder, source, registries) -> {
             var pool = CommonHooks.getExtraLootPool(id);
             if (pool != null) tableBuilder.withPool(pool);
         });
