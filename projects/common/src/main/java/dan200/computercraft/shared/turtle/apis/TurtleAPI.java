@@ -11,7 +11,6 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.metrics.MetricsObserver;
-import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.peripheral.generic.methods.AbstractInventoryMethods;
 import dan200.computercraft.shared.turtle.core.*;
 
@@ -68,8 +67,8 @@ public class TurtleAPI implements ILuaAPI {
     private final MetricsObserver metrics;
     private final TurtleAccessInternal turtle;
 
-    public TurtleAPI(ServerComputer computer, TurtleAccessInternal turtle) {
-        this.metrics = computer.getMetrics();
+    public TurtleAPI(MetricsObserver metrics, TurtleAccessInternal turtle) {
+        this.metrics = metrics;
         this.turtle = turtle;
     }
 

@@ -5,6 +5,7 @@
 package dan200.computercraft.shared.turtle.blocks;
 
 import com.mojang.authlib.GameProfile;
+import dan200.computercraft.api.component.ComputerComponents;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
@@ -17,9 +18,9 @@ import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.container.BasicContainer;
-import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.inventory.TurtleMenu;
+import dan200.computercraft.shared.util.ComponentMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -75,10 +76,9 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     protected ServerComputer createComputer(int id) {
         var computer = new ServerComputer(
             (ServerLevel) getLevel(), getBlockPos(), id, label,
-            getFamily(), Config.turtleTermWidth,
-            Config.turtleTermHeight
+            getFamily(), Config.turtleTermWidth, Config.turtleTermHeight,
+            ComponentMap.builder().add(ComputerComponents.TURTLE, brain).build()
         );
-        computer.addAPI(new TurtleAPI(computer, brain));
         brain.setupComputer(computer);
         return computer;
     }

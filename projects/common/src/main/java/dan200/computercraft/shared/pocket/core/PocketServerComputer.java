@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.pocket.core;
 
+import dan200.computercraft.api.component.ComputerComponents;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -12,6 +13,7 @@ import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
 import dan200.computercraft.shared.network.client.PocketComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
+import dan200.computercraft.shared.util.ComponentMap;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 
@@ -40,7 +42,10 @@ public final class PocketServerComputer extends ServerComputer {
     private Set<ServerPlayer> tracking = Set.of();
 
     PocketServerComputer(PocketBrain brain, PocketHolder holder, int computerID, @Nullable String label, ComputerFamily family) {
-        super(holder.level(), holder.blockPos(), computerID, label, family, Config.pocketTermWidth, Config.pocketTermHeight);
+        super(
+            holder.level(), holder.blockPos(), computerID, label, family, Config.pocketTermWidth, Config.pocketTermHeight,
+            ComponentMap.builder().add(ComputerComponents.POCKET, brain).build()
+        );
         this.brain = brain;
     }
 

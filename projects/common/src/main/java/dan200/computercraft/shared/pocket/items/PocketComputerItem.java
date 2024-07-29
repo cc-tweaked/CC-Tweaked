@@ -20,7 +20,6 @@ import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
-import dan200.computercraft.shared.pocket.apis.PocketAPI;
 import dan200.computercraft.shared.pocket.core.PocketBrain;
 import dan200.computercraft.shared.pocket.core.PocketHolder;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
@@ -238,8 +237,6 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         var tag = stack.getOrCreateTag();
         tag.putInt(NBT_SESSION, registry.getSessionID());
         tag.putUUID(NBT_INSTANCE, computer.register());
-
-        computer.addAPI(new PocketAPI(brain));
 
         // Only turn on when initially creating the computer, rather than each tick.
         if (isMarkedOn(stack) && holder instanceof PocketHolder.PlayerHolder) computer.turnOn();
