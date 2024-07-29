@@ -162,13 +162,6 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
         addApi(new PeripheralAPI(environment, context.peripheralMethods()));
         addApi(new OSAPI(environment));
         if (CoreConfig.httpEnabled) addApi(new HTTPAPI(environment));
-
-        // Load in the externally registered APIs.
-        for (var factory : context.apiFactories()) {
-            var system = new ComputerSystem(environment);
-            var api = factory.create(system);
-            if (api != null) apis.add(new ApiWrapper(api, system));
-        }
     }
 
     @Override
@@ -188,6 +181,10 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
 
     void addApi(ILuaAPI api) {
         apis.add(new ApiWrapper(api, null));
+    }
+
+    void addApi(ILuaAPI api, ApiLifecycle lifecycleHooks) {
+        apis.add(new ApiWrapper(api, lifecycleHooks));
     }
 
     /**

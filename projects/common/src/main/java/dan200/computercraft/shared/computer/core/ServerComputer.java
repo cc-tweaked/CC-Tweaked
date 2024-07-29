@@ -13,6 +13,7 @@ import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.metrics.MetricsObserver;
+import dan200.computercraft.impl.ApiFactories;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
@@ -62,6 +63,13 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
 
         computer = new Computer(context.computerContext(), this, terminal, computerID);
         computer.setLabel(label);
+
+        // Load in the externally registered APIs.
+        for (var factory : ApiFactories.getAll()) {
+            var system = new ComputerSystem(computer.getAPIEnvironment());
+            var api = factory.create(system);
+            if (api != null) computer.addApi(api, system);
+        }
 
         if (family == ComputerFamily.COMMAND) addAPI(new CommandAPI(this));
     }

@@ -9,18 +9,14 @@ import dan200.computercraft.api.lua.ILuaAPI;
 import javax.annotation.Nullable;
 
 /**
- * A wrapper for {@link ILuaAPI}s which optionally manages the lifecycle of a {@link ComputerSystem}.
+ * A wrapper for {@link ILuaAPI}s which provides an optional shutdown hook to clean up resources.
+ *
+ * @param api       The original API.
+ * @param lifecycle The optional lifecycle hooks for this API.
  */
-final class ApiWrapper {
-    private final ILuaAPI api;
-    private final @Nullable ComputerSystem system;
-
-    ApiWrapper(ILuaAPI api, @Nullable ComputerSystem system) {
-        this.api = api;
-        this.system = system;
-    }
-
+record ApiWrapper(ILuaAPI api, @Nullable ApiLifecycle lifecycle) {
     public void startup() {
+        if (lifecycle != null) lifecycle.startup();
         api.startup();
     }
 
@@ -30,7 +26,7 @@ final class ApiWrapper {
 
     public void shutdown() {
         api.shutdown();
-        if (system != null) system.unmountAll();
+        if (lifecycle != null) lifecycle.shutdown();
     }
 
     public ILuaAPI api() {

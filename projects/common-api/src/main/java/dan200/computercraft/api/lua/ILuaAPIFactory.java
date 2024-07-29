@@ -4,13 +4,15 @@
 
 package dan200.computercraft.api.lua;
 
+import dan200.computercraft.api.ComputerCraftAPI;
+
 import javax.annotation.Nullable;
 
 /**
- * Construct an {@link ILuaAPI} for a specific computer.
+ * Construct an {@link ILuaAPI} for a computer.
  *
  * @see ILuaAPI
- * @see dan200.computercraft.api.ComputerCraftAPI#registerAPIFactory(ILuaAPIFactory)
+ * @see ComputerCraftAPI#registerAPIFactory(ILuaAPIFactory)
  */
 @FunctionalInterface
 public interface ILuaAPIFactory {

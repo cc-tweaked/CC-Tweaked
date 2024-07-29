@@ -184,6 +184,10 @@ public class Computer {
         executor.addApi(api);
     }
 
+    public void addApi(ILuaAPI api, ApiLifecycle lifecycleHooks) {
+        executor.addApi(api, lifecycleHooks);
+    }
+
     long getUniqueTaskId() {
         return lastTaskId.incrementAndGet();
     }

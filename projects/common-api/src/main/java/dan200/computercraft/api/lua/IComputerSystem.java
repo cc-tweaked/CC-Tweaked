@@ -5,6 +5,7 @@
 package dan200.computercraft.api.lua;
 
 import dan200.computercraft.api.peripheral.IComputerAccess;
+import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
 
@@ -12,6 +13,7 @@ import javax.annotation.Nullable;
  * An interface passed to {@link ILuaAPIFactory} in order to provide additional information
  * about a computer.
  */
+@ApiStatus.NonExtendable
 public interface IComputerSystem extends IComputerAccess {
     /**
      * Get the label for this computer.
