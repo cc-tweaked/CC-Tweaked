@@ -12,7 +12,6 @@ If you've any other questions, [just ask the community][community] or [open an i
 
 ## Table of Contents
  - [Reporting issues](#reporting-issues)
- - [Translations](#translations)
  - [Setting up a development environment](#setting-up-a-development-environment)
  - [Developing CC: Tweaked](#developing-cc-tweaked)
  - [Writing documentation](#writing-documentation)
@@ -21,17 +20,13 @@ If you've any other questions, [just ask the community][community] or [open an i
 If you have a bug, suggestion, or other feedback, the best thing to do is [file an issue][new-issue]. When doing so, do
 use the issue templates - they provide a useful hint on what information to provide.
 
-## Translations
-Translations are managed through [Weblate], an online interface for managing language strings. This is synced
-automatically with GitHub, so please don't submit PRs adding/changing translations!
-
 ## Setting up a development environment
 In order to develop CC: Tweaked, you'll need to download the source code and then run it.
 
  - Make sure you've got the following software installed:
-   - Java Development Kit (JDK). This can be downloaded from [Adoptium].
+   - Java Development Kit 17 (JDK). This can be downloaded from [Adoptium].
    - [Git](https://git-scm.com/).
-   - [NodeJS][node].
+   - [NodeJS 20 or later][node].
 
  - Download CC: Tweaked's source code:
    ```
@@ -101,7 +96,6 @@ about how you can build on that until you've covered everything!
 [community]: README.md#community "Get in touch with the community."
 [Adoptium]: https://adoptium.net/temurin/releases?version=17 "Download OpenJDK 17"
 [illuaminate]: https://github.com/SquidDev/illuaminate/ "Illuaminate on GitHub"
-[weblate]: https://i18n.tweaked.cc/projects/cc-tweaked/minecraft/ "CC: Tweaked weblate instance"
 [docs]: https://tweaked.cc/ "CC: Tweaked documentation"
 [ldoc]: http://stevedonovan.github.io/ldoc/ "ldoc, a Lua documentation generator."
 [mc-test]: https://www.youtube.com/watch?v=vXaWOJTCYNg

@@ -1,13 +1,13 @@
-New features in CC: Tweaked 1.111.0
+New features in CC: Tweaked 1.112.0
 
-* Update several translations (Ale32bit).
-* Split up turtle textures into individual textures.
-* Add `r+`/`w+` support to the `io` library.
-* Warn when capabilities are not registered and Optifine is installed.
+* Report a custom error when using `!` instead of `not`.
+* Update several translations (zyxkad, MineKID-LP).
+* Add `cc.strings.split` function.
 
 Several bug fixes:
-* Allow planks to be used for building in "adventure" (dan200).
-* Fix `disk.getAudioTitle()` returning untranslated strings for some modded discs.
-* Fix crash when right clicking turtles in spectator.
+* Fix `drive.getAudioTitle` returning `nil` when no disk is inserted.
+* Preserve item data when upgrading pocket computers.
+* Add missing bounds check to `cc.strings.wrap` (Lupus950).
+* Fix modems not moving with Create contraptions.
 
 Type "help changelog" to see the full version history.
