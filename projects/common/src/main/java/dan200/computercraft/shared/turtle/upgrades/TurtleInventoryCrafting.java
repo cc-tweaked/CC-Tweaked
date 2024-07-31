@@ -80,7 +80,7 @@ public final class TurtleInventoryCrafting {
         var recipe = candidate.recipe();
         var input = candidate.input();
         var xStart = candidate.xStart();
-        var yStart = candidate.xStart();
+        var yStart = candidate.yStart();
 
         var player = TurtlePlayer.get(turtle).player();
 
