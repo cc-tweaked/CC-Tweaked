@@ -23,6 +23,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.CommonColors;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
@@ -89,7 +90,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
             renderModel(transform, buffers, lightmapCoord, overlayLight, model, null);
         } else {
             // Otherwise render it using the colour item.
-            renderModel(transform, buffers, lightmapCoord, overlayLight, COLOUR_TURTLE_MODEL, new int[]{ colour });
+            renderModel(transform, buffers, lightmapCoord, overlayLight, COLOUR_TURTLE_MODEL, new int[]{ FastColor.ARGB32.opaque(colour) });
         }
 
         // Render the overlay
