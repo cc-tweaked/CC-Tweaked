@@ -43,7 +43,7 @@ public record PocketComputerDataMessage(
         this(
             computer.getInstanceUUID(),
             computer.getState(),
-            computer.getLight(),
+            computer.getBrain().getLight(),
             sendTerminal ? Optional.of(computer.getTerminalState()) : Optional.empty()
         );
     }

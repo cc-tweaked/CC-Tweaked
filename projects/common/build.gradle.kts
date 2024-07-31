@@ -45,6 +45,7 @@ dependencies {
     compileOnly(libs.mixin)
     compileOnly(libs.mixinExtra)
     compileOnly(libs.bundles.externalMods.common)
+    compileOnly(variantOf(libs.create.forge) { classifier("slim") }) { isTransitive = false }
     clientCompileOnly(variantOf(libs.emi) { classifier("api") })
 
     annotationProcessorEverywhere(libs.autoService)

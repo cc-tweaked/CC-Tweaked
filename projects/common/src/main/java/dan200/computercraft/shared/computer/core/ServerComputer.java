@@ -5,15 +5,16 @@
 package dan200.computercraft.shared.computer.core;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.component.AdminComputer;
+import dan200.computercraft.api.component.ComputerComponents;
 import dan200.computercraft.api.filesystem.WritableMount;
-import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.metrics.MetricsObserver;
-import dan200.computercraft.shared.computer.apis.CommandAPI;
+import dan200.computercraft.impl.ApiFactories;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
@@ -22,6 +23,7 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
+import dan200.computercraft.shared.util.ComponentMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
@@ -48,7 +50,8 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
     private int ticksSincePing;
 
     public ServerComputer(
-        ServerLevel level, BlockPos position, int computerID, @Nullable String label, ComputerFamily family, int terminalWidth, int terminalHeight
+        ServerLevel level, BlockPos position, int computerID, @Nullable String label, ComputerFamily family, int terminalWidth, int terminalHeight,
+        ComponentMap baseComponents
     ) {
         this.level = level;
         this.position = position;
@@ -58,10 +61,27 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
         terminal = new NetworkedTerminal(terminalWidth, terminalHeight, family != ComputerFamily.NORMAL, this::markTerminalChanged);
         metrics = context.metrics().createMetricObserver(this);
 
+        var componentBuilder = ComponentMap.builder();
+        componentBuilder.add(ComponentMap.METRICS, metrics);
+        if (family == ComputerFamily.COMMAND) {
+            componentBuilder.add(ComputerComponents.ADMIN_COMPUTER, new AdminComputer() {
+            });
+        }
+        componentBuilder.add(baseComponents);
+        var components = componentBuilder.build();
+
         computer = new Computer(context.computerContext(), this, terminal, computerID);
         computer.setLabel(label);
 
-        if (family == ComputerFamily.COMMAND) addAPI(new CommandAPI(this));
+        // Load in the externally registered APIs.
+        for (var factory : ApiFactories.getAll()) {
+            var system = new ComputerSystem(this, computer.getAPIEnvironment(), components);
+            var api = factory.create(system);
+            if (api == null) continue;
+
+            system.activate();
+            computer.addApi(api, system);
+        }
     }
 
     public ComputerFamily getFamily() {
@@ -209,10 +229,6 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
 
     public void setBundledRedstoneInput(ComputerSide side, int combination) {
         computer.getEnvironment().setBundledRedstoneInput(side, combination);
-    }
-
-    public void addAPI(ILuaAPI api) {
-        computer.addApi(api);
     }
 
     public void setPeripheral(ComputerSide side, @Nullable IPeripheral peripheral) {

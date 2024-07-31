@@ -120,6 +120,7 @@ dependencies {
     clientCompileOnly(variantOf(libs.emi) { classifier("api") })
     compileOnly(libs.bundles.externalMods.forge.compile)
     runtimeOnly(libs.bundles.externalMods.forge.runtime) { cct.exclude(this) }
+    compileOnly(variantOf(libs.create.forge) { classifier("slim") }) { isTransitive = false }
 
     implementation("net.neoforged:neoforge:${libs.versions.neoForge.get()}")
 

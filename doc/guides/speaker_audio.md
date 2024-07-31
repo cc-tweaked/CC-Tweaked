@@ -191,7 +191,7 @@ end
 
 > [Confused?][!NOTE]
 > Don't worry if you don't understand this example. It's quite advanced, and does use some ideas that this guide doesn't
-> cover. That said, don't be afraid to ask on [GitHub Discussions] or [IRC] either!
+> cover. That said, don't be afraid to ask [the community for help][community].
 
 It's worth noting that the examples of audio processing we've mentioned here are about manipulating the _amplitude_ of
 the wave. If you wanted to modify the _frequency_ (for instance, shifting the pitch), things get rather more complex.
@@ -205,5 +205,4 @@ This is, I'm afraid, left as an exercise to the reader.
 [PCM]: https://en.wikipedia.org/wiki/Pulse-code_modulation "Pulse-code Modulation - Wikipedia"
 [Ring Buffer]: https://en.wikipedia.org/wiki/Circular_buffer "Circular buffer - Wikipedia"
 [Sine Wave]: https://en.wikipedia.org/wiki/Sine_wave "Sine wave - Wikipedia"
-[GitHub Discussions]: https://github.com/cc-tweaked/CC-Tweaked/discussions
-[IRC]: https://webchat.esper.net/?channels=computercraft "#computercraft on EsperNet"
+[Community]: /#community

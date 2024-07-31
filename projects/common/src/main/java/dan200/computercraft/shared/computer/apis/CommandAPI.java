@@ -6,11 +6,11 @@ package dan200.computercraft.shared.computer.apis;
 
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import dan200.computercraft.api.component.AdminComputer;
 import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.Logging;
-import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
@@ -35,11 +35,13 @@ import java.util.*;
 public class CommandAPI implements ILuaAPI {
     private static final Logger LOG = LoggerFactory.getLogger(CommandAPI.class);
 
-    private final ServerComputer computer;
+    private final IComputerSystem computer;
+    private final AdminComputer admin;
     private final OutputReceiver receiver = new OutputReceiver();
 
-    public CommandAPI(ServerComputer computer) {
+    public CommandAPI(IComputerSystem computer, AdminComputer admin) {
         this.computer = computer;
+        this.admin = admin;
     }
 
     @Override
@@ -295,7 +297,7 @@ public class CommandAPI implements ILuaAPI {
 
         return new CommandSourceStack(receiver,
             Vec3.atCenterOf(computer.getPosition()), Vec2.ZERO,
-            computer.getLevel(), 2,
+            computer.getLevel(), admin.permissionLevel(),
             name, Component.literal(name),
             computer.getLevel().getServer(), null
         );

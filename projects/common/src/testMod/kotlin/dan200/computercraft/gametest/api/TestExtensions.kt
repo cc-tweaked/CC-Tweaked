@@ -179,7 +179,6 @@ fun <T : Comparable<T>> GameTestHelper.assertBlockHas(pos: BlockPos, property: P
 fun GameTestHelper.getContainerAt(pos: BlockPos): Container =
     when (val container: BlockEntity = getBlockEntity(pos)) {
         is Container -> container
-        null -> failVerbose("Expected a container at $pos, found nothing", pos)
         else -> failVerbose("Expected a container at $pos, found ${getName(container.type)}", pos)
     }
 

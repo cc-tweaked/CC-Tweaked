@@ -69,6 +69,7 @@ dependencies {
         exclude("net.fabricmc", "fabric-loader")
         exclude("net.fabricmc.fabric-api")
     }
+    modCompileOnly(libs.create.fabric) { isTransitive = false }
 
     modClientRuntimeOnly(libs.bundles.externalMods.fabric.runtime) {
         exclude("net.fabricmc", "fabric-loader")

@@ -5,7 +5,7 @@
 package dan200.computercraft.shared.data;
 
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.computer.blocks.IComputerBlockEntity;
+import dan200.computercraft.shared.computer.blocks.AbstractComputerBlockEntity;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -27,7 +27,7 @@ public final class HasComputerIdLootCondition implements LootItemCondition {
     @Override
     public boolean test(LootContext lootContext) {
         var tile = lootContext.getParamOrNull(LootContextParams.BLOCK_ENTITY);
-        return tile instanceof IComputerBlockEntity computer && computer.getComputerID() >= 0;
+        return tile instanceof AbstractComputerBlockEntity computer && computer.getComputerID() >= 0;
     }
 
     @Override

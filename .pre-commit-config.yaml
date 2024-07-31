@@ -27,7 +27,7 @@ repos:
     exclude: "^(.*\\.(bat)|LICENSE)$"
 
 - repo: https://github.com/fsfe/reuse-tool
-  rev: v2.1.0
+  rev: v4.0.3
   hooks:
   - id: reuse
 

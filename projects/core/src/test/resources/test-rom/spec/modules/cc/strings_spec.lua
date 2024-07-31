@@ -2,7 +2,7 @@
 --
 -- SPDX-License-Identifier: MPL-2.0
 
-describe("cc.pretty", function()
+describe("cc.strings", function()
     local str = require("cc.strings")
 
     describe("wrap", function()
@@ -11,6 +11,8 @@ describe("cc.pretty", function()
             str.wrap("test string is long", 11)
             expect.error(str.wrap, nil):eq("bad argument #1 (string expected, got nil)")
             expect.error(str.wrap, "", false):eq("bad argument #2 (number expected, got boolean)")
+
+            expect.error(str.wrap, "", 0):eq("number outside of range (expected 0 to be within 1 and inf)")
         end)
 
         it("wraps lines", function()
@@ -40,6 +42,35 @@ describe("cc.pretty", function()
         end)
         it("truncates lines", function()
             expect(str.ensure_width("test string is long", 15)):eq("test string is ")
+        end)
+    end)
+
+    describe("split", function()
+        it("splits with empty segments", function()
+            expect(str.split("", "%-")):same { "" }
+            expect(str.split("-", "%-")):same { "", "" }
+            expect(str.split("---", "%-")):same { "", "", "", "" }
+            expect(str.split("-a", "%-")):same { "", "a" }
+            expect(str.split("a-", "%-")):same { "a", "" }
+        end)
+
+        it("cannot split with an empty separator", function()
+            expect.error(str.split, "abc", ""):eq("separator is empty")
+        end)
+
+        it("splits on patterns", function()
+            expect(str.split("a.bcd      ef", "%W+")):same { "a", "bcd", "ef" }
+        end)
+
+        it("splits on literal strings", function()
+            expect(str.split("a-bcd-ef", "-", true)):same { "a", "bcd", "ef" }
+        end)
+
+        it("accepts a limit", function()
+            expect(str.split("foo-bar-baz-qux-quyux", "-", true, 3)):same { "foo", "bar", "baz-qux-quyux" }
+            expect(str.split("foo-bar-baz", "-", true, 5)):same { "foo", "bar", "baz" }
+            expect(str.split("foo-bar-baz", "-", true, 1)):same { "foo-bar-baz" }
+            expect(str.split("foo-bar-baz", "-", true, 1)):same { "foo-bar-baz" }
         end)
     end)
 end)

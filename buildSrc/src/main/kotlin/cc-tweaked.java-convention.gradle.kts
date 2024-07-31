@@ -47,6 +47,7 @@ repositories {
         filter {
             includeGroup("cc.tweaked")
             // Things we mirror
+            includeGroup("com.simibubi.create")
             includeGroup("commoble.morered")
             includeGroup("dev.architectury")
             includeGroup("dev.emi")

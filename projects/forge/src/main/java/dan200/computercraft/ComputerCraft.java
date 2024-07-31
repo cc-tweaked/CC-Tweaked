@@ -19,6 +19,7 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.details.FluidData;
+import dan200.computercraft.shared.integration.CreateIntegration;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
@@ -39,6 +40,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
@@ -108,6 +110,8 @@ public final class ComputerCraft {
         ForgeComputerCraftAPI.registerGenericCapability(Capabilities.EnergyStorage.BLOCK);
 
         ForgeDetailRegistries.FLUID_STACK.addProvider(FluidData::fill);
+
+        if (ModList.get().isLoaded(CreateIntegration.ID)) event.enqueueWork(CreateIntegration::setup);
     }
 
     @SubscribeEvent

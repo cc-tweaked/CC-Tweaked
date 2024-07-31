@@ -4,7 +4,6 @@
 
 package dan200.computercraft.core;
 
-import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.asm.LuaMethodSupplier;
 import dan200.computercraft.core.asm.PeripheralMethodSupplier;
@@ -35,21 +34,19 @@ public final class ComputerContext {
     private final ComputerScheduler computerScheduler;
     private final MainThreadScheduler mainThreadScheduler;
     private final ILuaMachine.Factory luaFactory;
-    private final List<ILuaAPIFactory> apiFactories;
     private final MethodSupplier<LuaMethod> luaMethods;
     private final MethodSupplier<PeripheralMethod> peripheralMethods;
 
-    ComputerContext(
+    private ComputerContext(
         GlobalEnvironment globalEnvironment, ComputerScheduler computerScheduler,
         MainThreadScheduler mainThreadScheduler, ILuaMachine.Factory luaFactory,
-        List<ILuaAPIFactory> apiFactories, MethodSupplier<LuaMethod> luaMethods,
+        MethodSupplier<LuaMethod> luaMethods,
         MethodSupplier<PeripheralMethod> peripheralMethods
     ) {
         this.globalEnvironment = globalEnvironment;
         this.computerScheduler = computerScheduler;
         this.mainThreadScheduler = mainThreadScheduler;
         this.luaFactory = luaFactory;
-        this.apiFactories = apiFactories;
         this.luaMethods = luaMethods;
         this.peripheralMethods = peripheralMethods;
     }
@@ -89,15 +86,6 @@ public final class ComputerContext {
      */
     public ILuaMachine.Factory luaFactory() {
         return luaFactory;
-    }
-
-    /**
-     * Additional APIs to inject into each computer.
-     *
-     * @return All available API factories.
-     */
-    public List<ILuaAPIFactory> apiFactories() {
-        return apiFactories;
     }
 
     /**
@@ -166,7 +154,6 @@ public final class ComputerContext {
         private @Nullable ComputerScheduler computerScheduler = null;
         private @Nullable MainThreadScheduler mainThreadScheduler;
         private @Nullable ILuaMachine.Factory luaFactory;
-        private @Nullable List<ILuaAPIFactory> apiFactories;
         private @Nullable List<GenericMethod> genericMethods;
 
         Builder(GlobalEnvironment environment) {
@@ -228,20 +215,6 @@ public final class ComputerContext {
         }
 
         /**
-         * Set the additional {@linkplain ILuaAPIFactory APIs} to add to each computer.
-         *
-         * @param apis A list of API factories.
-         * @return {@code this}, for chaining
-         * @see ComputerContext#apiFactories()
-         */
-        public Builder apiFactories(Collection<ILuaAPIFactory> apis) {
-            Objects.requireNonNull(apis);
-            if (apiFactories != null) throw new IllegalStateException("Main-thread scheduler already specified");
-            apiFactories = List.copyOf(apis);
-            return this;
-        }
-
-        /**
          * Set the set of {@link GenericMethod}s used by the {@linkplain MethodSupplier method suppliers}.
          *
          * @param genericMethods A list of API factories.
@@ -267,7 +240,6 @@ public final class ComputerContext {
                 computerScheduler == null ? new ComputerThread(1) : computerScheduler,
                 mainThreadScheduler == null ? new NoWorkMainThreadScheduler() : mainThreadScheduler,
                 luaFactory == null ? CobaltLuaMachine::new : luaFactory,
-                apiFactories == null ? List.of() : apiFactories,
                 LuaMethodSupplier.create(genericMethods == null ? List.of() : genericMethods),
                 PeripheralMethodSupplier.create(genericMethods == null ? List.of() : genericMethods)
             );

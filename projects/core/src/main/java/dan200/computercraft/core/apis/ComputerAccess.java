@@ -21,7 +21,7 @@ public abstract class ComputerAccess implements IComputerAccess {
     private static final Logger LOG = LoggerFactory.getLogger(ComputerAccess.class);
 
     private final IAPIEnvironment environment;
-    private final Set<String> mounts = new HashSet<>();
+    private final Set<String> mounts = new HashSet<>(0);
 
     protected ComputerAccess(IAPIEnvironment environment) {
         this.environment = environment;

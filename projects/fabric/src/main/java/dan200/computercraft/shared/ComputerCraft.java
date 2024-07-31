@@ -17,6 +17,7 @@ import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.details.FluidDetails;
+import dan200.computercraft.shared.integration.CreateIntegration;
 import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
@@ -143,6 +144,8 @@ public class ComputerCraft {
 
     private static <B extends FriendlyByteBuf, T extends CustomPacketPayload> void registerPayloadType(PayloadTypeRegistry<B> registry, CustomPacketPayload.TypeAndCodec<B, T> type) {
         registry.register(type.type(), type.codec());
+
+        if (FabricLoader.getInstance().isModLoaded(CreateIntegration.ID)) CreateIntegration.setup();
     }
 
     private record ReloadListener(String name, PreparableReloadListener listener)

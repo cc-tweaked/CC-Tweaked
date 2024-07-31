@@ -50,7 +50,11 @@ little daunting getting started. Thankfully, there's several fantastic tutorials
 Once you're a little more familiar with the mod, the [wiki](https://tweaked.cc/) provides more detailed documentation on the
 various APIs and peripherals provided by the mod.
 
-If you get stuck, do [ask a question on GitHub][GitHub Discussions] or pop in to the ComputerCraft's [IRC channel][IRC].
+## Community
+If you need help getting started with CC: Tweaked, want to show off your latest project, or just want to chat about
+ComputerCraft, do check out our [GitHub discussions page][GitHub discussions]! There's also a fairly populated,
+albeit quiet IRC channel on [EsperNet], if that's more your cup of tea. You can join `#computercraft` through your
+desktop client, or online using [KiwiIRC].
 
 ## Get Involved
 CC: Tweaked lives on [GitHub]. If you've got any ideas, feedback or bugs please do [create an issue][bug].
@@ -60,4 +64,5 @@ CC: Tweaked lives on [GitHub]. If you've got any ideas, feedback or bugs please 
 [computercraft]: https://github.com/dan200/ComputerCraft "ComputerCraft on GitHub"
 [lua]: https://www.lua.org/ "Lua's main website"
 [GitHub Discussions]: https://github.com/cc-tweaked/CC-Tweaked/discussions
-[IRC]: http://webchat.esper.net/?channels=computercraft "#computercraft on EsperNet"
+[EsperNet]: https://www.esper.net/
+[KiwiIRC]: https://kiwiirc.com/nextclient/#irc://irc.esper.net:+6697/#computercraft "#computercraft on EsperNet"
