@@ -6,6 +6,7 @@ package dan200.computercraft.shared;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.component.ComputerComponents;
 import dan200.computercraft.api.detail.DetailProvider;
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.media.IMedia;
@@ -23,6 +24,7 @@ import dan200.computercraft.shared.common.ClearColourRecipe;
 import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import dan200.computercraft.shared.common.HeldItemMenu;
+import dan200.computercraft.shared.computer.apis.CommandAPI;
 import dan200.computercraft.shared.computer.blocks.CommandComputerBlock;
 import dan200.computercraft.shared.computer.blocks.ComputerBlock;
 import dan200.computercraft.shared.computer.blocks.ComputerBlockEntity;
@@ -64,6 +66,7 @@ import dan200.computercraft.shared.peripheral.speaker.SpeakerBlockEntity;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.RegistrationHelper;
 import dan200.computercraft.shared.platform.RegistryEntry;
+import dan200.computercraft.shared.pocket.apis.PocketAPI;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
@@ -73,14 +76,17 @@ import dan200.computercraft.shared.recipe.CustomShapelessRecipe;
 import dan200.computercraft.shared.recipe.ImpostorShapedRecipe;
 import dan200.computercraft.shared.recipe.ImpostorShapelessRecipe;
 import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
+import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
+import dan200.computercraft.shared.turtle.core.TurtleAccessInternal;
 import dan200.computercraft.shared.turtle.inventory.TurtleMenu;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import dan200.computercraft.shared.turtle.recipes.TurtleOverlayRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.turtle.upgrades.*;
+import dan200.computercraft.shared.util.ComponentMap;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
@@ -102,6 +108,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
@@ -445,6 +452,22 @@ public final class ModRegistry {
             if (item instanceof IMedia media) return media;
             if (item instanceof RecordItem) return RecordMedia.INSTANCE;
             return null;
+        });
+
+        ComputerCraftAPI.registerAPIFactory(computer -> {
+            var turtle = computer.getComponent(ComputerComponents.TURTLE);
+            var metrics = Objects.requireNonNull(computer.getComponent(ComponentMap.METRICS));
+            return turtle == null ? null : new TurtleAPI(metrics, (TurtleAccessInternal) turtle);
+        });
+
+        ComputerCraftAPI.registerAPIFactory(computer -> {
+            var pocket = computer.getComponent(ComputerComponents.POCKET);
+            return pocket == null ? null : new PocketAPI(pocket);
+        });
+
+        ComputerCraftAPI.registerAPIFactory(computer -> {
+            var admin = computer.getComponent(ComputerComponents.ADMIN_COMPUTER);
+            return admin == null ? null : new CommandAPI(computer, admin);
         });
 
         VanillaDetailRegistries.ITEM_STACK.addProvider(ItemDetails::fill);

@@ -4,9 +4,11 @@
 
 package dan200.computercraft.api;
 
+import dan200.computercraft.api.component.ComputerComponent;
 import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.GenericSource;
+import dan200.computercraft.api.lua.IComputerSystem;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.api.media.IMedia;
@@ -165,7 +167,20 @@ public final class ComputerCraftAPI {
      * Register a custom {@link ILuaAPI}, which may be added onto all computers without requiring a peripheral.
      * <p>
      * Before implementing this interface, consider alternative methods of providing methods. It is generally preferred
-     * to use peripherals to provide functionality to users.
+     * to use peripherals to provide functionality to users. If an API is <em>required</em>, you may want to consider
+     * using {@link ILuaAPI#getModuleName()} to expose this library as a module instead of as a global.
+     * <p>
+     * This may be used with {@link IComputerSystem#getComponent(ComputerComponent)} to only attach APIs to specific
+     * computers. For example, one can add an additional API just to turtles with the following code:
+     *
+     * <pre>{@code
+     * ComputerCraftAPI.registerAPIFactory(computer -> {
+     *   // Read the turtle component.
+     *   var turtle = computer.getComponent(ComputerComponents.TURTLE);
+     *   // If present then add our API.
+     *   return turtle == null ? null : new MyCustomTurtleApi(turtle);
+     * });
+     * }</pre>
      *
      * @param factory The factory for your API subclass.
      * @see ILuaAPIFactory

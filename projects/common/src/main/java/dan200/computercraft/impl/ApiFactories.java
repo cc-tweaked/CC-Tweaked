@@ -14,7 +14,6 @@ import java.util.Objects;
 /**
  * The global factory for {@link ILuaAPIFactory}s.
  *
- * @see dan200.computercraft.core.ComputerContext.Builder#apiFactories(Collection)
  * @see dan200.computercraft.api.ComputerCraftAPI#registerAPIFactory(ILuaAPIFactory)
  */
 public final class ApiFactories {
