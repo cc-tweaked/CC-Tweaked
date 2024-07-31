@@ -8,7 +8,7 @@ import dan200.computercraft.api.lua.IComputerSystem;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
 
 /**
- * An additional component attached to a computer.
+ * A component attached to a computer.
  * <p>
  * Components provide a mechanism to attach additional data to a computer, that can then be queried with
  * {@link IComputerSystem#getComponent(ComputerComponent)}.

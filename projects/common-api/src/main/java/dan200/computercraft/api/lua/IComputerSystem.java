@@ -21,7 +21,7 @@ public interface IComputerSystem extends IComputerAccess {
     /**
      * Get the level this computer is currently in.
      * <p>
-     * This method is not guaranteed to remain the same (even for stationary computers), so should not be cached.
+     * This method is not guaranteed to remain the same (even for stationary computers).
      *
      * @return The computer's current level.
      */
@@ -30,7 +30,7 @@ public interface IComputerSystem extends IComputerAccess {
     /**
      * Get the position this computer is currently at.
      * <p>
-     * This method is not guaranteed to remain the same (even for stationary computers), so should not be cached.
+     * This method is not guaranteed to remain the same (even for stationary computers).
      *
      * @return The computer's current position.
      */

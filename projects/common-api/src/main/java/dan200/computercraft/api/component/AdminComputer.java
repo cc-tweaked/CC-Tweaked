@@ -8,7 +8,7 @@ import net.minecraft.commands.CommandSourceStack;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
- * A computer which has permission to perform administrative/op commands, such as CC's command computer.
+ * A computer which has permission to perform administrative/op commands, such as the command computer.
  */
 @ApiStatus.NonExtendable
 public interface AdminComputer {

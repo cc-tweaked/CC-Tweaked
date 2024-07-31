@@ -177,7 +177,7 @@ public final class ComputerCraftAPI {
      * ComputerCraftAPI.registerAPIFactory(computer -> {
      *   // Read the turtle component.
      *   var turtle = computer.getComponent(ComputerComponents.TURTLE);
-     *
+     *   // If present then add our API.
      *   return turtle == null ? null : new MyCustomTurtleApi(turtle);
      * });
      * }</pre>
