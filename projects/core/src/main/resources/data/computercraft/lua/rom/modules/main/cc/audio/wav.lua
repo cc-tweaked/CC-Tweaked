@@ -14,7 +14,7 @@ This function takes in the binary data from a WAV file, and outputs a more
 usable table format with all the metadata and file audio inside. It also has a
 [`readWAVFile`] function to simplify reading from a single file.
 
-@see cc.audio.play To play the chunk decoded by this module.
+@see speaker.playAudio To play the chunks decoded by this module.
 @since 1.113.0
 @usage Reads "data/example.wav" into a table, prints its codec, sample rate,
 and length in seconds, and plays the audio on a speaker.
@@ -53,7 +53,7 @@ local wavExtensible = {
     alaw = uuidBytes "06000000-0000-1000-8000-00aa00389b71",
     ulaw = uuidBytes "07000000-0000-1000-8000-00aa00389b71",
     adpcm = uuidBytes "11000000-0000-1000-8000-00aa00389b71",
-    pcm_float = uuidBytes "03000000-0000-1000-8000-00aa00389b71"
+    pcm_float = uuidBytes "03000000-0000-1000-8000-00aa00389b71",
 }
 
 local wavMetadata = {
@@ -77,7 +77,7 @@ local wavMetadata = {
     IGNR = "genre",
     ICMT = "comment",
     ICOP = "copyright",
-    ILNG = "language"
+    ILNG = "language",
 }
 
 --[[- Read WAV data into a table.
@@ -99,13 +99,13 @@ Channel data is in the same format as `speaker.playAudio` takes: 8-bit signed nu
 ]]
 local function readWAV(data)
     expect(1, data, "string")
-    local bitDepth, length, dataType, blockAlign, coefficients
+    local bitDepth, dataType, blockAlign
     local temp, pos = str_unpack("c4", data)
     if temp ~= "RIFF" then error("bad argument #1 (not a WAV file)", 2) end
     pos = pos + 4
     temp, pos = str_unpack("c4", data, pos)
     if temp ~= "WAVE" then error("bad argument #1 (not a WAV file)", 2) end
-    local retval = {metadata = {}}
+    local retval = { metadata = {} }
     while pos <= #data do
         local size
         temp, pos = str_unpack("c4", data, pos)
@@ -159,7 +159,7 @@ local function readWAV(data)
                     return table.unpack(res)
                 end
             else
-                local format = (dataType == "unsigned" and "I" .. (bitDepth / 8) or (dataType == "signed" and "i" .. (bitDepth / 8) or "f"))
+                local format = dataType == "unsigned" and "I" .. (bitDepth / 8) or (dataType == "signed" and "i" .. (bitDepth / 8) or "f")
                 local transform
                 if dataType == "unsigned" then
                     function transform(n) return n - 128 end
@@ -172,7 +172,7 @@ local function readWAV(data)
                 end
                 function retval.read(samples)
                     if pos > #data then return nil end
-                    local chunk = {("<" .. format:rep(math.min(samples * channels, (#data - pos + 1) / (bitDepth / 8)))):unpack(data, pos)}
+                    local chunk = { ("<" .. format:rep(math.min(samples * channels, (#data - pos + 1) / (bitDepth / 8)))):unpack(data, pos) }
                     pos = table.remove(chunk)
                     local res = {}
                     for i = 1, channels do
@@ -221,4 +221,4 @@ local function readWAVFile(path)
     return readWAV(data)
 end
 
-return {readWAV = readWAV, readWAVFile = readWAVFile}
+return { readWAV = readWAV, readWAVFile = readWAVFile }
