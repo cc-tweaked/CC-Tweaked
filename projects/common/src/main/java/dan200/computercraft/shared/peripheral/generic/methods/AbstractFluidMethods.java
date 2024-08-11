@@ -70,10 +70,10 @@ public abstract class AbstractFluidMethods<T> implements GenericPeripheral {
     ) throws LuaException;
 
     /**
-     * Move a fluid from a connected fluid container into this oneone.
+     * Move a fluid from a connected fluid container into this one.
      * <p>
      * This allows you to pull fluid in the current fluid container from another container <em>on the same wired
-     * network</em>. Both containers must attached to wired modems which are connected via a cable.
+     * network</em>. Both containers must be attached to wired modems which are connected via a cable.
      *
      * @param to        Container to move fluid to.
      * @param computer  The current computer.
