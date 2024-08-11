@@ -13,7 +13,7 @@ Typically DFPWM audio is read from [the filesystem][`fs.ReadHandle`] or a [a web
 and converted a format suitable for [`speaker.playAudio`].
 
 ## Encoding and decoding files
-This modules exposes two key functions, [`make_decoder`] and [`make_encoder`], which construct a new decoder or encoder.
+This module exposes two key functions, [`make_decoder`] and [`make_encoder`], which construct a new decoder or encoder.
 The returned encoder/decoder is itself a function, which converts between the two kinds of data.
 
 These encoders and decoders have lots of hidden state, so you should be careful to use the same encoder or decoder for
@@ -21,9 +21,9 @@ a specific audio stream. Typically you will want to create a decoder for each st
 for each one you write.
 
 ## Converting audio to DFPWM
-DFPWM is not a popular file format and so standard audio processing tools will not have an option to export to it.
+DFPWM is not a popular file format and so standard audio processing tools may not have an option to export to it.
 Instead, you can convert audio files online using [music.madefor.cc], the [LionRay Wav Converter][LionRay] Java
-application or development builds of [FFmpeg].
+application or [FFmpeg] 5.1 or later.
 
 [music.madefor.cc]: https://music.madefor.cc/ "DFPWM audio converter for Computronics and CC: Tweaked"
 [LionRay]: https://github.com/gamax92/LionRay/ "LionRay Wav Converter "
