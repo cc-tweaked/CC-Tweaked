@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.gametest.framework.GameTestRegistry;
 import net.minecraft.resources.ResourceLocation;
 
@@ -26,6 +27,7 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.addPhaseOrdering(Event.DEFAULT_PHASE, phase);
         ServerLifecycleEvents.SERVER_STARTED.register(phase, TestHooks::onServerStarted);
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> CCTestCommand.register(dispatcher));
+        PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, blockEntity) -> !TestHooks.onBeforeDestroyBlock(level, pos, state));
 
         TestHooks.loadTests(GameTestRegistry::register);
     }

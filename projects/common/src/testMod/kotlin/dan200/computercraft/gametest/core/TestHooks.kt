@@ -13,7 +13,13 @@ import dan200.computercraft.shared.computer.core.ServerContext
 import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.*
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.GameRules
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.LevelAccessor
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.Vec3
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -172,5 +178,24 @@ object TestHooks {
         } catch (e: ReflectiveOperationException) {
             throw RuntimeException(e)
         }
+    }
+
+    /**
+     * Adds a hook that makes breaking a bone block spawn an explosion.
+     *
+     * It would be more Correct to register a custom block, but that's quite a lot of work, and doesn't seem worth it
+     * for test code.
+     *
+     * See also [Turtle_Test.Breaks_exploding_block].
+     */
+    @JvmStatic
+    fun onBeforeDestroyBlock(level: LevelAccessor, pos: BlockPos, state: BlockState): Boolean {
+        if (state.block === Blocks.BONE_BLOCK && level is ServerLevel) {
+            val explosionPos = Vec3.atCenterOf(pos)
+            level.explode(null, explosionPos.x, explosionPos.y, explosionPos.z, 4.0f, Level.ExplosionInteraction.TNT)
+            return true
+        }
+
+        return false
     }
 }

@@ -12,6 +12,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegisterGameTestsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.DistExecutor;
@@ -26,6 +27,10 @@ public class TestMod {
         var bus = MinecraftForge.EVENT_BUS;
         bus.addListener(EventPriority.LOW, (ServerStartedEvent e) -> TestHooks.onServerStarted(e.getServer()));
         bus.addListener((RegisterCommandsEvent e) -> CCTestCommand.register(e.getDispatcher()));
+        bus.addListener((BlockEvent.BreakEvent e) -> {
+            if (TestHooks.onBeforeDestroyBlock(e.getLevel(), e.getPos(), e.getState())) e.setCanceled(true);
+        });
+
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> TestMod::onInitializeClient);
 
         var modBus = FMLJavaModLoadingContext.get().getModEventBus();
