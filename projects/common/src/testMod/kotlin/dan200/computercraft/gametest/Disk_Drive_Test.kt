@@ -7,19 +7,23 @@ package dan200.computercraft.gametest
 import dan200.computercraft.core.apis.FSAPI
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.shared.ModRegistry
+import dan200.computercraft.shared.media.items.TreasureDisk
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveBlock
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDrivePeripheral
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveState
 import dan200.computercraft.shared.util.DataComponentUtil
+import dan200.computercraft.shared.util.NonNegativeId
 import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
+import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.core.component.DataComponents
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
+import net.minecraft.world.item.component.DyedItemColor
 import net.minecraft.world.level.block.RedStoneWireBlock
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.array
@@ -186,6 +190,42 @@ class Disk_Drive_Test {
                 DataComponentUtil.createStack(ModRegistry.Items.DISK_DRIVE.get(), DataComponents.CUSTOM_NAME, Component.literal("My Disk Drive")),
                 ItemStack(ModRegistry.Items.TREASURE_DISK.get()),
                 message = "Breaking a disk drive should drop the contents",
+            )
+        }
+    }
+
+    /**
+     * Loads a structure created on an older version of the game, and checks that data fixers have been applied.
+     */
+    @GameTest
+    fun Data_fixers(helper: GameTestHelper) = helper.sequence {
+        thenExecute {
+            helper.assertContainerExactly(
+                BlockPos(1, 2, 2),
+                listOf(
+                    ItemStack(ModRegistry.Items.DISK.get()).also {
+                        it.applyComponents(
+                            DataComponentPatch.builder()
+                                .set(ModRegistry.DataComponents.DISK_ID.get(), NonNegativeId(123))
+                                .set(DataComponents.DYED_COLOR, DyedItemColor(123456, false))
+                                .build(),
+                        )
+                    },
+                ),
+            )
+
+            helper.assertContainerExactly(
+                BlockPos(3, 2, 2),
+                listOf(
+                    ItemStack(ModRegistry.Items.TREASURE_DISK.get()).also {
+                        it.applyComponents(
+                            DataComponentPatch.builder()
+                                .set(ModRegistry.DataComponents.TREASURE_DISK.get(), TreasureDisk("Demo disk", "demo"))
+                                .set(DataComponents.DYED_COLOR, DyedItemColor(123456, false))
+                                .build(),
+                        )
+                    },
+                ),
             )
         }
     }

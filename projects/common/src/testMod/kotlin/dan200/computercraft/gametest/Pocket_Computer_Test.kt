@@ -4,19 +4,27 @@
 
 package dan200.computercraft.gametest
 
+import dan200.computercraft.api.ComputerCraftAPI
 import dan200.computercraft.api.lua.Coerced
+import dan200.computercraft.api.pocket.IPocketUpgrade
+import dan200.computercraft.api.upgrades.UpgradeData
 import dan200.computercraft.client.pocket.ClientPocketComputers
 import dan200.computercraft.core.apis.TermAPI
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.computer.core.ComputerState
+import dan200.computercraft.shared.util.DataComponentUtil
+import dan200.computercraft.shared.util.NonNegativeId
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
+import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.core.component.DataComponents
+import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.gametest.framework.GameTestSequence
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.random.Random
@@ -103,5 +111,32 @@ class Pocket_Computer_Test {
         item.set(DataComponents.CUSTOM_NAME, Component.literal(label))
         item.set(ModRegistry.DataComponents.ON.get(), true)
         player.inventory.setItem(0, item)
+    }
+
+    /**
+     * Loads a structure created on an older version of the game, and checks that data fixers have been applied.
+     */
+    @GameTest
+    fun Data_fixers(helper: GameTestHelper) = helper.sequence {
+        thenExecute {
+            val upgrade = helper.level.registryAccess().registryOrThrow(IPocketUpgrade.REGISTRY)
+                .getHolder(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "wireless_modem_normal"))
+                .orElseThrow()
+
+            helper.assertContainerExactly(
+                BlockPos(2, 2, 2),
+                listOf(
+                    ItemStack(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get()).also {
+                        DataComponentUtil.setCustomName(it, "Test")
+                        it.applyComponents(
+                            DataComponentPatch.builder()
+                                .set(ModRegistry.DataComponents.COMPUTER_ID.get(), NonNegativeId(123))
+                                .set(ModRegistry.DataComponents.POCKET_UPGRADE.get(), UpgradeData.ofDefault(upgrade))
+                                .build(),
+                        )
+                    },
+                ),
+            )
+        }
     }
 }

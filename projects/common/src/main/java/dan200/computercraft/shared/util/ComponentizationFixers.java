@@ -48,7 +48,7 @@ public class ComponentizationFixers {
 
     private static final Set<String> DYEABLE = Stream.concat(
         Stream.of(TURTLES, POCKET_COMPUTERS).flatMap(Set::stream),
-        Stream.of(DISK, TREASURE_DISK)
+        Stream.of(DISK)
     ).collect(Collectors.toUnmodifiableSet());
 
     /**
@@ -62,13 +62,7 @@ public class ComponentizationFixers {
         if (item.is(ALL_COMPUTERS)) item.moveTagToComponent("ComputerId", "computercraft:computer_id");
 
         // Set dyed colour
-        if (item.is(DYEABLE)) {
-            item.removeTag("Color").asNumber().result().map(Number::intValue).ifPresent(col ->
-                item.setComponent("minecraft:dyed_color", ops.emptyMap()
-                    .set("rgb", ops.createInt(col))
-                    .set("show_in_tooltip", ops.createBoolean(false))
-                ));
-        }
+        if (item.is(DYEABLE)) moveColourToComponent(item, ops, "Color");
 
         if (item.is(POCKET_COMPUTERS)) {
             item.moveTagToComponent("On", "computercraft:on");
@@ -89,7 +83,7 @@ public class ComponentizationFixers {
             moveUpgradeToComponent(item, ops, "RightUpgrade", "RightUpgradeNbt", "computercraft:right_turtle_upgrade");
         }
 
-        if (item.is(DISK)) item.moveTagToComponent("DiskId", "computercraft:disk");
+        if (item.is(DISK)) item.moveTagToComponent("DiskId", "computercraft:disk_id");
 
         if (item.is(TREASURE_DISK)) {
             var name = item.removeTag("Title").asString().result();
@@ -99,6 +93,8 @@ public class ComponentizationFixers {
                     .set("name", ops.createString(name.get()))
                     .set("path", ops.createString(path.get())));
             }
+
+            moveColourToComponent(item, ops, "Colour");
         }
 
         if (item.is(PRINTOUTS)) movePrintoutToComponent(item, ops);
@@ -109,6 +105,14 @@ public class ComponentizationFixers {
         var upgrade = data.removeTag(key).asString(null);
         if (upgrade == null) return;
         data.setComponent(component, createUpgradeData(ops, upgrade, data.removeTag(dataKey)));
+    }
+
+    private static void moveColourToComponent(ItemStackComponentizationFix.ItemStackData item, Dynamic<?> ops, String key) {
+        item.removeTag(key).asNumber().result().map(Number::intValue).ifPresent(col ->
+            item.setComponent("minecraft:dyed_color", ops.emptyMap()
+                .set("rgb", ops.createInt(col))
+                .set("show_in_tooltip", ops.createBoolean(false))
+            ));
     }
 
     /**

@@ -9,6 +9,7 @@ import dan200.computercraft.gametest.api.assertExactlyItems
 import dan200.computercraft.gametest.api.getBlockEntity
 import dan200.computercraft.gametest.api.sequence
 import dan200.computercraft.shared.ModRegistry
+import dan200.computercraft.shared.media.items.PrintoutData
 import dan200.computercraft.shared.peripheral.printer.PrinterBlock
 import dan200.computercraft.shared.util.DataComponentUtil
 import net.minecraft.core.BlockPos
@@ -19,6 +20,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.RedStoneWireBlock
+import org.junit.jupiter.api.Assertions.assertEquals
 
 class Printer_Test {
     /**
@@ -94,6 +96,23 @@ class Printer_Test {
                 ItemStack(Items.BLACK_DYE),
                 message = "Breaking a printer should drop the contents",
             )
+        }
+    }
+
+    /**
+     * Loads a structure created on an older version of the game, and checks that data fixers have been applied.
+     */
+    @GameTest
+    fun Data_fixers(helper: GameTestHelper) = helper.sequence {
+        thenExecute {
+            val container = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.PRINTER.get())
+            val contents = container.getItem(1)
+            assertEquals(ModRegistry.Items.PRINTED_PAGE.get(), contents.item)
+
+            val printout = contents[ModRegistry.DataComponents.PRINTOUT.get()] ?: PrintoutData.EMPTY
+            assertEquals("example.lua", printout.title)
+            assertEquals("This is an example page  ", printout.lines[0].text)
+            assertEquals("3333333333333333333333333", printout.lines[0].foreground)
         }
     }
 }

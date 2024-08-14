@@ -202,6 +202,10 @@ fun GameTestHelper.assertContainerExactly(pos: BlockPos, items: List<ItemStack>)
 fun <T> GameTestHelper.assertContainerExactly(entity: T, items: List<ItemStack>) where T : Entity, T : Container =
     assertContainerExactlyImpl(entity.blockPosition(), entity, items)
 
+private fun ItemStack.toStringFull(): String = if (isEmpty) "<empty>" else "$count x $item$componentsPatch"
+
+private fun formatItems(items: List<ItemStack>) = items.joinToString(", ") { it.toStringFull() }
+
 private fun GameTestHelper.assertContainerExactlyImpl(pos: BlockPos, container: Container, items: List<ItemStack>) {
     val slot = (0 until container.containerSize).indexOfFirst { slot ->
         val expected = if (slot >= items.size) ItemStack.EMPTY else items[slot]
@@ -209,11 +213,12 @@ private fun GameTestHelper.assertContainerExactlyImpl(pos: BlockPos, container: 
     }
 
     if (slot >= 0) {
+        val invItems = (0 until container.containerSize).map { container.getItem(it) }.dropLastWhile { it.isEmpty }
         failVerbose(
             """
             Items do not match (first mismatch at slot $slot).
-            Expected:  $items
-            Container: ${(0 until container.containerSize).map { container.getItem(it) }.dropLastWhile { it.isEmpty }}
+            Expected:  ${formatItems(items)}
+            Container: ${formatItems(invItems)}
             """.trimIndent(),
             pos,
         )
