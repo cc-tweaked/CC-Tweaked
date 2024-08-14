@@ -35,9 +35,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntity> extends HorizontalDirectionalBlock implements IBundledRedstoneBlock, EntityBlock {
     private static final ResourceLocation DROP = new ResourceLocation(ComputerCraftAPI.MOD_ID, "computer");
@@ -111,8 +111,18 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
     }
 
     @Override
+    @Deprecated
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        if (params.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof AbstractComputerBlockEntity computer) {
+            params = params.withDynamicDrop(DROP, out -> out.accept(getItem(computer)));
+        }
+
+        return super.getDrops(state, params);
+    }
+
+    @Override
     public void playerDestroy(Level world, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity tile, ItemStack tool) {
-        // Don't drop blocks here - see onBlockHarvested.
+        // Don't drop blocks here - see playerWillDestroy.
         player.awardStat(Stats.BLOCK_MINED.get(this));
         player.causeFoodExhaustion(0.005F);
     }
@@ -120,25 +130,11 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
     @Override
     public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
         super.playerWillDestroy(world, pos, state, player);
-        if (!(world instanceof ServerLevel serverWorld)) return;
+        if (!(world instanceof ServerLevel serverLevel)) return;
 
         // We drop the item here instead of doing it in the harvest method, as we should
         // drop computers for creative players too.
-
-        var tile = world.getBlockEntity(pos);
-        if (tile instanceof AbstractComputerBlockEntity computer) {
-            var context = new LootParams.Builder(serverWorld)
-                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
-                .withParameter(LootContextParams.TOOL, player.getMainHandItem())
-                .withParameter(LootContextParams.THIS_ENTITY, player)
-                .withParameter(LootContextParams.BLOCK_ENTITY, tile)
-                .withDynamicDrop(DROP, out -> out.accept(getItem(computer)));
-            for (var item : state.getDrops(context)) {
-                popResource(world, pos, item);
-            }
-
-            state.spawnAfterBreak(serverWorld, pos, player.getMainHandItem(), true);
-        }
+        dropResources(state, serverLevel, pos, world.getBlockEntity(pos));
     }
 
     @Override

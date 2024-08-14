@@ -19,9 +19,11 @@ import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
+import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.LeverBlock
 import net.minecraft.world.level.block.RedstoneLampBlock
+import net.minecraft.world.phys.Vec3
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.lwjgl.glfw.GLFW
@@ -113,6 +115,20 @@ class Computer_Test {
         thenExecute { context.placeItemAt(ItemStack(Items.CHEST), BlockPos(2, 2, 2), Direction.WEST) }
         thenIdle(1)
         thenOnComputer { callPeripheral("right", "size").assertArrayEquals(54) }
+    }
+
+    /**
+     * Tests a computer item is dropped on explosion.
+     */
+    @GameTest
+    fun Drops_on_explosion(context: GameTestHelper) = context.sequence {
+        thenExecute {
+            val pos = BlockPos(2, 2, 2)
+            val explosionPos = Vec3.atCenterOf(context.absolutePos(pos))
+            context.level.explode(null, explosionPos.x, explosionPos.y, explosionPos.z, 2.0f, Level.ExplosionInteraction.TNT)
+
+            context.assertItemEntityPresent(ModRegistry.Items.COMPUTER_NORMAL.get(), pos, 1.0)
+        }
     }
 
     /**
