@@ -125,11 +125,15 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
     public final void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (state.is(newState.getBlock())) return;
 
-        if (!level.isClientSide && level.getBlockEntity(pos) instanceof TurtleBlockEntity turtle && !turtle.hasMoved()) {
-            Containers.dropContents(level, pos, turtle);
-        }
+        // Most blocks drop items and then remove the BE. However, if a turtle is consuming drops right now, that can
+        // lead to loops where it tries to insert an item back into the inventory. To prevent this, take a reference to
+        // the turtle BE now, remove it, and then drop the items.
+        var turtle = !level.isClientSide && level.getBlockEntity(pos) instanceof TurtleBlockEntity t && !t.hasMoved()
+            ? t : null;
 
         super.onRemove(state, level, pos, newState, isMoving);
+
+        if (turtle != null) Containers.dropContents(level, pos, turtle);
     }
 
     @Override
