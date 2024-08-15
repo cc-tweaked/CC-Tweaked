@@ -100,7 +100,7 @@ SPDX-License-Identifier = "CC0-1.0"
 path = ".github/**"
 
 [[annotations]]
-path = ["gradle/wrapper/**", "gradlew", "gradlew.bat"]
+path = ["gradle/wrapper/**"]
 SPDX-FileCopyrightText = "Gradle Inc"
 SPDX-License-Identifier = "Apache-2.0"
 
