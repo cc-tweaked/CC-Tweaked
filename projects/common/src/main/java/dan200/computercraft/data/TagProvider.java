@@ -102,7 +102,13 @@ class TagProvider {
             ModRegistry.Items.MONITOR_ADVANCED.get()
         );
 
+        // Allow printed books to be placed in bookshelves.
         tags.tag(ItemTags.BOOKSHELF_BOOKS).add(ModRegistry.Items.PRINTED_BOOK.get());
+
+        // Allow any printout to be placed on lecterns. See also PrintoutItem and CustomLecternBlock.
+        tags.tag(ItemTags.LECTERN_BOOKS).add(
+            ModRegistry.Items.PRINTED_PAGE.get(), ModRegistry.Items.PRINTED_PAGES.get(), ModRegistry.Items.PRINTED_BOOK.get()
+        );
 
         tags.tag(ComputerCraftTags.Items.TURTLE_CAN_PLACE)
             .add(Items.GLASS_BOTTLE)

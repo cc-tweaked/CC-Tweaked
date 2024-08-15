@@ -284,7 +284,9 @@ public final class LanguageProvider implements DataProvider {
         return Stream.of(
             RegistryWrappers.BLOCKS.stream()
                 .filter(x -> RegistryWrappers.BLOCKS.getKey(x).getNamespace().equals(ComputerCraftAPI.MOD_ID))
-                .map(Block::getDescriptionId),
+                .map(Block::getDescriptionId)
+                // Exclude blocks that just reuse vanilla translations, such as the lectern.
+                .filter(x -> !x.startsWith("block.minecraft.")),
             RegistryWrappers.ITEMS.stream()
                 .filter(x -> RegistryWrappers.ITEMS.getKey(x).getNamespace().equals(ComputerCraftAPI.MOD_ID))
                 .map(Item::getDescriptionId),

@@ -4,16 +4,17 @@
 
 package dan200.computercraft.shared.container;
 
-import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.List;
 
 /**
  * A basic implementation of {@link Container} which operates on a {@linkplain #getContents() list of stacks}.
  */
 public interface BasicContainer extends Container {
-    NonNullList<ItemStack> getContents();
+    List<ItemStack> getContents();
 
     @Override
     default int getContainerSize() {

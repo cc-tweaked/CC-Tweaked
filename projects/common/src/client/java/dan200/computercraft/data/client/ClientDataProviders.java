@@ -5,6 +5,7 @@
 package dan200.computercraft.data.client;
 
 import dan200.computercraft.client.gui.GuiSprites;
+import dan200.computercraft.client.model.LecternPrintoutModel;
 import dan200.computercraft.data.DataProviders;
 import dan200.computercraft.shared.turtle.inventory.UpgradeSlot;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
@@ -30,7 +31,8 @@ public final class ClientDataProviders {
         generator.addFromCodec("Block atlases", PackType.CLIENT_RESOURCES, "atlases", SpriteSources.FILE_CODEC, out -> {
             out.accept(new ResourceLocation("blocks"), List.of(
                 new SingleFile(UpgradeSlot.LEFT_UPGRADE, Optional.empty()),
-                new SingleFile(UpgradeSlot.RIGHT_UPGRADE, Optional.empty())
+                new SingleFile(UpgradeSlot.RIGHT_UPGRADE, Optional.empty()),
+                new SingleFile(LecternPrintoutModel.TEXTURE, Optional.empty())
             ));
             out.accept(GuiSprites.SPRITE_SHEET, Stream.of(
                 // Buttons
