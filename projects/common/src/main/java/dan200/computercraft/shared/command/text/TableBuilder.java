@@ -63,7 +63,7 @@ public class TableBuilder {
     /**
      * Get the number of columns for this table.
      * <p>
-     * This will be the same as {@link #getHeaders()}'s length if it is is non-{@code null},
+     * This will be the same as {@link #getHeaders()}'s length if it is non-{@code null},
      * otherwise the length of the first column.
      *
      * @return The number of columns.

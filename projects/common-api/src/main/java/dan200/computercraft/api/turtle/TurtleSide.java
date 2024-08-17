@@ -5,7 +5,7 @@
 package dan200.computercraft.api.turtle;
 
 /**
- * An enum representing the two sides of the turtle that a turtle turtle might reside.
+ * An enum representing the two sides of the turtle that a turtle upgrade might reside.
  */
 public enum TurtleSide {
     /**

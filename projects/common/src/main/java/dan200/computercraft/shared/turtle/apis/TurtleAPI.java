@@ -345,7 +345,7 @@ public class TurtleAPI implements ILuaAPI {
      * For instance, if a slot contains 13 blocks of dirt, it has room for another 51.
      *
      * @param slot The slot we wish to check. Defaults to the {@link #select selected slot}.
-     * @return The space left in in this slot.
+     * @return The space left in this slot.
      * @throws LuaException If the slot is out of range.
      */
     @LuaFunction

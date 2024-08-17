@@ -211,7 +211,7 @@ end
 
 --[[- A convenience function for encoding a complete file of audio at once.
 
-This should only be used for complete pieces of audio. If you are writing writing multiple chunks to the same place,
+This should only be used for complete pieces of audio. If you are writing multiple chunks to the same place,
 you should use an encoder returned by [`make_encoder`] instead.
 
 @tparam { number... } input The table of amplitude data.

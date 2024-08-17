@@ -270,7 +270,7 @@ final class Generator<T> {
         }
 
         // Fold over the original method's arguments, excluding the target in reverse. For each argument, we reduce
-        // a method of type type (target, args..., arg_n, context..., IArguments) -> _ to (target, args..., context..., IArguments) -> _
+        // a method of type (target, args..., arg_n, context..., IArguments) -> _ to (target, args..., context..., IArguments) -> _
         // until eventually we've flattened the whole list.
         for (var i = parameterTypes.size() - 1; i >= 0; i--) {
             handle = MethodHandles.foldArguments(handle, i + 1, argSelectors.get(i));

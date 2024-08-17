@@ -800,7 +800,7 @@ And several bug fixes:
 # New features in CC: Tweaked 1.86.2
 
 * Fix peripheral.getMethods returning an empty table.
-* Update to Minecraft 1.15.2. This is currently alpha-quality and so is missing missing features and may be unstable.
+* Update to Minecraft 1.15.2. This is currently alpha-quality and so is missing features and may be unstable.
 
 # New features in CC: Tweaked 1.86.1
 
@@ -1416,7 +1416,7 @@ And several bug fixes:
 * Turtles can now compare items in their inventories
 * Turtles can place signs with text on them with `turtle.place( [signText] )`
 * Turtles now optionally require fuel items to move, and can refuel themselves
-* The size of the the turtle inventory has been increased to 16
+* The size of the turtle inventory has been increased to 16
 * The size of the turtle screen has been increased
 * New turtle functions: `turtle.compareTo( [slotNum] )`, `turtle.craft()`, `turtle.attack()`, `turtle.attackUp()`, `turtle.attackDown()`, `turtle.dropUp()`, `turtle.dropDown()`, `turtle.getFuelLevel()`, `turtle.refuel()`
 * New disk function: disk.getID()

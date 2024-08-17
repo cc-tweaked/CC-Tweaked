@@ -110,7 +110,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         fresh = false;
         computerID = computer.getID();
 
-        // If the on state has changed, mark as as dirty.
+        // If the on state has changed, mark as dirty.
         var newOn = computer.isOn();
         if (on != newOn) {
             on = newOn;
