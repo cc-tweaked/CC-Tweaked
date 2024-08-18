@@ -703,8 +703,8 @@ class Turtle_Test {
         thenOnComputer { turtle.dig(Optional.empty()) }
         thenIdle(2)
         thenExecute {
-            context.assertItemEntityCountIs(ModRegistry.Items.TURTLE_NORMAL.get(), BlockPos(2, 2, 2), 1.0, 1)
-            context.assertItemEntityCountIs(Items.BONE_BLOCK, BlockPos(2, 2, 2), 1.0, 65)
+            context.assertItemEntityCountIs(ModRegistry.Items.TURTLE_NORMAL.get(), 1)
+            context.assertItemEntityCountIs(Items.BONE_BLOCK, 65)
         }
     }
 

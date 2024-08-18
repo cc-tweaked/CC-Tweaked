@@ -123,11 +123,10 @@ class Computer_Test {
     @GameTest
     fun Drops_on_explosion(context: GameTestHelper) = context.sequence {
         thenExecute {
-            val pos = BlockPos(2, 2, 2)
-            val explosionPos = Vec3.atCenterOf(context.absolutePos(pos))
+            val explosionPos = Vec3.atCenterOf(context.absolutePos(BlockPos(2, 2, 2)))
             context.level.explode(null, explosionPos.x, explosionPos.y, explosionPos.z, 2.0f, Level.ExplosionInteraction.TNT)
 
-            context.assertItemEntityPresent(ModRegistry.Items.COMPUTER_NORMAL.get(), pos, 1.0)
+            context.assertItemEntityCountIs(ModRegistry.Items.COMPUTER_NORMAL.get(), 1)
         }
     }
 

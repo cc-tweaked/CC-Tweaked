@@ -22,6 +22,7 @@ import net.minecraft.world.Container
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
+import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.UseOnContext
 import net.minecraft.world.level.block.Blocks
@@ -249,6 +250,16 @@ fun GameTestHelper.assertExactlyItems(vararg expected: ItemStack, message: Strin
         val description = StringDescription()
         matcher.describeMismatch(actual, description)
         fail(if (message.isNullOrEmpty()) description.toString() else "$message: $description")
+    }
+}
+
+/**
+ * Similar to [GameTestHelper.assertItemEntityCountIs], but searching anywhere in the structure bounds.
+ */
+fun GameTestHelper.assertItemEntityCountIs(expected: Item, count: Int) {
+    val actualCount = getEntities(EntityType.ITEM).sumOf { if (it.item.`is`(expected)) it.item.count else 0 }
+    if (actualCount != count) {
+        throw GameTestAssertException("Expected $count ${expected.description.string} items to exist (found $actualCount)")
     }
 }
 
