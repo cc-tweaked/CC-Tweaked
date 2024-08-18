@@ -188,4 +188,31 @@ describe("The os library", function()
             expect.error(os.loadAPI, nil):eq("bad argument #1 (string expected, got nil)")
         end)
     end)
+
+    describe("os.queueEvent", function()
+        local function roundtrip(...)
+            local event_name = ("event_%08x"):format(math.random(1, 0x7FFFFFFF))
+            os.queueEvent(event_name, ...)
+            return select(2, os.pullEvent(event_name))
+        end
+
+        it("preserves references in tables", function()
+            local tbl = {}
+            local xs = roundtrip({ tbl, tbl })
+            expect(xs[1]):eq(xs[2])
+        end)
+
+        it("does not preserve references in separate args", function()
+            -- I'm not sure I like this behaviour, but it is what CC has always done.
+            local tbl = {}
+            local xs, ys = roundtrip(tbl, tbl)
+            expect(xs):ne(ys)
+        end)
+
+        it("clones objects", function()
+            local tbl = {}
+            local xs = roundtrip(tbl)
+            expect(xs):ne(tbl)
+        end)
+    end)
 end)

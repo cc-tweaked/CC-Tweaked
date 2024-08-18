@@ -19,7 +19,7 @@ We can lex some basic comments:
 ```
 
 ```txt
-1:1-1:37 COMMENT -- A basic singleline comment
+1:1-1:29 COMMENT -- A basic singleline comment
 2:1-2:27 COMMENT --[ Not a multiline comment
 3:1-3:34 COMMENT --[= Also not a multiline comment!
 ```

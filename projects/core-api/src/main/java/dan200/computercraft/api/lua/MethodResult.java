@@ -8,9 +8,7 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * The result of invoking a Lua method.
@@ -55,6 +53,12 @@ public final class MethodResult {
      * <p>
      * In order to provide a custom object with methods, one may return a {@link IDynamicLuaObject}, or an arbitrary
      * class with {@link LuaFunction} annotations. Anything else will be converted to {@code nil}.
+     * <p>
+     * Shared objects in a {@link MethodResult} will preserve their sharing when converted to Lua values. For instance,
+     * {@code Map<?, ?> m = new HashMap(); return MethodResult.of(m, m); } will return two values {@code a}, {@code b}
+     * where {@code a == b}. The one exception to this is Java's singleton collections ({@link List#of()},
+     * {@link Set#of()} and {@link Map#of()}), which are always converted to new table. This is not true for other
+     * singleton collections, such as those provided by {@link Collections} or Guava.
      *
      * @param value The value to return to the calling Lua function.
      * @return A method result which returns immediately with the given value.
