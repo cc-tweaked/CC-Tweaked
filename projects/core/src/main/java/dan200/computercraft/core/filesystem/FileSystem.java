@@ -122,6 +122,10 @@ public class FileSystem {
         }
 
         var lastSlash = path.lastIndexOf('/');
+
+        // If the trailing segment is a "..", then just append another one.
+        if (path.substring(lastSlash < 0 ? 0 : lastSlash + 1).equals("..")) return path + "/..";
+
         if (lastSlash >= 0) {
             return path.substring(0, lastSlash);
         } else {
