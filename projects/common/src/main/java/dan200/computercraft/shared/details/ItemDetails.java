@@ -50,12 +50,12 @@ public class ItemDetails {
         if (tag != null && tag.contains("display", Tag.TAG_COMPOUND)) {
             var displayTag = tag.getCompound("display");
             if (displayTag.contains("Lore", Tag.TAG_LIST)) {
-                var loreTag = displayTag.getList("Lore", Tag.TAG_STRING);
-                data.put("lore", loreTag.stream()
+                var lore = displayTag.getList("Lore", Tag.TAG_STRING).stream()
                     .map(ItemDetails::parseTextComponent)
                     .filter(Objects::nonNull)
                     .map(Component::getString)
-                    .toList());
+                    .toList();
+                if (!lore.isEmpty()) data.put("lore", lore);
             }
         }
 
