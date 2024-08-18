@@ -177,9 +177,9 @@ public abstract class AbstractHandle {
     /**
      * Read the remainder of the file.
      *
-     * @return The file, or {@code null} if at the end of it.
+     * @return The remaining contents of the file, or {@code null} in the event of an error.
      * @throws LuaException If the file has been closed.
-     * @cc.treturn string|nil The remaining contents of the file, or {@code nil} if we are at the end.
+     * @cc.treturn string|nil The remaining contents of the file, or {@code nil} in the event of an error.
      * @cc.since 1.80pr1
      */
     @Nullable

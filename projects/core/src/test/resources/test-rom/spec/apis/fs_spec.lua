@@ -200,6 +200,14 @@ describe("The fs library", function()
                 handle.close()
             end)
 
+            it("reading an empty file returns nil", function()
+                local file = create_test_file ""
+
+                local handle = fs.open(file, mode)
+                expect(handle.read()):eq(nil)
+                handle.close()
+            end)
+
             it("can read a line of text", function()
                 local file = create_test_file "some\nfile\r\ncontents\n\n"
 
@@ -221,6 +229,16 @@ describe("The fs library", function()
                 expect(handle.readLine(true)):eq("contents\r!\n")
                 expect(handle.readLine(true)):eq("\n")
                 expect(handle.readLine(true)):eq(nil)
+                handle.close()
+            end)
+
+            it("readAll always returns a string", function()
+                local contents = "some\nfile\ncontents"
+                local file = create_test_file "some\nfile\ncontents"
+
+                local handle = fs.open(file, mode)
+                expect(handle.readAll()):eq(contents)
+                expect(handle.readAll()):eq("")
                 handle.close()
             end)
         end
