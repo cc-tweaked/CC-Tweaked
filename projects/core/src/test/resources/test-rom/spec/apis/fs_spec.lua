@@ -158,6 +158,14 @@ describe("The fs library", function()
             expect(fs.combine("", "a")):eq("a")
             expect(fs.combine("a", "", "b", "c")):eq("a/b/c")
         end)
+
+        it("preserves pattern characters", function()
+            expect(fs.combine("foo*?")):eq("foo*?")
+        end)
+
+        it("sanitises paths", function()
+            expect(fs.combine("foo\":<>|")):eq("foo")
+        end)
     end)
 
     describe("fs.getName", function()
@@ -174,6 +182,14 @@ describe("The fs library", function()
 
         it("returns '..' for parent directories", function()
             expect(fs.getName("..")):eq("..")
+        end)
+
+        it("preserves pattern characters", function()
+            expect(fs.getName("foo*?")):eq("foo*?")
+        end)
+
+        it("sanitises paths", function()
+            expect(fs.getName("foo\":<>|")):eq("foo")
         end)
     end)
 
@@ -192,6 +208,14 @@ describe("The fs library", function()
         it("returns '..' for parent directories", function()
             expect(fs.getDir("..")):eq("../..")
             expect(fs.getDir("../..")):eq("../../..")
+        end)
+
+        it("preserves pattern characters", function()
+            expect(fs.getDir("foo*?/x")):eq("foo*?")
+        end)
+
+        it("sanitises paths", function()
+            expect(fs.getDir("foo\":<>|/x")):eq("foo")
         end)
     end)
 
