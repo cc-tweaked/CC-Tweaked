@@ -30,6 +30,12 @@ import java.util.Objects;
  *   print("On something else")
  * end
  * }</pre>
+ * <p>
+ * ## Recipes
+ * <div class="recipe-container">
+ *  <mc-recipe recipe="computercraft:pocket_computer_normal"></mc-recipe>
+ *  <mc-recipe recipe="computercraft:pocket_computer_advanced"></mc-recipe>
+ * </div>
  *
  * @cc.module pocket
  */
