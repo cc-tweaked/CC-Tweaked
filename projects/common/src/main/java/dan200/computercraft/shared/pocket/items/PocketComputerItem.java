@@ -128,12 +128,16 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, Level world, Entity entity, int slotNum, boolean selected) {
+    public void inventoryTick(ItemStack stack, Level world, Entity entity, int compartmentSlot, boolean selected) {
         // This (in vanilla at least) is only called for players. Don't bother to handle other entities.
         if (world.isClientSide || !(entity instanceof ServerPlayer player)) return;
 
+        // Find the actual slot the item exists in, aborting if it can't be found.
+        var slot = InventoryUtil.getInventorySlotFromCompartment(player, compartmentSlot, stack);
+        if (slot < 0) return;
+
         // If we're in the inventory, create a computer and keep it alive.
-        var holder = new PocketHolder.PlayerHolder(player, slotNum);
+        var holder = new PocketHolder.PlayerHolder(player, slot);
         var brain = getOrCreateBrain((ServerLevel) world, holder, stack);
         brain.computer().keepAlive();
 
