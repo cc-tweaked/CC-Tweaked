@@ -1,13 +1,11 @@
-New features in CC: Tweaked 1.112.0
+New features in CC: Tweaked 1.113.0
 
-* Report a custom error when using `!` instead of `not`.
-* Update several translations (zyxkad, MineKID-LP).
-* Add `cc.strings.split` function.
+* Allow placing printed pages and books in lecterns.
 
 Several bug fixes:
-* Fix `drive.getAudioTitle` returning `nil` when no disk is inserted.
-* Preserve item data when upgrading pocket computers.
-* Add missing bounds check to `cc.strings.wrap` (Lupus950).
-* Fix modems not moving with Create contraptions.
+* Various documentation fixes (MCJack123)
+* Fix computers and turtles not being dropped when exploded with TNT.
+* Fix crash when turtles are broken while mining a block.
+* Fix pocket computer terminals not updating when in the off-hand.
 
 Type "help changelog" to see the full version history.
