@@ -47,18 +47,24 @@ import java.util.Optional;
  * <p>
  * ## Turtle upgrades
  * While a normal turtle can move about the world and place blocks, its functionality is limited. Thankfully, turtles
- * can be upgraded with *tools* and [peripherals][`peripheral`]. Turtles have two upgrade slots, one on the left and right
- * sides. Upgrades can be equipped by crafting a turtle with the upgrade, or calling the [`turtle.equipLeft`]/[`turtle.equipRight`]
- * functions.
+ * can be upgraded with upgrades. Turtles have two upgrade slots, one on the left and right sides. Upgrades can be
+ * equipped by crafting a turtle with the upgrade, or calling the [`turtle.equipLeft`]/[`turtle.equipRight`] functions.
  * <p>
- * Turtle tools allow you to break blocks ([`turtle.dig`]) and attack entities ([`turtle.attack`]). Some tools are more
- * suitable to a task than others. For instance, a diamond pickaxe can break every block, while a sword does more
- * damage. Other tools have more niche use-cases, for instance hoes can til dirt.
+ * By default, any diamond tool may be used as an upgrade (though more may be added with [datapacks]). The diamond
+ * pickaxe may be used to break blocks (with [`turtle.dig`]), while the sword can attack entities ([`turtle.attack`]).
+ * Other tools have more niche use-cases, for instance hoes can til dirt.
  * <p>
- * Peripherals (such as the [wireless modem][`modem`] or [`speaker`]) can also be equipped as upgrades. These are then
- * accessible by accessing the `"left"` or `"right"` peripheral.
+ * Some peripherals (namely [speakers][`speaker`] and Ender and Wireless [modems][`modem`]) can also be equipped as
+ * upgrades. These are then accessible by accessing the `"left"` or `"right"` peripheral.
+ * <p>
+ * ## Recipes
+ * <div class="recipe-container">
+ *  <mc-recipe recipe="computercraft:turtle_normal"></mc-recipe>
+ *  <mc-recipe recipe="computercraft:turtle_advanced"></mc-recipe>
+ * </div>
  * <p>
  * [Turtle Graphics]: https://en.wikipedia.org/wiki/Turtle_graphics "Turtle graphics"
+ * [datapacks]: https://datapacks.madefor.cc ""
  *
  * @cc.module turtle
  * @cc.since 1.3
