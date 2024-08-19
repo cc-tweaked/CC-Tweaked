@@ -13,13 +13,13 @@ correct tokens and positions, and that it can report sensible error messages.
 We can lex some basic comments:
 
 ```lua
--- A basic singleline comment comment
+-- A basic singleline comment
 --[ Not a multiline comment
 --[= Also not a multiline comment!
 ```
 
 ```txt
-1:1-1:37 COMMENT -- A basic singleline comment comment
+1:1-1:29 COMMENT -- A basic singleline comment
 2:1-2:27 COMMENT --[ Not a multiline comment
 3:1-3:34 COMMENT --[= Also not a multiline comment!
 ```

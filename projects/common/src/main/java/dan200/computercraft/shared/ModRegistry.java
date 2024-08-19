@@ -26,7 +26,6 @@ import dan200.computercraft.shared.command.arguments.TrackingFieldArgumentType;
 import dan200.computercraft.shared.common.ClearColourRecipe;
 import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
-import dan200.computercraft.shared.common.HeldItemMenu;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
 import dan200.computercraft.shared.computer.blocks.CommandComputerBlock;
 import dan200.computercraft.shared.computer.blocks.ComputerBlock;
@@ -44,12 +43,14 @@ import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.details.BlockDetails;
 import dan200.computercraft.shared.details.ItemDetails;
 import dan200.computercraft.shared.integration.PermissionRegistry;
+import dan200.computercraft.shared.lectern.CustomLecternBlock;
+import dan200.computercraft.shared.lectern.CustomLecternBlockEntity;
+import dan200.computercraft.shared.media.PrintoutMenu;
 import dan200.computercraft.shared.media.items.*;
 import dan200.computercraft.shared.media.recipes.DiskRecipe;
 import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.network.container.ContainerData;
-import dan200.computercraft.shared.network.container.HeldItemContainerData;
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveBlock;
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveBlockEntity;
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveMenu;
@@ -114,9 +115,11 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
@@ -185,6 +188,10 @@ public final class ModRegistry {
         public static final RegistryEntry<WiredModemFullBlock> WIRED_MODEM_FULL = REGISTRY.register("wired_modem_full",
             () -> new WiredModemFullBlock(modemProperties().mapColor(MapColor.STONE)));
         public static final RegistryEntry<CableBlock> CABLE = REGISTRY.register("cable", () -> new CableBlock(modemProperties().mapColor(MapColor.STONE)));
+
+        public static final RegistryEntry<CustomLecternBlock> LECTERN = REGISTRY.register("lectern", () -> new CustomLecternBlock(
+            BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).instrument(NoteBlockInstrument.BASS).strength(2.5F).sound(SoundType.WOOD).ignitedByLava()
+        ));
     }
 
     public static class BlockEntities {
@@ -226,6 +233,8 @@ public final class ModRegistry {
             ofBlock(Blocks.WIRELESS_MODEM_NORMAL, (p, s) -> new WirelessModemBlockEntity(BlockEntities.WIRELESS_MODEM_NORMAL.get(), p, s, false));
         public static final RegistryEntry<BlockEntityType<WirelessModemBlockEntity>> WIRELESS_MODEM_ADVANCED =
             ofBlock(Blocks.WIRELESS_MODEM_ADVANCED, (p, s) -> new WirelessModemBlockEntity(BlockEntities.WIRELESS_MODEM_ADVANCED.get(), p, s, true));
+
+        public static final RegistryEntry<BlockEntityType<CustomLecternBlockEntity>> LECTERN = ofBlock(Blocks.LECTERN, CustomLecternBlockEntity::new);
     }
 
     public static final class Items {
@@ -429,11 +438,8 @@ public final class ModRegistry {
         public static final RegistryEntry<MenuType<PrinterMenu>> PRINTER = REGISTRY.register("printer",
             () -> new MenuType<>(PrinterMenu::new, FeatureFlags.VANILLA_SET));
 
-        public static final RegistryEntry<MenuType<HeldItemMenu>> PRINTOUT = REGISTRY.register("printout",
-            () -> ContainerData.toType(
-                HeldItemContainerData.STREAM_CODEC,
-                (id, inventory, data) -> new HeldItemMenu(Menus.PRINTOUT.get(), id, inventory.player, data.hand())
-            ));
+        public static final RegistryEntry<MenuType<PrintoutMenu>> PRINTOUT = REGISTRY.register("printout",
+            () -> new MenuType<>((i, c) -> PrintoutMenu.createRemote(i), FeatureFlags.VANILLA_SET));
     }
 
     static class ArgumentTypes {

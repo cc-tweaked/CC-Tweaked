@@ -5,9 +5,9 @@
 package dan200.computercraft.data;
 
 import dan200.computercraft.api.ComputerCraftTags;
-import dan200.computercraft.shared.util.RegistryHelper;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.integration.ExternalModTags;
+import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.core.Registry;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
@@ -107,6 +107,7 @@ class TagProvider {
             ModRegistry.Items.MONITOR_ADVANCED.get()
         );
 
+        // Allow printed books to be placed in bookshelves.
         tags.tag(ItemTags.BOOKSHELF_BOOKS).add(ModRegistry.Items.PRINTED_BOOK.get());
 
         tags.tag(ComputerCraftTags.Items.TURTLE_CAN_PLACE)

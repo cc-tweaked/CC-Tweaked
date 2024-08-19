@@ -159,7 +159,7 @@ fun getNextVersion(version: String): String {
     val lastIndex = mainVersion.lastIndexOf('.')
     if (lastIndex < 0) throw IllegalArgumentException("Cannot parse version format \"$version\"")
     val lastVersion = try {
-        version.substring(lastIndex + 1).toInt()
+        mainVersion.substring(lastIndex + 1).toInt()
     } catch (e: NumberFormatException) {
         throw IllegalArgumentException("Cannot parse version format \"$version\"", e)
     }

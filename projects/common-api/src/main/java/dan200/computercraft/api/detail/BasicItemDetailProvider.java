@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * An item detail provider for {@link ItemStack}'s whose {@link Item} has a specific type.
+ * An item detail provider for {@link ItemStack}s whose {@link Item} has a specific type.
  *
  * @param <T> The type the stack's item must have.
  */
@@ -22,7 +22,7 @@ public abstract class BasicItemDetailProvider<T> implements DetailProvider<ItemS
     private final @Nullable String namespace;
 
     /**
-     * Create a new item detail provider. Meta will be inserted into a new sub-map named as per {@code namespace}.
+     * Create a new item detail provider. Details will be inserted into a new sub-map named as per {@code namespace}.
      *
      * @param itemType  The type the stack's item must have.
      * @param namespace The namespace to use for this provider.
@@ -34,7 +34,7 @@ public abstract class BasicItemDetailProvider<T> implements DetailProvider<ItemS
     }
 
     /**
-     * Create a new item detail provider. Meta will be inserted directly into the results.
+     * Create a new item detail provider. Details will be inserted directly into the results.
      *
      * @param itemType The type the stack's item must have.
      */
@@ -53,21 +53,18 @@ public abstract class BasicItemDetailProvider<T> implements DetailProvider<ItemS
      * @param stack The item stack to provide details for.
      * @param item  The item to provide details for.
      */
-    public abstract void provideDetails(
-        Map<? super String, Object> data, ItemStack stack, T item
-    );
+    public abstract void provideDetails(Map<? super String, Object> data, ItemStack stack, T item);
 
     @Override
-    public void provideDetails(Map<? super String, Object> data, ItemStack stack) {
+    public final void provideDetails(Map<? super String, Object> data, ItemStack stack) {
         var item = stack.getItem();
         if (!itemType.isInstance(item)) return;
 
-        // If `namespace` is specified, insert into a new data map instead of the existing one.
-        Map<? super String, Object> child = namespace == null ? data : new HashMap<>();
-
-        provideDetails(child, stack, itemType.cast(item));
-
-        if (namespace != null) {
+        if (namespace == null) {
+            provideDetails(data, stack, itemType.cast(item));
+        } else {
+            Map<? super String, Object> child = new HashMap<>();
+            provideDetails(child, stack, itemType.cast(item));
             data.put(namespace, child);
         }
     }

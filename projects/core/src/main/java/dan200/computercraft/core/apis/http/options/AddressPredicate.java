@@ -57,7 +57,7 @@ interface AddressPredicate {
                 prefixSize = Integer.parseInt(prefixSizeStr);
             } catch (NumberFormatException e) {
                 throw new InvalidRuleException(String.format(
-                    "Invalid host host '%s': Cannot extract size of CIDR mask from '%s'.",
+                    "Invalid host '%s': Cannot extract size of CIDR mask from '%s'.",
                     addressStr + '/' + prefixSizeStr, prefixSizeStr
                 ));
             }

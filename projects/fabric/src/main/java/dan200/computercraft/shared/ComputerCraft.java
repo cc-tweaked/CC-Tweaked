@@ -122,6 +122,7 @@ public class ComputerCraft {
 
         PlayerBlockBreakEvents.BEFORE.register(FabricCommonHooks::onBlockDestroy);
         UseBlockCallback.EVENT.register(FabricCommonHooks::useOnBlock);
+        UseBlockCallback.EVENT.register(CommonHooks::onUseBlock);
 
         LootTableEvents.MODIFY.register((id, tableBuilder, source, registries) -> {
             var pool = CommonHooks.getExtraLootPool(id);

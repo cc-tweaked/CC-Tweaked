@@ -109,8 +109,9 @@ public final class TickScheduler {
             return State.UNLOADED;
         } else {
             // This should be impossible: either the block entity is at the above position, or it has been removed.
-            if (level.getBlockEntity(pos) != blockEntity) {
-                throw new IllegalStateException("Expected " + blockEntity + " at " + pos);
+            var currentBlockEntity = level.getBlockEntity(pos);
+            if (currentBlockEntity != blockEntity) {
+                throw new IllegalStateException("Expected " + blockEntity + " at " + pos + ", got " + currentBlockEntity);
             }
 
             // Otherwise schedule a tick and remove it from the queue.

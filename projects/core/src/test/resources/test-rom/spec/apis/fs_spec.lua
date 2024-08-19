@@ -158,6 +158,65 @@ describe("The fs library", function()
             expect(fs.combine("", "a")):eq("a")
             expect(fs.combine("a", "", "b", "c")):eq("a/b/c")
         end)
+
+        it("preserves pattern characters", function()
+            expect(fs.combine("foo*?")):eq("foo*?")
+        end)
+
+        it("sanitises paths", function()
+            expect(fs.combine("foo\":<>|")):eq("foo")
+        end)
+    end)
+
+    describe("fs.getName", function()
+        it("returns 'root' for the empty path", function()
+            expect(fs.getName("")):eq("root")
+            expect(fs.getName("foo/..")):eq("root")
+        end)
+
+        it("returns the file name", function()
+            expect(fs.getName("foo/bar")):eq("bar")
+            expect(fs.getName("foo/bar/")):eq("bar")
+            expect(fs.getName("../foo")):eq("foo")
+        end)
+
+        it("returns '..' for parent directories", function()
+            expect(fs.getName("..")):eq("..")
+        end)
+
+        it("preserves pattern characters", function()
+            expect(fs.getName("foo*?")):eq("foo*?")
+        end)
+
+        it("sanitises paths", function()
+            expect(fs.getName("foo\":<>|")):eq("foo")
+        end)
+    end)
+
+    describe("fs.getDir", function()
+        it("returns '..' for the empty path", function()
+            expect(fs.getDir("")):eq("..")
+            expect(fs.getDir("foo/..")):eq("..")
+        end)
+
+        it("returns the directory name", function()
+            expect(fs.getDir("foo/bar")):eq("foo")
+            expect(fs.getDir("foo/bar/")):eq("foo")
+            expect(fs.getDir("../foo")):eq("..")
+        end)
+
+        it("returns '..' for parent directories", function()
+            expect(fs.getDir("..")):eq("../..")
+            expect(fs.getDir("../..")):eq("../../..")
+        end)
+
+        it("preserves pattern characters", function()
+            expect(fs.getDir("foo*?/x")):eq("foo*?")
+        end)
+
+        it("sanitises paths", function()
+            expect(fs.getDir("foo\":<>|/x")):eq("foo")
+        end)
     end)
 
     describe("fs.getSize", function()
@@ -200,6 +259,14 @@ describe("The fs library", function()
                 handle.close()
             end)
 
+            it("reading an empty file returns nil", function()
+                local file = create_test_file ""
+
+                local handle = fs.open(file, mode)
+                expect(handle.read()):eq(nil)
+                handle.close()
+            end)
+
             it("can read a line of text", function()
                 local file = create_test_file "some\nfile\r\ncontents\n\n"
 
@@ -221,6 +288,16 @@ describe("The fs library", function()
                 expect(handle.readLine(true)):eq("contents\r!\n")
                 expect(handle.readLine(true)):eq("\n")
                 expect(handle.readLine(true)):eq(nil)
+                handle.close()
+            end)
+
+            it("readAll always returns a string", function()
+                local contents = "some\nfile\ncontents"
+                local file = create_test_file "some\nfile\ncontents"
+
+                local handle = fs.open(file, mode)
+                expect(handle.readAll()):eq(contents)
+                expect(handle.readAll()):eq("")
                 handle.close()
             end)
         end

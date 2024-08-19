@@ -53,7 +53,9 @@ public class ItemDetails {
         data.put("itemGroups", getItemGroups(stack));
 
         var lore = stack.get(DataComponents.LORE);
-        if (lore != null) data.put("lore", lore.lines().stream().map(Component::getString).toList());
+        if (lore != null && !lore.lines().isEmpty()) {
+            data.put("lore", lore.lines().stream().map(Component::getString).toList());
+        }
 
         var enchants = getAllEnchants(stack);
         if (!enchants.isEmpty()) data.put("enchantments", enchants);

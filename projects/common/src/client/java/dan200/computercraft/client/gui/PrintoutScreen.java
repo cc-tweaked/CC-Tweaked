@@ -6,14 +6,18 @@ package dan200.computercraft.client.gui;
 
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.common.HeldItemMenu;
+import dan200.computercraft.shared.media.PrintoutMenu;
 import dan200.computercraft.shared.media.items.PrintoutData;
-import dan200.computercraft.shared.media.items.PrintoutItem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerListener;
+import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.Objects;
 
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
 import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
@@ -23,41 +27,65 @@ import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMA
  *
  * @see dan200.computercraft.client.render.PrintoutRenderer
  */
-public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
-    private final boolean book;
-    private final int pages;
-    private final TextBuffer[] text;
-    private final TextBuffer[] colours;
-    private int page;
+public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> implements ContainerListener {
+    private PrintoutInfo printout = PrintoutInfo.DEFAULT;
+    private int page = 0;
 
-    public PrintoutScreen(HeldItemMenu container, Inventory player, Component title) {
+    public PrintoutScreen(PrintoutMenu container, Inventory player, Component title) {
         super(container, player, title);
-
         imageHeight = Y_SIZE;
+    }
 
-        var printout = container.getStack().getOrDefault(ModRegistry.DataComponents.PRINTOUT.get(), PrintoutData.EMPTY);
-        this.text = new TextBuffer[printout.lines().size()];
-        this.colours = new TextBuffer[printout.lines().size()];
-        for (var i = 0; i < this.text.length; i++) {
-            var line = printout.lines().get(i);
-            this.text[i] = new TextBuffer(line.text());
-            this.colours[i] = new TextBuffer(line.foreground());
-        }
-
+    private void setPrintout(ItemStack stack) {
         page = 0;
-        pages = Math.max(this.text.length / PrintoutData.LINES_PER_PAGE, 1);
-        book = ((PrintoutItem) container.getStack().getItem()).getType() == PrintoutItem.Type.BOOK;
+        printout = PrintoutInfo.of(PrintoutData.getOrEmpty(stack), stack.is(ModRegistry.Items.PRINTED_BOOK.get()));
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        menu.addSlotListener(this);
+    }
+
+    @Override
+    public void removed() {
+        menu.removeSlotListener(this);
+    }
+
+    @Override
+    public void slotChanged(AbstractContainerMenu menu, int slot, ItemStack stack) {
+        if (slot == 0) setPrintout(stack);
+    }
+
+    @Override
+    public void dataChanged(AbstractContainerMenu menu, int slot, int data) {
+        if (slot == PrintoutMenu.DATA_CURRENT_PAGE) page = data;
+    }
+
+    private void setPage(int page) {
+        this.page = page;
+
+        var gameMode = Objects.requireNonNull(Objects.requireNonNull(minecraft).gameMode);
+        gameMode.handleInventoryButtonClick(menu.containerId, PrintoutMenu.PAGE_BUTTON_OFFSET + page);
+    }
+
+    private void previousPage() {
+        if (page > 0) setPage(page - 1);
+    }
+
+    private void nextPage() {
+        if (page < printout.pages() - 1) setPage(page + 1);
     }
 
     @Override
     public boolean keyPressed(int key, int scancode, int modifiers) {
         if (key == GLFW.GLFW_KEY_RIGHT) {
-            if (page < pages - 1) page++;
+            nextPage();
             return true;
         }
 
         if (key == GLFW.GLFW_KEY_LEFT) {
-            if (page > 0) page--;
+            previousPage();
             return true;
         }
 
@@ -69,13 +97,13 @@ public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
         if (super.mouseScrolled(x, y, deltaX, deltaY)) return true;
         if (deltaY < 0) {
             // Scroll up goes to the next page
-            if (page < pages - 1) page++;
+            nextPage();
             return true;
         }
 
         if (deltaY > 0) {
             // Scroll down goes to the previous page
-            if (page > 0) page--;
+            previousPage();
             return true;
         }
 
@@ -88,8 +116,8 @@ public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
         graphics.pose().pushPose();
         graphics.pose().translate(0, 0, 1);
 
-        drawBorder(graphics.pose(), graphics.bufferSource(), leftPos, topPos, 0, page, pages, book, FULL_BRIGHT_LIGHTMAP);
-        drawText(graphics.pose(), graphics.bufferSource(), leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, PrintoutData.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours);
+        drawBorder(graphics.pose(), graphics.bufferSource(), leftPos, topPos, 0, page, printout.pages(), printout.book(), FULL_BRIGHT_LIGHTMAP);
+        drawText(graphics.pose(), graphics.bufferSource(), leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, PrintoutData.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, printout.text(), printout.colour());
 
         graphics.pose().popPose();
     }
@@ -97,5 +125,22 @@ public class PrintoutScreen extends AbstractContainerScreen<HeldItemMenu> {
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         // Skip rendering labels.
+    }
+
+    record PrintoutInfo(int pages, boolean book, TextBuffer[] text, TextBuffer[] colour) {
+        public static final PrintoutInfo DEFAULT = of(PrintoutData.EMPTY, false);
+
+        public static PrintoutInfo of(PrintoutData printout, boolean book) {
+            var text = new TextBuffer[printout.lines().size()];
+            var colours = new TextBuffer[printout.lines().size()];
+            for (var i = 0; i < text.length; i++) {
+                var line = printout.lines().get(i);
+                text[i] = new TextBuffer(line.text());
+                colours[i] = new TextBuffer(line.foreground());
+            }
+
+            var pages = Math.max(text.length / PrintoutData.LINES_PER_PAGE, 1);
+            return new PrintoutInfo(pages, book, text, colours);
+        }
     }
 }

@@ -38,7 +38,7 @@ public interface IPeripheral {
     }
 
     /**
-     * Is called when when a computer is attaching to the peripheral.
+     * Is called when a computer is attaching to the peripheral.
      * <p>
      * This will occur when a peripheral is placed next to an active computer, when a computer is turned on next to a
      * peripheral, when a turtle travels into a square next to a peripheral, or when a wired modem adjacent to this

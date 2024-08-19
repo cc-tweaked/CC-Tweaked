@@ -15,7 +15,7 @@ import java.util.*;
  * @param <T> The type of object that this registry provides details for.
  */
 public class DetailRegistryImpl<T> implements DetailRegistry<T> {
-    private final Collection<DetailProvider<T>> providers = new ArrayList<>();
+    private final Collection<DetailProvider<? super T>> providers = new ArrayList<>();
     private final DetailProvider<T> basic;
 
     public DetailRegistryImpl(DetailProvider<T> basic) {
@@ -24,7 +24,7 @@ public class DetailRegistryImpl<T> implements DetailRegistry<T> {
     }
 
     @Override
-    public synchronized void addProvider(DetailProvider<T> provider) {
+    public synchronized void addProvider(DetailProvider<? super T> provider) {
         Objects.requireNonNull(provider, "provider cannot be null");
         if (!providers.contains(provider)) providers.add(provider);
     }

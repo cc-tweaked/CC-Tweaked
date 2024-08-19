@@ -23,6 +23,7 @@ import net.minecraft.data.models.BlockModelGenerators;
 import net.minecraft.data.models.blockstates.*;
 import net.minecraft.data.models.model.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -100,6 +101,11 @@ class BlockModelProvider {
         registerTurtleUpgrade(generators, "block/turtle_speaker", "block/turtle_speaker_face");
         registerTurtleModem(generators, "block/turtle_modem_normal", "block/wireless_modem_normal_face");
         registerTurtleModem(generators, "block/turtle_modem_advanced", "block/wireless_modem_advanced_face");
+
+        generators.blockStateOutput.accept(MultiVariantGenerator.multiVariant(
+            ModRegistry.Blocks.LECTERN.get(),
+            Variant.variant().with(VariantProperties.MODEL, ModelLocationUtils.getModelLocation(Blocks.LECTERN))
+        ).with(createHorizontalFacingDispatch()));
     }
 
     private static void registerDiskDrive(BlockModelGenerators generators) {

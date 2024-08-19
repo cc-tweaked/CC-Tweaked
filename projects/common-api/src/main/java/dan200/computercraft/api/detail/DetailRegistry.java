@@ -26,7 +26,7 @@ public interface DetailRegistry<T> {
      * @param provider The detail provider to register.
      * @see DetailProvider
      */
-    void addProvider(DetailProvider<T> provider);
+    void addProvider(DetailProvider<? super T> provider);
 
     /**
      * Compute basic details about an object. This is cheaper than computing all details operation, and so is suitable

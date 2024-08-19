@@ -735,6 +735,21 @@ class Turtle_Test {
     }
 
     /**
+     * Tests a turtle can break a block that explodes, causing the turtle itself to explode.
+     *
+     * @see [#585](https://github.com/cc-tweaked/CC-Tweaked/issues/585).
+     */
+    @GameTest
+    fun Breaks_exploding_block(context: GameTestHelper) = context.sequence {
+        thenOnComputer { turtle.dig(Optional.empty()) }
+        thenIdle(2)
+        thenExecute {
+            context.assertItemEntityCountIs(ModRegistry.Items.TURTLE_NORMAL.get(), 1)
+            context.assertItemEntityCountIs(Items.BONE_BLOCK, 65)
+        }
+    }
+
+    /**
      * Render turtles as an item.
      */
     @ClientGameTest

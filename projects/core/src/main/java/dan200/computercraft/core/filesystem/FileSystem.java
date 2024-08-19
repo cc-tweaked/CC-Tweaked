@@ -122,6 +122,10 @@ public class FileSystem {
         }
 
         var lastSlash = path.lastIndexOf('/');
+
+        // If the trailing segment is a "..", then just append another one.
+        if (path.substring(lastSlash < 0 ? 0 : lastSlash + 1).equals("..")) return path + "/..";
+
         if (lastSlash >= 0) {
             return path.substring(0, lastSlash);
         } else {
@@ -145,7 +149,7 @@ public class FileSystem {
         return getMount(sanitizePath(path)).getAttributes(sanitizePath(path));
     }
 
-    public synchronized String[] list(String path) throws FileSystemException {
+    public synchronized List<String> list(String path) throws FileSystemException {
         path = sanitizePath(path);
         var mount = getMount(path);
 
@@ -161,10 +165,8 @@ public class FileSystem {
         }
 
         // Return list
-        var array = new String[list.size()];
-        list.toArray(array);
-        Arrays.sort(array);
-        return array;
+        list.sort(Comparator.naturalOrder());
+        return list;
     }
 
     public synchronized boolean exists(String path) throws FileSystemException {

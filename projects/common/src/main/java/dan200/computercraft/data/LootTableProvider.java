@@ -14,6 +14,7 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.data.loot.LootTableProvider.SubProviderEntry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -55,6 +56,8 @@ class LootTableProvider {
         computerDrop(add, ModRegistry.Blocks.COMPUTER_COMMAND);
         computerDrop(add, ModRegistry.Blocks.TURTLE_NORMAL);
         computerDrop(add, ModRegistry.Blocks.TURTLE_ADVANCED);
+
+        blockDrop(add, ModRegistry.Blocks.LECTERN, LootItem.lootTableItem(Items.LECTERN), ExplosionCondition.survivesExplosion());
 
         add.accept(ModRegistry.Blocks.CABLE.get().getLootTable(), LootTable
             .lootTable()

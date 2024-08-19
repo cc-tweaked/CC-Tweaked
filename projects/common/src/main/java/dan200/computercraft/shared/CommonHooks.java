@@ -9,6 +9,7 @@ import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.metrics.ComputerMBean;
+import dan200.computercraft.shared.lectern.CustomLecternBlock;
 import dan200.computercraft.shared.peripheral.monitor.MonitorWatcher;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.TickScheduler;
@@ -20,16 +21,23 @@ import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.NestedLootTable;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 import java.util.Set;
@@ -90,6 +98,20 @@ public final class CommonHooks {
 
     public static void onChunkTicketLevelChanged(ServerLevel level, long chunkPos, int oldLevel, int newLevel) {
         TickScheduler.onChunkTicketChanged(level, chunkPos, oldLevel, newLevel);
+    }
+
+    public static InteractionResult onUseBlock(Player player, Level level, InteractionHand hand, BlockHitResult hitResult) {
+        if (player.isSpectator()) return InteractionResult.PASS;
+
+        var pos = hitResult.getBlockPos();
+        var heldItem = player.getItemInHand(hand);
+        var blockState = level.getBlockState(pos);
+
+        if (blockState.is(Blocks.LECTERN) && !blockState.getValue(LecternBlock.HAS_BOOK)) {
+            return CustomLecternBlock.tryPlaceItem(player, level, pos, blockState, heldItem);
+        }
+
+        return InteractionResult.PASS;
     }
 
     public static final ResourceKey<LootTable> TREASURE_DISK_LOOT = ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "treasure_disk"));

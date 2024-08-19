@@ -13,6 +13,7 @@ import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.computer.TimeoutState;
 import dan200.computercraft.core.methods.LuaMethod;
 import dan200.computercraft.core.methods.MethodSupplier;
+import dan200.computercraft.core.util.LuaUtil;
 import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.core.util.SanitisedError;
 import org.slf4j.Logger;
@@ -183,10 +184,35 @@ public class CobaltLuaMachine implements ILuaMachine {
             return ValueFactory.valueOf(bytes);
         }
 
+        // Don't share singleton values, and instead convert them to a new table.
+        if (LuaUtil.isSingletonCollection(object)) return new LuaTable();
+
         if (values == null) values = new IdentityHashMap<>(1);
         var result = values.get(object);
         if (result != null) return result;
 
+        var wrapped = toValueWorker(object, values);
+        if (wrapped == null) {
+            LOG.warn(Logging.JAVA_ERROR, "Received unknown type '{}', returning nil.", object.getClass().getName());
+            return Constants.NIL;
+        }
+
+        values.put(object, wrapped);
+        return wrapped;
+    }
+
+    /**
+     * Convert a complex Java object (such as a collection or Lua object) to a Lua value.
+     * <p>
+     * This is a worker function for {@link #toValue(Object, IdentityHashMap)}, which handles the actual construction
+     * of values, without reading/writing from the value map.
+     *
+     * @param object The object to convert.
+     * @param values The map of Java to Lua values.
+     * @return The converted value, or {@code null} if it could not be converted.
+     * @throws LuaError If the value could not be converted.
+     */
+    private @Nullable LuaValue toValueWorker(Object object, IdentityHashMap<Object, LuaValue> values) throws LuaError {
         if (object instanceof ILuaFunction) {
             return new ResultInterpreterFunction(this, FUNCTION_METHOD, object, context, object.toString());
         }
@@ -194,15 +220,12 @@ public class CobaltLuaMachine implements ILuaMachine {
         if (object instanceof IDynamicLuaObject) {
             LuaValue wrapped = wrapLuaObject(object);
             if (wrapped == null) wrapped = new LuaTable();
-            values.put(object, wrapped);
             return wrapped;
         }
 
         if (object instanceof Map<?, ?> map) {
             var table = new LuaTable();
-            values.put(object, table);
-
-            for (Map.Entry<?, ?> pair : map.entrySet()) {
+            for (var pair : map.entrySet()) {
                 var key = toValue(pair.getKey(), values);
                 var value = toValue(pair.getValue(), values);
                 if (!key.isNil() && !value.isNil()) table.rawset(key, value);
@@ -212,27 +235,18 @@ public class CobaltLuaMachine implements ILuaMachine {
 
         if (object instanceof Collection<?> objects) {
             var table = new LuaTable(objects.size(), 0);
-            values.put(object, table);
             var i = 0;
-            for (Object child : objects) table.rawset(++i, toValue(child, values));
+            for (var child : objects) table.rawset(++i, toValue(child, values));
             return table;
         }
 
         if (object instanceof Object[] objects) {
             var table = new LuaTable(objects.length, 0);
-            values.put(object, table);
             for (var i = 0; i < objects.length; i++) table.rawset(i + 1, toValue(objects[i], values));
             return table;
         }
 
-        var wrapped = wrapLuaObject(object);
-        if (wrapped != null) {
-            values.put(object, wrapped);
-            return wrapped;
-        }
-
-        LOG.warn(Logging.JAVA_ERROR, "Received unknown type '{}', returning nil.", object.getClass().getName());
-        return Constants.NIL;
+        return wrapLuaObject(object);
     }
 
     Varargs toValues(@Nullable Object[] objects) throws LuaError {

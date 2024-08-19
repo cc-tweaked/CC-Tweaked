@@ -101,7 +101,7 @@ public class FSAPI implements ILuaAPI {
      * }</pre>
      */
     @LuaFunction
-    public final String[] list(String path) throws LuaException {
+    public final List<String> list(String path) throws LuaException {
         try (var ignored = environment.time(Metrics.FS_OPS)) {
             return getFileSystem().list(path);
         } catch (FileSystemException e) {

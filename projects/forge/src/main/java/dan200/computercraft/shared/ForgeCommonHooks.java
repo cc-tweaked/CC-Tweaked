@@ -9,6 +9,7 @@ import dan200.computercraft.shared.command.CommandComputerCraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -18,6 +19,7 @@ import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.level.ChunkTicketLevelUpdatedEvent;
 import net.neoforged.neoforge.event.level.ChunkWatchEvent;
@@ -76,6 +78,15 @@ public class ForgeCommonHooks {
     @SubscribeEvent
     public static void onChunkTicketLevelChanged(ChunkTicketLevelUpdatedEvent event) {
         CommonHooks.onChunkTicketLevelChanged(event.getLevel(), event.getChunkPos(), event.getOldTicketLevel(), event.getNewTicketLevel());
+    }
+
+    @SubscribeEvent
+    public static void onUseBlock(PlayerInteractEvent.RightClickBlock event) {
+        var result = CommonHooks.onUseBlock(event.getEntity(), event.getLevel(), event.getHand(), event.getHitVec());
+        if (result == InteractionResult.PASS) return;
+
+        event.setCanceled(true);
+        event.setCancellationResult(result);
     }
 
     @SubscribeEvent

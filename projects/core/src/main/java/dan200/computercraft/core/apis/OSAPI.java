@@ -122,7 +122,7 @@ public class OSAPI implements ILuaAPI {
     }
 
     private static long getEpochForCalendar(Calendar c) {
-        return c.getTime().getTime();
+        return c.getTimeInMillis();
     }
 
     /**
@@ -298,7 +298,7 @@ public class OSAPI implements ILuaAPI {
      * textutils.formatTime(os.time())
      * }</pre>
      * @cc.since 1.2
-     * @cc.changed 1.80pr1 Add support for getting the local local and UTC time.
+     * @cc.changed 1.80pr1 Add support for getting the local and UTC time.
      * @cc.changed 1.82.0 Arguments are now case insensitive.
      * @cc.changed 1.83.0 {@link #time(IArguments)} now accepts table arguments and converts them to UNIX timestamps.
      * @see #date To get a date table that can be converted with this function.

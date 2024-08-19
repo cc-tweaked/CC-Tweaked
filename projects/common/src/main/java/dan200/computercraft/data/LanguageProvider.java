@@ -288,7 +288,9 @@ public final class LanguageProvider implements DataProvider {
         return Stream.of(
             BuiltInRegistries.BLOCK.holders()
                 .filter(x -> x.key().location().getNamespace().equals(ComputerCraftAPI.MOD_ID))
-                .map(x -> x.value().getDescriptionId()),
+                .map(x -> x.value().getDescriptionId())
+                // Exclude blocks that just reuse vanilla translations, such as the lectern.
+                .filter(x -> !x.startsWith("block.minecraft.")),
             BuiltInRegistries.ITEM.holders()
                 .filter(x -> x.key().location().getNamespace().equals(ComputerCraftAPI.MOD_ID))
                 .map(x -> x.value().getDescriptionId()),

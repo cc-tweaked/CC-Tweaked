@@ -99,11 +99,13 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity imp
 
     @Override
     public void clearRemoved() {
+        super.clearRemoved();
         updateMedia();
     }
 
     @Override
     public void setRemoved() {
+        super.setRemoved();
         if (recordPlaying) stopRecord();
     }
 
