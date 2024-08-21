@@ -141,6 +141,15 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
     }
 
     @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, entity, stack);
+
+        if (!level.isClientSide && level.getBlockEntity(pos) instanceof TurtleBlockEntity turtle && entity instanceof Player player) {
+            turtle.setOwningPlayer(player.getGameProfile());
+        }
+    }
+
+    @Override
     protected ItemInteractionResult useItemOn(ItemStack currentItem, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (currentItem.getItem() == Items.NAME_TAG && currentItem.has(DataComponents.CUSTOM_NAME) && level.getBlockEntity(pos) instanceof AbstractComputerBlockEntity computer) {
             // Label to rename computer
