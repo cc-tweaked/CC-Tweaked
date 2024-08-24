@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: 2017 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+files:
+  - source: projects/common/src/generated/resources/assets/computercraft/lang/en_us.json
+    translation: projects/common/src/main/resources/assets/computercraft/lang/%locale_with_underscore%.json
