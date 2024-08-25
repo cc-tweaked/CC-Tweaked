@@ -202,6 +202,14 @@ describe("The os library", function()
             expect(xs[1]):eq(xs[2])
         end)
 
+        it("handles recursive tables", function()
+            local tbl = {}
+            tbl[1] = tbl
+
+            local xs = roundtrip(tbl)
+            expect(xs):eq(xs[1])
+        end)
+
         it("does not preserve references in separate args", function()
             -- I'm not sure I like this behaviour, but it is what CC has always done.
             local tbl = {}
