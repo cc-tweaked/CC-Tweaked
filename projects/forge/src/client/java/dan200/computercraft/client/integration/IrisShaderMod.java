@@ -23,7 +23,7 @@ import java.util.function.IntFunction;
 public class IrisShaderMod implements ShaderMod.Provider {
     @Override
     public Optional<ShaderMod> get() {
-        return ModList.get().isLoaded("oculus") ? Optional.of(new Impl()) : Optional.empty();
+        return ModList.get().isLoaded("oculus") || ModList.get().isLoaded("iris") ? Optional.of(new Impl()) : Optional.empty();
     }
 
     private static final class Impl extends ShaderMod {
