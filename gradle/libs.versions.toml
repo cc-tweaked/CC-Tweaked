@@ -71,6 +71,7 @@ librarian = "1.+"
 lwjgl = "3.3.3"
 minotaur = "2.+"
 nullAway = "0.10.25"
+shadow = "8.3.1"
 spotless = "6.23.3"
 taskTree = "2.1.1"
 teavm = "0.11.0-SQUID.1"
@@ -94,9 +95,10 @@ jzlib = { module = "com.jcraft:jzlib", version.ref = "jzlib" }
 kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 kotlin-platform = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+netty-codec = { module = "io.netty:netty-codec", version.ref = "netty" }
 netty-http = { module = "io.netty:netty-codec-http", version.ref = "netty" }
-netty-socks = { module = "io.netty:netty-codec-socks", version.ref = "netty" }
 netty-proxy = { module = "io.netty:netty-handler-proxy", version.ref = "netty" }
+netty-socks = { module = "io.netty:netty-codec-socks", version.ref = "netty" }
 nightConfig-core = { module = "com.electronwill.night-config:core", version.ref = "nightConfig" }
 nightConfig-toml = { module = "com.electronwill.night-config:toml", version.ref = "nightConfig" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
@@ -175,6 +177,7 @@ githubRelease = { id = "com.github.breadmoirai.github-release", version.ref = "g
 gradleVersions = { id = "com.github.ben-manes.versions", version.ref = "gradleVersions" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 librarian = { id = "org.parchmentmc.librarian.forgegradle", version.ref = "librarian" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 taskTree = { id = "com.dorongold.task-tree", version.ref = "taskTree" }
 versionCatalogUpdate = { id = "nl.littlerobots.version-catalog-update", version.ref = "versionCatalogUpdate" }
 

@@ -7,6 +7,7 @@ import cc.tweaked.gradle.getAbsolutePath
 plugins {
     `java-library`
     `java-test-fixtures`
+    alias(libs.plugins.shadow)
 
     id("cc-tweaked.kotlin-convention")
     id("cc-tweaked.java-convention")
@@ -57,3 +58,22 @@ val checkChangelog by tasks.registering(cc.tweaked.gradle.CheckChangelog::class)
 }
 
 tasks.check { dependsOn(checkChangelog) }
+
+// We configure the shadow jar to ship netty-codec and all its dependencies, relocating them under the
+// dan200.computercraft.core package.
+// This is used as part of the Forge build, so that our version of netty-codec is loaded under the GAME layer, and so
+// has access to our jar-in-jar'ed jzlib.
+tasks.shadowJar {
+    minimize()
+
+    dependencies {
+        include(dependency(libs.netty.codec.get()))
+        include(dependency(libs.netty.http.get()))
+        include(dependency(libs.netty.socks.get()))
+        include(dependency(libs.netty.proxy.get()))
+    }
+
+    for (pkg in listOf("io.netty.handler.codec", "io.netty.handler.proxy")) {
+        relocate(pkg, "dan200.computercraft.core.vendor.$pkg")
+    }
+}

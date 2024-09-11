@@ -105,6 +105,10 @@ minecraft {
 configurations {
     minecraftLibrary { extendsFrom(minecraftEmbed.get()) }
 
+    // Move minecraftLibrary/minecraftEmbed out of implementation, and into runtimeOnly.
+    implementation { setExtendsFrom(extendsFrom - setOf(minecraftLibrary.get(), minecraftEmbed.get())) }
+    runtimeOnly { extendsFrom(minecraftLibrary.get(), minecraftEmbed.get()) }
+
     val testMinecraftLibrary by registering {
         isCanBeResolved = true
         isCanBeConsumed = false
@@ -138,18 +142,11 @@ dependencies {
     minecraftEmbed(libs.jzlib) {
         jarJar.ranged(this, "[${libs.versions.jzlib.get()},)")
     }
-    minecraftEmbed(libs.netty.http) {
-        jarJar.ranged(this, "[${libs.versions.netty.get()},)")
-        isTransitive = false
-    }
-    minecraftEmbed(libs.netty.socks) {
-        jarJar.ranged(this, "[${libs.versions.netty.get()},)")
-        isTransitive = false
-    }
-    minecraftEmbed(libs.netty.proxy) {
-        jarJar.ranged(this, "[${libs.versions.netty.get()},)")
-        isTransitive = false
-    }
+    // We don't jar-in-jar our additional netty dependencies (see the tasks.jarJar configuration), but still want them
+    // on the legacy classpath.
+    minecraftLibrary(libs.netty.http) { isTransitive = false }
+    minecraftLibrary(libs.netty.socks) { isTransitive = false }
+    minecraftLibrary(libs.netty.proxy) { isTransitive = false }
 
     testFixturesApi(libs.bundles.test)
     testFixturesApi(libs.bundles.kotlin)
@@ -195,9 +192,17 @@ tasks.sourcesJar {
 tasks.jarJar {
     finalizedBy("reobfJarJar")
     archiveClassifier.set("")
+    duplicatesStrategy = DuplicatesStrategy.FAIL
 
+    // Include all classes from other projects except core.
+    val coreSources = project(":core").sourceSets["main"]
     for (source in cct.sourceDirectories.get()) {
-        if (source.classes) from(source.sourceSet.output)
+        if (source.classes && source.sourceSet != coreSources) from(source.sourceSet.output)
+    }
+
+    // Include core separately, along with the relocated netty classes.
+    from(zipTree(project(":core").tasks.named("shadowJar", AbstractArchiveTask::class).map { it.archiveFile })) {
+        exclude("META-INF/**")
     }
 }
 
