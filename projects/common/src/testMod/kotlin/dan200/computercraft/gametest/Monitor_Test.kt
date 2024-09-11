@@ -160,5 +160,7 @@ class Monitor_Test {
         }
 
         thenScreenshot()
+
+        thenExecute { helper.level.dayTime = Times.NOON }
     }
 }
