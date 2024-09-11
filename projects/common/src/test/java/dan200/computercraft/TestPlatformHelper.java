@@ -50,6 +50,11 @@ import java.util.function.Predicate;
 @AutoService({ PlatformHelper.class, ComputerCraftAPIService.class })
 public class TestPlatformHelper extends AbstractComputerCraftAPI implements PlatformHelper {
     @Override
+    public boolean isModLoaded(String id) {
+        return false;
+    }
+
+    @Override
     public ConfigFile.Builder createConfigBuilder() {
         throw new UnsupportedOperationException("Cannot create config file inside tests");
     }

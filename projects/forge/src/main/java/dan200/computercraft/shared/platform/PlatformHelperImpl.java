@@ -50,6 +50,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -72,6 +73,11 @@ import java.util.function.Supplier;
 
 @AutoService(PlatformHelper.class)
 public class PlatformHelperImpl implements PlatformHelper {
+    @Override
+    public boolean isModLoaded(String id) {
+        return ModList.get().isLoaded(id);
+    }
+
     @Override
     public ConfigFile.Builder createConfigBuilder() {
         return new ForgeConfigFile.Builder();

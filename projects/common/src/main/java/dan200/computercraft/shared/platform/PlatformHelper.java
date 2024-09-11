@@ -61,6 +61,14 @@ public interface PlatformHelper {
     }
 
     /**
+     * Determine if the specified mod is loaded.
+     *
+     * @param id The id of the mod to check.
+     * @return Whether this mod is loaded.
+     */
+    boolean isModLoaded(String id);
+
+    /**
      * Create a new config builder.
      *
      * @return The newly created config builder.

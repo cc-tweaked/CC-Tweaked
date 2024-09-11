@@ -115,6 +115,7 @@ def main():
     images: list[Image] = []
     for project, dir in {
         "Forge": "projects/forge/build/gametest/runGametestClient",
+        "Forge (+Iris)": "projects/forge/build/gametest/runGametestClientWithIris",
         "Fabric": "projects/fabric/build/gametest/runGametestClient",
         "Fabric (+Sodium)": "projects/fabric/build/gametest/runGametestClientWithSodium",
         "Fabric (+Iris)": "projects/fabric/build/gametest/runGametestClientWithIris",

@@ -118,6 +118,11 @@ configurations {
         // Prevent ending up with multiple versions of libraries on the classpath.
         shouldResolveConsistentlyWith(minecraftLibrary.get())
     }
+
+    register("testWithIris") {
+        isCanBeConsumed = false
+        isCanBeResolved = true
+    }
 }
 
 dependencies {
@@ -160,6 +165,9 @@ dependencies {
     "testMinecraftLibrary"(libs.bundles.test)
 
     testFixturesImplementation(testFixtures(project(":core")))
+
+    "testWithIris"(libs.iris.forge)
+    "testWithIris"(libs.sodium.forge)
 }
 
 // Compile tasks
@@ -219,18 +227,29 @@ val runGametest by tasks.registering(JavaExec::class) {
 cct.jacoco(runGametest)
 tasks.check { dependsOn(runGametest) }
 
-/*val runGametestClient by tasks.registering(ClientJavaExec::class) {
+val runGametestClient by tasks.registering(ClientJavaExec::class) {
     description = "Runs client-side gametests with no mods"
-    setRunConfig(runs["testClient"])
+    copyFrom("runGameTestClient")
     tags("client")
 }
 cct.jacoco(runGametestClient)
 
+val runGametestClientWithIris by tasks.registering(ClientJavaExec::class) {
+    description = "Runs client-side gametests with Iris"
+    copyFrom("runGameTestClient")
+
+    tags("iris")
+    classpath += configurations["testWithIris"]
+
+    withComplementaryShaders()
+}
+cct.jacoco(runGametestClientWithIris)
+
 tasks.register("checkClient") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Runs all client-only checks."
-    dependsOn(runGametestClient)
-}*/
+    dependsOn(runGametestClient, runGametestClientWithIris)
+}
 
 // Upload tasks
 

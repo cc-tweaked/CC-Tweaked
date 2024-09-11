@@ -18,6 +18,7 @@ import java.nio.file.Files
 import java.util.concurrent.TimeUnit
 import java.util.function.Supplier
 import javax.inject.Inject
+import kotlin.collections.set
 import kotlin.random.Random
 
 /**
@@ -105,6 +106,23 @@ abstract class ClientJavaExec : JavaExec() {
         doFirst {
             Files.createDirectories(file.parent)
             if (!Files.exists(file)) Files.copy(source.get().toPath(), file)
+        }
+    }
+
+    /**
+     * Configure Iris to use Complementary Shaders.
+     */
+    fun withComplementaryShaders() {
+        val cct = project.extensions.getByType(CCTweakedExtension::class.java)
+
+        withFileFrom(workingDir.resolve("shaderpacks/ComplementaryShaders_v4.6.zip")) {
+            cct.downloadFile("Complementary Shaders", "https://edge.forgecdn.net/files/3951/170/ComplementaryShaders_v4.6.zip")
+        }
+        withFileContents(workingDir.resolve("config/iris.properties")) {
+            """
+            enableShaders=true
+            shaderPack=ComplementaryShaders_v4.6.zip
+            """.trimIndent()
         }
     }
 

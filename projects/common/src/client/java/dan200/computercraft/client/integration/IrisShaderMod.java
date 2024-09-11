@@ -8,23 +8,20 @@ import com.google.auto.service.AutoService;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import net.irisshaders.iris.api.v0.IrisApi;
 import net.irisshaders.iris.api.v0.IrisTextVertexSink;
 import net.minecraft.util.FastColor;
-import net.neoforged.fml.ModList;
 
 import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.function.IntFunction;
 
-/**
- * A {@link ShaderMod} for Oculus (the Forge Iris port).
- */
 @AutoService(ShaderMod.Provider.class)
 public class IrisShaderMod implements ShaderMod.Provider {
     @Override
     public Optional<ShaderMod> get() {
-        return ModList.get().isLoaded("oculus") ? Optional.of(new Impl()) : Optional.empty();
+        return PlatformHelper.get().isModLoaded("iris") ? Optional.of(new Impl()) : Optional.empty();
     }
 
     private static final class Impl extends ShaderMod {

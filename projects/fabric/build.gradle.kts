@@ -76,9 +76,9 @@ dependencies {
         exclude("net.fabricmc.fabric-api")
     }
 
-    "modTestWithSodium"(libs.sodium)
-    "modTestWithIris"(libs.iris)
-    "modTestWithIris"(libs.sodium)
+    "modTestWithSodium"(libs.sodium.fabric)
+    "modTestWithIris"(libs.iris.fabric)
+    "modTestWithIris"(libs.sodium.fabric)
 
     "includeRuntimeOnly"(libs.cobalt)
     "includeRuntimeOnly"(libs.jzlib)
@@ -247,15 +247,7 @@ val runGametestClientWithIris by tasks.registering(ClientJavaExec::class) {
     tags("iris")
     classpath += configurations["testWithIris"]
 
-    withFileFrom(workingDir.resolve("shaderpacks/ComplementaryShaders_v4.6.zip")) {
-        cct.downloadFile("Complementary Shaders", "https://edge.forgecdn.net/files/3951/170/ComplementaryShaders_v4.6.zip")
-    }
-    withFileContents(workingDir.resolve("config/iris.properties")) {
-        """
-        enableShaders=true
-        shaderPack=ComplementaryShaders_v4.6.zip
-        """.trimIndent()
-    }
+    withComplementaryShaders()
 }
 cct.jacoco(runGametestClientWithIris)
 

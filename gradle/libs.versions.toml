@@ -38,14 +38,14 @@ nightConfig = "3.6.7"
 # Minecraft mods
 emi = "1.1.7+1.21"
 fabricPermissions = "0.3.1"
-iris = "1.6.14+1.20.4"
+iris-fabric = "1.8.0-beta.3+1.21-fabric"
+iris-forge = "1.8.0-beta.3+1.21-neoforge"
 jei = "19.8.2.99"
 modmenu = "11.0.0-rc.4"
 moreRed = "4.0.0.4"
-oculus = "1.2.5"
 rei = "16.0.729"
-rubidium = "0.6.1"
-sodium = "mc1.20-0.4.10"
+sodium-fabric = "mc1.21-0.6.0-beta.1-fabric"
+sodium-forge = "mc1.21-0.6.0-beta.1-neoforge"
 mixinExtra = "0.3.5"
 create-forge = "0.5.1.f-33"
 create-fabric = "0.5.1-f-build.1467+mc1.20.1"
@@ -111,7 +111,8 @@ fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fab
 fabric-junit = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fabric-loader" }
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
 fabricPermissions = { module = "me.lucko:fabric-permissions-api", version.ref = "fabricPermissions" }
-iris = { module = "maven.modrinth:iris", version.ref = "iris" }
+iris-fabric = { module = "maven.modrinth:iris", version.ref = "iris-fabric" }
+iris-forge = { module = "maven.modrinth:iris", version.ref = "iris-forge" }
 jei-api = { module = "mezz.jei:jei-1.21-common-api", version.ref = "jei" }
 jei-fabric = { module = "mezz.jei:jei-1.21-fabric", version.ref = "jei" }
 jei-forge = { module = "mezz.jei:jei-1.21-neoforge", version.ref = "jei" }
@@ -119,12 +120,11 @@ mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
 mixinExtra = { module = "io.github.llamalad7:mixinextras-common", version.ref = "mixinExtra" }
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
 moreRed = { module = "commoble.morered:morered-1.20.1", version.ref = "moreRed" }
-oculus = { module = "maven.modrinth:oculus", version.ref = "oculus" }
 rei-api = { module = "me.shedaniel:RoughlyEnoughItems-api", version.ref = "rei" }
 rei-builtin = { module = "me.shedaniel:RoughlyEnoughItems-default-plugin", version.ref = "rei" }
 rei-fabric = { module = "me.shedaniel:RoughlyEnoughItems-fabric", version.ref = "rei" }
-rubidium = { module = "maven.modrinth:rubidium", version.ref = "rubidium" }
-sodium = { module = "maven.modrinth:sodium", version.ref = "sodium" }
+sodium-fabric = { module = "maven.modrinth:sodium", version.ref = "sodium.fabric" }
+sodium-forge = { module = "maven.modrinth:sodium", version.ref = "sodium.forge" }
 
 # Testing
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
@@ -184,10 +184,10 @@ annotations = ["jsr305", "checkerFramework", "jetbrainsAnnotations"]
 kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 
 # Minecraft
-externalMods-common = ["jei-api", "nightConfig-core", "nightConfig-toml"]
-externalMods-forge-compile = ["moreRed", "oculus", "jei-api"]
+externalMods-common = ["iris-forge", "jei-api", "nightConfig-core", "nightConfig-toml"]
+externalMods-forge-compile = ["moreRed", "iris-forge", "jei-api"]
 externalMods-forge-runtime = ["jei-forge"]
-externalMods-fabric-compile = ["fabricPermissions", "iris", "jei-api", "rei-api", "rei-builtin"]
+externalMods-fabric-compile = ["fabricPermissions", "iris-fabric", "jei-api", "rei-api", "rei-builtin"]
 externalMods-fabric-runtime = ["jei-fabric", "modmenu"]
 
 # Testing
