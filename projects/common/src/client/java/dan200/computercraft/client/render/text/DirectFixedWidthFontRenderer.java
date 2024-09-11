@@ -13,6 +13,7 @@ import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
+import net.minecraft.util.FastColor;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -41,7 +42,7 @@ public final class DirectFixedWidthFontRenderer {
     private DirectFixedWidthFontRenderer() {
     }
 
-    private static void drawChar(QuadEmitter emitter, float x, float y, int index, byte[] colour) {
+    private static void drawChar(QuadEmitter emitter, float x, float y, int index, int colour) {
         // Short circuit to avoid the common case - the texture should be blank here after all.
         if (index == '\0' || index == ' ') return;
 
@@ -158,8 +159,8 @@ public final class DirectFixedWidthFontRenderer {
         return (terminal.getHeight() + 2) * (terminal.getWidth() + 2) * 2;
     }
 
-    private static void quad(QuadEmitter buffer, float x1, float y1, float x2, float y2, float z, byte[] rgba, float u1, float v1, float u2, float v2) {
-        buffer.quad(x1, y1, x2, y2, z, rgba, u1, v1, u2, v2);
+    private static void quad(QuadEmitter buffer, float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2) {
+        buffer.quad(x1, y1, x2, y2, z, colour, u1, v1, u2, v2);
     }
 
     public interface QuadEmitter {
@@ -167,7 +168,7 @@ public final class DirectFixedWidthFontRenderer {
 
         ByteBuffer buffer();
 
-        void quad(float x1, float y1, float x2, float y2, float z, byte[] rgba, float u1, float v1, float u2, float v2);
+        void quad(float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2);
     }
 
     public record ByteBufferEmitter(ByteBuffer buffer) implements QuadEmitter {
@@ -177,12 +178,12 @@ public final class DirectFixedWidthFontRenderer {
         }
 
         @Override
-        public void quad(float x1, float y1, float x2, float y2, float z, byte[] rgba, float u1, float v1, float u2, float v2) {
-            DirectFixedWidthFontRenderer.quad(buffer, x1, y1, x2, y2, z, rgba, u1, v1, u2, v2);
+        public void quad(float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2) {
+            DirectFixedWidthFontRenderer.quad(buffer, x1, y1, x2, y2, z, colour, u1, v1, u2, v2);
         }
     }
 
-    static void quad(ByteBuffer buffer, float x1, float y1, float x2, float y2, float z, byte[] rgba, float u1, float v1, float u2, float v2) {
+    static void quad(ByteBuffer buffer, float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2) {
         // Emit a single quad to our buffer. This uses Unsafe (well, LWJGL's MemoryUtil) to directly blit bytes to the
         // underlying buffer. This allows us to have a single bounds check up-front, rather than one for every write.
         // This provides significant performance gains, at the cost of well, using Unsafe.
@@ -196,16 +197,19 @@ public final class DirectFixedWidthFontRenderer {
         if (position < 0 || 112 > buffer.limit() - position) throw new IndexOutOfBoundsException();
         // Require the pointer to be aligned to a 32-bit boundary.
         if ((addr & 3) != 0) throw new IllegalStateException("Memory is not aligned");
-        // Also assert the length of the array. This appears to help elide bounds checks on the array in some circumstances.
-        if (rgba.length != 4) throw new IllegalStateException();
+
+        var red = (byte) FastColor.ARGB32.red(colour);
+        var green = (byte) FastColor.ARGB32.green(colour);
+        var blue = (byte) FastColor.ARGB32.blue(colour);
+        var alpha = (byte) FastColor.ARGB32.alpha(colour);
 
         memPutFloat(addr + 0, x1);
         memPutFloat(addr + 4, y1);
         memPutFloat(addr + 8, z);
-        memPutByte(addr + 12, rgba[0]);
-        memPutByte(addr + 13, rgba[1]);
-        memPutByte(addr + 14, rgba[2]);
-        memPutByte(addr + 15, (byte) 255);
+        memPutByte(addr + 12, red);
+        memPutByte(addr + 13, green);
+        memPutByte(addr + 14, blue);
+        memPutByte(addr + 15, alpha);
         memPutFloat(addr + 16, u1);
         memPutFloat(addr + 20, v1);
         memPutShort(addr + 24, (short) 0xF0);
@@ -214,10 +218,10 @@ public final class DirectFixedWidthFontRenderer {
         memPutFloat(addr + 28, x1);
         memPutFloat(addr + 32, y2);
         memPutFloat(addr + 36, z);
-        memPutByte(addr + 40, rgba[0]);
-        memPutByte(addr + 41, rgba[1]);
-        memPutByte(addr + 42, rgba[2]);
-        memPutByte(addr + 43, (byte) 255);
+        memPutByte(addr + 40, red);
+        memPutByte(addr + 41, green);
+        memPutByte(addr + 42, blue);
+        memPutByte(addr + 43, alpha);
         memPutFloat(addr + 44, u1);
         memPutFloat(addr + 48, v2);
         memPutShort(addr + 52, (short) 0xF0);
@@ -226,10 +230,10 @@ public final class DirectFixedWidthFontRenderer {
         memPutFloat(addr + 56, x2);
         memPutFloat(addr + 60, y2);
         memPutFloat(addr + 64, z);
-        memPutByte(addr + 68, rgba[0]);
-        memPutByte(addr + 69, rgba[1]);
-        memPutByte(addr + 70, rgba[2]);
-        memPutByte(addr + 71, (byte) 255);
+        memPutByte(addr + 68, red);
+        memPutByte(addr + 69, green);
+        memPutByte(addr + 70, blue);
+        memPutByte(addr + 71, alpha);
         memPutFloat(addr + 72, u2);
         memPutFloat(addr + 76, v2);
         memPutShort(addr + 80, (short) 0xF0);
@@ -238,10 +242,10 @@ public final class DirectFixedWidthFontRenderer {
         memPutFloat(addr + 84, x2);
         memPutFloat(addr + 88, y1);
         memPutFloat(addr + 92, z);
-        memPutByte(addr + 96, rgba[0]);
-        memPutByte(addr + 97, rgba[1]);
-        memPutByte(addr + 98, rgba[2]);
-        memPutByte(addr + 99, (byte) 255);
+        memPutByte(addr + 96, red);
+        memPutByte(addr + 97, green);
+        memPutByte(addr + 98, blue);
+        memPutByte(addr + 99, alpha);
         memPutFloat(addr + 100, u2);
         memPutFloat(addr + 104, v1);
         memPutShort(addr + 108, (short) 0xF0);

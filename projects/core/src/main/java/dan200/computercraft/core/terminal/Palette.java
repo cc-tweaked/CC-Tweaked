@@ -12,15 +12,13 @@ public class Palette {
 
     private final boolean colour;
     private final double[][] colours = new double[PALETTE_SIZE][3];
-    private final byte[][] byteColours = new byte[PALETTE_SIZE][4];
+    private final int[] byteColours = new int[PALETTE_SIZE];
 
     public static final Palette DEFAULT = new Palette(true);
 
     public Palette(boolean colour) {
         this.colour = colour;
         resetColours();
-
-        for (var i = 0; i < PALETTE_SIZE; i++) byteColours[i][3] = (byte) 255;
     }
 
     public void setColour(int i, double r, double g, double b) {
@@ -30,13 +28,15 @@ public class Palette {
         colours[i][2] = b;
 
         if (colour) {
-            byteColours[i][0] = (byte) (int) (r * 255);
-            byteColours[i][1] = (byte) (int) (g * 255);
-            byteColours[i][2] = (byte) (int) (b * 255);
+            byteColours[i] = packColour((int) (r * 255), (int) (g * 255), (int) (b * 255));
         } else {
-            var grey = (byte) (int) ((r + g + b) / 3 * 255);
-            byteColours[i][0] = byteColours[i][1] = byteColours[i][2] = grey;
+            var grey = (int) ((r + g + b) / 3 * 255);
+            byteColours[i] = packColour(grey, grey, grey);
         }
+    }
+
+    private static int packColour(int r, int g, int b) {
+        return 255 << 24 | (r & 255) << 16 | (g & 255) << 8 | b & 255;
     }
 
     public void setColour(int i, Colour colour) {
@@ -48,26 +48,20 @@ public class Palette {
     }
 
     /**
-     * Get the colour as a set of RGB values suitable for rendering. Colours are automatically converted to greyscale
+     * Get the colour as a set of ARGB values suitable for rendering. Colours are automatically converted to greyscale
      * when using a black and white palette.
      * <p>
-     * This returns a byte array, suitable for being used directly by our terminal vertex format.
+     * This returns a packed 32-bit ARGB colour.
      *
      * @param i The colour index.
-     * @return The number as a tuple of bytes.
+     * @return The actual RGB colour.
      */
-    public byte[] getRenderColours(int i) {
+    public int getRenderColours(int i) {
         return byteColours[i];
     }
 
-    public void resetColour(int i) {
-        if (i >= 0 && i < PALETTE_SIZE) setColour(i, Colour.VALUES[i]);
-    }
-
     public void resetColours() {
-        for (var i = 0; i < Colour.VALUES.length; i++) {
-            resetColour(i);
-        }
+        for (var i = 0; i < Colour.VALUES.length; i++) setColour(i, Colour.VALUES[i]);
     }
 
     public static int encodeRGB8(double[] rgb) {
