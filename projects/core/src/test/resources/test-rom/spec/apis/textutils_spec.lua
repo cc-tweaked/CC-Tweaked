@@ -296,6 +296,22 @@ describe("The textutils library", function()
             textutils.urlEncode("")
             expect.error(textutils.urlEncode, nil):eq("bad argument #1 (string expected, got nil)")
         end)
+
+        it("encodes newlines", function()
+            expect(textutils.urlEncode("a\nb")):eq("a%0D%0Ab")
+        end)
+
+        it("leaves normal characters as-is", function()
+            expect(textutils.urlEncode("abcABC0123")):eq("abcABC0123")
+        end)
+
+        it("escapes spaces", function()
+            expect(textutils.urlEncode("a b c")):eq("a+b+c")
+        end)
+
+        it("escapes special characters", function()
+            expect(textutils.urlEncode("a%b\0\255")):eq("a%25b%00%C3%BF")
+        end)
     end)
 
     describe("textutils.complete", function()

@@ -99,9 +99,16 @@ runs {
 }
 
 configurations {
+    val minecraftEmbed by registering {
+        isCanBeResolved = false
+        isCanBeConsumed = false
+    }
+    named("jarJar") { extendsFrom(minecraftEmbed.get()) }
+
     val minecraftLibrary by registering {
         isCanBeResolved = true
         isCanBeConsumed = false
+        extendsFrom(minecraftEmbed.get())
     }
     runtimeOnly { extendsFrom(minecraftLibrary.get()) }
 
@@ -129,8 +136,11 @@ dependencies {
     clientApi(clientClasses(project(":forge-api"))) { cct.exclude(this) }
     implementation(project(":core")) { cct.exclude(this) }
 
-    "minecraftLibrary"(libs.cobalt)
-    "minecraftLibrary"(libs.jzlib)
+    "minecraftEmbed"(libs.cobalt)
+    "minecraftEmbed"(libs.jzlib)
+
+    // We don't jar-in-jar our additional netty dependencies (see the tasks.jarJar configuration), but still want them
+    // on the legacy classpath.
     "minecraftLibrary"(libs.netty.http)
     "minecraftLibrary"(libs.netty.socks)
     "minecraftLibrary"(libs.netty.proxy)
@@ -165,9 +175,17 @@ tasks.processResources {
 
 tasks.jar {
     archiveClassifier.set("slim")
+    duplicatesStrategy = DuplicatesStrategy.FAIL
 
+    // Include all classes from other projects except core.
+    val coreSources = project(":core").sourceSets["main"]
     for (source in cct.sourceDirectories.get()) {
-        if (source.classes && source.external) from(source.sourceSet.output)
+        if (source.classes && source.sourceSet != coreSources) from(source.sourceSet.output)
+    }
+
+    // Include core separately, along with the relocated netty classes.
+    from(zipTree(project(":core").tasks.named("shadowJar", AbstractArchiveTask::class).map { it.archiveFile })) {
+        exclude("META-INF/**")
     }
 }
 
@@ -175,15 +193,8 @@ tasks.sourcesJar {
     for (source in cct.sourceDirectories.get()) from(source.sourceSet.allSource)
 }
 
-jarJar.enable()
-
 tasks.jarJar {
     archiveClassifier.set("")
-    configuration(project.configurations["minecraftLibrary"])
-
-    for (source in cct.sourceDirectories.get()) {
-        if (source.classes) from(source.sourceSet.output)
-    }
 }
 
 tasks.assemble { dependsOn("jarJar") }

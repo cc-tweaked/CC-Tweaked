@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2017 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+files:
+  - source: projects/common/src/generated/resources/assets/computercraft/lang/en_us.json
+    translation: /projects/common/src/main/resources/assets/computercraft/lang/%locale_with_underscore%.json
+    languages_mapping:
+      locale_with_underscore:
+        cs: cs_cs    # Czech
+        da: da_dk    # Danish
+        de: de_de    # German
+        es-ES: es_es # Spanish
+        fr: fr_fr    # French
+        it: it_it    # Italian
+        ja: ja_jp    # Japanese
+        ko: ko_kr    # Korean
+        nb: nb_no    # Norwegian Bokmal
+        nl: nl_nl    # Dutch
+        pl: pl_pl    # Polish
+        pt-BR: pt_br # Portuguese, Brazilian
+        ru: ru_ru    # Russian
+        sv-SE: sv_se # Sweedish
+        tok: tok     # Toki Pona
+        uk: uk_ua    # Ukraine
+        vi: vi_vn    # Vietnamese
+        zh-CN: zh_cn # Chinese Simplified

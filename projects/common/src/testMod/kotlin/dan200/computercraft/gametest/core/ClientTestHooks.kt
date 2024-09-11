@@ -73,6 +73,7 @@ object ClientTestHooks {
         minecraft.options.cloudStatus().set(CloudStatus.OFF)
         minecraft.options.particles().set(ParticleStatus.MINIMAL)
         minecraft.options.tutorialStep = TutorialSteps.NONE
+        minecraft.options.pauseOnLostFocus = false
         minecraft.options.renderDistance().set(6)
         minecraft.options.gamma().set(1.0)
         minecraft.options.getSoundSourceOptionInstance(SoundSource.MUSIC).set(0.0)
@@ -92,10 +93,7 @@ object ClientTestHooks {
                 LEVEL_NAME,
                 LevelSettings("Test Level", GameType.CREATIVE, false, Difficulty.EASY, true, rules, WorldDataConfiguration.DEFAULT),
                 WorldOptions(WorldOptions.randomSeed(), false, false),
-                {
-                    it.registryOrThrow(Registries.WORLD_PRESET).getHolderOrThrow(WorldPresets.FLAT).value()
-                        .createWorldDimensions()
-                },
+                { it.registryOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT).createWorldDimensions() },
                 screen,
             )
         }
@@ -112,7 +110,20 @@ object ClientTestHooks {
         val testTracker = when (val tracker = this.testTracker) {
             null -> {
                 if (server.overworld().players().isEmpty()) return
+
+                // Place our players above where the tests will run, looking down. This at least ensures they're in the
+                // right area when the tests start running.
+                for (player in server.overworld().players()) {
+                    player.abilities.flying = true
+                    player.onUpdateAbilities()
+                    player.connection.teleport(0.0, -30.0, 0.0, 0.0f, 90.0f)
+                    player.inventory.clearContent()
+                }
+
+                // Wait for all chunks to be rendered.
                 if (!Minecraft.getInstance().isRenderingStable()) return
+
+                // Then a little more just in case.
                 if (startupDelay >= 0) {
                     // TODO: Is there a better way? Maybe set a flag when the client starts rendering?
                     startupDelay--

@@ -6,8 +6,7 @@
 Convert between streams of DFPWM audio data and a list of amplitudes.
 
 DFPWM (Dynamic Filter Pulse Width Modulation) is an audio codec designed by GreaseMonkey. It's a relatively compact
-format compared to raw PCM data, only using 1 bit per sample, but is simple enough to simple enough to encode and decode
-in real time.
+format compared to raw PCM data, only using 1 bit per sample, but is simple enough to encode and decode in real time.
 
 Typically DFPWM audio is read from [the filesystem][`fs.ReadHandle`] or a [a web request][`http.Response`] as a string,
 and converted a format suitable for [`speaker.playAudio`].

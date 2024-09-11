@@ -53,5 +53,7 @@ class Printout_Test {
         }
 
         thenScreenshot()
+
+        thenExecute { helper.level.dayTime = Times.NOON }
     }
 }

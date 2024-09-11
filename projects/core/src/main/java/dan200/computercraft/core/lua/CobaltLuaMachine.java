@@ -95,11 +95,8 @@ public class CobaltLuaMachine implements ILuaMachine {
 
     private void addAPI(LuaState state, LuaTable globals, ILuaAPI api) throws LuaError {
         // Add the methods of an API to the global table
-        var table = wrapLuaObject(api);
-        if (table == null) {
-            LOG.warn("API {} does not provide any methods", api);
-            table = new LuaTable();
-        }
+        var table = new LuaTable();
+        if (!makeLuaObject(api, table)) LOG.warn("API {} does not provide any methods", api);
 
         var names = api.getNames();
         for (var name : names) globals.rawset(name, table);
@@ -163,13 +160,16 @@ public class CobaltLuaMachine implements ILuaMachine {
         timeout.removeListener(timeoutListener);
     }
 
-    @Nullable
-    private LuaTable wrapLuaObject(Object object) {
-        var table = new LuaTable();
-        var found = luaMethods.forEachMethod(object, (target, name, method, info) ->
+    /**
+     * Populate a table with methods from an object.
+     *
+     * @param object The object to draw methods from.
+     * @param table  The table to fill.
+     * @return Whether any methods were found.
+     */
+    private boolean makeLuaObject(Object object, LuaTable table) {
+        return luaMethods.forEachMethod(object, (target, name, method, info) ->
             table.rawset(name, new ResultInterpreterFunction(this, method, target, context, name)));
-
-        return found ? table : null;
     }
 
     private LuaValue toValue(@Nullable Object object, @Nullable IdentityHashMap<Object, LuaValue> values) throws LuaError {
@@ -184,47 +184,35 @@ public class CobaltLuaMachine implements ILuaMachine {
             return ValueFactory.valueOf(bytes);
         }
 
-        // Don't share singleton values, and instead convert them to a new table.
-        if (LuaUtil.isSingletonCollection(object)) return new LuaTable();
-
+        // We have a more complex object, which is possibly recursive. First look up our object in the lookup map,
+        // and reuse it if present.
         if (values == null) values = new IdentityHashMap<>(1);
         var result = values.get(object);
         if (result != null) return result;
 
-        var wrapped = toValueWorker(object, values);
-        if (wrapped == null) {
-            LOG.warn(Logging.JAVA_ERROR, "Received unknown type '{}', returning nil.", object.getClass().getName());
-            return Constants.NIL;
-        }
-
-        values.put(object, wrapped);
-        return wrapped;
-    }
-
-    /**
-     * Convert a complex Java object (such as a collection or Lua object) to a Lua value.
-     * <p>
-     * This is a worker function for {@link #toValue(Object, IdentityHashMap)}, which handles the actual construction
-     * of values, without reading/writing from the value map.
-     *
-     * @param object The object to convert.
-     * @param values The map of Java to Lua values.
-     * @return The converted value, or {@code null} if it could not be converted.
-     * @throws LuaError If the value could not be converted.
-     */
-    private @Nullable LuaValue toValueWorker(Object object, IdentityHashMap<Object, LuaValue> values) throws LuaError {
         if (object instanceof ILuaFunction) {
-            return new ResultInterpreterFunction(this, FUNCTION_METHOD, object, context, object.toString());
+            var function = new ResultInterpreterFunction(this, FUNCTION_METHOD, object, context, object.toString());
+            values.put(object, function);
+            return function;
         }
 
         if (object instanceof IDynamicLuaObject) {
-            LuaValue wrapped = wrapLuaObject(object);
-            if (wrapped == null) wrapped = new LuaTable();
-            return wrapped;
+            var table = new LuaTable();
+            makeLuaObject(object, table);
+            values.put(object, table);
+            return table;
         }
 
+        // The following objects may be recursive. In these instances, we need to be careful to store the value *before*
+        // recursing, to avoid stack overflows.
+
         if (object instanceof Map<?, ?> map) {
+            // Don't share singleton values, and instead convert them to a new table.
+            if (LuaUtil.isSingletonMap(map)) return new LuaTable();
+
             var table = new LuaTable();
+            values.put(object, table);
+
             for (var pair : map.entrySet()) {
                 var key = toValue(pair.getKey(), values);
                 var value = toValue(pair.getValue(), values);
@@ -234,7 +222,12 @@ public class CobaltLuaMachine implements ILuaMachine {
         }
 
         if (object instanceof Collection<?> objects) {
+            // Don't share singleton values, and instead convert them to a new table.
+            if (LuaUtil.isSingletonCollection(objects)) return new LuaTable();
+
             var table = new LuaTable(objects.size(), 0);
+            values.put(object, table);
+
             var i = 0;
             for (var child : objects) table.rawset(++i, toValue(child, values));
             return table;
@@ -242,11 +235,20 @@ public class CobaltLuaMachine implements ILuaMachine {
 
         if (object instanceof Object[] objects) {
             var table = new LuaTable(objects.length, 0);
+            values.put(object, table);
+
             for (var i = 0; i < objects.length; i++) table.rawset(i + 1, toValue(objects[i], values));
             return table;
         }
 
-        return wrapLuaObject(object);
+        var table = new LuaTable();
+        if (makeLuaObject(object, table)) {
+            values.put(object, table);
+            return table;
+        }
+
+        LOG.warn(Logging.JAVA_ERROR, "Received unknown type '{}', returning nil.", object.getClass().getName());
+        return Constants.NIL;
     }
 
     Varargs toValues(@Nullable Object[] objects) throws LuaError {
