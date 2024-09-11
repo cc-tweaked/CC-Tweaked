@@ -701,7 +701,7 @@ class Turtle_Test {
     @GameTest
     fun Breaks_exploding_block(context: GameTestHelper) = context.sequence {
         thenOnComputer { turtle.dig(Optional.empty()) }
-        thenIdle(2)
+        thenWaitUntil { context.assertBlockPresent(Blocks.AIR, BlockPos(2, 2, 2)) }
         thenExecute {
             context.assertItemEntityCountIs(ModRegistry.Items.TURTLE_NORMAL.get(), 1)
             context.assertItemEntityCountIs(Items.BONE_BLOCK, 65)
