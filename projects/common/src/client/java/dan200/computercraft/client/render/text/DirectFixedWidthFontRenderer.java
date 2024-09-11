@@ -13,10 +13,11 @@ import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
-import net.minecraft.util.FastColor;
+import dan200.computercraft.shared.util.ARGB32;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.*;
 import static org.lwjgl.system.MemoryUtil.*;
@@ -39,6 +40,8 @@ import static org.lwjgl.system.MemoryUtil.*;
  * {@link FixedWidthFontRenderer}.
  */
 public final class DirectFixedWidthFontRenderer {
+    private static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
+
     private DirectFixedWidthFontRenderer() {
     }
 
@@ -198,18 +201,14 @@ public final class DirectFixedWidthFontRenderer {
         // Require the pointer to be aligned to a 32-bit boundary.
         if ((addr & 3) != 0) throw new IllegalStateException("Memory is not aligned");
 
-        var red = (byte) FastColor.ARGB32.red(colour);
-        var green = (byte) FastColor.ARGB32.green(colour);
-        var blue = (byte) FastColor.ARGB32.blue(colour);
-        var alpha = (byte) FastColor.ARGB32.alpha(colour);
+        // Pack colour so it is equivalent to rgba:BBBB.
+        var colourAbgr = ARGB32.toABGR32(colour);
+        var nativeColour = IS_LITTLE_ENDIAN ? colourAbgr : Integer.reverseBytes(colourAbgr);
 
         memPutFloat(addr + 0, x1);
         memPutFloat(addr + 4, y1);
         memPutFloat(addr + 8, z);
-        memPutByte(addr + 12, red);
-        memPutByte(addr + 13, green);
-        memPutByte(addr + 14, blue);
-        memPutByte(addr + 15, alpha);
+        memPutInt(addr + 12, nativeColour);
         memPutFloat(addr + 16, u1);
         memPutFloat(addr + 20, v1);
         memPutShort(addr + 24, (short) 0xF0);
@@ -218,10 +217,7 @@ public final class DirectFixedWidthFontRenderer {
         memPutFloat(addr + 28, x1);
         memPutFloat(addr + 32, y2);
         memPutFloat(addr + 36, z);
-        memPutByte(addr + 40, red);
-        memPutByte(addr + 41, green);
-        memPutByte(addr + 42, blue);
-        memPutByte(addr + 43, alpha);
+        memPutInt(addr + 40, nativeColour);
         memPutFloat(addr + 44, u1);
         memPutFloat(addr + 48, v2);
         memPutShort(addr + 52, (short) 0xF0);
@@ -230,10 +226,7 @@ public final class DirectFixedWidthFontRenderer {
         memPutFloat(addr + 56, x2);
         memPutFloat(addr + 60, y2);
         memPutFloat(addr + 64, z);
-        memPutByte(addr + 68, red);
-        memPutByte(addr + 69, green);
-        memPutByte(addr + 70, blue);
-        memPutByte(addr + 71, alpha);
+        memPutInt(addr + 68, nativeColour);
         memPutFloat(addr + 72, u2);
         memPutFloat(addr + 76, v2);
         memPutShort(addr + 80, (short) 0xF0);
@@ -242,10 +235,7 @@ public final class DirectFixedWidthFontRenderer {
         memPutFloat(addr + 84, x2);
         memPutFloat(addr + 88, y1);
         memPutFloat(addr + 92, z);
-        memPutByte(addr + 96, red);
-        memPutByte(addr + 97, green);
-        memPutByte(addr + 98, blue);
-        memPutByte(addr + 99, alpha);
+        memPutInt(addr + 96, nativeColour);
         memPutFloat(addr + 100, u2);
         memPutFloat(addr + 104, v1);
         memPutShort(addr + 108, (short) 0xF0);
