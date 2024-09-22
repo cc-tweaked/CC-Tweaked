@@ -48,8 +48,9 @@ public interface IPeripheral {
      * {@code peripheral.call()}. This method can be used to keep track of which computers are attached to the
      * peripheral, or to take action when attachment occurs.
      * <p>
-     * Be aware that will be called from both the server thread and ComputerCraft Lua thread, and so must be thread-safe
-     * and reentrant.
+     * Be aware that may be called from both the server thread and ComputerCraft Lua thread, and so must be thread-safe
+     * and reentrant. If you need to store a list of attached computers, it is recommended you use a
+     * {@link AttachedComputerSet}.
      *
      * @param computer The interface to the computer that is being attached. Remember that multiple computers can be
      *                 attached to a peripheral at once.
@@ -68,8 +69,9 @@ public interface IPeripheral {
      * This method can be used to keep track of which computers are attached to the peripheral, or to take action when
      * detachment occurs.
      * <p>
-     * Be aware that this will be called from both the server and ComputerCraft Lua thread, and must be thread-safe
-     * and reentrant.
+     * Be aware that this may be called from both the server and ComputerCraft Lua thread, and must be thread-safe
+     * and reentrant. If you need to store a list of attached computers, it is recommended you use a
+     * {@link AttachedComputerSet}.
      *
      * @param computer The interface to the computer that is being detached. Remember that multiple computers can be
      *                 attached to a peripheral at once.
