@@ -81,7 +81,7 @@ compatibility for these newer versions.
 | `string.dump` strip argument                                                          | ✔          |                           |
 | `string.pack`/`string.unpack`/`string.packsize`                                       | ✔          |                           |
 | `table.move`                                                                          | ✔          |                           |
-| `math.atan2` -> `math.atan`                                                           | ❌         |                           |
+| `math.atan2` -> `math.atan`                                                           | 🔶         | `math.atan` supports its two argument form. |
 | Removed `math.frexp`, `math.ldexp`, `math.pow`, `math.cosh`, `math.sinh`, `math.tanh` | ❌         |                           |
 | `math.maxinteger`/`math.mininteger`                                                   | ❌         |                           |
 | `math.tointeger`                                                                      | ❌         |                           |
