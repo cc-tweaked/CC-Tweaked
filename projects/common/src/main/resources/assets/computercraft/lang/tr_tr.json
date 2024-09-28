@@ -175,7 +175,7 @@
   "gui.computercraft.config.upload_max_size": "Dosya yükleme boyut sınırı (bayt)",
   "gui.computercraft.config.upload_max_size.tooltip": "Bayt cinsinden dosya yükleme boyut sınırı. 1 KiB ve 16 MiB aralığında olmalıdır.\nYüklemelerin tek bir tikte işlendiğini unutmayın - büyük dosyalar veya düşük ağ\nperformansı ağ iş parçacığını bekletebilir. Ve disk alanına dikkat edin!\nAralık: 1024 ~ 16777216",
   "gui.computercraft.config.upload_nag_delay": "Yükleme nag gecikmesi",
-  "gui.computercraft.config.upload_nag_delay.tooltip": "Halledilmemiş içe aktarmalar hakkında bildirimde bulunacağımız saniye cinsinden gecikme. Devre dışı bırakmak için 0 olarak ayarla.\nAralık: 0 ~ 60",
+  "gui.computercraft.config.upload_nag_delay.tooltip": "Beklenmeyen içe aktarmalar hakkında bildirimde bulunacağımız saniye cinsinden gecikme. Devre dışı bırakmak için 0 olarak ayarla.\nAralık: 0 ~ 60",
   "gui.computercraft.pocket_computer_overlay": "Cep bilgisayarı açık. Kapatmak için ESC tuşuna bas.",
   "gui.computercraft.terminal": "Bilgisayar terminali",
   "gui.computercraft.tooltip.computer_id": "Bilgisayar Kimliği: %s",
