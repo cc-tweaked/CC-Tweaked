@@ -21,6 +21,7 @@ files:
         ru: ru_ru    # Russian
         sv-SE: sv_se # Sweedish
         tok: tok     # Toki Pona
+        tr: tr_tr    # Turkish
         uk: uk_ua    # Ukraine
         vi: vi_vn    # Vietnamese
         zh-CN: zh_cn # Chinese Simplified
