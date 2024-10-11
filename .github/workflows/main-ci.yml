@@ -30,8 +30,16 @@ jobs:
     - name: ⚒️ Build
       run: ./gradlew assemble || ./gradlew assemble
 
+    - name: Cache pre-commit
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pre-commit
+        key: pre-commit-3|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}
+
     - name: 💡 Lint
-      uses: pre-commit/action@v3.0.0
+      run: |
+        pipx install pre-commit
+        pre-commit run --show-diff-on-failure --color=always
 
     - name: 🧪 Run tests
       run: ./gradlew test validateMixinNames checkChangelog
