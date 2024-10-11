@@ -38,8 +38,6 @@
   "commands.computercraft.generic.additional_rows": "%d additional rows…",
   "commands.computercraft.generic.exception": "Unhandled exception (%s)",
   "commands.computercraft.generic.no": "N",
-  "commands.computercraft.generic.no_position": "<no pos>",
-  "commands.computercraft.generic.position": "%s, %s, %s",
   "commands.computercraft.generic.yes": "Y",
   "commands.computercraft.help.desc": "Displays this help message",
   "commands.computercraft.help.no_children": "%s has no sub-commands",

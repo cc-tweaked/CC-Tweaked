@@ -40,9 +40,8 @@ public final class ChatHelpers {
         return component;
     }
 
-    public static MutableComponent position(@Nullable BlockPos pos) {
-        if (pos == null) return Component.translatable("commands.computercraft.generic.no_position");
-        return Component.translatable("commands.computercraft.generic.position", pos.getX(), pos.getY(), pos.getZ());
+    public static MutableComponent position(BlockPos pos) {
+        return Component.literal(pos.toShortString());
     }
 
     public static MutableComponent bool(boolean value) {

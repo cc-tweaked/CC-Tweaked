@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2020 The CC: Tweaked Developers
 //
-// SPDX-License-Identifier: LicenseRef-CCPL
+// SPDX-License-Identifier: MPL-2.0
 
 package dan200.computercraft.shared.peripheral.generic.methods;
 
