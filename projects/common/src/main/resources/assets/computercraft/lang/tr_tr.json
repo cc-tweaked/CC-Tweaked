@@ -38,8 +38,6 @@
     "commands.computercraft.generic.additional_rows": "Fazladan %d satır…",
     "commands.computercraft.generic.exception": "Beklenmeyen durum (%s)",
     "commands.computercraft.generic.no": "N",
-    "commands.computercraft.generic.no_position": "<no pos>",
-    "commands.computercraft.generic.position": "%s, %s, %s",
     "commands.computercraft.generic.yes": "Y",
     "commands.computercraft.help.desc": "Bu yardım mesajını gösterir",
     "commands.computercraft.help.no_children": "%s, hiçbir alt komuta sahip değil",
