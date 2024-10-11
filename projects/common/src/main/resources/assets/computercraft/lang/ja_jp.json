@@ -38,8 +38,6 @@
     "commands.computercraft.generic.additional_rows": "%d行を追加…",
     "commands.computercraft.generic.exception": "未処理の例外 (%s)",
     "commands.computercraft.generic.no": "N",
-    "commands.computercraft.generic.no_position": "<no pos>",
-    "commands.computercraft.generic.position": "%s, %s, %s",
     "commands.computercraft.generic.yes": "Y",
     "commands.computercraft.help.desc": "このヘルプメッセージを表示します",
     "commands.computercraft.help.no_children": "%s にサブコマンドはありません",
