@@ -450,10 +450,7 @@ function dofile(_sFile)
 end
 
 -- Install the rest of the OS api
-function os.run(_tEnv, _sPath, ...)
-    expect(1, _tEnv, "table")
-    expect(2, _sPath, "string")
-
+local function launch(_tEnv, _sPath, ...)
     local tEnv = _tEnv
     setmetatable(tEnv, { __index = _G })
 
@@ -470,17 +467,21 @@ function os.run(_tEnv, _sPath, ...)
     if fnFile then
         local ok, err = pcall(fnFile, ...)
         if not ok then
-            if err and err ~= "" then
-                printError(err)
-            end
-            return false
+            return false, err
         end
         return true
     end
+    return false, err
+end
+
+function os.run(_tEnv, _sPath, ...)
+    expect(1, _tEnv, "table")
+    expect(2, _sPath, "string")
+    local ok, err = launch(_tEnv, _sPath, ...)
     if err and err ~= "" then
         printError(err)
     end
-    return false
+    return ok
 end
 
 local tAPIsLoading = {}
@@ -697,6 +698,20 @@ if term.isColour() then
         type = "boolean",
     })
 end
+
+local sShell
+if term.isColour() and settings.get("bios.use_multishell") then
+    sShell = "rom/programs/advanced/multishell.lua"
+else
+    sShell = "rom/programs/shell.lua"
+end
+
+settings.define("bios.shell_path", {
+    default = sShell,
+    description = "The path the bios executes as the shell. This program is responsible for implementing the shell and multishell API, handling user input, and program execution.",
+    type = "string",
+})
+
 if _CC_DEFAULT_SETTINGS then
     for sPair in string.gmatch(_CC_DEFAULT_SETTINGS, "[^,]+") do
         local sName, sValue = string.match(sPair, "([^=]*)=(.*)")
@@ -728,24 +743,25 @@ if fs.exists(".settings") then
 end
 
 -- Run the shell
+local shellOk, shellErr
 local ok, err = pcall(parallel.waitForAny,
     function()
-        local sShell
-        if term.isColour() and settings.get("bios.use_multishell") then
-            sShell = "rom/programs/advanced/multishell.lua"
-        else
-            sShell = "rom/programs/shell.lua"
+        shellOk, shellErr = launch({}, settings.get("bios.shell_path"))
+        if shellOk then
+            os.run({}, "rom/programs/shutdown.lua")
         end
-        os.run({}, sShell)
-        os.run({}, "rom/programs/shutdown.lua")
     end,
     rednet.run
 )
 
 -- If the shell errored, let the user read it.
 term.redirect(term.native())
-if not ok then
-    printError(err)
+if not (ok and shellOk) then
+    if not ok then
+        printError(err)
+    elseif not shellOk then
+        printError(shellErr)
+    end
     pcall(function()
         term.setCursorBlink(false)
         print("Press any key to continue")
