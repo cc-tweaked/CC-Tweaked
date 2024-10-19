@@ -18,7 +18,7 @@ describe("The set program", function()
         setup()
 
         expect(capture("set"))
-            :matches { ok = true, output = '"test" is "Hello World!"\n"test.defined" is 456\n', error = "" }
+            :matches { ok = true, output = 'test is "Hello World!"\ntest.defined is 456\n', error = "" }
     end)
 
     it("displays a single setting", function()
@@ -47,7 +47,7 @@ describe("The set program", function()
         setup()
 
         expect(capture("set test Hello"))
-            :matches { ok = true, output = '"test" set to "Hello"\n', error = "" }
+            :matches { ok = true, output = 'test set to "Hello"\n', error = "" }
 
         expect(settings.get("test")):eq("Hello")
     end)
@@ -58,6 +58,6 @@ describe("The set program", function()
         expect(capture("set test.defined Hello"))
             :matches { ok = true, output = "", error = '"Hello" is not a valid number.\n' }
         expect(capture("set test.defined 456"))
-            :matches { ok = true, output = '"test.defined" set to 456\n', error = "" }
+            :matches { ok = true, output = 'test.defined set to 456\n', error = "" }
     end)
 end)
