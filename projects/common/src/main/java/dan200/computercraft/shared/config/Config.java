@@ -4,8 +4,6 @@
 
 package dan200.computercraft.shared.config;
 
-import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
-
 /**
  * ComputerCraft's global config.
  *
@@ -23,7 +21,6 @@ public final class Config {
     public static int modemRangeDuringStorm = 64;
     public static int modemHighAltitudeRangeDuringStorm = 384;
     public static int maxNotesPerTick = 8;
-    public static MonitorRenderer monitorRenderer = MonitorRenderer.BEST;
     public static int monitorDistance = 65;
     public static long monitorBandwidth = 1_000_000;
 

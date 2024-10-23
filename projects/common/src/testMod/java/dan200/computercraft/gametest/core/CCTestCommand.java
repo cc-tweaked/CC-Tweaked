@@ -17,8 +17,8 @@ import net.minecraft.gametest.framework.StructureUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.storage.LevelResource;
@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
-import static dan200.computercraft.core.util.Nullability.assertNonNull;
 import static dan200.computercraft.shared.command.builder.HelpingArgumentBuilder.choice;
 import static net.minecraft.commands.Commands.literal;
 
@@ -69,19 +68,19 @@ class CCTestCommand {
                 var info = GameTestRegistry.getTestFunction(structureBlock.getMetaData());
 
                 // Kill the existing armor stand
-                player
-                    .serverLevel().getEntities(EntityType.ARMOR_STAND, x -> x.isAlive() && x.getName().getString().equals(info.testName()))
-                    .forEach(Entity::kill);
+                var level = player.serverLevel();
+                level.getEntities(EntityType.ARMOR_STAND, x -> x.isAlive() && x.getName().getString().equals(info.testName()))
+                    .forEach(e -> e.kill(level));
 
                 // And create a new one
                 var nbt = new CompoundTag();
                 nbt.putBoolean("Marker", true);
                 nbt.putBoolean("Invisible", true);
-                var armorStand = assertNonNull(EntityType.ARMOR_STAND.create(player.level()));
+                var armorStand = new ArmorStand(EntityType.ARMOR_STAND, level);
                 armorStand.readAdditionalSaveData(nbt);
                 armorStand.copyPosition(player);
                 armorStand.setCustomName(Component.literal(info.testName()));
-                player.level().addFreshEntity(armorStand);
+                level.addFreshEntity(armorStand);
                 return 0;
             }))
 

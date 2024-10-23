@@ -5,10 +5,14 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dan200.computercraft.client.gui.GuiSprites;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.joml.Matrix4f;
+
+import java.util.function.Consumer;
 
 /**
  * A {@link GuiGraphics}-equivalent which is suitable for both rendering in to a GUI and in-world (as part of an entity
@@ -34,11 +38,11 @@ public class SpriteRenderer {
         this.b = b;
     }
 
-    public static SpriteRenderer createForGui(GuiGraphics graphics, RenderType renderType) {
-        return new SpriteRenderer(
-            graphics.pose().last().pose(), graphics.bufferSource().getBuffer(renderType),
-            0, RenderTypes.FULL_BRIGHT_LIGHTMAP, 255, 255, 255
-        );
+    public static void inGui(GuiGraphics graphics, Consumer<SpriteRenderer> renderer) {
+        graphics.drawSpecial(bufferSource -> renderer.accept(new SpriteRenderer(
+            graphics.pose().last().pose(), bufferSource.getBuffer(RenderType.guiTextured(GuiSprites.TEXTURE)),
+            0, LightTexture.FULL_BRIGHT, 255, 255, 255
+        )));
     }
 
     /**

@@ -8,7 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.client.ClientHooks;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemFrameRenderer;
-import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.client.renderer.entity.state.ItemFrameRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,13 +18,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @SuppressWarnings("UnusedMethod")
 class ItemFrameRendererMixin {
     @Inject(
-        method = "render(Lnet/minecraft/world/entity/decoration/ItemFrame;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+        method = "render(Lnet/minecraft/client/renderer/entity/state/ItemFrameRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
         at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionf;)V", ordinal = 2, shift = At.Shift.AFTER),
         cancellable = true
     )
     @SuppressWarnings("unused")
-    private void render(ItemFrame entity, float yaw, float partialTicks, PoseStack pose, MultiBufferSource buffers, int light, CallbackInfo ci) {
-        if (ClientHooks.onRenderItemFrame(pose, buffers, entity, entity.getItem(), light)) {
+    private void render(ItemFrameRenderState frame, PoseStack pose, MultiBufferSource buffers, int light, CallbackInfo ci) {
+        if (ClientHooks.onRenderItemFrame(pose, buffers, frame, frame.itemStack, light)) {
             ci.cancel();
             pose.popPose();
         }

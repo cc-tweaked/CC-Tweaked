@@ -2,10 +2,7 @@
   "type": "computercraft:impostor_shaped",
   "category": "redstone",
   "group": "computercraft:pocket_advanced",
-  "key": {
-    "#": {"item": "computercraft:wireless_modem_normal"},
-    "P": {"item": "computercraft:pocket_computer_advanced"}
-  },
+  "key": {"#": "computercraft:wireless_modem_normal", "P": "computercraft:pocket_computer_advanced"},
   "pattern": ["#", "P"],
   "result": {
     "components": {"computercraft:pocket_upgrade": {"id": "computercraft:wireless_modem_normal"}},

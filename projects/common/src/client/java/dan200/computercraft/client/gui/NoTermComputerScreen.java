@@ -67,7 +67,7 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        Objects.requireNonNull(minecraft().player).getInventory().swapPaint(scrollY);
+        // FIXME(1.21.2): Objects.requireNonNull(minecraft().player).getInventory().setSelectedHotbarSlot(scrollY);
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 

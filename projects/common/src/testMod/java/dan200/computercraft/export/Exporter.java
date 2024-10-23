@@ -24,8 +24,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.minecraft.world.item.crafting.ShapelessRecipe;
+import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
+import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 
 import java.io.File;
 import java.io.IOException;
@@ -83,34 +84,36 @@ public class Exporter {
         }
 
         // Now find all CC recipes.
-        var level = Objects.requireNonNull(Minecraft.getInstance().level);
-        for (var recipe : level.getRecipeManager().getAllRecipesFor(RecipeType.CRAFTING)) {
-            var result = recipe.value().getResultItem(level.registryAccess());
-            if (!RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, result.getItem()).getNamespace().equals(ComputerCraftAPI.MOD_ID)) {
-                continue;
-            }
+        var server = Objects.requireNonNull(Minecraft.getInstance().getSingleplayerServer());
+        for (var recipe : server.getRecipeManager().getRecipes()) {
+            if (recipe.value().getType() != RecipeType.CRAFTING) continue;
+            if (!recipe.id().location().getNamespace().equals(ComputerCraftAPI.MOD_ID)) continue;
+
+            var displayInfos = recipe.value().display();
+            if (displayInfos.isEmpty()) continue;
+            var displayInfo = displayInfos.getFirst();
+
+            var result = ((SlotDisplay.ItemStackSlotDisplay) displayInfo.result()).stack();
             if (!result.getComponentsPatch().isEmpty()) {
                 TestHooks.LOG.warn("Skipping recipe {} as it has NBT", recipe.id());
                 continue;
             }
 
-            if (recipe.value() instanceof ShapedRecipe shaped) {
+            if (displayInfo instanceof ShapedCraftingRecipeDisplay shaped) {
                 var converted = new JsonDump.Recipe(result);
 
-                for (var x = 0; x < shaped.getWidth(); x++) {
-                    for (var y = 0; y < shaped.getHeight(); y++) {
-                        var ingredient = shaped.getIngredients().get(x + y * shaped.getWidth());
-                        if (ingredient.isEmpty()) continue;
-
+                for (var x = 0; x < shaped.width(); x++) {
+                    for (var y = 0; y < shaped.height(); y++) {
+                        var ingredient = shaped.ingredients().get(x + y * shaped.width());
                         converted.setInput(x + y * 3, ingredient, items);
                     }
                 }
 
                 dump.recipes.put(recipe.id().toString(), converted);
-            } else if (recipe.value() instanceof ShapelessRecipe shapeless) {
+            } else if (displayInfo instanceof ShapelessCraftingRecipeDisplay shapeless) {
                 var converted = new JsonDump.Recipe(result);
 
-                var ingredients = shapeless.getIngredients();
+                var ingredients = shapeless.ingredients();
                 for (var i = 0; i < ingredients.size(); i++) {
                     converted.setInput(i, ingredients.get(i), items);
                 }

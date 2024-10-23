@@ -73,11 +73,6 @@ public final class ClearColourRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int x, int y) {
-        return x * y >= 2;
-    }
-
-    @Override
     public RecipeSerializer<ClearColourRecipe> getSerializer() {
         return ModRegistry.RecipeSerializers.DYEABLE_ITEM_CLEAR.get();
     }

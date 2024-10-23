@@ -23,7 +23,6 @@ import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiCache;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
-import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
@@ -40,6 +39,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
@@ -56,8 +56,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -87,7 +86,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @SuppressWarnings("unchecked")
     private static <T> Registry<T> getRegistry(ResourceKey<Registry<T>> id) {
-        var registry = (Registry<T>) BuiltInRegistries.REGISTRY.get(id.location());
+        var registry = (Registry<T>) BuiltInRegistries.REGISTRY.getValue(id.location());
         if (registry == null) throw new IllegalArgumentException("Unknown registry " + id);
         return registry;
     }
@@ -146,16 +145,16 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public RecipeIngredients getRecipeIngredients() {
         return new RecipeIngredients(
-            Ingredient.of(ConventionalItemTags.REDSTONE_DUSTS),
-            Ingredient.of(ConventionalItemTags.STRINGS),
-            Ingredient.of(ConventionalItemTags.LEATHERS),
-            Ingredient.of(ConventionalItemTags.GLASS_PANES),
-            Ingredient.of(ConventionalItemTags.GOLD_INGOTS),
-            Ingredient.of(ConventionalItemTags.STORAGE_BLOCKS_GOLD),
-            Ingredient.of(ConventionalItemTags.IRON_INGOTS),
-            Ingredient.of(ConventionalItemTags.DYES),
-            Ingredient.of(ConventionalItemTags.ENDER_PEARLS),
-            Ingredient.of(ConventionalItemTags.WOODEN_CHESTS)
+            ConventionalItemTags.REDSTONE_DUSTS,
+            ConventionalItemTags.STRINGS,
+            ConventionalItemTags.LEATHERS,
+            ConventionalItemTags.GLASS_PANES,
+            ConventionalItemTags.GOLD_INGOTS,
+            ConventionalItemTags.STORAGE_BLOCKS_GOLD,
+            ConventionalItemTags.IRON_INGOTS,
+            ConventionalItemTags.DYES,
+            ConventionalItemTags.ENDER_PEARLS,
+            ConventionalItemTags.WOODEN_CHESTS
         );
     }
 
@@ -182,9 +181,8 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public int getBurnTime(ItemStack stack) {
-        @Nullable var fuel = FuelRegistry.INSTANCE.get(stack.getItem());
-        return fuel == null ? 0 : fuel;
+    public int getBurnTime(MinecraftServer server, ItemStack stack) {
+        return server.fuelValues().burnDuration(stack);
     }
 
     @Override
@@ -198,7 +196,7 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public List<ItemStack> getRecipeRemainingItems(ServerPlayer player, Recipe<CraftingInput> recipe, CraftingInput container) {
+    public List<ItemStack> getRecipeRemainingItems(ServerPlayer player, CraftingRecipe recipe, CraftingInput container) {
         return recipe.getRemainingItems(container);
     }
 
@@ -230,6 +228,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public boolean interactWithEntity(ServerPlayer player, Entity entity, Vec3 hitPos) {
+        // TODO: Properly handle
         return UseEntityCallback.EVENT.invoker().interact(player, entity.level(), InteractionHand.MAIN_HAND, entity, new EntityHitResult(entity, hitPos)).consumesAction() ||
             entity.interactAt(player, hitPos.subtract(entity.position()), InteractionHand.MAIN_HAND).consumesAction() ||
             player.interactOn(entity, InteractionHand.MAIN_HAND).consumesAction();
@@ -243,7 +242,7 @@ public class PlatformHelperImpl implements PlatformHelper {
         var block = player.level().getBlockState(hit.getBlockPos());
         if (!block.isAir() && canUseBlock.test(block)) {
             var useResult = block.useItemOn(stack, player.level(), player, InteractionHand.MAIN_HAND, hit);
-            if (useResult.consumesAction()) return useResult.result();
+            if (useResult.consumesAction()) return useResult;
 
             // TODO(1.20.5): Should we do this unconditionally now? Or at least a better way of configuring it.
             // TODO(1.20.5:  What to do with useWithoutItem

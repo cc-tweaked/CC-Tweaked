@@ -5,9 +5,9 @@
 package dan200.computercraft.shared.data;
 
 import dan200.computercraft.shared.ModRegistry;
+import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
@@ -26,12 +26,12 @@ public final class PlayerCreativeLootCondition implements LootItemCondition {
 
     @Override
     public boolean test(LootContext lootContext) {
-        var entity = lootContext.getParamOrNull(LootContextParams.THIS_ENTITY);
+        var entity = lootContext.getOptionalParameter(LootContextParams.THIS_ENTITY);
         return entity instanceof Player player && player.isCreative();
     }
 
     @Override
-    public Set<LootContextParam<?>> getReferencedContextParams() {
+    public Set<ContextKey<?>> getReferencedContextParams() {
         return Set.of(LootContextParams.THIS_ENTITY);
     }
 

@@ -9,22 +9,23 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.PrintoutData;
 import dan200.computercraft.shared.media.items.PrintoutItem;
-import dan200.computercraft.shared.recipe.RecipeProperties;
+import dan200.computercraft.shared.recipe.AbstractCraftingRecipe;
 import dan200.computercraft.shared.recipe.ShapelessRecipeSpec;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
-import net.minecraft.world.entity.player.StackedContents;
+import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.ShapelessRecipe;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,10 +37,10 @@ import java.util.List;
  * @see PrintoutItem
  * @see PrintoutData
  */
-public final class PrintoutRecipe extends ShapelessRecipe {
+public final class PrintoutRecipe extends AbstractCraftingRecipe {
     public static final MapCodec<PrintoutRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         ShapelessRecipeSpec.CODEC.forGetter(PrintoutRecipe::toSpec),
-        Ingredient.CODEC_NONEMPTY.fieldOf("printout").forGetter(x -> x.printout),
+        Ingredient.CODEC.fieldOf("printout").forGetter(x -> x.printout),
         ExtraCodecs.POSITIVE_INT.fieldOf("min_printouts").forGetter(x -> x.minPrintouts)
     ).apply(instance, PrintoutRecipe::new));
 
@@ -50,12 +51,15 @@ public final class PrintoutRecipe extends ShapelessRecipe {
         PrintoutRecipe::new
     );
 
-    private final NonNullList<Ingredient> ingredients;
+    private final ShapelessRecipeSpec spec;
+    private final List<Ingredient> ingredients;
+    private @Nullable PlacementInfo ingredientInfo;
+
+    private final List<Ingredient> placementIngredients;
+    private @Nullable PlacementInfo placementInfo;
+
     private final Ingredient printout;
     private final int minPrintouts;
-    private final ShapelessRecipe innerRecipe;
-
-    private final ItemStack result;
 
     /**
      * Construct a new {@link PrintoutRecipe}.
@@ -67,34 +71,44 @@ public final class PrintoutRecipe extends ShapelessRecipe {
     public PrintoutRecipe(
         ShapelessRecipeSpec spec, Ingredient printout, int minPrintouts
     ) {
-        // We use the full list of ingredients in the recipe itself, so that it behaves sensibly with recipe mods.
-        super(spec.properties().group(), spec.properties().category(), spec.result(), concat(spec.ingredients(), printout, minPrintouts));
+        super(spec.properties());
 
+        this.spec = spec;
         this.ingredients = spec.ingredients();
+        // We use the full list of ingredients for the display/placement information.
+        this.placementIngredients = concat(spec.ingredients(), printout, minPrintouts);
+
         this.printout = printout;
         this.minPrintouts = minPrintouts;
-        this.result = spec.result();
-
-        // However, when testing whether the recipe matches, we only want to use the non-printout ingredients. To do
-        // that, we create a hidden recipe with the main ingredients.
-        this.innerRecipe = spec.create();
     }
 
-    private static NonNullList<Ingredient> concat(NonNullList<Ingredient> first, Ingredient pages, int pagesRequired) {
-        var result = NonNullList.withSize(first.size() + pagesRequired, Ingredient.EMPTY);
-        var idx = 0;
-        for (var ingredient : first) result.set(idx++, ingredient);
-        for (var i = 0; i < pagesRequired; i++) result.set(idx++, pages);
+    private static List<Ingredient> concat(List<Ingredient> first, Ingredient pages, int pagesRequired) {
+        var result = new ArrayList<Ingredient>(first.size() + pagesRequired);
+        result.addAll(first);
+        for (var i = 0; i < pagesRequired; i++) result.add(pages);
         return result;
     }
 
-    private ShapelessRecipeSpec toSpec() {
-        return new ShapelessRecipeSpec(RecipeProperties.of(this), ingredients, result);
+    @Override
+    public PlacementInfo placementInfo() {
+        if (placementInfo == null) placementInfo = PlacementInfo.create(placementIngredients);
+        return placementInfo;
+    }
+
+    @Override
+    public List<RecipeDisplay> display() {
+        return List.of(
+            new ShapelessCraftingRecipeDisplay(
+                placementIngredients.stream().map(Ingredient::display).toList(),
+                new SlotDisplay.ItemStackSlotDisplay(spec.result()),
+                new SlotDisplay.ItemSlotDisplay(Items.CRAFTING_TABLE)
+            )
+        );
     }
 
     @Override
     public boolean matches(CraftingInput inv, Level world) {
-        var stackedContents = new StackedContents();
+        var stackedContents = new StackedItemContents();
 
         var inputs = 0;
         var printouts = 0;
@@ -121,7 +135,14 @@ public final class PrintoutRecipe extends ShapelessRecipe {
         }
 
         return hasPrintout && printouts >= minPrintouts && pages <= PrintoutData.MAX_PAGES
-            && inputs == ingredients.size() && stackedContents.canCraft(innerRecipe, null);
+            && inputs == ingredients.size() && stackedContents.canCraft(getIngredientInfo().unpackedIngredients(), null);
+    }
+
+    private PlacementInfo getIngredientInfo() {
+        // However, when testing whether the recipe matches, we only want to use the non-printout ingredients. To do
+        // that, we create a hidden recipe with the main ingredients.
+        if (ingredientInfo == null) ingredientInfo = PlacementInfo.create(ingredients);
+        return ingredientInfo;
     }
 
     @Override
@@ -136,13 +157,17 @@ public final class PrintoutRecipe extends ShapelessRecipe {
 
         var lines = data.stream().flatMap(x -> x.lines().stream()).toList();
 
-        var result = super.assemble(inv, registries);
+        var result = spec.result().copy();
         result.set(ModRegistry.DataComponents.PRINTOUT.get(), new PrintoutData(data.getFirst().title(), lines));
         return result;
     }
 
+    private ShapelessRecipeSpec toSpec() {
+        return spec;
+    }
+
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<PrintoutRecipe> getSerializer() {
         return ModRegistry.RecipeSerializers.PRINTOUT.get();
     }
 }

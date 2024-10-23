@@ -264,7 +264,7 @@ fun GameTestHelper.assertExactlyItems(vararg expected: ItemStack, message: Strin
 fun GameTestHelper.assertItemEntityCountIs(expected: Item, count: Int) {
     val actualCount = getEntities(EntityType.ITEM).sumOf { if (it.item.`is`(expected)) it.item.count else 0 }
     if (actualCount != count) {
-        throw GameTestAssertException("Expected $count ${expected.description.string} items to exist (found $actualCount)")
+        throw GameTestAssertException("Expected $count ${ItemStack(expected).itemName.string} items to exist (found $actualCount)")
     }
 }
 

@@ -145,7 +145,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         if (label != null) nbt.putString(NBT_LABEL, label);
         nbt.putBoolean(NBT_ON, on);
 
-        lockCode.addToTag(nbt);
+        lockCode.addToTag(nbt, registries);
 
         super.saveAdditional(nbt, registries);
     }
@@ -166,7 +166,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         label = nbt.contains(NBT_LABEL) ? nbt.getString(NBT_LABEL) : null;
         on = startOn = nbt.getBoolean(NBT_ON);
 
-        lockCode = LockCode.fromTag(nbt);
+        lockCode = LockCode.fromTag(nbt, registries);
     }
 
     @Override

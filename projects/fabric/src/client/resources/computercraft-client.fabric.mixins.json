@@ -10,7 +10,6 @@
         "BlockModelAccessor",
         "BlockRenderDispatcherMixin",
         "DebugScreenOverlayMixin",
-        "GameRendererMixin",
         "ItemFrameRendererMixin",
         "ItemInHandRendererMixin",
         "MinecraftMixin",

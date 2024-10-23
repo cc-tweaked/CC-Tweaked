@@ -17,7 +17,7 @@ import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 
@@ -30,7 +30,7 @@ public class TurtleItem extends AbstractComputerItem {
 
     @Override
     public Component getName(ItemStack stack) {
-        var baseString = getDescriptionId(stack);
+        var baseString = descriptionId;
         var left = getUpgrade(stack, TurtleSide.LEFT);
         var right = getUpgrade(stack, TurtleSide.RIGHT);
         if (left != null && right != null) {
@@ -85,12 +85,12 @@ public class TurtleItem extends AbstractComputerItem {
     }
 
     public static final CauldronInteraction CAULDRON_INTERACTION = (blockState, level, pos, player, hand, stack) -> {
-        if (!stack.has(DataComponents.DYED_COLOR)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (!stack.has(DataComponents.DYED_COLOR)) return InteractionResult.TRY_WITH_EMPTY_HAND;
         if (!level.isClientSide) {
             stack.remove(DataComponents.DYED_COLOR);
             LayeredCauldronBlock.lowerFillLevel(blockState, level, pos);
         }
 
-        return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     };
 }

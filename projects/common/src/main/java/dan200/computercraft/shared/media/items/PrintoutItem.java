@@ -9,7 +9,6 @@ import dan200.computercraft.shared.media.PrintoutMenu;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -40,14 +39,14 @@ public class PrintoutItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+    public InteractionResult use(Level world, Player player, InteractionHand hand) {
         var stack = player.getItemInHand(hand);
         if (!world.isClientSide) {
             var title = PrintoutData.getOrEmpty(stack).title();
             var displayTitle = Strings.isNullOrEmpty(title) ? stack.getDisplayName() : Component.literal(title);
             player.openMenu(new SimpleMenuProvider((id, playerInventory, p) -> PrintoutMenu.createInHand(id, p, hand), displayTitle));
         }
-        return new InteractionResultHolder<>(InteractionResult.sidedSuccess(world.isClientSide), stack);
+        return InteractionResult.SUCCESS;
     }
 
     public Type getType() {

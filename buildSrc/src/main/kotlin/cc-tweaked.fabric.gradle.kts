@@ -4,10 +4,8 @@
 
 /** Default configuration for Fabric projects. */
 
-import cc.tweaked.gradle.CCTweakedExtension
-import cc.tweaked.gradle.CCTweakedPlugin
+import cc.tweaked.gradle.*
 import cc.tweaked.gradle.IdeaRunConfigurations
-import cc.tweaked.gradle.MinecraftConfigurations
 
 plugins {
     `java-library`
@@ -66,4 +64,10 @@ dependencies {
 
 tasks.ideaSyncTask {
     doLast { IdeaRunConfigurations(project).patch() }
+}
+
+tasks.named("checkDependencyConsistency", DependencyCheck::class.java) {
+    val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
+    // Fabric forces asm to a more recent version
+    override(libs.findLibrary("asm").get(), "9.7.1")
 }

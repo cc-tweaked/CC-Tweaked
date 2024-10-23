@@ -99,7 +99,7 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
 
         if (uploadNagDeadline != Long.MAX_VALUE && Util.getNanos() >= uploadNagDeadline) {
             new ItemToast(minecraft(), displayStack, NO_RESPONSE_TITLE, NO_RESPONSE_MSG, ItemToast.TRANSFER_NO_RESPONSE_TOKEN)
-                .showOrReplace(minecraft().getToasts());
+                .showOrReplace(minecraft().getToastManager());
             uploadNagDeadline = Long.MAX_VALUE;
         }
     }

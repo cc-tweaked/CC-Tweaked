@@ -169,8 +169,8 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction side, BlockState otherState, LevelAccessor level, BlockPos pos, BlockPos otherPos) {
-        WaterloggableHelpers.updateShape(state, level, pos);
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticker, BlockPos pos, Direction side, BlockPos otherPos, BlockState neighborState, RandomSource randomSource) {
+        WaterloggableHelpers.updateShape(state, level, ticker, pos);
 
         // Should never happen, but handle the case where we've no modem or cable.
         if (!state.getValue(CABLE) && state.getValue(MODEM) == CableModemVariant.None) {
@@ -247,10 +247,11 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
         return world.getBlockEntity(pos) instanceof CableBlockEntity modem ? modem.use(player) : InteractionResult.PASS;
     }
 
+    /*
     @Override
     protected final void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos, boolean isMoving) {
         if (world.getBlockEntity(pos) instanceof CableBlockEntity modem) modem.neighborChanged(neighbourPos);
-    }
+    }*/
 
     @ForgeOverride
     public final void onNeighborChange(BlockState state, LevelReader world, BlockPos pos, BlockPos neighbour) {

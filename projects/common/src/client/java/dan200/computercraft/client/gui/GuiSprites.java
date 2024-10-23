@@ -35,8 +35,8 @@ public final class GuiSprites extends TextureAtlasHolder {
 
     private static ButtonTextures button(String name) {
         return new ButtonTextures(
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/buttons/" + name),
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/buttons/" + name + "_hover")
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "buttons/" + name),
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "buttons/" + name + "_hover")
         );
     }
 
@@ -97,12 +97,8 @@ public final class GuiSprites extends TextureAtlasHolder {
      * @param active The texture for the button when it is active (hovered or focused).
      */
     public record ButtonTextures(ResourceLocation normal, ResourceLocation active) {
-        public TextureAtlasSprite get(boolean active) {
-            return GuiSprites.get(active ? this.active : normal);
-        }
-
-        public Stream<ResourceLocation> textures() {
-            return Stream.of(normal, active);
+        public ResourceLocation get(boolean active) {
+            return active ? this.active : normal;
         }
     }
 

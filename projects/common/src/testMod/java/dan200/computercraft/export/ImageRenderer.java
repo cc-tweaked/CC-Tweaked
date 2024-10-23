@@ -4,12 +4,10 @@
 
 package dan200.computercraft.export;
 
+import com.mojang.blaze3d.ProjectionType;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.VertexSorting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.FogRenderer;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL12;
 
@@ -25,39 +23,38 @@ public class ImageRenderer implements AutoCloseable {
     public static final int WIDTH = 64;
     public static final int HEIGHT = 64;
 
-    private final TextureTarget framebuffer = new TextureTarget(WIDTH, HEIGHT, true, Minecraft.ON_OSX);
-    private final NativeImage image = new NativeImage(WIDTH, HEIGHT, Minecraft.ON_OSX);
+    private final TextureTarget framebuffer = new TextureTarget(WIDTH, HEIGHT, true);
+    private final NativeImage image = new NativeImage(WIDTH, HEIGHT, true);
 
     private @Nullable Matrix4f projectionMatrix;
 
     public ImageRenderer() {
         framebuffer.setClearColor(0, 0, 0, 0);
-        framebuffer.clear(Minecraft.ON_OSX);
+        framebuffer.clear();
     }
 
     public void setupState() {
-        projectionMatrix = RenderSystem.getProjectionMatrix();
-        RenderSystem.setProjectionMatrix(new Matrix4f().identity().ortho(0, 16, 0, 16, 1000, 3000), VertexSorting.DISTANCE_TO_ORIGIN);
+        RenderSystem.backupProjectionMatrix();
+        RenderSystem.setProjectionMatrix(new Matrix4f().identity().ortho(0, 16, 0, 16, 1000, 3000), ProjectionType.ORTHOGRAPHIC);
 
         var transform = RenderSystem.getModelViewStack();
         transform.pushMatrix();
         transform.identity();
         transform.translate(0.0f, 0.0f, -2000.0f);
 
-        FogRenderer.setupNoFog();
+        // FIXME: FogRenderer.toggleFog()
     }
 
     public void clearState() {
         if (projectionMatrix == null) throw new IllegalStateException("Not currently rendering");
-        RenderSystem.setProjectionMatrix(projectionMatrix, VertexSorting.DISTANCE_TO_ORIGIN);
-        RenderSystem.getModelViewStack().popMatrix();
+        RenderSystem.restoreProjectionMatrix();
     }
 
     public void captureRender(Path output, Runnable render) throws IOException {
         Files.createDirectories(output.getParent());
 
         framebuffer.bindWrite(true);
-        RenderSystem.clear(GL12.GL_COLOR_BUFFER_BIT | GL12.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
+        RenderSystem.clear(GL12.GL_COLOR_BUFFER_BIT | GL12.GL_DEPTH_BUFFER_BIT);
         render.run();
         framebuffer.unbindWrite();
 

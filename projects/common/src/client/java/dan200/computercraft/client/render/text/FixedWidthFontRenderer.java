@@ -11,12 +11,12 @@ import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-
-import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
 /**
  * Handles rendering fixed width text and computer terminals.
@@ -33,7 +33,12 @@ import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMA
  * {@link DirectFixedWidthFontRenderer}.
  */
 public final class FixedWidthFontRenderer {
-    public static final ResourceLocation FONT = ResourceLocation.fromNamespaceAndPath("computercraft", "textures/gui/term_font.png");
+    private static final ResourceLocation FONT = ResourceLocation.fromNamespaceAndPath("computercraft", "textures/gui/term_font.png");
+
+    /**
+     * A render type for terminal text.
+     */
+    public static final RenderType TERMINAL_TEXT = RenderType.text(FONT);
 
     public static final int FONT_HEIGHT = 9;
     public static final int FONT_WIDTH = 6;
@@ -42,7 +47,7 @@ public final class FixedWidthFontRenderer {
     static final float BACKGROUND_START = (WIDTH - 6.0f) / WIDTH;
     static final float BACKGROUND_END = (WIDTH - 4.0f) / WIDTH;
 
-    private static final int BLACK = FastColor.ARGB32.color(255, byteColour(Colour.BLACK.getR()), byteColour(Colour.BLACK.getR()), byteColour(Colour.BLACK.getR()));
+    private static final int BLACK = ARGB.color(255, byteColour(Colour.BLACK.getR()), byteColour(Colour.BLACK.getR()), byteColour(Colour.BLACK.getR()));
     private static final float Z_OFFSET = 1e-3f;
 
     private FixedWidthFontRenderer() {
@@ -137,7 +142,7 @@ public final class FixedWidthFontRenderer {
             var rowY = y + FONT_HEIGHT * i;
             drawString(
                 emitter, x, rowY, terminal.getLine(i), terminal.getTextColourLine(i),
-                palette, FULL_BRIGHT_LIGHTMAP
+                palette, LightTexture.FULL_BRIGHT
             );
         }
     }
@@ -152,12 +157,12 @@ public final class FixedWidthFontRenderer {
         // Top and bottom margins
         drawBackground(
             emitter, x, y - topMarginSize, terminal.getBackgroundColourLine(0), palette,
-            leftMarginSize, rightMarginSize, topMarginSize, FULL_BRIGHT_LIGHTMAP
+            leftMarginSize, rightMarginSize, topMarginSize, LightTexture.FULL_BRIGHT
         );
 
         drawBackground(
             emitter, x, y + height * FONT_HEIGHT, terminal.getBackgroundColourLine(height - 1), palette,
-            leftMarginSize, rightMarginSize, bottomMarginSize, FULL_BRIGHT_LIGHTMAP
+            leftMarginSize, rightMarginSize, bottomMarginSize, LightTexture.FULL_BRIGHT
         );
 
         // The main text
@@ -165,7 +170,7 @@ public final class FixedWidthFontRenderer {
             var rowY = y + FONT_HEIGHT * i;
             drawBackground(
                 emitter, x, rowY, terminal.getBackgroundColourLine(i), palette,
-                leftMarginSize, rightMarginSize, FONT_HEIGHT, FULL_BRIGHT_LIGHTMAP
+                leftMarginSize, rightMarginSize, FONT_HEIGHT, LightTexture.FULL_BRIGHT
             );
         }
     }
@@ -181,7 +186,7 @@ public final class FixedWidthFontRenderer {
     public static void drawCursor(QuadEmitter emitter, float x, float y, Terminal terminal) {
         if (isCursorVisible(terminal) && FrameInfo.getGlobalCursorBlink()) {
             var colour = terminal.getPalette().getRenderColours(15 - terminal.getTextColour());
-            drawChar(emitter, x + terminal.getCursorX() * FONT_WIDTH, y + terminal.getCursorY() * FONT_HEIGHT, '_', colour, FULL_BRIGHT_LIGHTMAP);
+            drawChar(emitter, x + terminal.getCursorX() * FONT_WIDTH, y + terminal.getCursorY() * FONT_HEIGHT, '_', colour, LightTexture.FULL_BRIGHT);
         }
     }
 
@@ -207,7 +212,7 @@ public final class FixedWidthFontRenderer {
     }
 
     public static void drawEmptyTerminal(QuadEmitter emitter, float x, float y, float width, float height) {
-        drawQuad(emitter, x, y, 0, width, height, BLACK, FULL_BRIGHT_LIGHTMAP);
+        drawQuad(emitter, x, y, 0, width, height, BLACK, LightTexture.FULL_BRIGHT);
     }
 
     public record QuadEmitter(Matrix4f poseMatrix, VertexConsumer consumer) {
@@ -220,11 +225,10 @@ public final class FixedWidthFontRenderer {
     private static void quad(QuadEmitter c, float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2, int light) {
         var poseMatrix = c.poseMatrix();
         var consumer = c.consumer();
-        int r = FastColor.ARGB32.red(colour), g = FastColor.ARGB32.green(colour), b = FastColor.ARGB32.blue(colour), a = FastColor.ARGB32.alpha(colour);
 
-        consumer.addVertex(poseMatrix, x1, y1, z).setColor(r, g, b, a).setUv(u1, v1).setLight(light);
-        consumer.addVertex(poseMatrix, x1, y2, z).setColor(r, g, b, a).setUv(u1, v2).setLight(light);
-        consumer.addVertex(poseMatrix, x2, y2, z).setColor(r, g, b, a).setUv(u2, v2).setLight(light);
-        consumer.addVertex(poseMatrix, x2, y1, z).setColor(r, g, b, a).setUv(u2, v1).setLight(light);
+        consumer.addVertex(poseMatrix, x1, y1, z).setColor(colour).setUv(u1, v1).setLight(light);
+        consumer.addVertex(poseMatrix, x1, y2, z).setColor(colour).setUv(u1, v2).setLight(light);
+        consumer.addVertex(poseMatrix, x2, y2, z).setColor(colour).setUv(u2, v2).setLight(light);
+        consumer.addVertex(poseMatrix, x2, y1, z).setColor(colour).setUv(u2, v1).setLight(light);
     }
 }

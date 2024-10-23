@@ -60,7 +60,7 @@ public record TransformedModel(BakedModel model, Transformation matrix) {
     }
 
     public static TransformedModel of(ItemStack item, Transformation transform) {
-        var model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item);
+        var model = Minecraft.getInstance().getItemRenderer().getModel(item, null, null, 0);
         return new TransformedModel(model, transform);
     }
 }

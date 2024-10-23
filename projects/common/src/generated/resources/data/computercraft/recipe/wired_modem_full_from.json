@@ -1,6 +1,0 @@
-{
-  "type": "minecraft:crafting_shapeless",
-  "category": "redstone",
-  "ingredients": [{"item": "computercraft:wired_modem"}],
-  "result": {"count": 1, "id": "computercraft:wired_modem_full"}
-}

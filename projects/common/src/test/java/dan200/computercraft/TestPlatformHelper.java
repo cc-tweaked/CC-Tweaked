@@ -21,6 +21,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -35,7 +36,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -115,13 +116,13 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     }
 
     @Override
-    public int getBurnTime(ItemStack stack) {
+    public int getBurnTime(MinecraftServer server, ItemStack stack) {
         throw new UnsupportedOperationException("Cannot get burn time inside tests");
     }
 
     @Override
     public ItemStack getCraftingRemainingItem(ItemStack stack) {
-        return new ItemStack(stack.getItem().getCraftingRemainingItem());
+        return stack.getItem().getCraftingRemainder();
     }
 
     @Override
@@ -161,7 +162,7 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     }
 
     @Override
-    public List<ItemStack> getRecipeRemainingItems(ServerPlayer player, Recipe<CraftingInput> recipe, CraftingInput container) {
+    public List<ItemStack> getRecipeRemainingItems(ServerPlayer player, CraftingRecipe recipe, CraftingInput container) {
         throw new UnsupportedOperationException("Cannot query recipes inside tests");
     }
 

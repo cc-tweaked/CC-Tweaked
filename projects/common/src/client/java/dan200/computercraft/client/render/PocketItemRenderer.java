@@ -13,8 +13,10 @@ import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.util.FastColor;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import org.joml.Matrix4f;
@@ -72,7 +74,7 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
         var lightColour = computer == null || computer.getLightState() == -1 ? Colour.BLACK.getHex() : computer.getLightState();
         renderLight(transform, bufferSource, lightColour, width, height);
 
-        var quadEmitter = FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(RenderTypes.TERMINAL));
+        var quadEmitter = FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT));
         if (terminal == null) {
             FixedWidthFontRenderer.drawEmptyTerminal(quadEmitter, 0, 0, width, height);
         } else {
@@ -89,16 +91,16 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
         var g = (colour >>> 8) & 0xFF;
         var b = colour & 0xFF;
 
-        var spriteRenderer = new SpriteRenderer(transform, render.getBuffer(RenderTypes.GUI_SPRITES), 0, light, r, g, b);
+        var spriteRenderer = new SpriteRenderer(transform, render.getBuffer(RenderType.text(GuiSprites.TEXTURE)), 0, light, r, g, b);
         ComputerBorderRenderer.render(spriteRenderer, texture, 0, 0, width, height, true);
     }
 
     private static void renderLight(PoseStack transform, MultiBufferSource render, int colour, int width, int height) {
-        var buffer = render.getBuffer(RenderTypes.TERMINAL);
+        var buffer = render.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT);
         FixedWidthFontRenderer.drawQuad(
             FixedWidthFontRenderer.toVertexConsumer(transform, buffer),
             width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0.001f, LIGHT_HEIGHT * 2, LIGHT_HEIGHT,
-            FastColor.ARGB32.opaque(colour), RenderTypes.FULL_BRIGHT_LIGHTMAP
+            ARGB.opaque(colour), LightTexture.FULL_BRIGHT
         );
     }
 }

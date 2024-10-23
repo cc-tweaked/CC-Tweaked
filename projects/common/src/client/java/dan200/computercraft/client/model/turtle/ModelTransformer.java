@@ -80,7 +80,7 @@ public class ModelTransformer {
         }
 
         var direction = Direction.rotate(transformation, quad.getDirection());
-        return new BakedQuad(outputData, quad.getTintIndex(), direction, quad.getSprite(), quad.isShade());
+        return new BakedQuad(outputData, quad.getTintIndex(), direction, quad.getSprite(), quad.isShade(), 0);
     }
 
     public static int getVertexOffset(int vertex, boolean invert) {

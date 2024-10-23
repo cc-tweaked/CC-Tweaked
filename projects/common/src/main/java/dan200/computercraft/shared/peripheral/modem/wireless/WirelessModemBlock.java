@@ -15,8 +15,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -69,10 +69,11 @@ public class WirelessModemBlock extends DirectionalBlock implements SimpleWaterl
         return WaterloggableHelpers.getFluidState(state);
     }
 
+
     @Override
-    protected BlockState updateShape(BlockState state, Direction side, BlockState otherState, LevelAccessor world, BlockPos pos, BlockPos otherPos) {
-        WaterloggableHelpers.updateShape(state, world, pos);
-        return side == state.getValue(FACING) && !state.canSurvive(world, pos)
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticker, BlockPos pos, Direction side, BlockPos otherPos, BlockState neighborState, RandomSource randomSource) {
+        WaterloggableHelpers.updateShape(state, level, ticker, pos);
+        return side == state.getValue(FACING) && !state.canSurvive(level, pos)
             ? state.getFluidState().createLegacyBlock()
             : state;
     }

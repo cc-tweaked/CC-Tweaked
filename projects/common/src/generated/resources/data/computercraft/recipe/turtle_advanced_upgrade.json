@@ -1,12 +1,8 @@
 {
   "type": "computercraft:transform_shaped",
   "category": "redstone",
-  "function": [{"type": "computercraft:copy_components", "from": {"item": "computercraft:turtle_normal"}}],
-  "key": {
-    "#": {"tag": "c:ingots/gold"},
-    "B": {"tag": "c:storage_blocks/gold"},
-    "C": {"item": "computercraft:turtle_normal"}
-  },
+  "function": [{"type": "computercraft:copy_components", "from": "computercraft:turtle_normal"}],
+  "key": {"#": "#c:ingots/gold", "B": "#c:storage_blocks/gold", "C": "computercraft:turtle_normal"},
   "pattern": ["###", "#C#", " B "],
   "result": {"count": 1, "id": "computercraft:turtle_advanced"}
 }

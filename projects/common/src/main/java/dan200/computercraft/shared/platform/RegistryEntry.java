@@ -37,7 +37,7 @@ public interface RegistryEntry<U> extends Supplier<U> {
 
         return ResourceLocation.CODEC.flatXmap(
             id -> registry
-                .getHolder(ResourceKey.create(registry.key(), id))
+                .get(ResourceKey.create(registry.key(), id))
                 .map(x -> DataResult.success(new HolderEntry<>(id, x)))
                 .orElseGet(() -> DataResult.error(() -> "Unknown registry key in " + registry.key() + ": " + id)),
             holder -> DataResult.success(holder.id())

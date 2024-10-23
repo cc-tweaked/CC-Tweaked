@@ -7,18 +7,16 @@ package dan200.computercraft.client.model.turtle;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import dan200.computercraft.api.ComputerCraftAPI;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.ItemOverride;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.Material;
-import net.minecraft.client.resources.model.ModelBaker;
-import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.client.resources.model.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.neoforged.neoforge.client.model.geometry.IGeometryBakingContext;
 import net.neoforged.neoforge.client.model.geometry.IGeometryLoader;
 import net.neoforged.neoforge.client.model.geometry.IUnbakedGeometry;
 
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -49,13 +47,16 @@ public final class TurtleModelLoader implements IGeometryLoader<TurtleModelLoade
         }
 
         @Override
-        public BakedModel bake(IGeometryBakingContext owner, ModelBaker bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState transform, ItemOverrides overrides) {
+        public void resolveDependencies(UnbakedModel.Resolver modelGetter, IGeometryBakingContext context) {
+            IUnbakedGeometry.super.resolveDependencies(modelGetter, context);
+            modelGetter.resolve(family);
+            modelGetter.resolve(COLOUR_TURTLE_MODEL);
+        }
+
+        @Override
+        public BakedModel bake(IGeometryBakingContext context, ModelBaker bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState transform, List<ItemOverride> overrides) {
             var mainModel = bakery.bake(family, transform, spriteGetter);
-            if (mainModel == null) throw new NullPointerException(family + " failed to bake");
-
             var colourModel = bakery.bake(COLOUR_TURTLE_MODEL, transform, spriteGetter);
-            if (colourModel == null) throw new NullPointerException(COLOUR_TURTLE_MODEL + " failed to bake");
-
             return new TurtleModel(mainModel, colourModel);
         }
     }

@@ -9,7 +9,6 @@ import dan200.computercraft.gametest.api.isRenderingStable
 import dan200.computercraft.gametest.api.setupForTest
 import net.minecraft.client.CloudStatus
 import net.minecraft.client.Minecraft
-import net.minecraft.client.ParticleStatus
 import net.minecraft.client.gui.screens.AccessibilityOnboardingScreen
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.TitleScreen
@@ -17,8 +16,10 @@ import net.minecraft.client.tutorial.TutorialSteps
 import net.minecraft.core.registries.Registries
 import net.minecraft.gametest.framework.*
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ParticleStatus
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.Difficulty
+import net.minecraft.world.flag.FeatureFlagSet
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.GameType
 import net.minecraft.world.level.LevelSettings
@@ -84,7 +85,7 @@ object ClientTestHooks {
             minecraft.createWorldOpenFlows().openWorld(LEVEL_NAME) { minecraft.setScreen(screen) }
         } else {
             LOG.info("World does not exist, creating it.")
-            val rules = GameRules()
+            val rules = GameRules(FeatureFlagSet.of())
             rules.getRule(GameRules.RULE_DOMOBSPAWNING).set(false, null)
             rules.getRule(GameRules.RULE_DAYLIGHT).set(false, null)
             rules.getRule(GameRules.RULE_WEATHER_CYCLE).set(false, null)
@@ -93,7 +94,10 @@ object ClientTestHooks {
                 LEVEL_NAME,
                 LevelSettings("Test Level", GameType.CREATIVE, false, Difficulty.EASY, true, rules, WorldDataConfiguration.DEFAULT),
                 WorldOptions(WorldOptions.randomSeed(), false, false),
-                { it.registryOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT).createWorldDimensions() },
+                {
+                    it.lookupOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT).value()
+                        .createWorldDimensions()
+                },
                 screen,
             )
         }

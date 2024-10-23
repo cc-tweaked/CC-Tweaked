@@ -54,12 +54,12 @@ runs {
 
     val server by registering {
         workingDirectory(file("run/server"))
-        programArgument("--nogui")
+        argument("--nogui")
     }
 
     val data by registering {
         workingDirectory(file("run"))
-        programArguments.addAll(
+        arguments.addAll(
             "--mod", "computercraft", "--all",
             "--output", layout.buildDirectory.dir("generatedResources").getAbsolutePath(),
             "--existing", project(":common").file("src/main/resources/").absolutePath,

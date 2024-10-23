@@ -71,11 +71,6 @@ public final class ColourableRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int x, int y) {
-        return x >= 2 && y >= 2;
-    }
-
-    @Override
     public RecipeSerializer<ColourableRecipe> getSerializer() {
         return ModRegistry.RecipeSerializers.DYEABLE_ITEM.get();
     }

@@ -21,7 +21,7 @@ class Loot_Test {
     @GameTest(template = Structures.DEFAULT, required = false) // FIXME: We may need to inject this as a datapack instead
     fun Chest_contains_disk(context: GameTestHelper) = context.sequence {
         thenExecute {
-            val pos = BlockPos(2, 2, 2)
+            val pos = BlockPos(2, 1, 2)
 
             context.setBlock(pos, Blocks.CHEST)
             val chest = context.getBlockEntity(pos) as ChestBlockEntity

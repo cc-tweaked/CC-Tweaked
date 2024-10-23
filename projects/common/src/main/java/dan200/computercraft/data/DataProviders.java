@@ -44,7 +44,7 @@ public final class DataProviders {
         var fullRegistries = fullRegistryPatch.thenApply(RegistrySetBuilder.PatchedRegistries::full);
 
         generator.registries(fullRegistryPatch);
-        generator.add(out -> new RecipeProvider(out, fullRegistries));
+        generator.add(out -> new RecipeProvider.Runner(out, fullRegistries));
 
         var blockTags = generator.blockTags(TagProvider::blockTags);
         generator.itemTags(TagProvider::itemTags, blockTags);

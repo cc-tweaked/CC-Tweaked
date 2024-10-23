@@ -38,4 +38,10 @@ public record BasicRecipeSerialiser<T extends Recipe<?>>(
                 + ", but was " + RegistryHelper.getKeyOrThrow(BuiltInRegistries.RECIPE_SERIALIZER, recipe.getSerializer())
         );
     }
+
+    @Override
+    @Deprecated
+    public StreamCodec<RegistryFriendlyByteBuf, T> streamCodec() {
+        return streamCodec;
+    }
 }

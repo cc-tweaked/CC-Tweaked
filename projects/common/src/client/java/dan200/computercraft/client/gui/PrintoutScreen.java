@@ -10,6 +10,7 @@ import dan200.computercraft.shared.media.PrintoutMenu;
 import dan200.computercraft.shared.media.items.PrintoutData;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -20,7 +21,6 @@ import org.lwjgl.glfw.GLFW;
 import java.util.Objects;
 
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
-import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
 /**
  * The GUI for printed pages and books.
@@ -116,8 +116,10 @@ public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> 
         graphics.pose().pushPose();
         graphics.pose().translate(0, 0, 1);
 
-        drawBorder(graphics.pose(), graphics.bufferSource(), leftPos, topPos, 0, page, printout.pages(), printout.book(), FULL_BRIGHT_LIGHTMAP);
-        drawText(graphics.pose(), graphics.bufferSource(), leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, PrintoutData.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, printout.text(), printout.colour());
+        graphics.drawSpecial(bufferSource -> {
+            drawBorder(graphics.pose(), bufferSource, leftPos, topPos, 0, page, printout.pages(), printout.book(), LightTexture.FULL_BRIGHT);
+            drawText(graphics.pose(), bufferSource, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, PrintoutData.LINES_PER_PAGE * page, LightTexture.FULL_BRIGHT, printout.text(), printout.colour());
+        });
 
         graphics.pose().popPose();
     }

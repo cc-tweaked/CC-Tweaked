@@ -28,8 +28,8 @@ class Printer_Test {
      */
     @GameTest
     fun Comparator(helper: GameTestHelper) = helper.sequence {
-        val printerPos = BlockPos(2, 2, 2)
-        val dustPos = BlockPos(2, 2, 4)
+        val printerPos = BlockPos(2, 1, 2)
+        val dustPos = BlockPos(2, 1, 4)
 
         // Adding items should provide power
         thenExecute {
@@ -56,7 +56,7 @@ class Printer_Test {
      */
     @GameTest
     fun Contents_updates_state(helper: GameTestHelper) = helper.sequence {
-        val pos = BlockPos(2, 2, 2)
+        val pos = BlockPos(2, 1, 2)
 
         thenExecute {
             val drive = helper.getBlockEntity(pos, ModRegistry.BlockEntities.PRINTER.get())
@@ -89,7 +89,7 @@ class Printer_Test {
     @GameTest
     fun Drops_contents(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            helper.level.destroyBlock(helper.absolutePos(BlockPos(2, 2, 2)), true)
+            helper.level.destroyBlock(helper.absolutePos(BlockPos(2, 1, 2)), true)
             helper.assertExactlyItems(
                 DataComponentUtil.createStack(ModRegistry.Items.PRINTER.get(), DataComponents.CUSTOM_NAME, Component.literal("My Printer")),
                 ItemStack(Items.PAPER),
@@ -105,7 +105,7 @@ class Printer_Test {
     @GameTest
     fun Data_fixers(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            val container = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.PRINTER.get())
+            val container = helper.getBlockEntity(BlockPos(2, 1, 2), ModRegistry.BlockEntities.PRINTER.get())
             val contents = container.getItem(1)
             assertEquals(ModRegistry.Items.PRINTED_PAGE.get(), contents.item)
 

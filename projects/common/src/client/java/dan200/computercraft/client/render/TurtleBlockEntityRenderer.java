@@ -22,8 +22,9 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.CommonColors;
-import net.minecraft.util.FastColor;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
@@ -84,13 +85,13 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
 
         if (colour == -1) {
             // Render the turtle using its item model.
-            var modelManager = Minecraft.getInstance().getItemRenderer().getItemModelShaper();
-            var model = modelManager.getItemModel(turtle.getBlockState().getBlock().asItem());
-            if (model == null) model = modelManager.getModelManager().getMissingModel();
+            var model = Minecraft.getInstance().getItemRenderer().getModel(
+                new ItemStack(turtle.getBlockState().getBlock().asItem()), null, null, 0
+            );
             renderModel(transform, buffers, lightmapCoord, overlayLight, model, null);
         } else {
             // Otherwise render it using the colour item.
-            renderModel(transform, buffers, lightmapCoord, overlayLight, COLOUR_TURTLE_MODEL, new int[]{ FastColor.ARGB32.opaque(colour) });
+            renderModel(transform, buffers, lightmapCoord, overlayLight, COLOUR_TURTLE_MODEL, new int[]{ ARGB.opaque(colour) });
         }
 
         // Render the overlay
@@ -125,7 +126,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
     }
 
     private void renderModel(PoseStack transform, MultiBufferSource buffers, int lightmapCoord, int overlayLight, ResourceLocation modelLocation, @Nullable int[] tints) {
-        var modelManager = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getModelManager();
+        var modelManager = Minecraft.getInstance().getModelManager();
         renderModel(transform, buffers, lightmapCoord, overlayLight, ClientPlatformHelper.get().getModel(modelManager, modelLocation), tints);
     }
 

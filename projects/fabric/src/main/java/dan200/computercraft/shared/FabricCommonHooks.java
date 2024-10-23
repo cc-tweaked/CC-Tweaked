@@ -44,7 +44,7 @@ public class FabricCommonHooks {
 
         if (player.isSecondaryUseActive() && doesSneakBypassUse(player.getMainHandItem()) && doesSneakBypassUse(player.getOffhandItem())) {
             var result = block.useItemOn(player.getMainHandItem(), level, player, hand, hitResult);
-            if (result.consumesAction()) return result.result();
+            if (result.consumesAction()) return result;
         }
 
         return InteractionResult.PASS;

@@ -36,7 +36,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -132,7 +131,7 @@ public class PocketComputerItem extends Item implements IMedia {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+    public InteractionResult use(Level world, Player player, InteractionHand hand) {
         var stack = player.getItemInHand(hand);
         if (!world.isClientSide) {
             var holder = new PocketHolder.PlayerHolder((ServerPlayer) player, InventoryUtil.getHandSlot(player, hand));
@@ -154,12 +153,12 @@ public class PocketComputerItem extends Item implements IMedia {
                 new ComputerContainerData(computer, stack).open(player, new PocketComputerMenuProvider(computer, stack, this, hand, isTypingOnly));
             }
         }
-        return new InteractionResultHolder<>(InteractionResult.sidedSuccess(world.isClientSide), stack);
+        return InteractionResult.SUCCESS;
     }
 
     @Override
     public Component getName(ItemStack stack) {
-        var baseString = getDescriptionId(stack);
+        var baseString = getDescriptionId();
         var upgrade = getUpgrade(stack);
         if (upgrade != null) {
             return Component.translatable(baseString + ".upgraded", upgrade.getAdjective());

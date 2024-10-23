@@ -8,6 +8,7 @@
     },
     "mixins": [
         "ItemStackComponentizationFixMixin",
-        "V1460Mixin"
+        "V1460Mixin",
+        "V3818_3Mixin"
     ]
 }

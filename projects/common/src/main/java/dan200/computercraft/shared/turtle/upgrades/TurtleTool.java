@@ -228,10 +228,10 @@ public class TurtleTool extends AbstractTurtleUpgrade {
 
         // Compute the total damage, and deal it out.
         var damage = baseDamage + bonusDamage + tool.getItem().getAttackDamageBonus(entity, baseDamage, source);
-        if (!entity.hurt(source, damage)) return false;
+        if (!entity.hurtServer(player.serverLevel(), source, damage)) return false;
 
         // Special case for armor stands: attack twice to guarantee destroy
-        if (entity.isAlive() && entity instanceof ArmorStand) entity.hurt(source, damage);
+        if (entity.isAlive() && entity instanceof ArmorStand) entity.hurtServer(player.serverLevel(), source, damage);
 
         // Apply knockback
         var knockBack = EnchantmentHelper.modifyKnockback(player.serverLevel(), tool, entity, source, (float) player.getAttributeValue(Attributes.ATTACK_KNOCKBACK));

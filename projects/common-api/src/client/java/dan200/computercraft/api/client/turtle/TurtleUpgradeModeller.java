@@ -48,7 +48,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * by other means.
      *
      * @return A list of models that this modeller depends on.
-     * @see UnbakedModel#getDependencies()
+     * @see UnbakedModel#resolveDependencies(UnbakedModel.Resolver)
      */
     default Stream<ResourceLocation> getDependencies() {
         return Stream.of();

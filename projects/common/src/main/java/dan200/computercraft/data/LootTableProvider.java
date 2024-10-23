@@ -59,7 +59,7 @@ class LootTableProvider {
 
         blockDrop(add, ModRegistry.Blocks.LECTERN, LootItem.lootTableItem(Items.LECTERN), ExplosionCondition.survivesExplosion());
 
-        add.accept(ModRegistry.Blocks.CABLE.get().getLootTable(), LootTable
+        add.accept(ModRegistry.Blocks.CABLE.get().getLootTable().orElseThrow(), LootTable
             .lootTable()
             .withPool(LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1))
@@ -114,7 +114,7 @@ class LootTableProvider {
         LootItemCondition.Builder condition
     ) {
         var block = wrapper.get();
-        add.accept(block.getLootTable(), LootTable
+        add.accept(block.getLootTable().orElseThrow(), LootTable
             .lootTable()
             .withPool(LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1))

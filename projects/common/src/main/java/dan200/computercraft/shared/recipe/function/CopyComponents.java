@@ -31,7 +31,7 @@ import java.util.Set;
  */
 public final class CopyComponents implements RecipeFunction {
     public static final MapCodec<CopyComponents> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-        Ingredient.CODEC_NONEMPTY.fieldOf("from").forGetter(x -> x.from),
+        Ingredient.CODEC.fieldOf("from").forGetter(x -> x.from),
         DataComponentType.CODEC.listOf().optionalFieldOf("include").forGetter(x -> x.include),
         DataComponentType.CODEC.listOf().optionalFieldOf("exclude").forGetter(x -> x.exclude)
     ).apply(instance, CopyComponents::new));

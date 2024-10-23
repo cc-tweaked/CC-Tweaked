@@ -11,7 +11,6 @@ import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.ProxyType;
 import dan200.computercraft.core.computer.mainthread.MainThreadConfig;
-import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Filter;
@@ -78,7 +77,6 @@ public final class ConfigSpec {
 
     public static final ConfigFile clientSpec;
 
-    public static final ConfigFile.Value<MonitorRenderer> monitorRenderer;
     public static final ConfigFile.Value<Integer> monitorDistance;
     public static final ConfigFile.Value<Integer> uploadNagDelay;
 
@@ -364,12 +362,6 @@ public final class ConfigSpec {
         serverSpec = builder.build(ConfigSpec::syncServer);
 
         var clientBuilder = PlatformHelper.get().createConfigBuilder();
-        monitorRenderer = clientBuilder
-            .comment("""
-                The renderer to use for monitors. Generally this should be kept at "best" - if
-                monitors have performance issues, you may wish to experiment with alternative
-                renderers.""")
-            .defineEnum("monitor_renderer", MonitorRenderer.BEST);
         monitorDistance = clientBuilder
             .comment("""
                 The maximum distance monitors will render at. This defaults to the standard tile
@@ -446,7 +438,6 @@ public final class ConfigSpec {
     }
 
     public static void syncClient(@Nullable Path path) {
-        Config.monitorRenderer = monitorRenderer.get();
         Config.monitorDistance = monitorDistance.get();
         Config.uploadNagDelay = uploadNagDelay.get();
     }

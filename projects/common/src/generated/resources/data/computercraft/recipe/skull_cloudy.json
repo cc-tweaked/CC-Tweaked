@@ -1,7 +1,7 @@
 {
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
-  "ingredients": [{"tag": "minecraft:skulls"}, {"item": "computercraft:monitor_normal"}],
+  "ingredients": ["#minecraft:skulls", "computercraft:monitor_normal"],
   "result": {
     "components": {
       "minecraft:profile": {"id": [1829193526, -1310112904, -1449411193, 2005015708], "name": "Cloudhunter"}

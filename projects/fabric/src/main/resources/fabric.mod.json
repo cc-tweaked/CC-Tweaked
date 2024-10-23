@@ -47,7 +47,7 @@
     "depends": {
         "fabricloader": ">=0.15.10",
         "fabric-api": ">=0.102.1",
-        "minecraft": "=1.21.1"
+        "minecraft": "=1.21.3"
     },
     "accessWidener": "computercraft.accesswidener"
 }

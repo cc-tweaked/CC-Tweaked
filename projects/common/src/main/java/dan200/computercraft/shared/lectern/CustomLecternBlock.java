@@ -50,7 +50,7 @@ public class CustomLecternBlock extends LecternBlock {
     public static InteractionResult tryPlaceItem(Player player, Level level, BlockPos pos, BlockState blockState, ItemStack item) {
         if (item.getItem() instanceof PrintoutItem) {
             if (!level.isClientSide) replaceLectern(player, level, pos, blockState, item);
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
 
         return InteractionResult.PASS;
@@ -130,11 +130,6 @@ public class CustomLecternBlock extends LecternBlock {
     }
 
     @Override
-    public String getDescriptionId() {
-        return Blocks.LECTERN.getDescriptionId();
-    }
-
-    @Override
     public CustomLecternBlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new CustomLecternBlockEntity(pos, state);
     }
@@ -158,6 +153,6 @@ public class CustomLecternBlock extends LecternBlock {
             player.awardStat(Stats.INTERACT_WITH_LECTERN);
         }
 
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 }

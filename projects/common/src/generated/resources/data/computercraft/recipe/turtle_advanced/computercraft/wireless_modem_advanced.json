@@ -2,7 +2,7 @@
   "type": "computercraft:impostor_shaped",
   "category": "redstone",
   "group": "computercraft:turtle_advanced",
-  "key": {"#": {"item": "computercraft:wireless_modem_advanced"}, "T": {"item": "computercraft:turtle_advanced"}},
+  "key": {"#": "computercraft:wireless_modem_advanced", "T": "computercraft:turtle_advanced"},
   "pattern": ["#T"],
   "result": {
     "components": {"computercraft:right_turtle_upgrade": {"id": "computercraft:wireless_modem_advanced"}},

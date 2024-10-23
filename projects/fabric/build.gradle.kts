@@ -20,6 +20,14 @@ cct {
     allProjects.forEach { externalSources(it) }
 }
 
+sourceSets {
+    client {
+        java {
+            exclude("dan200/computercraft/client/integration/rei")
+        }
+    }
+}
+
 fun addRemappedConfiguration(name: String) {
     // There was a regression in Loom 1.1 which means that targetConfigurationName doesn't do anything, and remap
     // configurations just get added to the main source set (https://github.com/FabricMC/fabric-loom/issues/843).

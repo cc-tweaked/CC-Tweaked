@@ -43,7 +43,7 @@ public class ClientPlatformHelperImpl implements ClientPlatformHelper {
 
     @Override
     public void renderBakedModel(PoseStack transform, MultiBufferSource buffers, BakedModel model, int lightmapCoord, int overlayLight, @Nullable int[] tints) {
-        for (var renderType : model.getRenderTypes(ItemStack.EMPTY, true)) {
+        for (var renderType : model.getRenderTypes(ItemStack.EMPTY)) {
             var buffer = buffers.getBuffer(renderType);
             for (var face : directions) {
                 random.setSeed(42);

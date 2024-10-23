@@ -6,10 +6,8 @@ package dan200.computercraft.gametest
 
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.shared.ModRegistry
-import dan200.computercraft.shared.config.Config
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlock
 import dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState
-import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer
 import net.minecraft.commands.arguments.blocks.BlockInput
 import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.GameTest
@@ -17,15 +15,15 @@ import net.minecraft.gametest.framework.GameTestGenerator
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.gametest.framework.TestFunction
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.entity.EntityType
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.GameType
 import net.minecraft.world.level.block.Blocks
 import org.junit.jupiter.api.Assertions.*
 
 class Monitor_Test {
     @GameTest
     fun Ensures_valid_on_place(context: GameTestHelper) = context.sequence {
-        val pos = BlockPos(2, 2, 2)
+        val pos = BlockPos(2, 1, 2)
 
         thenExecute {
             val tag = CompoundTag()
@@ -57,9 +55,9 @@ class Monitor_Test {
     @GameTest
     fun Contract_on_destroy(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            helper.setBlock(BlockPos(2, 2, 2), Blocks.AIR.defaultBlockState())
-            helper.assertBlockHas(BlockPos(1, 2, 2), MonitorBlock.STATE, MonitorEdgeState.NONE)
-            helper.assertBlockHas(BlockPos(3, 2, 2), MonitorBlock.STATE, MonitorEdgeState.NONE)
+            helper.setBlock(BlockPos(2, 1, 2), Blocks.AIR.defaultBlockState())
+            helper.assertBlockHas(BlockPos(1, 1, 2), MonitorBlock.STATE, MonitorEdgeState.NONE)
+            helper.assertBlockHas(BlockPos(3, 1, 2), MonitorBlock.STATE, MonitorEdgeState.NONE)
         }
     }
 
@@ -69,7 +67,7 @@ class Monitor_Test {
     @GameTest
     fun Creates_terminal(helper: GameTestHelper) = helper.sequence {
         fun monitorAt(x: Int) =
-            helper.getBlockEntity(BlockPos(x, 2, 2), ModRegistry.BlockEntities.MONITOR_ADVANCED.get())
+            helper.getBlockEntity(BlockPos(x, 1, 2), ModRegistry.BlockEntities.MONITOR_ADVANCED.get())
 
         thenExecute {
             for (i in 1..3) {
@@ -80,20 +78,20 @@ class Monitor_Test {
             assertNotNull(monitorAt(1).cachedServerMonitor?.terminal, "Creating a peripheral creates a terminal")
 
             // Then remove the middle monitor and check it splits into two.
-            helper.setBlock(BlockPos(2, 2, 2), Blocks.AIR.defaultBlockState())
+            helper.setBlock(BlockPos(2, 1, 2), Blocks.AIR.defaultBlockState())
 
             assertNotNull(monitorAt(3).cachedServerMonitor, "Origin retains its monitor")
             assertNull(monitorAt(3).cachedServerMonitor!!.terminal, "Origin deletes the terminal")
             assertNotEquals(monitorAt(1).cachedServerMonitor, monitorAt(3).cachedServerMonitor, "Monitors are different")
 
             // Then set the monitor, check it rejoins and recreates the terminal.
-            val pos = BlockPos(2, 2, 2)
+            val pos = BlockPos(2, 1, 2)
             helper.setBlock(pos, ModRegistry.Blocks.MONITOR_ADVANCED.get())
             ModRegistry.Blocks.MONITOR_ADVANCED.get().setPlacedBy(
                 helper.level,
                 helper.absolutePos(pos),
                 helper.getBlockState(pos),
-                EntityType.COW.create(helper.level),
+                helper.makeMockPlayer(GameType.SURVIVAL),
                 ItemStack.EMPTY,
             )
             monitorAt(2).peripheral()
@@ -109,7 +107,7 @@ class Monitor_Test {
     fun Render_monitor_tests(): List<TestFunction> {
         val tests = mutableListOf<TestFunction>()
 
-        fun addTest(label: String, renderer: MonitorRenderer, time: Long = Times.NOON, tag: String = TestTags.CLIENT) {
+        fun addTest(label: String, time: Long = Times.NOON, tag: String = TestTags.CLIENT) {
             if (!TestTags.isEnabled(tag)) return
 
             val className = this::class.java.simpleName.lowercase()
@@ -123,32 +121,29 @@ class Monitor_Test {
                     Timeouts.DEFAULT,
                     0,
                     true,
-                ) { renderMonitor(it, renderer, time) },
+                ) { renderMonitor(it, time) },
             )
         }
 
-        addTest("tbo_noon", MonitorRenderer.TBO, Times.NOON)
-        addTest("tbo_midnight", MonitorRenderer.TBO, Times.MIDNIGHT)
-        addTest("vbo_noon", MonitorRenderer.VBO, Times.NOON)
-        addTest("vbo_midnight", MonitorRenderer.VBO, Times.MIDNIGHT)
+        addTest("noon", Times.NOON)
+        addTest("midnight", Times.MIDNIGHT)
 
-        addTest("sodium_tbo", MonitorRenderer.TBO, tag = "sodium")
-        addTest("sodium_vbo", MonitorRenderer.VBO, tag = "sodium")
+        addTest("sodium_tbo", tag = "sodium")
+        addTest("sodium_vbo", tag = "sodium")
 
-        addTest("iris_noon", MonitorRenderer.BEST, Times.NOON, tag = "iris")
-        addTest("iris_midnight", MonitorRenderer.BEST, Times.MIDNIGHT, tag = "iris")
+        addTest("iris_noon", Times.NOON, tag = "iris")
+        addTest("iris_midnight", Times.MIDNIGHT, tag = "iris")
 
         return tests
     }
 
-    private fun renderMonitor(helper: GameTestHelper, renderer: MonitorRenderer, time: Long) = helper.sequence {
+    private fun renderMonitor(helper: GameTestHelper, time: Long) = helper.sequence {
         thenExecute {
-            Config.monitorRenderer = renderer
             helper.level.dayTime = time
             helper.positionAtArmorStand()
 
             // Get the monitor and peripheral. This forces us to create a server monitor at this location.
-            val monitor = helper.getBlockEntity(BlockPos(2, 2, 3), ModRegistry.BlockEntities.MONITOR_ADVANCED.get())
+            val monitor = helper.getBlockEntity(BlockPos(2, 1, 3), ModRegistry.BlockEntities.MONITOR_ADVANCED.get())
             monitor.peripheral()
 
             val terminal = monitor.cachedServerMonitor!!.terminal!!

@@ -60,7 +60,7 @@ class Disk_Drive_Test {
 
     @GameTest
     fun Ejects_disk(helper: GameTestHelper) = helper.sequence {
-        val stackAt = BlockPos(2, 2, 2)
+        val stackAt = BlockPos(2, 1, 2)
         thenOnComputer { callPeripheral("right", "ejectDisk") }
         thenWaitUntil { helper.assertItemEntityPresent(Items.MUSIC_DISC_13, stackAt, 0.0) }
     }
@@ -70,7 +70,7 @@ class Disk_Drive_Test {
      */
     @GameTest
     fun Queues_event(helper: GameTestHelper) = helper.sequence {
-        val pos = BlockPos(1, 2, 2)
+        val pos = BlockPos(1, 1, 2)
 
         var started = false
         var disk = false
@@ -104,7 +104,7 @@ class Disk_Drive_Test {
     fun Adds_removes_mount(helper: GameTestHelper) = helper.sequence {
         thenOnComputer { } // Wait for the computer to start up
         thenExecute {
-            helper.setContainerItem(BlockPos(1, 2, 2), 0, ItemStack(ModRegistry.Items.DISK.get()))
+            helper.setContainerItem(BlockPos(1, 1, 2), 0, ItemStack(ModRegistry.Items.DISK.get()))
         }
         thenOnComputer {
             getApi<FSAPI>().getDrive("disk").assertArrayEquals("right")
@@ -119,7 +119,7 @@ class Disk_Drive_Test {
      */
     @GameTest
     fun Creates_disk_id(helper: GameTestHelper) = helper.sequence {
-        val drivePos = BlockPos(2, 2, 2)
+        val drivePos = BlockPos(2, 1, 2)
         thenWaitUntil {
             val drive = helper.getBlockEntity(drivePos, ModRegistry.BlockEntities.DISK_DRIVE.get())
             if (!drive.getItem(0).has(ModRegistry.DataComponents.DISK_ID.get())) {
@@ -133,8 +133,8 @@ class Disk_Drive_Test {
      */
     @GameTest
     fun Comparator(helper: GameTestHelper) = helper.sequence {
-        val drivePos = BlockPos(2, 2, 2)
-        val dustPos = BlockPos(2, 2, 4)
+        val drivePos = BlockPos(2, 1, 2)
+        val dustPos = BlockPos(2, 1, 4)
 
         // Adding items should provide power
         thenExecute {
@@ -160,7 +160,7 @@ class Disk_Drive_Test {
      */
     @GameTest
     fun Contents_updates_state(helper: GameTestHelper) = helper.sequence {
-        val pos = BlockPos(2, 2, 2)
+        val pos = BlockPos(2, 1, 2)
 
         thenExecute {
             val drive = helper.getBlockEntity(pos, ModRegistry.BlockEntities.DISK_DRIVE.get())
@@ -185,7 +185,7 @@ class Disk_Drive_Test {
     @GameTest
     fun Drops_contents(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            helper.level.destroyBlock(helper.absolutePos(BlockPos(2, 2, 2)), true)
+            helper.level.destroyBlock(helper.absolutePos(BlockPos(2, 1, 2)), true)
             helper.assertExactlyItems(
                 DataComponentUtil.createStack(ModRegistry.Items.DISK_DRIVE.get(), DataComponents.CUSTOM_NAME, Component.literal("My Disk Drive")),
                 ItemStack(ModRegistry.Items.TREASURE_DISK.get()),
@@ -201,7 +201,7 @@ class Disk_Drive_Test {
     fun Data_fixers(helper: GameTestHelper) = helper.sequence {
         thenExecute {
             helper.assertContainerExactly(
-                BlockPos(1, 2, 2),
+                BlockPos(1, 1, 2),
                 listOf(
                     ItemStack(ModRegistry.Items.DISK.get()).also {
                         it.applyComponents(
@@ -215,7 +215,7 @@ class Disk_Drive_Test {
             )
 
             helper.assertContainerExactly(
-                BlockPos(3, 2, 2),
+                BlockPos(3, 1, 2),
                 listOf(
                     ItemStack(ModRegistry.Items.TREASURE_DISK.get()).also {
                         it.applyComponents(

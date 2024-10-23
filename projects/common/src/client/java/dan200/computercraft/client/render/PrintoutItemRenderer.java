@@ -10,8 +10,7 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.PrintoutData;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.client.renderer.entity.state.ItemFrameRenderState;
 import net.minecraft.world.item.ItemStack;
 
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
@@ -38,14 +37,14 @@ public final class PrintoutItemRenderer extends ItemMapLikeRenderer {
         drawPrintout(transform, render, stack, light);
     }
 
-    public static void onRenderInFrame(PoseStack transform, MultiBufferSource render, ItemFrame frame, ItemStack stack, int packedLight) {
+    public static void onRenderInFrame(PoseStack transform, MultiBufferSource render, ItemFrameRenderState frame, ItemStack stack, int packedLight) {
         // Move a little bit forward to ensure we're not clipping with the frame
         transform.translate(0.0f, 0.0f, -0.001f);
         transform.mulPose(Axis.ZP.rotationDegrees(180f));
         transform.scale(0.95f, 0.95f, -0.95f);
         transform.translate(-0.5f, -0.5f, 0.0f);
 
-        var light = frame.getType() == EntityType.GLOW_ITEM_FRAME ? 0xf000d2 : packedLight; // See getLightVal.
+        var light = frame.isGlowFrame ? 0xf000d2 : packedLight; // See getLightVal.
         drawPrintout(transform, render, stack, light);
     }
 

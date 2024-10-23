@@ -6,6 +6,7 @@ package dan200.computercraft.data.recipe;
 
 import dan200.computercraft.shared.recipe.RecipeProperties;
 import dan200.computercraft.shared.recipe.ShapelessRecipeSpec;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.NonNullList;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
@@ -21,20 +22,12 @@ import net.minecraft.world.level.ItemLike;
 public final class ShapelessSpecBuilder extends AbstractRecipeBuilder<ShapelessSpecBuilder, ShapelessRecipeSpec> {
     private final NonNullList<Ingredient> ingredients = NonNullList.create();
 
-    private ShapelessSpecBuilder(RecipeCategory category, ItemStack result) {
-        super(category, result);
-    }
-
-    public static ShapelessSpecBuilder shapeless(RecipeCategory category, ItemStack result) {
-        return new ShapelessSpecBuilder(category, result);
-    }
-
-    public static ShapelessSpecBuilder shapeless(RecipeCategory category, ItemLike result) {
-        return new ShapelessSpecBuilder(category, new ItemStack(result));
+    public ShapelessSpecBuilder(HolderGetter<Item> items, RecipeCategory category, ItemStack result) {
+        super(items, category, result);
     }
 
     public ShapelessSpecBuilder requires(Ingredient ingredient, int count) {
-        for (int i = 0; i < count; i++) ingredients.add(ingredient);
+        for (var i = 0; i < count; i++) ingredients.add(ingredient);
         return this;
     }
 
@@ -43,15 +36,15 @@ public final class ShapelessSpecBuilder extends AbstractRecipeBuilder<ShapelessS
     }
 
     public ShapelessSpecBuilder requires(ItemLike item) {
-        return requires(Ingredient.of(new ItemStack(item)));
+        return requires(Ingredient.of(item));
     }
 
     public ShapelessSpecBuilder requires(ItemLike item, int count) {
-        return requires(Ingredient.of(new ItemStack(item)), count);
+        return requires(Ingredient.of(item), count);
     }
 
     public ShapelessSpecBuilder requires(TagKey<Item> item) {
-        return requires(Ingredient.of(item));
+        return requires(Ingredient.of(items.getOrThrow(item)));
     }
 
     @Override

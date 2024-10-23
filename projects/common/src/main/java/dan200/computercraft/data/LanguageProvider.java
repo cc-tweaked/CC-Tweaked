@@ -279,19 +279,18 @@ public final class LanguageProvider implements DataProvider {
         addConfigEntry(ConfigSpec.monitorWidth, "Max monitor width");
         addConfigEntry(ConfigSpec.monitorHeight, "Max monitor height");
 
-        addConfigEntry(ConfigSpec.monitorRenderer, "Monitor renderer");
         addConfigEntry(ConfigSpec.monitorDistance, "Monitor distance");
         addConfigEntry(ConfigSpec.uploadNagDelay, "Upload nag delay");
     }
 
     private Stream<String> getExpectedKeys(HolderLookup.Provider registries) {
         return Stream.of(
-            BuiltInRegistries.BLOCK.holders()
+            BuiltInRegistries.BLOCK.listElements()
                 .filter(x -> x.key().location().getNamespace().equals(ComputerCraftAPI.MOD_ID))
                 .map(x -> x.value().getDescriptionId())
                 // Exclude blocks that just reuse vanilla translations, such as the lectern.
                 .filter(x -> !x.startsWith("block.minecraft.")),
-            BuiltInRegistries.ITEM.holders()
+            BuiltInRegistries.ITEM.listElements()
                 .filter(x -> x.key().location().getNamespace().equals(ComputerCraftAPI.MOD_ID))
                 .map(x -> x.value().getDescriptionId()),
             registries.lookupOrThrow(ITurtleUpgrade.REGISTRY).listElements().flatMap(x -> getTranslationKeys(x.value().getAdjective())),

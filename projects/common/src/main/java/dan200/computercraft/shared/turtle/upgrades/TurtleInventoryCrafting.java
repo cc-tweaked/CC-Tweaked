@@ -12,9 +12,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.AbstractList;
@@ -29,7 +28,7 @@ public final class TurtleInventoryCrafting {
     private TurtleInventoryCrafting() {
     }
 
-    private static @Nullable FoundRecipe tryCrafting(Level level, Container inventory, int xStart, int yStart) {
+    private static @Nullable FoundRecipe tryCrafting(ServerLevel level, Container inventory, int xStart, int yStart) {
         // Check the non-relevant parts of the inventory are empty
         for (var x = 0; x < TurtleBlockEntity.INVENTORY_WIDTH; x++) {
             for (var y = 0; y < TurtleBlockEntity.INVENTORY_HEIGHT; y++) {
@@ -56,14 +55,13 @@ public final class TurtleInventoryCrafting {
                 return WIDTH * HEIGHT;
             }
         });
-        var recipe = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input.input(), level).orElse(null);
+        var recipe = level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input.input(), level).orElse(null);
         return recipe == null ? null : new FoundRecipe(recipe.value(), input.input(), input.left() + xStart, input.top() + yStart);
     }
 
     @Nullable
     public static List<ItemStack> craft(ITurtleAccess turtle, int maxCount) {
-        var level = turtle.getLevel();
-        if (level.isClientSide || !(level instanceof ServerLevel)) return null;
+        if (!(turtle.getLevel() instanceof ServerLevel level)) return null;
 
         var inventory = turtle.getInventory();
 
@@ -124,6 +122,6 @@ public final class TurtleInventoryCrafting {
         return Collections.unmodifiableList(results);
     }
 
-    private record FoundRecipe(Recipe<CraftingInput> recipe, CraftingInput input, int xStart, int yStart) {
+    private record FoundRecipe(CraftingRecipe recipe, CraftingInput input, int xStart, int yStart) {
     }
 }

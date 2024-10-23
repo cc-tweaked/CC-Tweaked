@@ -38,7 +38,7 @@ final class TurtleUpgradeModellers {
         @Override
         public TransformedModel getModel(ITurtleUpgrade upgrade, @Nullable ITurtleAccess turtle, TurtleSide side, DataComponentPatch data) {
             var stack = upgrade.getUpgradeItem(data);
-            var model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(stack);
+            var model = Minecraft.getInstance().getItemRenderer().getModel(stack, null, null, 0);
             if (stack.hasFoil()) model = ClientPlatformHelper.get().createdFoiledModel(model);
             return new TransformedModel(model, side == TurtleSide.LEFT ? leftTransform : rightTransform);
         }

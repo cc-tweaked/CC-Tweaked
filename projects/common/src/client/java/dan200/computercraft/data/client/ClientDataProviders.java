@@ -16,9 +16,11 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -32,22 +34,21 @@ public final class ClientDataProviders {
 
     public static void add(DataProviders.GeneratorSink generator, CompletableFuture<HolderLookup.Provider> registries) {
         generator.addFromCodec("Block atlases", PackType.CLIENT_RESOURCES, "atlases", SpriteSources.FILE_CODEC, out -> {
-            out.accept(ResourceLocation.withDefaultNamespace("blocks"), List.of(
-                new SingleFile(UpgradeSlot.LEFT_UPGRADE, Optional.empty()),
-                new SingleFile(UpgradeSlot.RIGHT_UPGRADE, Optional.empty()),
-                new SingleFile(LecternPrintoutModel.TEXTURE, Optional.empty())
-            ));
-            out.accept(GuiSprites.SPRITE_SHEET, Stream.of(
-                // Buttons
-                GuiSprites.TURNED_OFF.textures(),
-                GuiSprites.TURNED_ON.textures(),
-                GuiSprites.TERMINATE.textures(),
+            out.accept(ResourceLocation.withDefaultNamespace("blocks"), makeSprites(Stream.of(
+                // Upgrade slot backgrounds
+                UpgradeSlot.LEFT_UPGRADE,
+                UpgradeSlot.RIGHT_UPGRADE,
+                // Texture for lectern printouts
+                LecternPrintoutModel.TEXTURE
+            )));
+
+            out.accept(GuiSprites.SPRITE_SHEET, makeSprites(
                 // Computers
                 GuiSprites.COMPUTER_NORMAL.textures(),
                 GuiSprites.COMPUTER_ADVANCED.textures(),
                 GuiSprites.COMPUTER_COMMAND.textures(),
                 GuiSprites.COMPUTER_COLOUR.textures()
-            ).flatMap(x -> x).<SpriteSource>map(x -> new SingleFile(x, Optional.empty())).toList());
+            ));
         });
 
         generator.add(pack -> new ExtraModelsProvider(pack, registries) {
@@ -56,5 +57,11 @@ public final class ClientDataProviders {
                 return registries.lookupOrThrow(TurtleOverlay.REGISTRY).listElements().map(x -> x.value().model());
             }
         });
+    }
+
+    @SafeVarargs
+    @SuppressWarnings("varargs")
+    private static List<SpriteSource> makeSprites(final Stream<ResourceLocation>... files) {
+        return Arrays.stream(files).flatMap(Function.identity()).<SpriteSource>map(x -> new SingleFile(x, Optional.empty())).toList();
     }
 }

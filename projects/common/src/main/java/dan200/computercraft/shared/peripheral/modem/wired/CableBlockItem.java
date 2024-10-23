@@ -4,11 +4,8 @@
 
 package dan200.computercraft.shared.peripheral.modem.wired;
 
-import dan200.computercraft.shared.util.RegistryHelper;
 import dan200.computercraft.shared.ModRegistry;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
@@ -16,13 +13,9 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nullable;
-
 import static dan200.computercraft.shared.peripheral.modem.wired.CableBlock.*;
 
 public abstract class CableBlockItem extends BlockItem {
-    private @Nullable String translationKey;
-
     public CableBlockItem(CableBlock block, Properties settings) {
         super(block, settings);
     }
@@ -43,14 +36,6 @@ public abstract class CableBlockItem extends BlockItem {
 
     boolean placeAtCorrected(Level world, BlockPos pos, BlockState state) {
         return placeAt(world, pos, correctConnections(world, pos, state));
-    }
-
-    @Override
-    public String getDescriptionId() {
-        if (translationKey == null) {
-            translationKey = Util.makeDescriptionId("block", RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, this));
-        }
-        return translationKey;
     }
 
     public static class WiredModem extends CableBlockItem {
@@ -75,7 +60,7 @@ public abstract class CableBlockItem extends BlockItem {
                     .setValue(CONNECTIONS.get(side), existingState.getValue(CABLE));
                 if (placeAt(world, pos, newState)) {
                     stack.shrink(1);
-                    return InteractionResult.sidedSuccess(world.isClientSide);
+                    return InteractionResult.SUCCESS;
                 }
             }
 
@@ -102,7 +87,7 @@ public abstract class CableBlockItem extends BlockItem {
             if (insideState.getBlock() == ModRegistry.Blocks.CABLE.get() && !insideState.getValue(CableBlock.CABLE)
                 && placeAtCorrected(world, insidePos, insideState.setValue(CableBlock.CABLE, true))) {
                 stack.shrink(1);
-                return InteractionResult.sidedSuccess(world.isClientSide);
+                return InteractionResult.SUCCESS;
             }
 
             // Try to add a cable to a modem adjacent to this block
@@ -110,7 +95,7 @@ public abstract class CableBlockItem extends BlockItem {
             if (existingState.getBlock() == ModRegistry.Blocks.CABLE.get() && !existingState.getValue(CableBlock.CABLE)
                 && placeAtCorrected(world, pos, existingState.setValue(CableBlock.CABLE, true))) {
                 stack.shrink(1);
-                return InteractionResult.sidedSuccess(world.isClientSide);
+                return InteractionResult.SUCCESS;
             }
 
             return super.place(context);

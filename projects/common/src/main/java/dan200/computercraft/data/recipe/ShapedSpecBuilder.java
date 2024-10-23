@@ -6,6 +6,7 @@ package dan200.computercraft.data.recipe;
 
 import dan200.computercraft.shared.recipe.RecipeProperties;
 import dan200.computercraft.shared.recipe.ShapedRecipeSpec;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.TagKey;
@@ -27,16 +28,8 @@ public final class ShapedSpecBuilder extends AbstractRecipeBuilder<ShapedSpecBui
     private final List<String> rows = new ArrayList<>();
     private final Map<Character, Ingredient> key = new LinkedHashMap<>();
 
-    private ShapedSpecBuilder(RecipeCategory category, ItemStack result) {
-        super(category, result);
-    }
-
-    public static ShapedSpecBuilder shaped(RecipeCategory category, ItemStack result) {
-        return new ShapedSpecBuilder(category, result);
-    }
-
-    public static ShapedSpecBuilder shaped(RecipeCategory category, ItemLike result) {
-        return new ShapedSpecBuilder(category, new ItemStack(result));
+    public ShapedSpecBuilder(HolderGetter<Item> items, RecipeCategory category, ItemStack result) {
+        super(items, category, result);
     }
 
     public ShapedSpecBuilder define(char key, Ingredient ingredient) {
@@ -48,7 +41,7 @@ public final class ShapedSpecBuilder extends AbstractRecipeBuilder<ShapedSpecBui
     }
 
     public ShapedSpecBuilder define(char key, TagKey<Item> tag) {
-        return this.define(key, Ingredient.of(tag));
+        return this.define(key, Ingredient.of(items.getOrThrow(tag)));
     }
 
     public ShapedSpecBuilder define(char key, ItemLike item) {

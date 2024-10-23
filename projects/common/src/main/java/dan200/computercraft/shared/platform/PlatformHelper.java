@@ -19,6 +19,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
@@ -34,7 +35,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -195,10 +196,12 @@ public interface PlatformHelper {
     /**
      * Get the amount of fuel an item provides.
      *
-     * @param stack The item to burn.
+     * @param server The current server.
+     * @param stack  The item to burn.
      * @return The amount of fuel it provides.
+     * @see MinecraftServer#fuelValues()
      */
-    int getBurnTime(ItemStack stack);
+    int getBurnTime(MinecraftServer server, ItemStack stack);
 
     /**
      * Create a builder for a new creative tab.
@@ -225,7 +228,7 @@ public interface PlatformHelper {
      * @param container The crafting container.
      * @return A list of items to return to the player after crafting.
      */
-    List<ItemStack> getRecipeRemainingItems(ServerPlayer player, Recipe<CraftingInput> recipe, CraftingInput container);
+    List<ItemStack> getRecipeRemainingItems(ServerPlayer player, CraftingRecipe recipe, CraftingInput container);
 
     /**
      * Fire an event after crafting has occurred.

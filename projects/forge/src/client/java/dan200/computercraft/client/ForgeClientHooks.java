@@ -47,7 +47,6 @@ public final class ForgeClientHooks {
 
     @SubscribeEvent
     public static void onRenderText(CustomizeGuiOverlayEvent.DebugText event) {
-        ClientHooks.addGameDebugInfo(event.getLeft()::add);
         ClientHooks.addBlockDebugInfo(event.getRight()::add);
     }
 
@@ -64,7 +63,7 @@ public final class ForgeClientHooks {
     @SubscribeEvent
     public static void onRenderInFrame(RenderItemInFrameEvent event) {
         if (ClientHooks.onRenderItemFrame(
-            event.getPoseStack(), event.getMultiBufferSource(), event.getItemFrameEntity(), event.getItemStack(), event.getPackedLight()
+            event.getPoseStack(), event.getMultiBufferSource(), event.getItemFrameRenderState(), event.getItemStack(), event.getPackedLight()
         )) {
             event.setCanceled(true);
         }

@@ -5,9 +5,11 @@
 package dan200.computercraft.client.gui;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
-import net.minecraft.client.gui.components.toasts.ToastComponent;
+import net.minecraft.client.gui.components.toasts.ToastManager;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
@@ -35,8 +37,9 @@ public class ItemToast implements Toast {
     private final Object token;
     private final int width;
 
-    private boolean isNew = true;
-    private long firstDisplay;
+    private boolean changed = true;
+    private long lastChanged;
+    private Visibility visibility = Visibility.HIDE;
 
     public ItemToast(Minecraft minecraft, ItemStack stack, Component title, Component message, Object token) {
         this.stack = stack;
@@ -48,10 +51,10 @@ public class ItemToast implements Toast {
         width = Math.max(MAX_LINE_SIZE, this.message.stream().mapToInt(font::width).max().orElse(MAX_LINE_SIZE)) + MARGIN * 3 + IMAGE_SIZE;
     }
 
-    public void showOrReplace(ToastComponent toasts) {
+    public void showOrReplace(ToastManager toasts) {
         var existing = toasts.getToast(ItemToast.class, getToken());
         if (existing != null) {
-            existing.isNew = true;
+            existing.changed = true;
         } else {
             toasts.addToast(this);
         }
@@ -73,28 +76,22 @@ public class ItemToast implements Toast {
     }
 
     @Override
-    public Visibility render(GuiGraphics graphics, ToastComponent component, long time) {
-        if (isNew) {
+    public Visibility getWantedVisibility() {
+        return visibility;
+    }
 
-            firstDisplay = time;
-            isNew = false;
+    @Override
+    public void update(ToastManager toastManager, long time) {
+        if (changed) {
+            lastChanged = time;
+            changed = false;
         }
+        visibility = time - lastChanged < DISPLAY_TIME * toastManager.getNotificationDisplayTimeMultiplier() ? Visibility.SHOW : Visibility.HIDE;
+    }
 
-        if (width == 160 && message.size() <= 1) {
-            graphics.blitSprite(TEXTURE, 0, 0, width, height());
-        } else {
-
-            var height = height();
-
-            var bottom = Math.min(4, height - 28);
-            renderBackgroundRow(graphics, width, 0, 0, 28);
-
-            for (var i = 28; i < height - bottom; i += 10) {
-                renderBackgroundRow(graphics, width, 16, i, Math.min(16, height - i - bottom));
-            }
-
-            renderBackgroundRow(graphics, width, 32 - bottom, height - bottom, bottom);
-        }
+    @Override
+    public void render(GuiGraphics graphics, Font font, long time) {
+        graphics.blitSprite(RenderType::guiTextured, TEXTURE, 0, 0, width(), height());
 
         var textX = MARGIN;
         if (!stack.isEmpty()) {
@@ -102,23 +99,9 @@ public class ItemToast implements Toast {
             graphics.renderFakeItem(stack, MARGIN, MARGIN + height() / 2 - IMAGE_SIZE);
         }
 
-        graphics.drawString(component.getMinecraft().font, title, textX, MARGIN, 0xff500050, false);
+        graphics.drawString(font, title, textX, MARGIN, 0xff500050, false);
         for (var i = 0; i < message.size(); ++i) {
-            graphics.drawString(component.getMinecraft().font, message.get(i), textX, LINE_SPACING + (i + 1) * LINE_SPACING, 0xff000000, false);
+            graphics.drawString(font, message.get(i), textX, LINE_SPACING + (i + 1) * LINE_SPACING, 0xff000000, false);
         }
-
-        return time - firstDisplay < DISPLAY_TIME ? Visibility.SHOW : Visibility.HIDE;
-    }
-
-    private static void renderBackgroundRow(GuiGraphics graphics, int x, int u, int y, int height) {
-        var leftOffset = u == 0 ? 20 : 5;
-        var rightOffset = Math.min(60, x - leftOffset);
-
-        graphics.blitSprite(TEXTURE, 160, 32, 0, u, 0, y, leftOffset, height);
-        for (var k = leftOffset; k < x - rightOffset; k += 64) {
-            graphics.blitSprite(TEXTURE, 160, 32, 32, u, k, y, Math.min(64, x - k - rightOffset), height);
-        }
-
-        graphics.blitSprite(TEXTURE, 160, 32, 160 - rightOffset, u, x - rightOffset, y, rightOffset, height);
     }
 }

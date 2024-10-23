@@ -1,10 +1,8 @@
 {
   "type": "computercraft:transform_shaped",
   "category": "redstone",
-  "function": [
-    {"type": "computercraft:copy_components", "from": {"item": "computercraft:pocket_computer_normal"}}
-  ],
-  "key": {"#": {"tag": "c:ingots/gold"}, "C": {"item": "computercraft:pocket_computer_normal"}},
+  "function": [{"type": "computercraft:copy_components", "from": "computercraft:pocket_computer_normal"}],
+  "key": {"#": "#c:ingots/gold", "C": "computercraft:pocket_computer_normal"},
   "pattern": ["###", "#C#", "# #"],
   "result": {"count": 1, "id": "computercraft:pocket_computer_advanced"}
 }

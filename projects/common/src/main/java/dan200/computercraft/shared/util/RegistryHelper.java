@@ -27,7 +27,7 @@ public final class RegistryHelper {
      */
     @SuppressWarnings("unchecked")
     public static <T> Registry<T> getRegistry(ResourceKey<Registry<T>> id) {
-        var registry = (Registry<T>) BuiltInRegistries.REGISTRY.get(id.location());
+        var registry = (Registry<T>) BuiltInRegistries.REGISTRY.getValue(id.location());
         if (registry == null) throw new IllegalArgumentException("Unknown registry " + id);
         return registry;
     }

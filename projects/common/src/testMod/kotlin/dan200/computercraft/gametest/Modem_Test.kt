@@ -35,7 +35,7 @@ class Modem_Test {
 
     @GameTest
     fun Gains_peripherals(helper: GameTestHelper) = helper.sequence {
-        val position = BlockPos(2, 2, 2)
+        val position = BlockPos(2, 1, 2)
         thenOnComputer {
             assertEquals(listOf("back"), getPeripheralNames(), "Starts with peripherals")
         }
@@ -84,8 +84,8 @@ class Modem_Test {
     @GameTest(setupTicks = 1)
     fun Full_modems_form_networks(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            val modem1 = helper.getBlockEntity(BlockPos(1, 2, 1), ModRegistry.BlockEntities.WIRED_MODEM_FULL.get())
-            val modem2 = helper.getBlockEntity(BlockPos(3, 2, 1), ModRegistry.BlockEntities.WIRED_MODEM_FULL.get())
+            val modem1 = helper.getBlockEntity(BlockPos(1, 1, 1), ModRegistry.BlockEntities.WIRED_MODEM_FULL.get())
+            val modem2 = helper.getBlockEntity(BlockPos(3, 1, 1), ModRegistry.BlockEntities.WIRED_MODEM_FULL.get())
             assertEquals((modem1.element.node as WiredNodeImpl).network, (modem2.element.node as WiredNodeImpl).network, "On the same network")
         }
     }
@@ -101,7 +101,7 @@ class Modem_Test {
         // However, if we connect the network, the other modem does.
         thenExecute {
             helper.setBlock(
-                BlockPos(1, 2, 3),
+                BlockPos(1, 1, 3),
                 ModRegistry.Blocks.CABLE.get().defaultBlockState().setValue(CableBlock.CABLE, true),
             )
         }
@@ -120,7 +120,7 @@ class Modem_Test {
         // However, if we connect the network, the other modem does.
         thenExecute {
             helper.setBlock(
-                BlockPos(1, 2, 3),
+                BlockPos(1, 1, 3),
                 ModRegistry.Blocks.CABLE.get().defaultBlockState().setValue(CableBlock.CABLE, true),
             )
         }
@@ -134,9 +134,9 @@ class Modem_Test {
     @GameTest
     fun Modem_drops_when_neighbour_removed(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            helper.setBlock(BlockPos(2, 3, 2), Blocks.AIR)
-            helper.assertItemEntityPresent(ModRegistry.Items.WIRED_MODEM.get(), BlockPos(2, 2, 2), 0.0)
-            helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 2, 2))
+            helper.setBlock(BlockPos(2, 2, 2), Blocks.AIR)
+            helper.assertItemEntityPresent(ModRegistry.Items.WIRED_MODEM.get(), BlockPos(2, 1, 2), 0.0)
+            helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 1, 2))
         }
     }
 
@@ -146,9 +146,9 @@ class Modem_Test {
     @GameTest
     fun Modem_keeps_cable_when_neighbour_removed(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            helper.setBlock(BlockPos(2, 3, 2), Blocks.AIR)
-            helper.assertItemEntityPresent(ModRegistry.Items.WIRED_MODEM.get(), BlockPos(2, 2, 2), 0.0)
-            helper.assertBlockIs(BlockPos(2, 2, 2)) {
+            helper.setBlock(BlockPos(2, 2, 2), Blocks.AIR)
+            helper.assertItemEntityPresent(ModRegistry.Items.WIRED_MODEM.get(), BlockPos(2, 1, 2), 0.0)
+            helper.assertBlockIs(BlockPos(2, 1, 2)) {
                 it.block == ModRegistry.Blocks.CABLE.get() && it.getValue(CableBlock.MODEM) == CableModemVariant.None && it.getValue(CableBlock.CABLE)
             }
         }
@@ -162,7 +162,7 @@ class Modem_Test {
         thenOnComputer {
             callRemotePeripheral("minecraft:chest_0", "size").assertArrayEquals(27)
         }
-        thenExecute { context.placeItemAt(ItemStack(Items.CHEST), BlockPos(2, 2, 2), Direction.WEST) }
+        thenExecute { context.placeItemAt(ItemStack(Items.CHEST), BlockPos(2, 1, 2), Direction.WEST) }
         thenIdle(1)
         thenOnComputer {
             callRemotePeripheral("minecraft:chest_0", "size").assertArrayEquals(54)

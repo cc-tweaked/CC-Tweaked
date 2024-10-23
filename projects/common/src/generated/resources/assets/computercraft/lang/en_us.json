@@ -124,8 +124,6 @@
   "gui.computercraft.config.maximum_open_files.tooltip": "Set how many files a computer can have open at the same time. Set to 0 for unlimited.\nRange: > 0",
   "gui.computercraft.config.monitor_distance": "Monitor distance",
   "gui.computercraft.config.monitor_distance.tooltip": "The maximum distance monitors will render at. This defaults to the standard tile\nentity limit, but may be extended if you wish to build larger monitors.\nRange: 16 ~ 1024",
-  "gui.computercraft.config.monitor_renderer": "Monitor renderer",
-  "gui.computercraft.config.monitor_renderer.tooltip": "The renderer to use for monitors. Generally this should be kept at \"best\" - if\nmonitors have performance issues, you may wish to experiment with alternative\nrenderers.\nAllowed Values: BEST, TBO, VBO",
   "gui.computercraft.config.peripheral": "Peripherals",
   "gui.computercraft.config.peripheral.command_block_enabled": "Enable command block peripheral",
   "gui.computercraft.config.peripheral.command_block_enabled.tooltip": "Enable Command Block peripheral support",

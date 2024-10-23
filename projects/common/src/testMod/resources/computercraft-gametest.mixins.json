@@ -11,6 +11,8 @@
         "GameTestInfoAccessor",
         "GameTestSequenceAccessor",
         "GameTestSequenceMixin",
+        "GameTestServerMixin",
+        "MinecraftServerAccessor",
         "StructureTemplateManagerMixin",
         "TestCommandAccessor"
     ],

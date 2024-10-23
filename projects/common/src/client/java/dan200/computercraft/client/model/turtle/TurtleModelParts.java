@@ -107,8 +107,7 @@ public final class TurtleModelParts<T> {
     }
 
     private List<BakedModel> buildModel(Combination combo) {
-        var mc = Minecraft.getInstance();
-        var modelManager = mc.getItemRenderer().getItemModelShaper().getModelManager();
+        var modelManager = Minecraft.getInstance().getModelManager();
 
         var transformation = combo.flip ? flip : identity;
         var parts = new ArrayList<BakedModel>(4);

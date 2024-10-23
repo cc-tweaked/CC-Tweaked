@@ -24,16 +24,6 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int x, int y) {
-        return x >= 3 && y >= 1;
-    }
-
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider registryAccess) {
-        return new ItemStack(ModRegistry.Items.TURTLE_NORMAL.get());
-    }
-
-    @Override
     public boolean matches(CraftingInput inventory, Level world) {
         return !assemble(inventory, world.registryAccess()).isEmpty();
     }
@@ -126,7 +116,7 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<? extends TurtleUpgradeRecipe> getSerializer() {
         return ModRegistry.RecipeSerializers.TURTLE_UPGRADE.get();
     }
 }

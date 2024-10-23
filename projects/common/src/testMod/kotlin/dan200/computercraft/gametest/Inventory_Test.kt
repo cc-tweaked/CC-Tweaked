@@ -40,8 +40,8 @@ class Inventory_Test {
             ).await().assertArrayEquals(0, message = "Does not move items")
         }
         thenExecute {
-            helper.assertContainerExactly(BlockPos(1, 2, 2), listOf())
-            helper.assertContainerExactly(BlockPos(3, 2, 2), listOf(ItemStack(Items.SHULKER_BOX)))
+            helper.assertContainerExactly(BlockPos(1, 1, 2), listOf())
+            helper.assertContainerExactly(BlockPos(3, 1, 2), listOf(ItemStack(Items.SHULKER_BOX)))
         }
     }
 
@@ -66,8 +66,8 @@ class Inventory_Test {
             ).await().assertArrayEquals(0, message = "Does not move items")
         }
         thenExecute {
-            helper.assertContainerExactly(BlockPos(1, 2, 2), listOf(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack(Items.IRON_INGOT)))
-            helper.assertContainerExactly(BlockPos(3, 2, 2), NonNullList.withSize(27, ItemStack(Items.POLISHED_ANDESITE)))
+            helper.assertContainerExactly(BlockPos(1, 1, 2), listOf(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack(Items.IRON_INGOT)))
+            helper.assertContainerExactly(BlockPos(3, 1, 2), NonNullList.withSize(27, ItemStack(Items.POLISHED_ANDESITE)))
         }
     }
 

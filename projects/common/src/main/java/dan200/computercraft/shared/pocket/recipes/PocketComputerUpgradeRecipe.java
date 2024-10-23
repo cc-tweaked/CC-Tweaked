@@ -23,16 +23,6 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int x, int y) {
-        return x >= 2 && y >= 2;
-    }
-
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider registryAccess) {
-        return new ItemStack(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get());
-    }
-
-    @Override
     public boolean matches(CraftingInput inventory, Level world) {
         return !assemble(inventory, world.registryAccess()).isEmpty();
     }
@@ -85,7 +75,7 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<? extends PocketComputerUpgradeRecipe> getSerializer() {
         return ModRegistry.RecipeSerializers.POCKET_COMPUTER_UPGRADE.get();
     }
 }

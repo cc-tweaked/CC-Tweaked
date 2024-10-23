@@ -34,8 +34,8 @@ public final class FoiledModel extends BakedModelWrapper<BakedModel> {
     }
 
     @Override
-    public List<RenderType> getRenderTypes(ItemStack itemStack, boolean fabulous) {
-        return new ConsList<>(fabulous ? RenderType.glintTranslucent() : RenderType.glint(), super.getRenderTypes(itemStack, fabulous));
+    public List<RenderType> getRenderTypes(ItemStack itemStack) {
+        return new ConsList<>(RenderType.glint(), super.getRenderTypes(itemStack));
     }
 
     @Override

@@ -40,7 +40,7 @@ class Pocket_Computer_Test {
 
         // Give the player a pocket computer.
         thenExecute {
-            context.positionAt(BlockPos(2, 2, 2))
+            context.positionAt(BlockPos(2, 1, 2))
             context.givePocketComputer(unique)
         }
         // Write some text to the computer.
@@ -82,7 +82,7 @@ class Pocket_Computer_Test {
 
         // Give the player a pocket computer.
         thenExecute {
-            context.positionAt(BlockPos(2, 2, 2), xRot = 90.0f)
+            context.positionAt(BlockPos(2, 1, 2), xRot = 90.0f)
             context.givePocketComputer(unique)
         }
         thenOnComputer(unique) {
@@ -119,12 +119,12 @@ class Pocket_Computer_Test {
     @GameTest
     fun Data_fixers(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            val upgrade = helper.level.registryAccess().registryOrThrow(IPocketUpgrade.REGISTRY)
-                .getHolder(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "wireless_modem_normal"))
+            val upgrade = helper.level.registryAccess().lookupOrThrow(IPocketUpgrade.REGISTRY)
+                .get(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "wireless_modem_normal"))
                 .orElseThrow()
 
             helper.assertContainerExactly(
-                BlockPos(2, 2, 2),
+                BlockPos(2, 1, 2),
                 listOf(
                     ItemStack(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get()).also {
                         DataComponentUtil.setCustomName(it, "Test")

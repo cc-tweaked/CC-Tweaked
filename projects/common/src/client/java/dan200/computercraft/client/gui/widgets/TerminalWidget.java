@@ -4,7 +4,6 @@
 
 package dan200.computercraft.client.gui.widgets;
 
-import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.util.StringUtil;
@@ -257,12 +256,12 @@ public class TerminalWidget extends AbstractWidget {
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         if (!visible) return;
 
-        var emitter = FixedWidthFontRenderer.toVertexConsumer(graphics.pose(), graphics.bufferSource().getBuffer(RenderTypes.TERMINAL));
-
-        FixedWidthFontRenderer.drawTerminal(
-            emitter,
-            (float) innerX, (float) innerY, terminal, (float) MARGIN, (float) MARGIN, (float) MARGIN, (float) MARGIN
-        );
+        graphics.drawSpecial(bufferSource -> {
+            FixedWidthFontRenderer.drawTerminal(
+                FixedWidthFontRenderer.toVertexConsumer(graphics.pose(), bufferSource.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT)),
+                (float) innerX, (float) innerY, terminal, (float) MARGIN, (float) MARGIN, (float) MARGIN, (float) MARGIN
+            );
+        });
     }
 
     @Override

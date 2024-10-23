@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public final class ColourUtils {
-    private static final List<TagKey<Item>> DYES = PlatformHelper.get().getDyeTags();
+    public static final List<TagKey<Item>> DYES = PlatformHelper.get().getDyeTags();
 
     private ColourUtils() {
     }

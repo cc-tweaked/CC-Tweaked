@@ -42,7 +42,7 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral {
                     maxRange = Config.modemHighAltitudeRangeDuringStorm;
                 }
                 if (position.y > 96.0 && maxRange > minRange) {
-                    return minRange + (position.y - 96.0) * ((maxRange - minRange) / ((world.getMaxBuildHeight() - 1) - 96.0));
+                    return minRange + (position.y - 96.0) * ((maxRange - minRange) / (world.getMaxY() - 96.0));
                 }
                 return minRange;
             }

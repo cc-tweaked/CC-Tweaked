@@ -11,8 +11,6 @@ import net.minecraft.client.resources.model.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -36,24 +34,15 @@ public final class UnbakedTurtleModel implements UnbakedModel {
     }
 
     @Override
-    public Collection<ResourceLocation> getDependencies() {
-        return List.of(model, COLOUR_TURTLE_MODEL);
-    }
-
-    @Override
-    public void resolveParents(Function<ResourceLocation, UnbakedModel> function) {
-        function.apply(model).resolveParents(function);
-        function.apply(COLOUR_TURTLE_MODEL).resolveParents(function);
+    public void resolveDependencies(Resolver resolver) {
+        resolver.resolve(model);
+        resolver.resolve(COLOUR_TURTLE_MODEL);
     }
 
     @Override
     public BakedModel bake(ModelBaker bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState transform) {
         var mainModel = bakery.bake(model, transform);
-        if (mainModel == null) throw new NullPointerException(model + " failed to bake");
-
         var colourModel = bakery.bake(COLOUR_TURTLE_MODEL, transform);
-        if (colourModel == null) throw new NullPointerException(COLOUR_TURTLE_MODEL + " failed to bake");
-
-        return new TurtleModel(mainModel, colourModel);
+        return new TurtleModel(bakery, mainModel, colourModel);
     }
 }

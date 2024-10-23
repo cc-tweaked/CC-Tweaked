@@ -34,7 +34,7 @@ public class TurtleModel extends BakedModelWrapper<BakedModel> {
     }
 
     @Override
-    public List<BakedModel> getRenderPasses(ItemStack stack, boolean fabulous) {
+    public List<BakedModel> getRenderPasses(ItemStack stack) {
         return parts.getModel(stack);
     }
 }

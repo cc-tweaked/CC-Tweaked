@@ -70,7 +70,7 @@ public final class ModelRenderer {
         var matrix = pose.pose();
         // It's a little dubious to transform using this matrix rather than the normal matrix. This mirrors the logic in
         // Direction.rotate (so not out of nowhere!), but is a little suspicious.
-        var dirNormal = quad.getDirection().getNormal();
+        var dirNormal = quad.getDirection().getUnitVec3i();
         var vector = new Vector4f();
 
         matrix.transform(dirNormal.getX(), dirNormal.getY(), dirNormal.getZ(), 0.0f, vector).normalize();

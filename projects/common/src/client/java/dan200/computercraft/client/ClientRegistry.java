@@ -14,7 +14,6 @@ import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.render.CustomLecternRenderer;
-import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.TurtleBlockEntityRenderer;
 import dan200.computercraft.client.render.monitor.MonitorBlockEntityRenderer;
 import dan200.computercraft.client.turtle.TurtleModemModeller;
@@ -34,7 +33,6 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
@@ -42,8 +40,7 @@ import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraft.server.packs.resources.ResourceProvider;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -54,7 +51,6 @@ import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -182,17 +178,13 @@ public final class ClientRegistry {
             case 1 -> DyedItemColor.getOrDefault(stack, -1); // Frame colour
             case 2 -> { // Light colour
                 var computer = ClientPocketComputers.get(stack);
-                yield computer == null || computer.getLightState() == -1 ? Colour.BLACK.getARGB() : FastColor.ARGB32.opaque(computer.getLightState());
+                yield computer == null || computer.getLightState() == -1 ? Colour.BLACK.getARGB() : ARGB.opaque(computer.getLightState());
             }
         };
     }
 
     private static int getTurtleColour(ItemStack stack, int layer) {
         return layer == 0 ? DyedItemColor.getOrDefault(stack, -1) : -1;
-    }
-
-    public static void registerShaders(ResourceProvider resources, BiConsumer<ShaderInstance, Consumer<ShaderInstance>> load) throws IOException {
-        RenderTypes.registerShaders(resources, load);
     }
 
     private record UnclampedPropertyFunction(

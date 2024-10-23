@@ -7,14 +7,14 @@
 # Minecraft
 # MC version is specified in gradle.properties, as we need that in settings.gradle.
 # Remember to update corresponding versions in fabric.mod.json/neoforge.mods.toml
-fabric-api = "0.102.1+1.21.1"
-fabric-loader = "0.15.11"
-neoForge = "21.1.9"
+fabric-api = "0.106.1+1.21.3"
+fabric-loader = "0.16.7"
+neoForge = "21.3.0-beta"
 neoForgeSpi = "8.0.1"
 mixin = "0.8.5"
 parchment = "2024.07.28"
 parchmentMc = "1.21"
-yarn = "1.21.1+build.1"
+yarn = "1.21.3+build.1"
 
 # Core dependencies (these versions are tied to the version Minecraft uses)
 fastutil = "8.5.12"
@@ -62,14 +62,14 @@ checkstyle = "10.14.1"
 curseForgeGradle = "1.1.18"
 errorProne-core = "2.27.0"
 errorProne-plugin = "3.1.0"
-fabric-loom = "1.7.1"
+fabric-loom = "1.8.10"
 githubRelease = "2.5.2"
 gradleVersions = "0.50.0"
 ideaExt = "1.1.7"
 illuaminate = "0.1.0-73-g43ee16c"
 lwjgl = "3.3.3"
 minotaur = "2.8.7"
-neoGradle = "7.0.152"
+neoGradle = "7.0.165"
 nullAway = "0.10.25"
 shadow = "8.3.1"
 spotless = "6.23.3"
@@ -186,9 +186,9 @@ kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 # Minecraft
 externalMods-common = ["iris-forge", "jei-api", "nightConfig-core", "nightConfig-toml"]
 externalMods-forge-compile = ["moreRed", "iris-forge", "jei-api"]
-externalMods-forge-runtime = ["jei-forge"]
+externalMods-forge-runtime = []
 externalMods-fabric-compile = ["fabricPermissions", "iris-fabric", "jei-api", "rei-api", "rei-builtin"]
-externalMods-fabric-runtime = ["jei-fabric", "modmenu"]
+externalMods-fabric-runtime = []
 
 # Testing
 test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]

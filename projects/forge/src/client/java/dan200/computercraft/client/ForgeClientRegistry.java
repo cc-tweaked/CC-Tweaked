@@ -18,9 +18,11 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
-import java.io.IOException;
 
 /**
  * Registers textures and models for items.
@@ -60,11 +62,6 @@ public final class ForgeClientRegistry {
         gatherModellers();
         var extraModels = ExtraModels.loadAll(Minecraft.getInstance().getResourceManager());
         ClientRegistry.registerExtraModels(x -> event.register(ModelResourceLocation.standalone(x)), extraModels);
-    }
-
-    @SubscribeEvent
-    public static void registerShaders(RegisterShadersEvent event) throws IOException {
-        ClientRegistry.registerShaders(event.getResourceProvider(), event::registerShader);
     }
 
     @SubscribeEvent

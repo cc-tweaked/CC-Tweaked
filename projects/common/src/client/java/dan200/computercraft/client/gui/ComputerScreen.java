@@ -7,7 +7,6 @@ package dan200.computercraft.client.gui;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
-import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.SpriteRenderer;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import net.minecraft.client.gui.GuiGraphics;
@@ -40,14 +39,14 @@ public final class ComputerScreen<T extends AbstractComputerMenu> extends Abstra
     public void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
         // Draw a border around the terminal
         var terminal = getTerminal();
-        var spriteRenderer = SpriteRenderer.createForGui(graphics, RenderTypes.GUI_SPRITES);
-        var computerTextures = GuiSprites.getComputerTextures(family);
 
-        ComputerBorderRenderer.render(
-            spriteRenderer, computerTextures,
-            terminal.getX(), terminal.getY(), terminal.getWidth(), terminal.getHeight(), false
-        );
-        ComputerSidebar.renderBackground(spriteRenderer, computerTextures, leftPos, topPos + sidebarYOffset);
-        graphics.flush(); // Flush to ensure background textures are drawn before foreground.
+        SpriteRenderer.inGui(graphics, spriteRenderer -> {
+            var computerTextures = GuiSprites.getComputerTextures(family);
+            ComputerBorderRenderer.render(
+                spriteRenderer, computerTextures,
+                terminal.getX(), terminal.getY(), terminal.getWidth(), terminal.getHeight(), false
+            );
+            ComputerSidebar.renderBackground(spriteRenderer, computerTextures, leftPos, topPos + sidebarYOffset);
+        });
     }
 }

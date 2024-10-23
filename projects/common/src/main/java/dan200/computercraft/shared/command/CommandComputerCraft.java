@@ -29,7 +29,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.RelativeMovement;
+import net.minecraft.world.entity.Relative;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -225,7 +225,7 @@ public final class CommandComputerCraft {
     private static int teleport(CommandSourceStack source, ServerComputer computer) throws CommandSyntaxException {
         var world = computer.getLevel();
         var pos = Vec3.atBottomCenterOf(computer.getPosition());
-        source.getEntityOrException().teleportTo(world, pos.x(), pos.y(), pos.z(), EnumSet.noneOf(RelativeMovement.class), 0, 0);
+        source.getEntityOrException().teleportTo(world, pos.x(), pos.y(), pos.z(), EnumSet.noneOf(Relative.class), 0, 0, true);
 
         return 1;
     }

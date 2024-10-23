@@ -15,6 +15,12 @@ sourceSets {
     main {
         resources.srcDir("src/generated/resources")
     }
+    client {
+        java {
+            exclude("dan200/computercraft/client/integration/emi")
+            exclude("dan200/computercraft/client/integration/jei")
+        }
+    }
 }
 
 minecraft {
