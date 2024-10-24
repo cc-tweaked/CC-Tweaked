@@ -34,11 +34,12 @@ public class SpriteRenderer {
         this.b = b;
     }
 
+    public static SpriteRenderer createForGui(Matrix4f transform, VertexConsumer builder) {
+        return new SpriteRenderer(transform, builder, 0, RenderTypes.FULL_BRIGHT_LIGHTMAP, 255, 255, 255);
+    }
+
     public static SpriteRenderer createForGui(GuiGraphics graphics, RenderType renderType) {
-        return new SpriteRenderer(
-            graphics.pose().last().pose(), graphics.bufferSource().getBuffer(renderType),
-            0, RenderTypes.FULL_BRIGHT_LIGHTMAP, 255, 255, 255
-        );
+        return createForGui(graphics.pose().last().pose(), graphics.bufferSource().getBuffer(renderType));
     }
 
     /**

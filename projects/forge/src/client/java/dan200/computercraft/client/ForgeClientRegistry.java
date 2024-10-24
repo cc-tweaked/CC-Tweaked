@@ -7,13 +7,12 @@ package dan200.computercraft.client;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.turtle.RegisterTurtleModellersEvent;
 import dan200.computercraft.client.model.turtle.TurtleModelLoader;
+import dan200.computercraft.client.pocket.PocketClientTooltipComponent;
+import dan200.computercraft.shared.pocket.items.PocketTooltipComponent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.client.event.RegisterColorHandlersEvent;
-import net.minecraftforge.client.event.RegisterShadersEvent;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.common.Mod;
@@ -84,5 +83,10 @@ public final class ForgeClientRegistry {
     public static void setupClient(FMLClientSetupEvent event) {
         ClientRegistry.register();
         event.enqueueWork(() -> ClientRegistry.registerMainThread(ItemProperties::register));
+    }
+
+    @SubscribeEvent
+    public static void onTooltipComponent(RegisterClientTooltipComponentFactoriesEvent event) {
+        event.register(PocketTooltipComponent.class, PocketClientTooltipComponent::new);
     }
 }

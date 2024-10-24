@@ -56,4 +56,8 @@ public final class ClientPocketComputers {
         var id = PocketComputerItem.getInstanceID(stack);
         return id == null ? null : instances.get(id);
     }
+
+    static @Nullable PocketComputerData get(UUID id) {
+        return instances.get(id);
+    }
 }
