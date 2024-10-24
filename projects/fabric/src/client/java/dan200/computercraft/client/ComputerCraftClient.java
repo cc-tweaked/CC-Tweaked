@@ -7,6 +7,7 @@ package dan200.computercraft.client;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.FabricComputerCraftAPIClient;
 import dan200.computercraft.client.model.CustomModelLoader;
+import dan200.computercraft.client.pocket.PocketClientTooltipComponent;
 import dan200.computercraft.impl.Services;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
@@ -15,6 +16,7 @@ import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.platform.FabricConfigFile;
 import dan200.computercraft.shared.platform.FabricMessageType;
+import dan200.computercraft.shared.pocket.items.PocketTooltipComponent;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -22,6 +24,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.model.loading.v1.PreparableModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback;
 import net.fabricmc.loader.api.FabricLoader;
@@ -72,6 +75,11 @@ public class ComputerCraftClient {
             } else {
                 return true;
             }
+        });
+
+        TooltipComponentCallback.EVENT.register(c -> {
+            if (c instanceof PocketTooltipComponent p) return new PocketClientTooltipComponent(p);
+            return null;
         });
 
         // Easier to hook in as an event than use BlockPickInteractionAware.
