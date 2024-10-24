@@ -160,8 +160,6 @@ public final class LanguageProvider implements DataProvider {
         add("commands.computercraft.queue.synopsis", "Send a computer_command event to a command computer");
         add("commands.computercraft.queue.desc", "Send a computer_command event to a command computer, passing through the additional arguments. This is mostly designed for map makers, acting as a more computer-friendly version of /trigger. Any player can run the command, which would most likely be done through a text component's click event.");
 
-        add("commands.computercraft.generic.no_position", "<no pos>");
-        add("commands.computercraft.generic.position", "%s, %s, %s");
         add("commands.computercraft.generic.yes", "Y");
         add("commands.computercraft.generic.no", "N");
         add("commands.computercraft.generic.exception", "Unhandled exception (%s)");

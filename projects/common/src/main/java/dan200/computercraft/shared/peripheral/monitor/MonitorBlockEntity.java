@@ -6,6 +6,7 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import com.google.common.annotations.VisibleForTesting;
 import dan200.computercraft.annotations.ForgeOverride;
+import dan200.computercraft.api.peripheral.AttachedComputerSet;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
@@ -25,9 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class MonitorBlockEntity extends BlockEntity {
@@ -53,7 +51,7 @@ public class MonitorBlockEntity extends BlockEntity {
     private @Nullable ClientMonitor clientMonitor;
 
     private @Nullable MonitorPeripheral peripheral;
-    private final Set<IComputerAccess> computers = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final AttachedComputerSet computers = new AttachedComputerSet();
 
     private boolean needsUpdate = false;
     private boolean needsValidating = false;
@@ -487,7 +485,7 @@ public class MonitorBlockEntity extends BlockEntity {
                 var monitor = getLoadedMonitor(x, y).getMonitor();
                 if (monitor == null) continue;
 
-                for (var computer : monitor.computers) fun.accept(computer);
+                computers.forEach(fun);
             }
         }
     }

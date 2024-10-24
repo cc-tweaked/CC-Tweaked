@@ -4,8 +4,6 @@
 
 package dan200.computercraft.core.util;
 
-import javax.annotation.Nullable;
-
 public enum Colour {
     BLACK(0x111111),
     RED(0xcc4c4c),
@@ -28,15 +26,6 @@ public enum Colour {
 
     public static Colour fromInt(int colour) {
         return Colour.VALUES[colour];
-    }
-
-    @Nullable
-    public static Colour fromHex(int colour) {
-        for (var entry : VALUES) {
-            if (entry.getHex() == colour) return entry;
-        }
-
-        return null;
     }
 
     private final int hex;

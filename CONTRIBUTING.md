@@ -12,6 +12,7 @@ If you've any other questions, [just ask the community][community] or [open an i
 
 ## Table of Contents
  - [Reporting issues](#reporting-issues)
+ - [Translations](#translations)
  - [Setting up a development environment](#setting-up-a-development-environment)
  - [Developing CC: Tweaked](#developing-cc-tweaked)
  - [Writing documentation](#writing-documentation)
@@ -19,6 +20,10 @@ If you've any other questions, [just ask the community][community] or [open an i
 ## Reporting issues
 If you have a bug, suggestion, or other feedback, the best thing to do is [file an issue][new-issue]. When doing so, do
 use the issue templates - they provide a useful hint on what information to provide.
+
+## Translations
+Translations are managed through [CrowdIn], an online interface for managing language strings. Translations may either
+be contributed there, or directly via a pull request.
 
 ## Setting up a development environment
 In order to develop CC: Tweaked, you'll need to download the source code and then run it.
@@ -102,3 +107,4 @@ about how you can build on that until you've covered everything!
 [busted]: https://github.com/Olivine-Labs/busted "busted: Elegant Lua unit testing."
 [node]: https://nodejs.org/en/ "Node.js"
 [architecture]: projects/ARCHITECTURE.md
+[Crowdin]: https://crowdin.com/project/cc-tweaked/

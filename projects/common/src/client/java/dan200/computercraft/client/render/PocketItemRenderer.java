@@ -13,6 +13,7 @@ import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
+import dan200.computercraft.shared.util.ARGB32;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
@@ -92,16 +93,11 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
     }
 
     private static void renderLight(PoseStack transform, MultiBufferSource render, int colour, int width, int height) {
-        var r = (byte) ((colour >>> 16) & 0xFF);
-        var g = (byte) ((colour >>> 8) & 0xFF);
-        var b = (byte) (colour & 0xFF);
-        var c = new byte[]{ r, g, b, (byte) 255 };
-
         var buffer = render.getBuffer(RenderTypes.TERMINAL);
         FixedWidthFontRenderer.drawQuad(
             FixedWidthFontRenderer.toVertexConsumer(transform, buffer),
             width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0.001f, LIGHT_HEIGHT * 2, LIGHT_HEIGHT,
-            c, RenderTypes.FULL_BRIGHT_LIGHTMAP
+            ARGB32.opaque(colour), RenderTypes.FULL_BRIGHT_LIGHTMAP
         );
     }
 }

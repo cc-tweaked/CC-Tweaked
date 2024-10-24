@@ -8,6 +8,7 @@ import com.google.auto.service.AutoService;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
+import dan200.computercraft.shared.util.ARGB32;
 import net.irisshaders.iris.api.v0.IrisApi;
 import net.irisshaders.iris.api.v0.IrisTextVertexSink;
 import net.minecraftforge.fml.ModList;
@@ -57,12 +58,8 @@ public class IrisShaderMod implements ShaderMod.Provider {
             }
 
             @Override
-            public void quad(float x1, float y1, float x2, float y2, float z, byte[] rgba, float u1, float v1, float u2, float v2) {
-                sink.quad(x1, y1, x2, y2, z, pack(rgba[0], rgba[1], rgba[2], rgba[3]), u1, v1, u2, v2, RenderTypes.FULL_BRIGHT_LIGHTMAP);
-            }
-
-            private static int pack(int r, int g, int b, int a) {
-                return (a & 255) << 24 | (b & 255) << 16 | (g & 255) << 8 | r & 255;
+            public void quad(float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2) {
+                sink.quad(x1, y1, x2, y2, z, ARGB32.toABGR32(colour), u1, v1, u2, v2, RenderTypes.FULL_BRIGHT_LIGHTMAP);
             }
         }
     }

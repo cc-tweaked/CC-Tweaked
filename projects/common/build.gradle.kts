@@ -38,9 +38,9 @@ repositories {
 
 dependencies {
     // Pull in our other projects. See comments in MinecraftConfigurations on this nastiness.
-    implementation(project(":core"))
-    implementation(commonClasses(project(":common-api")))
-    clientImplementation(clientClasses(project(":common-api")))
+    api(project(":core"))
+    api(commonClasses(project(":common-api")))
+    clientApi(clientClasses(project(":common-api")))
 
     compileOnly(libs.bundles.externalMods.common)
     compileOnly(variantOf(libs.create.forge) { classifier("slim") }) { isTransitive = false }

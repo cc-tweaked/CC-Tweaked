@@ -12,6 +12,7 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -41,7 +42,7 @@ public final class FixedWidthFontRenderer {
     static final float BACKGROUND_START = (WIDTH - 6.0f) / WIDTH;
     static final float BACKGROUND_END = (WIDTH - 4.0f) / WIDTH;
 
-    private static final byte[] BLACK = new byte[]{ byteColour(Colour.BLACK.getR()), byteColour(Colour.BLACK.getR()), byteColour(Colour.BLACK.getR()), (byte) 255 };
+    private static final int BLACK = FastColor.ARGB32.color(255, byteColour(Colour.BLACK.getR()), byteColour(Colour.BLACK.getR()), byteColour(Colour.BLACK.getR()));
     private static final float Z_OFFSET = 1e-3f;
 
     private FixedWidthFontRenderer() {
@@ -59,7 +60,7 @@ public final class FixedWidthFontRenderer {
         return 15 - Terminal.getColour(c, def);
     }
 
-    private static void drawChar(QuadEmitter emitter, float x, float y, int index, byte[] colour, int light) {
+    private static void drawChar(QuadEmitter emitter, float x, float y, int index, int colour, int light) {
         // Short circuit to avoid the common case - the texture should be blank here after all.
         if (index == '\0' || index == ' ') return;
 
@@ -75,7 +76,7 @@ public final class FixedWidthFontRenderer {
         );
     }
 
-    public static void drawQuad(QuadEmitter emitter, float x, float y, float z, float width, float height, byte[] colour, int light) {
+    public static void drawQuad(QuadEmitter emitter, float x, float y, float z, float width, float height, int colour, int light) {
         quad(emitter, x, y, x + width, y + height, z, colour, BACKGROUND_START, BACKGROUND_START, BACKGROUND_END, BACKGROUND_END, light);
     }
 
@@ -216,10 +217,10 @@ public final class FixedWidthFontRenderer {
         return new QuadEmitter(transform.last().pose(), consumer);
     }
 
-    private static void quad(QuadEmitter c, float x1, float y1, float x2, float y2, float z, byte[] rgba, float u1, float v1, float u2, float v2, int light) {
+    private static void quad(QuadEmitter c, float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2, int light) {
         var poseMatrix = c.poseMatrix();
         var consumer = c.consumer();
-        byte r = rgba[0], g = rgba[1], b = rgba[2], a = rgba[3];
+        int r = FastColor.ARGB32.red(colour), g = FastColor.ARGB32.green(colour), b = FastColor.ARGB32.blue(colour), a = FastColor.ARGB32.alpha(colour);
 
         consumer.vertex(poseMatrix, x1, y1, z).color(r, g, b, a).uv(u1, v1).uv2(light).endVertex();
         consumer.vertex(poseMatrix, x1, y2, z).color(r, g, b, a).uv(u1, v2).uv2(light).endVertex();
