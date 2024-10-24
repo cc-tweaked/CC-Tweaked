@@ -403,20 +403,38 @@ public class OSAPI implements ILuaAPI {
      * function. The format string can also be prefixed with an exclamation mark
      * ({@code !}) to use UTC time instead of the server's local timezone.
      * <p>
-     * If the format is exactly {@code *t} (optionally prefixed with {@code !}), a
-     * table will be returned instead. This table has fields for the year, month,
-     * day, hour, minute, second, day of the week, day of the year, and whether
-     * Daylight Savings Time is in effect. This table can be converted to a UNIX
-     * timestamp (days since 1 January 1970) with {@link #date}.
+     * If the format is exactly {@code "*t"} (or {@code "!*t"} ), a table
+     * representation of the timestamp will be returned instead. This table has
+     * fields for the year, month, day, hour, minute, second, day of the week,
+     * day of the year, and whether Daylight Savings Time is in effect. This
+     * table can be converted back to a timestamp with {@link #time(IArguments)}.
      *
      * @param formatA The format of the string to return. This defaults to {@code %c}, which expands to a string similar to "Sat Dec 24 16:58:00 2011".
-     * @param timeA   The time to convert to a string. This defaults to the current time.
-     * @return The resulting format string.
+     * @param timeA   The timestamp to convert to a string. This defaults to the current time.
+     * @return The resulting formated string, or table.
      * @throws LuaException If an invalid format is passed.
      * @cc.since 1.83.0
      * @cc.usage Print the current date in a user-friendly string.
      * <pre>{@code
      * os.date("%A %d %B %Y") -- See the reference above!
+     * }</pre>
+     *
+     * @cc.usage Convert a timestamp to a table.
+     * <pre>{@code
+     * os.date("!*t", 1242534247)
+     * --[=[ {
+     *   -- Date
+     *   year  = 2009,
+     *   month = 5,
+     *   day   = 17,
+     *   yday  = 137,
+     *   wday  = 1,
+     *   -- Time
+     *   hour  = 4,
+     *   min   = 24,
+     *   sec   = 7,
+     *   isdst = false,
+     * } ]=]
      * }</pre>
      */
     @LuaFunction
