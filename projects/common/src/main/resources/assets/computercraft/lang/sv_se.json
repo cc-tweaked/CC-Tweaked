@@ -32,8 +32,6 @@
     "commands.computercraft.generic.additional_rows": "%d ytterligare rader…",
     "commands.computercraft.generic.exception": "Ohanterat felfall (%s)",
     "commands.computercraft.generic.no": "N",
-    "commands.computercraft.generic.no_position": "<no pos>",
-    "commands.computercraft.generic.position": "%s, %s, %s",
     "commands.computercraft.generic.yes": "J",
     "commands.computercraft.help.desc": "Visa detta hjälpmeddelande",
     "commands.computercraft.help.no_children": "%s har inget underkommando",
