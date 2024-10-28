@@ -31,8 +31,6 @@
     "commands.computercraft.dump.synopsis": "mi pana e sona pi ilo sona.",
     "commands.computercraft.generic.additional_rows": "mute %d…",
     "commands.computercraft.generic.exception": "pakala awen ala (%s)",
-    "commands.computercraft.generic.no_position": "<lon ala>",
-    "commands.computercraft.generic.position": "%s, %s, %s",
     "commands.computercraft.help.desc": "mi pana e toki ni",
     "commands.computercraft.help.no_children": "toki wawa '%s' li jo ala e toki wawa insa",
     "commands.computercraft.help.no_command": "toki wawa '%s' li lon ala",
