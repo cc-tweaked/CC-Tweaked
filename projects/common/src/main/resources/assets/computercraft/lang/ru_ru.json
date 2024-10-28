@@ -32,8 +32,6 @@
     "commands.computercraft.generic.additional_rows": "%d дополнительных строк …",
     "commands.computercraft.generic.exception": "Необработанное исключение (%s)",
     "commands.computercraft.generic.no": "N",
-    "commands.computercraft.generic.no_position": "<нет позиции>",
-    "commands.computercraft.generic.position": "%s, %s, %s",
     "commands.computercraft.generic.yes": "Y",
     "commands.computercraft.help.desc": "Отображает это сообщение справки",
     "commands.computercraft.help.no_children": "%s не имеет подкоманд",
