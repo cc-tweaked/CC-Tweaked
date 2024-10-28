@@ -32,8 +32,6 @@
     "commands.computercraft.generic.additional_rows": "%d개의 추가 행…",
     "commands.computercraft.generic.exception": "처리되지 않은 예외 (%s)",
     "commands.computercraft.generic.no": "N",
-    "commands.computercraft.generic.no_position": "<no pos>",
-    "commands.computercraft.generic.position": "%s, %s, %s",
     "commands.computercraft.generic.yes": "Y",
     "commands.computercraft.help.desc": "이 도움말 메시지를 표시합니다.",
     "commands.computercraft.help.no_children": "%s에는 하위 명령어가 없습니다.",
