@@ -32,8 +32,6 @@
     "commands.computercraft.generic.additional_rows": "%d lignes supplémentaires…",
     "commands.computercraft.generic.exception": "Exception non gérée (%s)",
     "commands.computercraft.generic.no": "N",
-    "commands.computercraft.generic.no_position": "<pas de position>",
-    "commands.computercraft.generic.position": "%s, %s, %s",
     "commands.computercraft.generic.yes": "O",
     "commands.computercraft.help.desc": "Affiche ce message d'aide",
     "commands.computercraft.help.no_children": "%s n'a pas de sous-commandes",
