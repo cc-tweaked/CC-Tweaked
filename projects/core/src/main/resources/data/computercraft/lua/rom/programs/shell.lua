@@ -574,6 +574,48 @@ function shell.completeProgram(program)
     return completeProgram(program)
 end
 
+local function loadCompletion(file, data)
+    --[[
+        local env = setmetatable(createShellEnv(dir), { __index = _G })
+        env.arg = args
+    ]]
+
+    local env = setmetatable(
+        createShellEnv("/rom/programs"),
+        { __index = _G }
+    )
+
+    env.completion = require("cc.shell.completion")
+
+    local fn, err = load(
+        "return " .. data,
+        "@/" .. file,
+        "t",
+        env
+    )
+    if not fn then
+        -- Attempt 2: load without the return statement
+        fn, err = load(
+            data,
+            "@/" .. file,
+            "t",
+            env
+        )
+
+        -- If we still failed to load, return the error
+        if not fn then
+            error(err, 3)
+        end
+    end
+
+    local ok, result = pcall(fn)
+    if not ok then
+        error(result, 0)
+    end
+
+    return result
+end
+
 --- Set the completion function for a program. When the program is entered on
 -- the command line, this program will be called to provide auto-complete
 -- information.
@@ -595,20 +637,111 @@ end
 -- You completion entries may also be followed by a space, if you wish to
 -- indicate another argument is expected.
 --
+-- Optionally, you may pass a string containing the function you wish to use as
+-- the completion function. This string will be stored on disk, and loaded when
+-- the computer starts up. This allows you to write completion functions that
+-- persist between reboots. The shell `cc.shell.completion` module is injected
+-- into the environment of this function, allowing you to use its utilities.
+--
+-- @usage
+-- ```lua
+-- local completion = require("cc.shell.completion")
+-- shell.setCompletionFunction(
+--   "yourprogram.lua",
+--   completion.build(completion.program)
+-- )
+-- ```
+--
+-- @usage
+-- ```lua
+-- shell.setCompletionFunction("yourprogram.lua", [[
+--     completion.build(completion.program) -- The shell completion library is injected into the environment
+-- ]])
+-- ```
+--
 -- @tparam string program The path to the program. This should be an absolute path
 -- _without_ the leading `/`.
--- @tparam function(shell: table, index: number, argument: string, previous: { string }):({ string }|nil) complete
--- The completion function.
+-- @tparam string|function(shell: table, index: number, argument: string, previous: { string }):({ string }|nil) complete
+-- The completion function, or a `loadstring`able version of it.
 -- @see cc.shell.completion Various utilities to help with writing completion functions.
 -- @see shell.complete
 -- @see _G.read For more information about completion.
 -- @since 1.74
+-- @changed x.xx.x Accepts a loadable string as a completion function, and saves it to disk.
 function shell.setCompletionFunction(program, complete)
     expect(1, program, "string")
-    expect(2, complete, "function")
+    expect(2, complete, "function", "string")
+
+    if type(complete) == "string" then
+        -- Load the completion function
+        local result = loadCompletion(".cc/completion/" .. program, complete)
+
+        if not result then
+            error("Bad completion function: nil value returned", 2)
+        end
+
+        -- Save the loadable version of the function
+        local file = fs.open(".cc/completion/" .. program, "w")
+        if not file then
+            error("Failed to save completion function.", 2)
+        end
+        file.write(complete)
+        file.close()
+
+        complete = result
+    end
+
     tCompletionInfo[program] = {
         fnComplete = complete,
     }
+end
+
+--- Clear a completion function for a program.
+--
+-- @tparam string program The path to the program.
+-- @since x.xx.x
+function shell.clearCompletionFunction(program)
+    expect(1, program, "string")
+    tCompletionInfo[program] = nil
+
+    -- Delete the completion function file
+    fs.delete(".cc/completion/" .. program)
+end
+
+--- Load all completion functions from disk.
+--
+-- This is called automatically when the shell is loaded, and should not be
+-- needed in normal usage.
+--
+-- @since x.xx.x
+function shell.loadCompletionFunctions()
+    if not fs.exists(".cc/completion") or not fs.isDir(".cc/completion") then
+        return
+    end
+
+    local files = fs.list(".cc/completion")
+
+    for _, file in ipairs(files) do
+        local path = fs.combine(".cc/completion", file)
+        local handle = fs.open(path, "r")
+        if handle then
+            local data = handle.readAll()
+            handle.close()
+
+            -- Problem: This runs at startup, so if someone enters an invalid
+            -- completion function to be loaded, we'll brick the computer.
+            -- We will fix this by only printing the error, and not throwing it.
+            local ok, result = pcall(loadCompletion, path, data)
+
+            if ok and result then
+                tCompletionInfo[file] = {
+                    fnComplete = result,
+                }
+            else
+                printError(result and result or ("%s:Bad completion function: nil value returned"):format(path))
+            end
+        end
+    end
 end
 
 --- Get a table containing all completion functions.
@@ -637,22 +770,71 @@ end
 --
 -- @tparam string command The name of the alias to add.
 -- @tparam string program The name or path to the program.
+-- @tparam boolean|nil dont_save If true, will not save the alias to disk.
+-- This is mainly used internally for aliases that are registered in the shell's
+-- startup script.
+-- Used mostly internally for aliases that are registered in the shell's
+-- startup script.
 -- @since 1.2
 -- @usage Alias `vim` to the `edit` program
 --
 --     shell.setAlias("vim", "edit")
-function shell.setAlias(command, program)
+-- @changed x.xx.x Aliases are now saved to disk.
+function shell.setAlias(command, program, dont_save)
     expect(1, command, "string")
     expect(2, program, "string")
+    expect(3, dont_save, "boolean", "nil")
     tAliases[command] = program
+
+    if dont_save then
+        return
+    end
+    -- Save the new alias
+    local file = fs.open(".cc/aliases/" .. command, "w")
+    if not file then
+        printError(("Failed to save alias '%s'"):format(command))
+        return
+    end
+
+    file.write(program)
+    file.close()
 end
 
 --- Remove an alias.
 --
 -- @tparam string command The alias name to remove.
+-- @since x.xx.x
 function shell.clearAlias(command)
     expect(1, command, "string")
     tAliases[command] = nil
+
+    -- Delete the alias file
+    fs.delete(".cc/aliases/" .. command)
+end
+
+--- Load aliases from disk.
+--
+-- This is called automatically when the shell is loaded, and should not be
+-- needed in normal usage.
+--
+-- @since x.xx.x
+function shell.loadAliases()
+    if not fs.exists(".cc/aliases") or not fs.isDir(".cc/aliases") then
+        return
+    end
+
+    local files = fs.list(".cc/aliases")
+
+    for _, file in ipairs(files) do
+        local path = fs.combine(".cc/aliases", file)
+        local handle = fs.open(path, "r")
+        if handle then
+            local program = handle.readAll()
+            handle.close()
+
+            tAliases[file] = program
+        end
+    end
 end
 
 --- Get the current aliases for this shell.

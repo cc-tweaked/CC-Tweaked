@@ -48,7 +48,7 @@ end
 local valid_types = { "number", "string", "boolean", "table" }
 for _, v in ipairs(valid_types) do valid_types[v] = true end
 
---- Define a new setting, optional specifying various properties about it.
+--- Define a new setting, optionally specifying various properties about it.
 --
 -- While settings do not have to be added before being used, doing so allows
 -- you to provide defaults and additional metadata.
@@ -208,21 +208,64 @@ function getNames()
     return result
 end
 
+--- Load settings definitions from the given file.
+-- 
+-- Existing definitions will be merged with any pre-existing ones. Conflicting
+-- entries will be overwritten, but any others will be preserved.
+--
+-- @tparam[opt=".cc/settings.def"] string path The file to load from.
+-- @treturn boolean Whether definitions were successfully read from this
+-- file. Reasons for failure may include the file not existing or being
+-- corrupted.
+--
+-- @see settings.saveDefinitions
+-- @since x.xx.x
+function loadDefinitions(path)
+    expect(1, path, "string", "nil")
+    path = path or ".cc/settings.def"
+
+    local file = fs.open(path, "r")
+    if not file then
+        return false
+    end
+
+    local sText = file.readAll()
+    file.close()
+
+    local tFile = textutils.unserialize(sText)
+    if type(tFile) ~= "table" then
+        return false
+    end
+
+    for k, v in pairs(tFile) do
+        if type(k) == "string" and type(v) == "table" then
+            local ok, v = pcall(reserialize, v)
+            if ok then details[k] = v end
+        end
+    end
+
+    return true
+end
+
 --- Load settings from the given file.
 --
 -- Existing settings will be merged with any pre-existing ones. Conflicting
 -- entries will be overwritten, but any others will be preserved.
 --
--- @tparam[opt=".settings"] string path The file to load from.
+-- @tparam[opt=".cc/settings"] string path The file to load from.
 -- @treturn boolean Whether settings were successfully read from this
 -- file. Reasons for failure may include the file not existing or being
 -- corrupted.
 --
 -- @see settings.save
 -- @changed 1.87.0 `path` is now optional.
+-- @changed x.xx.x Default path is now `.cc/settings`.
 function load(path)
     expect(1, path, "string", "nil")
-    local file = fs.open(path or ".settings", "r")
+    path = path or ".cc/settings"
+
+    -- Load the current values from the main file.
+    local file = fs.open(path, "r")
     if not file then
         return false
     end
@@ -250,25 +293,48 @@ function load(path)
     return true
 end
 
---- Save settings to the given file.
---
--- This will entirely overwrite the pre-existing file. Settings defined in the
--- file, but not currently loaded will be removed.
---
--- @tparam[opt=".settings"] string path The path to save settings to.
--- @treturn boolean If the settings were successfully saved.
---
--- @see settings.load
--- @changed 1.87.0 `path` is now optional.
-function save(path)
-    expect(1, path, "string", "nil")
-    local file = fs.open(path or ".settings", "w")
+local function writeFile(path, data)
+    local file = fs.open(path, "w")
     if not file then
         return false
     end
 
-    file.write(textutils.serialize(values))
+    file.write(data)
     file.close()
 
     return true
+end
+
+--- Save current settings to the given file.
+--
+-- This will entirely overwrite the pre-existing file. This only saves
+-- the current values, without the definitions.
+--
+-- @tparam[opt=".cc/settings"] string path The path to save settings to.
+-- @treturn boolean If the settings were successfully saved.
+--
+-- @see settings.load
+-- @changed 1.87.0 `path` is now optional.
+-- @changed x.xx.x Default path is now `.cc/settings`.
+function save(path)
+    expect(1, path, "string", "nil")
+    path = path or ".cc/settings"
+
+    return writeFile(path, textutils.serialize(values))
+end
+
+--- Save settings definitions to the given file.
+--
+-- This will entirely overwrite the pre-existing file.
+--
+-- @tparam[opt=".cc/settings.def"] string path The path to save settings to.
+-- @treturn boolean If the definitions were successfully saved.
+--
+-- @see settings.loadDefinitions
+-- @since x.xx.x
+function saveDefinitions(path)
+    expect(1, path, "string", "nil")
+    path = path or ".cc/settings.def"
+
+    return writeFile(path, textutils.serialize(details))
 end

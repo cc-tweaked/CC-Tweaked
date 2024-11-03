@@ -723,8 +723,11 @@ if _CC_DEFAULT_SETTINGS then
 end
 
 -- Load user settings
-if fs.exists(".settings") then
-    settings.load(".settings")
+if fs.exists(".cc/settings") then
+    settings.load(".cc/settings")
+end
+if fs.exists(".cc/settings.def") then
+    settings.loadDefinitions(".cc/settings.def")
 end
 
 -- Run the shell

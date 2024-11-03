@@ -27,18 +27,21 @@ shell.setPath(sPath)
 help.setPath("/rom/help")
 
 -- Setup aliases
-shell.setAlias("ls", "list")
-shell.setAlias("dir", "list")
-shell.setAlias("cp", "copy")
-shell.setAlias("mv", "move")
-shell.setAlias("rm", "delete")
-shell.setAlias("clr", "clear")
-shell.setAlias("rs", "redstone")
-shell.setAlias("sh", "shell")
+shell.setAlias("ls", "list", true)
+shell.setAlias("dir", "list", true)
+shell.setAlias("cp", "copy", true)
+shell.setAlias("mv", "move", true)
+shell.setAlias("rm", "delete", true)
+shell.setAlias("clr", "clear", true)
+shell.setAlias("rs", "redstone", true)
+shell.setAlias("sh", "shell", true)
 if term.isColor() then
-    shell.setAlias("background", "bg")
-    shell.setAlias("foreground", "fg")
+    shell.setAlias("background", "bg", true)
+    shell.setAlias("foreground", "fg", true)
 end
+
+-- Load aliases from disk
+shell.loadAliases()
 
 -- Setup completion functions
 
@@ -152,6 +155,9 @@ if turtle then
         { completion.choice, { "left", "right" } }
     ))
 end
+
+-- Load completion functions from disk
+shell.loadCompletionFunctions()
 
 -- Run autorun files
 if fs.exists("/rom/autorun") and fs.isDir("/rom/autorun") then
