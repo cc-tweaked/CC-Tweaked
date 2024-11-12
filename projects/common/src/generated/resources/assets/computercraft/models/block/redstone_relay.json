@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "bottom": "computercraft:block/redstone_relay_bottom",
+    "front": "computercraft:block/redstone_relay_front",
+    "side": "computercraft:block/redstone_relay_side",
+    "top": "computercraft:block/redstone_relay_top"
+  }
+}

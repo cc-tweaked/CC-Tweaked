@@ -134,8 +134,8 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
      *
      * @return What sides on the computer have changed.
      */
-    public int pollAndResetChanges() {
-        return computer.pollAndResetChanges();
+    public int pollRedstoneChanges() {
+        return computer.pollRedstoneChanges();
     }
 
     public UUID register() {
@@ -222,19 +222,15 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
     }
 
     public int getRedstoneOutput(ComputerSide side) {
-        return computer.getEnvironment().getExternalRedstoneOutput(side);
+        return computer.isOn() ? computer.getRedstone().getExternalOutput(side) : 0;
     }
 
-    public void setRedstoneInput(ComputerSide side, int level) {
-        computer.getEnvironment().setRedstoneInput(side, level);
+    public void setRedstoneInput(ComputerSide side, int level, int bundledState) {
+        computer.getRedstone().setInput(side, level, bundledState);
     }
 
     public int getBundledRedstoneOutput(ComputerSide side) {
-        return computer.getEnvironment().getExternalBundledRedstoneOutput(side);
-    }
-
-    public void setBundledRedstoneInput(ComputerSide side, int combination) {
-        computer.getEnvironment().setBundledRedstoneInput(side, combination);
+        return computer.isOn() ? computer.getRedstone().getExternalBundledOutput(side) : 0;
     }
 
     public void setPeripheral(ComputerSide side, @Nullable IPeripheral peripheral) {

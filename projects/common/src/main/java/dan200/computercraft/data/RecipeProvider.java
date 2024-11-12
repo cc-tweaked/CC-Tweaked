@@ -461,6 +461,17 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .requires(ingredients.string())
             .unlockedBy("has_printer", inventoryChange(ModRegistry.Blocks.PRINTER.get()))
             .save(RecipeWrapper.wrap(ModRegistry.RecipeSerializers.IMPOSTOR_SHAPELESS.get(), add));
+
+        ShapedRecipeBuilder
+            .shaped(RecipeCategory.REDSTONE, ModRegistry.Blocks.REDSTONE_RELAY.get())
+            .pattern("SRS")
+            .pattern("RCR")
+            .pattern("SRS")
+            .define('S', Items.STONE)
+            .define('R', ingredients.redstone())
+            .define('C', ModRegistry.Blocks.CABLE.get())
+            .unlockedBy("has_cable", inventoryChange(ModRegistry.Blocks.CABLE.get()))
+            .save(add);
     }
 
     private static DyeColor ofColour(Colour colour) {

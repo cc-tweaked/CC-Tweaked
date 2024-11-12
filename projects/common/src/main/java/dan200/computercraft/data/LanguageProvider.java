@@ -80,6 +80,7 @@ public final class LanguageProvider implements DataProvider {
         add(ModRegistry.Items.WIRED_MODEM.get(), "Wired Modem");
         add(ModRegistry.Items.CABLE.get(), "Networking Cable");
         add(ModRegistry.Items.WIRED_MODEM_FULL.get(), "Wired Modem");
+        add(ModRegistry.Items.REDSTONE_RELAY.get(), "Redstone Relay");
 
         add(ModRegistry.Items.TURTLE_NORMAL.get(), "Turtle");
         add(ModRegistry.Blocks.TURTLE_NORMAL.get().getDescriptionId() + ".upgraded", "%s Turtle");

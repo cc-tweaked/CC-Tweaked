@@ -153,11 +153,11 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
         luaMethods = context.luaMethods();
         executor = context.computerScheduler().createExecutor(this, metrics);
 
-        var environment = computer.getEnvironment();
+        var environment = computer.getAPIEnvironment();
 
         // Add all default APIs to the loaded list.
         addApi(new TermAPI(environment));
-        addApi(new RedstoneAPI(environment));
+        addApi(new RedstoneAPI(computer.getRedstone()));
         addApi(new FSAPI(environment));
         addApi(new PeripheralAPI(environment, context.peripheralMethods()));
         addApi(new OSAPI(environment));
@@ -434,14 +434,13 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
             // Shutdown our APIs
             for (var api : apis) api.shutdown();
             computer.getEnvironment().reset();
+            computer.getRedstone().clearOutput();
 
             // Unload filesystem
             if (fileSystem != null) {
                 fileSystem.close();
                 fileSystem = null;
             }
-
-            computer.getEnvironment().resetOutput();
         } finally {
             isOnLock.unlock();
         }

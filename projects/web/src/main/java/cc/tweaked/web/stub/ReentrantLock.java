@@ -8,6 +8,9 @@ package cc.tweaked.web.stub;
  * A no-op stub for {@link java.util.concurrent.locks.ReentrantLock}.
  */
 public class ReentrantLock {
+    public void lock() {
+    }
+
     public boolean tryLock() {
         return true;
     }

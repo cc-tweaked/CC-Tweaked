@@ -43,18 +43,6 @@ public interface IAPIEnvironment {
 
     void queueEvent(String event, @Nullable Object... args);
 
-    void setOutput(ComputerSide side, int output);
-
-    int getOutput(ComputerSide side);
-
-    int getInput(ComputerSide side);
-
-    void setBundledOutput(ComputerSide side, int output);
-
-    int getBundledOutput(ComputerSide side);
-
-    int getBundledInput(ComputerSide side);
-
     void setPeripheralChangeListener(@Nullable IPeripheralChangeListener listener);
 
     @Nullable

@@ -64,34 +64,6 @@ public abstract class BasicApiEnvironment implements IAPIEnvironment {
     }
 
     @Override
-    public void setOutput(ComputerSide side, int output) {
-    }
-
-    @Override
-    public int getOutput(ComputerSide side) {
-        return 0;
-    }
-
-    @Override
-    public int getInput(ComputerSide side) {
-        return 0;
-    }
-
-    @Override
-    public void setBundledOutput(ComputerSide side, int output) {
-    }
-
-    @Override
-    public int getBundledOutput(ComputerSide side) {
-        return 0;
-    }
-
-    @Override
-    public int getBundledInput(ComputerSide side) {
-        return 0;
-    }
-
-    @Override
     public void setPeripheralChangeListener(@Nullable IPeripheralChangeListener listener) {
     }
 

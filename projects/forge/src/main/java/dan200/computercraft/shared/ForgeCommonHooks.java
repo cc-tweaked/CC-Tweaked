@@ -18,6 +18,7 @@ import dan200.computercraft.shared.peripheral.modem.wired.WiredModemFullBlockEnt
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemBlockEntity;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import dan200.computercraft.shared.peripheral.printer.PrinterBlockEntity;
+import dan200.computercraft.shared.peripheral.redstone.RedstoneRelayBlockEntity;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerBlockEntity;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.CapabilityProvider;
@@ -43,6 +44,7 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
+import static dan200.computercraft.shared.Capabilities.CAPABILITY_WIRED_ELEMENT;
 import static net.minecraftforge.common.capabilities.ForgeCapabilities.ITEM_HANDLER;
 
 /**
@@ -133,15 +135,15 @@ public class ForgeCommonHooks {
             CapabilityProvider.attach(event, INVENTORY, ITEM_HANDLER, () -> new InvWrapper(diskDrive));
             CapabilityProvider.attach(event, PERIPHERAL, CAPABILITY_PERIPHERAL, diskDrive::peripheral);
         } else if (blockEntity instanceof CableBlockEntity cable) {
-            var peripheralHandler = SidedCapabilityProvider.attach(event, PERIPHERAL, Capabilities.CAPABILITY_PERIPHERAL, cable::getPeripheral);
-            var elementHandler = SidedCapabilityProvider.attach(event, WIRED_ELEMENT, Capabilities.CAPABILITY_WIRED_ELEMENT, cable::getWiredElement);
+            var peripheralHandler = SidedCapabilityProvider.attach(event, PERIPHERAL, CAPABILITY_PERIPHERAL, cable::getPeripheral);
+            var elementHandler = SidedCapabilityProvider.attach(event, WIRED_ELEMENT, CAPABILITY_WIRED_ELEMENT, cable::getWiredElement);
             cable.onModemChanged(() -> {
                 peripheralHandler.invalidate();
                 elementHandler.invalidate();
             });
         } else if (blockEntity instanceof WiredModemFullBlockEntity modem) {
-            SidedCapabilityProvider.attach(event, PERIPHERAL, Capabilities.CAPABILITY_PERIPHERAL, modem::getPeripheral);
-            CapabilityProvider.attach(event, WIRED_ELEMENT, Capabilities.CAPABILITY_WIRED_ELEMENT, modem::getElement);
+            SidedCapabilityProvider.attach(event, PERIPHERAL, CAPABILITY_PERIPHERAL, modem::getPeripheral);
+            CapabilityProvider.attach(event, WIRED_ELEMENT, CAPABILITY_WIRED_ELEMENT, modem::getElement);
         } else if (blockEntity instanceof WirelessModemBlockEntity modem) {
             var peripheral = SidedCapabilityProvider.attach(event, PERIPHERAL, CAPABILITY_PERIPHERAL, modem::getPeripheral);
             modem.onModemChanged(peripheral::invalidate);
@@ -150,12 +152,14 @@ public class ForgeCommonHooks {
         } else if (blockEntity instanceof SpeakerBlockEntity speaker) {
             CapabilityProvider.attach(event, PERIPHERAL, CAPABILITY_PERIPHERAL, speaker::peripheral);
         } else if (blockEntity instanceof PrinterBlockEntity printer) {
-            CapabilityProvider.attach(event, PERIPHERAL, Capabilities.CAPABILITY_PERIPHERAL, printer::peripheral);
+            CapabilityProvider.attach(event, PERIPHERAL, CAPABILITY_PERIPHERAL, printer::peripheral);
             // We don't need to invalidate here as the block's can't be rotated on the X axis!
             SidedCapabilityProvider.attach(
                 event, INVENTORY, ITEM_HANDLER,
                 s -> s == null ? new InvWrapper(printer) : new SidedInvWrapper(printer, s)
             );
+        } else if (blockEntity instanceof RedstoneRelayBlockEntity redstone) {
+            CapabilityProvider.attach(event, PERIPHERAL, CAPABILITY_PERIPHERAL, redstone::peripheral);
         } else if (Config.enableCommandBlock && blockEntity instanceof CommandBlockEntity commandBlock) {
             CapabilityProvider.attach(event, PERIPHERAL, CAPABILITY_PERIPHERAL, () -> new CommandBlockPeripheral(commandBlock));
         }

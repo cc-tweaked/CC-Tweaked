@@ -92,6 +92,7 @@ object TestHooks {
         Printer_Test::class.java,
         Printout_Test::class.java,
         Recipe_Test::class.java,
+        Relay_Test::class.java,
         Speaker_Test::class.java,
         Turtle_Test::class.java,
     )

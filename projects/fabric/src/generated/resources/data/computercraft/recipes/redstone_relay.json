@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "C": {"item": "computercraft:wired_modem"},
+    "R": {"tag": "c:redstone_dusts"},
+    "S": {"item": "minecraft:stone"}
+  },
+  "pattern": ["SRS", "RCR", "SRS"],
+  "result": {"item": "computercraft:redstone_relay"},
+  "show_notification": true
+}

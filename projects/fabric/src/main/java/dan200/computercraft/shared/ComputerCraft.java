@@ -79,6 +79,7 @@ public class ComputerCraft {
         PeripheralLookup.get().registerForBlockEntity(WirelessModemBlockEntity::getPeripheral, ModRegistry.BlockEntities.WIRELESS_MODEM_ADVANCED.get());
         PeripheralLookup.get().registerForBlockEntity(WiredModemFullBlockEntity::getPeripheral, ModRegistry.BlockEntities.WIRED_MODEM_FULL.get());
         PeripheralLookup.get().registerForBlockEntity(CableBlockEntity::getPeripheral, ModRegistry.BlockEntities.CABLE.get());
+        PeripheralLookup.get().registerForBlockEntity((b, d) -> b.peripheral(), ModRegistry.BlockEntities.REDSTONE_RELAY.get());
 
         WiredElementLookup.get().registerForBlockEntity((b, d) -> b.getElement(), ModRegistry.BlockEntities.WIRED_MODEM_FULL.get());
         WiredElementLookup.get().registerForBlockEntity(CableBlockEntity::getWiredElement, ModRegistry.BlockEntities.CABLE.get());

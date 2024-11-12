@@ -12,6 +12,7 @@
     "computercraft:wireless_modem_normal",
     "computercraft:wireless_modem_advanced",
     "computercraft:wired_modem_full",
-    "computercraft:cable"
+    "computercraft:cable",
+    "computercraft:redstone_relay"
   ]
 }

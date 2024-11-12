@@ -56,7 +56,7 @@ junit = "5.10.1"
 jmh = "1.37"
 
 # Build tools
-cctJavadoc = "1.8.2"
+cctJavadoc = "1.8.3"
 checkstyle = "10.14.1"
 curseForgeGradle = "1.0.14"
 errorProne-core = "2.27.0"

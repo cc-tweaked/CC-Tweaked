@@ -78,8 +78,11 @@ class TagProvider {
             ModRegistry.Blocks.WIRELESS_MODEM_NORMAL.get(),
             ModRegistry.Blocks.WIRELESS_MODEM_ADVANCED.get(),
             ModRegistry.Blocks.WIRED_MODEM_FULL.get(),
-            ModRegistry.Blocks.CABLE.get()
+            ModRegistry.Blocks.CABLE.get(),
+            ModRegistry.Blocks.REDSTONE_RELAY.get()
         );
+
+        tags.tag(BlockTags.MINEABLE_WITH_AXE).add(ModRegistry.Blocks.LECTERN.get());
 
         tags.tag(BlockTags.WITHER_IMMUNE).add(ModRegistry.Blocks.COMPUTER_COMMAND.get());
 

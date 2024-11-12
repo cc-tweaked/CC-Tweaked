@@ -97,6 +97,8 @@ class BlockModelProvider {
 
         registerCable(generators);
 
+        registerRedstoneControl(generators);
+
         registerTurtleUpgrade(generators, "block/turtle_crafting_table", "block/turtle_crafty_face");
         registerTurtleUpgrade(generators, "block/turtle_speaker", "block/turtle_speaker_face");
         registerTurtleModem(generators, "block/turtle_modem_normal", "block/wireless_modem_normal_face");
@@ -354,6 +356,18 @@ class BlockModelProvider {
 
         generators.blockStateOutput.accept(generator);
     }
+
+    private static void registerRedstoneControl(BlockModelGenerators generators) {
+        var redstoneControl = ModRegistry.Blocks.REDSTONE_RELAY.get();
+        var model = ModelTemplates.CUBE_ORIENTABLE_TOP_BOTTOM.create(
+            redstoneControl, TextureMapping.orientableCube(redstoneControl), generators.modelOutput
+        );
+        generators.blockStateOutput.accept(
+            MultiVariantGenerator.multiVariant(redstoneControl, Variant.variant().with(VariantProperties.MODEL, model))
+                .with(createHorizontalFacingDispatch())
+        );
+    }
+
 
     private static final BooleanProperty[] CABLE_DIRECTIONS = { CableBlock.DOWN, CableBlock.UP, CableBlock.NORTH, CableBlock.SOUTH, CableBlock.WEST, CableBlock.EAST };
     private static final boolean[] BOOLEANS = new boolean[]{ false, true };

@@ -16,24 +16,12 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Iterator;
 
 /**
  * Represents the "environment" that a {@link Computer} exists in.
  * <p>
- * This handles storing and updating of peripherals and redstone.
- *
- * <h1>Redstone</h1>
- * We holds three kinds of arrays for redstone, in normal and bundled versions:
- * <ul>
- * <li>{@link #internalOutput} is the redstone output which the computer has currently set. This is read on both
- * threads, and written on the computer thread.</li>
- * <li>{@link #externalOutput} is the redstone output currently propagated to the world. This is only read and written
- * on the main thread.</li>
- * <li>{@link #input} is the redstone input from external sources. This is read on both threads, and written on the main
- * thread.</li>
- * </ul>
+ * This handles storing and updating of peripherals and timers.
  *
  * <h1>Peripheral</h1>
  * We also keep track of peripherals. These are read on both threads, and only written on the main thread.
@@ -42,17 +30,6 @@ public final class Environment implements IAPIEnvironment {
     private final Computer computer;
     private final ComputerEnvironment environment;
     private final MetricsObserver metrics;
-
-    private boolean internalOutputChanged = false;
-    private final int[] internalOutput = new int[ComputerSide.COUNT];
-    private final int[] internalBundledOutput = new int[ComputerSide.COUNT];
-
-    private final int[] externalOutput = new int[ComputerSide.COUNT];
-    private final int[] externalBundledOutput = new int[ComputerSide.COUNT];
-
-    private boolean inputChanged = false;
-    private final int[] input = new int[ComputerSide.COUNT];
-    private final int[] bundledInput = new int[ComputerSide.COUNT];
 
     private final IPeripheral[] peripherals = new IPeripheral[ComputerSide.COUNT];
     private @Nullable IPeripheralChangeListener peripheralListener = null;
@@ -111,76 +88,6 @@ public final class Environment implements IAPIEnvironment {
         computer.queueEvent(event, args);
     }
 
-    @Override
-    public int getInput(ComputerSide side) {
-        return input[side.ordinal()];
-    }
-
-    @Override
-    public int getBundledInput(ComputerSide side) {
-        return bundledInput[side.ordinal()];
-    }
-
-    @Override
-    public void setOutput(ComputerSide side, int output) {
-        var index = side.ordinal();
-        synchronized (internalOutput) {
-            if (internalOutput[index] != output) {
-                internalOutput[index] = output;
-                internalOutputChanged = true;
-            }
-        }
-    }
-
-    @Override
-    public int getOutput(ComputerSide side) {
-        synchronized (internalOutput) {
-            return computer.isOn() ? internalOutput[side.ordinal()] : 0;
-        }
-    }
-
-    @Override
-    public void setBundledOutput(ComputerSide side, int output) {
-        var index = side.ordinal();
-        synchronized (internalOutput) {
-            if (internalBundledOutput[index] != output) {
-                internalBundledOutput[index] = output;
-                internalOutputChanged = true;
-            }
-        }
-    }
-
-    @Override
-    public int getBundledOutput(ComputerSide side) {
-        synchronized (internalOutput) {
-            return computer.isOn() ? internalBundledOutput[side.ordinal()] : 0;
-        }
-    }
-
-    public int getExternalRedstoneOutput(ComputerSide side) {
-        return computer.isOn() ? externalOutput[side.ordinal()] : 0;
-    }
-
-    public int getExternalBundledRedstoneOutput(ComputerSide side) {
-        return computer.isOn() ? externalBundledOutput[side.ordinal()] : 0;
-    }
-
-    public void setRedstoneInput(ComputerSide side, int level) {
-        var index = side.ordinal();
-        if (input[index] != level) {
-            input[index] = level;
-            inputChanged = true;
-        }
-    }
-
-    public void setBundledRedstoneInput(ComputerSide side, int combination) {
-        var index = side.ordinal();
-        if (bundledInput[index] != combination) {
-            bundledInput[index] = combination;
-            inputChanged = true;
-        }
-    }
-
     /**
      * Called when the computer starts up or shuts down, to reset any internal state.
      *
@@ -197,11 +104,6 @@ public final class Environment implements IAPIEnvironment {
      * Called on the main thread to update the internal state of the computer.
      */
     void tick() {
-        if (inputChanged) {
-            inputChanged = false;
-            queueEvent("redstone");
-        }
-
         synchronized (timers) {
             // Countdown all of our active timers
             Iterator<Int2ObjectMap.Entry<Timer>> it = timers.int2ObjectEntrySet().iterator();
@@ -215,45 +117,6 @@ public final class Environment implements IAPIEnvironment {
                     it.remove();
                 }
             }
-        }
-    }
-
-    /**
-     * Called on the main thread to propagate the internal outputs to the external ones.
-     *
-     * @return If the outputs have changed.
-     */
-    int updateOutput() {
-        // Mark output as changed if the internal redstone has changed
-        synchronized (internalOutput) {
-            if (!internalOutputChanged) return 0;
-
-            var changed = 0;
-
-            for (var i = 0; i < ComputerSide.COUNT; i++) {
-                if (externalOutput[i] != internalOutput[i]) {
-                    externalOutput[i] = internalOutput[i];
-                    changed |= 1 << i;
-                }
-
-                if (externalBundledOutput[i] != internalBundledOutput[i]) {
-                    externalBundledOutput[i] = internalBundledOutput[i];
-                    changed |= 1 << i;
-                }
-            }
-
-            internalOutputChanged = false;
-
-            return changed;
-        }
-    }
-
-    void resetOutput() {
-        // Reset redstone output
-        synchronized (internalOutput) {
-            Arrays.fill(internalOutput, 0);
-            Arrays.fill(internalBundledOutput, 0);
-            internalOutputChanged = true;
         }
     }
 

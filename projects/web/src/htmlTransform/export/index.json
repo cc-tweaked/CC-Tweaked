@@ -14,6 +14,7 @@
     "computercraft:printed_page": "Printed Page",
     "computercraft:printed_pages": "Printed Pages",
     "computercraft:printer": "Printer",
+    "computercraft:redstone_relay": "Redstone Relay",
     "computercraft:speaker": "Speaker",
     "computercraft:treasure_disk": "Floppy Disk",
     "computercraft:turtle_advanced": "Advanced Turtle",
@@ -48,6 +49,7 @@
     "minecraft:purple_dye": "Purple Dye",
     "minecraft:red_dye": "Red Dye",
     "minecraft:redstone": "Redstone Dust",
+    "minecraft:stick": "Stick",
     "minecraft:stone": "Stone",
     "minecraft:string": "String",
     "minecraft:white_dye": "White Dye",
@@ -90,7 +92,7 @@
         ["minecraft:gold_ingot"],
         ["minecraft:gold_ingot"],
         ["minecraft:gold_ingot"],
-        ["computercraft:computer_advanced"],
+        ["computercraft:computer_normal"],
         ["minecraft:gold_ingot"],
         ["minecraft:gold_ingot"],
         null,
@@ -281,6 +283,21 @@
       "output": "computercraft:printer",
       "count": 1
     },
+    "computercraft:redstone_relay": {
+      "inputs": [
+        ["minecraft:stone"],
+        ["minecraft:redstone"],
+        ["minecraft:stone"],
+        ["minecraft:redstone"],
+        ["computercraft:wired_modem"],
+        ["minecraft:redstone"],
+        ["minecraft:stone"],
+        ["minecraft:redstone"],
+        ["minecraft:stone"]
+      ],
+      "output": "computercraft:redstone_relay",
+      "count": 1
+    },
     "computercraft:speaker": {
       "inputs": [
         ["minecraft:stone"],
@@ -311,13 +328,43 @@
       "output": "computercraft:turtle_advanced",
       "count": 1
     },
+    "computercraft:turtle_advanced_overlays/turtle_rainbow_overlay": {
+      "inputs": [
+        ["minecraft:red_dye"],
+        ["minecraft:orange_dye"],
+        ["minecraft:yellow_dye"],
+        ["minecraft:green_dye"],
+        ["minecraft:blue_dye"],
+        ["minecraft:purple_dye"],
+        ["minecraft:stick"],
+        ["computercraft:turtle_advanced"],
+        null
+      ],
+      "output": "computercraft:turtle_advanced",
+      "count": 1
+    },
+    "computercraft:turtle_advanced_overlays/turtle_trans_overlay": {
+      "inputs": [
+        ["minecraft:light_blue_dye"],
+        ["minecraft:pink_dye"],
+        ["minecraft:white_dye"],
+        ["minecraft:stick"],
+        ["computercraft:turtle_advanced"],
+        null,
+        null,
+        null,
+        null
+      ],
+      "output": "computercraft:turtle_advanced",
+      "count": 1
+    },
     "computercraft:turtle_advanced_upgrade": {
       "inputs": [
         ["minecraft:gold_ingot"],
         ["minecraft:gold_ingot"],
         ["minecraft:gold_ingot"],
         ["minecraft:gold_ingot"],
-        ["computercraft:computer_advanced"],
+        ["computercraft:turtle_normal"],
         ["minecraft:gold_ingot"],
         null,
         ["minecraft:gold_block"],
@@ -337,6 +384,36 @@
         ["minecraft:iron_ingot"],
         ["minecraft:chest"],
         ["minecraft:iron_ingot"]
+      ],
+      "output": "computercraft:turtle_normal",
+      "count": 1
+    },
+    "computercraft:turtle_normal_overlays/turtle_rainbow_overlay": {
+      "inputs": [
+        ["minecraft:red_dye"],
+        ["minecraft:orange_dye"],
+        ["minecraft:yellow_dye"],
+        ["minecraft:green_dye"],
+        ["minecraft:blue_dye"],
+        ["minecraft:purple_dye"],
+        ["minecraft:stick"],
+        ["computercraft:turtle_normal"],
+        null
+      ],
+      "output": "computercraft:turtle_normal",
+      "count": 1
+    },
+    "computercraft:turtle_normal_overlays/turtle_trans_overlay": {
+      "inputs": [
+        ["minecraft:light_blue_dye"],
+        ["minecraft:pink_dye"],
+        ["minecraft:white_dye"],
+        ["minecraft:stick"],
+        ["computercraft:turtle_normal"],
+        null,
+        null,
+        null,
+        null
       ],
       "output": "computercraft:turtle_normal",
       "count": 1

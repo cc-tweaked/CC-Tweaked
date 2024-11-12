@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=east": {"model": "computercraft:block/redstone_relay", "y": 90},
+    "facing=north": {"model": "computercraft:block/redstone_relay", "y": 0},
+    "facing=south": {"model": "computercraft:block/redstone_relay", "y": 180},
+    "facing=west": {"model": "computercraft:block/redstone_relay", "y": 270}
+  }
+}

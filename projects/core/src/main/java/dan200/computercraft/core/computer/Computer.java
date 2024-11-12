@@ -12,10 +12,10 @@ import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.computer.mainthread.MainThreadScheduler;
 import dan200.computercraft.core.filesystem.FileSystem;
+import dan200.computercraft.core.redstone.RedstoneState;
 import dan200.computercraft.core.terminal.Terminal;
 
 import javax.annotation.Nullable;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -54,8 +54,7 @@ public class Computer {
 
     // Additional state about the computer and its environment.
     private final Environment internalEnvironment;
-
-    private final AtomicInteger externalOutputChanges = new AtomicInteger();
+    private final RedstoneState redstone = new RedstoneState();
 
     private boolean startRequested;
     private int ticksSinceStart = -1;
@@ -85,6 +84,10 @@ public class Computer {
 
     public Environment getEnvironment() {
         return internalEnvironment;
+    }
+
+    public RedstoneState getRedstone() {
+        return redstone;
     }
 
     public IAPIEnvironment getAPIEnvironment() {
@@ -157,10 +160,8 @@ public class Computer {
         executor.tick();
 
         // Update the environment's internal state.
+        if (redstone.pollInputChanged()) queueEvent("redstone", null);
         internalEnvironment.tick();
-
-        // Propagate the environment's output to the world.
-        externalOutputChanges.accumulateAndGet(internalEnvironment.updateOutput(), (x, y) -> x | y);
     }
 
     /**
@@ -168,8 +169,8 @@ public class Computer {
      *
      * @return What sides on the computer have changed.
      */
-    public int pollAndResetChanges() {
-        return externalOutputChanges.getAndSet(0);
+    public int pollRedstoneChanges() {
+        return redstone.updateOutput();
     }
 
     public boolean isBlinking() {

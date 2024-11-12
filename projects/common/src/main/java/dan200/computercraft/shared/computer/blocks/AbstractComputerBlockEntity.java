@@ -127,7 +127,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         // Update the block state if needed.
         updateBlockState(computer.getState());
 
-        var changes = computer.pollAndResetChanges();
+        var changes = computer.pollRedstoneChanges();
         if (changes != 0) {
             for (var direction : DirectionUtil.FACINGS) {
                 if ((changes & (1 << remapToLocalSide(direction).ordinal())) != 0) updateRedstoneTo(direction);
@@ -195,8 +195,10 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         var offsetSide = dir.getOpposite();
         var localDir = remapToLocalSide(dir);
 
-        computer.setRedstoneInput(localDir, RedstoneUtil.getRedstoneInput(getLevel(), targetPos, dir));
-        computer.setBundledRedstoneInput(localDir, BundledRedstone.getOutput(getLevel(), targetPos, offsetSide));
+        computer.setRedstoneInput(localDir,
+            RedstoneUtil.getRedstoneInput(getLevel(), targetPos, dir),
+            BundledRedstone.getOutput(getLevel(), targetPos, offsetSide)
+        );
     }
 
     /**

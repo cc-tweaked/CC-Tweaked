@@ -62,6 +62,8 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import dan200.computercraft.shared.peripheral.printer.PrinterBlock;
 import dan200.computercraft.shared.peripheral.printer.PrinterBlockEntity;
 import dan200.computercraft.shared.peripheral.printer.PrinterMenu;
+import dan200.computercraft.shared.peripheral.redstone.RedstoneRelayBlock;
+import dan200.computercraft.shared.peripheral.redstone.RedstoneRelayBlockEntity;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerBlock;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerBlockEntity;
 import dan200.computercraft.shared.platform.PlatformHelper;
@@ -132,7 +134,7 @@ public final class ModRegistry {
             return BlockBehaviour.Properties.of().strength(2);
         }
 
-        private static BlockBehaviour.Properties computerProperties() {
+        private static BlockBehaviour.Properties redstoneConductor() {
             // Computers shouldn't conduct redstone through them, so set isRedstoneConductor to false. This still allows
             // redstone to connect to computers though as it's a signal source.
             return properties().isRedstoneConductor((block, level, blockPos) -> false);
@@ -147,11 +149,11 @@ public final class ModRegistry {
         }
 
         public static final RegistryEntry<ComputerBlock<ComputerBlockEntity>> COMPUTER_NORMAL = REGISTRY.register("computer_normal",
-            () -> new ComputerBlock<>(computerProperties().mapColor(MapColor.STONE), BlockEntities.COMPUTER_NORMAL));
+            () -> new ComputerBlock<>(redstoneConductor().mapColor(MapColor.STONE), BlockEntities.COMPUTER_NORMAL));
         public static final RegistryEntry<ComputerBlock<ComputerBlockEntity>> COMPUTER_ADVANCED = REGISTRY.register("computer_advanced",
-            () -> new ComputerBlock<>(computerProperties().mapColor(MapColor.GOLD), BlockEntities.COMPUTER_ADVANCED));
+            () -> new ComputerBlock<>(redstoneConductor().mapColor(MapColor.GOLD), BlockEntities.COMPUTER_ADVANCED));
         public static final RegistryEntry<ComputerBlock<ComputerBlockEntity>> COMPUTER_COMMAND = REGISTRY.register("computer_command",
-            () -> new CommandComputerBlock<>(computerProperties().strength(-1, 6000000.0F), BlockEntities.COMPUTER_COMMAND));
+            () -> new CommandComputerBlock<>(redstoneConductor().strength(-1, 6000000.0F), BlockEntities.COMPUTER_COMMAND));
 
         public static final RegistryEntry<TurtleBlock> TURTLE_NORMAL = REGISTRY.register("turtle_normal",
             () -> new TurtleBlock(turtleProperties().mapColor(MapColor.STONE), BlockEntities.TURTLE_NORMAL));
@@ -179,6 +181,9 @@ public final class ModRegistry {
         public static final RegistryEntry<CustomLecternBlock> LECTERN = REGISTRY.register("lectern", () -> new CustomLecternBlock(
             BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).instrument(NoteBlockInstrument.BASS).strength(2.5F).sound(SoundType.WOOD).ignitedByLava()
         ));
+
+        public static final RegistryEntry<RedstoneRelayBlock> REDSTONE_RELAY = REGISTRY.register("redstone_relay",
+            () -> new RedstoneRelayBlock(redstoneConductor().mapColor(MapColor.STONE)));
     }
 
     public static class BlockEntities {
@@ -222,6 +227,8 @@ public final class ModRegistry {
             ofBlock(Blocks.WIRELESS_MODEM_ADVANCED, (p, s) -> new WirelessModemBlockEntity(BlockEntities.WIRELESS_MODEM_ADVANCED.get(), p, s, true));
 
         public static final RegistryEntry<BlockEntityType<CustomLecternBlockEntity>> LECTERN = ofBlock(Blocks.LECTERN, CustomLecternBlockEntity::new);
+
+        public static final RegistryEntry<BlockEntityType<RedstoneRelayBlockEntity>> REDSTONE_RELAY = ofBlock(Blocks.REDSTONE_RELAY, RedstoneRelayBlockEntity::new);
     }
 
     public static final class Items {
@@ -267,6 +274,7 @@ public final class ModRegistry {
         public static final RegistryEntry<BlockItem> WIRELESS_MODEM_NORMAL = ofBlock(Blocks.WIRELESS_MODEM_NORMAL, BlockItem::new);
         public static final RegistryEntry<BlockItem> WIRELESS_MODEM_ADVANCED = ofBlock(Blocks.WIRELESS_MODEM_ADVANCED, BlockItem::new);
         public static final RegistryEntry<BlockItem> WIRED_MODEM_FULL = ofBlock(Blocks.WIRED_MODEM_FULL, BlockItem::new);
+        public static final RegistryEntry<BlockItem> REDSTONE_RELAY = ofBlock(Blocks.REDSTONE_RELAY, BlockItem::new);
 
         public static final RegistryEntry<CableBlockItem.Cable> CABLE = REGISTRY.register("cable",
             () -> new CableBlockItem.Cable(Blocks.CABLE.get(), properties()));
@@ -415,6 +423,7 @@ public final class ModRegistry {
                 out.accept(Items.CABLE.get());
                 out.accept(Items.WIRED_MODEM.get());
                 out.accept(Items.WIRED_MODEM_FULL.get());
+                out.accept(Items.REDSTONE_RELAY.get());
 
                 out.accept(Items.MONITOR_NORMAL.get());
                 out.accept(Items.MONITOR_ADVANCED.get());

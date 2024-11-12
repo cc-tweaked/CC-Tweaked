@@ -51,6 +51,7 @@ class LootTableProvider {
         selfDrop(add, ModRegistry.Blocks.WIRED_MODEM_FULL);
         selfDrop(add, ModRegistry.Blocks.WIRELESS_MODEM_NORMAL);
         selfDrop(add, ModRegistry.Blocks.WIRELESS_MODEM_ADVANCED);
+        selfDrop(add, ModRegistry.Blocks.REDSTONE_RELAY);
 
         computerDrop(add, ModRegistry.Blocks.COMPUTER_NORMAL);
         computerDrop(add, ModRegistry.Blocks.COMPUTER_ADVANCED);
