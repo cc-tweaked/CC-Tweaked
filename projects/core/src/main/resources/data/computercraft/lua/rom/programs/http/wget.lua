@@ -45,9 +45,10 @@ local function get(sUrl)
 
     write("Connecting to " .. sUrl .. "... ")
 
-    local response = http.get(sUrl)
+    local response, err = http.get(sUrl)
     if not response then
-        print("Failed.")
+        print() -- write() above does not wrap, and error might be longer than available space
+        print(string.format("Failed: %s", err))
         return nil
     end
 
