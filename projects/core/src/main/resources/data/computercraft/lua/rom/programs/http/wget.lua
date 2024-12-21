@@ -47,7 +47,6 @@ local function get(sUrl)
 
     local response, err = http.get(sUrl)
     if not response then
-        print() -- write() above does not wrap, and error might be longer than available space
         print(string.format("Failed: %s", err))
         return nil
     end
