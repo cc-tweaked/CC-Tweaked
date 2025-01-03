@@ -10,9 +10,15 @@ import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.PocketUpgrades;
+import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -104,6 +110,46 @@ public class PocketAPI implements ILuaAPI {
         storeItem(player, previousUpgrade.getUpgradeItem());
 
         return new Object[]{ true };
+    }
+
+    private void beep() {
+        final float pitch = 4.0f;
+        final Holder<SoundEvent> soundEventHolder = NoteBlockInstrument.BIT.getSoundEvent();
+        final SoundSource soundSource = SoundSource.RECORDS;
+        final float volume = 1.0f;
+
+        final float pitchValue = (float) Math.pow(2.0, (pitch - 12.0) / 12.0);
+
+        Entity entity = pocket.getEntity();
+        Player player = entity instanceof Player ? (Player) entity : null;
+        if(player != null){
+            player.playNotifySound(soundEventHolder.value(), soundSource, volume, pitchValue);
+        } else {
+            var pos = pocket.getPosition();
+            var level = pocket.getLevel();
+            var server = level.getServer();
+            server.getPlayerList().broadcast(
+                null, pos.x, pos.y, pos.z, 16, level.dimension(),
+                new ClientboundSoundPacket(soundEventHolder, soundSource, pos.x, pos.y, pos.z, volume, pitchValue, level.getRandom().nextLong())
+            );
+        }
+    }
+
+
+    @LuaFunction("notify")
+    public final void doNotify(){
+        var previousColour = pocket.getLight();
+        try {
+            for (int i = 0; i < 3; i++) {
+                beep();
+                pocket.setLight(0x00CC00);
+                Thread.sleep(250);
+                pocket.setLight(previousColour);
+                Thread.sleep(250);
+            }
+        } catch (InterruptedException e) {
+            pocket.setLight(previousColour);
+        }
     }
 
     private static void storeItem(Player player, ItemStack stack) {
