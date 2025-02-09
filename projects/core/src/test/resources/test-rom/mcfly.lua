@@ -193,7 +193,7 @@ local function format(value)
         return "\"" .. escaped .. "\""
     else
         local ok, res = pcall(textutils.serialise, value)
-        if ok then return res else return tostring(value) end
+        if ok then return (res:gsub("\\\n", "\\n")) else return tostring(value) end
     end
 end
 
@@ -379,7 +379,7 @@ end
 function expect_mt:str_match(pattern)
     local actual_type = type(self.value)
     if actual_type ~= "string" then
-        self:_fail(("Expected value of type string\nbut got %s"):format(actual_type))
+        self:_fail(("Expected value of type string\nbut got %s (of type %s)"):format(format(self.value), actual_type))
     end
     if not self.value:find(pattern) then
         self:_fail(("Expected %q\n to match pattern %q"):format(self.value, pattern))

@@ -7,9 +7,7 @@
 -- @module textutils
 -- @since 1.2
 
-local pgk_env = setmetatable({}, { __index = _ENV })
-pgk_env.require = dofile("rom/modules/main/cc/require.lua").make(pgk_env, "rom/modules/main")
-local require = pgk_env.require
+local require = dofile("rom/modules/main/cc/internal/tiny_require.lua")
 
 local expect = require("cc.expect")
 local expect, field = expect.expect, expect.field

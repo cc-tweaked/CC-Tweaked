@@ -129,4 +129,63 @@ describe("The parallel library", function()
             expect(exitCount):eq(3)
         end)
     end)
+
+    describe("exceptions", function()
+        local try = require "cc.internal.exception".try
+        local function check_failure(fn, ...)
+            local ok, message, thread = try(fn, ...)
+            expect(ok):eq(false)
+            expect(message):str_match("/parallel_spec.lua:%d+: Oh no$")
+            return thread
+        end
+
+        it("throws an exception when within a try", function()
+            local expected_thread
+            local thread = check_failure(parallel.waitForAny, function()
+                expected_thread = coroutine.running()
+                error("Oh no")
+            end)
+
+            expect(thread):eq(expected_thread)
+        end)
+
+        it("throws an exception when within a try (nested)", function()
+            local expected_thread
+            local thread = check_failure(parallel.waitForAny, function()
+                parallel.waitForAny(function()
+                    expected_thread = coroutine.running()
+                    error("Oh no")
+                end)
+            end)
+            expect(thread):eq(expected_thread)
+        end)
+
+        it("throws the raw error when within a pcall", function()
+            local expected_thread
+            local thread = check_failure(function()
+                expected_thread = coroutine.running()
+
+                local ok, err = pcall(parallel.waitForAny, function() error("Oh no") end)
+                expect(ok):eq(false)
+                expect(err):str_match("/parallel_spec.lua:%d+: Oh no$")
+                error(err, 0)
+            end)
+            expect(thread):eq(expected_thread)
+        end)
+
+        it("throws the raw error when within a pcall (nested)", function()
+            local expected_thread
+            local thread = check_failure(function()
+                expected_thread = coroutine.running()
+
+                local ok, err = pcall(parallel.waitForAny, function()
+                    parallel.waitForAny(function() error("Oh no") end)
+                end)
+                expect(ok):eq(false)
+                expect(err):str_match("/parallel_spec.lua:%d+: Oh no$")
+                error(err, 0)
+            end)
+            expect(thread):eq(expected_thread)
+        end)
+    end)
 end)

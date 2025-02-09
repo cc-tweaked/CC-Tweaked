@@ -39,7 +39,11 @@ the other.
 @since 1.2
 ]]
 
+local exception = dofile("rom/modules/main/cc/internal/tiny_require.lua")("cc.internal.exception")
+
 local function create(...)
+    local barrier_ctx = { co = coroutine.running() }
+
     local functions = table.pack(...)
     local threads = {}
     for i = 1, functions.n, 1 do
@@ -48,7 +52,7 @@ local function create(...)
             error("bad argument #" .. i .. " (function expected, got " .. type(fn) .. ")", 3)
         end
 
-        threads[i] = { co = coroutine.create(fn), filter = nil }
+        threads[i] = { co = coroutine.create(function() return exception.try_barrier(barrier_ctx, fn) end), filter = nil }
     end
 
     return threads
@@ -65,11 +69,14 @@ local function runUntilLimit(threads, limit)
             local thread = threads[i]
             if thread and (thread.filter == nil or thread.filter == event[1] or event[1] == "terminate") then
                 local ok, param = coroutine.resume(thread.co, table.unpack(event, 1, event.n))
-                if not ok then
-                    error(param, 0)
-                else
+                if ok then
                     thread.filter = param
+                elseif type(param) == "string" and exception.can_wrap_errors() then
+                    error(exception.make_exception(param, thread.co))
+                else
+                    error(param, 0)
                 end
+
                 if coroutine.status(thread.co) == "dead" then
                     threads[i] = false
                     living = living - 1

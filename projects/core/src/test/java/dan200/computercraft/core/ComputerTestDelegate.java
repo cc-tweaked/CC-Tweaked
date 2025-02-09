@@ -413,7 +413,7 @@ public class ComputerTestDelegate {
             var wholeMessage = new StringBuilder();
             if (message != null) wholeMessage.append(message);
             if (trace != null) {
-                if (wholeMessage.length() != 0) wholeMessage.append('\n');
+                if (!wholeMessage.isEmpty()) wholeMessage.append('\n');
                 wholeMessage.append(trace);
             }
 
