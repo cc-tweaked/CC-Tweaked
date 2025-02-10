@@ -19,8 +19,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LecternBlock;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -56,18 +54,7 @@ public class PrintoutItem extends Item {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        var level = context.getLevel();
-        var blockPos = context.getClickedPos();
-        var blockState = level.getBlockState(blockPos);
-        if (blockState.is(Blocks.LECTERN) && !blockState.getValue(LecternBlock.HAS_BOOK)) {
-            // If we have an empty lectern, place our book into it.
-            if (!level.isClientSide) {
-                CustomLecternBlock.replaceLectern(level, blockPos, blockState, context.getItemInHand());
-            }
-            return InteractionResult.sidedSuccess(level.isClientSide);
-        } else {
-            return InteractionResult.PASS;
-        }
+        return CustomLecternBlock.defaultUseItemOn(context);
     }
 
     @Override

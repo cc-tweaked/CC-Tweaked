@@ -9,6 +9,7 @@ import com.mojang.math.Axis;
 import dan200.computercraft.client.model.LecternPrintoutModel;
 import dan200.computercraft.shared.lectern.CustomLecternBlockEntity;
 import dan200.computercraft.shared.media.items.PrintoutItem;
+import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -44,6 +45,10 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
             } else {
                 printoutModel.renderPages(poseStack, vertexConsumer, packedLight, packedOverlay, PrintoutItem.getPageCount(item));
             }
+        } else if (item.getItem() instanceof PocketComputerItem) {
+            poseStack.mulPose(Axis.YP.rotationDegrees(-90f));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(180f));
+            PocketItemRenderer.render(poseStack, buffer, item, packedLight);
         }
 
         poseStack.popPose();

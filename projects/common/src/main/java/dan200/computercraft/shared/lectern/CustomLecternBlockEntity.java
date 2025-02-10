@@ -9,27 +9,25 @@ import dan200.computercraft.shared.container.BasicContainer;
 import dan200.computercraft.shared.container.SingleContainerData;
 import dan200.computercraft.shared.media.PrintoutMenu;
 import dan200.computercraft.shared.media.items.PrintoutItem;
+import dan200.computercraft.shared.pocket.core.PocketHolder;
+import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.LecternBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.AbstractList;
 import java.util.List;
@@ -39,7 +37,7 @@ import java.util.List;
  *
  * @see LecternBlockEntity
  */
-public final class CustomLecternBlockEntity extends BlockEntity implements MenuProvider {
+public final class CustomLecternBlockEntity extends BlockEntity {
     private static final String NBT_ITEM = "Item";
     private static final String NBT_PAGE = "Page";
 
@@ -78,6 +76,12 @@ public final class CustomLecternBlockEntity extends BlockEntity implements MenuP
             page = Mth.clamp(page, 0, pageCount - 1);
         } else {
             pageCount = page = 0;
+        }
+    }
+
+    void tick() {
+        if (item.getItem() instanceof PocketComputerItem pocket) {
+            pocket.tick(item, new PocketHolder.LecternHolder(this), false);
         }
     }
 
@@ -123,24 +127,17 @@ public final class CustomLecternBlockEntity extends BlockEntity implements MenuP
         return tag;
     }
 
-    @Nullable
-    @Override
-    public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
+    void openMenu(Player player) {
         var item = getItem();
         if (item.getItem() instanceof PrintoutItem) {
-            return new PrintoutMenu(
-                containerId, new LecternContainer(), 0,
-                p -> Container.stillValidBlockEntity(this, player, Container.DEFAULT_DISTANCE_LIMIT),
+            player.openMenu(new SimpleMenuProvider((id, inventory, entity) -> new PrintoutMenu(
+                id, new LecternContainer(), 0,
+                p -> Container.stillValidBlockEntity(this, p, Container.DEFAULT_DISTANCE_LIMIT),
                 new PrintoutContainerData()
-            );
+            ), getItem().getDisplayName()));
+        } else if (item.getItem() instanceof PocketComputerItem pocket) {
+            pocket.open(player, item, new PocketHolder.LecternHolder(this), true);
         }
-
-        return null;
-    }
-
-    @Override
-    public Component getDisplayName() {
-        return getItem().getDisplayName();
     }
 
     /**

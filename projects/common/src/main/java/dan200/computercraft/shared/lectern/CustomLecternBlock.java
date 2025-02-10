@@ -6,6 +6,7 @@ package dan200.computercraft.shared.lectern;
 
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.PrintoutItem;
+import dan200.computercraft.shared.util.BlockEntityHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
@@ -14,6 +15,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
@@ -21,8 +23,12 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Extends {@link LecternBlock} with support for {@linkplain PrintoutItem printouts}.
@@ -53,6 +59,27 @@ public class CustomLecternBlock extends LecternBlock {
             .setValue(POWERED, blockState.getValue(POWERED)));
 
         if (level.getBlockEntity(pos) instanceof CustomLecternBlockEntity be) be.setItem(item.split(1));
+    }
+
+    /**
+     * A default implementation of {@link Item#useOn(UseOnContext)} for items that can be placed on a lectern.
+     *
+     * @param context The context of this item usage action.
+     * @return Whether the item was placed or not.
+     */
+    public static InteractionResult defaultUseItemOn(UseOnContext context) {
+        var level = context.getLevel();
+        var blockPos = context.getClickedPos();
+        var blockState = level.getBlockState(blockPos);
+        if (blockState.is(Blocks.LECTERN) && !blockState.getValue(LecternBlock.HAS_BOOK)) {
+            // If we have an empty lectern, place our book into it.
+            if (!level.isClientSide) {
+                CustomLecternBlock.replaceLectern(level, blockPos, blockState, context.getItemInHand());
+            }
+            return InteractionResult.sidedSuccess(level.isClientSide);
+        } else {
+            return InteractionResult.PASS;
+        }
     }
 
     /**
@@ -131,7 +158,7 @@ public class CustomLecternBlock extends LecternBlock {
                 clearLectern(level, pos, state);
             } else {
                 // Otherwise open the screen.
-                player.openMenu(lectern);
+                lectern.openMenu(player);
             }
 
             player.awardStat(Stats.INTERACT_WITH_LECTERN);
@@ -139,4 +166,11 @@ public class CustomLecternBlock extends LecternBlock {
 
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
+
+    @Override
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return level.isClientSide ? null : BlockEntityHelpers.createTickerHelper(type, ModRegistry.BlockEntities.LECTERN.get(), serverTicker);
+    }
+
+    private static final BlockEntityTicker<CustomLecternBlockEntity> serverTicker = (level, pos, state, lectern) -> lectern.tick();
 }

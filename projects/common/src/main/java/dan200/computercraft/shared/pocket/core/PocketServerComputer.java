@@ -72,7 +72,7 @@ public final class PocketServerComputer extends ServerComputer {
             // Broadcast the state to new players.
             var added = newTracking.stream().filter(x -> !tracking.contains(x)).toList();
             if (!added.isEmpty()) {
-                ServerNetworking.sendToPlayers(new PocketComputerDataMessage(this, false), added);
+                ServerNetworking.sendToPlayers(new PocketComputerDataMessage(this, brain.holder().isTerminalAlwaysVisible()), added);
             }
         }
 
@@ -83,9 +83,16 @@ public final class PocketServerComputer extends ServerComputer {
     protected void onTerminalChanged() {
         super.onTerminalChanged();
 
-        if (brain.holder() instanceof PocketHolder.PlayerHolder holder && holder.isValid(this)) {
-            // Broadcast the terminal to the current player.
-            ServerNetworking.sendToPlayer(new PocketComputerDataMessage(this, true), holder.entity());
+        var holder = brain.holder() instanceof PocketHolder.PlayerHolder h && h.isValid(this) ? h.entity() : null;
+        if (brain.holder().isTerminalAlwaysVisible() && !tracking.isEmpty()) {
+            // If the terminal is always visible, send it to all players *and* the holder.
+            System.out.println("Sending " + getInstanceUUID());
+            var packet = new PocketComputerDataMessage(this, true);
+            ServerNetworking.sendToPlayers(packet, tracking);
+            if (holder != null && !tracking.contains(holder)) ServerNetworking.sendToPlayer(packet, holder);
+        } else if (holder != null) {
+            // Otherwise just send it to the holder.
+            ServerNetworking.sendToPlayer(new PocketComputerDataMessage(this, true), holder);
         }
     }
 

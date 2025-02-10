@@ -21,6 +21,7 @@ import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.config.Config;
+import dan200.computercraft.shared.lectern.CustomLecternBlock;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.pocket.core.PocketBrain;
@@ -44,6 +45,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
@@ -81,12 +83,20 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
     /**
      * Tick a pocket computer.
      *
-     * @param stack  The current pocket computer stack.
-     * @param holder The entity holding the pocket item.
-     * @param brain  The pocket computer brain.
+     * @param stack   The current pocket computer stack.
+     * @param holder  The entity holding the pocket item.
+     * @param passive If set, the pocket computer will not be created if it doesn't exist, and will not be kept alive.
      */
-    private void tick(ItemStack stack, PocketHolder holder, PocketBrain brain) {
-        brain.updateHolder(holder);
+    public void tick(ItemStack stack, PocketHolder holder, boolean passive) {
+        PocketBrain brain;
+        if (passive) {
+            var computer = getServerComputer(holder.level().getServer(), stack);
+            if (computer == null) return;
+            brain = computer.getBrain();
+        } else {
+            brain = getOrCreateBrain(holder.level(), holder, stack);
+            brain.computer().keepAlive();
+        }
 
         // Update pocket upgrade
         var upgrade = brain.getUpgrade();
@@ -139,11 +149,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         if (slot < 0) return;
 
         // If we're in the inventory, create a computer and keep it alive.
-        var holder = new PocketHolder.PlayerHolder(player, slot);
-        var brain = getOrCreateBrain((ServerLevel) world, holder, stack);
-        brain.computer().keepAlive();
-
-        tick(stack, holder, brain);
+        tick(stack, new PocketHolder.PlayerHolder(player, slot), false);
     }
 
     @ForgeOverride
@@ -153,10 +159,14 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
 
         // If we're an item entity, tick an already existing computer (as to update the position), but do not keep the
         // computer alive.
-        var computer = getServerComputer(level.getServer(), stack);
-        if (computer != null) tick(stack, new PocketHolder.ItemEntityHolder(entity), computer.getBrain());
+        tick(stack, new PocketHolder.ItemEntityHolder(entity), true);
 
         return false;
+    }
+
+    @Override
+    public InteractionResult useOn(UseOnContext context) {
+        return CustomLecternBlock.defaultUseItemOn(context);
     }
 
     @Override
@@ -171,23 +181,37 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
             var stop = false;
             var upgrade = getUpgrade(stack);
             if (upgrade != null) {
-                brain.updateHolder(holder);
                 stop = upgrade.onRightClick(world, brain, computer.getPeripheral(ComputerSide.BACK));
                 // Sync back just in case. We don't need to setChanged, as we'll return the item anyway.
                 updateItem(stack, brain);
             }
 
-            if (!stop) {
-                PlatformHelper.get().openMenu(
-                    player, stack.getHoverName(),
-                    (id, inventory, entity) -> new ComputerMenuWithoutInventory(
-                        hand == InteractionHand.OFF_HAND ? ModRegistry.Menus.POCKET_COMPUTER_NO_TERM.get() : ModRegistry.Menus.COMPUTER.get(),
-                        id, inventory, p -> isServerComputer(computer, p.getItemInHand(hand)), computer
-                    ),
-                    new ComputerContainerData(computer, stack));
-            }
+            if (!stop) openImpl(player, stack, holder, hand == InteractionHand.OFF_HAND, computer);
         }
         return new InteractionResultHolder<>(InteractionResult.sidedSuccess(world.isClientSide), stack);
+    }
+
+    /**
+     * Open a container for this pocket computer.
+     *
+     * @param player       The player to show the menu for.
+     * @param stack        The pocket computer stack.
+     * @param holder       The holder of the pocket computer.
+     * @param isTypingOnly Open the off-hand pocket screen (only supporting typing, with no visible terminal).
+     */
+    public void open(Player player, ItemStack stack, PocketHolder holder, boolean isTypingOnly) {
+        var brain = getOrCreateBrain(holder.level(), holder, stack);
+        var computer = brain.computer();
+        computer.turnOn();
+        openImpl(player, stack, holder, isTypingOnly, computer);
+    }
+
+    private static void openImpl(Player player, ItemStack stack, PocketHolder holder, boolean isTypingOnly, ServerComputer computer) {
+        PlatformHelper.get().openMenu(player, stack.getHoverName(), (id, inventory, entity) -> new ComputerMenuWithoutInventory(
+            isTypingOnly ? ModRegistry.Menus.POCKET_COMPUTER_NO_TERM.get() : ModRegistry.Menus.COMPUTER.get(), id, inventory,
+            p -> holder.isValid(computer),
+            computer
+        ), new ComputerContainerData(computer, stack));
     }
 
     @Override
@@ -233,7 +257,11 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         var registry = ServerContext.get(level.getServer()).registry();
         {
             var computer = getServerComputer(registry, stack);
-            if (computer != null) return computer.getBrain();
+            if (computer != null) {
+                var brain = computer.getBrain();
+                brain.updateHolder(holder);
+                return brain;
+            }
         }
 
         var computerID = getComputerID(stack);
