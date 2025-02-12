@@ -6,6 +6,7 @@ package dan200.computercraft.data;
 
 import com.mojang.serialization.Codec;
 import dan200.computercraft.client.gui.GuiSprites;
+import dan200.computercraft.client.model.LecternPocketModel;
 import dan200.computercraft.client.model.LecternPrintoutModel;
 import dan200.computercraft.shared.turtle.inventory.UpgradeSlot;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
@@ -54,7 +55,8 @@ public final class DataProviders {
             out.accept(new ResourceLocation("blocks"), makeSprites(Stream.of(
                 UpgradeSlot.LEFT_UPGRADE,
                 UpgradeSlot.RIGHT_UPGRADE,
-                LecternPrintoutModel.TEXTURE
+                LecternPrintoutModel.TEXTURE,
+                LecternPocketModel.TEXTURE_NORMAL, LecternPocketModel.TEXTURE_ADVANCED, LecternPocketModel.TEXTURE_COLOUR
             )));
             out.accept(GuiSprites.SPRITE_SHEET, makeSprites(
                 Stream.of(GuiSprites.TURTLE_NORMAL_SELECTED_SLOT, GuiSprites.TURTLE_ADVANCED_SELECTED_SLOT),

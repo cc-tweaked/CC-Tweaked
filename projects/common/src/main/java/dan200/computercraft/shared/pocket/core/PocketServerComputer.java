@@ -86,7 +86,6 @@ public final class PocketServerComputer extends ServerComputer {
         var holder = brain.holder() instanceof PocketHolder.PlayerHolder h && h.isValid(this) ? h.entity() : null;
         if (brain.holder().isTerminalAlwaysVisible() && !tracking.isEmpty()) {
             // If the terminal is always visible, send it to all players *and* the holder.
-            System.out.println("Sending " + getInstanceUUID());
             var packet = new PocketComputerDataMessage(this, true);
             ServerNetworking.sendToPlayers(packet, tracking);
             if (holder != null && !tracking.contains(holder)) ServerNetworking.sendToPlayer(packet, holder);

@@ -43,7 +43,7 @@ public final class FixedWidthFontRenderer {
     static final float BACKGROUND_END = (WIDTH - 4.0f) / WIDTH;
 
     private static final int BLACK = FastColor.ARGB32.color(255, byteColour(Colour.BLACK.getR()), byteColour(Colour.BLACK.getR()), byteColour(Colour.BLACK.getR()));
-    private static final float Z_OFFSET = 1e-3f;
+    private static final float Z_OFFSET = 1e-4f;
 
     private FixedWidthFontRenderer() {
     }
