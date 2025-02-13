@@ -33,19 +33,6 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
 
     @Override
     protected void renderItem(PoseStack transform, MultiBufferSource bufferSource, ItemStack stack, int light) {
-        // Setup various transformations. Note that these are partially adapted from the corresponding method
-        // in ItemRenderer
-        transform.pushPose();
-        transform.mulPose(Axis.YP.rotationDegrees(180f));
-        transform.mulPose(Axis.ZP.rotationDegrees(180f));
-        transform.scale(0.5f, 0.5f, 0.5f);
-
-        render(transform, bufferSource, stack, light);
-
-        transform.popPose();
-    }
-
-    public static void render(PoseStack transform, MultiBufferSource bufferSource, ItemStack stack, int light) {
         var computer = ClientPocketComputers.get(stack);
         var terminal = computer == null ? null : computer.getTerminal();
 
@@ -60,6 +47,13 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
 
         var width = termWidth * FONT_WIDTH + MARGIN * 2;
         var height = termHeight * FONT_HEIGHT + MARGIN * 2;
+
+        // Setup various transformations. Note that these are partially adapted from the corresponding method
+        // in ItemRenderer
+        transform.pushPose();
+        transform.mulPose(Axis.YP.rotationDegrees(180f));
+        transform.mulPose(Axis.ZP.rotationDegrees(180f));
+        transform.scale(0.5f, 0.5f, 0.5f);
 
         var scale = 0.75f / Math.max(width + BORDER * 2, height + BORDER * 2 + LIGHT_HEIGHT);
         transform.scale(scale, scale, -1.0f);
@@ -83,6 +77,8 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
         } else {
             FixedWidthFontRenderer.drawTerminal(quadEmitter, MARGIN, MARGIN, terminal, MARGIN, MARGIN, MARGIN, MARGIN);
         }
+
+        transform.popPose();
     }
 
     private static void renderFrame(Matrix4f transform, MultiBufferSource render, ComputerFamily family, int colour, int light, int width, int height) {
