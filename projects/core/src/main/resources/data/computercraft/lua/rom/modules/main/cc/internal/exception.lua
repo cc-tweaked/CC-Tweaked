@@ -21,7 +21,7 @@ local function find_frame(thread, file, line)
         if not frame then break end
 
         if frame.short_src == file and frame.what ~= "C" and frame.currentline == line then
-            return frame
+            return offset, frame
         end
     end
 end
@@ -191,11 +191,11 @@ local function report(err, thread, source_map)
 
     if type(err) ~= "string" then return end
 
-    local file, line = err:match("^([^:]+):(%d+):")
+    local file, line, err = err:match("^([^:]+):(%d+): (.*)")
     if not file then return end
     line = tonumber(line)
 
-    local frame = find_frame(thread, file, line)
+    local frame_offset, frame = find_frame(thread, file, line)
     if not frame or not frame.currentcolumn then return end
 
     local column = frame.currentcolumn
@@ -237,6 +237,7 @@ local function report(err, thread, source_map)
         get_line = function() return line_contents end,
     }, {
         { tag = "annotate", start_pos = column, end_pos = column, msg = "" },
+        require "cc.internal.error_hints".get_tip(err, thread, frame_offset),
     })
 end
 

@@ -31,7 +31,7 @@ setmetatable(tEnv, { __index = _ENV })
 do
     local make_package = require "cc.require".make
     local dir = shell.dir()
-    _ENV.require, _ENV.package = make_package(_ENV, dir)
+    tEnv.require, tEnv.package = make_package(tEnv, dir)
 end
 
 if term.isColour() then

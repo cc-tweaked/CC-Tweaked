@@ -11,6 +11,7 @@ import dan200.computercraft.api.lua.ILuaFunction;
 import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.computer.TimeoutState;
+import dan200.computercraft.core.lua.errorinfo.ErrorInfoLib;
 import dan200.computercraft.core.methods.LuaMethod;
 import dan200.computercraft.core.methods.MethodSupplier;
 import dan200.computercraft.core.util.LuaUtil;
@@ -77,6 +78,7 @@ public class CobaltLuaMachine implements ILuaMachine {
             var globals = state.globals();
             CoreLibraries.debugGlobals(state);
             Bit32Lib.add(state, globals);
+            ErrorInfoLib.add(state);
             globals.rawset("_HOST", ValueFactory.valueOf(environment.hostString()));
             globals.rawset("_CC_DEFAULT_SETTINGS", ValueFactory.valueOf(CoreConfig.defaultComputerSettings));
 
