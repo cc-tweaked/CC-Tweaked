@@ -280,8 +280,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IMedia, I
         tag.putInt(NBT_SESSION, registry.getSessionID());
         tag.putUUID(NBT_INSTANCE, computer.register());
 
-        // Only turn on when initially creating the computer, rather than each tick.
-        if (isMarkedOn(stack) && holder instanceof PocketHolder.PlayerHolder) computer.turnOn();
+        if (isMarkedOn(stack)) computer.turnOn();
 
         updateItem(stack, brain);
 

@@ -56,7 +56,8 @@ public final class DataProviders {
                 UpgradeSlot.LEFT_UPGRADE,
                 UpgradeSlot.RIGHT_UPGRADE,
                 LecternPrintoutModel.TEXTURE,
-                LecternPocketModel.TEXTURE_NORMAL, LecternPocketModel.TEXTURE_ADVANCED, LecternPocketModel.TEXTURE_COLOUR
+                LecternPocketModel.TEXTURE_NORMAL, LecternPocketModel.TEXTURE_ADVANCED,
+                LecternPocketModel.TEXTURE_COLOUR, LecternPocketModel.TEXTURE_FRAME, LecternPocketModel.TEXTURE_LIGHT
             )));
             out.accept(GuiSprites.SPRITE_SHEET, makeSprites(
                 Stream.of(GuiSprites.TURTLE_NORMAL_SELECTED_SLOT, GuiSprites.TURTLE_ADVANCED_SELECTED_SLOT),

@@ -5,6 +5,8 @@
     {"type": "minecraft:single", "resource": "computercraft:entity/printout"},
     {"type": "minecraft:single", "resource": "computercraft:entity/pocket_computer_normal"},
     {"type": "minecraft:single", "resource": "computercraft:entity/pocket_computer_advanced"},
-    {"type": "minecraft:single", "resource": "computercraft:entity/pocket_computer_colour"}
+    {"type": "minecraft:single", "resource": "computercraft:entity/pocket_computer_colour"},
+    {"type": "minecraft:single", "resource": "computercraft:entity/pocket_computer_frame"},
+    {"type": "minecraft:single", "resource": "computercraft:entity/pocket_computer_light"}
   ]
 }
