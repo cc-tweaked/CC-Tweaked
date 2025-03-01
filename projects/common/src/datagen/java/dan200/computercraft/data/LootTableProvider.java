@@ -4,7 +4,6 @@
 
 package dan200.computercraft.data;
 
-import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
@@ -14,14 +13,14 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.data.loot.LootTableProvider.SubProviderEntry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.DynamicLoot;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.predicates.AnyOfCondition;
@@ -37,12 +36,12 @@ import java.util.function.Supplier;
 class LootTableProvider {
     public static List<SubProviderEntry> getTables() {
         return List.of(
-            new SubProviderEntry(() -> LootTableProvider::registerBlocks, LootContextParamSets.BLOCK),
-            new SubProviderEntry(() -> LootTableProvider::registerGeneric, LootContextParamSets.ALL_PARAMS)
+            new SubProviderEntry(r -> LootTableProvider::registerBlocks, LootContextParamSets.BLOCK),
+            new SubProviderEntry(r -> LootTableProvider::registerGeneric, LootContextParamSets.ALL_PARAMS)
         );
     }
 
-    private static void registerBlocks(BiConsumer<ResourceLocation, LootTable.Builder> add) {
+    private static void registerBlocks(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add) {
         namedBlockDrop(add, ModRegistry.Blocks.DISK_DRIVE);
         selfDrop(add, ModRegistry.Blocks.MONITOR_NORMAL);
         selfDrop(add, ModRegistry.Blocks.MONITOR_ADVANCED);
@@ -82,15 +81,15 @@ class LootTableProvider {
             ));
     }
 
-    private static void registerGeneric(BiConsumer<ResourceLocation, LootTable.Builder> add) {
+    private static void registerGeneric(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add) {
         add.accept(CommonHooks.TREASURE_DISK_LOOT, LootTable.lootTable());
     }
 
-    private static void selfDrop(BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> wrapper) {
+    private static void selfDrop(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add, Supplier<? extends Block> wrapper) {
         blockDrop(add, wrapper, LootItem.lootTableItem(wrapper.get()), ExplosionCondition.survivesExplosion());
     }
 
-    private static void namedBlockDrop(BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> wrapper) {
+    private static void namedBlockDrop(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add, Supplier<? extends Block> wrapper) {
         blockDrop(
             add, wrapper,
             LootItem.lootTableItem(wrapper.get()).apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY)),
@@ -98,10 +97,10 @@ class LootTableProvider {
         );
     }
 
-    private static void computerDrop(BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> block) {
+    private static void computerDrop(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add, Supplier<? extends Block> block) {
         blockDrop(
             add, block,
-            DynamicLoot.dynamicEntry(new ResourceLocation(ComputerCraftAPI.MOD_ID, "computer")),
+            LootItem.lootTableItem(block.get()).apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)),
             AnyOfCondition.anyOf(
                 BlockNamedEntityLootCondition.BUILDER,
                 HasComputerIdLootCondition.BUILDER,
@@ -111,7 +110,7 @@ class LootTableProvider {
     }
 
     private static void blockDrop(
-        BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> wrapper,
+        BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add, Supplier<? extends Block> wrapper,
         LootPoolEntryContainer.Builder<?> drop,
         LootItemCondition.Builder condition
     ) {

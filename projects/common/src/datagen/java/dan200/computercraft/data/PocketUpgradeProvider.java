@@ -5,29 +5,24 @@
 package dan200.computercraft.data;
 
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
-import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
-import net.minecraft.data.PackOutput;
+import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.shared.pocket.peripherals.PocketModem;
+import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
+import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.function.Consumer;
+import net.minecraft.world.item.ItemStack;
 
 import static dan200.computercraft.shared.ModRegistry.Items;
-import static dan200.computercraft.shared.ModRegistry.PocketUpgradeSerialisers;
 
-class PocketUpgradeProvider extends PocketUpgradeDataProvider {
-    PocketUpgradeProvider(PackOutput output) {
-        super(output);
+class PocketUpgradeProvider {
+    public static void addUpgrades(BootstrapContext<IPocketUpgrade> upgrades) {
+        upgrades.register(id("speaker"), new PocketSpeaker(new ItemStack(Items.SPEAKER.get())));
+        upgrades.register(id("wireless_modem_normal"), new PocketModem(new ItemStack(Items.WIRELESS_MODEM_NORMAL.get()), false));
+        upgrades.register(id("wireless_modem_advanced"), new PocketModem(new ItemStack(Items.WIRELESS_MODEM_ADVANCED.get()), true));
     }
 
-    @Override
-    protected void addUpgrades(Consumer<Upgrade<PocketUpgradeSerialiser<?>>> addUpgrade) {
-        addUpgrade.accept(simpleWithCustomItem(id("speaker"), PocketUpgradeSerialisers.SPEAKER.get(), Items.SPEAKER.get()));
-        simpleWithCustomItem(id("wireless_modem_normal"), PocketUpgradeSerialisers.WIRELESS_MODEM_NORMAL.get(), Items.WIRELESS_MODEM_NORMAL.get()).add(addUpgrade);
-        simpleWithCustomItem(id("wireless_modem_advanced"), PocketUpgradeSerialisers.WIRELESS_MODEM_ADVANCED.get(), Items.WIRELESS_MODEM_ADVANCED.get()).add(addUpgrade);
-    }
-
-    private static ResourceLocation id(String id) {
-        return new ResourceLocation(ComputerCraftAPI.MOD_ID, id);
+    private static ResourceKey<IPocketUpgrade> id(String id) {
+        return ResourceKey.create(IPocketUpgrade.REGISTRY, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, id));
     }
 }

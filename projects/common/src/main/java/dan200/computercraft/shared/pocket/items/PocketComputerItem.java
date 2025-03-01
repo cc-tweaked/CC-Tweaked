@@ -11,24 +11,19 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
-import dan200.computercraft.shared.computer.items.IComputerItem;
-import dan200.computercraft.shared.lectern.CustomLecternBlock;
+import dan200.computercraft.shared.computer.items.ServerComputerReference;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.pocket.core.PocketBrain;
 import dan200.computercraft.shared.pocket.core.PocketHolder;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
-import dan200.computercraft.shared.util.IDAssigner;
-import dan200.computercraft.shared.util.InventoryUtil;
-import dan200.computercraft.shared.util.NBTUtil;
+import dan200.computercraft.shared.util.*;
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -42,39 +37,18 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
-public class PocketComputerItem extends Item implements IComputerItem, IColouredItem {
-    private static final String NBT_UPGRADE = "Upgrade";
-    private static final String NBT_UPGRADE_INFO = "UpgradeInfo";
-    public static final String NBT_ON = "On";
-
-    private static final String NBT_INSTANCE = "InstanceId";
-    private static final String NBT_SESSION = "SessionId";
-
+public class PocketComputerItem extends Item {
     private final ComputerFamily family;
 
     public PocketComputerItem(Properties settings, ComputerFamily family) {
         super(settings);
         this.family = family;
-    }
-
-    public ItemStack create(int id, @Nullable String label, int colour, @Nullable UpgradeData<IPocketUpgrade> upgrade) {
-        var result = new ItemStack(this);
-        if (id >= 0) result.getOrCreateTag().putInt(NBT_ID, id);
-        if (label != null) result.setHoverName(Component.literal(label));
-        if (upgrade != null) {
-            result.getOrCreateTag().putString(NBT_UPGRADE, upgrade.upgrade().getUpgradeID().toString());
-            if (!upgrade.data().isEmpty()) result.getOrCreateTag().put(NBT_UPGRADE_INFO, upgrade.data().copy());
-        }
-        if (colour != -1) result.getOrCreateTag().putInt(NBT_COLOUR, colour);
-        return result;
     }
 
     /**
@@ -113,28 +87,17 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
         var changed = brain.updateItem(stack);
         var computer = brain.computer();
 
-        // Sync ID
-        var id = computer.getID();
-        if (id != getComputerID(stack)) {
-            changed = true;
-            setComputerID(stack, id);
-        }
-
         // Sync label
         var label = computer.getLabel();
         if (!Objects.equals(label, getLabel(stack))) {
             changed = true;
-            if (label != null) {
-                stack.setHoverName(Component.literal(label));
-            } else {
-                stack.resetHoverName();
-            }
+            DataComponentUtil.setCustomName(stack, label);
         }
 
         var on = computer.isOn();
         if (on != isMarkedOn(stack)) {
             changed = true;
-            stack.getOrCreateTag().putBoolean(NBT_ON, on);
+            stack.set(ModRegistry.DataComponents.ON.get(), on);
         }
 
         return changed;
@@ -163,11 +126,6 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
         tick(stack, new PocketHolder.ItemEntityHolder(entity), true);
 
         return false;
-    }
-
-    @Override
-    public InteractionResult useOn(UseOnContext context) {
-        return CustomLecternBlock.defaultUseItemOn(context);
     }
 
     @Override
@@ -220,9 +178,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
         var baseString = getDescriptionId(stack);
         var upgrade = getUpgrade(stack);
         if (upgrade != null) {
-            return Component.translatable(baseString + ".upgraded",
-                Component.translatable(upgrade.getUnlocalisedAdjective())
-            );
+            return Component.translatable(baseString + ".upgraded", upgrade.getAdjective());
         } else {
             return super.getName(stack);
         }
@@ -230,11 +186,11 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
 
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> list, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
         if (flag.isAdvanced() || getLabel(stack) == null) {
-            var id = getComputerID(stack);
-            if (id >= 0) {
-                list.add(Component.translatable("gui.computercraft.tooltip.computer_id", id)
+            var id = stack.get(ModRegistry.DataComponents.COMPUTER_ID.get());
+            if (id != null) {
+                list.add(Component.translatable("gui.computercraft.tooltip.computer_id", id.id())
                     .withStyle(ChatFormatting.GRAY));
             }
         }
@@ -243,15 +199,9 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
     @Nullable
     @ForgeOverride
     public String getCreatorModId(ItemStack stack) {
-        var upgrade = getUpgrade(stack);
-        if (upgrade != null) {
-            // If we're a non-vanilla, non-CC upgrade then return whichever mod this upgrade
-            // belongs to.
-            var mod = PocketUpgrades.instance().getOwner(upgrade);
-            if (mod != null && !mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
-        }
+        var upgrade = getUpgradeWithData(stack);
+        return upgrade != null ? PocketUpgrades.instance().getOwner(upgrade.holder()) : ComputerCraftAPI.MOD_ID;
 
-        return ComputerCraftAPI.MOD_ID;
     }
 
     private PocketBrain getOrCreateBrain(ServerLevel level, PocketHolder holder, ItemStack stack) {
@@ -265,21 +215,16 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
             }
         }
 
-        var computerID = getComputerID(stack);
-        if (computerID < 0) {
-            computerID = ComputerCraftAPI.createUniqueNumberedSaveDir(level.getServer(), IDAssigner.COMPUTER);
-            setComputerID(stack, computerID);
-        }
-
+        var computerID = NonNegativeId.getOrCreate(level.getServer(), stack, ModRegistry.DataComponents.COMPUTER_ID.get(), IDAssigner.COMPUTER);
         var brain = new PocketBrain(
             holder, getUpgradeWithData(stack),
-            ServerComputer.properties(getComputerID(stack), getFamily()).label(getLabel(stack))
+            ServerComputer.properties(computerID, getFamily())
+                .label(getLabel(stack))
+                .storageCapacity(StorageCapacity.getOrDefault(stack.get(ModRegistry.DataComponents.STORAGE_CAPACITY.get()), -1))
         );
         var computer = brain.computer();
 
-        var tag = stack.getOrCreateTag();
-        tag.putInt(NBT_SESSION, registry.getSessionID());
-        tag.putUUID(NBT_INSTANCE, computer.register());
+        stack.set(ModRegistry.DataComponents.COMPUTER.get(), new ServerComputerReference(registry.getSessionID(), computer.register()));
 
         if (isMarkedOn(stack)) computer.turnOn();
 
@@ -297,7 +242,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
 
     @Nullable
     public static PocketServerComputer getServerComputer(ServerComputerRegistry registry, ItemStack stack) {
-        return (PocketServerComputer) registry.get(getSessionID(stack), getInstanceID(stack));
+        return (PocketServerComputer) ServerComputerReference.get(stack, registry);
     }
 
     @Nullable
@@ -306,10 +251,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
     }
 
     @Override
-    public void onCraftedBy(ItemStack stack, Level level, Player player) {
-        var tag = stack.getTag();
-        if (tag == null) return;
-
+    public void onCraftedPostProcess(ItemStack stack, Level level) {
         // Normally we treat the computer instance as the source of truth, and copy the computer's state back to the
         // item. However, if we've just crafted the computer with an upgrade, we should sync the other way, and update
         // the computer.
@@ -320,70 +262,30 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
         }
     }
 
-    // IComputerItem implementation
-
-    private static void setComputerID(ItemStack stack, int computerID) {
-        stack.getOrCreateTag().putInt(NBT_ID, computerID);
-    }
-
-    @Override
-    public @Nullable String getLabel(ItemStack stack) {
-        return IComputerItem.super.getLabel(stack);
-    }
-
     public ComputerFamily getFamily() {
         return family;
     }
 
-    @Override
-    public ItemStack changeItem(ItemStack stack, Item newItem) {
-        return newItem instanceof PocketComputerItem pocket ? pocket.create(
-            getComputerID(stack), getLabel(stack), getColour(stack),
-            getUpgradeWithData(stack)
-        ) : ItemStack.EMPTY;
-    }
+    // IMedia
 
-    public static @Nullable UUID getInstanceID(ItemStack stack) {
-        var nbt = stack.getTag();
-        return nbt != null && nbt.hasUUID(NBT_INSTANCE) ? nbt.getUUID(NBT_INSTANCE) : null;
-    }
-
-    private static int getSessionID(ItemStack stack) {
-        var nbt = stack.getTag();
-        return nbt != null && nbt.contains(NBT_SESSION) ? nbt.getInt(NBT_SESSION) : -1;
+    private @Nullable String getLabel(ItemStack stack) {
+        return DataComponentUtil.getCustomName(stack);
     }
 
     private static boolean isMarkedOn(ItemStack stack) {
-        var nbt = stack.getTag();
-        return nbt != null && nbt.getBoolean(NBT_ON);
+        return stack.getOrDefault(ModRegistry.DataComponents.ON.get(), false);
     }
 
     public static @Nullable IPocketUpgrade getUpgrade(ItemStack stack) {
-        var compound = stack.getTag();
-        if (compound == null || !compound.contains(NBT_UPGRADE)) return null;
-        return PocketUpgrades.instance().get(compound.getString(NBT_UPGRADE));
+        var upgrade = getUpgradeWithData(stack);
+        return upgrade == null ? null : upgrade.upgrade();
     }
 
     public static @Nullable UpgradeData<IPocketUpgrade> getUpgradeWithData(ItemStack stack) {
-        var compound = stack.getTag();
-        if (compound == null || !compound.contains(NBT_UPGRADE)) return null;
-        var upgrade = PocketUpgrades.instance().get(compound.getString(NBT_UPGRADE));
-        return upgrade == null ? null : UpgradeData.of(upgrade, NBTUtil.getCompoundOrEmpty(compound, NBT_UPGRADE_INFO));
+        return stack.get(ModRegistry.DataComponents.POCKET_UPGRADE.get());
     }
 
     public static void setUpgrade(ItemStack stack, @Nullable UpgradeData<IPocketUpgrade> upgrade) {
-        var compound = stack.getOrCreateTag();
-
-        if (upgrade == null) {
-            compound.remove(NBT_UPGRADE);
-            compound.remove(NBT_UPGRADE_INFO);
-        } else {
-            compound.putString(NBT_UPGRADE, upgrade.upgrade().getUpgradeID().toString());
-            compound.put(NBT_UPGRADE_INFO, upgrade.data().copy());
-        }
-    }
-
-    public static CompoundTag getUpgradeInfo(ItemStack stack) {
-        return stack.getOrCreateTagElement(NBT_UPGRADE_INFO);
+        stack.set(ModRegistry.DataComponents.POCKET_UPGRADE.get(), upgrade);
     }
 }

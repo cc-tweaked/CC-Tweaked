@@ -12,15 +12,12 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 
-import static dan200.computercraft.shared.platform.FakePlayerConstants.MAX_REACH;
+final class FakePlayer extends net.fabricmc.fabric.api.entity.FakePlayer {
+    private static final EntityDimensions DIMENSIONS = EntityDimensions.fixed(0, 0);
 
-public final class FakePlayer extends net.fabricmc.fabric.api.entity.FakePlayer {
-    private FakePlayer(ServerLevel serverLevel, GameProfile gameProfile) {
+    FakePlayer(ServerLevel serverLevel, GameProfile gameProfile) {
         super(serverLevel, gameProfile);
-    }
-
-    static FakePlayer create(ServerLevel serverLevel, GameProfile profile) {
-        return new FakePlayer(serverLevel, profile);
+        refreshDimensions();
     }
 
     @Override
@@ -33,12 +30,8 @@ public final class FakePlayer extends net.fabricmc.fabric.api.entity.FakePlayer 
     }
 
     @Override
-    public float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
-        return 0;
-    }
-
-    public double getBlockReach() {
-        return MAX_REACH;
+    public EntityDimensions getDefaultDimensions(Pose pose) {
+        return DIMENSIONS;
     }
 
     @Override

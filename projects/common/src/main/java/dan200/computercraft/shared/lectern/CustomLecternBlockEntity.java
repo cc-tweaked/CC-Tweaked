@@ -8,11 +8,13 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.container.BasicContainer;
 import dan200.computercraft.shared.container.SingleContainerData;
 import dan200.computercraft.shared.media.PrintoutMenu;
+import dan200.computercraft.shared.media.items.PrintoutData;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.pocket.core.PocketHolder;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
@@ -72,7 +74,7 @@ public final class CustomLecternBlockEntity extends BlockEntity {
      */
     private void itemChanged() {
         if (item.getItem() instanceof PrintoutItem) {
-            pageCount = PrintoutItem.getPageCount(item);
+            pageCount = PrintoutData.getOrEmpty(item).pages();
             page = Mth.clamp(page, 0, pageCount - 1);
         } else {
             pageCount = page = 0;
@@ -99,19 +101,19 @@ public final class CustomLecternBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
 
-        item = tag.contains(NBT_ITEM, Tag.TAG_COMPOUND) ? ItemStack.of(tag.getCompound(NBT_ITEM)) : ItemStack.EMPTY;
+        item = tag.contains(NBT_ITEM, Tag.TAG_COMPOUND) ? ItemStack.parseOptional(registries, tag.getCompound(NBT_ITEM)) : ItemStack.EMPTY;
         page = tag.getInt(NBT_PAGE);
         itemChanged();
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
 
-        if (!item.isEmpty()) tag.put(NBT_ITEM, item.save(new CompoundTag()));
+        if (!item.isEmpty()) tag.put(NBT_ITEM, item.save(registries));
         if (item.getItem() instanceof PrintoutItem) tag.putInt(NBT_PAGE, page);
     }
 
@@ -121,9 +123,9 @@ public final class CustomLecternBlockEntity extends BlockEntity {
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
-        var tag = super.getUpdateTag();
-        if (!item.isEmpty()) tag.put(NBT_ITEM, item.save(new CompoundTag()));
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        var tag = super.getUpdateTag(registries);
+        if (!item.isEmpty()) tag.put(NBT_ITEM, item.save(registries));
         return tag;
     }
 
@@ -132,7 +134,7 @@ public final class CustomLecternBlockEntity extends BlockEntity {
         if (item.getItem() instanceof PrintoutItem) {
             player.openMenu(new SimpleMenuProvider((id, inventory, entity) -> new PrintoutMenu(
                 id, new LecternContainer(), 0,
-                p -> Container.stillValidBlockEntity(this, p, Container.DEFAULT_DISTANCE_LIMIT),
+                p -> Container.stillValidBlockEntity(this, p, Container.DEFAULT_DISTANCE_BUFFER),
                 new PrintoutContainerData()
             ), getItem().getDisplayName()));
         } else if (item.getItem() instanceof PocketComputerItem pocket) {
@@ -158,7 +160,7 @@ public final class CustomLecternBlockEntity extends BlockEntity {
         };
 
         @Override
-        public List<ItemStack> getContents() {
+        public List<ItemStack> getItems() {
             return itemView;
         }
 

@@ -4,14 +4,15 @@
 
 package dan200.computercraft.shared.peripheral.monitor;
 
+import com.mojang.serialization.MapCodec;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.RegistryEntry;
+import dan200.computercraft.shared.util.BlockCodecs;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -32,6 +33,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
 public class MonitorBlock extends HorizontalDirectionalBlock implements EntityBlock {
+    private static final MapCodec<MonitorBlock> CODEC = BlockCodecs.blockWithBlockEntityCodec(MonitorBlock::new, x -> x.type);
+
     public static final DirectionProperty ORIENTATION = DirectionProperty.create("orientation",
         Direction.UP, Direction.DOWN, Direction.NORTH);
 
@@ -57,6 +60,11 @@ public class MonitorBlock extends HorizontalDirectionalBlock implements EntityBl
     }
 
     @Override
+    protected MapCodec<? extends MonitorBlock> codec() {
+        return CODEC;
+    }
+
+    @Override
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         var pitch = context.getPlayer() == null ? 0 : context.getPlayer().getXRot();
@@ -77,8 +85,7 @@ public class MonitorBlock extends HorizontalDirectionalBlock implements EntityBl
     }
 
     @Override
-    @Deprecated
-    public final void onRemove(BlockState block, Level world, BlockPos pos, BlockState replace, boolean bool) {
+    protected final void onRemove(BlockState block, Level world, BlockPos pos, BlockState replace, boolean bool) {
         if (block.getBlock() == replace.getBlock()) return;
 
         var tile = world.getBlockEntity(pos);
@@ -87,15 +94,13 @@ public class MonitorBlock extends HorizontalDirectionalBlock implements EntityBl
     }
 
     @Override
-    @Deprecated
-    public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
+    protected void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
         var te = world.getBlockEntity(pos);
         if (te instanceof MonitorBlockEntity monitor) monitor.blockTick();
     }
 
     @Override
-    @Deprecated
-    public final InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected final InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (player.isCrouching() || !(level.getBlockEntity(pos) instanceof MonitorBlockEntity monitor) || monitor.getFront() != hit.getDirection()) {
             return InteractionResult.PASS;
         }

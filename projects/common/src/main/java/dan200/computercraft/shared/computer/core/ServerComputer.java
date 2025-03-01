@@ -21,6 +21,7 @@ import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.config.Config;
+import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
@@ -40,7 +41,6 @@ import java.util.function.Function;
 public class ServerComputer implements ComputerEnvironment, ComputerEvents.Receiver {
     public static final ComputerComponent<MetricsObserver> METRICS = ComputerComponent.create("computercraft", "metrics");
 
-    private final int instanceID;
     private final UUID instanceUUID = UUID.randomUUID();
 
     private ServerLevel level;
@@ -53,6 +53,8 @@ public class ServerComputer implements ComputerEnvironment, ComputerEvents.Recei
     private final NetworkedTerminal terminal;
     private final AtomicBoolean terminalChanged = new AtomicBoolean(false);
 
+    private final long storageCapacity;
+
     private int ticksSincePing;
 
     public ServerComputer(ServerLevel level, BlockPos position, Properties properties) {
@@ -61,9 +63,10 @@ public class ServerComputer implements ComputerEnvironment, ComputerEvents.Recei
         this.family = properties.family;
 
         var context = ServerContext.get(level.getServer());
-        instanceID = context.registry().getUnusedInstanceID();
         terminal = new NetworkedTerminal(properties.terminalWidth, properties.terminalHeight, family != ComputerFamily.NORMAL, this::markTerminalChanged);
         metrics = context.metrics().createMetricObserver(this);
+
+        storageCapacity = properties.storageCapacity;
 
         properties.addComponent(METRICS, metrics);
         if (family == ComputerFamily.COMMAND) {
@@ -176,10 +179,6 @@ public class ServerComputer implements ComputerEnvironment, ComputerEvents.Recei
     protected void onRemoved() {
     }
 
-    public final int getInstanceID() {
-        return instanceID;
-    }
-
     public final UUID getInstanceUUID() {
         return instanceUUID;
     }
@@ -268,7 +267,8 @@ public class ServerComputer implements ComputerEnvironment, ComputerEvents.Recei
 
     @Override
     public final WritableMount createRootMount() {
-        return ComputerCraftAPI.createSaveDirMount(level.getServer(), "computer/" + computer.getID(), Config.computerSpaceLimit);
+        var capacity = storageCapacity <= 0 ? ConfigSpec.computerSpaceLimit.get() : storageCapacity;
+        return ComputerCraftAPI.createSaveDirMount(level.getServer(), "computer/" + computer.getID(), capacity);
     }
 
     public static Properties properties(int computerID, ComputerFamily family) {
@@ -282,6 +282,7 @@ public class ServerComputer implements ComputerEnvironment, ComputerEvents.Recei
 
         private int terminalWidth = Config.DEFAULT_COMPUTER_TERM_WIDTH;
         private int terminalHeight = Config.DEFAULT_COMPUTER_TERM_HEIGHT;
+        private long storageCapacity = -1;
         private final Map<ComputerComponent<?>, Object> components = new HashMap<>();
 
         private Properties(int computerID, ComputerFamily family) {
@@ -298,6 +299,17 @@ public class ServerComputer implements ComputerEnvironment, ComputerEvents.Recei
             if (width <= 0 || height <= 0) throw new IllegalArgumentException("Terminal size must be positive");
             this.terminalWidth = width;
             this.terminalHeight = height;
+            return this;
+        }
+
+        /**
+         * Override the storage capacity for this computer.
+         *
+         * @param capacity The capacity for this computer's drive, or {@code -1} to use the default.
+         * @return {@code this}, for chaining.
+         */
+        public Properties storageCapacity(long capacity) {
+            storageCapacity = capacity;
             return this;
         }
 

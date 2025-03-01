@@ -4,32 +4,35 @@
 
 package dan200.computercraft.shared.common;
 
+import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.CraftingContainer;
+import dan200.computercraft.shared.util.DataComponentUtil;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 public final class ColourableRecipe extends CustomRecipe {
-    public ColourableRecipe(ResourceLocation id, CraftingBookCategory category) {
-        super(id, category);
+    public ColourableRecipe(CraftingBookCategory category) {
+        super(category);
     }
 
     @Override
-    public boolean matches(CraftingContainer inv, Level world) {
+    public boolean matches(CraftingInput inv, Level world) {
         var hasColourable = false;
         var hasDye = false;
-        for (var i = 0; i < inv.getContainerSize(); i++) {
+        for (var i = 0; i < inv.size(); i++) {
             var stack = inv.getItem(i);
             if (stack.isEmpty()) continue;
 
-            if (stack.getItem() instanceof IColouredItem) {
+            if (stack.is(ComputerCraftTags.Items.DYEABLE)) {
                 if (hasColourable) return false;
                 hasColourable = true;
             } else if (ColourUtils.getStackColour(stack) != null) {
@@ -43,17 +46,17 @@ public final class ColourableRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess) {
+    public ItemStack assemble(CraftingInput inv, HolderLookup.Provider registryAccess) {
         var colourable = ItemStack.EMPTY;
 
         var tracker = new ColourTracker();
 
-        for (var i = 0; i < inv.getContainerSize(); i++) {
+        for (var i = 0; i < inv.size(); i++) {
             var stack = inv.getItem(i);
 
             if (stack.isEmpty()) continue;
 
-            if (stack.getItem() instanceof IColouredItem) {
+            if (stack.is(ComputerCraftTags.Items.DYEABLE)) {
                 colourable = stack;
             } else {
                 var dye = ColourUtils.getStackColour(stack);
@@ -61,11 +64,10 @@ public final class ColourableRecipe extends CustomRecipe {
             }
         }
 
-        if (colourable.isEmpty()) return ItemStack.EMPTY;
+        return colourable.isEmpty()
+            ? ItemStack.EMPTY
+            : DataComponentUtil.createResult(colourable, DataComponents.DYED_COLOR, new DyedItemColor(tracker.getColour(), false));
 
-        var stack = ((IColouredItem) colourable.getItem()).withColour(colourable, tracker.getColour());
-        stack.setCount(1);
-        return stack;
     }
 
     @Override

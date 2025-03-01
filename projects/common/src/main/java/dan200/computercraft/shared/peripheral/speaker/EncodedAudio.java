@@ -4,7 +4,10 @@
 
 package dan200.computercraft.shared.peripheral.speaker;
 
-import net.minecraft.network.FriendlyByteBuf;
+import dan200.computercraft.shared.network.codec.MoreStreamCodecs;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 import java.nio.ByteBuffer;
 
@@ -17,23 +20,11 @@ import java.nio.ByteBuffer;
  * @param audio       The block of encoded audio.
  */
 public record EncodedAudio(int charge, int strength, boolean previousBit, ByteBuffer audio) {
-    public void write(FriendlyByteBuf buf) {
-        buf.writeVarInt(charge());
-        buf.writeVarInt(strength());
-        buf.writeBoolean(previousBit());
-        buf.writeVarInt(audio.remaining());
-        buf.writeBytes(audio().duplicate());
-    }
-
-    public static EncodedAudio read(FriendlyByteBuf buf) {
-        var charge = buf.readVarInt();
-        var strength = buf.readVarInt();
-        var previousBit = buf.readBoolean();
-
-        var length = buf.readVarInt();
-        var bytes = new byte[length];
-        buf.readBytes(bytes);
-
-        return new EncodedAudio(charge, strength, previousBit, ByteBuffer.wrap(bytes));
-    }
+    public static final StreamCodec<ByteBuf, EncodedAudio> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.VAR_INT, EncodedAudio::charge,
+        ByteBufCodecs.VAR_INT, EncodedAudio::strength,
+        ByteBufCodecs.BOOL, EncodedAudio::previousBit,
+        MoreStreamCodecs.BYTE_BUFFER, EncodedAudio::audio,
+        EncodedAudio::new
+    );
 }

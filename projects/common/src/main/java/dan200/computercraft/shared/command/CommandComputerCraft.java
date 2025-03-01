@@ -157,7 +157,6 @@ public final class CommandComputerCraft {
      */
     private static int dumpComputer(CommandSourceStack source, ServerComputer computer) {
         var table = new TableBuilder("Dump");
-        table.row(header("Instance ID"), text(Integer.toString(computer.getInstanceID())));
         table.row(header("Instance UUID"), text(computer.getInstanceUUID().toString()));
         table.row(header("Id"), text(Integer.toString(computer.getID())));
         table.row(header("Label"), text(computer.getLabel()));
@@ -261,7 +260,7 @@ public final class CommandComputerCraft {
         PlatformHelper.get().openMenu(
             source.getPlayerOrException(), Component.translatable("gui.computercraft.view_computer"),
             (id, player, entity) -> new ComputerMenuWithoutInventory(ModRegistry.Menus.COMPUTER.get(), id, player, p -> true, computer),
-            new ComputerContainerData(computer, ItemStack.EMPTY)
+            new ComputerContainerData(computer, new ItemStack(ModRegistry.Items.COMPUTER_NORMAL.get()))
         );
         return 1;
     }

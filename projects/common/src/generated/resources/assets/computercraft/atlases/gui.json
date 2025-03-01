@@ -1,13 +1,5 @@
 {
   "sources": [
-    {"type": "minecraft:single", "resource": "computercraft:gui/sprites/turtle_normal_selected_slot"},
-    {"type": "minecraft:single", "resource": "computercraft:gui/sprites/turtle_advanced_selected_slot"},
-    {"type": "minecraft:single", "resource": "computercraft:gui/sprites/buttons/turned_off"},
-    {"type": "minecraft:single", "resource": "computercraft:gui/sprites/buttons/turned_off_hover"},
-    {"type": "minecraft:single", "resource": "computercraft:gui/sprites/buttons/turned_on"},
-    {"type": "minecraft:single", "resource": "computercraft:gui/sprites/buttons/turned_on_hover"},
-    {"type": "minecraft:single", "resource": "computercraft:gui/sprites/buttons/terminate"},
-    {"type": "minecraft:single", "resource": "computercraft:gui/sprites/buttons/terminate_hover"},
     {"type": "minecraft:single", "resource": "computercraft:gui/border_normal"},
     {"type": "minecraft:single", "resource": "computercraft:gui/pocket_bottom_normal"},
     {"type": "minecraft:single", "resource": "computercraft:gui/sidebar_normal"},

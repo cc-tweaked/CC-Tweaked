@@ -5,6 +5,8 @@
 package dan200.computercraft.shared;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.component.ComputerComponents;
 import dan200.computercraft.api.detail.DetailProvider;
@@ -12,12 +14,13 @@ import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
-import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
+import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.impl.PocketUpgrades;
-import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.command.UserLevel;
 import dan200.computercraft.shared.command.arguments.ComputerArgumentType;
 import dan200.computercraft.shared.command.arguments.RepeatArgumentType;
@@ -32,12 +35,11 @@ import dan200.computercraft.shared.computer.blocks.ComputerBlockEntity;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
-import dan200.computercraft.shared.computer.items.CommandComputerItem;
 import dan200.computercraft.shared.computer.items.ComputerItem;
-import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
+import dan200.computercraft.shared.computer.items.CommandComputerItem;
+import dan200.computercraft.shared.computer.items.ServerComputerReference;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
-import dan200.computercraft.shared.data.ConstantLootConditionSerializer;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.details.BlockDetails;
@@ -76,33 +78,47 @@ import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
-import dan200.computercraft.shared.recipe.CustomShapedRecipe;
-import dan200.computercraft.shared.recipe.CustomShapelessRecipe;
-import dan200.computercraft.shared.recipe.ImpostorShapedRecipe;
-import dan200.computercraft.shared.recipe.ImpostorShapelessRecipe;
+import dan200.computercraft.shared.recipe.*;
+import dan200.computercraft.shared.recipe.function.CopyComponents;
+import dan200.computercraft.shared.recipe.function.RecipeFunction;
 import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
+import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.turtle.core.TurtleAccessInternal;
 import dan200.computercraft.shared.turtle.inventory.TurtleMenu;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
-import dan200.computercraft.shared.turtle.recipes.TurtleOverlayRecipe;
-import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
-import dan200.computercraft.shared.turtle.upgrades.*;
+import dan200.computercraft.shared.turtle.upgrades.TurtleCraftingTable;
+import dan200.computercraft.shared.turtle.upgrades.TurtleModem;
+import dan200.computercraft.shared.turtle.upgrades.TurtleSpeaker;
+import dan200.computercraft.shared.turtle.upgrades.TurtleTool;
+import dan200.computercraft.shared.util.DataComponentUtil;
+import dan200.computercraft.shared.util.NonNegativeId;
+import dan200.computercraft.shared.util.StorageCapacity;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
@@ -111,7 +127,6 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
@@ -120,6 +135,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 /**
  * Registers ComputerCraft's registry entries and additional objects, such as {@link CauldronInteraction}s and
@@ -193,8 +209,8 @@ public final class ModRegistry {
     public static class BlockEntities {
         static final RegistrationHelper<BlockEntityType<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registries.BLOCK_ENTITY_TYPE);
 
-        private static <T extends BlockEntity> RegistryEntry<BlockEntityType<T>> ofBlock(RegistryEntry<? extends Block> block, BiFunction<BlockPos, BlockState, T> factory) {
-            return REGISTRY.register(block.id().getPath(), () -> PlatformHelper.get().createBlockEntityType(factory, block.get()));
+        private static <T extends BlockEntity> RegistryEntry<BlockEntityType<T>> ofBlock(RegistryEntry<? extends Block> block, BlockEntityType.BlockEntitySupplier<T> factory) {
+            return REGISTRY.register(block.id().getPath(), () -> BlockEntityType.Builder.of(factory, block.get()).build(null));
         }
 
         public static final RegistryEntry<BlockEntityType<MonitorBlockEntity>> MONITOR_NORMAL =
@@ -263,12 +279,16 @@ public final class ModRegistry {
         public static final RegistryEntry<TreasureDiskItem> TREASURE_DISK =
             REGISTRY.register("treasure_disk", () -> new TreasureDiskItem(properties().stacksTo(1)));
 
+        private static Item.Properties printoutProperties() {
+            return properties().stacksTo(1).component(DataComponents.PRINTOUT.get(), PrintoutData.EMPTY);
+        }
+
         public static final RegistryEntry<PrintoutItem> PRINTED_PAGE = REGISTRY.register("printed_page",
-            () -> new PrintoutItem(properties().stacksTo(1), PrintoutItem.Type.PAGE));
+            () -> new PrintoutItem(printoutProperties(), PrintoutItem.Type.PAGE));
         public static final RegistryEntry<PrintoutItem> PRINTED_PAGES = REGISTRY.register("printed_pages",
-            () -> new PrintoutItem(properties().stacksTo(1), PrintoutItem.Type.PAGES));
+            () -> new PrintoutItem(printoutProperties(), PrintoutItem.Type.PAGES));
         public static final RegistryEntry<PrintoutItem> PRINTED_BOOK = REGISTRY.register("printed_book",
-            () -> new PrintoutItem(properties().stacksTo(1), PrintoutItem.Type.BOOK));
+            () -> new PrintoutItem(printoutProperties(), PrintoutItem.Type.BOOK));
 
         public static final RegistryEntry<BlockItem> SPEAKER = ofBlock(Blocks.SPEAKER, BlockItem::new);
         public static final RegistryEntry<BlockItem> DISK_DRIVE = ofBlock(Blocks.DISK_DRIVE, BlockItem::new);
@@ -286,43 +306,157 @@ public final class ModRegistry {
             () -> new CableBlockItem.WiredModem(Blocks.CABLE.get(), properties()));
     }
 
-    public static class TurtleSerialisers {
-        static final RegistrationHelper<TurtleUpgradeSerialiser<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(TurtleUpgradeSerialiser.registryId());
+    public static final class DataComponents {
+        static final RegistrationHelper<DataComponentType<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registries.DATA_COMPONENT_TYPE);
 
-        public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleSpeaker>> SPEAKER =
-            REGISTRY.register("speaker", () -> TurtleUpgradeSerialiser.simpleWithCustomItem(TurtleSpeaker::new));
-        public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleCraftingTable>> WORKBENCH =
-            REGISTRY.register("workbench", () -> TurtleUpgradeSerialiser.simpleWithCustomItem(TurtleCraftingTable::new));
-        public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleModem>> WIRELESS_MODEM_NORMAL =
-            REGISTRY.register("wireless_modem_normal", () -> TurtleUpgradeSerialiser.simpleWithCustomItem((id, item) -> new TurtleModem(id, item, false)));
-        public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleModem>> WIRELESS_MODEM_ADVANCED =
-            REGISTRY.register("wireless_modem_advanced", () -> TurtleUpgradeSerialiser.simpleWithCustomItem((id, item) -> new TurtleModem(id, item, true)));
+        private static <T> RegistryEntry<DataComponentType<T>> register(String name, UnaryOperator<DataComponentType.Builder<T>> unaryOperator) {
+            return REGISTRY.register(name, () -> unaryOperator.apply(DataComponentType.builder()).build());
+        }
 
-        public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleTool>> TOOL = REGISTRY.register("tool", () -> TurtleToolSerialiser.INSTANCE);
+        /**
+         * The id of a computer.
+         *
+         * @see ComputerItem
+         * @see PocketComputerItem
+         */
+        public static final RegistryEntry<DataComponentType<NonNegativeId>> COMPUTER_ID = register("computer_id", b -> b
+            .persistent(NonNegativeId.CODEC).networkSynchronized(NonNegativeId.STREAM_CODEC)
+        );
+
+        /**
+         * The storage capacity of a computer or disk.
+         *
+         * @see ComputerItem
+         * @see PocketComputerItem
+         * @see DiskItem
+         */
+        public static final RegistryEntry<DataComponentType<StorageCapacity>> STORAGE_CAPACITY = register("storage_capacity", b -> b
+            .persistent(StorageCapacity.CODEC).networkSynchronized(StorageCapacity.STREAM_CODEC)
+        );
+
+        /**
+         * The left upgrade of a turtle.
+         *
+         * @see TurtleItem
+         */
+        public static final RegistryEntry<DataComponentType<UpgradeData<ITurtleUpgrade>>> LEFT_TURTLE_UPGRADE = register("left_turtle_upgrade", b -> b
+            .persistent(dan200.computercraft.impl.TurtleUpgrades.instance().upgradeDataCodec()).networkSynchronized(dan200.computercraft.impl.TurtleUpgrades.instance().upgradeDataStreamCodec())
+        );
+
+        /**
+         * The right upgrade of a turtle.
+         *
+         * @see TurtleItem
+         */
+        public static final RegistryEntry<DataComponentType<UpgradeData<ITurtleUpgrade>>> RIGHT_TURTLE_UPGRADE = register("right_turtle_upgrade", b -> b
+            .persistent(dan200.computercraft.impl.TurtleUpgrades.instance().upgradeDataCodec()).networkSynchronized(dan200.computercraft.impl.TurtleUpgrades.instance().upgradeDataStreamCodec())
+        );
+
+        /**
+         * The fuel level of a turtle.
+         */
+        public static final RegistryEntry<DataComponentType<Integer>> FUEL = register("fuel", b -> b
+            .persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT)
+        );
+
+        /**
+         * The overlay on a turtle.
+         */
+        public static final RegistryEntry<DataComponentType<Holder<TurtleOverlay>>> OVERLAY = register("overlay", b -> b
+            .persistent(TurtleOverlay.CODEC).networkSynchronized(TurtleOverlay.STREAM_CODEC)
+        );
+
+        /**
+         * The back upgrade of a pocket computer.
+         *
+         * @see PocketComputerItem
+         */
+        public static final RegistryEntry<DataComponentType<UpgradeData<IPocketUpgrade>>> POCKET_UPGRADE = register("pocket_upgrade", b -> b
+            .persistent(PocketUpgrades.instance().upgradeDataCodec()).networkSynchronized(PocketUpgrades.instance().upgradeDataStreamCodec())
+        );
+
+        /**
+         * A reference to the currently running {@link dan200.computercraft.shared.computer.core.ServerComputer}.
+         *
+         * @see ServerComputerReference
+         * @see PocketComputerItem
+         */
+        public static final RegistryEntry<DataComponentType<ServerComputerReference>> COMPUTER = register("computer", b -> b
+            .persistent(ServerComputerReference.CODEC).networkSynchronized(ServerComputerReference.STREAM_CODEC)
+        );
+
+        /**
+         * Whether this item is currently on.
+         *
+         * @see PocketComputerItem
+         * @see TurtleModem
+         */
+        public static final RegistryEntry<DataComponentType<Boolean>> ON = register("on", b -> b
+            .persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+        );
+
+        /**
+         * Information about a treasure disk's mount.
+         *
+         * @see TreasureDiskItem
+         * @see TreasureDisk
+         */
+        public static final RegistryEntry<DataComponentType<TreasureDisk>> TREASURE_DISK = register("treasure_disk", b -> b
+            .persistent(TreasureDisk.CODEC).networkSynchronized(TreasureDisk.STREAM_CODEC)
+        );
+
+        /**
+         * The id of a disk.
+         *
+         * @see DiskItem
+         */
+        public static final RegistryEntry<DataComponentType<NonNegativeId>> DISK_ID = register("disk_id", b -> b
+            .persistent(NonNegativeId.CODEC).networkSynchronized(NonNegativeId.STREAM_CODEC)
+        );
+
+        /**
+         * The contents of a printed page/printed pages.
+         *
+         * @see PrintoutItem
+         * @see PrintoutData
+         */
+        public static final RegistryEntry<DataComponentType<PrintoutData>> PRINTOUT = register("printout", b -> b
+            .persistent(PrintoutData.CODEC).networkSynchronized(PrintoutData.STREAM_CODEC)
+        );
     }
 
-    public static class PocketUpgradeSerialisers {
-        static final RegistrationHelper<PocketUpgradeSerialiser<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(PocketUpgradeSerialiser.registryId());
+    public static class TurtleUpgradeTypes {
+        static final RegistrationHelper<UpgradeType<? extends ITurtleUpgrade>> REGISTRY = PlatformHelper.get().createRegistrationHelper(ITurtleUpgrade.typeRegistry());
 
-        public static final RegistryEntry<PocketUpgradeSerialiser<PocketSpeaker>> SPEAKER =
-            REGISTRY.register("speaker", () -> PocketUpgradeSerialiser.simpleWithCustomItem(PocketSpeaker::new));
-        public static final RegistryEntry<PocketUpgradeSerialiser<PocketModem>> WIRELESS_MODEM_NORMAL =
-            REGISTRY.register("wireless_modem_normal", () -> PocketUpgradeSerialiser.simpleWithCustomItem((id, item) -> new PocketModem(id, item, false)));
-        public static final RegistryEntry<PocketUpgradeSerialiser<PocketModem>> WIRELESS_MODEM_ADVANCED =
-            REGISTRY.register("wireless_modem_advanced", () -> PocketUpgradeSerialiser.simpleWithCustomItem((id, item) -> new PocketModem(id, item, true)));
+        public static final RegistryEntry<UpgradeType<TurtleSpeaker>> SPEAKER =
+            REGISTRY.register("speaker", () -> UpgradeType.simpleWithCustomItem(TurtleSpeaker::new));
+        public static final RegistryEntry<UpgradeType<TurtleCraftingTable>> WORKBENCH =
+            REGISTRY.register("workbench", () -> UpgradeType.simpleWithCustomItem(TurtleCraftingTable::new));
+        public static final RegistryEntry<UpgradeType<TurtleModem>> WIRELESS_MODEM =
+            REGISTRY.register("wireless_modem", () -> UpgradeType.create(TurtleModem.CODEC));
+
+        public static final RegistryEntry<UpgradeType<TurtleTool>> TOOL = REGISTRY.register("tool", () -> UpgradeType.create(TurtleTool.CODEC));
+    }
+
+    public static class PocketUpgradeTypes {
+        static final RegistrationHelper<UpgradeType<? extends IPocketUpgrade>> REGISTRY = PlatformHelper.get().createRegistrationHelper(IPocketUpgrade.typeRegistry());
+
+        public static final RegistryEntry<UpgradeType<PocketSpeaker>> SPEAKER =
+            REGISTRY.register("speaker", () -> UpgradeType.simpleWithCustomItem(PocketSpeaker::new));
+        public static final RegistryEntry<UpgradeType<PocketModem>> WIRELESS_MODEM = REGISTRY.register("wireless_modem", () -> UpgradeType.create(PocketModem.CODEC));
     }
 
     public static class Menus {
         static final RegistrationHelper<MenuType<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registries.MENU);
 
         public static final RegistryEntry<MenuType<ComputerMenuWithoutInventory>> COMPUTER = REGISTRY.register("computer",
-            () -> ContainerData.toType(ComputerContainerData::new, (id, inv, data) -> new ComputerMenuWithoutInventory(Menus.COMPUTER.get(), id, inv, data)));
+            () -> ContainerData.toType(ComputerContainerData.STREAM_CODEC, (id, inv, data) -> new ComputerMenuWithoutInventory(Menus.COMPUTER.get(), id, inv, data)));
 
         public static final RegistryEntry<MenuType<ComputerMenuWithoutInventory>> POCKET_COMPUTER_NO_TERM = REGISTRY.register("pocket_computer_no_term",
-            () -> ContainerData.toType(ComputerContainerData::new, (id, inv, data) -> new ComputerMenuWithoutInventory(Menus.POCKET_COMPUTER_NO_TERM.get(), id, inv, data)));
+            () -> ContainerData.toType(ComputerContainerData.STREAM_CODEC, (id, inv, data) -> new ComputerMenuWithoutInventory(Menus.POCKET_COMPUTER_NO_TERM.get(), id, inv, data)));
 
         public static final RegistryEntry<MenuType<TurtleMenu>> TURTLE = REGISTRY.register("turtle",
-            () -> ContainerData.toType(ComputerContainerData::new, TurtleMenu::ofMenuData));
+            () -> ContainerData.toType(ComputerContainerData.STREAM_CODEC, TurtleMenu::ofMenuData));
 
         public static final RegistryEntry<MenuType<DiskDriveMenu>> DISK_DRIVE = REGISTRY.register("disk_drive",
             () -> new MenuType<>(DiskDriveMenu::new, FeatureFlags.VANILLA_SET));
@@ -361,13 +495,13 @@ public final class ModRegistry {
         static final RegistrationHelper<LootItemConditionType> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registries.LOOT_CONDITION_TYPE);
 
         public static final RegistryEntry<LootItemConditionType> BLOCK_NAMED = REGISTRY.register("block_named",
-            () -> ConstantLootConditionSerializer.type(BlockNamedEntityLootCondition.INSTANCE));
+            () -> new LootItemConditionType(MapCodec.unit(BlockNamedEntityLootCondition.INSTANCE)));
 
         public static final RegistryEntry<LootItemConditionType> PLAYER_CREATIVE = REGISTRY.register("player_creative",
-            () -> ConstantLootConditionSerializer.type(PlayerCreativeLootCondition.INSTANCE));
+            () -> new LootItemConditionType(MapCodec.unit(PlayerCreativeLootCondition.INSTANCE)));
 
         public static final RegistryEntry<LootItemConditionType> HAS_ID = REGISTRY.register("has_id",
-            () -> ConstantLootConditionSerializer.type(HasComputerIdLootCondition.INSTANCE));
+            () -> new LootItemConditionType(MapCodec.unit(HasComputerIdLootCondition.INSTANCE)));
     }
 
     public static class RecipeSerializers {
@@ -377,21 +511,32 @@ public final class ModRegistry {
             return REGISTRY.register(name, () -> new SimpleCraftingRecipeSerializer<>(factory));
         }
 
-        public static final RegistryEntry<RecipeSerializer<CustomShapedRecipe>> SHAPED = REGISTRY.register("shaped", () -> CustomShapedRecipe.serialiser(CustomShapedRecipe::new));
-        public static final RegistryEntry<RecipeSerializer<CustomShapelessRecipe>> SHAPELESS = REGISTRY.register("shapeless", () -> CustomShapelessRecipe.serialiser(CustomShapelessRecipe::new));
+        private static <T extends Recipe<?>> RegistryEntry<RecipeSerializer<T>> register(String name, MapCodec<T> codec, StreamCodec<RegistryFriendlyByteBuf, T> streamCodec) {
+            return REGISTRY.register(name, () -> new BasicRecipeSerialiser<>(codec, streamCodec));
+        }
 
         public static final RegistryEntry<RecipeSerializer<ImpostorShapedRecipe>> IMPOSTOR_SHAPED = REGISTRY.register("impostor_shaped", () -> CustomShapedRecipe.serialiser(ImpostorShapedRecipe::new));
         public static final RegistryEntry<RecipeSerializer<ImpostorShapelessRecipe>> IMPOSTOR_SHAPELESS = REGISTRY.register("impostor_shapeless", () -> CustomShapelessRecipe.serialiser(ImpostorShapelessRecipe::new));
 
+        public static final RegistryEntry<RecipeSerializer<TransformShapedRecipe>> TRANSFORM_SHAPED = register("transform_shaped", TransformShapedRecipe.CODEC, TransformShapedRecipe.STREAM_CODEC);
+        public static final RegistryEntry<RecipeSerializer<TransformShapelessRecipe>> TRANSFORM_SHAPELESS = register("transform_shapeless", TransformShapelessRecipe.CODEC, TransformShapelessRecipe.STREAM_CODEC);
+
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<ColourableRecipe>> DYEABLE_ITEM = simple("colour", ColourableRecipe::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<ClearColourRecipe>> DYEABLE_ITEM_CLEAR = simple("clear_colour", ClearColourRecipe::new);
-        public static final RegistryEntry<RecipeSerializer<TurtleRecipe>> TURTLE = REGISTRY.register("turtle", () -> TurtleRecipe.validatingSerialiser(TurtleRecipe::of));
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<TurtleUpgradeRecipe>> TURTLE_UPGRADE = simple("turtle_upgrade", TurtleUpgradeRecipe::new);
-        public static final RegistryEntry<RecipeSerializer<TurtleOverlayRecipe>> TURTLE_OVERLAY = REGISTRY.register("turtle_overlay", TurtleOverlayRecipe.Serialiser::new);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<PocketComputerUpgradeRecipe>> POCKET_COMPUTER_UPGRADE = simple("pocket_computer_upgrade", PocketComputerUpgradeRecipe::new);
-        public static final RegistryEntry<SimpleCraftingRecipeSerializer<PrintoutRecipe>> PRINTOUT = simple("printout", PrintoutRecipe::new);
+        public static final RegistryEntry<RecipeSerializer<PrintoutRecipe>> PRINTOUT = register("printout", PrintoutRecipe.CODEC, PrintoutRecipe.STREAM_CODEC);
         public static final RegistryEntry<SimpleCraftingRecipeSerializer<DiskRecipe>> DISK = simple("disk", DiskRecipe::new);
-        public static final RegistryEntry<RecipeSerializer<ComputerUpgradeRecipe>> COMPUTER_UPGRADE = REGISTRY.register("computer_upgrade", () -> CustomShapedRecipe.validatingSerialiser(ComputerUpgradeRecipe::of));
+    }
+
+    public static class RecipeFunctions {
+        static final RegistrationHelper<RecipeFunction.Type<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(RecipeFunction.REGISTRY);
+
+        private static <T extends RecipeFunction> RegistryEntry<RecipeFunction.Type<T>> register(String name, MapCodec<T> codec, StreamCodec<RegistryFriendlyByteBuf, T> streamCodec) {
+            return REGISTRY.register(name, () -> new RecipeFunction.Type<>(codec, streamCodec));
+        }
+
+        public static final RegistryEntry<RecipeFunction.Type<CopyComponents>> COPY_COMPONENTS = register("copy_components", CopyComponents.CODEC, CopyComponents.STREAM_CODEC);
     }
 
     public static class Permissions {
@@ -417,10 +562,10 @@ public final class ModRegistry {
                 out.accept(new ItemStack(Items.COMPUTER_NORMAL.get()));
                 out.accept(new ItemStack(Items.COMPUTER_ADVANCED.get()));
                 if (context.hasPermissions()) out.accept(new ItemStack(Items.COMPUTER_COMMAND.get()));
-                addTurtle(out, Items.TURTLE_NORMAL.get());
-                addTurtle(out, Items.TURTLE_ADVANCED.get());
-                addPocket(out, Items.POCKET_COMPUTER_NORMAL.get());
-                addPocket(out, Items.POCKET_COMPUTER_ADVANCED.get());
+                addTurtle(out, Items.TURTLE_NORMAL.get(), context.holders());
+                addTurtle(out, Items.TURTLE_ADVANCED.get(), context.holders());
+                addPocket(out, Items.POCKET_COMPUTER_NORMAL.get(), context.holders());
+                addPocket(out, Items.POCKET_COMPUTER_ADVANCED.get(), context.holders());
 
                 out.accept(Items.WIRELESS_MODEM_NORMAL.get());
                 out.accept(Items.WIRELESS_MODEM_ADVANCED.get());
@@ -441,7 +586,7 @@ public final class ModRegistry {
 
                 out.accept(Items.DISK_DRIVE.get());
                 for (var colour = 0; colour < 16; colour++) {
-                    out.accept(DiskItem.createFromIDAndColour(-1, null, Colour.VALUES[colour].getHex()));
+                    out.accept(DataComponentUtil.createStack(Items.DISK.get(), net.minecraft.core.component.DataComponents.DYED_COLOR, new DyedItemColor(Colour.VALUES[colour].getHex(), false)));
                 }
             })
             .build());
@@ -453,13 +598,15 @@ public final class ModRegistry {
     public static void register() {
         Blocks.REGISTRY.register();
         BlockEntities.REGISTRY.register();
+        DataComponents.REGISTRY.register();
         Items.REGISTRY.register();
-        TurtleSerialisers.REGISTRY.register();
-        PocketUpgradeSerialisers.REGISTRY.register();
+        TurtleUpgradeTypes.REGISTRY.register();
+        PocketUpgradeTypes.REGISTRY.register();
         Menus.REGISTRY.register();
         ArgumentTypes.REGISTRY.register();
         LootItemConditionTypes.REGISTRY.register();
         RecipeSerializers.REGISTRY.register();
+        RecipeFunctions.REGISTRY.register();
         Permissions.REGISTRY.register();
         CreativeTabs.REGISTRY.register();
 
@@ -491,8 +638,8 @@ public final class ModRegistry {
      * Register any objects which must be done on the main thread.
      */
     public static void registerMainThread() {
-        CauldronInteraction.WATER.put(Items.TURTLE_NORMAL.get(), TurtleItem.CAULDRON_INTERACTION);
-        CauldronInteraction.WATER.put(Items.TURTLE_ADVANCED.get(), TurtleItem.CAULDRON_INTERACTION);
+        CauldronInteraction.WATER.map().put(Items.TURTLE_NORMAL.get(), TurtleItem.CAULDRON_INTERACTION);
+        CauldronInteraction.WATER.map().put(Items.TURTLE_ADVANCED.get(), TurtleItem.CAULDRON_INTERACTION);
     }
 
     /**
@@ -539,7 +686,7 @@ public final class ModRegistry {
         media.registerForItems((s, c) -> TreasureDiskMedia.INSTANCE, ModRegistry.Items.TREASURE_DISK.get());
         media.registerFallback((stack, ctx) -> {
             if (stack.getItem() instanceof IMedia m) return m;
-            if (stack.getItem() instanceof RecordItem) return RecordMedia.INSTANCE;
+            if (stack.has(net.minecraft.core.component.DataComponents.JUKEBOX_PLAYABLE)) return RecordMedia.INSTANCE;
             return null;
         });
     }
@@ -565,15 +712,23 @@ public final class ModRegistry {
         void registerFallback(BiFunction<ItemStack, @Nullable Void, @Nullable T> provider);
     }
 
-    private static void addTurtle(CreativeModeTab.Output out, TurtleItem turtle) {
-        out.accept(turtle.create(-1, null, -1, null, null, 0, null));
-        TurtleUpgrades.getVanillaUpgrades()
-            .map(x -> turtle.create(-1, null, -1, null, UpgradeData.ofDefault(x), 0, null))
+    private static void addTurtle(CreativeModeTab.Output out, TurtleItem turtle, HolderLookup.Provider registries) {
+        out.accept(new ItemStack(turtle));
+        registries.lookupOrThrow(ITurtleUpgrade.REGISTRY).listElements()
+            .filter(ModRegistry::isOurUpgrade)
+            .map(x -> DataComponentUtil.createStack(turtle, DataComponents.RIGHT_TURTLE_UPGRADE.get(), UpgradeData.ofDefault(x)))
             .forEach(out::accept);
     }
 
-    private static void addPocket(CreativeModeTab.Output out, PocketComputerItem pocket) {
-        out.accept(pocket.create(-1, null, -1, null));
-        PocketUpgrades.getVanillaUpgrades().map(x -> pocket.create(-1, null, -1, UpgradeData.ofDefault(x))).forEach(out::accept);
+    private static void addPocket(CreativeModeTab.Output out, PocketComputerItem pocket, HolderLookup.Provider registries) {
+        out.accept(new ItemStack(pocket));
+        registries.lookupOrThrow(IPocketUpgrade.REGISTRY).listElements()
+            .filter(ModRegistry::isOurUpgrade)
+            .map(x -> DataComponentUtil.createStack(pocket, DataComponents.POCKET_UPGRADE.get(), UpgradeData.ofDefault(x))).forEach(out::accept);
+    }
+
+    private static boolean isOurUpgrade(Holder.Reference<? extends UpgradeBase> upgrade) {
+        var namespace = upgrade.key().location().getNamespace();
+        return namespace.equals("minecraft") || namespace.equals(ComputerCraftAPI.MOD_ID);
     }
 }

@@ -4,19 +4,15 @@
 
 package dan200.computercraft.api.pocket;
 
-import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
-
-import java.util.Map;
 
 /**
  * Wrapper class for pocket computers.
@@ -87,7 +83,7 @@ public interface IPocketAccess {
      * Get the currently equipped upgrade.
      *
      * @return The currently equipped upgrade.
-     * @see #getUpgradeNBTData()
+     * @see #getUpgradeData()
      * @see #setUpgrade(UpgradeData)
      */
     @Nullable
@@ -109,19 +105,20 @@ public interface IPocketAccess {
      * This is persisted between computer reboots and chunk loads.
      *
      * @return The upgrade's NBT.
-     * @see #updateUpgradeNBTData()
-     * @see UpgradeBase#getUpgradeItem(CompoundTag)
+     * @see #setUpgradeData(DataComponentPatch)
+     * @see UpgradeBase#getUpgradeItem(DataComponentPatch)
      * @see UpgradeBase#getUpgradeData(ItemStack)
      * @see #getUpgrade()
      */
-    CompoundTag getUpgradeNBTData();
+    DataComponentPatch getUpgradeData();
 
     /**
-     * Mark the upgrade-specific NBT as dirty.
+     * Update the upgrade-specific data.
      *
-     * @see #getUpgradeNBTData()
+     * @param data The new upgrade data.
+     * @see #getUpgradeData()
      */
-    void updateUpgradeNBTData();
+    void setUpgradeData(DataComponentPatch data);
 
     /**
      * Remove the current peripheral and create a new one.
@@ -130,13 +127,4 @@ public interface IPocketAccess {
      * entity} changes.
      */
     void invalidatePeripheral();
-
-    /**
-     * Get a list of all upgrades for the pocket computer.
-     *
-     * @return A collection of all upgrade names.
-     * @deprecated This is a relic of a previous API, which no longer makes sense with newer versions of ComputerCraft.
-     */
-    @Deprecated(forRemoval = true)
-    Map<ResourceLocation, IPeripheral> getUpgrades();
 }

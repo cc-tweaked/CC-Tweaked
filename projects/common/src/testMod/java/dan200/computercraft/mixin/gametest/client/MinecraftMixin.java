@@ -42,8 +42,8 @@ class MinecraftMixin implements MinecraftExtensions {
     private void updateStable(boolean render, CallbackInfo ci) {
         isStable.set(
             level != null && player != null &&
-                levelRenderer.isChunkCompiled(player.blockPosition()) && levelRenderer.countRenderedChunks() > 10 &&
-                levelRenderer.hasRenderedAllChunks()
+                levelRenderer.isSectionCompiled(player.blockPosition()) && levelRenderer.countRenderedSections() > 10 &&
+                levelRenderer.hasRenderedAllSections()
         );
     }
 

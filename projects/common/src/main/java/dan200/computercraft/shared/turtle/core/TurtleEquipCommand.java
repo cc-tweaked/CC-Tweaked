@@ -25,7 +25,7 @@ public class TurtleEquipCommand implements TurtleCommand {
         UpgradeData<ITurtleUpgrade> newUpgrade;
         var selectedStack = turtle.getInventory().getItem(turtle.getSelectedSlot());
         if (!selectedStack.isEmpty()) {
-            newUpgrade = TurtleUpgrades.instance().get(selectedStack);
+            newUpgrade = TurtleUpgrades.instance().get(turtle.getLevel().registryAccess(), selectedStack);
             if (newUpgrade == null) return TurtleCommandResult.failure("Not a valid upgrade");
         } else {
             newUpgrade = null;
@@ -34,7 +34,7 @@ public class TurtleEquipCommand implements TurtleCommand {
         // Do the swapping:
         if (newUpgrade != null) turtle.getInventory().removeItem(turtle.getSelectedSlot(), 1);
         if (oldUpgrade != null) TurtleUtil.storeItemOrDrop(turtle, oldUpgrade.getUpgradeItem());
-        turtle.setUpgradeWithData(side, newUpgrade);
+        turtle.setUpgrade(side, newUpgrade);
 
         // Animate
         if (newUpgrade != null || oldUpgrade != null) {

@@ -21,6 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -197,33 +198,37 @@ public class TurtlePlaceCommand implements TurtleCommand {
      * @param turtlePlayer The player which represents the turtle
      * @param hit          Where the block we're placing against was clicked.
      * @param adjacent     If the block is directly adjacent to the turtle, and so can be interacted with via
-     *                     {@link BlockState#use(Level, Player, InteractionHand, BlockHitResult)}.
+     *                     {@link BlockState#useItemOn(ItemStack, Level, Player, InteractionHand, BlockHitResult)}.
      * @return If this item was deployed.
      */
     private static InteractionResult doDeployOnBlock(ItemStack stack, TurtlePlayer turtlePlayer, BlockHitResult hit, boolean adjacent) {
         var result = PlatformHelper.get().useOn(turtlePlayer.player(), stack, hit);
-        if (result instanceof PlatformHelper.UseOnResult.Handled handled) {
-            if (handled.result() != InteractionResult.PASS) return handled.result();
-        } else {
-            var canUse = (PlatformHelper.UseOnResult.Continue) result;
-
-            var player = turtlePlayer.player();
-            var block = player.level().getBlockState(hit.getBlockPos());
-            if (adjacent && canUse.block() && block.is(ComputerCraftTags.Blocks.TURTLE_CAN_USE)) {
-                var useResult = block.use(player.level(), player, InteractionHand.MAIN_HAND, hit);
-                if (useResult.consumesAction()) return useResult;
+        switch (result) {
+            case PlatformHelper.UseOnResult.Handled handled -> {
+                if (handled.result() != InteractionResult.PASS) return handled.result();
             }
+            case PlatformHelper.UseOnResult.Continue canUse -> {
+                var player = turtlePlayer.player();
+                var block = player.level().getBlockState(hit.getBlockPos());
+                if (adjacent && canUse.block()) {
+                    var useItemOnResult = block.useItemOn(stack, player.level(), player, InteractionHand.MAIN_HAND, hit);
+                    if (useItemOnResult.consumesAction()) return useItemOnResult.result();
 
-            var useOnResult = stack.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
-            if (useOnResult != InteractionResult.PASS) return useOnResult;
+                    if (useItemOnResult == ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION && block.is(ComputerCraftTags.Blocks.TURTLE_CAN_USE)) {
+                        var useWithoutItemResult = block.useWithoutItem(player.level(), player, hit);
+                        if (useWithoutItemResult.consumesAction()) return useWithoutItemResult;
+                    }
+                }
+
+                var useOnResult = stack.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+                if (useOnResult != InteractionResult.PASS) return useOnResult;
+            }
         }
-
-        var level = turtlePlayer.player().level();
 
         // We special case some items which we allow to place "normally". Yes, this is very ugly.
         var item = stack.getItem();
         if (item instanceof BucketItem || item instanceof PlaceOnWaterBlockItem || stack.is(ComputerCraftTags.Items.TURTLE_CAN_PLACE)) {
-            return turtlePlayer.player().gameMode.useItem(turtlePlayer.player(), level, stack, InteractionHand.MAIN_HAND);
+            return turtlePlayer.player().gameMode.useItem(turtlePlayer.player(), turtlePlayer.player().level(), stack, InteractionHand.MAIN_HAND);
         }
 
         return InteractionResult.PASS;

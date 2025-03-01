@@ -28,7 +28,7 @@ import java.util.List;
  * @see CustomLecternRenderer
  */
 public class LecternPrintoutModel {
-    public static final ResourceLocation TEXTURE = new ResourceLocation(ComputerCraftAPI.MOD_ID, "entity/printout");
+    public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "entity/printout");
     public static final Material MATERIAL = new Material(InventoryMenu.BLOCK_ATLAS, TEXTURE);
 
     private static final int TEXTURE_WIDTH = 32;
@@ -103,7 +103,7 @@ public class LecternPrintoutModel {
     }
 
     public void renderBook(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay) {
-        bookRoot.render(poseStack, buffer, packedLight, packedOverlay, 1, 1, 1, 1);
+        bookRoot.render(poseStack, buffer, packedLight, packedOverlay);
     }
 
     public void renderPages(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int pageCount) {
@@ -112,6 +112,6 @@ public class LecternPrintoutModel {
         for (; i < pageCount; i++) pages[i].visible = true;
         for (; i < pages.length; i++) pages[i].visible = false;
 
-        pagesRoot.render(poseStack, buffer, packedLight, packedOverlay, 1, 1, 1, 1);
+        pagesRoot.render(poseStack, buffer, packedLight, packedOverlay);
     }
 }

@@ -4,37 +4,39 @@
 
 package dan200.computercraft.shared.common;
 
+import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.util.DataComponentUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 /**
- * Craft a wet sponge with a {@linkplain IColouredItem dyable item} to remove its dye.
+ * Craft a wet sponge with a {@linkplain ComputerCraftTags.Items#DYEABLE dyable item} to remove its dye.
  */
 public final class ClearColourRecipe extends CustomRecipe {
-    public ClearColourRecipe(ResourceLocation id, CraftingBookCategory category) {
-        super(id, category);
+    public ClearColourRecipe(CraftingBookCategory category) {
+        super(category);
     }
 
     @Override
-    public boolean matches(CraftingContainer inv, Level world) {
+    public boolean matches(CraftingInput inv, Level world) {
         var hasColourable = false;
         var hasSponge = false;
-        for (var i = 0; i < inv.getContainerSize(); i++) {
+        for (var i = 0; i < inv.size(); i++) {
             var stack = inv.getItem(i);
             if (stack.isEmpty()) continue;
 
-            if (stack.getItem() instanceof IColouredItem colourable) {
+            if (stack.is(ComputerCraftTags.Items.DYEABLE)) {
                 if (hasColourable) return false;
-                if (colourable.getColour(stack) == -1) return false;
+                if (!stack.has(DataComponents.DYED_COLOR)) return false;
                 hasColourable = true;
             } else if (stack.getItem() == Items.WET_SPONGE) {
                 if (hasSponge) return false;
@@ -48,24 +50,22 @@ public final class ClearColourRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess) {
+    public ItemStack assemble(CraftingInput inv, HolderLookup.Provider registryAccess) {
         var colourable = ItemStack.EMPTY;
 
-        for (var i = 0; i < inv.getContainerSize(); i++) {
+        for (var i = 0; i < inv.size(); i++) {
             var stack = inv.getItem(i);
-            if (stack.getItem() instanceof IColouredItem) colourable = stack;
+            if (stack.is(ComputerCraftTags.Items.DYEABLE)) colourable = stack;
         }
 
         if (colourable.isEmpty()) return ItemStack.EMPTY;
 
-        var stack = ((IColouredItem) colourable.getItem()).withColour(colourable, -1);
-        stack.setCount(1);
-        return stack;
+        return DataComponentUtil.createResult(colourable, DataComponents.DYED_COLOR, null);
     }
 
     @Override
-    public NonNullList<ItemStack> getRemainingItems(CraftingContainer container) {
-        var remaining = NonNullList.withSize(container.getContainerSize(), ItemStack.EMPTY);
+    public NonNullList<ItemStack> getRemainingItems(CraftingInput container) {
+        var remaining = NonNullList.withSize(container.size(), ItemStack.EMPTY);
         for (var i = 0; i < remaining.size(); i++) {
             if (container.getItem(i).getItem() == Items.WET_SPONGE) remaining.set(i, new ItemStack(Items.WET_SPONGE));
         }

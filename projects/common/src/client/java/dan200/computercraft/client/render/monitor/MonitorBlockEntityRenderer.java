@@ -5,10 +5,13 @@
 package dan200.computercraft.client.render.monitor;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.integration.ShaderMod;
 import dan200.computercraft.client.render.RenderTypes;
@@ -17,6 +20,7 @@ import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.client.render.vbo.DirectBuffers;
 import dan200.computercraft.client.render.vbo.DirectVertexBuffer;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
@@ -25,12 +29,13 @@ import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import org.joml.Matrix3f;
+import net.minecraft.world.phys.AABB;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
+import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
@@ -45,8 +50,6 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
      * the monitor frame and contents.
      */
     private static final float MARGIN = (float) (MonitorBlockEntity.RENDER_MARGIN * 1.1);
-
-    private static final Matrix3f IDENTITY_NORMAL = new Matrix3f().identity();
 
     private static @Nullable ByteBuffer backingBuffer;
 
@@ -161,13 +164,12 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
                 var shader = RenderTypes.getMonitorTextureBufferShader();
                 shader.setupUniform(renderState.tboUniform);
 
-                var buffer = Tesselator.getInstance().getBuilder();
-                buffer.begin(RenderTypes.MONITOR_TBO.mode(), RenderTypes.MONITOR_TBO.format());
+                var buffer = Tesselator.getInstance().begin(RenderTypes.MONITOR_TBO.mode(), RenderTypes.MONITOR_TBO.format());
                 tboVertex(buffer, matrix, -xMargin, -yMargin);
                 tboVertex(buffer, matrix, -xMargin, pixelHeight + yMargin);
                 tboVertex(buffer, matrix, pixelWidth + xMargin, -yMargin);
                 tboVertex(buffer, matrix, pixelWidth + xMargin, pixelHeight + yMargin);
-                RenderTypes.MONITOR_TBO.end(buffer, VertexSorting.DISTANCE_TO_ORIGIN);
+                RenderTypes.MONITOR_TBO.draw(Nullability.assertNonNull(buffer.build()));
             }
             case VBO -> {
                 var backgroundBuffer = assertNonNull(renderState.backgroundBuffer);
@@ -189,17 +191,23 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
                     });
                 }
 
-                // Our VBO doesn't transform its vertices with the provided pose stack, which means that the inverse view
-                // rotation matrix gives entirely wrong numbers for fog distances. We just set it to the identity which
-                // gives a good enough approximation.
-                var oldInverseRotation = RenderSystem.getInverseViewRotationMatrix();
-                RenderSystem.setInverseViewRotationMatrix(IDENTITY_NORMAL);
+                // Our VBO renders coordinates in monitor-space rather than world space. A full sized monitor (8x6) will
+                // use positions from (0, 0) to (164*FONT_WIDTH, 81*FONT_HEIGHT) = (984, 729). This is far outside the
+                // normal render distance (~200), and the edges of the monitor fade out due to fog.
+                // There's not really a good way around this, at least without using a custom render type (which the VBO
+                // renderer is trying to avoid!). Instead, we just disable fog entirely by setting the fog start to an
+                // absurdly high value.
+                var oldFogStart = RenderSystem.getShaderFogStart();
+                RenderSystem.setShaderFogStart(1e4f);
 
                 RenderTypes.TERMINAL.setupRenderState();
 
+                // Compose the existing model view matrix with our transformation matrix.
+                var modelView = new Matrix4f(RenderSystem.getModelViewMatrix()).mul(matrix);
+
                 // Render background geometry
                 backgroundBuffer.bind();
-                backgroundBuffer.drawWithShader(matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader());
+                backgroundBuffer.drawWithShader(modelView, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader());
 
                 // Render foreground geometry with glPolygonOffset enabled.
                 RenderSystem.polygonOffset(-1.0f, -10.0f);
@@ -207,7 +215,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
 
                 foregroundBuffer.bind();
                 foregroundBuffer.drawWithShader(
-                    matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader(),
+                    modelView, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader(),
                     // Skip the cursor quad if it is not visible this frame.
                     FixedWidthFontRenderer.isCursorVisible(terminal) && !FrameInfo.getGlobalCursorBlink()
                         ? foregroundBuffer.getIndexCount() - RenderTypes.TERMINAL.mode().indexCount(4)
@@ -220,7 +228,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
                 RenderTypes.TERMINAL.clearRenderState();
                 VertexBuffer.unbind();
 
-                RenderSystem.setInverseViewRotationMatrix(oldInverseRotation);
+                RenderSystem.setShaderFogStart(oldFogStart);
             }
             case BEST -> throw new IllegalStateException("Impossible: Should never use BEST renderer");
         }
@@ -237,13 +245,13 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
 
     private static void tboVertex(VertexConsumer builder, Matrix4f matrix, float x, float y) {
         // We encode position in the UV, as that's not transformed by the matrix.
-        builder.vertex(matrix, x, y, 0).uv(x, y).endVertex();
+        builder.addVertex(matrix, x, y, 0).setUv(x, y);
     }
 
     private static ByteBuffer getBuffer(int capacity) {
         var buffer = backingBuffer;
         if (buffer == null || buffer.capacity() < capacity) {
-            buffer = backingBuffer = buffer == null ? MemoryTracker.create(capacity) : MemoryTracker.resize(buffer, capacity);
+            buffer = backingBuffer = buffer == null ? MemoryUtil.memAlloc(capacity) : MemoryUtil.memRealloc(buffer, capacity);
         }
 
         buffer.clear();
@@ -253,6 +261,11 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
     @Override
     public int getViewDistance() {
         return Config.monitorDistance;
+    }
+
+    @ForgeOverride
+    public AABB getRenderBoundingBox(MonitorBlockEntity monitor) {
+        return monitor.getRenderBoundingBox();
     }
 
     /**

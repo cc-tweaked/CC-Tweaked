@@ -4,28 +4,23 @@
 
 package dan200.computercraft.shared.platform;
 
-import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.impl.Services;
 import dan200.computercraft.shared.config.ConfigFile;
-import dan200.computercraft.shared.network.MessageType;
-import dan200.computercraft.shared.network.NetworkMessage;
-import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
@@ -38,7 +33,6 @@ import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
@@ -46,41 +40,37 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
- * This extends {@linkplain dan200.computercraft.impl.PlatformHelper the API's loader abstraction layer}, adding
- * additional methods used by the actual mod.
+ * Abstraction layer for Forge and Fabric. See implementations for more details.
  */
-public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper {
+public interface PlatformHelper {
     /**
      * Get the current {@link PlatformHelper} instance.
      *
      * @return The current instance.
      */
     static PlatformHelper get() {
-        return (PlatformHelper) dan200.computercraft.impl.PlatformHelper.get();
+        var instance = Instance.INSTANCE;
+        return instance == null ? Services.raise(PlatformHelper.class, Instance.ERROR) : instance;
     }
 
     /**
-     * Check if we're running in a development environment.
+     * Determine if the specified mod is loaded.
      *
-     * @return If we're running in a development environment.
+     * @param id The id of the mod to check.
+     * @return Whether this mod is loaded.
      */
-    boolean isDevelopmentEnvironment();
+    boolean isModLoaded(String id);
 
     /**
      * Create a new config builder.
@@ -90,15 +80,6 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     ConfigFile.Builder createConfigBuilder();
 
     /**
-     * Wrap a Minecraft registry in our own abstraction layer.
-     *
-     * @param registry The registry to wrap.
-     * @param <T>      The type of object stored in this registry.
-     * @return The wrapped registry.
-     */
-    <T> RegistryWrappers.RegistryWrapper<T> wrap(ResourceKey<Registry<T>> registry);
-
-    /**
      * Create a registration helper for a specific registry.
      *
      * @param registry The registry we'll add entries to.
@@ -106,37 +87,6 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      * @return The registration helper.
      */
     <T> RegistrationHelper<T> createRegistrationHelper(ResourceKey<Registry<T>> registry);
-
-    /**
-     * A version of {@link #getRegistryObject(ResourceKey, ResourceLocation)} which allows missing entries.
-     *
-     * @param registry The registry to look up this object in.
-     * @param id       The ID to look up.
-     * @param <T>      The type of object the registry stores.
-     * @return The registered object or {@code null}.
-     */
-    @Nullable
-    <T> T tryGetRegistryObject(ResourceKey<Registry<T>> registry, ResourceLocation id);
-
-    /**
-     * Determine if this resource should be loaded, based on platform-specific loot conditions.
-     * <p>
-     * This should only be called from the {@code apply} stage of a reload listener.
-     *
-     * @param object The root JSON object of this resource.
-     * @return If this resource should be loaded.
-     */
-    boolean shouldLoadResource(JsonObject object);
-
-    /**
-     * Create a new block entity type which serves a particular block.
-     *
-     * @param factory The method which creates a new block entity with this type, typically the constructor.
-     * @param block   The block this block entity exists on.
-     * @param <T>     The type of block entity we're creating.
-     * @return The new block entity type.
-     */
-    <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> factory, Block block);
 
     /**
      * Register a new argument type.
@@ -153,13 +103,13 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     /**
      * Create a menu type which sends additional data when opened.
      *
-     * @param reader  Parse the additional container data into a usable type.
+     * @param codec   Parse the additional container data into a usable type.
      * @param factory The factory to create the new menu.
      * @param <C>     The menu/container than we open.
      * @param <T>     The data that we send to the client.
      * @return The menu type for this container.
      */
-    <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> createMenuType(Function<FriendlyByteBuf, T> reader, ContainerData.Factory<C, T> factory);
+    <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> createMenuType(StreamCodec<RegistryFriendlyByteBuf, T> codec, ContainerData.Factory<C, T> factory);
 
     /**
      * Open a container using a specific {@link ContainerData}.
@@ -172,24 +122,12 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     void openMenu(Player player, Component title, MenuConstructor menu, ContainerData data);
 
     /**
-     * Create a new {@link MessageType}.
+     * Invalidate components on a block enitty.
      *
-     * @param id      The descriminator for this message type.
-     * @param channel The channel name for this message type.
-     * @param klass   The type of this message.
-     * @param reader  The function which reads the packet from a buffer. Should be the inverse to {@link NetworkMessage#write(FriendlyByteBuf)}.
-     * @param <T>     The type of this message.
-     * @return The new {@link MessageType} instance.
+     * @param owner The block entity whose components should be invalidated.
      */
-    <T extends NetworkMessage<?>> MessageType<T> createMessageType(int id, ResourceLocation channel, Class<T> klass, FriendlyByteBuf.Reader<T> reader);
-
-    /**
-     * Convert a clientbound {@link NetworkMessage} to a Minecraft {@link Packet}.
-     *
-     * @param message The messsge to convert.
-     * @return The converted message.
-     */
-    Packet<ClientGamePacketListener> createPacket(NetworkMessage<ClientNetworkContext> message);
+    default void invalidateComponent(BlockEntity owner) {
+    }
 
     /**
      * Create a {@link ComponentAccess} for surrounding peripherals.
@@ -284,26 +222,6 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     ItemStack getCraftingRemainingItem(ItemStack stack);
 
     /**
-     * A more general version of {@link #getCraftingRemainingItem(ItemStack)} which gets all remaining items for a
-     * recipe.
-     *
-     * @param player    The player performing the crafting.
-     * @param recipe    The recipe currently doing the crafting.
-     * @param container The crafting container.
-     * @return A list of items to return to the player after crafting.
-     */
-    List<ItemStack> getRecipeRemainingItems(ServerPlayer player, Recipe<CraftingContainer> recipe, CraftingContainer container);
-
-    /**
-     * Fire an event after crafting has occurred.
-     *
-     * @param player    The player performing the crafting.
-     * @param container The current crafting container.
-     * @param stack     The resulting stack from crafting.
-     */
-    void onItemCrafted(ServerPlayer player, CraftingContainer container, ItemStack stack);
-
-    /**
      * Check whether we should notify neighbours in a particular direction.
      *
      * @param level     The current level.
@@ -332,16 +250,6 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     default boolean isFakePlayer(ServerPlayer player) {
         // Any subclass of ServerPlayer (i.e. Forge's FakePlayer) is assumed to be a fake.
         return player.connection == null || player.getClass() != ServerPlayer.class;
-    }
-
-    /**
-     * Get the distance a player can reach.
-     *
-     * @param player The player who is reaching.
-     * @return The distance (in blocks) that a player can reach.
-     */
-    default double getReachDistance(Player player) {
-        return player.isCreative() ? 5 : 4.5;
     }
 
     /**
@@ -417,13 +325,21 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      */
     UseOnResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit);
 
-    /**
-     * Whether {@link net.minecraft.network.chat.ClickEvent.Action#RUN_COMMAND} can be used to run client commands.
-     *
-     * @return Whether client commands can be triggered from chat components.
-     */
-    default boolean canClickRunClientCommand() {
-        return true;
+
+    final class Instance {
+        static final @Nullable PlatformHelper INSTANCE;
+        static final @Nullable Throwable ERROR;
+
+        static {
+            // We don't want class initialisation to fail here (as that results in confusing errors). Instead, capture
+            // the error and rethrow it when accessing. This should be JITted away in the common case.
+            var helper = Services.tryLoad(PlatformHelper.class);
+            INSTANCE = helper.instance();
+            ERROR = helper.error();
+        }
+
+        private Instance() {
+        }
     }
 
     /**

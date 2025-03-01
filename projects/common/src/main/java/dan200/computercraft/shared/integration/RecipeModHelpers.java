@@ -5,18 +5,25 @@
 package dan200.computercraft.shared.integration;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
-import dan200.computercraft.impl.PocketUpgrades;
-import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
+import dan200.computercraft.shared.util.DataComponentUtil;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * Utilities for recipe mod plugins (such as JEI).
@@ -47,24 +54,29 @@ public final class RecipeModHelpers {
      * Get additional ComputerCraft-related items which may not be visible in a creative tab. This includes upgraded
      * turtle and pocket computers for each upgrade.
      *
+     * @param registries The currently available registries.
      * @return The additional stacks to show.
      */
-    public static List<ItemStack> getExtraStacks() {
+    public static List<ItemStack> getExtraStacks(HolderLookup.Provider registries) {
         List<ItemStack> upgradeItems = new ArrayList<>();
         for (var turtleSupplier : TURTLES) {
             var turtle = turtleSupplier.get();
-            for (var upgrade : TurtleUpgrades.instance().getUpgrades()) {
-                upgradeItems.add(turtle.create(-1, null, -1, null, UpgradeData.ofDefault(upgrade), 0, null));
-            }
+            forEachRegistry(registries, ITurtleUpgrade.REGISTRY, upgrade ->
+                upgradeItems.add(DataComponentUtil.createStack(turtle, ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get(), UpgradeData.ofDefault(upgrade)))
+            );
         }
 
         for (var pocketSupplier : POCKET_COMPUTERS) {
             var pocket = pocketSupplier.get();
-            for (var upgrade : PocketUpgrades.instance().getUpgrades()) {
-                upgradeItems.add(pocket.create(-1, null, -1, UpgradeData.ofDefault(upgrade)));
-            }
+            forEachRegistry(registries, IPocketUpgrade.REGISTRY, upgrade ->
+                upgradeItems.add(DataComponentUtil.createStack(pocket, ModRegistry.DataComponents.POCKET_UPGRADE.get(), UpgradeData.ofDefault(upgrade)))
+            );
         }
 
         return upgradeItems;
+    }
+
+    static <T> void forEachRegistry(HolderLookup.Provider registries, ResourceKey<Registry<T>> registry, Consumer<Holder.Reference<T>> consumer) {
+        registries.lookup(registry).map(HolderLookup::listElements).orElse(Stream.empty()).forEach(consumer);
     }
 }

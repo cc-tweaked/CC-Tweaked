@@ -14,7 +14,6 @@ import net.minecraft.client.gui.screens.AccessibilityOnboardingScreen
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.TitleScreen
 import net.minecraft.client.tutorial.TutorialSteps
-import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.Registries
 import net.minecraft.gametest.framework.*
 import net.minecraft.server.MinecraftServer
@@ -24,7 +23,6 @@ import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.GameType
 import net.minecraft.world.level.LevelSettings
 import net.minecraft.world.level.WorldDataConfiguration
-import net.minecraft.world.level.block.Rotation
 import net.minecraft.world.level.levelgen.WorldOptions
 import net.minecraft.world.level.levelgen.presets.WorldPresets
 import org.slf4j.Logger
@@ -57,7 +55,7 @@ object ClientTestHooks {
     fun onOpenScreen(screen: Screen): Boolean = when {
         enabled && !loadedWorld && (screen is TitleScreen || screen is AccessibilityOnboardingScreen) -> {
             loadedWorld = true
-            openWorld()
+            openWorld(screen)
             true
         }
 
@@ -67,7 +65,7 @@ object ClientTestHooks {
     /**
      * Open or create our test world immediately on game launch.
      */
-    private fun openWorld() {
+    private fun openWorld(screen: Screen) {
         val minecraft = Minecraft.getInstance()
 
         // Clear some options before we get any further.
@@ -83,7 +81,7 @@ object ClientTestHooks {
 
         if (minecraft.levelSource.levelExists(LEVEL_NAME)) {
             LOG.info("World already exists, opening.")
-            minecraft.createWorldOpenFlows().loadLevel(minecraft.screen, LEVEL_NAME)
+            minecraft.createWorldOpenFlows().openWorld(LEVEL_NAME) { minecraft.setScreen(screen) }
         } else {
             LOG.info("World does not exist, creating it.")
             val rules = GameRules()
@@ -95,7 +93,9 @@ object ClientTestHooks {
                 LEVEL_NAME,
                 LevelSettings("Test Level", GameType.CREATIVE, false, Difficulty.EASY, true, rules, WorldDataConfiguration.DEFAULT),
                 WorldOptions(WorldOptions.randomSeed(), false, false),
-            ) { it.registryOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT).createWorldDimensions() }
+                { it.registryOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT).createWorldDimensions() },
+                screen,
+            )
         }
     }
 
@@ -132,26 +132,29 @@ object ClientTestHooks {
 
                 LOG.info("Server ready, starting.")
 
-                val tests = GameTestRunner.runTestBatches(
-                    GameTestRunner.groupTestsIntoBatches(GameTestRegistry.getAllTestFunctions()),
-                    BlockPos(0, -60, 0),
-                    Rotation.NONE,
+                val tests = GameTestRunner.Builder.fromBatches(
+                    GameTestBatchFactory.fromTestFunction(GameTestRegistry.getAllTestFunctions(), server.overworld()),
                     server.overworld(),
-                    GameTestTicker.SINGLETON,
-                    8,
                 )
-                val testTracker = MultipleTestTracker(tests)
+                    .newStructureSpawner(StructureGridSpawner(TestHooks.getTestOrigin(server), 8, false))
+                    .build()
+
+                val testTracker = MultipleTestTracker(tests.testInfos)
                 testTracker.addListener(
                     object : GameTestListener {
+                        override fun testPassed(test: GameTestInfo, runner: GameTestRunner) = testFinished()
+                        override fun testFailed(test: GameTestInfo, runner: GameTestRunner) = testFinished()
+                        override fun testStructureLoaded(test: GameTestInfo) = Unit
+                        override fun testAddedForRerun(test: GameTestInfo, newTest: GameTestInfo, runner: GameTestRunner) {
+                        }
+
                         fun testFinished() {
                             for (it in server.playerList.players) it.setupForTest()
                         }
-
-                        override fun testPassed(test: GameTestInfo) = testFinished()
-                        override fun testFailed(test: GameTestInfo) = testFinished()
-                        override fun testStructureLoaded(test: GameTestInfo) = Unit
                     },
                 )
+
+                tests.start()
 
                 LOG.info("{} tests are now running!", testTracker.totalCount)
                 this.testTracker = testTracker
@@ -186,7 +189,7 @@ object ClientTestHooks {
             minecraft.execute {
                 LOG.info("Stopping client.")
                 minecraft.level!!.disconnect()
-                minecraft.clearLevel()
+                minecraft.disconnect()
                 minecraft.stop()
 
                 exitProcess(

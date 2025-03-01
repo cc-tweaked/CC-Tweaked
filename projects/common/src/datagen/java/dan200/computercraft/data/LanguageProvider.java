@@ -7,9 +7,8 @@ package dan200.computercraft.data;
 import com.google.gson.JsonObject;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.ComputerCraftTags;
-import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
-import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
-import dan200.computercraft.api.upgrades.UpgradeBase;
+import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.shared.ModRegistry;
@@ -18,13 +17,15 @@ import dan200.computercraft.shared.computer.metrics.basic.Aggregate;
 import dan200.computercraft.shared.computer.metrics.basic.AggregatedMetric;
 import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.config.ConfigSpec;
-import dan200.computercraft.shared.platform.RegistryWrappers;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,27 +35,28 @@ import java.util.stream.Stream;
 
 public final class LanguageProvider implements DataProvider {
     private final PackOutput output;
-    private final TurtleUpgradeDataProvider turtleUpgrades;
-    private final PocketUpgradeDataProvider pocketUpgrades;
+    private final CompletableFuture<HolderLookup.Provider> registries;
 
     private final Map<String, String> translations = new HashMap<>();
 
-    public LanguageProvider(PackOutput output, TurtleUpgradeDataProvider turtleUpgrades, PocketUpgradeDataProvider pocketUpgrades) {
+    public LanguageProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         this.output = output;
-        this.turtleUpgrades = turtleUpgrades;
-        this.pocketUpgrades = pocketUpgrades;
+        this.registries = registries;
     }
 
     @Override
     public CompletableFuture<?> run(CachedOutput cachedOutput) {
         addTranslations();
-        getExpectedKeys().forEach(x -> {
-            if (!translations.containsKey(x)) throw new IllegalStateException("No translation for " + x);
-        });
 
-        var json = new JsonObject();
-        for (var pair : translations.entrySet()) json.addProperty(pair.getKey(), pair.getValue());
-        return DataProvider.saveStable(cachedOutput, json, output.getOutputFolder().resolve("assets/" + ComputerCraftAPI.MOD_ID + "/lang/en_us.json"));
+        return registries.thenCompose(registries -> {
+            getExpectedKeys(registries).forEach(x -> {
+                if (!translations.containsKey(x)) throw new IllegalStateException("No translation for " + x);
+            });
+
+            var json = new JsonObject();
+            for (var pair : translations.entrySet()) json.addProperty(pair.getKey(), pair.getValue());
+            return DataProvider.saveStable(cachedOutput, json, output.getOutputFolder().resolve("assets/" + ComputerCraftAPI.MOD_ID + "/lang/en_us.json"));
+        });
     }
 
     @Override
@@ -106,6 +108,8 @@ public final class LanguageProvider implements DataProvider {
         add(ComputerCraftTags.Items.TURTLE, "Turtles");
         add(ComputerCraftTags.Items.WIRED_MODEM, "Wired modems");
         add(ComputerCraftTags.Items.MONITOR, "Monitors");
+        add(ComputerCraftTags.Items.DYEABLE, "Dyable items");
+        add(ComputerCraftTags.Items.TURTLE_CAN_PLACE, "Turtle-placeable items");
 
         // Turtle/pocket upgrades
         add("upgrade.minecraft.diamond_sword.adjective", "Melee");
@@ -279,23 +283,29 @@ public final class LanguageProvider implements DataProvider {
         addConfigEntry(ConfigSpec.uploadNagDelay, "Upload nag delay");
     }
 
-    private Stream<String> getExpectedKeys() {
+    private Stream<String> getExpectedKeys(HolderLookup.Provider registries) {
         return Stream.of(
-            RegistryWrappers.BLOCKS.stream()
-                .filter(x -> RegistryWrappers.BLOCKS.getKey(x).getNamespace().equals(ComputerCraftAPI.MOD_ID))
-                .map(Block::getDescriptionId)
+            BuiltInRegistries.BLOCK.holders()
+                .filter(x -> x.key().location().getNamespace().equals(ComputerCraftAPI.MOD_ID))
+                .map(x -> x.value().getDescriptionId())
                 // Exclude blocks that just reuse vanilla translations, such as the lectern.
                 .filter(x -> !x.startsWith("block.minecraft.")),
-            RegistryWrappers.ITEMS.stream()
-                .filter(x -> RegistryWrappers.ITEMS.getKey(x).getNamespace().equals(ComputerCraftAPI.MOD_ID))
-                .map(Item::getDescriptionId),
-            turtleUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),
-            pocketUpgrades.getGeneratedUpgrades().stream().map(UpgradeBase::getUnlocalisedAdjective),
+            BuiltInRegistries.ITEM.holders()
+                .filter(x -> x.key().location().getNamespace().equals(ComputerCraftAPI.MOD_ID))
+                .map(x -> x.value().getDescriptionId()),
+            registries.lookupOrThrow(ITurtleUpgrade.REGISTRY).listElements().flatMap(x -> getTranslationKeys(x.value().getAdjective())),
+            registries.lookupOrThrow(IPocketUpgrade.REGISTRY).listElements().flatMap(x -> getTranslationKeys(x.value().getAdjective())),
             Metric.metrics().values().stream().map(x -> AggregatedMetric.TRANSLATION_PREFIX + x.name() + ".name"),
             ConfigSpec.serverSpec.entries().map(ConfigFile.Entry::translationKey),
             ConfigSpec.clientSpec.entries().map(ConfigFile.Entry::translationKey),
             ComputerSelector.options().values().stream().map(ComputerSelector.Option::translationKey)
         ).flatMap(x -> x);
+    }
+
+    private static Stream<String> getTranslationKeys(Component component) {
+        if (component.getContents() instanceof TranslatableContents contents) return Stream.of(contents.getKey());
+
+        return component.getSiblings().stream().flatMap(LanguageProvider::getTranslationKeys);
     }
 
     private void add(String id, String text) {

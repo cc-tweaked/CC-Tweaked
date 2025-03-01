@@ -8,10 +8,12 @@ import dan200.computercraft.core.util.StringUtil;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.computer.menu.ServerInputHandler;
-import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessages;
-import io.netty.handler.codec.DecoderException;
-import net.minecraft.network.FriendlyByteBuf;
+import dan200.computercraft.shared.network.codec.MoreStreamCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
 import java.nio.ByteBuffer;
@@ -22,31 +24,21 @@ import java.nio.ByteBuffer;
  * @see ServerInputHandler#paste(ByteBuffer)
  */
 public class PasteEventComputerMessage extends ComputerServerMessage {
+    public static final StreamCodec<RegistryFriendlyByteBuf, PasteEventComputerMessage> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.VAR_INT, PasteEventComputerMessage::containerId,
+        MoreStreamCodecs.byteBuffer(StringUtil.MAX_PASTE_LENGTH), c -> c.text,
+        PasteEventComputerMessage::new
+    );
+
     private final ByteBuffer text;
 
     public PasteEventComputerMessage(AbstractContainerMenu menu, ByteBuffer text) {
-        super(menu);
+        this(menu.containerId, text);
+    }
+
+    private PasteEventComputerMessage(int id, ByteBuffer text) {
+        super(id);
         this.text = text;
-    }
-
-    public PasteEventComputerMessage(FriendlyByteBuf buf) {
-        super(buf);
-
-        var length = buf.readVarInt();
-        if (length > StringUtil.MAX_PASTE_LENGTH) {
-            throw new DecoderException("ByteArray with size " + length + " is bigger than allowed " + StringUtil.MAX_PASTE_LENGTH);
-        }
-
-        var text = new byte[length];
-        buf.readBytes(text);
-        this.text = ByteBuffer.wrap(text);
-    }
-
-    @Override
-    public void write(FriendlyByteBuf buf) {
-        super.write(buf);
-        buf.writeVarInt(text.remaining());
-        buf.writeBytes(text.duplicate());
     }
 
     @Override
@@ -55,7 +47,7 @@ public class PasteEventComputerMessage extends ComputerServerMessage {
     }
 
     @Override
-    public MessageType<PasteEventComputerMessage> type() {
+    public CustomPacketPayload.Type<PasteEventComputerMessage> type() {
         return NetworkMessages.PASTE_EVENT;
     }
 }

@@ -6,21 +6,20 @@ package dan200.computercraft.shared.lectern;
 
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.PrintoutItem;
+import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -45,40 +44,41 @@ public class CustomLecternBlock extends LecternBlock {
     }
 
     /**
+     * Attempt to place an item onto an (empty) lectern.
+     *
+     * @param player     The player placing the item.
+     * @param level      The current level.
+     * @param pos        The position of the lectern.
+     * @param blockState The current state of the lectern.
+     * @param item       The item to place in the custom lectern.
+     * @return Whether the item was placed or not.
+     */
+    public static InteractionResult tryPlaceItem(Player player, Level level, BlockPos pos, BlockState blockState, ItemStack item) {
+        if (item.getItem() instanceof PrintoutItem || item.getItem() instanceof PocketComputerItem) {
+            if (!level.isClientSide) replaceLectern(player, level, pos, blockState, item);
+            return InteractionResult.sidedSuccess(level.isClientSide);
+        }
+
+        return InteractionResult.PASS;
+    }
+
+    /**
      * Replace a vanilla lectern with a custom one.
      *
+     * @param player     The player placing the item.
      * @param level      The current level.
      * @param pos        The position of the lectern.
      * @param blockState The current state of the lectern.
      * @param item       The item to place in the custom lectern.
      */
-    public static void replaceLectern(Level level, BlockPos pos, BlockState blockState, ItemStack item) {
+    private static void replaceLectern(Player player, Level level, BlockPos pos, BlockState blockState, ItemStack item) {
         level.setBlockAndUpdate(pos, ModRegistry.Blocks.LECTERN.get().defaultBlockState()
             .setValue(HAS_BOOK, true)
             .setValue(FACING, blockState.getValue(FACING))
             .setValue(POWERED, blockState.getValue(POWERED)));
 
-        if (level.getBlockEntity(pos) instanceof CustomLecternBlockEntity be) be.setItem(item.split(1));
-    }
-
-    /**
-     * A default implementation of {@link Item#useOn(UseOnContext)} for items that can be placed on a lectern.
-     *
-     * @param context The context of this item usage action.
-     * @return Whether the item was placed or not.
-     */
-    public static InteractionResult defaultUseItemOn(UseOnContext context) {
-        var level = context.getLevel();
-        var blockPos = context.getClickedPos();
-        var blockState = level.getBlockState(blockPos);
-        if (blockState.is(Blocks.LECTERN) && !blockState.getValue(LecternBlock.HAS_BOOK)) {
-            // If we have an empty lectern, place our book into it.
-            if (!level.isClientSide) {
-                CustomLecternBlock.replaceLectern(level, blockPos, blockState, context.getItemInHand());
-            }
-            return InteractionResult.sidedSuccess(level.isClientSide);
-        } else {
-            return InteractionResult.PASS;
+        if (level.getBlockEntity(pos) instanceof CustomLecternBlockEntity be) {
+            be.setItem(item.consumeAndReturn(1, player));
         }
     }
 
@@ -98,7 +98,7 @@ public class CustomLecternBlock extends LecternBlock {
 
     @Override
     @Deprecated
-    public ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState state) {
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
         return new ItemStack(Items.LECTERN);
     }
 
@@ -151,7 +151,7 @@ public class CustomLecternBlock extends LecternBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!level.isClientSide && level.getBlockEntity(pos) instanceof CustomLecternBlockEntity lectern) {
             if (player.isSecondaryUseActive()) {
                 // When shift+clicked with an empty hand, drop the item and replace with the normal lectern.

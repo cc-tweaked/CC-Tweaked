@@ -52,7 +52,7 @@ public class RenderTypes {
      * Printout's background texture. {@link RenderType#text(ResourceLocation)} is a <em>little</em> questionable, but
      * it is what maps use, so should behave the same as vanilla in both item frames and in-hand.
      */
-    public static final RenderType PRINTOUT_BACKGROUND = RenderType.text(new ResourceLocation("computercraft", "textures/gui/printout.png"));
+    public static final RenderType PRINTOUT_BACKGROUND = RenderType.text(ResourceLocation.fromNamespaceAndPath("computercraft", "textures/gui/printout.png"));
 
     /**
      * Render type for {@linkplain GuiSprites GUI sprites}.

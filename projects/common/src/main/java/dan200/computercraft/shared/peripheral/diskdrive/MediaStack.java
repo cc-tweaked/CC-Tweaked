@@ -6,8 +6,10 @@ package dan200.computercraft.shared.peripheral.diskdrive;
 
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.platform.PlatformHelper;
-import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.JukeboxSong;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -27,12 +29,7 @@ record MediaStack(ItemStack stack, @Nullable IMedia media) {
     }
 
     @Nullable
-    SoundEvent getAudio() {
-        return media != null ? media.getAudio(stack) : null;
-    }
-
-    @Nullable
-    String getAudioTitle() {
-        return media != null ? media.getAudioTitle(stack) : null;
+    Holder<JukeboxSong> getAudio(HolderLookup.Provider registries) {
+        return media != null ? media.getAudio(registries, stack) : null;
     }
 }

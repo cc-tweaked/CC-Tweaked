@@ -5,32 +5,33 @@
 package dan200.computercraft.shared.platform;
 
 import dan200.computercraft.shared.config.ConfigFile;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * A {@link ConfigFile} which wraps Forge's config implementation.
  */
 public final class ForgeConfigFile extends ConfigFile {
-    private final ForgeConfigSpec spec;
+    private final ModConfigSpec spec;
 
-    private ForgeConfigFile(ForgeConfigSpec spec, Map<String, Entry> entries) {
+    private ForgeConfigFile(ModConfigSpec spec, Map<String, Entry> entries) {
         super(entries);
         this.spec = spec;
     }
 
-    public ForgeConfigSpec spec() {
+    public ModConfigSpec spec() {
         return spec;
     }
 
     /**
-     * Wraps {@link ForgeConfigSpec.Builder} into our own config builder abstraction.
+     * Wraps {@link ModConfigSpec.Builder} into our own config builder abstraction.
      */
     static class Builder extends ConfigFile.Builder {
-        private final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+        private final ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
         private void translation(String name) {
             builder.translation(getTranslation(name));
@@ -63,7 +64,7 @@ public final class ForgeConfigFile extends ConfigFile {
             return this;
         }
 
-        private <T> ConfigFile.Value<T> defineValue(String name, ForgeConfigSpec.ConfigValue<T> value) {
+        private <T> ConfigFile.Value<T> defineValue(String name, ModConfigSpec.ConfigValue<T> value) {
             var wrapped = new ValueImpl<>(getPath(name), takeComment(), value);
             groupStack.getLast().children().put(name, wrapped);
             return wrapped;
@@ -88,9 +89,9 @@ public final class ForgeConfigFile extends ConfigFile {
         }
 
         @Override
-        public <T> ConfigFile.Value<List<? extends T>> defineList(String name, List<? extends T> defaultValue, Predicate<Object> elementValidator) {
+        public <T> ConfigFile.Value<List<? extends T>> defineList(String name, List<? extends T> defaultValue, Supplier<T> newValue, Predicate<Object> elementValidator) {
             translation(name);
-            return defineValue(name, builder.defineList(name, defaultValue, elementValidator));
+            return defineValue(name, builder.defineList(name, defaultValue, newValue, elementValidator));
         }
 
         @Override
@@ -110,9 +111,9 @@ public final class ForgeConfigFile extends ConfigFile {
     }
 
     private static final class ValueImpl<T> extends Value<T> {
-        private final ForgeConfigSpec.ConfigValue<T> value;
+        private final ModConfigSpec.ConfigValue<T> value;
 
-        private ValueImpl(String path, String comment, ForgeConfigSpec.ConfigValue<T> value) {
+        private ValueImpl(String path, String comment, ModConfigSpec.ConfigValue<T> value) {
             super(path, comment);
             this.value = value;
         }

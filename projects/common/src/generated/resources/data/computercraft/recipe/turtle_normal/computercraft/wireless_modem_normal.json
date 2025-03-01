@@ -1,0 +1,12 @@
+{
+  "type": "computercraft:impostor_shaped",
+  "category": "redstone",
+  "group": "computercraft:turtle_normal",
+  "key": {"#": {"item": "computercraft:wireless_modem_normal"}, "T": {"item": "computercraft:turtle_normal"}},
+  "pattern": ["#T"],
+  "result": {
+    "components": {"computercraft:right_turtle_upgrade": {"id": "computercraft:wireless_modem_normal"}},
+    "count": 1,
+    "id": "computercraft:turtle_normal"
+  }
+}

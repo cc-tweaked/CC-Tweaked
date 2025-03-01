@@ -6,25 +6,26 @@ package dan200.computercraft.client;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.turtle.RegisterTurtleModellersEvent;
+import dan200.computercraft.client.model.ExtraModels;
 import dan200.computercraft.client.model.turtle.TurtleModelLoader;
+import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.client.event.RegisterColorHandlersEvent;
-import net.minecraftforge.client.event.RegisterShadersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoader;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModLoader;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.*;
 
 import java.io.IOException;
 
 /**
  * Registers textures and models for items.
  */
-@Mod.EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public final class ForgeClientRegistry {
     private static final Object lock = new Object();
     private static boolean gatheredModellers = false;
@@ -34,7 +35,7 @@ public final class ForgeClientRegistry {
 
     @SubscribeEvent
     public static void registerModelLoaders(ModelEvent.RegisterGeometryLoaders event) {
-        event.register("turtle", TurtleModelLoader.INSTANCE);
+        event.register(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle"), TurtleModelLoader.INSTANCE);
     }
 
     /**
@@ -50,14 +51,15 @@ public final class ForgeClientRegistry {
             if (gatheredModellers) return;
 
             gatheredModellers = true;
-            ModLoader.get().postEvent(new RegisterTurtleModellersEvent());
+            ModLoader.postEvent(new RegisterTurtleModellersEvent(TurtleUpgradeModellers::register));
         }
     }
 
     @SubscribeEvent
     public static void registerModels(ModelEvent.RegisterAdditional event) {
         gatherModellers();
-        ClientRegistry.registerExtraModels(event::register);
+        var extraModels = ExtraModels.loadAll(Minecraft.getInstance().getResourceManager());
+        ClientRegistry.registerExtraModels(x -> event.register(ModelResourceLocation.standalone(x)), extraModels);
     }
 
     @SubscribeEvent
@@ -73,6 +75,11 @@ public final class ForgeClientRegistry {
     @SubscribeEvent
     public static void onItemColours(RegisterColorHandlersEvent.Item event) {
         ClientRegistry.registerItemColours(event::register);
+    }
+
+    @SubscribeEvent
+    public static void registerMenuScreens(RegisterMenuScreensEvent event) {
+        ClientRegistry.registerMenuScreens(event::register);
     }
 
     @SubscribeEvent

@@ -42,6 +42,6 @@ class CCTweakedPlugin : Plugin<Project> {
     }
 
     companion object {
-        val JAVA_VERSION = JavaLanguageVersion.of(17)
+        val JAVA_VERSION = JavaLanguageVersion.of(21)
     }
 }

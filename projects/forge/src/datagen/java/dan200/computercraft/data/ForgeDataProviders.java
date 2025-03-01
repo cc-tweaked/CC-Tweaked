@@ -5,12 +5,13 @@
 package dan200.computercraft.data;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.resources.ResourceLocation;
@@ -18,20 +19,19 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.data.BlockTagsProvider;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.common.data.JsonCodecProvider;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.data.BlockTagsProvider;
+import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.data.JsonCodecProvider;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class ForgeDataProviders {
     @SubscribeEvent
     public static void gather(GatherDataEvent event) {
@@ -52,9 +52,16 @@ public class ForgeDataProviders {
         @Override
         public <T> void addFromCodec(String name, PackType type, String directory, Codec<T> codec, Consumer<BiConsumer<ResourceLocation, T>> output) {
             add(out -> {
-                Map<ResourceLocation, T> map = new HashMap<>();
-                output.accept(map::put);
-                return new JsonCodecProvider<>(out, existingFiles, ComputerCraftAPI.MOD_ID, JsonOps.INSTANCE, type, directory, codec, map);
+                var target = switch (type) {
+                    case SERVER_DATA -> PackOutput.Target.DATA_PACK;
+                    case CLIENT_RESOURCES -> PackOutput.Target.RESOURCE_PACK;
+                };
+                return new JsonCodecProvider<T>(out, target, directory, type, codec, registries, ComputerCraftAPI.MOD_ID, existingFiles) {
+                    @Override
+                    protected void gather() {
+                        output.accept(this::unconditional);
+                    }
+                };
             });
         }
 
@@ -63,7 +70,7 @@ public class ForgeDataProviders {
             return add(out -> new BlockTagsProvider(out, registries, ComputerCraftAPI.MOD_ID, existingFiles) {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
-                    tags.accept(x -> new TagProvider.TagAppender<>(RegistryWrappers.BLOCKS, getOrCreateRawBuilder(x)));
+                    tags.accept(x -> new TagProvider.TagAppender<>(BuiltInRegistries.BLOCK, getOrCreateRawBuilder(x)));
                 }
             });
         }
@@ -77,7 +84,7 @@ public class ForgeDataProviders {
                     tags.accept(new TagProvider.ItemTagConsumer() {
                         @Override
                         public TagProvider.TagAppender<Item> tag(TagKey<Item> tag) {
-                            return new TagProvider.TagAppender<>(RegistryWrappers.ITEMS, getOrCreateRawBuilder(tag));
+                            return new TagProvider.TagAppender<>(BuiltInRegistries.ITEM, getOrCreateRawBuilder(tag));
                         }
 
                         @Override
@@ -87,6 +94,11 @@ public class ForgeDataProviders {
                     });
                 }
             });
+        }
+
+        @Override
+        public void registries(CompletableFuture<RegistrySetBuilder.PatchedRegistries> registries) {
+            add(out -> new DatapackBuiltinEntriesProvider(out, registries, null));
         }
     }
 }

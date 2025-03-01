@@ -44,8 +44,8 @@ public class ImageRenderer implements AutoCloseable {
         RenderSystem.setProjectionMatrix(new Matrix4f().identity().ortho(0, 16, 16, 0, 1000, 3000), VertexSorting.ORTHOGRAPHIC_Z);
 
         var transform = RenderSystem.getModelViewStack();
-        transform.pushPose();
-        transform.setIdentity();
+        transform.pushMatrix();
+        transform.identity();
         transform.translate(0.0f, 0.0f, -2000.0f);
         RenderSystem.applyModelViewMatrix();
 
@@ -57,7 +57,7 @@ public class ImageRenderer implements AutoCloseable {
 
         // Restore rendering state
         RenderSystem.setProjectionMatrix(projectionMatrix, VertexSorting.DISTANCE_TO_ORIGIN);
-        RenderSystem.getModelViewStack().popPose();
+        RenderSystem.getModelViewStack().popMatrix();
         RenderSystem.applyModelViewMatrix();
 
         framebuffer.unbindWrite();

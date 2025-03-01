@@ -1,19 +1,31 @@
 package com.example.examplemod;
 
-import com.example.examplemod.data.ExampleModDataGenerators;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import com.example.examplemod.data.TurtleUpgradeProvider;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.DataGenerator;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 /**
- * The data generator entrypoint for the Forge version of our example mod.
- *
- * @see ExampleModDataGenerators The main implementation
+ * Data generators for the Forge version of our example mod.
  */
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class ForgeExampleModDataGenerator {
     @SubscribeEvent
     public static void gather(GatherDataEvent event) {
-        ExampleModDataGenerators.run(event.getGenerator().getVanillaPack(true));
+        var pack = event.getGenerator().getVanillaPack(true);
+        addTurtleUpgrades(pack, event.getLookupProvider());
     }
+
+    // @start region=turtle_upgrades
+    private static void addTurtleUpgrades(DataGenerator.PackGenerator pack, CompletableFuture<HolderLookup.Provider> registries) {
+        var fullRegistryPatch = TurtleUpgradeProvider.makeUpgradeRegistry(registries);
+        pack.addProvider(o -> new DatapackBuiltinEntriesProvider(o, fullRegistryPatch, Set.of(ExampleMod.MOD_ID)));
+    }
+    // @end region=turtle_upgrades
 }

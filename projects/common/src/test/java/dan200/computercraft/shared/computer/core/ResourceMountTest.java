@@ -10,8 +10,11 @@ import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.test.core.CloseScope;
 import dan200.computercraft.test.core.filesystem.MountContract;
 import net.minecraft.Util;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
+import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.util.Unit;
 import org.junit.jupiter.api.AfterEach;
@@ -19,6 +22,7 @@ import org.junit.jupiter.api.AfterEach;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -38,7 +42,7 @@ public class ResourceMountTest implements MountContract {
 
         var manager = new ReloadableResourceManager(PackType.SERVER_DATA);
         var reload = manager.createReload(Util.backgroundExecutor(), Util.backgroundExecutor(), CompletableFuture.completedFuture(Unit.INSTANCE), List.of(
-            new PathPackResources("resources", path, false)
+            new PathPackResources(new PackLocationInfo("resources", Component.literal("resources"), PackSource.WORLD, Optional.empty()), path)
         ));
 
         try {

@@ -7,34 +7,43 @@ package dan200.computercraft.shared;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.FabricDetailRegistries;
 import dan200.computercraft.api.media.MediaLookup;
-import dan200.computercraft.api.node.wired.WiredElementLookup;
+import dan200.computercraft.api.network.wired.WiredElementLookup;
 import dan200.computercraft.api.peripheral.PeripheralLookup;
+import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.impl.Peripherals;
+import dan200.computercraft.impl.PocketUpgrades;
+import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.details.FluidDetails;
 import dan200.computercraft.shared.integration.CreateIntegration;
 import dan200.computercraft.shared.network.NetworkMessages;
-import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
-import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.platform.FabricConfigFile;
-import dan200.computercraft.shared.platform.FabricMessageType;
+import dan200.computercraft.shared.recipe.function.RecipeFunction;
+import dan200.computercraft.shared.turtle.TurtleOverlay;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
+import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.lookup.v1.item.ItemApiLookup;
-import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
+import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -55,11 +64,18 @@ public class ComputerCraft {
     private static final LevelResource SERVERCONFIG = new LevelResource("serverconfig");
 
     public static void init() {
+        for (var type : NetworkMessages.getServerbound()) registerPayloadType(PayloadTypeRegistry.playC2S(), type);
+        for (var type : NetworkMessages.getClientbound()) registerPayloadType(PayloadTypeRegistry.playS2C(), type);
+
         for (var type : NetworkMessages.getServerbound()) {
-            ServerPlayNetworking.registerGlobalReceiver(
-                FabricMessageType.toFabricType(type), (packet, player, sender) -> packet.payload().handle(() -> player)
-            );
+            ServerPlayNetworking.registerGlobalReceiver(type.type(), (packet, player) -> packet.handle(player::player));
         }
+
+        FabricRegistryBuilder.createSimple(RecipeFunction.REGISTRY).attribute(RegistryAttribute.SYNCED).buildAndRegister();
+
+        DynamicRegistries.registerSynced(ITurtleUpgrade.REGISTRY, TurtleUpgrades.instance().upgradeCodec());
+        DynamicRegistries.registerSynced(IPocketUpgrade.REGISTRY, PocketUpgrades.instance().upgradeCodec());
+        DynamicRegistries.registerSynced(TurtleOverlay.REGISTRY, TurtleOverlay.DIRECT_CODEC);
 
         ModRegistry.register();
         ModRegistry.registerMainThread();
@@ -73,14 +89,17 @@ public class ComputerCraft {
 
         // Register hooks
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-            ((FabricConfigFile) ConfigSpec.serverSpec).load(server.getWorldPath(SERVERCONFIG).resolve(ComputerCraftAPI.MOD_ID + "-server.toml"));
+            ((FabricConfigFile) ConfigSpec.serverSpec).load(
+                server.getWorldPath(SERVERCONFIG).resolve(ComputerCraftAPI.MOD_ID + "-server.toml"),
+                FabricLoader.getInstance().getConfigDir().resolve(ComputerCraftAPI.MOD_ID + "-server.toml")
+            );
             CommonHooks.onServerStarting(server);
         });
         ServerLifecycleEvents.SERVER_STOPPED.register(s -> {
             CommonHooks.onServerStopped();
             ((FabricConfigFile) ConfigSpec.serverSpec).unload();
         });
-        ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> ServerNetworking.sendToPlayer(new UpgradesLoadedMessage(), player));
+        ServerLifecycleEvents.SERVER_STARTED.register(CommonHooks::onServerStarted);
 
         ServerTickEvents.START_SERVER_TICK.register(CommonHooks::onServerTickStart);
         ServerTickEvents.START_SERVER_TICK.register(s -> CommonHooks.onServerTickEnd());
@@ -88,8 +107,9 @@ public class ComputerCraft {
 
         PlayerBlockBreakEvents.BEFORE.register(FabricCommonHooks::onBlockDestroy);
         UseBlockCallback.EVENT.register(FabricCommonHooks::useOnBlock);
+        UseBlockCallback.EVENT.register(CommonHooks::onUseBlock);
 
-        LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
+        LootTableEvents.MODIFY.register((id, tableBuilder, source, registries) -> {
             var pool = CommonHooks.getExtraLootPool(id);
             if (pool != null) tableBuilder.withPool(pool);
         });
@@ -105,7 +125,11 @@ public class ComputerCraft {
 
         ComputerCraftAPI.registerGenericSource(new InventoryMethods());
 
-        Peripherals.addGenericLookup((world, pos, state, blockEntity, side, invalidate) -> InventoryMethods.extractContainer(world, pos, state, blockEntity, side));
+        Peripherals.addGenericLookup(InventoryMethods::extractContainer);
+    }
+
+    private static <B extends FriendlyByteBuf, T extends CustomPacketPayload> void registerPayloadType(PayloadTypeRegistry<B> registry, CustomPacketPayload.TypeAndCodec<B, T> type) {
+        registry.register(type.type(), type.codec());
 
         if (FabricLoader.getInstance().isModLoaded(CreateIntegration.ID)) CreateIntegration.setup();
     }
@@ -115,7 +139,7 @@ public class ComputerCraft {
 
         @Override
         public ResourceLocation getFabricId() {
-            return new ResourceLocation(ComputerCraftAPI.MOD_ID, name);
+            return ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name);
         }
 
         @Override

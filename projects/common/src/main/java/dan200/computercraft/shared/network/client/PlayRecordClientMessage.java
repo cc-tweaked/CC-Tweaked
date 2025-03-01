@@ -4,59 +4,48 @@
 
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveBlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.sounds.SoundEvent;
-import org.jspecify.annotations.Nullable;
+import net.minecraft.core.Holder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.world.item.JukeboxSong;
+
+import java.util.Optional;
 
 /**
- * Starts or stops a record on the client, depending on if {@link #soundEvent} is {@code null}.
+ * Starts or stops a record on the client, depending on if {@link #song} is {@code null}.
  * <p>
  * Used by disk drives to play record items.
  *
+ * @param pos  The position of the speaker, where we should play this sound.
+ * @param song The sound to play, or {@link Optional#empty()} if we should stop playing.
  * @see DiskDriveBlockEntity
  */
-public class PlayRecordClientMessage implements NetworkMessage<ClientNetworkContext> {
-    private final BlockPos pos;
-    private final @Nullable String name;
-    private final @Nullable SoundEvent soundEvent;
-
-    public PlayRecordClientMessage(BlockPos pos, SoundEvent event, @Nullable String name) {
-        this.pos = pos;
-        this.name = name;
-        soundEvent = event;
-    }
+public record PlayRecordClientMessage(
+    BlockPos pos, Optional<Holder<JukeboxSong>> song
+) implements NetworkMessage<ClientNetworkContext> {
+    public static final StreamCodec<RegistryFriendlyByteBuf, PlayRecordClientMessage> STREAM_CODEC = StreamCodec.composite(
+        BlockPos.STREAM_CODEC, PlayRecordClientMessage::pos,
+        ByteBufCodecs.optional(JukeboxSong.STREAM_CODEC), PlayRecordClientMessage::song,
+        PlayRecordClientMessage::new
+    );
 
     public PlayRecordClientMessage(BlockPos pos) {
-        this.pos = pos;
-        name = null;
-        soundEvent = null;
-    }
-
-    public PlayRecordClientMessage(FriendlyByteBuf buf) {
-        pos = buf.readBlockPos();
-        soundEvent = buf.readNullable(SoundEvent::readFromNetwork);
-        name = buf.readNullable(FriendlyByteBuf::readUtf);
-    }
-
-    @Override
-    public void write(FriendlyByteBuf buf) {
-        buf.writeBlockPos(pos);
-        buf.writeNullable(soundEvent, (b, e) -> e.writeToNetwork(b));
-        buf.writeNullable(name, FriendlyByteBuf::writeUtf);
+        this(pos, Optional.empty());
     }
 
     @Override
     public void handle(ClientNetworkContext context) {
-        context.handlePlayRecord(pos, soundEvent, name);
+        context.handlePlayRecord(pos, song.orElse(null));
     }
 
     @Override
-    public MessageType<PlayRecordClientMessage> type() {
+    public CustomPacketPayload.Type<PlayRecordClientMessage> type() {
         return NetworkMessages.PLAY_RECORD;
     }
 }

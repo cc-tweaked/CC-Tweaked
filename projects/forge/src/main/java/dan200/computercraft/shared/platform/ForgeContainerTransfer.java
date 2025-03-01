@@ -5,7 +5,7 @@
 package dan200.computercraft.shared.platform;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 
 public class ForgeContainerTransfer implements ContainerTransfer.Slotted {
     private final IItemHandler handler;
@@ -63,7 +63,7 @@ public class ForgeContainerTransfer implements ContainerTransfer.Slotted {
             if (movedStack.isEmpty()) {
                 movedStack = stack.copy();
                 if (stack.getMaxStackSize() < maxAmount) maxAmount = stack.getMaxStackSize();
-            } else if (!ItemStack.isSameItemSameTags(stack, movedStack)) {
+            } else if (!ItemStack.isSameItemSameComponents(stack, movedStack)) {
                 continue;
             }
 

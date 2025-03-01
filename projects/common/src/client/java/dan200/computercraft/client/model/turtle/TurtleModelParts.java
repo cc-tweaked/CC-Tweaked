@@ -12,12 +12,15 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.client.platform.ClientPlatformHelper;
-import dan200.computercraft.client.render.TurtleBlockEntityRenderer;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
+import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
+import dan200.computercraft.shared.util.DataComponentUtil;
 import dan200.computercraft.shared.util.Holiday;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
@@ -50,17 +53,10 @@ public final class TurtleModelParts<T> {
         boolean colour,
         @Nullable UpgradeData<ITurtleUpgrade> leftUpgrade,
         @Nullable UpgradeData<ITurtleUpgrade> rightUpgrade,
-        @Nullable ResourceLocation overlay,
+        @Nullable TurtleOverlay overlay,
         boolean christmas,
         boolean flip
     ) {
-        Combination copy() {
-            if (leftUpgrade == null && rightUpgrade == null) return this;
-            return new Combination(
-                colour, UpgradeData.copyOf(leftUpgrade), UpgradeData.copyOf(rightUpgrade),
-                overlay, christmas, flip
-            );
-        }
     }
 
     private final BakedModel familyModel;
@@ -90,37 +86,24 @@ public final class TurtleModelParts<T> {
     public TurtleModelParts(BakedModel familyModel, BakedModel colourModel, ModelTransformer transformer, Function<List<BakedModel>, T> combineModel) {
         this.familyModel = familyModel;
         this.colourModel = colourModel;
-        this.transformer = x -> transformer.transform(x.getModel(), x.getMatrix());
+        this.transformer = x -> transformer.transform(x.model(), x.matrix());
         buildModel = x -> combineModel.apply(buildModel(x));
     }
 
     public T getModel(ItemStack stack) {
         var combination = getCombination(stack);
-        var existing = modelCache.get(combination);
-        if (existing != null) return existing;
-
-        // Take a defensive copy of the upgrade data, and add it to the cache.
-        var newCombination = combination.copy();
-        var newModel = buildModel.apply(newCombination);
-        modelCache.put(newCombination, newModel);
-        return newModel;
+        return modelCache.computeIfAbsent(combination, buildModel);
     }
 
     private Combination getCombination(ItemStack stack) {
         var christmas = Holiday.getCurrent() == Holiday.CHRISTMAS;
-
-        if (!(stack.getItem() instanceof TurtleItem turtle)) {
-            return new Combination(false, null, null, null, christmas, false);
-        }
-
-        var colour = turtle.getColour(stack);
-        var leftUpgrade = turtle.getUpgradeWithData(stack, TurtleSide.LEFT);
-        var rightUpgrade = turtle.getUpgradeWithData(stack, TurtleSide.RIGHT);
-        var overlay = turtle.getOverlay(stack);
-        var label = turtle.getLabel(stack);
+        var leftUpgrade = TurtleItem.getUpgradeWithData(stack, TurtleSide.LEFT);
+        var rightUpgrade = TurtleItem.getUpgradeWithData(stack, TurtleSide.RIGHT);
+        var overlay = TurtleItem.getOverlay(stack);
+        var label = DataComponentUtil.getCustomName(stack);
         var flip = label != null && (label.equals("Dinnerbone") || label.equals("Grumm"));
 
-        return new Combination(colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip);
+        return new Combination(stack.has(DataComponents.DYED_COLOR), leftUpgrade, rightUpgrade, overlay, christmas, flip);
     }
 
     private List<BakedModel> buildModel(Combination combo) {
@@ -131,10 +114,10 @@ public final class TurtleModelParts<T> {
         var parts = new ArrayList<BakedModel>(4);
         parts.add(transform(combo.colour() ? colourModel : familyModel, transformation));
 
-        var overlayModelLocation = TurtleBlockEntityRenderer.getTurtleOverlayModel(combo.overlay(), combo.christmas());
-        if (overlayModelLocation != null) {
-            parts.add(transform(ClientPlatformHelper.get().getModel(modelManager, overlayModelLocation), transformation));
-        }
+        if (combo.overlay() != null) addPart(parts, modelManager, transformation, combo.overlay().model());
+
+        var showChristmas = TurtleOverlay.showElfOverlay(combo.overlay(), combo.christmas());
+        if (showChristmas) addPart(parts, modelManager, transformation, TurtleOverlay.ELF_MODEL);
 
         addUpgrade(parts, transformation, TurtleSide.LEFT, combo.leftUpgrade());
         addUpgrade(parts, transformation, TurtleSide.RIGHT, combo.rightUpgrade());
@@ -142,10 +125,14 @@ public final class TurtleModelParts<T> {
         return parts;
     }
 
+    private void addPart(List<BakedModel> parts, ModelManager modelManager, Transformation transformation, ResourceLocation model) {
+        parts.add(transform(ClientPlatformHelper.get().getModel(modelManager, model), transformation));
+    }
+
     private void addUpgrade(List<BakedModel> parts, Transformation transformation, TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
         if (upgrade == null) return;
         var model = TurtleUpgradeModellers.getModel(upgrade.upgrade(), upgrade.data(), side);
-        parts.add(transform(model.getModel(), transformation.compose(model.getMatrix())));
+        parts.add(transform(model.model(), transformation.compose(model.matrix())));
     }
 
     private BakedModel transform(BakedModel model, Transformation transformation) {

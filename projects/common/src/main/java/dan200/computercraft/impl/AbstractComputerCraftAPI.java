@@ -4,6 +4,7 @@
 
 package dan200.computercraft.impl;
 
+import com.mojang.serialization.Codec;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.api.detail.DetailRegistry;
@@ -15,18 +16,21 @@ import dan200.computercraft.api.media.PrintoutContents;
 import dan200.computercraft.api.network.PacketNetwork;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.network.wired.WiredNode;
-import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
+import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.BundledRedstoneProvider;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleRefuelHandler;
-import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.core.filesystem.WritableFileMount;
 import dan200.computercraft.impl.detail.DetailRegistryImpl;
 import dan200.computercraft.impl.network.wired.WiredNodeImpl;
+import dan200.computercraft.impl.upgrades.TurtleToolSpec;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.details.BlockDetails;
 import dan200.computercraft.shared.details.ItemDetails;
-import dan200.computercraft.shared.media.items.PrintoutItem;
+import dan200.computercraft.shared.turtle.upgrades.TurtleTool;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -40,18 +44,17 @@ import org.jspecify.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.stream.Stream;
 
 public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIService {
     private final DetailRegistry<ItemStack> itemStackDetails = new DetailRegistryImpl<>(ItemDetails::fillBasic);
     private final DetailRegistry<BlockReference> blockDetails = new DetailRegistryImpl<>(BlockDetails::fillBasic);
 
-    protected static final ResourceKey<Registry<TurtleUpgradeSerialiser<?>>> turtleUpgradeRegistryId = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_upgrade_serialiser"));
-    protected static final ResourceKey<Registry<PocketUpgradeSerialiser<?>>> pocketUpgradeRegistryId = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_upgrade_serialiser"));
+    protected static final ResourceKey<Registry<UpgradeType<? extends ITurtleUpgrade>>> turtleUpgradeRegistryId = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_upgrade_type"));
+    protected static final ResourceKey<Registry<UpgradeType<? extends IPocketUpgrade>>> pocketUpgradeRegistryId = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_upgrade_type"));
 
     public static @Nullable InputStream getResourceFile(MinecraftServer server, String domain, String subPath) {
         var manager = server.getResourceManager();
-        var resource = manager.getResource(new ResourceLocation(domain, subPath)).orElse(null);
+        var resource = manager.getResource(ResourceLocation.fromNamespaceAndPath(domain, subPath)).orElse(null);
         if (resource == null) return null;
         try {
             return resource.open();
@@ -113,13 +116,28 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     }
 
     @Override
-    public final ResourceKey<Registry<TurtleUpgradeSerialiser<?>>> turtleUpgradeRegistryId() {
+    public final ResourceKey<Registry<UpgradeType<? extends ITurtleUpgrade>>> turtleUpgradeRegistryId() {
         return turtleUpgradeRegistryId;
     }
 
     @Override
-    public final ResourceKey<Registry<PocketUpgradeSerialiser<?>>> pocketUpgradeRegistryId() {
+    public Codec<ITurtleUpgrade> turtleUpgradeCodec() {
+        return TurtleUpgrades.instance().upgradeCodec();
+    }
+
+    @Override
+    public ITurtleUpgrade createTurtleTool(TurtleToolSpec spec) {
+        return new TurtleTool(spec);
+    }
+
+    @Override
+    public final ResourceKey<Registry<UpgradeType<? extends IPocketUpgrade>>> pocketUpgradeRegistryId() {
         return pocketUpgradeRegistryId;
+    }
+
+    @Override
+    public Codec<IPocketUpgrade> pocketUpgradeCodec() {
+        return PocketUpgrades.instance().upgradeCodec();
     }
 
     @Override
@@ -134,18 +152,6 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
 
     @Override
     public @Nullable PrintoutContents getPrintoutContents(ItemStack stack) {
-        return stack.getItem() instanceof PrintoutItem ? new PrintoutContentsImpl(stack) : null;
-    }
-
-    public record PrintoutContentsImpl(ItemStack stack) implements PrintoutContents {
-        @Override
-        public String getTitle() {
-            return PrintoutItem.getTitle(stack);
-        }
-
-        @Override
-        public Stream<String> getTextLines() {
-            return Stream.of(PrintoutItem.getText(stack));
-        }
+        return stack.get(ModRegistry.DataComponents.PRINTOUT.get());
     }
 }

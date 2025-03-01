@@ -10,18 +10,13 @@ import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
-import dan200.computercraft.impl.PlatformHelper;
-import dan200.computercraft.impl.TurtleUpgrades;
-import dan200.computercraft.impl.UpgradeManager;
+import dan200.computercraft.api.upgrades.UpgradeType;
+import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.ResourceLocation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
@@ -29,63 +24,44 @@ import java.util.stream.Stream;
  * A registry of {@link TurtleUpgradeModeller}s.
  */
 public final class TurtleUpgradeModellers {
-    private static final Logger LOG = LoggerFactory.getLogger(TurtleUpgradeModellers.class);
-
-    private static final TurtleUpgradeModeller<ITurtleUpgrade> NULL_TURTLE_MODELLER = (upgrade, turtle, side) ->
+    private static final TurtleUpgradeModeller<ITurtleUpgrade> NULL_TURTLE_MODELLER = (upgrade, turtle, side, data) ->
         new TransformedModel(Minecraft.getInstance().getModelManager().getMissingModel(), Transformation.identity());
 
-    private static final Map<TurtleUpgradeSerialiser<?>, TurtleUpgradeModeller<?>> turtleModels = new ConcurrentHashMap<>();
+    private static final Map<UpgradeType<? extends ITurtleUpgrade>, TurtleUpgradeModeller<?>> turtleModels = new ConcurrentHashMap<>();
     private static volatile boolean fetchedModels;
-
-    /**
-     * In order to avoid a double lookup of {@link ITurtleUpgrade} to {@link UpgradeManager.UpgradeWrapper} to
-     * {@link TurtleUpgradeModeller}, we maintain a cache here.
-     * <p>
-     * Turtle upgrades may be removed as part of datapack reloads, so we use a weak map to avoid the memory leak.
-     */
-    private static final WeakHashMap<ITurtleUpgrade, TurtleUpgradeModeller<?>> modelCache = new WeakHashMap<>();
 
     private TurtleUpgradeModellers() {
     }
 
-    public static <T extends ITurtleUpgrade> void register(TurtleUpgradeSerialiser<T> serialiser, TurtleUpgradeModeller<T> modeller) {
+    public static <T extends ITurtleUpgrade> void register(UpgradeType<T> type, TurtleUpgradeModeller<T> modeller) {
         if (fetchedModels) {
-            // TODO(1.20.4): Replace with an error.
-            LOG.warn(
-                "Turtle upgrade serialiser {} was registered too late, its models may not be loaded correctly. If you are " +
-                    "the mod author, you may be using a deprecated API - see https://github.com/cc-tweaked/CC-Tweaked/pull/1684 " +
-                    "for further information.",
-                PlatformHelper.get().getRegistryKey(TurtleUpgradeSerialiser.registryId(), serialiser)
-            );
+            throw new IllegalStateException(String.format(
+                "Turtle upgrade type %s must be registered before models are baked.",
+                RegistryHelper.getKeyOrThrow(RegistryHelper.getRegistry(ITurtleUpgrade.typeRegistry()), type)
+            ));
         }
 
-        if (turtleModels.putIfAbsent(serialiser, modeller) != null) {
+        if (turtleModels.putIfAbsent(type, modeller) != null) {
             throw new IllegalStateException("Modeller already registered for serialiser");
         }
     }
 
     public static TransformedModel getModel(ITurtleUpgrade upgrade, ITurtleAccess access, TurtleSide side) {
-        @SuppressWarnings("unchecked")
-        var modeller = (TurtleUpgradeModeller<ITurtleUpgrade>) modelCache.computeIfAbsent(upgrade, TurtleUpgradeModellers::getModeller);
-        return modeller.getModel(upgrade, access, side);
+        return getModeller(upgrade).getModel(upgrade, access, side, access.getUpgradeData(side));
     }
 
-    public static TransformedModel getModel(ITurtleUpgrade upgrade, CompoundTag data, TurtleSide side) {
-        @SuppressWarnings("unchecked")
-        var modeller = (TurtleUpgradeModeller<ITurtleUpgrade>) modelCache.computeIfAbsent(upgrade, TurtleUpgradeModellers::getModeller);
-        return modeller.getModel(upgrade, data, side);
+    public static TransformedModel getModel(ITurtleUpgrade upgrade, DataComponentPatch data, TurtleSide side) {
+        return getModeller(upgrade).getModel(upgrade, null, side, data);
     }
 
-    private static TurtleUpgradeModeller<?> getModeller(ITurtleUpgrade upgradeA) {
-        var wrapper = TurtleUpgrades.instance().getWrapper(upgradeA);
-        if (wrapper == null) return NULL_TURTLE_MODELLER;
-
-        var modeller = turtleModels.get(wrapper.serialiser());
-        return modeller == null ? NULL_TURTLE_MODELLER : modeller;
+    @SuppressWarnings("unchecked")
+    private static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> getModeller(T upgrade) {
+        var modeller = turtleModels.get(upgrade.getType());
+        return (TurtleUpgradeModeller<T>) (modeller == null ? NULL_TURTLE_MODELLER : modeller);
     }
 
     public static Stream<ResourceLocation> getDependencies() {
         fetchedModels = true;
-        return turtleModels.values().stream().flatMap(x -> x.getDependencies().stream());
+        return turtleModels.values().stream().flatMap(TurtleUpgradeModeller::getDependencies);
     }
 }

@@ -5,8 +5,8 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -19,16 +19,16 @@ public final class ArgumentHelpers {
     private ArgumentHelpers() {
     }
 
-    public static <T> T getRegistryEntry(String name, String typeName, RegistryWrappers.RegistryWrapper<T> registry) throws LuaException {
+    public static <T> T getRegistryEntry(String name, String typeName, Registry<T> registry) throws LuaException {
         ResourceLocation id;
         try {
-            id = new ResourceLocation(name);
+            id = ResourceLocation.parse(name);
         } catch (ResourceLocationException e) {
             id = null;
         }
 
         T value;
-        if (id == null || (value = registry.tryGet(id)) == null) {
+        if (id == null || (value = registry.get(id)) == null) {
             throw new LuaException(String.format("Unknown %s '%s'", typeName, name));
         }
 

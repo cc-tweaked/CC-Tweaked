@@ -13,30 +13,47 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Objects;
-
 /**
  * A model to render, combined with a transformation matrix to apply.
+ *
+ * @param model  The model.
+ * @param matrix The transformation matrix.
  */
-public final class TransformedModel {
-    private final BakedModel model;
-    private final Transformation matrix;
-
-    public TransformedModel(BakedModel model, Transformation matrix) {
-        this.model = Objects.requireNonNull(model);
-        this.matrix = Objects.requireNonNull(matrix);
-    }
-
+public record TransformedModel(BakedModel model, Transformation matrix) {
     public TransformedModel(BakedModel model) {
-        this.model = Objects.requireNonNull(model);
-        matrix = Transformation.identity();
+        this(model, Transformation.identity());
     }
 
+    /**
+     * Look up a model in the model bakery and construct a {@link TransformedModel} with no transformation.
+     *
+     * @param location The location of the model to load.
+     * @return The new {@link TransformedModel} instance.
+     */
+    public static TransformedModel of(ModelLocation location) {
+        var modelManager = Minecraft.getInstance().getModelManager();
+        return new TransformedModel(location.getModel(modelManager));
+    }
+
+    /**
+     * Look up a model in the model bakery and construct a {@link TransformedModel} with no transformation.
+     *
+     * @param location The location of the model to load.
+     * @return The new {@link TransformedModel} instance.
+     * @see ModelLocation#ofModel(ModelResourceLocation)
+     */
     public static TransformedModel of(ModelResourceLocation location) {
         var modelManager = Minecraft.getInstance().getModelManager();
         return new TransformedModel(modelManager.getModel(location));
     }
 
+    /**
+     * Look up a model in the model bakery and construct a {@link TransformedModel} with no transformation.
+     *
+     * @param location The location of the model to load.
+     * @return The new {@link TransformedModel} instance.
+     * @see ModelLocation#ofResource(ResourceLocation)
+     */
     public static TransformedModel of(ResourceLocation location) {
         var modelManager = Minecraft.getInstance().getModelManager();
         return new TransformedModel(ClientPlatformHelper.get().getModel(modelManager, location));
@@ -45,13 +62,5 @@ public final class TransformedModel {
     public static TransformedModel of(ItemStack item, Transformation transform) {
         var model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item);
         return new TransformedModel(model, transform);
-    }
-
-    public BakedModel getModel() {
-        return model;
-    }
-
-    public Transformation getMatrix() {
-        return matrix;
     }
 }

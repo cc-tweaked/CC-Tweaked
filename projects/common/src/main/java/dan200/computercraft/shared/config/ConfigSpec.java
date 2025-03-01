@@ -97,11 +97,11 @@ public final class ConfigSpec {
         { // General computers
             computerSpaceLimit = builder
                 .comment("The disk space limit for computers and turtles, in bytes.")
-                .define("computer_space_limit", Config.computerSpaceLimit);
+                .define("computer_space_limit", 1000 * 1000);
 
             floppySpaceLimit = builder
                 .comment("The disk space limit for floppy disks, in bytes.")
-                .define("floppy_space_limit", Config.floppySpaceLimit);
+                .define("floppy_space_limit", 125 * 1000);
 
             uploadMaxSize = builder
                 .comment("""
@@ -145,7 +145,7 @@ public final class ConfigSpec {
                     or a single method (computercraft:inventory#pushItems).
                     """)
                 .worldRestart()
-                .defineList("disabled_generic_methods", List.of(), x -> x instanceof String);
+                .defineList("disabled_generic_methods", List.of(), () -> "", x -> x instanceof String);
         }
 
         {
@@ -214,7 +214,7 @@ public final class ConfigSpec {
                      - "max_websocket_message" (optional): The maximum size (in bytes) that a computer can send or
                        receive in one websocket packet.
                      - "use_proxy" (optional): Enable use of the HTTP/SOCKS proxy if it is configured.""")
-                .defineList("rules", AddressRuleConfig.defaultRules(), x -> x instanceof UnmodifiableConfig);
+                .defineList("rules", AddressRuleConfig.defaultRules(), AddressRuleConfig::newRule, x -> x instanceof UnmodifiableConfig);
 
             httpMaxRequests = builder
                 .comment("""
@@ -384,8 +384,6 @@ public final class ConfigSpec {
 
     public static void syncServer(@Nullable Path path) {
         // General
-        Config.computerSpaceLimit = computerSpaceLimit.get();
-        Config.floppySpaceLimit = floppySpaceLimit.get();
         Config.uploadMaxSize = uploadMaxSize.get();
         CoreConfig.maximumFilesOpen = maximumFilesOpen.get();
         CoreConfig.defaultComputerSettings = defaultComputerSettings.get();

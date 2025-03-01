@@ -7,30 +7,29 @@ package dan200.computercraft.client;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.sound.SpeakerSound;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.*;
-import net.minecraftforge.client.event.sound.PlayStreamingSourceEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.event.sound.PlayStreamingSourceEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 
 /**
  * Forge-specific dispatch for {@link ClientHooks}.
  */
-@Mod.EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, value = Dist.CLIENT)
 public final class ForgeClientHooks {
     private ForgeClientHooks() {
     }
 
     @SubscribeEvent
-    public static void onTick(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) ClientHooks.onTick();
+    public static void onTick(ClientTickEvent.Pre event) {
+        ClientHooks.onTick();
     }
 
     @SubscribeEvent
-    public static void onRenderTick(TickEvent.RenderTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) ClientHooks.onRenderTick();
+    public static void onRenderTick(RenderFrameEvent.Pre event) {
+        ClientHooks.onRenderTick();
     }
 
     @SubscribeEvent

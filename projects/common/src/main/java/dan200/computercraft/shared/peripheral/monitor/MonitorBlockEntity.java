@@ -5,7 +5,6 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
 import com.google.common.annotations.VisibleForTesting;
-import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.peripheral.AttachedComputerSet;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -16,6 +15,7 @@ import dan200.computercraft.shared.util.BlockEntityHelpers;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.Block;
@@ -98,17 +98,17 @@ public class MonitorBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         tag.putInt(NBT_X, xIndex);
         tag.putInt(NBT_Y, yIndex);
         tag.putInt(NBT_WIDTH, width);
         tag.putInt(NBT_HEIGHT, height);
-        super.saveAdditional(tag);
+        super.saveAdditional(tag, registries);
     }
 
     @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
+    public void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadAdditional(nbt, registries);
 
         var oldXIndex = xIndex;
         var oldYIndex = yIndex;
@@ -202,8 +202,8 @@ public class MonitorBlockEntity extends BlockEntity {
     }
 
     @Override
-    public final CompoundTag getUpdateTag() {
-        var nbt = super.getUpdateTag();
+    public final CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        var nbt = super.getUpdateTag(registries);
         nbt.putInt(NBT_X, xIndex);
         nbt.putInt(NBT_Y, yIndex);
         nbt.putInt(NBT_WIDTH, width);
@@ -506,7 +506,6 @@ public class MonitorBlockEntity extends BlockEntity {
         computers.remove(computer);
     }
 
-    @ForgeOverride
     public AABB getRenderBoundingBox() {
         // We attempt to cache the bounding box to save having to do property lookups (and allocations!) on every frame.
         // Unfortunately the AABB does depend on quite a lot of state, so we need to add a bunch of extra fields -

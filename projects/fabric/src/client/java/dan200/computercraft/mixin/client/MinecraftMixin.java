@@ -24,17 +24,16 @@ class MinecraftMixin {
     @Final
     private ReloadableResourceManager resourceManager;
 
-    @Inject(method = "clearLevel(Lnet/minecraft/client/gui/screens/Screen;)V", at = @At("HEAD"))
+    @Inject(method = "updateLevelInEngines", at = @At("HEAD"))
     @SuppressWarnings("unused")
-    private void clearLevel(Screen screen, CallbackInfo ci) {
+    private void updateLevelInEngines(ClientLevel screen, CallbackInfo ci) {
         ClientHooks.onWorldUnload();
-        ClientHooks.onDisconnect();
     }
 
-    @Inject(method = "setLevel", at = @At("HEAD"))
+    @Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;Z)V", at = @At("HEAD"))
     @SuppressWarnings("unused")
-    private void setLevel(ClientLevel screen, CallbackInfo ci) {
-        ClientHooks.onWorldUnload();
+    private void disconnect(Screen screen, boolean keepResourcePacks, CallbackInfo ci) {
+        ClientHooks.onDisconnect();
     }
 
     @Inject(
@@ -46,7 +45,7 @@ class MinecraftMixin {
         )
     )
     @SuppressWarnings("unused")
-    public void beforeInitialResourceReload(GameConfig gameConfig, CallbackInfo ci) {
+    private void beforeInitialResourceReload(GameConfig gameConfig, CallbackInfo ci) {
         ClientRegistry.registerReloadListeners(resourceManager::registerReloadListener, (Minecraft) (Object) this);
     }
 }

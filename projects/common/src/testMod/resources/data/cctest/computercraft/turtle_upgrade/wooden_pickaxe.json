@@ -1,0 +1,6 @@
+{
+    "type": "computercraft:tool",
+    "adjective": "Wooden",
+    "item": "minecraft:wooden_pickaxe",
+    "consumeDurability": "always"
+}

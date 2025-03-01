@@ -21,6 +21,15 @@ SPDX-License-Identifier: MPL-2.0
         <property name="file" value="${config_loc}/suppressions.xml" />
     </module>
 
+    <!--
+        Checkstyle doesn't support @snippet (https://github.com/checkstyle/checkstyle/issues/11455),
+        so suppress warnings nearby
+    -->
+    <module name="SuppressWithNearbyTextFilter">
+        <property name="nearbyTextPattern" value="@snippet" />
+        <property name="lineRange" value="20" />
+    </module>
+
     <module name="BeforeExecutionExclusionFileFilter">
         <property name="fileNamePattern" value="render_old"/>
     </module>

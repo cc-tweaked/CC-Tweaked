@@ -11,6 +11,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.client.platform.ClientPlatformHelper;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
+import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.Holiday;
 import net.minecraft.client.Minecraft;
@@ -21,13 +22,14 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.CommonColors;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.jspecify.annotations.Nullable;
 
 public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBlockEntity> {
-    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
-    private static final ResourceLocation ELF_OVERLAY_MODEL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_elf_overlay");
+    public static final ResourceLocation COLOUR_TURTLE_MODEL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
 
     private final BlockEntityRenderDispatcher renderer;
     private final Font font;
@@ -35,12 +37,6 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
     public TurtleBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
         renderer = context.getBlockEntityRenderDispatcher();
         font = context.getFont();
-    }
-
-    public static @Nullable ResourceLocation getTurtleOverlayModel(@Nullable ResourceLocation overlay, boolean christmas) {
-        if (overlay != null) return overlay;
-        if (christmas) return ELF_OVERLAY_MODEL;
-        return null;
     }
 
     @Override
@@ -61,13 +57,13 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
             transform.pushPose();
             transform.translate(0.5, 1.2, 0.5);
             transform.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());
-            transform.scale(-0.025f, -0.025f, 0.025f);
+            transform.scale(0.025f, -0.025f, 0.025f);
 
             var matrix = transform.last().pose();
             var opacity = (int) (mc.options.getBackgroundOpacity(0.25f) * 255) << 24;
             var width = -font.width(label) / 2.0f;
             font.drawInBatch(label, width, (float) 0, 0x20ffffff, false, matrix, buffers, Font.DisplayMode.SEE_THROUGH, opacity, lightmapCoord);
-            font.drawInBatch(label, width, (float) 0, 0xffffffff, false, matrix, buffers, Font.DisplayMode.NORMAL, 0, lightmapCoord);
+            font.drawInBatch(label, width, (float) 0, CommonColors.WHITE, false, matrix, buffers, Font.DisplayMode.NORMAL, 0, lightmapCoord);
 
             transform.popPose();
         }
@@ -93,14 +89,15 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
             renderModel(transform, buffers, lightmapCoord, overlayLight, model, null);
         } else {
             // Otherwise render it using the colour item.
-            renderModel(transform, buffers, lightmapCoord, overlayLight, COLOUR_TURTLE_MODEL, new int[]{ colour });
+            renderModel(transform, buffers, lightmapCoord, overlayLight, COLOUR_TURTLE_MODEL, new int[]{ FastColor.ARGB32.opaque(colour) });
         }
 
         // Render the overlay
-        var overlayModel = getTurtleOverlayModel(overlay, Holiday.getCurrent() == Holiday.CHRISTMAS);
-        if (overlayModel != null) {
-            renderModel(transform, buffers, lightmapCoord, overlayLight, overlayModel, null);
-        }
+        if (overlay != null) renderModel(transform, buffers, lightmapCoord, overlayLight, overlay.model(), null);
+
+        // And the Christmas overlay.
+        var showChristmas = TurtleOverlay.showElfOverlay(overlay, Holiday.getCurrent() == Holiday.CHRISTMAS);
+        if (showChristmas) renderModel(transform, buffers, lightmapCoord, overlayLight, TurtleOverlay.ELF_MODEL, null);
 
         // Render the upgrades
         renderUpgrade(transform, buffers, lightmapCoord, overlayLight, turtle, TurtleSide.LEFT, partialTicks);
@@ -120,8 +117,8 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         transform.translate(0.0f, -0.5f, -0.5f);
 
         var model = TurtleUpgradeModellers.getModel(upgrade, turtle.getAccess(), side);
-        applyTransformation(transform, model.getMatrix());
-        renderModel(transform, buffers, lightmapCoord, overlayLight, model.getModel(), null);
+        applyTransformation(transform, model.matrix());
+        renderModel(transform, buffers, lightmapCoord, overlayLight, model.model(), null);
 
         transform.popPose();
     }

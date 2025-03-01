@@ -4,28 +4,30 @@
 
 package dan200.computercraft.shared.computer.items;
 
-import dan200.computercraft.shared.computer.blocks.ComputerBlock;
+import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.computer.blocks.AbstractComputerBlock;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import org.jspecify.annotations.Nullable;
+import net.minecraft.world.item.TooltipFlag;
 
-public class ComputerItem extends AbstractComputerItem {
-    public ComputerItem(ComputerBlock<?> block, Properties settings) {
+import java.util.List;
+
+public class ComputerItem extends BlockItem {
+    public ComputerItem(AbstractComputerBlock<?> block, Properties settings) {
         super(block, settings);
     }
 
-    public ItemStack create(int id, @Nullable String label) {
-        var result = new ItemStack(this);
-        if (id >= 0) result.getOrCreateTag().putInt(NBT_ID, id);
-        if (label != null) result.setHoverName(Component.literal(label));
-        return result;
-    }
-
     @Override
-    public ItemStack changeItem(ItemStack stack, Item newItem) {
-        return newItem instanceof ComputerItem computer
-            ? computer.create(getComputerID(stack), getLabel(stack))
-            : ItemStack.EMPTY;
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag options) {
+        if (options.isAdvanced() || !stack.has(DataComponents.CUSTOM_NAME)) {
+            var id = stack.get(ModRegistry.DataComponents.COMPUTER_ID.get());
+            if (id != null) {
+                list.add(Component.translatable("gui.computercraft.tooltip.computer_id", id.id())
+                    .withStyle(ChatFormatting.GRAY));
+            }
+        }
     }
 }

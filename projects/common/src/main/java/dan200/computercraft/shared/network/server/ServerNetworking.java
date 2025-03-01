@@ -6,7 +6,9 @@ package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
-import dan200.computercraft.shared.platform.PlatformHelper;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ClientCommonPacketListener;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -30,7 +32,7 @@ public final class ServerNetworking {
      * @param player  The player to send it to.
      */
     public static void sendToPlayer(NetworkMessage<ClientNetworkContext> message, ServerPlayer player) {
-        player.connection.send(PlatformHelper.get().createPacket(message));
+        player.connection.send(createPacket(message));
     }
 
     /**
@@ -41,7 +43,7 @@ public final class ServerNetworking {
      */
     public static void sendToPlayers(NetworkMessage<ClientNetworkContext> message, Collection<ServerPlayer> players) {
         if (players.isEmpty()) return;
-        var packet = PlatformHelper.get().createPacket(message);
+        var packet = createPacket(message);
         for (var player : players) player.connection.send(packet);
     }
 
@@ -52,7 +54,7 @@ public final class ServerNetworking {
      * @param server  The current server.
      */
     public static void sendToAllPlayers(NetworkMessage<ClientNetworkContext> message, MinecraftServer server) {
-        server.getPlayerList().broadcastAll(PlatformHelper.get().createPacket(message));
+        server.getPlayerList().broadcastAll(createPacket(message));
     }
 
     /**
@@ -64,7 +66,7 @@ public final class ServerNetworking {
      * @param distance The distance to the centre players must be within.
      */
     public static void sendToAllAround(NetworkMessage<ClientNetworkContext> message, ServerLevel level, Vec3 pos, float distance) {
-        level.getServer().getPlayerList().broadcast(null, pos.x, pos.y, pos.z, distance, level.dimension(), PlatformHelper.get().createPacket(message));
+        level.getServer().getPlayerList().broadcast(null, pos.x, pos.y, pos.z, distance, level.dimension(), createPacket(message));
     }
 
     /**
@@ -74,9 +76,19 @@ public final class ServerNetworking {
      * @param chunk   The chunk players must be tracking.
      */
     public static void sendToAllTracking(NetworkMessage<ClientNetworkContext> message, LevelChunk chunk) {
-        var packet = PlatformHelper.get().createPacket(message);
+        var packet = createPacket(message);
         for (var player : ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false)) {
             player.connection.send(packet);
         }
+    }
+
+    /**
+     * Convert a clientbound {@link NetworkMessage} to a Minecraft {@link Packet}.
+     *
+     * @param message The message to convert.
+     * @return The converted message.
+     */
+    private static Packet<ClientCommonPacketListener> createPacket(NetworkMessage<ClientNetworkContext> message) {
+        return new ClientboundCustomPayloadPacket(message);
     }
 }

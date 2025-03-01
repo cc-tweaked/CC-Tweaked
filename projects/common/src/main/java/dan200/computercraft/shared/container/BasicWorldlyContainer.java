@@ -10,7 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A basic implementation of {@link WorldlyContainer} which operates on a {@linkplain #getContents() list of stacks}.
+ * A basic implementation of {@link WorldlyContainer} which operates on a {@linkplain #getItems() list of stacks}.
  */
 public interface BasicWorldlyContainer extends BasicContainer, WorldlyContainer {
     @Override

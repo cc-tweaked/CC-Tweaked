@@ -4,10 +4,10 @@
 
 package dan200.computercraft.impl.network.wired;
 
+import com.google.common.annotations.VisibleForTesting;
 import dan200.computercraft.api.network.Packet;
 import dan200.computercraft.api.network.PacketReceiver;
 import dan200.computercraft.api.network.wired.WiredElement;
-import dan200.computercraft.api.network.wired.WiredNetwork;
 import dan200.computercraft.api.network.wired.WiredNode;
 import dan200.computercraft.api.network.wired.WiredSender;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -128,8 +128,8 @@ public final class WiredNodeImpl implements WiredNode {
         return element;
     }
 
-    @Override
-    public WiredNetwork getNetwork() {
+    @VisibleForTesting
+    public WiredNetworkImpl getNetwork() {
         return network;
     }
 

@@ -30,8 +30,8 @@ public final class LuaMethodSupplier {
             }
         },
         m -> (target, context, args) -> {
-            var escArgs = args.escapes();
-            return context.executeMainThreadTask(() -> ResultHelpers.checkNormalResult(m.apply(target, context, escArgs)));
+            args.escapes();
+            return context.executeMainThreadTask(() -> ResultHelpers.checkNormalResult(m.apply(target, context, args)));
         }
     );
     private static final IntCache<LuaMethod> DYNAMIC = new IntCache<>(

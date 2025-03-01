@@ -5,13 +5,13 @@
 package dan200.computercraft.shared.media.items;
 
 import dan200.computercraft.api.media.IMedia;
-import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.RecordItem;
+import net.minecraft.world.item.JukeboxSong;
 import org.jspecify.annotations.Nullable;
 
 /**
- * An implementation of {@link IMedia} for {@link RecordItem}.
+ * An implementation of {@link IMedia} for items with a {@link JukeboxSong}.
  */
 public final class RecordMedia implements IMedia {
     public static final RecordMedia INSTANCE = new RecordMedia();
@@ -20,19 +20,8 @@ public final class RecordMedia implements IMedia {
     }
 
     @Override
-    public @Nullable String getLabel(ItemStack stack) {
-        return getAudioTitle(stack);
-    }
-
-    @Override
-    public @Nullable String getAudioTitle(ItemStack stack) {
-        var item = stack.getItem();
-        return item instanceof RecordItem record ? record.getDisplayName().getString() : null;
-    }
-
-    @Override
-    public @Nullable SoundEvent getAudio(ItemStack stack) {
-        var item = stack.getItem();
-        return item instanceof RecordItem record ? record.getSound() : null;
+    public @Nullable String getLabel(HolderLookup.Provider registries, ItemStack stack) {
+        var song = getAudio(registries, stack);
+        return song == null ? null : song.value().description().getString();
     }
 }

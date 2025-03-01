@@ -6,9 +6,9 @@ package dan200.computercraft.shared.details;
 
 import dan200.computercraft.api.detail.DetailProvider;
 import dan200.computercraft.api.detail.FabricDetailRegistries;
-import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 import java.util.Map;
 
@@ -19,7 +19,7 @@ import java.util.Map;
  */
 public class FluidDetails {
     public static void fillBasic(Map<? super String, Object> data, StorageView<FluidVariant> fluid) {
-        data.put("name", DetailHelpers.getId(RegistryWrappers.FLUIDS, fluid.getResource().getFluid()));
+        data.put("name", DetailHelpers.getId(BuiltInRegistries.FLUID, fluid.getResource().getFluid()));
         data.put("amount", fluid.getAmount());
     }
 

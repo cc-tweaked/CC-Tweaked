@@ -23,37 +23,35 @@ import java.util.Objects;
  * A peripheral provider which finds methods from various {@linkplain GenericSource generic sources}.
  * <p>
  * Methods are found using the original block entity itself and a registered list of {@link ComponentLookup}s.
- *
- * @param <C> A platform-specific type, used for the invalidation callback.
  */
-public final class GenericPeripheralProvider<C extends Runnable> {
-    private final List<ComponentLookup<? super C>> lookups = new ArrayList<>();
+public final class GenericPeripheralProvider {
+    private final List<ComponentLookup> lookups = new ArrayList<>();
 
     /**
      * Register a component lookup function.
      *
      * @param lookup The component lookup function.
      */
-    public synchronized void registerLookup(ComponentLookup<? super C> lookup) {
+    public synchronized void registerLookup(ComponentLookup lookup) {
         Objects.requireNonNull(lookup);
         if (!lookups.contains(lookup)) lookups.add(lookup);
     }
 
-    public void forEachMethod(MethodSupplier<PeripheralMethod> methods, ServerLevel level, BlockPos pos, Direction side, BlockEntity blockEntity, C invalidate, MethodSupplier.TargetedConsumer<PeripheralMethod> consumer) {
+    public void forEachMethod(MethodSupplier<PeripheralMethod> methods, ServerLevel level, BlockPos pos, Direction side, BlockEntity blockEntity, MethodSupplier.TargetedConsumer<PeripheralMethod> consumer) {
         methods.forEachMethod(blockEntity, consumer);
 
         for (var lookup : lookups) {
-            var contents = lookup.find(level, pos, blockEntity.getBlockState(), blockEntity, side, invalidate);
+            var contents = lookup.find(level, pos, blockEntity.getBlockState(), blockEntity, side);
             if (contents != null) methods.forEachMethod(contents, consumer);
         }
     }
 
     @Nullable
-    public IPeripheral getPeripheral(ServerLevel level, BlockPos pos, Direction side, @Nullable BlockEntity blockEntity, C invalidate) {
+    public IPeripheral getPeripheral(ServerLevel level, BlockPos pos, Direction side, @Nullable BlockEntity blockEntity) {
         if (blockEntity == null) return null;
 
         var builder = new GenericPeripheralBuilder();
-        forEachMethod(ServerContext.get(level.getServer()).peripheralMethods(), level, pos, side, blockEntity, invalidate, builder::addMethod);
+        forEachMethod(ServerContext.get(level.getServer()).peripheralMethods(), level, pos, side, blockEntity, builder::addMethod);
         return builder.toPeripheral(blockEntity, side);
     }
 }

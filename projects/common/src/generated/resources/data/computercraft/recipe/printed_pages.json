@@ -1,0 +1,12 @@
+{
+  "type": "computercraft:printout",
+  "category": "redstone",
+  "ingredients": [{"tag": "c:strings"}],
+  "min_printouts": 2,
+  "printout": [
+    {"item": "computercraft:printed_page"},
+    {"item": "computercraft:printed_pages"},
+    {"item": "minecraft:paper"}
+  ],
+  "result": {"count": 1, "id": "computercraft:printed_pages"}
+}

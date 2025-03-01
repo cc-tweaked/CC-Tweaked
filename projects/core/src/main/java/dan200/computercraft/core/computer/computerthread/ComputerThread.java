@@ -490,7 +490,7 @@ public final class ComputerThread implements ComputerScheduler {
 
         private void runImpl() {
             var workerThreadIds = new long[workersReadOnly().length];
-            Arrays.fill(workerThreadIds, Thread.currentThread().getId());
+            Arrays.fill(workerThreadIds, Thread.currentThread().threadId());
 
             while (state.get() < CLOSED) {
                 computerLock.lock();
@@ -523,7 +523,7 @@ public final class ComputerThread implements ComputerScheduler {
                 // up being easier (and not too inefficient) to just recompute the array each time.
                 for (var i = 0; i < workers.length; i++) {
                     var runner = workers[i];
-                    if (runner != null) workerThreadIds[i] = runner.owner.getId();
+                    if (runner != null) workerThreadIds[i] = runner.owner.threadId();
                 }
                 allocations = ThreadAllocations.getAllocatedBytes(workerThreadIds);
             } else {
@@ -827,7 +827,7 @@ public final class ComputerThread implements ComputerScheduler {
             timeout.startTimer(scaledPeriod());
 
             if (ThreadAllocations.isSupported()) {
-                var current = Thread.currentThread().getId();
+                var current = Thread.currentThread().threadId();
                 THREAD_ALLOCATION.set(this, new ThreadAllocation(current, ThreadAllocations.getAllocatedBytes(current), System.nanoTime()));
             }
         }
@@ -842,7 +842,7 @@ public final class ComputerThread implements ComputerScheduler {
             metrics.observe(Metrics.COMPUTER_TASKS, timeout.getExecutionTime());
 
             if (ThreadAllocations.isSupported()) {
-                var current = Thread.currentThread().getId();
+                var current = Thread.currentThread().threadId();
                 var info = THREAD_ALLOCATION.getAndSet(this, null);
                 assert info.threadId() == current;
 

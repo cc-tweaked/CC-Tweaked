@@ -14,12 +14,9 @@ import org.jspecify.annotations.Nullable;
  * {@linkplain ItemApiLookup Item API lookup} for {@link IMedia}.
  * <p>
  * The returned {@link IMedia} instance should be a singleton, and not reference the passed {@link ItemStack}.
- * <p>
- * Registering a {@link MediaProvider} via {@link ComputerCraftAPI#registerMediaProvider(MediaProvider)} is equivalent
- * to registering a {@linkplain ItemApiLookup#registerFallback(ItemApiLookup.ItemApiProvider) fallback provider}.
  */
 public final class MediaLookup {
-    public static final ResourceLocation ID = new ResourceLocation(ComputerCraftAPI.MOD_ID, "media");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "media");
 
     private static final ItemApiLookup<IMedia, @Nullable Void> lookup = ItemApiLookup.get(ID, IMedia.class, Void.class);
 

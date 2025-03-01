@@ -7,87 +7,79 @@ package dan200.computercraft.shared.media;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.media.IMedia;
-import dan200.computercraft.shared.computer.items.AbstractComputerItem;
-import dan200.computercraft.shared.computer.items.IComputerItem;
+import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.computer.items.ComputerItem;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.media.items.DiskItem;
-import net.minecraft.network.chat.Component;
+import dan200.computercraft.shared.util.DataComponentUtil;
+import dan200.computercraft.shared.util.NonNegativeId;
+import dan200.computercraft.shared.util.StorageCapacity;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.function.Supplier;
-import java.util.function.ToIntFunction;
 
 /**
  * Media that provides a {@link Mount}.
  */
 public final class MountMedia implements IMedia {
     /**
-     * A {@link MountMedia} implementation for {@linkplain AbstractComputerItem computers}.
+     * A {@link MountMedia} implementation for {@linkplain ComputerItem computers}.
      */
-    public static final IMedia COMPUTER = new MountMedia(
-        "computer", s -> ((IComputerItem) s.getItem()).getComputerID(s), null, ConfigSpec.computerSpaceLimit
-    );
+    public static final IMedia COMPUTER = new MountMedia("computer", ModRegistry.DataComponents.COMPUTER_ID, false, ConfigSpec.computerSpaceLimit);
 
     /**
      * A {@link MountMedia} implementation for {@linkplain DiskItem disks}.
      */
-    public static final IMedia DISK = new MountMedia("disk", DiskItem::getDiskID, DiskItem::setDiskID, ConfigSpec.floppySpaceLimit);
+    public static final IMedia DISK = new MountMedia("disk", ModRegistry.DataComponents.DISK_ID, true, ConfigSpec.floppySpaceLimit);
 
     private final String subPath;
-    private final ToIntFunction<ItemStack> getId;
-    private final @Nullable IdSetter setId;
+    private final Supplier<DataComponentType<NonNegativeId>> id;
+    private final boolean createId;
     private final Supplier<Integer> defaultCapacity;
 
     /**
      * Create a new {@link MountMedia}.
      *
      * @param subPath         The sub-path to expose the mount under, for instance {@code "computer"}.
-     * @param getId           A function to get the item's ID.
-     * @param setId           A function to set the item's ID. If not present, then mounts will not be created when the
-     *                        item is placed in a drive.
+     * @param id              The component that stores the ID.
+     * @param createId        Whether to allocate a new ID if the item does not yet have one.
      * @param defaultCapacity A function to get the default capacity of the stack.
      */
     public MountMedia(
         String subPath,
-        ToIntFunction<ItemStack> getId,
-        @Nullable IdSetter setId,
+        Supplier<DataComponentType<NonNegativeId>> id,
+        boolean createId,
         Supplier<Integer> defaultCapacity
     ) {
         this.subPath = subPath;
-        this.getId = getId;
-        this.setId = setId;
+        this.id = id;
+        this.createId = createId;
         this.defaultCapacity = defaultCapacity;
     }
 
     @Override
-    public @Nullable String getLabel(ItemStack stack) {
-        return stack.hasCustomHoverName() ? stack.getHoverName().getString() : null;
+    public @Nullable String getLabel(HolderLookup.Provider registries, ItemStack stack) {
+        return DataComponentUtil.getCustomName(stack);
     }
 
     @Override
     public boolean setLabel(ItemStack stack, @Nullable String label) {
-        if (label != null) {
-            stack.setHoverName(Component.literal(label));
-        } else {
-            stack.resetHoverName();
-        }
+        DataComponentUtil.setCustomName(stack, label);
         return true;
     }
 
     @Override
     public @Nullable Mount createDataMount(ItemStack stack, ServerLevel level) {
-        var id = getId.applyAsInt(stack);
-        if (id < 0) {
-            if (setId == null) return null;
-            id = ComputerCraftAPI.createUniqueNumberedSaveDir(level.getServer(), subPath);
-            setId.set(stack, id);
-        }
-        return ComputerCraftAPI.createSaveDirMount(level.getServer(), subPath + "/" + id, defaultCapacity.get());
-    }
+        var id = createId
+            ? NonNegativeId.getOrCreate(level.getServer(), stack, this.id.get(), subPath)
+            : NonNegativeId.getId(stack.get(this.id.get()));
+        if (id < 0) return null;
 
-    public interface IdSetter {
-        void set(ItemStack stack, int id);
+        var capacity = StorageCapacity.getOrDefault(stack.get(ModRegistry.DataComponents.STORAGE_CAPACITY.get()), defaultCapacity);
+        return ComputerCraftAPI.createSaveDirMount(level.getServer(), subPath + "/" + id, capacity);
     }
 }

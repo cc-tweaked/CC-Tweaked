@@ -12,8 +12,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.BakedModelWrapper;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.BakedModelWrapper;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public final class FoiledModel extends BakedModelWrapper<BakedModel> {
 
     @Override
     public List<RenderType> getRenderTypes(ItemStack itemStack, boolean fabulous) {
-        return new ConsList<>(fabulous ? RenderType.glintDirect() : RenderType.glint(), super.getRenderTypes(itemStack, fabulous));
+        return new ConsList<>(fabulous ? RenderType.glintTranslucent() : RenderType.glint(), super.getRenderTypes(itemStack, fabulous));
     }
 
     @Override

@@ -6,21 +6,20 @@ package dan200.computercraft.shared.network.container;
 
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.platform.PlatformHelper;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
-
-import java.util.function.Function;
 
 /**
  * Additional data to send when opening a menu. Like {@link NetworkMessage}, this should be immutable.
  */
 public interface ContainerData {
-    void toBytes(FriendlyByteBuf buf);
+    void toBytes(RegistryFriendlyByteBuf buf);
 
-    static <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> toType(Function<FriendlyByteBuf, T> reader, Factory<C, T> factory) {
-        return PlatformHelper.get().createMenuType(reader, factory);
+    static <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> toType(StreamCodec<RegistryFriendlyByteBuf, T> codec, Factory<C, T> factory) {
+        return PlatformHelper.get().createMenuType(codec, factory);
     }
 
     interface Factory<C extends AbstractContainerMenu, T extends ContainerData> {

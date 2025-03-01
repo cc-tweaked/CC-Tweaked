@@ -6,16 +6,16 @@ package dan200.computercraft.gametest.api
 
 import dan200.computercraft.api.peripheral.IPeripheral
 import dan200.computercraft.gametest.core.ManagedComputers
-import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.mixin.gametest.GameTestInfoAccessor
 import dan200.computercraft.mixin.gametest.GameTestSequenceAccessor
 import dan200.computercraft.shared.platform.PlatformHelper
-import dan200.computercraft.shared.platform.RegistryWrappers
+import dan200.computercraft.shared.util.RegistryHelper
 import dan200.computercraft.test.core.computer.LuaTaskContext
 import dan200.computercraft.test.shared.ItemStackMatcher.isStack
 import net.minecraft.commands.arguments.blocks.BlockInput
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.gametest.framework.*
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.Container
@@ -25,6 +25,7 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.UseOnContext
+import net.minecraft.world.level.GameType
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.entity.BarrelBlockEntity
 import net.minecraft.world.level.block.entity.BlockEntity
@@ -174,7 +175,7 @@ fun GameTestHelper.assertBlockIs(pos: BlockPos, predicate: (BlockState) -> Boole
 fun <T : Comparable<T>> GameTestHelper.assertBlockHas(pos: BlockPos, property: Property<T>, value: T, message: String = "") {
     val state = getBlockState(pos)
     if (!state.hasProperty(property)) {
-        val id = RegistryWrappers.BLOCKS.getKey(state.block)
+        val id = RegistryHelper.getKeyOrThrow(BuiltInRegistries.BLOCK, state.block)
         fail(message, "block $id does not have property ${property.name}", pos)
     } else if (state.getValue(property) != value) {
         fail(message, "${property.name} is ${state.getValue(property)}, expected $value", pos)
@@ -185,9 +186,8 @@ fun <T : Comparable<T>> GameTestHelper.assertBlockHas(pos: BlockPos, property: P
  * Get a [Container] at a given position.
  */
 fun GameTestHelper.getContainerAt(pos: BlockPos): Container =
-    when (val container = getBlockEntity(pos)) {
+    when (val container: BlockEntity = getBlockEntity(pos)) {
         is Container -> container
-        null -> failVerbose("Expected a container at $pos, found nothing", pos)
         else -> failVerbose("Expected a container at $pos, found ${getName(container.type)}", pos)
     }
 
@@ -211,6 +211,10 @@ fun GameTestHelper.assertContainerExactly(pos: BlockPos, items: List<ItemStack>)
 fun <T> GameTestHelper.assertContainerExactly(entity: T, items: List<ItemStack>) where T : Entity, T : Container =
     assertContainerExactlyImpl(entity.blockPosition(), entity, items)
 
+private fun ItemStack.toStringFull(): String = if (isEmpty) "<empty>" else "$count x $item$componentsPatch"
+
+private fun formatItems(items: List<ItemStack>) = items.joinToString(", ") { it.toStringFull() }
+
 private fun GameTestHelper.assertContainerExactlyImpl(pos: BlockPos, container: Container, items: List<ItemStack>) {
     val slot = (0 until container.containerSize).indexOfFirst { slot ->
         val expected = if (slot >= items.size) ItemStack.EMPTY else items[slot]
@@ -218,11 +222,12 @@ private fun GameTestHelper.assertContainerExactlyImpl(pos: BlockPos, container: 
     }
 
     if (slot >= 0) {
+        val invItems = (0 until container.containerSize).map { container.getItem(it) }.dropLastWhile { it.isEmpty }
         failVerbose(
             """
             Items do not match (first mismatch at slot $slot).
-            Expected:  $items
-            Container: ${(0 until container.containerSize).map { container.getItem(it) }.dropLastWhile { it.isEmpty }}
+            Expected:  ${formatItems(items)}
+            Container: ${formatItems(invItems)}
             """.trimIndent(),
             pos,
         )
@@ -273,27 +278,19 @@ fun GameTestHelper.assertItemEntityCountIs(expected: Item, count: Int) {
     }
 }
 
-private fun getName(type: BlockEntityType<*>): ResourceLocation = RegistryWrappers.BLOCK_ENTITY_TYPES.getKey(type)!!
+private fun getName(type: BlockEntityType<*>): ResourceLocation =
+    RegistryHelper.getKeyOrThrow(BuiltInRegistries.BLOCK_ENTITY_TYPE, type)
 
 /**
  * Get a [BlockEntity] of a specific type.
  */
 fun <T : BlockEntity> GameTestHelper.getBlockEntity(pos: BlockPos, type: BlockEntityType<T>): T {
-    val tile = getBlockEntity(pos)
+    val tile: BlockEntity = getBlockEntity(pos)
     @Suppress("UNCHECKED_CAST")
     return when {
-        tile == null -> failVerbose("Expected ${getName(type)}, but no tile was there", pos)
         tile.type != type -> failVerbose("Expected ${getName(type)} but got ${getName(tile.type)}", pos)
         else -> tile as T
     }
-}
-
-/**
- * Get all entities of a specific type within the test structure.
- */
-fun <T : Entity> GameTestHelper.getEntities(type: EntityType<T>): List<T> {
-    val info = (this as GameTestHelperAccessor).testInfo
-    return level.getEntities(type, info.structureBounds!!) { it.isAlive }
 }
 
 /**
@@ -336,7 +333,7 @@ fun GameTestHelper.setContainerItem(pos: BlockPos, slot: Int, item: ItemStack) {
  * This is required for compatibility with Forge, which uses the in-hand stack, rather than the stack requested.
  */
 fun GameTestHelper.placeItemAt(stack: ItemStack, pos: BlockPos, direction: Direction) {
-    val player = makeMockPlayer()
+    val player = makeMockPlayer(GameType.CREATIVE)
     player.setItemInHand(InteractionHand.MAIN_HAND, stack)
     val absolutePos = absolutePos(pos.relative(direction))
     val hit = BlockHitResult(Vec3.atCenterOf(absolutePos), direction, absolutePos, false)

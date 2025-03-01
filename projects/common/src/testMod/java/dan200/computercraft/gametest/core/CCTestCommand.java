@@ -7,12 +7,14 @@ package dan200.computercraft.gametest.core;
 import com.mojang.brigadier.CommandDispatcher;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.mixin.gametest.TestCommandAccessor;
-import dan200.computercraft.shared.computer.items.IComputerItem;
+import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.util.NonNegativeId;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.commands.arguments.item.ItemInput;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestRegistry;
 import net.minecraft.gametest.framework.StructureUtils;
 import net.minecraft.nbt.CompoundTag;
@@ -48,30 +50,30 @@ class CCTestCommand {
                 exportFiles(context.getSource().getServer());
 
                 for (var function : GameTestRegistry.getAllTestFunctions()) {
-                    TestCommandAccessor.callExportTestStructure(context.getSource(), function.getStructureName());
+                    TestCommandAccessor.callExportTestStructure(context.getSource(), function.structureName());
                 }
                 return 0;
             }))
             .then(literal("regen-structures").executes(context -> {
                 for (var function : GameTestRegistry.getAllTestFunctions()) {
-                    dispatcher.execute("test import " + function.getTestName(), context.getSource());
-                    TestCommandAccessor.callExportTestStructure(context.getSource(), function.getStructureName());
+                    dispatcher.execute("test import " + function.testName(), context.getSource());
+                    TestCommandAccessor.callExportTestStructure(context.getSource(), function.structureName());
                 }
                 return 0;
             }))
 
             .then(literal("marker").executes(context -> {
                 var player = context.getSource().getPlayerOrException();
-                var pos = StructureUtils.findNearestStructureBlock(player.blockPosition(), 15, player.serverLevel());
+                var pos = StructureUtils.findNearestStructureBlock(player.blockPosition(), 15, player.serverLevel()).orElse(null);
                 if (pos == null) return error(context.getSource(), "No nearby test");
 
                 var structureBlock = (StructureBlockEntity) player.level().getBlockEntity(pos);
                 if (structureBlock == null) return error(context.getSource(), "No nearby structure block");
-                var info = GameTestRegistry.getTestFunction(structureBlock.getStructurePath());
+                var info = GameTestRegistry.getTestFunction(structureBlock.getMetaData());
 
                 // Kill the existing armor stand
                 player
-                    .serverLevel().getEntities(EntityType.ARMOR_STAND, x -> x.isAlive() && x.getName().getString().equals(info.getTestName()))
+                    .serverLevel().getEntities(EntityType.ARMOR_STAND, x -> x.isAlive() && x.getName().getString().equals(info.testName()))
                     .forEach(Entity::kill);
 
                 // And create a new one
@@ -81,7 +83,7 @@ class CCTestCommand {
                 var armorStand = assertNonNull(EntityType.ARMOR_STAND.create(player.level()));
                 armorStand.readAdditionalSaveData(nbt);
                 armorStand.copyPosition(player);
-                armorStand.setCustomName(Component.literal(info.getTestName()));
+                armorStand.setCustomName(Component.literal(info.testName()));
                 player.level().addFreshEntity(armorStand);
                 return 0;
             }))
@@ -90,21 +92,21 @@ class CCTestCommand {
                 var item = context.getArgument("item", ItemInput.class);
 
                 var player = context.getSource().getPlayerOrException();
-                var pos = StructureUtils.findNearestStructureBlock(player.blockPosition(), 15, player.serverLevel());
+                var pos = StructureUtils.findNearestStructureBlock(player.blockPosition(), 15, player.serverLevel()).orElse(null);
                 if (pos == null) return error(context.getSource(), "No nearby test");
 
                 var structureBlock = (StructureBlockEntity) player.level().getBlockEntity(pos);
                 if (structureBlock == null) return error(context.getSource(), "No nearby structure block");
-                var info = GameTestRegistry.getTestFunction(structureBlock.getStructurePath());
+                var info = GameTestRegistry.getTestFunction(structureBlock.getMetaData());
 
                 var stack = item.createItemStack(1, false);
-                stack.getOrCreateTag().putInt(IComputerItem.NBT_ID, 1);
-                stack.setHoverName(Component.literal(info.getTestName()));
+                stack.set(ModRegistry.DataComponents.COMPUTER_ID.get(), new NonNegativeId(1));
+                stack.set(DataComponents.CUSTOM_NAME, Component.literal(info.testName()));
                 if (!player.getInventory().add(stack)) {
                     var itemEntity = player.drop(stack, false);
                     if (itemEntity != null) {
                         itemEntity.setNoPickUpDelay();
-                        itemEntity.setThrower(player.getUUID());
+                        itemEntity.setThrower(player);
                     }
                 }
 

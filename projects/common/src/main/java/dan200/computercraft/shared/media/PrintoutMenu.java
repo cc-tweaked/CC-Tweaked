@@ -6,6 +6,7 @@ package dan200.computercraft.shared.media;
 
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.container.InvisibleSlot;
+import dan200.computercraft.shared.media.items.PrintoutData;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
@@ -102,7 +103,7 @@ public class PrintoutMenu extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(Player player, int id) {
         if (id >= PAGE_BUTTON_OFFSET) {
-            var page = Mth.clamp(id - PAGE_BUTTON_OFFSET, 0, PrintoutItem.getPageCount(getPrintout()) - 1);
+            var page = Mth.clamp(id - PAGE_BUTTON_OFFSET, 0, PrintoutData.getOrEmpty(getPrintout()).pages() - 1);
             setData(DATA_CURRENT_PAGE, page);
             return true;
         }

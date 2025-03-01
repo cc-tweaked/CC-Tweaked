@@ -5,7 +5,7 @@
 package dan200.computercraft.api.detail;
 
 import dan200.computercraft.impl.ComputerCraftAPIForgeService;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 /**
  * {@link DetailRegistry}s for Forge-specific types.

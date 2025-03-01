@@ -18,8 +18,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentContents;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -37,7 +35,6 @@ import static dan200.computercraft.shared.command.text.ChatHelpers.makeComputerD
 
 public record ComputerSelector(
     String selector,
-    OptionalInt instanceId,
     @Nullable UUID instanceUuid,
     OptionalInt computerId,
     @Nullable String label,
@@ -45,7 +42,7 @@ public record ComputerSelector(
     @Nullable AABB bounds,
     MinMaxBounds.@Nullable Doubles range
 ) {
-    private static final ComputerSelector all = new ComputerSelector("@c[]", OptionalInt.empty(), null, OptionalInt.empty(), null, null, null, null);
+    private static final ComputerSelector all = new ComputerSelector("@c[]", null, OptionalInt.empty(), null, null, null, null);
 
     private static final UuidArgument uuidArgument = UuidArgument.uuid();
 
@@ -66,10 +63,6 @@ public record ComputerSelector(
      */
     public Stream<ServerComputer> find(CommandSourceStack source) {
         var context = ServerContext.get(source.getServer());
-        if (instanceId().isPresent()) {
-            var computer = context.registry().get(instanceId().getAsInt());
-            return computer != null && matches(source, computer) ? Stream.of(computer) : Stream.of();
-        }
 
         if (instanceUuid() != null) {
             var computer = context.registry().get(instanceUuid());
@@ -91,7 +84,7 @@ public record ComputerSelector(
         if (computers.isEmpty()) throw COMPUTER_ARG_NONE.create(selector);
         if (computers.size() == 1) return computers.iterator().next();
 
-        var builder = MutableComponent.create(ComponentContents.EMPTY);
+        var builder = Component.empty();
         var first = true;
         for (var computer : computers) {
             if (first) {
@@ -116,8 +109,7 @@ public record ComputerSelector(
      * @return If this computer is matched by the selector.
      */
     public boolean matches(CommandSourceStack source, ServerComputer computer) {
-        return (instanceId().isEmpty() || computer.getInstanceID() == instanceId().getAsInt())
-            && (instanceUuid() == null || computer.getInstanceUUID().equals(instanceUuid()))
+        return (instanceUuid() == null || computer.getInstanceUUID().equals(instanceUuid()))
             && (computerId().isEmpty() || computer.getID() == computerId().getAsInt())
             && (label == null || Objects.equals(computer.getLabel(), label))
             && (family == null || computer.getFamily() == family)
@@ -140,24 +132,12 @@ public record ComputerSelector(
         if (consume(reader, "@c[")) {
             parseSelector(builder, reader);
         } else {
-            // TODO(1.20.5): Only parse computer ids here.
-            var kind = reader.peek();
-            if (kind == '@') {
-                reader.skip();
-                builder.label = reader.readString();
-            } else if (kind == '~') {
-                reader.skip();
-                builder.family = parseFamily(reader);
-            } else if (kind == '#') {
-                reader.skip();
-                builder.computerId = OptionalInt.of(reader.readInt());
-            } else {
-                builder.instanceId = OptionalInt.of(reader.readInt());
-            }
+            if (reader.peek() == '#') reader.skip();
+            builder.computerId = OptionalInt.of(reader.readInt());
         }
 
         var selector = reader.getString().substring(start, reader.getCursor());
-        return new ComputerSelector(selector, builder.instanceId, builder.instanceUuid, builder.computerId, builder.label, builder.family, builder.bounds, builder.range);
+        return new ComputerSelector(selector, builder.instanceUuid, builder.computerId, builder.label, builder.family, builder.bounds, builder.range);
     }
 
     private static void parseSelector(Builder builder, StringReader reader) throws CommandSyntaxException {
@@ -224,7 +204,7 @@ public record ComputerSelector(
         } else if (remaining.startsWith("#")) {
             return suggestComputers(c -> "#" + c.getID()).suggest(context, builder);
         } else {
-            return suggestComputers(c -> Integer.toString(c.getInstanceID())).suggest(context, builder);
+            return suggestComputers(c -> Integer.toString(c.getID())).suggest(context, builder);
         }
     }
 
@@ -273,7 +253,6 @@ public record ComputerSelector(
     }
 
     private static final class Builder {
-        private OptionalInt instanceId = OptionalInt.empty();
         private @Nullable UUID instanceUuid = null;
         private OptionalInt computerId = OptionalInt.empty();
         private @Nullable String label;

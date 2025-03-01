@@ -477,7 +477,7 @@ public interface IArguments {
     }
 
     /**
-     * Create a version of these arguments which escapes the scope of the current function call.
+     * Mark these arguments as escaping the scope of the current function call.
      * <p>
      * Some {@link IArguments} implementations provide a view over the underlying Lua data structures, allowing for
      * zero-copy implementations of some methods (such as {@link #getTableUnsafe(int)} or {@link #getBytes(int)}).
@@ -491,12 +491,9 @@ public interface IArguments {
      * {@link ILuaContext#issueMainThreadTask(LuaTask)} (or similar), then you will need to mark arguments as escaping
      * yourself.
      *
-     * @return An {@link IArguments} instance which can escape the current scope. May be {@code this}.
      * @throws LuaException          For the same reasons as {@link #get(int)}.
      * @throws IllegalStateException If marking these arguments as escaping outside the scope of the original function.
      */
-    default IArguments escapes() throws LuaException {
-        // TODO(1.21.0): Make this return void, require that it mutates this.
-        return this;
+    default void escapes() throws LuaException {
     }
 }

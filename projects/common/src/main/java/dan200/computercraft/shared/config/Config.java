@@ -12,8 +12,6 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
  * @see ConfigSpec The definition of our config values.
  */
 public final class Config {
-    public static int computerSpaceLimit = 1000 * 1000;
-    public static int floppySpaceLimit = 125 * 1000;
     public static int uploadMaxSize = 512 * 1024; // 512 KB
     public static boolean commandRequireCreative = true;
 

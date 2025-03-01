@@ -1,0 +1,12 @@
+{
+  "type": "computercraft:impostor_shaped",
+  "category": "redstone",
+  "group": "computercraft:turtle_advanced",
+  "key": {"#": {"item": "minecraft:crafting_table"}, "T": {"item": "computercraft:turtle_advanced"}},
+  "pattern": ["#T"],
+  "result": {
+    "components": {"computercraft:right_turtle_upgrade": {"id": "minecraft:crafting_table"}},
+    "count": 1,
+    "id": "computercraft:turtle_advanced"
+  }
+}

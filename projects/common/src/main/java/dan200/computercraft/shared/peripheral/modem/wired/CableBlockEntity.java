@@ -15,6 +15,7 @@ import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
@@ -53,7 +54,6 @@ public class CableBlockEntity extends BlockEntity {
 
     private boolean refreshPeripheral;
     private final WiredModemLocalPeripheral peripheral = new WiredModemLocalPeripheral(PlatformHelper.get().createPeripheralAccess(this, x -> queueRefreshPeripheral()));
-    private @Nullable Runnable modemChanged;
 
     private boolean refreshConnections = false;
 
@@ -98,7 +98,7 @@ public class CableBlockEntity extends BlockEntity {
         super.setBlockState(state);
 
         // We invalidate both the modem and element if the modem direction or cable are different.
-        if (modemChanged != null && (hasCable() != hasCable || getModemDirection() != direction)) modemChanged.run();
+        if (hasCable() != hasCable || getModemDirection() != direction) PlatformHelper.get().invalidateComponent(this);
     }
 
     @Nullable
@@ -146,15 +146,15 @@ public class CableBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
+    public void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadAdditional(nbt, registries);
         peripheral.read(nbt, "");
     }
 
     @Override
-    public void saveAdditional(CompoundTag nbt) {
+    public void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
         peripheral.write(nbt, "");
-        super.saveAdditional(nbt);
+        super.saveAdditional(nbt, registries);
     }
 
     private void updateBlockState() {
@@ -241,10 +241,6 @@ public class CableBlockEntity extends BlockEntity {
 
     private boolean isPeripheralOn() {
         return getBlockState().getValue(CableBlock.MODEM).isPeripheralOn();
-    }
-
-    public void onModemChanged(Runnable callback) {
-        modemChanged = callback;
     }
 
     boolean hasCable() {

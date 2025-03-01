@@ -11,11 +11,13 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.AbstractContainerBlockEntity;
+import dan200.computercraft.shared.container.BasicContainer;
 import dan200.computercraft.shared.network.client.PlayRecordClientMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -30,6 +32,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -55,7 +58,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @see DiskDrivePeripheral
  */
-public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
+public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity implements BasicContainer {
     private static final String NBT_ITEM = "Item";
 
     private static final class MountInfo {
@@ -111,17 +114,17 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
     }
 
     @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
-        setDiskStack(nbt.contains(NBT_ITEM) ? ItemStack.of(nbt.getCompound(NBT_ITEM)) : ItemStack.EMPTY);
+    public void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadAdditional(nbt, registries);
+        setDiskStack(nbt.contains(NBT_ITEM) ? ItemStack.parseOptional(registries, nbt.getCompound(NBT_ITEM)) : ItemStack.EMPTY);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
 
         var stack = getDiskStack();
-        if (!stack.isEmpty()) tag.put(NBT_ITEM, stack.save(new CompoundTag()));
+        if (!stack.isEmpty()) tag.put(NBT_ITEM, stack.save(registries));
     }
 
     void serverTick() {
@@ -133,11 +136,10 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
             switch (recordQueued) {
                 case PLAY -> {
                     var media = getMedia();
-                    var record = media.getAudio();
+                    var record = media.getAudio(getLevel().registryAccess());
                     if (record != null) {
                         recordPlaying = true;
-                        var title = media.getAudioTitle();
-                        sendMessage(new PlayRecordClientMessage(getBlockPos(), record, title));
+                        sendMessage(new PlayRecordClientMessage(getBlockPos(), Optional.of(record)));
                     }
                 }
                 case STOP -> {
@@ -149,8 +151,13 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
     }
 
     @Override
-    public NonNullList<ItemStack> getContents() {
+    public NonNullList<ItemStack> getItems() {
         return inventory;
+    }
+
+    @Override
+    public void setItems(NonNullList<ItemStack> items) {
+        BasicContainer.defaultSetItems(inventory, items);
     }
 
     @Override
@@ -164,7 +171,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
      */
     private synchronized void updateMedia() {
         var newStack = getDiskStack();
-        if (ItemStack.isSameItemSameTags(newStack, media.stack())) return;
+        if (ItemStack.isSameItemSameComponents(newStack, media.stack())) return;
 
         var newMedia = MediaStack.of(newStack);
 
@@ -235,7 +242,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
      */
     @GuardedBy("this")
     private void updateMediaStack(ItemStack stack, boolean immediate) {
-        if (ItemStack.isSameItemSameTags(media.stack(), stack)) return;
+        if (ItemStack.isSameItemSameComponents(media.stack(), stack)) return;
         media = new MediaStack(stack, media.media());
 
         if (immediate) {

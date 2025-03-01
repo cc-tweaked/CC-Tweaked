@@ -67,10 +67,7 @@
  * Fabric.
  *
  * <h4>Registering {@code IPeripheral} on Forge</h4>
- * Registering a peripheral on Forge can be done by attaching the {@link dan200.computercraft.api.peripheral.IPeripheral}
- * to a block entity. Unfortunately, this requires quite a lot of boilerplate, due to the awkward nature of
- * {@code ICapabilityProvider}. If you've got an existing system for dealing with this, we recommend you use that,
- * otherwise you can use something similar to the code below:
+ * Registering a peripheral on Forge can be done by using the capability API, via {@code PeripheralCapability}.
  *
  * {@snippet class=com.example.examplemod.ForgeExampleMod region=peripherals}
  *

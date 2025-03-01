@@ -34,6 +34,7 @@ public class ComputerBlockEntity extends AbstractComputerBlockEntity {
         return new ServerComputer((ServerLevel) getLevel(), getBlockPos(), ServerComputer.properties(id, getFamily())
             .label(getLabel())
             .terminalSize(ConfigSpec.computerTermWidth.get(), ConfigSpec.computerTermHeight.get())
+            .storageCapacity(storageCapacity)
         );
     }
 

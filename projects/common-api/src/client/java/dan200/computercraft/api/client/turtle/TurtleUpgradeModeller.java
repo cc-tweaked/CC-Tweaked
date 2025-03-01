@@ -4,18 +4,17 @@
 
 package dan200.computercraft.api.client.turtle;
 
+import dan200.computercraft.api.client.ModelLocation;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.resources.model.UnbakedModel;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.ResourceLocation;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Provides models for a {@link ITurtleUpgrade}.
@@ -38,47 +37,32 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
     /**
      * Obtain the model to be used when rendering a turtle peripheral.
      * <p>
-     * When the current turtle is {@literal null}, this function should be constant for a given upgrade and side.
+     * When the current turtle is {@literal null}, this function should be constant for a given upgrade, side and data.
      *
      * @param upgrade The upgrade that you're getting the model for.
-     * @param turtle  Access to the turtle that the upgrade resides on. This will be null when getting item models, unless
-     *                {@link #getModel(ITurtleUpgrade, CompoundTag, TurtleSide)} is overriden.
+     * @param turtle  Access to the turtle that the upgrade resides on. This will be null when getting item models.
      * @param side    Which side of the turtle (left or right) the upgrade resides on.
-     * @return The model that you wish to be used to render your upgrade.
-     */
-    TransformedModel getModel(T upgrade, @Nullable ITurtleAccess turtle, TurtleSide side);
-
-    /**
-     * Obtain the model to be used when rendering a turtle peripheral.
-     * <p>
-     * This is used when rendering the turtle's item model, and so no {@link ITurtleAccess} is available.
-     *
-     * @param upgrade The upgrade that you're getting the model for.
      * @param data    Upgrade data instance for current turtle side.
-     * @param side    Which side of the turtle (left or right) the upgrade resides on.
      * @return The model that you wish to be used to render your upgrade.
      */
-    default TransformedModel getModel(T upgrade, CompoundTag data, TurtleSide side) {
-        return getModel(upgrade, (ITurtleAccess) null, side);
-    }
-
+    TransformedModel getModel(T upgrade, @Nullable ITurtleAccess turtle, TurtleSide side, DataComponentPatch data);
 
     /**
-     * Get a list of models that this turtle modeller depends on.
+     * Get the models that this turtle modeller depends on.
      * <p>
-     * Models included in this list will be loaded and baked alongside item and block models, and so may be referenced
+     * Models included in this stream will be loaded and baked alongside item and block models, and so may be referenced
      * by {@link TransformedModel#of(ResourceLocation)}. You do not need to override this method if you will load models
      * by other means.
      *
      * @return A list of models that this modeller depends on.
      * @see UnbakedModel#getDependencies()
      */
-    default Collection<ResourceLocation> getDependencies() {
-        return List.of();
+    default Stream<ResourceLocation> getDependencies() {
+        return Stream.of();
     }
 
     /**
-     * A basic {@link TurtleUpgradeModeller} which renders using the upgrade's {@linkplain ITurtleUpgrade#getUpgradeItem(CompoundTag)}
+     * A basic {@link TurtleUpgradeModeller} which renders using the upgrade's {@linkplain ITurtleUpgrade#getUpgradeItem(DataComponentPatch)}
      * upgrade item}.
      * <p>
      * This uses appropriate transformations for "flat" items, namely those extending the {@literal minecraft:item/generated}
@@ -100,9 +84,8 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * @param <T>   The type of the turtle upgrade.
      * @return The constructed modeller.
      */
-    static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> sided(ModelResourceLocation left, ModelResourceLocation right) {
-        // TODO(1.21.0): Remove this.
-        return sided((ResourceLocation) left, right);
+    static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> sided(ResourceLocation left, ResourceLocation right) {
+        return sided(ModelLocation.ofResource(left), ModelLocation.ofResource(right));
     }
 
     /**
@@ -113,16 +96,16 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * @param <T>   The type of the turtle upgrade.
      * @return The constructed modeller.
      */
-    static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> sided(ResourceLocation left, ResourceLocation right) {
+    static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> sided(ModelLocation left, ModelLocation right) {
         return new TurtleUpgradeModeller<>() {
             @Override
-            public TransformedModel getModel(T upgrade, @Nullable ITurtleAccess turtle, TurtleSide side) {
+            public TransformedModel getModel(T upgrade, @Nullable ITurtleAccess turtle, TurtleSide side, DataComponentPatch data) {
                 return TransformedModel.of(side == TurtleSide.LEFT ? left : right);
             }
 
             @Override
-            public Collection<ResourceLocation> getDependencies() {
-                return List.of(left, right);
+            public Stream<ResourceLocation> getDependencies() {
+                return Stream.of(left, right).flatMap(ModelLocation::getDependencies);
             }
         };
     }

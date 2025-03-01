@@ -55,7 +55,7 @@ repositories {
             includeGroup("cc.tweaked")
             // Things we mirror
             includeModule("com.simibubi.create", "create-fabric-1.20.1")
-            includeGroup("commoble.morered")
+            includeGroup("net.commoble.morered")
             includeGroup("dev.architectury")
             includeGroup("dev.emi")
             includeGroup("maven.modrinth")
@@ -64,7 +64,6 @@ repositories {
             includeGroup("mezz.jei")
             includeGroup("org.teavm")
             includeModule("com.terraformersmc", "modmenu")
-            includeModule("me.lucko", "fabric-permissions-api")
         }
     }
 }
@@ -86,8 +85,16 @@ dependencies {
 // Configure default JavaCompile tasks with our arguments.
 sourceSets.all {
     tasks.named(compileJavaTaskName, JavaCompile::class.java) {
-        // Processing just gives us "No processor claimed any of these annotations", so skip that!
-        options.compilerArgs.addAll(listOf("-Xlint", "-Xlint:-processing"))
+
+        options.compilerArgs.addAll(
+            listOf(
+                "-Xlint",
+                // Processing just gives us "No processor claimed any of these annotations", so skip that!
+                "-Xlint:-processing",
+                // We violate this pattern too often for it to be a helpful warning. Something to improve one day!
+                "-Xlint:-this-escape",
+            ),
+        )
 
         options.errorprone {
             check("InvalidBlockTag", CheckSeverity.OFF) // Broken by @cc.xyz
@@ -155,7 +162,7 @@ tasks.javadoc {
     options {
         val stdOptions = this as StandardJavadocDocletOptions
         stdOptions.addBooleanOption("Xdoclint:all,-missing", true)
-        stdOptions.links("https://docs.oracle.com/en/java/javase/17/docs/api/")
+        stdOptions.links("https://docs.oracle.com/en/java/javase/21/docs/api/")
     }
 }
 

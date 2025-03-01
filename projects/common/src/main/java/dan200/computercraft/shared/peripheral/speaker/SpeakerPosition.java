@@ -4,7 +4,9 @@
 
 package dan200.computercraft.shared.peripheral.speaker;
 
+import dan200.computercraft.shared.network.codec.MoreStreamCodecs;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -36,22 +38,11 @@ public record SpeakerPosition(@Nullable Level level, Vec3 position, @Nullable En
         Vec3 position,
         OptionalInt entity
     ) {
-        public static Message read(FriendlyByteBuf buffer) {
-            var level = buffer.readResourceLocation();
-            var position = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
-            var entity = buffer.readBoolean() ? OptionalInt.of(buffer.readInt()) : OptionalInt.empty();
-            return new Message(level, position, entity);
-        }
-
-        public void write(FriendlyByteBuf buffer) {
-            buffer.writeResourceLocation(level);
-
-            buffer.writeDouble(position.x);
-            buffer.writeDouble(position.y);
-            buffer.writeDouble(position.z);
-
-            buffer.writeBoolean(entity.isPresent());
-            if (entity.isPresent()) buffer.writeInt(entity.getAsInt());
-        }
+        public static final StreamCodec<FriendlyByteBuf, Message> STREAM_CODEC = StreamCodec.composite(
+            ResourceLocation.STREAM_CODEC, Message::level,
+            MoreStreamCodecs.VEC3, Message::position,
+            MoreStreamCodecs.OPTIONAL_INT, Message::entity,
+            Message::new
+        );
     }
 }

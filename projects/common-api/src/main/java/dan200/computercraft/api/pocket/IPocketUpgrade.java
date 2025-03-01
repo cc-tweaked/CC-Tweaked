@@ -4,21 +4,46 @@
 
 package dan200.computercraft.api.pocket;
 
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.upgrades.UpgradeBase;
+import dan200.computercraft.api.upgrades.UpgradeType;
+import dan200.computercraft.impl.ComputerCraftAPIService;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
 /**
  * A peripheral which can be equipped to the back side of a pocket computer.
  * <p>
- * Pocket upgrades are defined in two stages. First, on creates a {@link IPocketUpgrade} subclass and corresponding
- * {@link PocketUpgradeSerialiser} instance, which are then registered in a Minecraft registry.
+ * Pocket upgrades are defined in two stages. First, one creates a {@link IPocketUpgrade} subclass and corresponding
+ * {@link UpgradeType} instance, which are then registered in a Minecraft registry.
  * <p>
  * You then write a JSON file in your mod's {@literal data/} folder. This is then parsed when the world is loaded, and
  * the upgrade registered internally.
  */
 public interface IPocketUpgrade extends UpgradeBase {
+    ResourceKey<Registry<IPocketUpgrade>> REGISTRY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_upgrade"));
+
+    /**
+     * The registry key for pocket upgrade types.
+     *
+     * @return The registry key.
+     */
+    static ResourceKey<Registry<UpgradeType<? extends IPocketUpgrade>>> typeRegistry() {
+        return ComputerCraftAPIService.get().pocketUpgradeRegistryId();
+    }
+
+    /**
+     * Get the type of this upgrade.
+     *
+     * @return The type of this upgrade.
+     */
+    @Override
+    UpgradeType<? extends IPocketUpgrade> getType();
+
     /**
      * Creates a peripheral for the pocket computer.
      * <p>

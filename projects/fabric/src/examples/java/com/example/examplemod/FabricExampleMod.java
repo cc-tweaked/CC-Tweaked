@@ -2,7 +2,8 @@ package com.example.examplemod;
 
 import com.example.examplemod.peripheral.BrewingStandPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralLookup;
-import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.api.upgrades.UpgradeType;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -17,8 +18,8 @@ public class FabricExampleMod implements ModInitializer {
     public void onInitialize() {
         // @start region=turtle_upgrades
         @SuppressWarnings("unchecked")
-        var turtleUpgradeSerialisers = (Registry<TurtleUpgradeSerialiser<?>>) BuiltInRegistries.REGISTRY.get(TurtleUpgradeSerialiser.registryId().location());
-        Registry.register(turtleUpgradeSerialisers, new ResourceLocation(ExampleMod.MOD_ID, "example_turtle_upgrade"), ExampleMod.EXAMPLE_TURTLE_UPGRADE);
+        var turtleUpgradeSerialisers = (Registry<UpgradeType<? extends ITurtleUpgrade>>) BuiltInRegistries.REGISTRY.get(ITurtleUpgrade.typeRegistry().location());
+        Registry.register(turtleUpgradeSerialisers, ResourceLocation.fromNamespaceAndPath(ExampleMod.MOD_ID, "example_turtle_upgrade"), ExampleMod.EXAMPLE_TURTLE_UPGRADE);
         // @end region=turtle_upgrades
 
         ExampleMod.registerComputerCraft();

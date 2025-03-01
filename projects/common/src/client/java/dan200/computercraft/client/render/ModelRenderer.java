@@ -50,28 +50,23 @@ public final class ModelRenderer {
                 if (idx >= 0 && idx < tints.length) tint = tints[bakedquad.getTintIndex()];
             }
 
-            var r = (float) (tint >> 16 & 255) / 255.0F;
-            var g = (float) (tint >> 8 & 255) / 255.0F;
-            var b = (float) (tint & 255) / 255.0F;
-            putBulkQuad(buffer, matrix, bakedquad, r, g, b, lightmapCoord, overlayLight, inverted);
+            putBulkQuad(buffer, matrix, bakedquad, tint, lightmapCoord, overlayLight, inverted);
         }
     }
 
     /**
-     * A version of {@link VertexConsumer#putBulkData(PoseStack.Pose, BakedQuad, float, float, float, int, int)} which
+     * A version of {@link VertexConsumer#putBulkData(PoseStack.Pose, BakedQuad, float, float, float, float, int, int)} which
      * will reverse vertex order when the matrix is inverted.
      *
      * @param buffer        The buffer to draw to.
      * @param pose          The current matrix stack.
      * @param quad          The quad to draw.
-     * @param red           The red tint of this quad.
-     * @param green         The  green tint of this quad.
-     * @param blue          The blue tint of this quad.
+     * @param colour        The tint for this quad.
      * @param lightmapCoord The lightmap coordinate
      * @param overlayLight  The overlay light.
      * @param invert        Whether to reverse the order of this quad.
      */
-    private static void putBulkQuad(VertexConsumer buffer, PoseStack.Pose pose, BakedQuad quad, float red, float green, float blue, int lightmapCoord, int overlayLight, boolean invert) {
+    private static void putBulkQuad(VertexConsumer buffer, PoseStack.Pose pose, BakedQuad quad, int colour, int lightmapCoord, int overlayLight, boolean invert) {
         var matrix = pose.pose();
         // It's a little dubious to transform using this matrix rather than the normal matrix. This mirrors the logic in
         // Direction.rotate (so not out of nowhere!), but is a little suspicious.
@@ -93,9 +88,9 @@ public final class ModelRenderer {
 
             var u = Float.intBitsToFloat(vertices[i + 4]);
             var v = Float.intBitsToFloat(vertices[i + 5]);
-            buffer.vertex(
+            buffer.addVertex(
                 vector.x(), vector.y(), vector.z(),
-                red, green, blue, 1.0F, u, v, overlayLight, lightmapCoord,
+                colour, u, v, overlayLight, lightmapCoord,
                 normalX, normalY, normalZ
             );
         }

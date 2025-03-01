@@ -34,6 +34,7 @@
         ]
     },
     "mixins": [
+        "computercraft.mixins.json",
         "computercraft.fabric.mixins.json",
         {
             "config": "computercraft-client.fabric.mixins.json",
@@ -41,9 +42,9 @@
         }
     ],
     "depends": {
-        "fabricloader": ">=0.14.21",
-        "fabric-api": ">=0.86.1",
-        "minecraft": "=1.20.1"
+        "fabricloader": ">=0.15.10",
+        "fabric-api": ">=0.102.1",
+        "minecraft": "=1.21.1"
     },
     "accessWidener": "computercraft.accesswidener"
 }

@@ -5,7 +5,6 @@
 package dan200.computercraft.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.pocket.PocketComputerData;
 import dan200.computercraft.client.render.CustomLecternRenderer;
@@ -20,9 +19,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 
 /**
  * A model for {@linkplain PocketComputerItem pocket computers} placed on a lectern.
@@ -30,11 +28,11 @@ import net.minecraft.world.item.ItemStack;
  * @see CustomLecternRenderer
  */
 public class LecternPocketModel {
-    public static final ResourceLocation TEXTURE_NORMAL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "entity/pocket_computer_normal");
-    public static final ResourceLocation TEXTURE_ADVANCED = new ResourceLocation(ComputerCraftAPI.MOD_ID, "entity/pocket_computer_advanced");
-    public static final ResourceLocation TEXTURE_COLOUR = new ResourceLocation(ComputerCraftAPI.MOD_ID, "entity/pocket_computer_colour");
-    public static final ResourceLocation TEXTURE_FRAME = new ResourceLocation(ComputerCraftAPI.MOD_ID, "entity/pocket_computer_frame");
-    public static final ResourceLocation TEXTURE_LIGHT = new ResourceLocation(ComputerCraftAPI.MOD_ID, "entity/pocket_computer_light");
+    public static final ResourceLocation TEXTURE_NORMAL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "entity/pocket_computer_normal");
+    public static final ResourceLocation TEXTURE_ADVANCED = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "entity/pocket_computer_advanced");
+    public static final ResourceLocation TEXTURE_COLOUR = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "entity/pocket_computer_colour");
+    public static final ResourceLocation TEXTURE_FRAME = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "entity/pocket_computer_frame");
+    public static final ResourceLocation TEXTURE_LIGHT = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "entity/pocket_computer_light");
 
     private static final Material MATERIAL_NORMAL = new Material(InventoryMenu.BLOCK_ATLAS, TEXTURE_NORMAL);
     private static final Material MATERIAL_ADVANCED = new Material(InventoryMenu.BLOCK_ATLAS, TEXTURE_ADVANCED);
@@ -67,11 +65,6 @@ public class LecternPocketModel {
         return mesh.getRoot().bake(TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 
-    private void render(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int colour) {
-        int red = FastColor.ARGB32.red(colour), green = FastColor.ARGB32.green(colour), blue = FastColor.ARGB32.blue(colour), alpha = FastColor.ARGB32.alpha(colour);
-        root.render(poseStack, buffer, packedLight, packedOverlay, red / 255.0f, green / 255.0f, blue / 255.0f, alpha / 255.0f);
-    }
-
     /**
      * Render the pocket computer model.
      *
@@ -80,18 +73,18 @@ public class LecternPocketModel {
      * @param packedLight   The current light level.
      * @param packedOverlay The overlay texture (used for entity hurt animation).
      * @param family        The computer family.
-     * @param frameColour   The pocket computer's {@linkplain PocketComputerItem#getColour(ItemStack) colour}.
+     * @param frameColour   The pocket computer's {@linkplain DyedItemColor colour}.
      * @param lightColour   The pocket computer's {@linkplain PocketComputerData#getLightState() light colour}.
      */
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, ComputerFamily family, int frameColour, int lightColour) {
         if (frameColour != -1) {
-            root.render(poseStack, MATERIAL_FRAME.buffer(bufferSource, RenderType::entityCutout), packedLight, packedOverlay, 1, 1, 1, 1);
-            render(poseStack, MATERIAL_COLOUR.buffer(bufferSource, RenderType::entityCutout), packedLight, packedOverlay, frameColour);
+            root.render(poseStack, MATERIAL_FRAME.buffer(bufferSource, RenderType::entityCutout), packedLight, packedOverlay);
+            root.render(poseStack, MATERIAL_COLOUR.buffer(bufferSource, RenderType::entityCutout), packedLight, packedOverlay, frameColour);
         } else {
             var buffer = (family == ComputerFamily.ADVANCED ? MATERIAL_ADVANCED : MATERIAL_NORMAL).buffer(bufferSource, RenderType::entityCutout);
-            root.render(poseStack, buffer, packedLight, packedOverlay, 1, 1, 1, 1);
+            root.render(poseStack, buffer, packedLight, packedOverlay);
         }
 
-        render(poseStack, MATERIAL_LIGHT.buffer(bufferSource, RenderType::entityCutout), LightTexture.FULL_BRIGHT, packedOverlay, lightColour);
+        root.render(poseStack, MATERIAL_LIGHT.buffer(bufferSource, RenderType::entityCutout), LightTexture.FULL_BRIGHT, packedOverlay, lightColour);
     }
 }

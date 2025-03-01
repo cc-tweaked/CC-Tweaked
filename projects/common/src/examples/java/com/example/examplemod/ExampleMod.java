@@ -1,10 +1,9 @@
 package com.example.examplemod;
 
-import com.example.examplemod.data.TurtleDataProvider;
+import com.example.examplemod.data.TurtleUpgradeProvider;
 import com.example.examplemod.peripheral.FurnacePeripheral;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.detail.VanillaDetailRegistries;
-import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeType;
 
 /**
  * Our example mod, containing the various things we register.
@@ -19,13 +18,13 @@ public final class ExampleMod {
     public static final String MOD_ID = "examplemod";
 
     /**
-     * The upgrade serialiser for our example turtle upgrade. See the documentation for {@link TurtleUpgradeSerialiser}
-     * or {@code FabricExampleMod}/{@code ForgeExampleMod} for how this is registered.
+     * The upgrade type for our example turtle upgrade. See the documentation for {@link UpgradeType} or
+     * {@code FabricExampleMod}/{@code ForgeExampleMod} for how this is registered.
      * <p>
-     * This only defines the upgrade type. See {@link TurtleDataProvider} for defining the actual upgrade.
+     * This only defines the upgrade type. See {@link TurtleUpgradeProvider} for defining the actual upgrade.
      */
     // @start region=turtle_upgrades
-    public static final TurtleUpgradeSerialiser<ExampleTurtleUpgrade> EXAMPLE_TURTLE_UPGRADE = TurtleUpgradeSerialiser.simpleWithCustomItem(
+    public static final UpgradeType<ExampleTurtleUpgrade> EXAMPLE_TURTLE_UPGRADE = UpgradeType.simpleWithCustomItem(
         ExampleTurtleUpgrade::new
     );
     // @end region=turtle_upgrades

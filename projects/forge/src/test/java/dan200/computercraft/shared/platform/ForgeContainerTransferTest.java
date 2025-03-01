@@ -7,7 +7,7 @@ package dan200.computercraft.shared.platform;
 import dan200.computercraft.test.shared.WithMinecraft;
 import dan200.computercraft.test.shared.platform.ContainerTransferContract;
 import net.minecraft.world.Container;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
 @WithMinecraft
 public class ForgeContainerTransferTest implements ContainerTransferContract {

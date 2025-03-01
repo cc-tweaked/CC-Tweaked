@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -46,13 +47,15 @@ public final class CustomModelLoader {
 
     private final Map<ResourceLocation, UnbakedModel> models = new HashMap<>();
     private final Map<ResourceLocation, String> emissiveModels = new HashMap<>();
+    private final Collection<ResourceLocation> extraModels;
 
-    private CustomModelLoader() {
+    private CustomModelLoader(Collection<ResourceLocation> extraModels) {
+        this.extraModels = extraModels;
     }
 
     public static CompletableFuture<CustomModelLoader> prepare(ResourceManager resources, Executor executor) {
         return CompletableFuture.supplyAsync(() -> {
-            var loader = new CustomModelLoader();
+            var loader = new CustomModelLoader(ExtraModels.loadAll(resources));
             for (var resource : resources.listResources("models", x -> x.getNamespace().equals(ComputerCraftAPI.MOD_ID) && x.getPath().endsWith(".json")).entrySet()) {
                 loader.loadModel(resource.getKey(), resource.getValue());
             }
@@ -85,6 +88,10 @@ public final class CustomModelLoader {
         }
     }
 
+    public Collection<ResourceLocation> getExtraModels() {
+        return extraModels;
+    }
+
     /**
      * Load a custom model. This searches for CC models with a custom {@code loader} field.
      *
@@ -106,10 +113,11 @@ public final class CustomModelLoader {
      * @return The wrapped model.
      */
     public BakedModel wrapModel(ModelModifier.AfterBake.Context ctx, BakedModel baked) {
-        if (!ctx.id().getNamespace().equals(ComputerCraftAPI.MOD_ID)) return baked;
+        var id = ctx.resourceId();
+        if (id == null || !id.getNamespace().equals(ComputerCraftAPI.MOD_ID)) return baked;
         if (!(ctx.sourceModel() instanceof BlockModel model)) return baked;
 
-        var emissive = getEmissive(ctx.id(), model);
+        var emissive = getEmissive(id, model);
         return emissive == null ? baked : EmissiveBakedModel.wrap(baked, ctx.textureGetter().apply(model.getMaterial(emissive)));
     }
 

@@ -4,14 +4,12 @@
 
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.vertex.Tesselator;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.PrintoutMenu;
-import dan200.computercraft.shared.media.items.PrintoutItem;
+import dan200.computercraft.shared.media.items.PrintoutData;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -19,7 +17,6 @@ import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
@@ -40,18 +37,8 @@ public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> 
     }
 
     private void setPrintout(ItemStack stack) {
-        var text = PrintoutItem.getText(stack);
-        var textBuffers = new TextBuffer[text.length];
-        for (var i = 0; i < textBuffers.length; i++) textBuffers[i] = new TextBuffer(text[i]);
-
-        var colours = PrintoutItem.getColours(stack);
-        var colourBuffers = new TextBuffer[colours.length];
-        for (var i = 0; i < colours.length; i++) colourBuffers[i] = new TextBuffer(colours[i]);
-
-        var pages = Math.max(text.length / PrintoutItem.LINES_PER_PAGE, 1);
-        var book = stack.is(ModRegistry.Items.PRINTED_BOOK.get());
-
-        printout = new PrintoutInfo(pages, book, textBuffers, colourBuffers);
+        page = 0;
+        printout = PrintoutInfo.of(PrintoutData.getOrEmpty(stack), stack.is(ModRegistry.Items.PRINTED_BOOK.get()));
     }
 
     @Override
@@ -106,15 +93,15 @@ public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> 
     }
 
     @Override
-    public boolean mouseScrolled(double x, double y, double delta) {
-        if (super.mouseScrolled(x, y, delta)) return true;
-        if (delta < 0) {
+    public boolean mouseScrolled(double x, double y, double deltaX, double deltaY) {
+        if (super.mouseScrolled(x, y, deltaX, deltaY)) return true;
+        if (deltaY < 0) {
             // Scroll up goes to the next page
             nextPage();
             return true;
         }
 
-        if (delta > 0) {
+        if (deltaY > 0) {
             // Scroll down goes to the previous page
             previousPage();
             return true;
@@ -125,23 +112,14 @@ public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> 
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
-        // Draw the printout
-        var renderer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-
-        drawBorder(graphics.pose(), renderer, leftPos, topPos, 0, page, printout.pages(), printout.book(), FULL_BRIGHT_LIGHTMAP);
-        drawText(graphics.pose(), renderer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, PrintoutItem.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, printout.text(), printout.colour());
-        renderer.endBatch();
-    }
-
-    @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        // We must take the background further back in order to not overlap with our printed pages.
+        // Push the printout slightly forward, to avoid clipping into the background.
         graphics.pose().pushPose();
-        graphics.pose().translate(0, 0, -1);
-        renderBackground(graphics);
-        graphics.pose().popPose();
+        graphics.pose().translate(0, 0, 1);
 
-        super.render(graphics, mouseX, mouseY, partialTicks);
+        drawBorder(graphics.pose(), graphics.bufferSource(), leftPos, topPos, 0, page, printout.pages(), printout.book(), FULL_BRIGHT_LIGHTMAP);
+        drawText(graphics.pose(), graphics.bufferSource(), leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, PrintoutData.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, printout.text(), printout.colour());
+
+        graphics.pose().popPose();
     }
 
     @Override
@@ -151,16 +129,19 @@ public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> 
 
     @SuppressWarnings("ArrayRecordComponent")
     record PrintoutInfo(int pages, boolean book, TextBuffer[] text, TextBuffer[] colour) {
-        public static final PrintoutInfo DEFAULT;
+        public static final PrintoutInfo DEFAULT = of(PrintoutData.EMPTY, false);
 
-        static {
-            var textLines = new TextBuffer[PrintoutItem.LINES_PER_PAGE];
-            Arrays.fill(textLines, new TextBuffer(" ".repeat(PrintoutItem.LINE_MAX_LENGTH)));
+        public static PrintoutInfo of(PrintoutData printout, boolean book) {
+            var text = new TextBuffer[printout.lines().size()];
+            var colours = new TextBuffer[printout.lines().size()];
+            for (var i = 0; i < text.length; i++) {
+                var line = printout.lines().get(i);
+                text[i] = new TextBuffer(line.text());
+                colours[i] = new TextBuffer(line.foreground());
+            }
 
-            var colourLines = new TextBuffer[PrintoutItem.LINES_PER_PAGE];
-            Arrays.fill(colourLines, new TextBuffer("f".repeat(PrintoutItem.LINE_MAX_LENGTH)));
-
-            DEFAULT = new PrintoutInfo(1, false, textLines, colourLines);
+            var pages = Math.max(text.length / PrintoutData.LINES_PER_PAGE, 1);
+            return new PrintoutInfo(pages, book, text, colours);
         }
     }
 }

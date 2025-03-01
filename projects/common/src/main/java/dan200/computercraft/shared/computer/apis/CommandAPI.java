@@ -62,12 +62,20 @@ public class CommandAPI implements ILuaAPI {
         var commandManager = server.getCommands();
         try {
             receiver.clearOutput();
-            var result = commandManager.performPrefixedCommand(getSource(), command);
-            return new Object[]{ result > 0, receiver.copyOutput(), result };
+            var state = new CommandState();
+            var source = getSource().withCallback((success, x) -> {
+                if (success) state.successes++;
+            });
+            commandManager.performPrefixedCommand(source, command);
+            return new Object[]{ state.successes > 0, receiver.copyOutput(), state.successes };
         } catch (Throwable t) {
             LOG.error(Logging.JAVA_ERROR, "Error running command.", t);
             return new Object[]{ false, createOutput("Java Exception Thrown: " + t) };
         }
+    }
+
+    private static final class CommandState {
+        int successes;
     }
 
     private static Map<?, ?> getBlockInfo(Level world, BlockPos pos) {
@@ -76,7 +84,7 @@ public class CommandAPI implements ILuaAPI {
         var table = VanillaDetailRegistries.BLOCK_IN_WORLD.getDetails(block);
 
         var tile = block.blockEntity();
-        if (tile != null) table.put("nbt", NBTUtil.toLua(tile.saveWithFullMetadata()));
+        if (tile != null) table.put("nbt", NBTUtil.toLua(tile.saveWithFullMetadata(world.registryAccess())));
 
         return table;
     }

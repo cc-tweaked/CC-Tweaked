@@ -5,10 +5,9 @@
 package dan200.computercraft.shared.recipe;
 
 import dan200.computercraft.shared.ModRegistry;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
@@ -20,17 +19,17 @@ import net.minecraft.world.level.Level;
  * This is used to represent examples for our {@link CustomRecipe}s.
  */
 public final class ImpostorShapelessRecipe extends CustomShapelessRecipe {
-    public ImpostorShapelessRecipe(ResourceLocation id, ShapelessRecipeSpec recipe) {
-        super(id, recipe);
+    public ImpostorShapelessRecipe(ShapelessRecipeSpec recipe) {
+        super(recipe);
     }
 
     @Override
-    public boolean matches(CraftingContainer inv, Level world) {
+    public boolean matches(CraftingInput inv, Level world) {
         return false;
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inventory, RegistryAccess access) {
+    public ItemStack assemble(CraftingInput inventory, HolderLookup.Provider access) {
         return ItemStack.EMPTY;
     }
 

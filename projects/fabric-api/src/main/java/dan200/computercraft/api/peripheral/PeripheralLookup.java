@@ -14,7 +14,7 @@ import net.minecraft.resources.ResourceLocation;
  * for a block. It should <em>NOT</em> be used to query peripherals.
  */
 public final class PeripheralLookup {
-    public static final ResourceLocation ID = new ResourceLocation(ComputerCraftAPI.MOD_ID, "peripheral");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "peripheral");
 
     private static final BlockApiLookup<IPeripheral, Direction> lookup = BlockApiLookup.get(ID, IPeripheral.class, Direction.class);
 

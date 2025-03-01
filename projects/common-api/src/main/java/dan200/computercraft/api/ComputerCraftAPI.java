@@ -147,7 +147,10 @@ public final class ComputerCraftAPI {
      *
      * @param provider The media provider to register.
      * @see MediaProvider
+     * @deprecated Prefer {@code dan200.computercraft.api.media.MediaLookup} (Fabric) or
+     * {@code dan200.computercraft.api.media.MediaCapability} (NeoForge).
      */
+    @Deprecated
     public static void registerMediaProvider(MediaProvider provider) {
         getInstance().registerMediaProvider(provider);
     }

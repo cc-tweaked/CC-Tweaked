@@ -19,12 +19,12 @@ public class ItemStackMatcher extends TypeSafeMatcher<ItemStack> {
 
     @Override
     protected boolean matchesSafely(ItemStack item) {
-        return ItemStack.isSameItemSameTags(item, stack) && item.getCount() == stack.getCount();
+        return ItemStack.isSameItemSameComponents(item, stack) && item.getCount() == stack.getCount();
     }
 
     @Override
     public void describeTo(Description description) {
-        description.appendValue(stack).appendValue(stack.getTag());
+        description.appendValue(stack).appendValue(stack.getComponentsPatch());
     }
 
     public static Matcher<ItemStack> isStack(ItemStack stack) {

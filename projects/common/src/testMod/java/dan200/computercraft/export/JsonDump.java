@@ -4,7 +4,8 @@
 
 package dan200.computercraft.export;
 
-import dan200.computercraft.shared.platform.RegistryWrappers;
+import dan200.computercraft.shared.util.RegistryHelper;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -25,7 +26,7 @@ public class JsonDump {
         public int count;
 
         public Recipe(ItemStack output) {
-            this.output = RegistryWrappers.ITEMS.getKey(output.getItem()).toString();
+            this.output = RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, output.getItem()).toString();
             count = output.getCount();
         }
 
@@ -40,7 +41,7 @@ public class JsonDump {
                 if (!canonicalItem.contains(item)) continue;
 
                 trackedItems.add(item);
-                inputs[pos] = new String[]{ RegistryWrappers.ITEMS.getKey(item).toString() };
+                inputs[pos] = new String[]{ RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, item).toString() };
                 return;
             }
 
@@ -48,7 +49,7 @@ public class JsonDump {
             for (var i = 0; i < items.length; i++) {
                 var item = items[i].getItem();
                 trackedItems.add(item);
-                itemIds[i] = RegistryWrappers.ITEMS.getKey(item).toString();
+                itemIds[i] = RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, item).toString();
             }
             Arrays.sort(itemIds);
 

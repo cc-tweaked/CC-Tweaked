@@ -5,21 +5,14 @@
 package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.annotations.ForgeOverride;
-import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.common.IBundledRedstoneBlock;
-import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.RegistryEntry;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.stats.Stats;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -27,22 +20,17 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-
 public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntity> extends HorizontalDirectionalBlock implements IBundledRedstoneBlock, EntityBlock {
-    private static final ResourceLocation DROP = new ResourceLocation(ComputerCraftAPI.MOD_ID, "computer");
-
     protected final RegistryEntry<BlockEntityType<T>> type;
     private final BlockEntityTicker<T> serverTicker = (level, pos, state, computer) -> computer.serverTick();
 
@@ -52,8 +40,7 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
     }
 
     @Override
-    @Deprecated
-    public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean isMoving) {
+    protected void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean isMoving) {
         super.onPlace(state, world, pos, oldState, isMoving);
 
         var tile = world.getBlockEntity(pos);
@@ -61,14 +48,12 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
     }
 
     @Override
-    @Deprecated
-    public boolean isSignalSource(BlockState state) {
+    protected boolean isSignalSource(BlockState state) {
         return true;
     }
 
     @Override
-    @Deprecated
-    public int getDirectSignal(BlockState state, BlockGetter world, BlockPos pos, Direction incomingSide) {
+    protected int getDirectSignal(BlockState state, BlockGetter world, BlockPos pos, Direction incomingSide) {
         var entity = world.getBlockEntity(pos);
         if (!(entity instanceof AbstractComputerBlockEntity computerEntity)) return 0;
 
@@ -79,11 +64,14 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
         return computer.getRedstoneOutput(localSide);
     }
 
-    protected abstract ItemStack getItem(AbstractComputerBlockEntity tile);
+    private ItemStack getItem(AbstractComputerBlockEntity tile) {
+        var stack = new ItemStack(this);
+        stack.applyComponents(tile.collectComponents());
+        return stack;
+    }
 
     @Override
-    @Deprecated
-    public int getSignal(BlockState state, BlockGetter world, BlockPos pos, Direction incomingSide) {
+    protected int getSignal(BlockState state, BlockGetter world, BlockPos pos, Direction incomingSide) {
         return getDirectSignal(state, world, pos, incomingSide);
     }
 
@@ -100,8 +88,7 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
     }
 
     @Override
-    @Deprecated
-    public ItemStack getCloneItemStack(BlockGetter world, BlockPos pos, BlockState state) {
+    public ItemStack getCloneItemStack(LevelReader world, BlockPos pos, BlockState state) {
         var tile = world.getBlockEntity(pos);
         if (tile instanceof AbstractComputerBlockEntity computer) {
             var result = getItem(computer);
@@ -112,50 +99,22 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
     }
 
     @Override
-    @Deprecated
-    public List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
-        if (params.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof AbstractComputerBlockEntity computer) {
-            params = params.withDynamicDrop(DROP, out -> out.accept(getItem(computer)));
-        }
-
-        return super.getDrops(state, params);
-    }
-
-    @Override
     public void playerDestroy(Level world, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity tile, ItemStack tool) {
-        // Don't drop blocks here - see playerWillDestroy.
-        player.awardStat(Stats.BLOCK_MINED.get(this));
-        player.causeFoodExhaustion(0.005F);
+        // Use the same trick as DoublePlantBlock, to skip dropping items. See playerWillDestroy.
+        super.playerDestroy(world, player, pos, Blocks.AIR.defaultBlockState(), tile, tool);
     }
 
     @Override
-    public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
-        super.playerWillDestroy(world, pos, state, player);
-        if (!(world instanceof ServerLevel serverLevel)) return;
-
+    public BlockState playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
         // We drop the item here instead of doing it in the harvest method, as we should
         // drop computers for creative players too.
-        dropResources(state, serverLevel, pos, world.getBlockEntity(pos));
+        Block.dropResources(state, world, pos, world.getBlockEntity(pos), player, player.getMainHandItem());
+
+        return super.playerWillDestroy(world, pos, state, player);
     }
 
     @Override
-    public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        super.setPlacedBy(world, pos, state, placer, stack);
-
-        var tile = world.getBlockEntity(pos);
-        if (!world.isClientSide && tile instanceof AbstractComputerBlockEntity computer && stack.getItem() instanceof IComputerItem item) {
-
-            var id = item.getComputerID(stack);
-            if (id != -1) computer.setComputerID(id);
-
-            var label = item.getLabel(stack);
-            if (label != null) computer.setLabel(label);
-        }
-    }
-
-    @Override
-    @Deprecated
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!player.isCrouching() && level.getBlockEntity(pos) instanceof AbstractComputerBlockEntity computer) {
             // Regular right click to activate computer
             if (!level.isClientSide && computer.isUsable(player)) {
@@ -167,12 +126,11 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
             return InteractionResult.sidedSuccess(level.isClientSide);
         }
 
-        return super.use(state, level, pos, player, hand, hit);
+        return super.useWithoutItem(state, level, pos, player, hit);
     }
 
     @Override
-    @Deprecated
-    public final void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos, boolean isMoving) {
+    protected final void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos, boolean isMoving) {
         var be = world.getBlockEntity(pos);
         if (be instanceof AbstractComputerBlockEntity computer) computer.neighborChanged(neighbourPos);
     }
@@ -184,8 +142,7 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
     }
 
     @Override
-    @Deprecated
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         var be = level.getBlockEntity(pos);
         if (be instanceof AbstractComputerBlockEntity computer) computer.neighbourShapeChanged(direction);
 

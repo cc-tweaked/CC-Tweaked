@@ -8,10 +8,12 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.core.filesystem.SubMount;
+import dan200.computercraft.shared.ModRegistry;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 
 /**
@@ -24,8 +26,8 @@ public final class TreasureDiskMedia implements IMedia {
     }
 
     @Override
-    public String getLabel(ItemStack stack) {
-        return TreasureDiskItem.getTitle(stack);
+    public String getLabel(HolderLookup.Provider registries, ItemStack stack) {
+        return TreasureDisk.getTitle(stack);
     }
 
     @Override
@@ -33,7 +35,10 @@ public final class TreasureDiskMedia implements IMedia {
         var rootTreasure = ComputerCraftAPI.createResourceMount(level.getServer(), "computercraft", "lua/treasure");
         if (rootTreasure == null) return null;
 
-        var subPath = TreasureDiskItem.getSubPath(stack);
+        var treasureDisk = stack.get(ModRegistry.DataComponents.TREASURE_DISK.get());
+        if (treasureDisk == null) return null;
+
+        var subPath = treasureDisk.path();
         try {
             if (rootTreasure.exists(subPath)) {
                 return new SubMount(rootTreasure, subPath);

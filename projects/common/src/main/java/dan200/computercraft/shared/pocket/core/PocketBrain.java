@@ -4,26 +4,23 @@
 
 package dan200.computercraft.shared.pocket.core;
 
-import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -48,7 +45,7 @@ public final class PocketBrain implements IPocketAccess {
         this.computer = new PocketServerComputer(this, holder, properties);
         this.holder = holder;
         this.position = holder.pos();
-        this.upgrade = UpgradeData.copyOf(upgrade);
+        this.upgrade = upgrade;
         invalidatePeripheral();
     }
 
@@ -95,8 +92,8 @@ public final class PocketBrain implements IPocketAccess {
         if (!dirty) return false;
         this.dirty = false;
 
-        IColouredItem.setColourBasic(stack, colour);
-        PocketComputerItem.setUpgrade(stack, UpgradeData.copyOf(upgrade));
+        stack.set(DataComponents.DYED_COLOR, colour == -1 ? null : new DyedItemColor(colour, false));
+        PocketComputerItem.setUpgrade(stack, upgrade);
         return true;
     }
 
@@ -141,27 +138,22 @@ public final class PocketBrain implements IPocketAccess {
     }
 
     @Override
-    public CompoundTag getUpgradeNBTData() {
+    public DataComponentPatch getUpgradeData() {
         var upgrade = this.upgrade;
-        return upgrade == null ? new CompoundTag() : upgrade.data();
+        return upgrade == null ? DataComponentPatch.EMPTY : upgrade.data();
     }
 
     @Override
-    public void updateUpgradeNBTData() {
-        dirty = true;
+    public void setUpgradeData(DataComponentPatch data) {
+        var upgrade = this.upgrade;
+        if (upgrade == null) return;
+        this.upgrade = UpgradeData.of(upgrade.holder(), data);
     }
 
     @Override
     public void invalidatePeripheral() {
         var peripheral = upgrade == null ? null : upgrade.upgrade().createPeripheral(this);
         computer.setPeripheral(ComputerSide.BACK, peripheral);
-    }
-
-    @Override
-    @Deprecated(forRemoval = true)
-    public Map<ResourceLocation, IPeripheral> getUpgrades() {
-        var upgrade = this.upgrade;
-        return upgrade == null ? Map.of() : Collections.singletonMap(upgrade.upgrade().getUpgradeID(), computer.getPeripheral(ComputerSide.BACK));
     }
 
     @Override
@@ -180,7 +172,7 @@ public final class PocketBrain implements IPocketAccess {
     public void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
         if (Objects.equals(this.upgrade, upgrade)) return;
 
-        this.upgrade = UpgradeData.copyOf(upgrade);
+        this.upgrade = upgrade;
         dirty = true;
         invalidatePeripheral();
     }

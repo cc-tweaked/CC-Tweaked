@@ -51,7 +51,6 @@ public final class CableHighlightRenderer {
 
         var buffer = bufferSource.getBuffer(RenderType.lines());
         var matrix4f = transform.last().pose();
-        var normal = transform.last().normal();
         // TODO: Can we just accesstransformer out LevelRenderer.renderShape?
         shape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
             var xDelta = (float) (x2 - x1);
@@ -63,15 +62,13 @@ public final class CableHighlightRenderer {
             zDelta = zDelta / len;
 
             buffer
-                .vertex(matrix4f, (float) (x1 + xOffset), (float) (y1 + yOffset), (float) (z1 + zOffset))
-                .color(0, 0, 0, 0.4f)
-                .normal(normal, xDelta, yDelta, zDelta)
-                .endVertex();
+                .addVertex(matrix4f, (float) (x1 + xOffset), (float) (y1 + yOffset), (float) (z1 + zOffset))
+                .setColor(0, 0, 0, 0.4f)
+                .setNormal(transform.last(), xDelta, yDelta, zDelta);
             buffer
-                .vertex(matrix4f, (float) (x2 + xOffset), (float) (y2 + yOffset), (float) (z2 + zOffset))
-                .color(0, 0, 0, 0.4f)
-                .normal(normal, xDelta, yDelta, zDelta)
-                .endVertex();
+                .addVertex(matrix4f, (float) (x2 + xOffset), (float) (y2 + yOffset), (float) (z2 + zOffset))
+                .setColor(0, 0, 0, 0.4f)
+                .setNormal(transform.last(), xDelta, yDelta, zDelta);
         });
 
         return true;

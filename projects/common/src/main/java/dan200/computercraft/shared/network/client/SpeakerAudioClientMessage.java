@@ -4,13 +4,17 @@
 
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.peripheral.speaker.EncodedAudio;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerBlockEntity;
+import dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 import java.util.UUID;
 
@@ -19,34 +23,28 @@ import java.util.UUID;
  * <p>
  * Used by speakers to play sounds.
  *
+ * @param source  The {@linkplain SpeakerPeripheral#getSource() id} of the speaker playing audio.
+ * @param pos     The position of the speaker.
+ * @param content The audio to play.
+ * @param volume  The volume to play the audio at.
  * @see SpeakerBlockEntity
  */
-public class SpeakerAudioClientMessage implements NetworkMessage<ClientNetworkContext> {
-    private final UUID source;
-    private final SpeakerPosition.Message pos;
-    private final EncodedAudio content;
-    private final float volume;
+public record SpeakerAudioClientMessage(
+    UUID source,
+    SpeakerPosition.Message pos,
+    EncodedAudio content,
+    float volume
+) implements NetworkMessage<ClientNetworkContext> {
+    public static final StreamCodec<RegistryFriendlyByteBuf, SpeakerAudioClientMessage> STREAM_CODEC = StreamCodec.composite(
+        UUIDUtil.STREAM_CODEC, SpeakerAudioClientMessage::source,
+        SpeakerPosition.Message.STREAM_CODEC, SpeakerAudioClientMessage::pos,
+        EncodedAudio.STREAM_CODEC, SpeakerAudioClientMessage::content,
+        ByteBufCodecs.FLOAT, SpeakerAudioClientMessage::volume,
+        SpeakerAudioClientMessage::new
+    );
 
     public SpeakerAudioClientMessage(UUID source, SpeakerPosition pos, float volume, EncodedAudio content) {
-        this.source = source;
-        this.pos = pos.asMessage();
-        this.content = content;
-        this.volume = volume;
-    }
-
-    public SpeakerAudioClientMessage(FriendlyByteBuf buf) {
-        source = buf.readUUID();
-        pos = SpeakerPosition.Message.read(buf);
-        volume = buf.readFloat();
-        content = EncodedAudio.read(buf);
-    }
-
-    @Override
-    public void write(FriendlyByteBuf buf) {
-        buf.writeUUID(source);
-        pos.write(buf);
-        buf.writeFloat(volume);
-        content.write(buf);
+        this(source, pos.asMessage(), content, volume);
     }
 
     @Override
@@ -55,7 +53,7 @@ public class SpeakerAudioClientMessage implements NetworkMessage<ClientNetworkCo
     }
 
     @Override
-    public MessageType<SpeakerAudioClientMessage> type() {
+    public CustomPacketPayload.Type<SpeakerAudioClientMessage> type() {
         return NetworkMessages.SPEAKER_AUDIO;
     }
 }

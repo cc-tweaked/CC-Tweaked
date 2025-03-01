@@ -28,7 +28,7 @@ public class BrewingStandPeripheral implements IPeripheral {
     @LuaFunction
     public final int getFuel() {
         // Don't do it this way! Use an access widener/transformer to access the "fuel" field instead.
-        return brewingStand.saveWithoutMetadata().getInt("Fuel");
+        return brewingStand.saveWithoutMetadata(brewingStand.getLevel().registryAccess()).getInt("Fuel");
     }
 
     @Override

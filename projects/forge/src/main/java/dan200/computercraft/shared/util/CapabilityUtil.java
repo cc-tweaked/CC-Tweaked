@@ -4,53 +4,33 @@
 
 package dan200.computercraft.shared.util;
 
-import dan200.computercraft.shared.platform.InvalidateCallback;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.capabilities.BlockCapability;
 import org.jspecify.annotations.Nullable;
 
 public final class CapabilityUtil {
     private CapabilityUtil() {
     }
 
-    @Nullable
-    public static <T> LazyOptional<T> invalidate(@Nullable LazyOptional<T> cap) {
-        if (cap != null) cap.invalidate();
-        return null;
-    }
-
-    public static <T> void invalidate(@Nullable LazyOptional<T> @Nullable [] caps) {
-        if (caps == null) return;
-
-        for (var i = 0; i < caps.length; i++) {
-            var cap = caps[i];
-            if (cap != null) cap.invalidate();
-            caps[i] = null;
-        }
-    }
-
-    @Nullable
-    public static <T> T unwrap(LazyOptional<T> p, InvalidateCallback invalidate) {
-        if (!p.isPresent()) return null;
-
-        p.addListener(invalidate.castConsumer());
-        return p.orElseThrow(NullPointerException::new);
-    }
-
     /**
      * Find a capability, preferring the internal/null side but falling back to a given side if a mod doesn't support
      * the internal one.
      *
-     * @param provider   The capability provider to get the capability from.
-     * @param capability The capability to get.
-     * @param side       The side we'll fall back to.
-     * @param <T>        The type of the underlying capability.
+     * @param level       The server level.
+     * @param capability  The capability to get.
+     * @param pos         The block position.
+     * @param state       The block state.
+     * @param blockEntity The block entity.
+     * @param side        The side we'll fall back to.
+     * @param <T>         The type of the underlying capability.
      * @return The extracted capability, if present.
      */
-    public static <T> LazyOptional<T> getCapability(ICapabilityProvider provider, Capability<T> capability, @Nullable Direction side) {
-        var cap = provider.getCapability(capability);
-        return !cap.isPresent() && side != null ? provider.getCapability(capability, side) : cap;
+    public static <T> @Nullable T getCapability(ServerLevel level, BlockCapability<T, @Nullable Direction> capability, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction side) {
+        var cap = level.getCapability(capability, pos, state, blockEntity, null);
+        return cap == null && side != null ? level.getCapability(capability, pos, state, blockEntity, side) : cap;
     }
 }

@@ -20,6 +20,7 @@ import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.LevelAccessor
 import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.entity.StructureBlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.Vec3
 import org.slf4j.Logger
@@ -64,6 +65,11 @@ object TestHooks {
         }
     }
 
+    fun getTestOrigin(server: MinecraftServer): BlockPos {
+        val spawn = server.overworld().sharedSpawnPos
+        return BlockPos(spawn.x, -59, spawn.y)
+    }
+
     @JvmStatic
     fun onServerStarted(server: MinecraftServer) {
         val rules = server.gameRules
@@ -71,7 +77,12 @@ object TestHooks {
         server.overworld().dayTime = Times.NOON
 
         LOG.info("Cleaning up after last run")
-        GameTestRunner.clearAllTests(server.overworld(), BlockPos(0, -60, 0), GameTestTicker.SINGLETON, 200)
+
+        val level = server.overworld()
+        StructureUtils.findStructureBlocks(getTestOrigin(server), 200, level).forEach { pos ->
+            val structure = level.getBlockEntity(pos) as StructureBlockEntity? ?: return@forEach
+            StructureUtils.clearSpaceForStructure(StructureUtils.getStructureBoundingBox(structure), level)
+        }
 
         ManagedComputers.reset()
 
@@ -93,6 +104,7 @@ object TestHooks {
         Component_Test::class.java,
         Computer_Test::class.java,
         CraftOs_Test::class.java,
+        Details_Test::class.java,
         Disk_Drive_Test::class.java,
         Inventory_Test::class.java,
         Loot_Test::class.java,
@@ -139,7 +151,10 @@ object TestHooks {
                     StructureUtils.getRotationForRotationSteps(testInfo.rotationSteps),
                     testInfo.timeoutTicks,
                     testInfo.setupTicks,
-                    testInfo.required, testInfo.requiredSuccesses, testInfo.attempts,
+                    testInfo.required, testInfo.manualOnly,
+                    testInfo.attempts,
+                    testInfo.requiredSuccesses,
+                    testInfo.skyAccess,
                 ) { value -> safeInvoke(method, value) },
             )
             GameTestRegistry.getAllTestClassNames().add(testClass.simpleName)

@@ -62,8 +62,9 @@ public final class TurtleMenu extends AbstractComputerMenu {
         }
 
         // Turtle upgrades
-        addSlot(new UpgradeSlot(turtleUpgrades, TurtleSide.LEFT, 0, UPGRADE_START_X, PLAYER_START_Y + 1));
-        addSlot(new UpgradeSlot(turtleUpgrades, TurtleSide.RIGHT, 1, UPGRADE_START_X, PLAYER_START_Y + 1 + 18));
+        var registries = playerInventory.player.level().registryAccess();
+        addSlot(new UpgradeSlot(turtleUpgrades, registries, TurtleSide.LEFT, 0, UPGRADE_START_X, PLAYER_START_Y + 1));
+        addSlot(new UpgradeSlot(turtleUpgrades, registries, TurtleSide.RIGHT, 1, UPGRADE_START_X, PLAYER_START_Y + 1 + 18));
     }
 
     public static TurtleMenu ofBrain(int id, Inventory player, TurtleBrain turtle) {

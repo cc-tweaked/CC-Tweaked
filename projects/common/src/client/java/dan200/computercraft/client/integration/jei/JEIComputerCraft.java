@@ -19,6 +19,8 @@ import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter;
 import mezz.jei.api.registration.IAdvancedRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -28,7 +30,7 @@ import java.util.List;
 public class JEIComputerCraft implements IModPlugin {
     @Override
     public ResourceLocation getPluginUid() {
-        return new ResourceLocation(ComputerCraftAPI.MOD_ID, "jei");
+        return ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "jei");
     }
 
     @Override
@@ -44,7 +46,7 @@ public class JEIComputerCraft implements IModPlugin {
 
     @Override
     public void registerAdvanced(IAdvancedRegistration registry) {
-        registry.addRecipeManagerPlugin(new RecipeResolver());
+        registry.addRecipeManagerPlugin(new RecipeResolver(getRegistryAccess()));
     }
 
     @Override
@@ -52,7 +54,7 @@ public class JEIComputerCraft implements IModPlugin {
         var registry = runtime.getRecipeManager();
 
         // Register all turtles/pocket computers (not just vanilla upgrades) as upgrades on JEI.
-        var upgradeItems = RecipeModHelpers.getExtraStacks();
+        var upgradeItems = RecipeModHelpers.getExtraStacks(getRegistryAccess());
         if (!upgradeItems.isEmpty()) {
             runtime.getIngredientManager().addIngredientsAtRuntime(VanillaTypes.ITEM_STACK, upgradeItems);
         }
@@ -60,7 +62,7 @@ public class JEIComputerCraft implements IModPlugin {
         // Hide all upgrade recipes
         var category = registry.createRecipeLookup(RecipeTypes.CRAFTING);
         category.get().forEach(wrapper -> {
-            if (RecipeModHelpers.shouldRemoveRecipe(wrapper.getId())) {
+            if (RecipeModHelpers.shouldRemoveRecipe(wrapper.id())) {
                 registry.hideRecipes(RecipeTypes.CRAFTING, List.of(wrapper));
             }
         });
@@ -70,17 +72,14 @@ public class JEIComputerCraft implements IModPlugin {
      * Distinguishes turtles by upgrades and family.
      */
     private static final IIngredientSubtypeInterpreter<ItemStack> turtleSubtype = (stack, ctx) -> {
-        var item = stack.getItem();
-        if (!(item instanceof TurtleItem turtle)) return IIngredientSubtypeInterpreter.NONE;
-
         var name = new StringBuilder("turtle:");
 
         // Add left and right upgrades to the identifier
-        var left = turtle.getUpgrade(stack, TurtleSide.LEFT);
-        var right = turtle.getUpgrade(stack, TurtleSide.RIGHT);
-        if (left != null) name.append(left.getUpgradeID());
+        var left = TurtleItem.getUpgradeWithData(stack, TurtleSide.LEFT);
+        var right = TurtleItem.getUpgradeWithData(stack, TurtleSide.RIGHT);
+        if (left != null) name.append(left.holder().key().location());
         if (left != null && right != null) name.append('|');
-        if (right != null) name.append(right.getUpgradeID());
+        if (right != null) name.append(right.holder().key().location());
 
         return name.toString();
     };
@@ -89,14 +88,11 @@ public class JEIComputerCraft implements IModPlugin {
      * Distinguishes pocket computers by upgrade and family.
      */
     private static final IIngredientSubtypeInterpreter<ItemStack> pocketSubtype = (stack, ctx) -> {
-        var item = stack.getItem();
-        if (!(item instanceof PocketComputerItem)) return IIngredientSubtypeInterpreter.NONE;
-
         var name = new StringBuilder("pocket:");
 
         // Add the upgrade to the identifier
-        var upgrade = PocketComputerItem.getUpgrade(stack);
-        if (upgrade != null) name.append(upgrade.getUpgradeID());
+        var upgrade = PocketComputerItem.getUpgradeWithData(stack);
+        if (upgrade != null) name.append(upgrade.holder().key().location());
 
         return name.toString();
     };
@@ -104,11 +100,9 @@ public class JEIComputerCraft implements IModPlugin {
     /**
      * Distinguishes disks by colour.
      */
-    private static final IIngredientSubtypeInterpreter<ItemStack> diskSubtype = (stack, ctx) -> {
-        var item = stack.getItem();
-        if (!(item instanceof DiskItem disk)) return IIngredientSubtypeInterpreter.NONE;
+    private static final IIngredientSubtypeInterpreter<ItemStack> diskSubtype = (stack, ctx) -> Integer.toString(DiskItem.getColour(stack));
 
-        var colour = disk.getColour(stack);
-        return colour == -1 ? IIngredientSubtypeInterpreter.NONE : String.format("%06x", colour);
-    };
+    private static RegistryAccess getRegistryAccess() {
+        return Minecraft.getInstance().level.registryAccess();
+    }
 }

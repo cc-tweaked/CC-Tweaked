@@ -39,20 +39,17 @@ class ComputerSelectorTest {
 
     public static Arguments[] getArgumentTestCases() {
         return new Arguments[]{
-            // Legacy selectors
-            Arguments.of("@some_label", new ComputerSelector("@some_label", OptionalInt.empty(), null, OptionalInt.empty(), "some_label", null, null, null)),
-            Arguments.of("~normal", new ComputerSelector("~normal", OptionalInt.empty(), null, OptionalInt.empty(), null, ComputerFamily.NORMAL, null, null)),
-            Arguments.of("#123", new ComputerSelector("#123", OptionalInt.empty(), null, OptionalInt.of(123), null, null, null, null)),
-            Arguments.of("123", new ComputerSelector("123", OptionalInt.of(123), null, OptionalInt.empty(), null, null, null, null)),
+            Arguments.of("#123", new ComputerSelector("#123", null, OptionalInt.of(123), null, null, null, null)),
+            Arguments.of("123", new ComputerSelector("123", null, OptionalInt.of(123), null, null, null, null)),
             // New selectors
-            Arguments.of("@c[]", new ComputerSelector("@c[]", OptionalInt.empty(), null, OptionalInt.empty(), null, null, null, null)),
-            Arguments.of("@c[instance=5e18f505-62f7-46f8-83f3-792f03224724]", new ComputerSelector("@c[instance=5e18f505-62f7-46f8-83f3-792f03224724]", OptionalInt.empty(), UUID.fromString("5e18f505-62f7-46f8-83f3-792f03224724"), OptionalInt.empty(), null, null, null, null)),
-            Arguments.of("@c[id=123]", new ComputerSelector("@c[id=123]", OptionalInt.empty(), null, OptionalInt.of(123), null, null, null, null)),
-            Arguments.of("@c[label=\"foo\"]", new ComputerSelector("@c[label=\"foo\"]", OptionalInt.empty(), null, OptionalInt.empty(), "foo", null, null, null)),
-            Arguments.of("@c[family=normal]", new ComputerSelector("@c[family=normal]", OptionalInt.empty(), null, OptionalInt.empty(), null, ComputerFamily.NORMAL, null, null)),
+            Arguments.of("@c[]", new ComputerSelector("@c[]", null, OptionalInt.empty(), null, null, null, null)),
+            Arguments.of("@c[instance=5e18f505-62f7-46f8-83f3-792f03224724]", new ComputerSelector("@c[instance=5e18f505-62f7-46f8-83f3-792f03224724]", UUID.fromString("5e18f505-62f7-46f8-83f3-792f03224724"), OptionalInt.empty(), null, null, null, null)),
+            Arguments.of("@c[id=123]", new ComputerSelector("@c[id=123]", null, OptionalInt.of(123), null, null, null, null)),
+            Arguments.of("@c[label=\"foo\"]", new ComputerSelector("@c[label=\"foo\"]", null, OptionalInt.empty(), "foo", null, null, null)),
+            Arguments.of("@c[family=normal]", new ComputerSelector("@c[family=normal]", null, OptionalInt.empty(), null, ComputerFamily.NORMAL, null, null)),
             // Complex selectors
-            Arguments.of("@c[ id = 123 , ]", new ComputerSelector("@c[ id = 123 , ]", OptionalInt.empty(), null, OptionalInt.of(123), null, null, null, null)),
-            Arguments.of("@c[id=123,family=normal]", new ComputerSelector("@c[id=123,family=normal]", OptionalInt.empty(), null, OptionalInt.of(123), null, ComputerFamily.NORMAL, null, null)),
+            Arguments.of("@c[ id = 123 , ]", new ComputerSelector("@c[ id = 123 , ]", null, OptionalInt.of(123), null, null, null, null)),
+            Arguments.of("@c[id=123,family=normal]", new ComputerSelector("@c[id=123,family=normal]", null, OptionalInt.of(123), null, ComputerFamily.NORMAL, null, null)),
         };
     }
 

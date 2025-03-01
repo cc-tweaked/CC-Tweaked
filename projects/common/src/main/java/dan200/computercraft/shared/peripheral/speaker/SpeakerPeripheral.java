@@ -18,10 +18,10 @@ import dan200.computercraft.shared.network.client.SpeakerMoveClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerPlayClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
-import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.PauseAwareTimer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -29,14 +29,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static dan200.computercraft.api.lua.LuaValues.checkFinite;
 
@@ -257,8 +253,12 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         if (identifier == null) throw new LuaException("Malformed sound name '" + name + "' ");
 
         // Prevent playing music discs.
-        var soundEvent = PlatformHelper.get().tryGetRegistryObject(Registries.SOUND_EVENT, identifier);
-        if (soundEvent != null && RecordItem.getBySound(soundEvent) != null) return false;
+        var soundEvent = BuiltInRegistries.SOUND_EVENT.get(identifier);
+        // TODO: Build a set of sound events at server startup, and cache this.
+        var level = Objects.requireNonNull(getPosition().level());
+        if (soundEvent != null && level.registryAccess().registry(Registries.JUKEBOX_SONG).orElseThrow().stream().anyMatch(x -> x.soundEvent().value() == soundEvent)) {
+            return false;
+        }
 
         synchronized (lock) {
             if (pendingSound != null || (dfpwmState != null && dfpwmState.isPlaying())) return false;

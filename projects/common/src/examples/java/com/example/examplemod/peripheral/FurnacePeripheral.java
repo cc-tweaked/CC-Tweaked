@@ -17,13 +17,13 @@ import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 public class FurnacePeripheral implements GenericPeripheral {
     @Override
     public String id() {
-        return new ResourceLocation(ExampleMod.MOD_ID, "furnace").toString();
+        return ResourceLocation.fromNamespaceAndPath(ExampleMod.MOD_ID, "furnace").toString();
     }
 
     @LuaFunction(mainThread = true)
     public int getBurnTime(AbstractFurnaceBlockEntity furnace) {
         // Don't do it this way! Use an access widener/transformer to access the "litTime" field instead.
-        return furnace.saveWithoutMetadata().getInt("BurnTime");
+        return furnace.saveWithoutMetadata(furnace.getLevel().registryAccess()).getInt("BurnTime");
     }
 }
 // @end region=body

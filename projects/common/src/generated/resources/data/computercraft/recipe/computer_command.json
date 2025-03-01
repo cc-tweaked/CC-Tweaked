@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "#": {"tag": "c:ingots/gold"},
+    "G": {"tag": "c:glass_panes"},
+    "R": {"item": "minecraft:command_block"}
+  },
+  "pattern": ["###", "#R#", "#G#"],
+  "result": {"count": 1, "id": "computercraft:computer_command"}
+}

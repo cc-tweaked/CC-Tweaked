@@ -4,7 +4,6 @@
 
 package dan200.computercraft.client.gui.widgets;
 
-import com.mojang.blaze3d.vertex.Tesselator;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
@@ -16,7 +15,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
@@ -192,16 +190,16 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
         if (!inTermRegion(mouseX, mouseY)) return false;
-        if (!hasMouseSupport() || delta == 0) return false;
+        if (!hasMouseSupport() || deltaY == 0) return false;
 
         var charX = (int) ((mouseX - innerX) / FONT_WIDTH);
         var charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
         charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
         charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
 
-        computer.mouseScroll(delta < 0 ? 1 : -1, charX + 1, charY + 1);
+        computer.mouseScroll(deltaY < 0 ? 1 : -1, charX + 1, charY + 1);
 
         lastMouseX = charX;
         lastMouseY = charY;
@@ -256,15 +254,12 @@ public class TerminalWidget extends AbstractWidget {
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         if (!visible) return;
 
-        var bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        var emitter = FixedWidthFontRenderer.toVertexConsumer(graphics.pose(), bufferSource.getBuffer(RenderTypes.TERMINAL));
+        var emitter = FixedWidthFontRenderer.toVertexConsumer(graphics.pose(), graphics.bufferSource().getBuffer(RenderTypes.TERMINAL));
 
         FixedWidthFontRenderer.drawTerminal(
             emitter,
             (float) innerX, (float) innerY, terminal, (float) MARGIN, (float) MARGIN, (float) MARGIN, (float) MARGIN
         );
-
-        bufferSource.endBatch();
     }
 
     @Override

@@ -19,7 +19,7 @@ cct {
     allProjects.forEach { externalSources(it) }
 }
 
-legacyForge {
+neoForge {
     val computercraft by mods.registering {
         cct.sourceDirectories.get().forEach {
             if (it.classes) sourceSet(it.sourceSet)
@@ -137,6 +137,11 @@ configurations {
         named(testConfig) { extendsFrom(testAdditionalRuntimeClasspath.get()) }
     }
 
+    register("testWithIris") {
+        isCanBeConsumed = false
+        isCanBeResolved = true
+    }
+
     // Declare a configuration for projects which are on the compile and runtime classpath, but not treated as
     // dependencies. This is used for our local projects.
     val localImplementation by registering {
@@ -153,9 +158,9 @@ dependencies {
     annotationProcessorEverywhere(libs.autoService)
 
     clientCompileOnly(variantOf(libs.emi) { classifier("api") })
-    modCompileOnly(libs.bundles.externalMods.forge.compile)
-    modRuntimeOnly(libs.bundles.externalMods.forge.runtime)
-    modCompileOnly(libs.create.forge)
+    compileOnly(libs.bundles.externalMods.forge.compile)
+    clientRuntimeOnly(libs.bundles.externalMods.forge.runtime)
+    compileOnly(variantOf(libs.create.forge) { classifier("slim") }) { isTransitive = false }
 
     // Depend on our other projects.
     "localImplementation"(project(":core"))
@@ -185,20 +190,23 @@ dependencies {
     "testAdditionalRuntimeClasspath"(libs.bundles.test)
 
     testFixturesImplementation(testFixtures(project(":core")))
+
+    "testWithIris"(libs.iris.forge)
+    "testWithIris"(libs.sodium.forge)
 }
 
 // Compile tasks
 
 tasks.processResources {
     inputs.property("modVersion", modVersion)
-    inputs.property("forgeVersion", libs.versions.forge)
+    inputs.property("neoVersion", libs.versions.neoForge)
 
     var props = mapOf(
-        "forgeVersion" to libs.versions.forge.get(),
+        "neoVersion" to libs.versions.neoForge.get(),
         "file" to mapOf("jarVersion" to modVersion),
     )
 
-    filesMatching("META-INF/mods.toml") { expand(props) }
+    filesMatching("META-INF/neoforge.mods.toml") { expand(props) }
 }
 
 tasks.jar {
@@ -237,15 +245,26 @@ val runGametestClient by tasks.registering(ClientJavaExec::class) {
 }
 cct.jacoco(runGametestClient)
 
+val runGametestClientWithIris by tasks.registering(ClientJavaExec::class) {
+    description = "Runs client-side gametests with Iris"
+    copyFromForge("runGameTestClient")
+
+    tags("iris")
+    classpath += configurations["testWithIris"]
+
+    withComplementaryShaders()
+}
+cct.jacoco(runGametestClientWithIris)
+
 tasks.register("checkClient") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Runs all client-only checks."
-    dependsOn(runGametestClient)
+    dependsOn(runGametestClient, runGametestClientWithIris)
 }
 
 modPublishing {
-    output = tasks.reobfJar
+    output = tasks.jar
 }
 
 // TODO: Remove once https://github.com/modrinth/minotaur/pull/72 is merged.
-modrinth { loaders = listOf("forge") }
+modrinth { loaders = listOf("neoforge") }

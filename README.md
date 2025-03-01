@@ -51,9 +51,8 @@ dependencies {
   compileOnly("cc.tweaked:cc-tweaked-$mcVersion-common-api:$cctVersion")
 
   // Forge Gradle
-  compileOnly("cc.tweaked:cc-tweaked-$mcVersion-core-api:$cctVersion")
-  compileOnly(fg.deobf("cc.tweaked:cc-tweaked-$mcVersion-forge-api:$cctVersion"))
-  runtimeOnly(fg.deobf("cc.tweaked:cc-tweaked-$mcVersion-forge:$cctVersion"))
+  compileOnly("cc.tweaked:cc-tweaked-$mcVersion-forge-api:$cctVersion")
+  runtimeOnly("cc.tweaked:cc-tweaked-$mcVersion-forge:$cctVersion")
 
   // Fabric Loom
   modCompileOnly("cc.tweaked:cc-tweaked-$mcVersion-fabric-api:$cctVersion")

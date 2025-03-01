@@ -9,8 +9,8 @@
                     "name": "computercraft:treasure_disk",
                     "functions": [
                         {
-                            "function": "minecraft:set_nbt",
-                            "tag": "{\"Title\": \"Demo disk\", \"SubPath\": \"demo\", \"Colour\": 15905331}"
+                            "function": "minecraft:set_components",
+                            "components": {"computercraft:treasure_disk": {"name": "Demo disk","title": "demo"}}
                         }
                     ]
                 }

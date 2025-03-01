@@ -4,16 +4,22 @@
 * Suggest alternative table keys on `nil` errors.
 * Errors from inside `parallel` functions now have source information attached.
 * Expose printout contents to the Java API.
+* Add support for MoreRed bundled cables.
 
 Several bug fixes:
 * Ignore unrepresentable characters in `char`/`paste` events.
 
+# New features in CC: Tweaked 1.114.5
+
+One bug fix:
+* Fix `turtle.craft` crafting too many items for shapeless recipes.
+
 # New features in CC: Tweaked 1.114.4
 
 * Allow typing/pasting any character in the CC charset.
+* Add a new `computercraft:storage_capacity` to override a disk or computer's capacity.
 
 Several bug fixes:
-* Fix command computers being exposed as peripherals (Forge only).
 * Fix command computers having NBT set when placed in a Create contraption.
 * Use correct bounding box when checking for entities in turtle movement.
 
@@ -68,6 +74,8 @@ Several bug fixes:
 * Fix computers and turtles not being dropped when exploded with TNT.
 * Fix crash when turtles are broken while mining a block.
 * Fix pocket computer terminals not updating when in the off-hand.
+* Fix disk drives not being exposed as a peripheral.
+* Fix item details being non-serialisable due to duplicated tables.
 
 # New features in CC: Tweaked 1.112.0
 
@@ -79,7 +87,18 @@ Several bug fixes:
 * Fix `drive.getAudioTitle` returning `nil` when no disk is inserted.
 * Preserve item data when upgrading pocket computers.
 * Add missing bounds check to `cc.strings.wrap` (Lupus950).
-* Fix modems not moving with Create contraptions.
+* Fix dyed turtles rendering transparent.
+* Fix dupe bug when crafting with turtles.
+
+# New features in CC: Tweaked 1.111.1
+
+* Add support for data-driven turtle upgrades.
+
+Several bug fixes:
+* Fix monitors not rendering on NeoForge.
+* Fix turtle labels not rendering.
+* Fix compatibility with newer versions of NeoForge.
+* Fix heights of turtle flags.
 
 # New features in CC: Tweaked 1.111.0
 
@@ -624,7 +643,7 @@ And several bug fixes:
 * Remove config option for the debug API.
 * Allow setting the subprotocol header for websockets.
 * Add basic JMX monitoring on dedicated servers.
-* Add support for MoreRed bundled.
+* Add support for MoreRed bundled cables.
 * Allow uploading files by dropping them onto a computer.
 
 And several bug fixes:

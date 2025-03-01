@@ -66,9 +66,9 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
     }
 
     @Override
-    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
-        Objects.requireNonNull(minecraft().player).getInventory().swapPaint(pDelta);
-        return super.mouseScrolled(pMouseX, pMouseY, pDelta);
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        Objects.requireNonNull(minecraft().player).getInventory().swapPaint(scrollY);
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override
@@ -103,6 +103,11 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
             graphics.drawString(font, line, (width / 2) - (font.width(line) / 2), y, 0xFFFFFF, true);
             y += 9;
         }
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        // Skip rendering the background.
     }
 
     private Minecraft minecraft() {

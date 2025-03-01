@@ -6,14 +6,14 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.core.apis.http.NetworkUtils;
-import dan200.computercraft.impl.PocketUpgrades;
-import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.metrics.ComputerMBean;
+import dan200.computercraft.shared.lectern.CustomLecternBlock;
 import dan200.computercraft.shared.peripheral.monitor.MonitorWatcher;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.TickScheduler;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -21,15 +21,23 @@ import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.entries.LootTableReference;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.NestedLootTable;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
@@ -64,6 +72,12 @@ public final class CommonHooks {
         ComputerMBean.start(server);
     }
 
+    public static void onServerStarted(MinecraftServer server) {
+        // ItemDetails requires creative tabs to be populated, however by default this is done lazily on the client and
+        // not at all on the server! We instead do this once on server startup.
+        CreativeModeTabs.tryRebuildTabContents(server.getWorldData().enabledFeatures(), false, server.registryAccess());
+    }
+
     public static void onServerStopped() {
         resetState();
     }
@@ -86,9 +100,23 @@ public final class CommonHooks {
         TickScheduler.onChunkTicketChanged(level, chunkPos, oldLevel, newLevel);
     }
 
-    public static final ResourceLocation TREASURE_DISK_LOOT = new ResourceLocation(ComputerCraftAPI.MOD_ID, "treasure_disk");
+    public static InteractionResult onUseBlock(Player player, Level level, InteractionHand hand, BlockHitResult hitResult) {
+        if (player.isSpectator()) return InteractionResult.PASS;
 
-    private static final Set<ResourceLocation> TREASURE_DISK_LOOT_TABLES = Set.of(
+        var pos = hitResult.getBlockPos();
+        var heldItem = player.getItemInHand(hand);
+        var blockState = level.getBlockState(pos);
+
+        if (blockState.is(Blocks.LECTERN) && !blockState.getValue(LecternBlock.HAS_BOOK)) {
+            return CustomLecternBlock.tryPlaceItem(player, level, pos, blockState, heldItem);
+        }
+
+        return InteractionResult.PASS;
+    }
+
+    public static final ResourceKey<LootTable> TREASURE_DISK_LOOT = ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "treasure_disk"));
+
+    private static final Set<ResourceKey<LootTable>> TREASURE_DISK_LOOT_TABLES = Set.of(
         BuiltInLootTables.SIMPLE_DUNGEON,
         BuiltInLootTables.ABANDONED_MINESHAFT,
         BuiltInLootTables.STRONGHOLD_CORRIDOR,
@@ -101,20 +129,18 @@ public final class CommonHooks {
         BuiltInLootTables.VILLAGE_CARTOGRAPHER
     );
 
-    public static LootPool.@Nullable Builder getExtraLootPool(ResourceLocation lootTable) {
-        if (!lootTable.getNamespace().equals("minecraft") || !TREASURE_DISK_LOOT_TABLES.contains(lootTable)) {
+    public static LootPool.@Nullable Builder getExtraLootPool(ResourceKey<LootTable> lootTable) {
+        if (!TREASURE_DISK_LOOT_TABLES.contains(lootTable)) {
             return null;
         }
 
         return LootPool.lootPool()
-            .add(LootTableReference.lootTableReference(TREASURE_DISK_LOOT))
+            .add(NestedLootTable.lootTableReference(TREASURE_DISK_LOOT))
             .setRolls(ConstantValue.exactly(1));
     }
 
     public static void onDatapackReload(BiConsumer<String, PreparableReloadListener> addReload) {
         addReload.accept("mounts", ResourceMount.RELOAD_LISTENER);
-        addReload.accept("turtle_upgrades", TurtleUpgrades.instance());
-        addReload.accept("pocket_upgrades", PocketUpgrades.instance());
     }
 
     public static boolean onEntitySpawn(Entity entity) {

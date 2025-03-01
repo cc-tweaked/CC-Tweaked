@@ -28,7 +28,7 @@ Translations are managed through [CrowdIn], an online interface for managing lan
 In order to develop CC: Tweaked, you'll need to download the source code and then run it.
 
  - Make sure you've got the following software installed:
-   - Java Development Kit 17 (JDK). This can be downloaded from [Adoptium].
+   - Java Development Kit 21 (JDK). This can be downloaded from [Adoptium].
    - [Git](https://git-scm.com/).
    - [NodeJS 20 or later][node].
 

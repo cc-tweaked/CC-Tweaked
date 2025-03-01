@@ -7,7 +7,7 @@ package dan200.computercraft.shared.media.items;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.common.IColouredItem;
+import dan200.computercraft.shared.util.NonNegativeId;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -15,33 +15,22 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.LevelReader;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public class DiskItem extends Item implements IColouredItem {
-    private static final String NBT_ID = "DiskId";
-
+public class DiskItem extends Item {
     public DiskItem(Properties settings) {
         super(settings);
     }
 
-    public static ItemStack createFromIDAndColour(int id, @Nullable String label, int colour) {
-        var stack = new ItemStack(ModRegistry.Items.DISK.get());
-        setDiskID(stack, id);
-        if (label != null) stack.setHoverName(Component.literal(label));
-        IColouredItem.setColourBasic(stack, colour);
-        return stack;
-    }
-
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> list, TooltipFlag options) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag options) {
         if (options.isAdvanced()) {
-            var id = getDiskID(stack);
-            if (id >= 0) {
-                list.add(Component.translatable("gui.computercraft.tooltip.disk_id", id)
+            var id = stack.get(ModRegistry.DataComponents.DISK_ID.get());
+            if (id != null) {
+                list.add(Component.translatable("gui.computercraft.tooltip.disk_id", id.id())
                     .withStyle(ChatFormatting.GRAY));
             }
         }
@@ -53,17 +42,10 @@ public class DiskItem extends Item implements IColouredItem {
     }
 
     public static int getDiskID(ItemStack stack) {
-        var nbt = stack.getTag();
-        return nbt != null && nbt.contains(NBT_ID) ? nbt.getInt(NBT_ID) : -1;
+        return NonNegativeId.getId(stack.get(ModRegistry.DataComponents.DISK_ID.get()));
     }
 
-    public static void setDiskID(ItemStack stack, int id) {
-        if (id >= 0) stack.getOrCreateTag().putInt(NBT_ID, id);
-    }
-
-    @Override
-    public int getColour(ItemStack stack) {
-        var colour = IColouredItem.getColourBasic(stack);
-        return colour == -1 ? Colour.WHITE.getHex() : colour;
+    public static int getColour(ItemStack stack) {
+        return DyedItemColor.getOrDefault(stack, Colour.WHITE.getARGB());
     }
 }

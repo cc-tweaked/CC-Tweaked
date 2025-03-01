@@ -11,19 +11,19 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 /**
- * A basic implementation of {@link Container} which operates on a {@linkplain #getContents() list of stacks}.
+ * A basic implementation of {@link Container} which operates on a {@linkplain #getItems() list of stacks}.
  */
 public interface BasicContainer extends Container {
-    List<ItemStack> getContents();
+    List<ItemStack> getItems();
 
     @Override
     default int getContainerSize() {
-        return getContents().size();
+        return getItems().size();
     }
 
     @Override
     default boolean isEmpty() {
-        for (var stack : getContents()) {
+        for (var stack : getItems()) {
             if (!stack.isEmpty()) return false;
         }
 
@@ -32,27 +32,33 @@ public interface BasicContainer extends Container {
 
     @Override
     default ItemStack getItem(int slot) {
-        var contents = getContents();
+        var contents = getItems();
         return slot >= 0 && slot < contents.size() ? contents.get(slot) : ItemStack.EMPTY;
     }
 
     @Override
     default ItemStack removeItemNoUpdate(int slot) {
-        return ContainerHelper.takeItem(getContents(), slot);
+        return ContainerHelper.takeItem(getItems(), slot);
     }
 
     @Override
     default ItemStack removeItem(int slot, int count) {
-        return ContainerHelper.removeItem(getContents(), slot, count);
+        return ContainerHelper.removeItem(getItems(), slot, count);
     }
 
     @Override
     default void setItem(int slot, ItemStack itemStack) {
-        getContents().set(slot, itemStack);
+        getItems().set(slot, itemStack);
     }
 
     @Override
     default void clearContent() {
-        getContents().clear();
+        getItems().clear();
+    }
+
+    static void defaultSetItems(List<ItemStack> inventory, List<ItemStack> items) {
+        var i = 0;
+        for (; i < items.size(); i++) inventory.set(i, items.get(i));
+        for (; i < inventory.size(); i++) inventory.set(i, ItemStack.EMPTY);
     }
 }

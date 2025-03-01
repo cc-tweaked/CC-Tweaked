@@ -4,138 +4,109 @@
 
 package dan200.computercraft.impl;
 
-import com.google.gson.*;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
-import dan200.computercraft.api.upgrades.UpgradeSerialiser;
-import dan200.computercraft.shared.platform.PlatformHelper;
+import dan200.computercraft.api.upgrades.UpgradeType;
+import dan200.computercraft.shared.util.SafeDispatchCodec;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 /**
  * Manages turtle and pocket computer upgrades.
  *
- * @param <R> The type of upgrade serialisers.
  * @param <T> The type of upgrade.
  * @see TurtleUpgrades
  * @see PocketUpgrades
  */
-public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends UpgradeBase> extends SimpleJsonResourceReloadListener {
-    private static final Logger LOG = LoggerFactory.getLogger(UpgradeManager.class);
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+public final class UpgradeManager<T extends UpgradeBase> {
+    private final ResourceKey<Registry<T>> registry;
+    private final Codec<T> upgradeCodec;
+    private final Codec<UpgradeData<T>> dataCodec;
+    private final StreamCodec<RegistryFriendlyByteBuf, UpgradeData<T>> dataStreamCodec;
 
-    public record UpgradeWrapper<R extends UpgradeSerialiser<? extends T>, T extends UpgradeBase>(
-        String id, T upgrade, R serialiser, String modId
+    UpgradeManager(
+        ResourceKey<Registry<UpgradeType<? extends T>>> typeRegistry,
+        ResourceKey<Registry<T>> registry,
+        Function<T, UpgradeType<? extends T>> getType
     ) {
-    }
-
-    private final String kind;
-    private final ResourceKey<Registry<R>> registry;
-
-    private Map<String, UpgradeWrapper<R, T>> current = Map.of();
-    private Map<T, UpgradeWrapper<R, T>> currentWrappers = Map.of();
-
-    public UpgradeManager(String kind, String path, ResourceKey<Registry<R>> registry) {
-        super(GSON, path);
-        this.kind = kind;
         this.registry = registry;
+
+        upgradeCodec = SafeDispatchCodec.ofRegistry(typeRegistry, getType, UpgradeType::codec);
+
+        var holderCodec = RegistryFixedCodec.create(registry).xmap(x -> (Holder.Reference<T>) x, x -> x);
+        Codec<UpgradeData<T>> fullCodec = RecordCodecBuilder.create(i -> i.group(
+            holderCodec.fieldOf("id").forGetter(UpgradeData::holder),
+            DataComponentPatch.CODEC.optionalFieldOf("components", DataComponentPatch.EMPTY).forGetter(UpgradeData::data)
+        ).apply(i, UpgradeData::new));
+        dataCodec = Codec.withAlternative(fullCodec, holderCodec, UpgradeData::ofDefault);
+
+        dataStreamCodec = StreamCodec.composite(
+            ByteBufCodecs.holderRegistry(registry).map(x -> (Holder.Reference<T>) x, x -> x), UpgradeData::holder,
+            DataComponentPatch.STREAM_CODEC, UpgradeData::data,
+            UpgradeData::new
+        );
+    }
+
+    /**
+     * The codec for an upgrade instance.
+     *
+     * @return The instance codec.
+     */
+    public Codec<T> upgradeCodec() {
+        return upgradeCodec;
+    }
+
+    /**
+     * The codec for an upgrade and its associated data.
+     *
+     * @return The upgrade data codec.
+     */
+    public Codec<UpgradeData<T>> upgradeDataCodec() {
+        return dataCodec;
+    }
+
+    /**
+     * The stream codec for an upgrade and its associated data.
+     *
+     * @return The upgrade data codec.
+     */
+    public StreamCodec<RegistryFriendlyByteBuf, UpgradeData<T>> upgradeDataStreamCodec() {
+        return dataStreamCodec;
+    }
+
+    public String getOwner(Holder.Reference<T> upgrade) {
+        var ns = upgrade.key().location().getNamespace();
+        return ns.equals("minecraft") ? ComputerCraftAPI.MOD_ID : ns;
+
+        // TODO: Would be nice if we could use the registration info here.
     }
 
     @Nullable
-    public T get(String id) {
-        var wrapper = current.get(id);
-        return wrapper == null ? null : wrapper.upgrade();
-    }
-
-    @Nullable
-    public UpgradeWrapper<R, T> getWrapper(T upgrade) {
-        return currentWrappers.get(upgrade);
-    }
-
-    @Nullable
-    public String getOwner(T upgrade) {
-        var wrapper = currentWrappers.get(upgrade);
-        return wrapper != null ? wrapper.modId() : null;
-    }
-
-    @Nullable
-    public UpgradeData<T> get(ItemStack stack) {
+    public UpgradeData<T> get(HolderLookup.Provider registries, ItemStack stack) {
         if (stack.isEmpty()) return null;
 
-        for (var wrapper : current.values()) {
-            var craftingStack = wrapper.upgrade().getCraftingItem();
-            if (!craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && wrapper.upgrade().isItemSuitable(stack)) {
-                return UpgradeData.of(wrapper.upgrade, wrapper.upgrade.getUpgradeData(stack));
-            }
-        }
-
-        return null;
-    }
-
-    public Collection<T> getUpgrades() {
-        return currentWrappers.keySet();
-    }
-
-    public Map<String, UpgradeWrapper<R, T>> getUpgradeWrappers() {
-        return current;
-    }
-
-    @Override
-    protected void apply(Map<ResourceLocation, JsonElement> upgrades, ResourceManager manager, ProfilerFiller profiler) {
-        Map<String, UpgradeWrapper<R, T>> newUpgrades = new HashMap<>();
-        for (var element : upgrades.entrySet()) {
-            try {
-                loadUpgrade(newUpgrades, element.getKey(), element.getValue());
-            } catch (IllegalArgumentException | JsonParseException e) {
-                LOG.error("Error loading {} {} from JSON file", kind, element.getKey(), e);
-            }
-        }
-
-        current = Collections.unmodifiableMap(newUpgrades);
-        currentWrappers = newUpgrades.values().stream().collect(Collectors.toUnmodifiableMap(UpgradeWrapper::upgrade, x -> x));
-        LOG.info("Loaded {} {}s", current.size(), kind);
-    }
-
-    private void loadUpgrade(Map<String, UpgradeWrapper<R, T>> current, ResourceLocation id, JsonElement json) {
-        var root = GsonHelper.convertToJsonObject(json, "top element");
-        if (!PlatformHelper.get().shouldLoadResource(root)) return;
-
-        var serialiserId = new ResourceLocation(GsonHelper.getAsString(root, "type"));
-        var serialiser = PlatformHelper.get().tryGetRegistryObject(registry, serialiserId);
-        if (serialiser == null) throw new JsonSyntaxException("Unknown upgrade type '" + serialiserId + "'");
-
-        // TODO: Can we track which mod this resource came from and use that instead? It's theoretically possible,
-        //  but maybe not ideal for datapacks.
-        var modId = id.getNamespace();
-        if (modId.equals("minecraft") || modId.isEmpty()) modId = ComputerCraftAPI.MOD_ID;
-
-        var upgrade = serialiser.fromJson(id, root);
-        if (!upgrade.getUpgradeID().equals(id)) {
-            throw new IllegalArgumentException("Upgrade " + id + " from " + serialiser + " was incorrectly given id " + upgrade.getUpgradeID());
-        }
-
-        var result = new UpgradeWrapper<R, T>(id.toString(), upgrade, serialiser, modId);
-        current.put(result.id(), result);
-    }
-
-    public void loadFromNetwork(Map<String, UpgradeWrapper<R, T>> newUpgrades) {
-        current = Collections.unmodifiableMap(newUpgrades);
-        currentWrappers = newUpgrades.values().stream().collect(Collectors.toUnmodifiableMap(UpgradeWrapper::upgrade, x -> x));
+        return registries.lookupOrThrow(registry).listElements()
+            .filter(holder -> {
+                var upgrade = holder.value();
+                var craftingStack = upgrade.getCraftingItem();
+                return !craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && upgrade.isItemSuitable(stack);
+            })
+            .findAny()
+            .map(x -> UpgradeData.of(x, x.value().getUpgradeData(stack)))
+            .orElse(null);
     }
 }

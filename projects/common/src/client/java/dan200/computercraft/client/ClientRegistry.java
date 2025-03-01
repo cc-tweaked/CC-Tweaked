@@ -22,16 +22,17 @@ import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.command.CommandComputerCraft;
-import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import dan200.computercraft.shared.media.items.DiskItem;
-import dan200.computercraft.shared.media.items.TreasureDiskItem;
+import dan200.computercraft.shared.turtle.TurtleOverlay;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -42,14 +43,19 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceProvider;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ItemLike;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -83,14 +89,6 @@ public final class ClientRegistry {
      * @param itemProperties Callback to register item properties.
      */
     public static void registerMainThread(RegisterItemProperty itemProperties) {
-        MenuScreens.<AbstractComputerMenu, ComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.COMPUTER.get(), ComputerScreen::new);
-        MenuScreens.<AbstractComputerMenu, NoTermComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.POCKET_COMPUTER_NO_TERM.get(), NoTermComputerScreen::new);
-        MenuScreens.register(ModRegistry.Menus.TURTLE.get(), TurtleScreen::new);
-
-        MenuScreens.register(ModRegistry.Menus.PRINTER.get(), PrinterScreen::new);
-        MenuScreens.register(ModRegistry.Menus.DISK_DRIVE.get(), DiskDriveScreen::new);
-        MenuScreens.register(ModRegistry.Menus.PRINTOUT.get(), PrintoutScreen::new);
-
         registerItemProperty(itemProperties, "state",
             new UnclampedPropertyFunction((stack, world, player, random) -> {
                 var computer = ClientPocketComputers.get(stack);
@@ -99,28 +97,41 @@ public final class ClientRegistry {
             ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED
         );
         registerItemProperty(itemProperties, "coloured",
-            (stack, world, player, random) -> IColouredItem.getColourBasic(stack) != -1 ? 1 : 0,
+            (stack, world, player, random) -> DyedItemColor.getOrDefault(stack, -1) != -1 ? 1 : 0,
             ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED
         );
     }
 
+    public static void registerMenuScreens(RegisterMenuScreen register) {
+        register.<AbstractComputerMenu, ComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.COMPUTER.get(), ComputerScreen::new);
+        register.<AbstractComputerMenu, NoTermComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.POCKET_COMPUTER_NO_TERM.get(), NoTermComputerScreen::new);
+        register.register(ModRegistry.Menus.TURTLE.get(), TurtleScreen::new);
+
+        register.register(ModRegistry.Menus.PRINTER.get(), PrinterScreen::new);
+        register.register(ModRegistry.Menus.DISK_DRIVE.get(), DiskDriveScreen::new);
+        register.register(ModRegistry.Menus.PRINTOUT.get(), PrintoutScreen::new);
+    }
+
+    public interface RegisterMenuScreen {
+        <M extends AbstractContainerMenu, U extends Screen & MenuAccess<M>> void register(MenuType<? extends M> type, MenuScreens.ScreenConstructor<M, U> factory);
+    }
+
     public static void registerTurtleModellers(RegisterTurtleUpgradeModeller register) {
-        register.register(ModRegistry.TurtleSerialisers.SPEAKER.get(), TurtleUpgradeModeller.sided(
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_left"),
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_right")
+        register.register(ModRegistry.TurtleUpgradeTypes.SPEAKER.get(), TurtleUpgradeModeller.sided(
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_left"),
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_right")
         ));
-        register.register(ModRegistry.TurtleSerialisers.WORKBENCH.get(), TurtleUpgradeModeller.sided(
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_left"),
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_right")
+        register.register(ModRegistry.TurtleUpgradeTypes.WORKBENCH.get(), TurtleUpgradeModeller.sided(
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_left"),
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_right")
         ));
-        register.register(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_NORMAL.get(), new TurtleModemModeller(false));
-        register.register(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_ADVANCED.get(), new TurtleModemModeller(true));
-        register.register(ModRegistry.TurtleSerialisers.TOOL.get(), TurtleUpgradeModeller.flatItem());
+        register.register(ModRegistry.TurtleUpgradeTypes.WIRELESS_MODEM.get(), new TurtleModemModeller());
+        register.register(ModRegistry.TurtleUpgradeTypes.TOOL.get(), TurtleUpgradeModeller.flatItem());
     }
 
     @SafeVarargs
     private static void registerItemProperty(RegisterItemProperty itemProperties, String name, ClampedItemPropertyFunction getter, Supplier<? extends Item>... items) {
-        var id = new ResourceLocation(ComputerCraftAPI.MOD_ID, name);
+        var id = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name);
         for (var item : items) itemProperties.register(item.get(), id, getter);
     }
 
@@ -136,26 +147,25 @@ public final class ClientRegistry {
         register.accept(GuiSprites.initialise(minecraft.getTextureManager()));
     }
 
-    private static final String[] EXTRA_MODELS = new String[]{
-        "block/turtle_colour",
-        "block/turtle_elf_overlay",
-        "block/turtle_rainbow_overlay",
-        "block/turtle_trans_overlay",
+    private static final ResourceLocation[] EXTRA_MODELS = {
+        TurtleOverlay.ELF_MODEL,
+        TurtleBlockEntityRenderer.COLOUR_TURTLE_MODEL,
     };
 
-    public static void registerExtraModels(Consumer<ResourceLocation> register) {
-        for (var model : EXTRA_MODELS) register.accept(new ResourceLocation(ComputerCraftAPI.MOD_ID, model));
+    public static void registerExtraModels(Consumer<ResourceLocation> register, Collection<ResourceLocation> extraModels) {
+        for (var model : EXTRA_MODELS) register.accept(model);
+        extraModels.forEach(register);
         TurtleUpgradeModellers.getDependencies().forEach(register);
     }
 
     public static void registerItemColours(BiConsumer<ItemColor, ItemLike> register) {
         register.accept(
-            (stack, layer) -> layer == 1 ? ((DiskItem) stack.getItem()).getColour(stack) : 0xFFFFFF,
+            (stack, layer) -> layer == 1 ? DiskItem.getColour(stack) : -1,
             ModRegistry.Items.DISK.get()
         );
 
         register.accept(
-            (stack, layer) -> layer == 1 ? TreasureDiskItem.getColour(stack) : 0xFFFFFF,
+            (stack, layer) -> layer == 1 ? DyedItemColor.getOrDefault(stack, Colour.BLUE.getARGB()) : -1,
             ModRegistry.Items.TREASURE_DISK.get()
         );
 
@@ -168,17 +178,17 @@ public final class ClientRegistry {
 
     private static int getPocketColour(ItemStack stack, int layer) {
         return switch (layer) {
-            default -> 0xFFFFFF;
-            case 1 -> IColouredItem.getColourBasic(stack); // Frame colour
+            default -> -1;
+            case 1 -> DyedItemColor.getOrDefault(stack, -1); // Frame colour
             case 2 -> { // Light colour
                 var computer = ClientPocketComputers.get(stack);
-                yield computer == null || computer.getLightState() == -1 ? Colour.BLACK.getHex() : computer.getLightState();
+                yield computer == null || computer.getLightState() == -1 ? Colour.BLACK.getARGB() : FastColor.ARGB32.opaque(computer.getLightState());
             }
         };
     }
 
     private static int getTurtleColour(ItemStack stack, int layer) {
-        return layer == 0 ? ((IColouredItem) stack.getItem()).getColour(stack) : 0xFFFFFF;
+        return layer == 0 ? DyedItemColor.getOrDefault(stack, -1) : -1;
     }
 
     public static void registerShaders(ResourceProvider resources, BiConsumer<ShaderInstance, Consumer<ShaderInstance>> load) throws IOException {

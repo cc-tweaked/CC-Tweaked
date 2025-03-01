@@ -8,10 +8,12 @@ import dan200.computercraft.api.lua.Coerced
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.shared.ModRegistry
-import dan200.computercraft.shared.media.items.PrintoutItem
+import dan200.computercraft.shared.media.items.PrintoutData
 import dan200.computercraft.shared.peripheral.printer.PrinterBlock
 import dan200.computercraft.shared.peripheral.printer.PrinterPeripheral
+import dan200.computercraft.shared.util.DataComponentUtil
 import net.minecraft.core.BlockPos
+import net.minecraft.core.component.DataComponents
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.network.chat.Component
@@ -136,9 +138,11 @@ class Printer_Test {
             helper.assertBlockHas(pos, PrinterBlock.BOTTOM, true, message = "Has pages")
 
             // And check the inventory matches
-            val lines = createPageOf(' ')
-            lines[0] = "Hello, world!            "
-            lines[1] = "    Second line          "
+            val emptyLine = createEmptyLine('b')
+            val lines = MutableList(PrintoutData.LINES_PER_PAGE) { emptyLine }
+            lines[0] = lines[0].text("Hello, world!            ")
+            lines[1] = lines[1].text("    Second line          ")
+
             helper.assertContainerExactly(
                 pos,
                 listOf(
@@ -147,7 +151,7 @@ class Printer_Test {
                     // Paper
                     ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
                     // Pages
-                    PrintoutItem.createSingleFromTitleAndText("New Page", lines, createPageOf('b')),
+                    DataComponentUtil.createStack(ModRegistry.Items.PRINTED_PAGE.get(), ModRegistry.DataComponents.PRINTOUT.get(), PrintoutData("New Page", lines)),
                     ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
                 ),
             )
@@ -180,7 +184,7 @@ class Printer_Test {
         thenExecute {
             helper.level.destroyBlock(helper.absolutePos(BlockPos(2, 2, 2)), true)
             helper.assertExactlyItems(
-                ItemStack(ModRegistry.Items.PRINTER.get()).setHoverName(Component.literal("My Printer")),
+                DataComponentUtil.createStack(ModRegistry.Items.PRINTER.get(), DataComponents.CUSTOM_NAME, Component.literal("My Printer")),
                 ItemStack(Items.PAPER),
                 ItemStack(Items.BLACK_DYE),
                 message = "Breaking a printer should drop the contents",
@@ -188,8 +192,26 @@ class Printer_Test {
         }
     }
 
-    private fun createPageOf(c: Char): Array<String> {
-        val line = c.toString().repeat(PrintoutItem.LINE_MAX_LENGTH)
-        return Array(PrintoutItem.LINES_PER_PAGE) { line }
+    /**
+     * Loads a structure created on an older version of the game, and checks that data fixers have been applied.
+     */
+    @GameTest
+    fun Data_fixers(helper: GameTestHelper) = helper.sequence {
+        thenExecute {
+            val container = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.PRINTER.get())
+            val contents = container.getItem(1)
+            assertEquals(ModRegistry.Items.PRINTED_PAGE.get(), contents.item)
+
+            val printout = contents[ModRegistry.DataComponents.PRINTOUT.get()] ?: PrintoutData.EMPTY
+            assertEquals("example.lua", printout.title)
+            assertEquals("This is an example page  ", printout.lines[0].text)
+            assertEquals("3333333333333333333333333", printout.lines[0].foreground)
+        }
     }
+
+    private fun createEmptyLine(bg: Char): PrintoutData.Line {
+        return PrintoutData.Line(" ".repeat(PrintoutData.LINE_LENGTH), bg.toString().repeat(PrintoutData.LINE_LENGTH))
+    }
+
+    fun PrintoutData.Line.text(text: String) = PrintoutData.Line(text, foreground)
 }

@@ -13,15 +13,17 @@ import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.lectern.CustomLecternBlockEntity;
+import dan200.computercraft.shared.media.items.PrintoutData;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
-import dan200.computercraft.shared.util.ARGB32;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.LecternRenderer;
+import net.minecraft.util.FastColor;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.phys.Vec3;
 
@@ -62,14 +64,14 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
             if (printout.getType() == PrintoutItem.Type.BOOK) {
                 printoutModel.renderBook(poseStack, vertexConsumer, packedLight, packedOverlay);
             } else {
-                printoutModel.renderPages(poseStack, vertexConsumer, packedLight, packedOverlay, PrintoutItem.getPageCount(item));
+                printoutModel.renderPages(poseStack, vertexConsumer, packedLight, packedOverlay, PrintoutData.getOrEmpty(item).pages());
             }
         } else if (item.getItem() instanceof PocketComputerItem pocket) {
             var computer = ClientPocketComputers.get(item);
 
             pocketModel.render(
-                poseStack, buffer, packedLight, packedOverlay, pocket.getFamily(), pocket.getColour(item),
-                ARGB32.opaque(computer == null || computer.getLightState() == -1 ? Colour.BLACK.getHex() : computer.getLightState())
+                poseStack, buffer, packedLight, packedOverlay, pocket.getFamily(), DyedItemColor.getOrDefault(item, -1),
+                FastColor.ARGB32.opaque(computer == null || computer.getLightState() == -1 ? Colour.BLACK.getHex() : computer.getLightState())
             );
 
             // Jiggle the terminal about a bit, so (0, 0) is in the top left of the model's terminal hole.

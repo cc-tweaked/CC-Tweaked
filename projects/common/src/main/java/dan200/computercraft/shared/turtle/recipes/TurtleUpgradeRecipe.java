@@ -10,18 +10,17 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 public final class TurtleUpgradeRecipe extends CustomRecipe {
-    public TurtleUpgradeRecipe(ResourceLocation id, CraftingBookCategory category) {
-        super(id, category);
+    public TurtleUpgradeRecipe(CraftingBookCategory category) {
+        super(category);
     }
 
     @Override
@@ -30,28 +29,28 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess registryAccess) {
-        return ModRegistry.Items.TURTLE_NORMAL.get().create(-1, null, -1, null, null, 0, null);
+    public ItemStack getResultItem(HolderLookup.Provider registryAccess) {
+        return new ItemStack(ModRegistry.Items.TURTLE_NORMAL.get());
     }
 
     @Override
-    public boolean matches(CraftingContainer inventory, Level world) {
+    public boolean matches(CraftingInput inventory, Level world) {
         return !assemble(inventory, world.registryAccess()).isEmpty();
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inventory, RegistryAccess registryAccess) {
+    public ItemStack assemble(CraftingInput inventory, HolderLookup.Provider registryAccess) {
         // Scan the grid for a row containing a turtle and 1 or 2 items
         var leftItem = ItemStack.EMPTY;
         var turtle = ItemStack.EMPTY;
         var rightItem = ItemStack.EMPTY;
 
-        for (var y = 0; y < inventory.getHeight(); y++) {
+        for (var y = 0; y < inventory.height(); y++) {
             if (turtle.isEmpty()) {
                 // Search this row for potential turtles
                 var finishedRow = false;
-                for (var x = 0; x < inventory.getWidth(); x++) {
-                    var item = inventory.getItem(x + y * inventory.getWidth());
+                for (var x = 0; x < inventory.width(); x++) {
+                    var item = inventory.getItem(x, y);
                     if (!item.isEmpty()) {
                         if (finishedRow) {
                             return ItemStack.EMPTY;
@@ -88,8 +87,8 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
                 }
             } else {
                 // Turtle is already found, just check this row is empty
-                for (var x = 0; x < inventory.getWidth(); x++) {
-                    var item = inventory.getItem(x + y * inventory.getWidth());
+                for (var x = 0; x < inventory.width(); x++) {
+                    var item = inventory.getItem(x, y);
                     if (!item.isEmpty()) {
                         return ItemStack.EMPTY;
                     }
@@ -104,30 +103,26 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
 
         // At this point we have a turtle + 1 or 2 items
         // Get the turtle we already have
-        var itemTurtle = (TurtleItem) turtle.getItem();
         @SuppressWarnings({ "unchecked", "rawtypes" })
         UpgradeData<ITurtleUpgrade>[] upgrades = new UpgradeData[]{
-            itemTurtle.getUpgradeWithData(turtle, TurtleSide.LEFT),
-            itemTurtle.getUpgradeWithData(turtle, TurtleSide.RIGHT),
+            TurtleItem.getUpgradeWithData(turtle, TurtleSide.LEFT),
+            TurtleItem.getUpgradeWithData(turtle, TurtleSide.RIGHT),
         };
 
         // Get the upgrades for the new items
         var items = new ItemStack[]{ rightItem, leftItem };
         for (var i = 0; i < 2; i++) {
             if (!items[i].isEmpty()) {
-                var itemUpgrade = TurtleUpgrades.instance().get(items[i]);
+                var itemUpgrade = TurtleUpgrades.instance().get(registryAccess, items[i]);
                 if (itemUpgrade == null || upgrades[i] != null) return ItemStack.EMPTY;
                 upgrades[i] = itemUpgrade;
             }
         }
 
-        // Construct the new stack
-        var computerID = itemTurtle.getComputerID(turtle);
-        var label = itemTurtle.getLabel(turtle);
-        var fuelLevel = itemTurtle.getFuelLevel(turtle);
-        var colour = itemTurtle.getColour(turtle);
-        var overlay = itemTurtle.getOverlay(turtle);
-        return itemTurtle.create(computerID, label, colour, upgrades[0], upgrades[1], fuelLevel, overlay);
+        var newStack = turtle.copyWithCount(1);
+        newStack.set(ModRegistry.DataComponents.LEFT_TURTLE_UPGRADE.get(), upgrades[0]);
+        newStack.set(ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get(), upgrades[1]);
+        return newStack;
     }
 
     @Override

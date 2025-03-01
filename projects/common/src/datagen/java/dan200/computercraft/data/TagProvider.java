@@ -7,7 +7,8 @@ package dan200.computercraft.data;
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.integration.ExternalModTags;
-import dan200.computercraft.shared.platform.RegistryWrappers;
+import dan200.computercraft.shared.util.RegistryHelper;
+import net.minecraft.core.Registry;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.tags.BlockTags;
@@ -59,10 +60,7 @@ class TagProvider {
 
         tags.tag(ComputerCraftTags.Blocks.TURTLE_SWORD_BREAKABLE).addTag(BlockTags.WOOL).add(Blocks.COBWEB);
 
-        tags.tag(ComputerCraftTags.Blocks.TURTLE_CAN_USE)
-            .addTag(BlockTags.BEEHIVES)
-            .addTag(BlockTags.CAULDRONS)
-            .add(Blocks.COMPOSTER);
+        tags.tag(ComputerCraftTags.Blocks.TURTLE_CAN_USE);
 
         // Make all blocks aside from command computer mineable.
         tags.tag(BlockTags.MINEABLE_WITH_PICKAXE).add(
@@ -99,6 +97,10 @@ class TagProvider {
         tags.tag(ComputerCraftTags.Items.WIRED_MODEM).add(ModRegistry.Items.WIRED_MODEM.get(), ModRegistry.Items.WIRED_MODEM_FULL.get());
         tags.copy(ComputerCraftTags.Blocks.MONITOR, ComputerCraftTags.Items.MONITOR);
 
+        tags.tag(ComputerCraftTags.Items.DYEABLE)
+            .addTag(ComputerCraftTags.Items.TURTLE)
+            .add(ModRegistry.Items.DISK.get(), ModRegistry.Items.POCKET_COMPUTER_NORMAL.get(), ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get());
+
         tags.tag(ItemTags.PIGLIN_LOVED).add(
             ModRegistry.Items.COMPUTER_ADVANCED.get(), ModRegistry.Items.TURTLE_ADVANCED.get(),
             ModRegistry.Items.WIRELESS_MODEM_ADVANCED.get(), ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get(),
@@ -107,11 +109,6 @@ class TagProvider {
 
         // Allow printed books to be placed in bookshelves.
         tags.tag(ItemTags.BOOKSHELF_BOOKS).add(ModRegistry.Items.PRINTED_BOOK.get());
-
-        // Allow any printout to be placed on lecterns. See also PrintoutItem and CustomLecternBlock.
-        tags.tag(ItemTags.LECTERN_BOOKS).add(
-            ModRegistry.Items.PRINTED_PAGE.get(), ModRegistry.Items.PRINTED_PAGES.get(), ModRegistry.Items.PRINTED_BOOK.get()
-        );
 
         tags.tag(ComputerCraftTags.Items.TURTLE_CAN_PLACE)
             .add(Items.GLASS_BOTTLE)
@@ -127,9 +124,9 @@ class TagProvider {
         TagAppender<T> tag(TagKey<T> tag);
     }
 
-    public record TagAppender<T>(RegistryWrappers.RegistryWrapper<T> registry, TagBuilder builder) {
+    public record TagAppender<T>(Registry<T> registry, TagBuilder builder) {
         public TagAppender<T> add(T object) {
-            builder.addElement(registry.getKey(object));
+            builder.addElement(RegistryHelper.getKeyOrThrow(registry, object));
             return this;
         }
 

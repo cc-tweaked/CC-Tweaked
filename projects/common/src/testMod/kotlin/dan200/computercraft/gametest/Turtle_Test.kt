@@ -4,6 +4,7 @@
 
 package dan200.computercraft.gametest
 
+import dan200.computercraft.api.ComputerCraftAPI
 import dan200.computercraft.api.ComputerCraftTags
 import dan200.computercraft.api.detail.BasicItemDetailProvider
 import dan200.computercraft.api.detail.VanillaDetailRegistries
@@ -14,7 +15,6 @@ import dan200.computercraft.api.upgrades.UpgradeData
 import dan200.computercraft.core.apis.PeripheralAPI
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.gametest.core.TestHooks
-import dan200.computercraft.impl.TurtleUpgrades
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.mixin.gametest.GameTestInfoAccessor
 import dan200.computercraft.shared.ModRegistry
@@ -23,15 +23,19 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableBlock
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlock
 import dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState
+import dan200.computercraft.shared.turtle.TurtleOverlay
 import dan200.computercraft.shared.turtle.apis.TurtleAPI
 import dan200.computercraft.shared.turtle.core.TurtleCraftCommand
+import dan200.computercraft.shared.turtle.items.TurtleItem
 import dan200.computercraft.shared.util.WaterloggableHelpers
 import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.LuaTaskContext
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
+import net.minecraft.core.registries.Registries
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.item.PrimedTnt
 import net.minecraft.world.item.BlockItem
@@ -317,7 +321,12 @@ class Turtle_Test {
 
             val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
             val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
-            assertEquals(TurtleUpgrades.instance().get("cctest:wooden_pickaxe"), upgrade, "Upgrade is a wooden pickaxe")
+            assertEquals(
+                helper.level.registryAccess().registryOrThrow(ITurtleUpgrade.REGISTRY)
+                    .get(ResourceLocation.fromNamespaceAndPath("cctest", "wooden_pickaxe")),
+                upgrade,
+                "Upgrade is a wooden pickaxe",
+            )
 
             val item = ItemStack(Items.WOODEN_PICKAXE)
             item.damageValue = 1
@@ -341,7 +350,10 @@ class Turtle_Test {
 
             helper.assertUpgradeItem(
                 ItemStack(Items.WOODEN_PICKAXE),
-                UpgradeData.ofDefault(TurtleUpgrades.instance().get("cctest:wooden_pickaxe")),
+                UpgradeData.ofDefault(
+                    helper.level.registryAccess().registryOrThrow(ITurtleUpgrade.REGISTRY)
+                        .getHolder(ResourceLocation.fromNamespaceAndPath("cctest", "wooden_pickaxe")).orElseThrow(),
+                ),
             )
         }
     }
@@ -360,15 +372,19 @@ class Turtle_Test {
             val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
             val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
             assertEquals(
-                TurtleUpgrades.instance().get("cctest:netherite_pickaxe"),
+                helper.level.registryAccess().registryOrThrow(ITurtleUpgrade.REGISTRY)
+                    .get(ResourceLocation.fromNamespaceAndPath("cctest", "netherite_pickaxe")),
                 upgrade,
                 "Upgrade is a netherite pickaxe",
             )
 
             val item = ItemStack(Items.NETHERITE_PICKAXE)
             item.damageValue = 1
-            item.enchant(Enchantments.SILK_TOUCH, 1)
-            item.setRepairCost(1)
+            item.enchant(
+                helper.level.registryAccess().registryOrThrow(Registries.ENCHANTMENT)
+                    .getHolderOrThrow(Enchantments.SILK_TOUCH),
+                1,
+            )
 
             helper.assertUpgradeItem(item, turtle.getUpgradeWithData(TurtleSide.LEFT)!!)
         }
@@ -376,11 +392,11 @@ class Turtle_Test {
 
     private fun GameTestHelper.assertUpgradeItem(expected: ItemStack, upgrade: UpgradeData<ITurtleUpgrade>) {
         if (!ItemStack.matches(expected, upgrade.upgradeItem)) {
-            fail("Invalid upgrade item\n Expected => ${expected.tag}\n    Actual => ${upgrade.upgradeItem.tag}")
+            fail("Invalid upgrade item\n Expected => ${expected.componentsPatch}\n    Actual => ${upgrade.upgradeItem.componentsPatch}")
         }
 
-        if (!ItemStack.matches(ItemStack(expected.item), upgrade.upgrade.craftingItem)) {
-            fail("Original upgrade item has changed (is now ${upgrade.upgrade.craftingItem})")
+        if (!ItemStack.matches(ItemStack(expected.item), upgrade.upgrade().craftingItem)) {
+            fail("Original upgrade item has changed (is now ${upgrade.upgrade().craftingItem})")
         }
     }
 
@@ -748,6 +764,27 @@ class Turtle_Test {
     }
 
     /**
+     * Loads a structure created on an older version of the game, and checks that data fixers have been applied.
+     */
+    @GameTest
+    fun Data_fixers(helper: GameTestHelper) = helper.sequence {
+        thenExecute {
+            val overlay = helper.level.registryAccess().registryOrThrow(TurtleOverlay.REGISTRY)
+                .get(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "trans_flag"))!!
+            val upgrade = helper.level.registryAccess().registryOrThrow(ITurtleUpgrade.REGISTRY)
+                .get(ResourceLocation.withDefaultNamespace("diamond_pickaxe"))!!
+
+            val turtleBe = helper.getBlockEntity(BlockPos(1, 2, 1), ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            assertEquals(overlay, turtleBe.overlay)
+            assertEquals(upgrade, turtleBe.getUpgrade(TurtleSide.LEFT))
+
+            val turtleItem = turtleBe.getItem(0)
+            assertEquals(overlay, TurtleItem.getOverlay(turtleItem))
+            assertEquals(upgrade, TurtleItem.getUpgrade(turtleItem, TurtleSide.LEFT))
+        }
+    }
+
+    /**
      * `turtle.suck` only pulls for the current side.
      */
     @GameTest
@@ -799,6 +836,29 @@ class Turtle_Test {
     }
 
     /**
+     * `turtle.craft` works on shapeless recipes
+     *
+     * @see [#2094](https://github.com/cc-tweaked/CC-Tweaked/issues/2094)
+     */
+    @GameTest
+    fun Craft_shapeless(helper: GameTestHelper) = helper.sequence {
+        thenExecute {
+            val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            assertTrue(TurtleCraftCommand(64).execute(turtle.access).isSuccess, "Crafting succeeded")
+
+            helper.assertContainerExactly(
+                BlockPos(2, 2, 2),
+                listOf(
+                    ItemStack(Items.ENDER_EYE, 1), ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+                    ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+                    ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+                    ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+                ),
+            )
+        }
+    }
+
+    /**
      * `turtle.craft` leaves a remainder
      *
      * @see [#2007](https://github.com/cc-tweaked/CC-Tweaked/issues/2007)
@@ -810,7 +870,6 @@ class Turtle_Test {
             assertTrue(TurtleCraftCommand(1).execute(turtle.access).isSuccess, "Crafting succeeded")
 
             val turtleStack = ItemStack(ModRegistry.Items.TURTLE_NORMAL.get())
-            turtleStack.orCreateTag
 
             helper.assertContainerExactly(
                 BlockPos(2, 2, 2),
@@ -871,7 +930,11 @@ class Turtle_Test {
         }
         thenExecute {
             val turtle = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get())
-            assertEquals(TurtleUpgrades.instance().get("minecraft:diamond_pickaxe"), turtle.getUpgrade(TurtleSide.LEFT))
+            assertEquals(
+                helper.level.registryAccess().registryOrThrow(ITurtleUpgrade.REGISTRY)
+                    .get(ResourceLocation.withDefaultNamespace("diamond_pickaxe")),
+                turtle.getUpgrade(TurtleSide.LEFT),
+            )
         }
     }
 

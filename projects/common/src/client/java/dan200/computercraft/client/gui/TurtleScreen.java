@@ -23,8 +23,11 @@ import static dan200.computercraft.shared.turtle.inventory.TurtleMenu.*;
  * The GUI for turtles.
  */
 public class TurtleScreen extends AbstractComputerScreen<TurtleMenu> {
-    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/turtle_normal.png");
-    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation(ComputerCraftAPI.MOD_ID, "textures/gui/turtle_advanced.png");
+    private static final ResourceLocation BACKGROUND_NORMAL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "textures/gui/turtle_normal.png");
+    private static final ResourceLocation BACKGROUND_ADVANCED = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "textures/gui/turtle_advanced.png");
+
+    private static final ResourceLocation SELECTED_NORMAL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_normal_selected_slot");
+    private static final ResourceLocation SELECTED_ADVANCED = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_advanced_selected_slot");
 
     private static final int TEX_WIDTH = 278;
     private static final int TEX_HEIGHT = 217;
@@ -54,9 +57,9 @@ public class TurtleScreen extends AbstractComputerScreen<TurtleMenu> {
         if (slot >= 0) {
             var slotX = slot % 4;
             var slotY = slot / 4;
-            graphics.blit(
-                leftPos + TURTLE_START_X - 2 + slotX * 18, topPos + PLAYER_START_Y - 2 + slotY * 18, 0, 22, 22,
-                GuiSprites.get(advanced ? GuiSprites.TURTLE_ADVANCED_SELECTED_SLOT : GuiSprites.TURTLE_NORMAL_SELECTED_SLOT)
+            graphics.blitSprite(
+                advanced ? SELECTED_ADVANCED : SELECTED_NORMAL,
+                leftPos + TURTLE_START_X - 2 + slotX * 18, topPos + PLAYER_START_Y - 2 + slotY * 18, 0, 22, 22
             );
         }
 

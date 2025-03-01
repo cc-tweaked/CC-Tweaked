@@ -8,12 +8,12 @@ import com.google.auto.service.AutoService;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.command.UserLevel;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.server.permission.PermissionAPI;
-import net.minecraftforge.server.permission.events.PermissionGatherEvent;
-import net.minecraftforge.server.permission.nodes.PermissionNode;
-import net.minecraftforge.server.permission.nodes.PermissionType;
-import net.minecraftforge.server.permission.nodes.PermissionTypes;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.server.permission.PermissionAPI;
+import net.neoforged.neoforge.server.permission.events.PermissionGatherEvent;
+import net.neoforged.neoforge.server.permission.nodes.PermissionNode;
+import net.neoforged.neoforge.server.permission.nodes.PermissionType;
+import net.neoforged.neoforge.server.permission.nodes.PermissionTypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ public final class ForgePermissionRegistry extends PermissionRegistry {
     @Override
     public void register() {
         super.register();
-        MinecraftForge.EVENT_BUS.addListener((PermissionGatherEvent.Nodes event) -> event.addNodes(nodes));
+        NeoForge.EVENT_BUS.addListener((PermissionGatherEvent.Nodes event) -> event.addNodes(nodes));
     }
 
     @AutoService(PermissionRegistry.Provider.class)

@@ -28,7 +28,7 @@ public final class ItemModelProvider {
 
         registerPocketComputer(generators, getModelLocation(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get()), false);
         registerPocketComputer(generators, getModelLocation(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get()), false);
-        registerPocketComputer(generators, new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/pocket_computer_colour"), true);
+        registerPocketComputer(generators, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_colour"), true);
 
         generators.generateFlatItem(ModRegistry.Items.PRINTED_BOOK.get(), ModelTemplates.FLAT_ITEM);
         generators.generateFlatItem(ModRegistry.Items.PRINTED_PAGE.get(), ModelTemplates.FLAT_ITEM);
@@ -37,21 +37,21 @@ public final class ItemModelProvider {
 
     private static void registerPocketComputer(ItemModelGenerators generators, ResourceLocation id, boolean off) {
         createFlatItem(generators, id.withSuffix("_blinking"),
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/pocket_computer_blink"),
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_blink"),
             id,
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/pocket_computer_light")
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_light")
         );
 
         createFlatItem(generators, id.withSuffix("_on"),
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/pocket_computer_on"),
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_on"),
             id,
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/pocket_computer_light")
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_light")
         );
 
         // Don't emit the default/off state for advanced/normal pocket computers, as they have item overrides.
         if (off) {
             createFlatItem(generators, id,
-                new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/pocket_computer_frame"),
+                ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_frame"),
                 id
             );
         }
@@ -59,8 +59,8 @@ public final class ItemModelProvider {
 
     private static void registerDisk(ItemModelGenerators generators, Item item) {
         createFlatItem(generators, item,
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/disk_frame"),
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "item/disk_colour")
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/disk_frame"),
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/disk_colour")
         );
     }
 
@@ -91,7 +91,7 @@ public final class ItemModelProvider {
             mapping.put(slot, textures[i]);
         }
 
-        new ModelTemplate(Optional.of(new ResourceLocation("item/generated")), Optional.empty(), slots)
+        new ModelTemplate(Optional.of(ResourceLocation.withDefaultNamespace("item/generated")), Optional.empty(), slots)
             .create(model, mapping, generators.output);
     }
 }

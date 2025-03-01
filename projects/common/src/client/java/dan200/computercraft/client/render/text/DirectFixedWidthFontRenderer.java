@@ -4,7 +4,6 @@
 
 package dan200.computercraft.client.render.text;
 
-import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -13,7 +12,7 @@ import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
-import dan200.computercraft.shared.util.ARGB32;
+import net.minecraft.util.FastColor;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -30,7 +29,7 @@ import static org.lwjgl.system.MemoryUtil.*;
  * <ul>
  *   <li>No transformation matrix (not needed for VBOs).</li>
  *   <li>Only works with {@link DefaultVertexFormat#POSITION_COLOR_TEX_LIGHTMAP}.</li>
- *   <li>The buffer <strong>MUST</strong> be allocated with {@link MemoryTracker}, and not through any other means.</li>
+ *   <li>The buffer <strong>MUST</strong> be allocated with {@link MemoryUtil}, and not through any other means.</li>
  * </ul>
  * <p>
  * Note this is almost an exact copy of {@link FixedWidthFontRenderer}. While the code duplication is unfortunate,
@@ -201,8 +200,8 @@ public final class DirectFixedWidthFontRenderer {
         // Require the pointer to be aligned to a 32-bit boundary.
         if ((addr & 3) != 0) throw new IllegalStateException("Memory is not aligned");
 
-        // Pack colour so it is equivalent to rgba:BBBB.
-        var colourAbgr = ARGB32.toABGR32(colour);
+        // Pack colour so it is equivalent to rgba:BBBB. This matches the logic in BufferBuilder.
+        var colourAbgr = FastColor.ABGR32.fromArgb32(colour);
         var nativeColour = IS_LITTLE_ENDIAN ? colourAbgr : Integer.reverseBytes(colourAbgr);
 
         memPutFloat(addr + 0, x1);

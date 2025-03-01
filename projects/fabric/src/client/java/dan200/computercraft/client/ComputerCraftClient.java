@@ -7,6 +7,7 @@ package dan200.computercraft.client;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.FabricComputerCraftAPIClient;
 import dan200.computercraft.client.model.CustomModelLoader;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.impl.Services;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
@@ -14,7 +15,6 @@ import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.platform.FabricConfigFile;
-import dan200.computercraft.shared.platform.FabricMessageType;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -26,6 +26,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.world.item.ItemStack;
@@ -41,17 +42,18 @@ public class ComputerCraftClient {
         var clientNetwork = Services.load(ClientNetworkContext.class);
         for (var type : NetworkMessages.getClientbound()) {
             ClientPlayNetworking.registerGlobalReceiver(
-                FabricMessageType.toFabricType(type), (packet, player, responseSender) -> packet.payload().handle(clientNetwork)
+                type.type(), (packet, responseSender) -> packet.handle(clientNetwork)
             );
         }
 
         ClientRegistry.register();
         ClientRegistry.registerTurtleModellers(FabricComputerCraftAPIClient::registerTurtleUpgradeModeller);
         ClientRegistry.registerItemColours(ColorProviderRegistry.ITEM::register);
+        ClientRegistry.registerMenuScreens(MenuScreens::register);
         ClientRegistry.registerMainThread(ItemProperties::register);
 
         PreparableModelLoadingPlugin.register(CustomModelLoader::prepare, (state, context) -> {
-            ClientRegistry.registerExtraModels(context::addModels);
+            ClientRegistry.registerExtraModels(context::addModels, state.getExtraModels());
             context.resolveModel().register(ctx -> state.loadModel(ctx.id()));
             context.modifyModelAfterBake().register((model, ctx) -> model == null ? null : state.wrapModel(ctx, model));
         });
@@ -68,7 +70,7 @@ public class ComputerCraftClient {
         WorldRenderEvents.BLOCK_OUTLINE.register((context, hitResult) -> {
             var hit = Minecraft.getInstance().hitResult;
             if (hit instanceof BlockHitResult blockHit && blockHit.getBlockPos().equals(hitResult.blockPos())) {
-                return !ClientHooks.drawHighlight(context.matrixStack(), assertNonNull(context.consumers()), context.camera(), blockHit);
+                return !ClientHooks.drawHighlight(Nullability.assertNonNull(context.matrixStack()), assertNonNull(context.consumers()), context.camera(), blockHit);
             } else {
                 return true;
             }

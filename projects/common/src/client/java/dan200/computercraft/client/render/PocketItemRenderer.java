@@ -13,9 +13,10 @@ import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
-import dan200.computercraft.shared.util.ARGB32;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import org.joml.Matrix4f;
 
 import static dan200.computercraft.client.render.ComputerBorderRenderer.*;
@@ -62,7 +63,7 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
         // Render the main frame
         var item = (PocketComputerItem) stack.getItem();
         var family = item.getFamily();
-        var frameColour = item.getColour(stack);
+        var frameColour = DyedItemColor.getOrDefault(stack, -1);
 
         var matrix = transform.last().pose();
         renderFrame(matrix, bufferSource, family, frameColour, light, width, height);
@@ -97,7 +98,7 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
         FixedWidthFontRenderer.drawQuad(
             FixedWidthFontRenderer.toVertexConsumer(transform, buffer),
             width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0.001f, LIGHT_HEIGHT * 2, LIGHT_HEIGHT,
-            ARGB32.opaque(colour), RenderTypes.FULL_BRIGHT_LIGHTMAP
+            FastColor.ARGB32.opaque(colour), RenderTypes.FULL_BRIGHT_LIGHTMAP
         );
     }
 }

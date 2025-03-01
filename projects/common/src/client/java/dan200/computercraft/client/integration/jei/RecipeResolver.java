@@ -4,6 +4,7 @@
 
 package dan200.computercraft.client.integration.jei;
 
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.integration.UpgradeRecipeGenerator;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
@@ -12,13 +13,28 @@ import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.advanced.IRecipeManagerPlugin;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.List;
 
 class RecipeResolver implements IRecipeManagerPlugin {
-    private final UpgradeRecipeGenerator<CraftingRecipe> resolver = new UpgradeRecipeGenerator<>(x -> x);
+    private final UpgradeRecipeGenerator<RecipeHolder<CraftingRecipe>> resolver;
+
+    /**
+     * We need to generate unique ids for each recipe, as JEI will attempt to deduplicate them otherwise.
+     */
+    private int nextId = 0;
+
+    RecipeResolver(HolderLookup.Provider registries) {
+        resolver = new UpgradeRecipeGenerator<>(
+            x -> new RecipeHolder<>(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "upgrade_" + nextId++), x),
+            registries
+        );
+    }
 
     @Override
     public <V> List<RecipeType<?>> getRecipeTypes(IFocus<V> focus) {
@@ -44,8 +60,8 @@ class RecipeResolver implements IRecipeManagerPlugin {
         }
 
         return switch (focus.getRole()) {
-            case INPUT -> cast(resolver.findRecipesWithInput(stack));
-            case OUTPUT -> cast(resolver.findRecipesWithOutput(stack));
+            case INPUT -> cast(RecipeTypes.CRAFTING, resolver.findRecipesWithInput(stack));
+            case OUTPUT -> cast(RecipeTypes.CRAFTING, resolver.findRecipesWithOutput(stack));
             default -> List.of();
         };
     }
@@ -55,8 +71,8 @@ class RecipeResolver implements IRecipeManagerPlugin {
         return List.of();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static <T, U> List<T> cast(List<U> from) {
+    @SuppressWarnings({ "unchecked", "rawtypes", "UnusedVariable" })
+    private static <T, U> List<T> cast(RecipeType<U> ignoredType, List<U> from) {
         return (List) from;
     }
 }

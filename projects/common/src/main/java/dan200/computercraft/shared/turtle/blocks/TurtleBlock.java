@@ -4,22 +4,21 @@
 
 package dan200.computercraft.shared.turtle.blocks;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.annotations.ForgeOverride;
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlock;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlockEntity;
 import dan200.computercraft.shared.platform.RegistryEntry;
-import dan200.computercraft.shared.turtle.core.TurtleBrain;
-import dan200.computercraft.shared.turtle.items.TurtleItem;
+import dan200.computercraft.shared.util.BlockCodecs;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import dan200.computercraft.shared.util.WaterloggableHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
@@ -52,6 +51,11 @@ import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
 import static dan200.computercraft.shared.util.WaterloggableHelpers.getFluidStateForPlacement;
 
 public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implements SimpleWaterloggedBlock {
+    private static final MapCodec<TurtleBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        BlockCodecs.propertiesCodec(),
+        BlockCodecs.blockEntityCodec(x -> x.type)
+    ).apply(instance, TurtleBlock::new));
+
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     /**
@@ -85,14 +89,17 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
     }
 
     @Override
-    @Deprecated
-    public RenderShape getRenderShape(BlockState state) {
+    protected MapCodec<? extends TurtleBlock> codec() {
+        return CODEC;
+    }
+
+    @Override
+    protected RenderShape getRenderShape(BlockState state) {
         return RenderShape.ENTITYBLOCK_ANIMATED;
     }
 
     @Override
-    @Deprecated
-    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+    protected VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         var tile = world.getBlockEntity(pos);
         var offset = tile instanceof TurtleBlockEntity turtle ? turtle.getRenderOffset(1.0f) : Vec3.ZERO;
         return offset.equals(Vec3.ZERO) ? DEFAULT_SHAPE : DEFAULT_SHAPE.move(offset.x, offset.y, offset.z);
@@ -107,21 +114,18 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
     }
 
     @Override
-    @Deprecated
-    public FluidState getFluidState(BlockState state) {
+    protected FluidState getFluidState(BlockState state) {
         return WaterloggableHelpers.getFluidState(state);
     }
 
     @Override
-    @Deprecated
-    public BlockState updateShape(BlockState state, Direction side, BlockState otherState, LevelAccessor world, BlockPos pos, BlockPos otherPos) {
+    protected BlockState updateShape(BlockState state, Direction side, BlockState otherState, LevelAccessor world, BlockPos pos, BlockPos otherPos) {
         WaterloggableHelpers.updateShape(state, world, pos);
         return state;
     }
 
     @Override
-    @Deprecated
-    public final void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+    protected final void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (state.is(newState.getBlock())) return;
 
         // Most blocks drop items and then remove the BE. However, if a turtle is consuming drops right now, that can
@@ -136,46 +140,26 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
     }
 
     @Override
-    public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
-        super.setPlacedBy(world, pos, state, entity, stack);
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, entity, stack);
 
-        var tile = world.getBlockEntity(pos);
-        if (!world.isClientSide && tile instanceof TurtleBlockEntity turtle) {
-            if (entity instanceof Player player) turtle.setOwningPlayer(player.getGameProfile());
-
-            if (stack.getItem() instanceof TurtleItem item) {
-                // Set Upgrades
-                for (var side : TurtleSide.values()) {
-                    turtle.getAccess().setUpgradeWithData(side, item.getUpgradeWithData(stack, side));
-                }
-
-                turtle.getAccess().setFuelLevel(item.getFuelLevel(stack));
-
-                // Set colour
-                var colour = item.getColour(stack);
-                if (colour != -1) turtle.getAccess().setColour(colour);
-
-                // Set overlay
-                var overlay = item.getOverlay(stack);
-                if (overlay != null) ((TurtleBrain) turtle.getAccess()).setOverlay(overlay);
-            }
+        if (!level.isClientSide && level.getBlockEntity(pos) instanceof TurtleBlockEntity turtle && entity instanceof Player player) {
+            turtle.setOwningPlayer(player.getGameProfile());
         }
     }
 
     @Override
-    @Deprecated
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        var currentItem = player.getItemInHand(hand);
-        if (currentItem.getItem() == Items.NAME_TAG && currentItem.hasCustomHoverName() && level.getBlockEntity(pos) instanceof AbstractComputerBlockEntity computer) {
+    protected ItemInteractionResult useItemOn(ItemStack currentItem, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (currentItem.getItem() == Items.NAME_TAG && currentItem.has(DataComponents.CUSTOM_NAME) && level.getBlockEntity(pos) instanceof AbstractComputerBlockEntity computer) {
             // Label to rename computer
             if (!level.isClientSide) {
                 computer.setLabel(currentItem.getHoverName().getString());
                 currentItem.shrink(1);
             }
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return ItemInteractionResult.sidedSuccess(level.isClientSide);
         }
 
-        return super.use(state, level, pos, player, hand, hit);
+        return super.useItemOn(currentItem, state, level, pos, player, hand, hit);
     }
 
     @ForgeOverride
@@ -186,24 +170,6 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
         }
 
         return getExplosionResistance();
-    }
-
-    @Override
-    protected ItemStack getItem(AbstractComputerBlockEntity tile) {
-        if (!(tile instanceof TurtleBlockEntity turtle)) return ItemStack.EMPTY;
-        if (!(asItem() instanceof TurtleItem item)) return ItemStack.EMPTY;
-
-        var access = turtle.getAccess();
-        return item.create(
-            turtle.getComputerID(), turtle.getLabel(), access.getColour(),
-            withPersistedData(access.getUpgradeWithData(TurtleSide.LEFT)),
-            withPersistedData(access.getUpgradeWithData(TurtleSide.RIGHT)),
-            access.getFuelLevel(), turtle.getOverlay()
-        );
-    }
-
-    private static @Nullable UpgradeData<ITurtleUpgrade> withPersistedData(@Nullable UpgradeData<ITurtleUpgrade> upgrade) {
-        return upgrade == null ? null : UpgradeData.of(upgrade.upgrade(), upgrade.upgrade().getPersistedData(upgrade.data()));
     }
 
     @Override

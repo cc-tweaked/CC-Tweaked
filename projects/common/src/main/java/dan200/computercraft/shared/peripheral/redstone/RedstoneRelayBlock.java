@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MPL-2.0
 package dan200.computercraft.shared.peripheral.redstone;
 
+import com.mojang.serialization.MapCodec;
 import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,6 +25,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
  * block entity}.
  */
 public final class RedstoneRelayBlock extends HorizontalDirectionalBlock implements EntityBlock, IBundledRedstoneBlock {
+    private static final MapCodec<RedstoneRelayBlock> CODEC = simpleCodec(RedstoneRelayBlock::new);
+
     public RedstoneRelayBlock(Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
@@ -32,6 +35,11 @@ public final class RedstoneRelayBlock extends HorizontalDirectionalBlock impleme
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> properties) {
         properties.add(FACING);
+    }
+
+    @Override
+    protected MapCodec<RedstoneRelayBlock> codec() {
+        return CODEC;
     }
 
     @Override

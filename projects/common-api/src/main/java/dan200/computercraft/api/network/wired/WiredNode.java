@@ -11,7 +11,7 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.Map;
 
 /**
- * Wired nodes act as a layer between {@link WiredElement}s and {@link WiredNetwork}s.
+ * A single node on a wired network.
  * <p>
  * Firstly, a node acts as a packet network, capable of sending and receiving modem messages to connected nodes. These
  * methods may be safely used on any thread.
@@ -31,18 +31,6 @@ public interface WiredNode extends PacketNetwork {
      * @return This node's element.
      */
     WiredElement getElement();
-
-    /**
-     * The network this node is currently connected to. Note that this may change
-     * after any network operation, so it should not be cached.
-     * <p>
-     * This should only be used on the server thread.
-     *
-     * @return This node's network.
-     * @deprecated Use the connect/disconnect/remove methods on {@link WiredNode}.
-     */
-    @Deprecated
-    WiredNetwork getNetwork();
 
     /**
      * Create a connection from this node to another.

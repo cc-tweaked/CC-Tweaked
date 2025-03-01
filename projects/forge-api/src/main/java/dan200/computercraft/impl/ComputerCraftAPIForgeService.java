@@ -6,14 +6,9 @@ package dan200.computercraft.impl;
 
 import dan200.computercraft.api.ForgeComputerCraftAPI;
 import dan200.computercraft.api.detail.DetailRegistry;
-import dan200.computercraft.api.network.wired.WiredElement;
-import dan200.computercraft.api.peripheral.IPeripheralProvider;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.capabilities.BlockCapability;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -29,11 +24,7 @@ public interface ComputerCraftAPIForgeService extends ComputerCraftAPIService {
         return (ComputerCraftAPIForgeService) ComputerCraftAPIService.get();
     }
 
-    void registerPeripheralProvider(IPeripheralProvider provider);
-
-    void registerGenericCapability(Capability<?> capability);
-
-    LazyOptional<WiredElement> getWiredElementAt(BlockGetter world, BlockPos pos, Direction side);
+    void registerGenericCapability(BlockCapability<?, Direction> capability);
 
     DetailRegistry<FluidStack> getFluidStackDetailRegistry();
 }

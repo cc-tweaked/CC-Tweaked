@@ -9,7 +9,7 @@ import dan200.computercraft.client.model.TransformedBakedModel;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.model.BakedModelWrapper;
+import net.neoforged.neoforge.client.model.BakedModelWrapper;
 
 import java.util.List;
 import java.util.function.Function;

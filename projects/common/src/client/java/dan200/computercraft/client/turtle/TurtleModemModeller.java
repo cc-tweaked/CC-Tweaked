@@ -5,55 +5,57 @@
 package dan200.computercraft.client.turtle;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.client.ModelLocation;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.turtle.upgrades.TurtleModem;
+import dan200.computercraft.shared.util.DataComponentUtil;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.ResourceLocation;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * A {@link TurtleUpgradeModeller} for modems, providing different models depending on if the modem is on/off.
  */
 public class TurtleModemModeller implements TurtleUpgradeModeller<TurtleModem> {
-    private final ResourceLocation leftOffModel;
-    private final ResourceLocation rightOffModel;
-    private final ResourceLocation leftOnModel;
-    private final ResourceLocation rightOnModel;
-
-    public TurtleModemModeller(boolean advanced) {
-        if (advanced) {
-            leftOffModel = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_advanced_off_left");
-            rightOffModel = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_advanced_off_right");
-            leftOnModel = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_advanced_on_left");
-            rightOnModel = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_advanced_on_right");
-        } else {
-            leftOffModel = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_normal_off_left");
-            rightOffModel = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_normal_off_right");
-            leftOnModel = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_normal_on_left");
-            rightOnModel = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_modem_normal_on_right");
-        }
-    }
-
     @Override
-    public TransformedModel getModel(TurtleModem upgrade, @Nullable ITurtleAccess turtle, TurtleSide side) {
-        var active = false;
-        if (turtle != null) {
-            var turtleNBT = turtle.getUpgradeNBTData(side);
-            active = turtleNBT.contains("active") && turtleNBT.getBoolean("active");
-        }
+    public TransformedModel getModel(TurtleModem upgrade, @Nullable ITurtleAccess turtle, TurtleSide side, DataComponentPatch data) {
+        var active = DataComponentUtil.isPresent(data, ModRegistry.DataComponents.ON.get(), x -> x);
 
+        var models = upgrade.advanced() ? ModemModels.ADVANCED : ModemModels.NORMAL;
         return side == TurtleSide.LEFT
-            ? TransformedModel.of(active ? leftOnModel : leftOffModel)
-            : TransformedModel.of(active ? rightOnModel : rightOffModel);
+            ? TransformedModel.of(active ? models.leftOnModel() : models.leftOffModel())
+            : TransformedModel.of(active ? models.rightOnModel() : models.rightOffModel());
     }
 
     @Override
-    public Collection<ResourceLocation> getDependencies() {
-        return List.of(leftOffModel, rightOffModel, leftOnModel, rightOnModel);
+    public Stream<ResourceLocation> getDependencies() {
+        return Stream.of(ModemModels.NORMAL, ModemModels.ADVANCED).flatMap(ModemModels::getDependencies);
+    }
+
+    private record ModemModels(
+        ModelLocation leftOffModel, ModelLocation rightOffModel,
+        ModelLocation leftOnModel, ModelLocation rightOnModel
+    ) {
+        private static final ModemModels NORMAL = create("normal");
+        private static final ModemModels ADVANCED = create("advanced");
+
+        public static ModemModels create(String type) {
+            return new ModemModels(
+                ModelLocation.ofResource(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_off_left")),
+                ModelLocation.ofResource(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_off_right")),
+                ModelLocation.ofResource(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_on_left")),
+                ModelLocation.ofResource(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_on_right"))
+            );
+        }
+
+        public Stream<ResourceLocation> getDependencies() {
+            return Stream.of(leftOffModel, rightOffModel, leftOnModel, rightOnModel).flatMap(ModelLocation::getDependencies);
+        }
     }
 }

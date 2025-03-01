@@ -5,13 +5,17 @@
 package dan200.computercraft.shared.peripheral.printer;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.AbstractContainerBlockEntity;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
+import dan200.computercraft.shared.container.BasicContainer;
 import dan200.computercraft.shared.container.BasicWorldlyContainer;
-import dan200.computercraft.shared.media.items.PrintoutItem;
+import dan200.computercraft.shared.media.items.PrintoutData;
 import dan200.computercraft.shared.util.ColourUtils;
+import dan200.computercraft.shared.util.DataComponentUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.ContainerHelper;
@@ -22,6 +26,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
+
+import java.util.List;
 
 public final class PrinterBlockEntity extends AbstractContainerBlockEntity implements BasicWorldlyContainer {
     private static final String NBT_PRINTING = "Printing";
@@ -36,7 +42,7 @@ public final class PrinterBlockEntity extends AbstractContainerBlockEntity imple
     private final PrinterPeripheral peripheral = new PrinterPeripheral(this);
     private final NonNullList<ItemStack> inventory = NonNullList.withSize(SLOTS, ItemStack.EMPTY);
 
-    private final NetworkedTerminal page = new NetworkedTerminal(PrintoutItem.LINE_MAX_LENGTH, PrintoutItem.LINES_PER_PAGE, true);
+    private final NetworkedTerminal page = new NetworkedTerminal(PrintoutData.LINE_LENGTH, PrintoutData.LINES_PER_PAGE, true);
     private String pageTitle = "";
     private boolean printing = false;
 
@@ -49,8 +55,8 @@ public final class PrinterBlockEntity extends AbstractContainerBlockEntity imple
     }
 
     @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
+    public void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadAdditional(nbt, registries);
 
         // Read page
         synchronized (page) {
@@ -60,11 +66,11 @@ public final class PrinterBlockEntity extends AbstractContainerBlockEntity imple
         }
 
         // Read inventory
-        ContainerHelper.loadAllItems(nbt, inventory);
+        ContainerHelper.loadAllItems(nbt, inventory, registries);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         // Write page
         synchronized (page) {
             tag.putBoolean(NBT_PRINTING, printing);
@@ -73,9 +79,9 @@ public final class PrinterBlockEntity extends AbstractContainerBlockEntity imple
         }
 
         // Write inventory
-        ContainerHelper.saveAllItems(tag, inventory);
+        ContainerHelper.saveAllItems(tag, inventory, registries);
 
-        super.saveAdditional(tag);
+        super.saveAdditional(tag, registries);
     }
 
     boolean isPrinting() {
@@ -83,8 +89,13 @@ public final class PrinterBlockEntity extends AbstractContainerBlockEntity imple
     }
 
     @Override
-    public NonNullList<ItemStack> getContents() {
+    public NonNullList<ItemStack> getItems() {
         return inventory;
+    }
+
+    @Override
+    public void setItems(NonNullList<ItemStack> items) {
+        BasicContainer.defaultSetItems(inventory, items);
     }
 
     @Override
@@ -160,8 +171,7 @@ public final class PrinterBlockEntity extends AbstractContainerBlockEntity imple
 
     static boolean isPaper(ItemStack stack) {
         var item = stack.getItem();
-        return item == Items.PAPER
-            || (item instanceof PrintoutItem printout && printout.getType() == PrintoutItem.Type.PAGE);
+        return item == Items.PAPER || item == ModRegistry.Items.PRINTED_PAGE.get();
     }
 
     private boolean canInputPage() {
@@ -181,12 +191,13 @@ public final class PrinterBlockEntity extends AbstractContainerBlockEntity imple
             page.setTextColour(dye.getId());
 
             page.clear();
-            if (paperStack.getItem() instanceof PrintoutItem) {
-                pageTitle = PrintoutItem.getTitle(paperStack);
-                var text = PrintoutItem.getText(paperStack);
-                var textColour = PrintoutItem.getColours(paperStack);
+
+            var printout = paperStack.get(ModRegistry.DataComponents.PRINTOUT.get());
+            if (printout != null) {
+                pageTitle = printout.title();
                 for (var y = 0; y < page.getHeight(); y++) {
-                    page.setLine(y, text[y], textColour[y], "");
+                    var line = printout.lines().get(y);
+                    page.setLine(y, line.text(), line.foreground(), "");
                 }
             } else {
                 pageTitle = "";
@@ -213,14 +224,16 @@ public final class PrinterBlockEntity extends AbstractContainerBlockEntity imple
 
     private boolean outputPage() {
         var height = page.getHeight();
-        var lines = new String[height];
-        var colours = new String[height];
+        var lines = new PrintoutData.Line[height];
         for (var i = 0; i < height; i++) {
-            lines[i] = page.getLine(i).toString();
-            colours[i] = page.getTextColourLine(i).toString();
+            lines[i] = new PrintoutData.Line(page.getLine(i).toString(), page.getTextColourLine(i).toString());
         }
 
-        var stack = PrintoutItem.createSingleFromTitleAndText(pageTitle, lines, colours);
+        var stack = DataComponentUtil.createStack(
+            ModRegistry.Items.PRINTED_PAGE.get(),
+            ModRegistry.DataComponents.PRINTOUT.get(), new PrintoutData(pageTitle, List.of(lines))
+        );
+
         for (var slot : BOTTOM_SLOTS) {
             if (inventory.get(slot).isEmpty()) {
                 inventory.set(slot, stack);

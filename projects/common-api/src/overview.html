@@ -64,5 +64,65 @@ dependencies {
     CC:T), please <a href="https://github.com/cc-tweaked/CC-Tweaked/discussions/new/choose">start a discussion</a> to
     let me know!
 
+
+<h1>Updating from Minecraft 1.20.1 to 1.21.1</h1>
+
+<h2>Peripherals</h2>
+<ul>
+    <li>
+        <p>
+            On NeoForge, the peripheral capability has migrated to NeoForge's new capability system.
+            <code>dan200.computercraft.api.peripheral.PeripheralCapability</code> can be used to register a peripheral.
+            <code>IPeripheralProvider</code> has also been removed, as capabilities can now be used for arbitrary
+            blocks.
+</ul>
+
+<p>
+    {@linkplain dan200.computercraft.api.peripheral Read more on registering peripherals}.
+
+<h2>Turtle and pocket upgrades</h2>
+Turtle and pocket upgrades have been migrated to use Minecraft's dynamic registries. While upgrades themselves have not
+changed much, the interface for registering them is dramatically different.
+
+<ul>
+    <li>
+        <p>
+            <code>TurtleUpgradeSerialiser</code> and <code>PocketUpgradeSerialiser</code> have been unified into a
+            single {@link dan200.computercraft.api.upgrades.UpgradeType} class
+        <ul>
+            <li>
+                Replace <code>TurtleUpgradeSerialiser.registryId()</code> with
+                {@link dan200.computercraft.api.turtle.ITurtleUpgrade#typeRegistry()} and <code>PocketUpgradeSerialiser.registryId()</code>
+                with {@link dan200.computercraft.api.pocket.IPocketUpgrade#typeRegistry()}.
+            <li>
+                Replace all other usages of <code>TurtleUpgradeSerialiser</code> and <code>PocketUpgradeSerialiser</code>
+                with {@link dan200.computercraft.api.upgrades.UpgradeType}.
+        </ul>
+
+    <li>
+        Upgrades are now (de)serialised using codecs, rather than manually reading from JSON and encoding/decoding
+        network packets. Instead of subclassing {@link dan200.computercraft.api.upgrades.UpgradeType}, it is recommended
+        you use {@link dan200.computercraft.api.upgrades.UpgradeType#create} to create a new type from a
+        <code>MapCodec</code>.
+
+    <li>
+        Upgrades are no longer aware of their ID, and so cannot compute their adjective. The adjective must now either
+        be hard-coded, or read as part of the codec.
+
+    <li>
+        The upgrade data providers have been removed, in favour of mod-loaders built-in support for dynamic registries.
+        I'm afraid it's probably easier if you delete your existing upgrade datagen code and start from scratch. See
+        <a href="./dan200/computercraft/api/turtle/ITurtleUpgrade.html#datagen">the <code>ITurtleUpgrade</code>
+        documentation for an example</a>.
+
+    <li>
+        Upgrades now store their additional data ({@link dan200.computercraft.api.turtle.ITurtleAccess#getUpgradeData},
+        {@link dan200.computercraft.api.pocket.IPocketAccess#getUpgradeData()}) as an immutable component map, rather
+        than a compound tag.
+</ul>
+
+<p>
+    {@linkplain dan200.computercraft.api.turtle.ITurtleUpgrade Read more on registering turtle upgrades}.
+
 </body>
 </html>
