@@ -12,8 +12,7 @@ import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemBlock;
 /**
  * Integration with Create.
  */
-public final class CreateIntegration
-{
+public final class CreateIntegration {
     public static final String ID = "create";
 
     private CreateIntegration() {
