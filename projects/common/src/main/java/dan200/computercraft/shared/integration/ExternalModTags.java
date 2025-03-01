@@ -27,9 +27,9 @@ public final class ExternalModTags {
         /**
          * Create's "brittle" tag, used to determine if this block needs to be moved before its neighbours.
          *
-         * @see com.simibubi.create.content.contraptions.BlockMovementChecks#isBrittle(BlockState)
+         * @see com.simibubi.create.api.contraption.BlockMovementChecks#isBrittle(BlockState)
          */
-        public static final TagKey<Block> CREATE_BRITTLE = make(CreateIntegration.ID, "brittle");
+        public static final TagKey<Block> CREATE_BRITTLE = make("create", "brittle");
 
         private static TagKey<Block> make(String mod, String name) {
             return TagKey.create(Registries.BLOCK, new ResourceLocation(mod, name));

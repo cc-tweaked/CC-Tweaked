@@ -46,7 +46,7 @@ oculus = "1.2.5"
 rei = "12.0.626"
 rubidium = "0.6.1"
 sodium = "mc1.20-0.4.10"
-create-forge = "0.5.1.f-33"
+create-forge = "6.0.0-4"
 create-fabric = "0.5.1-f-build.1467+mc1.20.1"
 
 # Testing

@@ -42,12 +42,19 @@ repositories {
         name = "SquidDev"
     }
 
+    maven("https://maven.createmod.net") {
+        name = "Create"
+        content {
+            includeGroup("com.simibubi.create")
+        }
+    }
+
     exclusiveContent {
         forRepositories(mainMaven)
         filter {
             includeGroup("cc.tweaked")
             // Things we mirror
-            includeGroup("com.simibubi.create")
+            includeModule("com.simibubi.create", "create-fabric-1.20.1")
             includeGroup("commoble.morered")
             includeGroup("dev.architectury")
             includeGroup("dev.emi")
