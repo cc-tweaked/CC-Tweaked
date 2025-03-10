@@ -28,6 +28,7 @@ local function make_computer(id, fn)
         getNames = function() return keys(peripherals) end,
         isPresent = function(name) return peripherals[name] ~= nil end,
         getType = function(name) return peripherals[name] and getmetatable(peripherals[name]).type end,
+        hasType = function(name, typ) return peripherals[name] and getmetatable(peripherals[name]).type == typ end,
         getMethods = function(name) return peripherals[name] and keys(peripherals[name]) end,
         call = function(name, method, ...)
             local p = peripherals[name]
