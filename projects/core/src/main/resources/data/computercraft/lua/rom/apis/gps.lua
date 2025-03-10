@@ -106,7 +106,7 @@ function locate(_nTimeout, _bDebug)
         return commands.getBlockPosition()
     end
 
-    -- Open GPS channel to listen for ping responses
+    -- Find a modem
     local modem = peripheral.find("modem", function(_, m) return m.isWireless() end)
     
     if modem == nil then
@@ -120,6 +120,7 @@ function locate(_nTimeout, _bDebug)
         print("Finding position...")
     end
 
+    -- Open GPS channel to listen for ping responses
     local sModemSide = peripheral.getName(modem)
     local bCloseChannel = false
     if not modem.isOpen(CHANNEL_GPS) then
