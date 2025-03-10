@@ -24,6 +24,7 @@ describe("The gps library", function()
             local computer = fake_computer.make_computer(1, fn)
             computer.position = vector.new(x, y, z)
             fake_computer.add_api(computer, "rom/apis/gps.lua")
+            fake_computer.add_api(computer, "rom/apis/peripheral.lua")
             fake_computer.add_api(computer, "rom/apis/vector.lua")
 
             local modem = fake_computer.add_modem(computer, "back")
@@ -39,6 +40,7 @@ describe("The gps library", function()
                 end)
                 host.position = position
                 fake_computer.add_api(host, "rom/apis/gps.lua")
+                fake_computer.add_api(computer, "rom/apis/peripheral.lua")
                 fake_computer.add_api(host, "rom/apis/vector.lua")
 
                 local host_modem = fake_computer.add_modem(host, "back")
