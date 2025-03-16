@@ -38,7 +38,7 @@ class ForbiddenImport : BugChecker(), BugChecker.ImportTreeMatcher {
     companion object {
         private val ALTERNATIVE_IMPORTS = mapOf(
             // Ban JSR 305 and JetBrains @Nullable, and prefer the JSpecify one.
-            "org.javax.annotation.Nullable" to "org.jspecify.annotations.Nullable",
+            "javax.annotation.Nullable" to "org.jspecify.annotations.Nullable",
             "org.jetbrains.annotations.Nullable" to "org.jspecify.annotations.Nullable",
             // Prefer ErrorProne annotations over JSR ones.
             "javax.annotation.CheckReturnValue" to "com.google.errorprone.annotations.CheckReturnValue",

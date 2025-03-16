@@ -14,8 +14,8 @@ import dan200.computercraft.shared.media.items.DiskItem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 
