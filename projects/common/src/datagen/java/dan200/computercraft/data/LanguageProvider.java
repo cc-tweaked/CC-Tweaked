@@ -106,6 +106,8 @@ public final class LanguageProvider implements DataProvider {
         add(ComputerCraftTags.Items.TURTLE, "Turtles");
         add(ComputerCraftTags.Items.WIRED_MODEM, "Wired modems");
         add(ComputerCraftTags.Items.MONITOR, "Monitors");
+        add(ComputerCraftTags.Items.DISKS, "Disks");
+        add(ComputerCraftTags.Items.POCKET_COMPUTERS, "Pocket Computers");
 
         // Turtle/pocket upgrades
         add("upgrade.minecraft.diamond_sword.adjective", "Melee");

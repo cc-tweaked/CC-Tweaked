@@ -98,6 +98,8 @@ class TagProvider {
         tags.copy(ComputerCraftTags.Blocks.TURTLE, ComputerCraftTags.Items.TURTLE);
         tags.tag(ComputerCraftTags.Items.WIRED_MODEM).add(ModRegistry.Items.WIRED_MODEM.get(), ModRegistry.Items.WIRED_MODEM_FULL.get());
         tags.copy(ComputerCraftTags.Blocks.MONITOR, ComputerCraftTags.Items.MONITOR);
+        tags.tag(ComputerCraftTags.Items.DISKS).add(ModRegistry.Items.DISK.get(), ModRegistry.Items.TREASURE_DISK.get());
+        tags.tag(ComputerCraftTags.Items.POCKET_COMPUTERS).add(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get(), ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get());
 
         tags.tag(ItemTags.PIGLIN_LOVED).add(
             ModRegistry.Items.COMPUTER_ADVANCED.get(), ModRegistry.Items.TURTLE_ADVANCED.get(),
