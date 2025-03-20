@@ -272,7 +272,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
         }
 
         var brain = new PocketBrain(
-            holder, getUpgradeWithData(stack),
+            holder, getUpgradeWithData(stack), getColour(stack),
             ServerComputer.properties(getComputerID(stack), getFamily()).label(getLabel(stack))
         );
         var computer = brain.computer();
@@ -314,10 +314,14 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
         // item. However, if we've just crafted the computer with an upgrade, we should sync the other way, and update
         // the computer.
         var server = level.getServer();
-        if (server != null) {
-            var computer = getServerComputer(server, stack);
-            if (computer != null) computer.getBrain().setUpgrade(getUpgradeWithData(stack));
-        }
+        if (server == null) return;
+
+        var computer = getServerComputer(server, stack);
+        if (computer == null) return;
+
+        var brain = computer.getBrain();
+        brain.setUpgrade(getUpgradeWithData(stack));
+        brain.setColour(getColour(stack));
     }
 
     // IComputerItem implementation
