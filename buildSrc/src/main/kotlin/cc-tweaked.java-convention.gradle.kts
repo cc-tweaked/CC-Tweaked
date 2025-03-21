@@ -29,7 +29,7 @@ base.archivesName.convention("cc-tweaked-$mcVersion-${project.name}")
 
 java {
     toolchain {
-        languageVersion= CCTweakedPlugin.JAVA_VERSION
+        languageVersion = CCTweakedPlugin.JAVA_VERSION
     }
 
     withSourcesJar()
@@ -86,6 +86,7 @@ sourceSets.all {
             check("InvalidBlockTag", CheckSeverity.OFF) // Broken by @cc.xyz
             check("InlineMeSuggester", CheckSeverity.OFF) // Minecraft uses @Deprecated liberally
             // Too many false positives right now. Maybe we need an indirection for it later on.
+            check("AssignmentExpression", CheckSeverity.OFF) // I'm a bad person.
             check("ReferenceEquality", CheckSeverity.OFF)
             check("EnumOrdinal", CheckSeverity.OFF) // For now. We could replace most of these with EnumMap.
             check("OperatorPrecedence", CheckSeverity.OFF) // For now.
@@ -113,7 +114,6 @@ tasks.compileTestJava {
         check("NullAway", CheckSeverity.OFF)
     }
 }
-
 
 tasks.withType(JavaCompile::class.java).configureEach {
     options.encoding = "UTF-8"
@@ -163,7 +163,7 @@ tasks.test {
 
 tasks.withType(JacocoReport::class.java).configureEach {
     reports.xml.required = true
-    reports.html.required =true
+    reports.html.required = true
 }
 
 project.plugins.withType(CCTweakedPlugin::class.java) {
@@ -187,30 +187,23 @@ spotless {
     fun FormatExtension.defaults() {
         endWithNewline()
         trimTrailingWhitespace()
-        indentWithSpaces(4)
+        leadingTabsToSpaces(4)
     }
 
     java {
         defaults()
+        importOrder("", "javax|java", "\\#")
         removeUnusedImports()
     }
 
-    val ktlintConfig = mapOf(
-        "ktlint_standard_no-wildcard-imports" to "disabled",
-        "ktlint_standard_class-naming" to "disabled",
-        "ktlint_standard_function-naming" to "disabled",
-        "ij_kotlin_allow_trailing_comma" to "true",
-        "ij_kotlin_allow_trailing_comma_on_call_site" to "true",
-    )
-
     kotlinGradle {
         defaults()
-        ktlint().editorConfigOverride(ktlintConfig)
+        ktlint()
     }
 
     kotlin {
         defaults()
-        ktlint().editorConfigOverride(ktlintConfig)
+        ktlint()
     }
 }
 
