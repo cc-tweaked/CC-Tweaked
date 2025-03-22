@@ -181,8 +181,8 @@ final class VarargArguments implements IArguments {
         if (isClosed()) throw new IllegalStateException("Cannot use getTableUnsafe after IArguments has been closed.");
 
         var value = varargs.arg(index + 1);
-        if (!(value instanceof LuaTable)) throw LuaValues.badArgument(index, "table", value.typeName());
-        return new TableImpl(this, (LuaTable) value);
+        if (!(value instanceof LuaTable table)) throw LuaValues.badArgument(index, "table", value.typeName());
+        return new TableImpl(this, table);
     }
 
     @Override
@@ -191,8 +191,8 @@ final class VarargArguments implements IArguments {
 
         var value = varargs.arg(index + 1);
         if (value.isNil()) return Optional.empty();
-        if (!(value instanceof LuaTable)) throw LuaValues.badArgument(index, "table", value.typeName());
-        return Optional.of(new TableImpl(this, (LuaTable) value));
+        if (!(value instanceof LuaTable table)) throw LuaValues.badArgument(index, "table", value.typeName());
+        return Optional.of(new TableImpl(this, table));
     }
 
     @Override
@@ -237,6 +237,7 @@ final class VarargArguments implements IArguments {
         return metatable != null && metatable.rawget(NAME) instanceof LuaString s ? s.toString() : null;
     }
 
+    @SuppressWarnings("ArrayRecordComponent")
     private record ArraySlice<T>(T[] array, int offset) {
         // FIXME: We should be able to remove the @Nullables if we update NullAway.
 

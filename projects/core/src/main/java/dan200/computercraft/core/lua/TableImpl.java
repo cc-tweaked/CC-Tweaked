@@ -58,8 +58,8 @@ class TableImpl implements dan200.computercraft.api.lua.LuaTable<Object, Object>
 
     private LuaValue getImpl(Object o) {
         checkValid();
-        if (o instanceof String) return table.rawget((String) o);
-        if (o instanceof Integer) return table.rawget((Integer) o);
+        if (o instanceof String s) return table.rawget(s);
+        if (o instanceof Integer i) return table.rawget(i);
         return Constants.NIL;
     }
 

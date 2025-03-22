@@ -57,11 +57,10 @@ public final class MonitorWatcher {
             if (monitor == null) continue;
 
             var pos = tile.getBlockPos();
-            var world = tile.getLevel();
-            if (!(world instanceof ServerLevel)) continue;
+            if (!(tile.getLevel() instanceof ServerLevel level)) continue;
 
-            var chunk = world.getChunkAt(pos);
-            if (((ServerLevel) world).getChunkSource().chunkMap.getPlayers(chunk.getPos(), false).isEmpty()) {
+            var chunk = level.getChunkAt(pos);
+            if (level.getChunkSource().chunkMap.getPlayers(chunk.getPos(), false).isEmpty()) {
                 continue;
             }
 

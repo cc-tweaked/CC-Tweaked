@@ -83,7 +83,7 @@ object ClientTestHooks {
 
         if (minecraft.levelSource.levelExists(LEVEL_NAME)) {
             LOG.info("World already exists, opening.")
-            minecraft.createWorldOpenFlows().loadLevel(minecraft.screen, LEVEL_NAME)
+            minecraft.createWorldOpenFlows().loadLevel(minecraft.screen!!, LEVEL_NAME)
         } else {
             LOG.info("World does not exist, creating it.")
             val rules = GameRules()
