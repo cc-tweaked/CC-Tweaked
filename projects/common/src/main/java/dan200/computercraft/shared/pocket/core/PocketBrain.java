@@ -41,11 +41,12 @@ public final class PocketBrain implements IPocketAccess {
     private int colour = -1;
     private int lightColour = -1;
 
-    public PocketBrain(PocketHolder holder, @Nullable UpgradeData<IPocketUpgrade> upgrade, ServerComputer.Properties properties) {
+    public PocketBrain(PocketHolder holder, @Nullable UpgradeData<IPocketUpgrade> upgrade, int colour, ServerComputer.Properties properties) {
         this.computer = new PocketServerComputer(this, holder, properties);
         this.holder = holder;
         this.position = holder.pos();
         this.upgrade = upgrade;
+        this.colour = colour;
         invalidatePeripheral();
     }
 

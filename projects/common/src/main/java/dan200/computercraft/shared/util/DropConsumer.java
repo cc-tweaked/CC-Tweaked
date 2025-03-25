@@ -70,9 +70,9 @@ public final class DropConsumer {
 
     public static boolean onEntitySpawn(Entity entity) {
         // Capture any nearby item spawns
-        if (dropWorld == entity.level() && entity instanceof ItemEntity
+        if (dropWorld == entity.level() && entity instanceof ItemEntity item
             && assertNonNull(dropBounds).contains(entity.position())) {
-            handleDrops(((ItemEntity) entity).getItem());
+            handleDrops(item.getItem());
             return true;
         }
 

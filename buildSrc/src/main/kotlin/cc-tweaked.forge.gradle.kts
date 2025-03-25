@@ -6,7 +6,6 @@
 
 import cc.tweaked.gradle.CCTweakedExtension
 import cc.tweaked.gradle.CCTweakedPlugin
-import cc.tweaked.gradle.IdeaRunConfigurations
 import cc.tweaked.gradle.MinecraftConfigurations
 
 plugins {

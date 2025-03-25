@@ -26,8 +26,7 @@ public class PocketSpeaker extends AbstractPocketUpgrade {
 
     @Override
     public void update(IPocketAccess access, @Nullable IPeripheral peripheral) {
-        if (!(peripheral instanceof PocketSpeakerPeripheral)) return;
-        ((PocketSpeakerPeripheral) peripheral).update();
+        if (peripheral instanceof PocketSpeakerPeripheral speaker) speaker.update();
     }
 
     @Override

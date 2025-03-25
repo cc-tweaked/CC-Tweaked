@@ -35,6 +35,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
@@ -201,7 +202,7 @@ public class PocketComputerItem extends Item {
 
         var computerID = NonNegativeId.getOrCreate(level.getServer(), stack, ModRegistry.DataComponents.COMPUTER_ID.get(), IDAssigner.COMPUTER);
         var brain = new PocketBrain(
-            holder, getUpgradeWithData(stack),
+            holder, getUpgradeWithData(stack), DyedItemColor.getOrDefault(stack, -1),
             ServerComputer.properties(computerID, getFamily())
                 .label(getLabel(stack))
                 .storageCapacity(StorageCapacity.getOrDefault(stack.get(ModRegistry.DataComponents.STORAGE_CAPACITY.get()), -1))
@@ -240,10 +241,14 @@ public class PocketComputerItem extends Item {
         // item. However, if we've just crafted the computer with an upgrade, we should sync the other way, and update
         // the computer.
         var server = level.getServer();
-        if (server != null) {
-            var computer = getServerComputer(server, stack);
-            if (computer != null) computer.getBrain().setUpgrade(getUpgradeWithData(stack));
-        }
+        if (server == null) return;
+
+        var computer = getServerComputer(server, stack);
+        if (computer == null) return;
+
+        var brain = computer.getBrain();
+        brain.setUpgrade(getUpgradeWithData(stack));
+        brain.setColour(DyedItemColor.getOrDefault(stack, -1));
     }
 
     public ComputerFamily getFamily() {

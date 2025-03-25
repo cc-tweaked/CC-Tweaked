@@ -432,8 +432,8 @@ final class WiredNetworkImpl {
     }
 
     private static WiredNodeImpl checkNode(WiredNode node) {
-        if (node instanceof WiredNodeImpl) {
-            return (WiredNodeImpl) node;
+        if (node instanceof WiredNodeImpl n) {
+            return n;
         } else {
             throw new IllegalArgumentException("Unknown implementation of IWiredNode: " + node);
         }

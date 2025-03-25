@@ -48,9 +48,10 @@ public class MethodTest {
     @Test
     public void testDynamicPeripheral() {
         ComputerBootstrap.run(
-            "local dynamic = peripheral.wrap('top')\n" +
-                "assert(dynamic.foo() == 123, 'foo: ' .. tostring(dynamic.foo()))\n" +
-                "assert(dynamic.bar() == 321, 'bar: ' .. tostring(dynamic.bar()))",
+            """
+                local dynamic = peripheral.wrap('top')
+                assert(dynamic.foo() == 123, 'foo: ' .. tostring(dynamic.foo()))
+                assert(dynamic.bar() == 321, 'bar: ' .. tostring(dynamic.bar()))""",
             x -> x.getEnvironment().setPeripheral(ComputerSide.TOP, new Dynamic()),
             50
         );
@@ -66,9 +67,10 @@ public class MethodTest {
     @Test
     public void testPeripheralThrow() {
         ComputerBootstrap.run(
-            "local throw = peripheral.wrap('top')\n" +
-                "local _, err = pcall(function() throw.thisThread() end) assert(err == '/test.lua:2: !', (\"thisThread: %q\"):format(err))\n" +
-                "local _, err = pcall(function() throw.mainThread() end) assert(err == '/test.lua:3: !', (\"mainThread: %q\"):format(err))\n",
+            """
+                local throw = peripheral.wrap('top')
+                local _, err = pcall(function() throw.thisThread() end) assert(err == '/test.lua:2: !', ("thisThread: %q"):format(err))
+                local _, err = pcall(function() throw.mainThread() end) assert(err == '/test.lua:3: !', ("mainThread: %q"):format(err))""",
             x -> x.getEnvironment().setPeripheral(ComputerSide.TOP, new PeripheralThrow()),
             50
         );
@@ -77,8 +79,9 @@ public class MethodTest {
     @Test
     public void testMany() {
         ComputerBootstrap.run(
-            "assert(many.method_0)\n" +
-                "assert(many.method_39)",
+            """
+                assert(many.method_0)
+                assert(many.method_39)""",
             x -> x.addApi(new ManyMethods()), 50);
     }
 
@@ -94,8 +97,7 @@ public class MethodTest {
     public void testModule() {
         ComputerBootstrap.run(
             """
-            assert(require "test.module".func() == 123)
-            """,
+                assert(require "test.module".func() == 123)""",
             x -> x.addApi(new IsModule()), 50);
     }
 

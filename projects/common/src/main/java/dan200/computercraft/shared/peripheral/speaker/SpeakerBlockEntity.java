@@ -53,7 +53,7 @@ public class SpeakerBlockEntity extends BlockEntity {
 
         @Override
         public boolean equals(@Nullable IPeripheral other) {
-            return this == other || (other instanceof Peripheral && speaker == ((Peripheral) other).speaker);
+            return this == other || (other instanceof Peripheral o && speaker == o.speaker);
         }
     }
 }

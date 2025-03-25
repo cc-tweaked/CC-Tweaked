@@ -39,7 +39,7 @@ public class WirelessModemBlockEntity extends BlockEntity {
 
         @Override
         public boolean equals(@Nullable IPeripheral other) {
-            return this == other || (other instanceof Peripheral && entity == ((Peripheral) other).entity);
+            return this == other || (other instanceof Peripheral o && entity == o.entity);
         }
 
         @Override

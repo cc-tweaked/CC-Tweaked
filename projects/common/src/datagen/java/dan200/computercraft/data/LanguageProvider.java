@@ -108,6 +108,8 @@ public final class LanguageProvider implements DataProvider {
         add(ComputerCraftTags.Items.TURTLE, "Turtles");
         add(ComputerCraftTags.Items.WIRED_MODEM, "Wired modems");
         add(ComputerCraftTags.Items.MONITOR, "Monitors");
+        add(ComputerCraftTags.Items.DISKS, "Disks");
+        add(ComputerCraftTags.Items.POCKET_COMPUTERS, "Pocket Computers");
         add(ComputerCraftTags.Items.DYEABLE, "Dyable items");
         add(ComputerCraftTags.Items.TURTLE_CAN_PLACE, "Turtle-placeable items");
 
