@@ -29,6 +29,20 @@ public class ComputerCraftTags {
         public static final TagKey<Item> MONITOR = make("monitor");
 
         /**
+         * Floppy disks. Both the read/write version, and treasure disks.
+         *
+         * @since 1.116.0
+         */
+        public static final TagKey<Item> DISKS = make("disks");
+
+        /**
+         * All pocket computers.
+         *
+         * @since 1.116.0
+         */
+        public static final TagKey<Item> POCKET_COMPUTERS = make("pocket_computers");
+
+        /**
          * Items which can be {@linkplain Item#use(Level, Player, InteractionHand) used} when calling
          * {@code turtle.place()}.
          * <p>

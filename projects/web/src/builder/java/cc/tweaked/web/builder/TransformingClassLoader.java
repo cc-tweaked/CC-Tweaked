@@ -168,6 +168,7 @@ public class TransformingClassLoader extends ClassLoader {
         }
     }
 
+    @SuppressWarnings("ArrayRecordComponent")
     private record TransformedClass(String name, byte[] contents) {
     }
 }

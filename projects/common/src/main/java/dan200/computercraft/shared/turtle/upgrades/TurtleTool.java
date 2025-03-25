@@ -256,8 +256,8 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         EnchantmentHelper.doPostAttackEffects(player.serverLevel(), entity, source);
 
         // Damage the original item stack.
-        if (!tool.isEmpty() && entity instanceof LivingEntity && didHurt) {
-            tool.postHurtEnemy((LivingEntity) entity, player);
+        if (!tool.isEmpty() && entity instanceof LivingEntity living && didHurt) {
+            tool.postHurtEnemy(living, player);
         }
 
         return true;

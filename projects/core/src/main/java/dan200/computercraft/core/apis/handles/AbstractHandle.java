@@ -265,8 +265,8 @@ public abstract class AbstractHandle {
         checkOpen();
         try {
             var arg = arguments.get(0);
-            if (binary && arg instanceof Number) {
-                var number = ((Number) arg).intValue();
+            if (binary && arg instanceof Number n) {
+                var number = n.intValue();
                 writeSingle((byte) number);
             } else {
                 channel.write(arguments.getBytesCoerced(0));

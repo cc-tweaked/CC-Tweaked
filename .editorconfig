@@ -27,7 +27,7 @@ indent_size = 2
 [*.yml]
 indent_size = 2
 
-[{*.kt,*.kts}]
+[*.{kt,kts}]
 ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
 ij_kotlin_continuation_indent_size = 4
 ij_kotlin_spaces_around_equality_operators = true
@@ -39,3 +39,14 @@ ij_kotlin_allow_trailing_comma_on_call_site = true
 ij_kotlin_method_parameters_wrap = off
 ij_kotlin_call_parameters_wrap = off
 ij_kotlin_extends_list_wrap = off
+
+ktlint_code_style = intellij_idea
+ktlint_standard_class-naming = disabled
+ktlint_standard_class-signature = disabled
+ktlint_standard_function-naming = disabled
+ktlint_standard_no-wildcard-imports = disabled
+
+# FIXME: These two are disable right now as they're over-eager in putting things
+#  on the same line. We should set max_line_length and handle this properly.
+ktlint_standard_function-signature = disabled
+ktlint_standard_function-expression-body = disabled

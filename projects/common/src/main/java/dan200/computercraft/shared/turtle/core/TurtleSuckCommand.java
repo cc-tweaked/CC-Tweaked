@@ -50,15 +50,14 @@ public class TurtleSuckCommand implements TurtleCommand {
         if (inventory != null) {
             // Take from inventory of thing in front
             var transferred = inventory.moveTo(TurtleUtil.getOffsetInventory(turtle), quantity);
-            switch (transferred) {
-                case ContainerTransfer.NO_SPACE:
-                    return TurtleCommandResult.failure("No space for items");
-                case ContainerTransfer.NO_ITEMS:
-                    return TurtleCommandResult.failure("No items to take");
-                default:
+            return switch (transferred) {
+                case ContainerTransfer.NO_SPACE -> TurtleCommandResult.failure("No space for items");
+                case ContainerTransfer.NO_ITEMS -> TurtleCommandResult.failure("No items to take");
+                default -> {
                     turtle.playAnimation(TurtleAnimation.WAIT);
-                    return TurtleCommandResult.success();
-            }
+                    yield TurtleCommandResult.success();
+                }
+            };
         } else {
             // Suck up loose items off the ground
             var aabb = new AABB(

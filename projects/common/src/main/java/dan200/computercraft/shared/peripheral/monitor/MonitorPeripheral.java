@@ -40,7 +40,6 @@ import org.jspecify.annotations.Nullable;
  * monitor.setCursorPos(1, 1)
  * monitor.write("Hello, world!")
  * }</pre>
- *
  * @cc.see monitor_resize Queued when a monitor is resized.
  * @cc.see monitor_touch Queued when an advanced monitor is clicked.
  */
@@ -95,7 +94,7 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral {
 
     @Override
     public boolean equals(@Nullable IPeripheral other) {
-        return other instanceof MonitorPeripheral && monitor == ((MonitorPeripheral) other).monitor;
+        return other instanceof MonitorPeripheral o && monitor == o.monitor;
     }
 
     private ServerMonitor getMonitor() throws LuaException {

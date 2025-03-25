@@ -24,7 +24,7 @@ dependencies {
 
     testImplementation(libs.bundles.test)
     testImplementation(libs.errorProne.testHelpers)
-    testImplementation(libs.neoForgeSpi)
+    testImplementation(variantOf(libs.neoMergeTool) { classifier("api") }) { isTransitive = false }
     testCompileOnly(project(":core-api"))
     testRuntimeOnly(libs.bundles.testRuntime)
 }

@@ -6,8 +6,8 @@ package dan200.computercraft.core.filesystem;
 
 import dan200.computercraft.api.filesystem.MountConstants;
 
-import java.nio.file.FileSystemException;
 import java.nio.file.*;
+import java.nio.file.FileSystemException;
 
 /**
  * Useful constants and helper functions for working with mounts.

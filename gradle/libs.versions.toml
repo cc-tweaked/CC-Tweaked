@@ -10,7 +10,7 @@
 fabric-api = "0.102.1+1.21.1"
 fabric-loader = "0.15.11"
 neoForge = "21.1.9"
-neoForgeSpi = "8.0.1"
+neoMergeTool = "2.0.0"
 mixin = "0.8.5"
 parchment = "2024.07.28"
 parchmentMc = "1.21"
@@ -59,20 +59,20 @@ jmh = "1.37"
 
 # Build tools
 cctJavadoc = "1.8.4"
-checkstyle = "10.21.2"
-errorProne-core = "2.36.0"
+checkstyle = "10.21.4"
+errorProne-core = "2.37.0"
 errorProne-plugin = "4.1.0"
-fabric-loom = "1.10.3"
+fabric-loom = "1.10.4"
 githubRelease = "2.5.2"
 gradleVersions = "0.50.0"
 ideaExt = "1.1.7"
-illuaminate = "0.1.0-74-gf1551d5"
+illuaminate = "0.1.0-83-g1131f68"
 lwjgl = "3.3.3"
 minotaur = "2.8.7"
-modDevGradle = "2.0.74"
-nullAway = "0.12.3"
+modDevGradle = "2.0.78"
+nullAway = "0.12.4"
 shadow = "8.3.1"
-spotless = "6.23.3"
+spotless = "7.0.2"
 taskTree = "2.1.1"
 teavm = "0.11.0-SQUID.1"
 vanillaExtract = "0.2.1"
@@ -87,7 +87,7 @@ checkerFramework = { module = "org.checkerframework:checker-qual", version.ref =
 cobalt = { module = "cc.tweaked:cobalt", version.ref = "cobalt" }
 commonsCli = { module = "commons-cli:commons-cli", version.ref = "commonsCli" }
 fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
-neoForgeSpi = { module = "net.neoforged:neoforgespi", version.ref = "neoForgeSpi" }
+neoMergeTool = { module = "net.neoforged:mergetool", version.ref = "neoMergeTool" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 jetbrainsAnnotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsAnnotations" }
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
