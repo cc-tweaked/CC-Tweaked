@@ -7,6 +7,7 @@ package dan200.computercraft.shared.details;
 import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.MapColor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,11 +28,17 @@ public class BlockDetails {
 
     public static void fill(Map<? super String, Object> data, BlockReference block) {
         data.put("tags", DetailHelpers.getTags(block.state().getTags()));
+        data.put("color", getMapColor(block));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private static Object getPropertyValue(Property property, Comparable value) {
         if (value instanceof String || value instanceof Number || value instanceof Boolean) return value;
         return property.getName(value);
+    }
+
+    public static Integer getMapColor(BlockReference block) {
+        MapColor m = block.state().getMapColor(block.level(), block.pos());
+        return m.col;
     }
 }
