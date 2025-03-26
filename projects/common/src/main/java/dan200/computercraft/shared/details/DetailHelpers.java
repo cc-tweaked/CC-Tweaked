@@ -5,8 +5,11 @@
 package dan200.computercraft.shared.details;
 
 import dan200.computercraft.shared.platform.RegistryWrappers;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,5 +29,9 @@ public final class DetailHelpers {
 
     public static <T> String getId(RegistryWrappers.RegistryWrapper<T> registry, T entry) {
         return registry.getKey(entry).toString();
+    }
+
+    public static Integer getMapColor(BlockState state, BlockGetter level, BlockPos pos) {
+        return state.getMapColor(level, pos).col;
     }
 }

@@ -7,7 +7,6 @@ package dan200.computercraft.shared.details;
 import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.material.MapColor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +37,6 @@ public class BlockDetails {
     }
 
     public static Integer getMapColor(BlockReference block) {
-        MapColor m = block.state().getMapColor(block.level(), block.pos());
-        return m.col;
+        return DetailHelpers.getMapColor(block.state(), block.level(), block.pos());
     }
 }
