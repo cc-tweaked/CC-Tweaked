@@ -20,6 +20,7 @@ import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -270,6 +271,14 @@ public final class Generator<T> {
                 mw.visitVarInsn(ALOAD, 2 + context.size());
                 Reflect.loadInt(mw, argIndex);
                 mw.visitMethodInsn(INVOKEVIRTUAL, INTERNAL_ARGUMENTS, "getStringCoerced", "(I)Ljava/lang/String;");
+                mw.visitMethodInsn(INVOKESPECIAL, INTERNAL_COERCED, "<init>", "(Ljava/lang/Object;)V");
+                return true;
+            } else if (klass == ByteBuffer.class) {
+                mw.visitTypeInsn(NEW, INTERNAL_COERCED);
+                mw.visitInsn(DUP);
+                mw.visitVarInsn(ALOAD, 2 + context.size());
+                Reflect.loadInt(mw, argIndex);
+                mw.visitMethodInsn(INVOKEVIRTUAL, INTERNAL_ARGUMENTS, "getBytesCoerced", "(I)Ljava/nio/ByteBuffer;");
                 mw.visitMethodInsn(INVOKESPECIAL, INTERNAL_COERCED, "<init>", "(Ljava/lang/Object;)V");
                 return true;
             }

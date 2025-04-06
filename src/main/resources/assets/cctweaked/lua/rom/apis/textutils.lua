@@ -7,9 +7,11 @@
 -- @module textutils
 -- @since 1.2
 
-local expect = dofile("rom/modules/main/cc/expect.lua")
+local require = dofile("rom/modules/main/cc/internal/tiny_require.lua")
+
+local expect = require("cc.expect")
 local expect, field = expect.expect, expect.field
-local wrap = dofile("rom/modules/main/cc/strings.lua").wrap
+local wrap = require("cc.strings").wrap
 
 --- Slowly writes string text at current cursor position,
 -- character-by-character.
@@ -847,12 +849,31 @@ unserialise = unserialize -- GB version
 
 --[[- Returns a JSON representation of the given data.
 
-This function attempts to guess whether a table is a JSON array or
-object. However, empty tables are assumed to be empty objects - use
-[`textutils.empty_json_array`] to mark an empty array.
-
 This is largely intended for interacting with various functions from the
 [`commands`] API, though may also be used in making [`http`] requests.
+
+Lua has a rather different data model to Javascript/JSON. As a result, some Lua
+values do not serialise cleanly into JSON.
+
+ - Lua tables can contain arbitrary key-value pairs, but JSON only accepts arrays,
+   and objects (which require a string key). When serialising a table, if it only
+   has numeric keys, then it will be treated as an array. Otherwise, the table will
+   be serialised to an object using the string keys. Non-string keys (such as numbers
+   or tables) will be dropped.
+
+   A consequence of this is that an empty table will always be serialised to an object,
+   not an array. [`textutils.empty_json_array`] may be used to express an empty array.
+
+ - Lua strings are an a sequence of raw bytes, and do not have any specific encoding.
+   However, JSON strings must be valid unicode. By default, non-ASCII characters in a
+   string are serialised to their unicode code point (for instance, `"\xfe"` is
+   converted to `"\u00fe"`). The `unicode_strings` option may be set to treat all input
+   strings as UTF-8.
+
+ - Lua does not distinguish between missing keys (`undefined` in JS) and ones explicitly
+   set to `null`. As a result `{ x = nil }` is serialised to `{}`. [`textutils.json_null`]
+   may be used to get an explicit null value (`{ x = textutils.json_null }` will serialise
+   to `{"x": null}`).
 
 @param[1] t The value to serialise. Like [`textutils.serialise`], this should not
 contain recursive tables or functions.
@@ -921,22 +942,21 @@ unserialiseJSON = unserialise_json
 -- @since 1.31
 function urlEncode(str)
     expect(1, str, "string")
-    if str then
-        str = string.gsub(str, "\n", "\r\n")
-        str = string.gsub(str, "([^A-Za-z0-9 %-%_%.])", function(c)
-            local n = string.byte(c)
-            if n < 128 then
-                -- ASCII
-                return string.format("%%%02X", n)
-            else
-                -- Non-ASCII (encode as UTF-8)
-                return
-                    string.format("%%%02X", 192 + bit32.band(bit32.arshift(n, 6), 31)) ..
-                    string.format("%%%02X", 128 + bit32.band(n, 63))
-            end
-        end)
-        str = string.gsub(str, " ", "+")
-    end
+    local gsub, byte, format, band, arshift = string.gsub, string.byte, string.format, bit32.band, bit32.arshift
+
+    str = gsub(str, "\n", "\r\n")
+    str = gsub(str, "[^A-Za-z0-9%-%_%.]", function(c)
+        if c == " " then return "+" end
+
+        local n = byte(c)
+        if n < 128 then
+            -- ASCII
+            return format("%%%02X", n)
+        else
+            -- Non-ASCII (encode as UTF-8)
+            return format("%%%02X%%%02X", 192 + band(arshift(n, 6), 31), 128 + band(n, 63))
+        end
+    end)
     return str
 end
 

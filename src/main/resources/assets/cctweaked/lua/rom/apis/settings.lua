@@ -19,7 +19,7 @@ When a computer starts, it reads the current value of settings from the
     settings.define("my.setting", {
         description = "An example setting",
         default = 123,
-        type = number,
+        type = "number",
     })
     print("my.setting = " .. settings.get("my.setting")) -- 123
 
@@ -61,7 +61,7 @@ for _, v in ipairs(valid_types) do valid_types[v] = true end
 --  - `default`: A default value, which is returned by [`settings.get`] if the
 --    setting has not been changed.
 --  - `type`: Require values to be of this type. [Setting][`set`] the value to another type
---    will error.
+--    will error. Must be one of: `"number"`, `"string"`, `"boolean"`, or `"table"`.
 -- @since 1.87.0
 function define(name, options)
     expect(1, name, "string")
@@ -183,7 +183,7 @@ function unset(name)
 end
 
 --- Resets the value of all settings. Equivalent to calling [`settings.unset`]
---- on every setting.
+-- on every setting.
 --
 -- @see settings.unset
 function clear()
@@ -213,16 +213,16 @@ end
 -- Existing settings will be merged with any pre-existing ones. Conflicting
 -- entries will be overwritten, but any others will be preserved.
 --
--- @tparam[opt] string sPath The file to load from, defaulting to `.settings`.
+-- @tparam[opt=".settings"] string path The file to load from.
 -- @treturn boolean Whether settings were successfully read from this
 -- file. Reasons for failure may include the file not existing or being
 -- corrupted.
 --
 -- @see settings.save
--- @changed 1.87.0 `sPath` is now optional.
-function load(sPath)
-    expect(1, sPath, "string", "nil")
-    local file = fs.open(sPath or ".settings", "r")
+-- @changed 1.87.0 `path` is now optional.
+function load(path)
+    expect(1, path, "string", "nil")
+    local file = fs.open(path or ".settings", "r")
     if not file then
         return false
     end
@@ -255,14 +255,14 @@ end
 -- This will entirely overwrite the pre-existing file. Settings defined in the
 -- file, but not currently loaded will be removed.
 --
--- @tparam[opt] string sPath The path to save settings to, defaulting to `.settings`.
+-- @tparam[opt=".settings"] string path The path to save settings to.
 -- @treturn boolean If the settings were successfully saved.
 --
 -- @see settings.load
--- @changed 1.87.0 `sPath` is now optional.
-function save(sPath)
-    expect(1, sPath, "string", "nil")
-    local file = fs.open(sPath or ".settings", "w")
+-- @changed 1.87.0 `path` is now optional.
+function save(path)
+    expect(1, path, "string", "nil")
+    local file = fs.open(path or ".settings", "w")
     if not file then
         return false
     end

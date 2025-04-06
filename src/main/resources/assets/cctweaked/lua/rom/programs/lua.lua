@@ -31,7 +31,7 @@ setmetatable(tEnv, { __index = _ENV })
 do
     local make_package = require "cc.require".make
     local dir = shell.dir()
-    _ENV.require, _ENV.package = make_package(_ENV, dir)
+    tEnv.require, tEnv.package = make_package(tEnv, dir)
 end
 
 if term.isColour() then
@@ -104,7 +104,7 @@ while running do
             end
         else
             printError(results[2])
-            require "cc.internal.exception".report(results[2], results[3], chunk_map)
+            exception.report(results[2], results[3], chunk_map)
         end
     else
         local parser = require "cc.internal.syntax"

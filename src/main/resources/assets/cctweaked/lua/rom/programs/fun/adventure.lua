@@ -108,6 +108,7 @@ local items = {
     },
     ["some planks"] = {
         aliases = { "planks", "wooden planks", "wood planks" },
+        material = true,
         desc = "You could easily craft these planks into sticks.",
     },
     ["some sticks"] = {

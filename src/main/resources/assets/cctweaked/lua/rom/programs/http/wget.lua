@@ -35,13 +35,20 @@ local function getFilename(sUrl)
     return sUrl:match("/([^/]+)$")
 end
 
-local function get(sUrl)
-    write("Connecting to " .. sUrl .. "... ")
+local function get(url)
+    -- Check if the URL is valid
+    local ok, err = http.checkURL(url)
+    if not ok then
+        printError(err or "Invalid URL.")
+        return
+    end
 
-    local response = http.get(sUrl , nil , true)
+    write("Connecting to " .. url .. "... ")
+
+    local response, err = http.get(url)
     if not response then
-        print("Failed.")
-        return nil
+        printError(err)
+        return
     end
 
     print("Success.")

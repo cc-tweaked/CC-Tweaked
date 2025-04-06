@@ -39,60 +39,55 @@ the other.
 @since 1.2
 ]]
 
+local exception = dofile("rom/modules/main/cc/internal/tiny_require.lua")("cc.internal.exception")
+
 local function create(...)
-    local tFns = table.pack(...)
-    local tCos = {}
-    for i = 1, tFns.n, 1 do
-        local fn = tFns[i]
+    local barrier_ctx = { co = coroutine.running() }
+
+    local functions = table.pack(...)
+    local threads = {}
+    for i = 1, functions.n, 1 do
+        local fn = functions[i]
         if type(fn) ~= "function" then
             error("bad argument #" .. i .. " (function expected, got " .. type(fn) .. ")", 3)
         end
 
-        tCos[i] = coroutine.create(fn)
+        threads[i] = { co = coroutine.create(function() return exception.try_barrier(barrier_ctx, fn) end), filter = nil }
     end
 
-    return tCos
+    return threads
 end
 
-local function runUntilLimit(_routines, _limit)
-    local count = #_routines
+local function runUntilLimit(threads, limit)
+    local count = #threads
     if count < 1 then return 0 end
     local living = count
 
-    local tFilters = {}
-    local eventData = { n = 0 }
+    local event = { n = 0 }
     while true do
-        for n = 1, count do
-            local r = _routines[n]
-            if r then
-                if tFilters[r] == nil or tFilters[r] == eventData[1] or eventData[1] == "terminate" then
-                    local ok, param = coroutine.resume(r, table.unpack(eventData, 1, eventData.n))
-                    if not ok then
-                        error(param, 0)
-                    else
-                        tFilters[r] = param
-                    end
-                    if coroutine.status(r) == "dead" then
-                        _routines[n] = nil
-                        living = living - 1
-                        if living <= _limit then
-                            return n
-                        end
+        for i = 1, count do
+            local thread = threads[i]
+            if thread and (thread.filter == nil or thread.filter == event[1] or event[1] == "terminate") then
+                local ok, param = coroutine.resume(thread.co, table.unpack(event, 1, event.n))
+                if ok then
+                    thread.filter = param
+                elseif type(param) == "string" and exception.can_wrap_errors() then
+                    error(exception.make_exception(param, thread.co))
+                else
+                    error(param, 0)
+                end
+
+                if coroutine.status(thread.co) == "dead" then
+                    threads[i] = false
+                    living = living - 1
+                    if living <= limit then
+                        return i
                     end
                 end
             end
         end
-        for n = 1, count do
-            local r = _routines[n]
-            if r and coroutine.status(r) == "dead" then
-                _routines[n] = nil
-                living = living - 1
-                if living <= _limit then
-                    return n
-                end
-            end
-        end
-        eventData = table.pack(os.pullEventRaw())
+
+        event = table.pack(os.pullEventRaw())
     end
 end
 
@@ -120,8 +115,8 @@ from the [`parallel.waitForAny`] call.
     print("Everything done!")
 ]]
 function waitForAny(...)
-    local routines = create(...)
-    return runUntilLimit(routines, #routines - 1)
+    local threads = create(...)
+    return runUntilLimit(threads, #threads - 1)
 end
 
 --[[- Switches between execution of the functions, until all of them are
@@ -144,6 +139,6 @@ from the [`parallel.waitForAll`] call.
     print("Everything done!")
 ]]
 function waitForAll(...)
-    local routines = create(...)
-    return runUntilLimit(routines, 0)
+    local threads = create(...)
+    return runUntilLimit(threads, 0)
 end

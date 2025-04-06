@@ -30,6 +30,7 @@ public class ClassTransformer implements IClassTransformer {
             BasicRemapper.builder()
                 .remapType("dan200/computer/core/apis/FSAPI", "dan200/computercraft/core/apis/FSAPI")
                 .remapType("dan200/computer/core/apis/OSAPI", "dan200/computercraft/core/apis/OSAPI")
+                .remapType("dan200/computer/core/apis/HTTPAPI", "dan200/computercraft/core/apis/HTTPAPI")
                 .remapType("dan200/computer/core/apis/TermAPI", "dan200/computercraft/core/apis/TermAPI")
                 .build().toMethodTransform()
         )

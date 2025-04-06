@@ -149,7 +149,7 @@ function isOpen(modem)
 end
 
 --[[- Allows a computer or turtle with an attached modem to send a message
-intended for a sycomputer with a specific ID. At least one such modem must first
+intended for a computer with a specific ID. At least one such modem must first
 be [opened][`rednet.open`] before sending is possible.
 
 Assuming the target was in range and also had a correctly opened modem, the
@@ -298,6 +298,7 @@ function receive(protocol_filter, timeout)
             -- Return the first matching rednet_message
             local sender_id, message, protocol = p1, p2, p3
             if protocol_filter == nil or protocol == protocol_filter then
+                if timer then os.cancelTimer(timer) end
                 return sender_id, message, protocol
             end
         elseif event == "timer" then
@@ -431,6 +432,7 @@ function lookup(protocol, hostname)
                     if hostname == nil then
                         table.insert(results, sender_id)
                     elseif message.sHostname == hostname then
+                        os.cancelTimer(timer)
                         return sender_id
                     end
                 end
@@ -440,6 +442,9 @@ function lookup(protocol, hostname)
             break
         end
     end
+
+    os.cancelTimer(timer)
+
     if results then
         return table.unpack(results)
     end

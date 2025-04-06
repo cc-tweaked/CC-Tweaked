@@ -327,6 +327,9 @@ local function lex_token(context, str, pos)
             elseif contents == "!=" or contents == "<>" then
                 context.report(errors.wrong_ne, pos, end_pos)
                 return tokens.NE, end_pos
+            elseif contents == "!" then
+                context.report(errors.wrong_not, pos, end_pos)
+                return tokens.NOT, end_pos
             end
         end
 

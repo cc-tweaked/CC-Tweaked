@@ -4,11 +4,13 @@
 
 import com.diffplug.gradle.spotless.FormatExtension
 import com.diffplug.spotless.LineEnding
+import net.fabricmc.loom.LoomGradleExtension
 import java.nio.charset.StandardCharsets
 
 plugins {
     alias(libs.plugins.voldeloom)
     alias(libs.plugins.spotless)
+    id("com.gradleup.shadow") version "8.3.5"
 }
 
 val modVersion: String by extra
@@ -76,14 +78,16 @@ dependencies {
 
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
     compileOnly("org.jetbrains:annotations:24.0.1")
+    compileOnly(libs.jspecify)
     modImplementation("maven.modrinth:computercraft:1.50")
     "shade"("cc.tweaked:cobalt")
+    "shade"(libs.bundles.netty)
 
     "buildTools"("cc.tweaked.cobalt:build-tools")
 }
 
 // Point compileJava to emit to classes/uninstrumentedJava/main, and then add a task to instrument these classes,
-// saving them back to the the original class directory. This is held together with so much string :(.
+// saving them back to the original class directory. This is held together with so much string :(.
 val mainSource = sourceSets.main.get()
 val javaClassesDir = mainSource.java.classesDirectory.get()
 val untransformedClasses = project.layout.buildDirectory.dir("classes/uninstrumentedJava/main")
@@ -119,7 +123,16 @@ tasks.withType(AbstractArchiveTask::class.java).configureEach {
     fileMode = Integer.valueOf("664", 8)
 }
 
-tasks.jar {
+// Override remapJarForRelease, and then manually configure all tasks to have the right classifiers.
+tasks.remapJarForRelease {
+    archiveClassifier = ""
+    input = tasks.shadowJar.flatMap { it.archiveFile }
+}
+
+tasks.jar { archiveClassifier = "dev-slim" }
+
+tasks.shadowJar {
+    archiveClassifier = "dev"
     manifest {
         attributes(
             "FMLCorePlugin" to "cc.tweaked.patch.CorePlugin",
@@ -127,7 +140,17 @@ tasks.jar {
         )
     }
 
-    from(configurations["shade"].map { if (it.isDirectory) it else zipTree(it) })
+    configurations = listOf(project.configurations["shade"])
+    relocate("io.netty", "cc.tweaked.vendor.netty")
+    minimize()
+}
+
+project.afterEvaluate {
+    // Remove tasks.jar from the runtime classpath and add shadowJar instead.
+    val field = LoomGradleExtension::class.java.getDeclaredField("unmappedModsBuilt")
+    field.isAccessible = true
+    (field.get(volde) as MutableList<*>).clear()
+    volde.addUnmappedMod(tasks.shadowJar.get().archiveFile.get().asFile.toPath())
 }
 
 tasks.processResources {

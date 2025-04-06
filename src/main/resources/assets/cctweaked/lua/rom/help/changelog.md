@@ -1,3 +1,160 @@
+# New features in CC: Tweaked 1.115.1
+
+* Update various translations (cyb3r, kevk2156, teamer337, yakku).
+* Support Fabric's item lookup API for registering media providers.
+
+Several bug fixes:
+* Fix crashes on Create 6.0 (ellellie).
+* Fix `speaker.playAudio` not updating speaker volume.
+* Resize pocket lectern textures to fix issues with generating mipmaps.
+
+# New features in CC: Tweaked 1.115.0
+
+* Support placing pocket computers on lecterns.
+* Suggest alternative table keys on `nil` errors.
+* Errors from inside `parallel` functions now have source information attached.
+* Expose printout contents to the Java API.
+
+Several bug fixes:
+* Ignore unrepresentable characters in `char`/`paste` events.
+
+# New features in CC: Tweaked 1.114.4
+
+* Allow typing/pasting any character in the CC charset.
+
+Several bug fixes:
+* Fix command computers being exposed as peripherals (Forge only).
+* Fix command computers having NBT set when placed in a Create contraption.
+* Use correct bounding box when checking for entities in turtle movement.
+
+# New features in CC: Tweaked 1.114.3
+
+* `wget` now prints the error that occurred, rather than a generic "Failed" (tizu69).
+* Update several translations.
+
+Several bug fixes:
+* Fix `fs.isDriveRoot` returning true for non-existent files.
+* Fix possible memory leak when sending terminal contents.
+
+# New features in CC: Tweaked 1.114.2
+
+One bug fix:
+* Fix OpenGL errors when rendering empty monitors.
+
+# New features in CC: Tweaked 1.114.1
+
+Several bug fixes:
+* Fix monitor touch events only firing from one monitor.
+* Fix crash when lectern has no item.
+* Fix cursor not blinking on monitors.
+
+# New features in CC: Tweaked 1.114.0
+
+* Add redstone relay peripheral.
+* Add support for `math.atan(y, x)`.
+* Update several translations.
+
+Several bug fixes:
+* Fix pocket upgrades not appearing after crafting.
+* Cancel `rednet.receive` and `Websocket.receive` timers after a message is received.
+* Fix several issues with parsing and printing large doubles.
+* Fix in-hand pocket computer being blank after changing dimension.
+
+# New features in CC: Tweaked 1.113.1
+
+* Update Japanese translation (konumatakaki).
+* Improve performance of `textutils.urlEncode`.
+
+Several bug fixes:
+* Fix overflow when converting recursive objects from Java to Lua.
+* Fix websocket compression not working under Forge.
+
+# New features in CC: Tweaked 1.113.0
+
+* Allow placing printed pages and books in lecterns.
+
+Several bug fixes:
+* Various documentation fixes (MCJack123)
+* Fix computers and turtles not being dropped when exploded with TNT.
+* Fix crash when turtles are broken while mining a block.
+* Fix pocket computer terminals not updating when in the off-hand.
+
+# New features in CC: Tweaked 1.112.0
+
+* Report a custom error when using `!` instead of `not`.
+* Update several translations (zyxkad, MineKID-LP).
+* Add `cc.strings.split` function.
+
+Several bug fixes:
+* Fix `drive.getAudioTitle` returning `nil` when no disk is inserted.
+* Preserve item data when upgrading pocket computers.
+* Add missing bounds check to `cc.strings.wrap` (Lupus950).
+* Fix modems not moving with Create contraptions.
+
+# New features in CC: Tweaked 1.111.0
+
+* Update several translations (Ale32bit).
+* Split up turtle textures into individual textures.
+* Add `r+`/`w+` support to the `io` library.
+* Warn when capabilities are not registered and Optifine is installed.
+
+Several bug fixes:
+* Allow planks to be used for building in "adventure" (dan200).
+* Fix `disk.getAudioTitle()` returning untranslated strings for some modded discs.
+* Fix crash when right clicking turtles in spectator.
+
+# New features in CC: Tweaked 1.110.3
+
+* Update several translations (PatriikPlays).
+
+Several bug fixes:
+* Fix some errors missing source positions.
+* Correctly handle multiple threads sending websocket messages at once.
+
+# New features in CC: Tweaked 1.110.2
+
+* Add `speaker sound` command (fatboychummy).
+
+Several bug fixes:
+* Improve error when calling `speaker play` with no path (fatboychummy).
+* Prevent playing music discs with `speaker.playSound`.
+* Various documentation fixes (cyberbit).
+* Fix generic peripherals not being able to transfer to some inventories on Forge.
+* Fix rare crash when holding a pocket computer.
+* Fix modems breaking when moved by Create.
+* Fix crash when rendering a turtle through an Immersive Portals portal.
+
+# New features in CC: Tweaked 1.110.1
+
+Several bug fixes:
+* Fix computers not turning on after they're unloaded/not-ticked for a while.
+* Fix networking cables sometimes not connecting on Forge.
+
+# New features in CC: Tweaked 1.110.0
+
+* Add a new `@c[...]` syntax for selecting computers in the `/computercraft` command.
+* Remove custom breaking progress of modems on Forge.
+
+Several bug fixes:
+* Fix client and server DFPWM transcoders getting out of sync.
+* Fix `turtle.suck` reporting incorrect error when failing to suck items.
+* Fix pocket computers displaying state (blinking, modem light) for the wrong computer.
+* Fix crash when wrapping an invalid BE as a generic peripheral.
+* Chest peripherals now reattach when a chest is converted into a double chest.
+* Fix `speaker` program not resolving files relative to the current directory.
+* Skip main-thread tasks if the peripheral is detached.
+* Fix internal Lua VM errors if yielding inside `__tostring`.
+
+# New features in CC: Tweaked 1.109.7
+
+* Improve performance of removing and unloading wired cables/modems.
+
+Several bug fixes:
+* Fix monitors sometimes not updating on the client when chunks are unloaded and reloaded.
+* `colour.toBlit` correctly errors on out-of-bounds values.
+* Round non-standard colours in `window`, like `term.native()` does.
+* Fix the client monitor rendering both the current and outdated contents.
+
 # New features in CC: Tweaked 1.109.6
 
 * Improve several Lua parser error messages.
@@ -724,7 +881,7 @@ And several bug fixes:
 # New features in CC: Tweaked 1.86.2
 
 * Fix peripheral.getMethods returning an empty table.
-* Update to Minecraft 1.15.2. This is currently alpha-quality and so is missing missing features and may be unstable.
+* Update to Minecraft 1.15.2. This is currently alpha-quality and so is missing features and may be unstable.
 
 # New features in CC: Tweaked 1.86.1
 
@@ -1340,7 +1497,7 @@ And several bug fixes:
 * Turtles can now compare items in their inventories
 * Turtles can place signs with text on them with `turtle.place( [signText] )`
 * Turtles now optionally require fuel items to move, and can refuel themselves
-* The size of the the turtle inventory has been increased to 16
+* The size of the turtle inventory has been increased to 16
 * The size of the turtle screen has been increased
 * New turtle functions: `turtle.compareTo( [slotNum] )`, `turtle.craft()`, `turtle.attack()`, `turtle.attackUp()`, `turtle.attackDown()`, `turtle.dropUp()`, `turtle.dropDown()`, `turtle.getFuelLevel()`, `turtle.refuel()`
 * New disk function: disk.getID()

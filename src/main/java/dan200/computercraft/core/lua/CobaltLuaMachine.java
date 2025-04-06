@@ -12,6 +12,7 @@ import dan200.computer.core.ILuaMachine;
 import dan200.computer.core.ILuaObject;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.asm.Methods;
+import dan200.computercraft.core.lua.errorinfo.ErrorInfoLib;
 import org.squiddev.cobalt.*;
 import org.squiddev.cobalt.compiler.LoadState;
 import org.squiddev.cobalt.function.LuaFunction;
@@ -59,6 +60,7 @@ public class CobaltLuaMachine implements ILuaMachine {
         try {
             CoreLibraries.debugGlobals(state);
             Bit32Lib.add(state, globals);
+            ErrorInfoLib.add(state);
 
             globals.rawset("_HOST", valueOf("ComputerCraft " + ComputerCraft.getVersion() + " (" + Loader.instance().getMCVersionString() + ")"));
             globals.rawset("_CC_DEFAULT_SETTINGS", valueOf(""));

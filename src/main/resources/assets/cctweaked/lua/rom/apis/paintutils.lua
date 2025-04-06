@@ -47,12 +47,22 @@ local function sortCoords(startX, startY, endX, endY)
     return minX, maxX, minY, maxY
 end
 
---- Parses an image from a multi-line string
---
--- @tparam string image The string containing the raw-image data.
--- @treturn table The parsed image data, suitable for use with
--- [`paintutils.drawImage`].
--- @since 1.80pr1
+--[=[- Parses an image from a multi-line string
+
+@tparam string image The string containing the raw-image data.
+@treturn table The parsed image data, suitable for use with [`paintutils.drawImage`].
+@usage Parse an image from a string, and draw it.
+
+    local image = paintutils.parseImage([[
+     e  e
+
+    e    e
+     eeee
+    ]])
+    paintutils.drawImage(image, term.getCursorPos())
+
+@since 1.80pr1
+]=]
 function parseImage(image)
     expect(1, image, "string")
     local tImage = {}

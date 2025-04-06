@@ -284,6 +284,23 @@ function errors.wrong_ne(start_pos, end_pos)
     }
 end
 
+--[[- `!` was used instead of `not`.
+
+@tparam number start_pos The start position of the token.
+@tparam number end_pos The end position of the token.
+@return The resulting parse error.
+]]
+function errors.wrong_not(start_pos, end_pos)
+    expect(1, start_pos, "number")
+    expect(2, end_pos, "number")
+
+    return {
+        "Unexpected character.",
+        annotate(start_pos, end_pos),
+        "Tip: Replace this with " .. code("not") .. " to negate a boolean.",
+    }
+end
+
 --[[- An unexpected character was used.
 
 @tparam number pos The position of this character.

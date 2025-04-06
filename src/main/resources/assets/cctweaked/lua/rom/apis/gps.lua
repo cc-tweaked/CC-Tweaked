@@ -23,7 +23,7 @@ just the same. For example, you might build a GPS cluster according to [this
 tutorial][1], using z to account for height, or you might use y to account for
 height in the way that Minecraft's debug screen displays.
 
-[1]: http://www.computercraft.info/forums2/index.php?/topic/3088-how-to-guide-gps-global-position-system/
+[1]: https://ccf.squiddev.cc/forums2/index.php?/topic/3088-how-to-guide-gps-global-position-system/
 
 @module gps
 @since 1.31
@@ -195,6 +195,8 @@ function locate(_nTimeout, _bDebug)
     if bCloseChannel then
         modem.close(CHANNEL_GPS)
     end
+
+    os.cancelTimer(timeout)
 
     -- Return the response
     if pos1 and pos2 then

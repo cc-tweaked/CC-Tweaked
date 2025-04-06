@@ -223,16 +223,21 @@ end
 --- Returns true if a path is mounted to the parent filesystem.
 --
 -- The root filesystem "/" is considered a mount, along with disk folders and
--- the rom folder. Other programs (such as network shares) can exstend this to
--- make other mount types by correctly assigning their return value for getDrive.
+-- the rom folder.
 --
 -- @tparam string path The path to check.
 -- @treturn boolean If the path is mounted, rather than a normal file/folder.
 -- @throws If the path does not exist.
 -- @see getDrive
 -- @since 1.87.0
-function fs.isDriveRoot(sPath)
-    expect(1, sPath, "string")
+function fs.isDriveRoot(path)
+    expect(1, path, "string")
+
+    local parent = fs.getDir(path)
+
     -- Force the root directory to be a mount.
-    return fs.getDir(sPath) == ".." or fs.getDrive(sPath) ~= fs.getDrive(fs.getDir(sPath))
+    if parent == ".." then return true end
+
+    local drive = fs.getDrive(path)
+    return drive ~= nil and drive ~= fs.getDrive(parent)
 end
