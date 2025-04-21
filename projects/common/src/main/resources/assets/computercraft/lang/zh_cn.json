@@ -215,7 +215,6 @@
     "tracking_field.computercraft.http_download.name": "HTTP下载",
     "tracking_field.computercraft.http_requests.name": "HTTP请求",
     "tracking_field.computercraft.http_upload.name": "HTTP上传",
-    "tracking_field.computercraft.java_allocation.name": "Java分配",
     "tracking_field.computercraft.max": "%s (最大)",
     "tracking_field.computercraft.peripheral.name": "外部设备呼叫",
     "tracking_field.computercraft.server_tasks.name": "服务器任务",

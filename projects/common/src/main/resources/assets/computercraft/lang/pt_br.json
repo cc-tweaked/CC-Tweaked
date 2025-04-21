@@ -208,7 +208,6 @@
     "tracking_field.computercraft.http_download.name": "Download HTTP",
     "tracking_field.computercraft.http_requests.name": "Solicitações HTTP",
     "tracking_field.computercraft.http_upload.name": "Upload de HTTP",
-    "tracking_field.computercraft.java_allocation.name": "Alocações Java",
     "tracking_field.computercraft.max": "%s (máximo)",
     "tracking_field.computercraft.peripheral.name": "Chamadas Periféricas",
     "tracking_field.computercraft.server_tasks.name": "Tarefas do servidor",

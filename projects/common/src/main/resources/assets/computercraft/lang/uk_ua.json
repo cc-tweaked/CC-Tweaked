@@ -215,7 +215,6 @@
     "tracking_field.computercraft.http_download.name": "HTTP завантаження",
     "tracking_field.computercraft.http_requests.name": "HTTP запитів",
     "tracking_field.computercraft.http_upload.name": "HTTP завантаження",
-    "tracking_field.computercraft.java_allocation.name": "Java Виділення",
     "tracking_field.computercraft.max": "%s (макс)",
     "tracking_field.computercraft.peripheral.name": "Викликів преферійних девайсів",
     "tracking_field.computercraft.server_tasks.name": "Серверних задач",

@@ -109,6 +109,7 @@
     "gui.computercraft.config.log_computer_errors": "Регистрировать ошибки компьютера",
     "gui.computercraft.config.log_computer_errors.tooltip": "Регистрировать исключения, вызванные периферийными устройствами и другими объектами Lua. Это облегчает\nдля авторам модов устранение проблем, но может привести к спаму в логах, если люди будут использовать\nглючные методы.",
     "gui.computercraft.config.maximum_open_files": "Максимальное количество файлов, открытых на одном компьютере",
+    "gui.computercraft.config.peripheral": "Периферия",
     "gui.computercraft.config.term_sizes": "Размер терминала",
     "gui.computercraft.config.term_sizes.computer": "Компьютер",
     "gui.computercraft.config.term_sizes.computer.height": "Высота терминала",

@@ -215,7 +215,6 @@
     "tracking_field.computercraft.http_download.name": "Stahování HTTP",
     "tracking_field.computercraft.http_requests.name": "Požadavky HTTP",
     "tracking_field.computercraft.http_upload.name": "Nahrávání HTTP",
-    "tracking_field.computercraft.java_allocation.name": "Java alokace",
     "tracking_field.computercraft.max": "%s (max)",
     "tracking_field.computercraft.peripheral.name": "Periferní volání",
     "tracking_field.computercraft.server_tasks.name": "Serverové úlohy",
