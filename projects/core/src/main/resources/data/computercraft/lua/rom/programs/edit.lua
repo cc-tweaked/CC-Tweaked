@@ -220,9 +220,9 @@ local function writeHighlighted(sLine)
             tryWrite(sLine, "^%-%-%[%[.-%]%]", commentColour) or
             tryWrite(sLine, "^%-%-.*", commentColour) or
             tryWrite(sLine, "^\"\"", stringColour) or
-            tryWrite(sLine, "^\".-[^\\]\"", stringColour) or
+            tryWrite(sLine, "^\".-[^\\](\\\\)*\"", stringColour) or
             tryWrite(sLine, "^\'\'", stringColour) or
-            tryWrite(sLine, "^\'.-[^\\]\'", stringColour) or
+            tryWrite(sLine, "^\'.-[^\\](\\\\)*\'", stringColour) or
             tryWrite(sLine, "^%[%[.-%]%]", stringColour) or
             tryWrite(sLine, "^[%w_]+", function(match)
                 if tKeywords[match] then
