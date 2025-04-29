@@ -203,8 +203,10 @@ public class OSAPI implements ILuaAPI {
      */
     @LuaFunction
     public final int startTimer(double timer) throws LuaException {
-        timers.put(nextTimerToken, new Timer((int) Math.round(checkFinite(0, timer) / 0.05)));
-        return nextTimerToken++;
+        synchronized (timers) {
+            timers.put(nextTimerToken, new Timer((int) Math.round(checkFinite(0, timer) / 0.05)));
+            return nextTimerToken++;
+        }
     }
 
     /**
@@ -217,7 +219,9 @@ public class OSAPI implements ILuaAPI {
      */
     @LuaFunction
     public final void cancelTimer(int token) {
-        timers.remove(token);
+        synchronized (timers) {
+            timers.remove(token);
+        }
     }
 
     /**
