@@ -12,7 +12,6 @@ import dan200.computercraft.shared.platform.ComponentAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
@@ -104,11 +103,8 @@ public final class WiredModemLocalPeripheral {
     }
 
     public void read(CompoundTag tag, String suffix) {
-        id = tag.contains(NBT_PERIPHERAL_ID + suffix, Tag.TAG_ANY_NUMERIC)
-            ? tag.getInt(NBT_PERIPHERAL_ID + suffix) : -1;
-
-        type = tag.contains(NBT_PERIPHERAL_TYPE + suffix, Tag.TAG_STRING)
-            ? tag.getString(NBT_PERIPHERAL_TYPE + suffix) : null;
+        id = tag.getIntOr(NBT_PERIPHERAL_ID + suffix, -1);
+        type = tag.getStringOr(NBT_PERIPHERAL_TYPE + suffix, null);
     }
 
     @Nullable

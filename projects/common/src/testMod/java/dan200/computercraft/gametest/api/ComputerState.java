@@ -5,7 +5,6 @@
 package dan200.computercraft.gametest.api;
 
 import dan200.computercraft.gametest.core.TestAPI;
-import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestSequence;
 import org.jspecify.annotations.Nullable;
 
@@ -32,9 +31,9 @@ public class ComputerState {
         return markers.contains(marker);
     }
 
-    public void check(String marker) {
+    public @Nullable String check(String marker) {
         if (!markers.contains(marker)) throw new IllegalStateException("Not yet at " + marker);
-        if (error != null) throw new GameTestAssertException(error);
+        return error;
     }
 
     public static @Nullable ComputerState get(String label) {

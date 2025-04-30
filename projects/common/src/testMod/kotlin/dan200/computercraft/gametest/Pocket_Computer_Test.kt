@@ -11,6 +11,7 @@ import dan200.computercraft.api.upgrades.UpgradeData
 import dan200.computercraft.client.pocket.ClientPocketComputers
 import dan200.computercraft.core.apis.TermAPI
 import dan200.computercraft.gametest.api.*
+import dan200.computercraft.gametest.api.GameTest
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.computer.core.ComputerState
@@ -20,7 +21,6 @@ import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
 import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.core.component.DataComponents
-import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.gametest.framework.GameTestSequence
 import net.minecraft.network.chat.Component
@@ -33,7 +33,7 @@ class Pocket_Computer_Test {
     /**
      * Checks pocket computer state is synced to the holding player.
      */
-    @ClientGameTest(template = Structures.DEFAULT)
+    @GameTest(template = Structures.DEFAULT, tag = TestTags.CLIENT)
     fun Sync_state(context: GameTestHelper) = context.sequence {
         // We use a unique label for each test run as computers from previous runs may not have been disposed yet.
         val unique = java.lang.Long.toHexString(Random.nextLong())
@@ -75,7 +75,7 @@ class Pocket_Computer_Test {
     /**
      * Checks pocket computers are rendered when being held like a map.
      */
-    @ClientGameTest(template = Structures.DEFAULT)
+    @GameTest(template = Structures.DEFAULT, tag = TestTags.CLIENT)
     fun Renders_map_view(context: GameTestHelper) = context.sequence {
         // We use a unique label for each test run as computers from previous runs may not have been disposed yet.
         val unique = java.lang.Long.toHexString(Random.nextLong())
@@ -104,8 +104,7 @@ class Pocket_Computer_Test {
         val player = level.randomPlayer!!
         player.inventory.clearContent()
 
-        val testName = (this as GameTestHelperAccessor).testInfo.testName
-        val label = testName + (if (name == null) "" else ".$name")
+        val label = (this as GameTestHelperAccessor).testInfo.getComputerLabel(name)
 
         val item = ItemStack(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get())
         item.set(DataComponents.CUSTOM_NAME, Component.literal(label))
@@ -130,7 +129,7 @@ class Pocket_Computer_Test {
                         DataComponentUtil.setCustomName(it, "Test")
                         it.applyComponents(
                             DataComponentPatch.builder()
-                                .set(ModRegistry.DataComponents.COMPUTER_ID.get(), NonNegativeId(123))
+                                .set(ModRegistry.DataComponents.COMPUTER_ID.get(), NonNegativeId.Computer(123))
                                 .set(ModRegistry.DataComponents.POCKET_UPGRADE.get(), UpgradeData.ofDefault(upgrade))
                                 .build(),
                         )

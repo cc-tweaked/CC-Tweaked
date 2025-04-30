@@ -10,6 +10,7 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.util.DataComponentUtil;
+import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.NonNegativeId;
 import dan200.computercraft.shared.util.StorageCapacity;
 import net.minecraft.core.HolderLookup;
@@ -18,25 +19,28 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
+import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
 /**
  * Media that provides a {@link Mount}.
+ *
+ * @param <T> The type of media (disk/computer) we're mounting.
  */
-public final class MountMedia implements IMedia {
+public final class MountMedia<T extends NonNegativeId> implements IMedia {
     /**
      * A {@link MountMedia} implementation for {@linkplain ModRegistry.DataComponents#COMPUTER_ID computers}.
      */
-    public static final IMedia COMPUTER = new MountMedia("computer", ModRegistry.DataComponents.COMPUTER_ID, false, ConfigSpec.computerSpaceLimit);
+    public static final IMedia COMPUTER = new MountMedia<>(IDAssigner.COMPUTER, ModRegistry.DataComponents.COMPUTER_ID, null, ConfigSpec.computerSpaceLimit);
 
     /**
      * A {@link MountMedia} implementation for {@linkplain ModRegistry.Items#DISK disks}.
      */
-    public static final IMedia DISK = new MountMedia("disk", ModRegistry.DataComponents.DISK_ID, true, ConfigSpec.floppySpaceLimit);
+    public static final IMedia DISK = new MountMedia<>("disk", ModRegistry.DataComponents.DISK_ID, NonNegativeId.Disk::new, ConfigSpec.floppySpaceLimit);
 
     private final String subPath;
-    private final Supplier<DataComponentType<NonNegativeId>> id;
-    private final boolean createId;
+    private final Supplier<DataComponentType<T>> id;
+    private final @Nullable IntFunction<T> createId;
     private final Supplier<Integer> defaultCapacity;
 
     /**
@@ -49,8 +53,8 @@ public final class MountMedia implements IMedia {
      */
     public MountMedia(
         String subPath,
-        Supplier<DataComponentType<NonNegativeId>> id,
-        boolean createId,
+        Supplier<DataComponentType<T>> id,
+        @Nullable IntFunction<T> createId,
         Supplier<Integer> defaultCapacity
     ) {
         this.subPath = subPath;
@@ -72,8 +76,8 @@ public final class MountMedia implements IMedia {
 
     @Override
     public @Nullable Mount createDataMount(ItemStack stack, ServerLevel level) {
-        var id = createId
-            ? NonNegativeId.getOrCreate(level.getServer(), stack, this.id.get(), subPath)
+        var id = createId != null
+            ? NonNegativeId.getOrCreate(level.getServer(), stack, this.id.get(), createId, subPath)
             : NonNegativeId.getId(stack.get(this.id.get()));
         if (id < 0) return null;
 

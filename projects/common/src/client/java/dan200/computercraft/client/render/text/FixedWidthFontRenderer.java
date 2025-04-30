@@ -40,6 +40,8 @@ public final class FixedWidthFontRenderer {
      */
     public static final RenderType TERMINAL_TEXT = RenderType.text(FONT);
 
+    public static final RenderType TERMINAL_TEXT_OFFSET = RenderType.textPolygonOffset(FONT);
+
     public static final int FONT_HEIGHT = 9;
     public static final int FONT_WIDTH = 6;
     static final float WIDTH = 256.0f;

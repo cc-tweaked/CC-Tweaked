@@ -16,7 +16,6 @@ import dan200.computercraft.shared.util.BlockEntityHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -33,6 +32,8 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.AbstractList;
 import java.util.List;
+
+import static dan200.computercraft.shared.lectern.CustomLecternBlock.dropItem;
 
 /**
  * The block entity for our {@link CustomLecternBlock}.
@@ -101,11 +102,16 @@ public final class CustomLecternBlockEntity extends BlockEntity {
     }
 
     @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (level != null) dropItem(level, pos, state, getItem().copy());
+    }
+
+    @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
 
-        item = tag.contains(NBT_ITEM, Tag.TAG_COMPOUND) ? ItemStack.parseOptional(registries, tag.getCompound(NBT_ITEM)) : ItemStack.EMPTY;
-        page = tag.getInt(NBT_PAGE);
+        item = tag.getCompound(NBT_ITEM).flatMap(x -> ItemStack.parse(registries, x)).orElse(ItemStack.EMPTY);
+        page = tag.getIntOr(NBT_PAGE, 0);
         itemChanged();
     }
 

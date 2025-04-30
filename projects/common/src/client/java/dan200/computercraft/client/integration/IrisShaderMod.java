@@ -38,7 +38,7 @@ public class IrisShaderMod implements ShaderMod.Provider {
                 : super.getQuadEmitter(vertexCount, makeBuffer);
         }
 
-        private static final class IrisQuadEmitter implements DirectFixedWidthFontRenderer.QuadEmitter {
+        private static final class IrisQuadEmitter extends DirectFixedWidthFontRenderer.QuadEmitter {
             private final IrisTextVertexSink sink;
             private @Nullable ByteBuffer buffer;
 

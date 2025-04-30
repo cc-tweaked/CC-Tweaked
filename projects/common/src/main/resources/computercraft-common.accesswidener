@@ -22,9 +22,12 @@ accessible class net/minecraft/data/tags/TagsProvider$TagAppender
 accessible field net/minecraft/client/data/models/BlockModelGenerators blockStateOutput Ljava/util/function/Consumer;
 accessible field net/minecraft/client/data/models/BlockModelGenerators itemModelOutput Lnet/minecraft/client/data/models/ItemModelOutput;
 accessible field net/minecraft/client/data/models/BlockModelGenerators modelOutput Ljava/util/function/BiConsumer;
+accessible method net/minecraft/client/data/models/BlockModelGenerators condition ()Lnet/minecraft/client/data/models/blockstates/ConditionBuilder;
 accessible method net/minecraft/client/data/models/BlockModelGenerators createHorizontallyRotatedBlock (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/client/data/models/model/TexturedModel$Provider;)V
 accessible method net/minecraft/client/data/models/BlockModelGenerators createParticleOnlyBlock (Lnet/minecraft/world/level/block/Block;)V
-accessible method net/minecraft/client/data/models/BlockModelGenerators createSimpleBlock (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/data/models/blockstates/MultiVariantGenerator;
+accessible method net/minecraft/client/data/models/BlockModelGenerators createSimpleBlock (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/client/data/models/MultiVariant;)Lnet/minecraft/client/data/models/blockstates/MultiVariantGenerator;
+accessible method net/minecraft/client/data/models/BlockModelGenerators or ([Lnet/minecraft/client/data/models/blockstates/ConditionBuilder;)Lnet/minecraft/client/renderer/block/model/multipart/Condition;
+accessible method net/minecraft/client/data/models/BlockModelGenerators plainVariant (Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/data/models/MultiVariant;
 accessible method net/minecraft/client/data/models/BlockModelGenerators registerSimpleItemModel (Lnet/minecraft/world/item/Item;Lnet/minecraft/resources/ResourceLocation;)V
 accessible method net/minecraft/client/data/models/BlockModelGenerators registerSimpleItemModel (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/resources/ResourceLocation;)V
 accessible field net/minecraft/client/data/models/ItemModelGenerators itemModelOutput Lnet/minecraft/client/data/models/ItemModelOutput;

@@ -8,19 +8,19 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeType;
 
 /**
- * A functional interface to register a {@link TurtleUpgradeModeller} for a class of turtle upgrades.
+ * A functional interface to register a {@link TurtleUpgradeModel} for a class of turtle upgrades.
  * <p>
  * This interface is largely intended to be used from multi-loader code, to allow sharing registration code between
  * multiple loaders.
  */
 @FunctionalInterface
-public interface RegisterTurtleUpgradeModeller {
+public interface RegisterTurtleUpgradeModel {
     /**
-     * Register a {@link TurtleUpgradeModeller}.
+     * Register a {@link TurtleUpgradeModel}.
      *
-     * @param type     The turtle upgrade type.
-     * @param modeller The upgrade modeller.
-     * @param <T>      The type of the turtle upgrade.
+     * @param type The turtle upgrade type.
+     * @param mode The unbaked upgrade model.
+     * @param <T>  The type of the turtle upgrade.
      */
-    <T extends ITurtleUpgrade> void register(UpgradeType<T> type, TurtleUpgradeModeller<T> modeller);
+    <T extends ITurtleUpgrade> void register(UpgradeType<T> type, TurtleUpgradeModel.Unbaked<? super T> mode);
 }

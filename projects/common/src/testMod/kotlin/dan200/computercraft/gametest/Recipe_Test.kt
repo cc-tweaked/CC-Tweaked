@@ -5,13 +5,13 @@
 package dan200.computercraft.gametest
 
 import com.mojang.authlib.GameProfile
+import dan200.computercraft.gametest.api.GameTest
 import dan200.computercraft.gametest.api.Structures
 import dan200.computercraft.gametest.api.craftItem
 import dan200.computercraft.gametest.api.sequence
 import dan200.computercraft.shared.ModRegistry
 import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.core.component.DataComponents
-import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items

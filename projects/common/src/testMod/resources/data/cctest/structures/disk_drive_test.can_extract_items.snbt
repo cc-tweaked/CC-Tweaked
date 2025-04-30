@@ -27,13 +27,13 @@
         {pos: [4, 0, 2], state: "minecraft:polished_andesite"},
         {pos: [4, 0, 3], state: "minecraft:polished_andesite"},
         {pos: [4, 0, 4], state: "minecraft:polished_andesite"},
-        {pos: [2, 1, 2], state: "minecraft:hopper{enabled:false,facing:down}", nbt: {Items: [], TransferCooldown: 0, id: "minecraft:hopper"}},
+        {pos: [2, 1, 2], state: "minecraft:hopper{enabled:true,facing:down}", nbt: {Items: [], TransferCooldown: 0, id: "minecraft:hopper"}},
         {pos: [2, 2, 2], state: "computercraft:disk_drive{facing:north,state:full}", nbt: {Item: {Count: 1b, id: "computercraft:computer_normal"}, id: "computercraft:disk_drive"}}
     ],
     entities: [],
     palette: [
         "minecraft:polished_andesite",
-        "minecraft:hopper{enabled:false,facing:down}",
+        "minecraft:hopper{enabled:true,facing:down}",
         "computercraft:disk_drive{facing:north,state:full}"
     ]
 }

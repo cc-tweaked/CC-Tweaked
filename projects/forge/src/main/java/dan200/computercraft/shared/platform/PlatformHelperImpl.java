@@ -248,7 +248,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public ClickEvent createOpenFolderAction(Path path) {
-        return new ClickEvent(ClickEvent.Action.OPEN_FILE, path.toAbsolutePath().toString());
+        return new ClickEvent.OpenFile(path.toAbsolutePath().toString());
     }
 
     private record RegistrationHelperImpl<R>(DeferredRegister<R> registry) implements RegistrationHelper<R> {

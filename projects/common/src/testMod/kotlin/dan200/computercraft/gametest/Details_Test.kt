@@ -5,9 +5,9 @@
 package dan200.computercraft.gametest
 
 import dan200.computercraft.api.detail.VanillaDetailRegistries
+import dan200.computercraft.gametest.api.GameTest
 import dan200.computercraft.gametest.api.Structures
 import dan200.computercraft.gametest.api.sequence
-import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items

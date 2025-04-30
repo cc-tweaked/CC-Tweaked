@@ -19,7 +19,6 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.api.upgrades.UpgradeType;
-import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.shared.command.UserLevel;
 import dan200.computercraft.shared.command.arguments.ComputerArgumentType;
@@ -113,7 +112,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -274,6 +273,13 @@ public final class ModRegistry {
             return new Item.Properties();
         }
 
+        private static Item.Properties dyeableProperties() {
+            return properties().component(
+                net.minecraft.core.component.DataComponents.TOOLTIP_DISPLAY,
+                TooltipDisplay.DEFAULT.withHidden(net.minecraft.core.component.DataComponents.DYED_COLOR, true)
+            );
+        }
+
         private static <T extends Item> RegistryEntry<T> register(String name, Function<Item.Properties, T> build, Supplier<Item.Properties> properties) {
             return REGISTRY.register(name, () -> build.apply(properties.get().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name)))));
         }
@@ -282,26 +288,26 @@ public final class ModRegistry {
             return register(name, build, () -> properties);
         }
 
-        private static <B extends Block, I extends Item> RegistryEntry<I> ofBlock(RegistryEntry<B> parent, BiFunction<B, Item.Properties, I> supplier) {
-            return register(parent.id().getPath(), p -> supplier.apply(parent.get(), p), properties().useBlockDescriptionPrefix());
+        private static <B extends Block, I extends Item> RegistryEntry<I> ofBlock(RegistryEntry<B> parent, BiFunction<B, Item.Properties, I> supplier, Item.Properties properties) {
+            return register(parent.id().getPath(), p -> supplier.apply(parent.get(), p), properties.useBlockDescriptionPrefix());
         }
 
-        public static final RegistryEntry<BlockItem> COMPUTER_NORMAL = ofBlock(Blocks.COMPUTER_NORMAL, BlockItem::new);
-        public static final RegistryEntry<BlockItem> COMPUTER_ADVANCED = ofBlock(Blocks.COMPUTER_ADVANCED, BlockItem::new);
-        public static final RegistryEntry<GameMasterBlockItem> COMPUTER_COMMAND = ofBlock(Blocks.COMPUTER_COMMAND, GameMasterBlockItem::new);
+        public static final RegistryEntry<BlockItem> COMPUTER_NORMAL = ofBlock(Blocks.COMPUTER_NORMAL, BlockItem::new, properties());
+        public static final RegistryEntry<BlockItem> COMPUTER_ADVANCED = ofBlock(Blocks.COMPUTER_ADVANCED, BlockItem::new, properties());
+        public static final RegistryEntry<GameMasterBlockItem> COMPUTER_COMMAND = ofBlock(Blocks.COMPUTER_COMMAND, GameMasterBlockItem::new, properties());
 
         public static final RegistryEntry<PocketComputerItem> POCKET_COMPUTER_NORMAL = register("pocket_computer_normal",
-            p -> new PocketComputerItem(p, ComputerFamily.NORMAL), properties().stacksTo(1));
+            p -> new PocketComputerItem(p, ComputerFamily.NORMAL), dyeableProperties());
         public static final RegistryEntry<PocketComputerItem> POCKET_COMPUTER_ADVANCED = register("pocket_computer_advanced",
-            p -> new PocketComputerItem(p, ComputerFamily.ADVANCED), properties().stacksTo(1));
+            p -> new PocketComputerItem(p, ComputerFamily.ADVANCED), dyeableProperties());
 
-        public static final RegistryEntry<TurtleItem> TURTLE_NORMAL = ofBlock(Blocks.TURTLE_NORMAL, TurtleItem::new);
-        public static final RegistryEntry<TurtleItem> TURTLE_ADVANCED = ofBlock(Blocks.TURTLE_ADVANCED, TurtleItem::new);
+        public static final RegistryEntry<TurtleItem> TURTLE_NORMAL = ofBlock(Blocks.TURTLE_NORMAL, TurtleItem::new, dyeableProperties());
+        public static final RegistryEntry<TurtleItem> TURTLE_ADVANCED = ofBlock(Blocks.TURTLE_ADVANCED, TurtleItem::new, dyeableProperties());
 
         public static final RegistryEntry<DiskItem> DISK =
-            register("disk", DiskItem::new, properties().stacksTo(1));
+            register("disk", DiskItem::new, dyeableProperties().stacksTo(1));
         public static final RegistryEntry<DiskItem> TREASURE_DISK =
-            register("treasure_disk", DiskItem::new, properties().stacksTo(1));
+            register("treasure_disk", DiskItem::new, dyeableProperties().stacksTo(1));
 
         private static Item.Properties printoutProperties() {
             return properties().stacksTo(1).component(DataComponents.PRINTOUT.get(), PrintoutData.EMPTY);
@@ -314,15 +320,15 @@ public final class ModRegistry {
         public static final RegistryEntry<PrintoutItem> PRINTED_BOOK = register("printed_book",
             PrintoutItem::new, Items::printoutProperties);
 
-        public static final RegistryEntry<BlockItem> SPEAKER = ofBlock(Blocks.SPEAKER, BlockItem::new);
-        public static final RegistryEntry<BlockItem> DISK_DRIVE = ofBlock(Blocks.DISK_DRIVE, BlockItem::new);
-        public static final RegistryEntry<BlockItem> PRINTER = ofBlock(Blocks.PRINTER, BlockItem::new);
-        public static final RegistryEntry<BlockItem> MONITOR_NORMAL = ofBlock(Blocks.MONITOR_NORMAL, BlockItem::new);
-        public static final RegistryEntry<BlockItem> MONITOR_ADVANCED = ofBlock(Blocks.MONITOR_ADVANCED, BlockItem::new);
-        public static final RegistryEntry<BlockItem> WIRELESS_MODEM_NORMAL = ofBlock(Blocks.WIRELESS_MODEM_NORMAL, BlockItem::new);
-        public static final RegistryEntry<BlockItem> WIRELESS_MODEM_ADVANCED = ofBlock(Blocks.WIRELESS_MODEM_ADVANCED, BlockItem::new);
-        public static final RegistryEntry<BlockItem> WIRED_MODEM_FULL = ofBlock(Blocks.WIRED_MODEM_FULL, BlockItem::new);
-        public static final RegistryEntry<BlockItem> REDSTONE_RELAY = ofBlock(Blocks.REDSTONE_RELAY, BlockItem::new);
+        public static final RegistryEntry<BlockItem> SPEAKER = ofBlock(Blocks.SPEAKER, BlockItem::new, properties());
+        public static final RegistryEntry<BlockItem> DISK_DRIVE = ofBlock(Blocks.DISK_DRIVE, BlockItem::new, properties());
+        public static final RegistryEntry<BlockItem> PRINTER = ofBlock(Blocks.PRINTER, BlockItem::new, properties());
+        public static final RegistryEntry<BlockItem> MONITOR_NORMAL = ofBlock(Blocks.MONITOR_NORMAL, BlockItem::new, properties());
+        public static final RegistryEntry<BlockItem> MONITOR_ADVANCED = ofBlock(Blocks.MONITOR_ADVANCED, BlockItem::new, properties());
+        public static final RegistryEntry<BlockItem> WIRELESS_MODEM_NORMAL = ofBlock(Blocks.WIRELESS_MODEM_NORMAL, BlockItem::new, properties());
+        public static final RegistryEntry<BlockItem> WIRELESS_MODEM_ADVANCED = ofBlock(Blocks.WIRELESS_MODEM_ADVANCED, BlockItem::new, properties());
+        public static final RegistryEntry<BlockItem> WIRED_MODEM_FULL = ofBlock(Blocks.WIRED_MODEM_FULL, BlockItem::new, properties());
+        public static final RegistryEntry<BlockItem> REDSTONE_RELAY = ofBlock(Blocks.REDSTONE_RELAY, BlockItem::new, properties());
 
         public static final RegistryEntry<CableBlockItem.Cable> CABLE = register("cable",
             p -> new CableBlockItem.Cable(Blocks.CABLE.get(), p), properties().useBlockDescriptionPrefix());
@@ -340,8 +346,8 @@ public final class ModRegistry {
         /**
          * The id of a computer.
          */
-        public static final RegistryEntry<DataComponentType<NonNegativeId>> COMPUTER_ID = register("computer_id", b -> b
-            .persistent(NonNegativeId.CODEC).networkSynchronized(NonNegativeId.STREAM_CODEC)
+        public static final RegistryEntry<DataComponentType<NonNegativeId.Computer>> COMPUTER_ID = register("computer_id", b -> b
+            .persistent(NonNegativeId.Computer.CODEC).networkSynchronized(NonNegativeId.Computer.STREAM_CODEC)
         );
 
         /**
@@ -422,8 +428,8 @@ public final class ModRegistry {
         /**
          * The id of a disk.
          */
-        public static final RegistryEntry<DataComponentType<NonNegativeId>> DISK_ID = register("disk_id", b -> b
-            .persistent(NonNegativeId.CODEC).networkSynchronized(NonNegativeId.STREAM_CODEC)
+        public static final RegistryEntry<DataComponentType<NonNegativeId.Disk>> DISK_ID = register("disk_id", b -> b
+            .persistent(NonNegativeId.Disk.CODEC).networkSynchronized(NonNegativeId.Disk.STREAM_CODEC)
         );
 
         /**
@@ -597,8 +603,8 @@ public final class ModRegistry {
                 out.accept(Items.PRINTED_BOOK.get());
 
                 out.accept(Items.DISK_DRIVE.get());
-                for (var colour = 0; colour < 16; colour++) {
-                    out.accept(DataComponentUtil.createStack(Items.DISK.get(), net.minecraft.core.component.DataComponents.DYED_COLOR, new DyedItemColor(Colour.VALUES[colour].getHex(), false)));
+                for (var colour : DyeColor.values()) {
+                    out.accept(DataComponentUtil.createDyedStack(Items.DISK.get(), colour.getTextureDiffuseColor()));
                 }
             })
             .build());

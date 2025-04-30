@@ -8,19 +8,21 @@ import dan200.computercraft.api.ComputerCraftAPI
 import dan200.computercraft.core.ComputerContext
 import dan200.computercraft.core.computer.computerthread.ComputerThread
 import dan200.computercraft.gametest.*
-import dan200.computercraft.gametest.api.ClientGameTest
-import dan200.computercraft.gametest.api.TestTags
-import dan200.computercraft.gametest.api.Times
+import dan200.computercraft.gametest.api.*
 import dan200.computercraft.shared.computer.core.ServerContext
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Holder
+import net.minecraft.core.registries.Registries
 import net.minecraft.gametest.framework.*
+import net.minecraft.resources.ResourceKey
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.LevelAccessor
 import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.level.block.entity.StructureBlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager
 import net.minecraft.world.phys.Vec3
@@ -36,10 +38,13 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.function.Consumer
 import javax.xml.parsers.ParserConfigurationException
+import kotlin.jvm.optionals.getOrNull
 
 object TestHooks {
     @JvmField
     val LOG: Logger = LoggerFactory.getLogger(TestHooks::class.java)
+
+    const val MOD_ID: String = "cctest"
 
     @JvmStatic
     val sourceDir: Path = Paths.get(System.getProperty("cctest.sources")).normalize().toAbsolutePath()
@@ -51,7 +56,7 @@ object TestHooks {
     fun init() {
         ServerContext.luaMachine = ManagedComputers
         ComputerCraftAPI.registerAPIFactory(::TestAPI)
-        StructureUtils.testStructuresDir = sourceDir.resolve("structures").toString()
+        StructureUtils.testStructuresDir = sourceDir.resolve("structures")
 
         // Set up our test reporter if configured.
         val outputPath = System.getProperty("cctest.gametest-report")
@@ -78,14 +83,14 @@ object TestHooks {
     fun onServerStarted(server: MinecraftServer) {
         val rules = server.gameRules
         rules.getRule(GameRules.RULE_DAYLIGHT).set(false, server)
-        server.overworld().dayTime = Times.NOON
+        server.overworld().dayTime = Times.NOON.toLong()
 
         LOG.info("Cleaning up after last run")
 
         val level = server.overworld()
-        StructureUtils.findStructureBlocks(getTestOrigin(server), 200, level).forEach { pos ->
-            val structure = level.getBlockEntity(pos) as StructureBlockEntity? ?: return@forEach
-            StructureUtils.clearSpaceForStructure(StructureUtils.getStructureBoundingBox(structure), level)
+        StructureUtils.findTestBlocks(getTestOrigin(server), 200, level).forEach { pos ->
+            val test = level.getBlockEntity(pos, BlockEntityType.TEST_INSTANCE_BLOCK).getOrNull() ?: return@forEach
+            StructureUtils.clearSpaceForStructure(test.structureBoundingBox, level)
         }
 
         structureManager = server.structureManager
@@ -125,66 +130,57 @@ object TestHooks {
         Turtle_Test::class.java,
     )
 
+    private val defaultEnvironment: Holder<TestEnvironmentDefinition> = Holder.direct(TestEnvironmentDefinition.AllOf())
+
     /**
-     * Register all of our gametests.
-     *
-     * This is super nasty, as it bypasses any loader-specific hooks for registering tests. However, it makes it much
-     * easier to ensure consistent behaviour between loaders (namely making [GameTest.template] point to a
-     * structure rather than a per-test-class one), as well as supporting our custom client tests.
-     *
-     * @param fallbackRegister A fallback function which registers non-test methods (such as [BeforeBatch]). This
-     * should be [GameTestRegistry.register] or equivalent.
+     * Gather a list of all game tests.
      */
     @JvmStatic
-    fun loadTests(fallbackRegister: Consumer<Method>) {
+    fun loadTests(): List<TestInstance> {
+        val tests = mutableListOf<TestInstance>()
         for (testClass in testClasses) {
             for (method in testClass.declaredMethods) {
-                registerTest(testClass, method, fallbackRegister)
+                registerTest(testClass, method, tests)
             }
         }
+        return tests
     }
 
-    private fun registerTest(testClass: Class<*>, method: Method, fallbackRegister: Consumer<Method>) {
+    private fun registerTest(testClass: Class<*>, method: Method, out: MutableList<TestInstance>) {
         val className = testClass.simpleName.lowercase()
         val testName = className + "." + method.name.lowercase()
 
         method.getAnnotation(GameTest::class.java)?.let { testInfo ->
-            if (!TestTags.isEnabled(TestTags.COMMON)) return
-
-            GameTestRegistry.getAllTestFunctions().add(
-                TestFunction(
-                    testInfo.batch, testName, testInfo.template.ifEmpty { testName },
-                    StructureUtils.getRotationForRotationSteps(testInfo.rotationSteps),
-                    testInfo.timeoutTicks,
-                    testInfo.setupTicks,
-                    testInfo.required, testInfo.manualOnly,
-                    testInfo.attempts,
-                    testInfo.requiredSuccesses,
-                    testInfo.skyAccess,
-                ) { value -> safeInvoke(method, value) },
-            )
-            GameTestRegistry.getAllTestClassNames().add(testClass.simpleName)
-            return
-        }
-
-        method.getAnnotation(ClientGameTest::class.java)?.let { testInfo ->
             if (!TestTags.isEnabled(testInfo.tag)) return
 
-            GameTestRegistry.getAllTestFunctions().add(
-                TestFunction(
+            val environment: Holder<TestEnvironmentDefinition> = when (testInfo.tag) {
+                TestTags.COMMON -> defaultEnvironment
+                else -> Holder.direct(ClientTestEnvironment())
+            }
+
+            out.add(
+                TestInstance(
                     testName,
-                    testName,
-                    testInfo.template.ifEmpty { testName },
-                    testInfo.timeoutTicks,
-                    0,
-                    true,
+                    TestData(
+                        environment,
+                        ResourceLocation.parse(testInfo.template.ifEmpty { testName }),
+                        testInfo.timeoutTicks,
+                        testInfo.setupTicks,
+                        testInfo.required,
+                    ),
                 ) { value -> safeInvoke(method, value) },
             )
-            GameTestRegistry.getAllTestClassNames().add(testClass.simpleName)
             return
         }
 
-        fallbackRegister.accept(method)
+        if (method.getAnnotation(GameTestGenerator::class.java) != null) {
+            val instance =
+                if (Modifier.isStatic(method.modifiers)) null else method.declaringClass.getConstructor().newInstance()
+
+            @Suppress("UNCHECKED_CAST")
+            val tests = method.invoke(instance) as Collection<TestInstance>
+            out.addAll(tests)
+        }
     }
 
     private fun safeInvoke(method: Method, value: Any) {
@@ -250,4 +246,16 @@ private object ComputerThreadReflection {
         val computerThread = computerContext.computerScheduler() as ComputerThread
         return isFullyIdle.invokeExact(computerThread) as Boolean
     }
+}
+
+class TestInstance(
+    val name: String,
+    val data: TestData<Holder<TestEnvironmentDefinition>>,
+    val function: Consumer<GameTestHelper>,
+) {
+    val id: ResourceLocation = ResourceLocation.fromNamespaceAndPath(TestHooks.MOD_ID, name)
+
+    val instance: GameTestInstance
+        get() =
+            FunctionGameTestInstance(ResourceKey.create<Consumer<GameTestHelper>>(Registries.TEST_FUNCTION, id), data)
 }

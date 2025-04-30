@@ -1,7 +1,7 @@
 package com.example.examplemod;
 
-import dan200.computercraft.api.client.turtle.RegisterTurtleModellersEvent;
-import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
+import dan200.computercraft.api.client.turtle.RegisterTurtleModelEvent;
+import dan200.computercraft.api.client.turtle.TurtleUpgradeModel;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -11,10 +11,10 @@ import net.neoforged.fml.common.EventBusSubscriber;
  */
 @EventBusSubscriber(modid = ExampleMod.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class ForgeExampleModClient {
-    // @start region=turtle_modellers
+    // @start region=turtle_model
     @SubscribeEvent
-    public static void onRegisterTurtleModellers(RegisterTurtleModellersEvent event) {
-        event.register(ExampleMod.EXAMPLE_TURTLE_UPGRADE, TurtleUpgradeModeller.flatItem());
+    public static void onRegisterTurtleModellers(RegisterTurtleModelEvent event) {
+        event.register(ExampleMod.EXAMPLE_TURTLE_UPGRADE, TurtleUpgradeModel.flatItem());
     }
-    // @end region=turtle_modellers
+    // @end region=turtle_model
 }

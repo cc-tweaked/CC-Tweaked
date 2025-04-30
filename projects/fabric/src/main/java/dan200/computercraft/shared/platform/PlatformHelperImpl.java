@@ -241,8 +241,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public ClickEvent createOpenFolderAction(Path path) {
-        return new ClickEvent(
-            ClickEvent.Action.RUN_COMMAND,
+        return new ClickEvent.RunCommand(
             "/" + ComputerCraft.CLIENT_OPEN_FOLDER + " " + StringArgumentType.escapeIfRequired(path.toAbsolutePath().toString())
         );
     }

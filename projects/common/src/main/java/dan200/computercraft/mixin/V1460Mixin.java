@@ -44,7 +44,8 @@ class V1460Mixin {
 
         // Disk drives contain a single item
         schema.register(map, "computercraft:disk_drive", () -> DSL.optionalFields(
-            "Item", References.ITEM_STACK.in(schema)
+            "Item", References.ITEM_STACK.in(schema),
+            "CustomName", References.TEXT_COMPONENT.in(schema)
         ));
     }
 

@@ -5,16 +5,17 @@
 package dan200.computercraft.gametest
 
 import dan200.computercraft.gametest.api.*
+import dan200.computercraft.gametest.core.TestInstance
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlock
+import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity
 import dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState
 import net.minecraft.commands.arguments.blocks.BlockInput
 import net.minecraft.core.BlockPos
-import net.minecraft.gametest.framework.GameTest
-import net.minecraft.gametest.framework.GameTestGenerator
-import net.minecraft.gametest.framework.GameTestHelper
-import net.minecraft.gametest.framework.TestFunction
+import net.minecraft.core.Holder
+import net.minecraft.gametest.framework.*
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.GameType
 import net.minecraft.world.level.block.Blocks
@@ -41,7 +42,7 @@ class Monitor_Test {
         }
         thenIdle(2)
         thenExecute {
-            val tile = context.getBlockEntity(pos, ModRegistry.BlockEntities.MONITOR_ADVANCED.get())
+            val tile = context.getBlockEntity(pos, MonitorBlockEntity::class.java)
 
             if (tile.width != 1 || tile.height != 1) {
                 context.fail("Tile has width and height of ${tile.width}x${tile.height}, but should be 1x1", pos)
@@ -67,7 +68,7 @@ class Monitor_Test {
     @GameTest
     fun Creates_terminal(helper: GameTestHelper) = helper.sequence {
         fun monitorAt(x: Int) =
-            helper.getBlockEntity(BlockPos(x, 1, 2), ModRegistry.BlockEntities.MONITOR_ADVANCED.get())
+            helper.getBlockEntity(BlockPos(x, 1, 2), MonitorBlockEntity::class.java)
 
         thenExecute {
             for (i in 1..3) {
@@ -104,24 +105,26 @@ class Monitor_Test {
      * Test monitors render correctly
      */
     @GameTestGenerator
-    fun Render_monitor_tests(): List<TestFunction> {
-        val tests = mutableListOf<TestFunction>()
+    fun Render_monitor_tests(): List<TestInstance> {
+        val tests = mutableListOf<TestInstance>()
 
-        fun addTest(label: String, time: Long = Times.NOON, tag: String = TestTags.CLIENT) {
+        fun addTest(label: String, time: Int = Times.NOON, tag: String = TestTags.CLIENT) {
             if (!TestTags.isEnabled(tag)) return
 
             val className = this::class.java.simpleName.lowercase()
             val testName = "$className.render_monitor"
 
             tests.add(
-                TestFunction(
+                TestInstance(
                     "$testName.$label",
-                    "$testName.$label",
-                    testName,
-                    Timeouts.DEFAULT,
-                    0,
-                    true,
-                ) { renderMonitor(it, time) },
+                    TestData(
+                        Holder.direct(TestEnvironmentDefinition.TimeOfDay(time)),
+                        ResourceLocation.parse(testName),
+                        Timeouts.DEFAULT,
+                        0,
+                        true,
+                    ),
+                ) { renderMonitor(it) },
             )
         }
 
@@ -137,13 +140,12 @@ class Monitor_Test {
         return tests
     }
 
-    private fun renderMonitor(helper: GameTestHelper, time: Long) = helper.sequence {
+    private fun renderMonitor(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            helper.level.dayTime = time
             helper.positionAtArmorStand()
 
             // Get the monitor and peripheral. This forces us to create a server monitor at this location.
-            val monitor = helper.getBlockEntity(BlockPos(2, 1, 3), ModRegistry.BlockEntities.MONITOR_ADVANCED.get())
+            val monitor = helper.getBlockEntity(BlockPos(2, 1, 3), MonitorBlockEntity::class.java)
             monitor.peripheral()
 
             val terminal = monitor.cachedServerMonitor!!.terminal!!
@@ -156,6 +158,6 @@ class Monitor_Test {
 
         thenScreenshot()
 
-        thenExecute { helper.level.dayTime = Times.NOON }
+        thenExecute { helper.level.dayTime = Times.NOON.toLong() }
     }
 }

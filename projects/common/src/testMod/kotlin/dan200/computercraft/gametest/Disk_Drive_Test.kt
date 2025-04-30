@@ -6,9 +6,11 @@ package dan200.computercraft.gametest
 
 import dan200.computercraft.core.apis.FSAPI
 import dan200.computercraft.gametest.api.*
+import dan200.computercraft.gametest.api.GameTest
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.media.items.TreasureDisk
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveBlock
+import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveBlockEntity
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDrivePeripheral
 import dan200.computercraft.shared.peripheral.diskdrive.DiskDriveState
 import dan200.computercraft.shared.util.DataComponentUtil
@@ -16,14 +18,11 @@ import dan200.computercraft.shared.util.NonNegativeId
 import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
-import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.core.component.DataComponents
-import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
-import net.minecraft.world.item.component.DyedItemColor
 import net.minecraft.world.level.block.RedStoneWireBlock
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.array
@@ -121,7 +120,7 @@ class Disk_Drive_Test {
     fun Creates_disk_id(helper: GameTestHelper) = helper.sequence {
         val drivePos = BlockPos(2, 1, 2)
         thenWaitUntil {
-            val drive = helper.getBlockEntity(drivePos, ModRegistry.BlockEntities.DISK_DRIVE.get())
+            val drive = helper.getBlockEntity(drivePos, DiskDriveBlockEntity::class.java)
             if (!drive.getItem(0).has(ModRegistry.DataComponents.DISK_ID.get())) {
                 helper.fail("Disk has no item", drivePos)
             }
@@ -138,7 +137,7 @@ class Disk_Drive_Test {
 
         // Adding items should provide power
         thenExecute {
-            val drive = helper.getBlockEntity(drivePos, ModRegistry.BlockEntities.DISK_DRIVE.get())
+            val drive = helper.getBlockEntity(drivePos, DiskDriveBlockEntity::class.java)
             drive.setItem(0, ItemStack(ModRegistry.Items.TREASURE_DISK.get()))
             drive.setChanged()
         }
@@ -147,7 +146,7 @@ class Disk_Drive_Test {
 
         // And removing them should reset power.
         thenExecute {
-            val drive = helper.getBlockEntity(drivePos, ModRegistry.BlockEntities.DISK_DRIVE.get())
+            val drive = helper.getBlockEntity(drivePos, DiskDriveBlockEntity::class.java)
             drive.setItem(0, ItemStack.EMPTY)
             drive.setChanged()
         }
@@ -163,7 +162,7 @@ class Disk_Drive_Test {
         val pos = BlockPos(2, 1, 2)
 
         thenExecute {
-            val drive = helper.getBlockEntity(pos, ModRegistry.BlockEntities.DISK_DRIVE.get())
+            val drive = helper.getBlockEntity(pos, DiskDriveBlockEntity::class.java)
 
             drive.setItem(0, ItemStack(Items.DIRT))
             drive.setChanged()
@@ -222,12 +221,8 @@ class Disk_Drive_Test {
                 BlockPos(1, 1, 2),
                 listOf(
                     ItemStack(ModRegistry.Items.DISK.get()).also {
-                        it.applyComponents(
-                            DataComponentPatch.builder()
-                                .set(ModRegistry.DataComponents.DISK_ID.get(), NonNegativeId(123))
-                                .set(DataComponents.DYED_COLOR, DyedItemColor(123456, false))
-                                .build(),
-                        )
+                        it.set(ModRegistry.DataComponents.DISK_ID.get(), NonNegativeId.Disk(123))
+                        DataComponentUtil.setDyeColour(it, 123456)
                     },
                 ),
             )
@@ -236,12 +231,8 @@ class Disk_Drive_Test {
                 BlockPos(3, 1, 2),
                 listOf(
                     ItemStack(ModRegistry.Items.TREASURE_DISK.get()).also {
-                        it.applyComponents(
-                            DataComponentPatch.builder()
-                                .set(ModRegistry.DataComponents.TREASURE_DISK.get(), TreasureDisk("Demo disk", "demo"))
-                                .set(DataComponents.DYED_COLOR, DyedItemColor(123456, false))
-                                .build(),
-                        )
+                        it.set(ModRegistry.DataComponents.TREASURE_DISK.get(), TreasureDisk("Demo disk", "demo"))
+                        DataComponentUtil.setDyeColour(it, 123456)
                     },
                 ),
             )

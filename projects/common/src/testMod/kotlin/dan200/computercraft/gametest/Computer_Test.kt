@@ -15,7 +15,6 @@ import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -122,7 +121,7 @@ class Computer_Test {
     /**
      * Check the client can open the computer UI and interact with it.
      */
-    @ClientGameTest
+    @GameTest(tag = TestTags.CLIENT)
     fun Open_on_client(context: GameTestHelper) = context.sequence {
         // Write "Hello, world!" and then print each event to the terminal.
         thenOnComputer { getApi<TermAPI>().write(Coerced("Hello, world!")) }

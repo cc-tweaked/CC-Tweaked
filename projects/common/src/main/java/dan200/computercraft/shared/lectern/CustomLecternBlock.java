@@ -112,18 +112,7 @@ public class CustomLecternBlock extends LecternBlock {
         super.tick(state, level, pos, random);
     }
 
-    @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (state.is(newState.getBlock())) return;
-
-        if (level.getBlockEntity(pos) instanceof CustomLecternBlockEntity lectern) {
-            dropItem(level, pos, state, lectern.getItem().copy());
-        }
-
-        super.onRemove(state, level, pos, newState, isMoving);
-    }
-
-    private static void dropItem(Level level, BlockPos pos, BlockState state, ItemStack stack) {
+    static void dropItem(Level level, BlockPos pos, BlockState state, ItemStack stack) {
         if (stack.isEmpty()) return;
 
         var direction = state.getValue(FACING);

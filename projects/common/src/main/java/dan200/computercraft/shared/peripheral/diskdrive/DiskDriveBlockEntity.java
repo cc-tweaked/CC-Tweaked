@@ -116,7 +116,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity imp
     @Override
     public void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
         super.loadAdditional(nbt, registries);
-        setDiskStack(nbt.contains(NBT_ITEM) ? ItemStack.parseOptional(registries, nbt.getCompound(NBT_ITEM)) : ItemStack.EMPTY);
+        setDiskStack(nbt.getCompound(NBT_ITEM).flatMap(x -> ItemStack.parse(registries, x)).orElse(ItemStack.EMPTY));
     }
 
     @Override

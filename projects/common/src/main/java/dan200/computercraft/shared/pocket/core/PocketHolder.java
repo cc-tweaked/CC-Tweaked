@@ -12,6 +12,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.Vec3;
 
@@ -104,6 +106,24 @@ public sealed interface PocketHolder {
         @Override
         public void setChanged() {
             entity.getInventory().setChanged();
+        }
+    }
+
+    /**
+     * A pocket computer in a {@link LivingEntity}'s slot.
+     *
+     * @param entity The current player.
+     * @param slot   The slot the pocket computer is in.
+     */
+    record LivingEntityHolder(LivingEntity entity, EquipmentSlot slot) implements EntityHolder {
+        @Override
+        public boolean isValid(ServerComputer computer) {
+            return entity().isAlive() && PocketComputerItem.isServerComputer(computer, entity().getItemBySlot(slot()));
+        }
+
+        @Override
+        public void setChanged() {
+            // TODO: What can we do?
         }
     }
 

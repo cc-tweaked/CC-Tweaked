@@ -39,7 +39,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 
@@ -137,20 +136,20 @@ public final class ClientHooks {
         if (upgrade != null) out.accept(String.format("Upgrade[%s]: %s", side, upgrade.holder().key().location()));
     }
 
-    public static @Nullable BlockState getBlockBreakingState(BlockState state, BlockPos pos) {
+    public static BlockState getBlockBreakingState(BlockState state, BlockPos pos) {
         // Only apply to cables which have both a cable and modem
         if (state.getBlock() != ModRegistry.Blocks.CABLE.get()
             || !state.getValue(CableBlock.CABLE)
             || state.getValue(CableBlock.MODEM) == CableModemVariant.None
         ) {
-            return null;
+            return state;
         }
 
         var hit = Minecraft.getInstance().hitResult;
-        if (hit == null || hit.getType() != HitResult.Type.BLOCK) return null;
+        if (hit == null || hit.getType() != HitResult.Type.BLOCK) return state;
         var hitPos = ((BlockHitResult) hit).getBlockPos();
 
-        if (!hitPos.equals(pos)) return null;
+        if (!hitPos.equals(pos)) return state;
 
         return WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))
             ? state.getBlock().defaultBlockState().setValue(CableBlock.MODEM, state.getValue(CableBlock.MODEM))

@@ -14,6 +14,7 @@ import dan200.computercraft.api.turtle.TurtleSide
 import dan200.computercraft.api.upgrades.UpgradeData
 import dan200.computercraft.core.apis.PeripheralAPI
 import dan200.computercraft.gametest.api.*
+import dan200.computercraft.gametest.api.GameTest
 import dan200.computercraft.gametest.core.TestHooks
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.mixin.gametest.GameTestInfoAccessor
@@ -25,6 +26,7 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorBlock
 import dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState
 import dan200.computercraft.shared.turtle.TurtleOverlay
 import dan200.computercraft.shared.turtle.apis.TurtleAPI
+import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity
 import dan200.computercraft.shared.turtle.core.TurtleCraftCommand
 import dan200.computercraft.shared.turtle.items.TurtleItem
 import dan200.computercraft.shared.util.WaterloggableHelpers
@@ -33,7 +35,6 @@ import dan200.computercraft.test.core.computer.LuaTaskContext
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.Registries
-import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.EntityType
@@ -46,7 +47,7 @@ import net.minecraft.world.level.block.BeehiveBlock
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.ComposterBlock
 import net.minecraft.world.level.block.FenceBlock
-import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.world.level.block.entity.SignBlockEntity
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.array
@@ -107,7 +108,7 @@ class Turtle_Test {
                 .assertArrayEquals(true, message = "Placed sign")
         }
         thenExecute {
-            val sign = helper.getBlockEntity(BlockPos(2, 1, 1), BlockEntityType.SIGN)
+            val sign = helper.getBlockEntity(BlockPos(2, 1, 1), SignBlockEntity::class.java)
             val lines = listOf("", "Test", "message", "")
             for ((i, line) in lines.withIndex()) {
                 assertEquals(line, sign.frontText.getMessage(i, false).string, "Line $i")
@@ -321,7 +322,7 @@ class Turtle_Test {
             helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 1, 3))
             helper.assertContainerExactly(BlockPos(2, 1, 2), listOf(ItemStack(Items.COBBLESTONE)))
 
-            val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
+            val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), TurtleBlockEntity::class.java).access
             val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
             assertEquals(
                 helper.level.registryAccess().lookupOrThrow(ITurtleUpgrade.REGISTRY)
@@ -346,7 +347,7 @@ class Turtle_Test {
             helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 1, 3))
             helper.assertContainerExactly(BlockPos(2, 1, 2), listOf(ItemStack(Items.COBBLESTONE)))
 
-            val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
+            val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), TurtleBlockEntity::class.java).access
             val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
             assertEquals(null, upgrade, "Upgrade broke")
 
@@ -371,7 +372,7 @@ class Turtle_Test {
             helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 1, 3))
             helper.assertContainerExactly(BlockPos(2, 1, 2), listOf(ItemStack(Items.STONE)))
 
-            val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get()).access
+            val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), TurtleBlockEntity::class.java).access
             val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
             assertEquals(
                 helper.level.registryAccess().lookupOrThrow(ITurtleUpgrade.REGISTRY)
@@ -612,7 +613,7 @@ class Turtle_Test {
         thenExecute {
             helper.assertContainerExactly(BlockPos(2, 1, 3), listOf(ItemStack(Items.DIRT, 32)))
 
-            val turtle = helper.getBlockEntity(BlockPos(2, 1, 3), ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            val turtle = helper.getBlockEntity(BlockPos(2, 1, 3), TurtleBlockEntity::class.java)
             assertEquals(1, turtle.computerID)
             assertEquals("turtle_test.move_preserves_state", turtle.label)
             assertEquals(79, turtle.access.fuelLevel)
@@ -692,7 +693,7 @@ class Turtle_Test {
         }
         thenExecute {
             helper.assertEntityNotPresent(EntityType.SHEEP)
-            val count = helper.getBlockEntity(turtlePos, ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            val count = helper.getBlockEntity(turtlePos, TurtleBlockEntity::class.java)
                 .countItem(Items.WHITE_WOOL)
             if (count == 0) helper.fail("Expected turtle to have white wool", turtlePos)
         }
@@ -776,7 +777,7 @@ class Turtle_Test {
             val upgrade = helper.level.registryAccess().lookupOrThrow(ITurtleUpgrade.REGISTRY)
                 .getValue(ResourceLocation.withDefaultNamespace("diamond_pickaxe"))!!
 
-            val turtleBe = helper.getBlockEntity(BlockPos(1, 1, 1), ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            val turtleBe = helper.getBlockEntity(BlockPos(1, 1, 1), TurtleBlockEntity::class.java)
             assertEquals(overlay, turtleBe.overlay)
             assertEquals(upgrade, turtleBe.getUpgrade(TurtleSide.LEFT))
 
@@ -845,7 +846,7 @@ class Turtle_Test {
     @GameTest
     fun Craft_shapeless(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), TurtleBlockEntity::class.java)
             assertTrue(TurtleCraftCommand(64).execute(turtle.access).isSuccess, "Crafting succeeded")
 
             helper.assertContainerExactly(
@@ -868,7 +869,7 @@ class Turtle_Test {
     @GameTest
     fun Craft_remainder(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), TurtleBlockEntity::class.java)
             assertTrue(TurtleCraftCommand(1).execute(turtle.access).isSuccess, "Crafting succeeded")
 
             val turtleStack = ItemStack(ModRegistry.Items.TURTLE_NORMAL.get())
@@ -895,7 +896,7 @@ class Turtle_Test {
         for (offset in listOf(0, 1, 4, 5)) {
             thenExecute {
                 val turtlePos = BlockPos(2, 1, 2)
-                val turtle = helper.getBlockEntity(turtlePos, ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+                val turtle = helper.getBlockEntity(turtlePos, TurtleBlockEntity::class.java)
 
                 // Set up turtle inventory
                 turtle.clearContent()
@@ -931,7 +932,7 @@ class Turtle_Test {
             turtle.equipLeft().await().assertArrayEquals(true)
         }
         thenExecute {
-            val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+            val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), TurtleBlockEntity::class.java)
             assertEquals(
                 helper.level.registryAccess().lookupOrThrow(ITurtleUpgrade.REGISTRY)
                     .getValue(ResourceLocation.withDefaultNamespace("diamond_pickaxe")),
@@ -970,13 +971,13 @@ class Turtle_Test {
      */
     @GameTest
     fun Can_extract_items(helper: GameTestHelper) = helper.sequence {
-        thenWaitUntil { helper.assertContainerEmpty(BlockPos(2, 2, 2)) }
+        thenWaitUntil { helper.assertContainerLikeEmpty(BlockPos(2, 2, 2)) }
     }
 
     /**
      * Render turtles as an item.
      */
-    @ClientGameTest
+    @GameTest(tag = TestTags.CLIENT)
     fun Render_turtle_items(helper: GameTestHelper) = helper.sequence {
         thenExecute { helper.positionAtArmorStand() }
         thenScreenshot()
@@ -985,7 +986,7 @@ class Turtle_Test {
     /**
      * Render turtles as a block entity.
      */
-    @ClientGameTest
+    @GameTest(tag = TestTags.CLIENT)
     fun Render_turtle_blocks(helper: GameTestHelper) = helper.sequence {
         thenExecute { helper.positionAtArmorStand() }
         thenScreenshot()

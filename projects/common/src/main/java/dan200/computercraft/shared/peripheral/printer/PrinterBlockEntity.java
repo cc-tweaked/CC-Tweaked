@@ -60,8 +60,8 @@ public final class PrinterBlockEntity extends AbstractContainerBlockEntity imple
 
         // Read page
         synchronized (page) {
-            printing = nbt.getBoolean(NBT_PRINTING);
-            pageTitle = nbt.getString(NBT_PAGE_TITLE);
+            printing = nbt.getBooleanOr(NBT_PRINTING, false);
+            pageTitle = nbt.getStringOr(NBT_PAGE_TITLE, "");
             page.readFromNBT(nbt);
         }
 

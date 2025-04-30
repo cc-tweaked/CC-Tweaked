@@ -4,6 +4,7 @@
 
 package dan200.computercraft.data.client;
 
+import com.mojang.math.Quadrant;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.client.item.model.TurtleOverlayModel;
@@ -24,8 +25,13 @@ import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.data.models.BlockModelGenerators;
-import net.minecraft.client.data.models.blockstates.*;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.blockstates.ConditionBuilder;
+import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
+import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.*;
+import net.minecraft.client.renderer.block.model.VariantMutator;
 import net.minecraft.client.renderer.item.EmptyModel;
 import net.minecraft.client.renderer.item.properties.conditional.HasComponent;
 import net.minecraft.core.Direction;
@@ -33,7 +39,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 
@@ -43,6 +48,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import static net.minecraft.client.data.models.BlockModelGenerators.*;
 import static net.minecraft.client.data.models.model.ModelLocationUtils.getModelLocation;
 import static net.minecraft.client.data.models.model.TextureMapping.getBlockTexture;
 
@@ -116,15 +122,14 @@ public class BlockModelProvider {
         registerTurtleModem(generators, "block/turtle_modem_advanced", "block/wireless_modem_advanced_face");
 
         generators.blockStateOutput.accept(
-            BlockModelGenerators.createSimpleBlock(ModRegistry.Blocks.LECTERN.get(), getModelLocation(Blocks.LECTERN))
+            createSimpleBlock(ModRegistry.Blocks.LECTERN.get(), plainVariant(getModelLocation(Blocks.LECTERN)))
                 .with(createHorizontalFacingDispatch())
         );
     }
 
     private static void registerDiskDrive(BlockModelGenerators generators) {
         var diskDrive = ModRegistry.Blocks.DISK_DRIVE.get();
-        generators.blockStateOutput.accept(MultiVariantGenerator.multiVariant(diskDrive)
-            .with(createHorizontalFacingDispatch())
+        generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(diskDrive)
             .with(createModelDispatch(DiskDriveBlock.STATE, value -> {
                 var textureSuffix = switch (value) {
                     case EMPTY -> "_front";
@@ -137,14 +142,14 @@ public class BlockModelProvider {
                     generators.modelOutput
                 );
             }))
+            .with(createHorizontalFacingDispatch())
         );
         generators.registerSimpleItemModel(diskDrive, getModelLocation(diskDrive, "_empty"));
     }
 
     private static void registerPrinter(BlockModelGenerators generators) {
         var printer = ModRegistry.Blocks.PRINTER.get();
-        generators.blockStateOutput.accept(MultiVariantGenerator.multiVariant(printer)
-            .with(createHorizontalFacingDispatch())
+        generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(printer)
             .with(createModelDispatch(PrinterBlock.TOP, PrinterBlock.BOTTOM, (top, bottom) -> {
                 String model, texture;
                 if (top && bottom) {
@@ -165,13 +170,13 @@ public class BlockModelProvider {
                     generators.modelOutput
                 );
             }))
+            .with(createHorizontalFacingDispatch())
         );
         generators.registerSimpleItemModel(printer, getModelLocation(printer, "_empty"));
     }
 
     private static void registerComputer(BlockModelGenerators generators, ComputerBlock<?> block) {
-        generators.blockStateOutput.accept(MultiVariantGenerator.multiVariant(block)
-            .with(createHorizontalFacingDispatch())
+        generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
             .with(createModelDispatch(ComputerBlock.STATE, state -> switch (state) {
                 case OFF -> ModelTemplates.CUBE_ORIENTABLE.createWithSuffix(
                     block, "_" + state.getSerializedName(),
@@ -184,6 +189,7 @@ public class BlockModelProvider {
                     generators.modelOutput
                 );
             }))
+            .with(createHorizontalFacingDispatch())
         );
         generators.registerSimpleItemModel(block, getModelLocation(block, "_blinking"));
     }
@@ -193,7 +199,7 @@ public class BlockModelProvider {
         var particleModel = ModelTemplates.PARTICLE_ONLY.createWithSuffix(
             block, "_particle", TextureMapping.particle(getBlockTexture(block, "_front")), generators.modelOutput
         );
-        generators.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(block, particleModel));
+        generators.blockStateOutput.accept(createSimpleBlock(block, plainVariant(particleModel)));
 
         // We then register the full model for use in items and the BE renderer.
         var model = TURTLE.create(block, new TextureMapping()
@@ -224,17 +230,17 @@ public class BlockModelProvider {
     }
 
     private static void registerWirelessModem(BlockModelGenerators generators, WirelessModemBlock block) {
-        generators.blockStateOutput.accept(MultiVariantGenerator.multiVariant(block)
-            .with(createFacingDispatch())
+        generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
             .with(createModelDispatch(WirelessModemBlock.ON,
                 on -> modemModel(generators, getModelLocation(block, on ? "_on" : "_off"), getBlockTexture(block, "_face" + (on ? "_on" : "")))
-            )));
+            ))
+            .with(createFacingDispatch()));
         generators.registerSimpleItemModel(block, getModelLocation(block, "_off"));
     }
 
     private static void registerWiredModems(BlockModelGenerators generators) {
         var fullBlock = ModRegistry.Blocks.WIRED_MODEM_FULL.get();
-        generators.blockStateOutput.accept(MultiVariantGenerator.multiVariant(fullBlock)
+        generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(fullBlock)
             .with(createModelDispatch(WiredModemFullBlock.MODEM_ON, WiredModemFullBlock.PERIPHERAL_ON, (on, peripheral) -> {
                 var suffix = (on ? "_on" : "_off") + (peripheral ? "_peripheral" : "");
                 var faceTexture = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/wired_modem_face" + (peripheral ? "_peripheral" : "") + (on ? "_on" : ""));
@@ -281,10 +287,10 @@ public class BlockModelProvider {
         monitorModel(generators, block, "_u", 22, 5, 0, 38);
         monitorModel(generators, block, "_ud", 21, 6, 0, 37);
 
-        generators.blockStateOutput.accept(MultiVariantGenerator.multiVariant(block)
+        generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
+            .with(createModelDispatch(MonitorBlock.STATE, edge -> getModelLocation(block, edge == MonitorEdgeState.NONE ? "" : "_" + edge.getSerializedName())))
             .with(createHorizontalFacingDispatch())
             .with(createVerticalFacingDispatch(MonitorBlock.ORIENTATION))
-            .with(createModelDispatch(MonitorBlock.STATE, edge -> getModelLocation(block, edge == MonitorEdgeState.NONE ? "" : "_" + edge.getSerializedName())))
         );
         generators.registerSimpleItemModel(block, monitorModel(generators, block, "_item", 15, 4, 0, 32));
     }
@@ -308,55 +314,54 @@ public class BlockModelProvider {
         var coreFacing = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/cable_core_facing");
         // Up/Down
         generator.with(
-            Condition.or(
+            or(
                 cableNoNeighbour(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST).term(CableBlock.UP, true),
                 cableNoNeighbour(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST).term(CableBlock.DOWN, true)
             ),
-            Variant.variant().with(VariantProperties.MODEL, coreFacing).with(VariantProperties.X_ROT, VariantProperties.Rotation.R90)
+            plainVariant(coreFacing).with(VariantMutator.X_ROT.withValue(Quadrant.R90))
         );
 
         // North/South and no neighbours
         generator.with(
-            Condition.or(
+            or(
                 cableNoNeighbour(Direction.UP, Direction.DOWN, Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST),
                 cableNoNeighbour(Direction.UP, Direction.DOWN, Direction.EAST, Direction.WEST).term(CableBlock.NORTH, true),
                 cableNoNeighbour(Direction.UP, Direction.DOWN, Direction.EAST, Direction.WEST).term(CableBlock.SOUTH, true)
             ),
-            Variant.variant().with(VariantProperties.MODEL, coreFacing).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R0)
+            plainVariant(coreFacing).with(VariantMutator.Y_ROT.withValue(Quadrant.R0))
         );
 
         // East/West
         generator.with(
-            Condition.or(
+            or(
                 cableNoNeighbour(Direction.NORTH, Direction.SOUTH, Direction.UP, Direction.DOWN).term(CableBlock.EAST, true),
                 cableNoNeighbour(Direction.NORTH, Direction.SOUTH, Direction.UP, Direction.DOWN).term(CableBlock.WEST, true)
             ),
-            Variant.variant().with(VariantProperties.MODEL, coreFacing).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R90)
+            plainVariant(coreFacing).with(VariantMutator.Y_ROT.withValue(Quadrant.R90))
         );
 
         // Find all other possibilities and emit a "solid" core which doesn't have a facing direction.
         var core = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/cable_core_any");
-        List<Condition.TerminalCondition> rightAngles = new ArrayList<>();
+        List<ConditionBuilder> rightAngles = new ArrayList<>();
         for (var i = 0; i < DirectionUtil.FACINGS.length; i++) {
             for (var j = i; j < DirectionUtil.FACINGS.length; j++) {
                 if (DirectionUtil.FACINGS[i].getAxis() == DirectionUtil.FACINGS[j].getAxis()) continue;
 
-                rightAngles.add(new Condition.TerminalCondition()
+                rightAngles.add(condition()
                     .term(CableBlock.CABLE, true).term(CABLE_DIRECTIONS[i], true).term(CABLE_DIRECTIONS[j], true)
                 );
             }
         }
-        generator.with(Condition.or(rightAngles.toArray(new Condition[0])), Variant.variant().with(VariantProperties.MODEL, core));
+        generator.with(or(rightAngles.toArray(new ConditionBuilder[0])), plainVariant(core));
 
         // Then emit the actual cable arms
         var arm = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/cable_arm");
         for (var direction : DirectionUtil.FACINGS) {
             generator.with(
-                new Condition.TerminalCondition().term(CABLE_DIRECTIONS[direction.ordinal()], true),
-                Variant.variant()
-                    .with(VariantProperties.MODEL, arm)
-                    .with(VariantProperties.X_ROT, toXAngle(direction.getOpposite()))
-                    .with(VariantProperties.Y_ROT, toYAngle(direction.getOpposite()))
+                condition().term(CABLE_DIRECTIONS[direction.ordinal()], true),
+                plainVariant(arm)
+                    .with(VariantMutator.X_ROT.withValue(toXAngle(direction.getOpposite())))
+                    .with(VariantMutator.Y_ROT.withValue(toYAngle(direction.getOpposite())))
             );
         }
 
@@ -366,11 +371,10 @@ public class BlockModelProvider {
                 for (var peripheral : BOOLEANS) {
                     var suffix = (on ? "_on" : "_off") + (peripheral ? "_peripheral" : "");
                     generator.with(
-                        new Condition.TerminalCondition().term(CableBlock.MODEM, CableModemVariant.from(direction, on, peripheral)),
-                        Variant.variant()
-                            .with(VariantProperties.MODEL, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/wired_modem" + suffix))
-                            .with(VariantProperties.X_ROT, toXAngle(direction))
-                            .with(VariantProperties.Y_ROT, toYAngle(direction))
+                        condition().term(CableBlock.MODEM, CableModemVariant.from(direction, on, peripheral)),
+                        plainVariant(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/wired_modem" + suffix))
+                            .with(VariantMutator.X_ROT.withValue(toXAngle(direction.getOpposite())))
+                            .with(VariantMutator.Y_ROT.withValue(toYAngle(direction.getOpposite())))
                     );
                 }
             }
@@ -390,8 +394,8 @@ public class BlockModelProvider {
     private static final BooleanProperty[] CABLE_DIRECTIONS = { CableBlock.DOWN, CableBlock.UP, CableBlock.NORTH, CableBlock.SOUTH, CableBlock.WEST, CableBlock.EAST };
     private static final boolean[] BOOLEANS = new boolean[]{ false, true };
 
-    private static Condition.TerminalCondition cableNoNeighbour(Direction... directions) {
-        var condition = new Condition.TerminalCondition().term(CableBlock.CABLE, true);
+    private static ConditionBuilder cableNoNeighbour(Direction... directions) {
+        var condition = condition().term(CableBlock.CABLE, true);
         for (var direction : directions) condition.term(CABLE_DIRECTIONS[direction.ordinal()], false);
         return condition;
     }
@@ -418,66 +422,60 @@ public class BlockModelProvider {
         generators.registerSimpleItemModel(block, ModelLocationUtils.getModelLocation(block));
     }
 
-    private static VariantProperties.Rotation toXAngle(Direction direction) {
+    private static Quadrant toXAngle(Direction direction) {
         return switch (direction) {
-            default -> VariantProperties.Rotation.R0;
-            case UP -> VariantProperties.Rotation.R270;
-            case DOWN -> VariantProperties.Rotation.R90;
+            default -> Quadrant.R0;
+            case UP -> Quadrant.R270;
+            case DOWN -> Quadrant.R90;
         };
     }
 
-    private static VariantProperties.Rotation toYAngle(Direction direction) {
+    private static Quadrant toYAngle(Direction direction) {
         return switch (direction) {
-            default -> VariantProperties.Rotation.R0;
-            case NORTH -> VariantProperties.Rotation.R0;
-            case SOUTH -> VariantProperties.Rotation.R180;
-            case EAST -> VariantProperties.Rotation.R90;
-            case WEST -> VariantProperties.Rotation.R270;
+            default -> Quadrant.R0;
+            case NORTH -> Quadrant.R0;
+            case SOUTH -> Quadrant.R180;
+            case EAST -> Quadrant.R90;
+            case WEST -> Quadrant.R270;
         };
     }
 
-    private static PropertyDispatch createHorizontalFacingDispatch() {
-        var dispatch = PropertyDispatch.property(BlockStateProperties.HORIZONTAL_FACING);
+    private static PropertyDispatch<VariantMutator> createHorizontalFacingDispatch() {
+        /*var dispatch = PropertyDispatch.modify(BlockStateProperties.HORIZONTAL_FACING);
         for (var direction : BlockStateProperties.HORIZONTAL_FACING.getPossibleValues()) {
             dispatch.select(direction, Variant.variant().with(VariantProperties.Y_ROT, toYAngle(direction)));
         }
-        return dispatch;
+        return dispatch;*/
+        return BlockModelGenerators.ROTATION_HORIZONTAL_FACING;
     }
 
-    private static PropertyDispatch createVerticalFacingDispatch(Property<Direction> property) {
-        var dispatch = PropertyDispatch.property(property);
+    private static PropertyDispatch<VariantMutator> createVerticalFacingDispatch(Property<Direction> property) {
+        var dispatch = PropertyDispatch.modify(property);
         for (var direction : property.getPossibleValues()) {
-            dispatch.select(direction, Variant.variant().with(VariantProperties.X_ROT, toXAngle(direction)));
+            dispatch.select(direction, VariantMutator.X_ROT.withValue(toXAngle(direction)));
         }
         return dispatch;
     }
 
-    private static PropertyDispatch createFacingDispatch() {
-        var dispatch = PropertyDispatch.property(BlockStateProperties.FACING);
-        for (var direction : BlockStateProperties.FACING.getPossibleValues()) {
-            dispatch.select(direction, Variant.variant()
-                .with(VariantProperties.Y_ROT, toYAngle(direction))
-                .with(VariantProperties.X_ROT, toXAngle(direction))
-            );
-        }
-        return dispatch;
+    private static PropertyDispatch<VariantMutator> createFacingDispatch() {
+        return BlockModelGenerators.ROTATION_FACING;
     }
 
-    private static <T extends Comparable<T>> PropertyDispatch createModelDispatch(Property<T> property, Function<T, ResourceLocation> makeModel) {
-        var variant = PropertyDispatch.property(property);
+    private static <T extends Comparable<T>> PropertyDispatch<MultiVariant> createModelDispatch(Property<T> property, Function<T, ResourceLocation> makeModel) {
+        var variant = PropertyDispatch.initial(property);
         for (var value : property.getPossibleValues()) {
-            variant.select(value, Variant.variant().with(VariantProperties.MODEL, makeModel.apply(value)));
+            variant.select(value, plainVariant(makeModel.apply(value)));
         }
         return variant;
     }
 
-    private static <T extends Comparable<T>, U extends Comparable<U>> PropertyDispatch createModelDispatch(
+    private static <T extends Comparable<T>, U extends Comparable<U>> PropertyDispatch<MultiVariant> createModelDispatch(
         Property<T> propertyT, Property<U> propertyU, BiFunction<T, U, ResourceLocation> makeModel
     ) {
-        var variant = PropertyDispatch.properties(propertyT, propertyU);
+        var variant = PropertyDispatch.initial(propertyT, propertyU);
         for (var valueT : propertyT.getPossibleValues()) {
             for (var valueU : propertyU.getPossibleValues()) {
-                variant.select(valueT, valueU, Variant.variant().with(VariantProperties.MODEL, makeModel.apply(valueT, valueU)));
+                variant.select(valueT, valueU, plainVariant(makeModel.apply(valueT, valueU)));
             }
         }
         return variant;

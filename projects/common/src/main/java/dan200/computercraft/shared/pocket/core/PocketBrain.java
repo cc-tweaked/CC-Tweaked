@@ -12,12 +12,12 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
+import dan200.computercraft.shared.util.DataComponentUtil;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
@@ -93,7 +93,11 @@ public final class PocketBrain implements IPocketAccess {
         if (!dirty) return false;
         this.dirty = false;
 
-        stack.set(DataComponents.DYED_COLOR, colour == -1 ? null : new DyedItemColor(colour, false));
+        if (colour == -1) {
+            stack.remove(DataComponents.DYED_COLOR);
+        } else {
+            DataComponentUtil.setDyeColour(stack, colour);
+        }
         PocketComputerItem.setUpgrade(stack, upgrade);
         return true;
     }

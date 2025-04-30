@@ -6,7 +6,6 @@ package dan200.computercraft.shared.common;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -58,12 +57,6 @@ public abstract class HorizontalContainerBlock extends BaseEntityBlock {
         }
 
         return InteractionResult.CONSUME;
-    }
-
-    @Override
-    protected final void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        Containers.dropContentsOnDestroy(state, newState, level, pos);
-        super.onRemove(state, level, pos, newState, isMoving);
     }
 
     @Override

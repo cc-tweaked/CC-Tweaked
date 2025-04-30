@@ -5,7 +5,6 @@
 package dan200.computercraft.client.integration;
 
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
-import com.mojang.blaze3d.vertex.VertexBuffer;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 
 import java.util.Optional;
@@ -29,7 +28,7 @@ public class ShaderMod {
     }
 
     /**
-     * Get an appropriate quad emitter for use with {@link VertexBuffer} and {@link DirectFixedWidthFontRenderer} .
+     * Get an appropriate quad emitter for use with a vertex buffer and {@link DirectFixedWidthFontRenderer} .
      *
      * @param vertexCount The number of vertices.
      * @param buffer      A function to allocate a temporary buffer.

@@ -14,8 +14,7 @@
         "GameTestServerMixin",
         "NbtUtilsMixin",
         "StructureTemplateAccessor",
-        "StructureTemplateManagerMixin",
-        "TestCommandAccessor"
+        "StructureTemplateManagerMixin"
     ],
     "client": [
         "client.MinecraftMixin",

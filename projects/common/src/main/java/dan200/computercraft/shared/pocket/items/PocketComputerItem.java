@@ -31,6 +31,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -102,16 +104,13 @@ public class PocketComputerItem extends Item {
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, Level world, Entity entity, int compartmentSlot, boolean selected) {
-        // This (in vanilla at least) is only called for players. Don't bother to handle other entities.
-        if (world.isClientSide || !(entity instanceof ServerPlayer player)) return;
-
-        // Find the actual slot the item exists in, aborting if it can't be found.
-        var slot = InventoryUtil.getInventorySlotFromCompartment(player, compartmentSlot, stack);
-        if (slot < 0) return;
-
-        // If we're in the inventory, create a computer and keep it alive.
-        tick(stack, new PocketHolder.PlayerHolder(player, slot), false);
+    public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, @Nullable EquipmentSlot slot) {
+        if (entity instanceof ServerPlayer player) {
+            var invSlot = InventoryUtil.findItemInInventory(player.getInventory(), stack);
+            if (invSlot != -1) tick(stack, new PocketHolder.PlayerHolder(player, invSlot), false);
+        } else if (slot != null && entity instanceof LivingEntity living) {
+            tick(stack, new PocketHolder.LivingEntityHolder(living, slot), true);
+        }
     }
 
     @ForgeOverride
@@ -200,7 +199,7 @@ public class PocketComputerItem extends Item {
             }
         }
 
-        var computerID = NonNegativeId.getOrCreate(level.getServer(), stack, ModRegistry.DataComponents.COMPUTER_ID.get(), IDAssigner.COMPUTER);
+        var computerID = NonNegativeId.getOrCreate(level.getServer(), stack, ModRegistry.DataComponents.COMPUTER_ID.get(), NonNegativeId.Computer::new, IDAssigner.COMPUTER);
         var brain = new PocketBrain(
             holder, getUpgradeWithData(stack), DyedItemColor.getOrDefault(stack, -1),
             ServerComputer.properties(computerID, getFamily())

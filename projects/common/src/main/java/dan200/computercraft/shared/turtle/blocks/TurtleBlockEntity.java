@@ -28,6 +28,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -40,6 +41,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -120,6 +122,11 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     }
 
     @Override
+    public void preRemoveSideEffects(BlockPos blockPos, BlockState blockState) {
+        if (!hasMoved()) super.preRemoveSideEffects(blockPos, blockState);
+    }
+
+    @Override
     public void neighborChanged() {
         if (moveState == MoveState.NOT_MOVED) super.neighborChanged();
     }
@@ -157,7 +164,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput component) {
+    protected void applyImplicitComponents(DataComponentGetter component) {
         super.applyImplicitComponents(component);
 
         var colour = component.get(DataComponents.DYED_COLOR);
@@ -173,7 +180,10 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     protected void collectSafeComponents(DataComponentMap.Builder builder) {
         super.collectSafeComponents(builder);
 
-        builder.set(DataComponents.DYED_COLOR, brain.getColour() == -1 ? null : new DyedItemColor(brain.getColour(), false));
+        if (brain.getColour() != -1) {
+            builder.set(DataComponents.DYED_COLOR, new DyedItemColor(brain.getColour()));
+            builder.set(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT.withHidden(DataComponents.DYED_COLOR, true));
+        }
         builder.set(ModRegistry.DataComponents.OVERLAY.get(), brain.getOverlay());
         builder.set(ModRegistry.DataComponents.FUEL.get(), brain.getFuelLevel());
         builder.set(ModRegistry.DataComponents.LEFT_TURTLE_UPGRADE.get(), withPersistedData(brain.getUpgradeWithData(TurtleSide.LEFT)));
@@ -300,7 +310,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     @Override
     public void loadClient(CompoundTag nbt, HolderLookup.Provider registries) {
         super.loadClient(nbt, registries);
-        label = nbt.contains(NBT_LABEL) ? nbt.getString(NBT_LABEL) : null;
+        label = nbt.getStringOr(NBT_LABEL, null);
         brain.readDescription(nbt, registries);
     }
 

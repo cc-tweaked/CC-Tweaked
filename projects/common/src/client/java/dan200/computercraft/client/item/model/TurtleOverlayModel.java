@@ -7,7 +7,7 @@ package dan200.computercraft.client.item.model;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.client.platform.ClientPlatformHelper;
+import dan200.computercraft.client.ClientRegistry;
 import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import net.minecraft.client.Minecraft;
@@ -39,8 +39,9 @@ public record TurtleOverlayModel(ItemTransforms transforms) implements ItemModel
         var overlay = TurtleItem.getOverlay(stack);
         if (overlay == null) return;
 
-        var model = ClientPlatformHelper.get().getModel(Minecraft.getInstance().getModelManager(), overlay.model());
-        BakedModelWithTransform.addLayer(state, model, transforms());
+        var layer = state.newLayer();
+        ClientRegistry.getModel(Minecraft.getInstance().getModelManager(), overlay.model()).setupItemLayer(layer);
+        layer.setTransform(transforms().getTransform(context));
     }
 
     public record Unbaked(ResourceLocation base) implements ItemModel.Unbaked {
@@ -51,7 +52,7 @@ public record TurtleOverlayModel(ItemTransforms transforms) implements ItemModel
 
         @Override
         public ItemModel bake(BakingContext bakingContext) {
-            return new TurtleOverlayModel(bakingContext.bake(base).getTransforms());
+            return new TurtleOverlayModel(bakingContext.blockModelBaker().getModel(base).getTopTransforms());
         }
 
         @Override

@@ -17,7 +17,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -120,21 +119,6 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
     protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticker, BlockPos pos, Direction side, BlockPos otherPos, BlockState neighborState, RandomSource randomSource) {
         WaterloggableHelpers.updateShape(state, level, ticker, pos);
         return super.updateShape(state, level, ticker, pos, side, otherPos, neighborState, randomSource);
-    }
-
-    @Override
-    protected final void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (state.is(newState.getBlock())) return;
-
-        // Most blocks drop items and then remove the BE. However, if a turtle is consuming drops right now, that can
-        // lead to loops where it tries to insert an item back into the inventory. To prevent this, take a reference to
-        // the turtle BE now, remove it, and then drop the items.
-        var turtle = !level.isClientSide && level.getBlockEntity(pos) instanceof TurtleBlockEntity t && !t.hasMoved()
-            ? t : null;
-
-        super.onRemove(state, level, pos, newState, isMoving);
-
-        if (turtle != null) Containers.dropContents(level, pos, turtle);
     }
 
     @Override

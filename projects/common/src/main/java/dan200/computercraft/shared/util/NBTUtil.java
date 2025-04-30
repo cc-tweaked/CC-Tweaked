@@ -31,32 +31,26 @@ public final class NBTUtil {
     }
 
     public static <T> @Nullable T decodeFrom(Codec<T> codec, HolderLookup.Provider registries, CompoundTag tag, String key) {
-        var childTag = tag.get(key);
-        return childTag == null ? null : codec.parse(registries.createSerializationContext(NbtOps.INSTANCE), childTag)
-            .resultOrPartial(e -> LOG.warn("Failed to parse NBT: {}", e))
-            .orElse(null);
+        return tag.read(key, codec, registries.createSerializationContext(NbtOps.INSTANCE)).orElse(null);
     }
 
     public static <T> void encodeTo(Codec<T> codec, HolderLookup.Provider registries, CompoundTag destination, String key, @Nullable T value) {
-        if (value == null) return;
-        codec.encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), value)
-            .resultOrPartial(e -> LOG.warn("Failed to save NBT: {}", e))
-            .ifPresent(x -> destination.put(key, x));
+        destination.storeNullable(key, codec, registries.createSerializationContext(NbtOps.INSTANCE), value);
     }
 
     public static @Nullable Object toLua(@Nullable Tag tag) {
         if (tag == null) return null;
 
         return switch (tag.getId()) {
-            case Tag.TAG_BYTE, Tag.TAG_SHORT, Tag.TAG_INT, Tag.TAG_LONG -> ((NumericTag) tag).getAsLong();
-            case Tag.TAG_FLOAT, Tag.TAG_DOUBLE -> ((NumericTag) tag).getAsDouble();
-            case Tag.TAG_STRING -> tag.getAsString();
+            case Tag.TAG_BYTE, Tag.TAG_SHORT, Tag.TAG_INT, Tag.TAG_LONG -> ((NumericTag) tag).longValue();
+            case Tag.TAG_FLOAT, Tag.TAG_DOUBLE -> ((NumericTag) tag).doubleValue();
+            case Tag.TAG_STRING -> ((StringTag) tag).value();
             case Tag.TAG_COMPOUND -> {
                 var compound = (CompoundTag) tag;
                 Map<String, Object> map = new HashMap<>(compound.size());
-                for (var key : compound.getAllKeys()) {
-                    var value = toLua(compound.get(key));
-                    if (value != null) map.put(key, value);
+                for (var entry : compound.entrySet()) {
+                    var value = toLua(entry.getValue());
+                    if (value != null) map.put(entry.getKey(), value);
                 }
                 yield map;
             }
@@ -110,7 +104,7 @@ public final class NBTUtil {
 
     private static void writeTag(DataOutput output, Tag tag) throws IOException {
         if (tag instanceof CompoundTag compound) {
-            var keys = compound.getAllKeys().toArray(new String[0]);
+            var keys = compound.keySet().toArray(new String[0]);
             Arrays.sort(keys);
             for (var key : keys) writeNamedTag(output, key, Nullability.assertNonNull(compound.get(key)));
 

@@ -17,7 +17,11 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.NonNullList
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.gametest.framework.*
+import net.minecraft.gametest.framework.GameTestAssertException
+import net.minecraft.gametest.framework.GameTestHelper
+import net.minecraft.gametest.framework.GameTestInfo
+import net.minecraft.gametest.framework.GameTestSequence
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.Container
 import net.minecraft.world.InteractionHand
@@ -39,6 +43,7 @@ import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
 import org.hamcrest.Matchers
 import org.hamcrest.StringDescription
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * Globally usable structures.
@@ -52,9 +57,9 @@ object Structures {
 
 /** Pre-set in-game times */
 object Times {
-    const val NOON: Long = 6000
+    const val NOON: Int = 6000
 
-    const val MIDNIGHT: Long = 18000
+    const val MIDNIGHT: Int = 18000
 }
 
 /**
@@ -79,17 +84,25 @@ fun GameTestSequence.thenExecuteFailFast(task: Runnable): GameTestSequence =
         if (failure != null) throw failure
     }
 
+fun GameTestInfo.getComputerLabel(name: String? = null): String = id().path + (if (name == null) "" else ".$name")
+
+fun GameTestSequence.getComputerLabel(name: String? = null): String =
+    (this as GameTestSequenceAccessor).parent.getComputerLabel(name)
+
 /**
  * Wait until a computer has finished running and check it is OK.
  */
 fun GameTestSequence.thenComputerOk(name: String? = null, marker: String = ComputerState.DONE): GameTestSequence {
-    val label = (this as GameTestSequenceAccessor).parent.testName + (if (name == null) "" else ".$name")
+    val label = getComputerLabel(name)
 
     thenWaitUntil {
         val computer = ComputerState.get(label)
-        if (computer == null || !computer.isDone(marker)) throw GameTestAssertException("Computer '$label' has not reached $marker yet.")
+        if (computer == null || !computer.isDone(marker)) fail("Computer '$label' has not reached $marker yet.")
     }
-    thenExecuteFailFast { ComputerState.get(label)!!.check(marker) }
+    thenExecuteFailFast {
+        val error = ComputerState.get(label)!!.check(marker)
+        if (error != null) fail(error)
+    }
     return this
 }
 
@@ -98,7 +111,7 @@ fun GameTestSequence.thenComputerOk(name: String? = null, marker: String = Compu
  */
 fun GameTestSequence.thenStartComputer(name: String? = null, action: suspend LuaTaskContext.() -> Unit): GameTestSequence {
     val test = (this as GameTestSequenceAccessor).parent
-    val label = test.testName + (if (name == null) "" else ".$name")
+    val label = getComputerLabel(name)
     return thenExecuteFailFast { ManagedComputers.enqueue(test, label, action) }
 }
 
@@ -109,13 +122,13 @@ fun GameTestSequence.thenOnComputer(name: String? = null, action: suspend LuaTas
     val self = (this as GameTestSequenceAccessor)
     val test = self.parent
 
-    val label = test.testName + (if (name == null) "" else ".$name")
+    val label = getComputerLabel(name)
     var monitor: ManagedComputers.Monitor? = null
     thenExecuteFailFast { monitor = ManagedComputers.enqueue(test, label, action) }
     thenWaitUntil {
         if (!monitor!!.isFinished) {
             val runningFor = (test as GameTestInfoAccessor).`computercraft$getTick`() - self.lastTick
-            throw GameTestAssertException("Computer '$label' has not finished yet (running for $runningFor ticks).")
+            fail("Computer '$label' has not finished yet (running for $runningFor ticks).")
         }
     }
     thenExecuteFailFast { monitor!!.check() }
@@ -139,24 +152,28 @@ fun GameTestHelper.immediate(run: () -> Unit) {
     succeed()
 }
 
-/**
- * A custom instance of [GameTestAssertPosException] which allows for longer error messages.
- */
-private class VerboseGameTestAssertPosException(message: String, absolutePos: BlockPos, relativePos: BlockPos, tick: Long) :
-    GameTestAssertPosException(message, absolutePos, relativePos, tick) {
-    override fun getMessageToShowAtBlock(): String = message!!.lineSequence().first()
-}
+// Helper functions for failing tests
 
-/**
- * Fail this test. Unlike [GameTestHelper.fail], this trims the in-game error message to the first line.
- */
-private fun GameTestHelper.failVerbose(message: String, pos: BlockPos): Nothing {
-    throw VerboseGameTestAssertPosException(message, absolutePos(pos), pos, tick)
-}
+/** Raise a [GameTestAssertException]. */
+fun GameTestHelper.fail(message: String): Nothing = throw assertionException(Component.literal(message))
+
+/** Raise a [GameTestAssertException] at a position. */
+fun GameTestHelper.fail(message: String, pos: BlockPos): Nothing =
+    throw assertionException(pos, Component.literal(message))
+
+/** Assert a condition is true, or raise a [GameTestAssertException] if not. */
+fun GameTestHelper.assertTrue(condition: Boolean, message: String) = assertTrue(condition, Component.literal(message))
+
+/** Raise a [GameTestAssertException]. */
+fun GameTestSequence.fail(message: String): Nothing =
+    throw GameTestAssertException(
+        Component.literal(message),
+        ((this as GameTestSequenceAccessor).parent as GameTestInfoAccessor).`computercraft$getTick`(),
+    )
 
 /** Fail with an optional context message. */
 private fun GameTestHelper.fail(message: String?, detail: String, pos: BlockPos): Nothing {
-    failVerbose(if (message.isNullOrEmpty()) detail else "$message: $detail", pos)
+    fail(if (message.isNullOrEmpty()) detail else "$message: $detail", pos)
 }
 
 /**
@@ -189,10 +206,21 @@ fun <T : Comparable<T>> GameTestHelper.assertBlockHas(pos: BlockPos, property: P
  * Get a [Container] at a given position.
  */
 fun GameTestHelper.getContainerAt(pos: BlockPos): Container =
-    when (val container: BlockEntity = getBlockEntity(pos)) {
+    when (val container: BlockEntity? = level.getBlockEntity(absolutePos(pos))) {
         is Container -> container
-        else -> failVerbose("Expected a container at $pos, found ${getName(container.type)}", pos)
+        null -> fail("Expected a container at $pos, found nothing", pos)
+        else -> fail("Expected a container at $pos, found ${getName(container.type)}", pos)
     }
+
+/**
+ * Assert a container is empty. Identical to [GameTestHelper.assertContainerEmpty], but works on any container BE, not
+ * just [BaseContainerBlockEntity].
+ *
+ * @param pos The position of the container.
+ */
+fun GameTestHelper.assertContainerLikeEmpty(pos: BlockPos) {
+    if (!getContainerAt(pos).isEmpty) throw assertionException(pos, "test.error.expected_empty_container")
+}
 
 /**
  * Assert a container contains exactly these items and no more.
@@ -226,7 +254,7 @@ private fun GameTestHelper.assertContainerExactlyImpl(pos: BlockPos, container: 
 
     if (slot >= 0) {
         val invItems = (0 until container.containerSize).map { container.getItem(it) }.dropLastWhile { it.isEmpty }
-        failVerbose(
+        fail(
             """
             Items do not match (first mismatch at slot $slot).
             Expected:  ${formatItems(items)}
@@ -277,7 +305,7 @@ fun GameTestHelper.assertExactlyItems(vararg expected: ItemStack, message: Strin
 fun GameTestHelper.assertItemEntityCountIs(expected: Item, count: Int) {
     val actualCount = getEntities(EntityType.ITEM).sumOf { if (it.item.`is`(expected)) it.item.count else 0 }
     if (actualCount != count) {
-        throw GameTestAssertException("Expected $count ${ItemStack(expected).itemName.string} items to exist (found $actualCount)")
+        fail("Expected $count ${ItemStack(expected).itemName.string} items to exist (found $actualCount)")
     }
 }
 
@@ -285,26 +313,14 @@ private fun getName(type: BlockEntityType<*>): ResourceLocation =
     RegistryHelper.getKeyOrThrow(BuiltInRegistries.BLOCK_ENTITY_TYPE, type)
 
 /**
- * Get a [BlockEntity] of a specific type.
- */
-fun <T : BlockEntity> GameTestHelper.getBlockEntity(pos: BlockPos, type: BlockEntityType<T>): T {
-    val tile: BlockEntity = getBlockEntity(pos)
-    @Suppress("UNCHECKED_CAST")
-    return when {
-        tile.type != type -> failVerbose("Expected ${getName(type)} but got ${getName(tile.type)}", pos)
-        else -> tile as T
-    }
-}
-
-/**
  * Get an [Entity] inside the game structure, requiring there to be a single one.
  */
 fun <T : Entity> GameTestHelper.getEntity(type: EntityType<T>): T {
     val entities = getEntities(type)
     when (entities.size) {
-        0 -> throw GameTestAssertException("No $type entities")
+        0 -> fail("No $type entities")
         1 -> return entities[0]
-        else -> throw GameTestAssertException("Multiple $type entities (${entities.size} in bounding box)")
+        else -> fail("Multiple $type entities (${entities.size} in bounding box)")
     }
 }
 
@@ -364,10 +380,8 @@ fun GameTestHelper.craftItem(vararg items: ItemStack): ItemStack {
     for ((i, item) in items.withIndex()) container[i] = item
     val input = CraftingInput.of(3, 3, container)
 
-    val recipe = level.server.recipeManager
-        .getRecipeFor(RecipeType.CRAFTING, input, level)
-        .orElseThrow { GameTestAssertException("No recipe matches $items") }
-
+    val recipe = level.server.recipeManager.getRecipeFor(RecipeType.CRAFTING, input, level).getOrNull()
+        ?: fail("No recipe matches $items")
     return recipe.value.assemble(input, level.registryAccess())
 }
 

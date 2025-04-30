@@ -6,7 +6,6 @@ package dan200.computercraft.gametest.core;
 
 import com.mojang.brigadier.CommandDispatcher;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.mixin.gametest.TestCommandAccessor;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.util.NonNegativeId;
 import net.minecraft.ChatFormatting;
@@ -15,14 +14,14 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.gametest.framework.GameTestRegistry;
 import net.minecraft.gametest.framework.StructureUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.level.block.entity.StructureBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.TestInstanceBlockEntity;
 import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.IOException;
@@ -41,38 +40,18 @@ class CCTestCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext buildContext) {
         dispatcher.register(choice("cctest")
-            .then(literal("import").executes(context -> {
-                importFiles(context.getSource().getServer());
-                return 0;
-            }))
-            .then(literal("export").executes(context -> {
-                exportFiles(context.getSource().getServer());
-
-                for (var function : GameTestRegistry.getAllTestFunctions()) {
-                    TestCommandAccessor.callExportTestStructure(context.getSource(), function.structureName());
-                }
-                return 0;
-            }))
-            .then(literal("regen-structures").executes(context -> {
-                for (var function : GameTestRegistry.getAllTestFunctions()) {
-                    dispatcher.execute("test import " + function.structureName(), context.getSource());
-                    TestCommandAccessor.callExportTestStructure(context.getSource(), function.structureName());
-                }
-                return 0;
-            }))
-
             .then(literal("marker").executes(context -> {
                 var player = context.getSource().getPlayerOrException();
-                var pos = StructureUtils.findNearestStructureBlock(player.blockPosition(), 15, player.serverLevel()).orElse(null);
+                var pos = StructureUtils.findNearestTest(player.blockPosition(), 15, player.serverLevel()).orElse(null);
                 if (pos == null) return error(context.getSource(), "No nearby test");
 
-                var structureBlock = (StructureBlockEntity) player.level().getBlockEntity(pos);
-                if (structureBlock == null) return error(context.getSource(), "No nearby structure block");
-                var info = GameTestRegistry.getTestFunction(structureBlock.getMetaData());
+                var test = player.level().getBlockEntity(pos, BlockEntityType.TEST_INSTANCE_BLOCK)
+                    .flatMap(TestInstanceBlockEntity::test).orElse(null);
+                if (test == null) return error(context.getSource(), "No nearby structure block");
 
                 // Kill the existing armor stand
                 var level = player.serverLevel();
-                level.getEntities(EntityType.ARMOR_STAND, x -> x.isAlive() && x.getName().getString().equals(info.testName()))
+                level.getEntities(EntityType.ARMOR_STAND, x -> x.isAlive() && x.getName().getString().equals(test.location().getPath()))
                     .forEach(e -> e.kill(level));
 
                 // And create a new one
@@ -82,7 +61,7 @@ class CCTestCommand {
                 var armorStand = new ArmorStand(EntityType.ARMOR_STAND, level);
                 armorStand.readAdditionalSaveData(nbt);
                 armorStand.copyPosition(player);
-                armorStand.setCustomName(Component.literal(info.testName()));
+                armorStand.setCustomName(Component.literal(test.location().getPath()));
                 level.addFreshEntity(armorStand);
                 return 0;
             }))
@@ -91,16 +70,16 @@ class CCTestCommand {
                 var item = context.getArgument("item", ItemInput.class);
 
                 var player = context.getSource().getPlayerOrException();
-                var pos = StructureUtils.findNearestStructureBlock(player.blockPosition(), 15, player.serverLevel()).orElse(null);
+                var pos = StructureUtils.findNearestTest(player.blockPosition(), 15, player.serverLevel()).orElse(null);
                 if (pos == null) return error(context.getSource(), "No nearby test");
 
-                var structureBlock = (StructureBlockEntity) player.level().getBlockEntity(pos);
-                if (structureBlock == null) return error(context.getSource(), "No nearby structure block");
-                var info = GameTestRegistry.getTestFunction(structureBlock.getMetaData());
+                var test = player.level().getBlockEntity(pos, BlockEntityType.TEST_INSTANCE_BLOCK)
+                    .flatMap(TestInstanceBlockEntity::test).orElse(null);
+                if (test == null) return error(context.getSource(), "No nearby structure block");
 
                 var stack = item.createItemStack(1, false);
-                stack.set(ModRegistry.DataComponents.COMPUTER_ID.get(), new NonNegativeId(1));
-                stack.set(DataComponents.CUSTOM_NAME, Component.literal(info.testName()));
+                stack.set(ModRegistry.DataComponents.COMPUTER_ID.get(), new NonNegativeId.Computer(1));
+                stack.set(DataComponents.CUSTOM_NAME, Component.literal(test.location().getPath()));
                 if (!player.getInventory().add(stack)) {
                     var itemEntity = player.drop(stack, false);
                     if (itemEntity != null) {

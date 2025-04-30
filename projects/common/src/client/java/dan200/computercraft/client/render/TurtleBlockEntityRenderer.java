@@ -7,10 +7,9 @@ package dan200.computercraft.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.client.platform.ClientPlatformHelper;
-import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
+import dan200.computercraft.client.ClientRegistry;
+import dan200.computercraft.client.turtle.TurtleUpgradeModels;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
@@ -21,14 +20,12 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.CommonColors;
-import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBlockEntity> {
@@ -45,7 +42,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
     }
 
     @Override
-    public void render(TurtleBlockEntity turtle, float partialTicks, PoseStack transform, MultiBufferSource buffers, int lightmapCoord, int overlayLight) {
+    public void render(TurtleBlockEntity turtle, float partialTicks, PoseStack transform, MultiBufferSource buffers, int lightmapCoord, int overlayLight, Vec3 camera) {
         transform.pushPose();
 
         // Translate the turtle first, so the label moves with it.
@@ -114,18 +111,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         transform.mulPose(Axis.XN.rotationDegrees(toolAngle));
         transform.translate(0.0f, -0.5f, -0.5f);
 
-        switch (TurtleUpgradeModellers.getModel(upgrade, turtle.getAccess(), side)) {
-            case TransformedModel.Item model -> {
-                transform.mulPose(model.transformation().getMatrix());
-                transform.mulPose(Axis.YP.rotation(Mth.PI));
-                Minecraft.getInstance().getItemRenderer().renderStatic(
-                    model.stack(), ItemDisplayContext.FIXED, lightmapCoord, overlayLight, transform, buffers, turtle.getLevel(), 0
-                );
-            }
-
-            case TransformedModel.Baked model ->
-                renderModel(transform, buffers, lightmapCoord, overlayLight, model.model(), null);
-        }
+        TurtleUpgradeModels.getModeller(upgrade).renderForLevel(upgrade, turtle.getAccess(), side, turtle.getAccess().getUpgradeData(side), transform, buffers, lightmapCoord, overlayLight);
 
 
         transform.popPose();
@@ -133,21 +119,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
 
     private void renderModel(PoseStack transform, MultiBufferSource buffers, int lightmapCoord, int overlayLight, ResourceLocation modelLocation, int @Nullable [] tints) {
         var modelManager = Minecraft.getInstance().getModelManager();
-        renderModel(transform, buffers, lightmapCoord, overlayLight, ClientPlatformHelper.get().getModel(modelManager, modelLocation), tints);
+        ClientRegistry.getModel(modelManager, modelLocation).render(transform, buffers, lightmapCoord, overlayLight, tints);
     }
 
-    /**
-     * Render a block model.
-     *
-     * @param transform     The current matrix stack.
-     * @param renderer      The buffer to write to.
-     * @param lightmapCoord The current lightmap coordinate.
-     * @param overlayLight  The overlay light.
-     * @param model         The model to render.
-     * @param tints         Tints for the quads, as an array of RGB values.
-     * @see net.minecraft.client.renderer.block.ModelBlockRenderer#renderModel
-     */
-    private void renderModel(PoseStack transform, MultiBufferSource renderer, int lightmapCoord, int overlayLight, BakedModel model, int @Nullable [] tints) {
-        ClientPlatformHelper.get().renderBakedModel(transform, renderer, model, lightmapCoord, overlayLight, tints);
-    }
 }

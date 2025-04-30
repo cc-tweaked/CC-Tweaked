@@ -10,6 +10,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
@@ -38,12 +39,24 @@ public class DataComponentUtil {
         return stack;
     }
 
-    public static <T> ItemStack createResult(ItemStack stack, DataComponentType<T> type, @Nullable T value) {
-        return set(stack.copyWithCount(1), type, value);
-    }
-
     public static <T> ItemStack createStack(ItemLike item, DataComponentType<T> type, @Nullable T value) {
         return set(new ItemStack(item), type, value);
+    }
+
+    /**
+     * Create a stack dyed with a particular colour, but with the colour hidden from the tooltip.
+     *
+     * @param item   The item to create the stack from.
+     * @param colour The stack's colour.
+     * @return The newly created stack.
+     */
+    public static ItemStack createDyedStack(ItemLike item, int colour) {
+        return setDyeColour(new ItemStack(item), colour);
+    }
+
+    public static ItemStack setDyeColour(ItemStack stack, int colour) {
+        stack.set(DataComponents.DYED_COLOR, new DyedItemColor(colour));
+        return stack;
     }
 
     /**

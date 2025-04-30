@@ -15,7 +15,6 @@ import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
 import dan200.computercraft.shared.util.DataComponentUtil;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -24,7 +23,6 @@ import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
@@ -70,15 +68,10 @@ public class DiskRecipe extends AbstractCraftingRecipe {
         var dyes = ColourUtils.DYES;
         List<RecipeDisplay> out = new ArrayList<>(dyes.size());
         for (var i = 0; i < dyes.size(); i++) {
-            var tracker = new ColourTracker();
-            tracker.addColour(DyeColor.byId(i));
-
             out.add(new ShapelessCraftingRecipeDisplay(
                 Stream.concat(ingredients.stream(), Stream.of(Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(dyes.get(i)))))
                     .map(Ingredient::display).toList(),
-                new SlotDisplay.ItemStackSlotDisplay(DataComponentUtil.createStack(
-                    ModRegistry.Items.DISK.get(), DataComponents.DYED_COLOR, new DyedItemColor(tracker.getColour(), false)
-                )),
+                new SlotDisplay.ItemStackSlotDisplay(DataComponentUtil.createDyedStack(ModRegistry.Items.DISK.get(), DyeColor.byId(i).getTextureDiffuseColor())),
                 new SlotDisplay.ItemSlotDisplay(Items.CRAFTING_TABLE)
             ));
         }
@@ -114,7 +107,7 @@ public class DiskRecipe extends AbstractCraftingRecipe {
             if (dye != null) tracker.addColour(dye);
         }
 
-        return DataComponentUtil.createStack(ModRegistry.Items.DISK.get(), DataComponents.DYED_COLOR, new DyedItemColor(tracker.hasColour() ? tracker.getColour() : Colour.BLUE.getHex(), false));
+        return DataComponentUtil.createDyedStack(ModRegistry.Items.DISK.get(), tracker.getColourOr(Colour.BLUE.getHex()));
     }
 
     @Override

@@ -175,7 +175,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
             var hitEntity = entityHit.getEntity();
 
             // Start claiming entity drops
-            DropConsumer.set(hitEntity, TurtleUtil.dropConsumer(turtle));
+            DropConsumer.set(hitEntity);
 
             // Attack the entity
             var result = PlatformHelper.get().canAttackEntity(player, hitEntity);
@@ -285,7 +285,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
             if (!breakable.isSuccess()) return breakable;
 
             // And break it!
-            DropConsumer.set(level, blockPosition, TurtleUtil.dropConsumer(turtle));
+            DropConsumer.set(level, blockPosition);
             var broken = !turtlePlayer.isBlockProtected(level, blockPosition) && turtlePlayer.player().gameMode.destroyBlock(blockPosition);
             TurtleUtil.stopConsuming(turtle);
 

@@ -8,16 +8,17 @@ import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.core.apis.PeripheralAPI
 import dan200.computercraft.core.computer.ComputerSide
 import dan200.computercraft.gametest.api.*
+import dan200.computercraft.gametest.api.GameTest
 import dan200.computercraft.impl.network.wired.WiredNodeImpl
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant
+import dan200.computercraft.shared.peripheral.modem.wired.WiredModemFullBlockEntity
 import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.LuaTaskContext
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -84,8 +85,8 @@ class Modem_Test {
     @GameTest(setupTicks = 1)
     fun Full_modems_form_networks(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            val modem1 = helper.getBlockEntity(BlockPos(1, 1, 1), ModRegistry.BlockEntities.WIRED_MODEM_FULL.get())
-            val modem2 = helper.getBlockEntity(BlockPos(3, 1, 1), ModRegistry.BlockEntities.WIRED_MODEM_FULL.get())
+            val modem1 = helper.getBlockEntity(BlockPos(1, 1, 1), WiredModemFullBlockEntity::class.java)
+            val modem2 = helper.getBlockEntity(BlockPos(3, 1, 1), WiredModemFullBlockEntity::class.java)
             assertEquals((modem1.element.node as WiredNodeImpl).network, (modem2.element.node as WiredNodeImpl).network, "On the same network")
         }
     }

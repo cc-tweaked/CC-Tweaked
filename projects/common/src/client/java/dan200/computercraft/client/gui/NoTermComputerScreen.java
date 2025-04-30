@@ -72,8 +72,8 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         var direction = scrollHandler.onMouseScroll(scrollX, scrollY);
         var inventory = Objects.requireNonNull(minecraft().player).getInventory();
-        inventory.setSelectedHotbarSlot(ScrollWheelHandler.getNextScrollWheelSelection(
-            direction.y == 0 ? -direction.x : direction.y, inventory.selected, Inventory.getSelectionSize()
+        inventory.setSelectedSlot(ScrollWheelHandler.getNextScrollWheelSelection(
+            direction.y == 0 ? -direction.x : direction.y, inventory.getSelectedSlot(), Inventory.getSelectionSize()
         ));
 
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);

@@ -137,7 +137,11 @@ object ClientTestHooks {
                 LOG.info("Server ready, starting.")
 
                 val tests = GameTestRunner.Builder.fromBatches(
-                    GameTestBatchFactory.fromTestFunction(GameTestRegistry.getAllTestFunctions(), server.overworld()),
+                    GameTestBatchFactory.divideIntoBatches(
+                        server.registryAccess().lookupOrThrow(Registries.TEST_INSTANCE).listElements().toList(),
+                        GameTestBatchFactory.DIRECT,
+                        server.overworld(),
+                    ),
                     server.overworld(),
                 )
                     .newStructureSpawner(StructureGridSpawner(TestHooks.getTestOrigin(server), 8, false))
@@ -178,13 +182,13 @@ object ClientTestHooks {
             LOG.info("========= {} GAME TESTS COMPLETE ======================", testTracker.totalCount)
             if (testTracker.hasFailedRequired()) {
                 LOG.info("{} required tests failed :(", testTracker.failedRequiredCount)
-                for (test in testTracker.failedRequired) LOG.info("   - {}", test.testName)
+                for (test in testTracker.failedRequired) LOG.info("   - {}", test.id())
             } else {
                 LOG.info("All {} required tests passed :)", testTracker.totalCount)
             }
             if (testTracker.hasFailedOptional()) {
                 LOG.info("{} optional tests failed", testTracker.failedOptionalCount)
-                for (test in testTracker.failedOptional) LOG.info("   - {}", test.testName)
+                for (test in testTracker.failedOptional) LOG.info("   - {}", test.id())
             }
             LOG.info("====================================================")
 

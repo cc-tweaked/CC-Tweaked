@@ -8,9 +8,7 @@ import com.mojang.blaze3d.ProjectionType;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,19 +21,19 @@ public class ImageRenderer implements AutoCloseable {
     public static final int WIDTH = 64;
     public static final int HEIGHT = 64;
 
-    private final TextureTarget framebuffer = new TextureTarget(WIDTH, HEIGHT, true);
+    private final TextureTarget framebuffer = new TextureTarget("Export", WIDTH, HEIGHT, true);
     private final NativeImage image = new NativeImage(WIDTH, HEIGHT, true);
 
     public ImageRenderer() {
-        framebuffer.setClearColor(0, 0, 0, 0);
-        framebuffer.clear();
+        // framebuffer.setFilterMode(0, 0, 0, 0);
+        // framebuffer.clear();
     }
 
     public void captureRender(Path output, Runnable render) throws IOException {
         Files.createDirectories(output.getParent());
 
-        RenderSystem.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-        framebuffer.bindWrite(true);
+        // RenderSystem.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        // framebuffer.bindWrite(true);
 
         // Setup rendering state
         RenderSystem.backupProjectionMatrix();
@@ -53,14 +51,14 @@ public class ImageRenderer implements AutoCloseable {
         RenderSystem.restoreProjectionMatrix();
         transform.popMatrix();
 
-        framebuffer.unbindWrite();
-        Minecraft.getInstance().getMainRenderTarget().bindWrite(true);
+        // framebuffer.unbindWrite();
+        // Minecraft.getInstance().getMainRenderTarget().bindWrite(true);
 
         // And save the image
-        framebuffer.bindRead();
-        image.downloadTexture(0, false);
-        image.flipY();
-        framebuffer.unbindRead();
+        // framebuffer.bindRead();
+        // image.downloadTexture(0, false);
+        // image.flipY();
+        // framebuffer.unbindRead();
 
         image.writeToFile(output);
     }

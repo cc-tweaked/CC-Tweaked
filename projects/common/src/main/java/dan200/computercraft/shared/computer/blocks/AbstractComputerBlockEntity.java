@@ -21,10 +21,10 @@ import dan200.computercraft.shared.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.LockCode;
@@ -166,16 +166,16 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
 
     protected void loadServer(CompoundTag nbt, HolderLookup.Provider registries) {
         // Load ID, label and power state
-        computerID = nbt.contains(NBT_ID) ? nbt.getInt(NBT_ID) : -1;
-        label = nbt.contains(NBT_LABEL) ? nbt.getString(NBT_LABEL) : null;
-        storageCapacity = nbt.contains(NBT_CAPACITY, Tag.TAG_ANY_NUMERIC) ? nbt.getLong(NBT_CAPACITY) : -1;
-        on = startOn = nbt.getBoolean(NBT_ON);
+        computerID = nbt.getIntOr(NBT_ID, -1);
+        label = nbt.getStringOr(NBT_LABEL, null);
+        storageCapacity = nbt.getLongOr(NBT_CAPACITY, -1);
+        on = startOn = nbt.getBooleanOr(NBT_ON, false);
 
         lockCode = LockCode.fromTag(nbt, registries);
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput component) {
+    protected void applyImplicitComponents(DataComponentGetter component) {
         super.applyImplicitComponents(component);
         label = DataComponentUtil.getCustomName(component.get(DataComponents.CUSTOM_NAME));
         computerID = NonNegativeId.getId(component.get(ModRegistry.DataComponents.COMPUTER_ID.get()));
@@ -197,7 +197,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
      */
     @OverridingMethodsMustInvokeSuper
     protected void collectSafeComponents(DataComponentMap.Builder builder) {
-        builder.set(ModRegistry.DataComponents.COMPUTER_ID.get(), NonNegativeId.of(computerID));
+        builder.set(ModRegistry.DataComponents.COMPUTER_ID.get(), computerID < 0 ? null : new NonNegativeId.Computer(computerID));
         builder.set(DataComponents.CUSTOM_NAME, label == null ? null : Component.literal(label));
         builder.set(ModRegistry.DataComponents.STORAGE_CAPACITY.get(), storageCapacity > 0 ? new StorageCapacity(storageCapacity) : null);
     }

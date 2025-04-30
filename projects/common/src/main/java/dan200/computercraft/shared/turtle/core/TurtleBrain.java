@@ -32,7 +32,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.Container;
@@ -133,8 +132,8 @@ public class TurtleBrain implements TurtleAccessInternal {
      */
     private void readCommon(CompoundTag nbt, HolderLookup.Provider registries) {
         // Read fields
-        colourHex = nbt.contains(NBT_COLOUR) ? nbt.getInt(NBT_COLOUR) : -1;
-        fuelLevel = nbt.contains(NBT_FUEL) ? nbt.getInt(NBT_FUEL) : 0;
+        colourHex = nbt.getIntOr(NBT_COLOUR, -1);
+        fuelLevel = nbt.getIntOr(NBT_FUEL, 0);
         overlay = nbt.contains(NBT_OVERLAY) ? NBTUtil.decodeFrom(TurtleOverlay.CODEC, registries, nbt, NBT_OVERLAY) : null;
 
         // Read upgrades
@@ -145,7 +144,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     private void writeCommon(CompoundTag nbt, HolderLookup.Provider registries) {
         nbt.putInt(NBT_FUEL, fuelLevel);
         if (colourHex != -1) nbt.putInt(NBT_COLOUR, colourHex);
-        if (overlay != null) NBTUtil.encodeTo(TurtleOverlay.CODEC, registries, nbt, NBT_OVERLAY, overlay);
+        NBTUtil.encodeTo(TurtleOverlay.CODEC, registries, nbt, NBT_OVERLAY, overlay);
 
         // Write upgrades
         NBTUtil.encodeTo(TurtleUpgrades.instance().upgradeDataCodec(), registries, nbt, NBT_LEFT_UPGRADE, getUpgradeWithData(TurtleSide.LEFT));
@@ -156,14 +155,14 @@ public class TurtleBrain implements TurtleAccessInternal {
         readCommon(nbt, registries);
 
         // Read state
-        selectedSlot = nbt.getInt(NBT_SLOT);
+        selectedSlot = nbt.getIntOr(NBT_SLOT, 0);
 
         // Read owner
-        if (nbt.contains("Owner", Tag.TAG_COMPOUND)) {
-            var owner = nbt.getCompound("Owner");
+        var owner = nbt.getCompound("Owner").orElse(null);
+        if (owner != null) {
             owningPlayer = new GameProfile(
-                new UUID(owner.getLong("UpperId"), owner.getLong("LowerId")),
-                owner.getString("Name")
+                new UUID(owner.getLongOr("UpperId", 0), owner.getLongOr("LowerId", 0)),
+                owner.getStringOr("Name", "")
             );
         } else {
             owningPlayer = null;
@@ -191,7 +190,7 @@ public class TurtleBrain implements TurtleAccessInternal {
         readCommon(nbt, registries);
 
         // Animation
-        var anim = TurtleAnimation.values()[nbt.getInt("Animation")];
+        var anim = TurtleAnimation.values()[nbt.getIntOr("Animation", 0)];
         if (anim != animation &&
             anim != TurtleAnimation.WAIT &&
             anim != TurtleAnimation.SHORT_WAIT &&

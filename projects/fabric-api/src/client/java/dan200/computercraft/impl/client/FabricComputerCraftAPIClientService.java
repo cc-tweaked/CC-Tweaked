@@ -4,7 +4,7 @@
 
 package dan200.computercraft.impl.client;
 
-import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
+import dan200.computercraft.api.client.turtle.TurtleUpgradeModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.impl.Services;
@@ -23,7 +23,7 @@ public interface FabricComputerCraftAPIClientService {
         return instance == null ? Services.raise(FabricComputerCraftAPIClientService.class, Instance.ERROR) : instance;
     }
 
-    <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller(UpgradeType<T> type, TurtleUpgradeModeller<T> modeller);
+    <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller(UpgradeType<T> type, TurtleUpgradeModel.Unbaked<? super T> model);
 
     final class Instance {
         static final @Nullable FabricComputerCraftAPIClientService INSTANCE;

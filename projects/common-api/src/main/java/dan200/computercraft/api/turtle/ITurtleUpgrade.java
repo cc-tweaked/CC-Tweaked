@@ -53,13 +53,13 @@ import java.util.function.Function;
  *
  * <h3>Rendering the upgrade</h3>
  * Next, we need to register a model for our upgrade. This is done by registering a
- * {@link dan200.computercraft.api.client.turtle.TurtleUpgradeModeller} for your upgrade type.
+ * {@link dan200.computercraft.api.client.turtle.TurtleUpgradeModel} for your upgrade type.
  *
  * <h4>Fabric</h4>
- * {@snippet class=com.example.examplemod.FabricExampleModClient region=turtle_modellers}
+ * {@snippet class=com.example.examplemod.FabricExampleModClient region=turtle_model}
  *
  * <h4>Forge</h4>
- * {@snippet class=com.example.examplemod.FabricExampleModClient region=turtle_modellers}
+ * {@snippet class=com.example.examplemod.FabricExampleModClient region=turtle_model}
  *
  * <h3 id="datagen">Registering the upgrade itself</h3>
  * Upgrades themselves are loaded from datapacks when a level is loaded. In order to register our new upgrade, we must

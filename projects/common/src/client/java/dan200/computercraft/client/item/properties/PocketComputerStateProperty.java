@@ -4,6 +4,7 @@
 
 package dan200.computercraft.client.item.properties;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.pocket.ClientPocketComputers;
@@ -36,6 +37,11 @@ public final class PocketComputerStateProperty implements SelectItemModelPropert
     public ComputerState get(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity holder, int i, ItemDisplayContext context) {
         var computer = ClientPocketComputers.get(stack);
         return computer == null ? ComputerState.OFF : computer.getState();
+    }
+
+    @Override
+    public Codec<ComputerState> valueCodec() {
+        return ComputerState.CODEC;
     }
 
     @Override

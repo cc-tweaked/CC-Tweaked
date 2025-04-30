@@ -84,15 +84,6 @@ public class MonitorBlock extends HorizontalDirectionalBlock implements EntityBl
     }
 
     @Override
-    protected final void onRemove(BlockState block, Level world, BlockPos pos, BlockState replace, boolean bool) {
-        if (block.getBlock() == replace.getBlock()) return;
-
-        var tile = world.getBlockEntity(pos);
-        super.onRemove(block, world, pos, replace, bool);
-        if (tile instanceof MonitorBlockEntity generic) generic.destroy();
-    }
-
-    @Override
     protected void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
         var te = world.getBlockEntity(pos);
         if (te instanceof MonitorBlockEntity monitor) monitor.blockTick();

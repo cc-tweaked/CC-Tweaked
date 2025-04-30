@@ -96,30 +96,30 @@ public class NetworkedTerminal extends Terminal {
     }
 
     public synchronized void readFromNBT(CompoundTag nbt) {
-        cursorX = nbt.getInt("term_cursorX");
-        cursorY = nbt.getInt("term_cursorY");
-        cursorBlink = nbt.getBoolean("term_cursorBlink");
-        cursorColour = nbt.getInt("term_textColour");
-        cursorBackgroundColour = nbt.getInt("term_bgColour");
+        cursorX = nbt.getIntOr("term_cursorX", 0);
+        cursorY = nbt.getIntOr("term_cursorY", 0);
+        cursorBlink = nbt.getBooleanOr("term_cursorBlink", false);
+        cursorColour = nbt.getIntOr("term_textColour", 0);
+        cursorBackgroundColour = nbt.getIntOr("term_bgColour", 0);
 
         for (var n = 0; n < height; n++) {
             text[n].fill(' ');
             if (nbt.contains("term_text_" + n)) {
-                text[n].write(nbt.getString("term_text_" + n));
+                text[n].write(nbt.getStringOr("term_text_" + n, ""));
             }
             textColour[n].fill(BASE_16.charAt(cursorColour));
             if (nbt.contains("term_textColour_" + n)) {
-                textColour[n].write(nbt.getString("term_textColour_" + n));
+                textColour[n].write(nbt.getStringOr("term_textColour_" + n, ""));
             }
             backgroundColour[n].fill(BASE_16.charAt(cursorBackgroundColour));
             if (nbt.contains("term_textBgColour_" + n)) {
-                backgroundColour[n].write(nbt.getString("term_textBgColour_" + n));
+                backgroundColour[n].write(nbt.getStringOr("term_textBgColour_" + n, ""));
             }
         }
 
         if (nbt.contains("term_palette")) {
-            var rgb8 = nbt.getIntArray("term_palette");
-            if (rgb8.length == Palette.PALETTE_SIZE) {
+            var rgb8 = nbt.getIntArray("term_palette").orElse(null);
+            if (rgb8 != null && rgb8.length == Palette.PALETTE_SIZE) {
                 for (var i = 0; i < Palette.PALETTE_SIZE; i++) {
                     var colours = Palette.decodeRGB8(rgb8[i]);
                     palette.setColour(i, colours[0], colours[1], colours[2]);

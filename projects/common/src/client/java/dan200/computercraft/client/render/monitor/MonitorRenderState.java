@@ -5,8 +5,7 @@
 package dan200.computercraft.client.render.monitor;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
-import com.mojang.blaze3d.buffers.BufferUsage;
-import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.buffers.GpuBuffer;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import net.minecraft.core.BlockPos;
 import org.jspecify.annotations.Nullable;
@@ -21,53 +20,39 @@ import java.util.Set;
  * This is automatically cleared by {@link dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity} when the
  * entity is unloaded on the client side (see {@link MonitorRenderState#close()}).
  */
-public class MonitorRenderState implements ClientMonitor.RenderState {
+public final class MonitorRenderState implements ClientMonitor.RenderState {
     @GuardedBy("allMonitors")
     private static final Set<MonitorRenderState> allMonitors = new HashSet<>();
 
-    public long lastRenderFrame = -1;
-    public @Nullable BlockPos lastRenderPos = null;
+    long lastRenderFrame = -1;
+    @Nullable
+    BlockPos lastRenderPos = null;
 
-    public @Nullable VertexBuffer backgroundBuffer;
-    public @Nullable VertexBuffer foregroundBuffer;
+    @Nullable
+    GpuBuffer vertexBuffer;
 
-    /**
-     * Create the appropriate buffer if needed.
-     *
-     * @return If a buffer was created. This will return {@code false} if we already have an appropriate buffer,
-     * or this mode does not require one.
-     */
-    public boolean createBuffer() {
-        if (backgroundBuffer != null) return false;
+    int indexAfterBackground;
+    int indexAfterForeground;
+    int indexAfterCursor;
 
-        deleteBuffers();
-        backgroundBuffer = new VertexBuffer(BufferUsage.STATIC_WRITE);
-        foregroundBuffer = new VertexBuffer(BufferUsage.STATIC_WRITE);
-        addMonitor();
-        return true;
-    }
+    void register() {
+        if (vertexBuffer != null) return;
 
-    private void addMonitor() {
         synchronized (allMonitors) {
             allMonitors.add(this);
         }
     }
 
     private void deleteBuffers() {
-        if (backgroundBuffer != null) {
-            backgroundBuffer.close();
-            backgroundBuffer = null;
-        }
-
-        if (foregroundBuffer != null) {
-            foregroundBuffer.close();
-            foregroundBuffer = null;
+        if (vertexBuffer != null) {
+            vertexBuffer.close();
+            vertexBuffer = null;
         }
     }
 
     @Override
     public void close() {
-        if (backgroundBuffer != null) {
+        if (vertexBuffer != null) {
             synchronized (allMonitors) {
                 allMonitors.remove(this);
             }

@@ -4,25 +4,40 @@
 
 package dan200.computercraft.client.platform;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.resources.model.BakedModel;
+import dan200.computercraft.impl.Services;
+import net.minecraft.client.resources.model.ModelDebugName;
+import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
-public interface ClientPlatformHelper extends dan200.computercraft.impl.client.ClientPlatformHelper {
+public interface ClientPlatformHelper {
     static ClientPlatformHelper get() {
-        return (ClientPlatformHelper) dan200.computercraft.impl.client.ClientPlatformHelper.get();
+        var instance = Instance.INSTANCE;
+        return instance == null ? Services.raise(ClientPlatformHelper.class, Instance.ERROR) : instance;
     }
 
     /**
-     * Render a {@link BakedModel}, using any loader-specific hooks.
+     * Create a new unique {@link ModelKey}.
      *
-     * @param transform     The current matrix transformation to apply.
-     * @param buffers       The current pool of render buffers.
-     * @param model         The model to draw.
-     * @param lightmapCoord The current packed lightmap coordinate.
-     * @param overlayLight  The current overlay light.
-     * @param tints         Block colour tints to apply to the model.
+     * @param id   An identifier for this model key.
+     * @param name The debug name for this model key.
+     * @param <T>  The type of baked model.
+     * @return The newly created model key.
      */
-    void renderBakedModel(PoseStack transform, MultiBufferSource buffers, BakedModel model, int lightmapCoord, int overlayLight, int @Nullable [] tints);
+    @Contract("_, _ -> new")
+    <T> ModelKey<T> createModelKey(ResourceLocation id, ModelDebugName name);
+
+    final class Instance {
+        static final @Nullable ClientPlatformHelper INSTANCE;
+        static final @Nullable Throwable ERROR;
+
+        static {
+            var helper = Services.tryLoad(ClientPlatformHelper.class);
+            INSTANCE = helper.instance();
+            ERROR = helper.error();
+        }
+
+        private Instance() {
+        }
+    }
 }

@@ -33,7 +33,7 @@ import static org.lwjgl.system.MemoryUtil.*;
  * <p>
  * Note this is almost an exact copy of {@link FixedWidthFontRenderer}. While the code duplication is unfortunate,
  * it is measurably faster than introducing polymorphism into {@link FixedWidthFontRenderer}.
- *
+ * <p>
  * <strong>IMPORTANT: </strong> When making changes to this class, please check if you need to make the same changes to
  * {@link FixedWidthFontRenderer}.
  */
@@ -156,21 +156,30 @@ public final class DirectFixedWidthFontRenderer {
         }
     }
 
-    public static int getVertexCount(Terminal terminal) {
-        return (terminal.getHeight() + 2) * (terminal.getWidth() + 2) * 2;
-    }
-
     private static void quad(QuadEmitter buffer, float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2) {
+        buffer.vertexCount += 4;
         buffer.quad(x1, y1, x2, y2, z, colour, u1, v1, u2, v2);
     }
 
-    public interface QuadEmitter {
-        VertexFormat format();
+    public abstract static class QuadEmitter {
+        private int vertexCount;
 
-        void quad(float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2);
+        public abstract VertexFormat format();
+
+        protected abstract void quad(float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2);
+
+        public int vertexCount() {
+            return vertexCount;
+        }
     }
 
-    public record ByteBufferEmitter(ByteBufferBuilder builder) implements QuadEmitter {
+    public static final class ByteBufferEmitter extends QuadEmitter {
+        private final ByteBufferBuilder builder;
+
+        public ByteBufferEmitter(ByteBufferBuilder builder) {
+            this.builder = builder;
+        }
+
         @Override
         public VertexFormat format() {
             return TERMINAL_TEXT.format();

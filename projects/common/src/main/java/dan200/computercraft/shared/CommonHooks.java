@@ -13,7 +13,6 @@ import dan200.computercraft.shared.lectern.CustomLecternBlock;
 import dan200.computercraft.shared.peripheral.monitor.MonitorWatcher;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.TickScheduler;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -29,7 +28,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.TooltipProvider;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
@@ -170,18 +169,12 @@ public final class CommonHooks {
 
     public static void onItemTooltip(ItemStack stack, Item.TooltipContext context, TooltipFlag flags, List<Component> out) {
         var appender = new TooltipAppender(out);
-        addToTooltip(stack, ModRegistry.DataComponents.PRINTOUT.get(), context, appender, flags);
-        addToTooltip(stack, ModRegistry.DataComponents.TREASURE_DISK.get(), context, appender, flags);
 
-        // Disk and computer IDs require some conditional logic, so we don't bother using TooltipProvider.
-
-        var diskId = stack.get(ModRegistry.DataComponents.DISK_ID.get());
-        if (diskId != null && flags.isAdvanced()) diskId.addToTooltip("gui.computercraft.tooltip.disk_id", appender);
-
-        var computerId = stack.get(ModRegistry.DataComponents.COMPUTER_ID.get());
-        if (computerId != null && (flags.isAdvanced() || !stack.has(DataComponents.CUSTOM_NAME))) {
-            computerId.addToTooltip("gui.computercraft.tooltip.computer_id", appender);
-        }
+        var display = stack.getOrDefault(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT);
+        stack.addToTooltip(ModRegistry.DataComponents.PRINTOUT.get(), context, display, appender, flags);
+        stack.addToTooltip(ModRegistry.DataComponents.TREASURE_DISK.get(), context, display, appender, flags);
+        stack.addToTooltip(ModRegistry.DataComponents.COMPUTER_ID.get(), context, display, appender, flags);
+        stack.addToTooltip(ModRegistry.DataComponents.DISK_ID.get(), context, display, appender, flags);
     }
 
     /**
@@ -199,10 +192,5 @@ public final class CommonHooks {
         public void accept(Component component) {
             out.add(index++, component);
         }
-    }
-
-    private static <T extends TooltipProvider> void addToTooltip(ItemStack stack, DataComponentType<T> component, Item.TooltipContext context, Consumer<Component> out, TooltipFlag flags) {
-        var provider = stack.get(component);
-        if (provider != null) provider.addToTooltip(context, out, flags);
     }
 }

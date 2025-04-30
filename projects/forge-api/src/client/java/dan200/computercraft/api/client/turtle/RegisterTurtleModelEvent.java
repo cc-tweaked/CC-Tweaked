@@ -14,18 +14,18 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
- * This event is fired to register {@link TurtleUpgradeModeller}s for a mod's {@linkplain TurtleUpgradeType turtle
+ * This event is fired to register {@link TurtleUpgradeModel}s for a mod's {@linkplain TurtleUpgradeType turtle
  * upgrades}.
  * <p>
- * This event is fired during the initial resource load. Registries will be frozen, but mods may not be fully
+ * This event is fired during the initial mod construction. Registries will be frozen, but mods may not be fully
  * initialised at this point (i.e. {@link FMLCommonSetupEvent} or {@link FMLClientSetupEvent} may not have been
- * dispatched). Subscribers should be careful not to
+ * dispatched).
  */
-public class RegisterTurtleModellersEvent extends Event implements IModBusEvent, RegisterTurtleUpgradeModeller {
-    private final RegisterTurtleUpgradeModeller dispatch;
+public class RegisterTurtleModelEvent extends Event implements IModBusEvent, RegisterTurtleUpgradeModel {
+    private final RegisterTurtleUpgradeModel dispatch;
 
     @ApiStatus.Internal
-    public RegisterTurtleModellersEvent(RegisterTurtleUpgradeModeller dispatch) {
+    public RegisterTurtleModelEvent(RegisterTurtleUpgradeModel dispatch) {
         this.dispatch = dispatch;
     }
 
@@ -33,7 +33,7 @@ public class RegisterTurtleModellersEvent extends Event implements IModBusEvent,
      * {@inheritDoc}
      */
     @Override
-    public <T extends ITurtleUpgrade> void register(UpgradeType<T> type, TurtleUpgradeModeller<T> modeller) {
+    public <T extends ITurtleUpgrade> void register(UpgradeType<T> type, TurtleUpgradeModel.Unbaked<? super T> modeller) {
         dispatch.register(type, modeller);
     }
 }

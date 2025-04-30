@@ -6,6 +6,7 @@ package dan200.computercraft.gametest
 
 import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.core.apis.PeripheralAPI
+import dan200.computercraft.gametest.api.GameTest
 import dan200.computercraft.gametest.api.assertContainerExactly
 import dan200.computercraft.gametest.api.sequence
 import dan200.computercraft.gametest.api.thenOnComputer
@@ -13,7 +14,6 @@ import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
 import net.minecraft.core.NonNullList
-import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
