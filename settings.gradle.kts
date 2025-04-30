@@ -5,7 +5,6 @@
 pluginManagement {
     // Duplicated in buildSrc/build.gradle.kts
     repositories {
-	mavenLocal()
         mavenCentral()
         gradlePluginPortal()
 
@@ -24,12 +23,12 @@ pluginManagement {
             }
         }
 
-        /*maven("https://maven.squiddev.cc") {
+        maven("https://maven.squiddev.cc") {
             name = "SquidDev"
             content {
                 includeGroup("cc.tweaked.vanilla-extract")
             }
-        }*/
+        }
     }
 }
 
