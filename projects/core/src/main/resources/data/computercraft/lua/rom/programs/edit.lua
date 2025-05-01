@@ -214,15 +214,44 @@ local function tryWrite(sLine, regex, colour)
     return nil
 end
 
+local function tryWriteString(sLine)
+    quotationChar = string.sub(sLine, 1, 1)
+    if quotationChar ~= '"' and quotation_char ~= "'" then
+        return nil
+    end
+
+    -- Scan through the rest of the string, until we
+    -- find the closing quote. Ignore quotation marks
+    -- with an odd number of backslashes preceding them.
+    local i = 2
+    while i <= #sLine do
+        local nextChar = string.sub(sLine, i, i)
+        if nextChar == quotationChar then
+            local j = i - 1
+            local backslashes = 0
+            while j > 0 and string.sub(sLine, j, j) == '\\' do
+                backslashes = backslashes + 1
+                j = j - 1
+            end
+            if backslashes % 2 == 0 then
+                match = string.sub(sLine, 1, i)
+                term.setTextColor(stringColour)
+                term.write(match)
+                term.setTextColor(textColour)
+                return string.sub(sLine, #match + 1)
+            end
+        end
+        i = i + 1
+    end
+    return nil
+end
+
 local function writeHighlighted(sLine)
     while #sLine > 0 do
         sLine =
             tryWrite(sLine, "^%-%-%[%[.-%]%]", commentColour) or
             tryWrite(sLine, "^%-%-.*", commentColour) or
-            tryWrite(sLine, "^\"\"", stringColour) or
-            tryWrite(sLine, "^\".-[^\\](\\\\)*\"", stringColour) or
-            tryWrite(sLine, "^\'\'", stringColour) or
-            tryWrite(sLine, "^\'.-[^\\](\\\\)*\'", stringColour) or
+            tryWriteString(sLine) or
             tryWrite(sLine, "^%[%[.-%]%]", stringColour) or
             tryWrite(sLine, "^[%w_]+", function(match)
                 if tKeywords[match] then
