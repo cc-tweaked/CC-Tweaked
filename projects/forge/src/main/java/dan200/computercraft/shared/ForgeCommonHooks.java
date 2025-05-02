@@ -6,10 +6,13 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.command.CommandComputerCraft;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -27,6 +30,9 @@ import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Forge-specific dispatch for {@link CommonHooks}.
@@ -110,6 +116,29 @@ public class ForgeCommonHooks {
 
     @SubscribeEvent
     public static void onItemTooltip(ItemTooltipEvent event) {
-        CommonHooks.onItemTooltip(event.getItemStack(), event.getContext(), event.getFlags(), event.getToolTip());
+        var stack = event.getItemStack();
+        var appender = new TooltipAppender(event.getToolTip());
+
+        var display = stack.getOrDefault(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT);
+        for (var component : ModRegistry.DataComponents.TOOLTIP_COMPONENTS) {
+            stack.addToTooltip(component.get(), event.getContext(), display, appender, event.getFlags());
+        }
+    }
+
+    /**
+     * Inserts additional tooltip items directly after the custom name, rather than at the very end.
+     */
+    private static final class TooltipAppender implements Consumer<Component> {
+        private final List<Component> out;
+        private int index = 1;
+
+        private TooltipAppender(List<Component> out) {
+            this.out = out;
+        }
+
+        @Override
+        public void accept(Component component) {
+            out.add(index++, component);
+        }
     }
 }

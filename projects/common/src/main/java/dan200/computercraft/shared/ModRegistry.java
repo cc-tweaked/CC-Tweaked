@@ -113,6 +113,7 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.item.component.TooltipProvider;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -126,6 +127,7 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.*;
@@ -440,6 +442,13 @@ public final class ModRegistry {
          */
         public static final RegistryEntry<DataComponentType<PrintoutData>> PRINTOUT = register("printout", b -> b
             .persistent(PrintoutData.CODEC).networkSynchronized(PrintoutData.STREAM_CODEC)
+        );
+
+        public static final List<RegistryEntry<? extends DataComponentType<? extends TooltipProvider>>> TOOLTIP_COMPONENTS = List.of(
+            DataComponents.COMPUTER_ID,
+            DataComponents.DISK_ID,
+            DataComponents.TREASURE_DISK,
+            DataComponents.PRINTOUT
         );
     }
 

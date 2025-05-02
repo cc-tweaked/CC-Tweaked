@@ -34,6 +34,7 @@ import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
+import net.fabricmc.fabric.api.item.v1.ComponentTooltipAppenderRegistry;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.lookup.v1.item.ItemApiLookup;
@@ -43,10 +44,12 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ChunkLevel;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -94,6 +97,11 @@ public class ComputerCraft {
         // Register commands
         CommandRegistrationCallback.EVENT.register((dispatcher, context, environment) -> CommandComputerCraft.register(dispatcher));
 
+        // Register tooltips
+        for (var tooltip : ModRegistry.DataComponents.TOOLTIP_COMPONENTS) {
+            ComponentTooltipAppenderRegistry.addAfter(DataComponents.LORE, tooltip.get());
+        }
+
         // Register hooks
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             ((FabricConfigFile) ConfigSpec.serverSpec).load(
@@ -111,6 +119,8 @@ public class ComputerCraft {
         ServerTickEvents.START_SERVER_TICK.register(CommonHooks::onServerTickStart);
         ServerTickEvents.START_SERVER_TICK.register(s -> CommonHooks.onServerTickEnd());
         ServerChunkEvents.CHUNK_UNLOAD.register((l, c) -> CommonHooks.onServerChunkUnload(c));
+        ServerChunkEvents.CHUNK_LEVEL_TYPE_CHANGE.register((level, chunk, oldStatus, newStatus) ->
+            CommonHooks.onChunkTicketLevelChanged(level, chunk.getPos().toLong(), ChunkLevel.byStatus(oldStatus), ChunkLevel.byStatus(newStatus)));
 
         PlayerBlockBreakEvents.BEFORE.register(FabricCommonHooks::onBlockDestroy);
         UseBlockCallback.EVENT.register(CommonHooks::onUseBlock);

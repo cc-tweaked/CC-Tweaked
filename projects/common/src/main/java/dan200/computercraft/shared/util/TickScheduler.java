@@ -15,7 +15,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -63,7 +62,7 @@ public final class TickScheduler {
     }
 
     public static void onChunkTicketChanged(ServerLevel level, long chunkPos, int oldLevel, int newLevel) {
-        boolean oldLoaded = isLoaded(oldLevel), newLoaded = isLoaded(newLevel);
+        boolean oldLoaded = ChunkLevel.isLoaded(oldLevel), newLoaded = ChunkLevel.isLoaded(newLevel);
         if (!oldLoaded && newLoaded) {
             // If our chunk is becoming active, requeue all pending tokens.
             var delayedTokens = delayed.remove(new ChunkReference(level.dimension(), chunkPos));
@@ -170,9 +169,5 @@ public final class TickScheduler {
         public String toString() {
             return "ChunkReference(" + level + " at " + new ChunkPos(position) + ")";
         }
-    }
-
-    private static boolean isLoaded(int level) {
-        return level <= ChunkLevel.byStatus(ChunkStatus.FULL);
     }
 }

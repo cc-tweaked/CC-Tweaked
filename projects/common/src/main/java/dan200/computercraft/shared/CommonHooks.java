@@ -13,9 +13,7 @@ import dan200.computercraft.shared.lectern.CustomLecternBlock;
 import dan200.computercraft.shared.peripheral.monitor.MonitorWatcher;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.TickScheduler;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -27,8 +25,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
@@ -41,10 +40,8 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * Event listeners for server/common code.
@@ -164,33 +161,6 @@ public final class CommonHooks {
     public static void onBuildCreativeTab(ResourceKey<CreativeModeTab> key, CreativeModeTab.ItemDisplayParameters context, CreativeModeTab.Output out) {
         if (key == CreativeModeTabs.OP_BLOCKS && context.hasPermissions()) {
             out.accept(ModRegistry.Items.COMPUTER_COMMAND.get());
-        }
-    }
-
-    public static void onItemTooltip(ItemStack stack, Item.TooltipContext context, TooltipFlag flags, List<Component> out) {
-        var appender = new TooltipAppender(out);
-
-        var display = stack.getOrDefault(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT);
-        stack.addToTooltip(ModRegistry.DataComponents.PRINTOUT.get(), context, display, appender, flags);
-        stack.addToTooltip(ModRegistry.DataComponents.TREASURE_DISK.get(), context, display, appender, flags);
-        stack.addToTooltip(ModRegistry.DataComponents.COMPUTER_ID.get(), context, display, appender, flags);
-        stack.addToTooltip(ModRegistry.DataComponents.DISK_ID.get(), context, display, appender, flags);
-    }
-
-    /**
-     * Inserts additional tooltip items directly after the custom name, rather than at the very end.
-     */
-    private static final class TooltipAppender implements Consumer<Component> {
-        private final List<Component> out;
-        private int index = 1;
-
-        private TooltipAppender(List<Component> out) {
-            this.out = out;
-        }
-
-        @Override
-        public void accept(Component component) {
-            out.add(index++, component);
         }
     }
 }
