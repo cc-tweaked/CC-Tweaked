@@ -66,6 +66,12 @@ public abstract class NonNegativeId implements TooltipProvider {
     }
 
     @Override
+    public String toString() {
+        var className = getClass().getName();
+        return className.substring(className.lastIndexOf('.') + 1) + "(" + id + ")";
+    }
+
+    @Override
     @SuppressWarnings("EqualsGetClass") // We want to distinguish different subclasses.
     public final boolean equals(Object o) {
         return this == o || (o != null && getClass() == o.getClass() && id == ((NonNegativeId) o).id);

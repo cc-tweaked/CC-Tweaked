@@ -204,21 +204,30 @@ public class ComponentizationFixers {
         return newUpgrade;
     }
 
+
     /**
      * Add our custom data components to the datafixer system.
      *
      * @param types  The component type definition.
      * @param schema The current schema.
      * @see UpgradeManager#upgradeDataCodec()
-     * @see ModRegistry.DataComponents#POCKET_UPGRADE
+     * @see ModRegistry.DataComponents#BOTTOM_POCKET_UPGRADE
+     * @see ModRegistry.DataComponents#BACK_POCKET_UPGRADE
      * @see ModRegistry.DataComponents#LEFT_TURTLE_UPGRADE
      * @see ModRegistry.DataComponents#RIGHT_TURTLE_UPGRADE
      */
-    public static void addExtraTypes(Map<String, Supplier<TypeTemplate>> types, Schema schema) {
+    public static void addComponents(Map<String, Supplier<TypeTemplate>> types, Schema schema) {
         // Create a codec for UpgradeData
         Supplier<TypeTemplate> upgradeData = () -> DSL.optionalFields("components", References.DATA_COMPONENTS.in(schema));
 
-        types.put("computercraft:pocket_upgrade", upgradeData);
+        if (schema.getVersionKey() < RenamePocketComputerUpgradeFix.SCHEMA_VERSION) {
+            types.put("computercraft:pocket_upgrade", upgradeData);
+        } else {
+            // Add extra upgrades on later versions. Really this should be done by overriding
+            types.put("computercraft:back_pocket_upgrade", upgradeData);
+            types.put("computercraft:bottom_pocket_upgrade", upgradeData);
+        }
+
         types.put("computercraft:left_turtle_upgrade", upgradeData);
         types.put("computercraft:right_turtle_upgrade", upgradeData);
     }

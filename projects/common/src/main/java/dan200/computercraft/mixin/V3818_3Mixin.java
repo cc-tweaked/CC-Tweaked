@@ -25,7 +25,7 @@ class V3818_3Mixin {
     @ModifyReturnValue(method = "components", at = @At("TAIL"))
     @SuppressWarnings("UnusedMethod")
     private static SequencedMap<String, Supplier<TypeTemplate>> components(SequencedMap<String, Supplier<TypeTemplate>> types, Schema schema) {
-        ComponentizationFixers.addExtraTypes(types, schema);
+        ComponentizationFixers.addComponents(types, schema);
         return types;
     }
 }

@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.DataFixerBuilder;
 import com.mojang.datafixers.schemas.Schema;
+import dan200.computercraft.shared.datafix.RenamePocketComputerUpgradeFix;
 import dan200.computercraft.shared.datafix.TurtleUpgradeComponentizationFix;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.datafix.fixes.ItemStackComponentizationFix;
@@ -39,6 +40,26 @@ abstract class DataFixersMixin {
     private static Schema addComponentizationFixes(Schema schema, @Local DataFixerBuilder builder) {
         assertSchemaVersion(schema, DataFixUtils.makeKey(3818, 5));
         builder.addFixer(new TurtleUpgradeComponentizationFix(schema));
+        return schema;
+    }
+
+    /**
+     * Register a {@link RenamePocketComputerUpgradeFix} fix.
+     *
+     * @param schema  The {@code V4314} schema.
+     * @param builder The current datafixer builder.
+     * @return The input schema.
+     */
+    @ModifyArg(
+        method = "addFixers",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/util/datafix/fixes/InlineBlockPosFormatFix;<init>(Lcom/mojang/datafixers/schemas/Schema;)V"),
+        index = 0,
+        allow = 1
+    )
+    @SuppressWarnings("UnusedMethod")
+    private static Schema addRenamePocketComputerUpgradeFix(Schema schema, @Local DataFixerBuilder builder) {
+        assertSchemaVersion(schema, RenamePocketComputerUpgradeFix.SCHEMA_VERSION);
+        builder.addFixer(new RenamePocketComputerUpgradeFix(schema));
         return schema;
     }
 

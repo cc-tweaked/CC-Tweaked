@@ -12,7 +12,7 @@ import dan200.computercraft.impl.ComputerCraftAPIService;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -71,7 +71,7 @@ public interface IPocketUpgrade extends UpgradeBase {
     /**
      * Called when the pocket computer is right clicked.
      *
-     * @param world      The world the computer is in.
+     * @param level      The world the computer is in.
      * @param access     The access object for the pocket item stack.
      * @param peripheral The peripheral for this upgrade.
      * @return {@code true} to stop the GUI from opening, otherwise false. You should always provide some code path
@@ -79,7 +79,7 @@ public interface IPocketUpgrade extends UpgradeBase {
      * access the GUI.
      * @see #createPeripheral(IPocketAccess)
      */
-    default boolean onRightClick(Level world, IPocketAccess access, @Nullable IPeripheral peripheral) {
+    default boolean onRightClick(ServerLevel level, IPocketAccess access, @Nullable IPeripheral peripheral) {
         return false;
     }
 }

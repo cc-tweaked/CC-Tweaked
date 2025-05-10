@@ -69,7 +69,7 @@ public final class RecipeModHelpers {
         for (var pocketSupplier : POCKET_COMPUTERS) {
             var pocket = pocketSupplier.get();
             forEachRegistry(registries, IPocketUpgrade.REGISTRY, upgrade ->
-                upgradeItems.add(DataComponentUtil.createStack(pocket, ModRegistry.DataComponents.POCKET_UPGRADE.get(), UpgradeData.ofDefault(upgrade)))
+                upgradeItems.add(DataComponentUtil.createStack(pocket, ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), UpgradeData.ofDefault(upgrade)))
             );
         }
 

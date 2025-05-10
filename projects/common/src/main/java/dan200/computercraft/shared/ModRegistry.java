@@ -20,6 +20,7 @@ import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.impl.PocketUpgrades;
+import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.command.UserLevel;
 import dan200.computercraft.shared.command.arguments.ComputerArgumentType;
 import dan200.computercraft.shared.command.arguments.RepeatArgumentType;
@@ -71,6 +72,7 @@ import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.RegistrationHelper;
 import dan200.computercraft.shared.platform.RegistryEntry;
 import dan200.computercraft.shared.pocket.apis.PocketAPI;
+import dan200.computercraft.shared.pocket.core.PocketComputerInternal;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
@@ -365,7 +367,7 @@ public final class ModRegistry {
          * @see TurtleItem
          */
         public static final RegistryEntry<DataComponentType<UpgradeData<ITurtleUpgrade>>> LEFT_TURTLE_UPGRADE = register("left_turtle_upgrade", b -> b
-            .persistent(dan200.computercraft.impl.TurtleUpgrades.instance().upgradeDataCodec()).networkSynchronized(dan200.computercraft.impl.TurtleUpgrades.instance().upgradeDataStreamCodec())
+            .persistent(TurtleUpgrades.instance().upgradeDataCodec()).networkSynchronized(TurtleUpgrades.instance().upgradeDataStreamCodec())
         );
 
         /**
@@ -374,7 +376,7 @@ public final class ModRegistry {
          * @see TurtleItem
          */
         public static final RegistryEntry<DataComponentType<UpgradeData<ITurtleUpgrade>>> RIGHT_TURTLE_UPGRADE = register("right_turtle_upgrade", b -> b
-            .persistent(dan200.computercraft.impl.TurtleUpgrades.instance().upgradeDataCodec()).networkSynchronized(dan200.computercraft.impl.TurtleUpgrades.instance().upgradeDataStreamCodec())
+            .persistent(TurtleUpgrades.instance().upgradeDataCodec()).networkSynchronized(TurtleUpgrades.instance().upgradeDataStreamCodec())
         );
 
         /**
@@ -396,7 +398,16 @@ public final class ModRegistry {
          *
          * @see PocketComputerItem
          */
-        public static final RegistryEntry<DataComponentType<UpgradeData<IPocketUpgrade>>> POCKET_UPGRADE = register("pocket_upgrade", b -> b
+        public static final RegistryEntry<DataComponentType<UpgradeData<IPocketUpgrade>>> BACK_POCKET_UPGRADE = register("back_pocket_upgrade", b -> b
+            .persistent(PocketUpgrades.instance().upgradeDataCodec()).networkSynchronized(PocketUpgrades.instance().upgradeDataStreamCodec())
+        );
+
+        /**
+         * The back upgrade of a pocket computer.
+         *
+         * @see PocketComputerItem
+         */
+        public static final RegistryEntry<DataComponentType<UpgradeData<IPocketUpgrade>>> BOTTOM_POCKET_UPGRADE = register("bottom_pocket_upgrade", b -> b
             .persistent(PocketUpgrades.instance().upgradeDataCodec()).networkSynchronized(PocketUpgrades.instance().upgradeDataStreamCodec())
         );
 
@@ -649,7 +660,7 @@ public final class ModRegistry {
 
         ComputerCraftAPI.registerAPIFactory(computer -> {
             var pocket = computer.getComponent(ComputerComponents.POCKET);
-            return pocket == null ? null : new PocketAPI(pocket);
+            return pocket == null ? null : new PocketAPI((PocketComputerInternal) pocket);
         });
 
         ComputerCraftAPI.registerAPIFactory(computer -> {
@@ -751,7 +762,7 @@ public final class ModRegistry {
         out.accept(new ItemStack(pocket));
         registries.lookupOrThrow(IPocketUpgrade.REGISTRY).listElements()
             .filter(ModRegistry::isOurUpgrade)
-            .map(x -> DataComponentUtil.createStack(pocket, DataComponents.POCKET_UPGRADE.get(), UpgradeData.ofDefault(x))).forEach(out::accept);
+            .map(x -> DataComponentUtil.createStack(pocket, DataComponents.BACK_POCKET_UPGRADE.get(), UpgradeData.ofDefault(x))).forEach(out::accept);
     }
 
     private static boolean isOurUpgrade(Holder.Reference<? extends UpgradeBase> upgrade) {

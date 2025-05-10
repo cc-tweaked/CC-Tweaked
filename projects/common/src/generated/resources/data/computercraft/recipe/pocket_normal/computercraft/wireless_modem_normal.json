@@ -5,7 +5,7 @@
   "key": {"#": "computercraft:wireless_modem_normal", "P": "computercraft:pocket_computer_normal"},
   "pattern": ["#", "P"],
   "result": {
-    "components": {"computercraft:pocket_upgrade": {"id": "computercraft:wireless_modem_normal"}},
+    "components": {"computercraft:back_pocket_upgrade": {"id": "computercraft:wireless_modem_normal"}},
     "count": 1,
     "id": "computercraft:pocket_computer_normal"
   }

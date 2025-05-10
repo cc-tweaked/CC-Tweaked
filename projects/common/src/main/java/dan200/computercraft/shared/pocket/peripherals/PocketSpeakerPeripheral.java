@@ -8,13 +8,19 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
+import net.minecraft.server.level.ServerLevel;
 import org.jspecify.annotations.Nullable;
 
-public class PocketSpeakerPeripheral extends UpgradeSpeakerPeripheral {
+public final class PocketSpeakerPeripheral extends UpgradeSpeakerPeripheral {
     private final IPocketAccess access;
 
     public PocketSpeakerPeripheral(IPocketAccess access) {
         this.access = access;
+    }
+
+    @Override
+    protected ServerLevel getLevel() {
+        return access.getLevel();
     }
 
     @Override

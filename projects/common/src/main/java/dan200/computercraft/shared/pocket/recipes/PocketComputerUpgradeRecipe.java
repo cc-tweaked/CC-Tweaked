@@ -8,6 +8,7 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.pocket.core.PocketSide;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
@@ -48,29 +49,37 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
 
         if (computer.isEmpty()) return ItemStack.EMPTY;
 
-        if (PocketComputerItem.getUpgradeWithData(computer) != null) return ItemStack.EMPTY;
-
         // Check for upgrades around the item
-        UpgradeData<IPocketUpgrade> upgrade = null;
+        UpgradeData<IPocketUpgrade> above = null, below = null;
         for (var y = 0; y < inventory.height(); y++) {
             for (var x = 0; x < inventory.width(); x++) {
                 var item = inventory.getItem(x, y);
-                if (x == computerX && y == computerY) continue;
+                if (item.isEmpty() || (x == computerX && y == computerY)) continue;
 
                 if (x == computerX && y == computerY - 1) {
-                    upgrade = PocketUpgrades.instance().get(registryAccess, item);
-                    if (upgrade == null) return ItemStack.EMPTY;
-                } else if (!item.isEmpty()) {
+                    above = PocketUpgrades.instance().get(registryAccess, item);
+                    if (above == null) return ItemStack.EMPTY;
+                } else if (x == computerX && y == computerY + 1) {
+                    below = PocketUpgrades.instance().get(registryAccess, item);
+                    if (below == null) return ItemStack.EMPTY;
+                } else {
                     return ItemStack.EMPTY;
                 }
             }
         }
 
-        if (upgrade == null) return ItemStack.EMPTY;
+        // Abort if we have no upgrades
+        if (above == null && below == null) return ItemStack.EMPTY;
+        // Or if we've already got an upgrade in that slot.
+        if ((above != null && PocketComputerItem.getUpgrade(computer, PocketSide.BACK) != null)
+            || (below != null && PocketComputerItem.getUpgrade(computer, PocketSide.BOTTOM) != null)) {
+            return ItemStack.EMPTY;
+        }
 
         // Construct the new stack
         var result = computer.copyWithCount(1);
-        result.set(ModRegistry.DataComponents.POCKET_UPGRADE.get(), upgrade);
+        if (above != null) result.set(ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), above);
+        if (below != null) result.set(ModRegistry.DataComponents.BOTTOM_POCKET_UPGRADE.get(), below);
         return result;
     }
 

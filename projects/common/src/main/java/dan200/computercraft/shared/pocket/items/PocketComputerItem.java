@@ -5,11 +5,10 @@
 package dan200.computercraft.shared.pocket.items;
 
 import dan200.computercraft.annotations.ForgeOverride;
-import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
-import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.impl.PocketUpgrades;
+import dan200.computercraft.impl.UpgradeManager;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -22,6 +21,7 @@ import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.pocket.core.PocketBrain;
 import dan200.computercraft.shared.pocket.core.PocketHolder;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
+import dan200.computercraft.shared.pocket.core.PocketSide;
 import dan200.computercraft.shared.util.*;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
@@ -37,7 +37,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
@@ -69,9 +68,7 @@ public class PocketComputerItem extends Item {
             brain.computer().keepAlive();
         }
 
-        // Update pocket upgrade
-        var upgrade = brain.getUpgrade();
-        if (upgrade != null) upgrade.upgrade().update(brain, brain.computer().getPeripheral(ComputerSide.BACK));
+        brain.tick();
 
         if (updateItem(stack, brain)) holder.setChanged();
     }
@@ -84,7 +81,7 @@ public class PocketComputerItem extends Item {
      * @return Whether the item was changed.
      */
     private boolean updateItem(ItemStack stack, PocketBrain brain) {
-        var changed = brain.updateItem(stack);
+        var changed = false;
         var computer = brain.computer();
 
         // Sync label
@@ -134,14 +131,7 @@ public class PocketComputerItem extends Item {
             var computer = brain.computer();
             computer.turnOn();
 
-            var stop = false;
-            var upgrade = getUpgrade(stack);
-            if (upgrade != null) {
-                stop = upgrade.onRightClick(world, brain, computer.getPeripheral(ComputerSide.BACK));
-                // Sync back just in case. We don't need to setChanged, as we'll return the item anyway.
-                updateItem(stack, brain);
-            }
-
+            var stop = brain.onRightClick((ServerLevel) world);
             if (!stop) openImpl(player, stack, holder, hand == InteractionHand.OFF_HAND, computer);
         }
         return InteractionResult.SUCCESS;
@@ -172,20 +162,13 @@ public class PocketComputerItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        var baseString = getDescriptionId();
-        var upgrade = getUpgrade(stack);
-        if (upgrade != null) {
-            return Component.translatable(baseString + ".upgraded", upgrade.getAdjective());
-        } else {
-            return super.getName(stack);
-        }
+        return UpgradeManager.getName(getDescriptionId(), getUpgrade(stack, PocketSide.BACK), getUpgrade(stack, PocketSide.BOTTOM));
     }
 
     @Nullable
     @ForgeOverride
     public String getCreatorModId(HolderLookup.Provider registries, ItemStack stack) {
-        var upgrade = getUpgradeWithData(stack);
-        return upgrade != null ? PocketUpgrades.instance().getOwner(upgrade.holder()) : ComputerCraftAPI.MOD_ID;
+        return PocketUpgrades.instance().getOwner(getUpgradeWithData(stack, PocketSide.BACK), getUpgradeWithData(stack, PocketSide.BOTTOM));
     }
 
     private PocketBrain getOrCreateBrain(ServerLevel level, PocketHolder holder, ItemStack stack) {
@@ -200,12 +183,11 @@ public class PocketComputerItem extends Item {
         }
 
         var computerID = NonNegativeId.getOrCreate(level.getServer(), stack, ModRegistry.DataComponents.COMPUTER_ID.get(), NonNegativeId.Computer::new, IDAssigner.COMPUTER);
-        var brain = new PocketBrain(
-            holder, getUpgradeWithData(stack), DyedItemColor.getOrDefault(stack, -1),
-            ServerComputer.properties(computerID, getFamily())
-                .label(getLabel(stack))
-                .storageCapacity(StorageCapacity.getOrDefault(stack.get(ModRegistry.DataComponents.STORAGE_CAPACITY.get()), -1))
+        var brain = new PocketBrain(holder, ServerComputer.properties(computerID, getFamily())
+            .label(getLabel(stack))
+            .storageCapacity(StorageCapacity.getOrDefault(stack.get(ModRegistry.DataComponents.STORAGE_CAPACITY.get()), -1))
         );
+        brain.setUpgrades(getUpgradeWithData(stack, PocketSide.BACK), getUpgradeWithData(stack, PocketSide.BOTTOM));
         var computer = brain.computer();
 
         stack.set(ModRegistry.DataComponents.COMPUTER.get(), new ServerComputerReference(registry.getSessionID(), computer.register()));
@@ -245,9 +227,7 @@ public class PocketComputerItem extends Item {
         var computer = getServerComputer(server, stack);
         if (computer == null) return;
 
-        var brain = computer.getBrain();
-        brain.setUpgrade(getUpgradeWithData(stack));
-        brain.setColour(DyedItemColor.getOrDefault(stack, -1));
+        computer.getBrain().setUpgrades(getUpgradeWithData(stack, PocketSide.BACK), getUpgradeWithData(stack, PocketSide.BOTTOM));
     }
 
     public ComputerFamily getFamily() {
@@ -264,16 +244,15 @@ public class PocketComputerItem extends Item {
         return stack.getOrDefault(ModRegistry.DataComponents.ON.get(), false);
     }
 
-    public static @Nullable IPocketUpgrade getUpgrade(ItemStack stack) {
-        var upgrade = getUpgradeWithData(stack);
+    public static @Nullable IPocketUpgrade getUpgrade(ItemStack stack, PocketSide side) {
+        var upgrade = getUpgradeWithData(stack, side);
         return upgrade == null ? null : upgrade.upgrade();
     }
 
-    public static @Nullable UpgradeData<IPocketUpgrade> getUpgradeWithData(ItemStack stack) {
-        return stack.get(ModRegistry.DataComponents.POCKET_UPGRADE.get());
-    }
-
-    public static void setUpgrade(ItemStack stack, @Nullable UpgradeData<IPocketUpgrade> upgrade) {
-        stack.set(ModRegistry.DataComponents.POCKET_UPGRADE.get(), upgrade);
+    public static @Nullable UpgradeData<IPocketUpgrade> getUpgradeWithData(ItemStack stack, PocketSide side) {
+        return stack.get(switch (side) {
+            case BACK -> ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get();
+            case BOTTOM -> ModRegistry.DataComponents.BOTTOM_POCKET_UPGRADE.get();
+        });
     }
 }

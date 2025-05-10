@@ -8,46 +8,48 @@ import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.core.util.Nullability;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
-import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.util.DataComponentUtil;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * Holds additional state for a pocket computer. This includes pocket computer upgrade,
  * {@linkplain IPocketAccess#getLight() light colour} and {@linkplain IPocketAccess#getColour() colour}.
  * <p>
- * This state is read when the brain is created, and written back to the holding item stack when the holding entity is
- * ticked (see {@link #updateItem(ItemStack)}).
+ * This state is read when the brain is created, and then written back to the item whenever changed.
  */
-public final class PocketBrain implements IPocketAccess {
+public final class PocketBrain implements PocketComputerInternal {
     private final PocketServerComputer computer;
 
     private PocketHolder holder;
     private Vec3 position;
 
-    private boolean dirty = false;
-    private @Nullable UpgradeData<IPocketUpgrade> upgrade;
-    private int colour = -1;
-    private int lightColour = -1;
+    private final Map<PocketSide, UpgradeAccess> upgrades = new EnumMap<>(PocketSide.class);
 
-    public PocketBrain(PocketHolder holder, @Nullable UpgradeData<IPocketUpgrade> upgrade, int colour, ServerComputer.Properties properties) {
+    public PocketBrain(PocketHolder holder, ServerComputer.Properties properties) {
         this.computer = new PocketServerComputer(this, holder, properties);
         this.holder = holder;
         this.position = holder.pos();
-        this.upgrade = upgrade;
-        this.colour = colour;
-        invalidatePeripheral();
+
+        upgrades.put(PocketSide.BACK, new UpgradeAccess(ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), ComputerSide.BACK));
+        upgrades.put(PocketSide.BOTTOM, new UpgradeAccess(ModRegistry.DataComponents.BOTTOM_POCKET_UPGRADE.get(), ComputerSide.BOTTOM));
     }
 
     /**
@@ -83,25 +85,6 @@ public final class PocketBrain implements IPocketAccess {
         }
     }
 
-    /**
-     * Write back properties of the pocket brain to the item.
-     *
-     * @param stack The pocket computer stack to update.
-     * @return Whether the item was changed.
-     */
-    public boolean updateItem(ItemStack stack) {
-        if (!dirty) return false;
-        this.dirty = false;
-
-        if (colour == -1) {
-            stack.remove(DataComponents.DYED_COLOR);
-        } else {
-            DataComponentUtil.setDyeColour(stack, colour);
-        }
-        PocketComputerItem.setUpgrade(stack, upgrade);
-        return true;
-    }
-
     @Override
     public ServerLevel getLevel() {
         return computer.getLevel();
@@ -114,71 +97,214 @@ public final class PocketBrain implements IPocketAccess {
         return position;
     }
 
+    private void requireMainThread() {
+        if (!computer.getLevel().getServer().isSameThread()) {
+            throw new IllegalStateException("Must be called from the main thread");
+        }
+    }
+
+    private ItemStack requireStack() {
+        requireMainThread();
+        var stack = holder.getStack(computer);
+        if (stack.isEmpty()) throw new IllegalStateException("Pocket computer is not active");
+        return stack;
+    }
+
     @Override
     public @Nullable Entity getEntity() {
+        requireMainThread();
         return holder instanceof PocketHolder.EntityHolder entity && holder.isValid(computer) ? entity.entity() : null;
     }
 
     @Override
+    public boolean isActive() {
+        requireMainThread();
+        return holder.isValid(computer);
+    }
+
+    @Override
     public int getColour() {
-        return colour;
+        return DyedItemColor.getOrDefault(requireStack(), -1);
     }
 
     @Override
     public void setColour(int colour) {
-        if (this.colour == colour) return;
-        dirty = true;
-        this.colour = colour;
+        var stack = requireStack();
+
+        if (DyedItemColor.getOrDefault(stack, -1) == colour) return;
+
+        if (colour == -1) {
+            stack.remove(DataComponents.DYED_COLOR);
+        } else {
+            DataComponentUtil.setDyeColour(stack, colour);
+        }
+        holder.setChanged();
     }
 
-    @Override
     public int getLight() {
-        return lightColour;
+        // Take the average of all upgrade lights. This is very naive, and just works in sRGB, rather than
+        // linear colour space.
+        int count = 0, totalR = 0, totalG = 0, totalB = 0;
+        for (var upgrade : upgrades.values()) {
+            var colour = upgrade.lightColour;
+            if (colour == -1) continue;
+
+            count++;
+            totalR += ARGB.red(colour);
+            totalG += ARGB.green(colour);
+            totalB += ARGB.blue(colour);
+        }
+
+        return count == 0 ? -1 : ARGB.color(totalR / count, totalG / count, totalB / count);
+    }
+
+    public void tick() {
+        for (var holder : upgrades.values()) {
+            if (holder.upgrade == null) continue;
+            holder.upgrade.upgrade().update(holder, computer.getPeripheral(holder.side));
+        }
+    }
+
+    public boolean onRightClick(ServerLevel level) {
+        for (var holder : upgrades.values()) {
+            if (holder.upgrade == null) continue;
+            return holder.upgrade.upgrade().onRightClick(level, holder, computer.getPeripheral(holder.side));
+        }
+
+        return false;
+    }
+
+    private UpgradeAccess getUpgradeAccess(PocketSide side) {
+        return Nullability.assertNonNull(upgrades.get(side));
     }
 
     @Override
-    public void setLight(int colour) {
-        if (colour < 0 || colour > 0xFFFFFF) colour = -1;
-        lightColour = colour;
+    public @Nullable UpgradeData<IPocketUpgrade> getUpgrade(PocketSide side) {
+        return getUpgradeAccess(side).getUpgrade();
     }
 
     @Override
-    public DataComponentPatch getUpgradeData() {
-        var upgrade = this.upgrade;
-        return upgrade == null ? DataComponentPatch.EMPTY : upgrade.data();
+    public void setUpgrade(PocketSide side, @Nullable UpgradeData<IPocketUpgrade> upgrade) {
+        getUpgradeAccess(side).setUpgrade(upgrade);
     }
 
-    @Override
-    public void setUpgradeData(DataComponentPatch data) {
-        var upgrade = this.upgrade;
-        if (upgrade == null) return;
-        this.upgrade = UpgradeData.of(upgrade.holder(), data);
+    public void setUpgrades(@Nullable UpgradeData<IPocketUpgrade> back, @Nullable UpgradeData<IPocketUpgrade> bottom) {
+        getUpgradeAccess(PocketSide.BACK).setUpgradeDirect(back);
+        getUpgradeAccess(PocketSide.BOTTOM).setUpgradeDirect(bottom);
     }
 
-    @Override
-    public void invalidatePeripheral() {
-        var peripheral = upgrade == null ? null : upgrade.upgrade().createPeripheral(this);
-        computer.setPeripheral(ComputerSide.BACK, peripheral);
-    }
+    private final class UpgradeAccess implements IPocketAccess {
+        private final DataComponentType<UpgradeData<IPocketUpgrade>> component;
+        private final ComputerSide side;
 
-    @Override
-    public @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
-        return upgrade;
-    }
+        private @Nullable UpgradeData<IPocketUpgrade> upgrade;
+        private int lightColour = -1;
 
-    /**
-     * Set the upgrade for this pocket computer, also updating the item stack.
-     * <p>
-     * Note this method is not thread safe - it must be called from the server thread.
-     *
-     * @param upgrade The new upgrade to set it to, may be {@code null}.
-     */
-    @Override
-    public void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
-        if (Objects.equals(this.upgrade, upgrade)) return;
+        private UpgradeAccess(DataComponentType<UpgradeData<IPocketUpgrade>> component, ComputerSide side) {
+            this.component = component;
+            this.side = side;
+        }
 
-        this.upgrade = upgrade;
-        dirty = true;
-        invalidatePeripheral();
+        @Override
+        public ServerLevel getLevel() {
+            return PocketBrain.this.getLevel();
+        }
+
+        @Override
+        public Vec3 getPosition() {
+            return PocketBrain.this.getPosition();
+        }
+
+        @Override
+        public @Nullable Entity getEntity() {
+            return PocketBrain.this.getEntity();
+        }
+
+        @Override
+        public boolean isActive() {
+            return PocketBrain.this.isActive();
+        }
+
+        @Override
+        public int getColour() {
+            return PocketBrain.this.getColour();
+        }
+
+        @Override
+        public void setColour(int colour) {
+            PocketBrain.this.setColour(colour);
+        }
+
+        @Override
+        public int getLight() {
+            return lightColour;
+        }
+
+        @Override
+        public void setLight(int colour) {
+            if (colour < 0 || colour > 0xFFFFFF) colour = -1;
+            lightColour = colour;
+        }
+
+        @Override
+        public DataComponentPatch getUpgradeData() {
+            var upgrade = this.upgrade;
+            return upgrade == null ? DataComponentPatch.EMPTY : upgrade.data();
+        }
+
+        @Override
+        public void setUpgradeData(DataComponentPatch data) {
+            var stack = requireStack();
+
+            var upgrade = this.upgrade;
+            if (upgrade == null || upgrade.data().equals(data)) return;
+
+            this.upgrade = UpgradeData.of(upgrade.holder(), data);
+            stack.set(component, upgrade);
+            holder.setChanged();
+        }
+
+        @Override
+        public void invalidatePeripheral() {
+            var peripheral = upgrade == null ? null : upgrade.upgrade().createPeripheral(this);
+            computer.setPeripheral(side, peripheral);
+        }
+
+        @Override
+        public @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
+            return upgrade;
+        }
+
+        /**
+         * Set the upgrade for this pocket computer, also updating the item stack.
+         * <p>
+         * Note this method is not thread safe - it must be called from the server thread.
+         *
+         * @param upgrade The new upgrade to set it to, may be {@code null}.
+         */
+        @Override
+        public void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
+            var stack = requireStack();
+
+            if (!setUpgradeDirect(upgrade)) return;
+
+            stack.set(component, upgrade);
+            holder.setChanged();
+        }
+
+        /**
+         * Set an upgrade without writing it back to the stack.
+         *
+         * @param upgrade The upgrade to set.
+         * @return Whether the upgrade changed.
+         */
+        private boolean setUpgradeDirect(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
+            if (Objects.equals(this.upgrade, upgrade)) return false;
+
+            this.upgrade = upgrade;
+            lightColour = -1;
+            invalidatePeripheral();
+            return true;
+        }
     }
 }

@@ -10,6 +10,7 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.pocket.core.PocketSide;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import dan200.computercraft.shared.util.DataComponentUtil;
@@ -134,14 +135,22 @@ public class UpgradeRecipeGenerator<T> {
             return Collections.unmodifiableList(recipes);
         } else if (stack.getItem() instanceof PocketComputerItem) {
             // Suggest possible upgrades which can be applied to this turtle
-            var back = PocketComputerItem.getUpgrade(stack);
-            if (back != null) return List.of();
+            var back = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BACK);
+            var bottom = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BOTTOM);
+            if (back != null && bottom != null) return List.of();
 
             List<T> recipes = new ArrayList<>();
             var ingredient = new SlotDisplay.ItemStackSlotDisplay(stack);
             for (var upgrade : pocketUpgrades) {
                 if (upgrade.pocket == null) throw new NullPointerException();
-                recipes.add(pocket(upgrade.ingredient, ingredient, pocketWith(stack, UpgradeData.ofDefault(upgrade.pocket))));
+
+                if (back == null) {
+                    recipes.add(pocket(upgrade.ingredient, ingredient, pocketWith(stack, UpgradeData.ofDefault(upgrade.pocket), bottom)));
+                }
+
+                if (bottom == null) {
+                    recipes.add(pocket(ingredient, upgrade.ingredient, pocketWith(stack, back, UpgradeData.ofDefault(upgrade.pocket))));
+                }
             }
 
             return Collections.unmodifiableList(recipes);
@@ -208,9 +217,22 @@ public class UpgradeRecipeGenerator<T> {
         } else if (stack.getItem() instanceof PocketComputerItem) {
             List<T> recipes = new ArrayList<>(0);
 
-            var back = PocketComputerItem.getUpgradeWithData(stack);
+            var back = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BACK);
+            var bottom = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BOTTOM);
             if (back != null) {
-                recipes.add(pocket(new SlotDisplay.ItemStackSlotDisplay(back.getUpgradeItem()), new SlotDisplay.ItemStackSlotDisplay(pocketWith(stack, null)), stack));
+                recipes.add(pocket(
+                    new SlotDisplay.ItemStackSlotDisplay(back.getUpgradeItem()),
+                    new SlotDisplay.ItemStackSlotDisplay(pocketWith(stack, null, bottom)),
+                    stack
+                ));
+            }
+
+            if (bottom != null) {
+                recipes.add(pocket(
+                    new SlotDisplay.ItemStackSlotDisplay(pocketWith(stack, back, null)),
+                    new SlotDisplay.ItemStackSlotDisplay(bottom.getUpgradeItem()),
+                    stack
+                ));
             }
 
             return Collections.unmodifiableList(recipes);
@@ -226,15 +248,16 @@ public class UpgradeRecipeGenerator<T> {
         return newStack;
     }
 
-    private static ItemStack pocketWith(ItemStack stack, @Nullable UpgradeData<IPocketUpgrade> back) {
+    private static ItemStack pocketWith(ItemStack stack, @Nullable UpgradeData<IPocketUpgrade> back, @Nullable UpgradeData<IPocketUpgrade> bottom) {
         var newStack = stack.copyWithCount(1);
-        newStack.set(ModRegistry.DataComponents.POCKET_UPGRADE.get(), back);
+        newStack.set(ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), back);
+        newStack.set(ModRegistry.DataComponents.BOTTOM_POCKET_UPGRADE.get(), bottom);
         return newStack;
     }
 
-    private T pocket(SlotDisplay upgrade, SlotDisplay pocketComputer, ItemStack result) {
+    private T pocket(SlotDisplay top, SlotDisplay bottom, ItemStack result) {
         return wrap.apply(new ShapedCraftingRecipeDisplay(
-            1, 2, List.of(upgrade, pocketComputer), new SlotDisplay.ItemStackSlotDisplay(result), CRAFTING_STATION
+            1, 2, List.of(top, bottom), new SlotDisplay.ItemStackSlotDisplay(result), CRAFTING_STATION
         ));
     }
 
@@ -283,7 +306,7 @@ public class UpgradeRecipeGenerator<T> {
                     recipes.add(pocket(
                         ingredient,
                         new SlotDisplay.ItemSlotDisplay(pocketItem),
-                        DataComponentUtil.createStack(pocketItem, ModRegistry.DataComponents.POCKET_UPGRADE.get(), UpgradeData.ofDefault(pocket))
+                        DataComponentUtil.createStack(pocketItem, ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), UpgradeData.ofDefault(pocket))
                     ));
                 }
             }

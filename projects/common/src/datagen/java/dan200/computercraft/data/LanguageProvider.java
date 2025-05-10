@@ -100,8 +100,10 @@ public final class LanguageProvider implements DataProvider {
 
         add(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get(), "Pocket Computer");
         add(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get().getDescriptionId() + ".upgraded", "%s Pocket Computer");
+        add(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get().getDescriptionId() + ".upgraded_twice", "%s %s Pocket Computer");
         add(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get(), "Advanced Pocket Computer");
         add(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get().getDescriptionId() + ".upgraded", "Advanced %s Pocket Computer");
+        add(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get().getDescriptionId() + ".upgraded_twice", "Advanced %s %s Pocket Computer");
 
         // Tags (for EMI)
         add(ComputerCraftTags.Items.COMPUTER, "Computers");

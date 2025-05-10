@@ -13,16 +13,22 @@ import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 public class TurtleSpeaker extends AbstractTurtleUpgrade {
-    private static class Peripheral extends UpgradeSpeakerPeripheral {
+    private static final class Peripheral extends UpgradeSpeakerPeripheral {
         final ITurtleAccess turtle;
 
         Peripheral(ITurtleAccess turtle) {
             this.turtle = turtle;
+        }
+
+        @Override
+        protected ServerLevel getLevel() {
+            return (ServerLevel) turtle.getLevel();
         }
 
         @Override

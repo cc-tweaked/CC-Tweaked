@@ -7,6 +7,7 @@ package dan200.computercraft.shared.peripheral.speaker;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
+import net.minecraft.server.level.ServerLevel;
 
 
 /**
@@ -15,15 +16,15 @@ import dan200.computercraft.shared.network.server.ServerNetworking;
 public abstract class UpgradeSpeakerPeripheral extends SpeakerPeripheral {
     public static final String ADJECTIVE = "upgrade.computercraft.speaker.adjective";
 
+    protected abstract ServerLevel getLevel();
+
     @Override
     public void detach(IComputerAccess computer) {
         super.detach(computer);
 
         // We could be in the process of shutting down the server, so we can't send packets in this case.
-        var level = getPosition().level();
-        if (level == null) return;
-        var server = level.getServer();
-        if (server == null || server.isStopped()) return;
+        var server = getLevel().getServer();
+        if (server.isStopped()) return;
 
         ServerNetworking.sendToAllPlayers(new SpeakerStopClientMessage(getSource()), server);
     }

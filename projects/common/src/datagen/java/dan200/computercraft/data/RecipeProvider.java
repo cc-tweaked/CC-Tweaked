@@ -141,7 +141,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
 
             registries.lookupOrThrow(IPocketUpgrade.REGISTRY).listElements().forEach(upgradeHolder -> {
                 var upgrade = upgradeHolder.value();
-                customShaped(RecipeCategory.REDSTONE, DataComponentUtil.createStack(pocket, ModRegistry.DataComponents.POCKET_UPGRADE.get(), UpgradeData.ofDefault(upgradeHolder)))
+                customShaped(RecipeCategory.REDSTONE, DataComponentUtil.createStack(pocket, ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), UpgradeData.ofDefault(upgradeHolder)))
                     .group(name.toString())
                     .pattern("#")
                     .pattern("P")

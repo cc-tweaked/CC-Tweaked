@@ -7,60 +7,15 @@ package dan200.computercraft.api.pocket;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Wrapper class for pocket computers.
+ * Access to a pocket computer for {@linkplain IPocketUpgrade pocket upgrades}.
  */
 @ApiStatus.NonExtendable
-public interface IPocketAccess {
-    /**
-     * Get the level in which the pocket computer exists.
-     *
-     * @return The pocket computer's level.
-     */
-    ServerLevel getLevel();
-
-    /**
-     * Get the position of the pocket computer.
-     *
-     * @return The pocket computer's position.
-     */
-    Vec3 getPosition();
-
-    /**
-     * Gets the entity holding this item.
-     * <p>
-     * This must be called on the server thread.
-     *
-     * @return The holding entity, or {@code null} if none exists.
-     */
-    @Nullable
-    Entity getEntity();
-
-    /**
-     * Get the colour of this pocket computer as a RGB number.
-     *
-     * @return The colour this pocket computer is. This will be a RGB colour between {@code 0x000000} and
-     * {@code 0xFFFFFF} or -1 if it has no colour.
-     * @see #setColour(int)
-     */
-    int getColour();
-
-    /**
-     * Set the colour of the pocket computer to a RGB number.
-     *
-     * @param colour The colour this pocket computer should be changed to. This should be a RGB colour between
-     *               {@code 0x000000} and {@code 0xFFFFFF} or -1 to reset to the default colour.
-     * @see #getColour()
-     */
-    void setColour(int colour);
-
+public interface IPocketAccess extends PocketComputer {
     /**
      * Get the colour of this pocket computer's light as a RGB number.
      *
@@ -92,7 +47,8 @@ public interface IPocketAccess {
     /**
      * Set the upgrade for this pocket computer, also updating the item stack.
      * <p>
-     * Note this method is not thread safe - it must be called from the server thread.
+     * This method can only be called from the main server thread, when this computer is {@linkplain #isActive() is
+     * active}.
      *
      * @param upgrade The new upgrade to set it to, may be {@code null}.
      * @see #getUpgrade()
@@ -114,6 +70,9 @@ public interface IPocketAccess {
 
     /**
      * Update the upgrade-specific data.
+     * <p>
+     * This method can only be called from the main server thread, when this computer is {@linkplain #isActive() is
+     * active}.
      *
      * @param data The new upgrade data.
      * @see #getUpgradeData()

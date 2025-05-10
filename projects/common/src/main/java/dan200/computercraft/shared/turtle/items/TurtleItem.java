@@ -5,11 +5,11 @@
 package dan200.computercraft.shared.turtle.items;
 
 import dan200.computercraft.annotations.ForgeOverride;
-import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.TurtleUpgrades;
+import dan200.computercraft.impl.UpgradeManager;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
@@ -30,39 +30,13 @@ public class TurtleItem extends BlockItem {
 
     @Override
     public Component getName(ItemStack stack) {
-        var baseString = descriptionId;
-        var left = getUpgrade(stack, TurtleSide.LEFT);
-        var right = getUpgrade(stack, TurtleSide.RIGHT);
-        if (left != null && right != null) {
-            return Component.translatable(baseString + ".upgraded_twice", right.getAdjective(), left.getAdjective());
-        } else if (left != null) {
-            return Component.translatable(baseString + ".upgraded", left.getAdjective());
-        } else if (right != null) {
-            return Component.translatable(baseString + ".upgraded", right.getAdjective());
-        } else {
-            return Component.translatable(baseString);
-        }
+        return UpgradeManager.getName(getDescriptionId(), getUpgrade(stack, TurtleSide.LEFT), getUpgrade(stack, TurtleSide.RIGHT));
     }
 
     @Nullable
     @ForgeOverride
     public String getCreatorModId(HolderLookup.Provider registries, ItemStack stack) {
-        // Determine our "creator mod" from the upgrades. We attempt to find the first non-vanilla/non-CC
-        // upgrade (starting from the left).
-
-        var left = getUpgradeWithData(stack, TurtleSide.LEFT);
-        if (left != null) {
-            var mod = TurtleUpgrades.instance().getOwner(left.holder());
-            if (!mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
-        }
-
-        var right = getUpgradeWithData(stack, TurtleSide.RIGHT);
-        if (right != null) {
-            var mod = TurtleUpgrades.instance().getOwner(right.holder());
-            if (!mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
-        }
-
-        return ComputerCraftAPI.MOD_ID;
+        return TurtleUpgrades.instance().getOwner(getUpgradeWithData(stack, TurtleSide.LEFT), getUpgradeWithData(stack, TurtleSide.RIGHT));
     }
 
     public static @Nullable ITurtleUpgrade getUpgrade(ItemStack stack, TurtleSide side) {
@@ -71,7 +45,10 @@ public class TurtleItem extends BlockItem {
     }
 
     public static @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(ItemStack stack, TurtleSide side) {
-        return stack.get(side == TurtleSide.LEFT ? ModRegistry.DataComponents.LEFT_TURTLE_UPGRADE.get() : ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get());
+        return stack.get(switch (side) {
+            case LEFT -> ModRegistry.DataComponents.LEFT_TURTLE_UPGRADE.get();
+            case RIGHT -> ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get();
+        });
     }
 
     public static @Nullable TurtleOverlay getOverlay(ItemStack stack) {
