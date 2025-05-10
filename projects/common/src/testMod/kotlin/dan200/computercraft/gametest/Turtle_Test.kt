@@ -29,6 +29,7 @@ import dan200.computercraft.shared.util.WaterloggableHelpers
 import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.LuaTaskContext
 import dan200.computercraft.test.core.computer.getApi
+import dan200.computercraft.test.shared.ItemStackMatcher.isStack
 import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
@@ -906,6 +907,83 @@ class Turtle_Test {
     @GameTest
     fun Can_extract_items(helper: GameTestHelper) = helper.sequence {
         thenWaitUntil { helper.assertContainerEmpty(BlockPos(2, 3, 2)) }
+    }
+
+    /**
+     * Test that turtles can be crafted with upgrades.
+     */
+    @GameTest(template = Structures.DEFAULT)
+    fun Can_upgrades_be_crafted(helper: GameTestHelper) = helper.immediate {
+        fun turtle(left: UpgradeData<ITurtleUpgrade>? = null, right: UpgradeData<ITurtleUpgrade>? = null): ItemStack =
+            ModRegistry.Items.TURTLE_NORMAL.get()
+                .create(-1, null, -1, left, right, 0, null)
+
+        val pick = TurtleUpgrades.instance().get(ItemStack(Items.DIAMOND_PICKAXE))!!
+        val sword = TurtleUpgrades.instance().get(ItemStack(Items.DIAMOND_SWORD))!!
+
+        // Check we can craft with upgrades
+        assertThat(
+            "Craft with item on left equips on right",
+            helper.craftItem(
+                ItemStack(Items.DIAMOND_PICKAXE), turtle(), ItemStack.EMPTY,
+                ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+                ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+            ),
+            isStack(turtle(right = pick)),
+        )
+        assertThat(
+            "Craft with item on right equips on left",
+            helper.craftItem(
+                ItemStack.EMPTY, turtle(), ItemStack(Items.DIAMOND_PICKAXE),
+                ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+                ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+            ),
+            isStack(turtle(left = pick)),
+        )
+        assertThat(
+            "Craft with two items",
+            helper.craftItem(
+                ItemStack(Items.DIAMOND_SWORD), turtle(), ItemStack(Items.DIAMOND_PICKAXE),
+                ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+                ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+            ),
+            isStack(turtle(left = pick, right = sword)),
+        )
+        assertThat(
+            "Maintains upgrades",
+            helper.craftItem(
+                ItemStack(Items.DIAMOND_SWORD), turtle(left = pick), ItemStack.EMPTY,
+                ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+                ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+            ),
+            isStack(turtle(left = pick, right = sword)),
+        )
+
+        // Cannot craft when already have item
+        helper.assertNotCraftable(
+            ItemStack.EMPTY, turtle(left = sword), ItemStack(Items.DIAMOND_PICKAXE),
+            ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+            ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+        )
+
+        // Cannot craft with an invalid upgrade
+        helper.assertNotCraftable(
+            ItemStack.EMPTY, turtle(), ItemStack(Items.DIRT),
+            ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+            ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+        )
+
+        // Cannot craft with extra items in the inventory
+        helper.assertNotCraftable(
+            ItemStack.EMPTY, ItemStack.EMPTY, ItemStack(Items.DIRT),
+            ItemStack.EMPTY, turtle(), ItemStack(Items.DIAMOND_PICKAXE),
+            ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+        )
+        helper.assertNotCraftable(
+            ItemStack.EMPTY, turtle(), ItemStack(Items.DIAMOND_PICKAXE),
+            ItemStack.EMPTY, ItemStack.EMPTY, ItemStack(Items.DIRT),
+            ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
+        )
     }
 
     /**

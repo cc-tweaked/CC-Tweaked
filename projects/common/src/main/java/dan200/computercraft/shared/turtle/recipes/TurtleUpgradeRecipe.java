@@ -111,7 +111,9 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
             itemTurtle.getUpgradeWithData(turtle, TurtleSide.RIGHT),
         };
 
-        // Get the upgrades for the new items
+        // Get the upgrades for the new items.
+        // Note: because the turtle is facing towards us, the directions are flipped. Items placed to the left
+        // of the turtle, are equipped on its right (and vice versa).
         var items = new ItemStack[]{ rightItem, leftItem };
         for (var i = 0; i < 2; i++) {
             if (!items[i].isEmpty()) {
