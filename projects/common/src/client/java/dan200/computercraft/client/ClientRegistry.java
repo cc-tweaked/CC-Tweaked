@@ -20,10 +20,11 @@ import dan200.computercraft.client.render.CustomLecternRenderer;
 import dan200.computercraft.client.render.TurtleBlockEntityRenderer;
 import dan200.computercraft.client.render.monitor.MonitorBlockEntityRenderer;
 import dan200.computercraft.client.turtle.TurtleModemModel;
+import dan200.computercraft.client.turtle.TurtleOverlay;
+import dan200.computercraft.client.turtle.TurtleOverlayManager;
 import dan200.computercraft.client.turtle.TurtleUpgradeModels;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
-import dan200.computercraft.shared.turtle.TurtleOverlay;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -35,17 +36,22 @@ import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.properties.conditional.ConditionalItemModelProperty;
 import net.minecraft.client.renderer.item.properties.select.SelectItemModelProperty;
 import net.minecraft.client.resources.model.MissingBlockModel;
+import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 /**
  * Registers client-side objects, such as {@link BlockEntityRendererProvider}s and
@@ -122,14 +128,61 @@ public final class ClientRegistry {
         MissingBlockModel.LOCATION,
     };
 
-    public static void registerExtraModels(
-        BiConsumer<ModelKey<StandaloneModel>, ResourceLocation> registerBasic,
-        BiConsumer<ModelKey<? extends TurtleUpgradeModel<?>>, TurtleUpgradeModel.Unbaked<?>> registerTurtle,
-        Collection<ResourceLocation> extraModels
+    /**
+     * Additional models to load.
+     *
+     * @param turtleOverlays The unbaked turtle models.
+     * @see #gatherExtraModels(ResourceManager, Executor)
+     * @see #registerExtraModels(RegisterExtraModels, ExtraModels)
+     */
+    public record ExtraModels(
+        Map<ResourceLocation, TurtleOverlay.Unbaked> turtleOverlays
     ) {
-        for (var model : EXTRA_MODELS) registerBasic.accept(getModel(model), model);
-        for (var model : extraModels) registerBasic.accept(getModel(model), model);
-        TurtleUpgradeModels.bake(registerTurtle);
+    }
+
+    /**
+     * Gather the list of extra models to load.
+     *
+     * @param resources The current resource manager.
+     * @param executor  The executor to schedule loading on.
+     * @return A promise which contains our extra models.
+     */
+    public static CompletableFuture<ExtraModels> gatherExtraModels(ResourceManager resources, Executor executor) {
+        var turtleOverlays = TurtleOverlayManager.load(resources, executor);
+        return turtleOverlays.thenApply(ExtraModels::new);
+    }
+
+    /**
+     * A callback used to register a model for a {@link ModelKey}.
+     */
+    public interface RegisterExtraModels {
+        default <U extends ResolvableModel, T> void register(ModelKey<T> key, U unbaked, BiFunction<U, ModelBaker, T> bake) {
+            register(key, unbaked, ResolvableModel::resolveDependencies, bake);
+        }
+
+        /**
+         * Register an extra model.
+         * <p>
+         * This accepts functions to resolve dependencies and bake the model. While this would be conceptually nicer as
+         * an interface, it would require multiple adaptors to convert between "upgrade model", "a"bstract model" and
+         * "platform-specific model", so working with functions is cleaner.
+         *
+         * @param key     The model key for this model.
+         * @param unbaked The unbaked model.
+         * @param resolve The function to resolve dependencies for this model.
+         * @param bake    The function to bake this model.
+         * @param <U>     The type of unbaked model.
+         * @param <T>     The type of baked model.
+         */
+        <U, T> void register(ModelKey<T> key, U unbaked, BiConsumer<U, ResolvableModel.Resolver> resolve, BiFunction<U, ModelBaker, T> bake);
+    }
+
+    public static void registerExtraModels(RegisterExtraModels register, ExtraModels models) {
+        for (var model : EXTRA_MODELS) {
+            register.register(getModel(model), model, (id, r) -> r.markDependency(id), StandaloneModel::of);
+        }
+        TurtleOverlayManager.register(register, models.turtleOverlays());
+        TurtleUpgradeModels.bake(register);
     }
 
     public static void registerItemModels(BiConsumer<ResourceLocation, MapCodec<? extends ItemModel.Unbaked>> register) {

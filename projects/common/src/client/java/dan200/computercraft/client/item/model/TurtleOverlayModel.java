@@ -7,8 +7,8 @@ package dan200.computercraft.client.item.model;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.client.ClientRegistry;
-import dan200.computercraft.shared.turtle.TurtleOverlay;
+import dan200.computercraft.client.turtle.TurtleOverlay;
+import dan200.computercraft.client.turtle.TurtleOverlayManager;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -40,7 +40,7 @@ public record TurtleOverlayModel(ItemTransforms transforms) implements ItemModel
         if (overlay == null) return;
 
         var layer = state.newLayer();
-        ClientRegistry.getModel(Minecraft.getInstance().getModelManager(), overlay.model()).setupItemLayer(layer);
+        TurtleOverlayManager.getOverlay(Minecraft.getInstance().getModelManager(), overlay).model().setupItemLayer(layer);
         layer.setTransform(transforms().getTransform(context));
     }
 

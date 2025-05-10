@@ -24,11 +24,6 @@ public final class FabricModelKey<T> implements ModelKey<T> {
         return ((FabricModelKey<T>) key).key;
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T> ExtraModelKey<T> erased(ModelKey<?> key) {
-        return ((FabricModelKey<T>) key).key;
-    }
-
     @Override
     public @Nullable T get(ModelManager manager) {
         return manager.getModel(key);

@@ -6,12 +6,9 @@ package dan200.computercraft.client;
 
 import com.google.common.reflect.TypeToken;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.client.StandaloneModel;
 import dan200.computercraft.api.client.turtle.RegisterTurtleModelEvent;
-import dan200.computercraft.api.client.turtle.TurtleUpgradeModel;
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.client.model.ExtraModels;
 import dan200.computercraft.client.platform.ForgeModelKey;
+import dan200.computercraft.client.platform.ModelKey;
 import dan200.computercraft.client.render.ExtendedItemFrameRenderState;
 import dan200.computercraft.client.turtle.TurtleUpgradeModels;
 import net.minecraft.client.Minecraft;
@@ -29,6 +26,11 @@ import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.model.standalone.UnbakedStandaloneModel;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+
 
 /**
  * Registers textures and models for items.
@@ -44,12 +46,18 @@ public final class ForgeClientRegistry {
     public static void registerModels(ModelEvent.RegisterStandalone event) {
         TurtleUpgradeModels.fetch(() -> ModLoader.postEvent(new RegisterTurtleModelEvent(TurtleUpgradeModels::register)));
 
-        var extraModels = ExtraModels.loadAll(Minecraft.getInstance().getResourceManager());
-        ClientRegistry.registerExtraModels(
-            (key, model) -> event.register(ForgeModelKey.key(key), StandaloneModel::of),
-            (key, model) -> event.register(ForgeModelKey.erased(key), new TurtleModelWrapper<>(model)),
-            extraModels
-        );
+        // Load resources
+        Queue<Runnable> tasks = new ArrayDeque<>();
+        var state = ClientRegistry.gatherExtraModels(Minecraft.getInstance().getResourceManager(), tasks::add);
+        Runnable task;
+        while ((task = tasks.poll()) != null) task.run();
+
+        ClientRegistry.registerExtraModels(new ClientRegistry.RegisterExtraModels() {
+            @Override
+            public <U, T> void register(ModelKey<T> key, U unbaked, BiConsumer<U, ResolvableModel.Resolver> resolve, BiFunction<U, ModelBaker, T> bake) {
+                event.register(ForgeModelKey.key(key), new ModelWrapper<>(unbaked, resolve, bake));
+            }
+        }, state.resultNow());
     }
 
     @SubscribeEvent
@@ -102,17 +110,17 @@ public final class ForgeClientRegistry {
         ClientRegistry.register();
     }
 
-    private record TurtleModelWrapper<T extends ITurtleUpgrade>(
-        TurtleUpgradeModel.Unbaked<T> model
-    ) implements UnbakedStandaloneModel<TurtleUpgradeModel<T>> {
+    private record ModelWrapper<U, T>(
+        U model, BiConsumer<U, ResolvableModel.Resolver> resolve, BiFunction<U, ModelBaker, T> bake
+    ) implements UnbakedStandaloneModel<T> {
         @Override
-        public TurtleUpgradeModel<T> bake(ModelBaker baker) {
-            return model().bake(baker);
+        public T bake(ModelBaker baker) {
+            return bake().apply(model(), baker);
         }
 
         @Override
         public void resolveDependencies(ResolvableModel.Resolver resolver) {
-            model().resolveDependencies(resolver);
+            resolve().accept(model(), resolver);
         }
     }
 }

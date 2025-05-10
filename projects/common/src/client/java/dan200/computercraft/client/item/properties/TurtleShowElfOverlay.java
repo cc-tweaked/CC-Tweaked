@@ -6,8 +6,10 @@ package dan200.computercraft.client.item.properties;
 
 import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.shared.turtle.TurtleOverlay;
+import dan200.computercraft.client.turtle.TurtleOverlay;
+import dan200.computercraft.client.turtle.TurtleOverlayManager;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.item.properties.conditional.ConditionalItemModelProperty;
 import net.minecraft.resources.ResourceLocation;
@@ -29,7 +31,7 @@ public class TurtleShowElfOverlay implements ConditionalItemModelProperty {
 
     @Override
     public boolean get(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity holder, int i, ItemDisplayContext context) {
-        var overlay = TurtleItem.getOverlay(stack);
+        var overlay = TurtleOverlayManager.getOverlay(Minecraft.getInstance().getModelManager(), TurtleItem.getOverlay(stack));
         return overlay == null || overlay.showElfOverlay();
     }
 

@@ -10,10 +10,9 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.client.gui.GuiSprites;
 import dan200.computercraft.client.model.LecternPocketModel;
 import dan200.computercraft.client.model.LecternPrintoutModel;
+import dan200.computercraft.client.turtle.TurtleOverlay;
 import dan200.computercraft.data.client.BlockModelProvider;
-import dan200.computercraft.data.client.ExtraModelsProvider;
 import dan200.computercraft.data.client.ItemModelProvider;
-import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.inventory.UpgradeSlot;
 import net.minecraft.Util;
 import net.minecraft.client.data.models.BlockModelGenerators;
@@ -55,7 +54,6 @@ public final class DataProviders {
             Util.make(new RegistrySetBuilder(), builder -> {
                 builder.add(ITurtleUpgrade.REGISTRY, TurtleUpgradeProvider::addUpgrades);
                 builder.add(IPocketUpgrade.REGISTRY, PocketUpgradeProvider::addUpgrades);
-                builder.add(TurtleOverlay.REGISTRY, TurtleOverlays::register);
             }));
         var fullRegistries = fullRegistryPatch.thenApply(RegistrySetBuilder.PatchedRegistries::full);
 
@@ -90,12 +88,7 @@ public final class DataProviders {
             ));
         });
 
-        generator.add(pack -> new ExtraModelsProvider(pack, fullRegistries) {
-            @Override
-            public Stream<ResourceLocation> getModels(HolderLookup.Provider registries) {
-                return registries.lookupOrThrow(TurtleOverlay.REGISTRY).listElements().map(x -> x.value().model());
-            }
-        });
+        generator.addFromCodec("Turtle overlays", PackOutput.Target.RESOURCE_PACK, TurtleOverlay.SOURCE, TurtleOverlay.CODEC, TurtleOverlays::register);
 
         generator.addModels(BlockModelProvider::addBlockModels, ItemModelProvider::addItemModels);
     }

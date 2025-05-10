@@ -81,7 +81,6 @@ import dan200.computercraft.shared.recipe.*;
 import dan200.computercraft.shared.recipe.function.CopyComponents;
 import dan200.computercraft.shared.recipe.function.RecipeFunction;
 import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
-import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
@@ -389,8 +388,8 @@ public final class ModRegistry {
         /**
          * The overlay on a turtle.
          */
-        public static final RegistryEntry<DataComponentType<Holder<TurtleOverlay>>> OVERLAY = register("overlay", b -> b
-            .persistent(TurtleOverlay.CODEC).networkSynchronized(TurtleOverlay.STREAM_CODEC)
+        public static final RegistryEntry<DataComponentType<ResourceLocation>> OVERLAY = register("overlay", b -> b
+            .persistent(ResourceLocation.CODEC).networkSynchronized(ResourceLocation.STREAM_CODEC).cacheEncoding()
         );
 
         /**

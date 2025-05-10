@@ -14,7 +14,6 @@ import dan200.computercraft.api.turtle.TurtleSide
 import dan200.computercraft.api.upgrades.UpgradeData
 import dan200.computercraft.core.apis.PeripheralAPI
 import dan200.computercraft.gametest.api.*
-import dan200.computercraft.gametest.api.GameTest
 import dan200.computercraft.gametest.core.TestHooks
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.mixin.gametest.GameTestInfoAccessor
@@ -24,7 +23,6 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableBlock
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlock
 import dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState
-import dan200.computercraft.shared.turtle.TurtleOverlay
 import dan200.computercraft.shared.turtle.apis.TurtleAPI
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity
 import dan200.computercraft.shared.turtle.core.TurtleCraftCommand
@@ -772,8 +770,7 @@ class Turtle_Test {
     @GameTest
     fun Data_fixers(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            val overlay = helper.level.registryAccess().lookupOrThrow(TurtleOverlay.REGISTRY)
-                .getValue(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "trans_flag"))!!
+            val overlay = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "trans_flag")
             val upgrade = helper.level.registryAccess().lookupOrThrow(ITurtleUpgrade.REGISTRY)
                 .getValue(ResourceLocation.withDefaultNamespace("diamond_pickaxe"))!!
 

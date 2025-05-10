@@ -7,6 +7,7 @@ package dan200.computercraft.client.turtle;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeType;
+import dan200.computercraft.client.ClientRegistry;
 import dan200.computercraft.client.platform.ClientPlatformHelper;
 import dan200.computercraft.client.platform.ModelKey;
 import dan200.computercraft.shared.util.RegistryHelper;
@@ -15,7 +16,6 @@ import net.minecraft.client.resources.model.MissingBlockModel;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
 
 /**
  * A registry of {@link TurtleUpgradeModel}s.
@@ -79,8 +79,10 @@ public final class TurtleUpgradeModels {
         return missing;
     }
 
-    public static void bake(BiConsumer<ModelKey<? extends TurtleUpgradeModel<?>>, TurtleUpgradeModel.Unbaked<?>> baker) {
-        unbaked.forEach(baker);
-        baker.accept(missingModelKey, TurtleUpgradeModel.sided(MissingBlockModel.LOCATION, MissingBlockModel.LOCATION));
+    @SuppressWarnings("unchecked")
+    public static void bake(ClientRegistry.RegisterExtraModels register) {
+        unbaked.forEach((id, model) ->
+            register.register((ModelKey<TurtleUpgradeModel<?>>) id, model, TurtleUpgradeModel.Unbaked::bake));
+        register.register(missingModelKey, TurtleUpgradeModel.sided(MissingBlockModel.LOCATION, MissingBlockModel.LOCATION), TurtleUpgradeModel.Unbaked::bake);
     }
 }

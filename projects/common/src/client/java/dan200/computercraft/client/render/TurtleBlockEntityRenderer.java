@@ -9,9 +9,10 @@ import com.mojang.math.Axis;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.client.ClientRegistry;
+import dan200.computercraft.client.turtle.TurtleOverlay;
+import dan200.computercraft.client.turtle.TurtleOverlayManager;
 import dan200.computercraft.client.turtle.TurtleUpgradeModels;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.Holiday;
 import net.minecraft.client.Minecraft;
@@ -78,7 +79,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
 
         // Render the turtle
         var colour = turtle.getColour();
-        var overlay = turtle.getOverlay();
+        var overlay = TurtleOverlayManager.getOverlay(Minecraft.getInstance().getModelManager(), turtle.getOverlay());
 
         if (colour == -1) {
             renderModel(transform, buffers, lightmapCoord, overlayLight, turtle.getFamily() == ComputerFamily.NORMAL ? NORMAL_TURTLE_MODEL : ADVANCED_TURTLE_MODEL, null);
@@ -88,10 +89,10 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         }
 
         // Render the overlay
-        if (overlay != null) renderModel(transform, buffers, lightmapCoord, overlayLight, overlay.model(), null);
+        if (overlay != null) overlay.model().render(transform, buffers, lightmapCoord, overlayLight);
 
         // And the Christmas overlay.
-        var showChristmas = TurtleOverlay.showElfOverlay(overlay, Holiday.getCurrent() == Holiday.CHRISTMAS);
+        var showChristmas = Holiday.getCurrent() == Holiday.CHRISTMAS && (overlay == null || overlay.showElfOverlay());
         if (showChristmas) renderModel(transform, buffers, lightmapCoord, overlayLight, TurtleOverlay.ELF_MODEL, null);
 
         // Render the upgrades

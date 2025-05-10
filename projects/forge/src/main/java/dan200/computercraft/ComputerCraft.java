@@ -30,7 +30,6 @@ import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.platform.ForgeConfigFile;
 import dan200.computercraft.shared.recipe.function.RecipeFunction;
-import dan200.computercraft.shared.turtle.TurtleOverlay;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -104,7 +103,6 @@ public final class ComputerCraft {
     public static void registerDynamicRegistries(DataPackRegistryEvent.NewRegistry event) {
         event.dataPackRegistry(ITurtleUpgrade.REGISTRY, TurtleUpgrades.instance().upgradeCodec(), TurtleUpgrades.instance().upgradeCodec());
         event.dataPackRegistry(IPocketUpgrade.REGISTRY, PocketUpgrades.instance().upgradeCodec(), PocketUpgrades.instance().upgradeCodec());
-        event.dataPackRegistry(TurtleOverlay.REGISTRY, TurtleOverlay.DIRECT_CODEC, TurtleOverlay.DIRECT_CODEC);
     }
 
     @SubscribeEvent

@@ -24,7 +24,6 @@ import dan200.computercraft.shared.recipe.ImpostorShapedRecipe;
 import dan200.computercraft.shared.recipe.TransformShapedRecipe;
 import dan200.computercraft.shared.recipe.TransformShapelessRecipe;
 import dan200.computercraft.shared.recipe.function.CopyComponents;
-import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.util.ColourUtils;
@@ -178,13 +177,11 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         );
     }
 
-    private void turtleOverlay(ResourceKey<TurtleOverlay> overlay, Consumer<ShapelessSpecBuilder> build) {
-        var holder = registries.lookupOrThrow(overlay.registryKey()).getOrThrow(overlay);
-
+    private void turtleOverlay(ResourceLocation overlay, Consumer<ShapelessSpecBuilder> build) {
         for (var turtleItem : turtleItems()) {
             var name = RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, turtleItem);
 
-            var builder = customShapeless(RecipeCategory.REDSTONE, DataComponentUtil.createStack(turtleItem, ModRegistry.DataComponents.OVERLAY.get(), holder))
+            var builder = customShapeless(RecipeCategory.REDSTONE, DataComponentUtil.createStack(turtleItem, ModRegistry.DataComponents.OVERLAY.get(), overlay))
                 .group(name.withSuffix("_overlay").toString())
                 .unlockedBy("has_turtle", has(turtleItem));
             build.accept(builder);
@@ -193,7 +190,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                 .build(s -> new TransformShapelessRecipe(s, List.of(
                     CopyComponents.builder(turtleItem).exclude(ModRegistry.DataComponents.OVERLAY.get()).build()
                 )))
-                .save(output, name.withSuffix("_overlays/" + overlay.location().getPath()));
+                .save(output, name.withSuffix("_overlays/" + overlay.getPath()));
         }
     }
 

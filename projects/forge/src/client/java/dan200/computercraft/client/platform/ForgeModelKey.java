@@ -24,11 +24,6 @@ public final class ForgeModelKey<T> implements ModelKey<T> {
         return ((ForgeModelKey<T>) key).key;
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T> StandaloneModelKey<T> erased(ModelKey<?> key) {
-        return ((ForgeModelKey<T>) key).key;
-    }
-
     @Override
     public @Nullable T get(ModelManager manager) {
         return manager.getStandaloneModel(key);
