@@ -75,6 +75,7 @@ public class PocketAPI implements ILuaAPI {
      * @return The result of equipping.
      * @cc.treturn boolean If an item was equipped.
      * @cc.treturn string|nil The reason an item was not equipped.
+     * @since 1.116.0
      */
     @LuaFunction(mainThread = true)
     public final Object[] equipBottom() {
@@ -125,6 +126,7 @@ public class PocketAPI implements ILuaAPI {
      * @return The result of unequipping.
      * @cc.treturn boolean If the upgrade was unequipped.
      * @cc.treturn string|nil The reason an upgrade was not unequipped.
+     * @since 1.116.0
      */
     @LuaFunction(mainThread = true)
     public final Object[] unequipBottom() {

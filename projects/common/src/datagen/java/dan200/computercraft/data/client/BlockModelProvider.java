@@ -123,7 +123,7 @@ public class BlockModelProvider {
 
         generators.blockStateOutput.accept(
             createSimpleBlock(ModRegistry.Blocks.LECTERN.get(), plainVariant(getModelLocation(Blocks.LECTERN)))
-                .with(createHorizontalFacingDispatch())
+                .with(ROTATION_HORIZONTAL_FACING)
         );
     }
 
@@ -142,7 +142,7 @@ public class BlockModelProvider {
                     generators.modelOutput
                 );
             }))
-            .with(createHorizontalFacingDispatch())
+            .with(ROTATION_HORIZONTAL_FACING)
         );
         generators.registerSimpleItemModel(diskDrive, getModelLocation(diskDrive, "_empty"));
     }
@@ -170,7 +170,7 @@ public class BlockModelProvider {
                     generators.modelOutput
                 );
             }))
-            .with(createHorizontalFacingDispatch())
+            .with(ROTATION_HORIZONTAL_FACING)
         );
         generators.registerSimpleItemModel(printer, getModelLocation(printer, "_empty"));
     }
@@ -189,7 +189,7 @@ public class BlockModelProvider {
                     generators.modelOutput
                 );
             }))
-            .with(createHorizontalFacingDispatch())
+            .with(ROTATION_HORIZONTAL_FACING)
         );
         generators.registerSimpleItemModel(block, getModelLocation(block, "_blinking"));
     }
@@ -234,7 +234,7 @@ public class BlockModelProvider {
             .with(createModelDispatch(WirelessModemBlock.ON,
                 on -> modemModel(generators, getModelLocation(block, on ? "_on" : "_off"), getBlockTexture(block, "_face" + (on ? "_on" : "")))
             ))
-            .with(createFacingDispatch()));
+            .with(ROTATION_FACING));
         generators.registerSimpleItemModel(block, getModelLocation(block, "_off"));
     }
 
@@ -289,7 +289,7 @@ public class BlockModelProvider {
 
         generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
             .with(createModelDispatch(MonitorBlock.STATE, edge -> getModelLocation(block, edge == MonitorEdgeState.NONE ? "" : "_" + edge.getSerializedName())))
-            .with(createHorizontalFacingDispatch())
+            .with(ROTATION_HORIZONTAL_FACING)
             .with(createVerticalFacingDispatch(MonitorBlock.ORIENTATION))
         );
         generators.registerSimpleItemModel(block, monitorModel(generators, block, "_item", 15, 4, 0, 32));
@@ -373,8 +373,8 @@ public class BlockModelProvider {
                     generator.with(
                         condition().term(CableBlock.MODEM, CableModemVariant.from(direction, on, peripheral)),
                         plainVariant(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/wired_modem" + suffix))
-                            .with(VariantMutator.X_ROT.withValue(toXAngle(direction.getOpposite())))
-                            .with(VariantMutator.Y_ROT.withValue(toYAngle(direction.getOpposite())))
+                            .with(VariantMutator.X_ROT.withValue(toXAngle(direction)))
+                            .with(VariantMutator.Y_ROT.withValue(toYAngle(direction)))
                     );
                 }
             }
@@ -440,25 +440,12 @@ public class BlockModelProvider {
         };
     }
 
-    private static PropertyDispatch<VariantMutator> createHorizontalFacingDispatch() {
-        /*var dispatch = PropertyDispatch.modify(BlockStateProperties.HORIZONTAL_FACING);
-        for (var direction : BlockStateProperties.HORIZONTAL_FACING.getPossibleValues()) {
-            dispatch.select(direction, Variant.variant().with(VariantProperties.Y_ROT, toYAngle(direction)));
-        }
-        return dispatch;*/
-        return BlockModelGenerators.ROTATION_HORIZONTAL_FACING;
-    }
-
     private static PropertyDispatch<VariantMutator> createVerticalFacingDispatch(Property<Direction> property) {
         var dispatch = PropertyDispatch.modify(property);
         for (var direction : property.getPossibleValues()) {
             dispatch.select(direction, VariantMutator.X_ROT.withValue(toXAngle(direction)));
         }
         return dispatch;
-    }
-
-    private static PropertyDispatch<VariantMutator> createFacingDispatch() {
-        return BlockModelGenerators.ROTATION_FACING;
     }
 
     private static <T extends Comparable<T>> PropertyDispatch<MultiVariant> createModelDispatch(Property<T> property, Function<T, ResourceLocation> makeModel) {
