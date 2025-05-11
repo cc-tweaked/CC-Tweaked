@@ -1,0 +1,27 @@
+{
+  "type": "computercraft:select",
+  "cases": [
+    {
+      "model": {
+        "type": "computercraft:sided",
+        "left": "computercraft:block/turtle_modem_advanced_off_left",
+        "right": "computercraft:block/turtle_modem_advanced_off_right"
+      },
+      "when": [false]
+    },
+    {
+      "model": {
+        "type": "computercraft:sided",
+        "left": "computercraft:block/turtle_modem_advanced_on_left",
+        "right": "computercraft:block/turtle_modem_advanced_on_right"
+      },
+      "when": [true]
+    }
+  ],
+  "fallback": {
+    "type": "computercraft:sided",
+    "left": "computercraft:block/turtle_modem_advanced_off_left",
+    "right": "computercraft:block/turtle_modem_advanced_off_right"
+  },
+  "property": "computercraft:on"
+}

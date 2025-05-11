@@ -1,15 +1,20 @@
 package com.example.examplemod;
 
 import com.example.examplemod.data.TurtleUpgradeProvider;
+import dan200.computercraft.api.client.turtle.TurtleUpgradeModel;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricCodecDataProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricDynamicRegistryProvider;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 
 /**
  * Data generators for our Fabric example mod.
@@ -25,6 +30,17 @@ public class FabricExampleModDataGenerator implements DataGeneratorEntrypoint {
     private static void addTurtleUpgrades(FabricDataGenerator.Pack pack, CompletableFuture<HolderLookup.Provider> registries) {
         var fullRegistryPatch = TurtleUpgradeProvider.makeUpgradeRegistry(registries);
         pack.addProvider((FabricDataOutput output) -> new AutomaticDynamicRegistryProvider(output, fullRegistryPatch));
+        pack.addProvider((FabricDataOutput output) -> new FabricCodecDataProvider<>(output, registries, PackOutput.Target.RESOURCE_PACK, TurtleUpgradeModel.SOURCE, TurtleUpgradeModel.CODEC) {
+            @Override
+            public String getName() {
+                return "Turtle upgrade models";
+            }
+
+            @Override
+            protected void configure(BiConsumer<ResourceLocation, TurtleUpgradeModel.Unbaked> out, HolderLookup.Provider provider) {
+                TurtleUpgradeProvider.addUpgradeModels(out);
+            }
+        });
     }
 
     /**

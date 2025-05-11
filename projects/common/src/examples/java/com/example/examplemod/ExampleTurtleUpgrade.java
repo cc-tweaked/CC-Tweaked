@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 // @start region=body
 public class ExampleTurtleUpgrade extends AbstractTurtleUpgrade {
     public ExampleTurtleUpgrade(ItemStack stack) {
-        super(TurtleUpgradeType.PERIPHERAL, "example", stack);
+        super(TurtleUpgradeType.PERIPHERAL, "upgrade.examplemod.example_turtle_upgrade.adjective", stack);
     }
 
     @Override

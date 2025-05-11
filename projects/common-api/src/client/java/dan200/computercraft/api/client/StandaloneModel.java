@@ -7,15 +7,11 @@ package dan200.computercraft.api.client;
 import com.google.common.base.Suppliers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModel;
-import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.api.turtle.TurtleSide;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.item.BlockModelWrapper;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
@@ -24,7 +20,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BlockModelRotation;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvedModel;
-import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.LivingEntity;
@@ -84,6 +79,27 @@ public final class StandaloneModel {
      * @return The baked {@link StandaloneModel}.
      */
     public static StandaloneModel of(ResolvedModel model, ModelBaker baker) {
+        return baker.compute(new CacheKey(model));
+    }
+
+    private record CacheKey(ResolvedModel model) implements ModelBaker.SharedOperationKey<StandaloneModel> {
+        @Override
+        public StandaloneModel compute(ModelBaker baker) {
+            return ofUncached(model(), baker);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof CacheKey(var otherModel) && model() == otherModel;
+        }
+
+        @Override
+        public int hashCode() {
+            return System.identityHashCode(model());
+        }
+    }
+
+    private static StandaloneModel ofUncached(ResolvedModel model, ModelBaker baker) {
         var slots = model.getTopTextureSlots();
         return new StandaloneModel(
             model.bakeTopGeometry(slots, baker, BlockModelRotation.X0_Y0).getAll(),
@@ -98,7 +114,6 @@ public final class StandaloneModel {
      *
      * @param layer The layer to set up.
      * @see ItemModel#update(ItemStackRenderState, ItemStack, ItemModelResolver, ItemDisplayContext, ClientLevel, LivingEntity, int)
-     * @see TurtleUpgradeModel#renderForItem(ITurtleUpgrade, TurtleSide, DataComponentPatch, ItemStackRenderState, ItemModelResolver, ItemTransform, int)
      */
     public void setupItemLayer(ItemStackRenderState.LayerRenderState layer) {
         layer.setExtents(extents);
@@ -115,7 +130,6 @@ public final class StandaloneModel {
      * @param buffers   The buffer source to use for rendering.
      * @param light     The current light texture coordinate.
      * @param overlay   The current overlay texture coordinate.
-     * @see TurtleUpgradeModel#renderForLevel(ITurtleUpgrade, ITurtleAccess, TurtleSide, DataComponentPatch, PoseStack, MultiBufferSource, int, int)
      */
     public void render(PoseStack transform, MultiBufferSource buffers, int light, int overlay) {
         render(transform, buffers, light, overlay, null);
@@ -129,7 +143,6 @@ public final class StandaloneModel {
      * @param light     The current light texture coordinate.
      * @param overlay   The current overlay texture coordinate.
      * @param tints     The tints for this model.
-     * @see TurtleUpgradeModel#renderForLevel(ITurtleUpgrade, ITurtleAccess, TurtleSide, DataComponentPatch, PoseStack, MultiBufferSource, int, int)
      */
     public void render(PoseStack transform, MultiBufferSource buffers, int light, int overlay, int @Nullable [] tints) {
         var pose = transform.last();

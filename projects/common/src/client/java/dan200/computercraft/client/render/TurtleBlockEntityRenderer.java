@@ -11,7 +11,7 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.client.ClientRegistry;
 import dan200.computercraft.client.turtle.TurtleOverlay;
 import dan200.computercraft.client.turtle.TurtleOverlayManager;
-import dan200.computercraft.client.turtle.TurtleUpgradeModels;
+import dan200.computercraft.client.turtle.TurtleUpgradeModelManager;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.Holiday;
@@ -79,7 +79,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
 
         // Render the turtle
         var colour = turtle.getColour();
-        var overlay = TurtleOverlayManager.getOverlay(Minecraft.getInstance().getModelManager(), turtle.getOverlay());
+        var overlay = TurtleOverlayManager.get(Minecraft.getInstance().getModelManager(), turtle.getOverlay());
 
         if (colour == -1) {
             renderModel(transform, buffers, lightmapCoord, overlayLight, turtle.getFamily() == ComputerFamily.NORMAL ? NORMAL_TURTLE_MODEL : ADVANCED_TURTLE_MODEL, null);
@@ -103,7 +103,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
     }
 
     private void renderUpgrade(PoseStack transform, MultiBufferSource buffers, int lightmapCoord, int overlayLight, TurtleBlockEntity turtle, TurtleSide side, float f) {
-        var upgrade = turtle.getUpgrade(side);
+        var upgrade = turtle.getAccess().getUpgradeWithData(side);
         if (upgrade == null) return;
         transform.pushPose();
 
@@ -112,8 +112,8 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         transform.mulPose(Axis.XN.rotationDegrees(toolAngle));
         transform.translate(0.0f, -0.5f, -0.5f);
 
-        TurtleUpgradeModels.getModeller(upgrade).renderForLevel(upgrade, turtle.getAccess(), side, turtle.getAccess().getUpgradeData(side), transform, buffers, lightmapCoord, overlayLight);
-
+        TurtleUpgradeModelManager.get(Minecraft.getInstance().getModelManager(), upgrade.holder())
+            .renderForLevel(upgrade, side, turtle.getAccess(), transform, buffers, lightmapCoord, overlayLight);
 
         transform.popPose();
     }

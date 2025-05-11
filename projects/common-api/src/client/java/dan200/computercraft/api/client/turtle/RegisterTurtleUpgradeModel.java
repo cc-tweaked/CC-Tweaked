@@ -4,11 +4,11 @@
 
 package dan200.computercraft.api.client.turtle;
 
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.api.upgrades.UpgradeType;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.resources.ResourceLocation;
 
 /**
- * A functional interface to register a {@link TurtleUpgradeModel} for a class of turtle upgrades.
+ * A functional interface to register a {@link TurtleUpgradeModel}.
  * <p>
  * This interface is largely intended to be used from multi-loader code, to allow sharing registration code between
  * multiple loaders.
@@ -18,9 +18,8 @@ public interface RegisterTurtleUpgradeModel {
     /**
      * Register a {@link TurtleUpgradeModel}.
      *
-     * @param type The turtle upgrade type.
-     * @param mode The unbaked upgrade model.
-     * @param <T>  The type of the turtle upgrade.
+     * @param id    The id used for this type of upgrade model.
+     * @param model The codec used to read/decode an upgrade model.
      */
-    <T extends ITurtleUpgrade> void register(UpgradeType<T> type, TurtleUpgradeModel.Unbaked<? super T> mode);
+    void register(ResourceLocation id, MapCodec<? extends TurtleUpgradeModel.Unbaked> model);
 }

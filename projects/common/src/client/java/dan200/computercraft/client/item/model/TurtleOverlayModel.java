@@ -40,7 +40,7 @@ public record TurtleOverlayModel(ItemTransforms transforms) implements ItemModel
         if (overlay == null) return;
 
         var layer = state.newLayer();
-        TurtleOverlayManager.getOverlay(Minecraft.getInstance().getModelManager(), overlay).model().setupItemLayer(layer);
+        TurtleOverlayManager.get(Minecraft.getInstance().getModelManager(), overlay).model().setupItemLayer(layer);
         layer.setTransform(transforms().getTransform(context));
     }
 

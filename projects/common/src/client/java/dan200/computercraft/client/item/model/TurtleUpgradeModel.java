@@ -8,8 +8,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.client.turtle.TurtleUpgradeModels;
+import dan200.computercraft.client.turtle.TurtleUpgradeModelManager;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.item.ItemModel;
@@ -39,7 +40,8 @@ public record TurtleUpgradeModel(TurtleSide side, ItemTransforms base) implement
         var upgrade = TurtleItem.getUpgradeWithData(stack, side);
         if (upgrade == null) return;
 
-        TurtleUpgradeModels.getModeller(upgrade.upgrade()).renderForItem(upgrade.upgrade(), side, upgrade.data(), state, resolver, base.getTransform(context), seed);
+        TurtleUpgradeModelManager.get(Minecraft.getInstance().getModelManager(), upgrade.holder())
+            .renderForItem(upgrade, side, state, resolver, base.getTransform(context), seed);
     }
 
     public record Unbaked(TurtleSide side, ResourceLocation base) implements ItemModel.Unbaked {

@@ -56,7 +56,7 @@ public class ResourceUtils {
                     var result = codec.parse(ops, JsonParser.parseReader(reader))
                         .ifError(e -> LOG.error("Couldn't parse {} '{}' from pack '{}': {}", kind, id, resource.sourcePackId(), e.message()))
                         .result().orElse(null);
-                    return result == null ? null : new Pair<>(id, result);
+                    return result == null ? null : Pair.of(id, result);
                 } catch (Exception exception) {
                     LOG.error("Failed to open {} {} from pack '{}'", kind, resource, resource.sourcePackId(), exception);
                     return null;

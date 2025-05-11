@@ -5,9 +5,14 @@
 package dan200.computercraft.api.client.turtle;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.impl.client.ComputerCraftAPIClientService;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransform;
@@ -16,8 +21,6 @@ import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvableModel;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -25,83 +28,80 @@ import net.minecraft.world.item.ItemStack;
 /**
  * The model for a {@link ITurtleUpgrade}.
  * <p>
- * Use {@code dan200.computercraft.api.client.FabricComputerCraftAPIClient#registerTurtleUpgradeModeller} to register a
- * modeller on Fabric and {@code dan200.computercraft.api.client.turtle.RegisterTurtleModellersEvent} to register one
+ * Turtle upgrade models are very similar to vanilla's {@link ItemModel}. Each upgrade's model is defined in JSON, and
+ * loaded from resource packs with other assets.
+ * <p>
+ * In most cases, upgrades can use one of the existing implementations of {@link TurtleUpgradeModel} (e.g.
+ * {@link BasicUpgradeModel} or {@link ItemUpgradeModel}), and do not need to subclass it. However, in the cases where
+ * a custom model is required, one should use
+ * {@code dan200.computercraft.api.client.FabricComputerCraftAPIClient#registerTurtleUpgradeModel} to register a
+ * model on Fabric and {@code dan200.computercraft.api.client.turtle.RegisterTurtleModelEvent} to register one
  * on Forge.
+ * <p>
+ * See {@link ITurtleUpgrade} for a full example of registering turtle upgrades and their models.
  *
- * <h2>Example</h2>
- * <h3>Fabric</h3>
- * {@snippet class=com.example.examplemod.FabricExampleModClient region=turtle_model}
- *
- * <h3>Forge</h3>
- * {@snippet class=com.example.examplemod.FabricExampleModClient region=turtle_model}
- *
- * @param <T> The type of turtle upgrade this modeller applies to.
  * @see RegisterTurtleUpgradeModel For multi-loader registration support.
+ * @see ItemUpgradeModel A {@code TurtleUpgradeModel} which uses the upgrade's item.
+ * @see BasicUpgradeModel A {@code TurtleUpgradeModel} which renders a simple model.
  */
-public interface TurtleUpgradeModel<T extends ITurtleUpgrade> {
+public interface TurtleUpgradeModel {
+    /**
+     * The directory from which turtle upgrade models are loaded. This may be used by data generators.
+     */
+    String SOURCE = ComputerCraftAPI.MOD_ID + "/turtle_upgrade";
+
+    /**
+     * The codec used to read/write {@linkplain TurtleUpgradeModel.Unbaked unbaked upgrade models}.
+     */
+    Codec<TurtleUpgradeModel.Unbaked> CODEC = Codec.lazyInitialized(() -> ComputerCraftAPIClientService.get().getTurtleUpgradeModelCodec());
+
     /**
      * Render this upgrade to an {@link ItemStackRenderState}. This is used for rendering the item form of the upgrade.
      *
      * @param upgrade   The upgrade being rendered.
-     * @param side      Which side of the turtle (left or right) the upgrade resides on.
-     * @param data      Upgrade data instance for current turtle side.
+     * @param side      Which side of the turtle (left or right) the upgrade is equipped on.
      * @param renderer  The render state to draw to.
      * @param resolver  The model resolver.
      * @param transform The root model's transformation.
      * @param seed      The current model seed.
      * @see ItemModel#update(ItemStackRenderState, ItemStack, ItemModelResolver, ItemDisplayContext, ClientLevel, LivingEntity, int)
      */
-    void renderForItem(T upgrade, TurtleSide side, DataComponentPatch data, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed);
+    void renderForItem(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed);
 
     /**
      * Render this upgrade to a {@link MultiBufferSource}. This is used for rendering the block-entity form of the
      * upgrade.
      *
      * @param upgrade   The upgrade being rendered.
-     * @param turtle    Access to the turtle that the upgrade resides on. This will be null when getting item models.
-     * @param side      Which side of the turtle (left or right) the upgrade resides on.
-     * @param data      Upgrade data instance for current turtle side.
+     * @param side      Which side of the turtle (left or right) the upgrade is equipped on.
+     * @param turtle    Access to the turtle that the upgrade resides on.
      * @param transform The current pose stack.
      * @param buffers   The buffers to render to.
      * @param light     The lightmap coordinate.
      * @param overlay   The overlay coordinate.
      */
-    void renderForLevel(T upgrade, ITurtleAccess turtle, TurtleSide side, DataComponentPatch data, PoseStack transform, MultiBufferSource buffers, int light, int overlay);
+    void renderForLevel(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ITurtleAccess turtle, PoseStack transform, MultiBufferSource buffers, int light, int overlay);
 
     /**
      * An unbaked turtle model. Much like other unbaked models (e.g. {@link ItemModel.Unbaked}), this should resolve
      * any dependencies and returned the fully-resolved model.
-     *
-     * @param <T> The type of turtle upgrade for this model.
      */
-    interface Unbaked<T extends ITurtleUpgrade> extends ResolvableModel {
-        TurtleUpgradeModel<T> bake(ModelBaker baker);
-    }
+    interface Unbaked extends ResolvableModel {
+        /**
+         * The {@link MapCodec} used to read/write this unbaked model.
+         *
+         * @return The codec used to read/write this model.
+         * @see ItemModel.Unbaked#type()
+         */
+        MapCodec<? extends Unbaked> type();
 
-    /**
-     * A basic {@link TurtleUpgradeModel} which renders using the upgrade's {@linkplain ITurtleUpgrade#getUpgradeItem(DataComponentPatch)
-     * upgrade item}.
-     * <p>
-     * This uses appropriate transformations for "flat" items, namely those extending the {@literal minecraft:item/generated}
-     * model type. It will not appear correct for 3D models with additional depth, such as blocks.
-     *
-     * @param <T> The type of the turtle upgrade.
-     * @return The constructed modeller.
-     */
-    static <T extends ITurtleUpgrade> TurtleUpgradeModel.Unbaked<? super T> flatItem() {
-        return ItemUpgradeModel.UNBAKED;
-    }
-
-    /**
-     * Construct a {@link TurtleUpgradeModel} which has a single model for the left and right side.
-     *
-     * @param left  The model to use on the left.
-     * @param right The model to use on the right.
-     * @param <T>   The type of the turtle upgrade.
-     * @return The constructed modeller.
-     */
-    static <T extends ITurtleUpgrade> TurtleUpgradeModel.Unbaked<T> sided(ResourceLocation left, ResourceLocation right) {
-        return new SidedUpgradeModel.Unbaked<>(left, right);
+        /**
+         * Bake this turtle model.
+         *
+         * @param baker The current model baker
+         * @return The baked upgrade model.
+         * @see ItemModel.Unbaked#bake(ItemModel.BakingContext)
+         */
+        TurtleUpgradeModel bake(ModelBaker baker);
     }
 }

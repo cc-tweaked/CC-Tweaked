@@ -5,6 +5,7 @@
 package dan200.computercraft.data;
 
 import com.mojang.serialization.Codec;
+import dan200.computercraft.api.client.turtle.TurtleUpgradeModel;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.client.gui.GuiSprites;
@@ -52,7 +53,7 @@ public final class DataProviders {
         var fullRegistryPatch = RegistryPatchGenerator.createLookup(
             generator.registries(),
             Util.make(new RegistrySetBuilder(), builder -> {
-                builder.add(ITurtleUpgrade.REGISTRY, TurtleUpgradeProvider::addUpgrades);
+                builder.add(ITurtleUpgrade.REGISTRY, TurtleUpgradeProvider::register);
                 builder.add(IPocketUpgrade.REGISTRY, PocketUpgradeProvider::addUpgrades);
             }));
         var fullRegistries = fullRegistryPatch.thenApply(RegistrySetBuilder.PatchedRegistries::full);
@@ -89,6 +90,7 @@ public final class DataProviders {
         });
 
         generator.addFromCodec("Turtle overlays", PackOutput.Target.RESOURCE_PACK, TurtleOverlay.SOURCE, TurtleOverlay.CODEC, TurtleOverlays::register);
+        generator.addFromCodec("Turtle upgrade models", PackOutput.Target.RESOURCE_PACK, TurtleUpgradeModel.SOURCE, TurtleUpgradeModel.CODEC, TurtleUpgradeProvider::addModels);
 
         generator.addModels(BlockModelProvider::addBlockModels, ItemModelProvider::addItemModels);
     }

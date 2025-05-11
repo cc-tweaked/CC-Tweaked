@@ -10,7 +10,6 @@ import dan200.computercraft.api.client.turtle.RegisterTurtleModelEvent;
 import dan200.computercraft.client.platform.ForgeModelKey;
 import dan200.computercraft.client.platform.ModelKey;
 import dan200.computercraft.client.render.ExtendedItemFrameRenderState;
-import dan200.computercraft.client.turtle.TurtleUpgradeModels;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.ItemFrameRenderer;
 import net.minecraft.client.resources.model.ModelBaker;
@@ -19,7 +18,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.context.ContextKey;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
@@ -44,8 +42,6 @@ public final class ForgeClientRegistry {
 
     @SubscribeEvent
     public static void registerModels(ModelEvent.RegisterStandalone event) {
-        TurtleUpgradeModels.fetch(() -> ModLoader.postEvent(new RegisterTurtleModelEvent(TurtleUpgradeModels::register)));
-
         // Load resources
         Queue<Runnable> tasks = new ArrayDeque<>();
         var state = ClientRegistry.gatherExtraModels(Minecraft.getInstance().getResourceManager(), tasks::add);

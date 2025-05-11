@@ -4,9 +4,8 @@
 
 package dan200.computercraft.api.client.turtle;
 
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.api.turtle.TurtleUpgradeType;
-import dan200.computercraft.api.upgrades.UpgradeType;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
@@ -14,8 +13,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
- * This event is fired to register {@link TurtleUpgradeModel}s for a mod's {@linkplain TurtleUpgradeType turtle
- * upgrades}.
+ * This event is fired to register additional {@link TurtleUpgradeModel}s.
  * <p>
  * This event is fired during the initial mod construction. Registries will be frozen, but mods may not be fully
  * initialised at this point (i.e. {@link FMLCommonSetupEvent} or {@link FMLClientSetupEvent} may not have been
@@ -30,10 +28,10 @@ public class RegisterTurtleModelEvent extends Event implements IModBusEvent, Reg
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc}The codec used to read/decode an upgrade model.
      */
     @Override
-    public <T extends ITurtleUpgrade> void register(UpgradeType<T> type, TurtleUpgradeModel.Unbaked<? super T> modeller) {
-        dispatch.register(type, modeller);
+    public void register(ResourceLocation id, MapCodec<? extends TurtleUpgradeModel.Unbaked> model) {
+        dispatch.register(id, model);
     }
 }

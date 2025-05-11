@@ -24,6 +24,7 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState;
 import dan200.computercraft.shared.peripheral.printer.PrinterBlock;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
 import dan200.computercraft.shared.util.DirectionUtil;
+import net.minecraft.client.color.item.Dye;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.ConditionBuilder;
@@ -216,7 +217,7 @@ public class BlockModelProvider {
         generators.itemModelOutput.accept(block.asItem(), ItemModelUtils.composite(
             ItemModelUtils.conditional(
                 new HasComponent(DataComponents.DYED_COLOR, false),
-                ItemModelUtils.plainModel(TurtleBlockEntityRenderer.COLOUR_TURTLE_MODEL),
+                ItemModelUtils.tintedModel(TurtleBlockEntityRenderer.COLOUR_TURTLE_MODEL, new Dye(-1)),
                 ItemModelUtils.plainModel(model)
             ),
             new TurtleUpgradeModel.Unbaked(TurtleSide.LEFT, model),

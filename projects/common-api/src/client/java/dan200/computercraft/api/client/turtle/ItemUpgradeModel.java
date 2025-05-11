@@ -7,9 +7,12 @@ package dan200.computercraft.api.client.turtle;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.mojang.math.Transformation;
+import com.mojang.serialization.MapCodec;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransform;
@@ -18,15 +21,26 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
-final class ItemUpgradeModel<T extends ITurtleUpgrade> implements TurtleUpgradeModel<T> {
-    static final TurtleUpgradeModel.Unbaked<ITurtleUpgrade> UNBAKED = new Unbaked();
-    static final TurtleUpgradeModel<ITurtleUpgrade> INSTANCE = new ItemUpgradeModel<>();
+/**
+ * A sic {@link TurtleUpgradeModel} that renders the upgrade's {@linkplain ITurtleUpgrade#getUpgradeItem(DataComponentPatch)
+ * upgrade item}.
+ * <p>
+ * This uses appropriate transformations for "flat" items, namely those extending the {@literal minecraft:item/generated}
+ * model type. It will not appear correct for 3D models with additional depth, such as blocks.
+ */
+public final class ItemUpgradeModel implements TurtleUpgradeModel {
+    private static final TurtleUpgradeModel.Unbaked UNBAKED = new Unbaked();
+    private static final TurtleUpgradeModel INSTANCE = new ItemUpgradeModel();
+
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item");
+    public static final MapCodec<TurtleUpgradeModel.Unbaked> CODEC = MapCodec.unit(UNBAKED);
 
     private static final TransformedRenderer LEFT = computeRenderer(TurtleSide.LEFT);
     private static final TransformedRenderer RIGHT = computeRenderer(TurtleSide.RIGHT);
@@ -34,10 +48,19 @@ final class ItemUpgradeModel<T extends ITurtleUpgrade> implements TurtleUpgradeM
     private ItemUpgradeModel() {
     }
 
+    /**
+     * Get the unbaked {@link ItemUpgradeModel}.
+     *
+     * @return The unbaked item upgrade model.
+     */
+    public static TurtleUpgradeModel.Unbaked unbaked() {
+        return UNBAKED;
+    }
+
     @Override
-    public void renderForItem(T upgrade, TurtleSide side, DataComponentPatch data, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed) {
+    public void renderForItem(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed) {
         var childState = new ItemStackRenderState();
-        resolver.updateForTopItem(childState, upgrade.getUpgradeItem(data), ItemDisplayContext.NONE, null, null, seed);
+        resolver.updateForTopItem(childState, upgrade.getUpgradeItem(), ItemDisplayContext.NONE, null, null, seed);
         if (!childState.isEmpty()) {
             var layer = renderer.newLayer();
             layer.setTransform(transform);
@@ -46,17 +69,22 @@ final class ItemUpgradeModel<T extends ITurtleUpgrade> implements TurtleUpgradeM
     }
 
     @Override
-    public void renderForLevel(T upgrade, ITurtleAccess turtle, TurtleSide side, DataComponentPatch data, PoseStack transform, MultiBufferSource buffers, int light, int overlay) {
+    public void renderForLevel(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ITurtleAccess turtle, PoseStack transform, MultiBufferSource buffers, int light, int overlay) {
         transform.mulPose(getRenderer(side).transform().getMatrix());
         transform.mulPose(Axis.YP.rotation(Mth.PI));
         Minecraft.getInstance().getItemRenderer().renderStatic(
-            upgrade.getUpgradeItem(data), ItemDisplayContext.FIXED, light, overlay, transform, buffers, turtle.getLevel(), 0
+            upgrade.getUpgradeItem(), ItemDisplayContext.FIXED, light, overlay, transform, buffers, turtle.getLevel(), 0
         );
     }
 
-    private static final class Unbaked implements TurtleUpgradeModel.Unbaked<ITurtleUpgrade> {
+    private static final class Unbaked implements TurtleUpgradeModel.Unbaked {
         @Override
-        public TurtleUpgradeModel<ITurtleUpgrade> bake(ModelBaker baker) {
+        public MapCodec<? extends TurtleUpgradeModel.Unbaked> type() {
+            return CODEC;
+        }
+
+        @Override
+        public TurtleUpgradeModel bake(ModelBaker baker) {
             return INSTANCE;
         }
 

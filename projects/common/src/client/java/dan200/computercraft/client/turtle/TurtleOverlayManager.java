@@ -4,66 +4,27 @@
 
 package dan200.computercraft.client.turtle;
 
-import com.mojang.serialization.JsonOps;
-import dan200.computercraft.client.ClientRegistry;
-import dan200.computercraft.client.platform.ClientPlatformHelper;
-import dan200.computercraft.client.platform.ModelKey;
-import dan200.computercraft.shared.util.ResourceUtils;
+import dan200.computercraft.client.CustomModelManager;
 import net.minecraft.client.resources.model.MissingBlockModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
-
 /**
- * A manager for loading {@link TurtleOverlay}s. This is responsible for {@linkplain #load(ResourceManager, Executor)
- * loading overlays from resource packs}, {@linkplain #register(ClientRegistry.RegisterExtraModels, Map) baking them}, and
- * then {@linkplain #getOverlay(ModelManager, ResourceLocation) looking them up}.
+ * The model manager for {@link TurtleOverlay}s.
  */
 public class TurtleOverlayManager {
-    private static final FileToIdConverter ID_CONVERTER = FileToIdConverter.json(TurtleOverlay.SOURCE);
-
-    /**
-     * The {@link ModelKey} for the missing turtle overlay. This is used by
-     * {@link #getOverlay(ModelManager, ResourceLocation)} when an overlay does not exist.
-     */
-    private static final ModelKey<TurtleOverlay> MISSING_KEY = ClientPlatformHelper.get().createModelKey(
-        MissingBlockModel.LOCATION, () -> "Missing turtle overlay"
+    private static final CustomModelManager<TurtleOverlay.Unbaked, TurtleOverlay> loader = new CustomModelManager<>(
+        "turtle overlay", FileToIdConverter.json(TurtleOverlay.SOURCE), TurtleOverlay.CODEC,
+        TurtleOverlay.Unbaked::bake,
+        new TurtleOverlay.Unbaked(MissingBlockModel.LOCATION, false)
     );
 
-    private static final Map<ResourceLocation, ModelKey<TurtleOverlay>> modelKeys = new ConcurrentHashMap<>();
 
-    private static ModelKey<TurtleOverlay> getModelKey(ResourceLocation overlay) {
-        return modelKeys.computeIfAbsent(overlay, o -> ClientPlatformHelper.get().createModelKey(o, () -> "Turtle overlay " + o));
-    }
-
-    /**
-     * Load our overlays from resources.
-     *
-     * @param resources The current resource manager.
-     * @param executor  The executor to schedule work on.
-     * @return The map of unbaked overlay.
-     */
-    public static CompletableFuture<Map<ResourceLocation, TurtleOverlay.Unbaked>> load(ResourceManager resources, Executor executor) {
-        return ResourceUtils.load(resources, executor, "turtle overlay", ID_CONVERTER, JsonOps.INSTANCE, TurtleOverlay.CODEC);
-    }
-
-    /**
-     * Register our unbaked overlay models.
-     *
-     * @param register The callback to register models with.
-     * @param overlays The overlays to register.
-     */
-    public static void register(ClientRegistry.RegisterExtraModels register, Map<ResourceLocation, TurtleOverlay.Unbaked> overlays) {
-        overlays.forEach((id, overlay) -> register.register(getModelKey(id), overlay, TurtleOverlay.Unbaked::bake));
-        register.register(MISSING_KEY, new TurtleOverlay.Unbaked(MissingBlockModel.LOCATION, false), TurtleOverlay.Unbaked::bake);
+    public static CustomModelManager<TurtleOverlay.Unbaked, TurtleOverlay> loader() {
+        return loader;
     }
 
     /**
@@ -75,14 +36,7 @@ public class TurtleOverlayManager {
      * @return The turtle overlay.
      */
     @Contract("_, null -> null; _, !null -> !null")
-    public static @Nullable TurtleOverlay getOverlay(ModelManager modelManager, @Nullable ResourceLocation id) {
-        if (id == null) return null;
-
-        var overlay = getModelKey(id).get(modelManager);
-        if (overlay != null) return overlay;
-
-        var missing = MISSING_KEY.get(modelManager);
-        if (missing == null) throw new IllegalStateException("Rendering turtles before models are baked");
-        return missing;
+    public static @Nullable TurtleOverlay get(ModelManager modelManager, @Nullable ResourceLocation id) {
+        return id == null ? null : loader.get(modelManager, id);
     }
 }

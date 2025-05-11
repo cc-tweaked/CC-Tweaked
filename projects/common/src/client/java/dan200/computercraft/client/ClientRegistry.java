@@ -7,8 +7,7 @@ package dan200.computercraft.client;
 import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.StandaloneModel;
-import dan200.computercraft.api.client.turtle.RegisterTurtleUpgradeModel;
-import dan200.computercraft.api.client.turtle.TurtleUpgradeModel;
+import dan200.computercraft.api.client.turtle.*;
 import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.item.colour.PocketComputerLight;
 import dan200.computercraft.client.item.model.TurtleOverlayModel;
@@ -19,10 +18,9 @@ import dan200.computercraft.client.platform.ModelKey;
 import dan200.computercraft.client.render.CustomLecternRenderer;
 import dan200.computercraft.client.render.TurtleBlockEntityRenderer;
 import dan200.computercraft.client.render.monitor.MonitorBlockEntityRenderer;
-import dan200.computercraft.client.turtle.TurtleModemModel;
 import dan200.computercraft.client.turtle.TurtleOverlay;
 import dan200.computercraft.client.turtle.TurtleOverlayManager;
-import dan200.computercraft.client.turtle.TurtleUpgradeModels;
+import dan200.computercraft.client.turtle.TurtleUpgradeModelManager;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import net.minecraft.client.Minecraft;
@@ -104,16 +102,9 @@ public final class ClientRegistry {
     }
 
     public static void registerTurtleModels(RegisterTurtleUpgradeModel register) {
-        register.register(ModRegistry.TurtleUpgradeTypes.SPEAKER.get(), TurtleUpgradeModel.sided(
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_left"),
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_right")
-        ));
-        register.register(ModRegistry.TurtleUpgradeTypes.WORKBENCH.get(), TurtleUpgradeModel.sided(
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_left"),
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_right")
-        ));
-        register.register(ModRegistry.TurtleUpgradeTypes.WIRELESS_MODEM.get(), TurtleModemModel.UNBAKED);
-        register.register(ModRegistry.TurtleUpgradeTypes.TOOL.get(), TurtleUpgradeModel.flatItem());
+        register.register(BasicUpgradeModel.ID, BasicUpgradeModel.CODEC);
+        register.register(ItemUpgradeModel.ID, ItemUpgradeModel.CODEC);
+        register.register(SelectUpgradeModel.ID, SelectUpgradeModel.CODEC);
     }
 
     public static void registerReloadListeners(BiConsumer<ResourceLocation, PreparableReloadListener> register, Minecraft minecraft) {
@@ -132,11 +123,13 @@ public final class ClientRegistry {
      * Additional models to load.
      *
      * @param turtleOverlays The unbaked turtle models.
+     * @param turtleUpgrades The unbaked turtle upgrades.
      * @see #gatherExtraModels(ResourceManager, Executor)
      * @see #registerExtraModels(RegisterExtraModels, ExtraModels)
      */
     public record ExtraModels(
-        Map<ResourceLocation, TurtleOverlay.Unbaked> turtleOverlays
+        Map<ResourceLocation, TurtleOverlay.Unbaked> turtleOverlays,
+        Map<ResourceLocation, TurtleUpgradeModel.Unbaked> turtleUpgrades
     ) {
     }
 
@@ -148,8 +141,9 @@ public final class ClientRegistry {
      * @return A promise which contains our extra models.
      */
     public static CompletableFuture<ExtraModels> gatherExtraModels(ResourceManager resources, Executor executor) {
-        var turtleOverlays = TurtleOverlayManager.load(resources, executor);
-        return turtleOverlays.thenApply(ExtraModels::new);
+        var turtleOverlays = TurtleOverlayManager.loader().load(resources, executor);
+        var turtleUpgrades = TurtleUpgradeModelManager.loader().load(resources, executor);
+        return turtleOverlays.thenCombine(turtleUpgrades, ExtraModels::new);
     }
 
     /**
@@ -181,8 +175,8 @@ public final class ClientRegistry {
         for (var model : EXTRA_MODELS) {
             register.register(getModel(model), model, (id, r) -> r.markDependency(id), StandaloneModel::of);
         }
-        TurtleOverlayManager.register(register, models.turtleOverlays());
-        TurtleUpgradeModels.bake(register);
+        TurtleOverlayManager.loader().register(register, models.turtleOverlays());
+        TurtleUpgradeModelManager.loader().register(register, models.turtleUpgrades());
     }
 
     public static void registerItemModels(BiConsumer<ResourceLocation, MapCodec<? extends ItemModel.Unbaked>> register) {

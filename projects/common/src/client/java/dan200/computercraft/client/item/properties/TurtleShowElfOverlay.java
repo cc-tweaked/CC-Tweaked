@@ -31,7 +31,7 @@ public class TurtleShowElfOverlay implements ConditionalItemModelProperty {
 
     @Override
     public boolean get(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity holder, int i, ItemDisplayContext context) {
-        var overlay = TurtleOverlayManager.getOverlay(Minecraft.getInstance().getModelManager(), TurtleItem.getOverlay(stack));
+        var overlay = TurtleOverlayManager.get(Minecraft.getInstance().getModelManager(), TurtleItem.getOverlay(stack));
         return overlay == null || overlay.showElfOverlay();
     }
 

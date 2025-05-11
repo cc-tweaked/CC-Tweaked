@@ -6,7 +6,11 @@
         "type": "minecraft:condition",
         "component": "minecraft:dyed_color",
         "on_false": {"type": "minecraft:model", "model": "computercraft:block/turtle_advanced"},
-        "on_true": {"type": "minecraft:model", "model": "computercraft:block/turtle_colour"},
+        "on_true": {
+          "type": "minecraft:model",
+          "model": "computercraft:block/turtle_colour",
+          "tints": [{"type": "minecraft:dye", "default": -1}]
+        },
         "property": "minecraft:has_component"
       },
       {"type": "computercraft:turtle/upgrade", "side": "left", "transforms": "computercraft:block/turtle_advanced"},

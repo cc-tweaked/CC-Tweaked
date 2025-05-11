@@ -1,0 +1,5 @@
+{
+  "type": "computercraft:sided",
+  "left": "computercraft:block/turtle_crafting_table_left",
+  "right": "computercraft:block/turtle_crafting_table_right"
+}
