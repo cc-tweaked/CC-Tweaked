@@ -11,6 +11,7 @@ import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.ProxyType;
 import dan200.computercraft.core.computer.mainthread.MainThreadConfig;
+import dan200.computercraft.shared.computer.core.TerminalSize;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import org.apache.logging.log4j.LogManager;
@@ -344,13 +345,13 @@ public final class ConfigSpec {
                 .push("term_sizes");
 
             builder.comment("Terminal size of computers.").push("computer");
-            computerTermWidth = builder.comment("Width of computer terminal").defineInRange("width", Config.DEFAULT_COMPUTER_TERM_WIDTH, 1, 255);
-            computerTermHeight = builder.comment("Height of computer terminal").defineInRange("height", Config.DEFAULT_COMPUTER_TERM_HEIGHT, 1, 255);
+            computerTermWidth = builder.comment("Width of computer terminal").defineInRange("width", Config.DEFAULT_COMPUTER_TERM_WIDTH, 1, TerminalSize.MAX_SIZE);
+            computerTermHeight = builder.comment("Height of computer terminal").defineInRange("height", Config.DEFAULT_COMPUTER_TERM_HEIGHT, 1, TerminalSize.MAX_SIZE);
             builder.pop();
 
             builder.comment("Terminal size of pocket computers.").push("pocket_computer");
-            pocketTermWidth = builder.comment("Width of pocket computer terminal").defineInRange("width", Config.DEFAULT_POCKET_TERM_WIDTH, 1, 255);
-            pocketTermHeight = builder.comment("Height of pocket computer terminal").defineInRange("height", Config.DEFAULT_POCKET_TERM_HEIGHT, 1, 255);
+            pocketTermWidth = builder.comment("Width of pocket computer terminal").defineInRange("width", Config.DEFAULT_POCKET_TERM_WIDTH, 1, TerminalSize.MAX_SIZE);
+            pocketTermHeight = builder.comment("Height of pocket computer terminal").defineInRange("height", Config.DEFAULT_POCKET_TERM_HEIGHT, 1, TerminalSize.MAX_SIZE);
             builder.pop();
 
             builder.comment("Maximum size of monitors (in blocks).").push("monitor");

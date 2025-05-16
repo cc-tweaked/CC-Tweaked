@@ -10,10 +10,15 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.core.TerminalSize;
 import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
 import dan200.computercraft.shared.config.ConfigSpec;
+import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -23,6 +28,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 public class ComputerBlockEntity extends AbstractComputerBlockEntity {
+    private static final String NBT_TERMINAL_SIZE = "TerminalSize";
+
+    private @Nullable TerminalSize terminalSize;
+
     private @Nullable IPeripheral peripheral;
 
     public ComputerBlockEntity(BlockEntityType<? extends ComputerBlockEntity> type, BlockPos pos, BlockState state, ComputerFamily family) {
@@ -30,10 +39,55 @@ public class ComputerBlockEntity extends AbstractComputerBlockEntity {
     }
 
     @Override
+    protected void loadServer(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadServer(nbt, registries);
+        terminalSize = NBTUtil.decodeFrom(TerminalSize.CODEC, registries, nbt, NBT_TERMINAL_SIZE);
+    }
+
+    @Override
+    public void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.saveAdditional(nbt, registries);
+        NBTUtil.encodeTo(TerminalSize.CODEC, registries, nbt, NBT_TERMINAL_SIZE, terminalSize);
+    }
+
+    @Override
+    protected void loadClient(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadClient(nbt, registries);
+        terminalSize = NBTUtil.decodeFrom(TerminalSize.CODEC, registries, nbt, NBT_TERMINAL_SIZE);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        var tag = super.getUpdateTag(registries);
+        NBTUtil.encodeTo(TerminalSize.CODEC, registries, tag, NBT_TERMINAL_SIZE, terminalSize);
+        return tag;
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentInput component) {
+        super.applyImplicitComponents(component);
+        terminalSize = component.get(ModRegistry.DataComponents.TERMINAL_SIZE.get());
+    }
+
+
+    @Override
+    protected void collectSafeComponents(DataComponentMap.Builder builder) {
+        super.collectSafeComponents(builder);
+        builder.set(ModRegistry.DataComponents.TERMINAL_SIZE.get(), terminalSize);
+    }
+
+    @Override
+    @Deprecated
+    public void removeComponentsFromTag(CompoundTag tag) {
+        super.removeComponentsFromTag(tag);
+        tag.remove(NBT_TERMINAL_SIZE);
+    }
+
+    @Override
     protected ServerComputer createComputer(int id) {
         return new ServerComputer((ServerLevel) getLevel(), getBlockPos(), ServerComputer.properties(id, getFamily())
             .label(getLabel())
-            .terminalSize(ConfigSpec.computerTermWidth.get(), ConfigSpec.computerTermHeight.get())
+            .terminalSize(terminalSize != null ? terminalSize : new TerminalSize(ConfigSpec.computerTermWidth.get(), ConfigSpec.computerTermHeight.get()))
             .storageCapacity(storageCapacity)
         );
     }
