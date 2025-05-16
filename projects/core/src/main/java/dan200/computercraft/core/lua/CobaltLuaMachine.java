@@ -77,7 +77,7 @@ public class CobaltLuaMachine implements ILuaMachine {
         try {
             var globals = state.globals();
             CoreLibraries.debugGlobals(state);
-            Bit32Lib.add(state, globals);
+            Bit32Lib.add(state);
             ErrorInfoLib.add(state);
             globals.rawset("_HOST", ValueFactory.valueOf(environment.hostString()));
             globals.rawset("_CC_DEFAULT_SETTINGS", ValueFactory.valueOf(CoreConfig.defaultComputerSettings));

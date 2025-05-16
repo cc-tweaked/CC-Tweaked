@@ -29,7 +29,7 @@ public class ItemStackMatcher extends TypeSafeMatcher<ItemStack> {
 
     @Override
     protected void describeMismatchSafely(ItemStack item, Description description) {
-        description.appendText("was ").appendValue(stack).appendValue(stack.getComponentsPatch());
+        description.appendText("was ").appendValue(item).appendValue(item.getComponentsPatch());
     }
 
     public static Matcher<ItemStack> isStack(ItemStack stack) {

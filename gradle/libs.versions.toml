@@ -26,7 +26,7 @@ slf4j = "2.0.9"
 asm = "9.6"
 autoService = "1.1.1"
 checkerFramework = "3.42.0"
-cobalt = { strictly = "0.9.5" }
+cobalt = { strictly = "0.9.6" }
 commonsCli = "1.6.0"
 jetbrainsAnnotations = "24.1.0"
 jspecify = "1.0.0"

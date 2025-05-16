@@ -165,7 +165,7 @@ public final class TickScheduler {
         UNLOADED,
     }
 
-    private record ChunkReference(ResourceKey<Level> level, Long position) {
+    private record ChunkReference(ResourceKey<Level> level, long position) {
         @Override
         public String toString() {
             return "ChunkReference(" + level + " at " + new ChunkPos(position) + ")";
