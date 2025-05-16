@@ -10,12 +10,10 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.UpgradeManager;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
-import dan200.computercraft.shared.computer.core.ServerContext;
+import dan200.computercraft.shared.computer.core.*;
 import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
 import dan200.computercraft.shared.computer.items.ServerComputerReference;
+import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.pocket.core.PocketBrain;
@@ -186,6 +184,10 @@ public class PocketComputerItem extends Item {
         var brain = new PocketBrain(holder, ServerComputer.properties(computerID, getFamily())
             .label(getLabel(stack))
             .storageCapacity(StorageCapacity.getOrDefault(stack.get(ModRegistry.DataComponents.STORAGE_CAPACITY.get()), -1))
+            .terminalSize(stack.getOrDefault(
+                    ModRegistry.DataComponents.TERMINAL_SIZE.get(),
+                    new TerminalSize(ConfigSpec.pocketTermWidth.get(), ConfigSpec.pocketTermHeight.get())
+                ))
         );
         brain.setUpgrades(getUpgradeWithData(stack, PocketSide.BACK), getUpgradeWithData(stack, PocketSide.BOTTOM));
         var computer = brain.computer();

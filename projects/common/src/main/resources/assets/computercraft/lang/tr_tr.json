@@ -217,7 +217,6 @@
     "tracking_field.computercraft.http_download.name": "HTTP indirme",
     "tracking_field.computercraft.http_requests.name": "HTTP istekleri",
     "tracking_field.computercraft.http_upload.name": "HTTP yükleme",
-    "tracking_field.computercraft.java_allocation.name": "Java'ya Ayrılan",
     "tracking_field.computercraft.max": "%s (azami)",
     "tracking_field.computercraft.peripheral.name": "Çevre birimi çağrıları",
     "tracking_field.computercraft.server_tasks.name": "Sunucu görevleri",

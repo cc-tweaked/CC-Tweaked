@@ -34,6 +34,7 @@ import dan200.computercraft.shared.computer.blocks.ComputerBlock;
 import dan200.computercraft.shared.computer.blocks.ComputerBlockEntity;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.core.TerminalSize;
 import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
 import dan200.computercraft.shared.computer.items.ServerComputerReference;
 import dan200.computercraft.shared.config.Config;
@@ -358,6 +359,13 @@ public final class ModRegistry {
          */
         public static final RegistryEntry<DataComponentType<StorageCapacity>> STORAGE_CAPACITY = register("storage_capacity", b -> b
             .persistent(StorageCapacity.CODEC).networkSynchronized(StorageCapacity.STREAM_CODEC)
+        );
+
+        /**
+         * The terminal size of a computer.
+         */
+        public static final RegistryEntry<DataComponentType<TerminalSize>> TERMINAL_SIZE = register("terminal_size", b -> b
+            .persistent(TerminalSize.CODEC).networkSynchronized(TerminalSize.STREAM_CODEC)
         );
 
         /**

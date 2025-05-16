@@ -7,7 +7,6 @@ package dan200.computercraft.shared.pocket.core;
 import dan200.computercraft.api.component.ComputerComponents;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
 import dan200.computercraft.shared.network.client.PocketComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
@@ -40,10 +39,7 @@ public final class PocketServerComputer extends ServerComputer {
     private Set<ServerPlayer> tracking = Set.of();
 
     PocketServerComputer(PocketBrain brain, PocketHolder holder, ServerComputer.Properties properties) {
-        super(holder.level(), holder.blockPos(), properties
-            .terminalSize(ConfigSpec.pocketTermWidth.get(), ConfigSpec.pocketTermHeight.get())
-            .addComponent(ComputerComponents.POCKET, brain)
-        );
+        super(holder.level(), holder.blockPos(), properties.addComponent(ComputerComponents.POCKET, brain));
         this.brain = brain;
     }
 

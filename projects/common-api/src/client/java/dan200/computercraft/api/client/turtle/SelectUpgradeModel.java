@@ -59,10 +59,10 @@ public final class SelectUpgradeModel<T> implements TurtleUpgradeModel {
     }
 
     private TurtleUpgradeModel getModel(UpgradeData<ITurtleUpgrade> upgrade) {
-        var value = upgrade.data().get(component);
-        if (value == null || value.isEmpty()) return fallback;
+        var value = upgrade.get(component);
+        if (value == null) return fallback;
 
-        var model = cases.get(value.get());
+        var model = cases.get(value);
         return model != null ? model : fallback;
     }
 

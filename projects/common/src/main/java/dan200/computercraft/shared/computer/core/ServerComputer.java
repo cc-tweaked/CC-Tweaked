@@ -295,10 +295,9 @@ public class ServerComputer implements ComputerEnvironment, ComputerEvents.Recei
             return this;
         }
 
-        public Properties terminalSize(int width, int height) {
-            if (width <= 0 || height <= 0) throw new IllegalArgumentException("Terminal size must be positive");
-            this.terminalWidth = width;
-            this.terminalHeight = height;
+        public Properties terminalSize(TerminalSize size) {
+            this.terminalWidth = size.width();
+            this.terminalHeight = size.height();
             return this;
         }
 

@@ -18,6 +18,7 @@ import dan200.computercraft.shared.computer.blocks.ComputerPeripheral;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.core.TerminalSize;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.container.BasicContainer;
 import dan200.computercraft.shared.platform.PlatformHelper;
@@ -84,7 +85,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     protected ServerComputer createComputer(int id) {
         var computer = new ServerComputer((ServerLevel) getLevel(), getBlockPos(), ServerComputer.properties(id, getFamily())
             .label(getLabel())
-            .terminalSize(Config.TURTLE_TERM_WIDTH, Config.TURTLE_TERM_HEIGHT)
+            .terminalSize(new TerminalSize(Config.TURTLE_TERM_WIDTH, Config.TURTLE_TERM_HEIGHT))
             .storageCapacity(storageCapacity)
             .addComponent(ComputerComponents.TURTLE, brain)
         );
