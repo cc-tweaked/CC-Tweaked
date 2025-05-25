@@ -76,7 +76,7 @@ public abstract class AbstractHandle {
      * @cc.treturn [2] nil If seeking failed.
      * @cc.treturn string The reason seeking failed.
      * @cc.since 1.80pr1.9
-     * @cc.changed 1.109.0 Now available on all file handles, instead of only binary handles.
+     * @cc.changed 1.109.0 Now available on all file handles, not just binary-mode handles.
      */
     public Object @Nullable [] seek(Optional<String> whence, Optional<Long> offset) throws LuaException {
         checkOpen();
@@ -180,7 +180,8 @@ public abstract class AbstractHandle {
      * @throws LuaException If the file has been closed.
      * @cc.treturn string|nil The remaining contents of the file, or {@code nil} in the event of an error.
      * @cc.since 1.80pr1
-     * @cc.changed 1.109.0 No longer returns {@code nil} at the end of the file.
+     * @cc.changed 1.109.0 Binary-mode handles are now consistent with non-binary files, and return an empty string at
+     * the end of the file, rather than {@code nil}.
      */
     public Object @Nullable [] readAll() throws LuaException {
         checkOpen();
