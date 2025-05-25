@@ -5,6 +5,7 @@
 package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.vertex.Tesselator;
+import dan200.computercraft.client.gui.KeyConverter;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
@@ -85,7 +86,7 @@ public class TerminalWidget extends AbstractWidget {
         }
 
         if ((modifiers & GLFW.GLFW_MOD_CONTROL) != 0) {
-            switch (key) {
+            switch (KeyConverter.physicalToActual(key, scancode)) {
                 case GLFW.GLFW_KEY_T -> {
                     if (terminateTimer < 0) terminateTimer = 0;
                 }
@@ -121,7 +122,7 @@ public class TerminalWidget extends AbstractWidget {
             computer.keyUp(key);
         }
 
-        switch (key) {
+        switch (KeyConverter.physicalToActual(key, scancode)) {
             case GLFW.GLFW_KEY_T -> terminateTimer = -1;
             case GLFW.GLFW_KEY_R -> rebootTimer = -1;
             case GLFW.GLFW_KEY_S -> shutdownTimer = -1;
