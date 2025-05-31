@@ -61,12 +61,11 @@ local string_sub = string.sub
 --- A custom version of [`colors.toBlit`], specialised for the window API.
 local function parse_color(color)
     if type(color) ~= "number" then
+        -- By tail-calling expect, we ensure expect has the right error level.
         return expect(1, color, "number")
     end
 
-    if color < 1 or color > 0xffff then
-        error("Colour out of range", 3)
-    end
+    if color < 1 or color > 0xffff then error("Colour out of range", 3) end
 
     return 2 ^ math.floor(math.log(color, 2))
 end
