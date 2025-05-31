@@ -66,7 +66,6 @@ local function parse_color(color)
     end
 
     if color < 1 or color > 0xffff then error("Colour out of range", 3) end
-
     return 2 ^ math.floor(math.log(color, 2))
 end
 
