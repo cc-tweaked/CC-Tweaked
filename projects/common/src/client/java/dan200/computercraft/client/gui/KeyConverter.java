@@ -26,7 +26,8 @@ public class KeyConverter {
         var name = GLFW.glfwGetKeyName(key, scanCode);
         if (name == null || name.length() != 1) return key;
 
-        // If we've got a single character key name, try to translate it to a
+        // If we've got a single character as the key name, treat that as the ASCII value of the key,
+        // and map that back to a key code.
         var character = name.charAt(0);
 
         // 0-9 and A-Z map directly to their GLFW key (they're the same ASCII code).
