@@ -215,35 +215,29 @@ local function tryWrite(sLine, regex, colour)
 end
 
 local function tryWriteString(sLine)
-    quotationChar = string.sub(sLine, 1, 1)
-    if quotationChar ~= '"' and quotation_char ~= "'" then
+    local quotationChar = string.sub(sLine, 1, 1)
+    if quotationChar ~= '"' and quotationChar ~= "'" then
         return nil
     end
 
-    -- Scan through the rest of the string, until we
-    -- find the closing quote. Ignore quotation marks
-    -- with an odd number of backslashes preceding them.
+    -- Scan through the rest of the string, skipping over escapes,
+    -- until we find the closing quote.
     local i = 2
     while i <= #sLine do
         local nextChar = string.sub(sLine, i, i)
-        if nextChar == quotationChar then
-            local j = i - 1
-            local backslashes = 0
-            while j > 0 and string.sub(sLine, j, j) == '\\' do
-                backslashes = backslashes + 1
-                j = j - 1
-            end
-            if backslashes % 2 == 0 then
-                match = string.sub(sLine, 1, i)
-                term.setTextColor(stringColour)
-                term.write(match)
-                term.setTextColor(textColour)
-                return string.sub(sLine, #match + 1)
-            end
+        if nextChar == "\\" then
+            i = i + 2 -- Skip over escapes
+        elseif nextChar == quotationChar then
+            break
+        else
+            i = i + 1
         end
-        i = i + 1
     end
-    return nil
+
+    term.setTextColor(stringColour)
+    term.write(string.sub(sLine, 1, i))
+    term.setTextColor(textColour)
+    return string.sub(sLine, i + 1)
 end
 
 local function writeHighlighted(sLine)
@@ -381,7 +375,7 @@ local tMenuFuncs = {
         if bReadOnly then
             set_status("Access denied", false)
         else
-            local ok, _, fileerr  = save(sPath, function(file)
+            local ok, _, fileerr = save(sPath, function(file)
                 for _, sLine in ipairs(tLines) do
                     file.write(sLine .. "\n")
                 end
@@ -576,7 +570,7 @@ local function acceptCompletion()
         -- Append the completion
         local sCompletion = tCompletions[nCompletion]
         tLines[y] = tLines[y] .. sCompletion
-        setCursor(x + #sCompletion , y)
+        setCursor(x + #sCompletion, y)
     end
 end
 
@@ -594,7 +588,6 @@ while bRunning do
                         nCompletion = #tCompletions
                     end
                     redrawLine(y)
-
                 elseif y > 1 then
                     -- Move cursor up
                     setCursor(
@@ -603,7 +596,6 @@ while bRunning do
                     )
                 end
             end
-
         elseif param == keys.down then
             -- Down
             if not bMenu then
@@ -615,7 +607,6 @@ while bRunning do
                         nCompletion = 1
                     end
                     redrawLine(y)
-
                 elseif y < #tLines then
                     -- Move cursor down
                     setCursor(
@@ -624,7 +615,6 @@ while bRunning do
                     )
                 end
             end
-
         elseif param == keys.tab then
             -- Tab
             if not bMenu and not bReadOnly then
@@ -638,7 +628,6 @@ while bRunning do
                     setCursor(x + 4, y)
                 end
             end
-
         elseif param == keys.pageUp then
             -- Page Up
             if not bMenu then
@@ -654,7 +643,6 @@ while bRunning do
                     newY
                 )
             end
-
         elseif param == keys.pageDown then
             -- Page Down
             if not bMenu then
@@ -668,7 +656,6 @@ while bRunning do
                 local newX = math.min(x, #tLines[newY] + 1)
                 setCursor(newX, newY)
             end
-
         elseif param == keys.home then
             -- Home
             if not bMenu then
@@ -677,7 +664,6 @@ while bRunning do
                     setCursor(1, y)
                 end
             end
-
         elseif param == keys["end"] then
             -- End
             if not bMenu then
@@ -687,7 +673,6 @@ while bRunning do
                     setCursor(nLimit, y)
                 end
             end
-
         elseif param == keys.left then
             -- Left
             if not bMenu then
@@ -705,7 +690,6 @@ while bRunning do
                 end
                 redrawMenu()
             end
-
         elseif param == keys.right then
             -- Right
             if not bMenu then
@@ -728,7 +712,6 @@ while bRunning do
                 end
                 redrawMenu()
             end
-
         elseif param == keys.delete then
             -- Delete
             if not bMenu and not bReadOnly then
@@ -745,7 +728,6 @@ while bRunning do
                     redrawText()
                 end
             end
-
         elseif param == keys.backspace then
             -- Backspace
             if not bMenu and not bReadOnly then
@@ -768,7 +750,6 @@ while bRunning do
                     redrawText()
                 end
             end
-
         elseif param == keys.enter or param == keys.numPadEnter then
             -- Enter/Numpad Enter
             if not bMenu and not bReadOnly then
@@ -782,13 +763,10 @@ while bRunning do
                 table.insert(tLines, y + 1, string.rep(' ', spaces) .. string.sub(sLine, x))
                 setCursor(spaces + 1, y + 1)
                 redrawText()
-
             elseif bMenu then
                 -- Menu selection
                 doMenuItem(nMenuItem)
-
             end
-
         elseif param == keys.leftCtrl or param == keys.rightCtrl then
             -- Menu toggle
             bMenu = not bMenu
@@ -805,14 +783,12 @@ while bRunning do
                 redrawMenu()
             end
         end
-
     elseif sEvent == "char" then
         if not bMenu and not bReadOnly then
             -- Input text
             local sLine = tLines[y]
             tLines[y] = string.sub(sLine, 1, x - 1) .. param .. string.sub(sLine, x)
             setCursor(x + 1, y)
-
         elseif bMenu then
             -- Select menu items
             for n, sMenuItem in ipairs(tMenuItems) do
@@ -822,7 +798,6 @@ while bRunning do
                 end
             end
         end
-
     elseif sEvent == "paste" then
         if not bReadOnly then
             -- Close menu if open
@@ -834,9 +809,8 @@ while bRunning do
             -- Input text
             local sLine = tLines[y]
             tLines[y] = string.sub(sLine, 1, x - 1) .. param .. string.sub(sLine, x)
-            setCursor(x + #param , y)
+            setCursor(x + #param, y)
         end
-
     elseif sEvent == "mouse_click" then
         local cx, cy = param2, param3
         if not bMenu then
@@ -869,7 +843,6 @@ while bRunning do
                 redrawMenu()
             end
         end
-
     elseif sEvent == "mouse_scroll" then
         if not bMenu then
             if param == -1 then
@@ -879,7 +852,6 @@ while bRunning do
                     scrollY = scrollY - 1
                     redrawText()
                 end
-
             elseif param == 1 then
                 -- Scroll down
                 local nMaxScroll = #tLines - (h - 1)
@@ -888,16 +860,13 @@ while bRunning do
                     scrollY = scrollY + 1
                     redrawText()
                 end
-
             end
         end
-
     elseif sEvent == "term_resize" then
         w, h = term.getSize()
         setCursor(x, y)
         redrawMenu()
         redrawText()
-
     end
 end
 
