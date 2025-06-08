@@ -588,6 +588,7 @@ while bRunning do
                         nCompletion = #tCompletions
                     end
                     redrawLine(y)
+
                 elseif y > 1 then
                     -- Move cursor up
                     setCursor(
@@ -596,6 +597,7 @@ while bRunning do
                     )
                 end
             end
+
         elseif param == keys.down then
             -- Down
             if not bMenu then
@@ -607,6 +609,7 @@ while bRunning do
                         nCompletion = 1
                     end
                     redrawLine(y)
+
                 elseif y < #tLines then
                     -- Move cursor down
                     setCursor(
@@ -615,6 +618,7 @@ while bRunning do
                     )
                 end
             end
+
         elseif param == keys.tab then
             -- Tab
             if not bMenu and not bReadOnly then
@@ -628,6 +632,7 @@ while bRunning do
                     setCursor(x + 4, y)
                 end
             end
+
         elseif param == keys.pageUp then
             -- Page Up
             if not bMenu then
@@ -643,6 +648,7 @@ while bRunning do
                     newY
                 )
             end
+
         elseif param == keys.pageDown then
             -- Page Down
             if not bMenu then
@@ -656,6 +662,7 @@ while bRunning do
                 local newX = math.min(x, #tLines[newY] + 1)
                 setCursor(newX, newY)
             end
+
         elseif param == keys.home then
             -- Home
             if not bMenu then
@@ -664,6 +671,7 @@ while bRunning do
                     setCursor(1, y)
                 end
             end
+
         elseif param == keys["end"] then
             -- End
             if not bMenu then
@@ -673,6 +681,7 @@ while bRunning do
                     setCursor(nLimit, y)
                 end
             end
+
         elseif param == keys.left then
             -- Left
             if not bMenu then
@@ -690,6 +699,7 @@ while bRunning do
                 end
                 redrawMenu()
             end
+
         elseif param == keys.right then
             -- Right
             if not bMenu then
@@ -712,6 +722,7 @@ while bRunning do
                 end
                 redrawMenu()
             end
+
         elseif param == keys.delete then
             -- Delete
             if not bMenu and not bReadOnly then
@@ -728,6 +739,7 @@ while bRunning do
                     redrawText()
                 end
             end
+
         elseif param == keys.backspace then
             -- Backspace
             if not bMenu and not bReadOnly then
@@ -750,6 +762,7 @@ while bRunning do
                     redrawText()
                 end
             end
+
         elseif param == keys.enter or param == keys.numPadEnter then
             -- Enter/Numpad Enter
             if not bMenu and not bReadOnly then
@@ -763,10 +776,13 @@ while bRunning do
                 table.insert(tLines, y + 1, string.rep(' ', spaces) .. string.sub(sLine, x))
                 setCursor(spaces + 1, y + 1)
                 redrawText()
+
             elseif bMenu then
                 -- Menu selection
                 doMenuItem(nMenuItem)
+
             end
+
         elseif param == keys.leftCtrl or param == keys.rightCtrl then
             -- Menu toggle
             bMenu = not bMenu
@@ -783,12 +799,14 @@ while bRunning do
                 redrawMenu()
             end
         end
+
     elseif sEvent == "char" then
         if not bMenu and not bReadOnly then
             -- Input text
             local sLine = tLines[y]
             tLines[y] = string.sub(sLine, 1, x - 1) .. param .. string.sub(sLine, x)
             setCursor(x + 1, y)
+
         elseif bMenu then
             -- Select menu items
             for n, sMenuItem in ipairs(tMenuItems) do
@@ -798,6 +816,7 @@ while bRunning do
                 end
             end
         end
+
     elseif sEvent == "paste" then
         if not bReadOnly then
             -- Close menu if open
@@ -811,6 +830,7 @@ while bRunning do
             tLines[y] = string.sub(sLine, 1, x - 1) .. param .. string.sub(sLine, x)
             setCursor(x + #param, y)
         end
+
     elseif sEvent == "mouse_click" then
         local cx, cy = param2, param3
         if not bMenu then
@@ -843,6 +863,7 @@ while bRunning do
                 redrawMenu()
             end
         end
+
     elseif sEvent == "mouse_scroll" then
         if not bMenu then
             if param == -1 then
@@ -852,6 +873,7 @@ while bRunning do
                     scrollY = scrollY - 1
                     redrawText()
                 end
+
             elseif param == 1 then
                 -- Scroll down
                 local nMaxScroll = #tLines - (h - 1)
@@ -860,13 +882,16 @@ while bRunning do
                     scrollY = scrollY + 1
                     redrawText()
                 end
+
             end
         end
+
     elseif sEvent == "term_resize" then
         w, h = term.getSize()
         setCursor(x, y)
         redrawMenu()
         redrawText()
+
     end
 end
 
