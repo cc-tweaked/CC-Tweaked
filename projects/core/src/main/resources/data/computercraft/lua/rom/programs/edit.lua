@@ -214,15 +214,38 @@ local function tryWrite(sLine, regex, colour)
     return nil
 end
 
+local function tryWriteString(sLine)
+    local quotationChar = string.sub(sLine, 1, 1)
+    if quotationChar ~= '"' and quotationChar ~= "'" then
+        return nil
+    end
+
+    -- Scan through the rest of the string, skipping over escapes,
+    -- until we find the closing quote.
+    local i = 2
+    while i <= #sLine do
+        local nextChar = string.sub(sLine, i, i)
+        if nextChar == "\\" then
+            i = i + 2 -- Skip over escapes
+        elseif nextChar == quotationChar then
+            break
+        else
+            i = i + 1
+        end
+    end
+
+    term.setTextColor(stringColour)
+    term.write(string.sub(sLine, 1, i))
+    term.setTextColor(textColour)
+    return string.sub(sLine, i + 1)
+end
+
 local function writeHighlighted(sLine)
     while #sLine > 0 do
         sLine =
             tryWrite(sLine, "^%-%-%[%[.-%]%]", commentColour) or
             tryWrite(sLine, "^%-%-.*", commentColour) or
-            tryWrite(sLine, "^\"\"", stringColour) or
-            tryWrite(sLine, "^\".-[^\\]\"", stringColour) or
-            tryWrite(sLine, "^\'\'", stringColour) or
-            tryWrite(sLine, "^\'.-[^\\]\'", stringColour) or
+            tryWriteString(sLine) or
             tryWrite(sLine, "^%[%[.-%]%]", stringColour) or
             tryWrite(sLine, "^[%w_]+", function(match)
                 if tKeywords[match] then
@@ -352,7 +375,7 @@ local tMenuFuncs = {
         if bReadOnly then
             set_status("Access denied", false)
         else
-            local ok, _, fileerr  = save(sPath, function(file)
+            local ok, _, fileerr = save(sPath, function(file)
                 for _, sLine in ipairs(tLines) do
                     file.write(sLine .. "\n")
                 end
@@ -547,7 +570,7 @@ local function acceptCompletion()
         -- Append the completion
         local sCompletion = tCompletions[nCompletion]
         tLines[y] = tLines[y] .. sCompletion
-        setCursor(x + #sCompletion , y)
+        setCursor(x + #sCompletion, y)
     end
 end
 
@@ -805,7 +828,7 @@ while bRunning do
             -- Input text
             local sLine = tLines[y]
             tLines[y] = string.sub(sLine, 1, x - 1) .. param .. string.sub(sLine, x)
-            setCursor(x + #param , y)
+            setCursor(x + #param, y)
         end
 
     elseif sEvent == "mouse_click" then
