@@ -5,18 +5,16 @@
 package dan200.computercraft.client.integration;
 
 import com.google.auto.service.AutoService;
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import net.irisshaders.iris.api.v0.IrisApi;
 import net.irisshaders.iris.api.v0.IrisTextVertexSink;
 import net.minecraft.client.renderer.LightTexture;
-import org.jspecify.annotations.Nullable;
-import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 import java.util.Optional;
+import java.util.function.IntFunction;
 
 @AutoService(ShaderMod.Provider.class)
 public class IrisShaderMod implements ShaderMod.Provider {
@@ -32,21 +30,20 @@ public class IrisShaderMod implements ShaderMod.Provider {
         }
 
         @Override
-        public DirectFixedWidthFontRenderer.QuadEmitter getQuadEmitter(int vertexCount, ByteBufferBuilder makeBuffer) {
-            return IrisApi.getInstance().getMinorApiRevision() >= 1
-                ? new IrisQuadEmitter(vertexCount, makeBuffer)
-                : super.getQuadEmitter(vertexCount, makeBuffer);
+        public DirectFixedWidthFontRenderer.QuadEmitter getQuadEmitter(int quadCount, IntFunction<ByteBuffer> makeBuffer) {
+            return new IrisQuadEmitter(quadCount, makeBuffer);
         }
 
         private static final class IrisQuadEmitter extends DirectFixedWidthFontRenderer.QuadEmitter {
             private final IrisTextVertexSink sink;
-            private @Nullable ByteBuffer buffer;
 
-            private IrisQuadEmitter(int vertexCount, ByteBufferBuilder builder) {
-                sink = IrisApi.getInstance().createTextVertexSink(vertexCount, i -> {
-                    if (buffer != null) throw new IllegalStateException("Allocated multiple buffers");
-                    return buffer = MemoryUtil.memByteBuffer(builder.reserve(i), i);
-                });
+            private IrisQuadEmitter(int vertexCount, IntFunction<ByteBuffer> builder) {
+                sink = IrisApi.getInstance().createTextVertexSink(vertexCount, builder);
+            }
+
+            @Override
+            public ByteBuffer byteBuffer() {
+                return sink.getUnderlyingByteBuffer();
             }
 
             @Override

@@ -7,7 +7,6 @@ package dan200.computercraft.client.render.monitor;
 import com.mojang.blaze3d.buffers.BufferType;
 import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dan200.computercraft.annotations.ForgeOverride;
@@ -28,7 +27,10 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.jspecify.annotations.Nullable;
+import org.lwjgl.system.MemoryUtil;
 
+import java.nio.ByteBuffer;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
@@ -42,7 +44,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
      */
     private static final float MARGIN = (float) (MonitorBlockEntity.RENDER_MARGIN * 1.1);
 
-    private static final ByteBufferBuilder backingBufferBuilder = new ByteBufferBuilder(0x4000);
+    private static @Nullable ByteBuffer backingBuffer;
 
     public MonitorBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -129,9 +131,9 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
 
         if (redraw) {
             // Cursor, Foreground, Background+Margin
-            var maxVertexCount = 4 * (1 + (terminal.getWidth() * terminal.getHeight()) + ((terminal.getWidth() + 2) * (terminal.getHeight() + 2)));
-            backingBufferBuilder.clear();
-            var sink = ShaderMod.get().getQuadEmitter(maxVertexCount, backingBufferBuilder);
+            var maxQuadCount = 1 + (terminal.getWidth() * terminal.getHeight()) + ((terminal.getWidth() + 2) * (terminal.getHeight() + 2));
+            var maxVertexCount = 4 * maxQuadCount;
+            var sink = ShaderMod.get().getQuadEmitter(maxQuadCount, MonitorBlockEntityRenderer::getBuffer);
 
             DirectFixedWidthFontRenderer.drawTerminalBackground(sink, 0, 0, terminal, yMargin, yMargin, xMargin, xMargin);
             var vertexCountAfterBackground = sink.vertexCount();
@@ -146,39 +148,48 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
                 throw new IllegalStateException("Drew too many vertices. Expected " + maxVertexCount + ", drew " + vertexCountAfterCursor);
             }
 
-            try (var result = backingBufferBuilder.build()) {
-                if (result == null) {
-                    // If we have nothing to draw, just mark it as empty. We'll skip drawing in drawWithShader.
-                    renderState.indexAfterBackground = renderState.indexAfterForeground = renderState.indexAfterCursor = 0;
-                } else {
-                    renderState.register();
+            final int indexAfterBackground, indexAfterForeground, indexAfterCursor;
+            if (vertexCountAfterCursor == 0) {
+                // If we have nothing to draw, just mark it as empty. We'll skip drawing in drawWithShader.
+                indexAfterBackground = indexAfterForeground = indexAfterCursor = 0;
+            } else {
+                renderState.register();
 
-                    var commandEncoder = RenderSystem.getDevice().createCommandEncoder();
+                var commandEncoder = RenderSystem.getDevice().createCommandEncoder();
 
-                    var resultBuffer = result.byteBuffer();
-                    if (resultBuffer.limit() / sink.format().getVertexSize() != vertexCountAfterCursor) {
-                        throw new IllegalStateException("Mismatched vertex count");
-                    }
+                var resultBuffer = sink.byteBuffer().flip();
 
-                    if (renderState.vertexBuffer == null || resultBuffer.limit() > renderState.vertexBuffer.size()) {
-                        if (renderState.vertexBuffer != null) {
-                            renderState.vertexBuffer.close();
-                            renderState.vertexBuffer = null;
-                        }
-                        renderState.vertexBuffer = RenderSystem.getDevice().createBuffer(
-                            () -> "Monitor at " + monitor.getOrigin().getBlockPos(),
-                            BufferType.VERTICES, BufferUsage.STATIC_WRITE, resultBuffer
-                        );
-                    } else if (!renderState.vertexBuffer.isClosed()) {
-                        commandEncoder.writeToBuffer(renderState.vertexBuffer, resultBuffer, 0);
-                    }
+                // Ensure our buffer contains the correct number of vertices.
+                if (resultBuffer.remaining() != sink.format().getVertexSize() * vertexCountAfterCursor) {
+                    throw new IllegalStateException(String.format(
+                        "Mismatched vertex count. Buffer is %d bytes long, but was expected to be %d (vertex size) * %d (vertex count) = %d bytes.",
+                        resultBuffer.limit(), sink.format().getVertexSize(), vertexCountAfterCursor, sink.format().getVertexSize() * vertexCountAfterCursor
+                    ));
                 }
+
+                // Upload the buffer, reallocating if required.
+                if (renderState.vertexBuffer == null || resultBuffer.remaining() > renderState.vertexBuffer.size()) {
+                    if (renderState.vertexBuffer != null) {
+                        renderState.vertexBuffer.close();
+                        renderState.vertexBuffer = null;
+                    }
+                    renderState.vertexBuffer = RenderSystem.getDevice().createBuffer(
+                        () -> "Monitor at " + monitor.getOrigin().getBlockPos(),
+                        BufferType.VERTICES, BufferUsage.STATIC_WRITE, resultBuffer
+                    );
+                } else if (!renderState.vertexBuffer.isClosed()) {
+                    commandEncoder.writeToBuffer(renderState.vertexBuffer, resultBuffer, 0);
+                }
+
+                var mode = FixedWidthFontRenderer.TERMINAL_TEXT.mode();
+                indexAfterBackground = mode.indexCount(vertexCountAfterBackground);
+                indexAfterForeground = mode.indexCount(vertexCountAfterForeground);
+                indexAfterCursor = mode.indexCount(vertexCountAfterCursor);
             }
 
-            var mode = FixedWidthFontRenderer.TERMINAL_TEXT.mode();
-            renderState.indexAfterBackground = mode.indexCount(vertexCountAfterBackground);
-            renderState.indexAfterForeground = mode.indexCount(vertexCountAfterForeground);
-            renderState.indexAfterCursor = mode.indexCount(vertexCountAfterCursor);
+            renderState.indexAfterForeground = indexAfterForeground;
+            renderState.indexAfterBackground = indexAfterBackground;
+            renderState.indexAfterCursor = indexAfterCursor;
         }
 
         if (renderState.indexAfterCursor == 0) return;
@@ -248,5 +259,15 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
     @ForgeOverride
     public AABB getRenderBoundingBox(MonitorBlockEntity monitor) {
         return monitor.getRenderBoundingBox();
+    }
+
+    private static ByteBuffer getBuffer(int capacity) {
+        var buffer = backingBuffer;
+        if (buffer == null || buffer.capacity() < capacity) {
+            buffer = backingBuffer = buffer == null ? MemoryUtil.memAlloc(capacity) : MemoryUtil.memRealloc(buffer, capacity);
+        }
+
+        buffer.clear();
+        return buffer;
     }
 }

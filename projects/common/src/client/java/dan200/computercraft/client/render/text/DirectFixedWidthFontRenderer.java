@@ -4,7 +4,6 @@
 
 package dan200.computercraft.client.render.text;
 
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -15,6 +14,7 @@ import dan200.computercraft.core.util.Colour;
 import net.minecraft.util.ARGB;
 import org.lwjgl.system.MemoryUtil;
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.*;
@@ -164,6 +164,8 @@ public final class DirectFixedWidthFontRenderer {
     public abstract static class QuadEmitter {
         private int vertexCount;
 
+        public abstract ByteBuffer byteBuffer();
+
         public abstract VertexFormat format();
 
         protected abstract void quad(float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2);
@@ -174,10 +176,15 @@ public final class DirectFixedWidthFontRenderer {
     }
 
     public static final class ByteBufferEmitter extends QuadEmitter {
-        private final ByteBufferBuilder builder;
+        private final ByteBuffer buffer;
 
-        public ByteBufferEmitter(ByteBufferBuilder builder) {
-            this.builder = builder;
+        public ByteBufferEmitter(ByteBuffer buffer) {
+            this.buffer = buffer;
+        }
+
+        @Override
+        public ByteBuffer byteBuffer() {
+            return buffer;
         }
 
         @Override
@@ -187,17 +194,18 @@ public final class DirectFixedWidthFontRenderer {
 
         @Override
         public void quad(float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2) {
-            DirectFixedWidthFontRenderer.quad(builder, x1, y1, x2, y2, z, colour, u1, v1, u2, v2);
+            DirectFixedWidthFontRenderer.quad(buffer, x1, y1, x2, y2, z, colour, u1, v1, u2, v2);
         }
     }
 
-    static void quad(ByteBufferBuilder builder, float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2) {
+    private static void quad(ByteBuffer buffer, float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2) {
         // Emit a single quad to our buffer. This uses Unsafe (well, LWJGL's MemoryUtil) to directly blit bytes to the
         // underlying buffer. This allows us to have a single bounds check up-front, rather than one for every write.
         // This provides significant performance gains, at the cost of well, using Unsafe.
         // Each vertex is 28 bytes, giving 112 bytes in total. Vertices are of the form (xyz:FFF)(abgr:BBBB)(uv1:FF)(uv2:SS),
         // which matches the POSITION_COLOR_TEX_LIGHTMAP vertex format.
-        var addr = builder.reserve(112);
+        var position = buffer.position();
+        var addr = MemoryUtil.memAddress(buffer);
 
         // We're doing terrible unsafe hacks below, so let's be really sure that what we're doing is reasonable.
         // Require the pointer to be aligned to a 32-bit boundary.
@@ -245,6 +253,9 @@ public final class DirectFixedWidthFontRenderer {
         memPutFloat(addr + 104, v1);
         memPutShort(addr + 108, (short) 0xF0);
         memPutShort(addr + 110, (short) 0xF0);
+
+        // Finally increment the position.
+        buffer.position(position + 112);
 
         // Well done for getting to the end of this method. I recommend you take a break and go look at cute puppies.
     }

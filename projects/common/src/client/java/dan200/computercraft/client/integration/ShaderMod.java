@@ -4,11 +4,14 @@
 
 package dan200.computercraft.client.integration;
 
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 
+import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.function.IntFunction;
+
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.TERMINAL_TEXT;
 
 /**
  * Find the currently loaded shader mod (if present) and provides utilities for interacting with it.
@@ -30,12 +33,12 @@ public class ShaderMod {
     /**
      * Get an appropriate quad emitter for use with a vertex buffer and {@link DirectFixedWidthFontRenderer} .
      *
-     * @param vertexCount The number of vertices.
-     * @param buffer      A function to allocate a temporary buffer.
+     * @param quadCount  The number of quads.
+     * @param makeBuffer A function to allocate a temporary buffer.
      * @return The quad emitter.
      */
-    public DirectFixedWidthFontRenderer.QuadEmitter getQuadEmitter(int vertexCount, ByteBufferBuilder buffer) {
-        return new DirectFixedWidthFontRenderer.ByteBufferEmitter(buffer);
+    public DirectFixedWidthFontRenderer.QuadEmitter getQuadEmitter(int quadCount, IntFunction<ByteBuffer> makeBuffer) {
+        return new DirectFixedWidthFontRenderer.ByteBufferEmitter(makeBuffer.apply(TERMINAL_TEXT.format().getVertexSize() * quadCount * 4));
     }
 
     public interface Provider {
