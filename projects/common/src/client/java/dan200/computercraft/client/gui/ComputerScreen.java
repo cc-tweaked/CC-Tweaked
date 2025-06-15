@@ -6,9 +6,7 @@ package dan200.computercraft.client.gui;
 
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
-import dan200.computercraft.client.render.ComputerBorderRenderer;
-import dan200.computercraft.client.render.RenderTypes;
-import dan200.computercraft.client.render.SpriteRenderer;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -40,14 +38,15 @@ public final class ComputerScreen<T extends AbstractComputerMenu> extends Abstra
     public void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
         // Draw a border around the terminal
         var terminal = getTerminal();
-        var spriteRenderer = SpriteRenderer.createForGui(graphics, RenderTypes.GUI_SPRITES);
         var computerTextures = GuiSprites.getComputerTextures(family);
 
-        ComputerBorderRenderer.render(
-            spriteRenderer, computerTextures,
-            terminal.getX(), terminal.getY(), terminal.getWidth(), terminal.getHeight(), false
+        graphics.blitSprite(
+            computerTextures.border(),
+            terminal.getX() - BORDER, terminal.getY() - BORDER, terminal.getWidth() + BORDER * 2, terminal.getHeight() + BORDER * 2
         );
-        ComputerSidebar.renderBackground(spriteRenderer, computerTextures, leftPos, topPos + sidebarYOffset);
-        graphics.flush(); // Flush to ensure background textures are drawn before foreground.
+        graphics.blitSprite(
+            Nullability.assertNonNull(computerTextures.sidebar()),
+            leftPos, topPos + sidebarYOffset, AbstractComputerMenu.SIDEBAR_WIDTH, ComputerSidebar.HEIGHT
+        );
     }
 }

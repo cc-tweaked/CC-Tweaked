@@ -40,7 +40,6 @@ import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.LivingEntity;
@@ -144,10 +143,6 @@ public final class ClientRegistry {
      */
     public interface RegisterItemProperty {
         void register(Item item, ResourceLocation name, ClampedItemPropertyFunction property);
-    }
-
-    public static void registerReloadListeners(Consumer<PreparableReloadListener> register, Minecraft minecraft) {
-        register.accept(GuiSprites.initialise(minecraft.getTextureManager()));
     }
 
     private static final ResourceLocation[] EXTRA_MODELS = {

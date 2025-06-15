@@ -18,7 +18,10 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 
 import java.io.IOException;
 
@@ -80,11 +83,6 @@ public final class ForgeClientRegistry {
     @SubscribeEvent
     public static void registerMenuScreens(RegisterMenuScreensEvent event) {
         ClientRegistry.registerMenuScreens(event::register);
-    }
-
-    @SubscribeEvent
-    public static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
-        ClientRegistry.registerReloadListeners(event::registerReloadListener, Minecraft.getInstance());
     }
 
     @SubscribeEvent

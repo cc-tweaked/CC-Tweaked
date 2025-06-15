@@ -76,7 +76,7 @@ public final class DataProviders {
                 LecternPocketModel.TEXTURE_NORMAL, LecternPocketModel.TEXTURE_ADVANCED,
                 LecternPocketModel.TEXTURE_COLOUR, LecternPocketModel.TEXTURE_FRAME, LecternPocketModel.TEXTURE_LIGHT
             )));
-            out.accept(GuiSprites.SPRITE_SHEET, makeSprites(
+            out.accept(ResourceLocation.withDefaultNamespace("gui"), makeSprites(
                 // Computers
                 GuiSprites.COMPUTER_NORMAL.textures(),
                 GuiSprites.COMPUTER_ADVANCED.textures(),
@@ -84,6 +84,8 @@ public final class DataProviders {
                 GuiSprites.COMPUTER_COLOUR.textures()
             ));
         });
+
+        generator.add(ResourceMetadataProvider::new);
 
         generator.add(pack -> new ExtraModelsProvider(pack, fullRegistries) {
             @Override
