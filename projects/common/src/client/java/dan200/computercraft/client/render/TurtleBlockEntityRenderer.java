@@ -62,8 +62,8 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
             var matrix = transform.last().pose();
             var opacity = (int) (mc.options.getBackgroundOpacity(0.25f) * 255) << 24;
             var width = -font.width(label) / 2.0f;
-            font.drawInBatch(label, width, (float) 0, 0x20ffffff, false, matrix, buffers, Font.DisplayMode.SEE_THROUGH, opacity, lightmapCoord);
-            font.drawInBatch(label, width, (float) 0, CommonColors.WHITE, false, matrix, buffers, Font.DisplayMode.NORMAL, 0, lightmapCoord);
+            font.drawInBatch(label, width, 0, 0x20ffffff, false, matrix, buffers, Font.DisplayMode.SEE_THROUGH, opacity, lightmapCoord);
+            font.drawInBatch(label, width, 0, CommonColors.WHITE, false, matrix, buffers, Font.DisplayMode.NORMAL, 0, lightmapCoord);
 
             transform.popPose();
         }
