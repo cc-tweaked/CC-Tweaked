@@ -371,7 +371,7 @@ function toBlit(color)
     local hex = color_hex_lookup[color]
     if hex then return hex end
 
-    if color < 0 or color > 0xffff then error("Colour out of range", 2) end
+    if color < 1 or color > 0xffff then error("Colour out of range", 2) end
     return string.format("%x", math.floor(math.log(color, 2)))
 end
 

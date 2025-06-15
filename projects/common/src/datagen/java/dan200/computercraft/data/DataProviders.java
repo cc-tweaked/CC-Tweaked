@@ -21,6 +21,7 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.client.renderer.texture.atlas.SpriteSources;
 import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
+import net.minecraft.client.resources.model.AtlasIds;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.DataProvider;
@@ -69,18 +70,14 @@ public final class DataProviders {
         generator.add(out -> new LanguageProvider(out, fullRegistries));
 
         generator.addFromCodec("Block atlases", PackOutput.Target.RESOURCE_PACK, "atlases", SpriteSources.FILE_CODEC, out -> {
-            out.accept(ResourceLocation.withDefaultNamespace("blocks"), makeSprites(Stream.of(
+            out.accept(AtlasIds.BLOCKS, makeSprites(Stream.of(
                 LecternPrintoutModel.TEXTURE,
                 LecternPocketModel.TEXTURE_NORMAL, LecternPocketModel.TEXTURE_ADVANCED,
                 LecternPocketModel.TEXTURE_COLOUR, LecternPocketModel.TEXTURE_FRAME, LecternPocketModel.TEXTURE_LIGHT
             )));
 
-            out.accept(ResourceLocation.withDefaultNamespace("gui"), makeSprites(Stream.of(
-                UpgradeSlot.LEFT_UPGRADE,
-                UpgradeSlot.RIGHT_UPGRADE
-            )));
-
-            out.accept(GuiSprites.SPRITE_SHEET, makeSprites(
+            out.accept(AtlasIds.GUI, makeSprites(
+                Stream.of(UpgradeSlot.LEFT_UPGRADE, UpgradeSlot.RIGHT_UPGRADE),
                 // Computers
                 GuiSprites.COMPUTER_NORMAL.textures(),
                 GuiSprites.COMPUTER_ADVANCED.textures(),
@@ -88,6 +85,8 @@ public final class DataProviders {
                 GuiSprites.COMPUTER_COLOUR.textures()
             ));
         });
+
+        generator.add(ResourceMetadataProvider::new);
 
         generator.addFromCodec("Turtle overlays", PackOutput.Target.RESOURCE_PACK, TurtleOverlay.SOURCE, TurtleOverlay.CODEC, TurtleOverlays::register);
         generator.addFromCodec("Turtle upgrade models", PackOutput.Target.RESOURCE_PACK, TurtleUpgradeModel.SOURCE, TurtleUpgradeModel.CODEC, TurtleUpgradeProvider::addModels);

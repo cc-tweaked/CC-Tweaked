@@ -238,7 +238,7 @@ local function lex_token(context, str, pos)
             if end_pos then return tokens.STRING, end_pos end
 
             context.report(errors.unfinished_long_string, pos, boundary_pos, boundary_pos - pos)
-            return tokens.ERROR, #str
+            return tokens.STRING, #str
         elseif pos + 1 == boundary_pos then -- Just a "["
             return tokens.OSQUARE, pos
         else -- Malformed long string, for instance "[="
@@ -260,7 +260,7 @@ local function lex_token(context, str, pos)
                 if end_pos then return tokens.COMMENT, end_pos end
 
                 context.report(errors.unfinished_long_comment, pos, boundary_pos, boundary_pos - comment_pos)
-                return tokens.ERROR, #str
+                return tokens.COMMENT, #str
             end
         end
 

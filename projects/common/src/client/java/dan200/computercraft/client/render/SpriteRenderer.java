@@ -5,134 +5,71 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dan200.computercraft.client.gui.GuiSprites;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 
-import java.util.function.Consumer;
 
 /**
- * A {@link GuiGraphics}-equivalent which is suitable for both rendering in to a GUI and in-world (as part of an entity
- * renderer).
+ * A {@link GuiGraphics}-equivalent renders to a {@link VertexConsumer}. This is suitable for rendering outside of a
+ * GUI, such as part of an entity renderer.
  * <p>
  * This batches all render calls together, though requires that all {@link TextureAtlasSprite}s are on the same sprite
  * sheet.
  */
 public class SpriteRenderer {
+    public static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/atlas/gui.png");
+
     private final Matrix4f transform;
-    private final VertexConsumer builder;
+    private final MultiBufferSource buffers;
     private final int light;
     private final int z;
-    private final int r, g, b;
+    private final int colour;
 
-    public SpriteRenderer(Matrix4f transform, VertexConsumer builder, int z, int light, int r, int g, int b) {
+    public SpriteRenderer(Matrix4f transform, MultiBufferSource buffers, int z, int light, int colour) {
         this.transform = transform;
-        this.builder = builder;
+        this.buffers = buffers;
         this.z = z;
         this.light = light;
-        this.r = r;
-        this.g = g;
-        this.b = b;
+        this.colour = colour;
     }
 
-    public static void inGui(GuiGraphics graphics, Consumer<SpriteRenderer> renderer) {
-        graphics.drawSpecial(bufferSource -> renderer.accept(new SpriteRenderer(
-            graphics.pose().last().pose(), bufferSource.getBuffer(RenderType.guiTextured(GuiSprites.TEXTURE)),
-            0, LightTexture.FULL_BRIGHT, 255, 255, 255
-        )));
+    public void blit(TextureAtlasSprite sprite, int x0, int y0, int width, int height, int spriteX, int spriteY, int spriteWidth, int spriteHeight) {
+        if (width == 0 || height == 0) return;
+
+        var x1 = x0 + width;
+        var y1 = y0 + height;
+        var u0 = sprite.getU((float) spriteX / spriteWidth);
+        var u1 = sprite.getU((float) (spriteX + width) / spriteWidth);
+        var v0 = sprite.getV((float) spriteY / spriteHeight);
+        var v1 = sprite.getV((float) (spriteY + height) / spriteHeight);
+
+        var vertices = buffers.getBuffer(RenderType.text(sprite.atlasLocation()));
+        vertices.addVertex(transform, x0, y1, z).setColor(colour).setUv(u0, v1).setLight(light);
+        vertices.addVertex(transform, x1, y1, z).setColor(colour).setUv(u1, v1).setLight(light);
+        vertices.addVertex(transform, x1, y0, z).setColor(colour).setUv(u1, v0).setLight(light);
+        vertices.addVertex(transform, x0, y0, z).setColor(colour).setUv(u0, v0).setLight(light);
     }
 
-    /**
-     * Render a single sprite.
-     *
-     * @param sprite The texture to draw.
-     * @param x      The x position of the rectangle we'll draw.
-     * @param y      The x position of the rectangle we'll draw.
-     * @param width  The width of the rectangle we'll draw.
-     * @param height The height of the rectangle we'll draw.
-     */
-    public void blit(TextureAtlasSprite sprite, int x, int y, int width, int height) {
-        blit(x, y, width, height, sprite.getU0(), sprite.getV0(), sprite.getU1(), sprite.getV1());
-    }
+    public void blitTiled(
+        TextureAtlasSprite sprite,
+        int x, int y, int width, int height,
+        int tileX, int tileY, int tileWidth, int tileHeight, int spriteWidth, int spriteHeight
+    ) {
+        if (width <= 0 || height <= 0) return;
+        if (tileWidth <= 0 || tileHeight <= 0) {
+            throw new IllegalArgumentException("Tiled sprite texture size must be positive, got " + tileWidth + "x" + tileHeight);
+        }
 
-    /**
-     * Render a horizontal 3-sliced texture (i.e. split into left, middle and right). Unlike {@link GuiGraphics#blitNineSliced},
-     * the middle texture is stretched rather than repeated.
-     *
-     * @param sprite       The texture to draw.
-     * @param x            The x position of the rectangle we'll draw.
-     * @param y            The x position of the rectangle we'll draw.
-     * @param width        The width of the rectangle we'll draw.
-     * @param height       The height of the rectangle we'll draw.
-     * @param leftBorder   The width of the left border.
-     * @param rightBorder  The width of the right border.
-     * @param textureWidth The width of the whole texture.
-     */
-    public void blitHorizontalSliced(TextureAtlasSprite sprite, int x, int y, int width, int height, int leftBorder, int rightBorder, int textureWidth) {
-        // TODO(1.21.4): Drive this from mcmeta files, like vanilla does.
-        if (width < leftBorder + rightBorder) throw new IllegalArgumentException("width is less than two borders");
-
-        var centerStart = SpriteRenderer.u(sprite, leftBorder, textureWidth);
-        var centerEnd = SpriteRenderer.u(sprite, textureWidth - rightBorder, textureWidth);
-
-        blit(x, y, leftBorder, height, sprite.getU0(), sprite.getV0(), centerStart, sprite.getV1());
-        blit(x + leftBorder, y, width - leftBorder - rightBorder, height, centerStart, sprite.getV0(), centerEnd, sprite.getV1());
-        blit(x + width - rightBorder, y, rightBorder, height, centerEnd, sprite.getV0(), sprite.getU1(), sprite.getV1());
-    }
-
-    /**
-     * Render a vertical 3-sliced texture (i.e. split into top, middle and bottom). Unlike {@link GuiGraphics#blitNineSliced},
-     * the middle texture is stretched rather than repeated.
-     *
-     * @param sprite        The texture to draw.
-     * @param x             The x position of the rectangle we'll draw.
-     * @param y             The x position of the rectangle we'll draw.
-     * @param width         The width of the rectangle we'll draw.
-     * @param height        The height of the rectangle we'll draw.
-     * @param topBorder     The height of the top border.
-     * @param bottomBorder  The height of the bottom border.
-     * @param textureHeight The height of the whole texture.
-     */
-    public void blitVerticalSliced(TextureAtlasSprite sprite, int x, int y, int width, int height, int topBorder, int bottomBorder, int textureHeight) {
-        // TODO(1.21.4): Drive this from mcmeta files, like vanilla does.
-        if (width < topBorder + bottomBorder) throw new IllegalArgumentException("height is less than two borders");
-
-        var centerStart = SpriteRenderer.v(sprite, topBorder, textureHeight);
-        var centerEnd = SpriteRenderer.v(sprite, textureHeight - bottomBorder, textureHeight);
-
-        blit(x, y, width, topBorder, sprite.getU0(), sprite.getV0(), sprite.getU1(), centerStart);
-        blit(x, y + topBorder, width, height - topBorder - bottomBorder, sprite.getU0(), centerStart, sprite.getU1(), centerEnd);
-        blit(x, y + height - bottomBorder, width, bottomBorder, sprite.getU0(), centerEnd, sprite.getU1(), sprite.getV1());
-    }
-
-    /**
-     * The low-level blit function, used to render a portion of the sprite sheet. Unlike other functions, this takes uvs rather than a single sprite.
-     *
-     * @param x      The x position of the rectangle we'll draw.
-     * @param y      The x position of the rectangle we'll draw.
-     * @param width  The width of the rectangle we'll draw.
-     * @param height The height of the rectangle we'll draw.
-     * @param u0     The first U coordinate.
-     * @param v0     The first V coordinate.
-     * @param u1     The second U coordinate.
-     * @param v1     The second V coordinate.
-     */
-    public void blit(
-        int x, int y, int width, int height, float u0, float v0, float u1, float v1) {
-        builder.addVertex(transform, x, y + height, z).setColor(r, g, b, 255).setUv(u0, v1).setLight(light);
-        builder.addVertex(transform, x + width, y + height, z).setColor(r, g, b, 255).setUv(u1, v1).setLight(light);
-        builder.addVertex(transform, x + width, y, z).setColor(r, g, b, 255).setUv(u1, v0).setLight(light);
-        builder.addVertex(transform, x, y, z).setColor(r, g, b, 255).setUv(u0, v0).setLight(light);
-    }
-
-    public static float u(TextureAtlasSprite sprite, int x, int width) {
-        return sprite.getU((float) x / width);
-    }
-
-    public static float v(TextureAtlasSprite sprite, int y, int height) {
-        return sprite.getV((float) y / height);
+        for (var xOffset = 0; xOffset < width; xOffset += tileWidth) {
+            var sliceWidth = Math.min(tileWidth, width - xOffset);
+            for (var yOffset = 0; yOffset < height; yOffset += tileHeight) {
+                var sliceHeight = Math.min(tileHeight, height - yOffset);
+                blit(sprite, x + xOffset, y + yOffset, sliceWidth, sliceHeight, tileX, tileY, spriteWidth, spriteHeight);
+            }
+        }
     }
 }

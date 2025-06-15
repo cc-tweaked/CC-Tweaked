@@ -6,9 +6,7 @@ package dan200.computercraft.client.gui.widgets;
 
 import dan200.computercraft.client.gui.GuiSprites;
 import dan200.computercraft.client.gui.widgets.DynamicImageButton.HintedMessage;
-import dan200.computercraft.client.render.SpriteRenderer;
 import dan200.computercraft.shared.computer.core.InputHandler;
-import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
 
@@ -24,12 +22,9 @@ public final class ComputerSidebar {
     private static final int ICON_MARGIN = 2;
 
     private static final int CORNERS_BORDER = 3;
-    private static final int FULL_BORDER = CORNERS_BORDER + ICON_MARGIN;
 
     private static final int BUTTONS = 2;
-    private static final int HEIGHT = (ICON_HEIGHT + ICON_MARGIN * 2) * BUTTONS + CORNERS_BORDER * 2;
-
-    private static final int TEX_HEIGHT = 14;
+    public static final int HEIGHT = (ICON_HEIGHT + ICON_MARGIN * 2) * BUTTONS + CORNERS_BORDER * 2;
 
     private ComputerSidebar() {
     }
@@ -61,14 +56,6 @@ public final class ComputerSidebar {
                 Component.translatable("gui.computercraft.tooltip.terminate.key")
             )
         ));
-    }
-
-    public static void renderBackground(SpriteRenderer renderer, GuiSprites.ComputerTextures textures, int x, int y) {
-        var texture = textures.sidebar();
-        if (texture == null) throw new NullPointerException(textures + " has no sidebar texture");
-        var sprite = GuiSprites.get(texture);
-
-        renderer.blitVerticalSliced(sprite, x, y, AbstractComputerMenu.SIDEBAR_WIDTH, HEIGHT, FULL_BORDER, FULL_BORDER, TEX_HEIGHT);
     }
 
     private static void toggleComputer(BooleanSupplier isOn, InputHandler input) {

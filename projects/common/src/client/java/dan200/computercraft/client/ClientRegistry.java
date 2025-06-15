@@ -5,7 +5,6 @@
 package dan200.computercraft.client;
 
 import com.mojang.serialization.MapCodec;
-import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.StandaloneModel;
 import dan200.computercraft.api.client.turtle.*;
 import dan200.computercraft.client.gui.*;
@@ -23,7 +22,6 @@ import dan200.computercraft.client.turtle.TurtleOverlayManager;
 import dan200.computercraft.client.turtle.TurtleUpgradeModelManager;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
@@ -38,7 +36,6 @@ import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -105,10 +102,6 @@ public final class ClientRegistry {
         register.register(BasicUpgradeModel.ID, BasicUpgradeModel.CODEC);
         register.register(ItemUpgradeModel.ID, ItemUpgradeModel.CODEC);
         register.register(SelectUpgradeModel.ID, SelectUpgradeModel.CODEC);
-    }
-
-    public static void registerReloadListeners(BiConsumer<ResourceLocation, PreparableReloadListener> register, Minecraft minecraft) {
-        register.accept(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "sprites"), GuiSprites.initialise(minecraft.getTextureManager()));
     }
 
     private static final ResourceLocation[] EXTRA_MODELS = {

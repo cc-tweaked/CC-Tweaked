@@ -87,11 +87,6 @@ public final class ForgeClientRegistry {
     }
 
     @SubscribeEvent
-    public static void registerReloadListeners(AddClientReloadListenersEvent event) {
-        ClientRegistry.registerReloadListeners(event::addListener, Minecraft.getInstance());
-    }
-
-    @SubscribeEvent
     public static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
         event.registerEntityModifier(new TypeToken<ItemFrameRenderer<?>>() {
         }, (e, s) -> {

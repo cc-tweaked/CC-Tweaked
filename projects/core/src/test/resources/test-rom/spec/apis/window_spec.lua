@@ -59,6 +59,16 @@ describe("The window library", function()
 
             expect.error(w.setTextColour, nil):eq("bad argument #1 (number expected, got nil)")
             expect.error(w.setTextColour, -5):eq("Colour out of range")
+            expect.error(w.setTextColour, 0):eq("Colour out of range")
+            expect.error(w.setTextColour, 0x10000):eq("Colour out of range")
+        end)
+
+        it("accepts valid colours", function()
+            local w = mk()
+            for i = 0, 15 do
+                w.setBackgroundColour(2 ^ i)
+                expect(w.getBackgroundColour()):eq(2 ^ i)
+            end
         end)
 
         it("supports invalid combined colours", function()

@@ -7,9 +7,6 @@ package dan200.computercraft.client.gui;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.resources.TextureAtlasHolder;
 import net.minecraft.resources.ResourceLocation;
 import org.jspecify.annotations.Nullable;
 
@@ -19,10 +16,7 @@ import java.util.stream.Stream;
 /**
  * Sprite sheet for all GUI texutres in the mod.
  */
-public final class GuiSprites extends TextureAtlasHolder {
-    public static final ResourceLocation SPRITE_SHEET = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui");
-    public static final ResourceLocation TEXTURE = SPRITE_SHEET.withPath(x -> "textures/atlas/" + x + ".png");
-
+public final class GuiSprites {
     public static final ButtonTextures TURNED_OFF = button("turned_off");
     public static final ButtonTextures TURNED_ON = button("turned_on");
     public static final ButtonTextures TERMINATE = button("terminate");
@@ -31,6 +25,9 @@ public final class GuiSprites extends TextureAtlasHolder {
     public static final ComputerTextures COMPUTER_ADVANCED = computer("advanced", true, true);
     public static final ComputerTextures COMPUTER_COMMAND = computer("command", false, true);
     public static final ComputerTextures COMPUTER_COLOUR = computer("colour", true, false);
+
+    private GuiSprites() {
+    }
 
     private static ButtonTextures button(String name) {
         return new ButtonTextures(
@@ -45,34 +42,6 @@ public final class GuiSprites extends TextureAtlasHolder {
             pocket ? ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/pocket_bottom_" + name) : null,
             sidebar ? ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/sidebar_" + name) : null
         );
-    }
-
-    private static @Nullable GuiSprites instance;
-
-    private GuiSprites(TextureManager textureManager) {
-        super(textureManager, TEXTURE, SPRITE_SHEET);
-    }
-
-    /**
-     * Initialise the singleton {@link GuiSprites} instance.
-     *
-     * @param textureManager The current texture manager.
-     * @return The singleton {@link GuiSprites} instance, to register as resource reload listener.
-     */
-    public static GuiSprites initialise(TextureManager textureManager) {
-        if (instance != null) throw new IllegalStateException("GuiSprites has already been initialised");
-        return instance = new GuiSprites(textureManager);
-    }
-
-    /**
-     * Lookup a texture on the atlas.
-     *
-     * @param texture The texture to find.
-     * @return The sprite on the atlas.
-     */
-    public static TextureAtlasSprite get(ResourceLocation texture) {
-        if (instance == null) throw new IllegalStateException("GuiSprites has not been initialised");
-        return instance.getSprite(texture);
     }
 
     /**

@@ -13,15 +13,17 @@ import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.metadata.gui.GuiSpriteScaling;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import org.joml.Matrix4f;
 
-import static dan200.computercraft.client.render.ComputerBorderRenderer.*;
+import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
+import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 
@@ -30,6 +32,11 @@ import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FON
  */
 public final class PocketItemRenderer extends ItemMapLikeRenderer {
     public static final PocketItemRenderer INSTANCE = new PocketItemRenderer();
+
+    /**
+     * The height of the pocket computer's light.
+     */
+    private static final int LIGHT_HEIGHT = 8;
 
     private PocketItemRenderer() {
     }
@@ -85,14 +92,69 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
     }
 
     private static void renderFrame(Matrix4f transform, MultiBufferSource render, ComputerFamily family, int colour, int light, int width, int height) {
-        var texture = colour != -1 ? GuiSprites.COMPUTER_COLOUR : GuiSprites.getComputerTextures(family);
+        var textures = colour != -1 ? GuiSprites.COMPUTER_COLOUR : GuiSprites.getComputerTextures(family);
+        var spriteRenderer = new SpriteRenderer(transform, render, 0, light, colour);
+        renderBorder(spriteRenderer, textures, width, height);
+    }
 
-        var r = (colour >>> 16) & 0xFF;
-        var g = (colour >>> 8) & 0xFF;
-        var b = colour & 0xFF;
+    private static void renderBorder(SpriteRenderer renderer, GuiSprites.ComputerTextures textures, int width, int height) {
+        var sprites = Minecraft.getInstance().getGuiSprites();
 
-        var spriteRenderer = new SpriteRenderer(transform, render.getBuffer(RenderType.text(GuiSprites.TEXTURE)), 0, light, r, g, b);
-        ComputerBorderRenderer.render(spriteRenderer, texture, 0, 0, width, height, true);
+        // Find our border, forcing it to be a nine-sliced texture.
+        var borderSprite = sprites.getSprite(textures.border());
+        var borderSlice = getSlice(sprites.getSpriteScaling(borderSprite), DEFAULT_BORDER);
+        var borderBounds = borderSlice.border();
+
+        // And take the separate bottom bit of the pocket computer.
+        var bottomTexture = textures.pocketBottom();
+        if (bottomTexture == null) throw new NullPointerException(textures + " has no pocket texture");
+        var bottomSprite = sprites.getSprite(bottomTexture);
+        var bottomSlice = getSlice(sprites.getSpriteScaling(bottomSprite), DEFAULT_BOTTOM);
+        var bottomBounds = bottomSlice.border();
+
+        // Now draw a nine-sliced texture, by stitching together the top parts of the border with the pocket bottom.
+
+        // Top bar
+        renderer.blit(
+            borderSprite, -borderBounds.left(), -borderBounds.top(), borderBounds.left(), borderBounds.top(),
+            0, 0, borderSlice.width(), borderSlice.height()
+        );
+        renderer.blitTiled(
+            borderSprite, 0, -borderBounds.top(), width, borderBounds.top(),
+            borderBounds.left(), 0, borderSlice.width() - borderBounds.left() - borderBounds.right(), borderBounds.top(),
+            borderSlice.width(), borderSlice.height()
+        );
+        renderer.blit(
+            borderSprite, width, -borderBounds.top(), borderBounds.right(), borderBounds.top(),
+            borderSlice.width() - borderBounds.right(), 0, borderSlice.width(), borderSlice.height()
+        );
+
+        // Vertical bars
+        renderer.blitTiled(
+            borderSprite, -borderBounds.left(), 0, borderBounds.left(), height,
+            0, borderBounds.top(), borderBounds.left(), borderSlice.height() - borderBounds.top() - borderBounds.bottom(),
+            borderSlice.width(), borderSlice.height()
+        );
+        renderer.blitTiled(
+            borderSprite, width, 0, borderBounds.right(), height,
+            borderSlice.width() - borderBounds.right(), borderBounds.top(), borderBounds.right(), borderSlice.height() - borderBounds.top() - borderBounds.bottom(),
+            borderSlice.width(), borderSlice.height()
+        );
+
+        // Bottom
+        renderer.blit(
+            bottomSprite, -bottomBounds.left(), height, bottomBounds.left(), bottomSlice.height(),
+            0, 0, bottomSlice.width(), bottomSlice.height()
+        );
+        renderer.blitTiled(
+            bottomSprite, 0, height, width, bottomSlice.height(),
+            bottomBounds.left(), 0, bottomSlice.width() - bottomBounds.left() - bottomBounds.right(), bottomSlice.height(),
+            bottomSlice.width(), bottomSlice.height()
+        );
+        renderer.blit(
+            bottomSprite, width, height, bottomBounds.right(), bottomSlice.height(),
+            bottomSlice.width() - bottomBounds.right(), 0, bottomSlice.width(), bottomSlice.height()
+        );
     }
 
     private static void renderLight(PoseStack transform, MultiBufferSource render, int colour, int width, int height) {
@@ -102,5 +164,17 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
             width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0.001f, LIGHT_HEIGHT * 2, LIGHT_HEIGHT,
             ARGB.opaque(colour), LightTexture.FULL_BRIGHT
         );
+    }
+
+    private static final GuiSpriteScaling.NineSlice DEFAULT_BORDER = new GuiSpriteScaling.NineSlice(
+        36, 36, new GuiSpriteScaling.NineSlice.Border(12, 12, 12, 12), false
+    );
+
+    private static final GuiSpriteScaling.NineSlice DEFAULT_BOTTOM = new GuiSpriteScaling.NineSlice(
+        36, 20, new GuiSpriteScaling.NineSlice.Border(12, 0, 12, 0), false
+    );
+
+    private static GuiSpriteScaling.NineSlice getSlice(GuiSpriteScaling scaling, GuiSpriteScaling.NineSlice fallback) {
+        return scaling instanceof GuiSpriteScaling.NineSlice slice ? slice : fallback;
     }
 }

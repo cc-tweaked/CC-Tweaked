@@ -120,7 +120,7 @@ public final class StringUtil {
         var idx = 0;
 
         var iterator = clipboard.codePoints().iterator();
-        while (iterator.hasNext() && idx <= output.length) {
+        while (iterator.hasNext() && idx < output.length) {
             var chr = unicodeToTerminal(iterator.next());
             if (chr < 0) continue; // Strip out unconvertible characters
             if (!isTypableChar(chr)) break; // Stop at untypable ones.

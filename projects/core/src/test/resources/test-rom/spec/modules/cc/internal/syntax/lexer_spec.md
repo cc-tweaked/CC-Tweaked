@@ -67,7 +67,7 @@ This comment was never finished.
  1 | --[=[
    | ^^^^^ Comment was started here.
 We expected a closing delimiter (]=]) somewhere after this comment was started.
-1:1-1:5 ERROR --[=[
+1:1-1:5 COMMENT --[=[
 ```
 
 Nested comments are rejected, just as Lua 5.1 does:
@@ -191,7 +191,7 @@ This string was never finished.
  1 | return [[
    |        ^^ String was started here.
 We expected a closing delimiter (]]) somewhere after this string was started.
-1:8-1:9 ERROR [[
+1:8-1:9 STRING [[
 ```
 
 We also handle malformed opening strings:
