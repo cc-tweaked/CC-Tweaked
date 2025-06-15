@@ -175,86 +175,62 @@ local function save(_sPath, fWrite)
     return ok, err, fileerr
 end
 
-local tKeywords = {
-    ["and"] = true,
-    ["break"] = true,
-    ["do"] = true,
-    ["else"] = true,
-    ["elseif"] = true,
-    ["end"] = true,
-    ["false"] = true,
-    ["for"] = true,
-    ["function"] = true,
-    ["if"] = true,
-    ["in"] = true,
-    ["local"] = true,
-    ["nil"] = true,
-    ["not"] = true,
-    ["or"] = true,
-    ["repeat"] = true,
-    ["return"] = true,
-    ["then"] = true,
-    ["true"] = true,
-    ["until"] = true,
-    ["while"] = true,
+
+local tokens = require "cc.internal.syntax.parser".tokens
+local lex_one = require "cc.internal.syntax.lexer".lex_one
+
+local token_colours = {
+    [tokens.STRING] = stringColour,
+    [tokens.COMMENT] = commentColour,
+    -- Keywords
+    [tokens.AND] = keywordColour,
+    [tokens.BREAK] = keywordColour,
+    [tokens.DO] = keywordColour,
+    [tokens.ELSE] = keywordColour,
+    [tokens.ELSEIF] = keywordColour,
+    [tokens.END] = keywordColour,
+    [tokens.FALSE] = keywordColour,
+    [tokens.FOR] = keywordColour,
+    [tokens.FUNCTION] = keywordColour,
+    [tokens.GOTO] = keywordColour,
+    [tokens.IF] = keywordColour,
+    [tokens.IN] = keywordColour,
+    [tokens.LOCAL] = keywordColour,
+    [tokens.NIL] = keywordColour,
+    [tokens.NOT] = keywordColour,
+    [tokens.OR] = keywordColour,
+    [tokens.REPEAT] = keywordColour,
+    [tokens.RETURN] = keywordColour,
+    [tokens.THEN] = keywordColour,
+    [tokens.TRUE] = keywordColour,
+    [tokens.UNTIL] = keywordColour,
+    [tokens.WHILE] = keywordColour,
 }
-
-local function tryWrite(sLine, regex, colour)
-    local match = string.match(sLine, regex)
-    if match then
-        if type(colour) == "number" then
-            term.setTextColour(colour)
-        else
-            term.setTextColour(colour(match))
-        end
-        term.write(match)
-        term.setTextColour(textColour)
-        return string.sub(sLine, #match + 1)
-    end
-    return nil
+-- Fill in the remaining tokens.
+for _, token in pairs(tokens) do
+    if not token_colours[token] then token_colours[token] = textColour end
 end
 
-local function tryWriteString(sLine)
-    local quotationChar = string.sub(sLine, 1, 1)
-    if quotationChar ~= '"' and quotationChar ~= "'" then
-        return nil
-    end
+local lex_context = { line = function() end, report = function() end }
 
-    -- Scan through the rest of the string, skipping over escapes,
-    -- until we find the closing quote.
-    local i = 2
-    while i <= #sLine do
-        local nextChar = string.sub(sLine, i, i)
-        if nextChar == "\\" then
-            i = i + 2 -- Skip over escapes
-        elseif nextChar == quotationChar then
-            break
-        else
-            i = i + 1
+local function writeHighlighted(line)
+    local pos, colour = 1, nil
+
+    while true do
+        local token, _, finish = lex_one(lex_context, line, pos)
+        if not token then break end
+
+        local new_colour = token_colours[token]
+        if new_colour ~= colour then
+            term.setTextColor(new_colour)
+            colour = new_colour
         end
+
+        term.write(line:sub(pos, finish))
+        pos = finish + 1
     end
 
-    term.setTextColor(stringColour)
-    term.write(string.sub(sLine, 1, i))
-    term.setTextColor(textColour)
-    return string.sub(sLine, i + 1)
-end
-
-local function writeHighlighted(sLine)
-    while #sLine > 0 do
-        sLine =
-            tryWrite(sLine, "^%-%-%[%[.-%]%]", commentColour) or
-            tryWrite(sLine, "^%-%-.*", commentColour) or
-            tryWriteString(sLine) or
-            tryWrite(sLine, "^%[%[.-%]%]", stringColour) or
-            tryWrite(sLine, "^[%w_]+", function(match)
-                if tKeywords[match] then
-                    return keywordColour
-                end
-                return textColour
-            end) or
-            tryWrite(sLine, "^[^%w_]", textColour)
-    end
+    term.write(line:sub(pos))
 end
 
 local tCompletions
