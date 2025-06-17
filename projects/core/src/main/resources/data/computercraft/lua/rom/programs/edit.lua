@@ -53,44 +53,6 @@ else
     errorColour = colours.white
 end
 
-local runHandler = [[multishell.setTitle(multishell.getCurrent(), %q)
-local current = term.current()
-local contents, name = %q, %q
-local fn, err = load(contents, name, nil, _ENV)
-if fn then
-    local exception = require "cc.internal.exception"
-    local ok, err, co = exception.try(fn, ...)
-
-    term.redirect(current)
-    term.setTextColor(term.isColour() and colours.yellow or colours.white)
-    term.setBackgroundColor(colours.black)
-    term.setCursorBlink(false)
-
-    if not ok then
-        printError(err)
-        exception.report(err, co, { [name] = contents })
-    end
-else
-    local parser = require "cc.internal.syntax"
-    if parser.parse_program(contents) then printError(err) end
-end
-
-local message = "Press any key to continue."
-if ok then message = "Program finished. " .. message end
-local _, y = term.getCursorPos()
-local w, h = term.getSize()
-local wrapped = require("cc.strings").wrap(message, w)
-
-local start_y = h - #wrapped + 1
-if y >= start_y then term.scroll(y - start_y + 1) end
-for i = 1, #wrapped do
-    term.setCursorPos(1, start_y + i - 1)
-    term.write(wrapped[i])
-end
-os.pullEvent('key')
-require "cc.internal.event".discard_char()
-]]
-
 -- Menus
 local bMenu = false
 local nMenuItem = 1
@@ -462,7 +424,8 @@ local tMenuFuncs = {
             return
         end
         local ok = save(sTempPath, function(file)
-            file.write(runHandler:format(sTitle, table.concat(tLines, "\n"), "@/" .. sPath))
+            local runHandler = [[return require("cc.internal.edit_runner")(%q, %q, %q)]]
+            file.write(runHandler:format(sTitle, "@/" .. sPath, table.concat(tLines, "\n")))
         end)
         if ok then
             local nTask = shell.openTab("/" .. sTempPath)
