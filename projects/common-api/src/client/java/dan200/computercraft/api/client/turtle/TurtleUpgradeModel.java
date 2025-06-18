@@ -57,6 +57,9 @@ public interface TurtleUpgradeModel {
 
     /**
      * Render this upgrade to an {@link ItemStackRenderState}. This is used for rendering the item form of the upgrade.
+     * <p>
+     * Like with {@link ItemModel}, implementations must be careful to call {@link ItemStackRenderState#appendModelIdentityElement}
+     * where appropriate.
      *
      * @param upgrade   The upgrade being rendered.
      * @param side      Which side of the turtle (left or right) the upgrade is equipped on.

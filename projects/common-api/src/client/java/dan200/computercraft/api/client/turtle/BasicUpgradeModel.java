@@ -61,6 +61,10 @@ public final class BasicUpgradeModel implements TurtleUpgradeModel {
 
     @Override
     public void renderForItem(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed) {
+        renderer.appendModelIdentityElement(this);
+        renderer.appendModelIdentityElement(side);
+        renderer.appendModelIdentityElement(transform);
+
         var layer = renderer.newLayer();
         layer.setTransform(transform);
         getModel(side).setupItemLayer(layer);

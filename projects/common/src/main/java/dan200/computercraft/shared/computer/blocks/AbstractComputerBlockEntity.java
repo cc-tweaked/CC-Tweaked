@@ -20,11 +20,9 @@ import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.LockCode;
@@ -35,6 +33,8 @@ import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
@@ -142,36 +142,36 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     protected abstract void updateBlockState(ComputerState newState);
 
     @Override
-    public void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+    public void saveAdditional(ValueOutput nbt) {
         // Save ID, label and power state
         if (computerID >= 0) nbt.putInt(NBT_ID, computerID);
         if (label != null) nbt.putString(NBT_LABEL, label);
         if (storageCapacity > 0) nbt.putLong(NBT_CAPACITY, storageCapacity);
         nbt.putBoolean(NBT_ON, on);
 
-        lockCode.addToTag(nbt, registries);
+        lockCode.addToTag(nbt);
 
-        super.saveAdditional(nbt, registries);
+        super.saveAdditional(nbt);
     }
 
     @Override
-    public final void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.loadAdditional(nbt, registries);
+    public final void loadAdditional(ValueInput nbt) {
+        super.loadAdditional(nbt);
         if (level != null && level.isClientSide) {
-            loadClient(nbt, registries);
+            loadClient(nbt);
         } else {
-            loadServer(nbt, registries);
+            loadServer(nbt);
         }
     }
 
-    protected void loadServer(CompoundTag nbt, HolderLookup.Provider registries) {
+    protected void loadServer(ValueInput nbt) {
         // Load ID, label and power state
         computerID = nbt.getIntOr(NBT_ID, -1);
         label = nbt.getStringOr(NBT_LABEL, null);
         storageCapacity = nbt.getLongOr(NBT_CAPACITY, -1);
         on = startOn = nbt.getBooleanOr(NBT_ON, false);
 
-        lockCode = LockCode.fromTag(nbt, registries);
+        lockCode = LockCode.fromTag(nbt);
     }
 
     @Override
@@ -204,12 +204,12 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
 
     @Override
     @Deprecated
-    public void removeComponentsFromTag(CompoundTag tag) {
+    public void removeComponentsFromTag(ValueOutput tag) {
         super.removeComponentsFromTag(tag);
-        tag.remove(NBT_ID);
-        tag.remove(NBT_LABEL);
-        tag.remove(NBT_CAPACITY);
-        tag.remove(LockCode.TAG_LOCK);
+        tag.discard(NBT_ID);
+        tag.discard(NBT_LABEL);
+        tag.discard(NBT_CAPACITY);
+        tag.discard(LockCode.TAG_LOCK);
     }
 
     protected boolean isPeripheralBlockedOnSide(ComputerSide localSide) {
@@ -391,7 +391,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
 
     // Networking stuff
 
-    protected void loadClient(CompoundTag nbt, HolderLookup.Provider registries) {
+    protected void loadClient(ValueInput tag) {
     }
 
     protected void transferStateFrom(AbstractComputerBlockEntity copy) {

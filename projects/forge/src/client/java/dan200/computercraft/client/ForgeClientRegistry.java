@@ -97,6 +97,11 @@ public final class ForgeClientRegistry {
     }
 
     @SubscribeEvent
+    public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
+        ClientRegistry.registerPictureInPictureRenderers(event::register);
+    }
+
+    @SubscribeEvent
     public static void setupClient(FMLClientSetupEvent event) {
         ClientRegistry.register();
     }

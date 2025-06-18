@@ -48,7 +48,7 @@ public class SpeakerInstance {
                 // Update the attenuation if the volume has changed: SoundEngine.tickNonPaused updates the volume
                 // itself, but leaves the attenuation unchanged. We mirror the logic of SoundEngine.play here.
                 if (volumeChanged) {
-                    channel.linearAttenuation(Math.max(volume, 1) * sound.getSound().getAttenuationDistance());
+                    channel.linearAttenuation(Math.max(volume, 1) * Nullability.assertNonNull(sound.getSound()).getAttenuationDistance());
                 }
             });
         }

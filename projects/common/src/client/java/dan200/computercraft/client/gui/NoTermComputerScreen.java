@@ -108,7 +108,7 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
         var lines = font.split(Component.translatable("gui.computercraft.pocket_computer_overlay"), (int) (width * 0.8));
         var y = 10;
         for (var line : lines) {
-            graphics.drawString(font, line, (width / 2) - (font.width(line) / 2), y, 0xFFFFFF, true);
+            graphics.drawString(font, line, (width / 2) - (font.width(line) / 2), y, 0xFFFFFFFF, true);
             y += 9;
         }
     }

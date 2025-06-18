@@ -27,6 +27,12 @@ accessible field net/minecraft/client/sounds/SoundEngine executor Lnet/minecraft
 # Turtle model
 accessible class net/minecraft/util/datafix/fixes/ItemStackComponentizationFix$ItemStackData
 
+# GUI elements
+accessible field net/minecraft/client/gui/GuiGraphics minecraft Lnet/minecraft/client/Minecraft;
+
+# Fog
+accessible field net/minecraft/client/renderer/GameRenderer fogRenderer Lnet/minecraft/client/renderer/fog/FogRenderer;
+
 # TODO(1.21.5): Add these to Fabric.
 accessible field net/minecraft/client/data/models/BlockModelGenerators ROTATION_FACING Lnet/minecraft/client/data/models/blockstates/PropertyDispatch;
 accessible field net/minecraft/client/data/models/BlockModelGenerators ROTATION_HORIZONTAL_FACING Lnet/minecraft/client/data/models/blockstates/PropertyDispatch;

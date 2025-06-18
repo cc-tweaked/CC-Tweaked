@@ -116,7 +116,7 @@ class ClientTestHelper {
     val minecraft: Minecraft = Minecraft.getInstance()
 
     fun screenshot(name: String, callback: () -> Unit = {}) {
-        Screenshot.grab(minecraft.gameDirectory, name, minecraft.mainRenderTarget) { callback() }
+        Screenshot.grab(minecraft.gameDirectory, name, minecraft.mainRenderTarget, 1) { callback() }
     }
 
     /**

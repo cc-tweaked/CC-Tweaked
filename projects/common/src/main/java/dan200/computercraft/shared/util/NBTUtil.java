@@ -6,9 +6,7 @@ package dan200.computercraft.shared.util;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.BaseEncoding;
-import com.mojang.serialization.Codec;
 import dan200.computercraft.core.util.Nullability;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.*;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -28,14 +26,6 @@ public final class NBTUtil {
     static final BaseEncoding ENCODING = BaseEncoding.base16().lowerCase();
 
     private NBTUtil() {
-    }
-
-    public static <T> @Nullable T decodeFrom(Codec<T> codec, HolderLookup.Provider registries, CompoundTag tag, String key) {
-        return tag.read(key, codec, registries.createSerializationContext(NbtOps.INSTANCE)).orElse(null);
-    }
-
-    public static <T> void encodeTo(Codec<T> codec, HolderLookup.Provider registries, CompoundTag destination, String key, @Nullable T value) {
-        destination.storeNullable(key, codec, registries.createSerializationContext(NbtOps.INSTANCE), value);
     }
 
     public static @Nullable Object toLua(@Nullable Tag tag) {

@@ -9,7 +9,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jspecify.annotations.Nullable;
@@ -48,7 +48,7 @@ public class DynamicImageButton extends Button {
         setTooltip(message.tooltip());
 
         var texture = this.texture.get(isHoveredOrFocused());
-        graphics.blitSprite(RenderType::guiTextured, texture, getX(), getY(), width, height);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, texture, getX(), getY(), width, height);
     }
 
     public record HintedMessage(Component message, Tooltip tooltip) {

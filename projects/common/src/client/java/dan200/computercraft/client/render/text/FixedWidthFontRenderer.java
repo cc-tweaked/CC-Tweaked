@@ -33,7 +33,7 @@ import org.joml.Vector3f;
  * {@link DirectFixedWidthFontRenderer}.
  */
 public final class FixedWidthFontRenderer {
-    private static final ResourceLocation FONT = ResourceLocation.fromNamespaceAndPath("computercraft", "textures/gui/term_font.png");
+    public static final ResourceLocation FONT = ResourceLocation.fromNamespaceAndPath("computercraft", "textures/gui/term_font.png");
 
     /**
      * A render type for terminal text.

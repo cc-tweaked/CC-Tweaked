@@ -7,7 +7,7 @@ package dan200.computercraft.shared.computer.terminal;
 import dan200.computercraft.api.lua.LuaValues;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.test.core.CallCounter;
-import net.minecraft.nbt.CompoundTag;
+import dan200.computercraft.test.shared.SerialisationUtils;
 import org.junit.jupiter.api.Test;
 
 import static dan200.computercraft.test.core.terminal.TerminalMatchers.*;
@@ -24,13 +24,12 @@ class NetworkedTerminalTest {
         writeTerminal.setTextColour(3);
         writeTerminal.setBackgroundColour(5);
 
-        var nbt = new CompoundTag();
-        writeTerminal.writeToNBT(nbt);
+        var nbt = SerialisationUtils.writeNBT(writeTerminal::writeToNBT);
 
         var callCounter = new CallCounter();
         var readTerminal = new NetworkedTerminal(2, 1, true, callCounter);
 
-        readTerminal.readFromNBT(nbt);
+        SerialisationUtils.readNBT(nbt, readTerminal::readFromNBT);
 
         assertThat(readTerminal, allOf(
             textMatches(new String[]{ "hi", }),
@@ -49,12 +48,11 @@ class NetworkedTerminalTest {
     void testReadWriteNBTEmpty() {
         var terminal = new NetworkedTerminal(0, 0, true);
 
-        var nbt = new CompoundTag();
-        terminal.writeToNBT(nbt);
+        var nbt = SerialisationUtils.writeNBT(terminal::writeToNBT);
 
         var callCounter = new CallCounter();
         terminal = new NetworkedTerminal(0, 1, true, callCounter);
-        terminal.readFromNBT(nbt);
+        SerialisationUtils.readNBT(nbt, terminal::readFromNBT);
 
         assertThat(terminal, allOf(
             textMatches(new String[]{ "", }),

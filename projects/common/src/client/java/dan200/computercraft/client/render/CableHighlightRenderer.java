@@ -29,7 +29,7 @@ public final class CableHighlightRenderer {
      */
     public static boolean drawHighlight(PoseStack transform, MultiBufferSource bufferSource, Camera camera, BlockHitResult hit) {
         var pos = hit.getBlockPos();
-        var world = camera.getEntity().getCommandSenderWorld();
+        var world = camera.getEntity().level();
 
         var state = world.getBlockState(pos);
 

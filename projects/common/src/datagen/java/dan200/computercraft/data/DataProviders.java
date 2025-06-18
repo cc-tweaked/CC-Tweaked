@@ -62,8 +62,8 @@ public final class DataProviders {
         generator.registries(fullRegistryPatch);
         generator.add(out -> new RecipeProvider.Runner(out, fullRegistries));
 
-        var blockTags = generator.blockTags(TagProvider::blockTags);
-        generator.itemTags(TagProvider::itemTags, blockTags);
+        generator.blockTags(TagProvider::blockTags);
+        generator.itemTags(TagProvider::itemTags);
 
         generator.add(out -> new net.minecraft.data.loot.LootTableProvider(out, Set.of(), LootTableProvider.getTables(), fullRegistries));
 
@@ -109,7 +109,7 @@ public final class DataProviders {
 
         TagsProvider<Block> blockTags(Consumer<TagProvider.TagConsumer<Block>> tags);
 
-        TagsProvider<Item> itemTags(Consumer<TagProvider.ItemTagConsumer> tags, TagsProvider<Block> blocks);
+        TagsProvider<Item> itemTags(Consumer<TagProvider.TagConsumer<Item>> tags);
 
         /**
          * Build new dynamic registries and save them to a pack.

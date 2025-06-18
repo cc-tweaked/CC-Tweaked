@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
@@ -26,7 +27,7 @@ class SoundEngineMixin {
 
     @Inject(method = "play", at = @At(value = "HEAD"))
     @SuppressWarnings("unused")
-    private void playSound(SoundInstance sound, CallbackInfo ci) {
+    private void playSound(SoundInstance sound, CallbackInfoReturnable<SoundEngine.PlayResult> ci) {
         self = (SoundEngine) (Object) this;
     }
 

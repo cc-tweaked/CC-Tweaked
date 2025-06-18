@@ -10,7 +10,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jspecify.annotations.Nullable;
@@ -88,13 +88,13 @@ public final class OptionScreen extends Screen {
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         // Render the actual texture.
-        graphics.blit(RenderType::guiTextured, BACKGROUND, x, y, 0, 0, innerWidth, PADDING, 256, 256);
-        graphics.blit(RenderType::guiTextured, BACKGROUND,
+        graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, x, y, 0, 0, innerWidth, PADDING, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND,
             x, y + PADDING, 0, PADDING, innerWidth, innerHeight - PADDING * 2,
             innerWidth, PADDING,
             256, 256
         );
-        graphics.blit(RenderType::guiTextured, BACKGROUND, x, y + innerHeight - PADDING, 0, 256 - PADDING, innerWidth, PADDING, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, x, y + innerHeight - PADDING, 0, 256 - PADDING, innerWidth, PADDING, 256, 256);
 
         assertNonNull(messageRenderer).renderLeftAlignedNoShadow(graphics, x + PADDING, y + PADDING, FONT_HEIGHT, 0x404040);
         super.render(graphics, mouseX, mouseY, partialTicks);

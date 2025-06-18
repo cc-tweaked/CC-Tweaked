@@ -16,12 +16,9 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.gametest.core.TestHooks;
 import dan200.computercraft.shared.util.PrettyJsonWriter;
-import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
 import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
@@ -60,8 +57,8 @@ public class Exporter {
         }
 
         RenderSystem.assertOnRenderThread();
-        try (var renderer = new ImageRenderer()) {
-            export(output, renderer);
+        try {
+            export(output);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -69,7 +66,7 @@ public class Exporter {
         Minecraft.getInstance().gui.getChat().addMessage(Component.literal("Export finished!"));
     }
 
-    private static void export(Path root, ImageRenderer renderer) throws IOException {
+    private static void export(Path root) throws IOException {
         var dump = new JsonDump();
 
         // First find all CC items
@@ -120,21 +117,6 @@ public class Exporter {
 
         var itemDir = root.resolve("items");
         if (Files.exists(itemDir)) MoreFiles.deleteRecursively(itemDir, RecursiveDeleteOption.ALLOW_INSECURE);
-
-        for (var item : items) {
-            var stack = new ItemStack(item);
-            var location = RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, item);
-
-            dump.itemNames.put(location.toString(), stack.getHoverName().getString());
-            renderer.captureRender(itemDir.resolve(location.getNamespace()).resolve(location.getPath() + ".png"),
-                () -> {
-
-                    var graphics = new GuiGraphics(Minecraft.getInstance(), Minecraft.getInstance().renderBuffers().bufferSource());
-                    graphics.renderItem(stack, 0, 0);
-                    graphics.flush();
-                }
-            );
-        }
 
         try (Writer writer = Files.newBufferedWriter(root.resolve("index.json")); var jsonWriter = new PrettyJsonWriter(writer)) {
             GSON.toJson(dump, JsonDump.class, jsonWriter);

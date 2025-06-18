@@ -4,18 +4,27 @@
 
 package dan200.computercraft.client.gui;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import dan200.computercraft.client.render.PrintoutRenderer;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.PrintoutMenu;
 import dan200.computercraft.shared.media.items.PrintoutData;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
+import net.minecraft.client.gui.render.state.GuiElementRenderState;
+import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Matrix3x2f;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Objects;
@@ -25,7 +34,7 @@ import static dan200.computercraft.client.render.PrintoutRenderer.*;
 /**
  * The GUI for printed pages and books.
  *
- * @see dan200.computercraft.client.render.PrintoutRenderer
+ * @see PrintoutRenderer
  */
 public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> implements ContainerListener {
     private PrintoutInfo printout = PrintoutInfo.DEFAULT;
@@ -113,15 +122,11 @@ public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
         // Push the printout slightly forward, to avoid clipping into the background.
-        graphics.pose().pushPose();
-        graphics.pose().translate(0, 0, 1);
-
-        graphics.drawSpecial(bufferSource -> {
-            drawBorder(graphics.pose(), bufferSource, leftPos, topPos, 0, page, printout.pages(), printout.book(), LightTexture.FULL_BRIGHT);
-            drawText(graphics.pose(), bufferSource, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, PrintoutData.LINES_PER_PAGE * page, LightTexture.FULL_BRIGHT, printout.text(), printout.colour());
-        });
-
-        graphics.pose().popPose();
+        graphics.guiRenderState.submitPicturesInPictureState(new PrintoutRenderState(
+            leftPos - COVER_SIZE - 32, leftPos + X_SIZE + COVER_SIZE + 32,
+            topPos - COVER_SIZE, topPos + Y_SIZE + COVER_SIZE,
+            printout, page, new Matrix3x2f(graphics.pose()), graphics.scissorStack.peek()
+        ));
     }
 
     @Override
@@ -144,6 +149,58 @@ public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> 
 
             var pages = Math.max(text.length / PrintoutData.LINES_PER_PAGE, 1);
             return new PrintoutInfo(pages, book, text, colours);
+        }
+    }
+
+    public record PrintoutRenderState(
+        int x0, int x1, int y0, int y1, PrintoutInfo printout, int page, Matrix3x2f pose,
+        @Nullable ScreenRectangle scissorArea, @Nullable ScreenRectangle bounds
+    ) implements PictureInPictureRenderState {
+        private PrintoutRenderState(
+            int x0, int x1, int y0, int y1, PrintoutInfo printout, int page, Matrix3x2f pose, @Nullable ScreenRectangle scissorArea
+        ) {
+            this(x0, x1, y0, y1, printout, page, pose, scissorArea, PictureInPictureRenderState.getBounds(x0, x1, y0, y1, scissorArea));
+        }
+
+        @Override
+        public float scale() {
+            return 1.0f;
+        }
+    }
+
+    /**
+     * PIP renderer for printouts.
+     * <p>
+     * We prefer using a PIP (rather than a {@link GuiElementRenderState}), as {@link PrintoutRenderer} renders with
+     * multiple z-levels.
+     */
+    public static final class PrintoutPictureRenderer extends PictureInPictureRenderer<PrintoutRenderState> {
+        public PrintoutPictureRenderer(MultiBufferSource.BufferSource bufferSource) {
+            super(bufferSource);
+        }
+
+        @Override
+        protected void renderToTexture(PrintoutRenderState state, PoseStack pose) {
+            pose.pushPose();
+            pose.translate(-0.5f * X_SIZE, -(Y_SIZE + COVER_SIZE), 0);
+            pose.scale(1.0f, 1.0f, -1.0f);
+
+            drawBorder(pose, bufferSource, 0, 0, 0, state.page(), state.printout().pages(), state.printout().book(), LightTexture.FULL_BRIGHT);
+            drawText(
+                pose, bufferSource, X_TEXT_MARGIN, Y_TEXT_MARGIN, PrintoutData.LINES_PER_PAGE * state.page(), LightTexture.FULL_BRIGHT,
+                state.printout().text(), state.printout().colour()
+            );
+            pose.popPose();
+        }
+
+        @Override
+        public Class<PrintoutRenderState> getRenderStateClass() {
+            return PrintoutRenderState.class;
+        }
+
+        @Override
+        protected String getTextureLabel() {
+            return "Printout";
         }
     }
 }

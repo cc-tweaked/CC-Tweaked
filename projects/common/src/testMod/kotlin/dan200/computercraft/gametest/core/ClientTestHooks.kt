@@ -15,6 +15,7 @@ import net.minecraft.client.gui.screens.TitleScreen
 import net.minecraft.client.tutorial.TutorialSteps
 import net.minecraft.core.registries.Registries
 import net.minecraft.gametest.framework.*
+import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ParticleStatus
 import net.minecraft.sounds.SoundSource
@@ -196,8 +197,8 @@ object ClientTestHooks {
             val minecraft = Minecraft.getInstance()
             minecraft.execute {
                 LOG.info("Stopping client.")
-                minecraft.level!!.disconnect()
-                minecraft.disconnect()
+                minecraft.level!!.disconnect(Component.empty())
+                minecraft.disconnectWithSavingScreen()
                 minecraft.stop()
 
                 exitProcess(

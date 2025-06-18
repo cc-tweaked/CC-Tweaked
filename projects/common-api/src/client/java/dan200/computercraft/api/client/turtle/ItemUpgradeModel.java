@@ -26,7 +26,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Set;
 
 /**
  * A sic {@link TurtleUpgradeModel} that renders the upgrade's {@linkplain ITurtleUpgrade#getUpgradeItem(DataComponentPatch)
@@ -59,9 +62,14 @@ public final class ItemUpgradeModel implements TurtleUpgradeModel {
 
     @Override
     public void renderForItem(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed) {
+        renderer.appendModelIdentityElement(this);
+
         var childState = new ItemStackRenderState();
         resolver.updateForTopItem(childState, upgrade.getUpgradeItem(), ItemDisplayContext.NONE, null, null, seed);
         if (!childState.isEmpty()) {
+            renderer.appendModelIdentityElement(childState.getModelIdentity());
+            renderer.appendModelIdentityElement(transform);
+
             var layer = renderer.newLayer();
             layer.setTransform(transform);
             layer.setupSpecialModel(getRenderer(side), childState);
@@ -120,6 +128,10 @@ public final class ItemUpgradeModel implements TurtleUpgradeModel {
             poseStack.mulPose(transform.getMatrix());
             state.render(poseStack, multiBufferSource, overlay, light);
             poseStack.popPose();
+        }
+
+        @Override
+        public void getExtents(Set<Vector3f> set) {
         }
 
         @Override

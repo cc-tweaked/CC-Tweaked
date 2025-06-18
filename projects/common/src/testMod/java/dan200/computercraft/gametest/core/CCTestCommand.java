@@ -6,6 +6,7 @@ package dan200.computercraft.gametest.core;
 
 import com.mojang.brigadier.CommandDispatcher;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.mixin.gametest.ArmorStandAccessor;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.util.NonNegativeId;
 import net.minecraft.ChatFormatting;
@@ -42,7 +43,7 @@ class CCTestCommand {
         dispatcher.register(choice("cctest")
             .then(literal("marker").executes(context -> {
                 var player = context.getSource().getPlayerOrException();
-                var pos = StructureUtils.findNearestTest(player.blockPosition(), 15, player.serverLevel()).orElse(null);
+                var pos = StructureUtils.findNearestTest(player.blockPosition(), 15, player.level()).orElse(null);
                 if (pos == null) return error(context.getSource(), "No nearby test");
 
                 var test = player.level().getBlockEntity(pos, BlockEntityType.TEST_INSTANCE_BLOCK)
@@ -50,7 +51,7 @@ class CCTestCommand {
                 if (test == null) return error(context.getSource(), "No nearby structure block");
 
                 // Kill the existing armor stand
-                var level = player.serverLevel();
+                var level = player.level();
                 level.getEntities(EntityType.ARMOR_STAND, x -> x.isAlive() && x.getName().getString().equals(test.location().getPath()))
                     .forEach(e -> e.kill(level));
 
@@ -59,7 +60,8 @@ class CCTestCommand {
                 nbt.putBoolean("Marker", true);
                 nbt.putBoolean("Invisible", true);
                 var armorStand = new ArmorStand(EntityType.ARMOR_STAND, level);
-                armorStand.readAdditionalSaveData(nbt);
+                armorStand.setInvisible(true);
+                ((ArmorStandAccessor) armorStand).computercraft$setMarker(true);
                 armorStand.copyPosition(player);
                 armorStand.setCustomName(Component.literal(test.location().getPath()));
                 level.addFreshEntity(armorStand);
@@ -70,7 +72,7 @@ class CCTestCommand {
                 var item = context.getArgument("item", ItemInput.class);
 
                 var player = context.getSource().getPlayerOrException();
-                var pos = StructureUtils.findNearestTest(player.blockPosition(), 15, player.serverLevel()).orElse(null);
+                var pos = StructureUtils.findNearestTest(player.blockPosition(), 15, player.level()).orElse(null);
                 if (pos == null) return error(context.getSource(), "No nearby test");
 
                 var test = player.level().getBlockEntity(pos, BlockEntityType.TEST_INSTANCE_BLOCK)

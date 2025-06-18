@@ -12,12 +12,11 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 
 import java.util.ArrayList;
@@ -136,7 +135,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>> {
         public void serializeToJson(RepeatArgumentType.Template arg, JsonObject json) {
             json.addProperty("flatten", arg.flatten);
             json.add("child", ArgumentUtils.serializeToJson(arg.child));
-            json.addProperty("error", Component.Serializer.toJson(ArgumentUtils.getMessage(arg.some), RegistryAccess.EMPTY));
+            json.add("error", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE, ArgumentUtils.getMessage(arg.some)).getOrThrow());
         }
     }
 

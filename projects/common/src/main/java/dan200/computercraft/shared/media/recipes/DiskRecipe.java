@@ -87,6 +87,7 @@ public class DiskRecipe extends AbstractCraftingRecipe {
             var stack = inv.getItem(i);
             if (stack.isEmpty()) continue;
             if (ColourUtils.getStackColour(stack) == null) {
+                inputs++;
                 stackedContents.accountStack(stack, 1);
             }
         }

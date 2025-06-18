@@ -31,9 +31,9 @@ public final class MonitorRenderState implements ClientMonitor.RenderState {
     @Nullable
     GpuBuffer vertexBuffer;
 
-    int indexAfterBackground;
-    int indexAfterForeground;
-    int indexAfterCursor;
+    int vertexCountAfterBackground;
+    int vertexCountAfterForeground;
+    int vertexCountAfterCursor;
 
     void register() {
         if (vertexBuffer != null) return;

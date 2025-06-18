@@ -39,6 +39,9 @@ public record TurtleOverlayModel(ItemTransforms transforms) implements ItemModel
         var overlay = TurtleItem.getOverlay(stack);
         if (overlay == null) return;
 
+        state.appendModelIdentityElement(this);
+        state.appendModelIdentityElement(overlay);
+
         var layer = state.newLayer();
         TurtleOverlayManager.get(Minecraft.getInstance().getModelManager(), overlay).model().setupItemLayer(layer);
         layer.setTransform(transforms().getTransform(context));

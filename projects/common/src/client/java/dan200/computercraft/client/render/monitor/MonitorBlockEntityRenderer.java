@@ -4,8 +4,8 @@
 
 package dan200.computercraft.client.render.monitor;
 
-import com.mojang.blaze3d.buffers.BufferType;
-import com.mojang.blaze3d.buffers.BufferUsage;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -19,14 +19,17 @@ import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import dan200.computercraft.shared.util.DirectionUtil;
-import net.minecraft.client.renderer.FogParameters;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.fog.FogRenderer;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryUtil;
 
@@ -148,11 +151,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
                 throw new IllegalStateException("Drew too many vertices. Expected " + maxVertexCount + ", drew " + vertexCountAfterCursor);
             }
 
-            final int indexAfterBackground, indexAfterForeground, indexAfterCursor;
-            if (vertexCountAfterCursor == 0) {
-                // If we have nothing to draw, just mark it as empty. We'll skip drawing in drawWithShader.
-                indexAfterBackground = indexAfterForeground = indexAfterCursor = 0;
-            } else {
+            if (vertexCountAfterCursor != 0) {
                 renderState.register();
 
                 var commandEncoder = RenderSystem.getDevice().createCommandEncoder();
@@ -174,25 +173,19 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
                         renderState.vertexBuffer = null;
                     }
                     renderState.vertexBuffer = RenderSystem.getDevice().createBuffer(
-                        () -> "Monitor at " + monitor.getOrigin().getBlockPos(),
-                        BufferType.VERTICES, BufferUsage.STATIC_WRITE, resultBuffer
+                        () -> "Monitor at " + monitor.getOrigin().getBlockPos(), GpuBuffer.USAGE_VERTEX | GpuBuffer.USAGE_COPY_DST, resultBuffer
                     );
                 } else if (!renderState.vertexBuffer.isClosed()) {
-                    commandEncoder.writeToBuffer(renderState.vertexBuffer, resultBuffer, 0);
+                    commandEncoder.writeToBuffer(renderState.vertexBuffer.slice(), resultBuffer);
                 }
-
-                var mode = FixedWidthFontRenderer.TERMINAL_TEXT.mode();
-                indexAfterBackground = mode.indexCount(vertexCountAfterBackground);
-                indexAfterForeground = mode.indexCount(vertexCountAfterForeground);
-                indexAfterCursor = mode.indexCount(vertexCountAfterCursor);
             }
 
-            renderState.indexAfterForeground = indexAfterForeground;
-            renderState.indexAfterBackground = indexAfterBackground;
-            renderState.indexAfterCursor = indexAfterCursor;
+            renderState.vertexCountAfterBackground = vertexCountAfterBackground;
+            renderState.vertexCountAfterForeground = vertexCountAfterForeground;
+            renderState.vertexCountAfterCursor = vertexCountAfterCursor;
         }
 
-        if (renderState.indexAfterCursor == 0) return;
+        if (renderState.vertexCountAfterCursor == 0) return;
 
         // Our VBO renders coordinates in monitor-space rather than world space. A full sized monitor (8x6) will
         // use positions from (0, 0) to (164*FONT_WIDTH, 81*FONT_HEIGHT) = (984, 729). This is far outside the
@@ -201,20 +194,20 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
         // renderer is trying to avoid!). Instead, we just disable fog entirely by setting the fog start to an
         // absurdly high value.
         var oldFog = RenderSystem.getShaderFog();
-        RenderSystem.setShaderFog(FogParameters.NO_FOG);
+        RenderSystem.setShaderFog(Minecraft.getInstance().gameRenderer.fogRenderer.getBuffer(FogRenderer.FogMode.NONE));
 
         // Compose the existing model view matrix with our transformation matrix.
         RenderSystem.getModelViewStack().pushMatrix();
         RenderSystem.getModelViewStack().mul(matrix);
 
         // Render background geometry
-        drawWithShader(renderState, FixedWidthFontRenderer.TERMINAL_TEXT, 0, renderState.indexAfterBackground);
+        drawWithShader(renderState, FixedWidthFontRenderer.TERMINAL_TEXT, RenderPipelines.TEXT, 0, renderState.vertexCountAfterBackground);
         drawWithShader(
-            renderState, FixedWidthFontRenderer.TERMINAL_TEXT_OFFSET, renderState.indexAfterBackground,
+            renderState, FixedWidthFontRenderer.TERMINAL_TEXT_OFFSET, RenderPipelines.TEXT_POLYGON_OFFSET, renderState.vertexCountAfterBackground,
             (
                 FixedWidthFontRenderer.isCursorVisible(terminal) && FrameInfo.getGlobalCursorBlink()
-                    ? renderState.indexAfterCursor : renderState.indexAfterForeground
-            ) - renderState.indexAfterBackground
+                    ? renderState.vertexCountAfterCursor : renderState.vertexCountAfterForeground
+            ) - renderState.vertexCountAfterBackground
         );
 
         // Clear state
@@ -222,21 +215,39 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
         RenderSystem.setShaderFog(oldFog);
     }
 
-    private static void drawWithShader(MonitorRenderState renderState, RenderType renderType, int indexOffset, int indexCount) {
+    private static void drawWithShader(MonitorRenderState renderState, RenderType renderType, RenderPipeline pipeline, int vertexOffset, int vertexCount) {
         if (renderState.vertexBuffer == null) {
             throw new IllegalStateException("MonitorRenderState has not been initialised");
         }
-        if (indexCount == 0) return;
+        if (vertexCount == 0) return;
+
+        var transforms = RenderSystem.getDynamicUniforms().writeTransform(
+            RenderSystem.getModelViewMatrix(),
+            new Vector4f(1.0F, 1.0F, 1.0F, 1.0F),
+            RenderSystem.getModelOffset(),
+            RenderSystem.getTextureMatrix(),
+            RenderSystem.getShaderLineWidth()
+        );
 
         renderType.setupRenderState();
 
         var autoStorageBuffer = RenderSystem.getSequentialBuffer(renderType.mode());
-        var indexBuffer = autoStorageBuffer.getBuffer(indexOffset + indexCount);
+        var indexCount = FixedWidthFontRenderer.TERMINAL_TEXT.mode().indexCount(vertexCount);
+        var indexBuffer = autoStorageBuffer.getBuffer(indexCount);
+
+        var target = Minecraft.getInstance().getMainRenderTarget();
+        var colourTarget = RenderSystem.outputColorTextureOverride != null ? RenderSystem.outputColorTextureOverride : target.getColorTextureView();
+        var depthTarget = target.useDepth
+            ? (RenderSystem.outputDepthTextureOverride != null ? RenderSystem.outputDepthTextureOverride : target.getDepthTextureView())
+            : null;
 
         try (var renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
-            renderType.getRenderTarget().getColorTexture(), OptionalInt.empty(), renderType.getRenderTarget().getDepthTexture(), OptionalDouble.empty()
+            () -> "Monitor", colourTarget, OptionalInt.empty(), depthTarget, OptionalDouble.empty()
         )) {
-            renderPass.setPipeline(renderType.getRenderPipeline());
+            renderPass.setPipeline(pipeline);
+
+            RenderSystem.bindDefaultUniforms(renderPass);
+            renderPass.setUniform("DynamicTransforms", transforms);
             renderPass.setVertexBuffer(0, renderState.vertexBuffer);
             renderPass.setIndexBuffer(indexBuffer, autoStorageBuffer.type());
 
@@ -245,7 +256,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
                 if (gpuTexture != null) renderPass.bindSampler("Sampler" + j, gpuTexture);
             }
 
-            renderPass.drawIndexed(indexOffset, indexCount);
+            renderPass.drawIndexed(vertexOffset, 0, indexCount, 1);
         }
 
         renderType.clearRenderState();

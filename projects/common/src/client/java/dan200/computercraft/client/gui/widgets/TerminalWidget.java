@@ -4,6 +4,8 @@
 
 package dan200.computercraft.client.gui.widgets;
 
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import dan200.computercraft.client.gui.KeyConverter;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
@@ -14,8 +16,16 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.render.TextureSetup;
+import net.minecraft.client.gui.render.state.GuiElementRenderState;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
+import org.joml.Matrix3x2f;
+import org.joml.Matrix4f;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.BitSet;
@@ -254,12 +264,23 @@ public class TerminalWidget extends AbstractWidget {
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         if (!visible) return;
 
-        graphics.drawSpecial(bufferSource -> {
-            FixedWidthFontRenderer.drawTerminal(
-                FixedWidthFontRenderer.toVertexConsumer(graphics.pose(), bufferSource.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT)),
-                (float) innerX, (float) innerY, terminal, (float) MARGIN, (float) MARGIN, (float) MARGIN, (float) MARGIN
-            );
-        });
+        var scissor = graphics.scissorStack.peek();
+        var terminalPose = new Matrix3x2f(graphics.pose());
+        var terminalTextures = TextureSetup.singleTextureWithLightmap(graphics.minecraft.getTextureManager().getTexture(FixedWidthFontRenderer.FONT).getTextureView());
+
+        graphics.guiRenderState.submitGuiElement(new TerminalBackgroundRenderState(
+            innerX, innerY, terminal, terminalPose, terminalTextures,
+            maybeIntersect(scissor, new ScreenRectangle(
+                innerX, innerY, terminal.getWidth() * FONT_WIDTH, terminal.getHeight() * FONT_HEIGHT).transformMaxBounds(graphics.pose())
+            ),
+            scissor
+        ));
+
+        graphics.guiRenderState.submitGuiElement(new TerminalTextRenderState(
+            innerX, innerY, terminal, terminalPose, terminalTextures,
+            maybeIntersect(scissor, new ScreenRectangle(getX(), getY(), getWidth(), getHeight()).transformMaxBounds(graphics.pose())),
+            scissor
+        ));
     }
 
     @Override
@@ -273,5 +294,50 @@ public class TerminalWidget extends AbstractWidget {
 
     public static int getHeight(int termHeight) {
         return termHeight * FONT_HEIGHT + MARGIN * 2;
+    }
+
+    private static @Nullable ScreenRectangle maybeIntersect(@Nullable ScreenRectangle scissor, ScreenRectangle bounds) {
+        return scissor == null ? bounds : bounds.intersection(scissor);
+    }
+
+    private record TerminalBackgroundRenderState(
+        int x, int y, Terminal terminal,
+        Matrix3x2f pose,
+        TextureSetup textureSetup,
+        @Nullable ScreenRectangle bounds,
+        @Nullable ScreenRectangle scissorArea
+    ) implements GuiElementRenderState {
+        @Override
+        public void buildVertices(VertexConsumer vertexConsumer, float z) {
+            var quads = new FixedWidthFontRenderer.QuadEmitter(new Matrix4f().mul(pose).translate(0, 0, z), vertexConsumer);
+            FixedWidthFontRenderer.drawTerminalBackground(quads, x, y, terminal, MARGIN, MARGIN, MARGIN, MARGIN);
+        }
+
+        @Override
+        public RenderPipeline pipeline() {
+            return RenderPipelines.TEXT;
+        }
+    }
+
+    private record TerminalTextRenderState(
+        int x, int y, Terminal terminal, Matrix3x2f pose, TextureSetup textureSetup,
+        @Nullable ScreenRectangle bounds, @Nullable ScreenRectangle scissorArea
+    ) implements GuiElementRenderState {
+        @Override
+        public void buildVertices(VertexConsumer vertexConsumer, float z) {
+            var quads = new FixedWidthFontRenderer.QuadEmitter(new Matrix4f().mul(pose).translate(0, 0, z), vertexConsumer);
+            FixedWidthFontRenderer.drawTerminalForeground(quads, x, y, terminal);
+            FixedWidthFontRenderer.drawCursor(quads, x, y, terminal);
+
+            // The GUI renderer requires that the buffer is non-empty. Add a zero-size vertex so we always have something.
+            for (var i = 0; i < 4; i++) {
+                vertexConsumer.addVertex(0, 0, z).setColor(0x00ffffff).setUv(0, 0).setLight(LightTexture.FULL_BRIGHT);
+            }
+        }
+
+        @Override
+        public RenderPipeline pipeline() {
+            return RenderPipelines.TEXT;
+        }
     }
 }

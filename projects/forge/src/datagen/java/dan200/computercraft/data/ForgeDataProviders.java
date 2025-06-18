@@ -11,20 +11,18 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
+import net.neoforged.neoforge.common.data.ItemTagsProvider;
 import net.neoforged.neoforge.common.data.JsonCodecProvider;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
@@ -65,28 +63,17 @@ public class ForgeDataProviders {
             return add(out -> new BlockTagsProvider(out, registries, ComputerCraftAPI.MOD_ID) {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
-                    tags.accept(x -> new TagProvider.TagAppender<>(BuiltInRegistries.BLOCK, getOrCreateRawBuilder(x)));
+                    tags.accept(this::tag);
                 }
             });
         }
 
         @Override
-        public TagsProvider<Item> itemTags(Consumer<TagProvider.ItemTagConsumer> tags, TagsProvider<Block> blocks) {
-            return add(out -> new ItemTagsProvider(out, registries, blocks.contentsGetter(), ComputerCraftAPI.MOD_ID) {
+        public TagsProvider<Item> itemTags(Consumer<TagProvider.TagConsumer<Item>> tags) {
+            return add(out -> new ItemTagsProvider(out, registries, ComputerCraftAPI.MOD_ID) {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
-                    var self = this;
-                    tags.accept(new TagProvider.ItemTagConsumer() {
-                        @Override
-                        public TagProvider.TagAppender<Item> tag(TagKey<Item> tag) {
-                            return new TagProvider.TagAppender<>(BuiltInRegistries.ITEM, getOrCreateRawBuilder(tag));
-                        }
-
-                        @Override
-                        public void copy(TagKey<Block> block, TagKey<Item> item) {
-                            self.copy(block, item);
-                        }
-                    });
+                    tags.accept(this::tag);
                 }
             });
         }

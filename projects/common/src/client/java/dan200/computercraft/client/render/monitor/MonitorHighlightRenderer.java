@@ -29,7 +29,7 @@ public final class MonitorHighlightRenderer {
         // Preserve normal behaviour when crouching.
         if (camera.getEntity().isCrouching()) return false;
 
-        var world = camera.getEntity().getCommandSenderWorld();
+        var world = camera.getEntity().level();
         var pos = hit.getBlockPos();
 
         if (!(world.getBlockEntity(pos) instanceof MonitorBlockEntity monitor)) return false;

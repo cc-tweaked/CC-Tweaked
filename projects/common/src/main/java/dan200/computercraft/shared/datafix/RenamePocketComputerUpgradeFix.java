@@ -13,8 +13,6 @@ import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.util.datafix.fixes.DataComponentRemainderFix;
 import net.minecraft.util.datafix.fixes.FoodToConsumableFix;
 import net.minecraft.util.datafix.fixes.References;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -53,6 +51,4 @@ public final class RenamePocketComputerUpgradeFix extends DataFix {
             dynamic -> dynamic.renameField("computercraft:pocket_upgrade", "computercraft:back_pocket_upgrade")
         );
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(RenamePocketComputerUpgradeFix.class);
 }

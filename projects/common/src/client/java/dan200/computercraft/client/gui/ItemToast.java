@@ -9,7 +9,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastManager;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
@@ -91,7 +91,7 @@ public class ItemToast implements Toast {
 
     @Override
     public void render(GuiGraphics graphics, Font font, long time) {
-        graphics.blitSprite(RenderType::guiTextured, TEXTURE, 0, 0, width(), height());
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, width(), height());
 
         var textX = MARGIN;
         if (!stack.isEmpty()) {
