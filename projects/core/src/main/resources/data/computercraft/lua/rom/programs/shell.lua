@@ -300,7 +300,7 @@ function shell.setDir(dir)
     sDir = fs.combine(dir, "")
 end
 
---- Set the path where programs are located.
+--- Get the path where programs are located.
 --
 -- The path is composed of a list of directory names in a string, each separated
 -- by a colon (`:`). On normal turtles will look in the current directory (`.`),
