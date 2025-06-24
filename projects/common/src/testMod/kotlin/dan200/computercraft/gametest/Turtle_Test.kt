@@ -4,6 +4,7 @@
 
 package dan200.computercraft.gametest
 
+import com.mojang.authlib.GameProfile
 import dan200.computercraft.api.ComputerCraftAPI
 import dan200.computercraft.api.ComputerCraftTags
 import dan200.computercraft.api.detail.ComponentDetailProvider
@@ -26,6 +27,7 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorBlock
 import dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState
 import dan200.computercraft.shared.turtle.apis.TurtleAPI
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity
+import dan200.computercraft.shared.turtle.core.TurtleBrain
 import dan200.computercraft.shared.turtle.core.TurtleCraftCommand
 import dan200.computercraft.shared.turtle.items.TurtleItem
 import dan200.computercraft.shared.util.WaterloggableHelpers
@@ -783,6 +785,9 @@ class Turtle_Test {
             val turtleItem = turtleBe.getItem(0)
             assertEquals(overlay, TurtleItem.getOverlay(turtleItem))
             assertEquals(upgrade, TurtleItem.getUpgrade(turtleItem, TurtleSide.LEFT))
+
+            val owner = (turtleBe.access as TurtleBrain).owningPlayer
+            assertEquals(GameProfile(UUID.fromString("01986ee6-ca3c-3b64-bdcd-02039da5963f"), "Player436"), owner)
         }
     }
 

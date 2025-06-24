@@ -9,6 +9,7 @@ import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.DataFixerBuilder;
 import com.mojang.datafixers.schemas.Schema;
 import dan200.computercraft.shared.datafix.RenamePocketComputerUpgradeFix;
+import dan200.computercraft.shared.datafix.TurtleOwnerFix;
 import dan200.computercraft.shared.datafix.TurtleUpgradeComponentizationFix;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.datafix.fixes.ItemStackComponentizationFix;
@@ -60,6 +61,30 @@ abstract class DataFixersMixin {
     private static Schema addRenamePocketComputerUpgradeFix(Schema schema, @Local DataFixerBuilder builder) {
         assertSchemaVersion(schema, RenamePocketComputerUpgradeFix.SCHEMA_VERSION);
         builder.addFixer(new RenamePocketComputerUpgradeFix(schema));
+        return schema;
+    }
+
+    /**
+     * Register a {@link TurtleOwnerFix} fix.
+     *
+     * @param schema  The {@code V4424} schema.
+     * @param builder The current datafixer builder.
+     * @return The input schema.
+     */
+    @ModifyArg(
+        method = "addFixers",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/util/datafix/fixes/FeatureFlagRemoveFix;<init>(Lcom/mojang/datafixers/schemas/Schema;Ljava/lang/String;Ljava/util/Set;)V",
+            ordinal = 4
+        ),
+        index = 0,
+        allow = 1
+    )
+    @SuppressWarnings("UnusedMethod")
+    private static Schema addTurtleOwnerFix(Schema schema, @Local DataFixerBuilder builder) {
+        assertSchemaVersion(schema, DataFixUtils.makeKey(4424, 0));
+        builder.addFixer(new TurtleOwnerFix(schema));
         return schema;
     }
 

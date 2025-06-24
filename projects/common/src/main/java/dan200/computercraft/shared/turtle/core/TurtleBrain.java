@@ -5,6 +5,8 @@
 package dan200.computercraft.shared.turtle.core;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -26,6 +28,7 @@ import dan200.computercraft.shared.util.Holiday;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
@@ -61,6 +64,16 @@ public class TurtleBrain implements TurtleAccessInternal {
     public static final String NBT_RIGHT_UPGRADE = "RightUpgrade";
 
     private static final String NBT_SLOT = "Slot";
+
+    /**
+     * {@link net.minecraft.world.item.component.ResolvableProfile#CODEC}, but resolving to a {@link GameProfile}
+     * directly. We don't use {@link ExtraCodecs#GAME_PROFILE}, as that encodes the UUID as a string, not an int array.
+     */
+    private static final Codec<GameProfile> GAME_PROFILE_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            UUIDUtil.CODEC.fieldOf("id").forGetter(GameProfile::getId),
+            ExtraCodecs.PLAYER_NAME.fieldOf("name").forGetter(GameProfile::getName)
+        )
+        .apply(instance, GameProfile::new));
 
     private static final int ANIM_DURATION = 8;
 
@@ -160,7 +173,7 @@ public class TurtleBrain implements TurtleAccessInternal {
         selectedSlot = nbt.getIntOr(NBT_SLOT, 0);
 
         // Read owner
-        owningPlayer = nbt.read("Owner", ExtraCodecs.GAME_PROFILE).orElse(null);
+        owningPlayer = nbt.read("Owner", GAME_PROFILE_CODEC).orElse(null);
     }
 
     public void writeToNBT(ValueOutput nbt) {
@@ -168,8 +181,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
         // Write state
         nbt.putInt(NBT_SLOT, selectedSlot);
-        nbt.storeNullable("Owner", ExtraCodecs.GAME_PROFILE, owningPlayer);
-        // TODO(1.21.6): Data fixer for this.
+        nbt.storeNullable("Owner", GAME_PROFILE_CODEC, owningPlayer);
     }
 
     public void readDescription(ValueInput nbt) {
