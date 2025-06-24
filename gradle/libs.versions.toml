@@ -9,7 +9,7 @@
 # Remember to update corresponding versions in fabric.mod.json/neoforge.mods.toml
 fabric-api = "0.127.0+1.21.6"
 fabric-loader = "0.16.14"
-neoForge = "21.6.0-beta"
+neoForge = "21.6.12-beta"
 neoMergeTool = "2.0.0"
 mixin = "0.8.5"
 parchment = "2025.04.19"

@@ -6,7 +6,6 @@ package dan200.computercraft.client.platform;
 
 import dan200.computercraft.impl.Services;
 import net.minecraft.client.resources.model.ModelDebugName;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
@@ -19,13 +18,12 @@ public interface ClientPlatformHelper {
     /**
      * Create a new unique {@link ModelKey}.
      *
-     * @param id   An identifier for this model key.
      * @param name The debug name for this model key.
      * @param <T>  The type of baked model.
      * @return The newly created model key.
      */
-    @Contract("_, _ -> new")
-    <T> ModelKey<T> createModelKey(ResourceLocation id, ModelDebugName name);
+    @Contract("_ -> new")
+    <T> ModelKey<T> createModelKey(ModelDebugName name);
 
     final class Instance {
         static final @Nullable ClientPlatformHelper INSTANCE;

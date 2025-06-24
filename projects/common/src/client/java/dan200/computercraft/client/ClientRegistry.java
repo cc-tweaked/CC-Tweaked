@@ -67,7 +67,7 @@ public final class ClientRegistry {
     private static final Map<ResourceLocation, ModelKey<StandaloneModel>> models = new ConcurrentHashMap<>();
 
     public static ModelKey<StandaloneModel> getModel(ResourceLocation model) {
-        return models.computeIfAbsent(model, m -> ClientPlatformHelper.get().createModelKey(m, m::toString));
+        return models.computeIfAbsent(model, m -> ClientPlatformHelper.get().createModelKey(m::toString));
     }
 
     public static StandaloneModel getModel(ModelManager manager, ResourceLocation modelId) {

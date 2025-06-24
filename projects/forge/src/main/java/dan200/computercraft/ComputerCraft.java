@@ -66,7 +66,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 @Mod(ComputerCraftAPI.MOD_ID)
-@EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID)
 public final class ComputerCraft {
     private static @Nullable IEventBus eventBus;
 

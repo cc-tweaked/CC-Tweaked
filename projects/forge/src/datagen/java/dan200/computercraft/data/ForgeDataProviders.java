@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber
 public class ForgeDataProviders {
     @SubscribeEvent
     public static void gather(GatherDataEvent.Client event) {

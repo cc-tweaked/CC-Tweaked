@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Data generators for the Forge version of our example mod.
  */
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber
 public class ForgeExampleModDataGenerator {
     @SubscribeEvent
     public static void gather(GatherDataEvent.Client event) {

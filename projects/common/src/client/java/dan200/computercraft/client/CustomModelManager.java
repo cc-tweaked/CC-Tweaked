@@ -9,7 +9,6 @@ import com.mojang.serialization.JsonOps;
 import dan200.computercraft.client.platform.ClientPlatformHelper;
 import dan200.computercraft.client.platform.ModelKey;
 import dan200.computercraft.shared.util.ResourceUtils;
-import net.minecraft.client.resources.model.MissingBlockModel;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ResolvableModel;
@@ -48,12 +47,12 @@ public class CustomModelManager<U extends ResolvableModel, T> {
         this.codec = codec;
         this.bake = bake;
 
-        this.missingModelKey = ClientPlatformHelper.get().createModelKey(MissingBlockModel.LOCATION, () -> "Missing " + kind);
+        this.missingModelKey = ClientPlatformHelper.get().createModelKey(() -> "Missing " + kind);
         this.missingModel = missingModel;
     }
 
     private ModelKey<T> getModelKey(ResourceLocation id) {
-        return modelKeys.computeIfAbsent(id, o -> ClientPlatformHelper.get().createModelKey(o, () -> kind + " " + o));
+        return modelKeys.computeIfAbsent(id, o -> ClientPlatformHelper.get().createModelKey(() -> kind + " " + o));
     }
 
     /**
