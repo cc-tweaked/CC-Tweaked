@@ -54,19 +54,19 @@ else
 end
 
 -- Menus
-local bMenu = false
-local nMenuItem = 1
-local tMenuItems = {}
+local menu  = require "cc.internal.menu"
+local current_menu
+local menu_items = {}
 if not bReadOnly then
-    table.insert(tMenuItems, "Save")
+    table.insert(menu_items, "Save")
 end
 if shell.openTab then
-    table.insert(tMenuItems, "Run")
+    table.insert(menu_items, "Run")
 end
 if peripheral.find("printer") then
-    table.insert(tMenuItems, "Print")
+    table.insert(menu_items, "Print")
 end
-table.insert(tMenuItems, "Exit")
+table.insert(menu_items, "Exit")
 
 local status_ok, status_text
 local function set_status(text, ok)
@@ -214,7 +214,7 @@ end
 
 local function recomplete()
     local sLine = tLines[y]
-    if not bMenu and not bReadOnly and x == #sLine + 1 then
+    if not bReadOnly and x == #sLine + 1 then
         tCompletions = complete(sLine)
         if tCompletions and #tCompletions > 0 then
             nCompletion = 1
@@ -281,22 +281,9 @@ local function redrawMenu()
     term.write(y)
 
     term.setCursorPos(1, h)
-    if bMenu then
+    if current_menu then
         -- Draw menu
-        term.setTextColour(textColour)
-        for nItem, sItem in pairs(tMenuItems) do
-            if nItem == nMenuItem then
-                term.setTextColour(highlightColour)
-                term.write("[")
-                term.setTextColour(textColour)
-                term.write(sItem)
-                term.setTextColour(highlightColour)
-                term.write("]")
-                term.setTextColour(textColour)
-            else
-                term.write(" " .. sItem .. " ")
-            end
-        end
+        menu.draw(current_menu)
     else
         -- Draw status
         term.setTextColour(status_ok and highlightColour or errorColour)
@@ -306,6 +293,7 @@ local function redrawMenu()
 
     -- Reset cursor
     term.setCursorPos(x - scrollX, y - scrollY)
+    term.setCursorBlink(not current_menu)
 end
 
 local tMenuFuncs = {
@@ -383,7 +371,8 @@ local tMenuFuncs = {
             end
         end
 
-        bMenu = false
+        local old_menu = current_menu
+        current_menu = nil
         term.redirect(printerTerminal)
         local ok, error = pcall(function()
             term.scroll()
@@ -401,7 +390,7 @@ local tMenuFuncs = {
             redrawMenu()
             sleep(0.5)
         end
-        bMenu = true
+        current_menu = old_menu
 
         if nPage > 1 then
             set_status("Printed " .. nPage .. " Pages")
@@ -441,15 +430,6 @@ local tMenuFuncs = {
         redrawMenu()
     end,
 }
-
-local function doMenuItem(_n)
-    tMenuFuncs[tMenuItems[_n]]()
-    if bMenu then
-        bMenu = false
-        term.setCursorBlink(true)
-    end
-    redrawMenu()
-end
 
 local function setCursor(newX, newY)
     local _, oldY = x, y
@@ -513,13 +493,29 @@ local function acceptCompletion()
     end
 end
 
+local function handleMenuEvent(event)
+    assert(current_menu)
+
+    local result = menu.handle_event(current_menu, table.unpack(event, 1, event.n))
+    if result == false then
+        current_menu = nil
+        redrawMenu()
+    elseif result ~= nil then
+        tMenuFuncs[result]()
+        current_menu = nil
+        redrawMenu()
+    end
+end
+
 -- Handle input
 while bRunning do
-    local sEvent, param, param2, param3 = os.pullEvent()
-    if sEvent == "key" then
-        if param == keys.up then
-            -- Up
-            if not bMenu then
+    local event = table.pack(os.pullEvent())
+    if event[1] == "key" then
+        if current_menu then
+            handleMenuEvent(event)
+        else
+            local key = event[2]
+            if key == keys.up then
                 if nCompletion then
                     -- Cycle completions
                     nCompletion = nCompletion - 1
@@ -535,12 +531,8 @@ while bRunning do
                         y - 1
                     )
                 end
-            end
 
-        elseif param == keys.down then
-            -- Down
-            if not bMenu then
-                -- Move cursor down
+            elseif key == keys.down then
                 if nCompletion then
                     -- Cycle completions
                     nCompletion = nCompletion + 1
@@ -556,11 +548,8 @@ while bRunning do
                         y + 1
                     )
                 end
-            end
 
-        elseif param == keys.tab then
-            -- Tab
-            if not bMenu and not bReadOnly then
+            elseif key == keys.tab and not bReadOnly then
                 if nCompletion and x == #tLines[y] + 1 then
                     -- Accept autocomplete
                     acceptCompletion()
@@ -570,11 +559,8 @@ while bRunning do
                     tLines[y] = string.sub(sLine, 1, x - 1) .. "    " .. string.sub(sLine, x)
                     setCursor(x + 4, y)
                 end
-            end
 
-        elseif param == keys.pageUp then
-            -- Page Up
-            if not bMenu then
+            elseif key == keys.pageUp then
                 -- Move up a page
                 local newY
                 if y - (h - 1) >= 1 then
@@ -586,11 +572,7 @@ while bRunning do
                     math.min(x, #tLines[newY] + 1),
                     newY
                 )
-            end
-
-        elseif param == keys.pageDown then
-            -- Page Down
-            if not bMenu then
+            elseif key == keys.pageDown then
                 -- Move down a page
                 local newY
                 if y + (h - 1) <= #tLines then
@@ -600,48 +582,29 @@ while bRunning do
                 end
                 local newX = math.min(x, #tLines[newY] + 1)
                 setCursor(newX, newY)
-            end
 
-        elseif param == keys.home then
-            -- Home
-            if not bMenu then
+            elseif key == keys.home then
                 -- Move cursor to the beginning
                 if x > 1 then
                     setCursor(1, y)
                 end
-            end
 
-        elseif param == keys["end"] then
-            -- End
-            if not bMenu then
+            elseif key == keys["end"] then
                 -- Move cursor to the end
                 local nLimit = #tLines[y] + 1
                 if x < nLimit then
                     setCursor(nLimit, y)
                 end
-            end
 
-        elseif param == keys.left then
-            -- Left
-            if not bMenu then
+            elseif key == keys.left then
                 if x > 1 then
                     -- Move cursor left
                     setCursor(x - 1, y)
                 elseif x == 1 and y > 1 then
                     setCursor(#tLines[y - 1] + 1, y - 1)
                 end
-            else
-                -- Move menu left
-                nMenuItem = nMenuItem - 1
-                if nMenuItem < 1 then
-                    nMenuItem = #tMenuItems
-                end
-                redrawMenu()
-            end
 
-        elseif param == keys.right then
-            -- Right
-            if not bMenu then
+            elseif key == keys.right then
                 local nLimit = #tLines[y] + 1
                 if x < nLimit then
                     -- Move cursor right
@@ -653,18 +616,8 @@ while bRunning do
                     -- Go to next line
                     setCursor(1, y + 1)
                 end
-            else
-                -- Move menu right
-                nMenuItem = nMenuItem + 1
-                if nMenuItem > #tMenuItems then
-                    nMenuItem = 1
-                end
-                redrawMenu()
-            end
 
-        elseif param == keys.delete then
-            -- Delete
-            if not bMenu and not bReadOnly then
+            elseif key == keys.delete and not bReadOnly then
                 local nLimit = #tLines[y] + 1
                 if x < nLimit then
                     local sLine = tLines[y]
@@ -677,11 +630,8 @@ while bRunning do
                     recomplete()
                     redrawText()
                 end
-            end
 
-        elseif param == keys.backspace then
-            -- Backspace
-            if not bMenu and not bReadOnly then
+            elseif key == keys.backspace and not bReadOnly then
                 if x > 1 then
                     -- Remove character
                     local sLine = tLines[y]
@@ -700,11 +650,8 @@ while bRunning do
                     setCursor(sPrevLen + 1, y - 1)
                     redrawText()
                 end
-            end
 
-        elseif param == keys.enter or param == keys.numPadEnter then
-            -- Enter/Numpad Enter
-            if not bMenu and not bReadOnly then
+            elseif (key == keys.enter or key == keys.numPadEnter) and not bReadOnly then
                 -- Newline
                 local sLine = tLines[y]
                 local _, spaces = string.find(sLine, "^[ ]+")
@@ -716,96 +663,56 @@ while bRunning do
                 setCursor(spaces + 1, y + 1)
                 redrawText()
 
-            elseif bMenu then
-                -- Menu selection
-                doMenuItem(nMenuItem)
-
-            end
-
-        elseif param == keys.leftCtrl or param == keys.rightCtrl then
-            -- Menu toggle
-            bMenu = not bMenu
-            if bMenu then
-                term.setCursorBlink(false)
-            else
-                term.setCursorBlink(true)
-            end
-            redrawMenu()
-        elseif param == keys.rightAlt then
-            if bMenu then
-                bMenu = false
-                term.setCursorBlink(true)
+            elseif key == keys.leftCtrl or key == keys.rightCtrl then
+                current_menu = menu.create(menu_items)
                 redrawMenu()
             end
         end
-
-    elseif sEvent == "char" then
-        if not bMenu and not bReadOnly then
+    elseif event[1] == "char" then
+        if current_menu then
+            handleMenuEvent(event)
+        elseif not bReadOnly then
             -- Input text
             local sLine = tLines[y]
-            tLines[y] = string.sub(sLine, 1, x - 1) .. param .. string.sub(sLine, x)
+            tLines[y] = string.sub(sLine, 1, x - 1) .. event[2] .. string.sub(sLine, x)
             setCursor(x + 1, y)
-
-        elseif bMenu then
-            -- Select menu items
-            for n, sMenuItem in ipairs(tMenuItems) do
-                if string.lower(string.sub(sMenuItem, 1, 1)) == string.lower(param) then
-                    doMenuItem(n)
-                    break
-                end
-            end
         end
 
-    elseif sEvent == "paste" then
-        if not bReadOnly then
-            -- Close menu if open
-            if bMenu then
-                bMenu = false
-                term.setCursorBlink(true)
-                redrawMenu()
-            end
-            -- Input text
-            local sLine = tLines[y]
-            tLines[y] = string.sub(sLine, 1, x - 1) .. param .. string.sub(sLine, x)
-            setCursor(x + #param, y)
+    elseif event[1] == "paste" and not bReadOnly then
+        -- Close menu if open
+        if current_menu then
+            current_menu = nil
+            redrawMenu()
         end
 
-    elseif sEvent == "mouse_click" then
-        local cx, cy = param2, param3
-        if not bMenu then
-            if param == 1 then
+        -- Input text
+        local text = event[2]
+        local sLine = tLines[y]
+        tLines[y] = string.sub(sLine, 1, x - 1) .. text .. string.sub(sLine, x)
+        setCursor(x + #text, y)
+
+    elseif event[1] == "mouse_click" then
+        local button, cx, cy = event[2], event[3], event[4]
+        if current_menu then
+            handleMenuEvent(event)
+        else
+            if button == 1 then
                 -- Left click
                 if cy < h then
                     local newY = math.min(math.max(scrollY + cy, 1), #tLines)
                     local newX = math.min(math.max(scrollX + cx, 1), #tLines[newY] + 1)
                     setCursor(newX, newY)
                 else
-                    bMenu = true
+                    current_menu = menu.create(menu_items)
                     redrawMenu()
                 end
             end
-        else
-            if cy == h then
-                local nMenuPosEnd = 1
-                local nMenuPosStart = 1
-                for n, sMenuItem in ipairs(tMenuItems) do
-                    nMenuPosEnd = nMenuPosEnd + #sMenuItem + 1
-                    if cx > nMenuPosStart and cx < nMenuPosEnd then
-                        doMenuItem(n)
-                    end
-                    nMenuPosEnd = nMenuPosEnd + 1
-                    nMenuPosStart = nMenuPosEnd
-                end
-            else
-                bMenu = false
-                term.setCursorBlink(true)
-                redrawMenu()
-            end
         end
 
-    elseif sEvent == "mouse_scroll" then
-        if not bMenu then
-            if param == -1 then
+    elseif event[1] == "mouse_scroll" then
+        if not current_menu then
+            local direction = event[2]
+            if direction == -1 then
                 -- Scroll up
                 if scrollY > 0 then
                     -- Move cursor up
@@ -813,7 +720,7 @@ while bRunning do
                     redrawText()
                 end
 
-            elseif param == 1 then
+            elseif direction == 1 then
                 -- Scroll down
                 local nMaxScroll = #tLines - (h - 1)
                 if scrollY < nMaxScroll then
@@ -825,7 +732,7 @@ while bRunning do
             end
         end
 
-    elseif sEvent == "term_resize" then
+    elseif event[1] == "term_resize" then
         w, h = term.getSize()
         setCursor(x, y)
         redrawMenu()
