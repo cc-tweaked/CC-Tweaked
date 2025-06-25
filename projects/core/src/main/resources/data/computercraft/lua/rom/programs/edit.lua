@@ -30,26 +30,23 @@ local x, y = 1, 1
 local w, h = term.getSize()
 local scrollX, scrollY = 0, 0
 
-local tLines = {}
+local tLines, tLineLexStates = {}, {}
 local bRunning = true
 
 -- Colours
-local highlightColour, keywordColour, commentColour, textColour, bgColour, stringColour, errorColour
-if term.isColour() then
+local isColour = term.isColour()
+local highlightColour, keywordColour, textColour, bgColour, errorColour
+if isColour then
     bgColour = colours.black
     textColour = colours.white
     highlightColour = colours.yellow
     keywordColour = colours.yellow
-    commentColour = colours.green
-    stringColour = colours.red
     errorColour = colours.red
 else
     bgColour = colours.black
     textColour = colours.white
     highlightColour = colours.white
     keywordColour = colours.white
-    commentColour = colours.white
-    stringColour = colours.white
     errorColour = colours.white
 end
 
@@ -100,6 +97,7 @@ local function load(_sPath)
         local sLine = file:read()
         while sLine do
             table.insert(tLines, sLine)
+            table.insert(tLineLexStates, false)
             sLine = file:read()
         end
         file:close()
@@ -107,6 +105,7 @@ local function load(_sPath)
 
     if #tLines == 0 then
         table.insert(tLines, "")
+        table.insert(tLineLexStates, false)
     end
 end
 
@@ -142,8 +141,9 @@ local tokens = require "cc.internal.syntax.parser".tokens
 local lex_one = require "cc.internal.syntax.lexer".lex_one
 
 local token_colours = {
-    [tokens.STRING] = stringColour,
-    [tokens.COMMENT] = commentColour,
+    [tokens.STRING] = isColour and colours.red or textColour,
+    [tokens.COMMENT] = isColour and colours.green or colours.lightGrey,
+    [tokens.NUMBER] = isColour and colours.magenta or textColour,
     -- Keywords
     [tokens.AND] = keywordColour,
     [tokens.BREAK] = keywordColour,
@@ -174,26 +174,6 @@ for _, token in pairs(tokens) do
 end
 
 local lex_context = { line = function() end, report = function() end }
-
-local function writeHighlighted(line)
-    local pos, colour = 1, nil
-
-    while true do
-        local token, _, finish = lex_one(lex_context, line, pos)
-        if not token then break end
-
-        local new_colour = token_colours[token]
-        if new_colour ~= colour then
-            term.setTextColor(new_colour)
-            colour = new_colour
-        end
-
-        term.write(line:sub(pos, finish))
-        pos = finish + 1
-    end
-
-    term.write(line:sub(pos))
-end
 
 local tCompletions
 local nCompletion
@@ -238,34 +218,94 @@ local function writeCompletion(sLine)
     end
 end
 
-local function redrawText()
-    local cursorX, cursorY = x, y
-    for y = 1, h - 1 do
-        term.setCursorPos(1 - scrollX, y)
+--- Check if two values are equal. If both values are lists, then the contents will be
+-- checked for equality, to a depth of 1.
+--
+-- @param x The first value.
+-- @param x The second value.
+-- @treturn boolean Whether the values are equal.
+local function shallowEqual(x, y)
+    if x == y then return true end
+
+    if type(x) ~= "table" or type(y) ~= "table" then return false end
+    if #x ~= #y then return false end
+
+    for i = 1, #x do if x[i] ~= y[i] then return false end end
+    return true
+end
+
+local function redrawLines(line, endLine)
+    if not endLine then endLine = line end
+
+    local colour = term.getTextColour()
+
+    -- Highlight all lines between line and endLine, highlighting further lines if their
+    -- lexer state has changed and aborting at the end of the screen.
+    local changed = false
+    while (changed or line <= endLine) and line - scrollY < h do
+        term.setCursorPos(1 - scrollX, line - scrollY)
         term.clearLine()
 
-        local sLine = tLines[y + scrollY]
-        if sLine ~= nil then
-            writeHighlighted(sLine)
-            if cursorY == y and cursorX == #sLine + 1 then
-                writeCompletion()
+        local contents = tLines[line]
+        if not contents then break end
+
+        -- Lex our first token, either taking our continuation state (if present) or
+        -- the default lexer.
+        local pos, token, _, finish, continuation = 1
+        local lex_state = tLineLexStates[line]
+        if lex_state then
+            token, finish, _, continuation = lex_state[1](lex_context, contents, table.unpack(lex_state, 2))
+        else
+            token, _, finish, _, continuation = lex_one(lex_context, contents, 1)
+        end
+
+        while token do
+            -- Print out that token
+            local new_colour = token_colours[token]
+            if new_colour ~= colour then
+                term.setTextColor(new_colour)
+                colour = new_colour
             end
+            term.write(contents:sub(pos, finish))
+
+            pos = finish + 1
+
+            -- If we have a continuation, then we've reached the end of the line. Abort.
+            if continuation then break end
+
+            -- Otherwise lex another token and continue.
+            token, _, finish, _, continuation = lex_one(lex_context, contents, pos)
+        end
+
+        -- Print the rest of the line. We don't strictly speaking need this, as it will
+        -- only ever contain whitespace.
+        term.write(contents:sub(pos))
+
+        if line == y and x == #contents + 1 then
+            writeCompletion()
+            colour = term.getTextColour()
+        end
+
+        line = line + 1
+
+        -- Update the lext state of the next line. If that has changed, then
+        -- re-highlight it too. We store the continuation as nil rather than
+        -- false, to ensure we use the array part of the table.
+        if continuation == nil then continuation = false end
+        if tLineLexStates[line] ~= nil and not shallowEqual(tLineLexStates[line], continuation) then
+            tLineLexStates[line] = continuation or false
+            changed = true
+        else
+            changed = false
         end
     end
+
+    term.setTextColor(colours.white)
     term.setCursorPos(x - scrollX, y - scrollY)
 end
 
-local function redrawLine(_nY)
-    local sLine = tLines[_nY]
-    if sLine then
-        term.setCursorPos(1 - scrollX, _nY - scrollY)
-        term.clearLine()
-        writeHighlighted(sLine)
-        if _nY == y and x == #sLine + 1 then
-            writeCompletion()
-        end
-        term.setCursorPos(x - scrollX, _nY - scrollY)
-    end
+local function redrawText()
+    redrawLines(scrollY + 1, scrollY + h - 1)
 end
 
 local function redrawMenu()
@@ -462,12 +502,10 @@ local function setCursor(newX, newY)
     if bRedraw then
         redrawText()
     elseif y ~= oldY then
-        redrawLine(oldY)
-        redrawLine(y)
+        redrawLines(math.min(y, oldY), math.max(y, oldY))
     else
-        redrawLine(y)
+        redrawLines(y)
     end
-    term.setCursorPos(screenX, screenY)
 
     redrawMenu()
 end
@@ -522,7 +560,7 @@ while bRunning do
                     if nCompletion < 1 then
                         nCompletion = #tCompletions
                     end
-                    redrawLine(y)
+                    redrawLines(y)
 
                 elseif y > 1 then
                     -- Move cursor up
@@ -539,7 +577,7 @@ while bRunning do
                     if nCompletion > #tCompletions then
                         nCompletion = 1
                     end
-                    redrawLine(y)
+                    redrawLines(y)
 
                 elseif y < #tLines then
                     -- Move cursor down
@@ -623,10 +661,11 @@ while bRunning do
                     local sLine = tLines[y]
                     tLines[y] = string.sub(sLine, 1, x - 1) .. string.sub(sLine, x + 1)
                     recomplete()
-                    redrawLine(y)
+                    redrawLines(y)
                 elseif y < #tLines then
                     tLines[y] = tLines[y] .. tLines[y + 1]
                     table.remove(tLines, y + 1)
+                    table.remove(tLineLexStates, y + 1)
                     recomplete()
                     redrawText()
                 end
@@ -647,6 +686,7 @@ while bRunning do
                     local sPrevLen = #tLines[y - 1]
                     tLines[y - 1] = tLines[y - 1] .. tLines[y]
                     table.remove(tLines, y)
+                    table.remove(tLineLexStates, y)
                     setCursor(sPrevLen + 1, y - 1)
                     redrawText()
                 end
@@ -660,6 +700,7 @@ while bRunning do
                 end
                 tLines[y] = string.sub(sLine, 1, x - 1)
                 table.insert(tLines, y + 1, string.rep(' ', spaces) .. string.sub(sLine, x))
+                table.insert(tLineLexStates, y + 1, false)
                 setCursor(spaces + 1, y + 1)
                 redrawText()
 
