@@ -68,5 +68,5 @@ tasks.ideaSyncTask {
 tasks.named("checkDependencyConsistency", DependencyCheck::class.java) {
     val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
     // Minecraft depends on asm, but Fabric forces it to a more recent version
-    override(libs.findLibrary("asm").get(), "9.7.1")
+    override(libs.findLibrary("asm").get(), "9.8")
 }
