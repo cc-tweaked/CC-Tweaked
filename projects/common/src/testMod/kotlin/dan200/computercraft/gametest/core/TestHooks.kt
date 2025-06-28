@@ -111,6 +111,7 @@ object TestHooks {
         Computer_Test::class.java,
         CraftOs_Test::class.java,
         Details_Test::class.java,
+        Disk_Test::class.java,
         Disk_Drive_Test::class.java,
         Inventory_Test::class.java,
         Loot_Test::class.java,
