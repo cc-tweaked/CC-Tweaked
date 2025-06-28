@@ -1,11 +1,19 @@
-New features in CC: Tweaked 1.115.1
+New features in CC: Tweaked 1.116.0
 
-* Update various translations (cyb3r, kevk2156, teamer337, yakku).
-* Support Fabric's item lookup API for registering media providers.
+* Add `turtle.getEquippedLeft()` and `turtle.getEquippedRight()`.
+* Add item tags for floppy disks and pocket computers.
+* Support multi-line strings and comments in `edit`.
 
 Several bug fixes:
-* Fix crashes on Create 6.0 (ellellie).
-* Fix `speaker.playAudio` not updating speaker volume.
-* Resize pocket lectern textures to fix issues with generating mipmaps.
+* Ignore shader compilation errors when running with Pojav.
+* Fix several issues with character input.
+* Fix pocket computer dyes being lost when equipping/unequipping upgrades.
+* Fix superflous warnings from allocation tracking.
+* Fix `__lt`/`__le` not working on heterogeneous types.
+* Many documentation fixes (Lemmmy, matematikaadit, McJack12).
+* Fix `0` being treated as a valid colour in `window` and `colour.toBlit`.
+* Fix out-of-bounds when pasting too lon text.
+* Fix syntax highlighting of string escapes (LorneHyde).
+* Fix sidebar texture of advanced computers being offset.
 
 Type "help changelog" to see the full version history.
