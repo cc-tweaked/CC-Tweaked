@@ -13,7 +13,6 @@ import dan200.computercraft.api.peripheral.PeripheralCapability;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.impl.PocketUpgrades;
-import dan200.computercraft.impl.Services;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.ModRegistry;
@@ -135,7 +134,7 @@ public final class ComputerCraft {
     }
 
     private static <T extends NetworkMessage<ClientNetworkContext>> void registerClientbound(PayloadRegistrar registrar, CustomPacketPayload.TypeAndCodec<RegistryFriendlyByteBuf, T> type) {
-        registrar.playToClient(type.type(), type.codec(), (t, context) -> context.enqueueWork(() -> t.handle(ClientHolderHolder.get())));
+        registrar.playToClient(type.type(), type.codec());
     }
 
     /**
@@ -219,25 +218,5 @@ public final class ComputerCraft {
     @SubscribeEvent
     public static void onCreativeTab(BuildCreativeModeTabContentsEvent event) {
         CommonHooks.onBuildCreativeTab(event.getTabKey(), event.getParameters(), event);
-    }
-
-    /**
-     * This holds an instance of {@link ClientNetworkContext}. This is a separate class to ensure that the instance is
-     * lazily created when needed on the client.
-     */
-    private static final class ClientHolderHolder {
-        private static final @Nullable ClientNetworkContext INSTANCE;
-        private static final @Nullable Throwable ERROR;
-
-        static {
-            var helper = Services.tryLoad(ClientNetworkContext.class);
-            INSTANCE = helper.instance();
-            ERROR = helper.error();
-        }
-
-        static ClientNetworkContext get() {
-            var instance = INSTANCE;
-            return instance == null ? Services.raise(ClientNetworkContext.class, ERROR) : instance;
-        }
     }
 }

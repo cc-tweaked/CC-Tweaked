@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.item.TrackingItemStackRenderState;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.core.component.DataComponentPatch;
@@ -64,7 +65,7 @@ public final class ItemUpgradeModel implements TurtleUpgradeModel {
     public void renderForItem(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed) {
         renderer.appendModelIdentityElement(this);
 
-        var childState = new ItemStackRenderState();
+        var childState = new TrackingItemStackRenderState();
         resolver.updateForTopItem(childState, upgrade.getUpgradeItem(), ItemDisplayContext.NONE, null, null, seed);
         if (!childState.isEmpty()) {
             renderer.appendModelIdentityElement(childState.getModelIdentity());

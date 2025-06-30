@@ -7,9 +7,11 @@ package dan200.computercraft.client;
 import com.google.common.reflect.TypeToken;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.turtle.RegisterTurtleModelEvent;
+import dan200.computercraft.client.platform.ClientNetworkContextImpl;
 import dan200.computercraft.client.platform.ForgeModelKey;
 import dan200.computercraft.client.platform.ModelKey;
 import dan200.computercraft.client.render.ExtendedItemFrameRenderState;
+import dan200.computercraft.shared.network.NetworkMessages;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.ItemFrameRenderer;
 import net.minecraft.client.resources.model.ModelBaker;
@@ -22,6 +24,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.model.standalone.UnbakedStandaloneModel;
+import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 
 import java.util.ArrayDeque;
@@ -38,6 +41,14 @@ public final class ForgeClientRegistry {
     static final ContextKey<ExtendedItemFrameRenderState> ITEM_FRAME_STATE = new ContextKey<>(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item_frame"));
 
     private ForgeClientRegistry() {
+    }
+
+    @SubscribeEvent
+    public static void registerNetwork(RegisterClientPayloadHandlersEvent event) {
+        var context = new ClientNetworkContextImpl();
+        for (var type : NetworkMessages.getClientbound()) {
+            event.register(type.type(), (packet, ctx) -> ctx.enqueueWork(() -> packet.handle(context)));
+        }
     }
 
     @SubscribeEvent

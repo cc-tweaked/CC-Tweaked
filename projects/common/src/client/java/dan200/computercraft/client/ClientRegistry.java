@@ -24,6 +24,7 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
+import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
@@ -49,7 +50,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -193,7 +193,11 @@ public final class ClientRegistry {
         register.accept(TurtleShowElfOverlay.ID, TurtleShowElfOverlay.CODEC);
     }
 
-    public static void registerPictureInPictureRenderers(Consumer<Function<MultiBufferSource.BufferSource, PictureInPictureRenderer<?>>> register) {
-        register.accept(PrintoutScreen.PrintoutPictureRenderer::new);
+    public interface RegisterPictureInPictureRenderer {
+        <T extends PictureInPictureRenderState> void register(Class<T> state, Function<MultiBufferSource.BufferSource, PictureInPictureRenderer<T>> factory);
+    }
+
+    public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderer register) {
+        register.register(PrintoutScreen.PrintoutRenderState.class, PrintoutScreen.PrintoutPictureRenderer::new);
     }
 }

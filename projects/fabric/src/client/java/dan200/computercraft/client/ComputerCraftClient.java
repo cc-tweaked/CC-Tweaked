@@ -9,15 +9,14 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.FabricComputerCraftAPIClient;
+import dan200.computercraft.client.platform.ClientNetworkContextImpl;
 import dan200.computercraft.client.platform.FabricModelKey;
 import dan200.computercraft.client.platform.ModelKey;
 import dan200.computercraft.core.util.Nullability;
-import dan200.computercraft.impl.Services;
 import dan200.computercraft.shared.ComputerCraft;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.network.NetworkMessages;
-import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.platform.FabricConfigFile;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -32,7 +31,10 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemTintSources;
+import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
+import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.item.ItemModels;
 import net.minecraft.client.renderer.item.properties.conditional.ConditionalItemModelProperties;
@@ -45,12 +47,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public class ComputerCraftClient {
     public static void init() {
-        var clientNetwork = Services.load(ClientNetworkContext.class);
+        var clientNetwork = new ClientNetworkContextImpl();
         for (var type : NetworkMessages.getClientbound()) {
             ClientPlayNetworking.registerGlobalReceiver(
                 type.type(), (packet, responseSender) -> packet.handle(clientNetwork)
@@ -81,7 +84,12 @@ public class ComputerCraftClient {
         BlockRenderLayerMap.putBlock(ModRegistry.Blocks.MONITOR_NORMAL.get(), ChunkSectionLayer.CUTOUT);
         BlockRenderLayerMap.putBlock(ModRegistry.Blocks.MONITOR_ADVANCED.get(), ChunkSectionLayer.CUTOUT);
 
-        ClientRegistry.registerPictureInPictureRenderers(f -> SpecialGuiElementRegistry.register(c -> f.apply(c.vertexConsumers())));
+        ClientRegistry.registerPictureInPictureRenderers(new ClientRegistry.RegisterPictureInPictureRenderer() {
+            @Override
+            public <T extends PictureInPictureRenderState> void register(Class<T> ty, Function<MultiBufferSource.BufferSource, PictureInPictureRenderer<T>> f) {
+                SpecialGuiElementRegistry.register(c -> f.apply(c.vertexConsumers()));
+            }
+        });
 
         ClientTickEvents.START_CLIENT_TICK.register(client -> ClientHooks.onTick());
         // This isn't 100% consistent with Forge, but not worth a mixin.

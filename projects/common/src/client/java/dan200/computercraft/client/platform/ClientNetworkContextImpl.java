@@ -4,7 +4,6 @@
 
 package dan200.computercraft.client.platform;
 
-import com.google.auto.service.AutoService;
 import dan200.computercraft.client.ClientTableFormatter;
 import dan200.computercraft.client.gui.AbstractComputerScreen;
 import dan200.computercraft.client.gui.OptionScreen;
@@ -36,7 +35,6 @@ import java.util.UUID;
 /**
  * The client-side implementation of {@link ClientNetworkContext}.
  */
-@AutoService(ClientNetworkContext.class)
 public final class ClientNetworkContextImpl implements ClientNetworkContext {
     @Override
     public void handleChatTable(TableBuilder table) {
