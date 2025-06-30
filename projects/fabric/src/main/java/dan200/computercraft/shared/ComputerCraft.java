@@ -125,12 +125,12 @@ public class ComputerCraft {
         ComputerCraftAPI.registerGenericSource(new InventoryMethods());
 
         Peripherals.addGenericLookup(InventoryMethods::extractContainer);
+
+        if (FabricLoader.getInstance().isModLoaded(CreateIntegration.ID)) CreateIntegration.setup();
     }
 
     private static <B extends FriendlyByteBuf, T extends CustomPacketPayload> void registerPayloadType(PayloadTypeRegistry<B> registry, CustomPacketPayload.TypeAndCodec<B, T> type) {
         registry.register(type.type(), type.codec());
-
-        if (FabricLoader.getInstance().isModLoaded(CreateIntegration.ID)) CreateIntegration.setup();
     }
 
     private record ReloadListener(String name, PreparableReloadListener listener)
