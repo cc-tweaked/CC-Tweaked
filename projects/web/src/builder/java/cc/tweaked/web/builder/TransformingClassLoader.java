@@ -17,6 +17,8 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -112,11 +114,17 @@ public class TransformingClassLoader extends ClassLoader {
             return super.getResourceAsStream(name);
         }
 
+        var bytes = getTransformed(path);
+        this.lastFile = new TransformedClass(name, bytes);
+        return new ByteArrayInputStream(bytes);
+    }
+
+    private byte[] getTransformed(Path path) {
         ClassReader reader;
         try (var stream = Files.newInputStream(path)) {
             reader = new ClassReader(stream);
         } catch (IOException e) {
-            throw new UncheckedIOException("Failed reading " + name, e);
+            throw new UncheckedIOException("Failed reading " + path, e);
         }
 
         var writer = new ClassWriter(reader, 0);
@@ -125,9 +133,7 @@ public class TransformingClassLoader extends ClassLoader {
         for (var transformer : transformers) sink = transformer.apply(className, sink);
         reader.accept(sink, 0);
 
-        var bytes = writer.toByteArray();
-        this.lastFile = new TransformedClass(name, bytes);
-        return new ByteArrayInputStream(bytes);
+        return writer.toByteArray();
     }
 
     @Override
@@ -142,7 +148,7 @@ public class TransformingClassLoader extends ClassLoader {
         return new IteratorEnumeration<>(
             (path == null ? classpath.stream().map(x -> x.resolve(name)) : Stream.of(path))
                 .filter(Files::exists)
-                .map(TransformingClassLoader::toURL)
+                .map(this::toURL)
                 .iterator()
         );
     }
@@ -160,9 +166,12 @@ public class TransformingClassLoader extends ClassLoader {
         }
     }
 
-    private static URL toURL(Path path) {
+    private URL toURL(Path path) {
         try {
-            return path.toUri().toURL();
+            var url = path.toUri().toURL();
+
+            if (!path.toString().endsWith(".class")) return url;
+            return new URL(url.getProtocol(), url.getHost(), url.getPort(), url.getFile(), new TransformingHandler(path));
         } catch (MalformedURLException e) {
             throw new IllegalStateException("Cannot convert " + path + " to a URL", e);
         }
@@ -170,5 +179,32 @@ public class TransformingClassLoader extends ClassLoader {
 
     @SuppressWarnings("ArrayRecordComponent")
     private record TransformedClass(String name, byte[] contents) {
+    }
+
+    private final class TransformingHandler extends URLStreamHandler {
+        private final Path path;
+
+        private TransformingHandler(Path path) {
+            this.path = path;
+        }
+
+        @Override
+        protected URLConnection openConnection(URL u) {
+            return new URLConnection(u) {
+                private @Nullable InputStream stream;
+
+                @Override
+                public void connect() {
+                    if (stream == null) stream = new ByteArrayInputStream(getTransformed(path));
+                }
+
+                @Override
+                public InputStream getInputStream() {
+                    connect();
+                    if (stream == null) throw new NullPointerException("Stream cannot be null");
+                    return stream;
+                }
+            };
+        }
     }
 }

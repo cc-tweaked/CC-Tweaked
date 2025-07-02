@@ -73,7 +73,7 @@ nullAway = "0.12.7"
 shadow = "8.3.1"
 spotless = "7.0.2"
 taskTree = "2.1.1"
-teavm = "0.11.0-SQUID.1"
+teavm = "0.13.0-SQUID.1"
 vanillaExtract = "0.2.1"
 versionCatalogUpdate = "0.8.1"
 
