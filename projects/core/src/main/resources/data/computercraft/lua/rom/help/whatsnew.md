@@ -5,6 +5,7 @@ New features in CC: Tweaked 1.116.0
 * Support multi-line strings and comments in `edit`.
 * Computer and pocket computer terminal sizes can be set with the `computercraft:terminal_size` component.
 * Border and sidebar textures now use vanilla's nine-sliced format.
+* Allow equipping upgrades on the bottom of a pocket computer.
 
 Several bug fixes:
 * Ignore shader compilation errors when running with Pojav.

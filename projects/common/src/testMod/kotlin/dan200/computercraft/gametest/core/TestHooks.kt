@@ -88,7 +88,7 @@ object TestHooks {
         LOG.info("Cleaning up after last run")
 
         val level = server.overworld()
-        StructureUtils.findTestBlocks(getTestOrigin(server), 200, level).forEach { pos ->
+        StructureUtils.findTestBlocks(getTestOrigin(server), 200, level).toList().forEach { pos ->
             val test = level.getBlockEntity(pos, BlockEntityType.TEST_INSTANCE_BLOCK).getOrNull() ?: return@forEach
             StructureUtils.clearSpaceForStructure(test.structureBoundingBox, level)
         }
