@@ -35,7 +35,13 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
         var size = fluids.getTanks();
         for (var i = 0; i < size; i++) {
             var stack = fluids.getFluidInTank(i);
-            if (!stack.isEmpty()) result.put(i + 1, ForgeDetailRegistries.FLUID_STACK.getBasicDetails(stack));
+            if (!stack.isEmpty()) {
+                var data = ForgeDetailRegistries.FLUID_STACK.getBasicDetails(stack);
+                // FluidStacks do not keep capacity, meaning the DetailRegistry cannot add it by itself. We'll
+                // add it manually here instead.
+                data.put("capacity", fluids.getTankCapacity(i));
+                result.put(i + 1, data);
+            }
         }
 
         return result;
