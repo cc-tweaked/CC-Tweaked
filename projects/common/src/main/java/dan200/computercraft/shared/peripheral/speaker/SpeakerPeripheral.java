@@ -32,7 +32,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static dan200.computercraft.api.lua.LuaValues.checkFinite;
 
@@ -155,7 +158,9 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         }
     }
 
-    public abstract SpeakerPosition getPosition();
+    protected abstract ServerLevel getLevel();
+
+    protected abstract SpeakerPosition getPosition();
 
     public UUID getSource() {
         return source;
@@ -255,8 +260,8 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         // Prevent playing music discs.
         var soundEvent = BuiltInRegistries.SOUND_EVENT.get(identifier);
         // TODO: Build a set of sound events at server startup, and cache this.
-        var level = Objects.requireNonNull(getPosition().level());
-        if (soundEvent != null && level.registryAccess().registry(Registries.JUKEBOX_SONG).orElseThrow().stream().anyMatch(x -> x.soundEvent().value() == soundEvent)) {
+        var level = getLevel();
+        if (soundEvent != null && level.registryAccess().registryOrThrow(Registries.JUKEBOX_SONG).stream().anyMatch(x -> x.soundEvent().value() == soundEvent)) {
             return false;
         }
 

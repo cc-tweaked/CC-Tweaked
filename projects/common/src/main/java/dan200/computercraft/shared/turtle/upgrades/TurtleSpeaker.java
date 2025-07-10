@@ -13,6 +13,7 @@ import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -26,7 +27,12 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade {
         }
 
         @Override
-        public SpeakerPosition getPosition() {
+        protected ServerLevel getLevel() {
+            return (ServerLevel) turtle.getLevel();
+        }
+
+        @Override
+        protected SpeakerPosition getPosition() {
             return SpeakerPosition.of(turtle.getLevel(), Vec3.atCenterOf(turtle.getPosition()));
         }
 

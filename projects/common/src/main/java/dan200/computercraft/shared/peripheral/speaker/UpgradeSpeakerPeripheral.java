@@ -20,10 +20,8 @@ public abstract class UpgradeSpeakerPeripheral extends SpeakerPeripheral {
         super.detach(computer);
 
         // We could be in the process of shutting down the server, so we can't send packets in this case.
-        var level = getPosition().level();
-        if (level == null) return;
-        var server = level.getServer();
-        if (server == null || server.isStopped()) return;
+        var server = getLevel().getServer();
+        if (server.isStopped()) return;
 
         ServerNetworking.sendToAllPlayers(new SpeakerStopClientMessage(getSource()), server);
     }
