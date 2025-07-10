@@ -13,6 +13,8 @@ public class FluidData {
     public static void fillBasic(Map<? super String, Object> data, FluidStack stack) {
         data.put("name", DetailHelpers.getId(BuiltInRegistries.FLUID, stack.getFluid()));
         data.put("amount", stack.getAmount());
+        // "capacity" is added manually elsewhere since FluidStack does not contain a capacity.
+        // See: dan200.computercraft.shared.peripheral.generic.methods.FluidMethods#tanks
     }
 
     public static void fill(Map<? super String, Object> data, FluidStack stack) {
