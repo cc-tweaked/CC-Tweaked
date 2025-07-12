@@ -50,6 +50,12 @@ public enum UserLevel implements Predicate<CommandSourceStack> {
 
     public static boolean isOwner(CommandSourceStack source) {
         var server = source.getServer();
+
+        // While CommandSourceStack.getServer is non-nullable, that's a lie for permission checks. When loading
+        // .mcfunction files, ServerFunctionLibrary constructs an instance with an empty server. In that case, return
+        // false — we don't want to treat functions as an owner!
+        if (server == null) return false;
+
         var player = source.getPlayer();
         return server.isDedicatedServer()
             ? source.getEntity() == null && source.hasPermission(4) && source.getTextName().equals("Server")
