@@ -9,7 +9,7 @@
 # Remember to update corresponding versions in fabric.mod.json/neoforge.mods.toml
 fabric-api = "0.128.0+1.21.7"
 fabric-loader = "0.16.14"
-neoForge = "21.7.1-beta"
+neoForge = "21.7.19-beta"
 neoMergeTool = "2.0.0"
 mixin = "0.8.5"
 parchment = "2025.06.29"
@@ -40,7 +40,7 @@ emi = "1.1.7+1.21"
 fabricPermissions = "0.3.3"
 iris-fabric = "1.9.1+1.21.7-fabric"
 iris-forge = "1.9.1+1.21.7-neoforge"
-jei = "19.8.2.99"
+jei = "23.1.0.4"
 modmenu = "13.0.2"
 moreRed = "6.0.0.3"
 rei = "18.0.800"
@@ -69,7 +69,7 @@ ideaExt = "1.1.7"
 illuaminate = "0.1.0-83-g1131f68"
 lwjgl = "3.3.3"
 minotaur = "2.8.7"
-modDevGradle = "2.0.95"
+modDevGradle = "2.0.99"
 nullAway = "0.12.7"
 shadow = "8.3.1"
 spotless = "7.0.2"
@@ -113,9 +113,9 @@ fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-l
 fabricPermissions = { module = "me.lucko:fabric-permissions-api", version.ref = "fabricPermissions" }
 iris-fabric = { module = "maven.modrinth:iris", version.ref = "iris-fabric" }
 iris-forge = { module = "maven.modrinth:iris", version.ref = "iris-forge" }
-jei-api = { module = "mezz.jei:jei-1.21-common-api", version.ref = "jei" }
-jei-fabric = { module = "mezz.jei:jei-1.21-fabric", version.ref = "jei" }
-jei-forge = { module = "mezz.jei:jei-1.21-neoforge", version.ref = "jei" }
+jei-api = { module = "mezz.jei:jei-1.21.7-common-api", version.ref = "jei" }
+jei-fabric = { module = "mezz.jei:jei-1.21.7-fabric", version.ref = "jei" }
+jei-forge = { module = "mezz.jei:jei-1.21.7-neoforge", version.ref = "jei" }
 mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
 mixinExtra = { module = "io.github.llamalad7:mixinextras-common", version.ref = "mixinExtra" }
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
@@ -186,7 +186,7 @@ kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 # Minecraft
 externalMods-common = ["iris-forge", "jei-api", "nightConfig-core", "nightConfig-toml"]
 externalMods-forge-compile = ["moreRed", "iris-forge", "jei-api"]
-externalMods-forge-runtime = []
+externalMods-forge-runtime = ["jei-forge"]
 externalMods-fabric-compile = ["fabricPermissions", "iris-fabric", "jei-api", "rei-api", "rei-builtin"]
 externalMods-fabric-runtime = []
 
