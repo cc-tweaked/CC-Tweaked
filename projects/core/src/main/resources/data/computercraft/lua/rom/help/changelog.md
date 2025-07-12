@@ -1,3 +1,10 @@
+# New features in CC: Tweaked 1.116.1
+
+* Update translations.
+
+One bug fix:
+* Fix NPE when mcfunction files contain CC commands.
+
 # New features in CC: Tweaked 1.116.0
 
 * Add `turtle.getEquippedLeft()` and `turtle.getEquippedRight()`.
