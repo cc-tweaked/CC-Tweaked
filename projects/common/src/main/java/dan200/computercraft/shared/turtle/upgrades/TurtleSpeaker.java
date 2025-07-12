@@ -32,7 +32,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade {
         }
 
         @Override
-        public SpeakerPosition getPosition() {
+        protected SpeakerPosition getPosition() {
             return SpeakerPosition.of(turtle.getLevel(), Vec3.atCenterOf(turtle.getPosition()));
         }
 

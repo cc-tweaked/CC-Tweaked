@@ -9,6 +9,7 @@ import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -47,7 +48,12 @@ public class SpeakerBlockEntity extends BlockEntity {
         }
 
         @Override
-        public SpeakerPosition getPosition() {
+        protected ServerLevel getLevel() {
+            return (ServerLevel) speaker.getLevel();
+        }
+
+        @Override
+        protected SpeakerPosition getPosition() {
             return SpeakerPosition.of(speaker.getLevel(), Vec3.atCenterOf(speaker.getBlockPos()));
         }
 

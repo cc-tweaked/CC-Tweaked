@@ -7,7 +7,6 @@ package dan200.computercraft.shared.peripheral.speaker;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
-import net.minecraft.server.level.ServerLevel;
 
 
 /**
@@ -15,8 +14,6 @@ import net.minecraft.server.level.ServerLevel;
  */
 public abstract class UpgradeSpeakerPeripheral extends SpeakerPeripheral {
     public static final String ADJECTIVE = "upgrade.computercraft.speaker.adjective";
-
-    protected abstract ServerLevel getLevel();
 
     @Override
     public void detach(IComputerAccess computer) {

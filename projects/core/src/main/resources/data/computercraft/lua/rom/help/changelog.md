@@ -1,3 +1,11 @@
+# New features in CC: Tweaked 1.116.1
+
+* Update translations.
+
+Several bug fixes:
+* Fix NPE when mcfunction files contain CC commands.
+* Fix crash in `speaker.playAudio` on noisy pocket computers.
+
 # New features in CC: Tweaked 1.116.0
 
 * Add `turtle.getEquippedLeft()` and `turtle.getEquippedRight()`.
