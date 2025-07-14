@@ -10,6 +10,7 @@ import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.methods.LuaMethod;
 import dan200.computercraft.core.methods.NamedMethod;
 import org.hamcrest.Matcher;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -121,6 +122,17 @@ public class GeneratorTest {
         assertThat(apply(methods, new EnumMethods(), "optEnum", "front"), one(is("FRONT")));
         assertThat(apply(methods, new EnumMethods(), "optEnum"), one(is("?")));
         assertThrows(LuaException.class, () -> apply(methods, new EnumMethods(), "getEnum", "not as side"));
+    }
+
+    @Test
+    public void testLuaTable() throws LuaException {
+        var methods = GENERATOR.getMethods(TableMethods.class);
+        assertThat(methods, containsInAnyOrder(named("getTable"), named("optTable")));
+
+        assertThat(apply(methods, new TableMethods(), "getTable", Map.of("x", "y")), one(is(Map.of("x", "y"))));
+        assertThat(apply(methods, new TableMethods(), "optTable", Map.of("x", "y")), one(is(Map.of("x", "y"))));
+        assertThat(apply(methods, new TableMethods(), "optTable"), one(nullValue()));
+        assertThrows(LuaException.class, () -> apply(methods, new TableMethods(), "getTable", "not a table"));
     }
 
     @Test
@@ -277,6 +289,18 @@ public class GeneratorTest {
         }
     }
 
+    public static class TableMethods {
+        @LuaFunction
+        public final LuaTable<?, ?> getTable(LuaTable<?, ?> table) {
+            return table;
+        }
+
+        @LuaFunction
+        public final @Nullable LuaTable<?, ?> optTable(Optional<LuaTable<?, ?>> table) {
+            return table.orElse(null);
+        }
+    }
+
     public static class MainThread {
         @LuaFunction(mainThread = true)
         public final void go() {
@@ -286,10 +310,6 @@ public class GeneratorTest {
     public static class Unsafe {
         @LuaFunction(unsafe = true)
         public final void withUnsafe(LuaTable<?, ?> table) {
-        }
-
-        @LuaFunction
-        public final void withoutUnsafe(LuaTable<?, ?> table) {
         }
 
         @LuaFunction(unsafe = true, mainThread = true)

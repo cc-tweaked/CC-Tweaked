@@ -73,6 +73,22 @@ final class Generator<T> {
             addArgType(argMethodMap, Map.class, "Table");
             addArgType(argMethodMap, String.class, "String");
             addArgType(argMethodMap, ByteBuffer.class, "Bytes");
+            argMethodMap.put(LuaTable.class, new ArgMethods(
+                // i -> new ObjectLuaTable(getTable(i))
+                MethodHandles.filterReturnValue(
+                    LOOKUP.findVirtual(IArguments.class, "getTable", MethodType.methodType(Map.class, int.class)),
+                    LOOKUP.findConstructor(ObjectLuaTable.class, MethodType.methodType(void.class, Map.class))
+                        .asType(MethodType.methodType(LuaTable.class, Map.class))
+                ),
+                // i -> optTable(i).map(ObjectLuaTable::new)
+                MethodHandles.filterReturnValue(
+                    LOOKUP.findVirtual(IArguments.class, "optTable", MethodType.methodType(Optional.class, int.class)),
+                    MethodHandles.insertArguments(
+                        LOOKUP.findVirtual(Optional.class, "map", MethodType.methodType(Optional.class, Function.class)),
+                        1, (Function<Map<?, ?>, LuaTable<?, ?>>) ObjectLuaTable::new
+                    )
+                )
+            ));
             argMethods = Map.copyOf(argMethodMap);
 
             ARG_TABLE_UNSAFE = ArgMethods.of(LuaTable.class, "TableUnsafe");
@@ -335,10 +351,9 @@ final class Generator<T> {
     }
 
     private static @Nullable ArgMethods getArgMethods(Class<?> type, boolean unsafe) {
-        var getter = argMethods.get(type);
-        if (getter != null) return getter;
         if (type == LuaTable.class && unsafe) return ARG_TABLE_UNSAFE;
-        return null;
+
+        return argMethods.get(type);
     }
 
     /**
