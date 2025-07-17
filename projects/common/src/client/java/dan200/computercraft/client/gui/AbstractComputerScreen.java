@@ -126,6 +126,15 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
     }
 
     @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        // Reimplement ContainerEventHandler.mouseScrolled, as AbstractContainerScreen overrides it.
+        var child = getChildAt(mouseX, mouseY);
+        if (child.isPresent() && child.get().mouseScrolled(mouseX, mouseY, scrollX, scrollY)) return true;
+
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
+    @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.render(graphics, mouseX, mouseY, partialTicks);
         renderTooltip(graphics, mouseX, mouseY);
