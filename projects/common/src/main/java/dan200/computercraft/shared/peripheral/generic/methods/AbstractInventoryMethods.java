@@ -81,11 +81,10 @@ public abstract class AbstractInventoryMethods<T> implements GenericPeripheral {
      * recommended to print it out using [`textutils.serialize`] or in the Lua
      * REPL, to explore what is available.
      * <p>
-     * > [Deprecated fields][!INFO]
-     * > Older versions of CC: Tweaked exposed an {@code itemGroups} field, listing the
-     * > creative tabs an item was available under. This information is no longer available on
-     * > more recent versions of the game, and so this field will always be empty. Do not use this
-     * > field in new code!
+     * > [Missing fields][!INFO]
+     * > CC: Tweaked exposes an {@code itemGroups} field, listing the creative tabs an
+     * > item is available under. This information is not available on Minecraft 1.19.3
+     * > to 1.20.3, and so this field will be empty on those versions.
      *
      * @param inventory The current inventory.
      * @param slot      The slot to get information about.
