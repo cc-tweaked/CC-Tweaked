@@ -47,11 +47,11 @@ local function create(...)
     local threads = {}
     local function summon(...)
         local functions = table.pack(...)
-    for i = 1, functions.n, 1 do
-        local fn = functions[i]
-        if type(fn) ~= "function" then
-            error("bad argument #" .. i .. " (function expected, got " .. type(fn) .. ")", 3)
-        end
+        for i = 1, functions.n, 1 do
+            local fn = functions[i]
+            if type(fn) ~= "function" then
+                error("bad argument #" .. i .. " (function expected, got " .. type(fn) .. ")", 3)
+            end
             table.insert(threads, {
                 co = coroutine.create(function() return exception.try_barrier(barrier_ctx, fn, summon) end),
                 filter = nil
@@ -130,7 +130,7 @@ end
 finished. If any of the functions errors, the message is propagated upwards
 from the [`parallel.waitForAll`] call.
 
-@tparam function ... The functions this task will run
+@tparam function(summon: function|nil) ... The functions this task will run
 @usage Start off two timers and wait for them both to run.
 
     local function a()
@@ -143,6 +143,23 @@ from the [`parallel.waitForAll`] call.
     end
 
     parallel.waitForAll(a, b)
+    print("Everything done!")
+
+@usage Start new tasks during execution
+
+    local function b()
+        os.sleep(3)
+        print("B ran!")
+    end
+    local function a(summon)
+        os.sleep(1)
+        for _ = 1, 3 do
+            summon(b)
+        end
+        print("A is done")
+    end
+
+    parallel.waitForAll(a)
     print("Everything done!")
 ]]
 function waitForAll(...)
