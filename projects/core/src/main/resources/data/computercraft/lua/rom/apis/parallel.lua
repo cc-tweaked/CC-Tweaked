@@ -55,7 +55,7 @@ local function create(...)
         for i = 1, functions.n, 1 do
             local fn = functions[i]
             if type(fn) ~= "function" then
-                error("bad argument #" .. i .. " (function expected, got " .. type(fn) .. ")", 3)
+                error("bad argument #" .. i .. " (function expected, got " .. type(fn) .. ")", 4)
             end
             table.insert(threads, {
                 co = coroutine.create(function() return exception.try_barrier(barrier_ctx, fn, summon) end),
