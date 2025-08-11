@@ -30,13 +30,35 @@ describe("The parallel library", function()
             expect(entries):same({ "first", "second", "yield" })
         end)
 
+        it("can summon new functions", function()
+            local entries = {}
+            local function a()
+                entries[#entries + 1] = "a"
+                local s = coroutine.yield()
+                entries[#entries + 1] = s
+            end
+            local function b(summon)
+                entries[#entries + 1] = "b"
+                summon(a)
+                local s = coroutine.yield()
+                entries[#entries + 1] = s
+                summon(a)
+            end
+            os.queueEvent("yield")
+            os.queueEvent("yield")
+            parallel.waitForAny(b)
+            expect(entries):same({ "b", "a", "yield" })
+        end)
+
         it("accepts an arbitrary number of functions", function()
             local count = 0
             local fns = {}
-            for i = 1, 50 do fns[i] = function()
-                count = count + 1
-                coroutine.yield()
-            end end
+            for i = 1, 50 do
+                fns[i] = function()
+                    count = count + 1
+                    coroutine.yield()
+                end
+            end
             os.queueEvent("dummy")
             parallel.waitForAny(table.unpack(fns))
             expect(count):eq(50)
@@ -91,13 +113,35 @@ describe("The parallel library", function()
             expect(entries):same({ "first", "second", "yield", "yield" })
         end)
 
+        it("can summon new functions", function()
+            local entries = {}
+            local function a()
+                entries[#entries + 1] = "a"
+                local s = coroutine.yield()
+                entries[#entries + 1] = s
+            end
+            local function b(summon)
+                entries[#entries + 1] = "b"
+                summon(a)
+                local s = coroutine.yield()
+                entries[#entries + 1] = s
+                summon(a)
+            end
+            os.queueEvent("yield")
+            os.queueEvent("yield")
+            parallel.waitForAll(b)
+            expect(entries):same({ "b", "a", "yield", "yield", "a", "yield" })
+        end)
+
         it("accepts an arbitrary number of functions", function()
             local count = 0
             local fns = {}
-            for i = 1, 50 do fns[i] = function()
-                count = count + 1
-                coroutine.yield()
-            end end
+            for i = 1, 50 do
+                fns[i] = function()
+                    count = count + 1
+                    coroutine.yield()
+                end
+            end
             os.queueEvent("dummy")
             parallel.waitForAll(table.unpack(fns))
             expect(count):eq(50)
