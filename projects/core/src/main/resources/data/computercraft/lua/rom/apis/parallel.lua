@@ -45,6 +45,11 @@ local function create(...)
     local barrier_ctx = { co = coroutine.running() }
 
     local threads = {}
+    -- TODO: After-the-fact summoning does not let the user modify the order in
+    -- which later tasks are executed in. This may be a consideration for later,
+    -- although I don't think it's a big deal. This should not replace libraries
+    -- for parallel execution, but instead provide tools for low-requirement
+    -- scripts to do some after-the-fact parallelism without third party code.
     local function summon(...)
         local functions = table.pack(...)
         for i = 1, functions.n, 1 do
