@@ -44,28 +44,33 @@ local exception = dofile("rom/modules/main/cc/internal/tiny_require.lua")("cc.in
 local function create(...)
     local barrier_ctx = { co = coroutine.running() }
 
-    local functions = table.pack(...)
     local threads = {}
+    local function summon(...)
+        local functions = table.pack(...)
     for i = 1, functions.n, 1 do
         local fn = functions[i]
         if type(fn) ~= "function" then
             error("bad argument #" .. i .. " (function expected, got " .. type(fn) .. ")", 3)
         end
-
-        threads[i] = { co = coroutine.create(function() return exception.try_barrier(barrier_ctx, fn) end), filter = nil }
+            table.insert(threads, {
+                co = coroutine.create(function() return exception.try_barrier(barrier_ctx, fn, summon) end),
+                filter = nil
+            })
+        end
     end
+    summon(...)
 
     return threads
 end
 
-local function runUntilLimit(threads, limit)
-    local count = #threads
-    if count < 1 then return 0 end
-    local living = count
+local function run(threads, mustAllDead)
+    if #threads < 1 then return 0 end
+    local dead = 0
 
     local event = { n = 0 }
     while true do
-        for i = 1, count do
+        local i = 1
+        while i <= #threads do
             local thread = threads[i]
             if thread and (thread.filter == nil or thread.filter == event[1] or event[1] == "terminate") then
                 local ok, param = coroutine.resume(thread.co, table.unpack(event, 1, event.n))
@@ -79,12 +84,14 @@ local function runUntilLimit(threads, limit)
 
                 if coroutine.status(thread.co) == "dead" then
                     threads[i] = false
-                    living = living - 1
-                    if living <= limit then
+                    dead = dead + 1
+                    if (mustAllDead and dead == #threads) or
+                        (not mustAllDead and dead > 0) then
                         return i
                     end
                 end
             end
+            i = i + 1
         end
 
         event = table.pack(os.pullEventRaw())
@@ -95,7 +102,7 @@ end
 finishes. If any of the functions errors, the message is propagated upwards
 from the [`parallel.waitForAny`] call.
 
-@tparam function ... The functions this task will run
+@tparam function(summon: function|nil) ... The functions this task will run
 @usage Print a message every second until the `q` key is pressed.
 
     local function tick()
@@ -116,7 +123,7 @@ from the [`parallel.waitForAny`] call.
 ]]
 function waitForAny(...)
     local threads = create(...)
-    return runUntilLimit(threads, #threads - 1)
+    return run(threads, false)
 end
 
 --[[- Switches between execution of the functions, until all of them are
@@ -140,5 +147,5 @@ from the [`parallel.waitForAll`] call.
 ]]
 function waitForAll(...)
     local threads = create(...)
-    return runUntilLimit(threads, 0)
+    return run(threads, true)
 end
