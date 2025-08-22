@@ -221,9 +221,11 @@ public class TurtleAPI implements ILuaAPI {
      * @param args Arguments to place.
      * @return The turtle command result.
      * @cc.tparam [opt] string text When placing a sign, set its contents to this text.
+     * @cc.tparam [opt] string ... Multiple orientation parameters: "north", "south", "east", "west" for absolute direction, "left", "right", "back" for relative direction, "up"/"down" for face clicking, "face_up"/"face_down" for vertical facing, "top"/"bottom" for slabs, "upside_down" for stairs, "ground" for torches on floor. Can combine multiple parameters.
      * @cc.treturn boolean Whether the block could be placed.
      * @cc.treturn string|nil The reason the block was not placed.
      * @cc.since 1.4
+     * @cc.changed 1.116.1 Added optional orientation parameters for controlling block rotation and positioning. Multiple parameters can be combined.
      */
     @LuaFunction
     public final MethodResult place(IArguments args) throws LuaException {
