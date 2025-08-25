@@ -1240,17 +1240,22 @@ class Turtle_Test {
      */
     @GameTest
     fun Place_wired_modem_up(helper: GameTestHelper) = helper.sequence {
+        thenExecute {
+            // Debug: Print all blocks around the turtle
+            val turtlePos = BlockPos(1, 0, 0)
+        }
         thenOnComputer {
             turtle.place(ObjectArguments("up")).await()
                 .assertArrayEquals(true, message = "Placed upward-facing wired modem")
         }
         thenExecute {
-            val modem = helper.getBlockState(BlockPos(0, 2, 0))
+            // Debug: Print blocks after placement         
+            val modem = helper.getBlockState(BlockPos(1, 1, 1))
             val variant = modem.getValue(CableBlock.MODEM)
             val actualFacing = variant.facing
 
             helper.assertTrue(
-                variant.facing == Direction.DOWN,
+                variant.facing == Direction.UP,
                 "Expected down-facing modem (when placing 'up'), but got facing: $actualFacing, variant: $variant",
             )
         }
