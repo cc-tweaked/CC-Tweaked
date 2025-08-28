@@ -16,7 +16,7 @@ import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
-import dan200.computercraft.api.turtle.TurtleOrientationProvider;
+import dan200.computercraft.api.turtle.TurtleOrientationProvider.OrientationParameters;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
