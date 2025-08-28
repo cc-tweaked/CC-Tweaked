@@ -990,84 +990,13 @@ class Turtle_Test {
     }
 
     /**
-     * Test placing furnace facing north.
-     */
-    @GameTest
-    fun Place_north(helper: GameTestHelper) = helper.sequence {
-        thenOnComputer {
-            turtle.place(ObjectArguments("north")).await()
-                .assertArrayEquals(true, message = "Placed furnace facing north")
-        }
-        thenExecute {
-            val furnace = helper.getBlockState(BlockPos(2, 2, 1))
-            helper.assertTrue(
-                furnace.getValue(BlockStateProperties.HORIZONTAL_FACING) == Direction.NORTH,
-                "Furnace should face north",
-            )
-        }
-    }
-
-    /**
-     * Test placing furnace facing south.
-     */
-    @GameTest
-    fun Place_south(helper: GameTestHelper) = helper.sequence {
-        thenOnComputer {
-            turtle.place(ObjectArguments("south")).await()
-                .assertArrayEquals(true, message = "Placed furnace facing south")
-        }
-        thenExecute {
-            val furnace = helper.getBlockState(BlockPos(2, 2, 1))
-            helper.assertTrue(
-                furnace.getValue(BlockStateProperties.HORIZONTAL_FACING) == Direction.SOUTH,
-                "Furnace should face south",
-            )
-        }
-    }
-
-    /**
-     * Test placing furnace facing east.
-     */
-    @GameTest
-    fun Place_east(helper: GameTestHelper) = helper.sequence {
-        thenOnComputer {
-            turtle.place(ObjectArguments("east")).await()
-                .assertArrayEquals(true, message = "Placed furnace facing east")
-        }
-        thenExecute {
-            val furnace = helper.getBlockState(BlockPos(2, 2, 1))
-            helper.assertTrue(
-                furnace.getValue(BlockStateProperties.HORIZONTAL_FACING) == Direction.EAST,
-                "Furnace should face east",
-            )
-        }
-    }
-
-    /**
-     * Test placing furnace facing west.
-     */
-    @GameTest
-    fun Place_west(helper: GameTestHelper) = helper.sequence {
-        thenOnComputer {
-            turtle.place(ObjectArguments("west")).await()
-                .assertArrayEquals(true, message = "Placed furnace facing west")
-        }
-        thenExecute {
-            val furnace = helper.getBlockState(BlockPos(2, 2, 1))
-            helper.assertTrue(
-                furnace.getValue(BlockStateProperties.HORIZONTAL_FACING) == Direction.WEST,
-                "Furnace should face west",
-            )
-        }
-    }
-
-    /**
      * Test placing slab on top half.
      */
     @GameTest
     fun Place_slab_top(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            turtle.place(ObjectArguments("top")).await()
+            val placementOptions = mapOf("position" to "top")
+            turtle.place(ObjectArguments(placementOptions)).await()
                 .assertArrayEquals(true, message = "Placed top slab")
         }
         thenExecute {
@@ -1085,7 +1014,8 @@ class Turtle_Test {
     @GameTest
     fun Place_slab_bottom(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            turtle.place(ObjectArguments("bottom")).await()
+            val placementOptions = mapOf("position" to "bottom")
+            turtle.place(ObjectArguments(placementOptions)).await()
                 .assertArrayEquals(true, message = "Placed bottom slab")
         }
         thenExecute {
@@ -1103,7 +1033,8 @@ class Turtle_Test {
     @GameTest
     fun Place_upside_down_stairs(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            turtle.place(ObjectArguments("upside_down")).await()
+            val placementOptions = mapOf("position" to "top")
+            turtle.place(ObjectArguments(placementOptions)).await()
                 .assertArrayEquals(true, message = "Placed upside-down stairs")
         }
         thenExecute {
@@ -1121,7 +1052,8 @@ class Turtle_Test {
     @GameTest
     fun Place_multi_parameter_stairs(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            turtle.place(ObjectArguments("north", "upside_down")).await()
+            val placementOptions = mapOf("facing" to "forward", "position" to "top")
+            turtle.place(ObjectArguments(placementOptions)).await()
                 .assertArrayEquals(true, message = "Placed north-facing upside-down stairs")
         }
         thenExecute {
@@ -1140,7 +1072,8 @@ class Turtle_Test {
     @GameTest
     fun Place_torch_ground(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            turtle.place(ObjectArguments("ground")).await()
+            val placementOptions = mapOf("position" to "ground")
+            turtle.place(ObjectArguments(placementOptions)).await()
                 .assertArrayEquals(true, message = "Placed ground torch")
         }
         thenExecute {
@@ -1153,38 +1086,13 @@ class Turtle_Test {
     }
 
     /**
-     * Test placing torch on north wall.
-     */
-    @GameTest
-    fun Place_torch_wall_north(helper: GameTestHelper) = helper.sequence {
-        thenOnComputer {
-            turtle.place(ObjectArguments("north")).await()
-                .assertArrayEquals(true, message = "Placed north wall torch")
-        }
-        thenExecute {
-            val torch = helper.getBlockState(BlockPos(2, 2, 1))
-            val blockType = torch.block
-            val facing = if (torch.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-                torch.getValue(BlockStateProperties.HORIZONTAL_FACING)
-            } else {
-                null
-            }
-
-            helper.assertTrue(
-                torch.block == Blocks.WALL_TORCH &&
-                    torch.getValue(BlockStateProperties.HORIZONTAL_FACING) == Direction.NORTH,
-                "Expected north wall torch, but got block: $blockType, facing: $facing",
-            )
-        }
-    }
-
-    /**
      * Test placing shulker box facing up.
      */
     @GameTest
     fun Place_shulker_box_up(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            turtle.place(ObjectArguments("face_up")).await()
+            val placementOptions = mapOf("facing" to "up")
+            turtle.place(ObjectArguments(placementOptions)).await()
                 .assertArrayEquals(true, message = "Placed upward-facing shulker box")
         }
         thenExecute {
@@ -1202,7 +1110,8 @@ class Turtle_Test {
     @GameTest
     fun Place_shulker_box_down(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            turtle.place(ObjectArguments("face_down")).await()
+            val placementOptions = mapOf("facing" to "down")
+            turtle.place(ObjectArguments(placementOptions)).await()
                 .assertArrayEquals(true, message = "Placed downward-facing shulker box")
         }
         thenExecute {
@@ -1215,70 +1124,45 @@ class Turtle_Test {
     }
 
     /**
-     * Test placing wired modem facing north.
-     */
-    @GameTest
-    fun Place_wired_modem_north(helper: GameTestHelper) = helper.sequence {
-        thenOnComputer {
-            turtle.place(ObjectArguments("north")).await()
-                .assertArrayEquals(true, message = "Placed north-facing wired modem")
-        }
-        thenExecute {
-            val modem = helper.getBlockState(BlockPos(2, 2, 1))
-            val variant = modem.getValue(CableBlock.MODEM)
-            val actualFacing = variant.facing
-
-            helper.assertTrue(
-                variant.facing == Direction.NORTH,
-                "Expected north-facing modem, but got facing: $actualFacing, variant: $variant",
-            )
-        }
-    }
-
-    /**
      * Test placing wired modem facing up.
      */
     @GameTest
-    fun Place_wired_modem_up(helper: GameTestHelper) = helper.sequence {
-        thenExecute {
-            // Debug: Print all blocks around the turtle
-            val turtlePos = BlockPos(1, 0, 0)
-        }
+    fun Place_wired_modem_facing_up(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            turtle.place(ObjectArguments("up")).await()
+            val placementOptions = mapOf("facing" to "up")
+            turtle.place(ObjectArguments(placementOptions)).await()
                 .assertArrayEquals(true, message = "Placed upward-facing wired modem")
         }
         thenExecute {
-            // Debug: Print blocks after placement         
-            val modem = helper.getBlockState(BlockPos(1, 1, 1))
-            val variant = modem.getValue(CableBlock.MODEM)
-            val actualFacing = variant.facing
-
+            val modem = helper.getBlockEntity(BlockPos(1, 2, 1), ModRegistry.BlockEntities.CABLE.get())
+            val state = modem.getBlockState()
+            val variant = state.getValue(CableBlock.MODEM)
             helper.assertTrue(
-                variant.facing == Direction.UP,
-                "Expected down-facing modem (when placing 'up'), but got facing: $actualFacing, variant: $variant",
+                variant == CableModemVariant.DownOff,
+                "Expected down_off (when placing 'up'), but got: variant: $variant",
             )
         }
     }
 
     /**
-     * Test placing log with north orientation (Z-axis).
+     * Test placing log forward (Z-axis).
      */
     @GameTest
-    fun Place_log_north(helper: GameTestHelper) = helper.sequence {
+    fun Place_log_forward(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            turtle.place(ObjectArguments("north")).await()
+            val placementOptions = mapOf("facing" to "forward")
+            turtle.place(ObjectArguments(placementOptions)).await()
                 .assertArrayEquals(true, message = "Placed log facing north")
         }
         thenExecute {
             val log = helper.getBlockState(BlockPos(2, 2, 1))
             helper.assertTrue(
                 log.block == Blocks.OAK_LOG,
-                "Should place oak log, but got: ${log.block}"
+                "Should place oak log, but got: ${log.block}",
             )
             helper.assertTrue(
                 log.getValue(BlockStateProperties.AXIS) == Direction.Axis.Z,
-                "Log should have Z-axis orientation (north/south)"
+                "Log should have Z-axis orientation (north/south)",
             )
         }
     }
@@ -1287,20 +1171,21 @@ class Turtle_Test {
      * Test placing log with west orientation (X-axis).
      */
     @GameTest
-    fun Place_log_west(helper: GameTestHelper) = helper.sequence {
+    fun Place_log_left(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            turtle.place(ObjectArguments("west")).await()
+            val placementOptions = mapOf("facing" to "left")
+            turtle.place(ObjectArguments(placementOptions)).await()
                 .assertArrayEquals(true, message = "Placed log facing west")
         }
         thenExecute {
             val log = helper.getBlockState(BlockPos(2, 2, 1))
             helper.assertTrue(
                 log.block == Blocks.OAK_LOG,
-                "Should place oak log, but got: ${log.block}"
+                "Should place oak log, but got: ${log.block}",
             )
             helper.assertTrue(
                 log.getValue(BlockStateProperties.AXIS) == Direction.Axis.X,
-                "Log should have X-axis orientation (east/west)"
+                "Log should have X-axis orientation (east/west)",
             )
         }
     }
@@ -1311,18 +1196,19 @@ class Turtle_Test {
     @GameTest
     fun Place_log_up(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            turtle.place(ObjectArguments("up")).await()
+            val placementOptions = mapOf("facing" to "up")
+            turtle.place(ObjectArguments(placementOptions)).await()
                 .assertArrayEquals(true, message = "Placed log facing up")
         }
         thenExecute {
             val log = helper.getBlockState(BlockPos(2, 2, 1))
             helper.assertTrue(
                 log.block == Blocks.OAK_LOG,
-                "Should place oak log, but got: ${log.block}"
+                "Should place oak log, but got: ${log.block}",
             )
             helper.assertTrue(
                 log.getValue(BlockStateProperties.AXIS) == Direction.Axis.Y,
-                "Log should have Y-axis orientation (up/down)"
+                "Log should have Y-axis orientation (up/down)",
             )
         }
     }
@@ -1333,15 +1219,16 @@ class Turtle_Test {
     @GameTest
     fun Place_relative_left(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            turtle.place(ObjectArguments("left")).await()
+            val placementOptions = mapOf("facing" to "left")
+            turtle.place(ObjectArguments(placementOptions)).await()
                 .assertArrayEquals(true, message = "Placed furnace facing left")
         }
         thenExecute {
             val furnace = helper.getBlockState(BlockPos(2, 2, 1))
-            // Turtle faces north, so left should be east
+            // Turtle faces north, so left should be west
             helper.assertTrue(
-                furnace.getValue(BlockStateProperties.HORIZONTAL_FACING) == Direction.EAST,
-                "Furnace should face east (left from turtle's north perspective)"
+                furnace.getValue(BlockStateProperties.HORIZONTAL_FACING) == Direction.WEST,
+                "Furnace should face east (left from turtle's north perspective)",
             )
         }
     }
@@ -1352,19 +1239,19 @@ class Turtle_Test {
     @GameTest
     fun Place_relative_right(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            turtle.place(ObjectArguments("right")).await()
+            val placementOptions = mapOf("facing" to "right")
+            turtle.place(ObjectArguments(placementOptions)).await()
                 .assertArrayEquals(true, message = "Placed furnace facing right")
         }
         thenExecute {
             val furnace = helper.getBlockState(BlockPos(2, 2, 1))
-            // Turtle faces north, so right should be west
+            // Turtle faces north, so right should be east
             helper.assertTrue(
-                furnace.getValue(BlockStateProperties.HORIZONTAL_FACING) == Direction.WEST,
-                "Furnace should face west (right from turtle's north perspective)"
+                furnace.getValue(BlockStateProperties.HORIZONTAL_FACING) == Direction.EAST,
+                "Furnace should face west (right from turtle's north perspective)",
             )
         }
     }
-
 
     /**
      * Render turtles as an item.

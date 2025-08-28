@@ -19,6 +19,7 @@ import dan200.computercraft.api.network.wired.WiredNode;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.redstone.BundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleAccess;
+import dan200.computercraft.api.turtle.TurtleOrientationProvider;
 import dan200.computercraft.api.turtle.TurtleRefuelHandler;
 import dan200.computercraft.impl.ComputerCraftAPIService;
 import net.minecraft.core.BlockPos;
@@ -201,6 +202,18 @@ public final class ComputerCraftAPI {
      */
     public static void registerRefuelHandler(TurtleRefuelHandler handler) {
         getInstance().registerRefuelHandler(handler);
+    }
+
+    /**
+     * Register an orientation provider for custom block placement transformations.
+     * This allows mod authors to define how their blocks should be oriented when
+     * turtles place them with directional parameters.
+     *
+     * @param provider The orientation provider to register.
+     * @see TurtleOrientationProvider
+     */
+    public static void registerOrientationProvider(TurtleOrientationProvider provider) {
+        getInstance().registerOrientationProvider(provider);
     }
 
     private static ComputerCraftAPIService getInstance() {

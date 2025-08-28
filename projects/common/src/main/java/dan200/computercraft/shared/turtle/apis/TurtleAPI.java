@@ -13,8 +13,10 @@ import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.shared.peripheral.generic.methods.AbstractInventoryMethods;
 import dan200.computercraft.shared.turtle.core.*;
+import net.minecraft.core.Direction;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -221,15 +223,19 @@ public class TurtleAPI implements ILuaAPI {
      * @param args Arguments to place.
      * @return The turtle command result.
      * @cc.tparam [opt] string text When placing a sign, set its contents to this text.
-     * @cc.tparam [opt] string ... Multiple orientation parameters: "north", "south", "east", "west" for absolute direction, "left", "right", "back" for relative direction, "up"/"down" for face clicking, "face_up"/"face_down" for vertical facing, "top"/"bottom" for slabs, "upside_down" for stairs, "ground" for torches on floor. Can combine multiple parameters.
+     * @cc.tparam [opt] table options Table with placement options: { facing = "left", position = "top", text = "Hello" }. 
+     * The "facing" field can be a string of a relative direction left, right, up, down, forward, backward. 
+     * The "position" field sets slab/stair positioning/upside down with top ("upsidedown"), bottom as well as ground for torch like items that shouldnt be placed on a wall. 
+     * The "text" field sets sign text.
+     * if you just pass a string it is passed like it normally would be to a sign.
      * @cc.treturn boolean Whether the block could be placed.
      * @cc.treturn string|nil The reason the block was not placed.
      * @cc.since 1.4
-     * @cc.changed 1.116.1 Added optional orientation parameters for controlling block rotation and positioning. Multiple parameters can be combined.
+     * @cc.changed 1.116.1 Added table-based placement options for cleaner API usage.
      */
     @LuaFunction
     public final MethodResult place(IArguments args) throws LuaException {
-        return trackCommand(new TurtlePlaceCommand(InteractDirection.FORWARD, args.getAll()));
+        return trackCommand(new TurtlePlaceCommand(InteractDirection.FORWARD, parseArgumentsToParameters(args)));
     }
 
     /**
@@ -245,7 +251,7 @@ public class TurtleAPI implements ILuaAPI {
      */
     @LuaFunction
     public final MethodResult placeUp(IArguments args) throws LuaException {
-        return trackCommand(new TurtlePlaceCommand(InteractDirection.UP, args.getAll()));
+        return trackCommand(new TurtlePlaceCommand(InteractDirection.UP, parseArgumentsToParameters(args)));
     }
 
     /**
@@ -261,7 +267,7 @@ public class TurtleAPI implements ILuaAPI {
      */
     @LuaFunction
     public final MethodResult placeDown(IArguments args) throws LuaException {
-        return trackCommand(new TurtlePlaceCommand(InteractDirection.DOWN, args.getAll()));
+        return trackCommand(new TurtlePlaceCommand(InteractDirection.DOWN, parseArgumentsToParameters(args)));
     }
 
     /**
@@ -825,5 +831,116 @@ public class TurtleAPI implements ILuaAPI {
         int count = countArg.orElse(64);
         if (count < 0 || count > 64) throw new LuaException("Item count " + count + " out of range");
         return count;
+    }
+
+    /**
+     * Parse table and string based arguments for turtle.place
+     * returning structured PlacementParameters.
+     */
+    private TurtlePlaceCommand.PlacementParameters parseArgumentsToParameters(IArguments args) throws LuaException {
+        if (args.count() == 0) {
+            return new TurtlePlaceCommand.PlacementParameters(null, null, false, false, null, null);
+        }
+
+        // Check if first argument is a table
+        var firstArg = args.get(0);
+        if (firstArg instanceof Map<?, ?> table) {
+            return parseTableToParameters(table);
+        }
+
+        // Default sign handling
+        return new TurtlePlaceCommand.PlacementParameters(null, null, false, false, null, args.getString(0));
+    }
+
+    private TurtlePlaceCommand.PlacementParameters parseTableToParameters(Map<?, ?> table) throws LuaException {
+        Direction blockFacing = null;
+        Boolean isTop = null;
+        boolean isUpsideDown = false;
+        boolean isGroundAttachment = false;
+        Direction clickFace = null;
+        String signText = null;
+
+        // Handle "text" field for signs
+        if (table.containsKey("text")) {
+            var text = table.get("text");
+            if (text instanceof String string) {
+                signText = string;
+            } else {
+                throw new LuaException("Expected string value for 'text' field");
+            }
+        }
+
+        // Handle "facing" field
+        if (table.containsKey("facing")) {
+            var facing = table.get("facing");
+            if (facing instanceof String string) {
+                var parsed = parseDirectionParameter(string);
+                blockFacing = parsed.blockFacing;
+                if (parsed.isUpsideDown) isUpsideDown = true;
+                if (parsed.clickFace != null) clickFace = parsed.clickFace;
+                if (parsed.isGroundAttachment) isGroundAttachment = true;
+            } else {
+                throw new LuaException("Expected string value for 'facing' field");
+            }
+        }
+
+        // Handle "position" field for slabs/stairs
+        if (table.containsKey("position")) {
+            var position = table.get("position");
+            if (position instanceof String posStr) {
+                switch (posStr.toLowerCase(Locale.ROOT)) {
+                    // top is reused here, it can set both itTop and isUpsideDown since blocks that would use these should'nt be affected by ones it doesnt use.
+                    case "top" -> {
+                        isTop = true;
+                        isUpsideDown = true;
+                    }
+                    // included for completeness but this is the default behaviour, remove?
+                    case "bottom" -> isTop = false;
+                    //torch like item specific so that it isnt placed against a wall.
+                    case "ground" -> isGroundAttachment = true;
+                    default -> throw new LuaException("Unknown position value: " + posStr);
+                }
+            } else {
+                throw new LuaException("Expected string value for 'position' field");
+            }
+        }
+
+        return new TurtlePlaceCommand.PlacementParameters(blockFacing, isTop, isUpsideDown, isGroundAttachment, clickFace, signText);
+    }
+
+    private record ParsedDirection(
+        @Nullable Direction blockFacing,
+        @Nullable Boolean isTop,
+        boolean isUpsideDown,
+        boolean isGroundAttachment,
+        @Nullable Direction clickFace
+    ) {}
+
+    private ParsedDirection parseDirectionParameter(String orientation) {
+        Direction blockFacing = null;
+        Boolean isTop = null;
+        boolean isUpsideDown = false;
+        boolean isGroundAttachment = false;
+        Direction clickFace = null;
+
+        switch (orientation.toLowerCase(Locale.ROOT)) {
+            case "up" -> {
+                clickFace = Direction.DOWN;
+                blockFacing = Direction.UP;
+            }
+            case "down" -> {
+                clickFace = Direction.UP;
+                blockFacing = Direction.DOWN;
+            }
+            case "forward" -> blockFacing = turtle.getDirection();
+            case "left" -> blockFacing = turtle.getDirection().getCounterClockWise();
+            case "right" -> blockFacing = turtle.getDirection().getClockWise();
+            case "back", "backward" -> blockFacing = turtle.getDirection().getOpposite();
+            case "top" -> isTop = true;
+            case "bottom" -> isTop = false;
+            case "ground" -> isGroundAttachment = true;
+        }
+
+        return new ParsedDirection(blockFacing, isTop, isUpsideDown, isGroundAttachment, clickFace);
     }
 }

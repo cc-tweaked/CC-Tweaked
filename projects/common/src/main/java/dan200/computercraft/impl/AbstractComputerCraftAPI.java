@@ -17,6 +17,7 @@ import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.network.wired.WiredNode;
 import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.redstone.BundledRedstoneProvider;
+import dan200.computercraft.api.turtle.TurtleOrientationProvider;
 import dan200.computercraft.api.turtle.TurtleRefuelHandler;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.core.filesystem.WritableFileMount;
@@ -110,6 +111,11 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     @Override
     public final void registerRefuelHandler(TurtleRefuelHandler handler) {
         TurtleRefuelHandlers.register(handler);
+    }
+
+    @Override
+    public final void registerOrientationProvider(TurtleOrientationProvider provider) {
+        TurtleOrientationProviders.register(provider);
     }
 
     @Override

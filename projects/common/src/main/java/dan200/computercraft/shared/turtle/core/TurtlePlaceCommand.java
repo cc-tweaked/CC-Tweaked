@@ -10,11 +10,13 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
+import dan200.computercraft.impl.TurtleOrientationProviders;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
+import dan200.computercraft.api.turtle.TurtleOrientationProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -40,12 +42,21 @@ import org.jspecify.annotations.Nullable;
 
 public class TurtlePlaceCommand implements TurtleCommand {
     private final InteractDirection direction;
-    private final Object[] extraArguments;
+    private final PlacementParameters parameters;
 
-    public TurtlePlaceCommand(InteractDirection direction, Object[] arguments) {
+    public TurtlePlaceCommand(InteractDirection direction, PlacementParameters parameters) {
         this.direction = direction;
-        extraArguments = arguments;
+        this.parameters = parameters;
     }
+
+    public record PlacementParameters(
+        @Nullable Direction blockFacing,
+        @Nullable Boolean isTop,
+        boolean isUpsideDown,
+        boolean isGroundAttachment,
+        @Nullable Direction clickFace,
+        @Nullable String signText
+    ) {}
 
     @Override
     public TurtleCommandResult execute(ITurtleAccess turtle) {
@@ -63,7 +74,7 @@ public class TurtlePlaceCommand implements TurtleCommand {
         // Do the deploying
         turtlePlayer.loadInventory(turtle);
         var message = new ErrorMessage();
-        var result = deploy(stack, turtle, turtlePlayer, direction, extraArguments, message);
+        var result = deploy(stack, turtle, turtlePlayer, direction, parameters, message);
         turtlePlayer.unloadInventory(turtle);
         if (result) {
             // Animate and return success
@@ -78,53 +89,63 @@ public class TurtlePlaceCommand implements TurtleCommand {
 
     private static boolean deploy(
         ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, Direction direction,
-        @Nullable Object[] extraArguments, @Nullable ErrorMessage outErrorMessage
+        PlacementParameters parameters, @Nullable ErrorMessage outErrorMessage
     ) {
-        // Parse orientation parameters once
-        var orientationParams = parseOrientationParameters(extraArguments, turtle.getDirection());
-        
         // Deploy on an entity
         if (deployOnEntity(turtle, turtlePlayer)) return true;
 
         var position = turtle.getPosition();
         var newPosition = position.relative(direction);
 
-        if (orientationParams.isGroundAttachment) {
+        if (parameters.isGroundAttachment()) {
             // For ground torches, try to place on top of the block below first
-            return (direction.getAxis() != Direction.Axis.Y && deployOnBlock(stack, turtle, turtlePlayer, newPosition.below(), Direction.UP, orientationParams, extraArguments, false, outErrorMessage))
+            return (direction.getAxis() != Direction.Axis.Y && deployOnBlock(stack, turtle, turtlePlayer, newPosition.below(), Direction.UP, parameters, false, outErrorMessage))
                 // Then try normal placement if that fails
-                || deployOnBlock(stack, turtle, turtlePlayer, newPosition, direction.getOpposite(), orientationParams, extraArguments, true, outErrorMessage)
-                || deployOnBlock(stack, turtle, turtlePlayer, newPosition.relative(direction), direction.getOpposite(), orientationParams, extraArguments, false, outErrorMessage)
-                || deployOnBlock(stack, turtle, turtlePlayer, position, direction, orientationParams, extraArguments, false, outErrorMessage);
+                || deployOnBlock(stack, turtle, turtlePlayer, newPosition, direction.getOpposite(), parameters, true, outErrorMessage)
+                || deployOnBlock(stack, turtle, turtlePlayer, newPosition.relative(direction), direction.getOpposite(), parameters, false, outErrorMessage)
+                || deployOnBlock(stack, turtle, turtlePlayer, position, direction, parameters, false, outErrorMessage);
         } else {
-            if (orientationParams.clickFace != null) {
+            if (parameters.clickFace() != null) {
                 // Click on the specified face of the front block
-                var targetPos = newPosition.relative(orientationParams.clickFace);
-                if (deployOnBlock(stack, turtle, turtlePlayer, targetPos, orientationParams.clickFace.getOpposite(), orientationParams, extraArguments, false, outErrorMessage)) {
+                var targetPos = newPosition.relative(parameters.clickFace());
+                if (deployOnBlock(stack, turtle, turtlePlayer, targetPos, parameters.clickFace().getOpposite(), parameters, false, outErrorMessage)) {
                     return true;
                 }
                 // If that fails, fall back to normal placement
-            } else if (orientationParams.blockFacing != null) {
-                // For directional placement, try to click on the face opposite to the desired direction
-                var clickFace = orientationParams.blockFacing.getOpposite();
-                var clickPos = newPosition.relative(clickFace);
-
-                // Try placing by clicking the appropriate face
-                if (deployOnBlock(stack, turtle, turtlePlayer, clickPos, clickFace.getOpposite(), orientationParams, extraArguments, false, outErrorMessage)) {
-                    return true;
+            } else if (parameters.blockFacing() != null) {
+                // For directional placement, try different placement strategies
+                if (parameters.blockFacing() == Direction.UP) {
+                    // For upward facing (like dispensers facing up), click on the bottom of the block above
+                    var clickPos = newPosition.above();
+                    if (deployOnBlock(stack, turtle, turtlePlayer, clickPos, Direction.DOWN, parameters, false, outErrorMessage)) {
+                        return true;
+                    }
+                } else if (parameters.blockFacing() == Direction.DOWN) {
+                    // For downward facing, click on the top of the block below
+                    var clickPos = newPosition.below();
+                    if (deployOnBlock(stack, turtle, turtlePlayer, clickPos, Direction.UP, parameters, false, outErrorMessage)) {
+                        return true;
+                    }
+                } else {
+                    // For horizontal directions, try to click on the face opposite to the desired direction
+                    var clickFace = parameters.blockFacing().getOpposite();
+                    var clickPos = newPosition.relative(clickFace);
+                    if (deployOnBlock(stack, turtle, turtlePlayer, clickPos, clickFace.getOpposite(), parameters, false, outErrorMessage)) {
+                        return true;
+                    }
                 }
                 // If that fails, fall back to normal placement
             }
 
             // Try to deploy against a block. Tries the following options:
             //     Deploy on the block immediately in front
-            return deployOnBlock(stack, turtle, turtlePlayer, newPosition, direction.getOpposite(), orientationParams, extraArguments, true, outErrorMessage)
+            return deployOnBlock(stack, turtle, turtlePlayer, newPosition, direction.getOpposite(), parameters, true, outErrorMessage)
                 // Deploy on the block one block away
-                || deployOnBlock(stack, turtle, turtlePlayer, newPosition.relative(direction), direction.getOpposite(), orientationParams, extraArguments, false, outErrorMessage)
+                || deployOnBlock(stack, turtle, turtlePlayer, newPosition.relative(direction), direction.getOpposite(), parameters, false, outErrorMessage)
                 // Deploy down on the block in front
-                || (direction.getAxis() != Direction.Axis.Y && deployOnBlock(stack, turtle, turtlePlayer, newPosition.below(), Direction.UP, orientationParams, extraArguments, false, outErrorMessage))
+                || (direction.getAxis() != Direction.Axis.Y && deployOnBlock(stack, turtle, turtlePlayer, newPosition.below(), Direction.UP, parameters, false, outErrorMessage))
                 // Deploy back onto the turtle
-                || deployOnBlock(stack, turtle, turtlePlayer, position, direction, orientationParams, extraArguments, false, outErrorMessage);
+                || deployOnBlock(stack, turtle, turtlePlayer, position, direction, parameters, false, outErrorMessage);
         }
     }
 
@@ -191,18 +212,18 @@ public class TurtlePlaceCommand implements TurtleCommand {
 
     private static boolean deployOnBlock(
         ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, BlockPos position, Direction side,
-        OrientationParameters orientationParams, @Nullable Object[] extraArguments, boolean adjacent, @Nullable ErrorMessage outErrorMessage
+        PlacementParameters parameters, boolean adjacent, @Nullable ErrorMessage outErrorMessage
     ) {
         // Re-orient the fake player
         var playerDir = side.getOpposite();
         var playerPosition = position.relative(side);
 
         // If we found a valid directional orientation, adjust player direction for directional blocks
-        if (orientationParams.blockFacing != null) {
+        if (parameters.blockFacing() != null) {
             // For horizontal directions, face the opposite direction
             // For vertical directions (up/down), keep the original side direction
-            if (orientationParams.blockFacing.getAxis() != Direction.Axis.Y) {
-                playerDir = orientationParams.blockFacing.getOpposite();
+            if (parameters.blockFacing().getAxis() != Direction.Axis.Y) {
+                playerDir = parameters.blockFacing().getOpposite();
             }
             // For up/down, we keep the original playerDir since turtle's orientation doesn't affect vertical facing
         }
@@ -219,10 +240,10 @@ public class TurtlePlaceCommand implements TurtleCommand {
         var item = stack.getItem();
         var existingTile = turtle.getLevel().getBlockEntity(position);
 
-        var placed = doDeployOnBlock(stack, turtlePlayer, hit, adjacent, orientationParams).consumesAction();
+        var placed = doDeployOnBlock(stack, turtlePlayer, hit, adjacent).consumesAction();
 
         // Modify block state after placement if we have orientation parameters
-        if (placed && orientationParams.foundOrientationParam) {
+        if (placed && hasPlacementParameters(parameters)) {
             var world = turtle.getLevel();
             var placedPos = position.relative(side); // The position where the block was actually placed
 
@@ -232,7 +253,7 @@ public class TurtlePlaceCommand implements TurtleCommand {
             }
 
             var currentState = world.getBlockState(placedPos);
-            var newState = applyOrientationToBlockState(currentState, orientationParams);
+            var newState = applyOrientationToBlockState(currentState, parameters);
 
             if (newState != currentState) {
                 world.setBlock(placedPos, newState, Block.UPDATE_ALL);
@@ -240,14 +261,14 @@ public class TurtlePlaceCommand implements TurtleCommand {
         }
 
         // Set text on signs
-        if (placed && item instanceof SignItem && extraArguments != null && extraArguments.length >= 1 && extraArguments[0] instanceof String message) {
+        if (placed && item instanceof SignItem && parameters.signText() != null) {
             var world = turtle.getLevel();
             var tile = world.getBlockEntity(position);
             if (tile == null || tile == existingTile) {
                 tile = world.getBlockEntity(position.relative(side));
             }
 
-            if (tile instanceof SignBlockEntity sign) setSignText(world, sign, message);
+            if (tile instanceof SignBlockEntity sign) setSignText(world, sign, parameters.signText());
         }
 
         return placed;
@@ -261,11 +282,10 @@ public class TurtlePlaceCommand implements TurtleCommand {
      * @param hit          Where the block we're placing against was clicked.
      * @param adjacent     If the block is directly adjacent to the turtle, and so can be interacted with via
      *                     {@link BlockState#use(Level, Player, InteractionHand, BlockHitResult)}.
-     * @param orientationParams The parsed orientation parameters for block placement
+     * @param parameters The placement parameters for block placement
      * @return If this item was deployed.
      */
-    private static InteractionResult doDeployOnBlock(ItemStack stack, TurtlePlayer turtlePlayer, BlockHitResult hit, boolean adjacent,
-                                                     OrientationParameters orientationParams) {
+    private static InteractionResult doDeployOnBlock(ItemStack stack, TurtlePlayer turtlePlayer, BlockHitResult hit, boolean adjacent) {
         var result = PlatformHelper.get().useOn(turtlePlayer.player(), stack, hit);
         if (result instanceof PlatformHelper.UseOnResult.Handled handled) {
             if (handled.result() != InteractionResult.PASS) return handled.result();
@@ -311,38 +331,64 @@ public class TurtlePlaceCommand implements TurtleCommand {
     }
 
     /**
+     * Check if the placement parameters contain any orientation information.
+     */
+    private static boolean hasPlacementParameters(PlacementParameters parameters) {
+        return parameters.blockFacing() != null
+            || parameters.isTop() != null
+            || parameters.isUpsideDown()
+            || parameters.isGroundAttachment()
+            || parameters.clickFace() != null;
+    }
+
+    /**
      * Apply orientation parameters to a block state after placement.
      */
-    private static BlockState applyOrientationToBlockState(BlockState state, OrientationParameters orientationParams) {
+    private static BlockState applyOrientationToBlockState(BlockState state, PlacementParameters parameters) {
+        // First try registered orientation providers
+        var apiParams = new OrientationParameters(
+            parameters.blockFacing(),
+            parameters.isTop(),
+            parameters.isUpsideDown(),
+            parameters.isGroundAttachment(),
+            parameters.clickFace()
+        );
+
+        var providerResult = TurtleOrientationProviders.transform(state, apiParams);
+        if (providerResult != null) {
+            return providerResult;
+        }
+
+        // Fall back to default handling
         var newState = state;
 
         // Handle directional facing for blocks
-        if (orientationParams.blockFacing != null) {
+        if (parameters.blockFacing() != null) {
             // Try FACING first (supports all 6 directions) - used by shulker boxes, dispensers, etc.
             if (newState.hasProperty(BlockStateProperties.FACING)) {
                 // Check if the FACING property accepts this direction value
                 var facingProperty = newState.getBlock().getStateDefinition().getProperty("facing");
-                if (facingProperty != null && facingProperty.getPossibleValues().contains(orientationParams.blockFacing)) {
-                    newState = newState.setValue(BlockStateProperties.FACING, orientationParams.blockFacing);
+                if (facingProperty != null && facingProperty.getPossibleValues().contains(parameters.blockFacing())) {
+                    newState = newState.setValue(BlockStateProperties.FACING, parameters.blockFacing());
                 }
-            } 
+            }
             // Try HORIZONTAL_FACING for horizontal directions only - used by stairs, furnaces, etc.
-            else if (orientationParams.blockFacing.getAxis() != Direction.Axis.Y && newState.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-                newState = newState.setValue(BlockStateProperties.HORIZONTAL_FACING, orientationParams.blockFacing);
+            else if (parameters.blockFacing().getAxis() != Direction.Axis.Y && newState.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+                newState = newState.setValue(BlockStateProperties.HORIZONTAL_FACING, parameters.blockFacing());
             }
             // Try AXIS for logs and pillars
             else if (newState.hasProperty(BlockStateProperties.AXIS)) {
-                newState = newState.setValue(BlockStateProperties.AXIS, orientationParams.blockFacing.getAxis());
+                newState = newState.setValue(BlockStateProperties.AXIS, parameters.blockFacing().getAxis());
             }
         }
 
         // Handle slab type (top/bottom)
-        if (orientationParams.isTop != null && newState.hasProperty(BlockStateProperties.SLAB_TYPE)) {
-            newState = newState.setValue(BlockStateProperties.SLAB_TYPE, orientationParams.isTop ? SlabType.TOP : SlabType.BOTTOM);
+        if (parameters.isTop() != null && newState.hasProperty(BlockStateProperties.SLAB_TYPE)) {
+            newState = newState.setValue(BlockStateProperties.SLAB_TYPE, parameters.isTop() ? SlabType.TOP : SlabType.BOTTOM);
         }
 
         // Handle stair half (top/bottom for upside-down)
-        if (orientationParams.isUpsideDown && newState.hasProperty(BlockStateProperties.HALF)) {
+        if (parameters.isUpsideDown() && newState.hasProperty(BlockStateProperties.HALF)) {
             newState = newState.setValue(BlockStateProperties.HALF, Half.TOP);
         }
 
@@ -354,106 +400,5 @@ public class TurtlePlaceCommand implements TurtleCommand {
         String message;
     }
 
-    private static final class OrientationParameters {
-        @Nullable Direction blockFacing;
-        @Nullable Boolean isTop; // null means no slab preference, true = top, false = bottom
-        boolean isUpsideDown;
-        boolean isGroundAttachment; // for torches on ground vs wall
-        boolean foundOrientationParam;
-        @Nullable Direction clickFace; // Which face to click on target block
 
-        OrientationParameters(@Nullable Direction blockFacing, @Nullable Boolean isTop, boolean isUpsideDown, boolean isGroundAttachment, boolean foundOrientationParam, @Nullable Direction clickFace) {
-            this.blockFacing = blockFacing;
-            this.isTop = isTop;
-            this.isUpsideDown = isUpsideDown;
-            this.isGroundAttachment = isGroundAttachment;
-            this.foundOrientationParam = foundOrientationParam;
-            this.clickFace = clickFace;
-        }
-    }
-
-    private static OrientationParameters parseOrientationParameters(@Nullable Object[] extraArguments, Direction turtleFacing) {
-        Direction blockFacing = null;
-        Boolean isTop = null; // null means no slab preference, true = top, false = bottom
-        boolean isUpsideDown = false;
-        boolean isGroundAttachment = false; // for torches on ground vs wall
-        boolean foundOrientationParam = false;
-        Direction clickFace = null;
-
-        if (extraArguments != null && extraArguments.length > 0) {
-            // Process all string arguments as potential orientation parameters
-            for (var arg : extraArguments) {
-                if (arg instanceof String orientation) {
-                    switch (orientation.toLowerCase()) {
-                        // Absolute cardinal directions
-                        case "north" -> {
-                            blockFacing = Direction.NORTH;
-                            foundOrientationParam = true;
-                        }
-                        case "south" -> {
-                            blockFacing = Direction.SOUTH;
-                            foundOrientationParam = true;
-                        }
-                        case "east" -> {
-                            blockFacing = Direction.EAST;
-                            foundOrientationParam = true;
-                        }
-                        case "west" -> {
-                            blockFacing = Direction.WEST;
-                            foundOrientationParam = true;
-                        }
-                        case "up" -> {
-                            clickFace = Direction.UP;
-                            foundOrientationParam = true;
-                        }
-                        case "down" -> {
-                            clickFace = Direction.DOWN;
-                            foundOrientationParam = true;
-                        }
-                        // Vertical facing for blocks that support it (like dispensers)
-                        case "face_up" -> {
-                            blockFacing = Direction.UP;
-                            foundOrientationParam = true;
-                        }
-                        case "face_down" -> {
-                            blockFacing = Direction.DOWN;
-                            foundOrientationParam = true;
-                        }
-                        // Relative directions based on turtle facing
-                        case "left" -> {
-                            blockFacing = turtleFacing.getClockWise();
-                            foundOrientationParam = true;
-                        }
-                        case "right" -> {
-                            blockFacing = turtleFacing.getCounterClockWise();
-                            foundOrientationParam = true;
-                        }
-                        case "back", "backward" -> {
-                            blockFacing = turtleFacing.getOpposite();
-                            foundOrientationParam = true;
-                        }
-                        // Slab positioning
-                        case "top" -> {
-                            isTop = true;
-                            foundOrientationParam = true;
-                        }
-                        case "bottom" -> {
-                            isTop = false;
-                            foundOrientationParam = true;
-                        }
-                        case "upside_down" -> {
-                            isUpsideDown = true;
-                            foundOrientationParam = true;
-                        }
-                        case "ground" -> {
-                            isGroundAttachment = true;
-                            foundOrientationParam = true;
-                        }
-                    }
-                }
-            }
-        }
-
-        return new OrientationParameters(blockFacing, isTop, isUpsideDown, isGroundAttachment, foundOrientationParam, clickFace);
-    }
 }

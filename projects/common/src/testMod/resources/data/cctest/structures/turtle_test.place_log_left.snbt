@@ -27,17 +27,11 @@
         {pos: [4, 0, 2], state: "minecraft:polished_andesite"},
         {pos: [4, 0, 3], state: "minecraft:polished_andesite"},
         {pos: [4, 0, 4], state: "minecraft:polished_andesite"},
-        {pos: [2, 1, 0], state: "minecraft:stone"},
-        {pos: [2, 1, 4], state: "minecraft:stone"},
-        {pos: [1, 1, 2], state: "minecraft:stone"},
-        {pos: [3, 1, 2], state: "minecraft:stone"},
-        {pos: [2, 3, 2], state: "minecraft:stone"},
-        {pos: [2, 1, 2], state: "computercraft:turtle_normal{facing:north,waterlogged:false}", nbt: {ComputerId: 1, Fuel: 0, Items: [{Count: 1b, Slot: 0b, id: "computercraft:wired_modem"}], Label: "turtle_test.place_wired_modem_north", On: 1b, Owner: {LowerId: -7553144124013011039L, Name: "Player840", UpperId: 8473952144820417152L}, Slot: 0, id: "computercraft:turtle_normal"}}
+        {pos: [2, 1, 2], state: "computercraft:turtle_normal{facing:north,waterlogged:false}", nbt: {ComputerId: 1, Fuel: 0, Items: [{Count: 1b, Slot: 0b, id: "minecraft:oak_log"}], Label: "turtle_test.place_log_left", On: 1b, Owner: {LowerId: -7553144124013011039L, Name: "Player840", UpperId: 8473952144820417152L}, Slot: 0, id: "computercraft:turtle_normal"}}
     ],
     entities: [],
     palette: [
         "minecraft:polished_andesite",
-        "minecraft:stone",
         "computercraft:turtle_normal{facing:north,waterlogged:false}"
     ]
 }
