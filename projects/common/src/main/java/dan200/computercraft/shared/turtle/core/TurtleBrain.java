@@ -733,7 +733,6 @@ public class TurtleBrain implements TurtleAccessInternal {
         return owner.getItemSnapshot(slot);
     }
 
-    @Override
     public int getRotationShaft() {
         return rotationShaft;
     }

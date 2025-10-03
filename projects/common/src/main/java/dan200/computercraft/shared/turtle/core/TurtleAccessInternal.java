@@ -23,12 +23,4 @@ public interface TurtleAccessInternal extends ITurtleAccess {
      * @see net.minecraft.world.Container#getItem(int)
      */
     ItemStack getItemSnapshot(int slot);
-
-    /**
-     * Get the current rotation shaft value. The rotation shaft is a 4-bit register (0-15) that
-     * increments each time the turtle turns.
-     *
-     * @return The current rotation shaft value (0-15).
-     */
-    int getRotationShaft();
 }

@@ -674,7 +674,7 @@ public class TurtleAPI implements ILuaAPI {
      */
     @LuaFunction
     public final int readRotationSensor() {
-        return turtle.getRotationShaft();
+        return ((TurtleBrain) turtle).getRotationShaft();
     }
 
     /**
