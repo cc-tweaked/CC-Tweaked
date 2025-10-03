@@ -333,6 +333,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     @Override
     public void setDirection(Direction dir) {
         owner.setDirection(dir);
+        rotationShaft = (rotationShaft + 1) & 0xF; // Increment rotation shaft on turn
     }
 
     @Override
@@ -730,11 +731,6 @@ public class TurtleBrain implements TurtleAccessInternal {
     @Override
     public ItemStack getItemSnapshot(int slot) {
         return owner.getItemSnapshot(slot);
-    }
-
-    @Override
-    public void incrementRotationShaft() {
-        rotationShaft = (rotationShaft + 1) & 0xF; // Keep within 0-15 range
     }
 
     private static final class CommandCallback implements ILuaCallback {
