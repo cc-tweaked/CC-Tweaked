@@ -333,7 +333,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     @Override
     public void setDirection(Direction dir) {
         owner.setDirection(dir);
-        rotationShaft = (rotationShaft + 1) & 0xF; // Increment rotation shaft on turn
+        rotationShaft = (rotationShaft + 1) & 0xF;
     }
 
     @Override
