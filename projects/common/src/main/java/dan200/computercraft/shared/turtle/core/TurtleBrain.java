@@ -733,6 +733,11 @@ public class TurtleBrain implements TurtleAccessInternal {
         return owner.getItemSnapshot(slot);
     }
 
+    @Override
+    public int getRotationShaft() {
+        return rotationShaft;
+    }
+
     private static final class CommandCallback implements ILuaCallback {
         final MethodResult pull = MethodResult.pullEvent("turtle_response", this);
         private final int command;

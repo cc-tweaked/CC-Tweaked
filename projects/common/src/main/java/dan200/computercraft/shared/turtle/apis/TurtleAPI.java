@@ -649,6 +649,35 @@ public class TurtleAPI implements ILuaAPI {
     }
 
     /**
+     * Read the rotation sensor value.
+     * <p>
+     * The rotation sensor is a 4-bit register (values 0-15) that increments each time the turtle turns left or right.
+     * After reaching 15, it wraps around back to 0. This value persists across world saves and chunk reloads.
+     *
+     * @return The current rotation sensor value (0-15).
+     * @cc.treturn number The rotation sensor value.
+     * @cc.since 1.116.2
+     * @cc.usage Read the current rotation sensor value.
+     * <pre>{@code
+     * local value = turtle.readRotationSensor()
+     * print("Rotation sensor: " .. value)
+     * }</pre>
+     * @cc.usage Track how many times a turtle has turned.
+     * <pre>{@code
+     * local initial = turtle.readRotationSensor()
+     * turtle.turnRight()
+     * turtle.turnRight()
+     * local final_value = turtle.readRotationSensor()
+     * local turns = (final_value - initial) % 16
+     * print("Turned " .. turns .. " times")
+     * }</pre>
+     */
+    @LuaFunction
+    public final int readRotationSensor() {
+        return turtle.getRotationShaft();
+    }
+
+    /**
      * Equip (or unequip) an item on the left side of this turtle.
      * <p>
      * This finds the item in the currently selected slot and attempts to equip it to the left side of the turtle. The
