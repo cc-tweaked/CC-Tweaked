@@ -22,11 +22,17 @@ public class TurtleTurnCommand implements TurtleCommand {
             case LEFT -> {
                 turtle.setDirection(turtle.getDirection().getCounterClockWise());
                 turtle.playAnimation(TurtleAnimation.TURN_LEFT);
+                if (turtle instanceof TurtleAccessInternal internal) {
+                    internal.incrementRotationShaft();
+                }
                 return TurtleCommandResult.success();
             }
             case RIGHT -> {
                 turtle.setDirection(turtle.getDirection().getClockWise());
                 turtle.playAnimation(TurtleAnimation.TURN_RIGHT);
+                if (turtle instanceof TurtleAccessInternal internal) {
+                    internal.incrementRotationShaft();
+                }
                 return TurtleCommandResult.success();
             }
             default -> {

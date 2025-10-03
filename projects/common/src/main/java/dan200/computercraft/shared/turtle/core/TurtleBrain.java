@@ -59,6 +59,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     public static final String NBT_RIGHT_UPGRADE = "RightUpgrade";
 
     private static final String NBT_SLOT = "Slot";
+    private static final String NBT_ROTATION_SHAFT = "RotationShaft";
 
     private static final int ANIM_DURATION = 8;
 
@@ -76,6 +77,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     private int fuelLevel = 0;
     private int colourHex = -1;
     private @Nullable Holder<TurtleOverlay> overlay = null;
+    private int rotationShaft = 0;
 
     private TurtleAnimation animation = TurtleAnimation.NONE;
     private int animationProgress = 0;
@@ -157,6 +159,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
         // Read state
         selectedSlot = nbt.getInt(NBT_SLOT);
+        rotationShaft = nbt.contains(NBT_ROTATION_SHAFT) ? nbt.getInt(NBT_ROTATION_SHAFT) : 0;
 
         // Read owner
         if (nbt.contains("Owner", Tag.TAG_COMPOUND)) {
@@ -175,6 +178,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
         // Write state
         nbt.putInt(NBT_SLOT, selectedSlot);
+        nbt.putInt(NBT_ROTATION_SHAFT, rotationShaft);
 
         // Write owner
         if (owningPlayer != null) {
@@ -726,6 +730,12 @@ public class TurtleBrain implements TurtleAccessInternal {
     @Override
     public ItemStack getItemSnapshot(int slot) {
         return owner.getItemSnapshot(slot);
+    }
+
+    @Override
+    public void incrementRotationShaft() {
+        rotationShaft = (rotationShaft + 1) & 0xF; // Keep within 0-15 range
+        BlockEntityHelpers.updateBlock(owner);
     }
 
     private static final class CommandCallback implements ILuaCallback {
