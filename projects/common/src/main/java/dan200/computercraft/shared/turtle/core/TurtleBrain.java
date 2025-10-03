@@ -735,7 +735,6 @@ public class TurtleBrain implements TurtleAccessInternal {
     @Override
     public void incrementRotationShaft() {
         rotationShaft = (rotationShaft + 1) & 0xF; // Keep within 0-15 range
-        BlockEntityHelpers.updateBlock(owner);
     }
 
     private static final class CommandCallback implements ILuaCallback {
