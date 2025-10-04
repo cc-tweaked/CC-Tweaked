@@ -64,6 +64,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     public static final String NBT_RIGHT_UPGRADE = "RightUpgrade";
 
     private static final String NBT_SLOT = "Slot";
+    private static final String NBT_ROTATION_SHAFT = "RotationShaft";
 
     /**
      * {@link net.minecraft.world.item.component.ResolvableProfile#CODEC}, but resolving to a {@link GameProfile}
@@ -90,7 +91,8 @@ public class TurtleBrain implements TurtleAccessInternal {
     private int selectedSlot = 0;
     private int fuelLevel = 0;
     private int colourHex = -1;
-    private @Nullable ResourceLocation overlay = null;
+    private @Nullable Holder<TurtleOverlay> overlay = null;
+    private int rotationShaft = 0;
 
     private TurtleAnimation animation = TurtleAnimation.NONE;
     private int animationProgress = 0;
@@ -170,7 +172,8 @@ public class TurtleBrain implements TurtleAccessInternal {
         readCommon(nbt);
 
         // Read state
-        selectedSlot = nbt.getIntOr(NBT_SLOT, 0);
+        selectedSlot = nbt.getInt(NBT_SLOT);
+        rotationShaft = nbt.contains(NBT_ROTATION_SHAFT) ? nbt.getInt(NBT_ROTATION_SHAFT) : 0;
 
         // Read owner
         owningPlayer = nbt.read("Owner", GAME_PROFILE_CODEC).orElse(null);
@@ -181,7 +184,17 @@ public class TurtleBrain implements TurtleAccessInternal {
 
         // Write state
         nbt.putInt(NBT_SLOT, selectedSlot);
-        nbt.storeNullable("Owner", GAME_PROFILE_CODEC, owningPlayer);
+        nbt.putInt(NBT_ROTATION_SHAFT, rotationShaft);
+
+        // Write owner
+        if (owningPlayer != null) {
+            var owner = new CompoundTag();
+            nbt.put("Owner", owner);
+
+            owner.putLong("UpperId", owningPlayer.getId().getMostSignificantBits());
+            owner.putLong("LowerId", owningPlayer.getId().getLeastSignificantBits());
+            owner.putString("Name", owningPlayer.getName());
+        }
     }
 
     public void readDescription(ValueInput nbt) {
@@ -326,6 +339,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     @Override
     public void setDirection(Direction dir) {
         owner.setDirection(dir);
+        rotationShaft = (rotationShaft + 1) & 0xF;
     }
 
     @Override
@@ -723,6 +737,10 @@ public class TurtleBrain implements TurtleAccessInternal {
     @Override
     public ItemStack getItemSnapshot(int slot) {
         return owner.getItemSnapshot(slot);
+    }
+
+    public int getRotationShaft() {
+        return rotationShaft;
     }
 
     private static final class CommandCallback implements ILuaCallback {
