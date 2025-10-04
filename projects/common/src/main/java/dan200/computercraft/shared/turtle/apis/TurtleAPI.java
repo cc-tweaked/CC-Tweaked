@@ -649,6 +649,20 @@ public class TurtleAPI implements ILuaAPI {
     }
 
     /**
+     * Read the rotation sensor value.
+     * <p>
+     * Returns a 4-bit register (0-15) that increments each time the turtle turns.
+     *
+     * @return The current rotation sensor value (0-15).
+     * @cc.treturn number The rotation sensor value.
+     * @cc.since 1.116.2
+     */
+    @LuaFunction
+    public final int readRotationSensor() {
+        return ((TurtleBrain) turtle).getRotationShaft();
+    }
+
+    /**
      * Equip (or unequip) an item on the left side of this turtle.
      * <p>
      * This finds the item in the currently selected slot and attempts to equip it to the left side of the turtle. The
