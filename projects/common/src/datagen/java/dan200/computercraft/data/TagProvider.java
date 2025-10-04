@@ -7,13 +7,10 @@ package dan200.computercraft.data;
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.integration.ExternalModTags;
-import dan200.computercraft.shared.util.RegistryHelper;
-import net.minecraft.core.Registry;
-import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.data.tags.TagAppender;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagBuilder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -28,14 +25,8 @@ import net.minecraft.world.level.block.Blocks;
  */
 class TagProvider {
     public static void blockTags(TagConsumer<Block> tags) {
-        tags.tag(ComputerCraftTags.Blocks.COMPUTER).add(
-            ModRegistry.Blocks.COMPUTER_NORMAL.get(),
-            ModRegistry.Blocks.COMPUTER_ADVANCED.get(),
-            ModRegistry.Blocks.COMPUTER_COMMAND.get()
-        );
-        tags.tag(ComputerCraftTags.Blocks.TURTLE).add(ModRegistry.Blocks.TURTLE_NORMAL.get(), ModRegistry.Blocks.TURTLE_ADVANCED.get());
+        itemAndBlockTags((b, i) -> tags.tag(b));
         tags.tag(ComputerCraftTags.Blocks.WIRED_MODEM).add(ModRegistry.Blocks.CABLE.get(), ModRegistry.Blocks.WIRED_MODEM_FULL.get());
-        tags.tag(ComputerCraftTags.Blocks.MONITOR).add(ModRegistry.Blocks.MONITOR_NORMAL.get(), ModRegistry.Blocks.MONITOR_ADVANCED.get());
 
         tags.tag(ComputerCraftTags.Blocks.PERIPHERAL_HUB_IGNORE).addTag(ComputerCraftTags.Blocks.WIRED_MODEM);
 
@@ -91,11 +82,9 @@ class TagProvider {
         );
     }
 
-    public static void itemTags(ItemTagConsumer tags) {
-        tags.copy(ComputerCraftTags.Blocks.COMPUTER, ComputerCraftTags.Items.COMPUTER);
-        tags.copy(ComputerCraftTags.Blocks.TURTLE, ComputerCraftTags.Items.TURTLE);
+    public static void itemTags(TagConsumer<Item> tags) {
+        itemAndBlockTags((b, i) -> tags.tag(i).map(Block::asItem));
         tags.tag(ComputerCraftTags.Items.WIRED_MODEM).add(ModRegistry.Items.WIRED_MODEM.get(), ModRegistry.Items.WIRED_MODEM_FULL.get());
-        tags.copy(ComputerCraftTags.Blocks.MONITOR, ComputerCraftTags.Items.MONITOR);
         tags.tag(ComputerCraftTags.Items.DISKS).add(ModRegistry.Items.DISK.get(), ModRegistry.Items.TREASURE_DISK.get());
         tags.tag(ComputerCraftTags.Items.POCKET_COMPUTERS).add(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get(), ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get());
 
@@ -117,37 +106,32 @@ class TagProvider {
             .addTag(ItemTags.BOATS);
     }
 
+    private static void itemAndBlockTags(BlockItemTagConsumer tags) {
+        tags.tag(ComputerCraftTags.Blocks.COMPUTER, ComputerCraftTags.Items.COMPUTER).add(
+            ModRegistry.Blocks.COMPUTER_NORMAL.get(),
+            ModRegistry.Blocks.COMPUTER_ADVANCED.get(),
+            ModRegistry.Blocks.COMPUTER_COMMAND.get()
+        );
+        tags.tag(ComputerCraftTags.Blocks.TURTLE, ComputerCraftTags.Items.TURTLE).add(
+            ModRegistry.Blocks.TURTLE_NORMAL.get(),
+            ModRegistry.Blocks.TURTLE_ADVANCED.get()
+        );
+        tags.tag(ComputerCraftTags.Blocks.MONITOR, ComputerCraftTags.Items.MONITOR).add(
+            ModRegistry.Blocks.MONITOR_NORMAL.get(),
+            ModRegistry.Blocks.MONITOR_ADVANCED.get()
+        );
+    }
+
     /**
      * A wrapper over {@link TagsProvider}.
      *
      * @param <T> The type of object we're providing tags for.
      */
     public interface TagConsumer<T> {
-        TagAppender<T> tag(TagKey<T> tag);
+        TagAppender<T, T> tag(TagKey<T> tag);
     }
 
-    public record TagAppender<T>(Registry<T> registry, TagBuilder builder) {
-        public TagAppender<T> add(T object) {
-            builder.addElement(RegistryHelper.getKeyOrThrow(registry, object));
-            return this;
-        }
-
-        @SafeVarargs
-        public final TagAppender<T> add(T... objects) {
-            for (var object : objects) add(object);
-            return this;
-        }
-
-        public TagAppender<T> addTag(TagKey<T> tag) {
-            builder.addTag(tag.location());
-            return this;
-        }
-    }
-
-    /**
-     * A wrapper over {@link ItemTagsProvider}.
-     */
-    public interface ItemTagConsumer extends TagConsumer<Item> {
-        void copy(TagKey<Block> block, TagKey<Item> item);
+    private interface BlockItemTagConsumer {
+        TagAppender<Block, ?> tag(TagKey<Block> blockTag, TagKey<Item> itemTag);
     }
 }

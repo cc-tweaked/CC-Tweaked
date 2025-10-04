@@ -13,9 +13,9 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.InventoryMenu;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class LecternPrintoutModel {
     public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "entity/printout");
-    public static final Material MATERIAL = new Material(InventoryMenu.BLOCK_ATLAS, TEXTURE);
+    public static final Material MATERIAL = new Material(TextureAtlas.LOCATION_BLOCKS, TEXTURE);
 
     private static final int TEXTURE_WIDTH = 32;
     private static final int TEXTURE_HEIGHT = 32;

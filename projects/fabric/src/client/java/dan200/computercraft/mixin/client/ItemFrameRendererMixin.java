@@ -6,9 +6,12 @@ package dan200.computercraft.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.client.ClientHooks;
+import dan200.computercraft.client.ExtendedItemFrameRenderStateHolder;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemFrameRenderer;
+import net.minecraft.client.renderer.entity.state.ItemFrameRenderState;
 import net.minecraft.world.entity.decoration.ItemFrame;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,15 +21,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @SuppressWarnings("UnusedMethod")
 class ItemFrameRendererMixin {
     @Inject(
-        method = "render(Lnet/minecraft/world/entity/decoration/ItemFrame;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-        at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionf;)V", ordinal = 2, shift = At.Shift.AFTER),
+        method = "render(Lnet/minecraft/client/renderer/entity/state/ItemFrameRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+        at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/entity/state/ItemFrameRenderState;mapId:Lnet/minecraft/world/level/saveddata/maps/MapId;", opcode = Opcodes.GETFIELD, ordinal = 1),
         cancellable = true
     )
     @SuppressWarnings("unused")
-    private void render(ItemFrame entity, float yaw, float partialTicks, PoseStack pose, MultiBufferSource buffers, int light, CallbackInfo ci) {
-        if (ClientHooks.onRenderItemFrame(pose, buffers, entity, entity.getItem(), light)) {
+    private void render(ItemFrameRenderState frame, PoseStack pose, MultiBufferSource buffers, int light, CallbackInfo ci) {
+        var state = ((ExtendedItemFrameRenderStateHolder) frame).computercraft$state();
+        if (ClientHooks.onRenderItemFrame(pose, buffers, frame, state, light)) {
             ci.cancel();
             pose.popPose();
         }
+    }
+
+    @Inject(
+        method = "extractRenderState(Lnet/minecraft/world/entity/decoration/ItemFrame;Lnet/minecraft/client/renderer/entity/state/ItemFrameRenderState;F)V",
+        at = @At("HEAD")
+    )
+    @SuppressWarnings("unused")
+    private void extractRenderState(ItemFrame entity, ItemFrameRenderState state, float f, CallbackInfo ci) {
+        ((ExtendedItemFrameRenderStateHolder) state).computercraft$state().setup(entity.getItem());
     }
 }

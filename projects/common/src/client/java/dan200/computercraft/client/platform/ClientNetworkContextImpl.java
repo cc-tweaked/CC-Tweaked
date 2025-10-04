@@ -4,7 +4,6 @@
 
 package dan200.computercraft.client.platform;
 
-import com.google.auto.service.AutoService;
 import dan200.computercraft.client.ClientTableFormatter;
 import dan200.computercraft.client.gui.AbstractComputerScreen;
 import dan200.computercraft.client.gui.OptionScreen;
@@ -22,11 +21,13 @@ import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.JukeboxSong;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LevelEvent;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
@@ -34,7 +35,6 @@ import java.util.UUID;
 /**
  * The client-side implementation of {@link ClientNetworkContext}.
  */
-@AutoService(ClientNetworkContext.class)
 public final class ClientNetworkContextImpl implements ClientNetworkContext {
     @Override
     public void handleChatTable(TableBuilder table) {
@@ -62,10 +62,14 @@ public final class ClientNetworkContextImpl implements ClientNetworkContext {
 
     @Override
     public void handlePlayRecord(BlockPos pos, @Nullable Holder<JukeboxSong> song) {
+        var level = Minecraft.getInstance().level;
+        if (level == null) return;
+
         if (song == null) {
-            Minecraft.getInstance().levelRenderer.stopJukeboxSongAndNotifyNearby(pos);
+            level.levelEvent(LevelEvent.SOUND_STOP_JUKEBOX_SONG, pos, 0);
         } else {
-            Minecraft.getInstance().levelRenderer.playJukeboxSong(song, pos);
+            var id = level.registryAccess().lookupOrThrow(Registries.JUKEBOX_SONG).getIdOrThrow(song.value());
+            level.levelEvent(LevelEvent.SOUND_PLAY_JUKEBOX_SONG, pos, id);
         }
     }
 

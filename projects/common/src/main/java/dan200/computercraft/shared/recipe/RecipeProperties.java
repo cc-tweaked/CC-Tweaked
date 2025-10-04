@@ -16,9 +16,10 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 /**
  * Common properties that appear in all {@link CraftingRecipe}s.
  *
- * @param group            The (optional) group of the recipe, see {@link CraftingRecipe#getGroup()}.
+ * @param group            The (optional) group of the recipe, see {@link CraftingRecipe#group()}.
  * @param category         The category the recipe appears in, see {@link CraftingRecipe#category()}.
  * @param showNotification Show notifications when the recipe is unlocked, see {@link CraftingRecipe#showNotification()}.
+ * @see AbstractCraftingRecipe
  */
 public record RecipeProperties(String group, CraftingBookCategory category, boolean showNotification) {
     public static final MapCodec<RecipeProperties> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -35,6 +36,6 @@ public record RecipeProperties(String group, CraftingBookCategory category, bool
     );
 
     public static RecipeProperties of(CraftingRecipe recipe) {
-        return new RecipeProperties(recipe.getGroup(), recipe.category(), recipe.showNotification());
+        return new RecipeProperties(recipe.group(), recipe.category(), recipe.showNotification());
     }
 }

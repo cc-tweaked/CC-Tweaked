@@ -39,7 +39,7 @@ import java.util.function.Function;
  * @see ITurtleUpgrade
  * @see IPocketUpgrade
  */
-public interface UpgradeType<T extends UpgradeBase> {
+public sealed interface UpgradeType<T extends UpgradeBase> permits UpgradeTypeImpl {
     /**
      * The codec to read and write this upgrade from a datapack.
      *

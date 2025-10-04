@@ -5,6 +5,8 @@
 package dan200.computercraft.shared.turtle.core;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -20,21 +22,19 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.container.InventoryDelegate;
-import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import dan200.computercraft.shared.util.Holiday;
-import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
@@ -42,11 +42,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
 import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
@@ -60,6 +65,16 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     private static final String NBT_SLOT = "Slot";
     private static final String NBT_ROTATION_SHAFT = "RotationShaft";
+
+    /**
+     * {@link net.minecraft.world.item.component.ResolvableProfile#CODEC}, but resolving to a {@link GameProfile}
+     * directly. We don't use {@link ExtraCodecs#GAME_PROFILE}, as that encodes the UUID as a string, not an int array.
+     */
+    private static final Codec<GameProfile> GAME_PROFILE_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            UUIDUtil.CODEC.fieldOf("id").forGetter(GameProfile::getId),
+            ExtraCodecs.PLAYER_NAME.fieldOf("name").forGetter(GameProfile::getName)
+        )
+        .apply(instance, GameProfile::new));
 
     private static final int ANIM_DURATION = 8;
 
@@ -130,51 +145,42 @@ public class TurtleBrain implements TurtleAccessInternal {
     /**
      * Read common data for saving and client synchronisation.
      *
-     * @param nbt        The tag to read from
-     * @param registries The current registries.
+     * @param nbt The tag to read from
      */
-    private void readCommon(CompoundTag nbt, HolderLookup.Provider registries) {
+    private void readCommon(ValueInput nbt) {
         // Read fields
-        colourHex = nbt.contains(NBT_COLOUR) ? nbt.getInt(NBT_COLOUR) : -1;
-        fuelLevel = nbt.contains(NBT_FUEL) ? nbt.getInt(NBT_FUEL) : 0;
-        overlay = nbt.contains(NBT_OVERLAY) ? NBTUtil.decodeFrom(TurtleOverlay.CODEC, registries, nbt, NBT_OVERLAY) : null;
+        colourHex = nbt.getIntOr(NBT_COLOUR, -1);
+        fuelLevel = nbt.getIntOr(NBT_FUEL, 0);
+        overlay = nbt.read(NBT_OVERLAY, ResourceLocation.CODEC).orElse(null);
 
         // Read upgrades
-        setUpgradeDirect(TurtleSide.LEFT, NBTUtil.decodeFrom(TurtleUpgrades.instance().upgradeDataCodec(), registries, nbt, NBT_LEFT_UPGRADE));
-        setUpgradeDirect(TurtleSide.RIGHT, NBTUtil.decodeFrom(TurtleUpgrades.instance().upgradeDataCodec(), registries, nbt, NBT_RIGHT_UPGRADE));
+        setUpgradeDirect(TurtleSide.LEFT, nbt.read(NBT_LEFT_UPGRADE, TurtleUpgrades.instance().upgradeDataCodec()).orElse(null));
+        setUpgradeDirect(TurtleSide.RIGHT, nbt.read(NBT_RIGHT_UPGRADE, TurtleUpgrades.instance().upgradeDataCodec()).orElse(null));
     }
 
-    private void writeCommon(CompoundTag nbt, HolderLookup.Provider registries) {
+    private void writeCommon(ValueOutput nbt) {
         nbt.putInt(NBT_FUEL, fuelLevel);
         if (colourHex != -1) nbt.putInt(NBT_COLOUR, colourHex);
-        if (overlay != null) NBTUtil.encodeTo(TurtleOverlay.CODEC, registries, nbt, NBT_OVERLAY, overlay);
+        nbt.storeNullable(NBT_OVERLAY, ResourceLocation.CODEC, overlay);
 
         // Write upgrades
-        NBTUtil.encodeTo(TurtleUpgrades.instance().upgradeDataCodec(), registries, nbt, NBT_LEFT_UPGRADE, getUpgradeWithData(TurtleSide.LEFT));
-        NBTUtil.encodeTo(TurtleUpgrades.instance().upgradeDataCodec(), registries, nbt, NBT_RIGHT_UPGRADE, getUpgradeWithData(TurtleSide.RIGHT));
+        nbt.storeNullable(NBT_LEFT_UPGRADE, TurtleUpgrades.instance().upgradeDataCodec(), getUpgradeWithData(TurtleSide.LEFT));
+        nbt.storeNullable(NBT_RIGHT_UPGRADE, TurtleUpgrades.instance().upgradeDataCodec(), getUpgradeWithData(TurtleSide.RIGHT));
     }
 
-    public void readFromNBT(CompoundTag nbt, HolderLookup.Provider registries) {
-        readCommon(nbt, registries);
+    public void readFromNBT(ValueInput nbt) {
+        readCommon(nbt);
 
         // Read state
         selectedSlot = nbt.getInt(NBT_SLOT);
         rotationShaft = nbt.contains(NBT_ROTATION_SHAFT) ? nbt.getInt(NBT_ROTATION_SHAFT) : 0;
 
         // Read owner
-        if (nbt.contains("Owner", Tag.TAG_COMPOUND)) {
-            var owner = nbt.getCompound("Owner");
-            owningPlayer = new GameProfile(
-                new UUID(owner.getLong("UpperId"), owner.getLong("LowerId")),
-                owner.getString("Name")
-            );
-        } else {
-            owningPlayer = null;
-        }
+        owningPlayer = nbt.read("Owner", GAME_PROFILE_CODEC).orElse(null);
     }
 
-    public void writeToNBT(CompoundTag nbt, HolderLookup.Provider registries) {
-        writeCommon(nbt, registries);
+    public void writeToNBT(ValueOutput nbt) {
+        writeCommon(nbt);
 
         // Write state
         nbt.putInt(NBT_SLOT, selectedSlot);
@@ -191,11 +197,11 @@ public class TurtleBrain implements TurtleAccessInternal {
         }
     }
 
-    public void readDescription(CompoundTag nbt, HolderLookup.Provider registries) {
-        readCommon(nbt, registries);
+    public void readDescription(ValueInput nbt) {
+        readCommon(nbt);
 
         // Animation
-        var anim = TurtleAnimation.values()[nbt.getInt("Animation")];
+        var anim = TurtleAnimation.values()[nbt.getIntOr("Animation", 0)];
         if (anim != animation &&
             anim != TurtleAnimation.WAIT &&
             anim != TurtleAnimation.SHORT_WAIT &&
@@ -206,8 +212,8 @@ public class TurtleBrain implements TurtleAccessInternal {
         }
     }
 
-    public void writeDescription(CompoundTag nbt, HolderLookup.Provider registries) {
-        writeCommon(nbt, registries);
+    public void writeDescription(ValueOutput nbt) {
+        writeCommon(nbt);
         nbt.putInt("Animation", animation.ordinal());
     }
 
@@ -424,11 +430,11 @@ public class TurtleBrain implements TurtleAccessInternal {
         BlockEntityHelpers.updateBlock(owner);
     }
 
-    public @Nullable Holder<TurtleOverlay> getOverlay() {
+    public @Nullable ResourceLocation getOverlay() {
         return overlay;
     }
 
-    public void setOverlay(@Nullable Holder<TurtleOverlay> overlay) {
+    public void setOverlay(@Nullable ResourceLocation overlay) {
         if (!Objects.equals(this.overlay, overlay)) {
             this.overlay = overlay;
             BlockEntityHelpers.updateBlock(owner);

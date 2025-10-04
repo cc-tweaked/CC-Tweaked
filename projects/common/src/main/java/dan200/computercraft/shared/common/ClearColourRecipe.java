@@ -6,7 +6,6 @@ package dan200.computercraft.shared.common;
 
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.util.DataComponentUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
@@ -60,7 +59,9 @@ public final class ClearColourRecipe extends CustomRecipe {
 
         if (colourable.isEmpty()) return ItemStack.EMPTY;
 
-        return DataComponentUtil.createResult(colourable, DataComponents.DYED_COLOR, null);
+        var result = colourable.copyWithCount(1);
+        result.remove(DataComponents.DYED_COLOR);
+        return result;
     }
 
     @Override
@@ -70,11 +71,6 @@ public final class ClearColourRecipe extends CustomRecipe {
             if (container.getItem(i).getItem() == Items.WET_SPONGE) remaining.set(i, new ItemStack(Items.WET_SPONGE));
         }
         return remaining;
-    }
-
-    @Override
-    public boolean canCraftInDimensions(int x, int y) {
-        return x * y >= 2;
     }
 
     @Override

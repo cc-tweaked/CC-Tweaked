@@ -4,44 +4,56 @@
 
 package dan200.computercraft.client;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.FabricComputerCraftAPIClient;
-import dan200.computercraft.client.model.CustomModelLoader;
+import dan200.computercraft.client.platform.ClientNetworkContextImpl;
+import dan200.computercraft.client.platform.FabricModelKey;
+import dan200.computercraft.client.platform.ModelKey;
 import dan200.computercraft.core.util.Nullability;
-import dan200.computercraft.impl.Services;
-import dan200.computercraft.shared.CommonHooks;
+import dan200.computercraft.shared.ComputerCraft;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.network.NetworkMessages;
-import dan200.computercraft.shared.network.client.ClientNetworkContext;
-import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.platform.FabricConfigFile;
-import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.model.loading.v1.PreparableModelLoadingPlugin;
+import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedExtraModel;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.rendering.v1.SpecialGuiElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
-import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.item.ItemTintSources;
+import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
+import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.item.ItemModels;
+import net.minecraft.client.renderer.item.properties.conditional.ConditionalItemModelProperties;
+import net.minecraft.client.renderer.item.properties.select.SelectItemModelProperties;
+import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 
-import java.util.Objects;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public class ComputerCraftClient {
     public static void init() {
-        var clientNetwork = Services.load(ClientNetworkContext.class);
+        var clientNetwork = new ClientNetworkContextImpl();
         for (var type : NetworkMessages.getClientbound()) {
             ClientPlayNetworking.registerGlobalReceiver(
                 type.type(), (packet, responseSender) -> packet.handle(clientNetwork)
@@ -49,22 +61,35 @@ public class ComputerCraftClient {
         }
 
         ClientRegistry.register();
-        ClientRegistry.registerTurtleModellers(FabricComputerCraftAPIClient::registerTurtleUpgradeModeller);
-        ClientRegistry.registerItemColours(ColorProviderRegistry.ITEM::register);
+        ClientRegistry.registerTurtleModels(FabricComputerCraftAPIClient::registerTurtleUpgradeModeller);
         ClientRegistry.registerMenuScreens(MenuScreens::register);
-        ClientRegistry.registerMainThread(ItemProperties::register);
+        ClientRegistry.registerItemModels(ItemModels.ID_MAPPER::put);
+        ClientRegistry.registerItemColours(ItemTintSources.ID_MAPPER::put);
+        ClientRegistry.registerSelectItemProperties(SelectItemModelProperties.ID_MAPPER::put);
+        ClientRegistry.registerConditionalItemProperties(ConditionalItemModelProperties.ID_MAPPER::put);
 
-        PreparableModelLoadingPlugin.register(CustomModelLoader::prepare, (state, context) -> {
-            ClientRegistry.registerExtraModels(context::addModels, state.getExtraModels());
-            context.resolveModel().register(ctx -> state.loadModel(ctx.id()));
-            context.modifyModelAfterBake().register((model, ctx) -> model == null ? null : state.wrapModel(ctx, model));
+        PreparableModelLoadingPlugin.register(
+            ClientRegistry::gatherExtraModels,
+            (state, context) -> ClientRegistry.registerExtraModels(new ClientRegistry.RegisterExtraModels() {
+                @Override
+                public <U, T> void register(ModelKey<T> key, U unbaked, BiConsumer<U, ResolvableModel.Resolver> resolve, BiFunction<U, ModelBaker, T> bake) {
+                    context.addModel(FabricModelKey.key(key), new ModelWrapper<>(unbaked, resolve, bake));
+                }
+            }, state)
+        );
+
+        BlockRenderLayerMap.putBlock(ModRegistry.Blocks.COMPUTER_NORMAL.get(), ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(ModRegistry.Blocks.COMPUTER_COMMAND.get(), ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(ModRegistry.Blocks.COMPUTER_ADVANCED.get(), ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(ModRegistry.Blocks.MONITOR_NORMAL.get(), ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(ModRegistry.Blocks.MONITOR_ADVANCED.get(), ChunkSectionLayer.CUTOUT);
+
+        ClientRegistry.registerPictureInPictureRenderers(new ClientRegistry.RegisterPictureInPictureRenderer() {
+            @Override
+            public <T extends PictureInPictureRenderState> void register(Class<T> ty, Function<MultiBufferSource.BufferSource, PictureInPictureRenderer<T>> f) {
+                SpecialGuiElementRegistry.register(c -> f.apply(c.vertexConsumers()));
+            }
         });
-
-        BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Blocks.COMPUTER_NORMAL.get(), RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Blocks.COMPUTER_COMMAND.get(), RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Blocks.COMPUTER_ADVANCED.get(), RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Blocks.MONITOR_NORMAL.get(), RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Blocks.MONITOR_ADVANCED.get(), RenderType.cutout());
 
         ClientTickEvents.START_CLIENT_TICK.register(client -> ClientHooks.onTick());
         // This isn't 100% consistent with Forge, but not worth a mixin.
@@ -78,24 +103,32 @@ public class ComputerCraftClient {
             }
         });
 
-        // Easier to hook in as an event than use BlockPickInteractionAware.
-        ClientPickBlockGatherCallback.EVENT.register((player, hit) -> {
-            if (hit.getType() != HitResult.Type.BLOCK) return ItemStack.EMPTY;
-
-            var pos = ((BlockHitResult) hit).getBlockPos();
-            var level = Objects.requireNonNull(Minecraft.getInstance().level);
-            var state = level.getBlockState(pos);
-            if (!(state.getBlock() instanceof CableBlock cable)) return ItemStack.EMPTY;
-
-            return cable.getCloneItemStack(state, hit, level, pos, player);
-        });
-
-        ClientCommandRegistrationCallback.EVENT.register(
-            (dispatcher, registryAccess) -> ClientRegistry.registerClientCommands(dispatcher, FabricClientCommandSource::sendError)
-        );
-
-        ItemTooltipCallback.EVENT.register(CommonHooks::onItemTooltip);
+        // Register our open folder command
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
+            dispatcher.register(LiteralArgumentBuilder.<FabricClientCommandSource>literal(ComputerCraft.CLIENT_OPEN_FOLDER)
+                .requires(x -> Minecraft.getInstance().getSingleplayerServer() != null)
+                .then(RequiredArgumentBuilder.<FabricClientCommandSource, String>argument("path", StringArgumentType.string())
+                    .executes(c -> {
+                        var file = Path.of(c.getArgument("path", String.class));
+                        if (Files.isDirectory(file)) Util.getPlatform().openFile(file.toFile());
+                        return 0;
+                    })
+                )));
 
         ((FabricConfigFile) ConfigSpec.clientSpec).load(FabricLoader.getInstance().getConfigDir().resolve(ComputerCraftAPI.MOD_ID + "-client.toml"));
+    }
+
+    private record ModelWrapper<U, T>(
+        U model, BiConsumer<U, Resolver> resolve, BiFunction<U, ModelBaker, T> bake
+    ) implements UnbakedExtraModel<T> {
+        @Override
+        public T bake(ModelBaker baker) {
+            return bake().apply(model(), baker);
+        }
+
+        @Override
+        public void resolveDependencies(Resolver resolver) {
+            resolve().accept(model(), resolver);
+        }
     }
 }

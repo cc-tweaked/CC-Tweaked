@@ -18,6 +18,8 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.redstone.Orientation;
+import org.jspecify.annotations.Nullable;
 
 
 /**
@@ -79,9 +81,8 @@ public final class RedstoneRelayBlock extends HorizontalDirectionalBlock impleme
     }
 
     @Override
-    @Deprecated
-    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos, boolean isMoving) {
-        if (world.getBlockEntity(pos) instanceof RedstoneRelayBlockEntity relay) relay.neighborChanged(neighbourPos);
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighbourBlock, @Nullable Orientation orientation, boolean isMoving) {
+        if (level.getBlockEntity(pos) instanceof RedstoneRelayBlockEntity relay) relay.neighborChanged();
     }
 
     @Override

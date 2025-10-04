@@ -22,17 +22,20 @@ import dan200.computercraft.shared.computer.core.TerminalSize;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.container.BasicContainer;
 import dan200.computercraft.shared.platform.PlatformHelper;
-import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.inventory.TurtleMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
@@ -40,15 +43,23 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.function.IntSupplier;
 
 public class TurtleBlockEntity extends AbstractComputerBlockEntity implements BasicContainer {
+    private static final Logger LOG = LoggerFactory.getLogger(TurtleBlockEntity.class);
+
     public static final int INVENTORY_SIZE = 16;
     public static final int INVENTORY_WIDTH = 4;
     public static final int INVENTORY_HEIGHT = 4;
@@ -120,8 +131,13 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     }
 
     @Override
-    public void neighborChanged(BlockPos neighbour) {
-        if (moveState == MoveState.NOT_MOVED) super.neighborChanged(neighbour);
+    public void preRemoveSideEffects(BlockPos blockPos, BlockState blockState) {
+        if (!hasMoved()) super.preRemoveSideEffects(blockPos, blockState);
+    }
+
+    @Override
+    public void neighborChanged() {
+        if (moveState == MoveState.NOT_MOVED) super.neighborChanged();
     }
 
     public void notifyMoveStart() {
@@ -134,30 +150,30 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     }
 
     @Override
-    public void loadServer(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.loadServer(nbt, registries);
+    public void loadServer(ValueInput nbt) {
+        super.loadServer(nbt);
 
         // Read inventory
-        ContainerHelper.loadAllItems(nbt, inventory, registries);
+        ContainerHelper.loadAllItems(nbt, inventory);
         for (var i = 0; i < inventory.size(); i++) inventorySnapshot.set(i, inventory.get(i).copy());
 
         // Read state
-        brain.readFromNBT(nbt, registries);
+        brain.readFromNBT(nbt);
     }
 
     @Override
-    public void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+    public void saveAdditional(ValueOutput nbt) {
         // Write inventory
-        ContainerHelper.saveAllItems(nbt, inventory, registries);
+        ContainerHelper.saveAllItems(nbt, inventory);
 
         // Write brain
-        brain.writeToNBT(nbt, registries);
+        brain.writeToNBT(nbt);
 
-        super.saveAdditional(nbt, registries);
+        super.saveAdditional(nbt);
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput component) {
+    protected void applyImplicitComponents(DataComponentGetter component) {
         super.applyImplicitComponents(component);
 
         var colour = component.get(DataComponents.DYED_COLOR);
@@ -173,7 +189,10 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     protected void collectSafeComponents(DataComponentMap.Builder builder) {
         super.collectSafeComponents(builder);
 
-        builder.set(DataComponents.DYED_COLOR, brain.getColour() == -1 ? null : new DyedItemColor(brain.getColour(), false));
+        if (brain.getColour() != -1) {
+            builder.set(DataComponents.DYED_COLOR, new DyedItemColor(brain.getColour()));
+            builder.set(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT.withHidden(DataComponents.DYED_COLOR, true));
+        }
         builder.set(ModRegistry.DataComponents.OVERLAY.get(), brain.getOverlay());
         builder.set(ModRegistry.DataComponents.FUEL.get(), brain.getFuelLevel());
         builder.set(ModRegistry.DataComponents.LEFT_TURTLE_UPGRADE.get(), withPersistedData(brain.getUpgradeWithData(TurtleSide.LEFT)));
@@ -186,13 +205,13 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
 
     @Override
     @Deprecated
-    public void removeComponentsFromTag(CompoundTag tag) {
+    public void removeComponentsFromTag(ValueOutput tag) {
         super.removeComponentsFromTag(tag);
-        tag.remove(TurtleBrain.NBT_COLOUR);
-        tag.remove(TurtleBrain.NBT_FUEL);
-        tag.remove(TurtleBrain.NBT_OVERLAY);
-        tag.remove(TurtleBrain.NBT_LEFT_UPGRADE);
-        tag.remove(TurtleBrain.NBT_RIGHT_UPGRADE);
+        tag.discard(TurtleBrain.NBT_COLOUR);
+        tag.discard(TurtleBrain.NBT_FUEL);
+        tag.discard(TurtleBrain.NBT_OVERLAY);
+        tag.discard(TurtleBrain.NBT_LEFT_UPGRADE);
+        tag.discard(TurtleBrain.NBT_RIGHT_UPGRADE);
     }
 
     @Override
@@ -223,9 +242,8 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
         return brain.getColour();
     }
 
-    public @Nullable TurtleOverlay getOverlay() {
-        var overlay = brain.getOverlay();
-        return overlay == null ? null : overlay.value();
+    public @Nullable ResourceLocation getOverlay() {
+        return brain.getOverlay();
     }
 
     public ITurtleAccess getAccess() {
@@ -285,16 +303,25 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     // Networking stuff
 
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        var nbt = super.getUpdateTag(registries);
-        brain.writeDescription(nbt, registries);
-        return nbt;
+    public final ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
-    public void loadClient(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.loadClient(nbt, registries);
-        brain.readDescription(nbt, registries);
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        try (var problems = new ProblemReporter.ScopedCollector(problemPath(), LOG)) {
+            var nbt = TagValueOutput.createWithContext(problems, registries);
+            if (label != null) nbt.putString(NBT_LABEL, label);
+            brain.writeDescription(nbt);
+            return nbt.buildResult();
+        }
+    }
+
+    @Override
+    public void loadClient(ValueInput nbt) {
+        super.loadClient(nbt);
+        label = nbt.getStringOr(NBT_LABEL, null);
+        brain.readDescription(nbt);
     }
 
     // Privates

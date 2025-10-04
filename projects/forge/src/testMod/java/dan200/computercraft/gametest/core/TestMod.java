@@ -5,6 +5,7 @@
 package dan200.computercraft.gametest.core;
 
 import dan200.computercraft.export.Exporter;
+import net.minecraft.core.registries.Registries;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
@@ -18,6 +19,7 @@ import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 
 @Mod("cctest")
 public class TestMod {
@@ -33,7 +35,13 @@ public class TestMod {
 
         if (FMLEnvironment.dist == Dist.CLIENT) TestMod.onInitializeClient();
 
-        modBus.addListener((RegisterGameTestsEvent event) -> TestHooks.loadTests(event::register));
+        var tests = TestHooks.loadTests();
+        modBus.addListener((RegisterEvent event) -> {
+            for (var test : tests) event.register(Registries.TEST_FUNCTION, test.getId(), test::getFunction);
+        });
+        modBus.addListener((RegisterGameTestsEvent event) -> {
+            for (var test : tests) event.registerTest(test.getId(), test.getInstance());
+        });
     }
 
     private static void onInitializeClient() {

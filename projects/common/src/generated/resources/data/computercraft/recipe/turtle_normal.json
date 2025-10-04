@@ -1,12 +1,8 @@
 {
   "type": "computercraft:transform_shaped",
   "category": "redstone",
-  "function": [{"type": "computercraft:copy_components", "from": {"item": "computercraft:computer_normal"}}],
-  "key": {
-    "#": {"tag": "c:ingots/iron"},
-    "C": {"item": "computercraft:computer_normal"},
-    "I": {"tag": "c:chests/wooden"}
-  },
+  "function": [{"type": "computercraft:copy_components", "from": "computercraft:computer_normal"}],
+  "key": {"#": "#c:ingots/iron", "C": "computercraft:computer_normal", "I": "#c:chests/wooden"},
   "pattern": ["###", "#C#", "#I#"],
   "result": {"count": 1, "id": "computercraft:turtle_normal"}
 }

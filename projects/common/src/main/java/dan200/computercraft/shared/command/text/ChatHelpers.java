@@ -49,11 +49,7 @@ public final class ChatHelpers {
     }
 
     public static Component link(MutableComponent component, String command, Component toolTip) {
-        return link(component, new ClickEvent(ClickEvent.Action.RUN_COMMAND, command), toolTip);
-    }
-
-    public static Component clientLink(MutableComponent component, String command, Component toolTip) {
-        return link(component, new ClickEvent(ClickEvent.Action.RUN_COMMAND, command), toolTip);
+        return link(component, new ClickEvent.RunCommand(command), toolTip);
     }
 
     public static Component link(Component component, ClickEvent click, Component toolTip) {
@@ -61,7 +57,7 @@ public final class ChatHelpers {
 
         if (style.getColor() == null) style = style.withColor(ChatFormatting.YELLOW);
         style = style.withClickEvent(click);
-        style = style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, toolTip));
+        style = style.withHoverEvent(new HoverEvent.ShowText(toolTip));
 
         return component.copy().withStyle(style);
     }
@@ -72,8 +68,8 @@ public final class ChatHelpers {
 
     public static MutableComponent copy(String text) {
         return Component.literal(text).withStyle(s -> s
-            .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, text))
-            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("gui.computercraft.tooltip.copy")))
+            .withClickEvent(new ClickEvent.CopyToClipboard(text))
+            .withHoverEvent(new HoverEvent.ShowText(Component.translatable("gui.computercraft.tooltip.copy")))
         );
     }
 

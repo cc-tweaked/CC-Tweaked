@@ -5,19 +5,19 @@
     {
       "type": "computercraft:copy_components",
       "exclude": ["computercraft:overlay"],
-      "from": {"item": "computercraft:turtle_advanced"}
+      "from": "computercraft:turtle_advanced"
     }
   ],
   "group": "computercraft:turtle_advanced_overlay",
   "ingredients": [
-    {"tag": "c:dyes/red"},
-    {"tag": "c:dyes/orange"},
-    {"tag": "c:dyes/yellow"},
-    {"tag": "c:dyes/green"},
-    {"tag": "c:dyes/blue"},
-    {"tag": "c:dyes/purple"},
-    {"item": "minecraft:stick"},
-    {"item": "computercraft:turtle_advanced"}
+    "#c:dyes/red",
+    "#c:dyes/orange",
+    "#c:dyes/yellow",
+    "#c:dyes/green",
+    "#c:dyes/blue",
+    "#c:dyes/purple",
+    "minecraft:stick",
+    "computercraft:turtle_advanced"
   ],
   "result": {
     "components": {"computercraft:overlay": "computercraft:rainbow_flag"},

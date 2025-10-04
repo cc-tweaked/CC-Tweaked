@@ -7,7 +7,8 @@ package dan200.computercraft.shared.computer.terminal;
 import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.util.Colour;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class NetworkedTerminal extends Terminal {
     public NetworkedTerminal(int width, int height, boolean colour) {
@@ -76,7 +77,7 @@ public class NetworkedTerminal extends Terminal {
         setChanged();
     }
 
-    public synchronized CompoundTag writeToNBT(CompoundTag nbt) {
+    public synchronized void writeToNBT(ValueOutput nbt) {
         nbt.putInt("term_cursorX", cursorX);
         nbt.putInt("term_cursorY", cursorY);
         nbt.putBoolean("term_cursorBlink", cursorBlink);
@@ -91,42 +92,37 @@ public class NetworkedTerminal extends Terminal {
         var rgb8 = new int[Palette.PALETTE_SIZE];
         for (var i = 0; i < Palette.PALETTE_SIZE; i++) rgb8[i] = Palette.encodeRGB8(palette.getColour(i));
         nbt.putIntArray("term_palette", rgb8);
-
-        return nbt;
     }
 
-    public synchronized void readFromNBT(CompoundTag nbt) {
-        cursorX = nbt.getInt("term_cursorX");
-        cursorY = nbt.getInt("term_cursorY");
-        cursorBlink = nbt.getBoolean("term_cursorBlink");
-        cursorColour = nbt.getInt("term_textColour");
-        cursorBackgroundColour = nbt.getInt("term_bgColour");
+    public synchronized void readFromNBT(ValueInput nbt) {
+        cursorX = nbt.getIntOr("term_cursorX", 0);
+        cursorY = nbt.getIntOr("term_cursorY", 0);
+        cursorBlink = nbt.getBooleanOr("term_cursorBlink", false);
+        cursorColour = nbt.getIntOr("term_textColour", 0);
+        cursorBackgroundColour = nbt.getIntOr("term_bgColour", 0);
 
         for (var n = 0; n < height; n++) {
             text[n].fill(' ');
-            if (nbt.contains("term_text_" + n)) {
-                text[n].write(nbt.getString("term_text_" + n));
-            }
+            var line = nbt.getStringOr("term_text_" + n, "");
+            if (!line.isEmpty()) text[n].write(line);
+
             textColour[n].fill(BASE_16.charAt(cursorColour));
-            if (nbt.contains("term_textColour_" + n)) {
-                textColour[n].write(nbt.getString("term_textColour_" + n));
-            }
+            var fgLine = nbt.getStringOr("term_textColour_" + n, "");
+            if (!fgLine.isEmpty()) textColour[n].write(fgLine);
+
             backgroundColour[n].fill(BASE_16.charAt(cursorBackgroundColour));
-            if (nbt.contains("term_textBgColour_" + n)) {
-                backgroundColour[n].write(nbt.getString("term_textBgColour_" + n));
+            var bgLine = nbt.getStringOr("term_textBgColour_" + n, "");
+            if (!bgLine.isEmpty()) backgroundColour[n].write(bgLine);
+        }
+
+        var rgb8 = nbt.getIntArray("term_palette").orElse(null);
+        if (rgb8 != null && rgb8.length == Palette.PALETTE_SIZE) {
+            for (var i = 0; i < Palette.PALETTE_SIZE; i++) {
+                var colours = Palette.decodeRGB8(rgb8[i]);
+                palette.setColour(i, colours[0], colours[1], colours[2]);
             }
         }
 
-        if (nbt.contains("term_palette")) {
-            var rgb8 = nbt.getIntArray("term_palette");
-            if (rgb8.length == Palette.PALETTE_SIZE) {
-                for (var i = 0; i < Palette.PALETTE_SIZE; i++) {
-                    var colours = Palette.decodeRGB8(rgb8[i]);
-                    palette.setColour(i, colours[0], colours[1], colours[2]);
-                }
-            }
-
-        }
         setChanged();
     }
 }

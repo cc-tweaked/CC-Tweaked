@@ -16,6 +16,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryFixedCodec;
@@ -95,6 +96,29 @@ public final class UpgradeManager<T extends UpgradeBase> {
         // TODO: Would be nice if we could use the registration info here.
     }
 
+    /**
+     * Determine our "creator mod" from a list of upgrades.
+     * <p>
+     * We attempt to find the first non-vanilla/non-CC upgrade.
+     *
+     * @param first  The first upgrade.
+     * @param second The second upgrade.
+     * @return The owning mod id of this item.
+     */
+    public String getOwner(@Nullable UpgradeData<T> first, @Nullable UpgradeData<T> second) {
+        if (first != null) {
+            var mod = getOwner(first.holder());
+            if (!mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
+        }
+
+        if (second != null) {
+            var mod = getOwner(second.holder());
+            if (!mod.equals(ComputerCraftAPI.MOD_ID)) return mod;
+        }
+
+        return ComputerCraftAPI.MOD_ID;
+    }
+
     @Nullable
     public UpgradeData<T> get(HolderLookup.Provider registries, ItemStack stack) {
         if (stack.isEmpty()) return null;
@@ -108,5 +132,17 @@ public final class UpgradeManager<T extends UpgradeBase> {
             .findAny()
             .map(x -> UpgradeData.of(x, x.value().getUpgradeData(stack)))
             .orElse(null);
+    }
+
+    public static Component getName(String baseString, @Nullable UpgradeBase first, @Nullable UpgradeBase second) {
+        if (first != null && second != null) {
+            return Component.translatable(baseString + ".upgraded_twice", second.getAdjective(), first.getAdjective());
+        } else if (first != null) {
+            return Component.translatable(baseString + ".upgraded", first.getAdjective());
+        } else if (second != null) {
+            return Component.translatable(baseString + ".upgraded", second.getAdjective());
+        } else {
+            return Component.translatable(baseString);
+        }
     }
 }

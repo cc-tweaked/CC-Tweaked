@@ -4,12 +4,15 @@
 
 package dan200.computercraft.shared.computer.core;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;
 
 public enum ComputerState implements StringRepresentable {
     OFF("off", ""),
     ON("on", "_on"),
     BLINKING("blinking", "_blink");
+
+    public static final Codec<ComputerState> CODEC = StringRepresentable.fromEnum(ComputerState::values);
 
     private final String name;
     private final String texture;

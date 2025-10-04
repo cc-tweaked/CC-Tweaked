@@ -15,6 +15,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ServiceLoader;
 
 /**
  * Bootstrap Minecraft before running these tests.
@@ -31,7 +32,15 @@ public @interface WithMinecraft {
 
         public static void bootstrap() {
             SharedConstants.tryDetectVersion();
+            ServiceLoader.load(SetupHook.class, SetupHook.class.getClassLoader()).forEach(SetupHook::run);
             Bootstrap.bootStrap();
         }
+    }
+
+    /**
+     * Additional hooks to run as part of bootstrap.
+     */
+    interface SetupHook {
+        void run();
     }
 }

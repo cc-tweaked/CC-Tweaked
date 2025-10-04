@@ -258,10 +258,10 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         if (identifier == null) throw new LuaException("Malformed sound name '" + name + "' ");
 
         // Prevent playing music discs.
-        var soundEvent = BuiltInRegistries.SOUND_EVENT.get(identifier);
+        var soundEvent = BuiltInRegistries.SOUND_EVENT.getValue(identifier);
         // TODO: Build a set of sound events at server startup, and cache this.
         var level = getLevel();
-        if (soundEvent != null && level.registryAccess().registryOrThrow(Registries.JUKEBOX_SONG).stream().anyMatch(x -> x.soundEvent().value() == soundEvent)) {
+        if (soundEvent != null && level.registryAccess().lookupOrThrow(Registries.JUKEBOX_SONG).stream().anyMatch(x -> x.soundEvent().value() == soundEvent)) {
             return false;
         }
 

@@ -182,10 +182,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
             output.append("\n");
 
             var component = coloured(child.getName(), NAME);
-            component.getStyle().withClickEvent(new ClickEvent(
-                ClickEvent.Action.SUGGEST_COMMAND,
-                "/" + command + " " + child.getName()
-            ));
+            component.getStyle().withClickEvent(new ClickEvent.SuggestCommand("/" + command + " " + child.getName()));
             output.append(component);
 
             output.append(" - ").append(Component.translatable("commands." + id + "." + child.getName() + ".synopsis"));

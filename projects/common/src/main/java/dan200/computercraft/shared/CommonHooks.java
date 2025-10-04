@@ -13,10 +13,7 @@ import dan200.computercraft.shared.lectern.CustomLecternBlock;
 import dan200.computercraft.shared.peripheral.monitor.MonitorWatcher;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.TickScheduler;
-import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -28,8 +25,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.TooltipProvider;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
@@ -42,10 +40,8 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * Event listeners for server/common code.
@@ -143,8 +139,8 @@ public final class CommonHooks {
             .setRolls(ConstantValue.exactly(1));
     }
 
-    public static void onDatapackReload(BiConsumer<String, PreparableReloadListener> addReload) {
-        addReload.accept("mounts", ResourceMount.RELOAD_LISTENER);
+    public static void onDatapackReload(BiConsumer<ResourceLocation, PreparableReloadListener> addReload) {
+        addReload.accept(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "mounts"), ResourceMount.RELOAD_LISTENER);
     }
 
     public static boolean onEntitySpawn(Entity entity) {
@@ -166,43 +162,5 @@ public final class CommonHooks {
         if (key == CreativeModeTabs.OP_BLOCKS && context.hasPermissions()) {
             out.accept(ModRegistry.Items.COMPUTER_COMMAND.get());
         }
-    }
-
-    public static void onItemTooltip(ItemStack stack, Item.TooltipContext context, TooltipFlag flags, List<Component> out) {
-        var appender = new TooltipAppender(out);
-        addToTooltip(stack, ModRegistry.DataComponents.PRINTOUT.get(), context, appender, flags);
-        addToTooltip(stack, ModRegistry.DataComponents.TREASURE_DISK.get(), context, appender, flags);
-
-        // Disk and computer IDs require some conditional logic, so we don't bother using TooltipProvider.
-
-        var diskId = stack.get(ModRegistry.DataComponents.DISK_ID.get());
-        if (diskId != null && flags.isAdvanced()) diskId.addToTooltip("gui.computercraft.tooltip.disk_id", appender);
-
-        var computerId = stack.get(ModRegistry.DataComponents.COMPUTER_ID.get());
-        if (computerId != null && (flags.isAdvanced() || !stack.has(DataComponents.CUSTOM_NAME))) {
-            computerId.addToTooltip("gui.computercraft.tooltip.computer_id", appender);
-        }
-    }
-
-    /**
-     * Inserts additional tooltip items directly after the custom name, rather than at the very end.
-     */
-    private static final class TooltipAppender implements Consumer<Component> {
-        private final List<Component> out;
-        private int index = 1;
-
-        private TooltipAppender(List<Component> out) {
-            this.out = out;
-        }
-
-        @Override
-        public void accept(Component component) {
-            out.add(index++, component);
-        }
-    }
-
-    private static <T extends TooltipProvider> void addToTooltip(ItemStack stack, DataComponentType<T> component, Item.TooltipContext context, Consumer<Component> out, TooltipFlag flags) {
-        var provider = stack.get(component);
-        if (provider != null) provider.addToTooltip(context, out, flags);
     }
 }

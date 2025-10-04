@@ -12,7 +12,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -41,12 +44,22 @@ public sealed interface PocketHolder {
     BlockPos blockPos();
 
     /**
+     * Get the current pocket computer stack.
+     *
+     * @param computer The owning computer.
+     * @return The found stack. This is empty if no valid stack is found.
+     */
+    ItemStack getStack(ServerComputer computer);
+
+    /**
      * Determine if this holder is still valid for a particular computer.
      *
      * @param computer The current computer.
      * @return Whether this holder is valid.
      */
-    boolean isValid(ServerComputer computer);
+    default boolean isValid(ServerComputer computer) {
+        return !getStack(computer).isEmpty();
+    }
 
     /**
      * Mark the pocket computer item as having changed.
@@ -97,13 +110,37 @@ public sealed interface PocketHolder {
      */
     record PlayerHolder(ServerPlayer entity, int slot) implements EntityHolder {
         @Override
-        public boolean isValid(ServerComputer computer) {
-            return entity().isAlive() && PocketComputerItem.isServerComputer(computer, entity().getInventory().getItem(this.slot()));
+        public ItemStack getStack(ServerComputer computer) {
+            if (!entity().isAlive()) return ItemStack.EMPTY;
+
+            var item = entity().getInventory().getItem(this.slot());
+            return PocketComputerItem.isServerComputer(computer, item) ? item : ItemStack.EMPTY;
         }
 
         @Override
         public void setChanged() {
             entity.getInventory().setChanged();
+        }
+    }
+
+    /**
+     * A pocket computer in a {@link LivingEntity}'s slot.
+     *
+     * @param entity The current player.
+     * @param slot   The slot the pocket computer is in.
+     */
+    record LivingEntityHolder(LivingEntity entity, EquipmentSlot slot) implements EntityHolder {
+        @Override
+        public ItemStack getStack(ServerComputer computer) {
+            if (!entity().isAlive()) return ItemStack.EMPTY;
+
+            var item = entity().getItemBySlot(this.slot());
+            return PocketComputerItem.isServerComputer(computer, item) ? item : ItemStack.EMPTY;
+        }
+
+        @Override
+        public void setChanged() {
+            // TODO: What can we do?
         }
     }
 
@@ -114,8 +151,11 @@ public sealed interface PocketHolder {
      */
     record ItemEntityHolder(ItemEntity entity) implements EntityHolder {
         @Override
-        public boolean isValid(ServerComputer computer) {
-            return entity().isAlive() && PocketComputerItem.isServerComputer(computer, this.entity().getItem());
+        public ItemStack getStack(ServerComputer computer) {
+            if (!entity().isAlive()) return ItemStack.EMPTY;
+
+            var item = entity().getItem();
+            return PocketComputerItem.isServerComputer(computer, item) ? item : ItemStack.EMPTY;
         }
 
         @Override
@@ -146,8 +186,11 @@ public sealed interface PocketHolder {
         }
 
         @Override
-        public boolean isValid(ServerComputer computer) {
-            return !lectern().isRemoved() && PocketComputerItem.isServerComputer(computer, lectern.getItem());
+        public ItemStack getStack(ServerComputer computer) {
+            if (lectern.isRemoved()) return ItemStack.EMPTY;
+
+            var item = lectern.getItem();
+            return PocketComputerItem.isServerComputer(computer, item) ? item : ItemStack.EMPTY;
         }
 
         @Override

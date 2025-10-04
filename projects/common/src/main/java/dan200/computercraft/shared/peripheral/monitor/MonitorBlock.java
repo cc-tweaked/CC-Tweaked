@@ -27,7 +27,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
@@ -35,10 +34,10 @@ import org.jspecify.annotations.Nullable;
 public class MonitorBlock extends HorizontalDirectionalBlock implements EntityBlock {
     private static final MapCodec<MonitorBlock> CODEC = BlockCodecs.blockWithBlockEntityCodec(MonitorBlock::new, x -> x.type);
 
-    public static final DirectionProperty ORIENTATION = DirectionProperty.create("orientation",
+    public static final EnumProperty<Direction> ORIENTATION = EnumProperty.create("orientation", Direction.class,
         Direction.UP, Direction.DOWN, Direction.NORTH);
 
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.create("state", MonitorEdgeState.class);
 
     private final RegistryEntry<? extends BlockEntityType<? extends MonitorBlockEntity>> type;
@@ -85,15 +84,6 @@ public class MonitorBlock extends HorizontalDirectionalBlock implements EntityBl
     }
 
     @Override
-    protected final void onRemove(BlockState block, Level world, BlockPos pos, BlockState replace, boolean bool) {
-        if (block.getBlock() == replace.getBlock()) return;
-
-        var tile = world.getBlockEntity(pos);
-        super.onRemove(block, world, pos, replace, bool);
-        if (tile instanceof MonitorBlockEntity generic) generic.destroy();
-    }
-
-    @Override
     protected void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource rand) {
         var te = world.getBlockEntity(pos);
         if (te instanceof MonitorBlockEntity monitor) monitor.blockTick();
@@ -113,7 +103,7 @@ public class MonitorBlock extends HorizontalDirectionalBlock implements EntityBl
             );
         }
 
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     @Override

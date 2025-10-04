@@ -15,9 +15,7 @@ import dan200.computercraft.shared.util.ColourUtils;
 import dan200.computercraft.shared.util.DataComponentUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -25,6 +23,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -55,22 +55,22 @@ public final class PrinterBlockEntity extends AbstractContainerBlockEntity imple
     }
 
     @Override
-    public void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.loadAdditional(nbt, registries);
+    public void loadAdditional(ValueInput nbt) {
+        super.loadAdditional(nbt);
 
         // Read page
         synchronized (page) {
-            printing = nbt.getBoolean(NBT_PRINTING);
-            pageTitle = nbt.getString(NBT_PAGE_TITLE);
+            printing = nbt.getBooleanOr(NBT_PRINTING, false);
+            pageTitle = nbt.getStringOr(NBT_PAGE_TITLE, "");
             page.readFromNBT(nbt);
         }
 
         // Read inventory
-        ContainerHelper.loadAllItems(nbt, inventory, registries);
+        ContainerHelper.loadAllItems(nbt, inventory);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+    public void saveAdditional(ValueOutput tag) {
         // Write page
         synchronized (page) {
             tag.putBoolean(NBT_PRINTING, printing);
@@ -79,9 +79,9 @@ public final class PrinterBlockEntity extends AbstractContainerBlockEntity imple
         }
 
         // Write inventory
-        ContainerHelper.saveAllItems(tag, inventory, registries);
+        ContainerHelper.saveAllItems(tag, inventory);
 
-        super.saveAdditional(tag, registries);
+        super.saveAdditional(tag);
     }
 
     boolean isPrinting() {

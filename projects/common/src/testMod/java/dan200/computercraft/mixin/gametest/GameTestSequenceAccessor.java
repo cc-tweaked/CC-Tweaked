@@ -15,5 +15,5 @@ public interface GameTestSequenceAccessor {
     GameTestInfo getParent();
 
     @Accessor
-    long getLastTick();
+    int getLastTick();
 }

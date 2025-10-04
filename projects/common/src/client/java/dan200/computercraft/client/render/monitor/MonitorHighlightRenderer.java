@@ -6,13 +6,12 @@ package dan200.computercraft.client.render.monitor;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dan200.computercraft.client.render.BlockOutlineRenderer;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.BlockHitResult;
-import org.joml.Matrix4f;
 
 import java.util.EnumSet;
 
@@ -30,11 +29,10 @@ public final class MonitorHighlightRenderer {
         // Preserve normal behaviour when crouching.
         if (camera.getEntity().isCrouching()) return false;
 
-        var world = camera.getEntity().getCommandSenderWorld();
+        var world = camera.getEntity().level();
         var pos = hit.getBlockPos();
 
-        var tile = world.getBlockEntity(pos);
-        if (!(tile instanceof MonitorBlockEntity monitor)) return false;
+        if (!(world.getBlockEntity(pos) instanceof MonitorBlockEntity monitor)) return false;
 
         // Determine which sides are part of the external faces of the monitor, and so which need to be rendered.
         var faces = EnumSet.allOf(Direction.class);
@@ -49,39 +47,37 @@ public final class MonitorHighlightRenderer {
         transformStack.pushPose();
         transformStack.translate(pos.getX() - cameraPos.x(), pos.getY() - cameraPos.y(), pos.getZ() - cameraPos.z());
 
-        // I wish I could think of a better way to do this
-        var buffer = bufferSource.getBuffer(RenderType.lines());
-        var transform = transformStack.last().pose();
-        var normal = transformStack.last();
-        if (faces.contains(NORTH) || faces.contains(WEST)) line(buffer, transform, normal, 0, 0, 0, UP);
-        if (faces.contains(SOUTH) || faces.contains(WEST)) line(buffer, transform, normal, 0, 0, 1, UP);
-        if (faces.contains(NORTH) || faces.contains(EAST)) line(buffer, transform, normal, 1, 0, 0, UP);
-        if (faces.contains(SOUTH) || faces.contains(EAST)) line(buffer, transform, normal, 1, 0, 1, UP);
-        if (faces.contains(NORTH) || faces.contains(DOWN)) line(buffer, transform, normal, 0, 0, 0, EAST);
-        if (faces.contains(SOUTH) || faces.contains(DOWN)) line(buffer, transform, normal, 0, 0, 1, EAST);
-        if (faces.contains(NORTH) || faces.contains(UP)) line(buffer, transform, normal, 0, 1, 0, EAST);
-        if (faces.contains(SOUTH) || faces.contains(UP)) line(buffer, transform, normal, 0, 1, 1, EAST);
-        if (faces.contains(WEST) || faces.contains(DOWN)) line(buffer, transform, normal, 0, 0, 0, SOUTH);
-        if (faces.contains(EAST) || faces.contains(DOWN)) line(buffer, transform, normal, 1, 0, 0, SOUTH);
-        if (faces.contains(WEST) || faces.contains(UP)) line(buffer, transform, normal, 0, 1, 0, SOUTH);
-        if (faces.contains(EAST) || faces.contains(UP)) line(buffer, transform, normal, 1, 1, 0, SOUTH);
+        var transform = transformStack.last();
+        BlockOutlineRenderer.render(bufferSource, (buffer, colour) -> draw(buffer, transform, faces, colour));
 
         transformStack.popPose();
         return true;
     }
 
-    private static void line(VertexConsumer buffer, Matrix4f transform, PoseStack.Pose normal, float x, float y, float z, Direction direction) {
+    private static void draw(VertexConsumer buffer, PoseStack.Pose transform, EnumSet<Direction> faces, int colour) {
+        // I wish I could think of a better way to do this
+        if (faces.contains(NORTH) || faces.contains(WEST)) line(buffer, transform, 0, 0, 0, UP, colour);
+        if (faces.contains(SOUTH) || faces.contains(WEST)) line(buffer, transform, 0, 0, 1, UP, colour);
+        if (faces.contains(NORTH) || faces.contains(EAST)) line(buffer, transform, 1, 0, 0, UP, colour);
+        if (faces.contains(SOUTH) || faces.contains(EAST)) line(buffer, transform, 1, 0, 1, UP, colour);
+        if (faces.contains(NORTH) || faces.contains(DOWN)) line(buffer, transform, 0, 0, 0, EAST, colour);
+        if (faces.contains(SOUTH) || faces.contains(DOWN)) line(buffer, transform, 0, 0, 1, EAST, colour);
+        if (faces.contains(NORTH) || faces.contains(UP)) line(buffer, transform, 0, 1, 0, EAST, colour);
+        if (faces.contains(SOUTH) || faces.contains(UP)) line(buffer, transform, 0, 1, 1, EAST, colour);
+        if (faces.contains(WEST) || faces.contains(DOWN)) line(buffer, transform, 0, 0, 0, SOUTH, colour);
+        if (faces.contains(EAST) || faces.contains(DOWN)) line(buffer, transform, 1, 0, 0, SOUTH, colour);
+        if (faces.contains(WEST) || faces.contains(UP)) line(buffer, transform, 0, 1, 0, SOUTH, colour);
+        if (faces.contains(EAST) || faces.contains(UP)) line(buffer, transform, 1, 1, 0, SOUTH, colour);
+    }
+
+    private static void line(VertexConsumer buffer, PoseStack.Pose transform, float x, float y, float z, Direction direction, int colour) {
         buffer
             .addVertex(transform, x, y, z)
-            .setColor(0, 0, 0, 0.4f)
-            .setNormal(normal, direction.getStepX(), direction.getStepY(), direction.getStepZ());
+            .setColor(colour)
+            .setNormal(transform, direction.getStepX(), direction.getStepY(), direction.getStepZ());
         buffer
-            .addVertex(transform,
-                x + direction.getStepX(),
-                y + direction.getStepY(),
-                z + direction.getStepZ()
-            )
-            .setColor(0, 0, 0, 0.4f)
-            .setNormal(normal, direction.getStepX(), direction.getStepY(), direction.getStepZ());
+            .addVertex(transform, x + direction.getStepX(), y + direction.getStepY(), z + direction.getStepZ())
+            .setColor(colour)
+            .setNormal(transform, direction.getStepX(), direction.getStepY(), direction.getStepZ());
     }
 }

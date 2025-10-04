@@ -7,14 +7,15 @@ package dan200.computercraft.gametest
 import dan200.computercraft.api.lua.Coerced
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.gametest.api.*
+import dan200.computercraft.gametest.api.GameTest
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.media.items.PrintoutData
 import dan200.computercraft.shared.peripheral.printer.PrinterBlock
+import dan200.computercraft.shared.peripheral.printer.PrinterBlockEntity
 import dan200.computercraft.shared.peripheral.printer.PrinterPeripheral
 import dan200.computercraft.shared.util.DataComponentUtil
 import net.minecraft.core.BlockPos
 import net.minecraft.core.component.DataComponents
-import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
@@ -29,12 +30,12 @@ class Printer_Test {
      */
     @GameTest
     fun Comparator(helper: GameTestHelper) = helper.sequence {
-        val printerPos = BlockPos(2, 2, 2)
-        val dustPos = BlockPos(2, 2, 4)
+        val printerPos = BlockPos(2, 1, 2)
+        val dustPos = BlockPos(2, 1, 4)
 
         // Adding items should provide power
         thenExecute {
-            val printer = helper.getBlockEntity(printerPos, ModRegistry.BlockEntities.PRINTER.get())
+            val printer = helper.getBlockEntity(printerPos, PrinterBlockEntity::class.java)
             printer.setItem(0, ItemStack(Items.BLACK_DYE))
             printer.setItem(1, ItemStack(Items.PAPER))
             printer.setChanged()
@@ -44,7 +45,7 @@ class Printer_Test {
 
         // And removing them should reset power.
         thenExecute {
-            val printer = helper.getBlockEntity(printerPos, ModRegistry.BlockEntities.PRINTER.get())
+            val printer = helper.getBlockEntity(printerPos, PrinterBlockEntity::class.java)
             printer.clearContent()
             printer.setChanged()
         }
@@ -57,10 +58,10 @@ class Printer_Test {
      */
     @GameTest(template = "printer_test.empty")
     fun Contents_updates_state(helper: GameTestHelper) = helper.sequence {
-        val pos = BlockPos(2, 2, 2)
+        val pos = BlockPos(2, 1, 2)
 
         thenExecute {
-            val printer = helper.getBlockEntity(pos, ModRegistry.BlockEntities.PRINTER.get())
+            val printer = helper.getBlockEntity(pos, PrinterBlockEntity::class.java)
 
             printer.setItem(1, ItemStack(Items.PAPER))
             printer.setChanged()
@@ -89,10 +90,10 @@ class Printer_Test {
      */
     @GameTest(template = "printer_test.empty")
     fun Print_page(helper: GameTestHelper) = helper.sequence {
-        val pos = BlockPos(2, 2, 2)
+        val pos = BlockPos(2, 1, 2)
 
         thenExecute {
-            val printer = helper.getBlockEntity(pos, ModRegistry.BlockEntities.PRINTER.get())
+            val printer = helper.getBlockEntity(pos, PrinterBlockEntity::class.java)
             val peripheral = printer.peripheral() as PrinterPeripheral
 
             // Try to print with no pages
@@ -166,10 +167,10 @@ class Printer_Test {
      */
     @GameTest
     fun No_print_when_full(helper: GameTestHelper) = helper.sequence {
-        val pos = BlockPos(2, 2, 2)
+        val pos = BlockPos(2, 1, 2)
 
         thenExecute {
-            val printer = helper.getBlockEntity(pos, ModRegistry.BlockEntities.PRINTER.get())
+            val printer = helper.getBlockEntity(pos, PrinterBlockEntity::class.java)
             val peripheral = printer.peripheral() as PrinterPeripheral
             assertTrue(peripheral.newPage())
             assertFalse(peripheral.endPage(), "Cannot print when full")
@@ -182,7 +183,7 @@ class Printer_Test {
     @GameTest
     fun Drops_contents(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            helper.level.destroyBlock(helper.absolutePos(BlockPos(2, 2, 2)), true)
+            helper.level.destroyBlock(helper.absolutePos(BlockPos(2, 1, 2)), true)
             helper.assertExactlyItems(
                 DataComponentUtil.createStack(ModRegistry.Items.PRINTER.get(), DataComponents.CUSTOM_NAME, Component.literal("My Printer")),
                 ItemStack(Items.PAPER),
@@ -198,8 +199,8 @@ class Printer_Test {
     @GameTest
     fun Can_insert_items(helper: GameTestHelper) = helper.sequence {
         thenWaitUntil {
-            helper.assertContainerExactly(BlockPos(1, 2, 2), listOf(ItemStack.EMPTY, ItemStack(Items.PAPER)))
-            helper.assertContainerExactly(BlockPos(3, 2, 2), listOf(ItemStack(Items.BLACK_DYE)))
+            helper.assertContainerExactly(BlockPos(1, 1, 2), listOf(ItemStack.EMPTY, ItemStack(Items.PAPER)))
+            helper.assertContainerExactly(BlockPos(3, 1, 2), listOf(ItemStack(Items.BLACK_DYE)))
         }
     }
 
@@ -208,7 +209,7 @@ class Printer_Test {
      */
     @GameTest
     fun Can_extract_items(helper: GameTestHelper) = helper.sequence {
-        thenWaitUntil { helper.assertContainerEmpty(BlockPos(2, 3, 2)) }
+        thenWaitUntil { helper.assertContainerEmpty(BlockPos(2, 2, 2)) }
     }
 
     /**
@@ -217,7 +218,7 @@ class Printer_Test {
     @GameTest
     fun Data_fixers(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            val container = helper.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.PRINTER.get())
+            val container = helper.getBlockEntity(BlockPos(2, 1, 2), PrinterBlockEntity::class.java)
             val contents = container.getItem(1)
             assertEquals(ModRegistry.Items.PRINTED_PAGE.get(), contents.item)
 

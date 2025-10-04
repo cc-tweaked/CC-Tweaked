@@ -10,9 +10,12 @@ import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -30,12 +33,14 @@ import java.util.function.Function;
  * @see ShapelessSpecBuilder
  */
 public abstract class AbstractRecipeBuilder<S extends AbstractRecipeBuilder<S, O>, O> {
+    protected final HolderGetter<Item> items;
     private final RecipeCategory category;
     protected final ItemStack result;
     private String group = "";
     private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
 
-    protected AbstractRecipeBuilder(RecipeCategory category, ItemStack result) {
+    protected AbstractRecipeBuilder(HolderGetter<Item> items, RecipeCategory category, ItemStack result) {
+        this.items = items;
         this.category = category;
         this.result = result;
     }
@@ -112,17 +117,23 @@ public abstract class AbstractRecipeBuilder<S extends AbstractRecipeBuilder<S, O
 
         public void save(RecipeOutput output, ResourceLocation id) {
             if (criteria.isEmpty()) throw new IllegalStateException("No way of obtaining recipe " + id);
+
+            var key = recipeKey(id);
             var advancement = output.advancement()
-                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
-                .rewards(AdvancementRewards.Builder.recipe(id))
+                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(key))
+                .rewards(AdvancementRewards.Builder.recipe(key))
                 .requirements(AdvancementRequirements.Strategy.OR);
             for (var entry : criteria.entrySet()) advancement.addCriterion(entry.getKey(), entry.getValue());
 
-            output.accept(id, recipe, advancement.build(id.withPrefix("recipes/" + category.getFolderName() + "/")));
+            output.accept(key, recipe, advancement.build(id.withPrefix("recipes/" + category.getFolderName() + "/")));
         }
 
         public void save(RecipeOutput output) {
             save(output, RecipeBuilder.getDefaultRecipeId(result));
         }
+    }
+
+    protected static ResourceKey<Recipe<?>> recipeKey(ResourceLocation key) {
+        return ResourceKey.create(Registries.RECIPE, key);
     }
 }

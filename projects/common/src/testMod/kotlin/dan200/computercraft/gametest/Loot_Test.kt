@@ -4,11 +4,11 @@
 
 package dan200.computercraft.gametest
 
+import dan200.computercraft.gametest.api.GameTest
 import dan200.computercraft.gametest.api.Structures
 import dan200.computercraft.gametest.api.sequence
 import dan200.computercraft.shared.ModRegistry
 import net.minecraft.core.BlockPos
-import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.entity.ChestBlockEntity
@@ -21,10 +21,10 @@ class Loot_Test {
     @GameTest(template = Structures.DEFAULT, required = false) // FIXME: We may need to inject this as a datapack instead
     fun Chest_contains_disk(context: GameTestHelper) = context.sequence {
         thenExecute {
-            val pos = BlockPos(2, 2, 2)
+            val pos = BlockPos(2, 1, 2)
 
             context.setBlock(pos, Blocks.CHEST)
-            val chest = context.getBlockEntity(pos) as ChestBlockEntity
+            val chest = context.getBlockEntity(pos, ChestBlockEntity::class.java)
             chest.setLootTable(BuiltInLootTables.SIMPLE_DUNGEON, 123)
             chest.unpackLootTable(null)
 

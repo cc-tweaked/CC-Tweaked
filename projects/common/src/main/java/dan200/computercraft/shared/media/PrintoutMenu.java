@@ -81,7 +81,7 @@ public class PrintoutMenu extends AbstractContainerMenu {
         var currentItem = currentStack.getItem();
 
         var slot = switch (hand) {
-            case MAIN_HAND -> player.getInventory().selected;
+            case MAIN_HAND -> player.getInventory().getSelectedSlot();
             case OFF_HAND -> Inventory.SLOT_OFFHAND;
         };
         return new PrintoutMenu(

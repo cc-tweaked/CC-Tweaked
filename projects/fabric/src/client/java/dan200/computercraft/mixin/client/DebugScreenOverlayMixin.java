@@ -20,10 +20,4 @@ class DebugScreenOverlayMixin {
     private void appendBlockDebugInfo(CallbackInfoReturnable<List<String>> cir) {
         ClientHooks.addBlockDebugInfo(cir.getReturnValue()::add);
     }
-
-    @Inject(method = "getGameInformation", at = @At("RETURN"))
-    @SuppressWarnings("UnusedMethod")
-    private void appendGameDebugInfo(CallbackInfoReturnable<List<String>> cir) {
-        ClientHooks.addGameDebugInfo(cir.getReturnValue()::add);
-    }
 }

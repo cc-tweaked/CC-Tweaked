@@ -2,7 +2,7 @@
   "type": "computercraft:impostor_shaped",
   "category": "redstone",
   "group": "computercraft:turtle_normal",
-  "key": {"#": {"item": "minecraft:crafting_table"}, "T": {"item": "computercraft:turtle_normal"}},
+  "key": {"#": "minecraft:crafting_table", "T": "computercraft:turtle_normal"},
   "pattern": ["#T"],
   "result": {
     "components": {"computercraft:right_turtle_upgrade": {"id": "minecraft:crafting_table"}},

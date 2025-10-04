@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 
+
 /**
  * A {@link GuiGraphics}-equivalent renders to a {@link VertexConsumer}. This is suitable for rendering outside of a
  * GUI, such as part of an entity renderer.

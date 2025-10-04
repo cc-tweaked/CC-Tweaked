@@ -4,12 +4,12 @@
 
 package dan200.computercraft.gametest
 
+import dan200.computercraft.gametest.api.GameTest
 import dan200.computercraft.gametest.api.sequence
 import dan200.computercraft.gametest.api.thenOnComputer
 import dan200.computercraft.gametest.api.tryMultipleTimes
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral
 import dan200.computercraft.test.core.assertArrayEquals
-import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.sounds.SoundEvents
 

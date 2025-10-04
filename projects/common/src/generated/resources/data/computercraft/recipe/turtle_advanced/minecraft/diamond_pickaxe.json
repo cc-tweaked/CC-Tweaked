@@ -2,7 +2,7 @@
   "type": "computercraft:impostor_shaped",
   "category": "redstone",
   "group": "computercraft:turtle_advanced",
-  "key": {"#": {"item": "minecraft:diamond_pickaxe"}, "T": {"item": "computercraft:turtle_advanced"}},
+  "key": {"#": "minecraft:diamond_pickaxe", "T": "computercraft:turtle_advanced"},
   "pattern": ["#T"],
   "result": {
     "components": {"computercraft:right_turtle_upgrade": {"id": "minecraft:diamond_pickaxe"}},

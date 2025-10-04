@@ -5,51 +5,13 @@
 package dan200.computercraft.client.platform;
 
 import com.google.auto.service.AutoService;
-import com.mojang.blaze3d.vertex.PoseStack;
-import dan200.computercraft.client.model.FoiledModel;
-import dan200.computercraft.client.render.ModelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelManager;
-import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import org.jspecify.annotations.Nullable;
+import net.minecraft.client.resources.model.ModelDebugName;
+import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 
-import java.util.Arrays;
-
-@AutoService(dan200.computercraft.impl.client.ClientPlatformHelper.class)
+@AutoService(ClientPlatformHelper.class)
 public class ClientPlatformHelperImpl implements ClientPlatformHelper {
-    private static final RandomSource random = RandomSource.create(0);
-    private static final Direction[] directions = Arrays.copyOf(Direction.values(), 7);
-
     @Override
-    public BakedModel getModel(ModelManager manager, ResourceLocation resourceLocation) {
-        return manager.getModel(ModelResourceLocation.standalone(resourceLocation));
-    }
-
-    @Override
-    public BakedModel getModel(ModelManager manager, ModelResourceLocation modelLocation, @Nullable ResourceLocation resourceLocation) {
-        return manager.getModel(modelLocation);
-    }
-
-    @Override
-    public BakedModel createdFoiledModel(BakedModel model) {
-        return new FoiledModel(model);
-    }
-
-    @Override
-    public void renderBakedModel(PoseStack transform, MultiBufferSource buffers, BakedModel model, int lightmapCoord, int overlayLight, int @Nullable [] tints) {
-        for (var renderType : model.getRenderTypes(ItemStack.EMPTY, true)) {
-            var buffer = buffers.getBuffer(renderType);
-            for (var face : directions) {
-                random.setSeed(42);
-                var quads = model.getQuads(null, face, random, ModelData.EMPTY, renderType);
-                ModelRenderer.renderQuads(transform, buffer, quads, lightmapCoord, overlayLight, tints);
-            }
-        }
+    public <T> ModelKey<T> createModelKey(ModelDebugName name) {
+        return new ForgeModelKey<>(new StandaloneModelKey<T>(name));
     }
 }

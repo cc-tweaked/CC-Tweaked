@@ -15,6 +15,7 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.gametest.framework.GameTestAssertException
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.gametest.framework.GameTestSequence
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.inventory.AbstractContainerMenu
@@ -34,7 +35,7 @@ fun Minecraft.isRenderingStable(): Boolean = (this as MinecraftExtensions).`comp
 fun GameTestSequence.thenOnClient(task: ClientTestHelper.() -> Unit): GameTestSequence {
     var future: CompletableFuture<Void>? = null
     thenExecute { future = Minecraft.getInstance().submit { task(ClientTestHelper()) } }
-    thenWaitUntil { if (!future!!.isDone) throw GameTestAssertException("Not done task yet") }
+    thenWaitUntil { if (!future!!.isDone) fail("Not done task yet") }
     thenExecute {
         try {
             future!!.get()
@@ -50,18 +51,18 @@ fun GameTestSequence.thenOnClient(task: ClientTestHelper.() -> Unit): GameTestSe
  */
 fun GameTestSequence.thenScreenshot(name: String? = null, showGui: Boolean = false): GameTestSequence {
     val suffix = if (name == null) "" else "-$name"
-    val test = (this as GameTestSequenceAccessor).parent
-    val fullName = "${test.testName}$suffix"
+    val testName = (this as GameTestSequenceAccessor).parent.id().path
+    val fullName = testName + suffix
 
     // Wait until all chunks have been rendered and we're idle for an extended period.
     var counter = 0
     thenWaitUntil {
         if (Minecraft.getInstance().isRenderingStable()) {
             val idleFor = ++counter
-            if (idleFor <= 20) throw GameTestAssertException("Only idle for $idleFor ticks")
+            if (idleFor <= 20) fail("Only idle for $idleFor ticks")
         } else {
             counter = 0
-            throw GameTestAssertException("Waiting for client to finish rendering")
+            fail("Waiting for client to finish rendering")
         }
     }
 
@@ -73,7 +74,7 @@ fun GameTestSequence.thenScreenshot(name: String? = null, showGui: Boolean = fal
     // Take a screenshot and wait for it to have finished.
     val hasScreenshot = AtomicBoolean()
     thenOnClient { screenshot("$fullName.png") { hasScreenshot.set(true) } }
-    thenWaitUntil { if (!hasScreenshot.get()) throw GameTestAssertException("Screenshot does not exist") }
+    thenWaitUntil { if (!hasScreenshot.get()) fail("Screenshot does not exist") }
     thenOnClient { minecraft.options.hideGui = false }
 
     return this
@@ -91,7 +92,7 @@ fun ServerPlayer.setupForTest() {
  */
 fun GameTestHelper.positionAtArmorStand() {
     val stand = getEntity(EntityType.ARMOR_STAND)
-    val player = level.randomPlayer ?: throw GameTestAssertException("Player does not exist")
+    val player = level.randomPlayer ?: fail("Player does not exist")
 
     player.setupForTest()
     player.connection.teleport(stand.x, stand.y, stand.z, stand.yRot, stand.xRot)
@@ -102,7 +103,7 @@ fun GameTestHelper.positionAtArmorStand() {
  */
 fun GameTestHelper.positionAt(pos: BlockPos, yRot: Float = 0.0f, xRot: Float = 0.0f) {
     val absolutePos = absolutePos(pos)
-    val player = level.randomPlayer ?: throw GameTestAssertException("Player does not exist")
+    val player = level.randomPlayer ?: fail("Player does not exist")
 
     player.setupForTest()
     player.connection.teleport(absolutePos.x + 0.5, absolutePos.y + 0.5, absolutePos.z + 0.5, yRot, xRot)
@@ -115,7 +116,7 @@ class ClientTestHelper {
     val minecraft: Minecraft = Minecraft.getInstance()
 
     fun screenshot(name: String, callback: () -> Unit = {}) {
-        Screenshot.grab(minecraft.gameDirectory, name, minecraft.mainRenderTarget) { callback() }
+        Screenshot.grab(minecraft.gameDirectory, name, minecraft.mainRenderTarget, 1) { callback() }
     }
 
     /**
@@ -127,9 +128,9 @@ class ClientTestHelper {
         val screen = minecraft.screen
         @Suppress("UNCHECKED_CAST")
         when {
-            screen == null -> throw GameTestAssertException("Expected a ${getName(type)} menu, but no screen is open")
-            screen !is MenuAccess<*> -> throw GameTestAssertException("Expected a ${getName(type)} menu, but a $screen is open")
-            screen.menu.type != type -> throw GameTestAssertException("Expected a ${getName(type)} menu, but a ${getName(screen.menu.type)} is open")
+            screen == null -> throw GameTestAssertException(Component.literal("Expected a ${getName(type)} menu, but no screen is open"), 0)
+            screen !is MenuAccess<*> -> throw GameTestAssertException(Component.literal("Expected a ${getName(type)} menu, but a $screen is open"), 0)
+            screen.menu.type != type -> throw GameTestAssertException(Component.literal("Expected a ${getName(type)} menu, but a ${getName(screen.menu.type)} is open"), 0)
             else -> return screen.menu as T
         }
     }

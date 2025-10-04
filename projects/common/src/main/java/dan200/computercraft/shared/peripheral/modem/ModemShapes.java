@@ -7,7 +7,6 @@ package dan200.computercraft.shared.peripheral.modem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -35,7 +34,6 @@ public final class ModemShapes {
      * @return Whether this block can support a modem.
      */
     public static boolean canSupport(LevelReader level, BlockPos pos, Direction side) {
-        // TODO(1.20.4): Check the side is a full-block instead.
-        return Block.canSupportCenter(level, pos, side);
+        return level.getBlockState(pos).isFaceSturdy(level, pos, side);
     }
 }

@@ -1,0 +1,38 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:condition",
+        "component": "minecraft:dyed_color",
+        "on_false": {"type": "minecraft:model", "model": "computercraft:block/turtle_advanced"},
+        "on_true": {
+          "type": "minecraft:model",
+          "model": "computercraft:block/turtle_colour",
+          "tints": [{"type": "minecraft:dye", "default": -1}]
+        },
+        "property": "minecraft:has_component"
+      },
+      {"type": "computercraft:turtle/upgrade", "side": "left", "transforms": "computercraft:block/turtle_advanced"},
+      {"type": "computercraft:turtle/upgrade", "side": "right", "transforms": "computercraft:block/turtle_advanced"},
+      {"type": "computercraft:turtle/overlay", "transforms": "computercraft:block/turtle_advanced"},
+      {
+        "type": "minecraft:select",
+        "cases": [
+          {
+            "model": {
+              "type": "minecraft:condition",
+              "on_false": {"type": "minecraft:empty"},
+              "on_true": {"type": "minecraft:model", "model": "computercraft:block/turtle_elf_overlay"},
+              "property": "computercraft:turtle/show_elf_overlay"
+            },
+            "when": ["12-24", "12-25", "12-26"]
+          }
+        ],
+        "fallback": {"type": "minecraft:empty"},
+        "pattern": "MM-dd",
+        "property": "minecraft:local_time"
+      }
+    ]
+  }
+}

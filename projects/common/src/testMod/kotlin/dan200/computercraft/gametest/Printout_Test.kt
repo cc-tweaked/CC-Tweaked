@@ -5,14 +5,15 @@
 package dan200.computercraft.gametest
 
 import dan200.computercraft.gametest.api.*
+import dan200.computercraft.gametest.core.TestInstance
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.media.items.PrintoutData
 import dan200.computercraft.shared.util.DataComponentUtil
 import dan200.computercraft.test.shared.ItemStackMatcher.isStack
-import net.minecraft.gametest.framework.GameTest
-import net.minecraft.gametest.framework.GameTestGenerator
+import net.minecraft.core.Holder
 import net.minecraft.gametest.framework.GameTestHelper
-import net.minecraft.gametest.framework.TestFunction
+import net.minecraft.gametest.framework.TestData
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -25,24 +26,26 @@ class Printout_Test {
      * Test printouts render correctly
      */
     @GameTestGenerator
-    fun Render_in_frame(): List<TestFunction> {
-        val tests = mutableListOf<TestFunction>()
+    fun Render_in_frame(): List<TestInstance> {
+        val tests = mutableListOf<TestInstance>()
 
-        fun addTest(label: String, time: Long = Times.NOON, tag: String = TestTags.CLIENT) {
+        fun addTest(label: String, time: Int = Times.NOON, tag: String = TestTags.CLIENT) {
             if (!TestTags.isEnabled(tag)) return
 
             val className = this::class.java.simpleName.lowercase()
             val testName = "$className.render_in_frame"
 
             tests.add(
-                TestFunction(
+                TestInstance(
                     "$testName.$label",
-                    "$testName.$label",
-                    testName,
-                    Timeouts.DEFAULT,
-                    0,
-                    true,
-                ) { renderPrintout(it, time) },
+                    TestData(
+                        Holder.direct(ClientTestEnvironment(time)),
+                        ResourceLocation.parse(testName),
+                        Timeouts.DEFAULT,
+                        0,
+                        true,
+                    ),
+                ) { renderPrintout(it) },
             )
         }
 
@@ -57,15 +60,9 @@ class Printout_Test {
         return tests
     }
 
-    private fun renderPrintout(helper: GameTestHelper, time: Long) = helper.sequence {
-        thenExecute {
-            helper.level.dayTime = time
-            helper.positionAtArmorStand()
-        }
-
+    private fun renderPrintout(helper: GameTestHelper) = helper.sequence {
+        thenExecute { helper.positionAtArmorStand() }
         thenScreenshot()
-
-        thenExecute { helper.level.dayTime = Times.NOON }
     }
 
     @GameTest(template = "default")

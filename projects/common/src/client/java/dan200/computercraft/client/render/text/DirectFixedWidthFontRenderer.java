@@ -7,12 +7,11 @@ package dan200.computercraft.client.render.text;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -34,7 +33,7 @@ import static org.lwjgl.system.MemoryUtil.*;
  * <p>
  * Note this is almost an exact copy of {@link FixedWidthFontRenderer}. While the code duplication is unfortunate,
  * it is measurably faster than introducing polymorphism into {@link FixedWidthFontRenderer}.
- *
+ * <p>
  * <strong>IMPORTANT: </strong> When making changes to this class, please check if you need to make the same changes to
  * {@link FixedWidthFontRenderer}.
  */
@@ -157,26 +156,40 @@ public final class DirectFixedWidthFontRenderer {
         }
     }
 
-    public static int getVertexCount(Terminal terminal) {
-        return (terminal.getHeight() + 2) * (terminal.getWidth() + 2) * 2;
-    }
-
     private static void quad(QuadEmitter buffer, float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2) {
+        buffer.vertexCount += 4;
         buffer.quad(x1, y1, x2, y2, z, colour, u1, v1, u2, v2);
     }
 
-    public interface QuadEmitter {
-        VertexFormat format();
+    public abstract static class QuadEmitter {
+        private int vertexCount;
 
-        ByteBuffer buffer();
+        public abstract ByteBuffer byteBuffer();
 
-        void quad(float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2);
+        public abstract VertexFormat format();
+
+        protected abstract void quad(float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2);
+
+        public int vertexCount() {
+            return vertexCount;
+        }
     }
 
-    public record ByteBufferEmitter(ByteBuffer buffer) implements QuadEmitter {
+    public static final class ByteBufferEmitter extends QuadEmitter {
+        private final ByteBuffer buffer;
+
+        public ByteBufferEmitter(ByteBuffer buffer) {
+            this.buffer = buffer;
+        }
+
+        @Override
+        public ByteBuffer byteBuffer() {
+            return buffer;
+        }
+
         @Override
         public VertexFormat format() {
-            return RenderTypes.TERMINAL.format();
+            return TERMINAL_TEXT.format();
         }
 
         @Override
@@ -185,23 +198,24 @@ public final class DirectFixedWidthFontRenderer {
         }
     }
 
-    static void quad(ByteBuffer buffer, float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2) {
+    private static void quad(ByteBuffer buffer, float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2) {
         // Emit a single quad to our buffer. This uses Unsafe (well, LWJGL's MemoryUtil) to directly blit bytes to the
         // underlying buffer. This allows us to have a single bounds check up-front, rather than one for every write.
         // This provides significant performance gains, at the cost of well, using Unsafe.
-        // Each vertex is 28 bytes, giving 112 bytes in total. Vertices are of the form (xyz:FFF)(rgba:BBBB)(uv1:FF)(uv2:SS),
+        // Each vertex is 28 bytes, giving 112 bytes in total. Vertices are of the form (xyz:FFF)(abgr:BBBB)(uv1:FF)(uv2:SS),
         // which matches the POSITION_COLOR_TEX_LIGHTMAP vertex format.
-
         var position = buffer.position();
         var addr = MemoryUtil.memAddress(buffer);
 
         // We're doing terrible unsafe hacks below, so let's be really sure that what we're doing is reasonable.
-        if (position < 0 || 112 > buffer.limit() - position) throw new IndexOutOfBoundsException();
         // Require the pointer to be aligned to a 32-bit boundary.
         if ((addr & 3) != 0) throw new IllegalStateException("Memory is not aligned");
+        if (TERMINAL_TEXT.format().getVertexSize() != 28) {
+            throw new IllegalStateException("Incorrect vertex size");
+        }
 
-        // Pack colour so it is equivalent to rgba:BBBB. This matches the logic in BufferBuilder.
-        var colourAbgr = FastColor.ABGR32.fromArgb32(colour);
+        var colourAbgr = ARGB.toABGR(colour);
+        // Pack colour so it is equivalent to abgr:BBBB. This matches the logic in BufferBuilder.
         var nativeColour = IS_LITTLE_ENDIAN ? colourAbgr : Integer.reverseBytes(colourAbgr);
 
         memPutFloat(addr + 0, x1);

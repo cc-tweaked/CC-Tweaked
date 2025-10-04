@@ -5,17 +5,15 @@
 package dan200.computercraft.gametest
 
 import dan200.computercraft.core.util.Colour
+import dan200.computercraft.gametest.api.GameTest
 import dan200.computercraft.gametest.api.craftItem
 import dan200.computercraft.gametest.api.immediate
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.util.DataComponentUtil
 import dan200.computercraft.test.shared.ItemStackMatcher.isStack
-import net.minecraft.core.component.DataComponents
-import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
-import net.minecraft.world.item.component.DyedItemColor
 import org.hamcrest.MatcherAssert.assertThat
 
 class Disk_Test {
@@ -27,25 +25,13 @@ class Disk_Test {
         assertThat(
             "Disk without dye",
             helper.craftItem(ItemStack(Items.REDSTONE), ItemStack(Items.PAPER)),
-            isStack(
-                DataComponentUtil.createStack(
-                    ModRegistry.Items.DISK.get(),
-                    DataComponents.DYED_COLOR,
-                    DyedItemColor(Colour.BLUE.hex, false),
-                ),
-            ),
+            isStack(DataComponentUtil.createDyedStack(ModRegistry.Items.DISK.get(), Colour.BLUE.hex)),
         )
 
         assertThat(
             "Disk with dye",
             helper.craftItem(ItemStack(Items.REDSTONE), ItemStack(Items.PAPER), ItemStack(Items.GREEN_DYE)),
-            isStack(
-                DataComponentUtil.createStack(
-                    ModRegistry.Items.DISK.get(),
-                    DataComponents.DYED_COLOR,
-                    DyedItemColor(Colour.GREEN.hex, false),
-                ),
-            ),
+            isStack(DataComponentUtil.createDyedStack(ModRegistry.Items.DISK.get(), Colour.GREEN.hex)),
         )
     }
 }

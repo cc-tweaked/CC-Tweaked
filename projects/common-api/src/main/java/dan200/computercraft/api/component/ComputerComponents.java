@@ -6,6 +6,7 @@ package dan200.computercraft.api.component;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.IPocketAccess;
+import dan200.computercraft.api.pocket.PocketComputer;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 
 /**
@@ -20,7 +21,7 @@ public class ComputerComponents {
     /**
      * The {@link IPocketAccess} associated with a pocket computer.
      */
-    public static final ComputerComponent<IPocketAccess> POCKET = ComputerComponent.create(ComputerCraftAPI.MOD_ID, "pocket");
+    public static final ComputerComponent<PocketComputer> POCKET = ComputerComponent.create(ComputerCraftAPI.MOD_ID, "pocket");
 
     /**
      * This component is only present on "command computers", and other computers with admin capabilities.

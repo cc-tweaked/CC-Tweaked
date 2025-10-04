@@ -4,6 +4,7 @@
 
 package dan200.computercraft.gametest
 
+import dan200.computercraft.gametest.api.GameTest
 import dan200.computercraft.gametest.api.assertNoPeripheral
 import dan200.computercraft.gametest.api.assertPeripheral
 import dan200.computercraft.gametest.api.immediate
@@ -11,7 +12,6 @@ import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.platform.ComponentAccess
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import java.util.*
 

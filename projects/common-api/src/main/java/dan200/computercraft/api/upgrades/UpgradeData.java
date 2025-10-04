@@ -7,8 +7,11 @@ package dan200.computercraft.api.upgrades;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An upgrade (i.e. a {@link ITurtleUpgrade}) and its current upgrade data.
@@ -17,7 +20,9 @@ import net.minecraft.world.item.ItemStack;
  * @param data   The upgrade's data.
  * @param <T>    The type of upgrade, either {@link ITurtleUpgrade} or {@link IPocketUpgrade}.
  */
-public record UpgradeData<T extends UpgradeBase>(Holder.Reference<T> holder, DataComponentPatch data) {
+public record UpgradeData<T extends UpgradeBase>(
+    Holder.Reference<T> holder, DataComponentPatch data
+) implements DataComponentGetter {
     /**
      * A utility method to construct a new {@link UpgradeData} instance.
      *
@@ -65,5 +70,18 @@ public record UpgradeData<T extends UpgradeBase>(Holder.Reference<T> holder, Dat
      */
     public ItemStack getUpgradeItem() {
         return upgrade().getUpgradeItem(data).copy();
+    }
+
+    /**
+     * Get a component from the upgrade's {@link #data()} .
+     *
+     * @param component The component get.
+     * @param <U>       The type of the component's value.
+     * @return The component, or {@code null} if not present.
+     */
+    @Override
+    public <U> @Nullable U get(DataComponentType<? extends U> component) {
+        var result = data().get(component);
+        return result == null ? null : result.orElse(null);
     }
 }

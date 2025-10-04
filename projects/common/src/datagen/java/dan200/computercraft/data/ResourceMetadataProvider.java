@@ -6,6 +6,7 @@ package dan200.computercraft.data;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import dan200.computercraft.client.gui.GuiSprites;
 import net.minecraft.client.resources.metadata.gui.GuiMetadataSection;
 import net.minecraft.client.resources.metadata.gui.GuiSpriteScaling;
@@ -23,7 +24,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
- * Similar to {@link PackMetadataGenerator}, but for individual resources.
+ * Generates {@code .mcmeta} files for texture files.
+ * <p>
+ * This is similar to {@link PackMetadataGenerator}, but for individual resources.
  */
 final class ResourceMetadataProvider implements DataProvider {
     private final PackOutput output;
@@ -40,20 +43,20 @@ final class ResourceMetadataProvider implements DataProvider {
             GuiSprites.COMPUTER_NORMAL
         )) {
             builder.texture(computerTextures.border()).add(GuiMetadataSection.TYPE, new GuiMetadataSection(
-                new GuiSpriteScaling.NineSlice(36, 36, simpleNineSlicedBorder(12))
+                new GuiSpriteScaling.NineSlice(36, 36, simpleNineSlicedBorder(12), false)
             ));
 
             var sidebar = computerTextures.sidebar();
             if (sidebar != null) {
                 builder.texture(sidebar).add(GuiMetadataSection.TYPE, new GuiMetadataSection(
-                    new GuiSpriteScaling.NineSlice(17, 14, new GuiSpriteScaling.NineSlice.Border(3, 4, 0, 3))
+                    new GuiSpriteScaling.NineSlice(17, 14, new GuiSpriteScaling.NineSlice.Border(3, 4, 0, 3), false)
                 ));
             }
 
             var pocketBottom = computerTextures.pocketBottom();
             if (pocketBottom != null) {
                 builder.texture(pocketBottom).add(GuiMetadataSection.TYPE, new GuiMetadataSection(
-                    new GuiSpriteScaling.NineSlice(36, 20, new GuiSpriteScaling.NineSlice.Border(12, 0, 12, 0))
+                    new GuiSpriteScaling.NineSlice(36, 20, new GuiSpriteScaling.NineSlice.Border(12, 0, 12, 0), false)
                 ));
             }
         }
@@ -103,7 +106,7 @@ final class ResourceMetadataProvider implements DataProvider {
         private final Map<String, Supplier<JsonElement>> elements = new HashMap<>();
 
         <T> FileMetadata add(MetadataSectionType<T> type, T value) {
-            elements.put(type.getMetadataSectionName(), () -> type.toJson(value));
+            elements.put(type.name(), () -> type.codec().encodeStart(JsonOps.INSTANCE, value).getOrThrow().getAsJsonObject());
             return this;
         }
     }

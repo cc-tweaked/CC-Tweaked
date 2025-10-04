@@ -28,7 +28,7 @@ public final class ArgumentHelpers {
         }
 
         T value;
-        if (id == null || (value = registry.get(id)) == null) {
+        if (id == null || (value = registry.getValue(id)) == null) {
             throw new LuaException(String.format("Unknown %s '%s'", typeName, name));
         }
 

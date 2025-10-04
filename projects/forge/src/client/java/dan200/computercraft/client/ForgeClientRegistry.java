@@ -4,80 +4,92 @@
 
 package dan200.computercraft.client;
 
+import com.google.common.reflect.TypeToken;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.client.turtle.RegisterTurtleModellersEvent;
-import dan200.computercraft.client.model.ExtraModels;
-import dan200.computercraft.client.model.turtle.TurtleModelLoader;
-import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
+import dan200.computercraft.api.client.turtle.RegisterTurtleModelEvent;
+import dan200.computercraft.client.platform.ClientNetworkContextImpl;
+import dan200.computercraft.client.platform.ForgeModelKey;
+import dan200.computercraft.client.platform.ModelKey;
+import dan200.computercraft.client.render.ExtendedItemFrameRenderState;
+import dan200.computercraft.shared.network.NetworkMessages;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.entity.ItemFrameRenderer;
+import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.context.ContextKey;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.client.event.RegisterShadersEvent;
+import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.model.standalone.UnbakedStandaloneModel;
+import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
+import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 
-import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+
 
 /**
  * Registers textures and models for items.
  */
-@EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, value = Dist.CLIENT)
 public final class ForgeClientRegistry {
-    private static final Object lock = new Object();
-    private static boolean gatheredModellers = false;
+    static final ContextKey<ExtendedItemFrameRenderState> ITEM_FRAME_STATE = new ContextKey<>(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item_frame"));
 
     private ForgeClientRegistry() {
     }
 
     @SubscribeEvent
-    public static void registerModelLoaders(ModelEvent.RegisterGeometryLoaders event) {
-        event.register(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle"), TurtleModelLoader.INSTANCE);
-    }
-
-    /**
-     * Turtle upgrade modellers must be loaded before we gather additional models.
-     * <p>
-     * Unfortunately, due to the nature of parallel mod loading (resource loading and mod setup events are fired in
-     * parallel), there's no way to guarantee this using existing events. Instead, we piggyback off
-     * {@link ModelEvent.RegisterAdditional}, registering models the first time the event is fired.
-     */
-    private static void gatherModellers() {
-        if (gatheredModellers) return;
-        synchronized (lock) {
-            if (gatheredModellers) return;
-
-            gatheredModellers = true;
-            ModLoader.postEvent(new RegisterTurtleModellersEvent(TurtleUpgradeModellers::register));
+    public static void registerNetwork(RegisterClientPayloadHandlersEvent event) {
+        var context = new ClientNetworkContextImpl();
+        for (var type : NetworkMessages.getClientbound()) {
+            event.register(type.type(), (packet, ctx) -> ctx.enqueueWork(() -> packet.handle(context)));
         }
     }
 
     @SubscribeEvent
-    public static void registerModels(ModelEvent.RegisterAdditional event) {
-        gatherModellers();
-        var extraModels = ExtraModels.loadAll(Minecraft.getInstance().getResourceManager());
-        ClientRegistry.registerExtraModels(x -> event.register(ModelResourceLocation.standalone(x)), extraModels);
+    public static void registerModels(ModelEvent.RegisterStandalone event) {
+        // Load resources
+        Queue<Runnable> tasks = new ArrayDeque<>();
+        var state = ClientRegistry.gatherExtraModels(Minecraft.getInstance().getResourceManager(), tasks::add);
+        Runnable task;
+        while ((task = tasks.poll()) != null) task.run();
+
+        ClientRegistry.registerExtraModels(new ClientRegistry.RegisterExtraModels() {
+            @Override
+            public <U, T> void register(ModelKey<T> key, U unbaked, BiConsumer<U, ResolvableModel.Resolver> resolve, BiFunction<U, ModelBaker, T> bake) {
+                event.register(ForgeModelKey.key(key), new ModelWrapper<>(unbaked, resolve, bake));
+            }
+        }, state.resultNow());
     }
 
     @SubscribeEvent
-    public static void registerShaders(RegisterShadersEvent event) throws IOException {
-        ClientRegistry.registerShaders(event.getResourceProvider(), event::registerShader);
+    public static void registerTurtleModels(RegisterTurtleModelEvent event) {
+        ClientRegistry.registerTurtleModels(event);
     }
 
     @SubscribeEvent
-    public static void onTurtleModellers(RegisterTurtleModellersEvent event) {
-        ClientRegistry.registerTurtleModellers(event);
+    public static void registerItemModels(RegisterItemModelsEvent event) {
+        ClientRegistry.registerItemModels(event::register);
     }
 
     @SubscribeEvent
-    public static void onItemColours(RegisterColorHandlersEvent.Item event) {
+    public static void registerItemColours(RegisterColorHandlersEvent.ItemTintSources event) {
         ClientRegistry.registerItemColours(event::register);
+    }
+
+    @SubscribeEvent
+    public static void registerSelectItemProperties(RegisterSelectItemModelPropertyEvent event) {
+        ClientRegistry.registerSelectItemProperties(event::register);
+    }
+
+    @SubscribeEvent
+    public static void registerConditionalItemProperties(RegisterConditionalItemModelPropertyEvent event) {
+        ClientRegistry.registerConditionalItemProperties(event::register);
     }
 
     @SubscribeEvent
@@ -86,8 +98,36 @@ public final class ForgeClientRegistry {
     }
 
     @SubscribeEvent
+    public static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
+        event.registerEntityModifier(new TypeToken<ItemFrameRenderer<?>>() {
+        }, (e, s) -> {
+            var data = s.getRenderData(ITEM_FRAME_STATE);
+            if (data == null) s.setRenderData(ITEM_FRAME_STATE, data = new ExtendedItemFrameRenderState());
+            data.setup(e.getItem());
+        });
+    }
+
+    @SubscribeEvent
+    public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
+        ClientRegistry.registerPictureInPictureRenderers(event::register);
+    }
+
+    @SubscribeEvent
     public static void setupClient(FMLClientSetupEvent event) {
         ClientRegistry.register();
-        event.enqueueWork(() -> ClientRegistry.registerMainThread(ItemProperties::register));
+    }
+
+    private record ModelWrapper<U, T>(
+        U model, BiConsumer<U, ResolvableModel.Resolver> resolve, BiFunction<U, ModelBaker, T> bake
+    ) implements UnbakedStandaloneModel<T> {
+        @Override
+        public T bake(ModelBaker baker) {
+            return bake().apply(model(), baker);
+        }
+
+        @Override
+        public void resolveDependencies(ResolvableModel.Resolver resolver) {
+            resolve().accept(model(), resolver);
+        }
     }
 }

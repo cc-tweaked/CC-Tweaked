@@ -18,7 +18,7 @@ public class FabricExampleMod implements ModInitializer {
     public void onInitialize() {
         // @start region=turtle_upgrades
         @SuppressWarnings("unchecked")
-        var turtleUpgradeSerialisers = (Registry<UpgradeType<? extends ITurtleUpgrade>>) BuiltInRegistries.REGISTRY.get(ITurtleUpgrade.typeRegistry().location());
+        var turtleUpgradeSerialisers = (Registry<UpgradeType<? extends ITurtleUpgrade>>) BuiltInRegistries.REGISTRY.getValue(ITurtleUpgrade.typeRegistry().location());
         Registry.register(turtleUpgradeSerialisers, ResourceLocation.fromNamespaceAndPath(ExampleMod.MOD_ID, "example_turtle_upgrade"), ExampleMod.EXAMPLE_TURTLE_UPGRADE);
         // @end region=turtle_upgrades
 

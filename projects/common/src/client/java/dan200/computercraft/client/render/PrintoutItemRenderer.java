@@ -9,8 +9,7 @@ import com.mojang.math.Axis;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.PrintoutData;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.client.renderer.entity.state.ItemFrameRenderState;
 import net.minecraft.world.item.ItemStack;
 
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
@@ -34,25 +33,22 @@ public final class PrintoutItemRenderer extends ItemMapLikeRenderer {
         transform.scale(0.42f, 0.42f, -0.42f);
         transform.translate(-0.5f, -0.48f, 0.0f);
 
-        drawPrintout(transform, render, stack, light);
+        drawPrintout(transform, render, PrintoutData.getOrEmpty(stack), stack.getItem() == ModRegistry.Items.PRINTED_BOOK.get(), light);
     }
 
-    public static void onRenderInFrame(PoseStack transform, MultiBufferSource render, ItemFrame frame, ItemStack stack, int packedLight) {
+    public static void onRenderInFrame(PoseStack transform, MultiBufferSource render, ItemFrameRenderState frame, PrintoutData data, boolean isBook, int packedLight) {
         // Move a little bit forward to ensure we're not clipping with the frame
         transform.translate(0.0f, 0.0f, -0.001f);
         transform.mulPose(Axis.ZP.rotationDegrees(180f));
         transform.scale(0.95f, 0.95f, -0.95f);
         transform.translate(-0.5f, -0.5f, 0.0f);
 
-        var light = frame.getType() == EntityType.GLOW_ITEM_FRAME ? 0xf000d2 : packedLight; // See getLightVal.
-        drawPrintout(transform, render, stack, light);
+        var light = frame.isGlowFrame ? 0xf000d2 : packedLight; // See getLightCoords.
+        drawPrintout(transform, render, data, isBook, light);
     }
 
-    private static void drawPrintout(PoseStack transform, MultiBufferSource render, ItemStack stack, int light) {
-        var pageData = stack.getOrDefault(ModRegistry.DataComponents.PRINTOUT.get(), PrintoutData.EMPTY);
-
+    private static void drawPrintout(PoseStack transform, MultiBufferSource render, PrintoutData pageData, boolean book, int light) {
         var pages = pageData.pages();
-        var book = stack.is(ModRegistry.Items.PRINTED_BOOK.get());
 
         double width = LINE_LENGTH * FONT_WIDTH + X_TEXT_MARGIN * 2;
         double height = LINES_PER_PAGE * FONT_HEIGHT + Y_TEXT_MARGIN * 2;

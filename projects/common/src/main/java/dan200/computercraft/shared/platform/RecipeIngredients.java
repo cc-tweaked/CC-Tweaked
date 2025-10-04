@@ -4,8 +4,9 @@
 
 package dan200.computercraft.shared.platform;
 
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 
 /**
  * Loader-specific recipe ingredients. These may either be tags or items, depending on which mod loader we're using.
@@ -22,15 +23,15 @@ import net.minecraft.world.item.crafting.Ingredient;
  * @param woodenChest All wooden chests (both normal and trapped chests).
  */
 public record RecipeIngredients(
-    Ingredient redstone,
-    Ingredient string,
-    Ingredient leather,
-    Ingredient glassPane,
-    Ingredient goldIngot,
-    Ingredient goldBlock,
-    Ingredient ironIngot,
-    Ingredient dye,
-    Ingredient enderPearl,
-    Ingredient woodenChest
+    TagKey<Item> redstone,
+    TagKey<Item> string,
+    TagKey<Item> leather,
+    TagKey<Item> glassPane,
+    TagKey<Item> goldIngot,
+    TagKey<Item> goldBlock,
+    TagKey<Item> ironIngot,
+    TagKey<Item> dye,
+    TagKey<Item> enderPearl,
+    TagKey<Item> woodenChest
 ) {
 }

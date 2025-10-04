@@ -9,16 +9,18 @@ import dan200.computercraft.gametest.api.isRenderingStable
 import dan200.computercraft.gametest.api.setupForTest
 import net.minecraft.client.CloudStatus
 import net.minecraft.client.Minecraft
-import net.minecraft.client.ParticleStatus
 import net.minecraft.client.gui.screens.AccessibilityOnboardingScreen
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.TitleScreen
 import net.minecraft.client.tutorial.TutorialSteps
 import net.minecraft.core.registries.Registries
 import net.minecraft.gametest.framework.*
+import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ParticleStatus
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.Difficulty
+import net.minecraft.world.flag.FeatureFlagSet
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.GameType
 import net.minecraft.world.level.LevelSettings
@@ -84,7 +86,7 @@ object ClientTestHooks {
             minecraft.createWorldOpenFlows().openWorld(LEVEL_NAME) { minecraft.setScreen(screen) }
         } else {
             LOG.info("World does not exist, creating it.")
-            val rules = GameRules()
+            val rules = GameRules(FeatureFlagSet.of())
             rules.getRule(GameRules.RULE_DOMOBSPAWNING).set(false, null)
             rules.getRule(GameRules.RULE_DAYLIGHT).set(false, null)
             rules.getRule(GameRules.RULE_WEATHER_CYCLE).set(false, null)
@@ -93,7 +95,10 @@ object ClientTestHooks {
                 LEVEL_NAME,
                 LevelSettings("Test Level", GameType.CREATIVE, false, Difficulty.EASY, true, rules, WorldDataConfiguration.DEFAULT),
                 WorldOptions(WorldOptions.randomSeed(), false, false),
-                { it.registryOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT).createWorldDimensions() },
+                {
+                    it.lookupOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT).value()
+                        .createWorldDimensions()
+                },
                 screen,
             )
         }
@@ -133,7 +138,11 @@ object ClientTestHooks {
                 LOG.info("Server ready, starting.")
 
                 val tests = GameTestRunner.Builder.fromBatches(
-                    GameTestBatchFactory.fromTestFunction(GameTestRegistry.getAllTestFunctions(), server.overworld()),
+                    GameTestBatchFactory.divideIntoBatches(
+                        server.registryAccess().lookupOrThrow(Registries.TEST_INSTANCE).listElements().toList(),
+                        GameTestBatchFactory.DIRECT,
+                        server.overworld(),
+                    ),
                     server.overworld(),
                 )
                     .newStructureSpawner(StructureGridSpawner(TestHooks.getTestOrigin(server), 8, false))
@@ -174,13 +183,13 @@ object ClientTestHooks {
             LOG.info("========= {} GAME TESTS COMPLETE ======================", testTracker.totalCount)
             if (testTracker.hasFailedRequired()) {
                 LOG.info("{} required tests failed :(", testTracker.failedRequiredCount)
-                for (test in testTracker.failedRequired) LOG.info("   - {}", test.testName)
+                for (test in testTracker.failedRequired) LOG.info("   - {}", test.id())
             } else {
                 LOG.info("All {} required tests passed :)", testTracker.totalCount)
             }
             if (testTracker.hasFailedOptional()) {
                 LOG.info("{} optional tests failed", testTracker.failedOptionalCount)
-                for (test in testTracker.failedOptional) LOG.info("   - {}", test.testName)
+                for (test in testTracker.failedOptional) LOG.info("   - {}", test.id())
             }
             LOG.info("====================================================")
 
@@ -188,8 +197,8 @@ object ClientTestHooks {
             val minecraft = Minecraft.getInstance()
             minecraft.execute {
                 LOG.info("Stopping client.")
-                minecraft.level!!.disconnect()
-                minecraft.disconnect()
+                minecraft.level!!.disconnect(Component.empty())
+                minecraft.disconnectWithSavingScreen()
                 minecraft.stop()
 
                 exitProcess(

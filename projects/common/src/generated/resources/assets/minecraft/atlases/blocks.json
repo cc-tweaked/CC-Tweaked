@@ -1,7 +1,5 @@
 {
   "sources": [
-    {"type": "minecraft:single", "resource": "computercraft:gui/turtle_upgrade_left"},
-    {"type": "minecraft:single", "resource": "computercraft:gui/turtle_upgrade_right"},
     {"type": "minecraft:single", "resource": "computercraft:entity/printout"},
     {"type": "minecraft:single", "resource": "computercraft:entity/pocket_computer_normal"},
     {"type": "minecraft:single", "resource": "computercraft:entity/pocket_computer_advanced"},

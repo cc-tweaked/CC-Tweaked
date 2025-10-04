@@ -4,45 +4,41 @@
 
 package dan200.computercraft.client.render.monitor;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.integration.ShaderMod;
-import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
-import dan200.computercraft.client.render.vbo.DirectBuffers;
-import dan200.computercraft.client.render.vbo.DirectVertexBuffer;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
-import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.util.DirectionUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.fog.FogRenderer;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL31;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
-import java.util.function.Consumer;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
-import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBlockEntity> {
     /**
@@ -53,13 +49,11 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
 
     private static @Nullable ByteBuffer backingBuffer;
 
-    private static long lastFrame = -1;
-
     public MonitorBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
 
     @Override
-    public void render(MonitorBlockEntity monitor, float partialTicks, PoseStack transform, MultiBufferSource bufferSource, int lightmapCoord, int overlayLight) {
+    public void render(MonitorBlockEntity monitor, float partialTicks, PoseStack transform, MultiBufferSource bufferSource, int lightmapCoord, int overlayLight, Vec3 camera) {
         // Render from the origin monitor
         var originTerminal = monitor.getOriginClientMonitor();
         if (originTerminal == null) return;
@@ -76,7 +70,6 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
             return;
         }
 
-        lastFrame = renderFrame;
         renderState.lastRenderFrame = renderFrame;
         renderState.lastRenderPos = monitorPos;
 
@@ -124,7 +117,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
             transform.popPose();
         } else {
             FixedWidthFontRenderer.drawEmptyTerminal(
-                FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(RenderTypes.TERMINAL)),
+                FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT)),
                 -MARGIN, MARGIN,
                 (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
             );
@@ -136,126 +129,137 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
     private static void renderTerminal(
         Matrix4f matrix, ClientMonitor monitor, MonitorRenderState renderState, Terminal terminal, float xMargin, float yMargin
     ) {
-        int width = terminal.getWidth(), height = terminal.getHeight();
-        int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
-
-        var renderType = currentRenderer();
         var redraw = monitor.pollTerminalChanged();
-        if (renderState.createBuffer(renderType)) redraw = true;
+        if (renderState.vertexBuffer == null) redraw = true;
 
-        switch (renderType) {
-            case TBO -> {
-                if (redraw) {
-                    var terminalBuffer = getBuffer(width * height * 3);
-                    MonitorTextureBufferShader.setTerminalData(terminalBuffer, terminal);
-                    DirectBuffers.setBufferData(GL31.GL_TEXTURE_BUFFER, renderState.tboBuffer, terminalBuffer, GL20.GL_STATIC_DRAW);
+        if (redraw) {
+            // Cursor, Foreground, Background+Margin
+            var maxQuadCount = 1 + (terminal.getWidth() * terminal.getHeight()) + ((terminal.getWidth() + 2) * (terminal.getHeight() + 2));
+            var maxVertexCount = 4 * maxQuadCount;
+            var sink = ShaderMod.get().getQuadEmitter(maxQuadCount, MonitorBlockEntityRenderer::getBuffer);
 
-                    var uniformBuffer = getBuffer(MonitorTextureBufferShader.UNIFORM_SIZE);
-                    MonitorTextureBufferShader.setUniformData(uniformBuffer, terminal);
-                    DirectBuffers.setBufferData(GL31.GL_UNIFORM_BUFFER, renderState.tboUniform, uniformBuffer, GL20.GL_STATIC_DRAW);
+            DirectFixedWidthFontRenderer.drawTerminalBackground(sink, 0, 0, terminal, yMargin, yMargin, xMargin, xMargin);
+            var vertexCountAfterBackground = sink.vertexCount();
+
+            DirectFixedWidthFontRenderer.drawTerminalForeground(sink, 0, 0, terminal);
+            var vertexCountAfterForeground = sink.vertexCount();
+
+            DirectFixedWidthFontRenderer.drawCursor(sink, 0, 0, terminal);
+            var vertexCountAfterCursor = sink.vertexCount();
+
+            if (vertexCountAfterCursor > maxVertexCount) {
+                throw new IllegalStateException("Drew too many vertices. Expected " + maxVertexCount + ", drew " + vertexCountAfterCursor);
+            }
+
+            if (vertexCountAfterCursor != 0) {
+                renderState.register();
+
+                var commandEncoder = RenderSystem.getDevice().createCommandEncoder();
+
+                var resultBuffer = sink.byteBuffer().flip();
+
+                // Ensure our buffer contains the correct number of vertices.
+                if (resultBuffer.remaining() != sink.format().getVertexSize() * vertexCountAfterCursor) {
+                    throw new IllegalStateException(String.format(
+                        "Mismatched vertex count. Buffer is %d bytes long, but was expected to be %d (vertex size) * %d (vertex count) = %d bytes.",
+                        resultBuffer.limit(), sink.format().getVertexSize(), vertexCountAfterCursor, sink.format().getVertexSize() * vertexCountAfterCursor
+                    ));
                 }
 
-                // Nobody knows what they're doing!
-                var active = GlStateManager._getActiveTexture();
-                RenderSystem.activeTexture(MonitorTextureBufferShader.TEXTURE_INDEX);
-                GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, renderState.tboTexture);
-                RenderSystem.activeTexture(active);
-
-                var shader = RenderTypes.getMonitorTextureBufferShader();
-                shader.setupUniform(renderState.tboUniform);
-
-                var buffer = Tesselator.getInstance().begin(RenderTypes.MONITOR_TBO.mode(), RenderTypes.MONITOR_TBO.format());
-                tboVertex(buffer, matrix, -xMargin, -yMargin);
-                tboVertex(buffer, matrix, -xMargin, pixelHeight + yMargin);
-                tboVertex(buffer, matrix, pixelWidth + xMargin, -yMargin);
-                tboVertex(buffer, matrix, pixelWidth + xMargin, pixelHeight + yMargin);
-                RenderTypes.MONITOR_TBO.draw(Nullability.assertNonNull(buffer.build()));
-            }
-            case VBO -> {
-                var backgroundBuffer = assertNonNull(renderState.backgroundBuffer);
-                var foregroundBuffer = assertNonNull(renderState.foregroundBuffer);
-                if (redraw) {
-                    var size = DirectFixedWidthFontRenderer.getVertexCount(terminal);
-
-                    // In an ideal world we could upload these both into one buffer. However, we can't render VBOs with
-                    // a starting and ending offset, and so need to use two buffers instead.
-
-                    renderToBuffer(backgroundBuffer, size, sink ->
-                        DirectFixedWidthFontRenderer.drawTerminalBackground(sink, 0, 0, terminal, yMargin, yMargin, xMargin, xMargin));
-
-                    renderToBuffer(foregroundBuffer, size, sink -> {
-                        DirectFixedWidthFontRenderer.drawTerminalForeground(sink, 0, 0, terminal);
-                        // If the cursor is visible, we append it to the end of our buffer. When rendering, we can either
-                        // render n or n+1 quads and so toggle the cursor on and off.
-                        DirectFixedWidthFontRenderer.drawCursor(sink, 0, 0, terminal);
-                    });
+                // Upload the buffer, reallocating if required.
+                if (renderState.vertexBuffer == null || resultBuffer.remaining() > renderState.vertexBuffer.size()) {
+                    if (renderState.vertexBuffer != null) {
+                        renderState.vertexBuffer.close();
+                        renderState.vertexBuffer = null;
+                    }
+                    renderState.vertexBuffer = RenderSystem.getDevice().createBuffer(
+                        () -> "Monitor at " + monitor.getOrigin().getBlockPos(), GpuBuffer.USAGE_VERTEX | GpuBuffer.USAGE_COPY_DST, resultBuffer
+                    );
+                } else if (!renderState.vertexBuffer.isClosed()) {
+                    commandEncoder.writeToBuffer(renderState.vertexBuffer.slice(), resultBuffer);
                 }
-
-                // Our VBO renders coordinates in monitor-space rather than world space. A full sized monitor (8x6) will
-                // use positions from (0, 0) to (164*FONT_WIDTH, 81*FONT_HEIGHT) = (984, 729). This is far outside the
-                // normal render distance (~200), and the edges of the monitor fade out due to fog.
-                // There's not really a good way around this, at least without using a custom render type (which the VBO
-                // renderer is trying to avoid!). Instead, we just disable fog entirely by setting the fog start to an
-                // absurdly high value.
-                var oldFogStart = RenderSystem.getShaderFogStart();
-                RenderSystem.setShaderFogStart(1e4f);
-
-                RenderTypes.TERMINAL.setupRenderState();
-
-                // Compose the existing model view matrix with our transformation matrix.
-                var modelView = new Matrix4f(RenderSystem.getModelViewMatrix()).mul(matrix);
-
-                // Render background geometry
-                backgroundBuffer.bind();
-                backgroundBuffer.drawWithShader(modelView, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader());
-
-                // Render foreground geometry with glPolygonOffset enabled.
-                RenderSystem.polygonOffset(-1.0f, -10.0f);
-                RenderSystem.enablePolygonOffset();
-
-                foregroundBuffer.bind();
-                foregroundBuffer.drawWithShader(
-                    modelView, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader(),
-                    // Skip the cursor quad if it is not visible this frame.
-                    FixedWidthFontRenderer.isCursorVisible(terminal) && !FrameInfo.getGlobalCursorBlink()
-                        ? foregroundBuffer.getIndexCount() - RenderTypes.TERMINAL.mode().indexCount(4)
-                        : foregroundBuffer.getIndexCount()
-                );
-
-                // Clear state
-                RenderSystem.polygonOffset(0.0f, -0.0f);
-                RenderSystem.disablePolygonOffset();
-                RenderTypes.TERMINAL.clearRenderState();
-                VertexBuffer.unbind();
-
-                RenderSystem.setShaderFogStart(oldFogStart);
             }
-            case BEST -> throw new IllegalStateException("Impossible: Should never use BEST renderer");
-        }
-    }
 
-    private static void renderToBuffer(DirectVertexBuffer vbo, int size, Consumer<DirectFixedWidthFontRenderer.QuadEmitter> draw) {
-        var sink = ShaderMod.get().getQuadEmitter(size, MonitorBlockEntityRenderer::getBuffer);
-        var buffer = sink.buffer();
-
-        draw.accept(sink);
-        buffer.flip();
-        vbo.upload(buffer.limit() / sink.format().getVertexSize(), RenderTypes.TERMINAL.mode(), sink.format(), buffer);
-    }
-
-    private static void tboVertex(VertexConsumer builder, Matrix4f matrix, float x, float y) {
-        // We encode position in the UV, as that's not transformed by the matrix.
-        builder.addVertex(matrix, x, y, 0).setUv(x, y);
-    }
-
-    private static ByteBuffer getBuffer(int capacity) {
-        var buffer = backingBuffer;
-        if (buffer == null || buffer.capacity() < capacity) {
-            buffer = backingBuffer = buffer == null ? MemoryUtil.memAlloc(capacity) : MemoryUtil.memRealloc(buffer, capacity);
+            renderState.vertexCountAfterBackground = vertexCountAfterBackground;
+            renderState.vertexCountAfterForeground = vertexCountAfterForeground;
+            renderState.vertexCountAfterCursor = vertexCountAfterCursor;
         }
 
-        buffer.clear();
-        return buffer;
+        if (renderState.vertexCountAfterCursor == 0) return;
+
+        // Our VBO renders coordinates in monitor-space rather than world space. A full sized monitor (8x6) will
+        // use positions from (0, 0) to (164*FONT_WIDTH, 81*FONT_HEIGHT) = (984, 729). This is far outside the
+        // normal render distance (~200), and the edges of the monitor fade out due to fog.
+        // There's not really a good way around this, at least without using a custom render type (which the VBO
+        // renderer is trying to avoid!). Instead, we just disable fog entirely by setting the fog start to an
+        // absurdly high value.
+        var oldFog = RenderSystem.getShaderFog();
+        RenderSystem.setShaderFog(Minecraft.getInstance().gameRenderer.fogRenderer.getBuffer(FogRenderer.FogMode.NONE));
+
+        // Compose the existing model view matrix with our transformation matrix.
+        RenderSystem.getModelViewStack().pushMatrix();
+        RenderSystem.getModelViewStack().mul(matrix);
+
+        // Render background geometry
+        drawWithShader(renderState, FixedWidthFontRenderer.TERMINAL_TEXT, RenderPipelines.TEXT, 0, renderState.vertexCountAfterBackground);
+        drawWithShader(
+            renderState, FixedWidthFontRenderer.TERMINAL_TEXT_OFFSET, RenderPipelines.TEXT_POLYGON_OFFSET, renderState.vertexCountAfterBackground,
+            (
+                FixedWidthFontRenderer.isCursorVisible(terminal) && FrameInfo.getGlobalCursorBlink()
+                    ? renderState.vertexCountAfterCursor : renderState.vertexCountAfterForeground
+            ) - renderState.vertexCountAfterBackground
+        );
+
+        // Clear state
+        RenderSystem.getModelViewStack().popMatrix();
+        RenderSystem.setShaderFog(oldFog);
+    }
+
+    private static void drawWithShader(MonitorRenderState renderState, RenderType renderType, RenderPipeline pipeline, int vertexOffset, int vertexCount) {
+        if (renderState.vertexBuffer == null) {
+            throw new IllegalStateException("MonitorRenderState has not been initialised");
+        }
+        if (vertexCount == 0) return;
+
+        var transforms = RenderSystem.getDynamicUniforms().writeTransform(
+            RenderSystem.getModelViewMatrix(),
+            new Vector4f(1.0F, 1.0F, 1.0F, 1.0F),
+            RenderSystem.getModelOffset(),
+            RenderSystem.getTextureMatrix(),
+            RenderSystem.getShaderLineWidth()
+        );
+
+        renderType.setupRenderState();
+
+        var autoStorageBuffer = RenderSystem.getSequentialBuffer(renderType.mode());
+        var indexCount = FixedWidthFontRenderer.TERMINAL_TEXT.mode().indexCount(vertexCount);
+        var indexBuffer = autoStorageBuffer.getBuffer(indexCount);
+
+        var target = Minecraft.getInstance().getMainRenderTarget();
+        var colourTarget = RenderSystem.outputColorTextureOverride != null ? RenderSystem.outputColorTextureOverride : target.getColorTextureView();
+        var depthTarget = target.useDepth
+            ? (RenderSystem.outputDepthTextureOverride != null ? RenderSystem.outputDepthTextureOverride : target.getDepthTextureView())
+            : null;
+
+        try (var renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+            () -> "Monitor", colourTarget, OptionalInt.empty(), depthTarget, OptionalDouble.empty()
+        )) {
+            renderPass.setPipeline(pipeline);
+
+            RenderSystem.bindDefaultUniforms(renderPass);
+            renderPass.setUniform("DynamicTransforms", transforms);
+            renderPass.setVertexBuffer(0, renderState.vertexBuffer);
+            renderPass.setIndexBuffer(indexBuffer, autoStorageBuffer.type());
+
+            for (var j = 0; j < 12; j++) {
+                var gpuTexture = RenderSystem.getShaderTexture(j);
+                if (gpuTexture != null) renderPass.bindSampler("Sampler" + j, gpuTexture);
+            }
+
+            renderPass.drawIndexed(vertexOffset, 0, indexCount, 1);
+        }
+
+        renderType.clearRenderState();
     }
 
     @Override
@@ -268,27 +272,13 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
         return monitor.getRenderBoundingBox();
     }
 
-    /**
-     * Determine if any monitors were rendered this frame.
-     *
-     * @return Whether any monitors were rendered.
-     */
-    public static boolean hasRenderedThisFrame() {
-        return FrameInfo.getRenderFrame() == lastFrame;
-    }
+    private static ByteBuffer getBuffer(int capacity) {
+        var buffer = backingBuffer;
+        if (buffer == null || buffer.capacity() < capacity) {
+            buffer = backingBuffer = buffer == null ? MemoryUtil.memAlloc(capacity) : MemoryUtil.memRealloc(buffer, capacity);
+        }
 
-    /**
-     * Get the current renderer to use.
-     *
-     * @return The current renderer. Will not return {@link MonitorRenderer#BEST}.
-     */
-    public static MonitorRenderer currentRenderer() {
-        var current = Config.monitorRenderer;
-        if (current == MonitorRenderer.BEST) current = Config.monitorRenderer = bestRenderer();
-        return current;
-    }
-
-    private static MonitorRenderer bestRenderer() {
-        return MonitorRenderer.VBO;
+        buffer.clear();
+        return buffer;
     }
 }

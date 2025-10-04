@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -137,21 +138,24 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     }
 
     @Override
-    public ItemStack getCloneItemStack(LevelReader world, BlockPos pos, BlockState state) {
+    public ItemStack getCloneItemStack(LevelReader world, BlockPos pos, BlockState state, boolean includeData) {
         return state.getValue(CABLE) ? new ItemStack(ModRegistry.Items.CABLE.get()) : new ItemStack(ModRegistry.Items.WIRED_MODEM.get());
     }
 
     @ForgeOverride
-    public ItemStack getCloneItemStack(BlockState state, @Nullable HitResult hit, LevelReader world, BlockPos pos, Player player) {
-        var modem = state.getValue(MODEM).getFacing();
-        boolean cable = state.getValue(CABLE);
-
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player) {
         // If we've only got one, just use that.
-        if (!cable) return new ItemStack(ModRegistry.Items.WIRED_MODEM.get());
-        if (modem == null) return new ItemStack(ModRegistry.Items.CABLE.get());
+        if (!state.getValue(CABLE) || state.getValue(MODEM) == CableModemVariant.None) {
+            return getCloneItemStack(level, pos, state, includeData);
+        }
+
+        // Perform a ray-trace for the player.
+        var from = player.getEyePosition();
+        var to = from.add(player.calculateViewVector(player.getXRot(), player.getYRot()).scale(player.blockInteractionRange()));
+        var hit = level.clip(new ClipContext(from, to, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
 
         // We've a modem and cable, so try to work out which one we're interacting with
-        return hit != null && WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))
+        return hit.getType() == HitResult.Type.BLOCK && WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))
             ? new ItemStack(ModRegistry.Items.WIRED_MODEM.get())
             : new ItemStack(ModRegistry.Items.CABLE.get());
     }
@@ -169,8 +173,8 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction side, BlockState otherState, LevelAccessor level, BlockPos pos, BlockPos otherPos) {
-        WaterloggableHelpers.updateShape(state, level, pos);
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticker, BlockPos pos, Direction side, BlockPos otherPos, BlockState neighborState, RandomSource randomSource) {
+        WaterloggableHelpers.updateShape(state, level, ticker, pos);
 
         // Should never happen, but handle the case where we've no modem or cable.
         if (!state.getValue(CABLE) && state.getValue(MODEM) == CableModemVariant.None) {
@@ -248,8 +252,8 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     }
 
     @Override
-    protected final void neighborChanged(BlockState state, Level world, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos, boolean isMoving) {
-        if (world.getBlockEntity(pos) instanceof CableBlockEntity modem) modem.neighborChanged(neighbourPos);
+    protected final void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean isMoving) {
+        if (level.getBlockEntity(pos) instanceof CableBlockEntity modem) modem.neighborChanged();
     }
 
     @Override

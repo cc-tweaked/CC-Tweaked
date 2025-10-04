@@ -5,9 +5,9 @@
 package dan200.computercraft.shared.data;
 
 import dan200.computercraft.shared.ModRegistry;
+import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
@@ -26,12 +26,12 @@ public final class BlockNamedEntityLootCondition implements LootItemCondition {
 
     @Override
     public boolean test(LootContext lootContext) {
-        var tile = lootContext.getParamOrNull(LootContextParams.BLOCK_ENTITY);
+        var tile = lootContext.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         return tile instanceof Nameable nameable && nameable.hasCustomName();
     }
 
     @Override
-    public Set<LootContextParam<?>> getReferencedContextParams() {
+    public Set<ContextKey<?>> getReferencedContextParams() {
         return Set.of(LootContextParams.BLOCK_ENTITY);
     }
 

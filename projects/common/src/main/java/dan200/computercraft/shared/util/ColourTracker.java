@@ -53,4 +53,8 @@ public class ColourTracker {
 
         return (avgR << 16) | (avgG << 8) | avgB;
     }
+
+    public int getColourOr(int fallback) {
+        return hasColour() ? getColour() : fallback;
+    }
 }

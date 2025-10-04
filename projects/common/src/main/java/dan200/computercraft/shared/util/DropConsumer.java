@@ -5,7 +5,6 @@
 package dan200.computercraft.shared.util;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -15,7 +14,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
@@ -23,34 +21,30 @@ public final class DropConsumer {
     private DropConsumer() {
     }
 
-    private static @Nullable Function<ItemStack, ItemStack> dropConsumer;
-    private static @Nullable List<ItemStack> remainingDrops;
+    private static @Nullable List<ItemStack> drops;
     private static @Nullable Level dropWorld;
     private static @Nullable AABB dropBounds;
     private static @Nullable Entity dropEntity;
 
-    public static void set(Entity entity, Function<ItemStack, ItemStack> consumer) {
-        dropConsumer = consumer;
-        remainingDrops = new ArrayList<>();
+    public static void set(Entity entity) {
+        drops = new ArrayList<>();
         dropEntity = entity;
         dropWorld = entity.level();
         dropBounds = new AABB(entity.blockPosition()).inflate(2, 2, 2);
     }
 
-    public static void set(Level world, BlockPos pos, Function<ItemStack, ItemStack> consumer) {
-        dropConsumer = consumer;
-        remainingDrops = new ArrayList<>(2);
+    public static void set(Level world, BlockPos pos) {
+        drops = new ArrayList<>(2);
         dropEntity = null;
         dropWorld = world;
         dropBounds = new AABB(pos).inflate(2, 2, 2);
     }
 
-    public static List<ItemStack> clear() {
-        var remainingStacks = remainingDrops;
+    public static List<ItemStack> stop() {
+        var remainingStacks = drops;
         if (remainingStacks == null) throw new IllegalStateException("Not currently capturing");
 
-        dropConsumer = null;
-        remainingDrops = null;
+        drops = null;
         dropEntity = null;
         dropWorld = null;
         dropBounds = null;
@@ -58,14 +52,8 @@ public final class DropConsumer {
         return remainingStacks;
     }
 
-    public static void clearAndDrop(Level world, BlockPos pos, @Nullable Direction direction) {
-        var remainingDrops = clear();
-        for (var remaining : remainingDrops) WorldUtil.dropItemStack(world, pos, direction, remaining);
-    }
-
     private static void handleDrops(ItemStack stack) {
-        var remaining = assertNonNull(dropConsumer).apply(stack);
-        if (!remaining.isEmpty()) assertNonNull(remainingDrops).add(remaining);
+        assertNonNull(drops).add(stack);
     }
 
     public static boolean onEntitySpawn(Entity entity) {

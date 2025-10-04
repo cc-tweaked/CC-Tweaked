@@ -4,61 +4,53 @@
 
 package dan200.computercraft.client;
 
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.client.turtle.RegisterTurtleUpgradeModeller;
-import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
+import com.mojang.serialization.MapCodec;
+import dan200.computercraft.api.client.StandaloneModel;
+import dan200.computercraft.api.client.turtle.*;
 import dan200.computercraft.client.gui.*;
-import dan200.computercraft.client.pocket.ClientPocketComputers;
+import dan200.computercraft.client.item.colour.PocketComputerLight;
+import dan200.computercraft.client.item.model.TurtleOverlayModel;
+import dan200.computercraft.client.item.properties.PocketComputerStateProperty;
+import dan200.computercraft.client.item.properties.TurtleShowElfOverlay;
+import dan200.computercraft.client.platform.ClientPlatformHelper;
+import dan200.computercraft.client.platform.ModelKey;
 import dan200.computercraft.client.render.CustomLecternRenderer;
-import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.TurtleBlockEntityRenderer;
 import dan200.computercraft.client.render.monitor.MonitorBlockEntityRenderer;
-import dan200.computercraft.client.turtle.TurtleModemModeller;
-import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
-import dan200.computercraft.core.util.Colour;
+import dan200.computercraft.client.turtle.TurtleOverlay;
+import dan200.computercraft.client.turtle.TurtleOverlayManager;
+import dan200.computercraft.client.turtle.TurtleUpgradeModelManager;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.command.CommandComputerCraft;
-import dan200.computercraft.shared.computer.core.ComputerState;
-import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
-import dan200.computercraft.shared.turtle.TurtleOverlay;
-import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.color.item.ItemColor;
+import net.minecraft.client.color.item.ItemTintSource;
+import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
+import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
-import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.renderer.item.ItemModel;
+import net.minecraft.client.renderer.item.properties.conditional.ConditionalItemModelProperty;
+import net.minecraft.client.renderer.item.properties.select.SelectItemModelProperty;
+import net.minecraft.client.resources.model.MissingBlockModel;
+import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceProvider;
-import net.minecraft.util.FastColor;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.DyedItemColor;
-import net.minecraft.world.level.ItemLike;
-import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Registers client-side objects, such as {@link BlockEntityRendererProvider}s and
@@ -69,9 +61,20 @@ import java.util.function.Supplier;
  * @see ModRegistry The common registry for actual game objects.
  */
 public final class ClientRegistry {
-    private static final Logger LOG = LoggerFactory.getLogger(ClientRegistry.class);
-
     private ClientRegistry() {
+    }
+
+    private static final Map<ResourceLocation, ModelKey<StandaloneModel>> models = new ConcurrentHashMap<>();
+
+    public static ModelKey<StandaloneModel> getModel(ResourceLocation model) {
+        return models.computeIfAbsent(model, m -> ClientPlatformHelper.get().createModelKey(m::toString));
+    }
+
+    public static StandaloneModel getModel(ModelManager manager, ResourceLocation modelId) {
+        var model = getModel(modelId).get(manager);
+        if (model != null) return model;
+
+        return Objects.requireNonNull(getModel(MissingBlockModel.LOCATION).get(manager));
     }
 
     /**
@@ -83,25 +86,6 @@ public final class ClientRegistry {
         BlockEntityRenderers.register(ModRegistry.BlockEntities.TURTLE_NORMAL.get(), TurtleBlockEntityRenderer::new);
         BlockEntityRenderers.register(ModRegistry.BlockEntities.TURTLE_ADVANCED.get(), TurtleBlockEntityRenderer::new);
         BlockEntityRenderers.register(ModRegistry.BlockEntities.LECTERN.get(), CustomLecternRenderer::new);
-    }
-
-    /**
-     * Register any client-side objects which must be done on the main thread.
-     *
-     * @param itemProperties Callback to register item properties.
-     */
-    public static void registerMainThread(RegisterItemProperty itemProperties) {
-        registerItemProperty(itemProperties, "state",
-            new UnclampedPropertyFunction((stack, world, player, random) -> {
-                var computer = ClientPocketComputers.get(stack);
-                return (computer == null ? ComputerState.OFF : computer.getState()).ordinal();
-            }),
-            ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED
-        );
-        registerItemProperty(itemProperties, "coloured",
-            (stack, world, player, random) -> DyedItemColor.getOrDefault(stack, -1) != -1 ? 1 : 0,
-            ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED
-        );
     }
 
     public static void registerMenuScreens(RegisterMenuScreen register) {
@@ -118,145 +102,102 @@ public final class ClientRegistry {
         <M extends AbstractContainerMenu, U extends Screen & MenuAccess<M>> void register(MenuType<? extends M> type, MenuScreens.ScreenConstructor<M, U> factory);
     }
 
-    public static void registerTurtleModellers(RegisterTurtleUpgradeModeller register) {
-        register.register(ModRegistry.TurtleUpgradeTypes.SPEAKER.get(), TurtleUpgradeModeller.sided(
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_left"),
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_right")
-        ));
-        register.register(ModRegistry.TurtleUpgradeTypes.WORKBENCH.get(), TurtleUpgradeModeller.sided(
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_left"),
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_right")
-        ));
-        register.register(ModRegistry.TurtleUpgradeTypes.WIRELESS_MODEM.get(), new TurtleModemModeller());
-        register.register(ModRegistry.TurtleUpgradeTypes.TOOL.get(), TurtleUpgradeModeller.flatItem());
-    }
-
-    @SafeVarargs
-    private static void registerItemProperty(RegisterItemProperty itemProperties, String name, ClampedItemPropertyFunction getter, Supplier<? extends Item>... items) {
-        var id = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name);
-        for (var item : items) itemProperties.register(item.get(), id, getter);
-    }
-
-    /**
-     * Register an item property via {@link ItemProperties#register}. Forge and Fabric expose different methods, so we
-     * supply this via mod-loader-specific code.
-     */
-    public interface RegisterItemProperty {
-        void register(Item item, ResourceLocation name, ClampedItemPropertyFunction property);
+    public static void registerTurtleModels(RegisterTurtleUpgradeModel register) {
+        register.register(BasicUpgradeModel.ID, BasicUpgradeModel.CODEC);
+        register.register(ItemUpgradeModel.ID, ItemUpgradeModel.CODEC);
+        register.register(SelectUpgradeModel.ID, SelectUpgradeModel.CODEC);
     }
 
     private static final ResourceLocation[] EXTRA_MODELS = {
         TurtleOverlay.ELF_MODEL,
+        TurtleBlockEntityRenderer.NORMAL_TURTLE_MODEL,
+        TurtleBlockEntityRenderer.ADVANCED_TURTLE_MODEL,
         TurtleBlockEntityRenderer.COLOUR_TURTLE_MODEL,
+        MissingBlockModel.LOCATION,
     };
 
-    public static void registerExtraModels(Consumer<ResourceLocation> register, Collection<ResourceLocation> extraModels) {
-        for (var model : EXTRA_MODELS) register.accept(model);
-        extraModels.forEach(register);
-        TurtleUpgradeModellers.getDependencies().forEach(register);
-    }
-
-    public static void registerItemColours(BiConsumer<ItemColor, ItemLike> register) {
-        register.accept(
-            (stack, layer) -> layer == 1 ? DyedItemColor.getOrDefault(stack, Colour.WHITE.getARGB()) : -1,
-            ModRegistry.Items.DISK.get()
-        );
-
-        register.accept(
-            (stack, layer) -> layer == 1 ? DyedItemColor.getOrDefault(stack, Colour.BLUE.getARGB()) : -1,
-            ModRegistry.Items.TREASURE_DISK.get()
-        );
-
-        register.accept(ClientRegistry::getPocketColour, ModRegistry.Items.POCKET_COMPUTER_NORMAL.get());
-        register.accept(ClientRegistry::getPocketColour, ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get());
-
-        register.accept(ClientRegistry::getTurtleColour, ModRegistry.Blocks.TURTLE_NORMAL.get());
-        register.accept(ClientRegistry::getTurtleColour, ModRegistry.Blocks.TURTLE_ADVANCED.get());
-    }
-
-    private static int getPocketColour(ItemStack stack, int layer) {
-        return switch (layer) {
-            default -> -1;
-            case 1 -> DyedItemColor.getOrDefault(stack, -1); // Frame colour
-            case 2 -> { // Light colour
-                var computer = ClientPocketComputers.get(stack);
-                yield computer == null || computer.getLightState() == -1 ? Colour.BLACK.getARGB() : FastColor.ARGB32.opaque(computer.getLightState());
-            }
-        };
-    }
-
-    private static int getTurtleColour(ItemStack stack, int layer) {
-        return layer == 0 ? DyedItemColor.getOrDefault(stack, -1) : -1;
-    }
-
-    public static void registerShaders(ResourceProvider resources, BiConsumer<ShaderInstance, Consumer<ShaderInstance>> load) throws IOException {
-        RenderTypes.registerShaders(resources, (name, create, onLoaded) -> {
-            ShaderInstance shader;
-            try {
-                shader = create.get();
-            } catch (Exception e) {
-                LOG.error("Failed to load {}", name, e);
-                onLoaded.accept(null);
-                return;
-            }
-
-            load.accept(shader, onLoaded);
-        });
-    }
-
-    private record UnclampedPropertyFunction(
-        ClampedItemPropertyFunction function
-    ) implements ClampedItemPropertyFunction {
-        @Override
-        public float unclampedCall(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int layer) {
-            return function.unclampedCall(stack, level, entity, layer);
-        }
-
-        @Deprecated
-        @Override
-        public float call(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int layer) {
-            return function.unclampedCall(stack, level, entity, layer);
-        }
+    /**
+     * Additional models to load.
+     *
+     * @param turtleOverlays The unbaked turtle models.
+     * @param turtleUpgrades The unbaked turtle upgrades.
+     * @see #gatherExtraModels(ResourceManager, Executor)
+     * @see #registerExtraModels(RegisterExtraModels, ExtraModels)
+     */
+    public record ExtraModels(
+        Map<ResourceLocation, TurtleOverlay.Unbaked> turtleOverlays,
+        Map<ResourceLocation, TurtleUpgradeModel.Unbaked> turtleUpgrades
+    ) {
     }
 
     /**
-     * Register client-side commands.
+     * Gather the list of extra models to load.
      *
-     * @param dispatcher The dispatcher to register the commands to.
-     * @param sendError  A function to send an error message.
-     * @param <T>        The type of the client-side command context.
+     * @param resources The current resource manager.
+     * @param executor  The executor to schedule loading on.
+     * @return A promise which contains our extra models.
      */
-    public static <T> void registerClientCommands(CommandDispatcher<T> dispatcher, BiConsumer<T, Component> sendError) {
-        dispatcher.register(LiteralArgumentBuilder.<T>literal(CommandComputerCraft.CLIENT_OPEN_FOLDER)
-            .requires(x -> Minecraft.getInstance().getSingleplayerServer() != null)
-            .then(RequiredArgumentBuilder.<T, Integer>argument("computer_id", IntegerArgumentType.integer(0))
-                .executes(c -> handleOpenComputerCommand(c.getSource(), sendError, c.getArgument("computer_id", Integer.class)))
-            ));
+    public static CompletableFuture<ExtraModels> gatherExtraModels(ResourceManager resources, Executor executor) {
+        var turtleOverlays = TurtleOverlayManager.loader().load(resources, executor);
+        var turtleUpgrades = TurtleUpgradeModelManager.loader().load(resources, executor);
+        return turtleOverlays.thenCombine(turtleUpgrades, ExtraModels::new);
     }
 
     /**
-     * Handle the {@link CommandComputerCraft#CLIENT_OPEN_FOLDER} command.
-     *
-     * @param context   The command context.
-     * @param sendError A function to send an error message.
-     * @param id        The computer's id.
-     * @param <T>       The type of the client-side command context.
-     * @return {@code 1} if a folder was opened, {@code 0} otherwise.
+     * A callback used to register a model for a {@link ModelKey}.
      */
-    private static <T> int handleOpenComputerCommand(T context, BiConsumer<T, Component> sendError, int id) {
-        var server = Minecraft.getInstance().getSingleplayerServer();
-        if (server == null) {
-            sendError.accept(context, Component.literal("Not on a single-player server"));
-            return 0;
+    public interface RegisterExtraModels {
+        default <U extends ResolvableModel, T> void register(ModelKey<T> key, U unbaked, BiFunction<U, ModelBaker, T> bake) {
+            register(key, unbaked, ResolvableModel::resolveDependencies, bake);
         }
 
-        var file = new File(ServerContext.get(server).storageDir().toFile(), "computer/" + id);
-        if (!file.isDirectory()) {
-            sendError.accept(context, Component.literal("Computer's folder does not exist"));
-            return 0;
-        }
+        /**
+         * Register an extra model.
+         * <p>
+         * This accepts functions to resolve dependencies and bake the model. While this would be conceptually nicer as
+         * an interface, it would require multiple adaptors to convert between "upgrade model", "a"bstract model" and
+         * "platform-specific model", so working with functions is cleaner.
+         *
+         * @param key     The model key for this model.
+         * @param unbaked The unbaked model.
+         * @param resolve The function to resolve dependencies for this model.
+         * @param bake    The function to bake this model.
+         * @param <U>     The type of unbaked model.
+         * @param <T>     The type of baked model.
+         */
+        <U, T> void register(ModelKey<T> key, U unbaked, BiConsumer<U, ResolvableModel.Resolver> resolve, BiFunction<U, ModelBaker, T> bake);
+    }
 
-        Util.getPlatform().openFile(file);
-        return 1;
+    public static void registerExtraModels(RegisterExtraModels register, ExtraModels models) {
+        for (var model : EXTRA_MODELS) {
+            register.register(getModel(model), model, (id, r) -> r.markDependency(id), StandaloneModel::of);
+        }
+        TurtleOverlayManager.loader().register(register, models.turtleOverlays());
+        TurtleUpgradeModelManager.loader().register(register, models.turtleUpgrades());
+    }
+
+    public static void registerItemModels(BiConsumer<ResourceLocation, MapCodec<? extends ItemModel.Unbaked>> register) {
+        register.accept(TurtleOverlayModel.ID, TurtleOverlayModel.CODEC);
+        register.accept(dan200.computercraft.client.item.model.TurtleUpgradeModel.ID, dan200.computercraft.client.item.model.TurtleUpgradeModel.CODEC);
+    }
+
+    public static void registerItemColours(BiConsumer<ResourceLocation, MapCodec<? extends ItemTintSource>> register) {
+        register.accept(PocketComputerLight.ID, PocketComputerLight.CODEC);
+    }
+
+    public static void registerSelectItemProperties(BiConsumer<ResourceLocation, SelectItemModelProperty.Type<?, ?>> register) {
+        register.accept(PocketComputerStateProperty.ID, PocketComputerStateProperty.TYPE);
+    }
+
+    public static void registerConditionalItemProperties(BiConsumer<ResourceLocation, MapCodec<? extends ConditionalItemModelProperty>> register) {
+        register.accept(TurtleShowElfOverlay.ID, TurtleShowElfOverlay.CODEC);
+    }
+
+    public interface RegisterPictureInPictureRenderer {
+        <T extends PictureInPictureRenderState> void register(Class<T> state, Function<MultiBufferSource.BufferSource, PictureInPictureRenderer<T>> factory);
+    }
+
+    public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderer register) {
+        register.register(PrintoutScreen.PrintoutRenderState.class, PrintoutScreen.PrintoutPictureRenderer::new);
     }
 }

@@ -11,9 +11,9 @@ import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.platform.ComponentAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
@@ -98,17 +98,14 @@ public final class WiredModemLocalPeripheral {
         return peripheral == null ? Map.of() : Map.of(type + "_" + id, peripheral);
     }
 
-    public void write(CompoundTag tag, String suffix) {
+    public void write(ValueOutput tag, String suffix) {
         if (id >= 0) tag.putInt(NBT_PERIPHERAL_ID + suffix, id);
         if (type != null) tag.putString(NBT_PERIPHERAL_TYPE + suffix, type);
     }
 
-    public void read(CompoundTag tag, String suffix) {
-        id = tag.contains(NBT_PERIPHERAL_ID + suffix, Tag.TAG_ANY_NUMERIC)
-            ? tag.getInt(NBT_PERIPHERAL_ID + suffix) : -1;
-
-        type = tag.contains(NBT_PERIPHERAL_TYPE + suffix, Tag.TAG_STRING)
-            ? tag.getString(NBT_PERIPHERAL_TYPE + suffix) : null;
+    public void read(ValueInput tag, String suffix) {
+        id = tag.getIntOr(NBT_PERIPHERAL_ID + suffix, -1);
+        type = tag.getStringOr(NBT_PERIPHERAL_TYPE + suffix, null);
     }
 
     @Nullable

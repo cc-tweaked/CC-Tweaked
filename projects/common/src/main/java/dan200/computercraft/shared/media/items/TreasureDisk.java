@@ -7,6 +7,7 @@ package dan200.computercraft.shared.media.items;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.shared.ModRegistry;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentHolder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -44,7 +45,7 @@ public record TreasureDisk(String name, String path) implements TooltipProvider 
     }
 
     @Override
-    public void addToTooltip(Item.TooltipContext context, Consumer<Component> out, TooltipFlag flags) {
+    public void addToTooltip(Item.TooltipContext context, Consumer<Component> out, TooltipFlag flags, DataComponentGetter components) {
         out.accept(Component.literal(name()));
     }
 }

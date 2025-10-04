@@ -61,7 +61,7 @@ public class DiskDriveBlock extends HorizontalContainerBlock {
             if (!level.isClientSide && level.getBlockEntity(blockPos) instanceof DiskDriveBlockEntity drive && drive.getDiskStack().isEmpty()) {
                 drive.setDiskStack(context.getItemInHand().split(1));
             }
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
 
         return InteractionResult.PASS;

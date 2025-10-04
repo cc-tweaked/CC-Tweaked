@@ -134,7 +134,7 @@ public final class TurtlePlayer {
 
     public void loadInventory(ItemStack stack) {
         player.getInventory().clearContent();
-        player.getInventory().selected = 0;
+        player.getInventory().setSelectedSlot(0);
         player.getInventory().setItem(0, stack);
     }
 
@@ -145,7 +145,7 @@ public final class TurtlePlayer {
         var slots = turtleInventory.getContainerSize();
 
         // Load up the fake inventory
-        inventory.selected = 0;
+        inventory.setSelectedSlot(0);
         for (var i = 0; i < slots; i++) {
             inventory.setItem(i, turtleInventory.getItem((currentSlot + i) % slots));
         }
@@ -160,7 +160,7 @@ public final class TurtlePlayer {
         var slots = turtleInventory.getContainerSize();
 
         // Load up the fake inventory
-        inventory.selected = 0;
+        inventory.setSelectedSlot(0);
         for (var i = 0; i < slots; i++) {
             turtleInventory.setItem((currentSlot + i) % slots, inventory.getItem(i));
         }

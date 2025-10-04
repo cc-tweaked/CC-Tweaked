@@ -6,13 +6,14 @@ package dan200.computercraft.client;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.sound.SpeakerSound;
-import net.minecraft.commands.CommandSourceStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.event.sound.PlayStreamingSourceEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
+
+import static dan200.computercraft.client.ForgeClientRegistry.ITEM_FRAME_STATE;
 
 /**
  * Forge-specific dispatch for {@link ClientHooks}.
@@ -51,7 +52,6 @@ public final class ForgeClientHooks {
 
     @SubscribeEvent
     public static void onRenderText(CustomizeGuiOverlayEvent.DebugText event) {
-        ClientHooks.addGameDebugInfo(event.getLeft()::add);
         ClientHooks.addBlockDebugInfo(event.getRight()::add);
     }
 
@@ -65,10 +65,12 @@ public final class ForgeClientHooks {
         }
     }
 
+
     @SubscribeEvent
     public static void onRenderInFrame(RenderItemInFrameEvent event) {
-        if (ClientHooks.onRenderItemFrame(
-            event.getPoseStack(), event.getMultiBufferSource(), event.getItemFrameEntity(), event.getItemStack(), event.getPackedLight()
+        var state = event.getItemFrameRenderState().getRenderData(ITEM_FRAME_STATE);
+        if (state != null && ClientHooks.onRenderItemFrame(
+            event.getPoseStack(), event.getMultiBufferSource(), event.getItemFrameRenderState(), state, event.getPackedLight()
         )) {
             event.setCanceled(true);
         }
@@ -78,10 +80,5 @@ public final class ForgeClientHooks {
     public static void playStreaming(PlayStreamingSourceEvent event) {
         if (!(event.getSound() instanceof SpeakerSound sound) || sound.getStream() == null) return;
         ClientHooks.onPlayStreaming(event.getEngine(), event.getChannel(), sound.getStream());
-    }
-
-    @SubscribeEvent
-    public static void registerClientCommands(RegisterClientCommandsEvent event) {
-        ClientRegistry.registerClientCommands(event.getDispatcher(), CommandSourceStack::sendFailure);
     }
 }

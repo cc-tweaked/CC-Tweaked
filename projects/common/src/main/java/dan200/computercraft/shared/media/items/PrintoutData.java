@@ -11,6 +11,7 @@ import dan200.computercraft.api.media.PrintoutContents;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.ModRegistry;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentHolder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -77,7 +78,7 @@ public record PrintoutData(String title, List<Line> lines) implements PrintoutCo
     );
 
     @Override
-    public void addToTooltip(Item.TooltipContext context, Consumer<Component> out, TooltipFlag flag) {
+    public void addToTooltip(Item.TooltipContext context, Consumer<Component> out, TooltipFlag flag, DataComponentGetter components) {
         if (!title().isEmpty()) out.accept(Component.literal(title()));
     }
 

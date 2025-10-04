@@ -17,6 +17,7 @@ import net.minecraft.gametest.framework.GameTestAssertException
 import net.minecraft.gametest.framework.GameTestAssertPosException
 import net.minecraft.gametest.framework.GameTestInfo
 import net.minecraft.gametest.framework.GameTestSequence
+import net.minecraft.network.chat.Component
 import org.slf4j.LoggerFactory
 import java.io.InputStream
 import java.util.*
@@ -96,12 +97,14 @@ object ManagedComputers : ILuaMachine.Factory {
         private fun fail(message: String): Nothing {
             val computer =
                 ServerContext.get(test.level.server).registry().computers.firstOrNull { it.label == label }
+
+            val tick = (test as GameTestInfoAccessor).`computercraft$getTick`()
             if (computer == null) {
-                throw GameTestAssertException(message)
+                throw GameTestAssertException(Component.literal(message), tick)
             } else {
                 val pos = computer.position
-                val relativePos = pos.subtract(test.structureBlockPos!!)
-                throw GameTestAssertPosException(message, pos, relativePos, (test as GameTestInfoAccessor).`computercraft$getTick`())
+                val relativePos = pos.subtract(test.testOrigin)
+                throw GameTestAssertPosException(Component.literal(message), pos, relativePos, tick)
             }
         }
     }

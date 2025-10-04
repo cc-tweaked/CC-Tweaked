@@ -19,11 +19,10 @@ import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.LecternRenderer;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.phys.Vec3;
@@ -40,19 +39,16 @@ import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FON
 public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternBlockEntity> {
     private static final int POCKET_TERMINAL_RENDER_DISTANCE = 32;
 
-    private final BlockEntityRenderDispatcher berDispatcher;
     private final LecternPrintoutModel printoutModel;
     private final LecternPocketModel pocketModel;
 
     public CustomLecternRenderer(BlockEntityRendererProvider.Context context) {
-        berDispatcher = context.getBlockEntityRenderDispatcher();
-
         printoutModel = new LecternPrintoutModel();
         pocketModel = new LecternPocketModel();
     }
 
     @Override
-    public void render(CustomLecternBlockEntity lectern, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay) {
+    public void render(CustomLecternBlockEntity lectern, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay, Vec3 camera) {
         poseStack.pushPose();
         poseStack.translate(0.5f, 1.0625f, 0.5f);
         poseStack.mulPose(Axis.YP.rotationDegrees(-lectern.getBlockState().getValue(LecternBlock.FACING).getClockWise().toYRot()));
@@ -72,7 +68,7 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
 
             pocketModel.render(
                 poseStack, buffer, packedLight, packedOverlay, pocket.getFamily(), DyedItemColor.getOrDefault(item, -1),
-                FastColor.ARGB32.opaque(computer == null || computer.getLightState() == -1 ? Colour.BLACK.getHex() : computer.getLightState())
+                ARGB.opaque(computer == null || computer.getLightState() == -1 ? Colour.BLACK.getHex() : computer.getLightState())
             );
 
             // Jiggle the terminal about a bit, so (0, 0) is in the top left of the model's terminal hole.
@@ -82,8 +78,8 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
 
             // Either render the terminal or a black screen, depending on how close we are.
             var terminal = computer == null ? null : computer.getTerminal();
-            var quadEmitter = FixedWidthFontRenderer.toVertexConsumer(poseStack, buffer.getBuffer(RenderTypes.TERMINAL));
-            if (terminal != null && Vec3.atCenterOf(lectern.getBlockPos()).closerThan(berDispatcher.camera.getPosition(), POCKET_TERMINAL_RENDER_DISTANCE)) {
+            var quadEmitter = FixedWidthFontRenderer.toVertexConsumer(poseStack, buffer.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT));
+            if (terminal != null && Vec3.atCenterOf(lectern.getBlockPos()).closerThan(camera, POCKET_TERMINAL_RENDER_DISTANCE)) {
                 renderPocketTerminal(poseStack, quadEmitter, terminal);
             } else {
                 FixedWidthFontRenderer.drawEmptyTerminal(quadEmitter, 0, 0, LecternPocketModel.TERM_WIDTH, LecternPocketModel.TERM_HEIGHT);

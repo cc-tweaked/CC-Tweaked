@@ -99,7 +99,7 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
 
         if (uploadNagDeadline != Long.MAX_VALUE && Util.getNanos() >= uploadNagDeadline) {
             new ItemToast(minecraft(), displayStack, NO_RESPONSE_TITLE, NO_RESPONSE_MSG, ItemToast.TRANSFER_NO_RESPONSE_TOKEN)
-                .showOrReplace(minecraft().getToasts());
+                .showOrReplace(minecraft().getToastManager());
             uploadNagDeadline = Long.MAX_VALUE;
         }
     }
@@ -123,6 +123,15 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
         if (child.isPresent() && child.get().mouseReleased(x, y, button)) return true;
 
         return super.mouseReleased(x, y, button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        // Reimplement ContainerEventHandler.mouseScrolled, as AbstractContainerScreen overrides it.
+        var child = getChildAt(mouseX, mouseY);
+        if (child.isPresent() && child.get().mouseScrolled(mouseX, mouseY, scrollX, scrollY)) return true;
+
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override

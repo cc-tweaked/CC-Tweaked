@@ -23,7 +23,7 @@ public class FurnacePeripheral implements GenericPeripheral {
     @LuaFunction(mainThread = true)
     public int getBurnTime(AbstractFurnaceBlockEntity furnace) {
         // Don't do it this way! Use an access widener/transformer to access the "litTime" field instead.
-        return furnace.saveWithoutMetadata(furnace.getLevel().registryAccess()).getInt("BurnTime");
+        return furnace.saveWithoutMetadata(furnace.getLevel().registryAccess()).getShortOr("lit_time_remaining", (short) 0);
     }
 }
 // @end region=body

@@ -20,23 +20,21 @@ import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.Container;
 import net.minecraft.world.LockCode;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuConstructor;
-import net.minecraft.world.level.block.GameMasterBlock;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
@@ -44,7 +42,7 @@ import java.util.UUID;
 
 public abstract class AbstractComputerBlockEntity extends BlockEntity implements Nameable, MenuConstructor {
     private static final String NBT_ID = "ComputerId";
-    private static final String NBT_LABEL = "Label";
+    protected static final String NBT_LABEL = "Label";
     private static final String NBT_ON = "On";
     private static final String NBT_CAPACITY = "Capacity";
 
@@ -144,7 +142,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     protected abstract void updateBlockState(ComputerState newState);
 
     @Override
-    public void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+    public void saveAdditional(ValueOutput nbt) {
         // Save ID, label and power state
         if (computerID >= 0) nbt.putInt(NBT_ID, computerID);
         if (label != null) nbt.putString(NBT_LABEL, label);
@@ -153,31 +151,31 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
 
         lockCode.addToTag(nbt);
 
-        super.saveAdditional(nbt, registries);
+        super.saveAdditional(nbt);
     }
 
     @Override
-    public final void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.loadAdditional(nbt, registries);
+    public final void loadAdditional(ValueInput nbt) {
+        super.loadAdditional(nbt);
         if (level != null && level.isClientSide) {
-            loadClient(nbt, registries);
+            loadClient(nbt);
         } else {
-            loadServer(nbt, registries);
+            loadServer(nbt);
         }
     }
 
-    protected void loadServer(CompoundTag nbt, HolderLookup.Provider registries) {
+    protected void loadServer(ValueInput nbt) {
         // Load ID, label and power state
-        computerID = nbt.contains(NBT_ID) ? nbt.getInt(NBT_ID) : -1;
-        label = nbt.contains(NBT_LABEL) ? nbt.getString(NBT_LABEL) : null;
-        storageCapacity = nbt.contains(NBT_CAPACITY, Tag.TAG_ANY_NUMERIC) ? nbt.getLong(NBT_CAPACITY) : -1;
-        on = startOn = nbt.getBoolean(NBT_ON);
+        computerID = nbt.getIntOr(NBT_ID, -1);
+        label = nbt.getStringOr(NBT_LABEL, null);
+        storageCapacity = nbt.getLongOr(NBT_CAPACITY, -1);
+        on = startOn = nbt.getBooleanOr(NBT_ON, false);
 
         lockCode = LockCode.fromTag(nbt);
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput component) {
+    protected void applyImplicitComponents(DataComponentGetter component) {
         super.applyImplicitComponents(component);
         label = DataComponentUtil.getCustomName(component.get(DataComponents.CUSTOM_NAME));
         computerID = NonNegativeId.getId(component.get(ModRegistry.DataComponents.COMPUTER_ID.get()));
@@ -199,19 +197,19 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
      */
     @OverridingMethodsMustInvokeSuper
     protected void collectSafeComponents(DataComponentMap.Builder builder) {
-        builder.set(ModRegistry.DataComponents.COMPUTER_ID.get(), NonNegativeId.of(computerID));
+        builder.set(ModRegistry.DataComponents.COMPUTER_ID.get(), computerID < 0 ? null : new NonNegativeId.Computer(computerID));
         builder.set(DataComponents.CUSTOM_NAME, label == null ? null : Component.literal(label));
         builder.set(ModRegistry.DataComponents.STORAGE_CAPACITY.get(), storageCapacity > 0 ? new StorageCapacity(storageCapacity) : null);
     }
 
     @Override
     @Deprecated
-    public void removeComponentsFromTag(CompoundTag tag) {
+    public void removeComponentsFromTag(ValueOutput tag) {
         super.removeComponentsFromTag(tag);
-        tag.remove(NBT_ID);
-        tag.remove(NBT_LABEL);
-        tag.remove(NBT_CAPACITY);
-        tag.remove(LockCode.TAG_LOCK);
+        tag.discard(NBT_ID);
+        tag.discard(NBT_LABEL);
+        tag.discard(NBT_CAPACITY);
+        tag.discard(LockCode.TAG_LOCK);
     }
 
     protected boolean isPeripheralBlockedOnSide(ComputerSide localSide) {
@@ -231,7 +229,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     /**
      * Update the redstone input on a particular side.
      * <p>
-     * This is called <em>immediately</em> when a neighbouring block changes (see {@link #neighborChanged(BlockPos)}).
+     * This is called <em>immediately</em> when a neighbouring block changes (see {@link #neighborChanged()}).
      *
      * @param computer  The current server computer.
      * @param dir       The direction to update in.
@@ -251,7 +249,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
      * Update the peripheral on a particular side.
      * <p>
      * This is called from {@link #serverTick()}, after a peripheral has been marked as invalid (such as in
-     * {@link #neighborChanged(BlockPos)})
+     * {@link #neighborChanged()})
      *
      * @param computer The current server computer.
      * @param dir      The direction to update in.
@@ -289,31 +287,16 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     }
 
     /**
-     * Called when a neighbour block changes.
-     * <p>
-     * This finds the side the neighbour block is on, and updates the inputs accordingly.
+     * Called when we receive a block update from a neighbour. This updates all redstone and peripheral inputs.
      * <p>
      * We do <strong>NOT</strong> update the peripheral immediately. Blocks and block entities are sometimes
      * inconsistent at the point where an update is received, and so we instead just mark that side as dirty (see
      * {@link #invalidSides}) and refresh it {@linkplain #serverTick() next tick}.
-     *
-     * @param neighbour The position of the neighbour block.
      */
-    public void neighborChanged(BlockPos neighbour) {
+    public void neighborChanged() {
         var computer = getServerComputer();
         if (computer == null) return;
 
-        for (var dir : DirectionUtil.FACINGS) {
-            var offset = getBlockPos().relative(dir);
-            if (offset.equals(neighbour)) {
-                updateRedstoneInput(computer, dir, offset);
-                invalidSides |= 1 << dir.ordinal();
-                return;
-            }
-        }
-
-        // If the position is not any adjacent one, update all inputs. This is pretty terrible, but some redstone mods
-        // handle this incorrectly.
         for (var dir : DirectionUtil.FACINGS) updateRedstoneInput(computer, dir, getBlockPos().relative(dir));
         invalidSides = DirectionUtil.ALL_SIDES; // Mark all peripherals as dirty.
     }
@@ -321,7 +304,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     /**
      * Called when a neighbour block's shape changes.
      * <p>
-     * Unlike {@link #neighborChanged(BlockPos)}, we don't update redstone, only peripherals.
+     * Unlike {@link #neighborChanged()}, we don't update redstone, only peripherals.
      *
      * @param direction The side that changed.
      */
@@ -354,10 +337,6 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
 
     public final @Nullable String getLabel() {
         return label;
-    }
-
-    public final boolean isAdminOnly() {
-        return getBlockState().getBlock() instanceof GameMasterBlock;
     }
 
     public final void setComputerID(int id) {
@@ -412,25 +391,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
 
     // Networking stuff
 
-    @Override
-    public final ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        // We need this for pick block on the client side.
-        var nbt = super.getUpdateTag(registries);
-        if (computerID >= 0) nbt.putInt(NBT_ID, computerID);
-        if (label != null) nbt.putString(NBT_LABEL, label);
-        if (storageCapacity > 0) nbt.putLong(NBT_CAPACITY, storageCapacity);
-        return nbt;
-    }
-
-    protected void loadClient(CompoundTag nbt, HolderLookup.Provider registries) {
-        computerID = nbt.contains(NBT_ID) ? nbt.getInt(NBT_ID) : -1;
-        label = nbt.contains(NBT_LABEL) ? nbt.getString(NBT_LABEL) : null;
-        storageCapacity = nbt.contains(NBT_CAPACITY, Tag.TAG_ANY_NUMERIC) ? nbt.getLong(NBT_CAPACITY) : -1;
+    protected void loadClient(ValueInput tag) {
     }
 
     protected void transferStateFrom(AbstractComputerBlockEntity copy) {
@@ -469,10 +430,5 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     @Override
     public Component getDisplayName() {
         return Nameable.super.getDisplayName();
-    }
-
-    @Override
-    public boolean onlyOpCanSetNbt() {
-        return isAdminOnly();
     }
 }

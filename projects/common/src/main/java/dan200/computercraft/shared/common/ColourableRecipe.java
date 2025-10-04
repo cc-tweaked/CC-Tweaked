@@ -10,9 +10,7 @@ import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
 import dan200.computercraft.shared.util.DataComponentUtil;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
@@ -66,13 +64,7 @@ public final class ColourableRecipe extends CustomRecipe {
 
         return colourable.isEmpty()
             ? ItemStack.EMPTY
-            : DataComponentUtil.createResult(colourable, DataComponents.DYED_COLOR, new DyedItemColor(tracker.getColour(), false));
-
-    }
-
-    @Override
-    public boolean canCraftInDimensions(int x, int y) {
-        return x >= 2 && y >= 2;
+            : DataComponentUtil.setDyeColour(colourable.copyWithCount(1), tracker.getColour());
     }
 
     @Override

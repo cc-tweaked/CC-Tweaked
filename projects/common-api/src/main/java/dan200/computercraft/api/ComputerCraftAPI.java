@@ -11,8 +11,6 @@ import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.IComputerSystem;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
-import dan200.computercraft.api.media.IMedia;
-import dan200.computercraft.api.media.MediaProvider;
 import dan200.computercraft.api.network.PacketNetwork;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.network.wired.WiredNode;
@@ -140,19 +138,6 @@ public final class ComputerCraftAPI {
      */
     public static int getBundledRedstoneOutput(Level world, BlockPos pos, Direction side) {
         return getInstance().getBundledRedstoneOutput(world, pos, side);
-    }
-
-    /**
-     * Registers a media provider to provide {@link IMedia} implementations for Items.
-     *
-     * @param provider The media provider to register.
-     * @see MediaProvider
-     * @deprecated Prefer {@code dan200.computercraft.api.media.MediaLookup} (Fabric) or
-     * {@code dan200.computercraft.api.media.MediaCapability} (NeoForge).
-     */
-    @Deprecated
-    public static void registerMediaProvider(MediaProvider provider) {
-        getInstance().registerMediaProvider(provider);
     }
 
     /**

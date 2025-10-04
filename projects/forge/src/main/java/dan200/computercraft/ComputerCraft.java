@@ -12,9 +12,7 @@ import dan200.computercraft.api.network.wired.WiredElementCapability;
 import dan200.computercraft.api.peripheral.PeripheralCapability;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.impl.MediaProviders;
 import dan200.computercraft.impl.PocketUpgrades;
-import dan200.computercraft.impl.Services;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.ModRegistry;
@@ -31,7 +29,6 @@ import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.platform.ForgeConfigFile;
 import dan200.computercraft.shared.recipe.function.RecipeFunction;
-import dan200.computercraft.shared.turtle.TurtleOverlay;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -68,7 +65,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 @Mod(ComputerCraftAPI.MOD_ID)
-@EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID)
 public final class ComputerCraft {
     private static @Nullable IEventBus eventBus;
 
@@ -105,7 +102,6 @@ public final class ComputerCraft {
     public static void registerDynamicRegistries(DataPackRegistryEvent.NewRegistry event) {
         event.dataPackRegistry(ITurtleUpgrade.REGISTRY, TurtleUpgrades.instance().upgradeCodec(), TurtleUpgrades.instance().upgradeCodec());
         event.dataPackRegistry(IPocketUpgrade.REGISTRY, PocketUpgrades.instance().upgradeCodec(), PocketUpgrades.instance().upgradeCodec());
-        event.dataPackRegistry(TurtleOverlay.REGISTRY, TurtleOverlay.DIRECT_CODEC, TurtleOverlay.DIRECT_CODEC);
     }
 
     @SubscribeEvent
@@ -138,7 +134,7 @@ public final class ComputerCraft {
     }
 
     private static <T extends NetworkMessage<ClientNetworkContext>> void registerClientbound(PayloadRegistrar registrar, CustomPacketPayload.TypeAndCodec<RegistryFriendlyByteBuf, T> type) {
-        registrar.playToClient(type.type(), type.codec(), (t, context) -> context.enqueueWork(() -> t.handle(ClientHolderHolder.get())));
+        registrar.playToClient(type.type(), type.codec());
     }
 
     /**
@@ -150,10 +146,7 @@ public final class ComputerCraft {
     public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
         ModRegistry.registerPeripherals(new BlockComponentImpl<>(event, PeripheralCapability.get()));
         ModRegistry.registerWiredElements(new BlockComponentImpl<>(event, WiredElementCapability.get()));
-
-        var media = new ItemComponentImpl<>(event, MediaCapability.get());
-        ModRegistry.registerMedia(media);
-        media.registerFallback((stack, ctx) -> MediaProviders.get(stack));
+        ModRegistry.registerMedia(new ItemComponentImpl<>(event, MediaCapability.get()));
 
         // Register inventories for our block entities.
         var unsidedContainers = List.of(
@@ -225,25 +218,5 @@ public final class ComputerCraft {
     @SubscribeEvent
     public static void onCreativeTab(BuildCreativeModeTabContentsEvent event) {
         CommonHooks.onBuildCreativeTab(event.getTabKey(), event.getParameters(), event);
-    }
-
-    /**
-     * This holds an instance of {@link ClientNetworkContext}. This is a separate class to ensure that the instance is
-     * lazily created when needed on the client.
-     */
-    private static final class ClientHolderHolder {
-        private static final @Nullable ClientNetworkContext INSTANCE;
-        private static final @Nullable Throwable ERROR;
-
-        static {
-            var helper = Services.tryLoad(ClientNetworkContext.class);
-            INSTANCE = helper.instance();
-            ERROR = helper.error();
-        }
-
-        static ClientNetworkContext get() {
-            var instance = INSTANCE;
-            return instance == null ? Services.raise(ClientNetworkContext.class, ERROR) : instance;
-        }
     }
 }

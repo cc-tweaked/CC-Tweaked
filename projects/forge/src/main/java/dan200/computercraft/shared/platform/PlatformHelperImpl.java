@@ -25,10 +25,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -45,7 +47,6 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -65,6 +66,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jspecify.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -142,16 +144,16 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public RecipeIngredients getRecipeIngredients() {
         return new RecipeIngredients(
-            Ingredient.of(Tags.Items.DUSTS_REDSTONE),
-            Ingredient.of(Tags.Items.STRINGS),
-            Ingredient.of(Tags.Items.LEATHERS),
-            Ingredient.of(Tags.Items.GLASS_PANES),
-            Ingredient.of(Tags.Items.INGOTS_GOLD),
-            Ingredient.of(Tags.Items.STORAGE_BLOCKS_GOLD),
-            Ingredient.of(Tags.Items.INGOTS_IRON),
-            Ingredient.of(Tags.Items.DYES),
-            Ingredient.of(Tags.Items.ENDER_PEARLS),
-            Ingredient.of(Tags.Items.CHESTS_WOODEN)
+            Tags.Items.DUSTS_REDSTONE,
+            Tags.Items.STRINGS,
+            Tags.Items.LEATHERS,
+            Tags.Items.GLASS_PANES,
+            Tags.Items.INGOTS_GOLD,
+            Tags.Items.STORAGE_BLOCKS_GOLD,
+            Tags.Items.INGOTS_IRON,
+            Tags.Items.DYES,
+            Tags.Items.ENDER_PEARLS,
+            Tags.Items.CHESTS_WOODEN
         );
     }
 
@@ -178,8 +180,8 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public int getBurnTime(ItemStack stack) {
-        return stack.getBurnTime(null);
+    public int getBurnTime(MinecraftServer server, ItemStack stack) {
+        return stack.getBurnTime(null, server.fuelValues());
     }
 
     @Override
@@ -189,7 +191,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public ItemStack getCraftingRemainingItem(ItemStack stack) {
-        return stack.getCraftingRemainingItem();
+        return stack.getCraftingRemainder();
     }
 
     @Override
@@ -242,6 +244,11 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public @Nullable IMedia getMedia(ItemStack stack) {
         return stack.getCapability(MediaCapability.get());
+    }
+
+    @Override
+    public ClickEvent createOpenFolderAction(Path path) {
+        return new ClickEvent.OpenFile(path.toAbsolutePath().toString());
     }
 
     private record RegistrationHelperImpl<R>(DeferredRegister<R> registry) implements RegistrationHelper<R> {

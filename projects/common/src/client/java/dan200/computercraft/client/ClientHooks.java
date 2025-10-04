@@ -6,12 +6,13 @@ package dan200.computercraft.client;
 
 import com.mojang.blaze3d.audio.Channel;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.render.CableHighlightRenderer;
+import dan200.computercraft.client.render.ExtendedItemFrameRenderState;
 import dan200.computercraft.client.render.PocketItemRenderer;
 import dan200.computercraft.client.render.PrintoutItemRenderer;
-import dan200.computercraft.client.render.monitor.MonitorBlockEntityRenderer;
 import dan200.computercraft.client.render.monitor.MonitorHighlightRenderer;
 import dan200.computercraft.client.render.monitor.MonitorRenderState;
 import dan200.computercraft.client.sound.SpeakerManager;
@@ -29,16 +30,15 @@ import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.state.ItemFrameRenderState;
 import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.client.sounds.SoundEngine;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 
@@ -91,9 +91,10 @@ public final class ClientHooks {
         return false;
     }
 
-    public static boolean onRenderItemFrame(PoseStack transform, MultiBufferSource render, ItemFrame frame, ItemStack stack, int light) {
-        if (stack.getItem() instanceof PrintoutItem) {
-            PrintoutItemRenderer.onRenderInFrame(transform, render, frame, stack, light);
+    public static boolean onRenderItemFrame(PoseStack transform, MultiBufferSource render, ItemFrameRenderState frame, ExtendedItemFrameRenderState state, int light) {
+        if (state.printoutData != null) {
+            transform.mulPose(Axis.ZP.rotationDegrees(frame.rotation * 360.0f / 8.0f));
+            PrintoutItemRenderer.onRenderInFrame(transform, render, frame, state.printoutData, state.isBook, light);
             return true;
         }
 
@@ -135,31 +136,20 @@ public final class ClientHooks {
         if (upgrade != null) out.accept(String.format("Upgrade[%s]: %s", side, upgrade.holder().key().location()));
     }
 
-    /**
-     * Add additional information about the game to the debug screen.
-     *
-     * @param addText A callback which adds a single line of text.
-     */
-    public static void addGameDebugInfo(Consumer<String> addText) {
-        if (MonitorBlockEntityRenderer.hasRenderedThisFrame() && Minecraft.getInstance().getDebugOverlay().showDebugScreen()) {
-            addText.accept("[CC:T] Monitor renderer: " + MonitorBlockEntityRenderer.currentRenderer());
-        }
-    }
-
-    public static @Nullable BlockState getBlockBreakingState(BlockState state, BlockPos pos) {
+    public static BlockState getBlockBreakingState(BlockState state, BlockPos pos) {
         // Only apply to cables which have both a cable and modem
         if (state.getBlock() != ModRegistry.Blocks.CABLE.get()
             || !state.getValue(CableBlock.CABLE)
             || state.getValue(CableBlock.MODEM) == CableModemVariant.None
         ) {
-            return null;
+            return state;
         }
 
         var hit = Minecraft.getInstance().hitResult;
-        if (hit == null || hit.getType() != HitResult.Type.BLOCK) return null;
+        if (hit == null || hit.getType() != HitResult.Type.BLOCK) return state;
         var hitPos = ((BlockHitResult) hit).getBlockPos();
 
-        if (!hitPos.equals(pos)) return null;
+        if (!hitPos.equals(pos)) return state;
 
         return WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))
             ? state.getBlock().defaultBlockState().setValue(CableBlock.MODEM, state.getValue(CableBlock.MODEM))

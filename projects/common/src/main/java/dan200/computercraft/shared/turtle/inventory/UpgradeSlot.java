@@ -4,14 +4,12 @@
 
 package dan200.computercraft.shared.turtle.inventory;
 
-import com.mojang.datafixers.util.Pair;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.impl.TurtleUpgrades;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
@@ -46,7 +44,7 @@ public class UpgradeSlot extends Slot {
 
     @Nullable
     @Override
-    public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
-        return Pair.of(InventoryMenu.BLOCK_ATLAS, side == TurtleSide.LEFT ? LEFT_UPGRADE : RIGHT_UPGRADE);
+    public ResourceLocation getNoItemIcon() {
+        return side == TurtleSide.LEFT ? LEFT_UPGRADE : RIGHT_UPGRADE;
     }
 }

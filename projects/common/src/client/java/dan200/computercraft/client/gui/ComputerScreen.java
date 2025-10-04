@@ -9,6 +9,7 @@ import dan200.computercraft.client.gui.widgets.TerminalWidget;
 import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -41,11 +42,12 @@ public final class ComputerScreen<T extends AbstractComputerMenu> extends Abstra
         var computerTextures = GuiSprites.getComputerTextures(family);
 
         graphics.blitSprite(
-            computerTextures.border(),
+            RenderPipelines.GUI_TEXTURED, computerTextures.border(),
             terminal.getX() - BORDER, terminal.getY() - BORDER, terminal.getWidth() + BORDER * 2, terminal.getHeight() + BORDER * 2
         );
+
         graphics.blitSprite(
-            Nullability.assertNonNull(computerTextures.sidebar()),
+            RenderPipelines.GUI_TEXTURED, Nullability.assertNonNull(computerTextures.sidebar()),
             leftPos, topPos + sidebarYOffset, AbstractComputerMenu.SIDEBAR_WIDTH, ComputerSidebar.HEIGHT
         );
     }

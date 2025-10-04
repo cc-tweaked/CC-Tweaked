@@ -15,8 +15,6 @@ import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -24,6 +22,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
@@ -106,11 +106,9 @@ public class CableBlockEntity extends BlockEntity {
         return getBlockState().getValue(CableBlock.MODEM).getFacing();
     }
 
-    void neighborChanged(BlockPos neighbour) {
+    void neighborChanged() {
         var dir = getModemDirection();
-        if (!getLevel().isClientSide && dir != null && getBlockPos().relative(dir).equals(neighbour) && isPeripheralOn()) {
-            queueRefreshPeripheral();
-        }
+        if (!getLevel().isClientSide && dir != null && isPeripheralOn()) queueRefreshPeripheral();
     }
 
     void queueRefreshPeripheral() {
@@ -146,15 +144,15 @@ public class CableBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.loadAdditional(nbt, registries);
+    public void loadAdditional(ValueInput nbt) {
+        super.loadAdditional(nbt);
         peripheral.read(nbt, "");
     }
 
     @Override
-    public void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+    public void saveAdditional(ValueOutput nbt) {
         peripheral.write(nbt, "");
-        super.saveAdditional(nbt, registries);
+        super.saveAdditional(nbt);
     }
 
     private void updateBlockState() {

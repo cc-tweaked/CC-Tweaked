@@ -5,16 +5,16 @@
     {
       "type": "computercraft:copy_components",
       "exclude": ["computercraft:overlay"],
-      "from": {"item": "computercraft:turtle_normal"}
+      "from": "computercraft:turtle_normal"
     }
   ],
   "group": "computercraft:turtle_normal_overlay",
   "ingredients": [
-    {"tag": "c:dyes/light_blue"},
-    {"tag": "c:dyes/pink"},
-    {"tag": "c:dyes/white"},
-    {"item": "minecraft:stick"},
-    {"item": "computercraft:turtle_normal"}
+    "#c:dyes/light_blue",
+    "#c:dyes/pink",
+    "#c:dyes/white",
+    "minecraft:stick",
+    "computercraft:turtle_normal"
   ],
   "result": {
     "components": {"computercraft:overlay": "computercraft:trans_flag"},

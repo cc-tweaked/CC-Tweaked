@@ -7,11 +7,9 @@
         "defaultRequire": 1
     },
     "client": [
-        "BlockModelAccessor",
-        "BlockRenderDispatcherMixin",
         "DebugScreenOverlayMixin",
-        "GameRendererMixin",
         "ItemFrameRendererMixin",
+        "ItemFrameRenderStateMixin",
         "ItemInHandRendererMixin",
         "MinecraftMixin",
         "MultiPlayerGameModeMixin",

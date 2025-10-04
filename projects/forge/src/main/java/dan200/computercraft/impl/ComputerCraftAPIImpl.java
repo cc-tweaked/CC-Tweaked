@@ -7,7 +7,6 @@ package dan200.computercraft.impl;
 import com.google.auto.service.AutoService;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.DetailRegistry;
-import dan200.computercraft.api.media.MediaProvider;
 import dan200.computercraft.impl.detail.DetailRegistryImpl;
 import dan200.computercraft.shared.details.FluidData;
 import dan200.computercraft.shared.peripheral.generic.ComponentLookup;
@@ -47,11 +46,6 @@ public final class ComputerCraftAPIImpl extends AbstractComputerCraftAPI impleme
     @Override
     public DetailRegistry<FluidStack> getFluidStackDetailRegistry() {
         return fluidStackDetails;
-    }
-
-    @Override
-    public void registerMediaProvider(MediaProvider provider) {
-        MediaProviders.register(provider);
     }
 
     /**

@@ -16,15 +16,13 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.gametest.core.TestHooks;
 import dan200.computercraft.shared.util.PrettyJsonWriter;
-import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.minecraft.world.item.crafting.ShapelessRecipe;
+import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
+import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,8 +57,8 @@ public class Exporter {
         }
 
         RenderSystem.assertOnRenderThread();
-        try (var renderer = new ImageRenderer()) {
-            export(output, renderer);
+        try {
+            export(output);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -68,7 +66,7 @@ public class Exporter {
         Minecraft.getInstance().gui.getChat().addMessage(Component.literal("Export finished!"));
     }
 
-    private static void export(Path root, ImageRenderer renderer) throws IOException {
+    private static void export(Path root) throws IOException {
         var dump = new JsonDump();
 
         // First find all CC items
@@ -77,34 +75,36 @@ public class Exporter {
             .collect(Collectors.toSet());
 
         // Now find all CC recipes.
-        var level = Objects.requireNonNull(Minecraft.getInstance().level);
-        for (var recipe : level.getRecipeManager().getAllRecipesFor(RecipeType.CRAFTING)) {
-            var result = recipe.value().getResultItem(level.registryAccess());
-            if (!RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, result.getItem()).getNamespace().equals(ComputerCraftAPI.MOD_ID)) {
-                continue;
-            }
+        var server = Objects.requireNonNull(Minecraft.getInstance().getSingleplayerServer());
+        for (var recipe : server.getRecipeManager().getRecipes()) {
+            if (recipe.value().getType() != RecipeType.CRAFTING) continue;
+            if (!recipe.id().location().getNamespace().equals(ComputerCraftAPI.MOD_ID)) continue;
+
+            var displayInfos = recipe.value().display();
+            if (displayInfos.isEmpty()) continue;
+            var displayInfo = displayInfos.getFirst();
+
+            var result = ((SlotDisplay.ItemStackSlotDisplay) displayInfo.result()).stack();
             if (!result.getComponentsPatch().isEmpty()) {
                 TestHooks.LOG.warn("Skipping recipe {} as it has NBT", recipe.id());
                 continue;
             }
 
-            if (recipe.value() instanceof ShapedRecipe shaped) {
+            if (displayInfo instanceof ShapedCraftingRecipeDisplay shaped) {
                 var converted = new JsonDump.Recipe(result);
 
-                for (var x = 0; x < shaped.getWidth(); x++) {
-                    for (var y = 0; y < shaped.getHeight(); y++) {
-                        var ingredient = shaped.getIngredients().get(x + y * shaped.getWidth());
-                        if (ingredient.isEmpty()) continue;
-
+                for (var x = 0; x < shaped.width(); x++) {
+                    for (var y = 0; y < shaped.height(); y++) {
+                        var ingredient = shaped.ingredients().get(x + y * shaped.width());
                         converted.setInput(x + y * 3, ingredient, items);
                     }
                 }
 
                 dump.recipes.put(recipe.id().toString(), converted);
-            } else if (recipe.value() instanceof ShapelessRecipe shapeless) {
+            } else if (displayInfo instanceof ShapelessCraftingRecipeDisplay shapeless) {
                 var converted = new JsonDump.Recipe(result);
 
-                var ingredients = shapeless.getIngredients();
+                var ingredients = shapeless.ingredients();
                 for (var i = 0; i < ingredients.size(); i++) {
                     converted.setInput(i, ingredients.get(i), items);
                 }
@@ -117,21 +117,6 @@ public class Exporter {
 
         var itemDir = root.resolve("items");
         if (Files.exists(itemDir)) MoreFiles.deleteRecursively(itemDir, RecursiveDeleteOption.ALLOW_INSECURE);
-
-        for (var item : items) {
-            var stack = new ItemStack(item);
-            var location = RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, item);
-
-            dump.itemNames.put(location.toString(), stack.getHoverName().getString());
-            renderer.captureRender(itemDir.resolve(location.getNamespace()).resolve(location.getPath() + ".png"),
-                () -> {
-
-                    var graphics = new GuiGraphics(Minecraft.getInstance(), Minecraft.getInstance().renderBuffers().bufferSource());
-                    graphics.renderItem(stack, 0, 0);
-                    graphics.flush();
-                }
-            );
-        }
 
         try (Writer writer = Files.newBufferedWriter(root.resolve("index.json")); var jsonWriter = new PrettyJsonWriter(writer)) {
             GSON.toJson(dump, JsonDump.class, jsonWriter);

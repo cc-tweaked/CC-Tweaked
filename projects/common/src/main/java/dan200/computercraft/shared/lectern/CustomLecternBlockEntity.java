@@ -16,11 +16,11 @@ import dan200.computercraft.shared.util.BlockEntityHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
@@ -30,9 +30,16 @@ import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.LecternBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.AbstractList;
 import java.util.List;
+
+import static dan200.computercraft.shared.lectern.CustomLecternBlock.dropItem;
 
 /**
  * The block entity for our {@link CustomLecternBlock}.
@@ -40,6 +47,8 @@ import java.util.List;
  * @see LecternBlockEntity
  */
 public final class CustomLecternBlockEntity extends BlockEntity {
+    private static final Logger LOG = LoggerFactory.getLogger(CustomLecternBlockEntity.class);
+
     private static final String NBT_ITEM = "Item";
     private static final String NBT_PAGE = "Page";
 
@@ -101,19 +110,24 @@ public final class CustomLecternBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (level != null) dropItem(level, pos, state, getItem().copy());
+    }
 
-        item = tag.contains(NBT_ITEM, Tag.TAG_COMPOUND) ? ItemStack.parseOptional(registries, tag.getCompound(NBT_ITEM)) : ItemStack.EMPTY;
-        page = tag.getInt(NBT_PAGE);
+    @Override
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+
+        item = tag.read(NBT_ITEM, ItemStack.CODEC).orElse(ItemStack.EMPTY);
+        page = tag.getIntOr(NBT_PAGE, 0);
         itemChanged();
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
 
-        if (!item.isEmpty()) tag.put(NBT_ITEM, item.save(registries));
+        if (!item.isEmpty()) tag.store(NBT_ITEM, ItemStack.CODEC, item);
         if (item.getItem() instanceof PrintoutItem) tag.putInt(NBT_PAGE, page);
     }
 
@@ -124,9 +138,11 @@ public final class CustomLecternBlockEntity extends BlockEntity {
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        var tag = super.getUpdateTag(registries);
-        if (!item.isEmpty()) tag.put(NBT_ITEM, item.save(registries));
-        return tag;
+        try (var problems = new ProblemReporter.ScopedCollector(this.problemPath(), LOG)) {
+            var output = TagValueOutput.createWithContext(problems, registries);
+            if (!item.isEmpty()) output.store(NBT_ITEM, ItemStack.CODEC, item);
+            return output.buildResult();
+        }
     }
 
     void openMenu(Player player) {

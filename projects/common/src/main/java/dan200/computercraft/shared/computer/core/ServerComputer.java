@@ -268,7 +268,7 @@ public class ServerComputer implements ComputerEnvironment, ComputerEvents.Recei
     @Override
     public final WritableMount createRootMount() {
         var capacity = storageCapacity <= 0 ? ConfigSpec.computerSpaceLimit.get() : storageCapacity;
-        return ComputerCraftAPI.createSaveDirMount(level.getServer(), "computer/" + computer.getID(), capacity);
+        return ComputerCraftAPI.createSaveDirMount(level.getServer(), family.getSaveFolder() + "/" + computer.getID(), capacity);
     }
 
     public static Properties properties(int computerID, ComputerFamily family) {

@@ -33,7 +33,7 @@ class NbtUtilsMixin {
         var newTag = structure.save(new CompoundTag());
 
         // Overwrite the existing tag.
-        tag.getAllKeys().clear();
-        for (var key : newTag.getAllKeys()) tag.put(key, newTag.get(key));
+        tag.keySet().clear();
+        for (var key : newTag.keySet()) tag.put(key, newTag.get(key));
     }
 }

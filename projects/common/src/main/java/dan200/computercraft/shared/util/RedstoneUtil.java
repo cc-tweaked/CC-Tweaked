@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DiodeBlock;
 import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.ExperimentalRedstoneUtils;
 
 public final class RedstoneUtil {
     private RedstoneUtil() {
@@ -49,7 +50,8 @@ public final class RedstoneUtil {
         if (!PlatformHelper.get().onNotifyNeighbour(world, pos, block, side)) return;
 
         var neighbourPos = pos.relative(side);
-        world.neighborChanged(neighbourPos, block.getBlock(), pos);
+        var orientation = ExperimentalRedstoneUtils.initialOrientation(world, side, Direction.UP);
+        world.neighborChanged(neighbourPos, block.getBlock(), orientation);
         // We intentionally use updateNeighborsAt here instead of updateNeighborsAtExceptFromFacing, as computers can
         // both send and receive redstone, and so also need to be updated.
         world.updateNeighborsAt(neighbourPos, block.getBlock());

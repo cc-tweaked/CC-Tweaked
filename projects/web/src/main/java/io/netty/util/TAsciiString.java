@@ -6,16 +6,30 @@ package io.netty.util;
 
 import org.teavm.interop.NoSideEffects;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
 /**
  * A replacement for {@link AsciiString} which just wraps a normal string.
  * <p>
- * {@link AsciiString} relies heavily on Netty's low-level (and often unsafe!) code, which doesn't run on Javascript.
+ * {@link AsciiString} relies heavily on {@link String#String(byte[], int, int, int)}, which isn't supported in TeaVM.
  */
 public final class TAsciiString implements CharSequence {
-    private final String value;
+    private String string;
+    private final byte[] array;
+    private final int offset, length;
 
     private TAsciiString(String value) {
-        this.value = value;
+        string = value;
+        array = value.getBytes(StandardCharsets.UTF_8);
+        this.offset = 0;
+        this.length = array.length;
+    }
+
+    private TAsciiString(byte[] array, int offset, int length) {
+        this.array = array;
+        this.offset = offset;
+        this.length = length;
     }
 
     @NoSideEffects
@@ -23,33 +37,46 @@ public final class TAsciiString implements CharSequence {
         return new TAsciiString(value);
     }
 
+    @NoSideEffects
+    public static TAsciiString of(CharSequence value) {
+        return value instanceof TAsciiString str ? str : new TAsciiString(value.toString());
+    }
+
+    public byte[] array() {
+        return array;
+    }
+
+    public int arrayOffset() {
+        return offset;
+    }
+
     @Override
     public int length() {
-        return value.length();
+        return length;
     }
 
     @Override
     public char charAt(int index) {
-        return value.charAt(index);
+        return (char) (array[offset + index] & 0xFF);
     }
 
     @Override
     public CharSequence subSequence(int start, int end) {
-        return value.subSequence(start, end);
+        return new TAsciiString(array, start + offset, end + offset);
     }
 
     @Override
     public String toString() {
-        return value;
+        return string != null ? string : (string = new String(array, offset, length, StandardCharsets.UTF_8));
     }
 
     @Override
     public boolean equals(Object o) {
-        return this == o || (o instanceof TAsciiString other && value.equals(other.value));
+        return this == o || (o instanceof TAsciiString other && Arrays.equals(array, offset, offset + length, other.array, other.offset, other.offset + other.length));
     }
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return Arrays.hashCode(array);
     }
 }

@@ -11,6 +11,12 @@ plugins {
     id("cc-tweaked.publishing")
 }
 
+sourceSets.client {
+    java {
+        exclude("dan200/computercraft/client/integration/emi")
+    }
+}
+
 minecraft {
     accessWideners(
         "src/main/resources/computercraft.accesswidener",

@@ -175,7 +175,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
             var hitEntity = entityHit.getEntity();
 
             // Start claiming entity drops
-            DropConsumer.set(hitEntity, TurtleUtil.dropConsumer(turtle));
+            DropConsumer.set(hitEntity);
 
             // Attack the entity
             var result = PlatformHelper.get().canAttackEntity(player, hitEntity);
@@ -214,7 +214,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         var baseDamage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE) * spec.damageMultiplier();
         var tool = player.getWeaponItem();
         var source = player.damageSources().playerAttack(player);
-        var bonusDamage = EnchantmentHelper.modifyDamage(player.serverLevel(), tool, entity, source, baseDamage) - baseDamage;
+        var bonusDamage = EnchantmentHelper.modifyDamage(player.level(), tool, entity, source, baseDamage) - baseDamage;
 
         // If this is a projectile, attempt to deflect it instead.
         if (entity.getType().is(EntityTypeTags.REDIRECTABLE_PROJECTILE) && entity instanceof Projectile projectile &&
@@ -229,13 +229,13 @@ public class TurtleTool extends AbstractTurtleUpgrade {
 
         // Compute the total damage, and deal it out.
         var damage = baseDamage + bonusDamage + tool.getItem().getAttackDamageBonus(entity, baseDamage, source);
-        if (!entity.hurt(source, damage)) return false;
+        if (!entity.hurtServer(player.level(), source, damage)) return false;
 
         // Special case for armor stands: attack twice to guarantee destroy
-        if (entity.isAlive() && entity instanceof ArmorStand) entity.hurt(source, damage);
+        if (entity.isAlive() && entity instanceof ArmorStand) entity.hurtServer(player.level(), source, damage);
 
         // Apply knockback
-        var knockBack = EnchantmentHelper.modifyKnockback(player.serverLevel(), tool, entity, source, (float) player.getAttributeValue(Attributes.ATTACK_KNOCKBACK));
+        var knockBack = EnchantmentHelper.modifyKnockback(player.level(), tool, entity, source, (float) player.getAttributeValue(Attributes.ATTACK_KNOCKBACK));
         if (knockBack > 0) {
             if (entity instanceof LivingEntity target) {
                 target.knockback(knockBack * 0.5, -direction.getStepX(), -direction.getStepZ());
@@ -253,7 +253,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         var didHurt = entity instanceof LivingEntity target && tool.hurtEnemy(target, player);
 
         // Apply remaining enchantments
-        EnchantmentHelper.doPostAttackEffects(player.serverLevel(), entity, source);
+        EnchantmentHelper.doPostAttackEffects(player.level(), entity, source);
 
         // Damage the original item stack.
         if (!tool.isEmpty() && entity instanceof LivingEntity living && didHurt) {
@@ -285,7 +285,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
             if (!breakable.isSuccess()) return breakable;
 
             // And break it!
-            DropConsumer.set(level, blockPosition, TurtleUtil.dropConsumer(turtle));
+            DropConsumer.set(level, blockPosition);
             var broken = !turtlePlayer.isBlockProtected(level, blockPosition) && turtlePlayer.player().gameMode.destroyBlock(blockPosition);
             TurtleUtil.stopConsuming(turtle);
 

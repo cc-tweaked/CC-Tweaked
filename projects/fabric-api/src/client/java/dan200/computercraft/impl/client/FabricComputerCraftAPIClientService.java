@@ -4,12 +4,10 @@
 
 package dan200.computercraft.impl.client;
 
-import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.api.upgrades.UpgradeType;
-import dan200.computercraft.impl.Services;
+import com.mojang.serialization.MapCodec;
+import dan200.computercraft.api.client.turtle.TurtleUpgradeModel;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Backing interface for CC's client-side API.
@@ -17,25 +15,10 @@ import org.jspecify.annotations.Nullable;
  * Do <strong>NOT</strong> directly reference this class. It exists for internal use by the API.
  */
 @ApiStatus.Internal
-public interface FabricComputerCraftAPIClientService {
+public interface FabricComputerCraftAPIClientService extends ComputerCraftAPIClientService {
     static FabricComputerCraftAPIClientService get() {
-        var instance = Instance.INSTANCE;
-        return instance == null ? Services.raise(FabricComputerCraftAPIClientService.class, Instance.ERROR) : instance;
+        return (FabricComputerCraftAPIClientService) ComputerCraftAPIClientService.get();
     }
 
-    <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller(UpgradeType<T> type, TurtleUpgradeModeller<T> modeller);
-
-    final class Instance {
-        static final @Nullable FabricComputerCraftAPIClientService INSTANCE;
-        static final @Nullable Throwable ERROR;
-
-        static {
-            var helper = Services.tryLoad(FabricComputerCraftAPIClientService.class);
-            INSTANCE = helper.instance();
-            ERROR = helper.error();
-        }
-
-        private Instance() {
-        }
-    }
+    void registerTurtleUpgradeModeller(ResourceLocation id, MapCodec<? extends TurtleUpgradeModel.Unbaked> codec);
 }

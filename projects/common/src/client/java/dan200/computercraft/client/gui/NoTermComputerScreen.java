@@ -10,6 +10,7 @@ import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.ScrollWheelHandler;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
@@ -31,6 +32,8 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
     private final T menu;
     private final Terminal terminalData;
     private @Nullable TerminalWidget terminal;
+
+    private final ScrollWheelHandler scrollHandler = new ScrollWheelHandler();
 
     public NoTermComputerScreen(T menu, Inventory player, Component title) {
         super(title);
@@ -67,7 +70,12 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        Objects.requireNonNull(minecraft().player).getInventory().swapPaint(scrollY);
+        var direction = scrollHandler.onMouseScroll(scrollX, scrollY);
+        var inventory = Objects.requireNonNull(minecraft().player).getInventory();
+        inventory.setSelectedSlot(ScrollWheelHandler.getNextScrollWheelSelection(
+            direction.y == 0 ? -direction.x : direction.y, inventory.getSelectedSlot(), Inventory.getSelectionSize()
+        ));
+
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
@@ -100,7 +108,7 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
         var lines = font.split(Component.translatable("gui.computercraft.pocket_computer_overlay"), (int) (width * 0.8));
         var y = 10;
         for (var line : lines) {
-            graphics.drawString(font, line, (width / 2) - (font.width(line) / 2), y, 0xFFFFFF, true);
+            graphics.drawString(font, line, (width / 2) - (font.width(line) / 2), y, 0xFFFFFFFF, true);
             y += 9;
         }
     }

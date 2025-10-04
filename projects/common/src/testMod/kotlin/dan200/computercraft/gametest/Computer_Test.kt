@@ -15,7 +15,6 @@ import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -37,8 +36,8 @@ class Computer_Test {
      */
     @GameTest
     fun No_through_signal(context: GameTestHelper) = context.sequence {
-        val lamp = BlockPos(2, 2, 4)
-        val lever = BlockPos(2, 2, 0)
+        val lamp = BlockPos(2, 1, 4)
+        val lever = BlockPos(2, 1, 0)
         thenExecute {
             context.assertBlockHas(lamp, RedstoneLampBlock.LIT, false, "Lamp should not be lit")
             context.modifyBlock(lever) { x -> x.setValue(LeverBlock.POWERED, true) }
@@ -52,8 +51,8 @@ class Computer_Test {
      */
     @GameTest
     fun No_through_signal_reverse(context: GameTestHelper) = context.sequence {
-        val lamp = BlockPos(2, 2, 4)
-        val lever = BlockPos(2, 2, 0)
+        val lamp = BlockPos(2, 1, 4)
+        val lever = BlockPos(2, 1, 0)
         thenExecute {
             context.assertBlockHas(lamp, RedstoneLampBlock.LIT, false, "Lamp should not be lit")
             context.modifyBlock(lever) { x -> x.setValue(LeverBlock.POWERED, true) }
@@ -67,12 +66,12 @@ class Computer_Test {
      */
     @GameTest
     fun Set_and_destroy(context: GameTestHelper) = context.sequence {
-        val lamp = BlockPos(2, 2, 3)
+        val lamp = BlockPos(2, 1, 3)
 
         thenOnComputer { getApi<RedstoneAPI>().setOutput(ComputerSide.BACK, true) }
         thenIdle(3)
         thenExecute { context.assertBlockHas(lamp, RedstoneLampBlock.LIT, true, "Lamp should be lit") }
-        thenExecute { context.setBlock(BlockPos(2, 2, 2), Blocks.AIR) }
+        thenExecute { context.setBlock(BlockPos(2, 1, 2), Blocks.AIR) }
         thenIdle(4)
         thenExecute { context.assertBlockHas(lamp, RedstoneLampBlock.LIT, false, "Lamp should not be lit") }
     }
@@ -101,7 +100,7 @@ class Computer_Test {
     @GameTest
     fun Chest_resizes_on_change(context: GameTestHelper) = context.sequence {
         thenOnComputer { callPeripheral("right", "size").assertArrayEquals(27) }
-        thenExecute { context.placeItemAt(ItemStack(Items.CHEST), BlockPos(2, 2, 2), Direction.WEST) }
+        thenExecute { context.placeItemAt(ItemStack(Items.CHEST), BlockPos(2, 1, 2), Direction.WEST) }
         thenIdle(1)
         thenOnComputer { callPeripheral("right", "size").assertArrayEquals(54) }
     }
@@ -112,7 +111,7 @@ class Computer_Test {
     @GameTest
     fun Drops_on_explosion(context: GameTestHelper) = context.sequence {
         thenExecute {
-            val explosionPos = Vec3.atCenterOf(context.absolutePos(BlockPos(2, 2, 2)))
+            val explosionPos = Vec3.atCenterOf(context.absolutePos(BlockPos(2, 1, 2)))
             context.level.explode(null, explosionPos.x, explosionPos.y, explosionPos.z, 2.0f, Level.ExplosionInteraction.TNT)
 
             context.assertItemEntityCountIs(ModRegistry.Items.COMPUTER_NORMAL.get(), 1)
@@ -122,7 +121,7 @@ class Computer_Test {
     /**
      * Check the client can open the computer UI and interact with it.
      */
-    @ClientGameTest
+    @GameTest(tag = TestTags.CLIENT)
     fun Open_on_client(context: GameTestHelper) = context.sequence {
         // Write "Hello, world!" and then print each event to the terminal.
         thenOnComputer { getApi<TermAPI>().write(Coerced("Hello, world!")) }
@@ -142,8 +141,8 @@ class Computer_Test {
         }
         // Teleport the player to the computer and then open it.
         thenExecute {
-            context.positionAt(BlockPos(2, 2, 1))
-            context.useBlock(BlockPos(2, 2, 2), context.level.randomPlayer!!)
+            context.positionAt(BlockPos(2, 1, 1))
+            context.useBlock(BlockPos(2, 1, 2), context.level.randomPlayer!!)
         }
         // Assert the terminal is synced to the client.
         thenIdle(2)

@@ -44,17 +44,7 @@ public final class RedstoneRelayBlockEntity extends BlockEntity {
         if (redstoneState.pollInputChanged()) peripheral.queueRedstoneEvent();
     }
 
-    void neighborChanged(BlockPos neighbour) {
-        for (var dir : DirectionUtil.FACINGS) {
-            var offset = getBlockPos().relative(dir);
-            if (offset.equals(neighbour)) {
-                updateRedstoneInput(dir, offset, false);
-                return;
-            }
-        }
-
-        // If the position is not any adjacent one, update all inputs. This is pretty terrible, but some redstone mods
-        // handle this incorrectly.
+    void neighborChanged() {
         for (var dir : DirectionUtil.FACINGS) updateRedstoneInput(dir, getBlockPos().relative(dir), false);
     }
 

@@ -1,0 +1,91 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "component": "minecraft:dyed_color",
+    "on_false": {
+      "type": "minecraft:select",
+      "cases": [
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "computercraft:item/pocket_computer_advanced",
+            "tints": [
+              {"type": "minecraft:constant", "value": -1},
+              {"type": "minecraft:dye", "default": -1},
+              {"type": "computercraft:pocket_computer_light", "default": -15658735}
+            ]
+          },
+          "when": "off"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "computercraft:item/pocket_computer_advanced_on",
+            "tints": [
+              {"type": "minecraft:constant", "value": -1},
+              {"type": "minecraft:dye", "default": -1},
+              {"type": "computercraft:pocket_computer_light", "default": -15658735}
+            ]
+          },
+          "when": "on"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "computercraft:item/pocket_computer_advanced_blinking",
+            "tints": [
+              {"type": "minecraft:constant", "value": -1},
+              {"type": "minecraft:dye", "default": -1},
+              {"type": "computercraft:pocket_computer_light", "default": -15658735}
+            ]
+          },
+          "when": "blinking"
+        }
+      ],
+      "property": "computercraft:pocket_computer_state"
+    },
+    "on_true": {
+      "type": "minecraft:select",
+      "cases": [
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "computercraft:item/pocket_computer_colour",
+            "tints": [
+              {"type": "minecraft:constant", "value": -1},
+              {"type": "minecraft:dye", "default": -1},
+              {"type": "computercraft:pocket_computer_light", "default": -15658735}
+            ]
+          },
+          "when": "off"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "computercraft:item/pocket_computer_colour_on",
+            "tints": [
+              {"type": "minecraft:constant", "value": -1},
+              {"type": "minecraft:dye", "default": -1},
+              {"type": "computercraft:pocket_computer_light", "default": -15658735}
+            ]
+          },
+          "when": "on"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "computercraft:item/pocket_computer_colour_blinking",
+            "tints": [
+              {"type": "minecraft:constant", "value": -1},
+              {"type": "minecraft:dye", "default": -1},
+              {"type": "computercraft:pocket_computer_light", "default": -15658735}
+            ]
+          },
+          "when": "blinking"
+        }
+      ],
+      "property": "computercraft:pocket_computer_state"
+    },
+    "property": "minecraft:has_component"
+  }
+}

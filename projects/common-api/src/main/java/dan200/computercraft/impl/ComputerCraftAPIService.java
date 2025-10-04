@@ -12,7 +12,6 @@ import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
-import dan200.computercraft.api.media.MediaProvider;
 import dan200.computercraft.api.media.PrintoutContents;
 import dan200.computercraft.api.network.PacketNetwork;
 import dan200.computercraft.api.network.wired.WiredElement;
@@ -59,8 +58,6 @@ public interface ComputerCraftAPIService {
     void registerBundledRedstoneProvider(BundledRedstoneProvider provider);
 
     int getBundledRedstoneOutput(Level world, BlockPos pos, Direction side);
-
-    void registerMediaProvider(MediaProvider provider);
 
     PacketNetwork getWirelessNetwork(MinecraftServer server);
 

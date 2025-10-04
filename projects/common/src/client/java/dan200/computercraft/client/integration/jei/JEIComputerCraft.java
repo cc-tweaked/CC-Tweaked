@@ -8,13 +8,14 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.integration.RecipeModHelpers;
+import dan200.computercraft.shared.pocket.core.PocketSide;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter;
+import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
 import mezz.jei.api.registration.IAdvancedRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
@@ -46,7 +47,7 @@ public class JEIComputerCraft implements IModPlugin {
 
     @Override
     public void registerAdvanced(IAdvancedRegistration registry) {
-        registry.addRecipeManagerPlugin(new RecipeResolver(getRegistryAccess()));
+        registry.addSimpleRecipeManagerPlugin(RecipeTypes.CRAFTING, new RecipeResolver(getRegistryAccess()));
     }
 
     @Override
@@ -62,7 +63,7 @@ public class JEIComputerCraft implements IModPlugin {
         // Hide all upgrade recipes
         var category = registry.createRecipeLookup(RecipeTypes.CRAFTING);
         category.get().forEach(wrapper -> {
-            if (RecipeModHelpers.shouldRemoveRecipe(wrapper.id())) {
+            if (RecipeModHelpers.shouldRemoveRecipe(wrapper.id().location())) {
                 registry.hideRecipes(RecipeTypes.CRAFTING, List.of(wrapper));
             }
         });
@@ -71,7 +72,7 @@ public class JEIComputerCraft implements IModPlugin {
     /**
      * Distinguishes turtles by upgrades and family.
      */
-    private static final IIngredientSubtypeInterpreter<ItemStack> turtleSubtype = (stack, ctx) -> {
+    private static final ISubtypeInterpreter<ItemStack> turtleSubtype = (stack, ctx) -> {
         var name = new StringBuilder("turtle:");
 
         // Add left and right upgrades to the identifier
@@ -87,12 +88,15 @@ public class JEIComputerCraft implements IModPlugin {
     /**
      * Distinguishes pocket computers by upgrade and family.
      */
-    private static final IIngredientSubtypeInterpreter<ItemStack> pocketSubtype = (stack, ctx) -> {
+    private static final ISubtypeInterpreter<ItemStack> pocketSubtype = (stack, ctx) -> {
         var name = new StringBuilder("pocket:");
 
         // Add the upgrade to the identifier
-        var upgrade = PocketComputerItem.getUpgradeWithData(stack);
-        if (upgrade != null) name.append(upgrade.holder().key().location());
+        var back = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BACK);
+        var bottom = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BOTTOM);
+        if (back != null) name.append(back.holder().key().location());
+        if (back != null && bottom != null) name.append('|');
+        if (bottom != null) name.append(bottom.holder().key().location());
 
         return name.toString();
     };
@@ -100,7 +104,7 @@ public class JEIComputerCraft implements IModPlugin {
     /**
      * Distinguishes disks by colour.
      */
-    private static final IIngredientSubtypeInterpreter<ItemStack> diskSubtype = (stack, ctx) -> Integer.toString(DyedItemColor.getOrDefault(stack, -1));
+    private static final ISubtypeInterpreter<ItemStack> diskSubtype = (stack, ctx) -> Integer.toString(DyedItemColor.getOrDefault(stack, -1));
 
     private static RegistryAccess getRegistryAccess() {
         return Minecraft.getInstance().level.registryAccess();

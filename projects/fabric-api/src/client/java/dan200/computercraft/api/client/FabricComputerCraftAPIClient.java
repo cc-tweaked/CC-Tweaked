@@ -4,10 +4,11 @@
 
 package dan200.computercraft.api.client;
 
-import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.api.upgrades.UpgradeType;
+import com.mojang.serialization.MapCodec;
+import dan200.computercraft.api.client.turtle.RegisterTurtleUpgradeModel;
+import dan200.computercraft.api.client.turtle.TurtleUpgradeModel;
 import dan200.computercraft.impl.client.FabricComputerCraftAPIClientService;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * The Fabric-specific entrypoint for ComputerCraft's client-side API.
@@ -19,20 +20,18 @@ public final class FabricComputerCraftAPIClient {
     }
 
     /**
-     * Register a {@link TurtleUpgradeModeller} for a class of turtle upgrades.
+     * Register a {@link TurtleUpgradeModel} for a class of turtle upgrades.
      * <p>
      * This may be called at any point after registry creation, though it is recommended to call it within your client
      * setup step.
      * <p>
-     * This method may be used as a {@link dan200.computercraft.api.client.turtle.RegisterTurtleUpgradeModeller}, for
-     * convenient use in multi-loader code.
+     * This method may be used as a {@link RegisterTurtleUpgradeModel}, for convenient use in multi-loader code.
      *
-     * @param type     The turtle upgrade type.
-     * @param modeller The upgrade modeller.
-     * @param <T>      The type of the turtle upgrade.
+     * @param id    The id used for this type of upgrade model.
+     * @param codec The codec used to read/decode an upgrade model.
      */
-    public static <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller(UpgradeType<T> type, TurtleUpgradeModeller<T> modeller) {
-        getInstance().registerTurtleUpgradeModeller(type, modeller);
+    public static void registerTurtleUpgradeModeller(ResourceLocation id, MapCodec<? extends TurtleUpgradeModel.Unbaked> codec) {
+        getInstance().registerTurtleUpgradeModeller(id, codec);
     }
 
     private static FabricComputerCraftAPIClientService getInstance() {

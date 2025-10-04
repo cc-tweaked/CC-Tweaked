@@ -11,6 +11,8 @@ import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.media.items.PrintoutData;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 
 import java.util.List;
@@ -23,6 +25,12 @@ import static dan200.computercraft.shared.media.items.PrintoutData.LINES_PER_PAG
  * {@linkplain PrintoutItemRenderer in-hand/item frame printouts}.
  */
 public final class PrintoutRenderer {
+    /**
+     * Printout's background texture. {@link RenderType#text(ResourceLocation)} is a <em>little</em> questionable, but
+     * it is what maps use, so should behave the same as vanilla in both item frames and in-hand.
+     */
+    private static final RenderType BACKGROUND = RenderType.text(ResourceLocation.fromNamespaceAndPath("computercraft", "textures/gui/printout.png"));
+
     private static final float BG_SIZE = 256.0f;
 
     /**
@@ -58,11 +66,14 @@ public final class PrintoutRenderer {
     private static final int COVER_Y = Y_SIZE;
     private static final int COVER_X = X_SIZE + 4 * X_FOLD_SIZE;
 
+    private static final float BOOK_Z_OFFSET = -0.1f;
+    private static final float PAGE_Z_OFFSET = -0.01f;
+
     private PrintoutRenderer() {
     }
 
     public static void drawText(PoseStack transform, MultiBufferSource bufferSource, int x, int y, int start, int light, TextBuffer[] text, TextBuffer[] colours) {
-        var buffer = bufferSource.getBuffer(RenderTypes.PRINTOUT_TEXT);
+        var buffer = bufferSource.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT);
         var emitter = FixedWidthFontRenderer.toVertexConsumer(transform, buffer);
         for (var line = 0; line < LINES_PER_PAGE && line < text.length; line++) {
             FixedWidthFontRenderer.drawString(emitter,
@@ -73,7 +84,7 @@ public final class PrintoutRenderer {
     }
 
     public static void drawText(PoseStack transform, MultiBufferSource bufferSource, int x, int y, int start, int light, List<PrintoutData.Line> lines) {
-        var buffer = bufferSource.getBuffer(RenderTypes.PRINTOUT_TEXT);
+        var buffer = bufferSource.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT);
         var emitter = FixedWidthFontRenderer.toVertexConsumer(transform, buffer);
         for (var line = 0; line < LINES_PER_PAGE && line < lines.size(); line++) {
             var lineContents = lines.get(start + line);
@@ -90,7 +101,7 @@ public final class PrintoutRenderer {
         var leftPages = page;
         var rightPages = pages - page - 1;
 
-        var buffer = bufferSource.getBuffer(RenderTypes.PRINTOUT_BACKGROUND);
+        var buffer = bufferSource.getBuffer(BACKGROUND);
 
         if (isBook) {
             // Border
@@ -99,12 +110,12 @@ public final class PrintoutRenderer {
             var right = x + X_SIZE + offset - 4;
 
             // Left and right border
-            drawTexture(matrix, buffer, left - 4, y - 8, z - 0.02f, COVER_X, 0, COVER_SIZE, Y_SIZE + COVER_SIZE * 2, light);
-            drawTexture(matrix, buffer, right, y - 8, z - 0.02f, COVER_X + COVER_SIZE, 0, COVER_SIZE, Y_SIZE + COVER_SIZE * 2, light);
+            drawTexture(matrix, buffer, left - 4, y - 8, z + BOOK_Z_OFFSET, COVER_X, 0, COVER_SIZE, Y_SIZE + COVER_SIZE * 2, light);
+            drawTexture(matrix, buffer, right, y - 8, z + BOOK_Z_OFFSET, COVER_X + COVER_SIZE, 0, COVER_SIZE, Y_SIZE + COVER_SIZE * 2, light);
 
             // Draw centre panel (just stretched texture, sorry).
             drawTexture(matrix, buffer,
-                x - offset, y, z - 0.02f, X_SIZE + offset * 2, Y_SIZE,
+                x - offset, y, z + BOOK_Z_OFFSET, X_SIZE + offset * 2, Y_SIZE,
                 COVER_X + COVER_SIZE / 2.0f, COVER_SIZE, COVER_SIZE, Y_SIZE,
                 light
             );
@@ -112,20 +123,20 @@ public final class PrintoutRenderer {
             var borderX = left;
             while (borderX < right) {
                 double thisWidth = Math.min(right - borderX, X_SIZE);
-                drawTexture(matrix, buffer, borderX, y - 8, z - 0.02f, 0, COVER_Y, (float) thisWidth, COVER_SIZE, light);
-                drawTexture(matrix, buffer, borderX, y + Y_SIZE - 4, z - 0.02f, 0, COVER_Y + COVER_SIZE, (float) thisWidth, COVER_SIZE, light);
+                drawTexture(matrix, buffer, borderX, y - 8, z + BOOK_Z_OFFSET, 0, COVER_Y, (float) thisWidth, COVER_SIZE, light);
+                drawTexture(matrix, buffer, borderX, y + Y_SIZE - 4, z + BOOK_Z_OFFSET, 0, COVER_Y + COVER_SIZE, (float) thisWidth, COVER_SIZE, light);
                 borderX = (float) (borderX + thisWidth);
             }
         }
 
         // Current page background: Z-offset is interleaved between the "zeroth" left/right page and the first
         // left/right page, so that the "bold" border can be drawn over the edge where appropriate.
-        drawTexture(matrix, buffer, x, y, z - 1e-3f * 0.5f, X_FOLD_SIZE * 2, 0, X_SIZE, Y_SIZE, light);
+        drawTexture(matrix, buffer, x, y, z + PAGE_Z_OFFSET, X_FOLD_SIZE * 2, 0, X_SIZE, Y_SIZE, light);
 
         // Left pages
         for (var n = 0; n <= leftPages; n++) {
             drawTexture(matrix, buffer,
-                x - offsetAt(n), y, z - 1e-3f * n,
+                x - offsetAt(n), y, z + PAGE_Z_OFFSET * (n + 1),
                 // Use the left "bold" fold for the outermost page
                 n == leftPages ? 0 : X_FOLD_SIZE, 0,
                 X_FOLD_SIZE, Y_SIZE, light
@@ -135,7 +146,7 @@ public final class PrintoutRenderer {
         // Right pages
         for (var n = 0; n <= rightPages; n++) {
             drawTexture(matrix, buffer,
-                x + (X_SIZE - X_FOLD_SIZE) + offsetAt(n), y, z - 1e-3f * n,
+                x + (X_SIZE - X_FOLD_SIZE) + offsetAt(n), y, z + PAGE_Z_OFFSET * (n + 1),
                 // Two folds, then the main page. Use the right "bold" fold for the outermost page.
                 X_FOLD_SIZE * 2 + X_SIZE + (n == rightPages ? X_FOLD_SIZE : 0), 0,
                 X_FOLD_SIZE, Y_SIZE, light

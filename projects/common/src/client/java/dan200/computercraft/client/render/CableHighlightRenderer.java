@@ -11,8 +11,7 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.Mth;
+import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.world.phys.BlockHitResult;
 
 public final class CableHighlightRenderer {
@@ -27,11 +26,10 @@ public final class CableHighlightRenderer {
      * @param camera       The current camera.
      * @param hit          The block hit result for the current player.
      * @return If we rendered a custom outline.
-     * @see net.minecraft.client.renderer.LevelRenderer#renderHitOutline
      */
     public static boolean drawHighlight(PoseStack transform, MultiBufferSource bufferSource, Camera camera, BlockHitResult hit) {
         var pos = hit.getBlockPos();
-        var world = camera.getEntity().getCommandSenderWorld();
+        var world = camera.getEntity().level();
 
         var state = world.getBlockState(pos);
 
@@ -49,27 +47,9 @@ public final class CableHighlightRenderer {
         var yOffset = pos.getY() - cameraPos.y();
         var zOffset = pos.getZ() - cameraPos.z();
 
-        var buffer = bufferSource.getBuffer(RenderType.lines());
-        var matrix4f = transform.last().pose();
-        // TODO: Can we just accesstransformer out LevelRenderer.renderShape?
-        shape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
-            var xDelta = (float) (x2 - x1);
-            var yDelta = (float) (y2 - y1);
-            var zDelta = (float) (z2 - z1);
-            var len = Mth.sqrt(xDelta * xDelta + yDelta * yDelta + zDelta * zDelta);
-            xDelta = xDelta / len;
-            yDelta = yDelta / len;
-            zDelta = zDelta / len;
-
-            buffer
-                .addVertex(matrix4f, (float) (x1 + xOffset), (float) (y1 + yOffset), (float) (z1 + zOffset))
-                .setColor(0, 0, 0, 0.4f)
-                .setNormal(transform.last(), xDelta, yDelta, zDelta);
-            buffer
-                .addVertex(matrix4f, (float) (x2 + xOffset), (float) (y2 + yOffset), (float) (z2 + zOffset))
-                .setColor(0, 0, 0, 0.4f)
-                .setNormal(transform.last(), xDelta, yDelta, zDelta);
-        });
+        BlockOutlineRenderer.render(
+            bufferSource, (buffer, colour) -> ShapeRenderer.renderShape(transform, buffer, shape, xOffset, yOffset, zOffset, colour)
+        );
 
         return true;
     }

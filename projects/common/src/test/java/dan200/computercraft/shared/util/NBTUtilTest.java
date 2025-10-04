@@ -9,12 +9,13 @@ import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.io.DataOutput;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -57,7 +58,7 @@ public class NBTUtilTest {
         var nbt1 = makeCompoundTag(false);
         var nbt2 = makeCompoundTag(true);
         assertNotEquals(
-            List.copyOf(nbt1.getAllKeys()), List.copyOf(nbt2.getAllKeys()),
+            List.copyOf(nbt1.keySet()), List.copyOf(nbt2.keySet()),
             "Expected makeCompoundTag to return keys with different orders."
         );
     }
@@ -100,7 +101,7 @@ public class NBTUtilTest {
     }
 
     /**
-     * Equivalent to {@link NBTUtil#getNBTHash(CompoundTag)}, but using the default {@link NbtIo#write(CompoundTag, File)} method.
+     * Equivalent to {@link NBTUtil#getNBTHash(Tag)}, but using the default {@link NbtIo#write(CompoundTag, Path)} method.
      *
      * @param tag The tag to hash.
      * @return The resulting hash.

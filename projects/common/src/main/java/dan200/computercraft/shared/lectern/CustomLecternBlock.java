@@ -56,7 +56,7 @@ public class CustomLecternBlock extends LecternBlock {
     public static InteractionResult tryPlaceItem(Player player, Level level, BlockPos pos, BlockState blockState, ItemStack item) {
         if (item.getItem() instanceof PrintoutItem || item.getItem() instanceof PocketComputerItem) {
             if (!level.isClientSide) replaceLectern(player, level, pos, blockState, item);
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
 
         return InteractionResult.PASS;
@@ -97,8 +97,7 @@ public class CustomLecternBlock extends LecternBlock {
     }
 
     @Override
-    @Deprecated
-    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
+    protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
         return new ItemStack(Items.LECTERN);
     }
 
@@ -113,18 +112,7 @@ public class CustomLecternBlock extends LecternBlock {
         super.tick(state, level, pos, random);
     }
 
-    @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (state.is(newState.getBlock())) return;
-
-        if (level.getBlockEntity(pos) instanceof CustomLecternBlockEntity lectern) {
-            dropItem(level, pos, state, lectern.getItem().copy());
-        }
-
-        super.onRemove(state, level, pos, newState, isMoving);
-    }
-
-    private static void dropItem(Level level, BlockPos pos, BlockState state, ItemStack stack) {
+    static void dropItem(Level level, BlockPos pos, BlockState state, ItemStack stack) {
         if (stack.isEmpty()) return;
 
         var direction = state.getValue(FACING);
@@ -133,11 +121,6 @@ public class CustomLecternBlock extends LecternBlock {
         var entity = new ItemEntity(level, pos.getX() + 0.5 + dx, pos.getY() + 1, pos.getZ() + 0.5 + dz, stack);
         entity.setDefaultPickUpDelay();
         level.addFreshEntity(entity);
-    }
-
-    @Override
-    public String getDescriptionId() {
-        return Blocks.LECTERN.getDescriptionId();
     }
 
     @Override
@@ -164,7 +147,7 @@ public class CustomLecternBlock extends LecternBlock {
             player.awardStat(Stats.INTERACT_WITH_LECTERN);
         }
 
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     @Override

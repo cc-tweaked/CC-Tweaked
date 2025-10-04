@@ -61,7 +61,7 @@ public class ItemDetails {
         if (!enchants.isEmpty()) data.put("enchantments", enchants);
 
         var unbreakable = stack.get(DataComponents.UNBREAKABLE);
-        if (unbreakable != null && unbreakable.showInTooltip()) data.put("unbreakable", true);
+        if (unbreakable != null) data.put("unbreakable", true);
     }
 
     /**

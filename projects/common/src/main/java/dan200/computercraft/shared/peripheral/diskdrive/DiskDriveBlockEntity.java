@@ -17,9 +17,7 @@ import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -27,6 +25,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
@@ -114,17 +114,17 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity imp
     }
 
     @Override
-    public void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.loadAdditional(nbt, registries);
-        setDiskStack(nbt.contains(NBT_ITEM) ? ItemStack.parseOptional(registries, nbt.getCompound(NBT_ITEM)) : ItemStack.EMPTY);
+    public void loadAdditional(ValueInput nbt) {
+        super.loadAdditional(nbt);
+        setDiskStack(nbt.read(NBT_ITEM, ItemStack.CODEC).orElse(ItemStack.EMPTY));
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    public void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
 
         var stack = getDiskStack();
-        if (!stack.isEmpty()) tag.put(NBT_ITEM, stack.save(registries));
+        if (!stack.isEmpty()) tag.store(NBT_ITEM, ItemStack.CODEC, stack);
     }
 
     void serverTick() {

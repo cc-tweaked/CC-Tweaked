@@ -62,7 +62,7 @@ neoForge {
         }
 
         fun RunModel.configureForData(mod: String, sourceSet: SourceSet) {
-            data()
+            clientData()
             gameDirectory = file("run/run${name.capitalise()}")
             programArguments.addAll(
                 "--mod", mod, "--all",
@@ -178,6 +178,7 @@ dependencies {
     testFixturesApi(libs.bundles.test)
     testFixturesApi(libs.bundles.kotlin)
 
+    testAnnotationProcessor(libs.autoService)
     testImplementation(testFixtures(project(":core")))
     testImplementation(libs.bundles.test)
     testRuntimeOnly(libs.bundles.testRuntime)

@@ -1,11 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
-  "key": {
-    "#": {"item": "minecraft:stone"},
-    "A": {"item": "minecraft:golden_apple"},
-    "G": {"tag": "c:glass_panes"}
-  },
+  "key": {"#": "minecraft:stone", "A": "minecraft:golden_apple", "G": "#c:glass_panes"},
   "pattern": ["###", "#A#", "#G#"],
   "result": {"count": 1, "id": "computercraft:pocket_computer_normal"}
 }

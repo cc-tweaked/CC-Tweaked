@@ -20,18 +20,20 @@ import dan200.computercraft.shared.details.FluidDetails;
 import dan200.computercraft.shared.integration.CreateIntegration;
 import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
+import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.platform.FabricConfigFile;
 import dan200.computercraft.shared.recipe.function.RecipeFunction;
-import dan200.computercraft.shared.turtle.TurtleOverlay;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import net.fabricmc.fabric.api.event.player.PlayerPickItemEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
+import net.fabricmc.fabric.api.item.v1.ComponentTooltipAppenderRegistry;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.lookup.v1.item.ItemApiLookup;
@@ -41,14 +43,15 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ChunkLevel;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -63,6 +66,12 @@ import java.util.function.BiFunction;
 public class ComputerCraft {
     private static final LevelResource SERVERCONFIG = new LevelResource("serverconfig");
 
+    /**
+     * The client-side command to open a folder. Ideally this would live under the main {@code computercraft}
+     * namespace, but unfortunately that overrides commands, rather than merging them.
+     */
+    public static final String CLIENT_OPEN_FOLDER = "computercraft-open-folder";
+
     public static void init() {
         for (var type : NetworkMessages.getServerbound()) registerPayloadType(PayloadTypeRegistry.playC2S(), type);
         for (var type : NetworkMessages.getClientbound()) registerPayloadType(PayloadTypeRegistry.playS2C(), type);
@@ -75,7 +84,6 @@ public class ComputerCraft {
 
         DynamicRegistries.registerSynced(ITurtleUpgrade.REGISTRY, TurtleUpgrades.instance().upgradeCodec());
         DynamicRegistries.registerSynced(IPocketUpgrade.REGISTRY, PocketUpgrades.instance().upgradeCodec());
-        DynamicRegistries.registerSynced(TurtleOverlay.REGISTRY, TurtleOverlay.DIRECT_CODEC);
 
         ModRegistry.register();
         ModRegistry.registerMainThread();
@@ -86,6 +94,11 @@ public class ComputerCraft {
 
         // Register commands
         CommandRegistrationCallback.EVENT.register((dispatcher, context, environment) -> CommandComputerCraft.register(dispatcher));
+
+        // Register tooltips
+        for (var tooltip : ModRegistry.DataComponents.TOOLTIP_COMPONENTS) {
+            ComponentTooltipAppenderRegistry.addAfter(DataComponents.LORE, tooltip.get());
+        }
 
         // Register hooks
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
@@ -104,9 +117,15 @@ public class ComputerCraft {
         ServerTickEvents.START_SERVER_TICK.register(CommonHooks::onServerTickStart);
         ServerTickEvents.START_SERVER_TICK.register(s -> CommonHooks.onServerTickEnd());
         ServerChunkEvents.CHUNK_UNLOAD.register((l, c) -> CommonHooks.onServerChunkUnload(c));
+        ServerChunkEvents.CHUNK_LEVEL_TYPE_CHANGE.register((level, chunk, oldStatus, newStatus) ->
+            CommonHooks.onChunkTicketLevelChanged(level, chunk.getPos().toLong(), ChunkLevel.byStatus(oldStatus), ChunkLevel.byStatus(newStatus)));
 
         PlayerBlockBreakEvents.BEFORE.register(FabricCommonHooks::onBlockDestroy);
         UseBlockCallback.EVENT.register(CommonHooks::onUseBlock);
+
+        PlayerPickItemEvents.BLOCK.register((player, pos, state, includeData) ->
+            state.getBlock() instanceof CableBlock cable ? cable.getCloneItemStack(player.level(), pos, state, includeData, player) : null
+        );
 
         LootTableEvents.MODIFY.register((id, tableBuilder, source, registries) -> {
             var pool = CommonHooks.getExtraLootPool(id);
@@ -133,17 +152,17 @@ public class ComputerCraft {
         registry.register(type.type(), type.codec());
     }
 
-    private record ReloadListener(String name, PreparableReloadListener listener)
+    private record ReloadListener(ResourceLocation name, PreparableReloadListener listener)
         implements IdentifiableResourceReloadListener {
 
         @Override
         public ResourceLocation getFabricId() {
-            return ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name);
+            return name;
         }
 
         @Override
-        public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, ProfilerFiller preparationsProfiler, ProfilerFiller reloadProfiler, Executor backgroundExecutor, Executor gameExecutor) {
-            return listener.reload(preparationBarrier, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor);
+        public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, Executor backgroundExecutor, Executor gameExecutor) {
+            return listener.reload(preparationBarrier, resourceManager, backgroundExecutor, gameExecutor);
         }
     }
 

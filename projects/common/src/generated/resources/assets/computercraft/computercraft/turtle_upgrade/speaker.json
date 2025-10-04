@@ -1,0 +1,5 @@
+{
+  "type": "computercraft:sided",
+  "left": "computercraft:block/turtle_speaker_left",
+  "right": "computercraft:block/turtle_speaker_right"
+}

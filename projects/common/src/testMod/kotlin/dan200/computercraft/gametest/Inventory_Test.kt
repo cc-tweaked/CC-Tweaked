@@ -6,6 +6,7 @@ package dan200.computercraft.gametest
 
 import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.core.apis.PeripheralAPI
+import dan200.computercraft.gametest.api.GameTest
 import dan200.computercraft.gametest.api.assertContainerExactly
 import dan200.computercraft.gametest.api.sequence
 import dan200.computercraft.gametest.api.thenOnComputer
@@ -13,7 +14,6 @@ import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
 import net.minecraft.core.NonNullList
-import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -40,8 +40,8 @@ class Inventory_Test {
             ).await().assertArrayEquals(0, message = "Does not move items")
         }
         thenExecute {
-            helper.assertContainerExactly(BlockPos(1, 2, 2), listOf())
-            helper.assertContainerExactly(BlockPos(3, 2, 2), listOf(ItemStack(Items.SHULKER_BOX)))
+            helper.assertContainerExactly(BlockPos(1, 1, 2), listOf())
+            helper.assertContainerExactly(BlockPos(3, 1, 2), listOf(ItemStack(Items.SHULKER_BOX)))
         }
     }
 
@@ -66,8 +66,8 @@ class Inventory_Test {
             ).await().assertArrayEquals(0, message = "Does not move items")
         }
         thenExecute {
-            helper.assertContainerExactly(BlockPos(1, 2, 2), listOf(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack(Items.IRON_INGOT)))
-            helper.assertContainerExactly(BlockPos(3, 2, 2), NonNullList.withSize(27, ItemStack(Items.POLISHED_ANDESITE)))
+            helper.assertContainerExactly(BlockPos(1, 1, 2), listOf(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack(Items.IRON_INGOT)))
+            helper.assertContainerExactly(BlockPos(3, 1, 2), NonNullList.withSize(27, ItemStack(Items.POLISHED_ANDESITE)))
         }
     }
 

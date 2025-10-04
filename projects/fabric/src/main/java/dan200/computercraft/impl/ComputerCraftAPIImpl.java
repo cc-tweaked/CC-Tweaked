@@ -7,8 +7,6 @@ package dan200.computercraft.impl;
 import com.google.auto.service.AutoService;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.DetailRegistry;
-import dan200.computercraft.api.media.MediaLookup;
-import dan200.computercraft.api.media.MediaProvider;
 import dan200.computercraft.impl.detail.DetailRegistryImpl;
 import dan200.computercraft.shared.details.FluidDetails;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
@@ -42,10 +40,5 @@ public final class ComputerCraftAPIImpl extends AbstractComputerCraftAPI impleme
     @Override
     public DetailRegistry<StorageView<FluidVariant>> getFluidDetailRegistry() {
         return fluidDetails;
-    }
-
-    @Override
-    public void registerMediaProvider(MediaProvider provider) {
-        MediaLookup.get().registerFallback((stack, ctx) -> provider.getMedia(stack));
     }
 }

@@ -51,16 +51,6 @@ import java.util.function.Function;
  * <h4>Forge</h4>
  * {@snippet class=com.example.examplemod.ForgeExampleMod region=turtle_upgrades}
  *
- * <h3>Rendering the upgrade</h3>
- * Next, we need to register a model for our upgrade. This is done by registering a
- * {@link dan200.computercraft.api.client.turtle.TurtleUpgradeModeller} for your upgrade type.
- *
- * <h4>Fabric</h4>
- * {@snippet class=com.example.examplemod.FabricExampleModClient region=turtle_modellers}
- *
- * <h4>Forge</h4>
- * {@snippet class=com.example.examplemod.FabricExampleModClient region=turtle_modellers}
- *
  * <h3 id="datagen">Registering the upgrade itself</h3>
  * Upgrades themselves are loaded from datapacks when a level is loaded. In order to register our new upgrade, we must
  * create a new JSON file at {@code data/<my_mod>/computercraft/turtle_upgrade/<my_upgrade_id>.json}.
@@ -71,8 +61,15 @@ import java.util.function.Function;
  * by the type itself. As our upgrade was defined with {@link UpgradeType#simpleWithCustomItem(Function)}, the
  * {@code "item"} field will construct our upgrade with {@link Items#COMPASS}.
  * <p>
- * Rather than manually creating the file, it is recommended to use data-generators to generate this file. First, we
- * register our new upgrades into a {@linkplain PatchedRegistries patched registry}.
+ * Similarly, {@linkplain dan200.computercraft.api.client.turtle.TurtleUpgradeModel the upgrade's model} is loaded from
+ * a resource pack, and so we must also create a new JSON file at
+ * {@code assets/<my_mod>/computercraft/turtle_upgrade/<my_upgrade_id>.json}.
+ *
+ * {@snippet file=assets/examplemod/computercraft/turtle_upgrade/example_turtle_upgrade.json}
+ *
+ * Rather than manually creating these file, it is recommended to use data-generators to generate this file. First, we
+ * register our new upgrades into a {@linkplain PatchedRegistries patched registry}. Models must similarly be
+ * registered.
  *
  * {@snippet class=com.example.examplemod.data.TurtleUpgradeProvider region=body}
  *

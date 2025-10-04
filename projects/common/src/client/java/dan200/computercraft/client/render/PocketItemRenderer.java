@@ -14,9 +14,10 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.metadata.gui.GuiSpriteScaling;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import org.joml.Matrix4f;
@@ -80,7 +81,7 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
         var lightColour = computer == null || computer.getLightState() == -1 ? Colour.BLACK.getHex() : computer.getLightState();
         renderLight(transform, bufferSource, lightColour, width, height);
 
-        var quadEmitter = FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(RenderTypes.TERMINAL));
+        var quadEmitter = FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT));
         if (terminal == null) {
             FixedWidthFontRenderer.drawEmptyTerminal(quadEmitter, 0, 0, width, height);
         } else {
@@ -157,20 +158,20 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
     }
 
     private static void renderLight(PoseStack transform, MultiBufferSource render, int colour, int width, int height) {
-        var buffer = render.getBuffer(RenderTypes.TERMINAL);
+        var buffer = render.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT);
         FixedWidthFontRenderer.drawQuad(
             FixedWidthFontRenderer.toVertexConsumer(transform, buffer),
             width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0.001f, LIGHT_HEIGHT * 2, LIGHT_HEIGHT,
-            FastColor.ARGB32.opaque(colour), RenderTypes.FULL_BRIGHT_LIGHTMAP
+            ARGB.opaque(colour), LightTexture.FULL_BRIGHT
         );
     }
 
     private static final GuiSpriteScaling.NineSlice DEFAULT_BORDER = new GuiSpriteScaling.NineSlice(
-        36, 36, new GuiSpriteScaling.NineSlice.Border(12, 12, 12, 12)
+        36, 36, new GuiSpriteScaling.NineSlice.Border(12, 12, 12, 12), false
     );
 
     private static final GuiSpriteScaling.NineSlice DEFAULT_BOTTOM = new GuiSpriteScaling.NineSlice(
-        36, 20, new GuiSpriteScaling.NineSlice.Border(12, 0, 12, 0)
+        36, 20, new GuiSpriteScaling.NineSlice.Border(12, 0, 12, 0), false
     );
 
     private static GuiSpriteScaling.NineSlice getSlice(GuiSpriteScaling scaling, GuiSpriteScaling.NineSlice fallback) {

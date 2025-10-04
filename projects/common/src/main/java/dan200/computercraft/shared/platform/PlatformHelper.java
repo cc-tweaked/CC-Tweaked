@@ -18,9 +18,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
@@ -47,6 +49,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -200,10 +203,12 @@ public interface PlatformHelper {
     /**
      * Get the amount of fuel an item provides.
      *
-     * @param stack The item to burn.
+     * @param server The current server.
+     * @param stack  The item to burn.
      * @return The amount of fuel it provides.
+     * @see MinecraftServer#fuelValues()
      */
-    int getBurnTime(ItemStack stack);
+    int getBurnTime(MinecraftServer server, ItemStack stack);
 
     /**
      * Create a builder for a new creative tab.
@@ -350,4 +355,12 @@ public interface PlatformHelper {
      */
     @Nullable
     IMedia getMedia(ItemStack stack);
+
+    /**
+     * Construct a {@link ClickEvent} that opens a folder.
+     *
+     * @param path The folder to open.
+     * @return The click event.
+     */
+    ClickEvent createOpenFolderAction(Path path);
 }

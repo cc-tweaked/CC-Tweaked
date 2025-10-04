@@ -8,7 +8,6 @@ import com.google.auto.service.AutoService;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.media.IMedia;
-import dan200.computercraft.api.media.MediaProvider;
 import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.impl.AbstractComputerCraftAPI;
@@ -21,9 +20,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -44,6 +45,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -115,13 +117,13 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     }
 
     @Override
-    public int getBurnTime(ItemStack stack) {
+    public int getBurnTime(MinecraftServer server, ItemStack stack) {
         throw new UnsupportedOperationException("Cannot get burn time inside tests");
     }
 
     @Override
     public ItemStack getCraftingRemainingItem(ItemStack stack) {
-        return new ItemStack(stack.getItem().getCraftingRemainingItem());
+        return stack.getItem().getCraftingRemainder();
     }
 
     @Override
@@ -155,6 +157,11 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     }
 
     @Override
+    public ClickEvent createOpenFolderAction(Path path) {
+        throw new UnsupportedOperationException("Cannot create open folder ClickEvent");
+    }
+
+    @Override
     public ContainerTransfer.Slotted wrapContainer(Container container) {
         throw new UnsupportedOperationException("Cannot wrap container");
     }
@@ -163,11 +170,6 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     @Override
     public ContainerTransfer getContainer(ServerLevel level, BlockPos pos, Direction side) {
         throw new UnsupportedOperationException("Cannot interact with the world inside tests");
-    }
-
-    @Override
-    public void registerMediaProvider(MediaProvider provider) {
-        throw new UnsupportedOperationException("Cannot register media providers inside tests");
     }
 
     @Override

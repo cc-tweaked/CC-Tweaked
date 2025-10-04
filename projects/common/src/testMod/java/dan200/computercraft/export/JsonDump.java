@@ -6,10 +6,12 @@ package dan200.computercraft.export;
 
 import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -30,10 +32,10 @@ public class JsonDump {
             count = output.getCount();
         }
 
-        public void setInput(int pos, Ingredient ingredient, Set<Item> trackedItems) {
-            if (ingredient.isEmpty()) return;
+        public void setInput(int pos, SlotDisplay ingredient, Set<Item> trackedItems) {
+            if (ingredient instanceof SlotDisplay.Empty) return;
 
-            var items = ingredient.getItems();
+            var items = ingredient.resolveForStacks(new ContextMap.Builder().create(SlotDisplayContext.CONTEXT));
 
             // First try to simplify some tags to something easier.
             for (var stack : items) {
@@ -45,9 +47,9 @@ public class JsonDump {
                 return;
             }
 
-            var itemIds = new String[items.length];
-            for (var i = 0; i < items.length; i++) {
-                var item = items[i].getItem();
+            var itemIds = new String[items.size()];
+            for (var i = 0; i < items.size(); i++) {
+                var item = items.get(i).getItem();
                 trackedItems.add(item);
                 itemIds[i] = RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, item).toString();
             }

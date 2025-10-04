@@ -11,5 +11,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(GameTestInfo.class)
 public interface GameTestInfoAccessor {
     @Invoker("getTick")
-    long computercraft$getTick();
+    int computercraft$getTick();
 }

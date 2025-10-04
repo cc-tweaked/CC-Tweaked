@@ -29,6 +29,21 @@ public enum ComputerFamily {
         };
     }
 
+    /**
+     * Get the save folder for this computer type.
+     * <p>
+     * Command computers are saved under a different namespace, to prevent people who have obtained a normal computer
+     * with the same ID as a command computer (e.g. via creative mode, or a bug), having access to its files.
+     *
+     * @return The save folder for a
+     */
+    public String getSaveFolder() {
+        return switch (this) {
+            case NORMAL, ADVANCED -> "computer";
+            case COMMAND -> "command_computer";
+        };
+    }
+
     private static boolean checkCommandUsable(Player player) {
         var server = player.getServer();
         if (server == null || !server.isCommandBlockEnabled()) {

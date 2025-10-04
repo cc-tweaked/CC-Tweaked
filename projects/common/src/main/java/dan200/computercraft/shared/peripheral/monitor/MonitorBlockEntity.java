@@ -22,6 +22,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -57,6 +59,12 @@ public class MonitorBlockEntity extends BlockEntity {
     private boolean needsUpdate = false;
     private boolean needsValidating = false;
 
+    /**
+     * Whether this monitor is in the process of being removed (see {@link #preRemoveSideEffects(BlockPos, BlockState)},
+     * and so should be ignored.
+     */
+    private boolean isRemoving = false;
+
     // MonitorWatcher state.
     boolean enqueued;
     @Nullable
@@ -82,13 +90,16 @@ public class MonitorBlockEntity extends BlockEntity {
     @Override
     public void clearRemoved() {
         super.clearRemoved();
+        isRemoving = false;
         needsValidating = true; // Same, tbh
         TickScheduler.schedule(tickToken);
     }
 
-    void destroy() {
-        // TODO: Call this before using the block
-        if (!getLevel().isClientSide) contractNeighbours();
+    @Override
+    public void preRemoveSideEffects(BlockPos blockPos, BlockState blockState) {
+        super.preRemoveSideEffects(blockPos, blockState);
+        isRemoving = true;
+        if (level != null && !getLevel().isClientSide) contractNeighbours();
     }
 
     @Override
@@ -98,25 +109,25 @@ public class MonitorBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+    public void saveAdditional(ValueOutput tag) {
         tag.putInt(NBT_X, xIndex);
         tag.putInt(NBT_Y, yIndex);
         tag.putInt(NBT_WIDTH, width);
         tag.putInt(NBT_HEIGHT, height);
-        super.saveAdditional(tag, registries);
+        super.saveAdditional(tag);
     }
 
     @Override
-    public void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.loadAdditional(nbt, registries);
+    public void loadAdditional(ValueInput nbt) {
+        super.loadAdditional(nbt);
 
         var oldXIndex = xIndex;
         var oldYIndex = yIndex;
 
-        xIndex = nbt.getInt(NBT_X);
-        yIndex = nbt.getInt(NBT_Y);
-        width = nbt.getInt(NBT_WIDTH);
-        height = nbt.getInt(NBT_HEIGHT);
+        xIndex = nbt.getIntOr(NBT_X, 0);
+        yIndex = nbt.getIntOr(NBT_Y, 0);
+        width = nbt.getIntOr(NBT_WIDTH, 1);
+        height = nbt.getIntOr(NBT_HEIGHT, 1);
 
         if (level != null && level.isClientSide) onClientLoad(oldXIndex, oldYIndex);
     }
@@ -245,13 +256,11 @@ public class MonitorBlockEntity extends BlockEntity {
     public Direction getDirection() {
         // Ensure we're actually a monitor block. This _should_ always be the case, but sometimes there's
         // fun problems with the block being missing on the client.
-        var state = getBlockState();
-        return state.hasProperty(MonitorBlock.FACING) ? state.getValue(MonitorBlock.FACING) : Direction.NORTH;
+        return getBlockState().getValueOrElse(MonitorBlock.FACING, Direction.NORTH);
     }
 
     public Direction getOrientation() {
-        var state = getBlockState();
-        return state.hasProperty(MonitorBlock.ORIENTATION) ? state.getValue(MonitorBlock.ORIENTATION) : Direction.NORTH;
+        return getBlockState().getValueOrElse(MonitorBlock.ORIENTATION, Direction.NORTH);
     }
 
     public Direction getFront() {
@@ -286,7 +295,10 @@ public class MonitorBlockEntity extends BlockEntity {
     }
 
     boolean isCompatible(MonitorBlockEntity other) {
-        return advanced == other.advanced && getOrientation() == other.getOrientation() && getDirection() == other.getDirection();
+        return !other.isRemoved() && !other.isRemoving
+            && advanced == other.advanced
+            && getOrientation() == other.getOrientation()
+            && getDirection() == other.getDirection();
     }
 
     /**
@@ -303,8 +315,7 @@ public class MonitorBlockEntity extends BlockEntity {
         var world = getLevel();
         if (world == null || !world.isLoaded(pos)) return MonitorState.UNLOADED;
 
-        var tile = world.getBlockEntity(pos);
-        if (!(tile instanceof MonitorBlockEntity monitor)) return MonitorState.MISSING;
+        if (!(world.getBlockEntity(pos) instanceof MonitorBlockEntity monitor)) return MonitorState.MISSING;
 
         return isCompatible(monitor) ? MonitorState.present(monitor) : MonitorState.MISSING;
     }
