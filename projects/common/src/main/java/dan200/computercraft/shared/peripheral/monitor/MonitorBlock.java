@@ -95,7 +95,7 @@ public class MonitorBlock extends HorizontalDirectionalBlock implements EntityBl
             return InteractionResult.PASS;
         }
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             monitor.monitorTouched(
                 (float) (hit.getLocation().x - hit.getBlockPos().getX()),
                 (float) (hit.getLocation().y - hit.getBlockPos().getY()),
@@ -111,7 +111,7 @@ public class MonitorBlock extends HorizontalDirectionalBlock implements EntityBl
         super.setPlacedBy(world, pos, blockState, livingEntity, itemStack);
 
         var entity = world.getBlockEntity(pos);
-        if (entity instanceof MonitorBlockEntity monitor && !world.isClientSide) {
+        if (entity instanceof MonitorBlockEntity monitor && !world.isClientSide()) {
             // Defer the block update if we're being placed by another TE. See #691
             if (livingEntity == null || (livingEntity instanceof ServerPlayer player && PlatformHelper.get().isFakePlayer(player))) {
                 monitor.updateNeighborsDeferred();

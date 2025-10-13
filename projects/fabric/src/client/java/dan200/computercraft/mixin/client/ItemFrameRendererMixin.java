@@ -7,9 +7,10 @@ package dan200.computercraft.mixin.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.client.ClientHooks;
 import dan200.computercraft.client.ExtendedItemFrameRenderStateHolder;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.ItemFrameRenderer;
 import net.minecraft.client.renderer.entity.state.ItemFrameRenderState;
+import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,14 +22,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @SuppressWarnings("UnusedMethod")
 class ItemFrameRendererMixin {
     @Inject(
-        method = "render(Lnet/minecraft/client/renderer/entity/state/ItemFrameRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+        method = "submit(Lnet/minecraft/client/renderer/entity/state/ItemFrameRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
         at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/entity/state/ItemFrameRenderState;mapId:Lnet/minecraft/world/level/saveddata/maps/MapId;", opcode = Opcodes.GETFIELD, ordinal = 1),
         cancellable = true
     )
     @SuppressWarnings("unused")
-    private void render(ItemFrameRenderState frame, PoseStack pose, MultiBufferSource buffers, int light, CallbackInfo ci) {
+    private void submit(ItemFrameRenderState frame, PoseStack pose, SubmitNodeCollector buffers, CameraRenderState camera, CallbackInfo ci) {
         var state = ((ExtendedItemFrameRenderStateHolder) frame).computercraft$state();
-        if (ClientHooks.onRenderItemFrame(pose, buffers, frame, state, light)) {
+        if (ClientHooks.onRenderItemFrame(pose, buffers, frame, state)) {
             ci.cancel();
             pose.popPose();
         }

@@ -58,7 +58,7 @@ public class DiskDriveBlock extends HorizontalContainerBlock {
         var blockPos = context.getClickedPos();
         var blockState = level.getBlockState(blockPos);
         if (blockState.is(ModRegistry.Blocks.DISK_DRIVE.get()) && blockState.getValue(STATE) == DiskDriveState.EMPTY) {
-            if (!level.isClientSide && level.getBlockEntity(blockPos) instanceof DiskDriveBlockEntity drive && drive.getDiskStack().isEmpty()) {
+            if (!level.isClientSide() && level.getBlockEntity(blockPos) instanceof DiskDriveBlockEntity drive && drive.getDiskStack().isEmpty()) {
                 drive.setDiskStack(context.getItemInHand().split(1));
             }
             return InteractionResult.SUCCESS;
@@ -76,6 +76,6 @@ public class DiskDriveBlock extends HorizontalContainerBlock {
     @Override
     @Nullable
     public <U extends BlockEntity> BlockEntityTicker<U> getTicker(Level level, BlockState state, BlockEntityType<U> type) {
-        return level.isClientSide ? null : BaseEntityBlock.createTickerHelper(type, ModRegistry.BlockEntities.DISK_DRIVE.get(), serverTicker);
+        return level.isClientSide() ? null : BaseEntityBlock.createTickerHelper(type, ModRegistry.BlockEntities.DISK_DRIVE.get(), serverTicker);
     }
 }

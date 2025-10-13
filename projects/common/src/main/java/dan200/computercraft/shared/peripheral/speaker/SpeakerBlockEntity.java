@@ -31,7 +31,7 @@ public class SpeakerBlockEntity extends BlockEntity {
     @Override
     public void setRemoved() {
         super.setRemoved();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             ServerNetworking.sendToAllPlayers(new SpeakerStopClientMessage(peripheral.getSource()), Nullability.assertNonNull(getLevel().getServer()));
         }
     }

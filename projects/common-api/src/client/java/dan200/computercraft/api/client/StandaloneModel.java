@@ -6,12 +6,15 @@ package dan200.computercraft.api.client;
 
 import com.google.common.base.Suppliers;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModel;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.BlockModelWrapper;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
@@ -19,10 +22,11 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BlockModelRotation;
 import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Vector3f;
@@ -113,7 +117,7 @@ public final class StandaloneModel {
      * Set up an {@link ItemStackRenderState.LayerRenderState} to render this model.
      *
      * @param layer The layer to set up.
-     * @see ItemModel#update(ItemStackRenderState, ItemStack, ItemModelResolver, ItemDisplayContext, ClientLevel, LivingEntity, int)
+     * @see ItemModel#update(ItemStackRenderState, ItemStack, ItemModelResolver, ItemDisplayContext, ClientLevel, ItemOwner, int)
      */
     public void setupItemLayer(ItemStackRenderState.LayerRenderState layer) {
         layer.setExtents(extents);
@@ -127,26 +131,35 @@ public final class StandaloneModel {
      * Render the model directly.
      *
      * @param transform The current pose stack transformations.
-     * @param buffers   The buffer source to use for rendering.
+     * @param collector The node collector to render to.
      * @param light     The current light texture coordinate.
      * @param overlay   The current overlay texture coordinate.
      */
-    public void render(PoseStack transform, MultiBufferSource buffers, int light, int overlay) {
-        render(transform, buffers, light, overlay, null);
+    public void submit(PoseStack transform, SubmitNodeCollector collector, int light, int overlay) {
+        submit(transform, collector, light, overlay, null, null);
     }
 
     /**
      * Render the model directly.
      *
      * @param transform The current pose stack transformations.
-     * @param buffers   The buffer source to use for rendering.
+     * @param collector The node collector to render to.
      * @param light     The current light texture coordinate.
      * @param overlay   The current overlay texture coordinate.
      * @param tints     The tints for this model.
      */
-    public void render(PoseStack transform, MultiBufferSource buffers, int light, int overlay, int @Nullable [] tints) {
-        var pose = transform.last();
-        var buffer = buffers.getBuffer(renderType);
+    public void submit(PoseStack transform, SubmitNodeCollector collector, int light, int overlay, int @Nullable [] tints, ModelFeatureRenderer.@Nullable CrumblingOverlay crumblingOverlay) {
+        collector.submitCustomGeometry(transform, renderType, (pose, buffer) -> render(pose, buffer, tints, light, overlay));
+
+        if (crumblingOverlay != null && renderType.affectsCrumbling()) {
+            collector.submitCustomGeometry(transform, ModelBakery.DESTROY_TYPES.get(crumblingOverlay.progress()), (pose, buffer) ->
+                // FIXME: This does not work. Should we have a custom hook for this instead?
+                render(pose, new SheetedDecalTextureGenerator(buffer, crumblingOverlay.cameraPose(), 1.0f), tints, light, overlay)
+            );
+        }
+    }
+
+    private void render(PoseStack.Pose pose, VertexConsumer buffer, int @Nullable [] tints, int light, int overlay) {
         for (var quad : quads) {
             float r, g, b, a;
             var idx = quad.tintIndex();

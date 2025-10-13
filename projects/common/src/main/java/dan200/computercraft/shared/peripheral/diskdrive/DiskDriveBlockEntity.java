@@ -162,7 +162,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity imp
 
     @Override
     public void setChanged() {
-        if (level != null && !level.isClientSide) updateMedia();
+        if (level != null && !level.isClientSide()) updateMedia();
         super.setChanged();
     }
 
@@ -357,7 +357,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity imp
     }
 
     private void ejectContents() {
-        if (getLevel().isClientSide) return;
+        if (getLevel().isClientSide()) return;
 
         var stack = getDiskStack();
         if (stack.isEmpty()) return;

@@ -56,7 +56,7 @@ public final class TickScheduler {
      */
     public static void schedule(Token token) {
         var world = token.owner.getLevel();
-        if (world != null && !world.isClientSide && Token.STATE.compareAndSet(token, State.IDLE, State.SCHEDULED)) {
+        if (world != null && !world.isClientSide() && Token.STATE.compareAndSet(token, State.IDLE, State.SCHEDULED)) {
             toTick.add(token);
         }
     }

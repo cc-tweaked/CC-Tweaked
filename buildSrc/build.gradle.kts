@@ -25,6 +25,7 @@ repositories {
         name = "Fabric"
         content {
             includeGroup("net.fabricmc")
+	    includeGroup("net.fabricmc.unpick")
         }
     }
 

@@ -50,7 +50,7 @@ public abstract class HorizontalContainerBlock extends BaseEntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (level.isClientSide) return InteractionResult.SUCCESS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
 
         if (level.getBlockEntity(pos) instanceof BaseContainerBlockEntity container) {
             player.openMenu(container);
@@ -65,7 +65,7 @@ public abstract class HorizontalContainerBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected final int getAnalogOutputSignal(BlockState pBlockState, Level pLevel, BlockPos pPos) {
+    protected final int getAnalogOutputSignal(BlockState pBlockState, Level pLevel, BlockPos pPos, Direction direction) {
         return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(pLevel.getBlockEntity(pPos));
     }
 

@@ -4,23 +4,16 @@
 
 package dan200.computercraft.client.model;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.client.pocket.PocketComputerData;
 import dan200.computercraft.client.render.CustomLecternRenderer;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.component.DyedItemColor;
 
 /**
  * A model for {@linkplain PocketComputerItem pocket computers} placed on a lectern.
@@ -76,7 +69,7 @@ public class LecternPocketModel {
      * @param frameColour   The pocket computer's {@linkplain DyedItemColor colour}.
      * @param lightColour   The pocket computer's {@linkplain PocketComputerData#getLightState() light colour}.
      */
-    public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, ComputerFamily family, int frameColour, int lightColour) {
+  /*  public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, ComputerFamily family, int frameColour, int lightColour) {
         if (frameColour != -1) {
             root.render(poseStack, MATERIAL_FRAME.buffer(bufferSource, RenderType::entityCutout), packedLight, packedOverlay);
             root.render(poseStack, MATERIAL_COLOUR.buffer(bufferSource, RenderType::entityCutout), packedLight, packedOverlay, frameColour);
@@ -86,5 +79,5 @@ public class LecternPocketModel {
         }
 
         root.render(poseStack, MATERIAL_LIGHT.buffer(bufferSource, RenderType::entityCutout), LightTexture.FULL_BRIGHT, packedOverlay, lightColour);
-    }
+    }*/
 }

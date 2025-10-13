@@ -112,7 +112,7 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!player.isCrouching() && level.getBlockEntity(pos) instanceof AbstractComputerBlockEntity computer) {
             // Regular right click to activate computer
-            if (!level.isClientSide && computer.isUsable(player)) {
+            if (!level.isClientSide() && computer.isUsable(player)) {
                 var serverComputer = computer.createServerComputer();
                 serverComputer.turnOn();
 
@@ -143,7 +143,7 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
     @Override
     @Nullable
     public <U extends BlockEntity> BlockEntityTicker<U> getTicker(Level level, BlockState state, BlockEntityType<U> type) {
-        return level.isClientSide ? null : BlockEntityHelpers.createTickerHelper(type, this.type.get(), serverTicker);
+        return level.isClientSide() ? null : BlockEntityHelpers.createTickerHelper(type, this.type.get(), serverTicker);
     }
 
     @Nullable

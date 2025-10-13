@@ -80,7 +80,7 @@ public class CableBlockEntity extends BlockEntity {
     public void setRemoved() {
         super.setRemoved();
         modem.removed();
-        if (level == null || !level.isClientSide) node.remove();
+        if (level == null || !level.isClientSide()) node.remove();
     }
 
     @Override
@@ -108,7 +108,7 @@ public class CableBlockEntity extends BlockEntity {
 
     void neighborChanged() {
         var dir = getModemDirection();
-        if (!getLevel().isClientSide && dir != null && isPeripheralOn()) queueRefreshPeripheral();
+        if (!getLevel().isClientSide() && dir != null && isPeripheralOn()) queueRefreshPeripheral();
     }
 
     void queueRefreshPeripheral() {
@@ -119,7 +119,7 @@ public class CableBlockEntity extends BlockEntity {
     InteractionResult use(Player player) {
         if (!canAttachPeripheral()) return InteractionResult.FAIL;
 
-        if (getLevel().isClientSide) return InteractionResult.SUCCESS;
+        if (getLevel().isClientSide()) return InteractionResult.SUCCESS;
 
         var oldName = peripheral.getConnectedName();
         if (isPeripheralOn()) {
@@ -167,7 +167,7 @@ public class CableBlockEntity extends BlockEntity {
     }
 
     void blockTick() {
-        if (getLevel().isClientSide) return;
+        if (getLevel().isClientSide()) return;
 
         if (refreshPeripheral) {
             refreshPeripheral = false;
@@ -185,7 +185,7 @@ public class CableBlockEntity extends BlockEntity {
     }
 
     void connectionsChanged() {
-        if (getLevel().isClientSide) return;
+        if (getLevel().isClientSide()) return;
         refreshConnections = false;
 
         var state = getBlockState();

@@ -14,6 +14,7 @@ import net.minecraft.client.ScrollWheelHandler;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.jspecify.annotations.Nullable;
@@ -91,13 +92,13 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
     }
 
     @Override
-    public final boolean keyPressed(int key, int scancode, int modifiers) {
+    public final boolean keyPressed(KeyEvent event) {
         // Forward the tab key to the terminal, rather than moving between controls.
-        if (key == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminal) {
-            return getFocused().keyPressed(key, scancode, modifiers);
+        if (event.key() == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminal) {
+            return getFocused().keyPressed(event);
         }
 
-        return super.keyPressed(key, scancode, modifiers);
+        return super.keyPressed(event);
     }
 
     @Override

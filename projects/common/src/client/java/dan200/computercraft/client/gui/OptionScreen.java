@@ -96,7 +96,7 @@ public final class OptionScreen extends Screen {
         );
         graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, x, y + innerHeight - PADDING, 0, 256 - PADDING, innerWidth, PADDING, 256, 256);
 
-        assertNonNull(messageRenderer).renderLeftAlignedNoShadow(graphics, x + PADDING, y + PADDING, FONT_HEIGHT, 0x404040);
+        assertNonNull(messageRenderer).render(graphics, MultiLineLabel.Align.LEFT, +PADDING, y + PADDING, FONT_HEIGHT, false, 0x404040);
         super.render(graphics, mouseX, mouseY, partialTicks);
     }
 

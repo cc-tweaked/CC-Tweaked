@@ -4,13 +4,13 @@
 
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
-import org.joml.Matrix4f;
 
 
 /**
@@ -23,15 +23,15 @@ import org.joml.Matrix4f;
 public class SpriteRenderer {
     public static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/atlas/gui.png");
 
-    private final Matrix4f transform;
-    private final MultiBufferSource buffers;
+    private final PoseStack transform;
+    private final SubmitNodeCollector submit;
     private final int light;
     private final int z;
     private final int colour;
 
-    public SpriteRenderer(Matrix4f transform, MultiBufferSource buffers, int z, int light, int colour) {
+    public SpriteRenderer(PoseStack transform, SubmitNodeCollector submit, int z, int light, int colour) {
         this.transform = transform;
-        this.buffers = buffers;
+        this.submit = submit;
         this.z = z;
         this.light = light;
         this.colour = colour;
@@ -47,11 +47,12 @@ public class SpriteRenderer {
         var v0 = sprite.getV((float) spriteY / spriteHeight);
         var v1 = sprite.getV((float) (spriteY + height) / spriteHeight);
 
-        var vertices = buffers.getBuffer(RenderType.text(sprite.atlasLocation()));
-        vertices.addVertex(transform, x0, y1, z).setColor(colour).setUv(u0, v1).setLight(light);
-        vertices.addVertex(transform, x1, y1, z).setColor(colour).setUv(u1, v1).setLight(light);
-        vertices.addVertex(transform, x1, y0, z).setColor(colour).setUv(u1, v0).setLight(light);
-        vertices.addVertex(transform, x0, y0, z).setColor(colour).setUv(u0, v0).setLight(light);
+        submit.submitCustomGeometry(transform, RenderType.text(sprite.atlasLocation()), (t, vertices) -> {
+            vertices.addVertex(t, x0, y1, z).setColor(colour).setUv(u0, v1).setLight(light);
+            vertices.addVertex(t, x1, y1, z).setColor(colour).setUv(u1, v1).setLight(light);
+            vertices.addVertex(t, x1, y0, z).setColor(colour).setUv(u1, v0).setLight(light);
+            vertices.addVertex(t, x0, y0, z).setColor(colour).setUv(u0, v0).setLight(light);
+        });
     }
 
     public void blitTiled(

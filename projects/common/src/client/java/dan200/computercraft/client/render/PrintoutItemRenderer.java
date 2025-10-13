@@ -6,9 +6,10 @@ package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.PrintoutData;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.ItemFrameRenderState;
 import net.minecraft.world.item.ItemStack;
 
@@ -28,26 +29,26 @@ public final class PrintoutItemRenderer extends ItemMapLikeRenderer {
     }
 
     @Override
-    protected void renderItem(PoseStack transform, MultiBufferSource render, ItemStack stack, int light) {
+    protected void renderItem(PoseStack transform, SubmitNodeCollector collector, ItemStack stack, int light) {
         transform.mulPose(Axis.XP.rotationDegrees(180f));
         transform.scale(0.42f, 0.42f, -0.42f);
         transform.translate(-0.5f, -0.48f, 0.0f);
 
-        drawPrintout(transform, render, PrintoutData.getOrEmpty(stack), stack.getItem() == ModRegistry.Items.PRINTED_BOOK.get(), light);
+        drawPrintout(transform, collector, PrintoutData.getOrEmpty(stack), stack.getItem() == ModRegistry.Items.PRINTED_BOOK.get(), light);
     }
 
-    public static void onRenderInFrame(PoseStack transform, MultiBufferSource render, ItemFrameRenderState frame, PrintoutData data, boolean isBook, int packedLight) {
+    public static void onRenderInFrame(PoseStack transform, SubmitNodeCollector collector, ItemFrameRenderState frame, PrintoutData data, boolean isBook) {
         // Move a little bit forward to ensure we're not clipping with the frame
         transform.translate(0.0f, 0.0f, -0.001f);
         transform.mulPose(Axis.ZP.rotationDegrees(180f));
         transform.scale(0.95f, 0.95f, -0.95f);
         transform.translate(-0.5f, -0.5f, 0.0f);
 
-        var light = frame.isGlowFrame ? 0xf000d2 : packedLight; // See getLightCoords.
-        drawPrintout(transform, render, data, isBook, light);
+        var light = frame.isGlowFrame ? 0xf000d2 : frame.lightCoords; // See getLightCoords.
+        drawPrintout(transform, collector, data, isBook, light);
     }
 
-    private static void drawPrintout(PoseStack transform, MultiBufferSource render, PrintoutData pageData, boolean book, int light) {
+    private static void drawPrintout(PoseStack transform, SubmitNodeCollector collector, PrintoutData pageData, boolean book, int light) {
         var pages = pageData.pages();
 
         double width = LINE_LENGTH * FONT_WIDTH + X_TEXT_MARGIN * 2;
@@ -71,7 +72,7 @@ public final class PrintoutItemRenderer extends ItemMapLikeRenderer {
         transform.scale(scale, scale, scale);
         transform.translate((max - width) / 2.0, (max - height) / 2.0, 0.0);
 
-        drawBorder(transform, render, 0, 0, -0.01f, 0, pages, book, light);
-        drawText(transform, render, X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, light, pageData.lines());
+        collector.submitCustomGeometry(transform, BACKGROUND, (matrix, buffer) -> drawBorder(matrix.pose(), buffer, 0, 0, -0.01f, 0, pages, book, light));
+        collector.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT, (matrix, buffer) -> drawText(matrix.pose(), buffer, X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, light, pageData.lines()));
     }
 }

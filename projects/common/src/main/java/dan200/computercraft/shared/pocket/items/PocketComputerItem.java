@@ -111,7 +111,7 @@ public class PocketComputerItem extends Item {
     @ForgeOverride
     public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
         var level = entity.level();
-        if (level.isClientSide || level.getServer() == null) return false;
+        if (level.isClientSide() || level.getServer() == null) return false;
 
         // If we're an item entity, tick an already existing computer (as to update the position), but do not keep the
         // computer alive.
@@ -123,7 +123,7 @@ public class PocketComputerItem extends Item {
     @Override
     public InteractionResult use(Level world, Player player, InteractionHand hand) {
         var stack = player.getItemInHand(hand);
-        if (!world.isClientSide) {
+        if (!world.isClientSide()) {
             var holder = new PocketHolder.PlayerHolder((ServerPlayer) player, InventoryUtil.getHandSlot(player, hand));
             var brain = getOrCreateBrain((ServerLevel) world, holder, stack);
             var computer = brain.computer();

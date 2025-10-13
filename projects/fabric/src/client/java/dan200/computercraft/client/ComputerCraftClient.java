@@ -12,7 +12,6 @@ import dan200.computercraft.api.client.FabricComputerCraftAPIClient;
 import dan200.computercraft.client.platform.ClientNetworkContextImpl;
 import dan200.computercraft.client.platform.FabricModelKey;
 import dan200.computercraft.client.platform.ModelKey;
-import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.ComputerCraft;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
@@ -26,7 +25,6 @@ import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedExtraModel;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.SpecialGuiElementRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -41,15 +39,12 @@ import net.minecraft.client.renderer.item.properties.conditional.ConditionalItem
 import net.minecraft.client.renderer.item.properties.select.SelectItemModelProperties;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvableModel;
-import net.minecraft.world.phys.BlockHitResult;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-
-import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public class ComputerCraftClient {
     public static void init() {
@@ -69,7 +64,7 @@ public class ComputerCraftClient {
         ClientRegistry.registerConditionalItemProperties(ConditionalItemModelProperties.ID_MAPPER::put);
 
         PreparableModelLoadingPlugin.register(
-            ClientRegistry::gatherExtraModels,
+            (state, executor) -> ClientRegistry.gatherExtraModels(state.resourceManager(), executor),
             (state, context) -> ClientRegistry.registerExtraModels(new ClientRegistry.RegisterExtraModels() {
                 @Override
                 public <U, T> void register(ModelKey<T> key, U unbaked, BiConsumer<U, ResolvableModel.Resolver> resolve, BiFunction<U, ModelBaker, T> bake) {
@@ -93,6 +88,7 @@ public class ComputerCraftClient {
 
         ClientTickEvents.START_CLIENT_TICK.register(client -> ClientHooks.onTick());
         // This isn't 100% consistent with Forge, but not worth a mixin.
+        /*
         WorldRenderEvents.START.register(context -> ClientHooks.onRenderTick());
         WorldRenderEvents.BLOCK_OUTLINE.register((context, hitResult) -> {
             var hit = Minecraft.getInstance().hitResult;
@@ -102,6 +98,7 @@ public class ComputerCraftClient {
                 return true;
             }
         });
+        */
 
         // Register our open folder command
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->

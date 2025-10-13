@@ -29,7 +29,7 @@ public final class PrintoutRenderer {
      * Printout's background texture. {@link RenderType#text(ResourceLocation)} is a <em>little</em> questionable, but
      * it is what maps use, so should behave the same as vanilla in both item frames and in-hand.
      */
-    private static final RenderType BACKGROUND = RenderType.text(ResourceLocation.fromNamespaceAndPath("computercraft", "textures/gui/printout.png"));
+    public static final RenderType BACKGROUND = RenderType.text(ResourceLocation.fromNamespaceAndPath("computercraft", "textures/gui/printout.png"));
 
     private static final float BG_SIZE = 256.0f;
 
@@ -83,9 +83,8 @@ public final class PrintoutRenderer {
         }
     }
 
-    public static void drawText(PoseStack transform, MultiBufferSource bufferSource, int x, int y, int start, int light, List<PrintoutData.Line> lines) {
-        var buffer = bufferSource.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT);
-        var emitter = FixedWidthFontRenderer.toVertexConsumer(transform, buffer);
+    public static void drawText(Matrix4f matrix4f, VertexConsumer buffer, int x, int y, int start, int light, List<PrintoutData.Line> lines) {
+        var emitter = new FixedWidthFontRenderer.QuadEmitter(matrix4f, buffer);
         for (var line = 0; line < LINES_PER_PAGE && line < lines.size(); line++) {
             var lineContents = lines.get(start + line);
             FixedWidthFontRenderer.drawString(emitter,
@@ -96,12 +95,9 @@ public final class PrintoutRenderer {
         }
     }
 
-    public static void drawBorder(PoseStack transform, MultiBufferSource bufferSource, float x, float y, float z, int page, int pages, boolean isBook, int light) {
-        var matrix = transform.last().pose();
+    public static void drawBorder(Matrix4f matrix, VertexConsumer buffer, float x, float y, float z, int page, int pages, boolean isBook, int light) {
         var leftPages = page;
         var rightPages = pages - page - 1;
-
-        var buffer = bufferSource.getBuffer(BACKGROUND);
 
         if (isBook) {
             // Border

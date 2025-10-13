@@ -102,7 +102,7 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
             return false;
         }
 
-        return world.setBlock(pos, fluid.createLegacyBlock(), world.isClientSide ? UPDATE_ALL_IMMEDIATE : UPDATE_ALL);
+        return world.setBlock(pos, fluid.createLegacyBlock(), world.isClientSide() ? UPDATE_ALL_IMMEDIATE : UPDATE_ALL);
     }
 
     public boolean onCustomDestroyBlock(BlockState state, Level world, BlockPos pos, Player player) {
@@ -130,7 +130,7 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
         world.setBlockAndUpdate(pos, correctConnections(world, pos, newState));
 
         cable.connectionsChanged();
-        if (!world.isClientSide && !player.getAbilities().instabuild) {
+        if (!world.isClientSide() && !player.getAbilities().instabuild) {
             Block.popResource(world, pos, item);
         }
 

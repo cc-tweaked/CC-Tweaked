@@ -120,7 +120,7 @@ public final class InventoryMethods extends AbstractInventoryMethods<IItemHandle
             var level = blockEntity.getLevel();
             if (!(level instanceof ServerLevel serverLevel)) return null;
 
-            var result = CapabilityUtil.getCapability(serverLevel, Capabilities.ItemHandler.BLOCK, blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
+            var result = CapabilityUtil.getCapability(serverLevel, Capabilities.Item.BLOCK, blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
             if (result != null) return result;
         }
 

@@ -13,6 +13,8 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.resources.ResourceLocation;
@@ -102,8 +104,8 @@ public class LecternPrintoutModel {
         return mesh.getRoot().bake(TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 
-    public void renderBook(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay) {
-        bookRoot.render(poseStack, buffer, packedLight, packedOverlay);
+    public void submitBook(PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay) {
+        collector.submitModelPart(bookRoot, poseStack, RenderType.entitySolid(LecternPrintoutModel.MATERIAL.texture()), packedLight, packedOverlay, null);
     }
 
     public void renderPages(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int pageCount) {

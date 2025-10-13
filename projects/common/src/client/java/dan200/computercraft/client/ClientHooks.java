@@ -30,6 +30,7 @@ import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.ItemFrameRenderState;
 import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.client.sounds.SoundEngine;
@@ -76,25 +77,25 @@ public final class ClientHooks {
     }
 
     public static boolean onRenderHeldItem(
-        PoseStack transform, MultiBufferSource render, int lightTexture, InteractionHand hand,
+        PoseStack transform, SubmitNodeCollector collector, int lightTexture, InteractionHand hand,
         float pitch, float equipProgress, float swingProgress, ItemStack stack
     ) {
         if (stack.getItem() instanceof PocketComputerItem) {
-            PocketItemRenderer.INSTANCE.renderItemFirstPerson(transform, render, lightTexture, hand, pitch, equipProgress, swingProgress, stack);
+            PocketItemRenderer.INSTANCE.renderItemFirstPerson(transform, collector, lightTexture, hand, pitch, equipProgress, swingProgress, stack);
             return true;
         }
         if (stack.getItem() instanceof PrintoutItem) {
-            PrintoutItemRenderer.INSTANCE.renderItemFirstPerson(transform, render, lightTexture, hand, pitch, equipProgress, swingProgress, stack);
+            PrintoutItemRenderer.INSTANCE.renderItemFirstPerson(transform, collector, lightTexture, hand, pitch, equipProgress, swingProgress, stack);
             return true;
         }
 
         return false;
     }
 
-    public static boolean onRenderItemFrame(PoseStack transform, MultiBufferSource render, ItemFrameRenderState frame, ExtendedItemFrameRenderState state, int light) {
+    public static boolean onRenderItemFrame(PoseStack transform, SubmitNodeCollector render, ItemFrameRenderState frame, ExtendedItemFrameRenderState state) {
         if (state.printoutData != null) {
             transform.mulPose(Axis.ZP.rotationDegrees(frame.rotation * 360.0f / 8.0f));
-            PrintoutItemRenderer.onRenderInFrame(transform, render, frame, state.printoutData, state.isBook, light);
+            PrintoutItemRenderer.onRenderInFrame(transform, render, frame, state.printoutData, state.isBook);
             return true;
         }
 
@@ -111,6 +112,7 @@ public final class ClientHooks {
      * @param addText A callback which adds a single line of text.
      */
     public static void addBlockDebugInfo(Consumer<String> addText) {
+        // TODO(1.21.9): Replacement for this
         var minecraft = Minecraft.getInstance();
         if (!minecraft.getDebugOverlay().showDebugScreen() || minecraft.level == null) return;
         if (minecraft.hitResult == null || minecraft.hitResult.getType() != HitResult.Type.BLOCK) return;

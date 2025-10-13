@@ -19,7 +19,9 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.gui.render.state.GuiElementRenderState;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -78,22 +80,22 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     @Override
-    public boolean charTyped(char ch, int modifiers) {
-        var terminalChar = StringUtil.unicodeToTerminal(ch);
+    public boolean charTyped(CharacterEvent event) {
+        var terminalChar = StringUtil.unicodeToTerminal(event.codepoint());
         if (StringUtil.isTypableChar(terminalChar)) computer.charTyped((byte) terminalChar);
         return true;
     }
 
     @Override
-    public boolean keyPressed(int key, int scancode, int modifiers) {
-        if (key == GLFW.GLFW_KEY_ESCAPE) return false;
-        if (Screen.isPaste(key)) {
+    public boolean keyPressed(KeyEvent event) {
+        if (event.key() == GLFW.GLFW_KEY_ESCAPE) return false;
+        if (event.isPaste()) {
             paste();
             return true;
         }
 
-        if ((modifiers & GLFW.GLFW_MOD_CONTROL) != 0) {
-            switch (KeyConverter.physicalToActual(key, scancode)) {
+        if ((event.modifiers() & GLFW.GLFW_MOD_CONTROL) != 0) {
+            switch (KeyConverter.physicalToActual(event.key(), event.scancode())) {
                 case GLFW.GLFW_KEY_T -> {
                     if (terminateTimer < 0) terminateTimer = 0;
                 }
@@ -106,11 +108,11 @@ public class TerminalWidget extends AbstractWidget {
             }
         }
 
-        if (key >= 0 && terminateTimer < KEY_SUPPRESS_DELAY && rebootTimer < KEY_SUPPRESS_DELAY && shutdownTimer < KEY_SUPPRESS_DELAY) {
+        if (event.key() >= 0 && terminateTimer < KEY_SUPPRESS_DELAY && rebootTimer < KEY_SUPPRESS_DELAY && shutdownTimer < KEY_SUPPRESS_DELAY) {
             // Queue the "key" event and add to the down set
-            var repeat = keysDown.get(key);
-            keysDown.set(key);
-            computer.keyDown(key, repeat);
+            var repeat = keysDown.get(event.key());
+            keysDown.set(event.key());
+            computer.keyDown(event.key(), repeat);
         }
 
         return true;
@@ -122,14 +124,14 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     @Override
-    public boolean keyReleased(int key, int scancode, int modifiers) {
+    public boolean keyReleased(KeyEvent event) {
         // Queue the "key_up" event and remove from the down set
-        if (key >= 0 && keysDown.get(key)) {
-            keysDown.set(key, false);
-            computer.keyUp(key);
+        if (event.key() >= 0 && keysDown.get(event.key())) {
+            keysDown.set(event.key(), false);
+            computer.keyUp(event.key());
         }
 
-        switch (KeyConverter.physicalToActual(key, scancode)) {
+        switch (KeyConverter.physicalToActual(event.key(), event.scancode())) {
             case GLFW.GLFW_KEY_T -> terminateTimer = -1;
             case GLFW.GLFW_KEY_R -> rebootTimer = -1;
             case GLFW.GLFW_KEY_S -> shutdownTimer = -1;
@@ -141,18 +143,18 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (!inTermRegion(mouseX, mouseY)) return false;
-        if (!hasMouseSupport() || button < 0 || button > 2) return false;
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (!inTermRegion(event.x(), event.y())) return false;
+        if (!hasMouseSupport() || event.button() < 0 || event.button() > 2) return false;
 
-        var charX = (int) ((mouseX - innerX) / FONT_WIDTH);
-        var charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
+        var charX = (int) ((event.x() - innerX) / FONT_WIDTH);
+        var charY = (int) ((event.y() - innerY) / FONT_HEIGHT);
         charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
         charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
 
-        computer.mouseClick(button + 1, charX + 1, charY + 1);
+        computer.mouseClick(event.button() + 1, charX + 1, charY + 1);
 
-        lastMouseButton = button;
+        lastMouseButton = event.button();
         lastMouseX = charX;
         lastMouseY = charY;
 
@@ -160,16 +162,16 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (!inTermRegion(mouseX, mouseY)) return false;
-        if (!hasMouseSupport() || button < 0 || button > 2) return false;
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (!inTermRegion(event.x(), event.y())) return false;
+        if (!hasMouseSupport() || event.button() < 0 || event.button() > 2) return false;
 
-        var charX = (int) ((mouseX - innerX) / FONT_WIDTH);
-        var charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
+        var charX = (int) ((event.x() - innerX) / FONT_WIDTH);
+        var charY = (int) ((event.y() - innerY) / FONT_HEIGHT);
         charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
         charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
 
-        if (lastMouseButton == button) {
+        if (lastMouseButton == event.button()) {
             computer.mouseUp(lastMouseButton + 1, charX + 1, charY + 1);
             lastMouseButton = -1;
         }
@@ -181,17 +183,17 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double v2, double v3) {
-        if (!inTermRegion(mouseX, mouseY)) return false;
-        if (!hasMouseSupport() || button < 0 || button > 2) return false;
+    public boolean mouseDragged(MouseButtonEvent event, double v2, double v3) {
+        if (!inTermRegion(event.x(), event.y())) return false;
+        if (!hasMouseSupport() || event.button() < 0 || event.button() > 2) return false;
 
-        var charX = (int) ((mouseX - innerX) / FONT_WIDTH);
-        var charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
+        var charX = (int) ((event.x() - innerX) / FONT_WIDTH);
+        var charY = (int) ((event.y() - innerY) / FONT_HEIGHT);
         charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
         charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
 
-        if (button == lastMouseButton && (charX != lastMouseX || charY != lastMouseY)) {
-            computer.mouseDrag(button + 1, charX + 1, charY + 1);
+        if (event.button() == lastMouseButton && (charX != lastMouseX || charY != lastMouseY)) {
+            computer.mouseDrag(event.button() + 1, charX + 1, charY + 1);
             lastMouseX = charX;
             lastMouseY = charY;
         }
@@ -308,8 +310,8 @@ public class TerminalWidget extends AbstractWidget {
         @Nullable ScreenRectangle scissorArea
     ) implements GuiElementRenderState {
         @Override
-        public void buildVertices(VertexConsumer vertexConsumer, float z) {
-            var quads = new FixedWidthFontRenderer.QuadEmitter(new Matrix4f().mul(pose).translate(0, 0, z), vertexConsumer);
+        public void buildVertices(VertexConsumer vertexConsumer) {
+            var quads = new FixedWidthFontRenderer.QuadEmitter(new Matrix4f().mul(pose), vertexConsumer);
             FixedWidthFontRenderer.drawTerminalBackground(quads, x, y, terminal, MARGIN, MARGIN, MARGIN, MARGIN);
         }
 
@@ -324,14 +326,14 @@ public class TerminalWidget extends AbstractWidget {
         @Nullable ScreenRectangle bounds, @Nullable ScreenRectangle scissorArea
     ) implements GuiElementRenderState {
         @Override
-        public void buildVertices(VertexConsumer vertexConsumer, float z) {
-            var quads = new FixedWidthFontRenderer.QuadEmitter(new Matrix4f().mul(pose).translate(0, 0, z), vertexConsumer);
+        public void buildVertices(VertexConsumer vertexConsumer) {
+            var quads = new FixedWidthFontRenderer.QuadEmitter(new Matrix4f().mul(pose), vertexConsumer);
             FixedWidthFontRenderer.drawTerminalForeground(quads, x, y, terminal);
             FixedWidthFontRenderer.drawCursor(quads, x, y, terminal);
 
             // The GUI renderer requires that the buffer is non-empty. Add a zero-size vertex so we always have something.
             for (var i = 0; i < 4; i++) {
-                vertexConsumer.addVertex(0, 0, z).setColor(0x00ffffff).setUv(0, 0).setLight(LightTexture.FULL_BRIGHT);
+                vertexConsumer.addVertex(0, 0, 0).setColor(0x00ffffff).setUv(0, 0).setLight(LightTexture.FULL_BRIGHT);
             }
         }
 

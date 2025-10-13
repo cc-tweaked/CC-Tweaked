@@ -45,7 +45,7 @@ public enum ComputerFamily {
     }
 
     private static boolean checkCommandUsable(Player player) {
-        var server = player.getServer();
+        var server = player.level().getServer();
         if (server == null || !server.isCommandBlockEnabled()) {
             player.displayClientMessage(Component.translatable("advMode.notEnabled"), true);
             return false;

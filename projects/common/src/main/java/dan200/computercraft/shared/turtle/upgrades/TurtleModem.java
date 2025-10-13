@@ -80,7 +80,7 @@ public class TurtleModem extends AbstractTurtleUpgrade {
     @Override
     public void update(ITurtleAccess turtle, TurtleSide side) {
         // Advance the modem
-        if (!turtle.getLevel().isClientSide) {
+        if (!turtle.getLevel().isClientSide()) {
             var peripheral = turtle.getPeripheral(side);
             if (peripheral instanceof Peripheral modem) {
                 var state = modem.getModemState();
