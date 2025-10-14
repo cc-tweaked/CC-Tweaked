@@ -4,15 +4,18 @@
 
 package dan200.computercraft.client.model;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.render.CustomLecternRenderer;
+import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -21,17 +24,12 @@ import net.minecraft.resources.ResourceLocation;
  * @see CustomLecternRenderer
  */
 public class LecternPocketModel {
-    public static final ResourceLocation TEXTURE_NORMAL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "entity/pocket_computer_normal");
-    public static final ResourceLocation TEXTURE_ADVANCED = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "entity/pocket_computer_advanced");
-    public static final ResourceLocation TEXTURE_COLOUR = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "entity/pocket_computer_colour");
-    public static final ResourceLocation TEXTURE_FRAME = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "entity/pocket_computer_frame");
-    public static final ResourceLocation TEXTURE_LIGHT = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "entity/pocket_computer_light");
-
-    private static final Material MATERIAL_NORMAL = new Material(TextureAtlas.LOCATION_BLOCKS, TEXTURE_NORMAL);
-    private static final Material MATERIAL_ADVANCED = new Material(TextureAtlas.LOCATION_BLOCKS, TEXTURE_ADVANCED);
-    private static final Material MATERIAL_COLOUR = new Material(TextureAtlas.LOCATION_BLOCKS, TEXTURE_COLOUR);
-    private static final Material MATERIAL_FRAME = new Material(TextureAtlas.LOCATION_BLOCKS, TEXTURE_FRAME);
-    private static final Material MATERIAL_LIGHT = new Material(TextureAtlas.LOCATION_BLOCKS, TEXTURE_LIGHT);
+    // Direct texture references for entity rendering (not atlas-based)
+    public static final ResourceLocation TEXTURE_NORMAL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "textures/entity/pocket_computer_normal.png");
+    public static final ResourceLocation TEXTURE_ADVANCED = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "textures/entity/pocket_computer_advanced.png");
+    public static final ResourceLocation TEXTURE_COLOUR = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "textures/entity/pocket_computer_colour.png");
+    public static final ResourceLocation TEXTURE_FRAME = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "textures/entity/pocket_computer_frame.png");
+    public static final ResourceLocation TEXTURE_LIGHT = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "textures/entity/pocket_computer_light.png");
 
     // The size of the terminal within the model.
     public static final float TERM_WIDTH = 12.0f / 32.0f;
@@ -59,25 +57,27 @@ public class LecternPocketModel {
     }
 
     /**
-     * Render the pocket computer model.
+     * Render the pocket computer model using the new rendering system.
      *
      * @param poseStack     The current pose stack.
-     * @param bufferSource  The buffer source to draw to.
+     * @param collector     The submit node collector to draw to.
      * @param packedLight   The current light level.
      * @param packedOverlay The overlay texture (used for entity hurt animation).
      * @param family        The computer family.
-     * @param frameColour   The pocket computer's {@linkplain DyedItemColor colour}.
-     * @param lightColour   The pocket computer's {@linkplain PocketComputerData#getLightState() light colour}.
+     * @param frameColour   The pocket computer's color.
+     * @param lightColour   The pocket computer's light color.
      */
-  /*  public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, ComputerFamily family, int frameColour, int lightColour) {
+    public void submit(PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay, ComputerFamily family, int frameColour, int lightColour) {
         if (frameColour != -1) {
-            root.render(poseStack, MATERIAL_FRAME.buffer(bufferSource, RenderType::entityCutout), packedLight, packedOverlay);
-            root.render(poseStack, MATERIAL_COLOUR.buffer(bufferSource, RenderType::entityCutout), packedLight, packedOverlay, frameColour);
+            collector.submitModelPart(root, poseStack, RenderType.entityCutout(TEXTURE_FRAME), packedLight, packedOverlay, null);
+            // TODO: Color tinting for pocket computers - need to implement proper tinting support
+            collector.submitModelPart(root, poseStack, RenderType.entityCutout(TEXTURE_COLOUR), packedLight, packedOverlay, null);
         } else {
-            var buffer = (family == ComputerFamily.ADVANCED ? MATERIAL_ADVANCED : MATERIAL_NORMAL).buffer(bufferSource, RenderType::entityCutout);
-            root.render(poseStack, buffer, packedLight, packedOverlay);
+            var texture = family == ComputerFamily.ADVANCED ? TEXTURE_ADVANCED : TEXTURE_NORMAL;
+            collector.submitModelPart(root, poseStack, RenderType.entityCutout(texture), packedLight, packedOverlay, null);
         }
 
-        root.render(poseStack, MATERIAL_LIGHT.buffer(bufferSource, RenderType::entityCutout), LightTexture.FULL_BRIGHT, packedOverlay, lightColour);
-    }*/
+        // Light rendering - TODO: Light color support
+        collector.submitModelPart(root, poseStack, RenderType.entityCutout(TEXTURE_LIGHT), LightTexture.FULL_BRIGHT, packedOverlay, null);
+    }
 }

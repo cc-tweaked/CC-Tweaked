@@ -66,7 +66,7 @@ public abstract class ItemMapLikeRenderer {
      */
     private void renderItemFirstPersonSide(PoseStack transform, SubmitNodeCollector collector, int combinedLight, HumanoidArm side, float equipProgress, float swingProgress, ItemStack stack) {
         var minecraft = Minecraft.getInstance();
-        var offset = side == HumanoidArm.RIGHT ? 1f : -1f;
+        float offset = side == HumanoidArm.RIGHT ? 1f : -1f;
         transform.translate(offset * 0.125f, -0.125f, 0f);
 
         // If the player is not invisible then render a single arm
@@ -81,11 +81,11 @@ public abstract class ItemMapLikeRenderer {
         // corresponding method in ItemRenderer.
         transform.pushPose();
         transform.translate(offset * 0.51f, -0.08f + equipProgress * -1.2f, -0.75f);
-        var f1 = Mth.sqrt(swingProgress);
-        var f2 = Mth.sin(f1 * (float) Math.PI);
-        var f3 = -0.5f * f2;
-        var f4 = 0.4f * Mth.sin(f1 * ((float) Math.PI * 2f));
-        var f5 = -0.3f * Mth.sin(swingProgress * (float) Math.PI);
+        float f1 = Mth.sqrt(swingProgress);
+        float f2 = Mth.sin(f1 * (float) Math.PI);
+        float f3 = -0.5f * f2;
+        float f4 = 0.4f * Mth.sin(f1 * ((float) Math.PI * 2f));
+        float f5 = -0.3f * Mth.sin(swingProgress * (float) Math.PI);
         transform.translate(offset * f3, f4 - 0.3f * f2, f5);
         transform.mulPose(Axis.XP.rotationDegrees(f2 * -45f));
         transform.mulPose(Axis.YP.rotationDegrees(offset * f2 * -30f));
@@ -113,12 +113,12 @@ public abstract class ItemMapLikeRenderer {
 
         // Setup the appropriate transformations. This is just copied from the
         // corresponding method in ItemRenderer.
-        var swingRt = Mth.sqrt(swingProgress);
-        var tX = -0.2f * Mth.sin(swingProgress * (float) Math.PI);
-        var tZ = -0.4f * Mth.sin(swingRt * (float) Math.PI);
+        float swingRt = Mth.sqrt(swingProgress);
+        float tX = -0.2f * Mth.sin(swingProgress * (float) Math.PI);
+        float tZ = -0.4f * Mth.sin(swingRt * (float) Math.PI);
         transform.translate(0, -tX / 2, tZ);
 
-        var pitchAngle = renderer.calculateMapTilt(pitch);
+        float pitchAngle = renderer.calculateMapTilt(pitch);
         transform.translate(0, 0.04F + equipProgress * -1.2f + pitchAngle * -0.5f, -0.72f);
         transform.mulPose(Axis.XP.rotationDegrees(pitchAngle * -85.0f));
         if (!minecraft.player.isInvisible()) {
@@ -129,7 +129,7 @@ public abstract class ItemMapLikeRenderer {
             transform.popPose();
         }
 
-        var rX = Mth.sin(swingRt * (float) Math.PI);
+        float rX = Mth.sin(swingRt * (float) Math.PI);
         transform.mulPose(Axis.XP.rotationDegrees(rX * 20.0F));
         transform.scale(2.0F, 2.0F, 2.0F);
 

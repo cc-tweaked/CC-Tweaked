@@ -155,8 +155,10 @@ class Computer_Test {
         // Press a key on the client
         thenOnClient {
             val screen = minecraft.screen as AbstractComputerScreen<*>
-            screen.keyPressed(GLFW.GLFW_KEY_A, 0, 0)
-            screen.keyReleased(GLFW.GLFW_KEY_A, 0, 0)
+            // FIXME: In 1.21.10, keyPressed/keyReleased now expect KeyEvent objects
+            val keyEvent = net.minecraft.client.input.KeyEvent(GLFW.GLFW_KEY_A, 0, 0)
+            screen.keyPressed(keyEvent)
+            screen.keyReleased(keyEvent)
         }
         // And assert it is handled and sent back to the client
         thenIdle(2)

@@ -9,11 +9,9 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jspecify.annotations.Nullable;
@@ -32,7 +30,7 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
     @LuaFunction(mainThread = true)
     public Map<Integer, Map<String, ?>> tanks(IFluidHandler fluids) {
         Map<Integer, Map<String, ?>> result = new HashMap<>();
-        var size = fluids.getTanks();
+        int size = fluids.getTanks();
         for (var i = 0; i < size; i++) {
             var stack = fluids.getFluidInTank(i);
             if (!stack.isEmpty()) result.put(i + 1, ForgeDetailRegistries.FLUID_STACK.getBasicDetails(stack));
@@ -102,8 +100,11 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
             var level = blockEntity.getLevel();
             if (!(level instanceof ServerLevel serverLevel)) return null;
 
-            var result = CapabilityUtil.getCapability(serverLevel, Capabilities.FluidHandler.BLOCK, blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
-            if (result != null) return result;
+            // TODO: Fix FluidHandler capability in NeoForge 1.21.10 - API has changed
+            // In NeoForge 1.21.10, the FluidHandler capability API has been updated
+            // For now, skip capability-based fluid handler detection
+            // var result = CapabilityUtil.getCapability(serverLevel, Capabilities.FluidHandler.BLOCK, blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
+            // if (result != null) return result;
         }
 
         if (object instanceof IFluidHandler handler) return handler;
@@ -150,7 +151,7 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
         extracted = extracted.copy();
         extracted.setAmount(Math.min(extracted.getAmount(), limit));
 
-        var inserted = to.fill(extracted.copy(), IFluidHandler.FluidAction.EXECUTE);
+        int inserted = to.fill(extracted.copy(), IFluidHandler.FluidAction.EXECUTE);
         if (inserted <= 0) return 0;
 
         // Remove the item from the original inventory. Technically this could fail, but there's little we can do

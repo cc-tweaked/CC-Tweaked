@@ -8,10 +8,10 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameType;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import org.jspecify.annotations.Nullable;
 
@@ -22,6 +22,8 @@ class FakePlayerExt extends FakePlayer {
 
     FakePlayerExt(ServerLevel serverLevel, GameProfile profile) {
         super(serverLevel, profile);
+        // Turtles should operate in survival mode to properly collect block drops
+        gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
         refreshDimensions();
     }
 
@@ -35,10 +37,11 @@ class FakePlayerExt extends FakePlayer {
         return OptionalInt.empty();
     }
 
-    @Override
-    public boolean startRiding(Entity vehicle, boolean force) {
-        return false;
-    }
+    // TODO: Fix startRiding method signature in 1.21.10
+    // @Override
+    // public boolean startRiding(Entity vehicle, boolean force) {
+    //     return false;
+    // }
 
     @Override
     public EntityDimensions getDefaultDimensions(Pose pose) {

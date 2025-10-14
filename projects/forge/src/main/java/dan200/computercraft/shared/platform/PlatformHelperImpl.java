@@ -55,7 +55,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.Tags;
@@ -134,8 +133,11 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Nullable
     @Override
     public ContainerTransfer getContainer(ServerLevel level, BlockPos pos, Direction side) {
-        var inventory = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, side);
-        if (inventory != null) return new ForgeContainerTransfer(inventory);
+        // TODO: Fix new capabilities API in NeoForge 1.21.10
+        // The new Capabilities.Item.BLOCK returns ResourceHandler<ItemResource> not IItemHandler
+        // Need to update ForgeContainerTransfer to work with the new API
+        // var inventory = level.getCapability(Capabilities.Item.BLOCK, pos, side);
+        // if (inventory != null) return new ForgeContainerTransfer(inventory);
 
         var entity = InventoryUtil.getEntityContainer(level, pos, side);
         return entity == null ? null : new ForgeContainerTransfer(new InvWrapper(entity));

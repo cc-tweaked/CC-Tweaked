@@ -124,7 +124,6 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         var result = action.apply(turtlePlayer);
 
         setToolStack(turtle, side, stack, turtlePlayer.player().getItemInHand(InteractionHand.MAIN_HAND));
-        turtlePlayer.player().getInventory().clearContent();
 
         return result;
     }

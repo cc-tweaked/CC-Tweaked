@@ -1,0 +1,13 @@
+{
+    "required": false,
+    "package": "dan200.computercraft.mixin.client",
+    "minVersion": "0.8",
+    "compatibilityLevel": "JAVA_21",
+    "refmap": "computercraft.refmap.json",
+    "injectors": {
+        "defaultRequire": 0
+    },
+    "client": [
+        "ItemInHandRendererMixin"
+    ]
+}

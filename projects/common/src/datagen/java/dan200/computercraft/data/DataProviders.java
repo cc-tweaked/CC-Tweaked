@@ -21,7 +21,6 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.client.renderer.texture.atlas.SpriteSources;
 import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
-import net.minecraft.client.resources.model.AtlasIds;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.DataProvider;
@@ -70,13 +69,13 @@ public final class DataProviders {
         generator.add(out -> new LanguageProvider(out, fullRegistries));
 
         generator.addFromCodec("Block atlases", PackOutput.Target.RESOURCE_PACK, "atlases", SpriteSources.FILE_CODEC, out -> {
-            out.accept(AtlasIds.BLOCKS, makeSprites(Stream.of(
+            out.accept(ResourceLocation.withDefaultNamespace("blocks"), makeSprites(Stream.of(
                 LecternPrintoutModel.TEXTURE,
                 LecternPocketModel.TEXTURE_NORMAL, LecternPocketModel.TEXTURE_ADVANCED,
                 LecternPocketModel.TEXTURE_COLOUR, LecternPocketModel.TEXTURE_FRAME, LecternPocketModel.TEXTURE_LIGHT
             )));
 
-            out.accept(AtlasIds.GUI, makeSprites(
+            out.accept(ResourceLocation.withDefaultNamespace("gui"), makeSprites(
                 Stream.of(UpgradeSlot.LEFT_UPGRADE, UpgradeSlot.RIGHT_UPGRADE),
                 // Computers
                 GuiSprites.COMPUTER_NORMAL.textures(),

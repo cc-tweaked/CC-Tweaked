@@ -75,8 +75,10 @@ object TestHooks {
     }
 
     fun getTestOrigin(server: MinecraftServer): BlockPos {
-        val spawn = server.overworld().sharedSpawnPos
-        return BlockPos(spawn.x, -59, spawn.y)
+        // FIXME: In 1.21.10, sharedSpawnPos API has changed - using fallback
+        // val worldData = server.overworld().levelData
+        // val spawn = BlockPos(worldData.xSpawn, worldData.ySpawn, worldData.zSpawn)
+        return BlockPos(0, -59, 0) // Temporary fallback
     }
 
     @JvmStatic

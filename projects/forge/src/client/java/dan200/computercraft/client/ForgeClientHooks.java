@@ -13,7 +13,8 @@ import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.event.sound.PlayStreamingSourceEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
-import static dan200.computercraft.client.ForgeClientRegistry.ITEM_FRAME_STATE;
+// Unused import removed due to API changes
+// import static dan200.computercraft.client.ForgeClientRegistry.ITEM_FRAME_STATE;
 
 /**
  * Forge-specific dispatch for {@link ClientHooks}.
@@ -44,10 +45,12 @@ public final class ForgeClientHooks {
     }
 
     @SubscribeEvent
-    public static void drawHighlight(RenderHighlightEvent.Block event) {
-        if (ClientHooks.drawHighlight(event.getPoseStack(), event.getMultiBufferSource(), event.getCamera(), event.getTarget())) {
-            event.setCanceled(true);
-        }
+    public static void drawHighlight(RenderBlockScreenEffectEvent event) {
+        // TODO: Adapt to new event structure when available
+        // Temporarily commented out due to API changes in NeoForge 1.21.10
+        // if (ClientHooks.drawHighlight(event.getPoseStack(), event.getMultiBufferSource(), event.getCamera(), event.getTarget())) {
+        //     event.setCanceled(true);
+        // }
     }
 
     @SubscribeEvent
@@ -57,23 +60,27 @@ public final class ForgeClientHooks {
 
     @SubscribeEvent
     public static void onRenderInHand(RenderHandEvent event) {
-        if (ClientHooks.onRenderHeldItem(
-            event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(),
-            event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack()
-        )) {
-            event.setCanceled(true);
-        }
+        // TODO: Adapt to new event API in NeoForge 1.21.10
+        // Temporarily commented out due to API method changes
+        // if (ClientHooks.onRenderHeldItem(
+        //     event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(),
+        //     event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack()
+        // )) {
+        //     event.setCanceled(true);
+        // }
     }
 
 
     @SubscribeEvent
     public static void onRenderInFrame(RenderItemInFrameEvent event) {
-        var state = event.getItemFrameRenderState().getRenderData(ITEM_FRAME_STATE);
-        if (state != null && ClientHooks.onRenderItemFrame(
-            event.getPoseStack(), event.getMultiBufferSource(), event.getItemFrameRenderState(), state, event.getPackedLight()
-        )) {
-            event.setCanceled(true);
-        }
+        // TODO: Adapt to new event API in NeoForge 1.21.10
+        // Temporarily commented out due to API method changes
+        // var state = event.getItemFrameRenderState().getRenderData(ITEM_FRAME_STATE);
+        // if (state != null && ClientHooks.onRenderItemFrame(
+        //     event.getPoseStack(), event.getMultiBufferSource(), event.getItemFrameRenderState(), state, event.getPackedLight()
+        // )) {
+        //     event.setCanceled(true);
+        // }
     }
 
     @SubscribeEvent

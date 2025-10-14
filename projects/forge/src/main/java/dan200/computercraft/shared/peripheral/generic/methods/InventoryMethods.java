@@ -10,11 +10,9 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.platform.ForgeContainerTransfer;
-import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import org.jspecify.annotations.Nullable;
@@ -39,7 +37,7 @@ public final class InventoryMethods extends AbstractInventoryMethods<IItemHandle
     @LuaFunction(mainThread = true)
     public Map<Integer, Map<String, ?>> list(IItemHandler inventory) {
         Map<Integer, Map<String, ?>> result = new HashMap<>();
-        var size = inventory.getSlots();
+        int size = inventory.getSlots();
         for (var i = 0; i < size; i++) {
             var stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty()) result.put(i + 1, VanillaDetailRegistries.ITEM_STACK.getBasicDetails(stack));
@@ -120,8 +118,11 @@ public final class InventoryMethods extends AbstractInventoryMethods<IItemHandle
             var level = blockEntity.getLevel();
             if (!(level instanceof ServerLevel serverLevel)) return null;
 
-            var result = CapabilityUtil.getCapability(serverLevel, Capabilities.Item.BLOCK, blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
-            if (result != null) return result;
+            // TODO: Fix new capabilities API in NeoForge 1.21.10
+            // The new Capabilities.Item.BLOCK returns ResourceHandler<ItemResource> not IItemHandler
+            // Need to update this when the new API is stable
+            // var result = CapabilityUtil.getCapability(serverLevel, Capabilities.Item.BLOCK, blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
+            // if (result != null) return result;
         }
 
         if (object instanceof IItemHandler handler) return handler;

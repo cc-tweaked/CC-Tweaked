@@ -43,7 +43,6 @@ import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
 import org.hamcrest.Matchers
 import org.hamcrest.StringDescription
-import kotlin.jvm.optionals.getOrNull
 
 /**
  * Globally usable structures.
@@ -317,10 +316,10 @@ private fun getName(type: BlockEntityType<*>): ResourceLocation =
  */
 fun <T : Entity> GameTestHelper.getEntity(type: EntityType<T>): T {
     val entities = getEntities(type)
-    when (entities.size) {
-        0 -> fail("No $type entities")
-        1 -> return entities[0]
-        else -> fail("Multiple $type entities (${entities.size} in bounding box)")
+    return when (entities.size) {
+        0 -> throw IllegalStateException("No $type entities")
+        1 -> entities[0]
+        else -> throw IllegalStateException("Multiple $type entities (${entities.size} in bounding box)")
     }
 }
 
@@ -380,9 +379,9 @@ fun GameTestHelper.craftItem(vararg items: ItemStack): ItemStack {
     for ((i, item) in items.withIndex()) container[i] = item
     val input = CraftingInput.of(3, 3, container)
 
-    val recipe = level.server.recipeManager.getRecipeFor(RecipeType.CRAFTING, input, level).getOrNull()
-        ?: fail("No recipe matches $items")
-    return recipe.value.assemble(input, level.registryAccess())
+    val recipe = level.server.recipeManager.getRecipeFor(RecipeType.CRAFTING, input, level)
+    if (!recipe.isPresent) fail("No recipe matches $items")
+    return recipe.get().value.assemble(input, level.registryAccess())
 }
 
 /**

@@ -88,12 +88,15 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
                 printoutModel.submitBook(poseStack, collector, state.lightCoords, OverlayTexture.NO_OVERLAY);
             } else {
                 // TODO: printoutModel.renderPages(poseStack, vertexConsumer, packedLight, packedOverlay, PrintoutData.getOrEmpty(item).pages());
+                // Currently disabled - need to implement page rendering for 1.21.10
+                return; // Skip rendering for now
             }
         } else if (state.type == Type.POCKET_COMPUTER) {
-            // TODO: Pocket model rendering
-            /*pocketModel.render(
-                poseStack, buffer, packedLight, packedOverlay, pocket.getFamily(), DyedItemColor.getOrDefault(item, -1),
-                ARGB.opaque(computer == null || computer.getLightState() == -1 ? Colour.BLACK.getHex() : computer.getLightState())
+            // Render the pocket computer model
+            pocketModel.submit(
+                poseStack, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 
+                state.pocketFamily, state.pocketColour,
+                state.pocketLight == -1 ? 0xFF000000 : (0xFF000000 | state.pocketLight) // Convert to ARGB format
             );
 
             // Jiggle the terminal about a bit, so (0, 0) is in the top left of the model's terminal hole.
@@ -101,33 +104,36 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
             poseStack.translate(-0.5 * LecternPocketModel.TERM_WIDTH, 0.5 * LecternPocketModel.TERM_HEIGHT + 1f / 32.0f, 1 / 16.0f);
             poseStack.mulPose(Axis.XP.rotationDegrees(180));
 
-            // Either render the terminal or a black screen, depending on how close we are.
-            var quadEmitter = FixedWidthFontRenderer.toVertexConsumer(poseStack, buffer.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT));
-            if (state.pocketTerminal != null) {
-                renderPocketTerminal(poseStack, quadEmitter, state.pocketTerminal);
+            // Calculate terminal size and scale
+            var terminal = state.pocketTerminal;
+            if (terminal != null) {
+                var width = ((Number) terminal.getWidth()).floatValue() * FONT_WIDTH;
+                var height = ((Number) terminal.getHeight()).floatValue() * FONT_HEIGHT;
+                var scaleX = LecternPocketModel.TERM_WIDTH / (width + MARGIN * 2);
+                var scaleY = LecternPocketModel.TERM_HEIGHT / (height + MARGIN * 2);
+                var scale = Math.min(scaleX, scaleY);
+                
+                poseStack.scale(scale, scale, -1.0f);
+                
+                // Convert the model dimensions to terminal space, then find out how large the margin should be.
+                var marginX = ((LecternPocketModel.TERM_WIDTH / scale) - width) / 2;
+                var marginY = ((LecternPocketModel.TERM_HEIGHT / scale) - height) / 2;
+                
+                // Render the terminal
+                collector.submitCustomGeometry(poseStack, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, buffer) -> {
+                    var quadEmitter = new FixedWidthFontRenderer.QuadEmitter(pose.pose(), buffer);
+                    FixedWidthFontRenderer.drawTerminal(quadEmitter, marginX, marginY, terminal, marginY, marginY, marginX, marginX);
+                });
             } else {
-                FixedWidthFontRenderer.drawEmptyTerminal(quadEmitter, 0, 0, LecternPocketModel.TERM_WIDTH, LecternPocketModel.TERM_HEIGHT);
-            }*/
+                // Render a black screen if no terminal is available
+                collector.submitCustomGeometry(poseStack, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, buffer) -> {
+                    var quadEmitter = new FixedWidthFontRenderer.QuadEmitter(pose.pose(), buffer);
+                    FixedWidthFontRenderer.drawEmptyTerminal(quadEmitter, 0, 0, LecternPocketModel.TERM_WIDTH, LecternPocketModel.TERM_HEIGHT);
+                });
+            }
         }
 
         poseStack.popPose();
-    }
-
-    private static void renderPocketTerminal(PoseStack poseStack, FixedWidthFontRenderer.QuadEmitter quadEmitter, Terminal terminal) {
-        var width = terminal.getWidth() * FONT_WIDTH;
-        var height = terminal.getHeight() * FONT_HEIGHT;
-
-        // Scale the terminal down to fit in the available space.
-        var scaleX = LecternPocketModel.TERM_WIDTH / (width + MARGIN * 2);
-        var scaleY = LecternPocketModel.TERM_HEIGHT / (height + MARGIN * 2);
-        var scale = Math.min(scaleX, scaleY);
-        poseStack.scale(scale, scale, -1.0f);
-
-        // Convert the model dimensions to terminal space, then find out how large the margin should be.
-        var marginX = ((LecternPocketModel.TERM_WIDTH / scale) - width) / 2;
-        var marginY = ((LecternPocketModel.TERM_HEIGHT / scale) - height) / 2;
-
-        FixedWidthFontRenderer.drawTerminal(quadEmitter, marginX, marginY, terminal, marginY, marginY, marginX, marginX);
     }
 
     private enum Type {
@@ -139,7 +145,6 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
     public static final class State extends BlockEntityRenderState {
         private Type type = Type.PRINTOUT;
         private boolean isBook;
-        private int pages;
 
         private ComputerFamily pocketFamily = ComputerFamily.NORMAL;
         private int pocketColour;
@@ -157,7 +162,7 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
         private void setPrintout(boolean isBook, int pages) {
             this.type = Type.PRINTOUT;
             this.isBook = isBook;
-            this.pages = pages;
+            // pages parameter not currently used but kept for future printout rendering
 
             this.pocketTerminal = null;
         }
