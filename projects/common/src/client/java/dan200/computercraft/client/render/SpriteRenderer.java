@@ -10,7 +10,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
 
 
 /**
@@ -21,8 +20,6 @@ import net.minecraft.resources.ResourceLocation;
  * sheet.
  */
 public class SpriteRenderer {
-    public static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/atlas/gui.png");
-
     private final PoseStack transform;
     private final SubmitNodeCollector submit;
     private final int light;

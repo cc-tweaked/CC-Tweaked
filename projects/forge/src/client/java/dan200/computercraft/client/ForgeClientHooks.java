@@ -52,11 +52,6 @@ public final class ForgeClientHooks {
     }
 
     @SubscribeEvent
-    public static void onRenderText(CustomizeGuiOverlayEvent.DebugText event) {
-        ClientHooks.addBlockDebugInfo(event.getRight()::add);
-    }
-
-    @SubscribeEvent
     public static void onRenderInHand(RenderHandEvent event) {
         if (ClientHooks.onRenderHeldItem(
             event.getPoseStack(), event.getSubmitNodeCollector(), event.getPackedLight(),

@@ -7,7 +7,6 @@ package dan200.computercraft.client;
 import com.mojang.blaze3d.audio.Channel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.render.CableHighlightRenderer;
 import dan200.computercraft.client.render.ExtendedItemFrameRenderState;
@@ -22,9 +21,7 @@ import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
 import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
-import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
-import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.PauseAwareTimer;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.client.Camera;
@@ -40,8 +37,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-
-import java.util.function.Consumer;
 
 /**
  * Event listeners for client-only code.
@@ -72,6 +67,7 @@ public final class ClientHooks {
     }
 
     public static boolean drawHighlight(PoseStack transform, MultiBufferSource bufferSource, Camera camera, BlockHitResult hit) {
+        // TODO: Reconsider this API once https://github.com/FabricMC/fabric/pull/4906/ is merged.
         return CableHighlightRenderer.drawHighlight(transform, bufferSource, camera, hit)
             || MonitorHighlightRenderer.drawHighlight(transform, bufferSource, camera, hit);
     }
@@ -104,38 +100,6 @@ public final class ClientHooks {
 
     public static void onPlayStreaming(SoundEngine engine, Channel channel, AudioStream stream) {
         SpeakerManager.onPlayStreaming(engine, channel, stream);
-    }
-
-    /**
-     * Add additional information about the currently targeted block to the debug screen.
-     *
-     * @param addText A callback which adds a single line of text.
-     */
-    public static void addBlockDebugInfo(Consumer<String> addText) {
-        // TODO(1.21.9): Replacement for this
-        var minecraft = Minecraft.getInstance();
-        if (!minecraft.getDebugOverlay().showDebugScreen() || minecraft.level == null) return;
-        if (minecraft.hitResult == null || minecraft.hitResult.getType() != HitResult.Type.BLOCK) return;
-
-        var tile = minecraft.level.getBlockEntity(((BlockHitResult) minecraft.hitResult).getBlockPos());
-
-        if (tile instanceof MonitorBlockEntity monitor) {
-            addText.accept("");
-            addText.accept(
-                String.format("Targeted monitor: (%d, %d), %d x %d", monitor.getXIndex(), monitor.getYIndex(), monitor.getWidth(), monitor.getHeight())
-            );
-        } else if (tile instanceof TurtleBlockEntity turtle) {
-            addText.accept("");
-            addText.accept("Targeted turtle:");
-            addText.accept(String.format("Id: %d", turtle.getComputerID()));
-            addTurtleUpgrade(addText, turtle, TurtleSide.LEFT);
-            addTurtleUpgrade(addText, turtle, TurtleSide.RIGHT);
-        }
-    }
-
-    private static void addTurtleUpgrade(Consumer<String> out, TurtleBlockEntity turtle, TurtleSide side) {
-        var upgrade = turtle.getAccess().getUpgradeWithData(side);
-        if (upgrade != null) out.accept(String.format("Upgrade[%s]: %s", side, upgrade.holder().key().location()));
     }
 
     public static BlockState getBlockBreakingState(BlockState state, BlockPos pos) {

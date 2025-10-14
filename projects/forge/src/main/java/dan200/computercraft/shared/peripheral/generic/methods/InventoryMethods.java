@@ -11,10 +11,13 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.platform.ForgeContainerTransfer;
 import dan200.computercraft.shared.util.CapabilityUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -118,6 +121,11 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
 
         if (actualLimit <= 0) return 0;
         return moveItem(from, fromSlot - 1, to.storage(), toSlot.orElse(0) - 1, actualLimit);
+    }
+
+    public static @Nullable StorageWrapper extractContainer(ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
+        var storage = CapabilityUtil.getCapability(level, Capabilities.Item.BLOCK, pos, state, blockEntity, direction);
+        return storage == null ? null : new StorageWrapper(storage);
     }
 
     @Nullable

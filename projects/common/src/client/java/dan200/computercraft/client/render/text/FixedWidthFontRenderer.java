@@ -13,6 +13,7 @@ import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
 import org.joml.Matrix4f;
@@ -213,8 +214,11 @@ public final class FixedWidthFontRenderer {
         emitter.poseMatrix().set(transformBackup);
     }
 
-    public static void drawEmptyTerminal(QuadEmitter emitter, float x, float y, float width, float height) {
-        drawQuad(emitter, x, y, 0, width, height, BLACK, LightTexture.FULL_BRIGHT);
+    public static void drawEmptyTerminal(PoseStack transform, SubmitNodeCollector collector, float x, float y, float width, float height) {
+        collector.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, buffer) -> {
+            var quadEmitter = new FixedWidthFontRenderer.QuadEmitter(pose.pose(), buffer);
+            drawQuad(quadEmitter, x, y, 0, width, height, BLACK, LightTexture.FULL_BRIGHT);
+        });
     }
 
     public record QuadEmitter(Matrix4f poseMatrix, VertexConsumer consumer) {

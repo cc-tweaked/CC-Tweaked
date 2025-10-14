@@ -10,9 +10,12 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.util.CapabilityUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -92,6 +95,11 @@ public final class FluidMethods extends AbstractFluidMethods<FluidMethods.Storag
         if (actualLimit <= 0) throw new LuaException("Limit must be > 0");
 
         return moveFluid(from, to.storage(), fluid, actualLimit);
+    }
+
+    public static @Nullable StorageWrapper extractContainer(ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
+        var storage = CapabilityUtil.getCapability(level, Capabilities.Fluid.BLOCK, pos, state, blockEntity, direction);
+        return storage == null ? null : new StorageWrapper(storage);
     }
 
     @Nullable

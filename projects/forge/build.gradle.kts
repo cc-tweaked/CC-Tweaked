@@ -53,6 +53,7 @@ neoForge {
 
         register("client") {
             client()
+            sourceSet = sourceSets.client
         }
 
         register("server") {
@@ -77,6 +78,7 @@ neoForge {
         register("data") {
             configureForData("computercraft", sourceSets.main.get())
             loadedMods = listOf(computercraftDatagen.get())
+            sourceSet = sourceSets.datagen
         }
 
         fun RunModel.configureForGameTest() {
@@ -87,6 +89,7 @@ neoForge {
 
             programArgument("--mixin.config=computercraft-gametest.mixins.json")
             loadedMods.add(testMod)
+            sourceSet = sourceSets.testMod
 
             jvmArgument("-ea")
         }
@@ -119,6 +122,7 @@ neoForge {
         register("exampleData") {
             configureForData("examplemod", sourceSets.examples.get())
             loadedMods.add(exampleMod.get())
+            sourceSet = sourceSets.examples
         }
     }
 }

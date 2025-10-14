@@ -24,11 +24,13 @@ import net.fabricmc.fabric.api.client.model.loading.v1.PreparableModelLoadingPlu
 import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedExtraModel;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.SpecialGuiElementRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemTintSources;
+import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -62,6 +64,7 @@ public class ComputerCraftClient {
         ClientRegistry.registerItemColours(ItemTintSources.ID_MAPPER::put);
         ClientRegistry.registerSelectItemProperties(SelectItemModelProperties.ID_MAPPER::put);
         ClientRegistry.registerConditionalItemProperties(ConditionalItemModelProperties.ID_MAPPER::put);
+        ClientRegistry.registerLayerDefinitions((id, factory) -> EntityModelLayerRegistry.registerModelLayer(id, factory::get));
 
         PreparableModelLoadingPlugin.register(
             (state, executor) -> ClientRegistry.gatherExtraModels(state.resourceManager(), executor),
@@ -99,6 +102,8 @@ public class ComputerCraftClient {
             }
         });
         */
+
+        ClientRegistry.registerDebugScreenEntries(DebugScreenEntries::register);
 
         // Register our open folder command
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->

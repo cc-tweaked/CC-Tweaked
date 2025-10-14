@@ -19,10 +19,8 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.Holiday;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.ItemTransform;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
@@ -44,14 +42,10 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
     public static final ResourceLocation ADVANCED_TURTLE_MODEL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_advanced");
     public static final ResourceLocation COLOUR_TURTLE_MODEL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
 
-    private final BlockEntityRenderDispatcher renderer;
     private final ItemModelResolver itemModelResolver;
-    private final Font font;
 
     public TurtleBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
-        renderer = context.blockEntityRenderDispatcher();
         itemModelResolver = context.itemModelResolver();
-        font = context.font();
     }
 
     public static final class State extends BlockEntityRenderState {
@@ -64,10 +58,10 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         private @Nullable StandaloneModel elfOverlay;
 
         private float leftAngle;
-        private ItemStackRenderState leftUpgrade = new ItemStackRenderState();
+        private final ItemStackRenderState leftUpgrade = new ItemStackRenderState();
 
         private float rightAngle;
-        private ItemStackRenderState rightUpgrade = new ItemStackRenderState();
+        private final ItemStackRenderState rightUpgrade = new ItemStackRenderState();
 
         private State() {
         }

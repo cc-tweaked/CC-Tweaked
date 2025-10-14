@@ -104,12 +104,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
 
             transform.popPose();
         } else {
-            collector.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, consumer) -> {
-                FixedWidthFontRenderer.drawEmptyTerminal(
-                    new FixedWidthFontRenderer.QuadEmitter(pose.pose(), consumer),
-                    -MARGIN, MARGIN, (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
-                );
-            });
+            FixedWidthFontRenderer.drawEmptyTerminal(transform, collector, -MARGIN, MARGIN, (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2));
         }
 
         transform.popPose();

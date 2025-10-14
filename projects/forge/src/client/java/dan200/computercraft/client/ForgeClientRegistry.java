@@ -108,9 +108,16 @@ public final class ForgeClientRegistry {
     }
 
     @SubscribeEvent
+    public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        ClientRegistry.registerLayerDefinitions(event::registerLayerDefinition);
+    }
+
+    @SubscribeEvent
     public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
         ClientRegistry.registerPictureInPictureRenderers(event::register);
     }
+
+    // TODO(1.21.10): ClientRegistry.registerDebugScreenEntries once https://github.com/neoforged/NeoForge/pull/2699 is merged
 
     @SubscribeEvent
     public static void setupClient(FMLClientSetupEvent event) {

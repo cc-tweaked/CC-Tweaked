@@ -142,19 +142,21 @@ public final class StandaloneModel {
     /**
      * Render the model directly.
      *
-     * @param transform The current pose stack transformations.
-     * @param collector The node collector to render to.
-     * @param light     The current light texture coordinate.
-     * @param overlay   The current overlay texture coordinate.
-     * @param tints     The tints for this model.
+     * @param transform        The current pose stack transformations.
+     * @param collector        The node collector to render to.
+     * @param light            The current light texture coordinate.
+     * @param overlay          The current overlay texture coordinate.
+     * @param tints            The tints for this model.
+     * @param crumblingOverlay The current breaking progress.
      */
     public void submit(PoseStack transform, SubmitNodeCollector collector, int light, int overlay, int @Nullable [] tints, ModelFeatureRenderer.@Nullable CrumblingOverlay crumblingOverlay) {
         collector.submitCustomGeometry(transform, renderType, (pose, buffer) -> render(pose, buffer, tints, light, overlay));
 
         if (crumblingOverlay != null && renderType.affectsCrumbling()) {
+            // FIXME: We need a custom hook here, which renders to crumblingBufferSource. Currently the DESTROY_TYPES
+            //  buffer gets flushed before the main model gets rendered.
             collector.submitCustomGeometry(transform, ModelBakery.DESTROY_TYPES.get(crumblingOverlay.progress()), (pose, buffer) ->
-                // FIXME: This does not work. Should we have a custom hook for this instead?
-                render(pose, new SheetedDecalTextureGenerator(buffer, crumblingOverlay.cameraPose(), 1.0f), tints, light, overlay)
+                render(pose, new SheetedDecalTextureGenerator(buffer, crumblingOverlay.cameraPose(), 1.0f), null, light, overlay)
             );
         }
     }

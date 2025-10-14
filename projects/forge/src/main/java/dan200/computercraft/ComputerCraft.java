@@ -12,6 +12,7 @@ import dan200.computercraft.api.network.wired.WiredElementCapability;
 import dan200.computercraft.api.peripheral.PeripheralCapability;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.impl.Peripherals;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.CommonHooks;
@@ -112,8 +113,8 @@ public final class ComputerCraft {
         ComputerCraftAPI.registerGenericSource(new FluidMethods());
         ComputerCraftAPI.registerGenericSource(new EnergyMethods());
 
-        ForgeComputerCraftAPI.registerGenericCapability(Capabilities.Item.BLOCK);
-        ForgeComputerCraftAPI.registerGenericCapability(Capabilities.Fluid.BLOCK);
+        Peripherals.addGenericLookup(InventoryMethods::extractContainer);
+        Peripherals.addGenericLookup(FluidMethods::extractContainer);
         ForgeComputerCraftAPI.registerGenericCapability(Capabilities.Energy.BLOCK);
 
         ForgeDetailRegistries.FLUID_STACK.addProvider(FluidData::fill);

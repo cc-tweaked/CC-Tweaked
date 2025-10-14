@@ -44,7 +44,7 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
     }
 
     @Override
-    protected void renderItem(PoseStack transform, SubmitNodeCollector submit, ItemStack stack, int light) {
+    protected void renderItem(PoseStack transform, SubmitNodeCollector collector, ItemStack stack, int light) {
         var computer = ClientPocketComputers.get(stack);
         var terminal = computer == null ? null : computer.getTerminal();
 
@@ -76,21 +76,20 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
         var family = item.getFamily();
         var frameColour = DyedItemColor.getOrDefault(stack, -1);
 
-        var matrix = transform.last().pose();
-        renderFrame(transform, submit, family, frameColour, light, width, height);
+        renderFrame(transform, collector, family, frameColour, light, width, height);
 
         // Render the light
         var lightColour = computer == null || computer.getLightState() == -1 ? Colour.BLACK.getHex() : computer.getLightState();
-        renderLight(transform, submit, lightColour, width, height);
+        renderLight(transform, collector, lightColour, width, height);
 
-        submit.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, buffer) -> {
-            var quadEmitter = new FixedWidthFontRenderer.QuadEmitter(pose.pose(), buffer);
-            if (terminal == null) {
-                FixedWidthFontRenderer.drawEmptyTerminal(quadEmitter, 0, 0, width, height);
-            } else {
+        if (terminal == null) {
+            FixedWidthFontRenderer.drawEmptyTerminal(transform, collector, 0, 0, width, height);
+        } else {
+            collector.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, buffer) -> {
+                var quadEmitter = new FixedWidthFontRenderer.QuadEmitter(pose.pose(), buffer);
                 FixedWidthFontRenderer.drawTerminal(quadEmitter, MARGIN, MARGIN, terminal, MARGIN, MARGIN, MARGIN, MARGIN);
-            }
-        });
+            });
+        }
 
         transform.popPose();
     }
