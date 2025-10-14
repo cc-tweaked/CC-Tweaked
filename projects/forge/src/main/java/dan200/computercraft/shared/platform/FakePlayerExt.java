@@ -8,6 +8,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
@@ -37,11 +38,10 @@ class FakePlayerExt extends FakePlayer {
         return OptionalInt.empty();
     }
 
-    // TODO: Fix startRiding method signature in 1.21.10
-    // @Override
-    // public boolean startRiding(Entity vehicle, boolean force) {
-    //     return false;
-    // }
+    @Override
+    public boolean startRiding(Entity vehicle, boolean force, boolean stepUp) {
+        return false;
+    }
 
     @Override
     public EntityDimensions getDefaultDimensions(Pose pose) {

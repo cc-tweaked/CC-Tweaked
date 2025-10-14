@@ -100,11 +100,13 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
             var level = blockEntity.getLevel();
             if (!(level instanceof ServerLevel serverLevel)) return null;
 
-            // TODO: Fix FluidHandler capability in NeoForge 1.21.10 - API has changed
-            // In NeoForge 1.21.10, the FluidHandler capability API has been updated
-            // For now, skip capability-based fluid handler detection
-            // var result = CapabilityUtil.getCapability(serverLevel, Capabilities.FluidHandler.BLOCK, blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
-            // if (result != null) return result;
+            // NeoForge 1.21.10 changed Capabilities.Fluid.BLOCK to return ResourceHandler<FluidResource>
+            // We use the deprecated IFluidHandler.of() adapter to maintain compatibility
+            var resourceHandler = serverLevel.getCapability(net.neoforged.neoforge.capabilities.Capabilities.Fluid.BLOCK, blockEntity.getBlockPos(), direction);
+            if (resourceHandler != null) {
+                // Convert ResourceHandler<FluidResource> to legacy IFluidHandler for compatibility
+                return net.neoforged.neoforge.fluids.capability.IFluidHandler.of(resourceHandler);
+            }
         }
 
         if (object instanceof IFluidHandler handler) return handler;

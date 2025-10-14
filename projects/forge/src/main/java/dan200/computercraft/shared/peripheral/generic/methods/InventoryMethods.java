@@ -118,11 +118,13 @@ public final class InventoryMethods extends AbstractInventoryMethods<IItemHandle
             var level = blockEntity.getLevel();
             if (!(level instanceof ServerLevel serverLevel)) return null;
 
-            // TODO: Fix new capabilities API in NeoForge 1.21.10
-            // The new Capabilities.Item.BLOCK returns ResourceHandler<ItemResource> not IItemHandler
-            // Need to update this when the new API is stable
-            // var result = CapabilityUtil.getCapability(serverLevel, Capabilities.Item.BLOCK, blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
-            // if (result != null) return result;
+            // NeoForge 1.21.10 changed Capabilities.Item.BLOCK to return ResourceHandler<ItemResource>
+            // We use the deprecated IItemHandler.of() adapter to maintain compatibility
+            var resourceHandler = serverLevel.getCapability(net.neoforged.neoforge.capabilities.Capabilities.Item.BLOCK, blockEntity.getBlockPos(), direction);
+            if (resourceHandler != null) {
+                // Convert ResourceHandler<ItemResource> to legacy IItemHandler for compatibility
+                return net.neoforged.neoforge.items.IItemHandler.of(resourceHandler);
+            }
         }
 
         if (object instanceof IItemHandler handler) return handler;

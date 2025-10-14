@@ -13,8 +13,7 @@ import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.event.sound.PlayStreamingSourceEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
-// Unused import removed due to API changes
-// import static dan200.computercraft.client.ForgeClientRegistry.ITEM_FRAME_STATE;
+import static dan200.computercraft.client.ForgeClientRegistry.ITEM_FRAME_STATE;
 
 /**
  * Forge-specific dispatch for {@link ClientHooks}.
@@ -46,8 +45,13 @@ public final class ForgeClientHooks {
 
     @SubscribeEvent
     public static void drawHighlight(RenderBlockScreenEffectEvent event) {
-        // TODO: Adapt to new event structure when available
-        // Temporarily commented out due to API changes in NeoForge 1.21.10
+        // TODO: NeoForge 1.21.10 API Change - RenderHighlightEvent.Block was removed
+        // The new API uses ExtractBlockOutlineRenderStateEvent which requires implementing
+        // CustomBlockOutlineRenderer interface. This needs a refactor of CableHighlightRenderer
+        // and MonitorHighlightRenderer to use the new rendering approach.
+        // See: https://github.com/neoforged/NeoForge/blob/main/src/client/java/net/neoforged/neoforge/client/event/ExtractBlockOutlineRenderStateEvent.java
+        //
+        // Old API (1.20.x):
         // if (ClientHooks.drawHighlight(event.getPoseStack(), event.getMultiBufferSource(), event.getCamera(), event.getTarget())) {
         //     event.setCanceled(true);
         // }
@@ -60,27 +64,23 @@ public final class ForgeClientHooks {
 
     @SubscribeEvent
     public static void onRenderInHand(RenderHandEvent event) {
-        // TODO: Adapt to new event API in NeoForge 1.21.10
-        // Temporarily commented out due to API method changes
-        // if (ClientHooks.onRenderHeldItem(
-        //     event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(),
-        //     event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack()
-        // )) {
-        //     event.setCanceled(true);
-        // }
+        if (ClientHooks.onRenderHeldItem(
+            event.getPoseStack(), event.getSubmitNodeCollector(), event.getPackedLight(),
+            event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack()
+        )) {
+            event.setCanceled(true);
+        }
     }
 
 
     @SubscribeEvent
     public static void onRenderInFrame(RenderItemInFrameEvent event) {
-        // TODO: Adapt to new event API in NeoForge 1.21.10
-        // Temporarily commented out due to API method changes
-        // var state = event.getItemFrameRenderState().getRenderData(ITEM_FRAME_STATE);
-        // if (state != null && ClientHooks.onRenderItemFrame(
-        //     event.getPoseStack(), event.getMultiBufferSource(), event.getItemFrameRenderState(), state, event.getPackedLight()
-        // )) {
-        //     event.setCanceled(true);
-        // }
+        var state = event.getItemFrameRenderState().getRenderData(ITEM_FRAME_STATE);
+        if (state != null && ClientHooks.onRenderItemFrame(
+            event.getPoseStack(), event.getSubmitNodeCollector(), event.getItemFrameRenderState(), state
+        )) {
+            event.setCanceled(true);
+        }
     }
 
     @SubscribeEvent
