@@ -44,20 +44,6 @@ public final class ForgeClientHooks {
     }
 
     @SubscribeEvent
-    public static void drawHighlight(RenderBlockScreenEffectEvent event) {
-        // TODO: NeoForge 1.21.10 API Change - RenderHighlightEvent.Block was removed
-        // The new API uses ExtractBlockOutlineRenderStateEvent which requires implementing
-        // CustomBlockOutlineRenderer interface. This needs a refactor of CableHighlightRenderer
-        // and MonitorHighlightRenderer to use the new rendering approach.
-        // See: https://github.com/neoforged/NeoForge/blob/main/src/client/java/net/neoforged/neoforge/client/event/ExtractBlockOutlineRenderStateEvent.java
-        //
-        // Old API (1.20.x):
-        // if (ClientHooks.drawHighlight(event.getPoseStack(), event.getMultiBufferSource(), event.getCamera(), event.getTarget())) {
-        //     event.setCanceled(true);
-        // }
-    }
-
-    @SubscribeEvent
     public static void onRenderText(CustomizeGuiOverlayEvent.DebugText event) {
         ClientHooks.addBlockDebugInfo(event.getRight()::add);
     }
@@ -71,7 +57,6 @@ public final class ForgeClientHooks {
             event.setCanceled(true);
         }
     }
-
 
     @SubscribeEvent
     public static void onRenderInFrame(RenderItemInFrameEvent event) {
@@ -88,4 +73,5 @@ public final class ForgeClientHooks {
         if (!(event.getSound() instanceof SpeakerSound sound) || sound.getStream() == null) return;
         ClientHooks.onPlayStreaming(event.getEngine(), event.getChannel(), sound.getStream());
     }
+
 }
