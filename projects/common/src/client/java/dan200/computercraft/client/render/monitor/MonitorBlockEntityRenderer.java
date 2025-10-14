@@ -88,18 +88,14 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
             transform.scale((float) xScale, (float) -yScale, 1.0f);
 
             var xMargin = (float) (MARGIN / xScale);
-            var yMagin = (float) (MARGIN / yScale);
+            var yMargin = (float) (MARGIN / yScale);
 
-            collector.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, consumer) -> {
-                FixedWidthFontRenderer.drawTerminalBackground(
-                    new FixedWidthFontRenderer.QuadEmitter(pose.pose(), consumer),
-                    0, 0, terminal, yMagin, yMagin, xMargin, xMargin
-                );
+            collector.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, buffer) -> {
+                FixedWidthFontRenderer.drawTerminalBackground(pose.pose(), buffer, 0, 0, terminal, yMargin, yMargin, xMargin, xMargin);
             });
-            collector.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT_OFFSET, (pose, consumer) -> {
-                var sink = new FixedWidthFontRenderer.QuadEmitter(pose.pose(), consumer);
-                FixedWidthFontRenderer.drawTerminalForeground(sink, 0, 0, terminal);
-                FixedWidthFontRenderer.drawCursor(sink, 0, 0, terminal);
+            collector.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT_OFFSET, (pose, buffer) -> {
+                FixedWidthFontRenderer.drawTerminalForeground(pose.pose(), buffer, 0, 0, terminal);
+                FixedWidthFontRenderer.drawCursor(pose.pose(), buffer, 0, 0, terminal);
             });
 
             transform.popPose();

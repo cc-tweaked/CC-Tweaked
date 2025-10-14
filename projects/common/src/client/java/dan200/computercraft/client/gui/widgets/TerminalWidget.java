@@ -310,9 +310,8 @@ public class TerminalWidget extends AbstractWidget {
         @Nullable ScreenRectangle scissorArea
     ) implements GuiElementRenderState {
         @Override
-        public void buildVertices(VertexConsumer vertexConsumer) {
-            var quads = new FixedWidthFontRenderer.QuadEmitter(new Matrix4f().mul(pose), vertexConsumer);
-            FixedWidthFontRenderer.drawTerminalBackground(quads, x, y, terminal, MARGIN, MARGIN, MARGIN, MARGIN);
+        public void buildVertices(VertexConsumer buffer) {
+            FixedWidthFontRenderer.drawTerminalBackground(new Matrix4f().mul(pose), buffer, x, y, terminal, MARGIN, MARGIN, MARGIN, MARGIN);
         }
 
         @Override
@@ -326,14 +325,14 @@ public class TerminalWidget extends AbstractWidget {
         @Nullable ScreenRectangle bounds, @Nullable ScreenRectangle scissorArea
     ) implements GuiElementRenderState {
         @Override
-        public void buildVertices(VertexConsumer vertexConsumer) {
-            var quads = new FixedWidthFontRenderer.QuadEmitter(new Matrix4f().mul(pose), vertexConsumer);
-            FixedWidthFontRenderer.drawTerminalForeground(quads, x, y, terminal);
-            FixedWidthFontRenderer.drawCursor(quads, x, y, terminal);
+        public void buildVertices(VertexConsumer buffer) {
+            var transform = new Matrix4f().mul(pose);
+            FixedWidthFontRenderer.drawTerminalForeground(transform, buffer, x, y, terminal);
+            FixedWidthFontRenderer.drawCursor(transform, buffer, x, y, terminal);
 
             // The GUI renderer requires that the buffer is non-empty. Add a zero-size vertex so we always have something.
             for (var i = 0; i < 4; i++) {
-                vertexConsumer.addVertex(0, 0, 0).setColor(0x00ffffff).setUv(0, 0).setLight(LightTexture.FULL_BRIGHT);
+                buffer.addVertex(0, 0, 0).setColor(0x00ffffff).setUv(0, 0).setLight(LightTexture.FULL_BRIGHT);
             }
         }
 

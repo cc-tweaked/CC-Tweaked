@@ -50,7 +50,6 @@ repositories {
             includeGroup("com.simibubi.create")
             includeGroup("net.commoble.morered")
             includeGroup("dev.architectury")
-            includeGroup("dev.emi")
             includeGroup("maven.modrinth")
             includeGroup("me.shedaniel.cloth")
             includeGroup("me.shedaniel")

@@ -142,10 +142,8 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
         var marginX = ((LecternPocketModel.TERM_WIDTH / scale) - width) / 2;
         var marginY = ((LecternPocketModel.TERM_HEIGHT / scale) - height) / 2;
 
-        collector.submitCustomGeometry(poseStack, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, buffer) -> {
-            var quadEmitter = new FixedWidthFontRenderer.QuadEmitter(pose.pose(), buffer);
-            FixedWidthFontRenderer.drawTerminal(quadEmitter, marginX, marginY, terminal, marginY, marginY, marginX, marginX);
-        });
+        collector.submitCustomGeometry(poseStack, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, buffer) ->
+            FixedWidthFontRenderer.drawTerminal(pose.pose(), buffer, marginX, marginY, terminal, marginY, marginY, marginX, marginX));
     }
 
     private enum Type {

@@ -36,7 +36,6 @@ kotlin-coroutines = "1.10.1"
 nightConfig = "3.8.1"
 
 # Minecraft mods
-emi = "1.1.7+1.21"
 fabricPermissions = "0.3.3"
 iris-fabric = "1.9.1+1.21.7-fabric"
 iris-forge = "1.9.1+1.21.7-neoforge"
@@ -106,7 +105,6 @@ slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 # Minecraft mods
 create-fabric = { module = "com.simibubi.create:create-fabric-1.20.1", version.ref = "create-fabric" }
 create-forge = { module = "com.simibubi.create:create-1.21.1", version.ref = "create-forge" }
-emi = { module = "dev.emi:emi-xplat-mojmap", version.ref = "emi" }
 fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
 fabric-junit = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fabric-loader" }
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }

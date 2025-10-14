@@ -74,7 +74,6 @@ configurations {
 }
 
 dependencies {
-    clientCompileOnly(variantOf(libs.emi) { classifier("api") })
     modCompileOnly(libs.bundles.externalMods.fabric.compile) {
         exclude("net.fabricmc", "fabric-loader")
         exclude("net.fabricmc.fabric-api")

@@ -189,7 +189,6 @@ public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> 
             var buffer = bufferSource.getBuffer(PrintoutRenderer.BACKGROUND);
             drawBorder(pose.last().pose(), buffer, 0, 0, 0, state.page(), state.printout().pages(), state.printout().book(), LightTexture.FULL_BRIGHT);
 
-            // TODO: This can probably be shifted into a separate one now.
             drawText(
                 pose, bufferSource, X_TEXT_MARGIN, Y_TEXT_MARGIN, PrintoutData.LINES_PER_PAGE * state.page(), LightTexture.FULL_BRIGHT,
                 state.printout().text(), state.printout().colour()

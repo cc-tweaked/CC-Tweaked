@@ -85,10 +85,8 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
         if (terminal == null) {
             FixedWidthFontRenderer.drawEmptyTerminal(transform, collector, 0, 0, width, height);
         } else {
-            collector.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, buffer) -> {
-                var quadEmitter = new FixedWidthFontRenderer.QuadEmitter(pose.pose(), buffer);
-                FixedWidthFontRenderer.drawTerminal(quadEmitter, MARGIN, MARGIN, terminal, MARGIN, MARGIN, MARGIN, MARGIN);
-            });
+            collector.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, buffer) ->
+                FixedWidthFontRenderer.drawTerminal(pose.pose(), buffer, MARGIN, MARGIN, terminal, MARGIN, MARGIN, MARGIN, MARGIN));
         }
 
         transform.popPose();
@@ -162,7 +160,7 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
 
     private static void renderLight(PoseStack transform, SubmitNodeCollector render, int colour, int width, int height) {
         render.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, buffer) -> FixedWidthFontRenderer.drawQuad(
-            new FixedWidthFontRenderer.QuadEmitter(pose.pose(), buffer),
+            pose.pose(), buffer,
             width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0.001f, LIGHT_HEIGHT * 2, LIGHT_HEIGHT,
             ARGB.opaque(colour), LightTexture.FULL_BRIGHT
         ));

@@ -74,9 +74,9 @@ public final class PrintoutRenderer {
 
     public static void drawText(PoseStack transform, MultiBufferSource bufferSource, int x, int y, int start, int light, TextBuffer[] text, TextBuffer[] colours) {
         var buffer = bufferSource.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT);
-        var emitter = FixedWidthFontRenderer.toVertexConsumer(transform, buffer);
         for (var line = 0; line < LINES_PER_PAGE && line < text.length; line++) {
-            FixedWidthFontRenderer.drawString(emitter,
+            FixedWidthFontRenderer.drawString(
+                transform.last().pose(), buffer,
                 x, y + line * FONT_HEIGHT, text[start + line], colours[start + line],
                 Palette.DEFAULT, light
             );
@@ -84,10 +84,10 @@ public final class PrintoutRenderer {
     }
 
     public static void drawText(Matrix4f matrix4f, VertexConsumer buffer, int x, int y, int start, int light, List<PrintoutData.Line> lines) {
-        var emitter = new FixedWidthFontRenderer.QuadEmitter(matrix4f, buffer);
         for (var line = 0; line < LINES_PER_PAGE && line < lines.size(); line++) {
             var lineContents = lines.get(start + line);
-            FixedWidthFontRenderer.drawString(emitter,
+            FixedWidthFontRenderer.drawString(
+                matrix4f, buffer,
                 x, y + line * FONT_HEIGHT,
                 new TextBuffer(lineContents.text()), new TextBuffer(lineContents.foreground()),
                 Palette.DEFAULT, light

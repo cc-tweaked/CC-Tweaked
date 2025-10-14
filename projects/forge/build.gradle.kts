@@ -148,7 +148,6 @@ dependencies {
     compileOnly(libs.jetbrainsAnnotations)
     annotationProcessorEverywhere(libs.autoService)
 
-    clientCompileOnly(variantOf(libs.emi) { classifier("api") })
     compileOnly(libs.bundles.externalMods.forge.compile)
     clientRuntimeOnly(libs.bundles.externalMods.forge.runtime)
     compileOnly(libs.create.forge) { isTransitive = false }
