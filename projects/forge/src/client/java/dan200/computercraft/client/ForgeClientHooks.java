@@ -44,10 +44,11 @@ public final class ForgeClientHooks {
     }
 
     @SubscribeEvent
-    public static void drawHighlight(RenderHighlightEvent.Block event) {
-        if (ClientHooks.drawHighlight(event.getPoseStack(), event.getMultiBufferSource(), event.getCamera(), event.getTarget())) {
+    public static void drawHighlight(ExtractBlockOutlineRenderStateEvent event) {
+        // TODO: Highlighting. Need to see what Fabric is doing here.
+        /*if (ClientHooks.drawHighlight(event.getPoseStack(), event.getMultiBufferSource(), event.getCamera(), event.getTarget())) {
             event.setCanceled(true);
-        }
+        }*/
     }
 
     @SubscribeEvent
@@ -58,7 +59,7 @@ public final class ForgeClientHooks {
     @SubscribeEvent
     public static void onRenderInHand(RenderHandEvent event) {
         if (ClientHooks.onRenderHeldItem(
-            event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(),
+            event.getPoseStack(), event.getSubmitNodeCollector(), event.getPackedLight(),
             event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack()
         )) {
             event.setCanceled(true);
@@ -70,7 +71,7 @@ public final class ForgeClientHooks {
     public static void onRenderInFrame(RenderItemInFrameEvent event) {
         var state = event.getItemFrameRenderState().getRenderData(ITEM_FRAME_STATE);
         if (state != null && ClientHooks.onRenderItemFrame(
-            event.getPoseStack(), event.getMultiBufferSource(), event.getItemFrameRenderState(), state, event.getPackedLight()
+            event.getPoseStack(), event.getSubmitNodeCollector(), event.getItemFrameRenderState(), state
         )) {
             event.setCanceled(true);
         }

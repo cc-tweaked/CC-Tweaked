@@ -75,7 +75,7 @@ object TestHooks {
     }
 
     fun getTestOrigin(server: MinecraftServer): BlockPos {
-        val spawn = server.overworld().sharedSpawnPos
+        val spawn = server.respawnData.pos()
         return BlockPos(spawn.x, -59, spawn.y)
     }
 

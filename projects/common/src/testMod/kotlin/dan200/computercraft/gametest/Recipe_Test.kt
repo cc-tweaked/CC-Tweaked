@@ -35,7 +35,9 @@ class Recipe_Test {
 
             val profile = GameProfile(UUID.fromString("f3c8d69b-0776-4512-8434-d1b2165909eb"), "dan200")
 
-            val tag = DataComponentPatch.builder().set(DataComponents.PROFILE, ResolvableProfile(profile)).build()
+            val tag =
+                DataComponentPatch.builder().set(DataComponents.PROFILE, ResolvableProfile.createResolved(profile))
+                    .build()
             assertEquals(tag, result.componentsPatch, "Expected NBT tags to be the same")
         }
     }

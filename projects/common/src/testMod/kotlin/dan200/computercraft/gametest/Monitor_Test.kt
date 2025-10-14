@@ -45,7 +45,7 @@ class Monitor_Test {
             val tile = context.getBlockEntity(pos, MonitorBlockEntity::class.java)
 
             if (tile.width != 1 || tile.height != 1) {
-                context.fail("Tile has width and height of ${tile.width}x${tile.height}, but should be 1x1", pos)
+                context.abort("Tile has width and height of ${tile.width}x${tile.height}, but should be 1x1", pos)
             }
         }
     }

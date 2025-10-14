@@ -5,21 +5,21 @@
 package dan200.computercraft.shared.peripheral.generic.methods;
 
 import dan200.computercraft.api.lua.LuaFunction;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 
 /**
- * Fluid methods for Forge's {@link IEnergyStorage}.
+ * Fluid methods for Forge's {@link EnergyHandler}.
  */
-public final class EnergyMethods extends AbstractEnergyMethods<IEnergyStorage> {
+public final class EnergyMethods extends AbstractEnergyMethods<EnergyHandler> {
     @Override
     @LuaFunction(mainThread = true)
-    public int getEnergy(IEnergyStorage energy) {
-        return energy.getEnergyStored();
+    public long getEnergy(EnergyHandler energy) {
+        return energy.getAmountAsLong();
     }
 
     @Override
     @LuaFunction(mainThread = true)
-    public int getEnergyCapacity(IEnergyStorage energy) {
-        return energy.getMaxEnergyStored();
+    public long getEnergyCapacity(EnergyHandler energy) {
+        return energy.getCapacityAsLong();
     }
 }

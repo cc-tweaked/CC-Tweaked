@@ -23,6 +23,7 @@ import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.AnyOfCondition;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
@@ -92,7 +93,7 @@ class LootTableProvider {
     private static void namedBlockDrop(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add, Supplier<? extends Block> wrapper) {
         blockDrop(
             add, wrapper,
-            LootItem.lootTableItem(wrapper.get()).apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY)),
+            LootItem.lootTableItem(wrapper.get()).apply(CopyNameFunction.copyName(new CopyNameFunction.Source(LootContextParams.BLOCK_ENTITY))),
             ExplosionCondition.survivesExplosion()
         );
     }
@@ -100,7 +101,7 @@ class LootTableProvider {
     private static void computerDrop(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add, Supplier<? extends Block> block) {
         blockDrop(
             add, block,
-            LootItem.lootTableItem(block.get()).apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)),
+            LootItem.lootTableItem(block.get()).apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)),
             AnyOfCondition.anyOf(
                 BlockNamedEntityLootCondition.BUILDER,
                 HasComputerIdLootCondition.BUILDER,

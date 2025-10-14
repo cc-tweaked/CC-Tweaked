@@ -8,7 +8,6 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
@@ -33,11 +32,6 @@ class FakePlayerExt extends FakePlayer {
     @Override
     public OptionalInt openMenu(@Nullable MenuProvider menu) {
         return OptionalInt.empty();
-    }
-
-    @Override
-    public boolean startRiding(Entity vehicle, boolean force) {
-        return false;
     }
 
     @Override

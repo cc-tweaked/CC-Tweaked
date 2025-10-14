@@ -31,8 +31,8 @@ public @interface WithMinecraft {
         }
 
         public static void bootstrap() {
-            SharedConstants.tryDetectVersion();
             ServiceLoader.load(SetupHook.class, SetupHook.class.getClassLoader()).forEach(SetupHook::run);
+            SharedConstants.tryDetectVersion();
             Bootstrap.bootStrap();
         }
     }

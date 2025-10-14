@@ -13,28 +13,35 @@ import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import static dan200.computercraft.shared.util.ArgumentHelpers.getRegistryEntry;
 
 /**
- * Fluid methods for Forge's {@link IFluidHandler}.
+ * Fluid methods for Forge's fluid {@link ResourceHandler}.
  */
-public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
+public final class FluidMethods extends AbstractFluidMethods<FluidMethods.StorageWrapper> {
+    public record StorageWrapper(ResourceHandler<FluidResource> storage) {
+    }
+
     @Override
     @LuaFunction(mainThread = true)
-    public Map<Integer, Map<String, ?>> tanks(IFluidHandler fluids) {
+    public Map<Integer, Map<String, ?>> tanks(FluidMethods.StorageWrapper wrapper) {
+        var storage = wrapper.storage();
         Map<Integer, Map<String, ?>> result = new HashMap<>();
-        var size = fluids.getTanks();
+        var size = storage.size();
         for (var i = 0; i < size; i++) {
-            var stack = fluids.getFluidInTank(i);
+            var stack = storage.getResource(i).toStack(storage.getAmountAsInt(i));
             if (!stack.isEmpty()) result.put(i + 1, ForgeDetailRegistries.FLUID_STACK.getBasicDetails(stack));
         }
 
@@ -44,7 +51,7 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
     @Override
     @LuaFunction(mainThread = true)
     public int pushFluid(
-        IFluidHandler from, IComputerAccess computer,
+        FluidMethods.StorageWrapper from, IComputerAccess computer,
         String toName, Optional<Integer> limit, Optional<String> fluidName
     ) throws LuaException {
         var fluid = fluidName.isPresent()
@@ -61,15 +68,13 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
         int actualLimit = limit.orElse(Integer.MAX_VALUE);
         if (actualLimit <= 0) throw new LuaException("Limit must be > 0");
 
-        return fluid == null
-            ? moveFluid(from, actualLimit, to)
-            : moveFluid(from, new FluidStack(fluid, actualLimit), to);
+        return moveFluid(from.storage(), to, fluid, actualLimit);
     }
 
     @Override
     @LuaFunction(mainThread = true)
     public int pullFluid(
-        IFluidHandler to, IComputerAccess computer,
+        FluidMethods.StorageWrapper to, IComputerAccess computer,
         String fromName, Optional<Integer> limit, Optional<String> fluidName
     ) throws LuaException {
         var fluid = fluidName.isPresent()
@@ -86,13 +91,11 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
         int actualLimit = limit.orElse(Integer.MAX_VALUE);
         if (actualLimit <= 0) throw new LuaException("Limit must be > 0");
 
-        return fluid == null
-            ? moveFluid(from, actualLimit, to)
-            : moveFluid(from, new FluidStack(fluid, actualLimit), to);
+        return moveFluid(from, to.storage(), fluid, actualLimit);
     }
 
     @Nullable
-    private static IFluidHandler extractHandler(IPeripheral peripheral) {
+    private static ResourceHandler<FluidResource> extractHandler(IPeripheral peripheral) {
         var object = peripheral.getTarget();
         var direction = peripheral instanceof dan200.computercraft.shared.peripheral.generic.GenericPeripheral sided ? sided.side() : null;
 
@@ -102,11 +105,10 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
             var level = blockEntity.getLevel();
             if (!(level instanceof ServerLevel serverLevel)) return null;
 
-            var result = CapabilityUtil.getCapability(serverLevel, Capabilities.FluidHandler.BLOCK, blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
+            var result = CapabilityUtil.getCapability(serverLevel, Capabilities.Fluid.BLOCK, blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
             if (result != null) return result;
         }
 
-        if (object instanceof IFluidHandler handler) return handler;
         return null;
     }
 
@@ -114,49 +116,14 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
      * Move fluid from one handler to another.
      *
      * @param from  The handler to move from.
+     * @param fluid The fluid to extract.
      * @param limit The maximum amount of fluid to move.
      * @param to    The handler to move to.
      * @return The amount of fluid moved.
      */
-    private static int moveFluid(IFluidHandler from, int limit, IFluidHandler to) {
-        return moveFluid(from, from.drain(limit, IFluidHandler.FluidAction.SIMULATE), limit, to);
-    }
-
-    /**
-     * Move fluid from one handler to another.
-     *
-     * @param from  The handler to move from.
-     * @param fluid The fluid and limit to move.
-     * @param to    The handler to move to.
-     * @return The amount of fluid moved.
-     */
-    private static int moveFluid(IFluidHandler from, FluidStack fluid, IFluidHandler to) {
-        return moveFluid(from, from.drain(fluid, IFluidHandler.FluidAction.SIMULATE), fluid.getAmount(), to);
-    }
-
-    /**
-     * Move fluid from one handler to another.
-     *
-     * @param from      The handler to move from.
-     * @param extracted The fluid which is extracted from {@code from}.
-     * @param limit     The maximum amount of fluid to move.
-     * @param to        The handler to move to.
-     * @return The amount of fluid moved.
-     */
-    private static int moveFluid(IFluidHandler from, FluidStack extracted, int limit, IFluidHandler to) {
-        if (extracted.getAmount() <= 0) return 0;
-
-        // Limit the amount to extract.
-        extracted = extracted.copy();
-        extracted.setAmount(Math.min(extracted.getAmount(), limit));
-
-        var inserted = to.fill(extracted.copy(), IFluidHandler.FluidAction.EXECUTE);
-        if (inserted <= 0) return 0;
-
-        // Remove the item from the original inventory. Technically this could fail, but there's little we can do
-        // about that.
-        extracted.setAmount(inserted);
-        from.drain(extracted, IFluidHandler.FluidAction.EXECUTE);
-        return inserted;
+    private static int moveFluid(ResourceHandler<FluidResource> from, ResourceHandler<FluidResource> to, @Nullable Fluid fluid, int limit) {
+        Predicate<FluidResource> predicate = fluid == null ? x -> true : x -> x.is(fluid);
+        var moved = ResourceHandlerUtil.moveFirst(from, to, predicate, limit, null);
+        return moved == null ? 0 : moved.amount();
     }
 }
