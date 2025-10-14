@@ -110,6 +110,7 @@ dependencies {
     testModImplementation(testFixtures(project(":fabric")))
 
     testImplementation(libs.bundles.test)
+    testImplementation(libs.bundles.kotlin)
     testRuntimeOnly(libs.bundles.testRuntime)
     testRuntimeOnly(libs.fabric.junit)
 

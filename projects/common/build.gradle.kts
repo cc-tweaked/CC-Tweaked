@@ -52,6 +52,7 @@ dependencies {
 
     testImplementation(testFixtures(project(":core")))
     testImplementation(libs.bundles.test)
+    testImplementation(libs.bundles.kotlin)
     testRuntimeOnly(libs.bundles.testRuntime)
 
     testImplementation(libs.jmh)

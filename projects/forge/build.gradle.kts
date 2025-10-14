@@ -163,6 +163,7 @@ dependencies {
     testAnnotationProcessor(libs.autoService)
     testImplementation(testFixtures(project(":core")))
     testImplementation(libs.bundles.test)
+    testImplementation(libs.bundles.kotlin)
     testRuntimeOnly(libs.bundles.testRuntime)
 
     testModImplementation(testFixtures(project(":core")))

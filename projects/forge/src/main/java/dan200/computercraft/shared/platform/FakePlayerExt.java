@@ -11,6 +11,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameType;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import org.jspecify.annotations.Nullable;
 
@@ -21,6 +22,8 @@ class FakePlayerExt extends FakePlayer {
 
     FakePlayerExt(ServerLevel serverLevel, GameProfile profile) {
         super(serverLevel, profile);
+        // Set game mode to SURVIVAL so the turtle can collect drops from blocks it breaks
+        gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
         refreshDimensions();
     }
 
