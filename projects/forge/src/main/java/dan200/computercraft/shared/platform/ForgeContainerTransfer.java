@@ -4,20 +4,21 @@
 
 package dan200.computercraft.shared.platform;
 
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 public class ForgeContainerTransfer implements ContainerTransfer.Slotted {
-    private final IItemHandler handler;
+    private final ResourceHandler<ItemResource> handler;
     private final int offset;
     private final int limit;
     private final int slots;
 
-    public ForgeContainerTransfer(IItemHandler handler) {
-        this(handler, 0, handler.getSlots(), handler.getSlots());
+    public ForgeContainerTransfer(ResourceHandler<ItemResource> handler) {
+        this(handler, 0, handler.size(), handler.size());
     }
 
-    public ForgeContainerTransfer(IItemHandler handler, int offset, int limit, int slots) {
+    public ForgeContainerTransfer(ResourceHandler<ItemResource> handler, int offset, int limit, int slots) {
         this.handler = handler;
         this.offset = offset;
         this.limit = limit;
@@ -48,43 +49,45 @@ public class ForgeContainerTransfer implements ContainerTransfer.Slotted {
     }
 
     public static int moveItem(ForgeContainerTransfer src, ForgeContainerTransfer dest, int maxAmount) {
-        var targetSlot = 0;
+        var hasItem = false;
 
-        var movedStack = ItemStack.EMPTY;
-        var moved = 0;
-
-        outer:
         for (var srcSlot = 0; srcSlot < src.limit; srcSlot++) {
             var actualSrcSlot = src.mapSlot(srcSlot);
-            var stack = src.handler.extractItem(actualSrcSlot, maxAmount, true);
-            if (stack.isEmpty()) continue;
+            var resource = src.handler.getResource(actualSrcSlot);
+            if (resource.isEmpty()) continue;
 
-            // Pick the first item in the inventory to be the one we transfer, skipping those that match.
-            if (movedStack.isEmpty()) {
-                movedStack = stack.copy();
-                if (stack.getMaxStackSize() < maxAmount) maxAmount = stack.getMaxStackSize();
-            } else if (!ItemStack.isSameItemSameComponents(stack, movedStack)) {
-                continue;
+            // Check how much can be extracted and inserted.
+            int maxExtracted;
+            try (var transaction = Transaction.openRoot()) {
+                maxExtracted = src.handler.extract(actualSrcSlot, resource, maxAmount, transaction);
+            }
+            if (maxExtracted == 0) continue;
+
+            hasItem = true;
+
+            try (var transaction = Transaction.openRoot()) {
+                // check how much can be inserted
+                var accepted = dest.insert(resource, maxExtracted, transaction);
+                if (accepted == 0) continue;
+
+                // Extract or rollback.
+                if (src.handler.extract(actualSrcSlot, resource, accepted, transaction) == accepted) {
+                    transaction.commit();
+                    return accepted;
+                }
             }
 
-            for (; targetSlot < dest.limit; targetSlot++) {
-                var oldCount = stack.getCount();
-                stack = dest.handler.insertItem(dest.mapSlot(targetSlot), stack, false);
-
-                var transferred = oldCount - stack.getCount();
-                var extracted = src.handler.extractItem(actualSrcSlot, transferred, false);
-
-                moved += transferred;
-
-                // We failed to extract as much as we should have. This should never happen, but goodness knows.
-                if (extracted.getCount() < transferred) break outer;
-
-                if (moved >= maxAmount) return moved;
-                if (stack.isEmpty()) break;
-            }
         }
 
-        if (moved == 0) return movedStack.isEmpty() ? NO_ITEMS : NO_SPACE;
-        return moved;
+        return hasItem ? NO_SPACE : NO_ITEMS;
+    }
+
+    private int insert(ItemResource item, int amount, Transaction transaction) {
+        var inserted = 0;
+        for (var i = 0; i < limit; i++) {
+            inserted += handler.insert(mapSlot(i), item, amount - inserted, transaction);
+            if (inserted == amount) break;
+        }
+        return inserted;
     }
 }

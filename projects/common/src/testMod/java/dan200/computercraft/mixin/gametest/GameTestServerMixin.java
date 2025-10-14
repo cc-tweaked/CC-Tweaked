@@ -22,9 +22,11 @@ import java.util.concurrent.locks.LockSupport;
 
 @Mixin(GameTestServer.class)
 abstract class GameTestServerMixin extends MinecraftServer {
-    // Constructor updated for 1.21.10 - ChunkProgressListenerFactory replaced with LevelLoadListener
-    GameTestServerMixin(Thread serverThread, LevelStorageSource.LevelStorageAccess storageSource, PackRepository packRepository, WorldStem worldStem, Proxy proxy, DataFixer fixerUpper, Services services, LevelLoadListener levelLoadListener) {
-        super(serverThread, storageSource, packRepository, worldStem, proxy, fixerUpper, services, levelLoadListener);
+    GameTestServerMixin(
+        Thread serverThread, LevelStorageSource.LevelStorageAccess storageSource, PackRepository packRepository,
+        WorldStem worldStem, Proxy proxy, DataFixer fixerUpper, Services services, LevelLoadListener progressListenerFactory
+    ) {
+        super(serverThread, storageSource, packRepository, worldStem, proxy, fixerUpper, services, progressListenerFactory);
     }
 
     /**

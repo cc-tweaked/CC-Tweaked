@@ -61,9 +61,9 @@ import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.event.EventHooks;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -128,23 +128,17 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public ContainerTransfer.Slotted wrapContainer(Container container) {
-        return new ForgeContainerTransfer(new InvWrapper(container));
+        return new ForgeContainerTransfer(VanillaContainerWrapper.of(container));
     }
 
     @Nullable
     @Override
     public ContainerTransfer getContainer(ServerLevel level, BlockPos pos, Direction side) {
-        // NeoForge 1.21.10 changed Capabilities.Item.BLOCK to return ResourceHandler<ItemResource>
-        // We use the deprecated IItemHandler.of() adapter to maintain compatibility with our existing code
-        var resourceHandler = level.getCapability(Capabilities.Item.BLOCK, pos, side);
-        if (resourceHandler != null) {
-            // Convert ResourceHandler<ItemResource> to legacy IItemHandler for compatibility
-            var itemHandler = net.neoforged.neoforge.items.IItemHandler.of(resourceHandler);
-            return new ForgeContainerTransfer(itemHandler);
-        }
+        var inventory = level.getCapability(Capabilities.Item.BLOCK, pos, side);
+        if (inventory != null) return new ForgeContainerTransfer(inventory);
 
         var entity = InventoryUtil.getEntityContainer(level, pos, side);
-        return entity == null ? null : new ForgeContainerTransfer(new InvWrapper(entity));
+        return entity == null ? null : new ForgeContainerTransfer(VanillaContainerWrapper.of(entity));
     }
 
     @Override

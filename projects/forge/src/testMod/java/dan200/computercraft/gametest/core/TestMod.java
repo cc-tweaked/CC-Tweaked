@@ -6,9 +6,11 @@ package dan200.computercraft.gametest.core;
 
 import dan200.computercraft.export.Exporter;
 import net.minecraft.core.registries.Registries;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -31,8 +33,7 @@ public class TestMod {
             if (TestHooks.onBeforeDestroyBlock(e.getLevel(), e.getPos(), e.getState())) e.setCanceled(true);
         });
 
-        // TODO: Check if client-side initialization is needed in NeoForge 1.21.10
-        // if (FMLEnvironment.dist == Dist.CLIENT) TestMod.onInitializeClient();
+        if (FMLEnvironment.getDist() == Dist.CLIENT) TestMod.onInitializeClient();
 
         var tests = TestHooks.loadTests();
         modBus.addListener((RegisterEvent event) -> {

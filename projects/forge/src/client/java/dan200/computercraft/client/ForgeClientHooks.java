@@ -44,6 +44,14 @@ public final class ForgeClientHooks {
     }
 
     @SubscribeEvent
+    public static void drawHighlight(ExtractBlockOutlineRenderStateEvent event) {
+        // TODO: Highlighting. Need to see what Fabric is doing here.
+        /*if (ClientHooks.drawHighlight(event.getPoseStack(), event.getMultiBufferSource(), event.getCamera(), event.getTarget())) {
+            event.setCanceled(true);
+        }*/
+    }
+
+    @SubscribeEvent
     public static void onRenderText(CustomizeGuiOverlayEvent.DebugText event) {
         ClientHooks.addBlockDebugInfo(event.getRight()::add);
     }
@@ -57,6 +65,7 @@ public final class ForgeClientHooks {
             event.setCanceled(true);
         }
     }
+
 
     @SubscribeEvent
     public static void onRenderInFrame(RenderItemInFrameEvent event) {
@@ -73,5 +82,4 @@ public final class ForgeClientHooks {
         if (!(event.getSound() instanceof SpeakerSound sound) || sound.getStream() == null) return;
         ClientHooks.onPlayStreaming(event.getEngine(), event.getChannel(), sound.getStream());
     }
-
 }

@@ -23,6 +23,7 @@ import net.minecraft.client.renderer.texture.atlas.SpriteSources;
 import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.registries.RegistryPatchGenerator;

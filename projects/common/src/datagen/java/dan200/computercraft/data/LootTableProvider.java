@@ -20,7 +20,10 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.AnyOfCondition;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
@@ -88,10 +91,9 @@ class LootTableProvider {
     }
 
     private static void namedBlockDrop(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add, Supplier<? extends Block> wrapper) {
-        // FIXME: In 1.21.10, CopyNameFunction API has changed - temporarily using simple drops
         blockDrop(
             add, wrapper,
-            LootItem.lootTableItem(wrapper.get()),
+            LootItem.lootTableItem(wrapper.get()).apply(CopyNameFunction.copyName(new CopyNameFunction.Source(LootContextParams.BLOCK_ENTITY))),
             ExplosionCondition.survivesExplosion()
         );
     }
@@ -99,8 +101,7 @@ class LootTableProvider {
     private static void computerDrop(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add, Supplier<? extends Block> block) {
         blockDrop(
             add, block,
-            // FIXME: In 1.21.10, CopyComponentsFunction API has changed - temporarily using simple drops
-            LootItem.lootTableItem(block.get()),
+            LootItem.lootTableItem(block.get()).apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)),
             AnyOfCondition.anyOf(
                 BlockNamedEntityLootCondition.BUILDER,
                 HasComputerIdLootCondition.BUILDER,
