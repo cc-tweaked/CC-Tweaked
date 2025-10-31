@@ -47,7 +47,7 @@ final class Generator<T> {
     private static final MethodHandle ARG_GET_OBJECT, ARG_GET_ENUM, ARG_OPT_ENUM, ARG_GET_STRING_COERCED, ARG_GET_BYTES_COERCED;
 
     private record ArgMethods(MethodHandle get, MethodHandle opt) {
-        public static ArgMethods of(Class<?> type, String name) throws ReflectiveOperationException {
+        private static ArgMethods of(Class<?> type, String name) throws ReflectiveOperationException {
             return new ArgMethods(
                 LOOKUP.findVirtual(IArguments.class, "get" + name, MethodType.methodType(type, int.class)),
                 LOOKUP.findVirtual(IArguments.class, "opt" + name, MethodType.methodType(Optional.class, int.class))

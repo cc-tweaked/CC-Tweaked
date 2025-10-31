@@ -740,7 +740,7 @@ public final class ComputerThread implements ComputerScheduler {
     }
 
     private final class ExecutorImpl implements Executor {
-        public static final AtomicReferenceFieldUpdater<ExecutorImpl, ExecutorState> STATE = AtomicReferenceFieldUpdater.newUpdater(
+        private static final AtomicReferenceFieldUpdater<ExecutorImpl, ExecutorState> STATE = AtomicReferenceFieldUpdater.newUpdater(
             ExecutorImpl.class, ExecutorState.class, "$state"
         );
 

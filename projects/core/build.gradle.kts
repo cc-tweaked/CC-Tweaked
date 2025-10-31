@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
+import cc.tweaked.gradle.CCTweakedPlugin
 import cc.tweaked.gradle.getAbsolutePath
 
 plugins {
@@ -38,6 +39,8 @@ dependencies {
     testRuntimeOnly(libs.bundles.testRuntime)
     testRuntimeOnly(libs.slf4j.simple)
 }
+
+kotlin.compilerOptions.jvmTarget = CCTweakedPlugin.KOTLIN_TARGET
 
 tasks.processResources {
     inputs.property("gitHash", cct.gitHash)

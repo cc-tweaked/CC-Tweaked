@@ -45,6 +45,10 @@ abstract class DependencyCheck : DefaultTask() {
         overrides.putAll(project.provider { mutableMapOf(module.get().module.toString() to version) })
     }
 
+    fun override(group: String, module: String, version: String) {
+        overrides.put("$group:$module", version)
+    }
+
     /**
      * Add a configuration to check.
      */

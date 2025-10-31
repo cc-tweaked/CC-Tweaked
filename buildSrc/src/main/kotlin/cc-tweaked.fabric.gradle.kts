@@ -4,10 +4,7 @@
 
 /** Default configuration for Fabric projects. */
 
-import cc.tweaked.gradle.CCTweakedExtension
-import cc.tweaked.gradle.CCTweakedPlugin
-import cc.tweaked.gradle.IdeaRunConfigurations
-import cc.tweaked.gradle.MinecraftConfigurations
+import cc.tweaked.gradle.*
 
 plugins {
     `java-library`
@@ -66,4 +63,20 @@ dependencies {
 
 tasks.ideaSyncTask {
     doLast { IdeaRunConfigurations(project).patch() }
+}
+
+tasks.named("checkDependencyConsistency", DependencyCheck::class.java) {
+    val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
+    // Minecraft depends on lwjgl, but Fabric forces it to a more recent version
+    for (lwjgl in listOf(
+        "lwjgl",
+        "lwjgl-glfw",
+        "lwjgl-jemalloc",
+        "lwjgl-openal",
+        "lwjgl-opengl",
+        "lwjgl-stb",
+        "lwjgl-tinyfd",
+    )) {
+        override("org.lwjgl", lwjgl, "3.3.2")
+    }
 }

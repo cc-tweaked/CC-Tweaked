@@ -223,7 +223,7 @@ abstract class CCTweakedExtension(private val project: Project) {
         ).resolve().single()
     }
 
-    private fun <T> gitProvider(default: T, command: List<String>, process: (String) -> T): Provider<T> {
+    private fun <T: Any> gitProvider(default: T, command: List<String>, process: (String) -> T): Provider<T> {
         val baseResult = project.providers.exec {
             commandLine = listOf("git", "-C", project.rootDir.absolutePath) + command
         }

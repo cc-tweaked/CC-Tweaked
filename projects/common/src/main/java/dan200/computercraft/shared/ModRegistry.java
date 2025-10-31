@@ -123,7 +123,7 @@ import java.util.function.Predicate;
 
 /**
  * Registers ComputerCraft's registry entries and additional objects, such as {@link CauldronInteraction}s and
- * {@link DetailProvider}s
+ * {@link DetailProvider}s.
  * <p>
  * The functions in this class should be called from a loader-specific class.
  */

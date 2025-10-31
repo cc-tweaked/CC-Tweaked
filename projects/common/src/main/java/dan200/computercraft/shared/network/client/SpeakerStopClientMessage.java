@@ -13,7 +13,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import java.util.UUID;
 
 /**
- * Stops a sound on the client
+ * Stops a sound on the client.
  * <p>
  * Called when a speaker is broken.
  *

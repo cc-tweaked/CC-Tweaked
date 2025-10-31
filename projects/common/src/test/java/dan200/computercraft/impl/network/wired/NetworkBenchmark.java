@@ -142,7 +142,7 @@ public class NetworkBenchmark {
         return networks;
     }
 
-    private static class Grid<T> {
+    private static final class Grid<T> {
         private final int size;
         private final T[] box;
 
@@ -152,7 +152,7 @@ public class NetworkBenchmark {
             this.box = (T[]) new Object[size * size * size];
         }
 
-        public T get(BlockPos pos) {
+        private T get(BlockPos pos) {
             int x = pos.getX(), y = pos.getY(), z = pos.getZ();
 
             return x >= 0 && x < size && y >= 0 && y < size && z >= 0 && z < size
@@ -160,7 +160,7 @@ public class NetworkBenchmark {
                 : null;
         }
 
-        public void forEach(BiConsumer<T, BlockPos> transform) {
+        private void forEach(BiConsumer<T, BlockPos> transform) {
             for (var x = 0; x < size; x++) {
                 for (var y = 0; y < size; y++) {
                     for (var z = 0; z < size; z++) {
@@ -170,7 +170,7 @@ public class NetworkBenchmark {
             }
         }
 
-        public void map(BiFunction<T, BlockPos, T> transform) {
+        private void map(BiFunction<T, BlockPos, T> transform) {
             for (var x = 0; x < size; x++) {
                 for (var y = 0; y < size; y++) {
                     for (var z = 0; z < size; z++) {
