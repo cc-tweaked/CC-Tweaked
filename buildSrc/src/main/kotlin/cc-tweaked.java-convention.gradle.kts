@@ -161,7 +161,7 @@ tasks.javadoc {
     options {
         val stdOptions = this as StandardJavadocDocletOptions
         stdOptions.addBooleanOption("Xdoclint:all,-missing", true)
-        stdOptions.links("https://docs.oracle.com/en/java/javase/17/docs/api/")
+        stdOptions.links("https://docs.oracle.com/en/java/javase/21/docs/api/")
     }
 }
 
