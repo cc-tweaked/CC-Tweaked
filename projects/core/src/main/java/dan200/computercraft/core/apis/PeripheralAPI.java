@@ -27,7 +27,7 @@ import java.util.*;
  * @hidden
  */
 public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChangeListener {
-    private class PeripheralWrapper extends ComputerAccess implements GuardedLuaContext.Guard {
+    private final class PeripheralWrapper extends ComputerAccess implements GuardedLuaContext.Guard {
         private final String side;
         private final IPeripheral peripheral;
 
@@ -49,32 +49,32 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             methodMap = peripheralMethods.getSelfMethods(peripheral);
         }
 
-        public IPeripheral getPeripheral() {
+        private IPeripheral getPeripheral() {
             return peripheral;
         }
 
-        public String getType() {
+        private String getType() {
             return type;
         }
 
-        public Set<String> getAdditionalTypes() {
+        private Set<String> getAdditionalTypes() {
             return additionalTypes;
         }
 
-        public Collection<String> getMethods() {
+        private Collection<String> getMethods() {
             return methodMap.keySet();
         }
 
-        public synchronized boolean isAttached() {
+        private synchronized boolean isAttached() {
             return attached;
         }
 
-        public synchronized void attach() {
+        private synchronized void attach() {
             attached = true;
             peripheral.attach(this);
         }
 
-        public void detach() {
+        private void detach() {
             // Call detach
             peripheral.detach(this);
 
@@ -86,7 +86,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             attached = false;
         }
 
-        public MethodResult call(ILuaContext context, String methodName, IArguments arguments) throws LuaException {
+        private MethodResult call(ILuaContext context, String methodName, IArguments arguments) throws LuaException {
             PeripheralMethod method;
             synchronized (this) {
                 method = methodMap.get(methodName);

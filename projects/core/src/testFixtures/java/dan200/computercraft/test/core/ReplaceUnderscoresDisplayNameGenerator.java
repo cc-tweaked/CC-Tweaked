@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * A {@link DisplayNameGenerator} which replaces underscores with spaces. This is equivalent to
@@ -17,7 +18,7 @@ import java.lang.reflect.Method;
  */
 public class ReplaceUnderscoresDisplayNameGenerator extends DisplayNameGenerator.ReplaceUnderscores {
     @Override
-    public String generateDisplayNameForMethod(Class<?> testClass, Method testMethod) {
+    public String generateDisplayNameForMethod(List<Class<?>> enclosingInstanceTypes, Class<?> testClass, Method testMethod) {
         return testMethod.getName().replace('_', ' ');
     }
 }

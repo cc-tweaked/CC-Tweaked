@@ -117,7 +117,7 @@ public class THttpRequest extends Resource<THttpRequest> {
             return;
         }
 
-        ArrayBuffer buffer = request.getResponse().cast();
+        var buffer = (ArrayBuffer) request.getResponse();
         SeekableByteChannel contents = new ArrayByteChannel(JavascriptConv.asByteArray(buffer));
         var reader = new ReadHandle(contents, binary);
 

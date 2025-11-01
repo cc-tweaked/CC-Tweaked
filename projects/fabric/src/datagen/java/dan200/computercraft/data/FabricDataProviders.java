@@ -39,11 +39,11 @@ public class FabricDataProviders implements DataGeneratorEntrypoint {
     private record PlatformGeneratorsImpl(
         FabricDataGenerator.Pack generator, CompletableFuture<HolderLookup.Provider> registries
     ) implements DataProviders.GeneratorSink {
-        public <T extends DataProvider> T addWithFabricOutput(FabricDataGenerator.Pack.Factory<T> factory) {
+        private <T extends DataProvider> T addWithFabricOutput(FabricDataGenerator.Pack.Factory<T> factory) {
             return generator.addProvider((FabricDataOutput p) -> new PrettyDataProvider<>(factory.create(p))).provider();
         }
 
-        public <T extends DataProvider> T addWithRegistries(FabricDataGenerator.Pack.RegistryDependentFactory<T> factory) {
+        private <T extends DataProvider> T addWithRegistries(FabricDataGenerator.Pack.RegistryDependentFactory<T> factory) {
             return generator.addProvider((r, p) -> new PrettyDataProvider<>(factory.create(r, p))).provider();
         }
 

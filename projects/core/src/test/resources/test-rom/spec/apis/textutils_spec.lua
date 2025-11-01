@@ -246,11 +246,25 @@ describe("The textutils library", function()
         describe("parses using NBT-style syntax", function()
             local function exp(x)
                 local res, err = textutils.unserializeJSON(x, { nbt_style = true })
-                if not res then error(err, 2) end
+                if not res then fail(err) end
                 return expect(res)
             end
+
+            local function exp_err(x)
+                local res, err = textutils.unserializeJSON(x, { nbt_style = true })
+                if res ~= nil then
+                    fail(("Expected %q not to parse, but returned %s"):format(x, textutils.serialise(res)))
+                end
+                return expect(err)
+            end
+
             it("basic objects", function()
-                exp([[{ a: 1, b:2 }]]):same { a = 1, b = 2 }
+                exp("{ a: 1, b:2 }"):same { a = 1, b = 2 }
+                exp("{0+_-.aA: 1}"):same { ["0+_-.aA"] = 1 }
+                exp("{}"):same {}
+
+                exp_err("{: 123}"):eq("Malformed JSON at position 2: Expected object key")
+                exp_err("{#: 123}"):eq("Malformed JSON at position 2: Expected object key")
             end)
 
             it("suffixed numbers", function()
@@ -258,9 +272,21 @@ describe("The textutils library", function()
                 exp("1.1d"):eq(1.1)
             end)
 
-            it("strings", function()
-                exp("'123'"):eq("123")
-                exp("\"123\""):eq("123")
+            describe("strings", function()
+                it("empty quoted strings", function()
+                    exp("''"):eq("")
+                    exp("\"\""):eq("")
+                end)
+
+                pending("unquoted strings", function()
+                    exp("hello"):eq("hello")
+                    exp("0+_-.aA"):eq("0+_-.aA")
+                end)
+
+                it("quoted strings", function()
+                    exp("'123'"):eq("123")
+                    exp("\"123\""):eq("123")
+                end)
             end)
 
             it("typed arrays", function()

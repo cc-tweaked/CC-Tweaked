@@ -54,7 +54,7 @@ public final class InventoryUtil {
      */
     public static int getInventorySlotFromCompartment(Player player, int slot, ItemStack stack) {
         if (stack.isEmpty()) throw new IllegalArgumentException("Cannot search for empty stack");
-        if (player.getInventory().getItem(slot) == stack) return slot;
+        if (slot >= 0 && slot < Inventory.INVENTORY_SIZE && player.getInventory().getItem(slot) == stack) return slot;
         if (player.getInventory().getItem(Inventory.SLOT_OFFHAND) == stack) return Inventory.SLOT_OFFHAND;
         return -1;
     }

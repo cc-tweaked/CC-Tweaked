@@ -8,6 +8,7 @@
  * See notes in [cc.tweaked.gradle.MinecraftConfigurations] for the general design behind these cursed ideas.
  */
 
+import cc.tweaked.gradle.CCTweakedPlugin
 import cc.tweaked.gradle.MinecraftConfigurations
 import cc.tweaked.gradle.clientClasses
 import cc.tweaked.gradle.commonClasses
@@ -52,3 +53,5 @@ dependencies {
 
     testImplementation(testFixtures(project))
 }
+
+kotlin.compilerOptions.jvmTarget = CCTweakedPlugin.KOTLIN_TARGET
