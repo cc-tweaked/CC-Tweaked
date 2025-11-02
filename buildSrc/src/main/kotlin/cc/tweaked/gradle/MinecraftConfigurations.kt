@@ -40,7 +40,6 @@ class MinecraftConfigurations private constructor(private val project: Project) 
 
         // Set up an API configuration for clients (to ensure it's consistent with the main source set).
         val clientApi = configurations.maybeCreate(client.apiConfigurationName).apply {
-            isVisible = false
             isCanBeConsumed = false
             isCanBeResolved = false
         }

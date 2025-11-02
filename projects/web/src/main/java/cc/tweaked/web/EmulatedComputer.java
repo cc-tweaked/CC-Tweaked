@@ -187,9 +187,9 @@ class EmulatedComputer implements ComputerEnvironment, ComputerHandle {
     public void addFile(String path, JSObject contents) {
         byte[] bytes;
         if (JavascriptConv.isArrayBuffer(contents)) {
-            bytes = bytesOfBuffer(contents.cast());
+            bytes = bytesOfBuffer((ArrayBuffer) contents);
         } else {
-            JSString string = contents.cast();
+            var string = (JSString) contents;
             bytes = string.stringValue().getBytes(StandardCharsets.UTF_8);
         }
 

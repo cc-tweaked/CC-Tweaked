@@ -19,6 +19,7 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
 import org.apache.commons.cli.*;
+import org.apache.commons.cli.help.HelpFormatter;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -31,9 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -70,10 +70,10 @@ public class Main {
     }
 
     private record TermSize(int width, int height) {
-        public static final TermSize DEFAULT = new TermSize(51, 19);
-        public static final Pattern PATTERN = Pattern.compile("^(\\d+)x(\\d+)$");
+        private static final TermSize DEFAULT = new TermSize(51, 19);
+        private static final Pattern PATTERN = Pattern.compile("^(\\d+)x(\\d+)$");
 
-        public static TermSize parse(String value) throws ParseException {
+        private static TermSize parse(String value) throws ParseException {
             var matcher = TermSize.PATTERN.matcher(value);
             if (!matcher.matches()) throw new ParseException("'" + value + "' is not a valid terminal size.");
 
@@ -82,9 +82,9 @@ public class Main {
     }
 
     private record MountPaths(Path src, String dest) {
-        public static final Pattern PATTERN = Pattern.compile("^([^:]+):([^:]+)$");
+        private static final Pattern PATTERN = Pattern.compile("^([^:]+):([^:]+)$");
 
-        public static MountPaths parse(String value) throws ParseException {
+        private static MountPaths parse(String value) throws ParseException {
             var matcher = MountPaths.PATTERN.matcher(value);
             if (!matcher.matches()) throw new ParseException("'" + value + "' is not a mount spec.");
 
@@ -115,26 +115,26 @@ public class Main {
         Option resourceOpt, computerOpt, termSizeOpt, allowLocalDomainsOpt, helpOpt, mountOpt, mountRoOpt;
         options.addOption(resourceOpt = Option.builder("r").argName("PATH").longOpt("resources").hasArg()
             .desc("The path to the resources directory")
-            .build());
+            .get());
         options.addOption(computerOpt = Option.builder("c").argName("PATH").longOpt("computer").hasArg()
             .desc("The root directory of the computer. Defaults to a temporary directory.")
-            .build());
+            .get());
         options.addOption(termSizeOpt = Option.builder("t").argName("WIDTHxHEIGHT").longOpt("term-size").hasArg()
             .desc("The size of the terminal, defaults to 51x19.")
-            .build());
+            .get());
         options.addOption(allowLocalDomainsOpt = Option.builder("L").longOpt("allow-local-domains")
             .desc("Allow accessing local domains with the HTTP API.")
-            .build());
+            .get());
         options.addOption(mountOpt = Option.builder().longOpt("mount").hasArg().argName("SRC:DEST")
             .desc("Mount a folder SRC at directory DEST on the computer.")
-            .build());
+            .get());
         options.addOption(mountRoOpt = Option.builder().longOpt("mount-ro").hasArg().argName("SRC:DEST")
             .desc("Mount a read-only folder SRC at directory DEST on the computer.")
-            .build());
+            .get());
 
         options.addOption(helpOpt = Option.builder("h").longOpt("help")
             .desc("Print help message")
-            .build());
+            .get());
 
         Path resourcesDirectory;
         Path computerDirectory;
@@ -144,7 +144,11 @@ public class Main {
         try {
             var cli = new DefaultParser().parse(options, args);
             if (cli.hasOption(helpOpt)) {
-                new HelpFormatter().printHelp("standalone.jar", options, true);
+                try {
+                    HelpFormatter.builder().get().printHelp("standalone.jar", "", options, "", true);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
                 return;
             }
             if (!cli.hasOption(resourceOpt)) throw new ParseException("--resources directory is required");
@@ -157,10 +161,7 @@ public class Main {
             readOnlyMounts = getParsedOptionValues(cli, mountRoOpt, MountPaths::parse);
         } catch (ParseException e) {
             System.err.println(e.getLocalizedMessage());
-
-            var writer = new PrintWriter(System.err, false, StandardCharsets.UTF_8);
-            new HelpFormatter().printUsage(writer, HelpFormatter.DEFAULT_WIDTH, "standalone.jar", options);
-            writer.flush();
+            System.err.println(HelpFormatter.builder().get().toSyntaxOptions(options));
 
             System.exit(1);
             return;

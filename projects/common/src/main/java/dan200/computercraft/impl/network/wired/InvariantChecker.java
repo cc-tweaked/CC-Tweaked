@@ -4,7 +4,6 @@
 
 package dan200.computercraft.impl.network.wired;
 
-import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +60,6 @@ final class InvariantChecker {
         return okay;
     }
 
-    @Contract("")
     private static <T> @Nullable T makeNullable(T object) {
         return object;
     }

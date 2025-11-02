@@ -16,7 +16,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.UUID;
 
 /**
- * Stops a sound on the client
+ * Stops a sound on the client.
  * <p>
  * Called when a speaker is broken.
  *
