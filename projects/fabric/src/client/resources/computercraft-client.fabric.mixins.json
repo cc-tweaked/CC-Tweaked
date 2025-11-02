@@ -7,7 +7,6 @@
         "defaultRequire": 1
     },
     "client": [
-        "DebugScreenOverlayMixin",
         "ItemFrameRendererMixin",
         "ItemFrameRenderStateMixin",
         "ItemInHandRendererMixin",

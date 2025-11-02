@@ -21,9 +21,9 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.client.renderer.texture.atlas.SpriteSources;
 import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
-import net.minecraft.client.resources.model.AtlasIds;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.registries.RegistryPatchGenerator;
@@ -71,9 +71,9 @@ public final class DataProviders {
 
         generator.addFromCodec("Block atlases", PackOutput.Target.RESOURCE_PACK, "atlases", SpriteSources.FILE_CODEC, out -> {
             out.accept(AtlasIds.BLOCKS, makeSprites(Stream.of(
-                LecternPrintoutModel.TEXTURE,
-                LecternPocketModel.TEXTURE_NORMAL, LecternPocketModel.TEXTURE_ADVANCED,
-                LecternPocketModel.TEXTURE_COLOUR, LecternPocketModel.TEXTURE_FRAME, LecternPocketModel.TEXTURE_LIGHT
+                LecternPrintoutModel.MATERIAL.texture(),
+                LecternPocketModel.MATERIAL_NORMAL.texture(), LecternPocketModel.MATERIAL_ADVANCED.texture(),
+                LecternPocketModel.MATERIAL_COLOUR.texture(), LecternPocketModel.MATERIAL_FRAME.texture(), LecternPocketModel.MATERIAL_LIGHT.texture()
             )));
 
             out.accept(AtlasIds.GUI, makeSprites(

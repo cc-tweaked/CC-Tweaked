@@ -40,7 +40,7 @@ public abstract class AbstractEnergyMethods<T> implements GenericPeripheral {
      * @return The energy stored in this block, in FE.
      */
     @LuaFunction(mainThread = true)
-    public abstract int getEnergy(T energy);
+    public abstract long getEnergy(T energy);
 
     /**
      * Get the maximum amount of energy this block can store.
@@ -49,5 +49,5 @@ public abstract class AbstractEnergyMethods<T> implements GenericPeripheral {
      * @return The energy capacity of this block.
      */
     @LuaFunction(mainThread = true)
-    public abstract int getEnergyCapacity(T energy);
+    public abstract long getEnergyCapacity(T energy);
 }

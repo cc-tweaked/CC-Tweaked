@@ -4,24 +4,21 @@
 
 package dan200.computercraft.api.client.turtle;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.client.ComputerCraftAPIClientService;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvableModel;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
@@ -67,23 +64,9 @@ public interface TurtleUpgradeModel {
      * @param resolver  The model resolver.
      * @param transform The root model's transformation.
      * @param seed      The current model seed.
-     * @see ItemModel#update(ItemStackRenderState, ItemStack, ItemModelResolver, ItemDisplayContext, ClientLevel, LivingEntity, int)
+     * @see ItemModel#update(ItemStackRenderState, ItemStack, ItemModelResolver, ItemDisplayContext, ClientLevel, ItemOwner, int)
      */
     void renderForItem(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed);
-
-    /**
-     * Render this upgrade to a {@link MultiBufferSource}. This is used for rendering the block-entity form of the
-     * upgrade.
-     *
-     * @param upgrade   The upgrade being rendered.
-     * @param side      Which side of the turtle (left or right) the upgrade is equipped on.
-     * @param turtle    Access to the turtle that the upgrade resides on.
-     * @param transform The current pose stack.
-     * @param buffers   The buffers to render to.
-     * @param light     The lightmap coordinate.
-     * @param overlay   The overlay coordinate.
-     */
-    void renderForLevel(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ITurtleAccess turtle, PoseStack transform, MultiBufferSource buffers, int light, int overlay);
 
     /**
      * An unbaked turtle model. Much like other unbaked models (e.g. {@link ItemModel.Unbaked}), this should resolve

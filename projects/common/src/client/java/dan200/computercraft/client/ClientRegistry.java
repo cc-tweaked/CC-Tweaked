@@ -12,6 +12,9 @@ import dan200.computercraft.client.item.colour.PocketComputerLight;
 import dan200.computercraft.client.item.model.TurtleOverlayModel;
 import dan200.computercraft.client.item.properties.PocketComputerStateProperty;
 import dan200.computercraft.client.item.properties.TurtleShowElfOverlay;
+import dan200.computercraft.client.model.LecternBookModel;
+import dan200.computercraft.client.model.LecternPocketModel;
+import dan200.computercraft.client.model.LecternPrintoutModel;
 import dan200.computercraft.client.platform.ClientPlatformHelper;
 import dan200.computercraft.client.platform.ModelKey;
 import dan200.computercraft.client.render.CustomLecternRenderer;
@@ -23,11 +26,14 @@ import dan200.computercraft.client.turtle.TurtleUpgradeModelManager;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import net.minecraft.client.color.item.ItemTintSource;
+import net.minecraft.client.gui.components.debug.DebugScreenEntry;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -51,6 +57,7 @@ import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Registers client-side objects, such as {@link BlockEntityRendererProvider}s and
@@ -193,11 +200,21 @@ public final class ClientRegistry {
         register.accept(TurtleShowElfOverlay.ID, TurtleShowElfOverlay.CODEC);
     }
 
+    public static void registerLayerDefinitions(BiConsumer<ModelLayerLocation, Supplier<LayerDefinition>> register) {
+        register.accept(LecternBookModel.LAYER, LecternBookModel::createLayer);
+        register.accept(LecternPrintoutModel.LAYER, LecternPrintoutModel::createLayer);
+        register.accept(LecternPocketModel.LAYER, LecternPocketModel::createLayer);
+    }
+
     public interface RegisterPictureInPictureRenderer {
         <T extends PictureInPictureRenderState> void register(Class<T> state, Function<MultiBufferSource.BufferSource, PictureInPictureRenderer<T>> factory);
     }
 
     public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderer register) {
         register.register(PrintoutScreen.PrintoutRenderState.class, PrintoutScreen.PrintoutPictureRenderer::new);
+    }
+
+    public static void registerDebugScreenEntries(BiConsumer<ResourceLocation, DebugScreenEntry> register) {
+        register.accept(LookingAtBlockEntityDebugEntry.ID, LookingAtBlockEntityDebugEntry.create());
     }
 }

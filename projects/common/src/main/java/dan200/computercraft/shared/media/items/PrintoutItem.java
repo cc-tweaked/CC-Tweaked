@@ -23,7 +23,7 @@ public class PrintoutItem extends Item {
     @Override
     public InteractionResult use(Level world, Player player, InteractionHand hand) {
         var stack = player.getItemInHand(hand);
-        if (!world.isClientSide) {
+        if (!world.isClientSide()) {
             var title = PrintoutData.getOrEmpty(stack).title();
             var displayTitle = Strings.isNullOrEmpty(title) ? stack.getDisplayName() : Component.literal(title);
             player.openMenu(new SimpleMenuProvider((id, playerInventory, p) -> PrintoutMenu.createInHand(id, p, hand), displayTitle));

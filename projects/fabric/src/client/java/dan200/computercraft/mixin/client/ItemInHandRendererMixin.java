@@ -8,7 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.client.ClientHooks;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,9 +22,9 @@ class ItemInHandRendererMixin {
     @SuppressWarnings("unused")
     private void onRenderItem(
         AbstractClientPlayer player, float partialTicks, float pitch, InteractionHand hand, float swingProgress, ItemStack stack,
-        float equippedProgress, PoseStack transform, MultiBufferSource buffer, int combinedLight, CallbackInfo ci
+        float equippedProgress, PoseStack transform, SubmitNodeCollector collector, int combinedLight, CallbackInfo ci
     ) {
-        if (ClientHooks.onRenderHeldItem(transform, buffer, combinedLight, hand, pitch, equippedProgress, swingProgress, stack)) {
+        if (ClientHooks.onRenderHeldItem(transform, collector, combinedLight, hand, pitch, equippedProgress, swingProgress, stack)) {
             ci.cancel();
         }
     }

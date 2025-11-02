@@ -16,6 +16,7 @@ import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.gui.render.state.GuiElementRenderState;
 import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -87,18 +88,18 @@ public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> 
     }
 
     @Override
-    public boolean keyPressed(int key, int scancode, int modifiers) {
-        if (key == GLFW.GLFW_KEY_RIGHT) {
+    public boolean keyPressed(KeyEvent event) {
+        if (event.key() == GLFW.GLFW_KEY_RIGHT) {
             nextPage();
             return true;
         }
 
-        if (key == GLFW.GLFW_KEY_LEFT) {
+        if (event.key() == GLFW.GLFW_KEY_LEFT) {
             previousPage();
             return true;
         }
 
-        return super.keyPressed(key, scancode, modifiers);
+        return super.keyPressed(event);
     }
 
     @Override
@@ -185,7 +186,9 @@ public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> 
             pose.translate(-0.5f * X_SIZE, -(Y_SIZE + COVER_SIZE), 0);
             pose.scale(1.0f, 1.0f, -1.0f);
 
-            drawBorder(pose, bufferSource, 0, 0, 0, state.page(), state.printout().pages(), state.printout().book(), LightTexture.FULL_BRIGHT);
+            var buffer = bufferSource.getBuffer(PrintoutRenderer.BACKGROUND);
+            drawBorder(pose.last().pose(), buffer, 0, 0, 0, state.page(), state.printout().pages(), state.printout().book(), LightTexture.FULL_BRIGHT);
+
             drawText(
                 pose, bufferSource, X_TEXT_MARGIN, Y_TEXT_MARGIN, PrintoutData.LINES_PER_PAGE * state.page(), LightTexture.FULL_BRIGHT,
                 state.printout().text(), state.printout().colour()

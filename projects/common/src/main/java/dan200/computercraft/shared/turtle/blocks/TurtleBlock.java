@@ -125,7 +125,7 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
         super.setPlacedBy(level, pos, state, entity, stack);
 
-        if (!level.isClientSide && level.getBlockEntity(pos) instanceof TurtleBlockEntity turtle && entity instanceof Player player) {
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof TurtleBlockEntity turtle && entity instanceof Player player) {
             turtle.setOwningPlayer(player.getGameProfile());
         }
     }
@@ -134,7 +134,7 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
     protected InteractionResult useItemOn(ItemStack currentItem, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (currentItem.getItem() == Items.NAME_TAG && currentItem.has(DataComponents.CUSTOM_NAME) && level.getBlockEntity(pos) instanceof AbstractComputerBlockEntity computer) {
             // Label to rename computer
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 computer.setLabel(currentItem.getHoverName().getString());
                 currentItem.shrink(1);
             }
@@ -157,6 +157,6 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
     @Override
     @Nullable
     public <U extends BlockEntity> BlockEntityTicker<U> getTicker(Level level, BlockState state, BlockEntityType<U> type) {
-        return level.isClientSide ? BlockEntityHelpers.createTickerHelper(type, this.type.get(), clientTicker) : super.getTicker(level, state, type);
+        return level.isClientSide() ? BlockEntityHelpers.createTickerHelper(type, this.type.get(), clientTicker) : super.getTicker(level, state, type);
     }
 }

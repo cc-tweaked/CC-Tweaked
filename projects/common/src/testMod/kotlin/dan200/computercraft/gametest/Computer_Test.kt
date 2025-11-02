@@ -13,6 +13,7 @@ import dan200.computercraft.gametest.api.*
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.getApi
+import net.minecraft.client.input.KeyEvent
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.gametest.framework.GameTestHelper
@@ -155,8 +156,8 @@ class Computer_Test {
         // Press a key on the client
         thenOnClient {
             val screen = minecraft.screen as AbstractComputerScreen<*>
-            screen.keyPressed(GLFW.GLFW_KEY_A, 0, 0)
-            screen.keyReleased(GLFW.GLFW_KEY_A, 0, 0)
+            screen.keyPressed(KeyEvent(GLFW.GLFW_KEY_A, 0, 0))
+            screen.keyReleased(KeyEvent(GLFW.GLFW_KEY_A, 0, 0))
         }
         // And assert it is handled and sent back to the client
         thenIdle(2)

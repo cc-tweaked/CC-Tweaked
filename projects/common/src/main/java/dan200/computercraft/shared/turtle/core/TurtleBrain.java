@@ -6,7 +6,6 @@ package dan200.computercraft.shared.turtle.core;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -28,7 +27,6 @@ import dan200.computercraft.shared.util.Holiday;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
@@ -65,15 +63,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     private static final String NBT_SLOT = "Slot";
 
-    /**
-     * {@link net.minecraft.world.item.component.ResolvableProfile#CODEC}, but resolving to a {@link GameProfile}
-     * directly. We don't use {@link ExtraCodecs#GAME_PROFILE}, as that encodes the UUID as a string, not an int array.
-     */
-    private static final Codec<GameProfile> GAME_PROFILE_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            UUIDUtil.CODEC.fieldOf("id").forGetter(GameProfile::getId),
-            ExtraCodecs.PLAYER_NAME.fieldOf("name").forGetter(GameProfile::getName)
-        )
-        .apply(instance, GameProfile::new));
+    private static final Codec<GameProfile> GAME_PROFILE_CODEC = ExtraCodecs.STORED_GAME_PROFILE.codec();
 
     private static final int ANIM_DURATION = 8;
 
@@ -121,7 +111,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     public void update() {
         var world = getLevel();
-        if (!world.isClientSide) {
+        if (!world.isClientSide()) {
             // Advance movement
             updateCommands();
 
@@ -221,7 +211,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     @Override
     public boolean teleportTo(Level world, BlockPos pos) {
-        if (world.isClientSide || getLevel().isClientSide) {
+        if (world.isClientSide() || getLevel().isClientSide()) {
             throw new UnsupportedOperationException("Cannot teleport on the client");
         }
 
@@ -335,7 +325,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     @Override
     public void setSelectedSlot(int slot) {
-        if (getLevel().isClientSide) throw new UnsupportedOperationException("Cannot set the slot on the client");
+        if (getLevel().isClientSide()) throw new UnsupportedOperationException("Cannot set the slot on the client");
 
         if (slot >= 0 && slot < owner.getContainerSize()) {
             selectedSlot = slot;
@@ -371,7 +361,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     @Override
     public boolean consumeFuel(int fuel) {
-        if (getLevel().isClientSide) throw new UnsupportedOperationException("Cannot consume fuel on the client");
+        if (getLevel().isClientSide()) throw new UnsupportedOperationException("Cannot consume fuel on the client");
 
         if (!isFuelNeeded()) return true;
 
@@ -385,7 +375,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     @Override
     public void addFuel(int fuel) {
-        if (getLevel().isClientSide) throw new UnsupportedOperationException("Cannot add fuel on the client");
+        if (getLevel().isClientSide()) throw new UnsupportedOperationException("Cannot add fuel on the client");
 
         var addition = Math.max(fuel, 0);
         setFuelLevel(getFuelLevel() + addition);
@@ -393,7 +383,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     @Override
     public MethodResult executeCommand(TurtleCommand command) {
-        if (getLevel().isClientSide) throw new UnsupportedOperationException("Cannot run commands on the client");
+        if (getLevel().isClientSide()) throw new UnsupportedOperationException("Cannot run commands on the client");
         if (commandQueue.size() > 16) return MethodResult.of(false, "Too many ongoing turtle commands");
 
         commandQueue.offer(new TurtleCommandQueueEntry(++commandsIssued, command));
@@ -403,7 +393,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
     @Override
     public void playAnimation(TurtleAnimation animation) {
-        if (getLevel().isClientSide) throw new UnsupportedOperationException("Cannot play animations on the client");
+        if (getLevel().isClientSide()) throw new UnsupportedOperationException("Cannot play animations on the client");
 
         this.animation = animation;
         if (this.animation == TurtleAnimation.SHORT_WAIT) {
@@ -489,7 +479,9 @@ public class TurtleBrain implements TurtleAccessInternal {
         instance.setUpgrade(upgrade);
 
         // Create peripherals
-        if (owner.getLevel() != null && !owner.getLevel().isClientSide) updatePeripherals(owner.createServerComputer());
+        if (owner.getLevel() != null && !owner.getLevel().isClientSide()) {
+            updatePeripherals(owner.createServerComputer());
+        }
 
         return true;
     }
@@ -681,7 +673,7 @@ public class TurtleBrain implements TurtleAccessInternal {
             }
 
             // Advance valentines day easter egg
-            if (world.isClientSide && animation == TurtleAnimation.MOVE_FORWARD && animationProgress == 4) {
+            if (world.isClientSide() && animation == TurtleAnimation.MOVE_FORWARD && animationProgress == 4) {
                 // Spawn love pfx if valentines day
                 var currentHoliday = Holiday.getCurrent();
                 if (currentHoliday == Holiday.VALENTINES) {

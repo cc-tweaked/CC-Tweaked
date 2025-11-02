@@ -122,7 +122,7 @@ class Disk_Drive_Test {
         thenWaitUntil {
             val drive = helper.getBlockEntity(drivePos, DiskDriveBlockEntity::class.java)
             if (!drive.getItem(0).has(ModRegistry.DataComponents.DISK_ID.get())) {
-                helper.fail("Disk has no item", drivePos)
+                helper.abort("Disk has no item", drivePos)
             }
         }
     }

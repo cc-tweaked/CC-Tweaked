@@ -680,7 +680,7 @@ class Turtle_Test {
 
             val villager = helper.getEntity(EntityType.VILLAGER)
             val expectedY = helper.absolutePos(pos).y - 0.125
-            if (villager.y < expectedY) helper.fail("Expected villager at y>=$expectedY, but at ${villager.y}", pos)
+            if (villager.y < expectedY) helper.abort("Expected villager at y>=$expectedY, but at ${villager.y}", pos)
         }
     }
 
@@ -697,7 +697,7 @@ class Turtle_Test {
             helper.assertEntityNotPresent(EntityType.SHEEP)
             val count = helper.getBlockEntity(turtlePos, TurtleBlockEntity::class.java)
                 .countItem(Items.WHITE_WOOL)
-            if (count == 0) helper.fail("Expected turtle to have white wool", turtlePos)
+            if (count == 0) helper.abort("Expected turtle to have white wool", turtlePos)
         }
     }
 

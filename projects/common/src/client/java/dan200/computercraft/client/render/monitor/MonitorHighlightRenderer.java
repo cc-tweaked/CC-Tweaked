@@ -9,9 +9,9 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dan200.computercraft.client.render.BlockOutlineRenderer;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import net.minecraft.client.Camera;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
 
@@ -25,14 +25,14 @@ public final class MonitorHighlightRenderer {
     private MonitorHighlightRenderer() {
     }
 
-    public static boolean drawHighlight(PoseStack transformStack, MultiBufferSource bufferSource, Camera camera, BlockHitResult hit) {
+    public static BlockOutlineRenderer.@Nullable Renderer drawHighlight(Camera camera, BlockHitResult hit) {
         // Preserve normal behaviour when crouching.
-        if (camera.getEntity().isCrouching()) return false;
+        if (camera.getEntity().isCrouching()) return null;
 
         var world = camera.getEntity().level();
         var pos = hit.getBlockPos();
 
-        if (!(world.getBlockEntity(pos) instanceof MonitorBlockEntity monitor)) return false;
+        if (!(world.getBlockEntity(pos) instanceof MonitorBlockEntity monitor)) return null;
 
         // Determine which sides are part of the external faces of the monitor, and so which need to be rendered.
         var faces = EnumSet.allOf(Direction.class);
@@ -44,14 +44,16 @@ public final class MonitorHighlightRenderer {
         if (monitor.getYIndex() != monitor.getHeight() - 1) faces.remove(monitor.getDown());
 
         var cameraPos = camera.getPosition();
-        transformStack.pushPose();
-        transformStack.translate(pos.getX() - cameraPos.x(), pos.getY() - cameraPos.y(), pos.getZ() - cameraPos.z());
+        var xOffset = pos.getX() - cameraPos.x();
+        var yOffset = pos.getY() - cameraPos.y();
+        var zOffset = pos.getZ() - cameraPos.z();
 
-        var transform = transformStack.last();
-        BlockOutlineRenderer.render(bufferSource, (buffer, colour) -> draw(buffer, transform, faces, colour));
-
-        transformStack.popPose();
-        return true;
+        return (transform, buffer, colour) -> {
+            transform.pushPose();
+            transform.translate(xOffset, yOffset, zOffset);
+            draw(buffer, transform.last(), faces, colour);
+            transform.popPose();
+        };
     }
 
     private static void draw(VertexConsumer buffer, PoseStack.Pose transform, EnumSet<Direction> faces, int colour) {

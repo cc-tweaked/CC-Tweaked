@@ -40,18 +40,14 @@ import net.fabricmc.fabric.api.lookup.v1.item.ItemApiLookup;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkLevel;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -59,8 +55,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.LevelResource;
 import org.jspecify.annotations.Nullable;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.function.BiFunction;
 
 public class ComputerCraft {
@@ -137,7 +131,7 @@ public class ComputerCraft {
             entries.getContext(), entries
         ));
 
-        CommonHooks.onDatapackReload((name, listener) -> ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new ReloadListener(name, listener)));
+        CommonHooks.onDatapackReload(ResourceLoader.get(PackType.SERVER_DATA)::registerReloader);
 
         FabricDetailRegistries.FLUID_VARIANT.addProvider(FluidDetails::fill);
 
@@ -150,20 +144,6 @@ public class ComputerCraft {
 
     private static <B extends FriendlyByteBuf, T extends CustomPacketPayload> void registerPayloadType(PayloadTypeRegistry<B> registry, CustomPacketPayload.TypeAndCodec<B, T> type) {
         registry.register(type.type(), type.codec());
-    }
-
-    private record ReloadListener(ResourceLocation name, PreparableReloadListener listener)
-        implements IdentifiableResourceReloadListener {
-
-        @Override
-        public ResourceLocation getFabricId() {
-            return name;
-        }
-
-        @Override
-        public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, Executor backgroundExecutor, Executor gameExecutor) {
-            return listener.reload(preparationBarrier, resourceManager, backgroundExecutor, gameExecutor);
-        }
     }
 
     private record BlockComponentImpl<T, C extends @Nullable Object>(

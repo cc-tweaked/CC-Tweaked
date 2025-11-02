@@ -99,7 +99,7 @@ public class MonitorBlockEntity extends BlockEntity {
     public void preRemoveSideEffects(BlockPos blockPos, BlockState blockState) {
         super.preRemoveSideEffects(blockPos, blockState);
         isRemoving = true;
-        if (level != null && !getLevel().isClientSide) contractNeighbours();
+        if (level != null && !getLevel().isClientSide()) contractNeighbours();
     }
 
     @Override
@@ -129,7 +129,7 @@ public class MonitorBlockEntity extends BlockEntity {
         width = nbt.getIntOr(NBT_WIDTH, 1);
         height = nbt.getIntOr(NBT_HEIGHT, 1);
 
-        if (level != null && level.isClientSide) onClientLoad(oldXIndex, oldYIndex);
+        if (level != null && level.isClientSide()) onClientLoad(oldXIndex, oldYIndex);
     }
 
     void blockTick() {

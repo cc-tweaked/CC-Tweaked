@@ -29,6 +29,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -218,7 +219,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
 
         // If this is a projectile, attempt to deflect it instead.
         if (entity.getType().is(EntityTypeTags.REDIRECTABLE_PROJECTILE) && entity instanceof Projectile projectile &&
-            projectile.deflect(ProjectileDeflection.AIM_DEFLECT, player, player, true)
+            projectile.deflect(ProjectileDeflection.AIM_DEFLECT, player, EntityReference.of(player), true)
         ) {
             return true;
         }

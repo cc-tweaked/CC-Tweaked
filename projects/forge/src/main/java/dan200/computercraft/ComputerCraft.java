@@ -12,6 +12,7 @@ import dan200.computercraft.api.network.wired.WiredElementCapability;
 import dan200.computercraft.api.peripheral.PeripheralCapability;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.impl.Peripherals;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.CommonHooks;
@@ -51,13 +52,13 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.ItemCapability;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
-import net.neoforged.neoforge.items.wrapper.SidedInvWrapper;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
+import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
+import net.neoforged.neoforge.transfer.item.WorldlyContainerWrapper;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -112,9 +113,9 @@ public final class ComputerCraft {
         ComputerCraftAPI.registerGenericSource(new FluidMethods());
         ComputerCraftAPI.registerGenericSource(new EnergyMethods());
 
-        ForgeComputerCraftAPI.registerGenericCapability(Capabilities.ItemHandler.BLOCK);
-        ForgeComputerCraftAPI.registerGenericCapability(Capabilities.FluidHandler.BLOCK);
-        ForgeComputerCraftAPI.registerGenericCapability(Capabilities.EnergyStorage.BLOCK);
+        Peripherals.addGenericLookup(InventoryMethods::extractContainer);
+        Peripherals.addGenericLookup(FluidMethods::extractContainer);
+        ForgeComputerCraftAPI.registerGenericCapability(Capabilities.Energy.BLOCK);
 
         ForgeDetailRegistries.FLUID_STACK.addProvider(FluidData::fill);
 
@@ -155,12 +156,12 @@ public final class ComputerCraft {
             ModRegistry.BlockEntities.DISK_DRIVE
         );
         for (var inv : unsidedContainers) {
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, inv.get(), (be, side) -> new InvWrapper(be));
+            event.registerBlockEntity(Capabilities.Item.BLOCK, inv.get(), (be, side) -> VanillaContainerWrapper.of(be));
         }
 
         event.registerBlockEntity(
-            Capabilities.ItemHandler.BLOCK, ModRegistry.BlockEntities.PRINTER.get(),
-            (be, side) -> side == null ? new InvWrapper(be) : new SidedInvWrapper(be, side)
+            Capabilities.Item.BLOCK, ModRegistry.BlockEntities.PRINTER.get(),
+            (be, side) -> side == null ? VanillaContainerWrapper.of(be) : new WorldlyContainerWrapper(be, side)
         );
     }
 

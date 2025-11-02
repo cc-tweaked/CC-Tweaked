@@ -61,9 +61,9 @@ import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.event.EventHooks;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -128,17 +128,17 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public ContainerTransfer.Slotted wrapContainer(Container container) {
-        return new ForgeContainerTransfer(new InvWrapper(container));
+        return new ForgeContainerTransfer(VanillaContainerWrapper.of(container));
     }
 
     @Nullable
     @Override
     public ContainerTransfer getContainer(ServerLevel level, BlockPos pos, Direction side) {
-        var inventory = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, side);
+        var inventory = level.getCapability(Capabilities.Item.BLOCK, pos, side);
         if (inventory != null) return new ForgeContainerTransfer(inventory);
 
         var entity = InventoryUtil.getEntityContainer(level, pos, side);
-        return entity == null ? null : new ForgeContainerTransfer(new InvWrapper(entity));
+        return entity == null ? null : new ForgeContainerTransfer(VanillaContainerWrapper.of(entity));
     }
 
     @Override

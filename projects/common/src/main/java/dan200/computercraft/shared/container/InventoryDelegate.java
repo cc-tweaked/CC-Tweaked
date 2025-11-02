@@ -5,11 +5,14 @@
 package dan200.computercraft.shared.container;
 
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.ContainerUser;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -69,12 +72,12 @@ public interface InventoryDelegate extends Container {
     }
 
     @Override
-    default void startOpen(Player player) {
+    default void startOpen(ContainerUser player) {
         getInventory().startOpen(player);
     }
 
     @Override
-    default void stopOpen(Player player) {
+    default void stopOpen(ContainerUser player) {
         getInventory().stopOpen(player);
     }
 
@@ -101,5 +104,25 @@ public interface InventoryDelegate extends Container {
     @Override
     default boolean hasAnyMatching(Predicate<ItemStack> predicate) {
         return getInventory().hasAnyMatching(predicate);
+    }
+
+    @Override
+    default int getMaxStackSize(ItemStack stack) {
+        return getInventory().getMaxStackSize(stack);
+    }
+
+    @Override
+    default List<ContainerUser> getEntitiesWithContainerOpen() {
+        return getInventory().getEntitiesWithContainerOpen();
+    }
+
+    @Override
+    default boolean canTakeItem(Container target, int slot, ItemStack stack) {
+        return getInventory().canTakeItem(target, slot, stack);
+    }
+
+    @Override
+    default Iterator<ItemStack> iterator() {
+        return getInventory().iterator();
     }
 }

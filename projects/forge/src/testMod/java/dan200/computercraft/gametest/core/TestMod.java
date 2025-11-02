@@ -33,7 +33,7 @@ public class TestMod {
             if (TestHooks.onBeforeDestroyBlock(e.getLevel(), e.getPos(), e.getState())) e.setCanceled(true);
         });
 
-        if (FMLEnvironment.dist == Dist.CLIENT) TestMod.onInitializeClient();
+        if (FMLEnvironment.getDist() == Dist.CLIENT) TestMod.onInitializeClient();
 
         var tests = TestHooks.loadTests();
         modBus.addListener((RegisterEvent event) -> {

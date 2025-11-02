@@ -97,11 +97,11 @@ fun GameTestSequence.thenComputerOk(name: String? = null, marker: String = Compu
 
     thenWaitUntil {
         val computer = ComputerState.get(label)
-        if (computer == null || !computer.isDone(marker)) fail("Computer '$label' has not reached $marker yet.")
+        if (computer == null || !computer.isDone(marker)) abort("Computer '$label' has not reached $marker yet.")
     }
     thenExecuteFailFast {
         val error = ComputerState.get(label)!!.check(marker)
-        if (error != null) fail(error)
+        if (error != null) abort(error)
     }
     return this
 }
@@ -128,7 +128,7 @@ fun GameTestSequence.thenOnComputer(name: String? = null, action: suspend LuaTas
     thenWaitUntil {
         if (!monitor!!.isFinished) {
             val runningFor = (test as GameTestInfoAccessor).`computercraft$getTick`() - self.lastTick
-            fail("Computer '$label' has not finished yet (running for $runningFor ticks).")
+            abort("Computer '$label' has not finished yet (running for $runningFor ticks).")
         }
     }
     thenExecuteFailFast { monitor!!.check() }
@@ -155,25 +155,25 @@ fun GameTestHelper.immediate(run: () -> Unit) {
 // Helper functions for failing tests
 
 /** Raise a [GameTestAssertException]. */
-fun GameTestHelper.fail(message: String): Nothing = throw assertionException(Component.literal(message))
+fun GameTestHelper.abort(message: String): Nothing = throw assertionException(Component.literal(message))
 
 /** Raise a [GameTestAssertException] at a position. */
-fun GameTestHelper.fail(message: String, pos: BlockPos): Nothing =
+fun GameTestHelper.abort(message: String, pos: BlockPos): Nothing =
     throw assertionException(pos, Component.literal(message))
 
 /** Assert a condition is true, or raise a [GameTestAssertException] if not. */
 fun GameTestHelper.assertTrue(condition: Boolean, message: String) = assertTrue(condition, Component.literal(message))
 
 /** Raise a [GameTestAssertException]. */
-fun GameTestSequence.fail(message: String): Nothing =
+fun GameTestSequence.abort(message: String): Nothing =
     throw GameTestAssertException(
         Component.literal(message),
         ((this as GameTestSequenceAccessor).parent as GameTestInfoAccessor).`computercraft$getTick`(),
     )
 
 /** Fail with an optional context message. */
-private fun GameTestHelper.fail(message: String?, detail: String, pos: BlockPos): Nothing {
-    fail(if (message.isNullOrEmpty()) detail else "$message: $detail", pos)
+private fun GameTestHelper.abort(message: String?, detail: String, pos: BlockPos): Nothing {
+    abort(if (message.isNullOrEmpty()) detail else "$message: $detail", pos)
 }
 
 /**
@@ -186,7 +186,7 @@ fun GameTestHelper.assertBlockIs(pos: BlockPos, predicate: (BlockState) -> Boole
  */
 fun GameTestHelper.assertBlockIs(pos: BlockPos, predicate: (BlockState) -> Boolean, message: String) {
     val state = getBlockState(pos)
-    if (!predicate(state)) fail(message, state.toString(), pos)
+    if (!predicate(state)) abort(message, state.toString(), pos)
 }
 
 /**
@@ -196,9 +196,9 @@ fun <T : Comparable<T>> GameTestHelper.assertBlockHas(pos: BlockPos, property: P
     val state = getBlockState(pos)
     if (!state.hasProperty(property)) {
         val id = RegistryHelper.getKeyOrThrow(BuiltInRegistries.BLOCK, state.block)
-        fail(message, "block $id does not have property ${property.name}", pos)
+        abort(message, "block $id does not have property ${property.name}", pos)
     } else if (state.getValue(property) != value) {
-        fail(message, "${property.name} is ${state.getValue(property)}, expected $value", pos)
+        abort(message, "${property.name} is ${state.getValue(property)}, expected $value", pos)
     }
 }
 
@@ -208,8 +208,8 @@ fun <T : Comparable<T>> GameTestHelper.assertBlockHas(pos: BlockPos, property: P
 fun GameTestHelper.getContainerAt(pos: BlockPos): Container =
     when (val container: BlockEntity? = level.getBlockEntity(absolutePos(pos))) {
         is Container -> container
-        null -> fail("Expected a container at $pos, found nothing", pos)
-        else -> fail("Expected a container at $pos, found ${getName(container.type)}", pos)
+        null -> abort("Expected a container at $pos, found nothing", pos)
+        else -> abort("Expected a container at $pos, found ${getName(container.type)}", pos)
     }
 
 /**
@@ -254,7 +254,7 @@ private fun GameTestHelper.assertContainerExactlyImpl(pos: BlockPos, container: 
 
     if (slot >= 0) {
         val invItems = (0 until container.containerSize).map { container.getItem(it) }.dropLastWhile { it.isEmpty }
-        fail(
+        abort(
             """
             Items do not match (first mismatch at slot $slot).
             Expected:  ${formatItems(items)}
@@ -278,15 +278,15 @@ fun GameTestHelper.assertPeripheral(pos: BlockPos, direction: Direction = Direct
     val peripheral = getPeripheralAt(pos, direction)
     val block = getBlockState(pos).block.name.string
     when {
-        peripheral == null -> fail("No peripheral for '$block'", pos)
-        peripheral.type != type -> fail("Peripheral for '$block' is of type ${peripheral.type}, expected $type", pos)
+        peripheral == null -> abort("No peripheral for '$block'", pos)
+        peripheral.type != type -> abort("Peripheral for '$block' is of type ${peripheral.type}, expected $type", pos)
     }
 }
 
 fun GameTestHelper.assertNoPeripheral(pos: BlockPos, direction: Direction = Direction.UP) {
     val peripheral = getPeripheralAt(pos, direction)
     val block = getBlockState(pos).block.name
-    if (peripheral != null) fail("Expected no peripheral for '$block', got a ${peripheral.type}", pos)
+    if (peripheral != null) abort("Expected no peripheral for '$block', got a ${peripheral.type}", pos)
 }
 
 fun GameTestHelper.assertExactlyItems(vararg expected: ItemStack, message: String? = null) {
@@ -295,7 +295,7 @@ fun GameTestHelper.assertExactlyItems(vararg expected: ItemStack, message: Strin
     if (!matcher.matches(actual)) {
         val description = StringDescription()
         matcher.describeMismatch(actual, description)
-        fail(if (message.isNullOrEmpty()) description.toString() else "$message: $description")
+        abort(if (message.isNullOrEmpty()) description.toString() else "$message: $description")
     }
 }
 
@@ -305,7 +305,7 @@ fun GameTestHelper.assertExactlyItems(vararg expected: ItemStack, message: Strin
 fun GameTestHelper.assertItemEntityCountIs(expected: Item, count: Int) {
     val actualCount = getEntities(EntityType.ITEM).sumOf { if (it.item.`is`(expected)) it.item.count else 0 }
     if (actualCount != count) {
-        fail("Expected $count ${ItemStack(expected).itemName.string} items to exist (found $actualCount)")
+        abort("Expected $count ${ItemStack(expected).itemName.string} items to exist (found $actualCount)")
     }
 }
 
@@ -318,9 +318,9 @@ private fun getName(type: BlockEntityType<*>): ResourceLocation =
 fun <T : Entity> GameTestHelper.getEntity(type: EntityType<T>): T {
     val entities = getEntities(type)
     when (entities.size) {
-        0 -> fail("No $type entities")
+        0 -> abort("No $type entities")
         1 -> return entities[0]
-        else -> fail("Multiple $type entities (${entities.size} in bounding box)")
+        else -> abort("Multiple $type entities (${entities.size} in bounding box)")
     }
 }
 
@@ -369,7 +369,7 @@ fun GameTestHelper.assertNotCraftable(vararg items: ItemStack) {
 
     val recipe = level.server.recipeManager.getRecipeFor(RecipeType.CRAFTING, input, level)
 
-    if (recipe.isPresent) fail("Expected no recipe to match $items")
+    if (recipe.isPresent) abort("Expected no recipe to match $items")
 }
 
 /**
@@ -381,7 +381,7 @@ fun GameTestHelper.craftItem(vararg items: ItemStack): ItemStack {
     val input = CraftingInput.of(3, 3, container)
 
     val recipe = level.server.recipeManager.getRecipeFor(RecipeType.CRAFTING, input, level).getOrNull()
-        ?: fail("No recipe matches $items")
+        ?: throw assertionException("No recipe matches $items")
     return recipe.value.assemble(input, level.registryAccess())
 }
 

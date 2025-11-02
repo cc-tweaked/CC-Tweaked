@@ -97,7 +97,7 @@ public class WiredModemFullBlockEntity extends BlockEntity {
         for (var modem : modems) {
             if (modem != null) modem.removed();
         }
-        if (level == null || !level.isClientSide) node.remove();
+        if (level == null || !level.isClientSide()) node.remove();
     }
 
     @Override
@@ -120,7 +120,7 @@ public class WiredModemFullBlockEntity extends BlockEntity {
 
     public InteractionResult use(Player player) {
         if (player.isCrouching() || !player.mayBuild()) return InteractionResult.PASS;
-        if (getLevel().isClientSide) return InteractionResult.SUCCESS;
+        if (getLevel().isClientSide()) return InteractionResult.SUCCESS;
 
         // On server, we interacted if a peripheral was found
         var oldPeriphNames = getConnectedPeripheralNames();
@@ -167,7 +167,7 @@ public class WiredModemFullBlockEntity extends BlockEntity {
     }
 
     void blockTick() {
-        if (getLevel().isClientSide) return;
+        if (getLevel().isClientSide()) return;
 
         if (invalidSides != 0) {
             var oldInvalidSides = invalidSides;
@@ -194,7 +194,7 @@ public class WiredModemFullBlockEntity extends BlockEntity {
     }
 
     private void connectionsChanged() {
-        if (getLevel().isClientSide) return;
+        if (getLevel().isClientSide()) return;
         refreshConnections = false;
 
         var world = getLevel();

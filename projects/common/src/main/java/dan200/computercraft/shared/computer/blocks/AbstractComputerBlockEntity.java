@@ -67,7 +67,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     }
 
     protected void unload() {
-        if (getLevel().isClientSide) return;
+        if (getLevel().isClientSide()) return;
 
         var computer = getServerComputer();
         if (computer != null) computer.close();
@@ -91,7 +91,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     }
 
     protected void serverTick() {
-        if (getLevel().isClientSide) return;
+        if (getLevel().isClientSide()) return;
         if (computerID < 0 && !startOn) return; // Don't tick if we don't need a computer!
 
         var computer = createServerComputer();
@@ -157,7 +157,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     @Override
     public final void loadAdditional(ValueInput nbt) {
         super.loadAdditional(nbt);
-        if (level != null && level.isClientSide) {
+        if (level != null && level.isClientSide()) {
             loadClient(nbt);
         } else {
             loadServer(nbt);
@@ -340,14 +340,14 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     }
 
     public final void setComputerID(int id) {
-        if (getLevel().isClientSide || computerID == id) return;
+        if (getLevel().isClientSide() || computerID == id) return;
 
         computerID = id;
         BlockEntityHelpers.updateBlock(this);
     }
 
     public final void setLabel(@Nullable String label) {
-        if (getLevel().isClientSide || Objects.equals(this.label, label)) return;
+        if (getLevel().isClientSide() || Objects.equals(this.label, label)) return;
 
         this.label = label;
         var computer = getServerComputer();
@@ -386,7 +386,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
 
     @Nullable
     public ServerComputer getServerComputer() {
-        return getLevel().isClientSide || getLevel().getServer() == null ? null : ServerContext.get(getLevel().getServer()).registry().get(instanceID);
+        return getLevel().isClientSide() || getLevel().getServer() == null ? null : ServerContext.get(getLevel().getServer()).registry().get(instanceID);
     }
 
     // Networking stuff

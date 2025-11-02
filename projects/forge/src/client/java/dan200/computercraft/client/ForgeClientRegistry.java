@@ -108,8 +108,18 @@ public final class ForgeClientRegistry {
     }
 
     @SubscribeEvent
+    public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        ClientRegistry.registerLayerDefinitions(event::registerLayerDefinition);
+    }
+
+    @SubscribeEvent
     public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
         ClientRegistry.registerPictureInPictureRenderers(event::register);
+    }
+
+    @SubscribeEvent
+    public static void registerDebugScreenEntries(RegisterDebugEntriesEvent event) {
+        ClientRegistry.registerDebugScreenEntries(event::register);
     }
 
     @SubscribeEvent

@@ -13,6 +13,7 @@ import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
 import org.joml.Matrix4f;
@@ -67,7 +68,7 @@ public final class FixedWidthFontRenderer {
         return 15 - Terminal.getColour(c, def);
     }
 
-    private static void drawChar(QuadEmitter emitter, float x, float y, int index, int colour, int light) {
+    private static void drawChar(Matrix4f matrix, VertexConsumer buffer, float x, float y, int index, int colour, int light) {
         // Short circuit to avoid the common case - the texture should be blank here after all.
         if (index == '\0' || index == ' ') return;
 
@@ -78,30 +79,30 @@ public final class FixedWidthFontRenderer {
         var yStart = 1 + row * (FONT_HEIGHT + 2);
 
         quad(
-            emitter, x, y, x + FONT_WIDTH, y + FONT_HEIGHT, 0, colour,
+            matrix, buffer, x, y, x + FONT_WIDTH, y + FONT_HEIGHT, 0, colour,
             xStart / WIDTH, yStart / WIDTH, (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH, light
         );
     }
 
-    public static void drawQuad(QuadEmitter emitter, float x, float y, float z, float width, float height, int colour, int light) {
-        quad(emitter, x, y, x + width, y + height, z, colour, BACKGROUND_START, BACKGROUND_START, BACKGROUND_END, BACKGROUND_END, light);
+    public static void drawQuad(Matrix4f matrix, VertexConsumer buffer, float x, float y, float z, float width, float height, int colour, int light) {
+        quad(matrix, buffer, x, y, x + width, y + height, z, colour, BACKGROUND_START, BACKGROUND_START, BACKGROUND_END, BACKGROUND_END, light);
     }
 
-    private static void drawQuad(QuadEmitter emitter, float x, float y, float width, float height, Palette palette, char colourIndex, int light) {
+    private static void drawQuad(Matrix4f matrix, VertexConsumer buffer, float x, float y, float width, float height, Palette palette, char colourIndex, int light) {
         var colour = palette.getRenderColours(getColour(colourIndex, Colour.BLACK));
-        drawQuad(emitter, x, y, 0, width, height, colour, light);
+        drawQuad(matrix, buffer, x, y, 0, width, height, colour, light);
     }
 
     private static void drawBackground(
-        QuadEmitter emitter, float x, float y, TextBuffer backgroundColour, Palette palette,
+        Matrix4f matrix, VertexConsumer buffer, float x, float y, TextBuffer backgroundColour, Palette palette,
         float leftMarginSize, float rightMarginSize, float height, int light
     ) {
         if (leftMarginSize > 0) {
-            drawQuad(emitter, x - leftMarginSize, y, leftMarginSize, height, palette, backgroundColour.charAt(0), light);
+            drawQuad(matrix, buffer, x - leftMarginSize, y, leftMarginSize, height, palette, backgroundColour.charAt(0), light);
         }
 
         if (rightMarginSize > 0) {
-            drawQuad(emitter, x + backgroundColour.length() * FONT_WIDTH, y, rightMarginSize, height, palette, backgroundColour.charAt(backgroundColour.length() - 1), light);
+            drawQuad(matrix, buffer, x + backgroundColour.length() * FONT_WIDTH, y, rightMarginSize, height, palette, backgroundColour.charAt(backgroundColour.length() - 1), light);
         }
 
         // Batch together runs of identical background cells.
@@ -112,7 +113,7 @@ public final class FixedWidthFontRenderer {
             if (colourIndex == blockColour) continue;
 
             if (blockColour != '\0') {
-                drawQuad(emitter, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (i - blockStart), height, palette, blockColour, light);
+                drawQuad(matrix, buffer, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (i - blockStart), height, palette, blockColour, light);
             }
 
             blockColour = colourIndex;
@@ -120,22 +121,22 @@ public final class FixedWidthFontRenderer {
         }
 
         if (blockColour != '\0') {
-            drawQuad(emitter, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (backgroundColour.length() - blockStart), height, palette, blockColour, light);
+            drawQuad(matrix, buffer, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (backgroundColour.length() - blockStart), height, palette, blockColour, light);
         }
     }
 
-    public static void drawString(QuadEmitter emitter, float x, float y, TextBuffer text, TextBuffer textColour, Palette palette, int light) {
+    public static void drawString(Matrix4f matrix, VertexConsumer buffer, float x, float y, TextBuffer text, TextBuffer textColour, Palette palette, int light) {
         for (var i = 0; i < text.length(); i++) {
             var colour = palette.getRenderColours(getColour(textColour.charAt(i), Colour.BLACK));
 
             int index = text.charAt(i);
             if (index > 255) index = '?';
-            drawChar(emitter, x + i * FONT_WIDTH, y, index, colour, light);
+            drawChar(matrix, buffer, x + i * FONT_WIDTH, y, index, colour, light);
         }
 
     }
 
-    public static void drawTerminalForeground(QuadEmitter emitter, float x, float y, Terminal terminal) {
+    public static void drawTerminalForeground(Matrix4f matrix, VertexConsumer buffer, float x, float y, Terminal terminal) {
         var palette = terminal.getPalette();
         var height = terminal.getHeight();
 
@@ -143,14 +144,14 @@ public final class FixedWidthFontRenderer {
         for (var i = 0; i < height; i++) {
             var rowY = y + FONT_HEIGHT * i;
             drawString(
-                emitter, x, rowY, terminal.getLine(i), terminal.getTextColourLine(i),
+                matrix, buffer, x, rowY, terminal.getLine(i), terminal.getTextColourLine(i),
                 palette, LightTexture.FULL_BRIGHT
             );
         }
     }
 
     public static void drawTerminalBackground(
-        QuadEmitter emitter, float x, float y, Terminal terminal,
+        Matrix4f matrix, VertexConsumer buffer, float x, float y, Terminal terminal,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     ) {
         var palette = terminal.getPalette();
@@ -158,12 +159,12 @@ public final class FixedWidthFontRenderer {
 
         // Top and bottom margins
         drawBackground(
-            emitter, x, y - topMarginSize, terminal.getBackgroundColourLine(0), palette,
+            matrix, buffer, x, y - topMarginSize, terminal.getBackgroundColourLine(0), palette,
             leftMarginSize, rightMarginSize, topMarginSize, LightTexture.FULL_BRIGHT
         );
 
         drawBackground(
-            emitter, x, y + height * FONT_HEIGHT, terminal.getBackgroundColourLine(height - 1), palette,
+            matrix, buffer, x, y + height * FONT_HEIGHT, terminal.getBackgroundColourLine(height - 1), palette,
             leftMarginSize, rightMarginSize, bottomMarginSize, LightTexture.FULL_BRIGHT
         );
 
@@ -171,7 +172,7 @@ public final class FixedWidthFontRenderer {
         for (var i = 0; i < height; i++) {
             var rowY = y + FONT_HEIGHT * i;
             drawBackground(
-                emitter, x, rowY, terminal.getBackgroundColourLine(i), palette,
+                matrix, buffer, x, rowY, terminal.getBackgroundColourLine(i), palette,
                 leftMarginSize, rightMarginSize, FONT_HEIGHT, LightTexture.FULL_BRIGHT
             );
         }
@@ -185,52 +186,40 @@ public final class FixedWidthFontRenderer {
         return cursorX >= 0 && cursorX < terminal.getWidth() && cursorY >= 0 && cursorY < terminal.getHeight();
     }
 
-    public static void drawCursor(QuadEmitter emitter, float x, float y, Terminal terminal) {
+    public static void drawCursor(Matrix4f matrix, VertexConsumer buffer, float x, float y, Terminal terminal) {
         if (isCursorVisible(terminal) && FrameInfo.getGlobalCursorBlink()) {
             var colour = terminal.getPalette().getRenderColours(15 - terminal.getTextColour());
-            drawChar(emitter, x + terminal.getCursorX() * FONT_WIDTH, y + terminal.getCursorY() * FONT_HEIGHT, '_', colour, LightTexture.FULL_BRIGHT);
+            drawChar(matrix, buffer, x + terminal.getCursorX() * FONT_WIDTH, y + terminal.getCursorY() * FONT_HEIGHT, '_', colour, LightTexture.FULL_BRIGHT);
         }
     }
 
     public static void drawTerminal(
-        QuadEmitter emitter, float x, float y, Terminal terminal,
+        Matrix4f matrix, VertexConsumer buffer, float x, float y, Terminal terminal,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     ) {
         drawTerminalBackground(
-            emitter, x, y, terminal,
+            matrix, buffer, x, y, terminal,
             topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize
         );
 
         // Render the foreground with a slight offset. By calling .translate() on the matrix itself, we're translating
         // in screen space, rather than in model/view space.
         // It's definitely not perfect, but better than z fighting!
-        var transformBackup = new Matrix4f(emitter.poseMatrix());
-        emitter.poseMatrix().translate(new Vector3f(0, 0, Z_OFFSET));
+        var offsetMatrix = new Matrix4f(matrix).translate(new Vector3f(0, 0, Z_OFFSET));
 
-        drawTerminalForeground(emitter, x, y, terminal);
-        drawCursor(emitter, x, y, terminal);
-
-        emitter.poseMatrix().set(transformBackup);
+        drawTerminalForeground(offsetMatrix, buffer, x, y, terminal);
+        drawCursor(offsetMatrix, buffer, x, y, terminal);
     }
 
-    public static void drawEmptyTerminal(QuadEmitter emitter, float x, float y, float width, float height) {
-        drawQuad(emitter, x, y, 0, width, height, BLACK, LightTexture.FULL_BRIGHT);
+    public static void drawEmptyTerminal(PoseStack transform, SubmitNodeCollector collector, float x, float y, float width, float height) {
+        collector.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, buffer) ->
+            drawQuad(pose.pose(), buffer, x, y, 0, width, height, BLACK, LightTexture.FULL_BRIGHT));
     }
 
-    public record QuadEmitter(Matrix4f poseMatrix, VertexConsumer consumer) {
-    }
-
-    public static QuadEmitter toVertexConsumer(PoseStack transform, VertexConsumer consumer) {
-        return new QuadEmitter(transform.last().pose(), consumer);
-    }
-
-    private static void quad(QuadEmitter c, float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2, int light) {
-        var poseMatrix = c.poseMatrix();
-        var consumer = c.consumer();
-
-        consumer.addVertex(poseMatrix, x1, y1, z).setColor(colour).setUv(u1, v1).setLight(light);
-        consumer.addVertex(poseMatrix, x1, y2, z).setColor(colour).setUv(u1, v2).setLight(light);
-        consumer.addVertex(poseMatrix, x2, y2, z).setColor(colour).setUv(u2, v2).setLight(light);
-        consumer.addVertex(poseMatrix, x2, y1, z).setColor(colour).setUv(u2, v1).setLight(light);
+    private static void quad(Matrix4f matrix, VertexConsumer buffer, float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2, int light) {
+        buffer.addVertex(matrix, x1, y1, z).setColor(colour).setUv(u1, v1).setLight(light);
+        buffer.addVertex(matrix, x1, y2, z).setColor(colour).setUv(u1, v2).setLight(light);
+        buffer.addVertex(matrix, x2, y2, z).setColor(colour).setUv(u2, v2).setLight(light);
+        buffer.addVertex(matrix, x2, y1, z).setColor(colour).setUv(u2, v1).setLight(light);
     }
 }

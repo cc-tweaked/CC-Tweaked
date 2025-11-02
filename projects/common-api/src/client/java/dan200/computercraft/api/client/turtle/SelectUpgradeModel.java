@@ -6,20 +6,17 @@ package dan200.computercraft.api.client.turtle;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.Util;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -69,11 +66,6 @@ public final class SelectUpgradeModel<T> implements TurtleUpgradeModel {
     @Override
     public void renderForItem(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ItemStackRenderState renderer, ItemModelResolver resolver, ItemTransform transform, int seed) {
         getModel(upgrade).renderForItem(upgrade, side, renderer, resolver, transform, seed);
-    }
-
-    @Override
-    public void renderForLevel(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ITurtleAccess turtle, PoseStack transform, MultiBufferSource buffers, int light, int overlay) {
-        getModel(upgrade).renderForLevel(upgrade, side, turtle, transform, buffers, light, overlay);
     }
 
     private record Unbaked<T>(

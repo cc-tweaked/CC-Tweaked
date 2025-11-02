@@ -23,6 +23,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -105,24 +107,24 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
     }
 
     @Override
-    public boolean keyPressed(int key, int scancode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
         // Forward the tab key to the terminal, rather than moving between controls.
-        if (key == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminal) {
-            return getFocused().keyPressed(key, scancode, modifiers);
+        if (event.key() == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminal) {
+            return getFocused().keyPressed(event);
         }
 
-        return super.keyPressed(key, scancode, modifiers);
+        return super.keyPressed(event);
     }
 
     @Override
-    public boolean mouseReleased(double x, double y, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
         // Reimplement ContainerEventHandler.mouseReleased, as it's not called in vanilla (it is in Forge, but that
         // shouldn't matter).
         setDragging(false);
-        var child = getChildAt(x, y);
-        if (child.isPresent() && child.get().mouseReleased(x, y, button)) return true;
+        var child = getChildAt(event.x(), event.y());
+        if (child.isPresent() && child.get().mouseReleased(event)) return true;
 
-        return super.mouseReleased(x, y, button);
+        return super.mouseReleased(event);
     }
 
     @Override
@@ -141,8 +143,8 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
     }
 
     @Override
-    public boolean mouseClicked(double x, double y, int button) {
-        var changed = super.mouseClicked(x, y, button);
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        var changed = super.mouseClicked(event, doubleClick);
         // Clicking the terminate/shutdown button steals focus, which means then pressing "enter" will click the button
         // again. Restore the focus to the terminal in these cases.
         if (getFocused() instanceof DynamicImageButton) setFocused(terminal);
@@ -150,9 +152,9 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
     }
 
     @Override
-    public boolean mouseDragged(double x, double y, int button, double deltaX, double deltaY) {
-        return (getFocused() != null && getFocused().mouseDragged(x, y, button, deltaX, deltaY))
-            || super.mouseDragged(x, y, button, deltaX, deltaY);
+    public boolean mouseDragged(MouseButtonEvent event, double deltaX, double deltaY) {
+        return (getFocused() != null && getFocused().mouseDragged(event, deltaX, deltaY))
+            || super.mouseDragged(event, deltaX, deltaY);
     }
 
     @Override

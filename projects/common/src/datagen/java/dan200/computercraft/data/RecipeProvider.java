@@ -447,7 +447,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     }
 
     private static ItemStack playerHead(String name, String uuid) {
-        return DataComponentUtil.createStack(Items.PLAYER_HEAD, DataComponents.PROFILE, new ResolvableProfile(new GameProfile(UUID.fromString(uuid), name)));
+        return DataComponentUtil.createStack(Items.PLAYER_HEAD, DataComponents.PROFILE, ResolvableProfile.createResolved(new GameProfile(UUID.fromString(uuid), name)));
     }
 
     private ShapedSpecBuilder customShaped(RecipeCategory category, ItemStack result) {

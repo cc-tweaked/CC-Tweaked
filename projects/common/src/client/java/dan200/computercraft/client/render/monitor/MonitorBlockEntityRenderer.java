@@ -20,15 +20,20 @@ import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.fog.FogRenderer;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.core.Direction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryUtil;
@@ -40,7 +45,7 @@ import java.util.OptionalInt;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 
-public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBlockEntity> {
+public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBlockEntity, MonitorBlockEntityRenderer.State> {
     /**
      * {@link MonitorBlockEntity#RENDER_MARGIN}, but a tiny bit of additional padding to ensure that there is no space between
      * the monitor frame and contents.
@@ -53,55 +58,48 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
     }
 
     @Override
-    public void render(MonitorBlockEntity monitor, float partialTicks, PoseStack transform, MultiBufferSource bufferSource, int lightmapCoord, int overlayLight, Vec3 camera) {
-        // Render from the origin monitor
-        var originTerminal = monitor.getOriginClientMonitor();
-        if (originTerminal == null) return;
+    public State createRenderState() {
+        return new State();
+    }
 
-        var origin = originTerminal.getOrigin();
-        var renderState = originTerminal.getRenderState(MonitorRenderState::new);
-        var monitorPos = monitor.getBlockPos();
+    @Override
+    public void extractRenderState(MonitorBlockEntity monitor, State state, float f, Vec3 camera, ModelFeatureRenderer.@Nullable CrumblingOverlay crumblingOverlay) {
+        BlockEntityRenderer.super.extractRenderState(monitor, state, f, camera, crumblingOverlay);
 
-        // Ensure each monitor terminal is rendered only once. We allow rendering a specific tile
-        // multiple times in a single frame to ensure compatibility with shaders which may run a
-        // pass multiple times.
-        var renderFrame = FrameInfo.getRenderFrame();
-        if (renderState.lastRenderFrame == renderFrame && !monitorPos.equals(renderState.lastRenderPos)) {
-            return;
-        }
+        state.direction = monitor.getDirection();
+        state.front = monitor.getFront();
+        state.width = monitor.getWidth();
+        state.height = monitor.getHeight();
+        state.terminal = monitor.getOriginClientMonitor();
+    }
 
-        renderState.lastRenderFrame = renderFrame;
-        renderState.lastRenderPos = monitorPos;
-
-        var originPos = origin.getBlockPos();
+    @Override
+    public void submit(State state, PoseStack transform, SubmitNodeCollector collector, CameraRenderState camera) {
+        if (state.terminal == null) return;
 
         // Determine orientation
-        var dir = origin.getDirection();
-        var front = origin.getFront();
+        var dir = state.direction;
+        var front = state.front;
         var yaw = dir.toYRot();
         var pitch = DirectionUtil.toPitchAngle(front);
 
         // Setup initial transform
         transform.pushPose();
-        transform.translate(
-            originPos.getX() - monitorPos.getX() + 0.5,
-            originPos.getY() - monitorPos.getY() + 0.5,
-            originPos.getZ() - monitorPos.getZ() + 0.5
-        );
+        transform.translate(0.5, 0.5, 0.5);
 
         transform.mulPose(Axis.YN.rotationDegrees(yaw));
         transform.mulPose(Axis.XP.rotationDegrees(pitch));
         transform.translate(
             -0.5 + MonitorBlockEntity.RENDER_BORDER + MonitorBlockEntity.RENDER_MARGIN,
-            origin.getHeight() - 0.5 - (MonitorBlockEntity.RENDER_BORDER + MonitorBlockEntity.RENDER_MARGIN) + 0,
+            state.height - 0.5 - (MonitorBlockEntity.RENDER_BORDER + MonitorBlockEntity.RENDER_MARGIN) + 0,
             0.5
         );
-        var xSize = origin.getWidth() - 2.0 * (MonitorBlockEntity.RENDER_MARGIN + MonitorBlockEntity.RENDER_BORDER);
-        var ySize = origin.getHeight() - 2.0 * (MonitorBlockEntity.RENDER_MARGIN + MonitorBlockEntity.RENDER_BORDER);
+        var xSize = state.width - 2.0 * (MonitorBlockEntity.RENDER_MARGIN + MonitorBlockEntity.RENDER_BORDER);
+        var ySize = state.height - 2.0 * (MonitorBlockEntity.RENDER_MARGIN + MonitorBlockEntity.RENDER_BORDER);
 
         // Draw the contents
-        var terminal = originTerminal.getTerminal();
-        if (terminal != null && !ShaderMod.get().isRenderingShadowPass()) {
+        var terminal = state.terminal.getTerminal();
+        if (terminal != null) {
             // Draw a terminal
             int width = terminal.getWidth(), height = terminal.getHeight();
             int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
@@ -110,17 +108,20 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
             transform.pushPose();
             transform.scale((float) xScale, (float) -yScale, 1.0f);
 
-            var matrix = transform.last().pose();
+            var xMargin = (float) (MARGIN / xScale);
+            var yMargin = (float) (MARGIN / yScale);
 
-            renderTerminal(matrix, originTerminal, renderState, terminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale));
+            collector.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, buffer) -> {
+                FixedWidthFontRenderer.drawTerminalBackground(pose.pose(), buffer, 0, 0, terminal, yMargin, yMargin, xMargin, xMargin);
+            });
+            collector.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT_OFFSET, (pose, buffer) -> {
+                FixedWidthFontRenderer.drawTerminalForeground(pose.pose(), buffer, 0, 0, terminal);
+                FixedWidthFontRenderer.drawCursor(pose.pose(), buffer, 0, 0, terminal);
+            });
 
             transform.popPose();
         } else {
-            FixedWidthFontRenderer.drawEmptyTerminal(
-                FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT)),
-                -MARGIN, MARGIN,
-                (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
-            );
+            FixedWidthFontRenderer.drawEmptyTerminal(transform, collector, -MARGIN, MARGIN, (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2));
         }
 
         transform.popPose();
@@ -224,7 +225,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
         var transforms = RenderSystem.getDynamicUniforms().writeTransform(
             RenderSystem.getModelViewMatrix(),
             new Vector4f(1.0F, 1.0F, 1.0F, 1.0F),
-            RenderSystem.getModelOffset(),
+            new Vector3f(),
             RenderSystem.getTextureMatrix(),
             RenderSystem.getShaderLineWidth()
         );
@@ -272,6 +273,11 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
         return monitor.getRenderBoundingBox();
     }
 
+    @Override
+    public boolean shouldRender(MonitorBlockEntity monitor, Vec3 camera) {
+        return BlockEntityRenderer.super.shouldRender(monitor, camera) && monitor.getXIndex() == 0 && monitor.getYIndex() == 0;
+    }
+
     private static ByteBuffer getBuffer(int capacity) {
         var buffer = backingBuffer;
         if (buffer == null || buffer.capacity() < capacity) {
@@ -280,5 +286,16 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
 
         buffer.clear();
         return buffer;
+    }
+
+    public static final class State extends BlockEntityRenderState {
+        private Direction direction = Direction.NORTH;
+        private Direction front = Direction.NORTH;
+        private int width;
+        private int height;
+        private @Nullable ClientMonitor terminal;
+
+        private State() {
+        }
     }
 }

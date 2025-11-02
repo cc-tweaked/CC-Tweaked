@@ -17,8 +17,8 @@ accessible field net/minecraft/client/gui/components/ChatComponent allMessages L
 
 # ItemPocketRenderer/ItemPrintoutRenderer
 accessible method net/minecraft/client/renderer/ItemInHandRenderer calculateMapTilt (F)F
-accessible method net/minecraft/client/renderer/ItemInHandRenderer renderMapHand (Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/HumanoidArm;)V
-accessible method net/minecraft/client/renderer/ItemInHandRenderer renderPlayerArm (Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IFFLnet/minecraft/world/entity/HumanoidArm;)V
+accessible method net/minecraft/client/renderer/ItemInHandRenderer renderMapHand (Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/world/entity/HumanoidArm;)V
+accessible method net/minecraft/client/renderer/ItemInHandRenderer renderPlayerArm (Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IFFLnet/minecraft/world/entity/HumanoidArm;)V
 
 # SpeakerInstance/SpeakerManager
 accessible method com/mojang/blaze3d/audio/Channel pumpBuffers (I)V

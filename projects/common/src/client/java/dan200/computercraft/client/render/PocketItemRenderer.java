@@ -15,12 +15,14 @@ import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.metadata.gui.GuiMetadataSection;
 import net.minecraft.client.resources.metadata.gui.GuiSpriteScaling;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
-import org.joml.Matrix4f;
 
 import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
@@ -42,7 +44,7 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
     }
 
     @Override
-    protected void renderItem(PoseStack transform, MultiBufferSource bufferSource, ItemStack stack, int light) {
+    protected void renderItem(PoseStack transform, SubmitNodeCollector collector, ItemStack stack, int light) {
         var computer = ClientPocketComputers.get(stack);
         var terminal = computer == null ? null : computer.getTerminal();
 
@@ -74,42 +76,41 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
         var family = item.getFamily();
         var frameColour = DyedItemColor.getOrDefault(stack, -1);
 
-        var matrix = transform.last().pose();
-        renderFrame(matrix, bufferSource, family, frameColour, light, width, height);
+        renderFrame(transform, collector, family, frameColour, light, width, height);
 
         // Render the light
         var lightColour = computer == null || computer.getLightState() == -1 ? Colour.BLACK.getHex() : computer.getLightState();
-        renderLight(transform, bufferSource, lightColour, width, height);
+        renderLight(transform, collector, lightColour, width, height);
 
-        var quadEmitter = FixedWidthFontRenderer.toVertexConsumer(transform, bufferSource.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT));
         if (terminal == null) {
-            FixedWidthFontRenderer.drawEmptyTerminal(quadEmitter, 0, 0, width, height);
+            FixedWidthFontRenderer.drawEmptyTerminal(transform, collector, 0, 0, width, height);
         } else {
-            FixedWidthFontRenderer.drawTerminal(quadEmitter, MARGIN, MARGIN, terminal, MARGIN, MARGIN, MARGIN, MARGIN);
+            collector.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, buffer) ->
+                FixedWidthFontRenderer.drawTerminal(pose.pose(), buffer, MARGIN, MARGIN, terminal, MARGIN, MARGIN, MARGIN, MARGIN));
         }
 
         transform.popPose();
     }
 
-    private static void renderFrame(Matrix4f transform, MultiBufferSource render, ComputerFamily family, int colour, int light, int width, int height) {
+    private static void renderFrame(PoseStack transform, SubmitNodeCollector submit, ComputerFamily family, int colour, int light, int width, int height) {
         var textures = colour != -1 ? GuiSprites.COMPUTER_COLOUR : GuiSprites.getComputerTextures(family);
-        var spriteRenderer = new SpriteRenderer(transform, render, 0, light, colour);
+        var spriteRenderer = new SpriteRenderer(transform, submit, 0, light, colour);
         renderBorder(spriteRenderer, textures, width, height);
     }
 
     private static void renderBorder(SpriteRenderer renderer, GuiSprites.ComputerTextures textures, int width, int height) {
-        var sprites = Minecraft.getInstance().getGuiSprites();
+        var sprites = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.GUI);
 
         // Find our border, forcing it to be a nine-sliced texture.
         var borderSprite = sprites.getSprite(textures.border());
-        var borderSlice = getSlice(sprites.getSpriteScaling(borderSprite), DEFAULT_BORDER);
+        var borderSlice = getSlice(borderSprite, DEFAULT_BORDER);
         var borderBounds = borderSlice.border();
 
         // And take the separate bottom bit of the pocket computer.
         var bottomTexture = textures.pocketBottom();
         if (bottomTexture == null) throw new NullPointerException(textures + " has no pocket texture");
         var bottomSprite = sprites.getSprite(bottomTexture);
-        var bottomSlice = getSlice(sprites.getSpriteScaling(bottomSprite), DEFAULT_BOTTOM);
+        var bottomSlice = getSlice(bottomSprite, DEFAULT_BOTTOM);
         var bottomBounds = bottomSlice.border();
 
         // Now draw a nine-sliced texture, by stitching together the top parts of the border with the pocket bottom.
@@ -157,13 +158,12 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
         );
     }
 
-    private static void renderLight(PoseStack transform, MultiBufferSource render, int colour, int width, int height) {
-        var buffer = render.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT);
-        FixedWidthFontRenderer.drawQuad(
-            FixedWidthFontRenderer.toVertexConsumer(transform, buffer),
+    private static void renderLight(PoseStack transform, SubmitNodeCollector render, int colour, int width, int height) {
+        render.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, buffer) -> FixedWidthFontRenderer.drawQuad(
+            pose.pose(), buffer,
             width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0.001f, LIGHT_HEIGHT * 2, LIGHT_HEIGHT,
             ARGB.opaque(colour), LightTexture.FULL_BRIGHT
-        );
+        ));
     }
 
     private static final GuiSpriteScaling.NineSlice DEFAULT_BORDER = new GuiSpriteScaling.NineSlice(
@@ -176,5 +176,9 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
 
     private static GuiSpriteScaling.NineSlice getSlice(GuiSpriteScaling scaling, GuiSpriteScaling.NineSlice fallback) {
         return scaling instanceof GuiSpriteScaling.NineSlice slice ? slice : fallback;
+    }
+
+    private static GuiSpriteScaling.NineSlice getSlice(TextureAtlasSprite sprite, GuiSpriteScaling.NineSlice fallback) {
+        return getSlice(sprite.contents().getAdditionalMetadata(GuiMetadataSection.TYPE).orElse(GuiMetadataSection.DEFAULT).scaling(), fallback);
     }
 }

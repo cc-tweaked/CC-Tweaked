@@ -57,7 +57,7 @@ public class TurtleItem extends BlockItem {
 
     public static final CauldronInteraction CAULDRON_INTERACTION = (blockState, level, pos, player, hand, stack) -> {
         if (!stack.has(DataComponents.DYED_COLOR)) return InteractionResult.TRY_WITH_EMPTY_HAND;
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             stack.remove(DataComponents.DYED_COLOR);
             LayeredCauldronBlock.lowerFillLevel(blockState, level, pos);
         }

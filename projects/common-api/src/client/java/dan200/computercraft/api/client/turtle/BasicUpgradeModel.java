@@ -4,16 +4,13 @@
 
 package dan200.computercraft.api.client.turtle;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.StandaloneModel;
-import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.item.BlockModelWrapper;
 import net.minecraft.client.renderer.item.ItemModelResolver;
@@ -68,11 +65,6 @@ public final class BasicUpgradeModel implements TurtleUpgradeModel {
         var layer = renderer.newLayer();
         layer.setTransform(transform);
         getModel(side).setupItemLayer(layer);
-    }
-
-    @Override
-    public void renderForLevel(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ITurtleAccess turtle, PoseStack transform, MultiBufferSource buffers, int light, int overlay) {
-        getModel(side).render(transform, buffers, light, overlay);
     }
 
     private record Unbaked(ResourceLocation left, ResourceLocation right) implements TurtleUpgradeModel.Unbaked {

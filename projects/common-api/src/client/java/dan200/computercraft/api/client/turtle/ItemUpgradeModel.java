@@ -9,12 +9,10 @@ import com.mojang.math.Axis;
 import com.mojang.math.Transformation;
 import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -23,7 +21,6 @@ import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
@@ -77,15 +74,6 @@ public final class ItemUpgradeModel implements TurtleUpgradeModel {
         }
     }
 
-    @Override
-    public void renderForLevel(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side, ITurtleAccess turtle, PoseStack transform, MultiBufferSource buffers, int light, int overlay) {
-        transform.mulPose(getRenderer(side).transform().getMatrix());
-        transform.mulPose(Axis.YP.rotation(Mth.PI));
-        Minecraft.getInstance().getItemRenderer().renderStatic(
-            upgrade.getUpgradeItem(), ItemDisplayContext.FIXED, light, overlay, transform, buffers, turtle.getLevel(), 0
-        );
-    }
-
     private static final class Unbaked implements TurtleUpgradeModel.Unbaked {
         @Override
         public MapCodec<? extends TurtleUpgradeModel.Unbaked> type() {
@@ -120,14 +108,14 @@ public final class ItemUpgradeModel implements TurtleUpgradeModel {
 
     private record TransformedRenderer(Transformation transform) implements SpecialModelRenderer<ItemStackRenderState> {
         @Override
-        public void render(
-            @Nullable ItemStackRenderState state, ItemDisplayContext itemDisplayContext, PoseStack poseStack,
-            MultiBufferSource multiBufferSource, int overlay, int light, boolean bl
+        public void submit(
+            @Nullable ItemStackRenderState state, ItemDisplayContext context, PoseStack poseStack, SubmitNodeCollector sink,
+            int light, int overlay, boolean foil, int outlineColour
         ) {
             if (state == null) return;
             poseStack.pushPose();
             poseStack.mulPose(transform.getMatrix());
-            state.render(poseStack, multiBufferSource, overlay, light);
+            state.submit(poseStack, sink, light, overlay, outlineColour);
             poseStack.popPose();
         }
 

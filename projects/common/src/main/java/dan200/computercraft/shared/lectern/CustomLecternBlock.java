@@ -9,6 +9,7 @@ import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.RandomSource;
@@ -55,7 +56,7 @@ public class CustomLecternBlock extends LecternBlock {
      */
     public static InteractionResult tryPlaceItem(Player player, Level level, BlockPos pos, BlockState blockState, ItemStack item) {
         if (item.getItem() instanceof PrintoutItem || item.getItem() instanceof PocketComputerItem) {
-            if (!level.isClientSide) replaceLectern(player, level, pos, blockState, item);
+            if (!level.isClientSide()) replaceLectern(player, level, pos, blockState, item);
             return InteractionResult.SUCCESS;
         }
 
@@ -129,13 +130,13 @@ public class CustomLecternBlock extends LecternBlock {
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos, Direction direction) {
         return level.getBlockEntity(pos) instanceof CustomLecternBlockEntity lectern ? lectern.getRedstoneSignal() : 0;
     }
 
     @Override
     public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (!level.isClientSide && level.getBlockEntity(pos) instanceof CustomLecternBlockEntity lectern) {
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof CustomLecternBlockEntity lectern) {
             if (player.isSecondaryUseActive()) {
                 // When shift+clicked with an empty hand, drop the item and replace with the normal lectern.
                 clearLectern(level, pos, state);
@@ -152,7 +153,7 @@ public class CustomLecternBlock extends LecternBlock {
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return level.isClientSide ? null : BlockEntityHelpers.createTickerHelper(type, ModRegistry.BlockEntities.LECTERN.get(), serverTicker);
+        return level.isClientSide() ? null : BlockEntityHelpers.createTickerHelper(type, ModRegistry.BlockEntities.LECTERN.get(), serverTicker);
     }
 
     private static final BlockEntityTicker<CustomLecternBlockEntity> serverTicker = (level, pos, state, lectern) -> lectern.tick();

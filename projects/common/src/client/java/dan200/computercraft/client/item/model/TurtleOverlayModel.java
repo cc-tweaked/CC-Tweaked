@@ -17,7 +17,7 @@ import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
@@ -35,7 +35,7 @@ public record TurtleOverlayModel(ItemTransforms transforms) implements ItemModel
     ).apply(instance, Unbaked::new));
 
     @Override
-    public void update(ItemStackRenderState state, ItemStack stack, ItemModelResolver resolver, ItemDisplayContext context, @Nullable ClientLevel level, @Nullable LivingEntity holder, int light) {
+    public void update(ItemStackRenderState state, ItemStack stack, ItemModelResolver resolver, ItemDisplayContext context, @Nullable ClientLevel level, @Nullable ItemOwner holder, int light) {
         var overlay = TurtleItem.getOverlay(stack);
         if (overlay == null) return;
 

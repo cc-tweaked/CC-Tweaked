@@ -50,7 +50,7 @@ public class SpeakerBlock extends HorizontalDirectionalBlock implements EntityBl
     @Override
     @Nullable
     public <U extends BlockEntity> BlockEntityTicker<U> getTicker(Level level, BlockState state, BlockEntityType<U> type) {
-        return level.isClientSide ? null : BlockEntityHelpers.createTickerHelper(type, ModRegistry.BlockEntities.SPEAKER.get(), serverTicker);
+        return level.isClientSide() ? null : BlockEntityHelpers.createTickerHelper(type, ModRegistry.BlockEntities.SPEAKER.get(), serverTicker);
     }
 
     @Nullable

@@ -11,12 +11,6 @@ plugins {
     id("cc-tweaked.publishing")
 }
 
-sourceSets.client {
-    java {
-        exclude("dan200/computercraft/client/integration/emi")
-    }
-}
-
 minecraft {
     accessWideners(
         "src/main/resources/computercraft.accesswidener",
@@ -45,7 +39,6 @@ dependencies {
     compileOnly(libs.mixin)
     compileOnly(libs.mixinExtra)
     compileOnly(libs.bundles.externalMods.common)
-    clientCompileOnly(variantOf(libs.emi) { classifier("api") })
 
     annotationProcessorEverywhere(libs.autoService)
     testFixturesAnnotationProcessor(libs.autoService)

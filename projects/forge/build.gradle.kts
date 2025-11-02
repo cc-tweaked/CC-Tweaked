@@ -53,6 +53,7 @@ neoForge {
 
         register("client") {
             client()
+            sourceSet = sourceSets.client
         }
 
         register("server") {
@@ -77,6 +78,7 @@ neoForge {
         register("data") {
             configureForData("computercraft", sourceSets.main.get())
             loadedMods = listOf(computercraftDatagen.get())
+            sourceSet = sourceSets.datagen
         }
 
         fun RunModel.configureForGameTest() {
@@ -87,6 +89,7 @@ neoForge {
 
             programArgument("--mixin.config=computercraft-gametest.mixins.json")
             loadedMods.add(testMod)
+            sourceSet = sourceSets.testMod
 
             jvmArgument("-ea")
         }
@@ -119,24 +122,12 @@ neoForge {
         register("exampleData") {
             configureForData("examplemod", sourceSets.examples.get())
             loadedMods.add(exampleMod.get())
+            sourceSet = sourceSets.examples
         }
     }
 }
 
 configurations {
-    additionalRuntimeClasspath { extendsFrom(jarJar.get()) }
-
-    val testAdditionalRuntimeClasspath by registering {
-        isCanBeResolved = true
-        isCanBeConsumed = false
-        // Prevent ending up with multiple versions of libraries on the classpath.
-        shouldResolveConsistentlyWith(additionalRuntimeClasspath.get())
-    }
-
-    for (testConfig in listOf("testClientAdditionalRuntimeClasspath", "gametestAdditionalRuntimeClasspath")) {
-        named(testConfig) { extendsFrom(testAdditionalRuntimeClasspath.get()) }
-    }
-
     register("testWithIris") {
         isCanBeConsumed = false
         isCanBeResolved = true
@@ -156,7 +147,6 @@ dependencies {
     compileOnly(libs.jetbrainsAnnotations)
     annotationProcessorEverywhere(libs.autoService)
 
-    clientCompileOnly(variantOf(libs.emi) { classifier("api") })
     compileOnly(libs.bundles.externalMods.forge.compile)
     clientRuntimeOnly(libs.bundles.externalMods.forge.runtime)
     compileOnly(libs.create.forge) { isTransitive = false }
@@ -168,11 +158,6 @@ dependencies {
 
     jarJar(libs.cobalt)
     jarJar(libs.jzlib)
-    // We don't jar-in-jar our additional netty dependencies (see the tasks.jarJar configuration), but still want them
-    // on the legacy classpath.
-    additionalRuntimeClasspath(libs.netty.http) { isTransitive = false }
-    additionalRuntimeClasspath(libs.netty.socks) { isTransitive = false }
-    additionalRuntimeClasspath(libs.netty.proxy) { isTransitive = false }
 
     testFixturesApi(libs.bundles.test)
     testFixturesApi(libs.bundles.kotlin)
@@ -184,10 +169,6 @@ dependencies {
 
     testModImplementation(testFixtures(project(":core")))
     testModImplementation(testFixtures(project(":forge")))
-
-    // Ensure our test fixture dependencies are on the classpath
-    "testAdditionalRuntimeClasspath"(libs.bundles.kotlin)
-    "testAdditionalRuntimeClasspath"(libs.bundles.test)
 
     testFixturesImplementation(testFixtures(project(":core")))
 
