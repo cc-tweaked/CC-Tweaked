@@ -8,10 +8,7 @@ import com.mojang.blaze3d.audio.Channel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dan200.computercraft.client.pocket.ClientPocketComputers;
-import dan200.computercraft.client.render.CableHighlightRenderer;
-import dan200.computercraft.client.render.ExtendedItemFrameRenderState;
-import dan200.computercraft.client.render.PocketItemRenderer;
-import dan200.computercraft.client.render.PrintoutItemRenderer;
+import dan200.computercraft.client.render.*;
 import dan200.computercraft.client.render.monitor.MonitorHighlightRenderer;
 import dan200.computercraft.client.render.monitor.MonitorRenderState;
 import dan200.computercraft.client.sound.SpeakerManager;
@@ -26,7 +23,6 @@ import dan200.computercraft.shared.util.PauseAwareTimer;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.ItemFrameRenderState;
 import net.minecraft.client.sounds.AudioStream;
@@ -37,6 +33,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Event listeners for client-only code.
@@ -66,10 +63,14 @@ public final class ClientHooks {
         ClientPocketComputers.reset();
     }
 
-    public static boolean drawHighlight(PoseStack transform, MultiBufferSource bufferSource, Camera camera, BlockHitResult hit) {
-        // TODO: Reconsider this API once https://github.com/FabricMC/fabric/pull/4906/ is merged.
-        return CableHighlightRenderer.drawHighlight(transform, bufferSource, camera, hit)
-            || MonitorHighlightRenderer.drawHighlight(transform, bufferSource, camera, hit);
+    public static BlockOutlineRenderer.@Nullable Renderer drawHighlight(Camera camera, BlockHitResult hit) {
+        var cable = CableHighlightRenderer.drawHighlight(camera, hit);
+        if (cable != null) return cable;
+
+        var monitor = MonitorHighlightRenderer.drawHighlight(camera, hit);
+        if (monitor != null) return monitor;
+
+        return null;
     }
 
     public static boolean onRenderHeldItem(

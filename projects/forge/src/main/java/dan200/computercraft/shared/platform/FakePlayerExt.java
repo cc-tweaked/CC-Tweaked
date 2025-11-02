@@ -11,7 +11,6 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.GameType;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import org.jspecify.annotations.Nullable;
 
@@ -23,9 +22,6 @@ class FakePlayerExt extends FakePlayer {
     FakePlayerExt(ServerLevel serverLevel, GameProfile profile) {
         super(serverLevel, profile);
         refreshDimensions();
-        // Force the player to be in survival. Only needed for NF, as Fabric does this by default.
-        // TODO: Remove once https://github.com/neoforged/NeoForge/pull/2730 is merged.
-        gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
     }
 
     @Override

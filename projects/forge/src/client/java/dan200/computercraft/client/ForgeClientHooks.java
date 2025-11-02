@@ -5,6 +5,7 @@
 package dan200.computercraft.client;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.client.render.BlockOutlineRenderer;
 import dan200.computercraft.client.sound.SpeakerSound;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -45,10 +46,13 @@ public final class ForgeClientHooks {
 
     @SubscribeEvent
     public static void drawHighlight(ExtractBlockOutlineRenderStateEvent event) {
-        // TODO: Highlighting. Need to see what Fabric is doing here.
-        /*if (ClientHooks.drawHighlight(event.getPoseStack(), event.getMultiBufferSource(), event.getCamera(), event.getTarget())) {
-            event.setCanceled(true);
-        }*/
+        var renderer = ClientHooks.drawHighlight(event.getCamera(), event.getHitResult());
+        if (renderer == null) return;
+
+        event.addCustomRenderer((state, buffers, transform, translucentPass, renderState) -> {
+            BlockOutlineRenderer.render(transform, buffers, renderer);
+            return true;
+        });
     }
 
     @SubscribeEvent
