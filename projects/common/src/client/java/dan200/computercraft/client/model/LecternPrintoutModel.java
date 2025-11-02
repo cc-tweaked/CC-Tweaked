@@ -15,12 +15,11 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
-
-import static dan200.computercraft.client.model.LecternPrintoutModelDefinitions.TEXTURE_HEIGHT;
-import static dan200.computercraft.client.model.LecternPrintoutModelDefinitions.TEXTURE_WIDTH;
 
 /**
  * A model for {@linkplain PrintoutItem printouts} placed on a lectern. This renders a variable number of pages (1-3),
@@ -30,6 +29,11 @@ import static dan200.computercraft.client.model.LecternPrintoutModelDefinitions.
  */
 public final class LecternPrintoutModel extends Model<LecternPrintoutModel.State> {
     public static final ModelLayerLocation LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "lectern_printout"), "main");
+
+    public static final Material MATERIAL = Sheets.BLOCK_ENTITIES_MAPPER.apply(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "printout"));
+
+    static final int TEXTURE_WIDTH = 32;
+    static final int TEXTURE_HEIGHT = 32;
 
     private static final String PAGE_1 = "page_1";
     private static final String PAGE_2 = "page_2";

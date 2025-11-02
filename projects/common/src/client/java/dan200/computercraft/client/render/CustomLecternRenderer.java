@@ -9,7 +9,6 @@ import com.mojang.math.Axis;
 import dan200.computercraft.client.model.LecternBookModel;
 import dan200.computercraft.client.model.LecternPocketModel;
 import dan200.computercraft.client.model.LecternPrintoutModel;
-import dan200.computercraft.client.model.LecternPrintoutModelDefinitions;
 import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
@@ -98,15 +97,15 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
         if (state.type == Type.PRINTOUT) {
             if (state.isBook) {
                 collector.submitModel(
-                    bookModel, Unit.INSTANCE, poseStack, LecternPrintoutModelDefinitions.MATERIAL.renderType(RenderType::entitySolid),
+                    bookModel, Unit.INSTANCE, poseStack, LecternPrintoutModel.MATERIAL.renderType(RenderType::entitySolid),
                     state.lightCoords, OverlayTexture.NO_OVERLAY, -1,
-                    materials.get(LecternPrintoutModelDefinitions.MATERIAL), 0, null
+                    materials.get(LecternPrintoutModel.MATERIAL), 0, null
                 );
             } else {
                 collector.submitModel(
-                    printoutModel, state.printoutState, poseStack, LecternPrintoutModelDefinitions.MATERIAL.renderType(RenderType::entitySolid),
+                    printoutModel, state.printoutState, poseStack, LecternPrintoutModel.MATERIAL.renderType(RenderType::entitySolid),
                     state.lightCoords, OverlayTexture.NO_OVERLAY, -1,
-                    materials.get(LecternPrintoutModelDefinitions.MATERIAL), 0, null
+                    materials.get(LecternPrintoutModel.MATERIAL), 0, null
                 );
             }
         } else if (state.type == Type.POCKET_COMPUTER) {

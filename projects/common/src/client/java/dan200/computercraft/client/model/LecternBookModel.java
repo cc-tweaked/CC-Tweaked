@@ -18,8 +18,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Unit;
 
-import static dan200.computercraft.client.model.LecternPrintoutModelDefinitions.TEXTURE_HEIGHT;
-import static dan200.computercraft.client.model.LecternPrintoutModelDefinitions.TEXTURE_WIDTH;
+import static dan200.computercraft.client.model.LecternPrintoutModel.TEXTURE_HEIGHT;
+import static dan200.computercraft.client.model.LecternPrintoutModel.TEXTURE_WIDTH;
 
 /**
  * A model for {@linkplain PrintoutItem printed books} placed on a lectern.

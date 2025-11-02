@@ -10,7 +10,7 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.client.gui.GuiSprites;
 import dan200.computercraft.client.model.LecternPocketModel;
-import dan200.computercraft.client.model.LecternPrintoutModelDefinitions;
+import dan200.computercraft.client.model.LecternPrintoutModel;
 import dan200.computercraft.client.turtle.TurtleOverlay;
 import dan200.computercraft.data.client.BlockModelProvider;
 import dan200.computercraft.data.client.ItemModelProvider;
@@ -71,7 +71,7 @@ public final class DataProviders {
 
         generator.addFromCodec("Block atlases", PackOutput.Target.RESOURCE_PACK, "atlases", SpriteSources.FILE_CODEC, out -> {
             out.accept(AtlasIds.BLOCKS, makeSprites(Stream.of(
-                LecternPrintoutModelDefinitions.MATERIAL.texture(),
+                LecternPrintoutModel.MATERIAL.texture(),
                 LecternPocketModel.MATERIAL_NORMAL.texture(), LecternPocketModel.MATERIAL_ADVANCED.texture(),
                 LecternPocketModel.MATERIAL_COLOUR.texture(), LecternPocketModel.MATERIAL_FRAME.texture(), LecternPocketModel.MATERIAL_LIGHT.texture()
             )));
