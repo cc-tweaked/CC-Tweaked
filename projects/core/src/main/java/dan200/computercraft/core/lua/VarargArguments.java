@@ -20,12 +20,7 @@ import static org.squiddev.cobalt.Constants.NAME;
 final class VarargArguments implements IArguments {
     private static final Logger LOG = LoggerFactory.getLogger(VarargArguments.class);
 
-    private static final VarargArguments EMPTY = new VarargArguments(Constants.NONE);
     private static boolean reportedIllegalGet;
-
-    static {
-        EMPTY.escapes = EMPTY.closed = true;
-    }
 
     private final Varargs varargs;
 
@@ -51,7 +46,7 @@ final class VarargArguments implements IArguments {
     }
 
     static VarargArguments of(Varargs values) {
-        return values == Constants.NONE ? EMPTY : new VarargArguments(values);
+        return new VarargArguments(values);
     }
 
     boolean isClosed() {
@@ -138,9 +133,7 @@ final class VarargArguments implements IArguments {
         if (count < 0) throw new IllegalStateException("count cannot be negative");
         if (count == 0) return this;
 
-        var newArgs = varargs.subargs(count + 1);
-        if (newArgs == Constants.NONE) return EMPTY;
-        return new VarargArguments(newArgs, this, count);
+        return new VarargArguments(varargs.subargs(count + 1), this, count);
     }
 
     @Override

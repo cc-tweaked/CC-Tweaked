@@ -138,7 +138,6 @@ configurations {
     val localImplementation by registering {
         isCanBeResolved = false
         isCanBeConsumed = false
-        isVisible = false
     }
     compileClasspath { extendsFrom(localImplementation.get()) }
     runtimeClasspath { extendsFrom(localImplementation.get()) }

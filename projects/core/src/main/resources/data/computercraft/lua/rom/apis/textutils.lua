@@ -616,7 +616,8 @@ do
     end
 
     local function parse_ident(str, pos)
-        local _, last, val = find(str, '^([%a][%w_]*)', pos)
+        local _, last, val = find(str, '^([%w_+.-]+)', pos)
+        if not last then error_at(pos, "Expected object key") end
         return val, last + 1
     end
 
@@ -864,7 +865,7 @@ values do not serialise cleanly into JSON.
    A consequence of this is that an empty table will always be serialised to an object,
    not an array. [`textutils.empty_json_array`] may be used to express an empty array.
 
- - Lua strings are an a sequence of raw bytes, and do not have any specific encoding.
+ - Lua strings are a sequence of raw bytes, and do not have any specific encoding.
    However, JSON strings must be valid unicode. By default, non-ASCII characters in a
    string are serialised to their unicode code point (for instance, `"\xfe"` is
    converted to `"\u00fe"`). The `unicode_strings` option may be set to treat all input

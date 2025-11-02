@@ -305,7 +305,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
         return wrappers == null ? null : wrappers.get(remoteName);
     }
 
-    private static class RemotePeripheralWrapper implements IComputerAccess, GuardedLuaContext.Guard {
+    private static final class RemotePeripheralWrapper implements IComputerAccess, GuardedLuaContext.Guard {
         private final WiredModemElement element;
         private final IPeripheral peripheral;
         private final IComputerAccess computer;
@@ -331,13 +331,13 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
             methodMap = methods;
         }
 
-        public void attach() {
+        private void attach() {
             attached = true;
             peripheral.attach(this);
             computer.queueEvent("peripheral", getAttachmentName());
         }
 
-        public void detach() {
+        private void detach() {
             peripheral.detach(this);
             computer.queueEvent("peripheral_detach", getAttachmentName());
             attached = false;
@@ -352,19 +352,19 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
             }
         }
 
-        public String getType() {
+        private String getType() {
             return type;
         }
 
-        public Set<String> getAdditionalTypes() {
+        private Set<String> getAdditionalTypes() {
             return additionalTypes;
         }
 
-        public Collection<String> getMethodNames() {
+        private Collection<String> getMethodNames() {
             return methodMap.keySet();
         }
 
-        public MethodResult callMethod(ILuaContext context, String methodName, IArguments arguments) throws LuaException {
+        private MethodResult callMethod(ILuaContext context, String methodName, IArguments arguments) throws LuaException {
             var method = methodMap.get(methodName);
             if (method == null) throw new LuaException("No such method " + methodName);
 

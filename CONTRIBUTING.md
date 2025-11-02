@@ -101,7 +101,7 @@ about how you can build on that until you've covered everything!
 
 [new-issue]: https://github.com/cc-tweaked/CC-Tweaked/issues/new/choose "Create a new issue"
 [community]: README.md#community "Get in touch with the community."
-[Adoptium]: https://adoptium.net/temurin/releases?version=17 "Download OpenJDK 17"
+[Adoptium]: https://adoptium.net/temurin/releases?version=21 "Download OpenJDK 21"
 [illuaminate]: https://github.com/SquidDev/illuaminate/ "Illuaminate on GitHub"
 [docs]: https://tweaked.cc/ "CC: Tweaked documentation"
 [ldoc]: http://stevedonovan.github.io/ldoc/ "ldoc, a Lua documentation generator."
