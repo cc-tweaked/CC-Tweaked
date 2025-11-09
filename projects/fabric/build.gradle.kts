@@ -141,6 +141,7 @@ loom {
     runs {
         configureEach {
             ideConfigGenerated(true)
+            ideConfigFolder = "Fabric"
         }
 
         named("client") {

@@ -61,10 +61,6 @@ dependencies {
     compileOnlyApi(libs.findLibrary("errorProne.annotations").get())
 }
 
-tasks.ideaSyncTask {
-    doLast { IdeaRunConfigurations(project).patch() }
-}
-
 tasks.named("checkDependencyConsistency", DependencyCheck::class.java) {
     val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
     // Minecraft depends on lwjgl, but Fabric forces it to a more recent version
