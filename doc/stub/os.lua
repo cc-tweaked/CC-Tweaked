@@ -106,6 +106,7 @@ function sleep(time) end
 --
 -- @treturn string The current CraftOS version.
 -- @usage os.version()
+-- @see _HOST
 function version() end
 
 --[[- Run the program at the given path with the specified environment and
