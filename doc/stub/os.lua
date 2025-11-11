@@ -100,6 +100,10 @@ function sleep(time) end
 -- This is defined by `bios.lua`. For the current version of CC:Tweaked, this
 -- should return `CraftOS 1.9`.
 --
+-- The version returned by this function is purely decorative.
+-- It is usually better to rely on direct feature detection instead of
+-- programmatically using the value of this string.
+--
 -- @treturn string The current CraftOS version.
 -- @usage os.version()
 function version() end
