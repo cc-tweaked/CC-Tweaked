@@ -684,6 +684,7 @@ if multishell then
     -- This function is only available if the [`multishell`] API is.
     --
     -- @tparam string ... The command line to run.
+    -- @treturn number The ID of the new tab that was opened.
     -- @see shell.run
     -- @see multishell.launch
     -- @since 1.6
