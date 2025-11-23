@@ -117,10 +117,14 @@ function read(replaceChar, history, completeFn, default) end
 -- Outside of Minecraft (for instance, in an emulator) [`_HOST`] will contain the
 -- emulator's version instead.
 --
+-- If you need to check for the presence of a feature, it is usually better to
+-- rely on feature detection, rather than comparing mod or Minecraft versions.
+--
 -- For example, `ComputerCraft 1.93.0 (Minecraft 1.15.2)`.
 -- @usage Print the current computer's environment.
 --
 --     print(_HOST)
+-- @see os.version
 -- @since 1.76
 _HOST = _HOST
 
