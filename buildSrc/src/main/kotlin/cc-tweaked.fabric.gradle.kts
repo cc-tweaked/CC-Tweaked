@@ -8,7 +8,7 @@ import cc.tweaked.gradle.*
 
 plugins {
     `java-library`
-    id("fabric-loom")
+    id("net.fabricmc.fabric-loom-remap")
     id("cc-tweaked.java-convention")
 }
 
