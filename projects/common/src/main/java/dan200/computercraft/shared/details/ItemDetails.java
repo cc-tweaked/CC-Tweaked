@@ -4,12 +4,15 @@
 
 package dan200.computercraft.shared.details;
 
+import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.util.NBTUtil;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
@@ -31,9 +34,19 @@ public class ItemDetails {
         data.put("name", DetailHelpers.getId(BuiltInRegistries.ITEM, stack.getItem()));
         data.put("count", stack.getCount());
 
-        var components = stack.getComponentsPatch();
-        var hash = components.isEmpty() ? null : NBTUtil.getNBTHash(DataComponentPatch.CODEC.encodeStart(NbtOps.INSTANCE, components).result().orElse(null));
+        var hash = getComponentHash(stack.getComponentsPatch());
         if (hash != null) data.put("nbt", hash);
+    }
+
+    private static @Nullable String getComponentHash(DataComponentPatch components) {
+        if (components.isEmpty()) return null;
+
+        @SuppressWarnings("deprecation")
+        var server = CommonHooks.getServer();
+        var registries = server == null ? RegistryAccess.EMPTY : server.registryAccess();
+        var nbt = DataComponentPatch.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), components)
+            .result().orElse(null);
+        return NBTUtil.getNBTHash(nbt);
     }
 
     public static void fill(Map<? super String, Object> data, ItemStack stack) {
