@@ -50,21 +50,7 @@ import java.util.function.BiConsumer;
  * it's much easier to ensure that each hook is called in all loader source sets.
  */
 public final class CommonHooks {
-    private static @Nullable MinecraftServer server;
-
     private CommonHooks() {
-    }
-
-    /**
-     * Get the currently running server.
-     *
-     * @return The currently running server.
-     * @deprecated The usage of this is <em>strongly</em> discouraged, and the current server should be passed around
-     * directly.
-     */
-    @Deprecated
-    public static @Nullable MinecraftServer getServer() {
-        return server;
     }
 
     public static void onServerTickStart(MinecraftServer server) {
@@ -87,7 +73,6 @@ public final class CommonHooks {
     }
 
     public static void onServerStarted(MinecraftServer server) {
-        CommonHooks.server = server;
         // ItemDetails requires creative tabs to be populated, however by default this is done lazily on the client and
         // not at all on the server! We instead do this once on server startup.
         CreativeModeTabs.tryRebuildTabContents(server.getWorldData().enabledFeatures(), false, server.registryAccess());
@@ -98,7 +83,6 @@ public final class CommonHooks {
     }
 
     private static void resetState() {
-        server = null;
         ServerContext.close();
         NetworkUtils.reset();
     }

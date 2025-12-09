@@ -4,6 +4,8 @@
 
 package dan200.computercraft.api.detail;
 
+import net.minecraft.core.HolderLookup;
+
 import java.util.Map;
 
 /**
@@ -26,8 +28,9 @@ public interface DetailProvider<T> {
      * This method is always called on the server thread, so it is safe to interact with the world here, but you should
      * take care to avoid long blocking operations as this will stall the server and other computers.
      *
-     * @param data   The full details to be returned. New properties should be added to this map.
-     * @param object The object to provide details for.
+     * @param registries The current registries.
+     * @param data       The full details to be returned. New properties should be added to this map.
+     * @param object     The object to provide details for.
      */
-    void provideDetails(Map<? super String, Object> data, T object);
+    void provideDetails(Map<? super String, Object> data, HolderLookup.Provider registries, T object);
 }

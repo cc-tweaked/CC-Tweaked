@@ -38,7 +38,7 @@ public class ExamplePocketPeripheral implements IPeripheral {
         if (!(pocket.getEntity() instanceof LivingEntity entity)) return null;
 
         var heldItem = entity.getItemInHand(InteractionHand.MAIN_HAND);
-        return heldItem.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(heldItem);
+        return heldItem.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(pocket.getLevel().registryAccess(), heldItem);
     }
     // @end region=details
 

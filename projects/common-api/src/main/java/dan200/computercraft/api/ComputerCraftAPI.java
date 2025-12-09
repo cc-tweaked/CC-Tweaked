@@ -26,6 +26,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
+import java.util.function.Function;
+
 /**
  * The static entry point to the ComputerCraft API.
  * <p>
@@ -109,11 +111,21 @@ public final class ComputerCraftAPI {
     /**
      * Registers a method source for generic peripherals.
      *
+     * @param source A factory to create the method source.
+     * @see GenericSource
+     */
+    public static void registerGenericSource(Function<MinecraftServer, GenericSource> source) {
+        getInstance().registerGenericSource(source);
+    }
+
+    /**
+     * Registers a method source for generic peripherals.
+     *
      * @param source The method source to register.
      * @see GenericSource
      */
     public static void registerGenericSource(GenericSource source) {
-        getInstance().registerGenericSource(source);
+        getInstance().registerGenericSource(s -> source);
     }
 
     /**

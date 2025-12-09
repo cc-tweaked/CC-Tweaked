@@ -44,10 +44,11 @@ import org.jspecify.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.function.Function;
 
 public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIService {
     private final DetailRegistry<ItemStack> itemStackDetails = new DetailRegistryImpl<>(ItemDetails::fillBasic);
-    private final DetailRegistry<BlockReference> blockDetails = new DetailRegistryImpl<>(BlockDetails::fillBasic);
+    private final DetailRegistry<BlockReference> blockDetails = new DetailRegistryImpl<>((m, r, b) -> BlockDetails.fillBasic(m, b));
 
     protected static final ResourceKey<Registry<UpgradeType<? extends ITurtleUpgrade>>> turtleUpgradeRegistryId = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_upgrade_type"));
     protected static final ResourceKey<Registry<UpgradeType<? extends IPocketUpgrade>>> pocketUpgradeRegistryId = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_upgrade_type"));
@@ -81,7 +82,7 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     }
 
     @Override
-    public final void registerGenericSource(GenericSource source) {
+    public final void registerGenericSource(Function<MinecraftServer, GenericSource> source) {
         GenericSources.register(source);
     }
 

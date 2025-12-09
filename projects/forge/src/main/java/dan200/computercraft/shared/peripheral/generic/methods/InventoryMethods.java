@@ -13,6 +13,7 @@ import dan200.computercraft.shared.platform.ForgeContainerTransfer;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Items;
@@ -34,6 +35,12 @@ import static dan200.computercraft.core.util.ArgumentHelpers.assertBetween;
  * Inventory methods for Forge's {@link ResourceHandler}.
  */
 public final class InventoryMethods extends AbstractInventoryMethods<InventoryMethods.StorageWrapper> {
+    private final MinecraftServer server;
+
+    public InventoryMethods(MinecraftServer server) {
+        this.server = server;
+    }
+
     public record StorageWrapper(ResourceHandler<ItemResource> storage) {
     }
 
@@ -51,7 +58,9 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
         var size = storage.size();
         for (var i = 0; i < size; i++) {
             var stack = storage.getResource(i).toStack(storage.getAmountAsInt(i));
-            if (!stack.isEmpty()) result.put(i + 1, VanillaDetailRegistries.ITEM_STACK.getBasicDetails(stack));
+            if (!stack.isEmpty()) {
+                result.put(i + 1, VanillaDetailRegistries.ITEM_STACK.getBasicDetails(server.registryAccess(), stack));
+            }
         }
 
         return result;
@@ -65,7 +74,7 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
         assertBetween(slot, 1, storage.size(), "Slot out of range (%s)");
 
         var stack = storage.getResource(slot - 1).toStack(storage.getAmountAsInt(slot - 1));
-        return stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(stack);
+        return stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(server.registryAccess(), stack);
     }
 
     @Override

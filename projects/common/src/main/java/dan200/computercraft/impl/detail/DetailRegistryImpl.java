@@ -6,6 +6,7 @@ package dan200.computercraft.impl.detail;
 
 import dan200.computercraft.api.detail.DetailProvider;
 import dan200.computercraft.api.detail.DetailRegistry;
+import net.minecraft.core.HolderLookup;
 
 import java.util.*;
 
@@ -30,20 +31,20 @@ public class DetailRegistryImpl<T> implements DetailRegistry<T> {
     }
 
     @Override
-    public Map<String, Object> getBasicDetails(T object) {
+    public Map<String, Object> getBasicDetails(HolderLookup.Provider registries, T object) {
         Objects.requireNonNull(object, "object cannot be null");
 
         Map<String, Object> map = new HashMap<>(4);
-        basic.provideDetails(map, object);
+        basic.provideDetails(map, registries, object);
         return map;
     }
 
     @Override
-    public Map<String, Object> getDetails(T object) {
+    public Map<String, Object> getDetails(HolderLookup.Provider registries, T object) {
         Objects.requireNonNull(object, "object cannot be null");
 
         Map<String, Object> map = new HashMap<>();
-        for (var provider : providers) provider.provideDetails(map, object);
+        for (var provider : providers) provider.provideDetails(map, registries, object);
         return map;
     }
 }

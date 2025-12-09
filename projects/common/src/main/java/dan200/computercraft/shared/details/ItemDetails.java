@@ -4,9 +4,8 @@
 
 package dan200.computercraft.shared.details;
 
-import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.util.NBTUtil;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -30,20 +29,17 @@ import java.util.Map;
  * Data providers for items.
  */
 public class ItemDetails {
-    public static void fillBasic(Map<? super String, Object> data, ItemStack stack) {
+    public static void fillBasic(Map<? super String, Object> data, HolderLookup.Provider registries, ItemStack stack) {
         data.put("name", DetailHelpers.getId(BuiltInRegistries.ITEM, stack.getItem()));
         data.put("count", stack.getCount());
 
-        var hash = getComponentHash(stack.getComponentsPatch());
+        var hash = getComponentHash(registries, stack.getComponentsPatch());
         if (hash != null) data.put("nbt", hash);
     }
 
-    private static @Nullable String getComponentHash(DataComponentPatch components) {
+    private static @Nullable String getComponentHash(HolderLookup.Provider registries, DataComponentPatch components) {
         if (components.isEmpty()) return null;
 
-        @SuppressWarnings("deprecation")
-        var server = CommonHooks.getServer();
-        var registries = server == null ? RegistryAccess.EMPTY : server.registryAccess();
         var nbt = DataComponentPatch.CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), components)
             .result().orElse(null);
         return NBTUtil.getNBTHash(nbt);

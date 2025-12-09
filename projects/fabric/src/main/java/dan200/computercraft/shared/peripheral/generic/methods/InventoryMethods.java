@@ -18,6 +18,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -36,8 +37,13 @@ import static dan200.computercraft.core.util.ArgumentHelpers.assertBetween;
  * The generic peripheral system doesn't (currently) support generics, and so we need to wrap this in a
  * {@link StorageWrapper} box.
  */
-@SuppressWarnings("UnstableApiUsage")
 public final class InventoryMethods extends AbstractInventoryMethods<InventoryMethods.StorageWrapper> {
+    private final MinecraftServer server;
+
+    public InventoryMethods(MinecraftServer server) {
+        this.server = server;
+    }
+
     /**
      * Wrapper over a {@link SlottedStorage}.
      *
@@ -88,7 +94,9 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
         var size = slots.size();
         for (var i = 0; i < size; i++) {
             var stack = toStack(slots.get(i));
-            if (!stack.isEmpty()) result.put(i + 1, VanillaDetailRegistries.ITEM_STACK.getBasicDetails(stack));
+            if (!stack.isEmpty()) {
+                result.put(i + 1, VanillaDetailRegistries.ITEM_STACK.getBasicDetails(server.registryAccess(), stack));
+            }
         }
 
         return result;
@@ -101,7 +109,7 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
         assertBetween(slot, 1, inventory.storage().getSlotCount(), "Slot out of range (%s)");
 
         var stack = toStack(inventory.storage().getSlot(slot - 1));
-        return stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(stack);
+        return stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(server.registryAccess(), stack);
     }
 
     @Override

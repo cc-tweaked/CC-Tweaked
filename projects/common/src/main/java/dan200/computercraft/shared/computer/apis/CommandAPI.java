@@ -19,8 +19,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
@@ -78,10 +78,10 @@ public class CommandAPI implements ILuaAPI {
         int successes;
     }
 
-    private static Map<?, ?> getBlockInfo(Level world, BlockPos pos) {
+    private static Map<?, ?> getBlockInfo(ServerLevel world, BlockPos pos) {
         // Get the details of the block
         var block = new BlockReference(world, pos);
-        var table = VanillaDetailRegistries.BLOCK_IN_WORLD.getDetails(block);
+        var table = VanillaDetailRegistries.BLOCK_IN_WORLD.getDetails(world.registryAccess(), block);
 
         var tile = block.blockEntity();
         if (tile != null) table.put("nbt", NBTUtil.toLua(tile.saveWithFullMetadata(world.registryAccess())));
@@ -276,7 +276,7 @@ public class CommandAPI implements ILuaAPI {
         return getBlockInfo(level, position);
     }
 
-    private Level getLevel(Optional<String> id) throws LuaException {
+    private ServerLevel getLevel(Optional<String> id) throws LuaException {
         var currentLevel = computer.getLevel();
 
         if (id.isEmpty()) return currentLevel;
@@ -284,7 +284,7 @@ public class CommandAPI implements ILuaAPI {
         var dimensionId = ResourceLocation.tryParse(id.get());
         if (dimensionId == null) throw new LuaException("Invalid dimension name");
 
-        Level level = currentLevel.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, dimensionId));
+        var level = currentLevel.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, dimensionId));
         if (level == null) throw new LuaException("Unknown dimension");
 
         return level;

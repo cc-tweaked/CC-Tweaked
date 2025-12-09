@@ -4,6 +4,7 @@
 
 package dan200.computercraft.api.detail;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
@@ -49,22 +50,23 @@ public abstract class BasicItemDetailProvider<T> implements DetailProvider<ItemS
      * This method is always called on the server thread, so it is safe to interact with the world here, but you should
      * take care to avoid long blocking operations as this will stall the server and other computers.
      *
-     * @param data  The full details to be returned for this item stack. New properties should be added to this map.
-     * @param stack The item stack to provide details for.
-     * @param item  The item to provide details for.
+     * @param data       The full details to be returned for this item stack. New properties should be added to this map.
+     * @param registries The current registries.
+     * @param stack      The item stack to provide details for.
+     * @param item       The item to provide details for.
      */
-    public abstract void provideDetails(Map<? super String, Object> data, ItemStack stack, T item);
+    public abstract void provideDetails(Map<? super String, Object> data, HolderLookup.Provider registries, ItemStack stack, T item);
 
     @Override
-    public final void provideDetails(Map<? super String, Object> data, ItemStack stack) {
+    public final void provideDetails(Map<? super String, Object> data, HolderLookup.Provider registries, ItemStack stack) {
         var item = stack.getItem();
         if (!itemType.isInstance(item)) return;
 
         if (namespace == null) {
-            provideDetails(data, stack, itemType.cast(item));
+            provideDetails(data, registries, stack, itemType.cast(item));
         } else {
             Map<? super String, Object> child = new HashMap<>();
-            provideDetails(child, stack, itemType.cast(item));
+            provideDetails(child, registries, stack, itemType.cast(item));
             data.put(namespace, child);
         }
     }

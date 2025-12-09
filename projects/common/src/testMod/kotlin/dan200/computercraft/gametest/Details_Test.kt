@@ -23,7 +23,7 @@ class Details_Test {
     @GameTest(template = Structures.DEFAULT)
     fun Has_item_groups(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            val details = VanillaDetailRegistries.ITEM_STACK.getDetails(ItemStack(Items.DIRT))
+            val details = VanillaDetailRegistries.ITEM_STACK.getDetails(helper.level.registryAccess(), ItemStack(Items.DIRT))
             assertEquals(
                 listOf(
                     mapOf(

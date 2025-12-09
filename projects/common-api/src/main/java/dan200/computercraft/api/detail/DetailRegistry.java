@@ -4,9 +4,11 @@
 
 package dan200.computercraft.api.detail;
 
+import net.minecraft.core.HolderLookup;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * A registry which provides computer-visible detail about in-game objects such as blocks, items or fluids.
@@ -30,23 +32,35 @@ public interface DetailRegistry<T> {
     void addProvider(DetailProvider<? super T> provider);
 
     /**
+     * Registers a detail provider. This is a simpler form of {@link #addProvider(DetailProvider)}, for providers which
+     * do not require access to registries.
+     *
+     * @param provider The detail provider to register.
+     */
+    default void addProvider(BiConsumer<Map<? super String, Object>, ? super T> provider) {
+        addProvider((m, r, d) -> provider.accept(m, d));
+    }
+
+    /**
      * Compute basic details about an object. This is cheaper than computing all details operation, and so is suitable
      * for when you need to compute the details for a large number of values.
      * <p>
      * This method <em>MAY</em> be thread safe: consult the instance's documentation for details.
      *
-     * @param object The object to get details for.
+     * @param registries The current registries.
+     * @param object     The object to get details for.
      * @return The basic details.
      */
-    Map<String, Object> getBasicDetails(T object);
+    Map<String, Object> getBasicDetails(HolderLookup.Provider registries, T object);
 
     /**
-     * Compute all details about an object, using {@link #getBasicDetails(Object)} and any registered providers.
+     * Compute all details about an object, using {@link #getBasicDetails(HolderLookup.Provider, Object)} and any registered providers.
      * <p>
      * This method is <em>NOT</em> thread safe. It should only be called from the computer thread.
      *
-     * @param object The object to get details for.
+     * @param registries The current registries.
+     * @param object     The object to get details for.
      * @return The computed details.
      */
-    Map<String, Object> getDetails(T object);
+    Map<String, Object> getDetails(HolderLookup.Provider registries, T object);
 }

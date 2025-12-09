@@ -7,11 +7,13 @@ package dan200.computercraft.impl;
 import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.shared.config.ConfigSpec;
+import net.minecraft.server.MinecraftServer;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * The global registry for {@link GenericSource}s.
@@ -23,16 +25,17 @@ public final class GenericSources {
     private GenericSources() {
     }
 
-    private static final Collection<GenericSource> sources = new LinkedHashSet<>();
+    private static final Collection<Function<MinecraftServer, GenericSource>> sources = new ArrayList<>();
 
-    static synchronized void register(GenericSource source) {
+    static synchronized void register(Function<MinecraftServer, GenericSource> source) {
         Objects.requireNonNull(source, "provider cannot be null");
         sources.add(source);
     }
 
-    public static Collection<GenericMethod> getAllMethods() {
+    public static Collection<GenericMethod> getAllMethods(MinecraftServer server) {
         var disabledMethods = Set.copyOf(ConfigSpec.disabledGenericMethods.get());
         return sources.stream()
+            .map(x -> x.apply(server))
             .filter(x -> !disabledMethods.contains(x.id()))
             .flatMap(GenericMethod::getMethods)
             .filter(x -> !disabledMethods.contains(x.id()))

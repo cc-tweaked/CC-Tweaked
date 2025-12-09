@@ -36,6 +36,7 @@ import dan200.computercraft.test.core.computer.LuaTaskContext
 import dan200.computercraft.test.core.computer.getApi
 import dan200.computercraft.test.shared.ItemStackMatcher.isStack
 import net.minecraft.core.BlockPos
+import net.minecraft.core.HolderLookup
 import net.minecraft.core.registries.Registries
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.resources.ResourceLocation
@@ -459,7 +460,7 @@ class Turtle_Test {
             VanillaDetailRegistries.ITEM_STACK.addProvider(
                 object :
                     ComponentDetailProvider<PrintoutData>("printout", ModRegistry.DataComponents.PRINTOUT.get()) {
-                    override fun provideComponentDetails(data: MutableMap<in String, Any>, component: PrintoutData) {
+                    override fun provideComponentDetails(data: MutableMap<in String, Any>, registries: HolderLookup.Provider, component: PrintoutData) {
                         data["pages"] = component.pages()
                     }
                 },

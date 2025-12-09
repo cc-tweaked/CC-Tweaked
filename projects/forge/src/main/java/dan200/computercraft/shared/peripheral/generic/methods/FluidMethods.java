@@ -13,6 +13,7 @@ import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,6 +35,12 @@ import static dan200.computercraft.shared.util.ArgumentHelpers.getRegistryEntry;
  * Fluid methods for Forge's fluid {@link ResourceHandler}.
  */
 public final class FluidMethods extends AbstractFluidMethods<FluidMethods.StorageWrapper> {
+    private final MinecraftServer server;
+
+    public FluidMethods(MinecraftServer server) {
+        this.server = server;
+    }
+
     public record StorageWrapper(ResourceHandler<FluidResource> storage) {
     }
 
@@ -45,7 +52,9 @@ public final class FluidMethods extends AbstractFluidMethods<FluidMethods.Storag
         var size = storage.size();
         for (var i = 0; i < size; i++) {
             var stack = storage.getResource(i).toStack(storage.getAmountAsInt(i));
-            if (!stack.isEmpty()) result.put(i + 1, ForgeDetailRegistries.FLUID_STACK.getBasicDetails(stack));
+            if (!stack.isEmpty()) {
+                result.put(i + 1, ForgeDetailRegistries.FLUID_STACK.getBasicDetails(server.registryAccess(), stack));
+            }
         }
 
         return result;

@@ -17,7 +17,7 @@ import org.jspecify.annotations.Nullable;
 
 @AutoService(ComputerCraftAPIService.class)
 public final class ComputerCraftAPIImpl extends AbstractComputerCraftAPI implements ComputerCraftAPIFabricService {
-    private final DetailRegistry<StorageView<FluidVariant>> fluidDetails = new DetailRegistryImpl<>(FluidDetails::fillBasic);
+    private final DetailRegistry<StorageView<FluidVariant>> fluidDetails = new DetailRegistryImpl<>((m, r, d) -> FluidDetails.fillBasic(m, d));
 
     static {
         // This We create the registries here (rather than in the mod initialiser) to guarantee that they're available

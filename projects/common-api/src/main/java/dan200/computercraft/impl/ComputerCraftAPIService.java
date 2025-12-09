@@ -32,6 +32,8 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
+import java.util.function.Function;
+
 /**
  * Backing interface for {@link ComputerCraftAPI}
  * <p>
@@ -53,7 +55,7 @@ public interface ComputerCraftAPIService {
     @Nullable
     Mount createResourceMount(MinecraftServer server, String domain, String subPath);
 
-    void registerGenericSource(GenericSource source);
+    void registerGenericSource(Function<MinecraftServer, GenericSource> source);
 
     void registerBundledRedstoneProvider(BundledRedstoneProvider provider);
 

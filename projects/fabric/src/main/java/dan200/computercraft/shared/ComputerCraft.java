@@ -135,7 +135,7 @@ public class ComputerCraft {
 
         FabricDetailRegistries.FLUID_VARIANT.addProvider(FluidDetails::fill);
 
-        ComputerCraftAPI.registerGenericSource(new InventoryMethods());
+        ComputerCraftAPI.registerGenericSource(InventoryMethods::new);
 
         Peripherals.addGenericLookup(InventoryMethods::extractContainer);
 

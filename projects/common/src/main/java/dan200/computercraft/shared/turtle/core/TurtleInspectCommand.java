@@ -30,7 +30,7 @@ public class TurtleInspectCommand implements TurtleCommand {
         var block = new BlockReference(world, newPosition);
         if (block.state().isAir()) return TurtleCommandResult.failure("No block to inspect");
 
-        var table = VanillaDetailRegistries.BLOCK_IN_WORLD.getDetails(block);
+        var table = VanillaDetailRegistries.BLOCK_IN_WORLD.getDetails(turtle.getLevel().registryAccess(), block);
 
         return TurtleCommandResult.success(new Object[]{ table });
 

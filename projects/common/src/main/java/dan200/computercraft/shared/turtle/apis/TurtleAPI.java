@@ -695,13 +695,13 @@ public class TurtleAPI implements ILuaAPI {
      * {@link #getItemDetail(ILuaContext, Optional, Optional)}.
      *
      * @return Information about the currently equipped item, or {@code nil} if no upgrade is equipped.
-     * @see #equipLeft()
      * @cc.since 1.116.0
+     * @see #equipLeft()
      */
     @LuaFunction(mainThread = true)
     public final @Nullable Map<?, ?> getEquippedLeft() {
         var upgrade = turtle.getUpgradeWithData(TurtleSide.LEFT);
-        return upgrade == null ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(upgrade.getUpgradeItem());
+        return upgrade == null ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(turtle.getLevel().registryAccess(), upgrade.getUpgradeItem());
     }
 
     /**
@@ -711,13 +711,13 @@ public class TurtleAPI implements ILuaAPI {
      * {@link #getItemDetail(ILuaContext, Optional, Optional)}.
      *
      * @return Information about the currently equipped item, or {@code nil} if no upgrade is equipped.
-     * @see #equipRight()
      * @cc.since 1.116.0
+     * @see #equipRight()
      */
     @LuaFunction(mainThread = true)
     public final @Nullable Map<?, ?> getEquippedRight() {
         var upgrade = turtle.getUpgradeWithData(TurtleSide.RIGHT);
-        return upgrade == null ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(upgrade.getUpgradeItem());
+        return upgrade == null ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(turtle.getLevel().registryAccess(), upgrade.getUpgradeItem());
     }
 
     /**
@@ -801,11 +801,11 @@ public class TurtleAPI implements ILuaAPI {
         if (detailed.orElse(false)) {
             return context.executeMainThreadTask(() -> {
                 var stack = turtle.getInventory().getItem(actualSlot);
-                return new Object[]{ stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(stack) };
+                return new Object[]{ stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(turtle.getLevel().registryAccess(), stack) };
             });
         } else {
             var stack = turtle.getItemSnapshot(actualSlot);
-            return MethodResult.of(stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getBasicDetails(stack));
+            return MethodResult.of(stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getBasicDetails(turtle.getLevel().registryAccess(), stack));
         }
     }
 

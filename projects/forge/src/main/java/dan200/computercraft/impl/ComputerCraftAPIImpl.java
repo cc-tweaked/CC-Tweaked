@@ -25,7 +25,7 @@ import java.util.Objects;
 
 @AutoService(ComputerCraftAPIService.class)
 public final class ComputerCraftAPIImpl extends AbstractComputerCraftAPI implements ComputerCraftAPIForgeService {
-    private final DetailRegistry<FluidStack> fluidStackDetails = new DetailRegistryImpl<>(FluidData::fillBasic);
+    private final DetailRegistry<FluidStack> fluidStackDetails = new DetailRegistryImpl<>((m, r, d) -> FluidData.fillBasic(m, d));
 
     private @Nullable String version;
 

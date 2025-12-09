@@ -73,7 +73,7 @@ public final class ServerContext {
             .computerThreads(ConfigSpec.computerThreads.get())
             .mainThreadScheduler(mainThread)
             .luaFactory(luaMachine)
-            .genericMethods(GenericSources.getAllMethods())
+            .genericMethods(GenericSources.getAllMethods(server))
             .build();
         idAssigner = new IDAssigner(storageDir.resolve("ids.json"));
     }

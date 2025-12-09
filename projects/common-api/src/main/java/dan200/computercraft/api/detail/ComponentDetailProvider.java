@@ -4,6 +4,7 @@
 
 package dan200.computercraft.api.detail;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentHolder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.item.ItemStack;
@@ -51,21 +52,22 @@ public abstract class ComponentDetailProvider<T> implements DetailProvider<DataC
      * This method is always called on the server thread, so it is safe to interact with the world here, but you should
      * take care to avoid long blocking operations as this will stall the server and other computers.
      *
-     * @param data      The full details to be returned for this item stack. New properties should be added to this map.
-     * @param component The component to provide details for.
+     * @param data       The full details to be returned for this item stack. New properties should be added to this map.
+     * @param registries The current registries.
+     * @param component  The component to provide details for.
      */
-    public abstract void provideComponentDetails(Map<? super String, Object> data, T component);
+    public abstract void provideComponentDetails(Map<? super String, Object> data, HolderLookup.Provider registries, T component);
 
     @Override
-    public final void provideDetails(Map<? super String, Object> data, DataComponentHolder holder) {
+    public final void provideDetails(Map<? super String, Object> data, HolderLookup.Provider registries, DataComponentHolder holder) {
         var value = holder.get(component);
         if (value == null) return;
 
         if (namespace == null) {
-            provideComponentDetails(data, value);
+            provideComponentDetails(data, registries, value);
         } else {
             Map<? super String, Object> child = new HashMap<>();
-            provideComponentDetails(child, value);
+            provideComponentDetails(child, registries, value);
             data.put(namespace, child);
         }
     }
