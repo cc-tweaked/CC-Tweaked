@@ -8,7 +8,7 @@ import cc.tweaked.gradle.*
 
 plugins {
     `java-library`
-    id("fabric-loom")
+    id("net.fabricmc.fabric-loom-remap")
     id("cc-tweaked.java-convention")
 }
 
@@ -59,10 +59,6 @@ dependencies {
 
     // Depend on error prone annotations to silence a lot of compile warnings.
     compileOnlyApi(libs.findLibrary("errorProne.annotations").get())
-}
-
-tasks.ideaSyncTask {
-    doLast { IdeaRunConfigurations(project).patch() }
 }
 
 tasks.named("checkDependencyConsistency", DependencyCheck::class.java) {
