@@ -115,7 +115,7 @@ public class WiredModemFullBlockEntity extends BlockEntity {
 
     void queueRefreshPeripheral(Direction facing) {
         invalidSides |= 1 << facing.ordinal();
-        TickScheduler.schedule(tickToken);
+        getLevel().scheduleTick(getBlockPos(), getBlockState().getBlock(), 0);
     }
 
     public InteractionResult use(Player player) {
@@ -190,7 +190,7 @@ public class WiredModemFullBlockEntity extends BlockEntity {
 
     private void scheduleConnectionsChanged() {
         refreshConnections = true;
-        TickScheduler.schedule(tickToken);
+        getLevel().scheduleTick(getBlockPos(), getBlockState().getBlock(), 0);
     }
 
     private void connectionsChanged() {

@@ -71,7 +71,7 @@ public final class RedstoneRelayBlockEntity extends BlockEntity {
 
         // If the input has changed, and we're not currently in update(), then schedule a new tick so we can queue a
         // redstone event.
-        if (changed && !ticking) TickScheduler.schedule(tickToken);
+        if (changed && !ticking) getLevel().scheduleTick(getBlockPos(), getBlockState().getBlock(), 0);
     }
 
     private ComputerSide mapSide(Direction globalSide) {
