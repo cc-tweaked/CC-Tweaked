@@ -33,7 +33,10 @@ public final class ComputerScreen<T extends AbstractComputerMenu> extends Abstra
 
     @Override
     protected TerminalWidget createTerminal() {
-        return new TerminalWidget(terminalData, input, leftPos + AbstractComputerMenu.SIDEBAR_WIDTH + BORDER, topPos + BORDER);
+        return new TerminalWidget(
+            terminalData, computerInput, computerActions,
+            leftPos + AbstractComputerMenu.SIDEBAR_WIDTH + BORDER, topPos + BORDER
+        );
     }
 
     @Override
