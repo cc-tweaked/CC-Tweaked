@@ -89,6 +89,7 @@ public final class ClientRegistry {
     public static void registerMainThread(RegisterItemProperty itemProperties) {
         MenuScreens.<AbstractComputerMenu, ComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.COMPUTER.get(), ComputerScreen::new);
         MenuScreens.<AbstractComputerMenu, NoTermComputerScreen<AbstractComputerMenu>>register(ModRegistry.Menus.POCKET_COMPUTER_NO_TERM.get(), NoTermComputerScreen::new);
+        MenuScreens.register(ModRegistry.Menus.POCKET_COMPUTER_LECTERN.get(), PocketComputerLecternScreen::new);
         MenuScreens.register(ModRegistry.Menus.TURTLE.get(), TurtleScreen::new);
 
         MenuScreens.register(ModRegistry.Menus.PRINTER.get(), PrinterScreen::new);

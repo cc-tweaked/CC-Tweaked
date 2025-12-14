@@ -187,27 +187,12 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
                 updateItem(stack, brain);
             }
 
-            if (!stop) openImpl(player, stack, holder, hand == InteractionHand.OFF_HAND, computer);
+            if (!stop) openMenu(player, stack, holder, hand == InteractionHand.OFF_HAND, computer);
         }
         return new InteractionResultHolder<>(InteractionResult.sidedSuccess(world.isClientSide), stack);
     }
 
-    /**
-     * Open a container for this pocket computer.
-     *
-     * @param player       The player to show the menu for.
-     * @param stack        The pocket computer stack.
-     * @param holder       The holder of the pocket computer.
-     * @param isTypingOnly Open the off-hand pocket screen (only supporting typing, with no visible terminal).
-     */
-    public void open(Player player, ItemStack stack, PocketHolder holder, boolean isTypingOnly) {
-        var brain = getOrCreateBrain(holder.level(), holder, stack);
-        var computer = brain.computer();
-        computer.turnOn();
-        openImpl(player, stack, holder, isTypingOnly, computer);
-    }
-
-    private static void openImpl(Player player, ItemStack stack, PocketHolder holder, boolean isTypingOnly, ServerComputer computer) {
+    private static void openMenu(Player player, ItemStack stack, PocketHolder holder, boolean isTypingOnly, ServerComputer computer) {
         PlatformHelper.get().openMenu(player, stack.getHoverName(), (id, inventory, entity) -> new ComputerMenuWithoutInventory(
             isTypingOnly ? ModRegistry.Menus.POCKET_COMPUTER_NO_TERM.get() : ModRegistry.Menus.COMPUTER.get(), id, inventory,
             p -> holder.isValid(computer),
@@ -288,6 +273,20 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
         holder.setChanged();
 
         return brain;
+    }
+
+    /**
+     * Get (or create) the pocket server computer and turn it on, ready for the player to interact with.
+     *
+     * @param stack  The pocket computer stack.
+     * @param holder The holder of the pocket computer.
+     * @return The pocket server computer.
+     */
+    public ServerComputer getAndTurnOnServerComputer(ItemStack stack, PocketHolder holder) {
+        var brain = getOrCreateBrain(holder.level(), holder, stack);
+        var computer = brain.computer();
+        computer.turnOn();
+        return computer;
     }
 
     public static boolean isServerComputer(ServerComputer computer, ItemStack stack) {

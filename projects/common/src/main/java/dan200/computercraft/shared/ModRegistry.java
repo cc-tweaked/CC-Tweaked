@@ -45,6 +45,7 @@ import dan200.computercraft.shared.details.ItemDetails;
 import dan200.computercraft.shared.integration.PermissionRegistry;
 import dan200.computercraft.shared.lectern.CustomLecternBlock;
 import dan200.computercraft.shared.lectern.CustomLecternBlockEntity;
+import dan200.computercraft.shared.lectern.PocketComputerLecternMenu;
 import dan200.computercraft.shared.media.MountMedia;
 import dan200.computercraft.shared.media.PrintoutMenu;
 import dan200.computercraft.shared.media.items.*;
@@ -320,6 +321,9 @@ public final class ModRegistry {
 
         public static final RegistryEntry<MenuType<ComputerMenuWithoutInventory>> POCKET_COMPUTER_NO_TERM = REGISTRY.register("pocket_computer_no_term",
             () -> ContainerData.toType(ComputerContainerData::new, (id, inv, data) -> new ComputerMenuWithoutInventory(Menus.POCKET_COMPUTER_NO_TERM.get(), id, inv, data)));
+
+        public static final RegistryEntry<MenuType<PocketComputerLecternMenu>> POCKET_COMPUTER_LECTERN = REGISTRY.register("pocket_computer_lectern",
+            () -> ContainerData.toType(PocketComputerLecternMenu.Data::ofBytes, PocketComputerLecternMenu::new));
 
         public static final RegistryEntry<MenuType<TurtleMenu>> TURTLE = REGISTRY.register("turtle",
             () -> ContainerData.toType(ComputerContainerData::new, TurtleMenu::ofMenuData));

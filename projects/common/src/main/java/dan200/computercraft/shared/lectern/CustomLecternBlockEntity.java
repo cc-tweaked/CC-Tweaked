@@ -9,6 +9,8 @@ import dan200.computercraft.shared.container.BasicContainer;
 import dan200.computercraft.shared.container.SingleContainerData;
 import dan200.computercraft.shared.media.PrintoutMenu;
 import dan200.computercraft.shared.media.items.PrintoutItem;
+import dan200.computercraft.shared.network.container.ComputerContainerData;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.pocket.core.PocketHolder;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
@@ -136,7 +138,13 @@ public final class CustomLecternBlockEntity extends BlockEntity {
                 new PrintoutContainerData()
             ), getItem().getDisplayName()));
         } else if (item.getItem() instanceof PocketComputerItem pocket) {
-            pocket.open(player, item, new PocketHolder.LecternHolder(this), true);
+            var holder = new PocketHolder.LecternHolder(this);
+            var computer = pocket.getAndTurnOnServerComputer(item, holder);
+            PlatformHelper.get().openMenu(
+                player, item.getHoverName(),
+                (id, inv, entity) -> new PocketComputerLecternMenu(id, inv, holder, computer),
+                new PocketComputerLecternMenu.Data(new ComputerContainerData(computer, item), getBlockPos())
+            );
         }
     }
 

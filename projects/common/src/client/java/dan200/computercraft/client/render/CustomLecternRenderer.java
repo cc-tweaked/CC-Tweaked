@@ -24,7 +24,9 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.LecternRenderer;
 import net.minecraft.world.level.block.LecternBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector2f;
 
 import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
@@ -49,13 +51,23 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
         pocketModel = new LecternPocketModel();
     }
 
+    /**
+     * Update our {@link PoseStack} for rendering the lectern's contents.
+     *
+     * @param poseStack The pose stack to update.
+     * @param state     The lectern block state.
+     */
+    public static void applyLecternTransform(PoseStack poseStack, BlockState state) {
+        poseStack.translate(0.5f, 1.0625f, 0.5f);
+        poseStack.mulPose(Axis.YP.rotationDegrees(-state.getValue(LecternBlock.FACING).getClockWise().toYRot()));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(67.5f));
+        poseStack.translate(0, -0.125f, 0);
+    }
+
     @Override
     public void render(CustomLecternBlockEntity lectern, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay) {
         poseStack.pushPose();
-        poseStack.translate(0.5f, 1.0625f, 0.5f);
-        poseStack.mulPose(Axis.YP.rotationDegrees(-lectern.getBlockState().getValue(LecternBlock.FACING).getClockWise().toYRot()));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(67.5f));
-        poseStack.translate(0, -0.125f, 0);
+        applyLecternTransform(poseStack, lectern.getBlockState());
 
         var item = lectern.getItem();
         if (item.getItem() instanceof PrintoutItem) {
@@ -73,10 +85,7 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
                 ARGB32.opaque(computer == null || computer.getLightState() == -1 ? Colour.BLACK.getHex() : computer.getLightState())
             );
 
-            // Jiggle the terminal about a bit, so (0, 0) is in the top left of the model's terminal hole.
-            poseStack.mulPose(Axis.YP.rotationDegrees(90f));
-            poseStack.translate(-0.5 * LecternPocketModel.TERM_WIDTH, 0.5 * LecternPocketModel.TERM_HEIGHT + 1f / 32.0f, 1 / 16.0f);
-            poseStack.mulPose(Axis.XP.rotationDegrees(180));
+            applyPocketComputerTerminalTransform(poseStack);
 
             // Either render the terminal or a black screen, depending on how close we are.
             var terminal = computer == null ? null : computer.getTerminal();
@@ -91,7 +100,27 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
         poseStack.popPose();
     }
 
-    private static void renderPocketTerminal(PoseStack poseStack, FixedWidthFontRenderer.QuadEmitter quadEmitter, Terminal terminal) {
+    /**
+     * Update our {@link PoseStack} for rendering the pocket computer terminal. This jiggles the terminal about a bit,
+     * so {@code (0, 0)} is in the top left of the model's terminal hole.
+     *
+     * @param poseStack The pose stack to update.
+     */
+    public static void applyPocketComputerTerminalTransform(PoseStack poseStack) {
+        poseStack.mulPose(Axis.YP.rotationDegrees(90f));
+        poseStack.translate(-0.5 * LecternPocketModel.TERM_WIDTH, 0.5 * LecternPocketModel.TERM_HEIGHT + 1f / 32.0f, 1 / 16.0f);
+        poseStack.mulPose(Axis.XP.rotationDegrees(180));
+    }
+
+    /**
+     * Update our {@link PoseStack} for rendering the pocket computer terminal itself. This scales us to work in
+     * terminal space, and translates so that {@code (0, 0)} is the top left of the pocket terminal.
+     *
+     * @param poseStack The pose stack to update.
+     * @param terminal  The current terminal.
+     * @return The margins of the terminal.
+     */
+    public static Vector2f applyScaledPocketComputerTerminalTransform(PoseStack poseStack, Terminal terminal) {
         var width = terminal.getWidth() * FONT_WIDTH;
         var height = terminal.getHeight() * FONT_HEIGHT;
 
@@ -104,7 +133,13 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
         // Convert the model dimensions to terminal space, then find out how large the margin should be.
         var marginX = ((LecternPocketModel.TERM_WIDTH / scale) - width) / 2;
         var marginY = ((LecternPocketModel.TERM_HEIGHT / scale) - height) / 2;
+        poseStack.translate(marginX, marginY, 0);
 
-        FixedWidthFontRenderer.drawTerminal(quadEmitter, marginX, marginY, terminal, marginY, marginY, marginX, marginX);
+        return new Vector2f(marginX, marginY);
+    }
+
+    private static void renderPocketTerminal(PoseStack poseStack, FixedWidthFontRenderer.QuadEmitter quadEmitter, Terminal terminal) {
+        var margin = applyScaledPocketComputerTerminalTransform(poseStack, terminal);
+        FixedWidthFontRenderer.drawTerminal(quadEmitter, 0, 0, terminal, margin.y(), margin.y(), margin.x(), margin.x());
     }
 }
