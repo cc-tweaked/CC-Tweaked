@@ -9,7 +9,8 @@
     "@squid-dev/cc-web-term": "^2.0.0",
     "preact": "^10.5.5",
     "setimmediate": "^1.0.5",
-    "tslib": "^2.0.3"
+    "tslib": "^2.0.3",
+    "wasm-feature-detect": "^1.8.0"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^16.0.0",
