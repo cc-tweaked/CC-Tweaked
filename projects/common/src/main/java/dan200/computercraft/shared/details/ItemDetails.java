@@ -75,7 +75,8 @@ public class ItemDetails {
         if (tag != null && tag.getBoolean("Unbreakable") && (hideFlags & 4) == 0) {
             data.put("unbreakable", true);
         }
-        data.put("color", getMapColor(stack));
+
+        DetailHelpers.fillMapColour(data, EmptyBlockGetter.INSTANCE, BlockPos.ZERO, Block.byItem(stack.getItem()).defaultBlockState());
     }
 
     @Nullable
@@ -135,10 +136,5 @@ public class ItemDetails {
             enchant.put("displayName", enchantment.getFullname(level).getString());
             enchants.add(enchant);
         }
-    }
-
-    public static Integer getMapColor(ItemStack stack) {
-        Block b = Block.byItem(stack.getItem());
-        return DetailHelpers.getMapColor(b.defaultBlockState(), EmptyBlockGetter.INSTANCE, BlockPos.ZERO);
     }
 }

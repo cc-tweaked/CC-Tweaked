@@ -27,16 +27,12 @@ public class BlockDetails {
 
     public static void fill(Map<? super String, Object> data, BlockReference block) {
         data.put("tags", DetailHelpers.getTags(block.state().getTags()));
-        data.put("color", getMapColor(block));
+        DetailHelpers.fillMapColour(data, block.level(), block.pos(), block.state());
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private static Object getPropertyValue(Property property, Comparable value) {
         if (value instanceof String || value instanceof Number || value instanceof Boolean) return value;
         return property.getName(value);
-    }
-
-    public static Integer getMapColor(BlockReference block) {
-        return DetailHelpers.getMapColor(block.state(), block.level(), block.pos());
     }
 }
