@@ -19,11 +19,7 @@ val mcVersion: String by extra
 
 legacyForge {
     val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
-
-    enable {
-        forgeVersion = "$mcVersion-${libs.findVersion("forge").get()}"
-        setDisableRecompilation(providers.environmentVariable("CI").isPresent)
-    }
+    version = "$mcVersion-${libs.findVersion("forge").get()}"
 
     parchment {
         minecraftVersion = libs.findVersion("parchmentMc").get().toString()
