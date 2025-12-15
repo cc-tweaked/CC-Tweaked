@@ -146,6 +146,7 @@ public class CustomLecternBlock extends LecternBlock {
     }
 
     @Override
+    @Deprecated
     public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos) {
         return level.getBlockEntity(pos) instanceof CustomLecternBlockEntity lectern ? lectern.getRedstoneSignal() : 0;
     }

@@ -437,7 +437,7 @@ public class PlatformHelperImpl implements PlatformHelper {
         }
 
         @Nullable
-        protected abstract T get(ServerLevel world, BlockPos pos, Direction side, InvalidateCallback invalidate);
+        abstract T get(ServerLevel world, BlockPos pos, Direction side, InvalidateCallback invalidate);
 
         @Nullable
         @Override
