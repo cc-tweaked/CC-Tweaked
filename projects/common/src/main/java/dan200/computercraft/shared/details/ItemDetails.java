@@ -13,6 +13,9 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.LingeringPotionItem;
+import net.minecraft.world.item.TippedArrowItem;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.Block;
@@ -71,6 +74,9 @@ public class ItemDetails {
 
         var enchants = getAllEnchants(stack, hideFlags);
         if (!enchants.isEmpty()) data.put("enchantments", enchants);
+
+        var effects = getAllEffects(stack);
+        if (!effects.isEmpty()) data.put("potionEffects", effects);
 
         if (tag != null && tag.getBoolean("Unbreakable") && (hideFlags & 4) == 0) {
             data.put("unbreakable", true);
@@ -136,5 +142,42 @@ public class ItemDetails {
             enchant.put("displayName", enchantment.getFullname(level).getString());
             enchants.add(enchant);
         }
+    }
+
+    /**
+     * Retrieve all potions from given stack.
+     *
+     * @param stack Stack to analyse.
+     * @return A filled list that contain all visible potions.
+     */
+    private static List<Map<String, Object>> getAllEffects(ItemStack stack) {
+        return PotionUtils.getMobEffects(stack).stream().map(p -> {
+            Map<String, Object> potion = new HashMap<>(4);
+            potion.put("name", DetailHelpers.getId(RegistryWrappers.MOB_EFFECTS, p.getEffect()));
+            potion.put("displayName", Component.translatable(p.getDescriptionId()).getString());
+
+            // Expose the roman numerals (e.g. Instant Health II), rather than the raw amplifier value.
+            if (p.getAmplifier() > 0) potion.put("potency", p.getAmplifier() + 1);
+
+            if (p.isInfiniteDuration()) {
+                potion.put("duration", Double.POSITIVE_INFINITY);
+            } else if (p.getDuration() > 1) {
+                potion.put("duration", p.getDuration() / 20.0 * getPotionDurationMultiplier(stack));
+            }
+            return potion;
+        }).toList();
+    }
+
+    /**
+     * Get the potion duration multiplier for an item, to handle items which have a shorter duration than a normal
+     * potion.
+     *
+     * @param stack The current stack.
+     * @return The duration multiplier.
+     */
+    private static double getPotionDurationMultiplier(ItemStack stack) {
+        if (stack.getItem() instanceof LingeringPotionItem) return 0.25;
+        if (stack.getItem() instanceof TippedArrowItem) return 0.125;
+        return 1.0;
     }
 }
