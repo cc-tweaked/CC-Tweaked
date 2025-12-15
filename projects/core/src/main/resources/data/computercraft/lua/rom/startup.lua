@@ -191,7 +191,7 @@ end
 
 -- Show MOTD
 if settings.get("motd.enable") then
-    shell.run("motd")
+    shell.run("/rom/programs/motd")
 end
 
 -- Run the user created startup, either from disk drives or the root

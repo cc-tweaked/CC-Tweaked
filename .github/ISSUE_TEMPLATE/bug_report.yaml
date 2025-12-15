@@ -11,7 +11,8 @@ body:
         What version of Minecraft are you using? If your version is not listed, please try to reproduce on one of the supported versions.
     options:
       - 1.20.1
-      - 1.21.x
+      - 1.21.1
+      - 1.21.7
   validations:
     required: true
 - type: input

@@ -12,6 +12,7 @@ files:
         de: de_de    # German
         es-ES: es_es # Spanish
         fr: fr_fr    # French
+        hu: hu_hu    # Hungarian
         it: it_it    # Italian
         ja: ja_jp    # Japanese
         ko: ko_kr    # Korean

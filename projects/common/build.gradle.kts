@@ -81,7 +81,7 @@ val luaJavadoc by tasks.registering(Javadoc::class) {
     options.addStringOption("project-root", rootProject.file(".").absolutePath)
     options.noTimestamp(false)
 
-    javadocTool = javaToolchains.javadocToolFor { languageVersion = CCTweakedPlugin.JAVA_VERSION }
+    javadocTool = javaToolchains.javadocToolFor { languageVersion = CCTweakedPlugin.JDK_VERSION }
 }
 
 val lintLua by tasks.registering(IlluaminateExec::class) {

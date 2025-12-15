@@ -99,6 +99,7 @@ object TestHooks {
         Component_Test::class.java,
         Computer_Test::class.java,
         CraftOs_Test::class.java,
+        Disk_Test::class.java,
         Disk_Drive_Test::class.java,
         Inventory_Test::class.java,
         Loot_Test::class.java,

@@ -67,21 +67,36 @@ This comment was never finished.
  1 | --[=[
    | ^^^^^ Comment was started here.
 We expected a closing delimiter (]=]) somewhere after this comment was started.
-1:1-1:5 ERROR --[=[
+1:1-1:5 COMMENT --[=[
+```
+
+But incomplete opening `[`s are treated as a line comment:
+
+```lua
+--[
+--[=
+return
+```
+
+```txt
+1:1-1:3 COMMENT --[
+2:1-2:4 COMMENT --[=
+3:1-3:6 RETURN return
 ```
 
 Nested comments are rejected, just as Lua 5.1 does:
 
 ```lua
---[[ [[ ]]
+--[[ [[ ]] return
 ```
 
 ```txt
 [[ cannot be nested inside another [[ ... ]]
    |
- 1 | --[[ [[ ]]
+ 1 | --[[ [[ ]] return
    |      ^^
 1:1-1:10 COMMENT --[[ [[ ]]
+1:12-1:17 RETURN return
 ```
 
 # Strings
@@ -191,7 +206,7 @@ This string was never finished.
  1 | return [[
    |        ^^ String was started here.
 We expected a closing delimiter (]]) somewhere after this string was started.
-1:8-1:9 ERROR [[
+1:8-1:9 STRING [[
 ```
 
 We also handle malformed opening strings:

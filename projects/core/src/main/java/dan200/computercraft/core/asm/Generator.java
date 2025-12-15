@@ -47,7 +47,7 @@ final class Generator<T> {
     private static final MethodHandle ARG_GET_OBJECT, ARG_GET_ENUM, ARG_OPT_ENUM, ARG_GET_STRING_COERCED, ARG_GET_BYTES_COERCED;
 
     private record ArgMethods(MethodHandle get, MethodHandle opt) {
-        public static ArgMethods of(Class<?> type, String name) throws ReflectiveOperationException {
+        private static ArgMethods of(Class<?> type, String name) throws ReflectiveOperationException {
             return new ArgMethods(
                 LOOKUP.findVirtual(IArguments.class, "get" + name, MethodType.methodType(type, int.class)),
                 LOOKUP.findVirtual(IArguments.class, "opt" + name, MethodType.methodType(Optional.class, int.class))
@@ -73,6 +73,22 @@ final class Generator<T> {
             addArgType(argMethodMap, Map.class, "Table");
             addArgType(argMethodMap, String.class, "String");
             addArgType(argMethodMap, ByteBuffer.class, "Bytes");
+            argMethodMap.put(LuaTable.class, new ArgMethods(
+                // i -> new ObjectLuaTable(getTable(i))
+                MethodHandles.filterReturnValue(
+                    LOOKUP.findVirtual(IArguments.class, "getTable", MethodType.methodType(Map.class, int.class)),
+                    LOOKUP.findConstructor(ObjectLuaTable.class, MethodType.methodType(void.class, Map.class))
+                        .asType(MethodType.methodType(LuaTable.class, Map.class))
+                ),
+                // i -> optTable(i).map(ObjectLuaTable::new)
+                MethodHandles.filterReturnValue(
+                    LOOKUP.findVirtual(IArguments.class, "optTable", MethodType.methodType(Optional.class, int.class)),
+                    MethodHandles.insertArguments(
+                        LOOKUP.findVirtual(Optional.class, "map", MethodType.methodType(Optional.class, Function.class)),
+                        1, (Function<Map<?, ?>, LuaTable<?, ?>>) ObjectLuaTable::new
+                    )
+                )
+            ));
             argMethods = Map.copyOf(argMethodMap);
 
             ARG_TABLE_UNSAFE = ArgMethods.of(LuaTable.class, "TableUnsafe");
@@ -335,10 +351,9 @@ final class Generator<T> {
     }
 
     private static @Nullable ArgMethods getArgMethods(Class<?> type, boolean unsafe) {
-        var getter = argMethods.get(type);
-        if (getter != null) return getter;
         if (type == LuaTable.class && unsafe) return ARG_TABLE_UNSAFE;
-        return null;
+
+        return argMethods.get(type);
     }
 
     /**

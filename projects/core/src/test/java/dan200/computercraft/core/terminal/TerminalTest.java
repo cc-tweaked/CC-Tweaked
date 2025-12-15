@@ -585,7 +585,7 @@ class TerminalTest {
             }
         }
 
-        public Matcher<Terminal> matches() {
+        private Matcher<Terminal> matches() {
             return allOf(
                 textMatches(textLines), textColourMatches(textColourLines), backgroundColourMatches(backgroundColourLines)
             );

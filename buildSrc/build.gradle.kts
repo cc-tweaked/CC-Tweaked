@@ -25,6 +25,7 @@ repositories {
         name = "Fabric"
         content {
             includeGroup("net.fabricmc")
+            includeGroup("net.fabricmc.unpick")
         }
     }
 
@@ -69,6 +70,6 @@ gradlePlugin {
 
 versionCatalogUpdate {
     sortByKey = false
-    keep { keepUnusedLibraries = true }
+    keep { keepUnusedVersions = true }
     catalogFile = file("../gradle/libs.versions.toml")
 }

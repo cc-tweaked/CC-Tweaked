@@ -67,7 +67,6 @@ configurations {
     val localImplementation by registering {
         isCanBeResolved = false
         isCanBeConsumed = false
-        isVisible = false
     }
     compileClasspath { extendsFrom(localImplementation.get()) }
     runtimeClasspath { extendsFrom(localImplementation.get()) }
@@ -118,7 +117,6 @@ dependencies {
 
 loom {
     accessWidenerPath = project(":common").file("src/main/resources/computercraft.accesswidener")
-    mixin.defaultRefmapName = "computercraft.refmap.json"
 
     mods {
         register("computercraft") {
@@ -143,6 +141,7 @@ loom {
     runs {
         configureEach {
             ideConfigGenerated(true)
+            ideConfigFolder = "Fabric"
         }
 
         named("client") {

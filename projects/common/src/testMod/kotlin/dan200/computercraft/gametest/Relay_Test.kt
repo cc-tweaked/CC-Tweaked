@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.LeverBlock
 import net.minecraft.world.level.block.RedstoneLampBlock
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 
 class Relay_Test {
     /**
@@ -95,5 +96,25 @@ class Relay_Test {
         thenExecute { relay().setOutput(ComputerSide.BACK, false) }
         thenIdle(2)
         thenExecute { assertEquals(false, relay().getInput(ComputerSide.BACK), "Input should be off") }
+    }
+
+    /**
+     * Check redstone input is detected when placed/loaded
+     *
+     * @see [#2175](https://github.com/cc-tweaked/CC-Tweaked/issues/2175)
+     */
+    @GameTest(template = "default")
+    fun Initial_input(context: GameTestHelper) = context.sequence {
+        thenExecute {
+            context.setBlock(1, 2, 2, Blocks.REDSTONE_BLOCK)
+            context.setBlock(2, 2, 2, ModRegistry.Blocks.REDSTONE_RELAY.get())
+        }
+        thenIdle(1)
+        thenExecute {
+            val relay = context.getBlockEntity(BlockPos(2, 2, 2), ModRegistry.BlockEntities.REDSTONE_RELAY.get())
+                .peripheral() as RedstoneRelayPeripheral
+
+            assertTrue(relay.getInput(ComputerSide.LEFT), "Input should be on")
+        }
     }
 }

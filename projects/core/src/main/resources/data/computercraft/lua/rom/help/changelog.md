@@ -1,3 +1,37 @@
+# New features in CC: Tweaked 1.116.2
+
+Several bug fixes:
+* Update Create compatibility to Create Fabric 6.0.
+* Various documentation fixes (Zirunis).
+* Fix crash with Inventorio.
+* Various fixes to SNBT parsing.
+* Fix Regex DDoS in string pattern matching.
+
+# New features in CC: Tweaked 1.116.1
+
+* Update translations.
+
+One bug fix:
+* Fix NPE when mcfunction files contain CC commands.
+
+# New features in CC: Tweaked 1.116.0
+
+* Add `turtle.getEquippedLeft()` and `turtle.getEquippedRight()`.
+* Add item tags for floppy disks and pocket computers.
+* Support multi-line strings and comments in `edit`.
+
+Several bug fixes:
+* Ignore shader compilation errors when running with Pojav.
+* Fix several issues with character input.
+* Fix pocket computer dyes being lost when equipping/unequipping upgrades.
+* Fix superflous warnings from allocation tracking.
+* Fix `__lt`/`__le` not working on heterogeneous types.
+* Many documentation fixes (Lemmmy, matematikaadit, McJack12).
+* Fix `0` being treated as a valid colour in `window` and `colour.toBlit`.
+* Fix out-of-bounds when pasting too lon text.
+* Fix syntax highlighting of string escapes (LorneHyde).
+* Fix sidebar texture of advanced computers being offset.
+
 # New features in CC: Tweaked 1.115.1
 
 * Update various translations (cyb3r, kevk2156, teamer337, yakku).
@@ -218,6 +252,7 @@ Several bug fixes:
 * File handles, HTTP requests and websocket messages now use raw bytes rather than converting to UTF-8.
 * Add `allow_repetitions` option to `textutils.serialiseJSON`.
 * Track memory allocated by computers.
+* Update the version returned by `os.version()` to `CraftOS 1.9`.
 
 Several bug fixes:
 * Fix error when using position captures and backreferences in string patterns (e.g. `()(%1)`).
@@ -1249,6 +1284,7 @@ And several bug fixes:
 * Monitors glow in the dark.
 * http_failure event includes the HTTP handle if available.
 * HTTP responses include the response headers.
+* Update the version returned by `os.version()` to `CraftOS 1.8`.
 
 # New Features in ComputerCraft 1.79:
 
@@ -1319,6 +1355,7 @@ And several bug fixes:
 * Fixed various bugs, crashes and exploits
 * Fixed problems with HD texture packs
 * Documented the new features in the in-game help
+* Update the version returned by `os.version()` to `CraftOS 1.7`.
 
 # New Features in ComputerCraft 1.65:
 
@@ -1377,6 +1414,7 @@ And several bug fixes:
 * `turtle.suck( [limit] )` can now be used to limit the number of items picked up
 * Users of `turtle.dig()` and `turtle.attack()` can now specify which side of the turtle to look for a tool to use (by default, both will be considered)
 * `textutils.serialise( text )` now produces human-readable output
+* Update the version returned by `os.version()` to `CraftOS 1.6`.
 * Refactored most of the codebase and fixed many old bugs and instabilities, turtles should never ever lose their content now
 * Fixed the `turtle_inventory` event firing when it shouldn't have
 * Added error messages to many more turtle functions after they return false
@@ -1438,6 +1476,7 @@ And several bug fixes:
 * `turtle.place()` now tries all possible block orientations before failing
 * `turtle.refuel(0)` returns true if a fuel item is selected
 * `turtle.craft(0)` returns true if the inventory is a valid recipe
+* Update the version returned by `os.version()` to `CraftOS 1.5`.
 * The in-game help system now has documentation for all the peripherals and their methods, including the new modem functionality
 * A romantic surprise
 
@@ -1510,6 +1549,7 @@ And several bug fixes:
 * `http.request()` now supports https:// URLs
 * Right clicking a Disk Drive with a Floppy Disk or a Record when sneaking will insert the item into the Disk Drive automatically
 * The default size of the computer screen has been increased
+* Update the version returned by `os.version()` to `CraftOS 1.4`.
 * Several stability and security fixes. LuaJ can now no longer leave dangling threads when a computer is unloaded, turtles can no longer be destroyed by tree leaves or walking off the edge of the loaded map. Computers no longer crash when used with RedPower frames.
 
 # New Features in ComputerCraft 1.31:
@@ -1550,6 +1590,7 @@ And several bug fixes:
 * New io file function: `file:lines()`
 * New fs function: `fs.getSize()`
 * Disk Drives can now play records from other mods
+* Update the version returned by `os.version()` to `CraftOS 1.3`.
 * Bug fixes, program tweaks, and help updates
 
 # New Features in ComputerCraft 1.2:
@@ -1565,6 +1606,7 @@ And several bug fixes:
 * New os functions: `os.loadAPI()`, `os.unloadAPI()`, `os.clock()`, `os.time()`, `os.setAlarm()`, `os.reboot()`, `os.queueEvent()`
 * New redstone function: `redstone.getSides()`
 * New shell functions: `shell.setPath()`, `shell.programs()`, `shell.resolveProgram()`, `shell.setAlias()`
+* Update the version returned by `os.version()` to `CraftOS 1.2`.
 * Lots of updates to the help pages
 * Bug fixes
 
@@ -1575,6 +1617,7 @@ And several bug fixes:
 * Added HTTP api, enabled via the mod config, to allow computers to access the real world internet
 * Added command history to the shell.
 * Programs which spin in an infinite loop without yielding will no longer freeze minecraft
+* Update the version returned by `os.version()` to `CraftOS 1.1`.
 * Help updates and bug fixes
 
 # New Features in ComputerCraft 1.0:

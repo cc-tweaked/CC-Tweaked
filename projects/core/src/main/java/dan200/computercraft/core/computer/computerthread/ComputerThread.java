@@ -12,13 +12,11 @@ import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.computer.TimeoutState;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.metrics.MetricsObserver;
-import dan200.computercraft.core.metrics.ThreadAllocations;
 import dan200.computercraft.core.util.ThreadUtils;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.TreeSet;
 import java.util.concurrent.ThreadFactory;
@@ -489,9 +487,6 @@ public final class ComputerThread implements ComputerScheduler {
         }
 
         private void runImpl() {
-            var workerThreadIds = new long[workersReadOnly().length];
-            Arrays.fill(workerThreadIds, Thread.currentThread().getId());
-
             while (state.get() < CLOSED) {
                 computerLock.lock();
                 try {
@@ -506,33 +501,12 @@ public final class ComputerThread implements ComputerScheduler {
                     computerLock.unlock();
                 }
 
-                checkRunners(workerThreadIds);
+                checkRunners();
             }
         }
 
-        private void checkRunners(long[] workerThreadIds) {
-            var workers = workersReadOnly();
-
-            long[] allocations;
-            if (ThreadAllocations.isSupported()) {
-                // If allocation tracking is supported, update the current thread IDs and then fetch the total allocated
-                // memory. When dealing with multiple workers, it's more efficient to getAllocatedBytes in bulk rather
-                // than, hence doing it within the worker loop.
-                // However, this does mean we need to maintain an array of worker thread IDs. We could have a shared
-                // array and update it within .addWorker(_), but that's got all sorts of thread-safety issues. It ends
-                // up being easier (and not too inefficient) to just recompute the array each time.
-                for (var i = 0; i < workers.length; i++) {
-                    var runner = workers[i];
-                    if (runner != null) workerThreadIds[i] = runner.owner.getId();
-                }
-                allocations = ThreadAllocations.getAllocatedBytes(workerThreadIds);
-            } else {
-                allocations = null;
-            }
-            var allocationTime = System.nanoTime();
-
-            for (var i = 0; i < workers.length; i++) {
-                var runner = workers[i];
+        private void checkRunners() {
+            for (var runner : workersReadOnly()) {
                 if (runner == null) continue;
 
                 // If the worker has no work, skip
@@ -541,11 +515,6 @@ public final class ComputerThread implements ComputerScheduler {
 
                 // Refresh the timeout state. Will set the pause/soft timeout flags as appropriate.
                 executor.timeout.refresh();
-
-                // And track the allocated memory.
-                if (allocations != null) {
-                    executor.updateAllocations(new ThreadAllocation(workerThreadIds[i], allocations[i], allocationTime));
-                }
 
                 // If we're still within normal execution times (TIMEOUT) or soft abort (ABORT_TIMEOUT),
                 // then we can let the Lua machine do its work.
@@ -771,11 +740,8 @@ public final class ComputerThread implements ComputerScheduler {
     }
 
     private final class ExecutorImpl implements Executor {
-        public static final AtomicReferenceFieldUpdater<ExecutorImpl, ExecutorState> STATE = AtomicReferenceFieldUpdater.newUpdater(
+        private static final AtomicReferenceFieldUpdater<ExecutorImpl, ExecutorState> STATE = AtomicReferenceFieldUpdater.newUpdater(
             ExecutorImpl.class, ExecutorState.class, "$state"
-        );
-        public static final AtomicReferenceFieldUpdater<ExecutorImpl, ThreadAllocation> THREAD_ALLOCATION = AtomicReferenceFieldUpdater.newUpdater(
-            ExecutorImpl.class, ThreadAllocation.class, "$threadAllocation"
         );
 
         final Worker worker;
@@ -787,17 +753,6 @@ public final class ComputerThread implements ComputerScheduler {
          */
         @Keep
         private volatile ExecutorState $state = ExecutorState.IDLE;
-
-        /**
-         * Information about allocations on the currently executing thread.
-         * <p>
-         * {@linkplain #beforeWork() Before starting any work}, we set this to the current thread and the current
-         * {@linkplain ThreadAllocations#getAllocatedBytes(long) amount of allocated memory}. When the computer
-         * {@linkplain #afterWork()} finishes executing, we set this back to null and compute the difference between the
-         * two, updating the {@link Metrics#JAVA_ALLOCATION} metric.
-         */
-        @Keep
-        private volatile @Nullable ThreadAllocation $threadAllocation = null;
 
         /**
          * The amount of time this computer has used on a theoretical machine which shares work evenly amongst computers.
@@ -825,11 +780,6 @@ public final class ComputerThread implements ComputerScheduler {
         void beforeWork() {
             vRuntimeStart = System.nanoTime();
             timeout.startTimer(scaledPeriod());
-
-            if (ThreadAllocations.isSupported()) {
-                var current = Thread.currentThread().getId();
-                THREAD_ALLOCATION.set(this, new ThreadAllocation(current, ThreadAllocations.getAllocatedBytes(current), System.nanoTime()));
-            }
         }
 
         /**
@@ -841,53 +791,8 @@ public final class ComputerThread implements ComputerScheduler {
             timeout.reset();
             metrics.observe(Metrics.COMPUTER_TASKS, timeout.getExecutionTime());
 
-            if (ThreadAllocations.isSupported()) {
-                var current = Thread.currentThread().getId();
-                var info = THREAD_ALLOCATION.getAndSet(this, null);
-                assert info.threadId() == current;
-
-                var allocatedTotal = ThreadAllocations.getAllocatedBytes(current);
-                var allocated = allocatedTotal - info.allocatedBytes();
-                if (allocated > 0) {
-                    metrics.observe(Metrics.JAVA_ALLOCATION, allocated);
-                } else if (allocated < 0) {
-                    LOG.warn(
-                        """
-                            Allocated a negative number of bytes ({})!
-                                Previous measurement at t={} on Thread #{} = {}
-                                 Current measurement at t={} on Thread #{} = {}""",
-                        allocated,
-                        info.time(), info.threadId(), info.allocatedBytes(),
-                        System.nanoTime(), current, allocatedTotal
-                    );
-                }
-            }
-
             var state = STATE.getAndUpdate(this, ExecutorState::requeue);
             return state == ExecutorState.REPEAT;
-        }
-
-        /**
-         * Update the per-thread allocation information.
-         *
-         * @param allocation The latest allocation information.
-         */
-        void updateAllocations(ThreadAllocation allocation) {
-            ThreadAllocation current;
-            long allocated;
-            do {
-                // Probe the current information - if it's null or the thread has changed, then the worker has already
-                // finished and this information is out-of-date, so just abort.
-                current = THREAD_ALLOCATION.get(this);
-                if (current == null || current.threadId() != allocation.threadId()) return;
-
-                // Then compute the difference since the previous measurement. If the new value is less than the current
-                // one, then it must be out-of-date. Again, just abort.
-                allocated = allocation.allocatedBytes() - current.allocatedBytes();
-                if (allocated <= 0) return;
-            } while (!THREAD_ALLOCATION.compareAndSet(this, current, allocation));
-
-            metrics.observe(Metrics.JAVA_ALLOCATION, allocated);
         }
 
         @Override
@@ -917,15 +822,5 @@ public final class ComputerThread implements ComputerScheduler {
         protected boolean shouldPause() {
             return hasPendingWork();
         }
-    }
-
-    /**
-     * Allocation information about a specific thread.
-     *
-     * @param threadId       The ID of this thread.
-     * @param allocatedBytes The amount of memory this thread has allocated.
-     * @param time           The time (in nanoseconds) when this time was computed.
-     */
-    private record ThreadAllocation(long threadId, long allocatedBytes, long time) {
     }
 }

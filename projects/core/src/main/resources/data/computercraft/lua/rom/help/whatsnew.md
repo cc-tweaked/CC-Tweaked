@@ -1,11 +1,10 @@
-New features in CC: Tweaked 1.115.1
-
-* Update various translations (cyb3r, kevk2156, teamer337, yakku).
-* Support Fabric's item lookup API for registering media providers.
+New features in CC: Tweaked 1.116.2
 
 Several bug fixes:
-* Fix crashes on Create 6.0 (ellellie).
-* Fix `speaker.playAudio` not updating speaker volume.
-* Resize pocket lectern textures to fix issues with generating mipmaps.
+* Update Create compatibility to Create Fabric 6.0.
+* Various documentation fixes (Zirunis).
+* Fix crash with Inventorio.
+* Various fixes to SNBT parsing.
+* Fix Regex DDoS in string pattern matching.
 
 Type "help changelog" to see the full version history.

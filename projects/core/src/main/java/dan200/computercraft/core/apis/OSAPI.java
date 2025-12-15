@@ -326,15 +326,15 @@ public class OSAPI implements ILuaAPI {
      * * If called with {@code local}, returns the number of days since 1
      * January 1970 in the server's local timezone.
      *
-     * @param args The locale to get the day for. Defaults to {@code ingame} if not set.
+     * @param locale The locale to get the day for. Defaults to {@code ingame} if not set.
      * @return The day depending on the selected locale.
      * @throws LuaException If an invalid locale is passed.
      * @cc.since 1.48
      * @cc.changed 1.82.0 Arguments are now case insensitive.
      */
     @LuaFunction
-    public final int day(Optional<String> args) throws LuaException {
-        return switch (args.orElse("ingame").toLowerCase(Locale.ROOT)) {
+    public final int day(Optional<String> locale) throws LuaException {
+        return switch (locale.orElse("ingame").toLowerCase(Locale.ROOT)) {
             case "utc" -> getDayForCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC")));
             case "local" -> getDayForCalendar(Calendar.getInstance());
             case "ingame" -> day;
@@ -359,7 +359,7 @@ public class OSAPI implements ILuaAPI {
      * > milliseconds. If you wish to convert this value to real time, divide by 72000; to
      * > convert to ticks (where a day is 24000 ticks), divide by 3600.
      *
-     * @param args The locale to get the milliseconds for. Defaults to {@code ingame} if not set.
+     * @param locale The locale to get the milliseconds for. Defaults to {@code ingame} if not set.
      * @return The milliseconds since the epoch depending on the selected locale.
      * @throws LuaException If an invalid locale is passed.
      * @cc.since 1.80pr1
@@ -372,26 +372,13 @@ public class OSAPI implements ILuaAPI {
      * }</pre>
      */
     @LuaFunction
-    public final long epoch(Optional<String> args) throws LuaException {
-        switch (args.orElse("ingame").toLowerCase(Locale.ROOT)) {
-            case "utc": {
-                // Get utc epoch
-                var c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-                return getEpochForCalendar(c);
-            }
-            case "local": {
-                // Get local epoch
-                var c = Calendar.getInstance();
-                return getEpochForCalendar(c);
-            }
-            case "ingame":
-                // Get in-game epoch
-                synchronized (alarms) {
-                    return day * 86400000L + (long) (time * 3600000.0);
-                }
-            default:
-                throw new LuaException("Unsupported operation");
-        }
+    public final long epoch(Optional<String> locale) throws LuaException {
+        return switch (locale.orElse("ingame").toLowerCase(Locale.ROOT)) {
+            case "utc" -> getEpochForCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC"))); // Get utc epoch
+            case "local" -> getEpochForCalendar(Calendar.getInstance());  // Get local epoch
+            case "ingame" -> day * 86400000L + (long) (time * 3600000.0); // Get in-game epoch
+            default -> throw new LuaException("Unsupported operation");
+        };
     }
 
     /**

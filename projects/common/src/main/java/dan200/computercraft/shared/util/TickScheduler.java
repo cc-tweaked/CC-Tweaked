@@ -27,6 +27,10 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  * We use this when modems and other peripherals change a block in a different thread.
  */
 public final class TickScheduler {
+    //  FIXME: We also use this to schedule ticks in {@link BlockEntity#clearRemoved()}, as the chunk is not fully
+    //   loaded at this point ({@link LevelChunk#registerTickContainerInLevel(ServerLevel)} has not been called). This
+    //   delays this a tick, which works in practice, but relies on us winning a race condition.
+    //   It might be worth using Forge's BlockEntity.onLoad or having some custom hook based on chunk load.
     private TickScheduler() {
     }
 
@@ -165,7 +169,7 @@ public final class TickScheduler {
         UNLOADED,
     }
 
-    private record ChunkReference(ResourceKey<Level> level, Long position) {
+    private record ChunkReference(ResourceKey<Level> level, long position) {
         @Override
         public String toString() {
             return "ChunkReference(" + level + " at " + new ChunkPos(position) + ")";

@@ -56,7 +56,7 @@ import { type DataExport, WithExport } from "./components/WithExport";
     for (const file of await fs.readdir(sourceDir, { withFileTypes: true, recursive: true })) {
         if(!file.isFile() || !file.name.endsWith(".html")) continue;
 
-        const sourcePath = path.join(file.path, file.name);
+        const sourcePath = path.join(file.parentPath, file.name);
         const contents = await fs.readFile(sourcePath, "utf-8");
 
         const { result } = await processor.process(contents);

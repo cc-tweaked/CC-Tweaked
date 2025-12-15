@@ -4,7 +4,7 @@
 
 package dan200.computercraft.core.util;
 
-import dan200.computercraft.core.computer.ComputerEvents;
+import dan200.computercraft.core.input.ComputerInput;
 
 import java.nio.ByteBuffer;
 
@@ -71,8 +71,8 @@ public final class StringUtil {
     }
 
     /**
-     * Check if a character is capable of being input and passed to a {@linkplain ComputerEvents#charTyped(ComputerEvents.Receiver, byte)
-     * "char" event}.
+     * Check if a character is capable of being input and passed to a {@linkplain ComputerInput#charTyped(byte) "char"
+     * event}.
      *
      * @param chr The character to check.
      * @return Whether this character can be typed.
@@ -82,8 +82,8 @@ public final class StringUtil {
     }
 
     /**
-     * Check if a character is capable of being input and passed to a {@linkplain ComputerEvents#charTyped(ComputerEvents.Receiver, byte)
-     * "char" event}.
+     * Check if a character is capable of being input and passed to a {@linkplain ComputerInput#charTyped(byte) "char"
+     * * event}.
      *
      * @param chr The character to check.
      * @return Whether this character can be typed.
@@ -120,7 +120,7 @@ public final class StringUtil {
         var idx = 0;
 
         var iterator = clipboard.codePoints().iterator();
-        while (iterator.hasNext() && idx <= output.length) {
+        while (iterator.hasNext() && idx < output.length) {
             var chr = unicodeToTerminal(iterator.next());
             if (chr < 0) continue; // Strip out unconvertible characters
             if (!isTypableChar(chr)) break; // Stop at untypable ones.

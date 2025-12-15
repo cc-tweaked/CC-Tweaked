@@ -13,8 +13,9 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerEnvironment;
-import dan200.computercraft.core.computer.ComputerEvents;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.core.input.EventComputerInput;
+import dan200.computercraft.core.input.UserComputerInput;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.impl.ApiFactories;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
@@ -37,7 +38,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
-public class ServerComputer implements ComputerEnvironment, ComputerEvents.Receiver {
+public class ServerComputer implements ComputerEnvironment {
     public static final ComputerComponent<MetricsObserver> METRICS = ComputerComponent.create("computercraft", "metrics");
 
     private final int instanceID;
@@ -213,13 +214,16 @@ public class ServerComputer implements ComputerEnvironment, ComputerEvents.Recei
         computer.reboot();
     }
 
-    @Override
     public final void queueEvent(String event, @Nullable Object @Nullable [] arguments) {
         computer.queueEvent(event, arguments);
     }
 
     public final void queueEvent(String event) {
         queueEvent(event, null);
+    }
+
+    public final UserComputerInput createComputerInput() {
+        return new UserComputerInput(new EventComputerInput(computer), terminal);
     }
 
     public final int getRedstoneOutput(ComputerSide side) {

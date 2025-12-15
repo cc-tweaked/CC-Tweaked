@@ -20,6 +20,7 @@ pluginManagement {
             content {
                 includeGroup("fabric-loom")
                 includeGroup("net.fabricmc")
+                includeGroup("net.fabricmc.unpick")
             }
         }
 

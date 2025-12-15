@@ -17,6 +17,8 @@ plugins {
     checkstyle
     id("com.diffplug.spotless")
     id("net.ltgt.errorprone")
+    // Required for cross-project dependencies in Fabric
+    id("net.fabricmc.fabric-loom-companion")
 }
 
 val modVersion: String by extra
@@ -28,9 +30,9 @@ version = modVersion
 base.archivesName.convention("cc-tweaked-$mcVersion-${project.name}")
 
 java {
-    toolchain {
-        languageVersion = CCTweakedPlugin.JAVA_VERSION
-    }
+    toolchain { languageVersion = CCTweakedPlugin.JDK_VERSION }
+    sourceCompatibility = CCTweakedPlugin.JAVA_VERSION
+    targetCompatibility = CCTweakedPlugin.JAVA_VERSION
 
     withSourcesJar()
 }
@@ -79,8 +81,18 @@ dependencies {
 // Configure default JavaCompile tasks with our arguments.
 sourceSets.all {
     tasks.named(compileJavaTaskName, JavaCompile::class.java) {
-        // Processing just gives us "No processor claimed any of these annotations", so skip that!
-        options.compilerArgs.addAll(listOf("-Xlint", "-Xlint:-processing"))
+        // Explicitly set release, as that limits the APIs we can use to the right version of Java.
+        options.release = CCTweakedPlugin.JAVA_TARGET.asInt()
+
+        options.compilerArgs.addAll(
+            listOf(
+                "-Xlint",
+                // Processing just gives us "No processor claimed any of these annotations", so skip that!
+                "-Xlint:-processing",
+                // We violate this pattern too often for it to be a helpful warning. Something to improve one day!
+                "-Xlint:-this-escape",
+            ),
+        )
 
         options.errorprone {
             check("InvalidBlockTag", CheckSeverity.OFF) // Broken by @cc.xyz
@@ -93,6 +105,7 @@ sourceSets.all {
             check("NonOverridingEquals", CheckSeverity.OFF) // Peripheral.equals makes this hard to avoid
             check("FutureReturnValueIgnored", CheckSeverity.OFF) // Too many false positives with Netty
             check("InvalidInlineTag", CheckSeverity.OFF) // Triggered by @snippet. Can be removed on Java 21.
+            option("UnusedMethod:ExemptingMethodAnnotations", "dan200.computercraft.api.lua.LuaFunction")
 
             check("NullAway", CheckSeverity.ERROR)
             option(
@@ -148,7 +161,7 @@ tasks.javadoc {
     options {
         val stdOptions = this as StandardJavadocDocletOptions
         stdOptions.addBooleanOption("Xdoclint:all,-missing", true)
-        stdOptions.links("https://docs.oracle.com/en/java/javase/17/docs/api/")
+        stdOptions.links("https://docs.oracle.com/en/java/javase/21/docs/api/")
     }
 }
 

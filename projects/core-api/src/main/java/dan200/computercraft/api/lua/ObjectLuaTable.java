@@ -61,4 +61,14 @@ public class ObjectLuaTable implements LuaTable<Object, Object> {
     public Set<Entry<Object, Object>> entrySet() {
         return map.entrySet();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o || o instanceof Map<?, ?> otherMap && map.equals(otherMap);
+    }
+
+    @Override
+    public int hashCode() {
+        return map.hashCode();
+    }
 }

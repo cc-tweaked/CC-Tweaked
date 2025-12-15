@@ -7,15 +7,14 @@ package dan200.computercraft.shared.computer.menu;
 import dan200.computercraft.core.apis.handles.ByteBufferChannel;
 import dan200.computercraft.core.apis.transfer.TransferredFile;
 import dan200.computercraft.core.apis.transfer.TransferredFiles;
-import dan200.computercraft.core.computer.ComputerEvents;
-import dan200.computercraft.core.util.StringUtil;
+import dan200.computercraft.core.input.ComputerInput;
+import dan200.computercraft.core.input.UserComputerInput;
+import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.client.UploadResultMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -23,7 +22,6 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,113 +29,31 @@ import java.util.UUID;
  * The default concrete implementation of {@link ServerInputHandler}.
  * <p>
  * This keeps track of the current key and mouse state, and releases them when the container is closed.
- *
- * @param <T> The type of container this server input belongs to.
  */
-public class ServerInputState<T extends AbstractContainerMenu & ComputerMenu> implements ServerInputHandler {
+public class ServerInputState implements ServerInputHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ServerInputState.class);
 
-    private final T owner;
-    private final IntSet keysDown = new IntOpenHashSet(4);
-
-    private int lastMouseX;
-    private int lastMouseY;
-    private int lastMouseDown = -1;
+    private final AbstractContainerMenu owner;
+    private final ServerComputer computer;
+    private final UserComputerInput input;
 
     private @Nullable UUID toUploadId;
     private @Nullable List<FileUpload> toUpload;
 
-    public ServerInputState(T owner) {
+    public ServerInputState(AbstractContainerMenu owner, ServerComputer computer) {
         this.owner = owner;
+        this.computer = computer;
+        this.input = computer.createComputerInput();
     }
 
     @Override
-    public void keyDown(int key, boolean repeat) {
-        keysDown.add(key);
-        ComputerEvents.keyDown(owner.getComputer(), key, repeat);
+    public ComputerInput getComputerInput() {
+        return input;
     }
 
     @Override
-    public void keyUp(int key) {
-        keysDown.remove(key);
-        ComputerEvents.keyUp(owner.getComputer(), key);
-    }
-
-    @Override
-    public void charTyped(byte chr) {
-        if (StringUtil.isTypableChar(chr)) ComputerEvents.charTyped(owner.getComputer(), chr);
-    }
-
-    @Override
-    public void paste(ByteBuffer contents) {
-        if (contents.remaining() > 0 && isValidClipboard(contents)) ComputerEvents.paste(owner.getComputer(), contents);
-    }
-
-    private static boolean isValidClipboard(ByteBuffer buffer) {
-        for (int i = buffer.position(), max = buffer.limit(); i < max; i++) {
-            if (!StringUtil.isTypableChar(buffer.get(i))) return false;
-        }
-        return true;
-    }
-
-    @Override
-    public void mouseClick(int button, int x, int y) {
-        lastMouseX = x;
-        lastMouseY = y;
-        lastMouseDown = button;
-
-        ComputerEvents.mouseClick(owner.getComputer(), button, x, y);
-    }
-
-    @Override
-    public void mouseUp(int button, int x, int y) {
-        lastMouseX = x;
-        lastMouseY = y;
-        lastMouseDown = -1;
-
-        ComputerEvents.mouseUp(owner.getComputer(), button, x, y);
-    }
-
-    @Override
-    public void mouseDrag(int button, int x, int y) {
-        lastMouseX = x;
-        lastMouseY = y;
-        lastMouseDown = button;
-
-        ComputerEvents.mouseDrag(owner.getComputer(), button, x, y);
-    }
-
-    @Override
-    public void mouseScroll(int direction, int x, int y) {
-        lastMouseX = x;
-        lastMouseY = y;
-
-        ComputerEvents.mouseScroll(owner.getComputer(), direction, x, y);
-    }
-
-    @Override
-    public void terminate() {
-        owner.getComputer().queueEvent("terminate");
-    }
-
-    @Override
-    public void shutdown() {
-        owner.getComputer().shutdown();
-    }
-
-    @Override
-    public void turnOn() {
-        owner.getComputer().turnOn();
-    }
-
-    @Override
-    public void reboot() {
-        owner.getComputer().reboot();
-    }
-
-    @Override
-    public void startUpload(UUID uuid, List<FileUpload> files) {
-        toUploadId = uuid;
+    public void startUpload(UUID uploadId, List<FileUpload> files) {
+        toUploadId = uploadId;
         toUpload = files;
     }
 
@@ -162,7 +78,6 @@ public class ServerInputState<T extends AbstractContainerMenu & ComputerMenu> im
     }
 
     private UploadResultMessage finishUpload(ServerPlayer player) {
-        var computer = owner.getComputer();
         if (toUpload == null) {
             return UploadResultMessage.error(owner, UploadResult.COMPUTER_OFF_MSG);
         }
@@ -187,13 +102,6 @@ public class ServerInputState<T extends AbstractContainerMenu & ComputerMenu> im
     }
 
     public void close() {
-        var computer = owner.getComputer();
-        var keys = keysDown.iterator();
-        while (keys.hasNext()) ComputerEvents.keyUp(computer, keys.nextInt());
-
-        if (lastMouseDown != -1) ComputerEvents.mouseUp(computer, lastMouseDown, lastMouseX, lastMouseY);
-
-        keysDown.clear();
-        lastMouseDown = -1;
+        input.releaseInputs();
     }
 }

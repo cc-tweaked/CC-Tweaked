@@ -4,7 +4,7 @@
 
 package dan200.computercraft.shared.computer.menu;
 
-import dan200.computercraft.shared.computer.core.InputHandler;
+import dan200.computercraft.core.input.ComputerInput;
 import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.network.server.ComputerServerMessage;
@@ -14,13 +14,20 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * An {@link InputHandler} which operates on the server, receiving data from the client over the network.
+ * An {@link ComputerInput} which operates on the server, receiving data from the client over the network.
  *
  * @see ServerInputState The default implementation of this interface.
  * @see ComputerServerMessage Packets which consume this interface.
  * @see ComputerMenu
  */
-public interface ServerInputHandler extends InputHandler {
+public interface ServerInputHandler {
+    /**
+     * Get a {@link ComputerInput} that handles events for this computer.
+     *
+     * @return The computer input.
+     */
+    ComputerInput getComputerInput();
+
     /**
      * Start a file upload into this container.
      *
