@@ -5,7 +5,6 @@
 package dan200.computercraft.core.apis.http.websocket;
 
 import cc.tweaked.web.js.Console;
-import cc.tweaked.web.js.JavascriptConv;
 import com.google.common.base.Strings;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.Resource;
@@ -14,6 +13,7 @@ import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.Options;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.jspecify.annotations.Nullable;
+import org.teavm.jso.typedarrays.ArrayBuffer;
 import org.teavm.jso.typedarrays.Int8Array;
 import org.teavm.jso.websocket.WebSocket;
 
@@ -49,10 +49,8 @@ public class TWebsocket extends Resource<TWebsocket> implements WebsocketClient 
         });
         client.onMessage(e -> {
             if (isClosed()) return;
-            if (JavascriptConv.isArrayBuffer(e.getData())) {
-                var array = new Int8Array(e.getDataAsArray());
-                var contents = new byte[array.getLength()];
-                for (var i = 0; i < contents.length; i++) contents[i] = array.get(i);
+            if (e.getData() instanceof ArrayBuffer buffer) {
+                var contents = new Int8Array(buffer).copyToJavaArray();
                 environment.queueEvent("websocket_message", address, contents, true);
             } else {
                 environment.queueEvent("websocket_message", address, e.getDataAsString(), false);
@@ -70,7 +68,7 @@ public class TWebsocket extends Resource<TWebsocket> implements WebsocketClient 
     @Override
     public void sendBinary(ByteBuffer message) {
         if (websocket == null) return;
-        websocket.send(JavascriptConv.toArray(message));
+        websocket.send(Int8Array.fromJavaBuffer(message));
     }
 
     @Override

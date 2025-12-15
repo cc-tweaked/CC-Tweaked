@@ -72,7 +72,7 @@ modDevGradle = "2.0.124"
 nullAway = "0.12.11"
 shadow = "9.2.2"
 spotless = "8.0.0"
-teavm = "0.13.0-SQUID.2"
+teavm = "0.14.0-SQUID.1"
 vanillaExtract = "0.3.1"
 versionCatalogUpdate = "1.0.1"
 
