@@ -7,12 +7,15 @@ package dan200.computercraft.shared.details;
 import com.google.gson.JsonParseException;
 import dan200.computercraft.shared.platform.RegistryWrappers;
 import dan200.computercraft.shared.util.NBTUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
@@ -72,6 +75,8 @@ public class ItemDetails {
         if (tag != null && tag.getBoolean("Unbreakable") && (hideFlags & 4) == 0) {
             data.put("unbreakable", true);
         }
+
+        DetailHelpers.fillMapColour(data, EmptyBlockGetter.INSTANCE, BlockPos.ZERO, Block.byItem(stack.getItem()).defaultBlockState());
     }
 
     @Nullable
