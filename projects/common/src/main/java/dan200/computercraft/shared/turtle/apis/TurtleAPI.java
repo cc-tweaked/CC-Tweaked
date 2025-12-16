@@ -721,13 +721,14 @@ public class TurtleAPI implements ILuaAPI {
     }
 
     /**
-     * Get information about the block in front of the turtle.
+     * Get [information about the block][`block_details`] in front of the turtle.
      *
      * @return The turtle command result.
      * @cc.treturn boolean Whether there is a block in front of the turtle.
      * @cc.treturn table|string Information about the block in front, or a message explaining that there is no block.
      * @cc.since 1.64
      * @cc.changed 1.76 Added block state to return value.
+     * @cc.see block_details
      * @cc.usage <pre>{@code
      * local has_block, data = turtle.inspect()
      * if has_block then
@@ -747,12 +748,13 @@ public class TurtleAPI implements ILuaAPI {
     }
 
     /**
-     * Get information about the block above the turtle.
+     * Get [information about the block][`block_details`] above the turtle.
      *
      * @return The turtle command result.
      * @cc.treturn boolean Whether there is a block above the turtle.
-     * @cc.treturn table|string Information about the above below, or a message explaining that there is no block.
+     * @cc.treturn table|string Information about the block above, or a message explaining that there is no block.
      * @cc.since 1.64
+     * @cc.see block_details
      */
     @LuaFunction
     public final MethodResult inspectUp() {
@@ -760,12 +762,13 @@ public class TurtleAPI implements ILuaAPI {
     }
 
     /**
-     * Get information about the block below the turtle.
+     * Get [information about the block][`block_details`] below the turtle.
      *
      * @return The turtle command result.
      * @cc.treturn boolean Whether there is a block below the turtle.
      * @cc.treturn table|string Information about the block below, or a message explaining that there is no block.
      * @cc.since 1.64
+     * @cc.see block_details
      */
     @LuaFunction
     public final MethodResult inspectDown() {
