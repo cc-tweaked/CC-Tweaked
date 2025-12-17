@@ -11,8 +11,6 @@ import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.core.CoreConfig
 import dan200.computercraft.core.apis.HTTPAPI
 import dan200.computercraft.core.apis.handles.ReadHandle
-import dan200.computercraft.core.apis.http.HttpServer.URL
-import dan200.computercraft.core.apis.http.HttpServer.WS_URL
 import dan200.computercraft.core.apis.http.HttpServer.runServer
 import dan200.computercraft.core.apis.http.options.Action
 import dan200.computercraft.core.apis.http.options.AddressRule
@@ -50,13 +48,14 @@ class TestHttpApi {
 
     @Test
     fun `Connects to a HTTP server`() {
-        runServer {
+        runServer { port, _ ->
             LuaTaskRunner.runTest {
+                val url = "http://127.0.0.1:$port"
                 val httpApi = addApi(HTTPAPI(environment))
-                assertThat("http.request succeeded", httpApi.request(ObjectArguments(URL)), array(equalTo(true)))
+                assertThat("http.request succeeded", httpApi.request(ObjectArguments(url)), array(equalTo(true)))
 
                 val result = pullEvent("http_success")
-                assertThat(result, array(equalTo("http_success"), equalTo(URL), isA(HttpResponseHandle::class.java)))
+                assertThat(result, array(equalTo("http_success"), equalTo(url), isA(HttpResponseHandle::class.java)))
 
                 val handle = result[2] as HttpResponseHandle
                 val reader = handle.extra.iterator().next() as ReadHandle
@@ -67,13 +66,14 @@ class TestHttpApi {
 
     @Test
     fun `Connects to websocket`() {
-        runServer {
+        runServer { port, _ ->
             LuaTaskRunner.runTest {
+                val url = "ws://127.0.0.1:$port/ws"
                 val httpApi = addApi(HTTPAPI(environment))
-                assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(WS_URL)), array(equalTo(true)))
+                assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
 
                 val connectEvent = pullEvent()
-                assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(WS_URL), isA(WebsocketHandle::class.java)))
+                assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(url), isA(WebsocketHandle::class.java)))
 
                 val websocket = connectEvent[2] as WebsocketHandle
                 websocket.send(Coerced(LuaValues.encode("Hello")), Optional.of(false))
@@ -91,13 +91,14 @@ class TestHttpApi {
 
     @Test
     fun `Errors if too many websocket messages are sent`() {
-        runServer {
+        runServer { port, _ ->
             LuaTaskRunner.runTest {
+                val url = "ws://127.0.0.1:$port/ws"
                 val httpApi = addApi(HTTPAPI(environment))
-                assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(WS_URL)), array(equalTo(true)))
+                assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
 
                 val connectEvent = pullEvent()
-                assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(WS_URL), isA(WebsocketHandle::class.java)))
+                assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(url), isA(WebsocketHandle::class.java)))
 
                 val websocket = connectEvent[2] as WebsocketHandle
                 val error = assertThrows<LuaException> {
@@ -115,13 +116,14 @@ class TestHttpApi {
 
     @Test
     fun `Queues an event when the socket is externally closed`() {
-        runServer { stop ->
+        runServer { port, stop ->
             LuaTaskRunner.runTest {
+                val url = "ws://127.0.0.1:$port/ws"
                 val httpApi = addApi(HTTPAPI(environment))
-                assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(WS_URL)), array(equalTo(true)))
+                assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
 
                 val connectEvent = pullEvent()
-                assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(WS_URL), isA(WebsocketHandle::class.java)))
+                assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(url), isA(WebsocketHandle::class.java)))
 
                 val websocket = connectEvent[2] as WebsocketHandle
 
@@ -131,7 +133,7 @@ class TestHttpApi {
                 assertThat(
                     "Websocket was closed",
                     closeEvent,
-                    array(equalTo("websocket_closed"), equalTo(WS_URL), equalTo("Connection closed"), equalTo(null)),
+                    array(equalTo("websocket_closed"), equalTo(url), equalTo("Connection closed"), equalTo(null)),
                 )
 
                 assertThrows<LuaException>("Throws an exception when sending") {

@@ -17,17 +17,14 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler.HandshakeComplete
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler
+import java.net.InetSocketAddress
 import java.nio.charset.StandardCharsets
 
 /**
  * Runs a small HTTP server to run alongside [TestHttpApi]
  */
 object HttpServer {
-    const val PORT: Int = 8378
-    const val URL: String = "http://127.0.0.1:$PORT"
-    const val WS_URL: String = "ws://127.0.0.1:$PORT/ws"
-
-    fun runServer(run: (stop: () -> Unit) -> Unit) {
+    fun runServer(run: (port: Int, stop: () -> Unit) -> Unit) {
         val workerGroup: EventLoopGroup = NioEventLoopGroup(2)
         try {
             val ch = ServerBootstrap()
@@ -46,14 +43,15 @@ object HttpServer {
                             p.addLast(WebSocketFrameHandler())
                         }
                     },
-                ).bind(PORT).sync().channel()
+                ).bind(0).sync().channel()
+            val port = (ch.localAddress() as InetSocketAddress).port
             try {
-                run { workerGroup.shutdownGracefully() }
+                run(port) { workerGroup.shutdownGracefully() }
             } finally {
                 ch.close().sync()
             }
         } finally {
-            workerGroup.shutdownGracefully()
+            workerGroup.shutdownGracefully().get()
         }
     }
 }
@@ -70,7 +68,7 @@ private class HttpServerHandler : SimpleChannelInboundHandler<FullHttpRequest>()
         ctx.flush()
     }
 
-    public override fun channelRead0(ctx: ChannelHandlerContext, request: FullHttpRequest) {
+    override fun channelRead0(ctx: ChannelHandlerContext, request: FullHttpRequest) {
         when (request.uri()) {
             "/", "/index.html" -> handleIndex(ctx, request)
             "/ws" -> handleWebsocket(ctx, request)
