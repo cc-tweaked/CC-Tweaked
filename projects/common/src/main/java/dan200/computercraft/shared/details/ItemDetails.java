@@ -154,7 +154,14 @@ public class ItemDetails {
         return PotionUtils.getMobEffects(stack).stream().map(p -> {
             Map<String, Object> potion = new HashMap<>(4);
             potion.put("name", DetailHelpers.getId(RegistryWrappers.MOB_EFFECTS, p.getEffect()));
-            potion.put("displayName", Component.translatable(p.getDescriptionId()).getString());
+
+            var displayName = Component.translatable(p.getDescriptionId());
+            if (p.getAmplifier() > 0) {
+                displayName = Component.translatable(
+                    "potion.withAmplifier", displayName, Component.translatable("potion.potency." + p.getAmplifier())
+                );
+            }
+            potion.put("displayName", displayName.getString());
 
             // Expose the roman numerals (e.g. Instant Health II), rather than the raw amplifier value.
             if (p.getAmplifier() > 0) potion.put("potency", p.getAmplifier() + 1);

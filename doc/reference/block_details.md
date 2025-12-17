@@ -17,8 +17,8 @@ information about a block in the world. This page details information about bloc
 
 ## Basic information
 Block information will *always* contain:
- - `name: string`: The namespaced ID for this block, e.g. `minecraft:dirt`. See [this page][block ids] for a full list
-   of vanilla block IDS.
+ - `name: string`: The namespaced ID for this block, e.g. `minecraft:dirt`. See [the Minecraft wiki][block ids] for a
+   list of vanilla block IDs.
  - `state: { [string] = any}`: A table containing the block state of the block.
 
 ### Example

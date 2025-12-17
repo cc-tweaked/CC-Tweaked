@@ -11,7 +11,6 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.metrics.MetricsObserver;
-import dan200.computercraft.shared.peripheral.generic.methods.AbstractInventoryMethods;
 import dan200.computercraft.shared.turtle.core.*;
 import org.jspecify.annotations.Nullable;
 
@@ -691,12 +690,12 @@ public class TurtleAPI implements ILuaAPI {
     /**
      * Get the upgrade currently equipped on the left of the turtle.
      * <p>
-     * This returns information about the currently equipped item, in the same form as
-     * {@link #getItemDetail(ILuaContext, Optional, Optional)}.
+     * This returns [information about the currently equipped item][`item_details`].
      *
      * @return Information about the currently equipped item, or {@code nil} if no upgrade is equipped.
      * @see #equipLeft()
      * @cc.since 1.116.0
+     * @cc.see item_details
      */
     @LuaFunction(mainThread = true)
     public final @Nullable Map<?, ?> getEquippedLeft() {
@@ -707,12 +706,12 @@ public class TurtleAPI implements ILuaAPI {
     /**
      * Get the upgrade currently equipped on the right of the turtle.
      * <p>
-     * This returns information about the currently equipped item, in the same form as
-     * {@link #getItemDetail(ILuaContext, Optional, Optional)}.
+     * This returns [information about the currently equipped item][`item_details`].
      *
      * @return Information about the currently equipped item, or {@code nil} if no upgrade is equipped.
      * @see #equipRight()
      * @cc.since 1.116.0
+     * @cc.see item_details
      */
     @LuaFunction(mainThread = true)
     public final @Nullable Map<?, ?> getEquippedRight() {
@@ -776,7 +775,7 @@ public class TurtleAPI implements ILuaAPI {
     }
 
     /**
-     * Get detailed information about the items in the given slot.
+     * Get [information about the items][`item_details`] in the given slot.
      *
      * @param context  The Lua context
      * @param slot     The slot to get information about. Defaults to the {@link #select selected slot}.
@@ -796,7 +795,7 @@ public class TurtleAPI implements ILuaAPI {
      * --  count = 13,
      * -- }
      * }</pre>
-     * @see AbstractInventoryMethods#getItemDetail Describes the information returned by a detailed query.
+     * @cc.see item_details
      */
     @LuaFunction
     public final MethodResult getItemDetail(ILuaContext context, Optional<Integer> slot, Optional<Boolean> detailed) throws LuaException {
