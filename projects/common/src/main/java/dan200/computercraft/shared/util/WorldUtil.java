@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.util;
 
+import dan200.computercraft.core.util.Nullability;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
@@ -105,7 +106,7 @@ public final class WorldUtil {
             }
         }
 
-        return bestEntity == null ? null : new EntityHitResult(bestEntity, bestHit);
+        return bestEntity == null ? null : new EntityHitResult(bestEntity, Nullability.assertNonNull(bestHit));
     }
 
     private static boolean canCollide(Entity entity) {

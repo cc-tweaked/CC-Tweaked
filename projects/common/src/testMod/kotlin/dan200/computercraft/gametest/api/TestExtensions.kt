@@ -22,7 +22,7 @@ import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.gametest.framework.GameTestInfo
 import net.minecraft.gametest.framework.GameTestSequence
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.Container
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
@@ -309,7 +309,7 @@ fun GameTestHelper.assertItemEntityCountIs(expected: Item, count: Int) {
     }
 }
 
-private fun getName(type: BlockEntityType<*>): ResourceLocation =
+private fun getName(type: BlockEntityType<*>): Identifier =
     RegistryHelper.getKeyOrThrow(BuiltInRegistries.BLOCK_ENTITY_TYPE, type)
 
 /**

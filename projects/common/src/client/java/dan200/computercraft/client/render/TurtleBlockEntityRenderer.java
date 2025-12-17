@@ -30,7 +30,7 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -38,9 +38,9 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBlockEntity, TurtleBlockEntityRenderer.State> {
-    public static final ResourceLocation NORMAL_TURTLE_MODEL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_normal");
-    public static final ResourceLocation ADVANCED_TURTLE_MODEL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_advanced");
-    public static final ResourceLocation COLOUR_TURTLE_MODEL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
+    public static final Identifier NORMAL_TURTLE_MODEL = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_normal");
+    public static final Identifier ADVANCED_TURTLE_MODEL = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_advanced");
+    public static final Identifier COLOUR_TURTLE_MODEL = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_colour");
 
     private final ItemModelResolver itemModelResolver;
 

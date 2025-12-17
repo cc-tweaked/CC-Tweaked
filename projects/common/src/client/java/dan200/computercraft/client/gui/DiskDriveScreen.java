@@ -9,14 +9,14 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 /**
  * The GUI for disk drives.
  */
 public class DiskDriveScreen extends AbstractContainerScreen<DiskDriveMenu> {
-    private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath("computercraft", "textures/gui/disk_drive.png");
+    private static final Identifier BACKGROUND = Identifier.fromNamespaceAndPath("computercraft", "textures/gui/disk_drive.png");
 
     public DiskDriveScreen(DiskDriveMenu container, Inventory player, Component title) {
         super(container, player, title);

@@ -10,8 +10,8 @@ import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.impl.ComputerCraftAPIService;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import org.jspecify.annotations.Nullable;
 
@@ -25,7 +25,7 @@ import org.jspecify.annotations.Nullable;
  * the upgrade registered internally.
  */
 public interface IPocketUpgrade extends UpgradeBase {
-    ResourceKey<Registry<IPocketUpgrade>> REGISTRY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_upgrade"));
+    ResourceKey<Registry<IPocketUpgrade>> REGISTRY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_upgrade"));
 
     /**
      * The registry key for pocket upgrade types.

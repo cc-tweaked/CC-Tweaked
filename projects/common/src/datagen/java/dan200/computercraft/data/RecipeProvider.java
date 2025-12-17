@@ -30,8 +30,8 @@ import dan200.computercraft.shared.util.ColourUtils;
 import dan200.computercraft.shared.util.DataComponentUtil;
 import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.criterion.InventoryChangeTrigger;
+import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
@@ -40,8 +40,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
@@ -96,7 +96,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .group("computercraft:disk")
             .unlockedBy("has_drive", has(ModRegistry.Items.DISK_DRIVE.get()))
             .build(d -> new DiskRecipe(d.properties(), d.ingredients()))
-            .save(output, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "disk"));
+            .save(output, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "disk"));
     }
 
     private static List<TurtleItem> turtleItems() {
@@ -121,7 +121,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                     .build(ImpostorShapedRecipe::new)
                     .save(
                         output,
-                        name.withSuffix(String.format("/%s/%s", upgradeHolder.key().location().getNamespace(), upgradeHolder.key().location().getPath()))
+                        name.withSuffix(String.format("/%s/%s", upgradeHolder.key().identifier().getNamespace(), upgradeHolder.key().identifier().getPath()))
                     );
             });
         }
@@ -150,7 +150,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                     .build(ImpostorShapedRecipe::new)
                     .save(
                         output,
-                        name.withSuffix(String.format("/%s/%s", upgradeHolder.key().location().getNamespace(), upgradeHolder.key().location().getPath()))
+                        name.withSuffix(String.format("/%s/%s", upgradeHolder.key().identifier().getNamespace(), upgradeHolder.key().identifier().getPath()))
                     );
             });
         }
@@ -177,7 +177,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         );
     }
 
-    private void turtleOverlay(ResourceLocation overlay, Consumer<ShapelessSpecBuilder> build) {
+    private void turtleOverlay(Identifier overlay, Consumer<ShapelessSpecBuilder> build) {
         for (var turtleItem : turtleItems()) {
             var name = RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, turtleItem);
 
@@ -234,7 +234,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .define('C', ModRegistry.Items.COMPUTER_NORMAL.get())
             .unlockedBy("has_components", inventoryTrigger(itemPredicate(ModRegistry.Items.COMPUTER_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
             .build(x -> new TransformShapedRecipe(x, List.of(new CopyComponents(ModRegistry.Items.COMPUTER_NORMAL.get()))))
-            .save(output, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "computer_advanced_upgrade"));
+            .save(output, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "computer_advanced_upgrade"));
 
         shaped(RecipeCategory.REDSTONE, ModRegistry.Items.COMPUTER_COMMAND.get())
             .pattern("###")
@@ -277,7 +277,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .define('B', ingredients.goldBlock())
             .unlockedBy("has_components", inventoryTrigger(itemPredicate(ModRegistry.Items.TURTLE_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
             .build(x -> new TransformShapedRecipe(x, List.of(new CopyComponents(ModRegistry.Items.TURTLE_NORMAL.get()))))
-            .save(output, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_advanced_upgrade"));
+            .save(output, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_advanced_upgrade"));
 
         shaped(RecipeCategory.REDSTONE, ModRegistry.Items.DISK_DRIVE.get())
             .pattern("###")
@@ -336,7 +336,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .define('C', ModRegistry.Items.POCKET_COMPUTER_NORMAL.get())
             .unlockedBy("has_components", inventoryTrigger(itemPredicate(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get()), itemPredicate(ingredients.goldIngot())))
             .build(x -> new TransformShapedRecipe(x, List.of(new CopyComponents(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get()))))
-            .save(output, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_computer_advanced_upgrade"));
+            .save(output, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_computer_advanced_upgrade"));
 
         shaped(RecipeCategory.REDSTONE, ModRegistry.Items.PRINTER.get())
             .pattern("###")
@@ -395,14 +395,14 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
             .requires(ModRegistry.Items.MONITOR_NORMAL.get())
             .unlockedBy("has_monitor", has(ModRegistry.Items.MONITOR_NORMAL.get()))
             .build()
-            .save(output, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "skull_cloudy"));
+            .save(output, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "skull_cloudy"));
 
         customShapeless(RecipeCategory.DECORATIONS, playerHead("dan200", "f3c8d69b-0776-4512-8434-d1b2165909eb"))
             .requires(ItemTags.SKULLS)
             .requires(ModRegistry.Items.COMPUTER_ADVANCED.get())
             .unlockedBy("has_computer", has(ModRegistry.Items.COMPUTER_ADVANCED.get()))
             .build()
-            .save(output, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "skull_dan200"));
+            .save(output, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "skull_dan200"));
 
         var pages = Ingredient.of(
             ModRegistry.Items.PRINTED_PAGE.get(),
@@ -471,7 +471,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         output.accept(recipeKey(key), recipe, null);
     }
 
-    public static ResourceKey<Recipe<?>> recipeKey(ResourceLocation key) {
+    public static ResourceKey<Recipe<?>> recipeKey(Identifier key) {
         return ResourceKey.create(Registries.RECIPE, key);
     }
 

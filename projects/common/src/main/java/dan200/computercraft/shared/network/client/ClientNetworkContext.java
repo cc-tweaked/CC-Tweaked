@@ -13,7 +13,7 @@ import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.JukeboxSong;
 import org.jspecify.annotations.Nullable;
 
@@ -39,7 +39,7 @@ public interface ClientNetworkContext {
 
     void handleSpeakerMove(UUID source, SpeakerPosition.Message position);
 
-    void handleSpeakerPlay(UUID source, SpeakerPosition.Message position, ResourceLocation sound, float volume, float pitch);
+    void handleSpeakerPlay(UUID source, SpeakerPosition.Message position, Identifier sound, float volume, float pitch);
 
     void handleSpeakerStop(UUID source);
 

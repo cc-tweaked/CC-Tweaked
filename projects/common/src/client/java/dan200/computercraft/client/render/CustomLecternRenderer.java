@@ -19,13 +19,13 @@ import dan200.computercraft.shared.lectern.CustomLecternBlockEntity;
 import dan200.computercraft.shared.media.items.PrintoutData;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.LecternRenderer;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.MaterialSet;
@@ -97,13 +97,13 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
         if (state.type == Type.PRINTOUT) {
             if (state.isBook) {
                 collector.submitModel(
-                    bookModel, Unit.INSTANCE, poseStack, LecternPrintoutModel.MATERIAL.renderType(RenderType::entitySolid),
+                    bookModel, Unit.INSTANCE, poseStack, LecternPrintoutModel.MATERIAL.renderType(RenderTypes::entitySolid),
                     state.lightCoords, OverlayTexture.NO_OVERLAY, -1,
                     materials.get(LecternPrintoutModel.MATERIAL), 0, null
                 );
             } else {
                 collector.submitModel(
-                    printoutModel, state.printoutState, poseStack, LecternPrintoutModel.MATERIAL.renderType(RenderType::entitySolid),
+                    printoutModel, state.printoutState, poseStack, LecternPrintoutModel.MATERIAL.renderType(RenderTypes::entitySolid),
                     state.lightCoords, OverlayTexture.NO_OVERLAY, -1,
                     materials.get(LecternPrintoutModel.MATERIAL), 0, null
                 );

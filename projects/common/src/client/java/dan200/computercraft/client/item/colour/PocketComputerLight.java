@@ -11,7 +11,7 @@ import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.pocket.PocketComputerData;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,7 +25,7 @@ import org.jspecify.annotations.Nullable;
  * @param defaultColour The default colour, if the light is not currently on.
  */
 public record PocketComputerLight(int defaultColour) implements ItemTintSource {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_computer_light");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_computer_light");
     public static final MapCodec<PocketComputerLight> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         ExtraCodecs.RGB_COLOR_CODEC.fieldOf("default").forGetter(PocketComputerLight::defaultColour)
     ).apply(instance, PocketComputerLight::new));

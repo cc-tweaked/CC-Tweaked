@@ -7,6 +7,7 @@ package dan200.computercraft.shared.peripheral.commandblock;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import org.jspecify.annotations.Nullable;
 
@@ -50,7 +51,7 @@ public class CommandBlockPeripheral implements IPeripheral {
     @LuaFunction(mainThread = true)
     public final void setCommand(String command) {
         commandBlock.getCommandBlock().setCommand(command);
-        commandBlock.getCommandBlock().onUpdated();
+        commandBlock.getCommandBlock().onUpdated((ServerLevel) commandBlock.getLevel());
     }
 
     /**
@@ -62,7 +63,7 @@ public class CommandBlockPeripheral implements IPeripheral {
      */
     @LuaFunction(mainThread = true)
     public final Object[] runCommand() {
-        commandBlock.getCommandBlock().performCommand(commandBlock.getLevel());
+        commandBlock.getCommandBlock().performCommand((ServerLevel) commandBlock.getLevel());
         var result = commandBlock.getCommandBlock().getSuccessCount();
         return result > 0 ? new Object[]{ true } : new Object[]{ false, "Command failed" };
     }

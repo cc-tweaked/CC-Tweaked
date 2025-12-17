@@ -7,7 +7,7 @@ import dan200.computercraft.api.upgrades.UpgradeType;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 /**
@@ -18,8 +18,8 @@ public class FabricExampleMod implements ModInitializer {
     public void onInitialize() {
         // @start region=turtle_upgrades
         @SuppressWarnings("unchecked")
-        var turtleUpgradeSerialisers = (Registry<UpgradeType<? extends ITurtleUpgrade>>) BuiltInRegistries.REGISTRY.getValue(ITurtleUpgrade.typeRegistry().location());
-        Registry.register(turtleUpgradeSerialisers, ResourceLocation.fromNamespaceAndPath(ExampleMod.MOD_ID, "example_turtle_upgrade"), ExampleMod.EXAMPLE_TURTLE_UPGRADE);
+        var turtleUpgradeSerialisers = (Registry<UpgradeType<? extends ITurtleUpgrade>>) BuiltInRegistries.REGISTRY.getValue(ITurtleUpgrade.typeRegistry().identifier());
+        Registry.register(turtleUpgradeSerialisers, Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "example_turtle_upgrade"), ExampleMod.EXAMPLE_TURTLE_UPGRADE);
         // @end region=turtle_upgrades
 
         ExampleMod.registerComputerCraft();

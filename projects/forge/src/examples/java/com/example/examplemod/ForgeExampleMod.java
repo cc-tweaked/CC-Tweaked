@@ -3,7 +3,7 @@ package com.example.examplemod;
 import com.example.examplemod.peripheral.BrewingStandPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralCapability;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -24,7 +24,7 @@ public class ForgeExampleMod {
         modBus.addListener((RegisterEvent event) -> {
             event.register(
                 ITurtleUpgrade.typeRegistry(),
-                ResourceLocation.fromNamespaceAndPath(ExampleMod.MOD_ID, "example_turtle_upgrade"),
+                Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "example_turtle_upgrade"),
                 () -> ExampleMod.EXAMPLE_TURTLE_UPGRADE
             );
         });

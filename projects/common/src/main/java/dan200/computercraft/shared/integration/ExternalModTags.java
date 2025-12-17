@@ -5,7 +5,7 @@
 package dan200.computercraft.shared.integration;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,7 +32,7 @@ public final class ExternalModTags {
         public static final TagKey<Block> CREATE_BRITTLE = make("create", "brittle");
 
         private static TagKey<Block> make(String mod, String name) {
-            return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(mod, name));
+            return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(mod, name));
         }
     }
 }

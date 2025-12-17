@@ -11,7 +11,7 @@ import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.*;
 
@@ -51,7 +51,7 @@ public final class NetworkMessages {
         String channel, StreamCodec<RegistryFriendlyByteBuf, T> codec
     ) {
         if (!seenChannel.add(channel)) throw new IllegalArgumentException("Duplicate channel " + channel);
-        var type = new CustomPacketPayload.Type<T>(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, channel));
+        var type = new CustomPacketPayload.Type<T>(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, channel));
         messages.add(new CustomPacketPayload.TypeAndCodec<>(type, codec));
         return type;
     }

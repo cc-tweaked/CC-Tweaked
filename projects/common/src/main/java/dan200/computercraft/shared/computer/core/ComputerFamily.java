@@ -6,6 +6,8 @@ package dan200.computercraft.shared.computer.core;
 
 import dan200.computercraft.shared.config.Config;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.player.Player;
 
 public enum ComputerFamily {
@@ -45,8 +47,7 @@ public enum ComputerFamily {
     }
 
     private static boolean checkCommandUsable(Player player) {
-        var server = player.level().getServer();
-        if (server == null || !server.isCommandBlockEnabled()) {
+        if (!(player.level() instanceof ServerLevel level) || !level.isCommandBlockEnabled()) {
             player.displayClientMessage(Component.translatable("advMode.notEnabled"), true);
             return false;
         } else if (!canUseCommandBlock(player)) {
@@ -58,6 +59,6 @@ public enum ComputerFamily {
     }
 
     private static boolean canUseCommandBlock(Player player) {
-        return Config.commandRequireCreative ? player.canUseGameMasterBlocks() : player.hasPermissions(2);
+        return Config.commandRequireCreative ? player.canUseGameMasterBlocks() : player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER);
     }
 }

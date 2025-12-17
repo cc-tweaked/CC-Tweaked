@@ -34,8 +34,8 @@ import dan200.computercraft.shared.turtle.upgrades.TurtleTool;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -50,12 +50,12 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     private final DetailRegistry<ItemStack> itemStackDetails = new DetailRegistryImpl<>(ItemDetails::fillBasic);
     private final DetailRegistry<BlockReference> blockDetails = new DetailRegistryImpl<>((m, r, b) -> BlockDetails.fillBasic(m, b));
 
-    protected static final ResourceKey<Registry<UpgradeType<? extends ITurtleUpgrade>>> turtleUpgradeRegistryId = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_upgrade_type"));
-    protected static final ResourceKey<Registry<UpgradeType<? extends IPocketUpgrade>>> pocketUpgradeRegistryId = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_upgrade_type"));
+    protected static final ResourceKey<Registry<UpgradeType<? extends ITurtleUpgrade>>> turtleUpgradeRegistryId = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_upgrade_type"));
+    protected static final ResourceKey<Registry<UpgradeType<? extends IPocketUpgrade>>> pocketUpgradeRegistryId = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_upgrade_type"));
 
     public static @Nullable InputStream getResourceFile(MinecraftServer server, String domain, String subPath) {
         var manager = server.getResourceManager();
-        var resource = manager.getResource(ResourceLocation.fromNamespaceAndPath(domain, subPath)).orElse(null);
+        var resource = manager.getResource(Identifier.fromNamespaceAndPath(domain, subPath)).orElse(null);
         if (resource == null) return null;
         try {
             return resource.open();

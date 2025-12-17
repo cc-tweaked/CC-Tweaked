@@ -37,7 +37,7 @@ import net.minecraft.client.renderer.item.EmptyModel;
 import net.minecraft.client.renderer.item.properties.conditional.HasComponent;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -60,33 +60,33 @@ public class BlockModelProvider {
     private static final TextureSlot BACKPACK = TextureSlot.create("backpack");
 
     private static final ModelTemplate COMPUTER_ON = new ModelTemplate(
-        Optional.of(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/computer_on")),
+        Optional.of(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/computer_on")),
         Optional.empty(),
         TextureSlot.FRONT, TextureSlot.SIDE, TextureSlot.TOP, CURSOR
     );
 
     private static final ModelTemplate MONITOR_BASE = new ModelTemplate(
-        Optional.of(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/monitor_base")),
+        Optional.of(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/monitor_base")),
         Optional.empty(),
         TextureSlot.FRONT, TextureSlot.SIDE, TextureSlot.TOP, TextureSlot.BACK
     );
     private static final ModelTemplate MODEM = new ModelTemplate(
-        Optional.of(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/modem")),
+        Optional.of(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/modem")),
         Optional.empty(),
         TextureSlot.FRONT, TextureSlot.BACK
     );
     private static final ModelTemplate TURTLE = new ModelTemplate(
-        Optional.of(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_base")),
+        Optional.of(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_base")),
         Optional.empty(),
         TextureSlot.FRONT, TextureSlot.BACK, TextureSlot.TOP, TextureSlot.BOTTOM, LEFT, RIGHT, BACKPACK
     );
     private static final ModelTemplate TURTLE_UPGRADE_LEFT = new ModelTemplate(
-        Optional.of(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_upgrade_base_left")),
+        Optional.of(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_upgrade_base_left")),
         Optional.of("_left"),
         TextureSlot.TEXTURE
     );
     private static final ModelTemplate TURTLE_UPGRADE_RIGHT = new ModelTemplate(
-        Optional.of(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_upgrade_base_right")),
+        Optional.of(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_upgrade_base_right")),
         Optional.of("_left"),
         TextureSlot.TEXTURE
     );
@@ -186,7 +186,7 @@ public class BlockModelProvider {
                 );
                 case ON, BLINKING -> COMPUTER_ON.createWithSuffix(
                     block, "_" + state.getSerializedName(),
-                    TextureMapping.orientableCube(block).put(CURSOR, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/computer" + state.getTexture())),
+                    TextureMapping.orientableCube(block).put(CURSOR, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/computer" + state.getTexture())),
                     generators.modelOutput
                 );
             }))
@@ -244,10 +244,10 @@ public class BlockModelProvider {
         generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(fullBlock)
             .with(createModelDispatch(WiredModemFullBlock.MODEM_ON, WiredModemFullBlock.PERIPHERAL_ON, (on, peripheral) -> {
                 var suffix = (on ? "_on" : "_off") + (peripheral ? "_peripheral" : "");
-                var faceTexture = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/wired_modem_face" + (peripheral ? "_peripheral" : "") + (on ? "_on" : ""));
+                var faceTexture = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/wired_modem_face" + (peripheral ? "_peripheral" : "") + (on ? "_on" : ""));
 
                 // TODO: Do this somewhere more elegant!
-                modemModel(generators, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/wired_modem" + suffix), faceTexture);
+                modemModel(generators, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/wired_modem" + suffix), faceTexture);
 
                 return ModelTemplates.CUBE_ALL.create(
                     getModelLocation(fullBlock, suffix),
@@ -257,15 +257,15 @@ public class BlockModelProvider {
             })));
 
         generators.registerSimpleItemModel(fullBlock, getModelLocation(fullBlock, "_off"));
-        generators.registerSimpleItemModel(ModRegistry.Items.WIRED_MODEM.get(), ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/wired_modem_off"));
+        generators.registerSimpleItemModel(ModRegistry.Items.WIRED_MODEM.get(), Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/wired_modem_off"));
     }
 
-    private static ResourceLocation modemModel(BlockModelGenerators generators, ResourceLocation name, ResourceLocation texture) {
+    private static Identifier modemModel(BlockModelGenerators generators, Identifier name, Identifier texture) {
         return MODEM.create(
             name,
             new TextureMapping()
                 .put(TextureSlot.FRONT, texture)
-                .put(TextureSlot.BACK, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/modem_back")),
+                .put(TextureSlot.BACK, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/modem_back")),
             generators.modelOutput
         );
     }
@@ -296,7 +296,7 @@ public class BlockModelProvider {
         generators.registerSimpleItemModel(block, monitorModel(generators, block, "_item", 15, 4, 0, 32));
     }
 
-    private static ResourceLocation monitorModel(BlockModelGenerators generators, MonitorBlock block, String corners, int front, int side, int top, int back) {
+    private static Identifier monitorModel(BlockModelGenerators generators, MonitorBlock block, String corners, int front, int side, int top, int back) {
         return MONITOR_BASE.create(
             getModelLocation(block, corners),
             new TextureMapping()
@@ -312,7 +312,7 @@ public class BlockModelProvider {
         var generator = MultiPartGenerator.multiPart(ModRegistry.Blocks.CABLE.get());
 
         // When a cable only has a neighbour in a single direction, we redirect the core to face that direction.
-        var coreFacing = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/cable_core_facing");
+        var coreFacing = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/cable_core_facing");
         // Up/Down
         generator.with(
             or(
@@ -342,7 +342,7 @@ public class BlockModelProvider {
         );
 
         // Find all other possibilities and emit a "solid" core which doesn't have a facing direction.
-        var core = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/cable_core_any");
+        var core = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/cable_core_any");
         List<ConditionBuilder> rightAngles = new ArrayList<>();
         for (var i = 0; i < DirectionUtil.FACINGS.length; i++) {
             for (var j = i; j < DirectionUtil.FACINGS.length; j++) {
@@ -356,7 +356,7 @@ public class BlockModelProvider {
         generator.with(or(rightAngles.toArray(new ConditionBuilder[0])), plainVariant(core));
 
         // Then emit the actual cable arms
-        var arm = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/cable_arm");
+        var arm = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/cable_arm");
         for (var direction : DirectionUtil.FACINGS) {
             generator.with(
                 condition().term(CABLE_DIRECTIONS[direction.ordinal()], true),
@@ -373,7 +373,7 @@ public class BlockModelProvider {
                     var suffix = (on ? "_on" : "_off") + (peripheral ? "_peripheral" : "");
                     generator.with(
                         condition().term(CableBlock.MODEM, CableModemVariant.from(direction, on, peripheral)),
-                        plainVariant(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/wired_modem" + suffix))
+                        plainVariant(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/wired_modem" + suffix))
                             .with(VariantMutator.X_ROT.withValue(toXAngle(direction)))
                             .with(VariantMutator.Y_ROT.withValue(toYAngle(direction)))
                     );
@@ -403,13 +403,13 @@ public class BlockModelProvider {
 
     private static void registerTurtleUpgrade(BlockModelGenerators generators, String name, String texture) {
         TURTLE_UPGRADE_LEFT.create(
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name + "_left"),
-            TextureMapping.defaultTexture(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, texture)),
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name + "_left"),
+            TextureMapping.defaultTexture(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, texture)),
             generators.modelOutput
         );
         TURTLE_UPGRADE_RIGHT.create(
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name + "_right"),
-            TextureMapping.defaultTexture(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, texture)),
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name + "_right"),
+            TextureMapping.defaultTexture(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, texture)),
             generators.modelOutput
         );
     }
@@ -449,7 +449,7 @@ public class BlockModelProvider {
         return dispatch;
     }
 
-    private static <T extends Comparable<T>> PropertyDispatch<MultiVariant> createModelDispatch(Property<T> property, Function<T, ResourceLocation> makeModel) {
+    private static <T extends Comparable<T>> PropertyDispatch<MultiVariant> createModelDispatch(Property<T> property, Function<T, Identifier> makeModel) {
         var variant = PropertyDispatch.initial(property);
         for (var value : property.getPossibleValues()) {
             variant.select(value, plainVariant(makeModel.apply(value)));
@@ -458,7 +458,7 @@ public class BlockModelProvider {
     }
 
     private static <T extends Comparable<T>, U extends Comparable<U>> PropertyDispatch<MultiVariant> createModelDispatch(
-        Property<T> propertyT, Property<U> propertyU, BiFunction<T, U, ResourceLocation> makeModel
+        Property<T> propertyT, Property<U> propertyU, BiFunction<T, U, Identifier> makeModel
     ) {
         var variant = PropertyDispatch.initial(propertyT, propertyU);
         for (var valueT : propertyT.getPossibleValues()) {

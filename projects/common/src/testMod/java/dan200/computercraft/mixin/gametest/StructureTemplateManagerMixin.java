@@ -5,7 +5,7 @@
 package dan200.computercraft.mixin.gametest;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
@@ -39,11 +39,11 @@ class StructureTemplateManagerMixin {
      * @param id The structure to load.
      * @param ci The callback info.
      * @see NbtUtilsMixin Saving structures
-     * @see StructureTemplateManagerMixin#loadFromTestStructures(ResourceLocation, CallbackInfoReturnable)
+     * @see StructureTemplateManagerMixin#loadFromTestStructures(Identifier, CallbackInfoReturnable)
      */
     @Inject(method = "loadFromTestStructures", at = @At(value = "RETURN"))
     @SuppressWarnings("unused")
-    private void loadFromTestStructures(ResourceLocation id, CallbackInfoReturnable<Optional<StructureTemplate>> ci) {
+    private void loadFromTestStructures(Identifier id, CallbackInfoReturnable<Optional<StructureTemplate>> ci) {
         ci.getReturnValue().ifPresent(StructureTemplateManagerMixin::addMissingAir);
     }
 

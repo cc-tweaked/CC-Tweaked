@@ -9,11 +9,11 @@ import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.RegistryEntry;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Util;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -113,6 +113,7 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
         if (!player.isCrouching() && level.getBlockEntity(pos) instanceof AbstractComputerBlockEntity computer) {
             // Regular right click to activate computer
             if (!level.isClientSide() && computer.isUsable(player)) {
+                // TODO(1.21.11): Call BaseContainerBlockEntity.sendChestLockedNotifications
                 var serverComputer = computer.createServerComputer();
                 serverComputer.turnOn();
 

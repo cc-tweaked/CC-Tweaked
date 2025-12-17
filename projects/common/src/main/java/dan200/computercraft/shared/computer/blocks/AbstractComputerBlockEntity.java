@@ -29,7 +29,6 @@ import net.minecraft.world.LockCode;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuConstructor;
-import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -84,9 +83,9 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         return Container.DEFAULT_DISTANCE_BUFFER;
     }
 
-    public boolean isUsable(Player player) {
+    public final boolean isUsable(Player player) {
         return getFamily().checkUsable(player)
-            && BaseContainerBlockEntity.canUnlock(player, lockCode, getDisplayName())
+            && lockCode.canUnlock(player)
             && Container.stillValidBlockEntity(this, player, getInteractRange());
     }
 
@@ -167,7 +166,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     protected void loadServer(ValueInput nbt) {
         // Load ID, label and power state
         computerID = nbt.getIntOr(NBT_ID, -1);
-        label = nbt.getStringOr(NBT_LABEL, null);
+        label = nbt.getString(NBT_LABEL).orElse(null);
         storageCapacity = nbt.getLongOr(NBT_CAPACITY, -1);
         on = startOn = nbt.getBooleanOr(NBT_ON, false);
 
@@ -411,7 +410,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
 
     @Override
     public Component getName() {
-        return hasCustomName()
+        return !Strings.isNullOrEmpty(label)
             ? Component.literal(label)
             : Component.translatable(getBlockState().getBlock().getDescriptionId());
     }
@@ -424,7 +423,7 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     @Nullable
     @Override
     public Component getCustomName() {
-        return hasCustomName() ? Component.literal(label) : null;
+        return !Strings.isNullOrEmpty(label) ? Component.literal(label) : null;
     }
 
     @Override

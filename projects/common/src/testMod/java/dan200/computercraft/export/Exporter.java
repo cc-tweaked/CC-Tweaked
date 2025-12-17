@@ -78,7 +78,7 @@ public class Exporter {
         var server = Objects.requireNonNull(Minecraft.getInstance().getSingleplayerServer());
         for (var recipe : server.getRecipeManager().getRecipes()) {
             if (recipe.value().getType() != RecipeType.CRAFTING) continue;
-            if (!recipe.id().location().getNamespace().equals(ComputerCraftAPI.MOD_ID)) continue;
+            if (!recipe.id().identifier().getNamespace().equals(ComputerCraftAPI.MOD_ID)) continue;
 
             var displayInfos = recipe.value().display();
             if (displayInfos.isEmpty()) continue;

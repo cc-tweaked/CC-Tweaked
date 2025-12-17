@@ -112,7 +112,6 @@ class DfpwmStream implements AudioStream {
         return MONO_8;
     }
 
-    @Nullable
     @Override
     public synchronized ByteBuffer read(int capacity) {
         var result = BufferUtils.createByteBuffer(capacity);
@@ -131,8 +130,14 @@ class DfpwmStream implements AudioStream {
 
         result.flip();
 
-        // This is naughty, but ensures we're not enqueuing empty buffers when the stream is exhausted.
-        return result.remaining() == 0 ? null : result;
+        // This is naughty, as AudioStream.read is marked as non-null. However, Channel.pumpBuffers still assumes it can
+        // return a null value, and doing this ensures we're not enqueuing empty buffers when the stream is exhausted.
+        return result.remaining() == 0 ? actuallyANullBuffer() : result;
+    }
+
+    @SuppressWarnings("NullAway")
+    private static ByteBuffer actuallyANullBuffer() {
+        return null;
     }
 
     @Override

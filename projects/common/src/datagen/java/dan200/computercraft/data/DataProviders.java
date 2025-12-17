@@ -15,7 +15,6 @@ import dan200.computercraft.client.turtle.TurtleOverlay;
 import dan200.computercraft.data.client.BlockModelProvider;
 import dan200.computercraft.data.client.ItemModelProvider;
 import dan200.computercraft.shared.turtle.inventory.UpgradeSlot;
-import net.minecraft.Util;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
@@ -28,7 +27,8 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.registries.RegistryPatchGenerator;
 import net.minecraft.data.tags.TagsProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
@@ -96,7 +96,7 @@ public final class DataProviders {
 
     @SafeVarargs
     @SuppressWarnings("varargs")
-    private static List<SpriteSource> makeSprites(final Stream<ResourceLocation>... files) {
+    private static List<SpriteSource> makeSprites(final Stream<Identifier>... files) {
         return Arrays.stream(files).flatMap(Function.identity()).<SpriteSource>map(x -> new SingleFile(x, Optional.empty())).toList();
     }
 
@@ -105,7 +105,7 @@ public final class DataProviders {
 
         <T extends DataProvider> T add(DataProvider.Factory<T> factory);
 
-        <T> void addFromCodec(String name, PackOutput.Target target, String directory, Codec<T> codec, Consumer<BiConsumer<ResourceLocation, T>> output);
+        <T> void addFromCodec(String name, PackOutput.Target target, String directory, Codec<T> codec, Consumer<BiConsumer<Identifier, T>> output);
 
         TagsProvider<Block> blockTags(Consumer<TagProvider.TagConsumer<Block>> tags);
 

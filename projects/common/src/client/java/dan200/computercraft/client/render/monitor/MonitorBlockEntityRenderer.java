@@ -15,19 +15,20 @@ import dan200.computercraft.client.integration.ShaderMod;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.fog.FogRenderer;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.AABB;
@@ -194,7 +195,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
         // There's not really a good way around this, at least without using a custom render type (which the VBO
         // renderer is trying to avoid!). Instead, we just disable fog entirely by setting the fog start to an
         // absurdly high value.
-        var oldFog = RenderSystem.getShaderFog();
+        var oldFog = Nullability.assertNonNull(RenderSystem.getShaderFog());
         RenderSystem.setShaderFog(Minecraft.getInstance().gameRenderer.fogRenderer.getBuffer(FogRenderer.FogMode.NONE));
 
         // Compose the existing model view matrix with our transformation matrix.
@@ -226,11 +227,8 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
             RenderSystem.getModelViewMatrix(),
             new Vector4f(1.0F, 1.0F, 1.0F, 1.0F),
             new Vector3f(),
-            RenderSystem.getTextureMatrix(),
-            RenderSystem.getShaderLineWidth()
+            new Matrix4f()
         );
-
-        renderType.setupRenderState();
 
         var autoStorageBuffer = RenderSystem.getSequentialBuffer(renderType.mode());
         var indexCount = FixedWidthFontRenderer.TERMINAL_TEXT.mode().indexCount(vertexCount);
@@ -243,7 +241,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
             : null;
 
         try (var renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
-            () -> "Monitor", colourTarget, OptionalInt.empty(), depthTarget, OptionalDouble.empty()
+            () -> "Monitor", Nullability.assertNonNull(colourTarget), OptionalInt.empty(), depthTarget, OptionalDouble.empty()
         )) {
             renderPass.setPipeline(pipeline);
 
@@ -252,15 +250,15 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
             renderPass.setVertexBuffer(0, renderState.vertexBuffer);
             renderPass.setIndexBuffer(indexBuffer, autoStorageBuffer.type());
 
+            /*
             for (var j = 0; j < 12; j++) {
                 var gpuTexture = RenderSystem.getShaderTexture(j);
-                if (gpuTexture != null) renderPass.bindSampler("Sampler" + j, gpuTexture);
+                if (gpuTexture != null) renderPass.bindTexture("Sampler" + j, gpuTexture);
             }
+            */
 
             renderPass.drawIndexed(vertexOffset, 0, indexCount, 1);
         }
-
-        renderType.clearRenderState();
     }
 
     @Override

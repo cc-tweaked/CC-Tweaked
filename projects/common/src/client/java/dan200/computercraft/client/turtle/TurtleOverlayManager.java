@@ -8,7 +8,7 @@ import dan200.computercraft.client.CustomModelManager;
 import net.minecraft.client.resources.model.MissingBlockModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
@@ -36,7 +36,7 @@ public class TurtleOverlayManager {
      * @return The turtle overlay.
      */
     @Contract("_, null -> null; _, !null -> !null")
-    public static @Nullable TurtleOverlay get(ModelManager modelManager, @Nullable ResourceLocation id) {
+    public static @Nullable TurtleOverlay get(ModelManager modelManager, @Nullable Identifier id) {
         return id == null ? null : loader.get(modelManager, id);
     }
 }

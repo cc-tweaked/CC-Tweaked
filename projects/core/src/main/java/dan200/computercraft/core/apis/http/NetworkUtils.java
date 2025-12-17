@@ -13,7 +13,8 @@ import dan200.computercraft.core.util.ThreadUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ConnectTimeoutException;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.TooLongFrameException;
@@ -46,7 +47,7 @@ public final class NetworkUtils {
     private static final Logger LOG = LoggerFactory.getLogger(NetworkUtils.class);
 
     public static final ScheduledThreadPoolExecutor EXECUTOR = new ScheduledThreadPoolExecutor(4, ThreadUtils.lowPriorityFactory("Network"));
-    public static final EventLoopGroup LOOP_GROUP = new NioEventLoopGroup(4, ThreadUtils.lowPriorityFactory("Netty"));
+    public static final EventLoopGroup LOOP_GROUP = new MultiThreadIoEventLoopGroup(4, ThreadUtils.lowPriorityFactory("Netty"), NioIoHandler.newFactory());
 
     private static final AbstractTrafficShapingHandler SHAPING_HANDLER = new GlobalTrafficShapingHandler(
         EXECUTOR, CoreConfig.httpUploadBandwidth, CoreConfig.httpDownloadBandwidth

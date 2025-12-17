@@ -5,12 +5,12 @@ import com.example.examplemod.ExampleTurtleUpgrade;
 import dan200.computercraft.api.client.turtle.ItemUpgradeModel;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import net.minecraft.Util;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.registries.RegistryPatchGenerator;
 import net.minecraft.data.worldgen.BootstrapContext;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 // @start region=body
 public class TurtleUpgradeProvider {
     // Define our upgrade ids.
-    private static final ResourceLocation EXAMPLE_TURTLE_UPGRADE = ResourceLocation.fromNamespaceAndPath(ExampleMod.MOD_ID, "example_turtle_upgrade");
+    private static final Identifier EXAMPLE_TURTLE_UPGRADE = Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "example_turtle_upgrade");
 
     // Register our turtle upgrades.
     public static void addUpgrades(BootstrapContext<ITurtleUpgrade> upgrades) {
@@ -38,7 +38,7 @@ public class TurtleUpgradeProvider {
     }
 
     // Register our turtle models.
-    public static void addUpgradeModels(BiConsumer<ResourceLocation, TurtleUpgradeModel.Unbaked> models) {
+    public static void addUpgradeModels(BiConsumer<Identifier, TurtleUpgradeModel.Unbaked> models) {
         models.accept(EXAMPLE_TURTLE_UPGRADE, ItemUpgradeModel.unbaked());
     }
 }

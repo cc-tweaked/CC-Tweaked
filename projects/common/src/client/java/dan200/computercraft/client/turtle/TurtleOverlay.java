@@ -12,7 +12,7 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.util.Holiday;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvableModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * A cosmetic overlay on a turtle.
@@ -31,7 +31,7 @@ public record TurtleOverlay(StandaloneModel model, boolean showElfOverlay) {
      * The codec used to read/write turtle overlay definitions from resource packs.
      */
     public static final Codec<TurtleOverlay.Unbaked> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        ResourceLocation.CODEC.fieldOf("model").forGetter(TurtleOverlay.Unbaked::model),
+        Identifier.CODEC.fieldOf("model").forGetter(TurtleOverlay.Unbaked::model),
         Codec.BOOL.optionalFieldOf("show_elf_overlay", false).forGetter(TurtleOverlay.Unbaked::showElfOverlay)
     ).apply(instance, TurtleOverlay.Unbaked::new));
 
@@ -40,9 +40,9 @@ public record TurtleOverlay(StandaloneModel model, boolean showElfOverlay) {
      *
      * @see #showElfOverlay()
      */
-    public static final ResourceLocation ELF_MODEL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_elf_overlay");
+    public static final Identifier ELF_MODEL = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_elf_overlay");
 
-    public record Unbaked(ResourceLocation model, boolean showElfOverlay) implements ResolvableModel {
+    public record Unbaked(Identifier model, boolean showElfOverlay) implements ResolvableModel {
         @Override
         public void resolveDependencies(Resolver resolver) {
             resolver.markDependency(model());

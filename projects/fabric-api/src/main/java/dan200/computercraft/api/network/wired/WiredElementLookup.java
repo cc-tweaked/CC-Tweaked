@@ -7,14 +7,14 @@ package dan200.computercraft.api.network.wired;
 import dan200.computercraft.api.ComputerCraftAPI;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * {@linkplain BlockApiLookup Block API lookup} for {@link WiredElement}s. This should be used to query wired elements
  * from a block.
  */
 public final class WiredElementLookup {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "wired_node");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "wired_node");
 
     private static final BlockApiLookup<WiredElement, Direction> lookup = BlockApiLookup.get(ID, WiredElement.class, Direction.class);
 

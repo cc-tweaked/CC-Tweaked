@@ -14,7 +14,7 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.metadata.PackMetadataGenerator;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.metadata.MetadataSectionType;
 
 import java.util.HashMap;
@@ -88,13 +88,13 @@ final class ResourceMetadataProvider implements DataProvider {
      * A builder for a set of {@code mcmeta} files.
      */
     private static final class Builder {
-        private final Map<ResourceLocation, FileMetadata> metadata = new HashMap<>();
+        private final Map<Identifier, FileMetadata> metadata = new HashMap<>();
 
-        FileMetadata texture(ResourceLocation texture) {
+        FileMetadata texture(Identifier texture) {
             return file(texture.withPrefix("textures/").withSuffix(".png"));
         }
 
-        FileMetadata file(ResourceLocation path) {
+        FileMetadata file(Identifier path) {
             return metadata.computeIfAbsent(path, p -> new FileMetadata());
         }
     }

@@ -52,7 +52,7 @@ class CCTestCommand {
 
                 // Kill the existing armor stand
                 var level = player.level();
-                level.getEntities(EntityType.ARMOR_STAND, x -> x.isAlive() && x.getName().getString().equals(test.location().getPath()))
+                level.getEntities(EntityType.ARMOR_STAND, x -> x.isAlive() && x.getName().getString().equals(test.identifier().getPath()))
                     .forEach(e -> e.kill(level));
 
                 // And create a new one
@@ -63,7 +63,7 @@ class CCTestCommand {
                 armorStand.setInvisible(true);
                 ((ArmorStandAccessor) armorStand).computercraft$setMarker(true);
                 armorStand.copyPosition(player);
-                armorStand.setCustomName(Component.literal(test.location().getPath()));
+                armorStand.setCustomName(Component.literal(test.identifier().getPath()));
                 level.addFreshEntity(armorStand);
                 return 0;
             }))
@@ -81,7 +81,7 @@ class CCTestCommand {
 
                 var stack = item.createItemStack(1, false);
                 stack.set(ModRegistry.DataComponents.COMPUTER_ID.get(), new NonNegativeId.Computer(1));
-                stack.set(DataComponents.CUSTOM_NAME, Component.literal(test.location().getPath()));
+                stack.set(DataComponents.CUSTOM_NAME, Component.literal(test.identifier().getPath()));
                 if (!player.getInventory().add(stack)) {
                     var itemEntity = player.drop(stack, false);
                     if (itemEntity != null) {

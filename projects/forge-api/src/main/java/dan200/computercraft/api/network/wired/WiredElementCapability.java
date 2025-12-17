@@ -6,7 +6,7 @@ package dan200.computercraft.api.network.wired;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 
 /**
@@ -14,7 +14,7 @@ import net.neoforged.neoforge.capabilities.BlockCapability;
  * from a block.
  */
 public final class WiredElementCapability {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "wired_node");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "wired_node");
 
     private static final BlockCapability<WiredElement, Direction> capability = BlockCapability.create(ID, WiredElement.class, Direction.class);
 

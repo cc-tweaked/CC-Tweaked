@@ -36,7 +36,7 @@
  * <h2>Example: Returning details from methods</h2>
  * Here we define a {@code getHeldItem()} method for pocket computers which finds the currently held item of the player
  * and returns it to the user using {@link dan200.computercraft.api.detail.VanillaDetailRegistries#ITEM_STACK} and
- * {@link dan200.computercraft.api.detail.DetailRegistry#getDetails(java.lang.Object)}.
+ * {@link dan200.computercraft.api.detail.DetailRegistry#getDetails(net.minecraft.core.HolderLookup.Provider, Object)}.
  *
  * {@snippet class=com.example.examplemod.ExamplePocketPeripheral region=details}
  *

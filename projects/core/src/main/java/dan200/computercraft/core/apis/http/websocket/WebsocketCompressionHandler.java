@@ -25,11 +25,10 @@ final class WebsocketCompressionHandler extends WebSocketClientExtensionHandler 
         super(
             new PerMessageDeflateClientExtensionHandshaker(
                 6, ZlibCodecFactory.isSupportingWindowSizeAndMemLevel(), MAX_WINDOW_SIZE,
-                true, false
+                true, false, 0
             ),
-            new DeflateFrameClientExtensionHandshaker(false),
-            new DeflateFrameClientExtensionHandshaker(true)
+            new DeflateFrameClientExtensionHandshaker(false, 0),
+            new DeflateFrameClientExtensionHandshaker(true, 0)
         );
-
     }
 }

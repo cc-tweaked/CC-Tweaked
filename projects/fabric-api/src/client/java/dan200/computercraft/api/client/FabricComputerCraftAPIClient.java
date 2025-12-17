@@ -8,7 +8,7 @@ import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.client.turtle.RegisterTurtleUpgradeModel;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModel;
 import dan200.computercraft.impl.client.FabricComputerCraftAPIClientService;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * The Fabric-specific entrypoint for ComputerCraft's client-side API.
@@ -30,7 +30,7 @@ public final class FabricComputerCraftAPIClient {
      * @param id    The id used for this type of upgrade model.
      * @param codec The codec used to read/decode an upgrade model.
      */
-    public static void registerTurtleUpgradeModeller(ResourceLocation id, MapCodec<? extends TurtleUpgradeModel.Unbaked> codec) {
+    public static void registerTurtleUpgradeModeller(Identifier id, MapCodec<? extends TurtleUpgradeModel.Unbaked> codec) {
         getInstance().registerTurtleUpgradeModeller(id, codec);
     }
 

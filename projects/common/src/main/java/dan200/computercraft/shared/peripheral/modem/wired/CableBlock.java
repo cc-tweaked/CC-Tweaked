@@ -5,16 +5,17 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.annotations.ForgeOverride;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.WaterloggableHelpers;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Util;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -202,7 +203,7 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
         }
 
         return level instanceof Level actualLevel
-            ? state.setValue(CONNECTIONS.get(side), doesConnectVisually(state, actualLevel, pos, side))
+            ? state.setValue(Nullability.assertNonNull(CONNECTIONS.get(side)), doesConnectVisually(state, actualLevel, pos, side))
             : state;
     }
 

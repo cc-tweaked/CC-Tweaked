@@ -7,8 +7,8 @@ package dan200.computercraft.shared.computer.core;
 import com.google.common.annotations.VisibleForTesting;
 import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.core.filesystem.ArchiveMount;
-import net.minecraft.ResourceLocationException;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.IdentifierException;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -33,14 +33,14 @@ public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
     /**
      * Maintain a cache of currently loaded resource mounts. This cache is invalidated when currentManager changes.
      */
-    private static final Map<ResourceLocation, ResourceMount> MOUNT_CACHE = new HashMap<>(2);
+    private static final Map<Identifier, ResourceMount> MOUNT_CACHE = new HashMap<>(2);
 
     private final String namespace;
     private final String subPath;
     private ResourceManager manager;
 
     public static ResourceMount get(String namespace, String subPath, ResourceManager manager) {
-        var path = ResourceLocation.fromNamespaceAndPath(namespace, subPath);
+        var path = Identifier.fromNamespaceAndPath(namespace, subPath);
         synchronized (MOUNT_CACHE) {
             var mount = MOUNT_CACHE.get(path);
             if (mount == null) MOUNT_CACHE.put(path, mount = new ResourceMount(namespace, subPath, manager));
@@ -59,7 +59,7 @@ public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
         var hasAny = false;
         String existingNamespace = null;
 
-        var newRoot = new FileEntry(ResourceLocation.fromNamespaceAndPath(namespace, subPath));
+        var newRoot = new FileEntry(Identifier.fromNamespaceAndPath(namespace, subPath));
         for (var file : manager.listResources(subPath, s -> true).keySet()) {
             existingNamespace = file.getNamespace();
 
@@ -70,7 +70,7 @@ public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
 
             try {
                 getOrCreateChild(newRoot, localPath, this::createEntry);
-            } catch (ResourceLocationException e) {
+            } catch (IdentifierException e) {
                 LOG.warn("Cannot create resource location for {} ({})", localPath, e.getMessage());
             }
             hasAny = true;
@@ -88,7 +88,7 @@ public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
     }
 
     private FileEntry createEntry(String path) {
-        return new FileEntry(ResourceLocation.fromNamespaceAndPath(namespace, subPath + "/" + path));
+        return new FileEntry(Identifier.fromNamespaceAndPath(namespace, subPath + "/" + path));
     }
 
     @Override
@@ -102,9 +102,9 @@ public final class ResourceMount extends ArchiveMount<ResourceMount.FileEntry> {
     }
 
     protected static final class FileEntry extends ArchiveMount.FileEntry<FileEntry> {
-        final ResourceLocation identifier;
+        final Identifier identifier;
 
-        FileEntry(ResourceLocation identifier) {
+        FileEntry(Identifier identifier) {
             this.identifier = identifier;
         }
     }

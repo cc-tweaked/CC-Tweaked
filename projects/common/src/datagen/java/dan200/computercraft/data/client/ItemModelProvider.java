@@ -17,7 +17,7 @@ import net.minecraft.client.renderer.item.BlockModelWrapper;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.properties.conditional.HasComponent;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 
 import java.util.List;
@@ -26,7 +26,7 @@ import java.util.Optional;
 import static net.minecraft.client.data.models.model.ModelLocationUtils.getModelLocation;
 
 public final class ItemModelProvider {
-    private static final ResourceLocation POCKET_COMPUTER_COLOUR = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_colour");
+    private static final Identifier POCKET_COMPUTER_COLOUR = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_colour");
 
     private ItemModelProvider() {
     }
@@ -44,21 +44,21 @@ public final class ItemModelProvider {
         generators.generateFlatItem(ModRegistry.Items.PRINTED_PAGES.get(), ModelTemplates.FLAT_ITEM);
     }
 
-    private static void registerPocketComputerModels(ItemModelGenerators generators, ResourceLocation id) {
+    private static void registerPocketComputerModels(ItemModelGenerators generators, Identifier id) {
         createFlatItem(generators, id.withSuffix("_blinking"),
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_blink"),
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_blink"),
             id,
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_light")
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_light")
         );
 
         createFlatItem(generators, id.withSuffix("_on"),
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_on"),
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_on"),
             id,
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_light")
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_light")
         );
 
         createFlatItem(generators, id,
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_frame"),
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/pocket_computer_frame"),
             id
         );
     }
@@ -73,7 +73,7 @@ public final class ItemModelProvider {
         ));
     }
 
-    private static ItemModel.Unbaked createPocketModel(ResourceLocation id) {
+    private static ItemModel.Unbaked createPocketModel(Identifier id) {
         var tints = List.of(
             ItemModelUtils.constantTint(-1),
             new Dye(-1),
@@ -90,8 +90,8 @@ public final class ItemModelProvider {
     private static void registerDisk(ItemModelGenerators generators, Item item, int colour) {
         var model = getModelLocation(item);
         createFlatItem(generators, model,
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/disk_frame"),
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/disk_colour")
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/disk_frame"),
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/disk_colour")
         );
 
         generators.itemModelOutput.accept(item, new BlockModelWrapper.Unbaked(model, List.of(
@@ -108,7 +108,7 @@ public final class ItemModelProvider {
      * @param textures   The textures which make up this model.
      * @see net.minecraft.client.renderer.block.model.ItemModelGenerator The parser for this file format.
      */
-    private static void createFlatItem(ItemModelGenerators generators, ResourceLocation model, ResourceLocation... textures) {
+    private static void createFlatItem(ItemModelGenerators generators, Identifier model, Identifier... textures) {
         if (textures.length > 5) throw new IndexOutOfBoundsException("Too many layers");
         if (textures.length == 0) throw new IndexOutOfBoundsException("Must have at least one texture");
         if (textures.length == 1) {
@@ -123,7 +123,7 @@ public final class ItemModelProvider {
             mapping.put(slot, textures[i]);
         }
 
-        new ModelTemplate(Optional.of(ResourceLocation.withDefaultNamespace("item/generated")), Optional.empty(), slots)
+        new ModelTemplate(Optional.of(Identifier.withDefaultNamespace("item/generated")), Optional.empty(), slots)
             .create(model, mapping, generators.modelOutput);
     }
 }

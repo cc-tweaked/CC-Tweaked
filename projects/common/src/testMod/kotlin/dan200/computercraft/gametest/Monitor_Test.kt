@@ -15,7 +15,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Holder
 import net.minecraft.gametest.framework.*
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.GameType
 import net.minecraft.world.level.block.Blocks
@@ -119,7 +119,7 @@ class Monitor_Test {
                     "$testName.$label",
                     TestData(
                         Holder.direct(TestEnvironmentDefinition.TimeOfDay(time)),
-                        ResourceLocation.parse(testName),
+                        Identifier.parse(testName),
                         Timeouts.DEFAULT,
                         0,
                         true,

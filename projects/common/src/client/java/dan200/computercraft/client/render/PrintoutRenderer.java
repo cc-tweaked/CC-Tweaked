@@ -11,8 +11,9 @@ import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.media.items.PrintoutData;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 
 import java.util.List;
@@ -26,10 +27,10 @@ import static dan200.computercraft.shared.media.items.PrintoutData.LINES_PER_PAG
  */
 public final class PrintoutRenderer {
     /**
-     * Printout's background texture. {@link RenderType#text(ResourceLocation)} is a <em>little</em> questionable, but
+     * Printout's background texture. {@link RenderTypes#text(Identifier)} is a <em>little</em> questionable, but
      * it is what maps use, so should behave the same as vanilla in both item frames and in-hand.
      */
-    public static final RenderType BACKGROUND = RenderType.text(ResourceLocation.fromNamespaceAndPath("computercraft", "textures/gui/printout.png"));
+    public static final RenderType BACKGROUND = RenderTypes.text(Identifier.fromNamespaceAndPath("computercraft", "textures/gui/printout.png"));
 
     private static final float BG_SIZE = 256.0f;
 

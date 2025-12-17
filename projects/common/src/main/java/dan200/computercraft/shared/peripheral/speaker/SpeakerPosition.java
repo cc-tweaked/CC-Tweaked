@@ -7,7 +7,7 @@ package dan200.computercraft.shared.peripheral.speaker;
 import dan200.computercraft.shared.network.codec.MoreStreamCodecs;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -30,16 +30,16 @@ public record SpeakerPosition(@Nullable Level level, Vec3 position, @Nullable En
 
     public Message asMessage() {
         if (level == null) throw new NullPointerException("Cannot send a position without a level");
-        return new Message(level.dimension().location(), position, entity == null ? OptionalInt.empty() : OptionalInt.of(entity.getId()));
+        return new Message(level.dimension().identifier(), position, entity == null ? OptionalInt.empty() : OptionalInt.of(entity.getId()));
     }
 
     public record Message(
-        ResourceLocation level,
+        Identifier level,
         Vec3 position,
         OptionalInt entity
     ) {
         public static final StreamCodec<FriendlyByteBuf, Message> STREAM_CODEC = StreamCodec.composite(
-            ResourceLocation.STREAM_CODEC, Message::level,
+            Identifier.STREAM_CODEC, Message::level,
             MoreStreamCodecs.VEC3, Message::position,
             MoreStreamCodecs.OPTIONAL_INT, Message::entity,
             Message::new

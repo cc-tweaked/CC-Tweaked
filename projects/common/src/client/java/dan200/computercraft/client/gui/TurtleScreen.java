@@ -14,7 +14,7 @@ import dan200.computercraft.shared.turtle.inventory.TurtleMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 import static dan200.computercraft.shared.turtle.inventory.TurtleMenu.*;
@@ -23,11 +23,11 @@ import static dan200.computercraft.shared.turtle.inventory.TurtleMenu.*;
  * The GUI for turtles.
  */
 public class TurtleScreen extends AbstractComputerScreen<TurtleMenu> {
-    private static final ResourceLocation BACKGROUND_NORMAL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "textures/gui/turtle_normal.png");
-    private static final ResourceLocation BACKGROUND_ADVANCED = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "textures/gui/turtle_advanced.png");
+    private static final Identifier BACKGROUND_NORMAL = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "textures/gui/turtle_normal.png");
+    private static final Identifier BACKGROUND_ADVANCED = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "textures/gui/turtle_advanced.png");
 
-    private static final ResourceLocation SELECTED_NORMAL = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_normal_selected_slot");
-    private static final ResourceLocation SELECTED_ADVANCED = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_advanced_selected_slot");
+    private static final Identifier SELECTED_NORMAL = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_normal_selected_slot");
+    private static final Identifier SELECTED_ADVANCED = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_advanced_selected_slot");
 
     private static final int TEX_WIDTH = 278;
     private static final int TEX_HEIGHT = 217;

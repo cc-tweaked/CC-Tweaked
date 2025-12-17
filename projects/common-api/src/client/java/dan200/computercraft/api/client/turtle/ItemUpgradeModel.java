@@ -20,14 +20,14 @@ import net.minecraft.client.renderer.item.TrackingItemStackRenderState;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * A sic {@link TurtleUpgradeModel} that renders the upgrade's {@linkplain ITurtleUpgrade#getUpgradeItem(DataComponentPatch)
@@ -40,7 +40,7 @@ public final class ItemUpgradeModel implements TurtleUpgradeModel {
     private static final TurtleUpgradeModel.Unbaked UNBAKED = new Unbaked();
     private static final TurtleUpgradeModel INSTANCE = new ItemUpgradeModel();
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item");
     public static final MapCodec<TurtleUpgradeModel.Unbaked> CODEC = MapCodec.unit(UNBAKED);
 
     private static final TransformedRenderer LEFT = computeRenderer(TurtleSide.LEFT);
@@ -120,7 +120,7 @@ public final class ItemUpgradeModel implements TurtleUpgradeModel {
         }
 
         @Override
-        public void getExtents(Set<Vector3f> set) {
+        public void getExtents(Consumer<Vector3fc> set) {
         }
 
         @Override

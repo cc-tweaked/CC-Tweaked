@@ -9,10 +9,10 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import net.minecraft.Util;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -113,7 +113,7 @@ public interface UpgradeBase {
      * @return The  generated adjective.
      * @see #getAdjective()
      */
-    static String getDefaultAdjective(ResourceLocation id) {
+    static String getDefaultAdjective(Identifier id) {
         return Util.makeDescriptionId("upgrade", id) + ".adjective";
     }
 }

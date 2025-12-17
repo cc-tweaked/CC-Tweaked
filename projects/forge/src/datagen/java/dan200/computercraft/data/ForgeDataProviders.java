@@ -15,7 +15,7 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -49,7 +49,7 @@ public class ForgeDataProviders {
         }
 
         @Override
-        public <T> void addFromCodec(String name, PackOutput.Target target, String directory, Codec<T> codec, Consumer<BiConsumer<ResourceLocation, T>> output) {
+        public <T> void addFromCodec(String name, PackOutput.Target target, String directory, Codec<T> codec, Consumer<BiConsumer<Identifier, T>> output) {
             add(out -> new JsonCodecProvider<T>(out, target, directory, codec, registries, ComputerCraftAPI.MOD_ID) {
                 @Override
                 protected void gather() {

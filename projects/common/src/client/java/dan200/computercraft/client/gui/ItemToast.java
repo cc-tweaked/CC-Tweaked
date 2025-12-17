@@ -11,7 +11,7 @@ import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastManager;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
 
@@ -21,7 +21,7 @@ import java.util.List;
  * A {@link Toast} implementation which displays an arbitrary message along with an optional {@link ItemStack}.
  */
 public class ItemToast implements Toast {
-    private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("toast/recipe");
+    private static final Identifier TEXTURE = Identifier.withDefaultNamespace("toast/recipe");
     public static final Object TRANSFER_NO_RESPONSE_TOKEN = new Object();
 
     private static final long DISPLAY_TIME = 7000L;

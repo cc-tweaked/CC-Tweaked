@@ -25,7 +25,7 @@ import net.minecraft.core.component.DataComponents
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.gametest.framework.GameTestSequence
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import org.hamcrest.MatcherAssert.assertThat
@@ -122,7 +122,7 @@ class Pocket_Computer_Test {
     fun Data_fixers(helper: GameTestHelper) = helper.sequence {
         thenExecute {
             val upgrade = helper.level.registryAccess().lookupOrThrow(IPocketUpgrade.REGISTRY)
-                .get(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "wireless_modem_normal"))
+                .get(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "wireless_modem_normal"))
                 .orElseThrow()
 
             helper.assertContainerExactly(

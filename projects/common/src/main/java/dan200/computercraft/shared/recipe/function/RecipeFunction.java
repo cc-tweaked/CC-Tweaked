@@ -14,8 +14,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
@@ -39,7 +39,7 @@ public interface RecipeFunction {
     /**
      * The registry where {@link RecipeFunction}s are registered.
      */
-    ResourceKey<Registry<Type<?>>> REGISTRY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "recipe_function"));
+    ResourceKey<Registry<Type<?>>> REGISTRY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "recipe_function"));
 
     /**
      * The codec to read and write {@link RecipeFunction}s with.

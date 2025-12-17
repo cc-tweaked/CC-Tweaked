@@ -6,10 +6,8 @@ package dan200.computercraft.client.gui;
 
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.ScrollWheelHandler;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -51,8 +49,8 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
     protected void init() {
         // First ensure we're still grabbing the mouse, so the user can look around. Then reset bits of state that
         // grabbing unsets.
-        minecraft().mouseHandler.grabMouse();
-        minecraft().screen = this;
+        minecraft.mouseHandler.grabMouse();
+        minecraft.screen = this;
         KeyMapping.releaseAll();
 
         super.init();
@@ -72,7 +70,7 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         var direction = scrollHandler.onMouseScroll(scrollX, scrollY);
-        var inventory = Objects.requireNonNull(minecraft().player).getInventory();
+        var inventory = Objects.requireNonNull(minecraft.player).getInventory();
         inventory.setSelectedSlot(ScrollWheelHandler.getNextScrollWheelSelection(
             direction.y == 0 ? -direction.x : direction.y, inventory.getSelectedSlot(), Inventory.getSelectionSize()
         ));
@@ -82,7 +80,7 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
 
     @Override
     public void onClose() {
-        Objects.requireNonNull(minecraft().player).closeContainer();
+        Objects.requireNonNull(minecraft.player).closeContainer();
         super.onClose();
     }
 
@@ -105,7 +103,7 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.render(graphics, mouseX, mouseY, partialTicks);
 
-        var font = minecraft().font;
+        var font = minecraft.font;
         var lines = font.split(Component.translatable("gui.computercraft.pocket_computer_overlay"), (int) (width * 0.8));
         var y = 10;
         for (var line : lines) {
@@ -117,9 +115,5 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
     @Override
     public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         // Skip rendering the background.
-    }
-
-    private Minecraft minecraft() {
-        return Nullability.assertNonNull(minecraft);
     }
 }

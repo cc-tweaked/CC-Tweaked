@@ -44,7 +44,7 @@ import net.minecraft.client.resources.model.MissingBlockModel;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ResolvableModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -71,13 +71,13 @@ public final class ClientRegistry {
     private ClientRegistry() {
     }
 
-    private static final Map<ResourceLocation, ModelKey<StandaloneModel>> models = new ConcurrentHashMap<>();
+    private static final Map<Identifier, ModelKey<StandaloneModel>> models = new ConcurrentHashMap<>();
 
-    public static ModelKey<StandaloneModel> getModel(ResourceLocation model) {
+    public static ModelKey<StandaloneModel> getModel(Identifier model) {
         return models.computeIfAbsent(model, m -> ClientPlatformHelper.get().createModelKey(m::toString));
     }
 
-    public static StandaloneModel getModel(ModelManager manager, ResourceLocation modelId) {
+    public static StandaloneModel getModel(ModelManager manager, Identifier modelId) {
         var model = getModel(modelId).get(manager);
         if (model != null) return model;
 
@@ -115,7 +115,7 @@ public final class ClientRegistry {
         register.register(SelectUpgradeModel.ID, SelectUpgradeModel.CODEC);
     }
 
-    private static final ResourceLocation[] EXTRA_MODELS = {
+    private static final Identifier[] EXTRA_MODELS = {
         TurtleOverlay.ELF_MODEL,
         TurtleBlockEntityRenderer.NORMAL_TURTLE_MODEL,
         TurtleBlockEntityRenderer.ADVANCED_TURTLE_MODEL,
@@ -132,8 +132,8 @@ public final class ClientRegistry {
      * @see #registerExtraModels(RegisterExtraModels, ExtraModels)
      */
     public record ExtraModels(
-        Map<ResourceLocation, TurtleOverlay.Unbaked> turtleOverlays,
-        Map<ResourceLocation, TurtleUpgradeModel.Unbaked> turtleUpgrades
+        Map<Identifier, TurtleOverlay.Unbaked> turtleOverlays,
+        Map<Identifier, TurtleUpgradeModel.Unbaked> turtleUpgrades
     ) {
     }
 
@@ -183,20 +183,20 @@ public final class ClientRegistry {
         TurtleUpgradeModelManager.loader().register(register, models.turtleUpgrades());
     }
 
-    public static void registerItemModels(BiConsumer<ResourceLocation, MapCodec<? extends ItemModel.Unbaked>> register) {
+    public static void registerItemModels(BiConsumer<Identifier, MapCodec<? extends ItemModel.Unbaked>> register) {
         register.accept(TurtleOverlayModel.ID, TurtleOverlayModel.CODEC);
         register.accept(dan200.computercraft.client.item.model.TurtleUpgradeModel.ID, dan200.computercraft.client.item.model.TurtleUpgradeModel.CODEC);
     }
 
-    public static void registerItemColours(BiConsumer<ResourceLocation, MapCodec<? extends ItemTintSource>> register) {
+    public static void registerItemColours(BiConsumer<Identifier, MapCodec<? extends ItemTintSource>> register) {
         register.accept(PocketComputerLight.ID, PocketComputerLight.CODEC);
     }
 
-    public static void registerSelectItemProperties(BiConsumer<ResourceLocation, SelectItemModelProperty.Type<?, ?>> register) {
+    public static void registerSelectItemProperties(BiConsumer<Identifier, SelectItemModelProperty.Type<?, ?>> register) {
         register.accept(PocketComputerStateProperty.ID, PocketComputerStateProperty.TYPE);
     }
 
-    public static void registerConditionalItemProperties(BiConsumer<ResourceLocation, MapCodec<? extends ConditionalItemModelProperty>> register) {
+    public static void registerConditionalItemProperties(BiConsumer<Identifier, MapCodec<? extends ConditionalItemModelProperty>> register) {
         register.accept(TurtleShowElfOverlay.ID, TurtleShowElfOverlay.CODEC);
     }
 
@@ -214,7 +214,7 @@ public final class ClientRegistry {
         register.register(PrintoutScreen.PrintoutRenderState.class, PrintoutScreen.PrintoutPictureRenderer::new);
     }
 
-    public static void registerDebugScreenEntries(BiConsumer<ResourceLocation, DebugScreenEntry> register) {
+    public static void registerDebugScreenEntries(BiConsumer<Identifier, DebugScreenEntry> register) {
         register.accept(LookingAtBlockEntityDebugEntry.ID, LookingAtBlockEntityDebugEntry.create());
     }
 }

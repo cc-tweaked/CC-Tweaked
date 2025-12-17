@@ -12,7 +12,7 @@ import dan200.computercraft.shared.turtle.items.TurtleItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.item.properties.conditional.ConditionalItemModelProperty;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -25,7 +25,7 @@ import org.jspecify.annotations.Nullable;
  * @see TurtleOverlay#showElfOverlay()
  */
 public class TurtleShowElfOverlay implements ConditionalItemModelProperty {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle/show_elf_overlay");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle/show_elf_overlay");
     private static final TurtleShowElfOverlay INSTANCE = new TurtleShowElfOverlay();
     public static final MapCodec<TurtleShowElfOverlay> CODEC = MapCodec.unit(INSTANCE);
 

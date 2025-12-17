@@ -29,7 +29,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.ExtraCodecs;
@@ -80,7 +80,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     private int selectedSlot = 0;
     private int fuelLevel = 0;
     private int colourHex = -1;
-    private @Nullable ResourceLocation overlay = null;
+    private @Nullable Identifier overlay = null;
 
     private TurtleAnimation animation = TurtleAnimation.NONE;
     private int animationProgress = 0;
@@ -139,7 +139,7 @@ public class TurtleBrain implements TurtleAccessInternal {
         // Read fields
         colourHex = nbt.getIntOr(NBT_COLOUR, -1);
         fuelLevel = nbt.getIntOr(NBT_FUEL, 0);
-        overlay = nbt.read(NBT_OVERLAY, ResourceLocation.CODEC).orElse(null);
+        overlay = nbt.read(NBT_OVERLAY, Identifier.CODEC).orElse(null);
 
         // Read upgrades
         setUpgradeDirect(TurtleSide.LEFT, nbt.read(NBT_LEFT_UPGRADE, TurtleUpgrades.instance().upgradeDataCodec()).orElse(null));
@@ -149,7 +149,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     private void writeCommon(ValueOutput nbt) {
         nbt.putInt(NBT_FUEL, fuelLevel);
         if (colourHex != -1) nbt.putInt(NBT_COLOUR, colourHex);
-        nbt.storeNullable(NBT_OVERLAY, ResourceLocation.CODEC, overlay);
+        nbt.storeNullable(NBT_OVERLAY, Identifier.CODEC, overlay);
 
         // Write upgrades
         nbt.storeNullable(NBT_LEFT_UPGRADE, TurtleUpgrades.instance().upgradeDataCodec(), getUpgradeWithData(TurtleSide.LEFT));
@@ -406,11 +406,11 @@ public class TurtleBrain implements TurtleAccessInternal {
         BlockEntityHelpers.updateBlock(owner);
     }
 
-    public @Nullable ResourceLocation getOverlay() {
+    public @Nullable Identifier getOverlay() {
         return overlay;
     }
 
-    public void setOverlay(@Nullable ResourceLocation overlay) {
+    public void setOverlay(@Nullable Identifier overlay) {
         if (!Objects.equals(this.overlay, overlay)) {
             this.overlay = overlay;
             BlockEntityHelpers.updateBlock(owner);
@@ -744,7 +744,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
         private @Nullable UpgradeData<ITurtleUpgrade> cachedUpgradeData;
 
-        public void setUpgrade(@Nullable UpgradeData<ITurtleUpgrade> upgrade) {
+        private void setUpgrade(@Nullable UpgradeData<ITurtleUpgrade> upgrade) {
             if (upgrade == null) {
                 this.upgrade = null;
                 data = DataComponentPatch.EMPTY;
@@ -756,7 +756,7 @@ public class TurtleBrain implements TurtleAccessInternal {
             }
         }
 
-        public @Nullable UpgradeData<ITurtleUpgrade> getUpgrade() {
+        private @Nullable UpgradeData<ITurtleUpgrade> getUpgrade() {
             if (upgrade == null) return null;
 
             var cached = cachedUpgradeData;

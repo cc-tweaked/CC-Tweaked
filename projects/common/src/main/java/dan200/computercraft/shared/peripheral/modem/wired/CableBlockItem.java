@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.peripheral.modem.wired;
 
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
@@ -57,7 +58,7 @@ public abstract class CableBlockItem extends BlockItem {
                 var side = context.getClickedFace().getOpposite();
                 var newState = existingState
                     .setValue(MODEM, CableModemVariant.from(side))
-                    .setValue(CONNECTIONS.get(side), existingState.getValue(CABLE));
+                    .setValue(Nullability.assertNonNull(CONNECTIONS.get(side)), existingState.getValue(CABLE));
                 if (placeAt(world, pos, newState)) {
                     stack.shrink(1);
                     return InteractionResult.SUCCESS;

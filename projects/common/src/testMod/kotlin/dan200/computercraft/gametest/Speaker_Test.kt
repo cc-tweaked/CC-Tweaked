@@ -20,12 +20,12 @@ class Speaker_Test {
     @GameTest
     fun Fails_to_play_multiple_sounds(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            callPeripheral("right", "playSound", SoundEvents.NOTE_BLOCK_HARP.key().location().toString())
+            callPeripheral("right", "playSound", SoundEvents.NOTE_BLOCK_HARP.key().identifier().toString())
                 .assertArrayEquals(true)
 
             tryMultipleTimes(2) {
                 // We could technically call this a tick later, so try twice
-                callPeripheral("right", "playSound", SoundEvents.NOTE_BLOCK_HARP.key().location().toString())
+                callPeripheral("right", "playSound", SoundEvents.NOTE_BLOCK_HARP.key().identifier().toString())
                     .assertArrayEquals(false)
             }
         }
@@ -37,7 +37,7 @@ class Speaker_Test {
     @GameTest
     fun Will_not_play_record(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            callPeripheral("right", "playSound", SoundEvents.MUSIC_DISC_PIGSTEP.key().location().toString())
+            callPeripheral("right", "playSound", SoundEvents.MUSIC_DISC_PIGSTEP.key().identifier().toString())
                 .assertArrayEquals(false)
         }
     }

@@ -21,7 +21,7 @@ import mezz.jei.api.registration.ISubtypeRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 
@@ -30,8 +30,8 @@ import java.util.List;
 @JeiPlugin
 public class JEIComputerCraft implements IModPlugin {
     @Override
-    public ResourceLocation getPluginUid() {
-        return ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "jei");
+    public Identifier getPluginUid() {
+        return Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "jei");
     }
 
     @Override
@@ -63,7 +63,7 @@ public class JEIComputerCraft implements IModPlugin {
         // Hide all upgrade recipes
         var category = registry.createRecipeLookup(RecipeTypes.CRAFTING);
         category.get().forEach(wrapper -> {
-            if (RecipeModHelpers.shouldRemoveRecipe(wrapper.id().location())) {
+            if (RecipeModHelpers.shouldRemoveRecipe(wrapper.id().identifier())) {
                 registry.hideRecipes(RecipeTypes.CRAFTING, List.of(wrapper));
             }
         });
@@ -78,9 +78,9 @@ public class JEIComputerCraft implements IModPlugin {
         // Add left and right upgrades to the identifier
         var left = TurtleItem.getUpgradeWithData(stack, TurtleSide.LEFT);
         var right = TurtleItem.getUpgradeWithData(stack, TurtleSide.RIGHT);
-        if (left != null) name.append(left.holder().key().location());
+        if (left != null) name.append(left.holder().key().identifier());
         if (left != null && right != null) name.append('|');
-        if (right != null) name.append(right.holder().key().location());
+        if (right != null) name.append(right.holder().key().identifier());
 
         return name.toString();
     };
@@ -94,9 +94,9 @@ public class JEIComputerCraft implements IModPlugin {
         // Add the upgrade to the identifier
         var back = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BACK);
         var bottom = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BOTTOM);
-        if (back != null) name.append(back.holder().key().location());
+        if (back != null) name.append(back.holder().key().identifier());
         if (back != null && bottom != null) name.append('|');
-        if (bottom != null) name.append(bottom.holder().key().location());
+        if (bottom != null) name.append(bottom.holder().key().identifier());
 
         return name.toString();
     };

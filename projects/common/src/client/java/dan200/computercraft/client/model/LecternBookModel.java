@@ -14,8 +14,8 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Unit;
 
 import static dan200.computercraft.client.model.LecternPrintoutModel.TEXTURE_HEIGHT;
@@ -27,10 +27,10 @@ import static dan200.computercraft.client.model.LecternPrintoutModel.TEXTURE_WID
  * @see CustomLecternRenderer
  */
 public final class LecternBookModel extends Model<Unit> {
-    public static final ModelLayerLocation LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "lectern_book"), "main");
+    public static final ModelLayerLocation LAYER = new ModelLayerLocation(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "lectern_book"), "main");
 
     public LecternBookModel(ModelPart root) {
-        super(root, RenderType::entitySolid);
+        super(root, RenderTypes::entitySolid);
     }
 
     public static LayerDefinition createLayer() {

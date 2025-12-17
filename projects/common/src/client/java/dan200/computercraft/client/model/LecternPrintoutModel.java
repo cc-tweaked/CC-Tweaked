@@ -14,10 +14,10 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.resources.model.Material;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
@@ -28,9 +28,9 @@ import java.util.List;
  * @see CustomLecternRenderer
  */
 public final class LecternPrintoutModel extends Model<LecternPrintoutModel.State> {
-    public static final ModelLayerLocation LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "lectern_printout"), "main");
+    public static final ModelLayerLocation LAYER = new ModelLayerLocation(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "lectern_printout"), "main");
 
-    public static final Material MATERIAL = Sheets.BLOCK_ENTITIES_MAPPER.apply(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "printout"));
+    public static final Material MATERIAL = Sheets.BLOCK_ENTITIES_MAPPER.apply(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "printout"));
 
     static final int TEXTURE_WIDTH = 32;
     static final int TEXTURE_HEIGHT = 32;
@@ -43,7 +43,7 @@ public final class LecternPrintoutModel extends Model<LecternPrintoutModel.State
     private final ModelPart[] pages;
 
     public LecternPrintoutModel(ModelPart root) {
-        super(root, RenderType::entitySolid);
+        super(root, RenderTypes::entitySolid);
         pages = PAGES.stream().map(root::getChild).toArray(ModelPart[]::new);
     }
 

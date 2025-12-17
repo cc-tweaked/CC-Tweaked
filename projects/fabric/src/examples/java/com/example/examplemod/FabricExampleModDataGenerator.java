@@ -11,7 +11,7 @@ import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
@@ -37,7 +37,7 @@ public class FabricExampleModDataGenerator implements DataGeneratorEntrypoint {
             }
 
             @Override
-            protected void configure(BiConsumer<ResourceLocation, TurtleUpgradeModel.Unbaked> out, HolderLookup.Provider provider) {
+            protected void configure(BiConsumer<Identifier, TurtleUpgradeModel.Unbaked> out, HolderLookup.Provider provider) {
                 TurtleUpgradeProvider.addUpgradeModels(out);
             }
         });

@@ -11,7 +11,8 @@ import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
-import net.minecraft.advancements.critereon.StatePropertiesPredicate;
+import net.minecraft.advancements.criterion.StatePropertiesPredicate;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.data.loot.LootTableProvider.SubProviderEntry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Items;
@@ -21,7 +22,6 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
-import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.AnyOfCondition;
@@ -93,7 +93,10 @@ class LootTableProvider {
     private static void namedBlockDrop(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add, Supplier<? extends Block> wrapper) {
         blockDrop(
             add, wrapper,
-            LootItem.lootTableItem(wrapper.get()).apply(CopyNameFunction.copyName(new CopyNameFunction.Source(LootContextParams.BLOCK_ENTITY))),
+            LootItem.lootTableItem(wrapper.get()).apply(
+                CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
+                    .include(DataComponents.CUSTOM_NAME)
+            ),
             ExplosionCondition.survivesExplosion()
         );
     }

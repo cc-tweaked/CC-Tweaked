@@ -16,7 +16,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -51,7 +51,7 @@ public class TurtleItem extends BlockItem {
         });
     }
 
-    public static @Nullable ResourceLocation getOverlay(ItemStack stack) {
+    public static @Nullable Identifier getOverlay(ItemStack stack) {
         return stack.get(ModRegistry.DataComponents.OVERLAY.get());
     }
 

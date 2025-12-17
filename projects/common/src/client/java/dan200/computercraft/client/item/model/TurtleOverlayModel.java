@@ -16,7 +16,7 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -29,9 +29,9 @@ import org.jspecify.annotations.Nullable;
  * @see TurtleOverlay#model()
  */
 public record TurtleOverlayModel(ItemTransforms transforms) implements ItemModel {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle/overlay");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle/overlay");
     public static final MapCodec<Unbaked> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-        ResourceLocation.CODEC.fieldOf("transforms").forGetter(Unbaked::base)
+        Identifier.CODEC.fieldOf("transforms").forGetter(Unbaked::base)
     ).apply(instance, Unbaked::new));
 
     @Override
@@ -47,7 +47,7 @@ public record TurtleOverlayModel(ItemTransforms transforms) implements ItemModel
         layer.setTransform(transforms().getTransform(context));
     }
 
-    public record Unbaked(ResourceLocation base) implements ItemModel.Unbaked {
+    public record Unbaked(Identifier base) implements ItemModel.Unbaked {
         @Override
         public MapCodec<Unbaked> type() {
             return CODEC;

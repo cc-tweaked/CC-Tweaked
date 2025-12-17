@@ -16,7 +16,7 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -29,10 +29,10 @@ import org.jspecify.annotations.Nullable;
  * @param base The base model. Only used to provide item transforms.
  */
 public record TurtleUpgradeModel(TurtleSide side, ItemTransforms base) implements ItemModel {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle/upgrade");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle/upgrade");
     public static final MapCodec<Unbaked> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         TurtleSide.CODEC.fieldOf("side").forGetter(Unbaked::side),
-        ResourceLocation.CODEC.fieldOf("transforms").forGetter(Unbaked::base)
+        Identifier.CODEC.fieldOf("transforms").forGetter(Unbaked::base)
     ).apply(instance, Unbaked::new));
 
     @Override
@@ -44,7 +44,7 @@ public record TurtleUpgradeModel(TurtleSide side, ItemTransforms base) implement
             .renderForItem(upgrade, side, state, resolver, base.getTransform(context), seed);
     }
 
-    public record Unbaked(TurtleSide side, ResourceLocation base) implements ItemModel.Unbaked {
+    public record Unbaked(TurtleSide side, Identifier base) implements ItemModel.Unbaked {
         @Override
         public MapCodec<Unbaked> type() {
             return CODEC;

@@ -153,7 +153,7 @@ public class HttpRequest extends Resource<HttpRequest> {
 
                         p.addLast(
                             new HttpClientCodec(),
-                            new HttpContentDecompressor(),
+                            new HttpContentDecompressor(0),
                             handler
                         );
                     }

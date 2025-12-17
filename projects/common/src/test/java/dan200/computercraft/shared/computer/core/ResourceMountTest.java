@@ -9,7 +9,6 @@ import com.google.common.io.RecursiveDeleteOption;
 import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.test.core.CloseScope;
 import dan200.computercraft.test.core.filesystem.MountContract;
-import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackType;
@@ -17,6 +16,7 @@ import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.util.Unit;
+import net.minecraft.util.Util;
 import org.junit.jupiter.api.AfterEach;
 
 import java.io.IOException;

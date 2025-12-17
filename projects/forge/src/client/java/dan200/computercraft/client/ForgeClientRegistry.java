@@ -16,7 +16,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.ItemFrameRenderer;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvableModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.context.ContextKey;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -38,7 +38,7 @@ import java.util.function.BiFunction;
  */
 @EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, value = Dist.CLIENT)
 public final class ForgeClientRegistry {
-    static final ContextKey<ExtendedItemFrameRenderState> ITEM_FRAME_STATE = new ContextKey<>(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item_frame"));
+    static final ContextKey<ExtendedItemFrameRenderState> ITEM_FRAME_STATE = new ContextKey<>(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item_frame"));
 
     private ForgeClientRegistry() {
     }

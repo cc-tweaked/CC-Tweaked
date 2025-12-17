@@ -16,7 +16,6 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.Util;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -24,7 +23,8 @@ import net.minecraft.client.renderer.item.SelectItemModel;
 import net.minecraft.client.resources.model.MissingBlockModel;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  * @param <T> The type of value to switch on.
  */
 public final class SelectUpgradeModel<T> implements TurtleUpgradeModel {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "select");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "select");
     public static final MapCodec<? extends TurtleUpgradeModel.Unbaked> CODEC = RecordCodecBuilder.<Unbaked<?>>mapCodec(instance -> instance.group(
         Cases.CODEC.forGetter(Unbaked::cases),
         TurtleUpgradeModel.CODEC.optionalFieldOf("fallback").forGetter(Unbaked::fallback)

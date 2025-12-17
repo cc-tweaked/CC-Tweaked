@@ -12,9 +12,10 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -34,14 +35,14 @@ import org.joml.Vector3f;
  * {@link DirectFixedWidthFontRenderer}.
  */
 public final class FixedWidthFontRenderer {
-    public static final ResourceLocation FONT = ResourceLocation.fromNamespaceAndPath("computercraft", "textures/gui/term_font.png");
+    public static final Identifier FONT = Identifier.fromNamespaceAndPath("computercraft", "textures/gui/term_font.png");
 
     /**
      * A render type for terminal text.
      */
-    public static final RenderType TERMINAL_TEXT = RenderType.text(FONT);
+    public static final RenderType TERMINAL_TEXT = RenderTypes.text(FONT);
 
-    public static final RenderType TERMINAL_TEXT_OFFSET = RenderType.textPolygonOffset(FONT);
+    public static final RenderType TERMINAL_TEXT_OFFSET = RenderTypes.textPolygonOffset(FONT);
 
     public static final int FONT_HEIGHT = 9;
     public static final int FONT_WIDTH = 6;

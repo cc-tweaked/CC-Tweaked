@@ -9,7 +9,6 @@ import dan200.computercraft.client.gui.widgets.DynamicImageButton;
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
 import dan200.computercraft.client.network.ClientNetworking;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.InputHandler;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
@@ -18,14 +17,13 @@ import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.server.UploadFileMessage;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
@@ -100,8 +98,8 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
         getTerminal().update();
 
         if (uploadNagDeadline != Long.MAX_VALUE && Util.getNanos() >= uploadNagDeadline) {
-            new ItemToast(minecraft(), displayStack, NO_RESPONSE_TITLE, NO_RESPONSE_MSG, ItemToast.TRANSFER_NO_RESPONSE_TOKEN)
-                .showOrReplace(minecraft().getToastManager());
+            new ItemToast(minecraft, displayStack, NO_RESPONSE_TITLE, NO_RESPONSE_MSG, ItemToast.TRANSFER_NO_RESPONSE_TOKEN)
+                .showOrReplace(minecraft.getToastManager());
             uploadNagDeadline = Long.MAX_VALUE;
         }
     }
@@ -235,13 +233,8 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
     }
 
     private void alert(Component title, Component message) {
-        OptionScreen.show(minecraft(), title, message,
-            List.of(OptionScreen.newButton(OK, b -> minecraft().setScreen(this))),
-            () -> minecraft().setScreen(this)
+        OptionScreen.show(minecraft, this, title, message,
+            List.of(OptionScreen.newButton(OK, b -> minecraft.setScreen(this)))
         );
-    }
-
-    private Minecraft minecraft() {
-        return Nullability.assertNonNull(minecraft);
     }
 }

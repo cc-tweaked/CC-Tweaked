@@ -6,7 +6,7 @@ package dan200.computercraft.api.media;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import net.fabricmc.fabric.api.lookup.v1.item.ItemApiLookup;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
@@ -16,7 +16,7 @@ import org.jspecify.annotations.Nullable;
  * The returned {@link IMedia} instance should be a singleton, and not reference the passed {@link ItemStack}.
  */
 public final class MediaLookup {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "media");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "media");
 
     private static final ItemApiLookup<IMedia, @Nullable Void> lookup = ItemApiLookup.get(ID, IMedia.class, Void.class);
 

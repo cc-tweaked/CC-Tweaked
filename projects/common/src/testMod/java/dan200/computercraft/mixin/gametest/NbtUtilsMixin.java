@@ -34,6 +34,6 @@ class NbtUtilsMixin {
 
         // Overwrite the existing tag.
         tag.keySet().clear();
-        for (var key : newTag.keySet()) tag.put(key, newTag.get(key));
+        for (var entry : newTag.entrySet()) tag.put(entry.getKey(), entry.getValue());
     }
 }

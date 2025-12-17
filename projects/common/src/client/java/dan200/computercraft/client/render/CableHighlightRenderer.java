@@ -26,7 +26,7 @@ public final class CableHighlightRenderer {
      */
     public static BlockOutlineRenderer.@Nullable Renderer drawHighlight(Camera camera, BlockHitResult hit) {
         var pos = hit.getBlockPos();
-        var level = camera.getEntity().level();
+        var level = camera.entity().level();
 
         var state = level.getBlockState(pos);
 
@@ -39,11 +39,11 @@ public final class CableHighlightRenderer {
             ? CableShapes.getModemShape(state)
             : CableShapes.getCableShape(state);
 
-        var cameraPos = camera.getPosition();
+        var cameraPos = camera.position();
         var xOffset = pos.getX() - cameraPos.x();
         var yOffset = pos.getY() - cameraPos.y();
         var zOffset = pos.getZ() - cameraPos.z();
 
-        return (transform, buffer, colour) -> ShapeRenderer.renderShape(transform, buffer, shape, xOffset, yOffset, zOffset, colour);
+        return (transform, buffer, colour, width) -> ShapeRenderer.renderShape(transform, buffer, shape, xOffset, yOffset, zOffset, colour, width);
     }
 }

@@ -5,7 +5,7 @@
 package dan200.computercraft.api.client.turtle;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * A functional interface to register a {@link TurtleUpgradeModel}.
@@ -21,5 +21,5 @@ public interface RegisterTurtleUpgradeModel {
      * @param id    The id used for this type of upgrade model.
      * @param model The codec used to read/decode an upgrade model.
      */
-    void register(ResourceLocation id, MapCodec<? extends TurtleUpgradeModel.Unbaked> model);
+    void register(Identifier id, MapCodec<? extends TurtleUpgradeModel.Unbaked> model);
 }

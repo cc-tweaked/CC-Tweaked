@@ -14,7 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.debug.DebugEntryLookingAtBlock;
 import net.minecraft.client.gui.components.debug.DebugScreenDisplayer;
 import net.minecraft.client.gui.components.debug.DebugScreenEntry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -35,7 +35,7 @@ import java.util.function.BiConsumer;
  * @see DebugEntryLookingAtBlock
  */
 public final class LookingAtBlockEntityDebugEntry implements DebugScreenEntry {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "looking_at_block_entity");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "looking_at_block_entity");
 
     private final Map<BlockEntityType<?>, BiConsumer<List<String>, BlockEntity>> blockEntityEmitters = new HashMap<>();
 
@@ -90,7 +90,7 @@ public final class LookingAtBlockEntityDebugEntry implements DebugScreenEntry {
 
     private static void addTurtleUpgrade(List<String> out, TurtleBlockEntity turtle, TurtleSide side) {
         var upgrade = turtle.getAccess().getUpgradeWithData(side);
-        if (upgrade != null) out.add(String.format("Upgrade[%s]: %s", side, upgrade.holder().key().location()));
+        if (upgrade != null) out.add(String.format("Upgrade[%s]: %s", side, upgrade.holder().key().identifier()));
     }
 
 }

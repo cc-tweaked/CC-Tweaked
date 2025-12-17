@@ -4,7 +4,7 @@
 
 package dan200.computercraft.shared.util;
 
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 
 /**
  * A monotonically increasing clock which accounts for the game being paused.

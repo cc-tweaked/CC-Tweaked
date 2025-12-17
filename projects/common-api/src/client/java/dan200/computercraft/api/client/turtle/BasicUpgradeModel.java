@@ -16,7 +16,7 @@ import net.minecraft.client.renderer.item.BlockModelWrapper;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.resources.model.ModelBaker;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * A {@link TurtleUpgradeModel} that renders a basic model.
@@ -24,10 +24,10 @@ import net.minecraft.resources.ResourceLocation;
  * This is the {@link TurtleUpgradeModel} equivalent of {@link BlockModelWrapper}.
  */
 public final class BasicUpgradeModel implements TurtleUpgradeModel {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "sided");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "sided");
     public static final MapCodec<? extends TurtleUpgradeModel.Unbaked> CODEC = RecordCodecBuilder.<Unbaked>mapCodec(instance -> instance.group(
-        ResourceLocation.CODEC.fieldOf("left").forGetter(Unbaked::left),
-        ResourceLocation.CODEC.fieldOf("right").forGetter(Unbaked::right)
+        Identifier.CODEC.fieldOf("left").forGetter(Unbaked::left),
+        Identifier.CODEC.fieldOf("right").forGetter(Unbaked::right)
     ).apply(instance, Unbaked::new));
 
     private final StandaloneModel left;
@@ -45,7 +45,7 @@ public final class BasicUpgradeModel implements TurtleUpgradeModel {
      * @param right The model when equipped on the right.
      * @return The unbaked turtle upgrade model.
      */
-    public static TurtleUpgradeModel.Unbaked unbaked(ResourceLocation left, ResourceLocation right) {
+    public static TurtleUpgradeModel.Unbaked unbaked(Identifier left, Identifier right) {
         return new Unbaked(left, right);
     }
 
@@ -67,7 +67,7 @@ public final class BasicUpgradeModel implements TurtleUpgradeModel {
         getModel(side).setupItemLayer(layer);
     }
 
-    private record Unbaked(ResourceLocation left, ResourceLocation right) implements TurtleUpgradeModel.Unbaked {
+    private record Unbaked(Identifier left, Identifier right) implements TurtleUpgradeModel.Unbaked {
         @Override
         public MapCodec<? extends TurtleUpgradeModel.Unbaked> type() {
             return CODEC;

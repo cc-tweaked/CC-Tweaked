@@ -5,7 +5,7 @@
 package dan200.computercraft.api;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
@@ -60,7 +60,7 @@ public class ComputerCraftTags {
         public static final TagKey<Item> DYEABLE = make("dyeable");
 
         private static TagKey<Item> make(String name) {
-            return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name));
+            return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name));
         }
     }
 
@@ -105,7 +105,7 @@ public class ComputerCraftTags {
         public static final TagKey<Block> TURTLE_CAN_USE = make("turtle_can_use");
 
         private static TagKey<Block> make(String name) {
-            return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name));
+            return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name));
         }
     }
 }

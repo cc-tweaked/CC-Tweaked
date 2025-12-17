@@ -16,8 +16,8 @@ import dan200.computercraft.shared.turtle.upgrades.TurtleCraftingTable;
 import dan200.computercraft.shared.turtle.upgrades.TurtleModem;
 import dan200.computercraft.shared.turtle.upgrades.TurtleSpeaker;
 import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -38,12 +38,12 @@ class TurtleUpgradeProvider {
     private static final ResourceKey<ITurtleUpgrade> DIAMOND_SWORD = vanilla("diamond_sword");
 
     private static ResourceKey<ITurtleUpgrade> id(String id) {
-        return ITurtleUpgrade.createKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, id));
+        return ITurtleUpgrade.createKey(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, id));
     }
 
     private static ResourceKey<ITurtleUpgrade> vanilla(String id) {
         // Naughty, please don't do this. Mostly here for some semblance of backwards compatibility.
-        return ITurtleUpgrade.createKey(ResourceLocation.fromNamespaceAndPath("minecraft", id));
+        return ITurtleUpgrade.createKey(Identifier.fromNamespaceAndPath("minecraft", id));
     }
 
     public static void register(BootstrapContext<ITurtleUpgrade> upgrades) {
@@ -59,24 +59,24 @@ class TurtleUpgradeProvider {
         tool(DIAMOND_SWORD, Items.DIAMOND_SWORD).breakable(ComputerCraftTags.Blocks.TURTLE_SWORD_BREAKABLE).damageMultiplier(9.0f).register(upgrades);
     }
 
-    public static void addModels(BiConsumer<ResourceLocation, TurtleUpgradeModel.Unbaked> out) {
-        out.accept(SPEAKER.location(), BasicUpgradeModel.unbaked(
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_left"),
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_right")
+    public static void addModels(BiConsumer<Identifier, TurtleUpgradeModel.Unbaked> out) {
+        out.accept(SPEAKER.identifier(), BasicUpgradeModel.unbaked(
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_left"),
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_right")
         ));
-        out.accept(CRAFTING_TABLE.location(), BasicUpgradeModel.unbaked(
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_left"),
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_right")
+        out.accept(CRAFTING_TABLE.identifier(), BasicUpgradeModel.unbaked(
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_left"),
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_crafting_table_right")
         ));
 
-        out.accept(WIRELESS_MODEM_NORMAL.location(), createModemModel("normal"));
-        out.accept(WIRELESS_MODEM_ADVANCED.location(), createModemModel("advanced"));
+        out.accept(WIRELESS_MODEM_NORMAL.identifier(), createModemModel("normal"));
+        out.accept(WIRELESS_MODEM_ADVANCED.identifier(), createModemModel("advanced"));
 
-        out.accept(DIAMOND_AXE.location(), ItemUpgradeModel.unbaked());
-        out.accept(DIAMOND_PICKAXE.location(), ItemUpgradeModel.unbaked());
-        out.accept(DIAMOND_HOE.location(), ItemUpgradeModel.unbaked());
-        out.accept(DIAMOND_SHOVEL.location(), ItemUpgradeModel.unbaked());
-        out.accept(DIAMOND_SWORD.location(), ItemUpgradeModel.unbaked());
+        out.accept(DIAMOND_AXE.identifier(), ItemUpgradeModel.unbaked());
+        out.accept(DIAMOND_PICKAXE.identifier(), ItemUpgradeModel.unbaked());
+        out.accept(DIAMOND_HOE.identifier(), ItemUpgradeModel.unbaked());
+        out.accept(DIAMOND_SHOVEL.identifier(), ItemUpgradeModel.unbaked());
+        out.accept(DIAMOND_SWORD.identifier(), ItemUpgradeModel.unbaked());
     }
 
     private static TurtleUpgradeModel.Unbaked createModemModel(String type) {
@@ -89,8 +89,8 @@ class TurtleUpgradeProvider {
 
     private static TurtleUpgradeModel.Unbaked createBaseModemModel(String type, String state) {
         return BasicUpgradeModel.unbaked(
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_" + state + "_left"),
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_" + state + "_right")
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_" + state + "_left"),
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_" + state + "_right")
         );
     }
 }

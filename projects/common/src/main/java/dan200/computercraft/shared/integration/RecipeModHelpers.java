@@ -15,8 +15,8 @@ import dan200.computercraft.shared.util.DataComponentUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public final class RecipeModHelpers {
      * @param id The recipe ID.
      * @return Whether it should be removed.
      */
-    public static boolean shouldRemoveRecipe(ResourceLocation id) {
+    public static boolean shouldRemoveRecipe(Identifier id) {
         if (!id.getNamespace().equals(ComputerCraftAPI.MOD_ID)) return false;
 
         var path = id.getPath();

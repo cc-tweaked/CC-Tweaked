@@ -6,7 +6,7 @@ package dan200.computercraft.impl.client;
 
 import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -20,5 +20,5 @@ public interface FabricComputerCraftAPIClientService extends ComputerCraftAPICli
         return (FabricComputerCraftAPIClientService) ComputerCraftAPIClientService.get();
     }
 
-    void registerTurtleUpgradeModeller(ResourceLocation id, MapCodec<? extends TurtleUpgradeModel.Unbaked> codec);
+    void registerTurtleUpgradeModeller(Identifier id, MapCodec<? extends TurtleUpgradeModel.Unbaked> codec);
 }

@@ -28,8 +28,8 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -265,7 +265,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     private record RegistryEntryImpl<R, T extends R>(DeferredHolder<R, T> object) implements RegistryEntry<T> {
         @Override
-        public ResourceLocation id() {
+        public Identifier id() {
             return object().getId();
         }
 

@@ -13,7 +13,7 @@ import dan200.computercraft.test.shared.ItemStackMatcher.isStack
 import net.minecraft.core.Holder
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.gametest.framework.TestData
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -40,7 +40,7 @@ class Printout_Test {
                     "$testName.$label",
                     TestData(
                         Holder.direct(ClientTestEnvironment(time)),
-                        ResourceLocation.parse(testName),
+                        Identifier.parse(testName),
                         Timeouts.DEFAULT,
                         0,
                         true,

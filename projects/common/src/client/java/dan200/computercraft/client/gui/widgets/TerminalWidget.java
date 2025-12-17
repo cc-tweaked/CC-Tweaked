@@ -5,6 +5,8 @@
 package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dan200.computercraft.client.gui.KeyConverter;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
@@ -268,7 +270,10 @@ public class TerminalWidget extends AbstractWidget {
 
         var scissor = graphics.scissorStack.peek();
         var terminalPose = new Matrix3x2f(graphics.pose());
-        var terminalTextures = TextureSetup.singleTextureWithLightmap(graphics.minecraft.getTextureManager().getTexture(FixedWidthFontRenderer.FONT).getTextureView());
+        var terminalTextures = TextureSetup.singleTextureWithLightmap(
+            graphics.minecraft.getTextureManager().getTexture(FixedWidthFontRenderer.FONT).getTextureView(),
+            RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST)
+        );
 
         graphics.guiRenderState.submitGuiElement(new TerminalBackgroundRenderState(
             innerX, innerY, terminal, terminalPose, terminalTextures,

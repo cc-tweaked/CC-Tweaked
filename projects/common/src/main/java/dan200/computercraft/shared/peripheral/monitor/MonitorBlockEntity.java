@@ -29,6 +29,7 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class MonitorBlockEntity extends BlockEntity {
@@ -521,7 +522,7 @@ public class MonitorBlockEntity extends BlockEntity {
         // We attempt to cache the bounding box to save having to do property lookups (and allocations!) on every frame.
         // Unfortunately the AABB does depend on quite a lot of state, so we need to add a bunch of extra fields -
         // ideally these'd be a single object, but I don't think worth doing until Java has value types.
-        if (boundingBox != null && getBlockState().equals(bbState) && getBlockPos().equals(bbPos) &&
+        if (boundingBox != null && Objects.equals(getBlockState(), bbState) && Objects.equals(getBlockPos(), bbPos) &&
             xIndex == bbX && yIndex == bbY && width == bbWidth && height == bbHeight) {
             return boundingBox;
         }

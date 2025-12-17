@@ -13,8 +13,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistrySetBuilder.PatchedRegistries;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import org.jspecify.annotations.Nullable;
 
@@ -86,17 +86,17 @@ public interface ITurtleUpgrade extends UpgradeBase {
     /**
      * The registry in which turtle upgrades are stored.
      */
-    ResourceKey<Registry<ITurtleUpgrade>> REGISTRY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_upgrade"));
+    ResourceKey<Registry<ITurtleUpgrade>> REGISTRY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_upgrade"));
 
     /**
-     * Create a {@link ResourceKey} for a turtle upgrade given a {@link ResourceLocation}.
+     * Create a {@link ResourceKey} for a turtle upgrade given a {@link Identifier}.
      * <p>
      * This should only be called from within data generation code. Do not hard code references to your upgrades!
      *
      * @param id The id of the turtle upgrade.
      * @return The upgrade registry key.
      */
-    static ResourceKey<ITurtleUpgrade> createKey(ResourceLocation id) {
+    static ResourceKey<ITurtleUpgrade> createKey(Identifier id) {
         return ResourceKey.create(REGISTRY, id);
     }
 

@@ -5,7 +5,7 @@
 package dan200.computercraft.api.client.turtle;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
@@ -31,7 +31,7 @@ public class RegisterTurtleModelEvent extends Event implements IModBusEvent, Reg
      * {@inheritDoc}The codec used to read/decode an upgrade model.
      */
     @Override
-    public void register(ResourceLocation id, MapCodec<? extends TurtleUpgradeModel.Unbaked> model) {
+    public void register(Identifier id, MapCodec<? extends TurtleUpgradeModel.Unbaked> model) {
         dispatch.register(id, model);
     }
 }

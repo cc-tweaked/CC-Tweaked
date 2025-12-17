@@ -27,15 +27,15 @@ accessible method net/minecraft/client/data/models/BlockModelGenerators createHo
 accessible method net/minecraft/client/data/models/BlockModelGenerators createParticleOnlyBlock (Lnet/minecraft/world/level/block/Block;)V
 accessible method net/minecraft/client/data/models/BlockModelGenerators createSimpleBlock (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/client/data/models/MultiVariant;)Lnet/minecraft/client/data/models/blockstates/MultiVariantGenerator;
 accessible method net/minecraft/client/data/models/BlockModelGenerators or ([Lnet/minecraft/client/data/models/blockstates/ConditionBuilder;)Lnet/minecraft/client/renderer/block/model/multipart/Condition;
-accessible method net/minecraft/client/data/models/BlockModelGenerators plainVariant (Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/data/models/MultiVariant;
-accessible method net/minecraft/client/data/models/BlockModelGenerators registerSimpleItemModel (Lnet/minecraft/world/item/Item;Lnet/minecraft/resources/ResourceLocation;)V
-accessible method net/minecraft/client/data/models/BlockModelGenerators registerSimpleItemModel (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/resources/ResourceLocation;)V
+accessible method net/minecraft/client/data/models/BlockModelGenerators plainVariant (Lnet/minecraft/resources/Identifier;)Lnet/minecraft/client/data/models/MultiVariant;
+accessible method net/minecraft/client/data/models/BlockModelGenerators registerSimpleItemModel (Lnet/minecraft/world/item/Item;Lnet/minecraft/resources/Identifier;)V
+accessible method net/minecraft/client/data/models/BlockModelGenerators registerSimpleItemModel (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/resources/Identifier;)V
 accessible field net/minecraft/client/data/models/ItemModelGenerators itemModelOutput Lnet/minecraft/client/data/models/ItemModelOutput;
 accessible field net/minecraft/client/data/models/ItemModelGenerators modelOutput Ljava/util/function/BiConsumer;
 accessible method net/minecraft/client/data/models/ItemModelGenerators generateFlatItem (Lnet/minecraft/world/item/Item;Ljava/lang/String;Lnet/minecraft/client/data/models/model/ModelTemplate;)V
 accessible method net/minecraft/client/data/models/ItemModelGenerators generateFlatItem (Lnet/minecraft/world/item/Item;Lnet/minecraft/client/data/models/model/ModelTemplate;)V
 accessible method net/minecraft/client/data/models/model/TextureSlot create (Ljava/lang/String;)Lnet/minecraft/client/data/models/model/TextureSlot;
-accessible method net/minecraft/data/recipes/RecipeProvider inventoryTrigger ([Lnet/minecraft/advancements/critereon/ItemPredicate;)Lnet/minecraft/advancements/Criterion;
+accessible method net/minecraft/data/recipes/RecipeProvider inventoryTrigger ([Lnet/minecraft/advancements/criterion/ItemPredicate;)Lnet/minecraft/advancements/Criterion;
 
 # GUI elements
 accessible class net/minecraft/client/gui/GuiGraphics$ScissorStack

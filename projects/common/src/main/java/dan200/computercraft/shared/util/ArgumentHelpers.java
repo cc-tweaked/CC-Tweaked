@@ -5,9 +5,9 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.api.lua.LuaException;
-import net.minecraft.ResourceLocationException;
+import net.minecraft.IdentifierException;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * A few helpers for working with arguments.
@@ -20,10 +20,10 @@ public final class ArgumentHelpers {
     }
 
     public static <T> T getRegistryEntry(String name, String typeName, Registry<T> registry) throws LuaException {
-        ResourceLocation id;
+        Identifier id;
         try {
-            id = ResourceLocation.parse(name);
-        } catch (ResourceLocationException e) {
+            id = Identifier.parse(name);
+        } catch (IdentifierException e) {
             id = null;
         }
 

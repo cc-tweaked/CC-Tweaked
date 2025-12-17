@@ -5,11 +5,11 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.test.shared.WithMinecraft;
-import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
+import net.minecraft.util.Util;
 import org.junit.jupiter.api.Test;
 
 import java.io.DataOutput;

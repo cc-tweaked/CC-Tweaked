@@ -7,14 +7,14 @@ package dan200.computercraft.api.peripheral;
 import dan200.computercraft.api.ComputerCraftAPI;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * {@linkplain BlockApiLookup Block API lookup} for {@link IPeripheral}s. This should be used to register peripherals
  * for a block. It should <em>NOT</em> be used to query peripherals.
  */
 public final class PeripheralLookup {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "peripheral");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "peripheral");
 
     private static final BlockApiLookup<IPeripheral, Direction> lookup = BlockApiLookup.get(ID, IPeripheral.class, Direction.class);
 

@@ -9,14 +9,14 @@ import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.peripheral.speaker.EncodedAudio;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 
 /**
  * An instance of a speaker, which is either playing a {@link DfpwmStream} stream or a normal sound.
  */
 public class SpeakerInstance {
-    public static final ResourceLocation DFPWM_STREAM = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "speaker.dfpwm_fake_audio_should_not_be_played");
+    public static final Identifier DFPWM_STREAM = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "speaker.dfpwm_fake_audio_should_not_be_played");
 
     private @Nullable DfpwmStream currentStream;
     private @Nullable SpeakerSound sound;
@@ -72,7 +72,7 @@ public class SpeakerInstance {
         }
     }
 
-    public void playSound(SpeakerPosition position, ResourceLocation location, float volume, float pitch) {
+    public void playSound(SpeakerPosition position, Identifier location, float volume, float pitch) {
         var soundManager = Minecraft.getInstance().getSoundManager();
         currentStream = null;
 

@@ -5,7 +5,7 @@
 package dan200.computercraft.api.media;
 
 import dan200.computercraft.api.ComputerCraftAPI;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.ItemCapability;
 import org.jspecify.annotations.Nullable;
@@ -16,7 +16,7 @@ import org.jspecify.annotations.Nullable;
  * The returned {@link IMedia} instance should be a singleton, and not reference the passed {@link ItemStack}.
  */
 public final class MediaCapability {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "media");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "media");
 
     private static final ItemCapability<IMedia, @Nullable Void> lookup = ItemCapability.createVoid(ID, IMedia.class);
 

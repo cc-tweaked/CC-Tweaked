@@ -4,10 +4,11 @@
 
 package dan200.computercraft.shared.peripheral.modem.wired;
 
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
 import dan200.computercraft.shared.util.DirectionUtil;
-import net.minecraft.Util;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Util;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -39,7 +40,7 @@ public final class CableShapes {
     private static int getCableIndex(BlockState state) {
         var index = 0;
         for (var facing : DirectionUtil.FACINGS) {
-            if (state.getValue(CONNECTIONS.get(facing))) index |= 1 << facing.ordinal();
+            if (state.getValue(Nullability.assertNonNull(CONNECTIONS.get(facing)))) index |= 1 << facing.ordinal();
         }
 
         return index;
@@ -52,7 +53,7 @@ public final class CableShapes {
         shape = SHAPE_CABLE_CORE;
         for (var facing : DirectionUtil.FACINGS) {
             if ((index & (1 << facing.ordinal())) != 0) {
-                shape = Shapes.or(shape, SHAPE_CABLE_ARM.get(facing));
+                shape = Shapes.or(shape, Nullability.assertNonNull(SHAPE_CABLE_ARM.get(facing)));
             }
         }
 

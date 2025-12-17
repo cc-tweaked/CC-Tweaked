@@ -9,14 +9,14 @@ import dan200.computercraft.shared.recipe.RecipeProperties;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -115,7 +115,7 @@ public abstract class AbstractRecipeBuilder<S extends AbstractRecipeBuilder<S, O
             this.criteria = criteria;
         }
 
-        public void save(RecipeOutput output, ResourceLocation id) {
+        public void save(RecipeOutput output, Identifier id) {
             if (criteria.isEmpty()) throw new IllegalStateException("No way of obtaining recipe " + id);
 
             var key = recipeKey(id);
@@ -133,7 +133,7 @@ public abstract class AbstractRecipeBuilder<S extends AbstractRecipeBuilder<S, O
         }
     }
 
-    protected static ResourceKey<Recipe<?>> recipeKey(ResourceLocation key) {
+    protected static ResourceKey<Recipe<?>> recipeKey(Identifier key) {
         return ResourceKey.create(Registries.RECIPE, key);
     }
 }

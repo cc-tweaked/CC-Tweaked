@@ -17,10 +17,10 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
@@ -54,12 +54,12 @@ public class CommandAPI implements ILuaAPI {
     }
 
     private Object[] doCommand(String command) {
-        var server = computer.getLevel().getServer();
-        if (!server.isCommandBlockEnabled()) {
+        var level = computer.getLevel();
+        if (!level.isCommandBlockEnabled()) {
             return new Object[]{ false, createOutput("Command blocks disabled by server") };
         }
 
-        var commandManager = server.getCommands();
+        var commandManager = level.getServer().getCommands();
         try {
             receiver.clearOutput();
             var state = new CommandState();
@@ -281,7 +281,7 @@ public class CommandAPI implements ILuaAPI {
 
         if (id.isEmpty()) return currentLevel;
 
-        var dimensionId = ResourceLocation.tryParse(id.get());
+        var dimensionId = Identifier.tryParse(id.get());
         if (dimensionId == null) throw new LuaException("Invalid dimension name");
 
         var level = currentLevel.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, dimensionId));
@@ -297,7 +297,7 @@ public class CommandAPI implements ILuaAPI {
 
         return new CommandSourceStack(receiver,
             Vec3.atCenterOf(computer.getPosition()), Vec2.ZERO,
-            computer.getLevel(), admin.permissionLevel(),
+            computer.getLevel(), admin.permissions(),
             name, Component.literal(name),
             computer.getLevel().getServer(), null
         );
@@ -334,7 +334,7 @@ public class CommandAPI implements ILuaAPI {
 
         @Override
         public boolean shouldInformAdmins() {
-            return computer.getLevel().getGameRules().getBoolean(GameRules.RULE_COMMANDBLOCKOUTPUT);
+            return computer.getLevel().getGameRules().get(GameRules.COMMAND_BLOCK_OUTPUT);
         }
     }
 }

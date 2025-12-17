@@ -23,7 +23,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.JukeboxSong;
 import net.minecraft.world.level.Level;
@@ -94,7 +94,7 @@ public final class ClientNetworkContextImpl implements ClientNetworkContext {
     }
 
     @Override
-    public void handleSpeakerPlay(UUID source, SpeakerPosition.Message position, ResourceLocation sound, float volume, float pitch) {
+    public void handleSpeakerPlay(UUID source, SpeakerPosition.Message position, Identifier sound, float volume, float pitch) {
         SpeakerManager.getSound(source).playSound(reifyPosition(position), sound, volume, pitch);
     }
 
@@ -116,7 +116,7 @@ public final class ClientNetworkContextImpl implements ClientNetworkContext {
     private static SpeakerPosition reifyPosition(SpeakerPosition.Message pos) {
         var minecraft = Minecraft.getInstance();
         Level level = minecraft.level;
-        if (level != null && !level.dimension().location().equals(pos.level())) level = null;
+        if (level != null && !level.dimension().identifier().equals(pos.level())) level = null;
 
         return new SpeakerPosition(
             level, pos.position(),

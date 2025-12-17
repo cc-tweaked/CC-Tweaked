@@ -4,7 +4,7 @@ import com.example.examplemod.ExampleMod;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleToolBuilder;
 import net.minecraft.data.worldgen.BootstrapContext;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Items;
 
 /**
@@ -16,7 +16,7 @@ public class TurtleToolProvider {
     // @start region=body
     public static void addUpgrades(BootstrapContext<ITurtleUpgrade> upgrades) {
         TurtleToolBuilder
-            .tool(ResourceLocation.fromNamespaceAndPath(ExampleMod.MOD_ID, "wooden_pickaxe"), Items.WOODEN_PICKAXE)
+            .tool(Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "wooden_pickaxe"), Items.WOODEN_PICKAXE)
             .register(upgrades);
     }
     // @end region=body

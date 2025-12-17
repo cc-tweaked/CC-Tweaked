@@ -30,6 +30,7 @@ public final class CapabilityUtil {
      * @return The extracted capability, if present.
      */
     public static <T> @Nullable T getCapability(ServerLevel level, BlockCapability<T, @Nullable Direction> capability, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction side) {
+        @SuppressWarnings("NullAway")   // FIXME: Doesn't cope with @Nullable type parameter.
         var cap = level.getCapability(capability, pos, state, blockEntity, null);
         return cap == null && side != null ? level.getCapability(capability, pos, state, blockEntity, side) : cap;
     }

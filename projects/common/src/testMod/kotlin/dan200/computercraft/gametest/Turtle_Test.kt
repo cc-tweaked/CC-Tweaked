@@ -39,7 +39,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.HolderLookup
 import net.minecraft.core.registries.Registries
 import net.minecraft.gametest.framework.GameTestHelper
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.item.PrimedTnt
 import net.minecraft.world.item.BlockItem
@@ -329,7 +329,7 @@ class Turtle_Test {
             val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
             assertEquals(
                 helper.level.registryAccess().lookupOrThrow(ITurtleUpgrade.REGISTRY)
-                    .getValue(ResourceLocation.fromNamespaceAndPath("cctest", "wooden_pickaxe")),
+                    .getValue(Identifier.fromNamespaceAndPath("cctest", "wooden_pickaxe")),
                 upgrade,
                 "Upgrade is a wooden pickaxe",
             )
@@ -358,7 +358,7 @@ class Turtle_Test {
                 ItemStack(Items.WOODEN_PICKAXE),
                 UpgradeData.ofDefault(
                     helper.level.registryAccess().lookupOrThrow(ITurtleUpgrade.REGISTRY)
-                        .get(ResourceLocation.fromNamespaceAndPath("cctest", "wooden_pickaxe")).orElseThrow(),
+                        .get(Identifier.fromNamespaceAndPath("cctest", "wooden_pickaxe")).orElseThrow(),
                 ),
             )
         }
@@ -379,7 +379,7 @@ class Turtle_Test {
             val upgrade = turtle.getUpgrade(TurtleSide.LEFT)
             assertEquals(
                 helper.level.registryAccess().lookupOrThrow(ITurtleUpgrade.REGISTRY)
-                    .getValue(ResourceLocation.fromNamespaceAndPath("cctest", "netherite_pickaxe")),
+                    .getValue(Identifier.fromNamespaceAndPath("cctest", "netherite_pickaxe")),
                 upgrade,
                 "Upgrade is a netherite pickaxe",
             )
@@ -775,9 +775,9 @@ class Turtle_Test {
     @GameTest
     fun Data_fixers(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            val overlay = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "trans_flag")
+            val overlay = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "trans_flag")
             val upgrade = helper.level.registryAccess().lookupOrThrow(ITurtleUpgrade.REGISTRY)
-                .getValue(ResourceLocation.withDefaultNamespace("diamond_pickaxe"))!!
+                .getValue(Identifier.withDefaultNamespace("diamond_pickaxe"))!!
 
             val turtleBe = helper.getBlockEntity(BlockPos(1, 1, 1), TurtleBlockEntity::class.java)
             assertEquals(overlay, turtleBe.overlay)
@@ -940,7 +940,7 @@ class Turtle_Test {
             val turtle = helper.getBlockEntity(BlockPos(2, 1, 2), TurtleBlockEntity::class.java)
             assertEquals(
                 helper.level.registryAccess().lookupOrThrow(ITurtleUpgrade.REGISTRY)
-                    .getValue(ResourceLocation.withDefaultNamespace("diamond_pickaxe")),
+                    .getValue(Identifier.withDefaultNamespace("diamond_pickaxe")),
                 turtle.getUpgrade(TurtleSide.LEFT),
             )
         }

@@ -14,16 +14,16 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries
 import net.minecraft.gametest.framework.*
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.LevelAccessor
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager
 import net.minecraft.world.phys.Vec3
 import org.slf4j.Logger
@@ -81,8 +81,8 @@ object TestHooks {
 
     @JvmStatic
     fun onServerStarted(server: MinecraftServer) {
-        val rules = server.gameRules
-        rules.getRule(GameRules.RULE_DAYLIGHT).set(false, server)
+        val rules = server.worldData.gameRules
+        rules.set(GameRules.ADVANCE_TIME, false, server)
         server.overworld().dayTime = Times.NOON.toLong()
 
         LOG.info("Cleaning up after last run")
@@ -164,7 +164,7 @@ object TestHooks {
                     testName,
                     TestData(
                         environment,
-                        ResourceLocation.parse(testInfo.template.ifEmpty { testName }),
+                        Identifier.parse(testInfo.template.ifEmpty { testName }),
                         testInfo.timeoutTicks,
                         testInfo.setupTicks,
                         testInfo.required,
@@ -254,7 +254,7 @@ class TestInstance(
     val data: TestData<Holder<TestEnvironmentDefinition>>,
     val function: Consumer<GameTestHelper>,
 ) {
-    val id: ResourceLocation = ResourceLocation.fromNamespaceAndPath(TestHooks.MOD_ID, name)
+    val id: Identifier = Identifier.fromNamespaceAndPath(TestHooks.MOD_ID, name)
 
     val instance: GameTestInstance
         get() =

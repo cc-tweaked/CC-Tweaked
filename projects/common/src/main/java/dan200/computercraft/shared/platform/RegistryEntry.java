@@ -8,8 +8,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Supplier;
 
@@ -25,17 +25,17 @@ public interface RegistryEntry<U> extends Supplier<U> {
      *
      * @return This registered item.
      */
-    ResourceLocation id();
+    Identifier id();
 
     static <T> Codec<RegistryEntry<? extends T>> codec(Registry<T> registry) {
-        record HolderEntry<T>(ResourceLocation id, Holder<T> holder) implements RegistryEntry<T> {
+        record HolderEntry<T>(Identifier id, Holder<T> holder) implements RegistryEntry<T> {
             @Override
             public T get() {
                 return holder().value();
             }
         }
 
-        return ResourceLocation.CODEC.flatXmap(
+        return Identifier.CODEC.flatXmap(
             id -> registry
                 .get(ResourceKey.create(registry.key(), id))
                 .map(x -> DataResult.success(new HolderEntry<>(id, x)))

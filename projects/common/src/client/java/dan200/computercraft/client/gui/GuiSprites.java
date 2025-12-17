@@ -7,7 +7,7 @@ package dan200.computercraft.client.gui;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
@@ -31,16 +31,16 @@ public final class GuiSprites {
 
     private static ButtonTextures button(String name) {
         return new ButtonTextures(
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "buttons/" + name),
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "buttons/" + name + "_hover")
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "buttons/" + name),
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "buttons/" + name + "_hover")
         );
     }
 
     private static ComputerTextures computer(String name, boolean pocket, boolean sidebar) {
         return new ComputerTextures(
-            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/border_" + name),
-            pocket ? ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/pocket_bottom_" + name) : null,
-            sidebar ? ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/sidebar_" + name) : null
+            Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/border_" + name),
+            pocket ? Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/pocket_bottom_" + name) : null,
+            sidebar ? Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/sidebar_" + name) : null
         );
     }
 
@@ -64,8 +64,8 @@ public final class GuiSprites {
      * @param normal The normal texture for the button.
      * @param active The texture for the button when it is active (hovered or focused).
      */
-    public record ButtonTextures(ResourceLocation normal, ResourceLocation active) {
-        public ResourceLocation get(boolean isActive) {
+    public record ButtonTextures(Identifier normal, Identifier active) {
+        public Identifier get(boolean isActive) {
             return isActive ? active : normal;
         }
     }
@@ -79,11 +79,11 @@ public final class GuiSprites {
      * @see ComputerBorderRenderer
      */
     public record ComputerTextures(
-        ResourceLocation border,
-        @Nullable ResourceLocation pocketBottom,
-        @Nullable ResourceLocation sidebar
+        Identifier border,
+        @Nullable Identifier pocketBottom,
+        @Nullable Identifier sidebar
     ) {
-        public Stream<ResourceLocation> textures() {
+        public Stream<Identifier> textures() {
             return Stream.of(border, pocketBottom, sidebar).filter(Objects::nonNull);
         }
     }

@@ -20,11 +20,11 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ParticleStatus
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.Difficulty
-import net.minecraft.world.flag.FeatureFlagSet
-import net.minecraft.world.level.GameRules
+import net.minecraft.world.flag.FeatureFlags
 import net.minecraft.world.level.GameType
 import net.minecraft.world.level.LevelSettings
 import net.minecraft.world.level.WorldDataConfiguration
+import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.level.levelgen.WorldOptions
 import net.minecraft.world.level.levelgen.presets.WorldPresets
 import org.slf4j.Logger
@@ -86,10 +86,10 @@ object ClientTestHooks {
             minecraft.createWorldOpenFlows().openWorld(LEVEL_NAME) { minecraft.setScreen(screen) }
         } else {
             LOG.info("World does not exist, creating it.")
-            val rules = GameRules(FeatureFlagSet.of())
-            rules.getRule(GameRules.RULE_DOMOBSPAWNING).set(false, null)
-            rules.getRule(GameRules.RULE_DAYLIGHT).set(false, null)
-            rules.getRule(GameRules.RULE_WEATHER_CYCLE).set(false, null)
+            val rules = GameRules(FeatureFlags.DEFAULT_FLAGS)
+            rules.set(GameRules.SPAWN_MOBS, false, null)
+            rules.set(GameRules.ADVANCE_TIME, false, null)
+            rules.set(GameRules.ADVANCE_WEATHER, false, null)
 
             minecraft.createWorldOpenFlows().createFreshLevel(
                 LEVEL_NAME,

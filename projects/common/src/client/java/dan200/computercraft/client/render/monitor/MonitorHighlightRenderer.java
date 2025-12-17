@@ -27,9 +27,9 @@ public final class MonitorHighlightRenderer {
 
     public static BlockOutlineRenderer.@Nullable Renderer drawHighlight(Camera camera, BlockHitResult hit) {
         // Preserve normal behaviour when crouching.
-        if (camera.getEntity().isCrouching()) return null;
+        if (camera.entity().isCrouching()) return null;
 
-        var world = camera.getEntity().level();
+        var world = camera.entity().level();
         var pos = hit.getBlockPos();
 
         if (!(world.getBlockEntity(pos) instanceof MonitorBlockEntity monitor)) return null;
@@ -43,43 +43,45 @@ public final class MonitorHighlightRenderer {
         if (monitor.getYIndex() != 0) faces.remove(monitor.getDown().getOpposite());
         if (monitor.getYIndex() != monitor.getHeight() - 1) faces.remove(monitor.getDown());
 
-        var cameraPos = camera.getPosition();
+        var cameraPos = camera.position();
         var xOffset = pos.getX() - cameraPos.x();
         var yOffset = pos.getY() - cameraPos.y();
         var zOffset = pos.getZ() - cameraPos.z();
 
-        return (transform, buffer, colour) -> {
+        return (transform, buffer, colour, width) -> {
             transform.pushPose();
             transform.translate(xOffset, yOffset, zOffset);
-            draw(buffer, transform.last(), faces, colour);
+            draw(buffer, transform.last(), faces, colour, width);
             transform.popPose();
         };
     }
 
-    private static void draw(VertexConsumer buffer, PoseStack.Pose transform, EnumSet<Direction> faces, int colour) {
+    private static void draw(VertexConsumer buffer, PoseStack.Pose transform, EnumSet<Direction> faces, int colour, float width) {
         // I wish I could think of a better way to do this
-        if (faces.contains(NORTH) || faces.contains(WEST)) line(buffer, transform, 0, 0, 0, UP, colour);
-        if (faces.contains(SOUTH) || faces.contains(WEST)) line(buffer, transform, 0, 0, 1, UP, colour);
-        if (faces.contains(NORTH) || faces.contains(EAST)) line(buffer, transform, 1, 0, 0, UP, colour);
-        if (faces.contains(SOUTH) || faces.contains(EAST)) line(buffer, transform, 1, 0, 1, UP, colour);
-        if (faces.contains(NORTH) || faces.contains(DOWN)) line(buffer, transform, 0, 0, 0, EAST, colour);
-        if (faces.contains(SOUTH) || faces.contains(DOWN)) line(buffer, transform, 0, 0, 1, EAST, colour);
-        if (faces.contains(NORTH) || faces.contains(UP)) line(buffer, transform, 0, 1, 0, EAST, colour);
-        if (faces.contains(SOUTH) || faces.contains(UP)) line(buffer, transform, 0, 1, 1, EAST, colour);
-        if (faces.contains(WEST) || faces.contains(DOWN)) line(buffer, transform, 0, 0, 0, SOUTH, colour);
-        if (faces.contains(EAST) || faces.contains(DOWN)) line(buffer, transform, 1, 0, 0, SOUTH, colour);
-        if (faces.contains(WEST) || faces.contains(UP)) line(buffer, transform, 0, 1, 0, SOUTH, colour);
-        if (faces.contains(EAST) || faces.contains(UP)) line(buffer, transform, 1, 1, 0, SOUTH, colour);
+        if (faces.contains(NORTH) || faces.contains(WEST)) line(buffer, transform, 0, 0, 0, UP, colour, width);
+        if (faces.contains(SOUTH) || faces.contains(WEST)) line(buffer, transform, 0, 0, 1, UP, colour, width);
+        if (faces.contains(NORTH) || faces.contains(EAST)) line(buffer, transform, 1, 0, 0, UP, colour, width);
+        if (faces.contains(SOUTH) || faces.contains(EAST)) line(buffer, transform, 1, 0, 1, UP, colour, width);
+        if (faces.contains(NORTH) || faces.contains(DOWN)) line(buffer, transform, 0, 0, 0, EAST, colour, width);
+        if (faces.contains(SOUTH) || faces.contains(DOWN)) line(buffer, transform, 0, 0, 1, EAST, colour, width);
+        if (faces.contains(NORTH) || faces.contains(UP)) line(buffer, transform, 0, 1, 0, EAST, colour, width);
+        if (faces.contains(SOUTH) || faces.contains(UP)) line(buffer, transform, 0, 1, 1, EAST, colour, width);
+        if (faces.contains(WEST) || faces.contains(DOWN)) line(buffer, transform, 0, 0, 0, SOUTH, colour, width);
+        if (faces.contains(EAST) || faces.contains(DOWN)) line(buffer, transform, 1, 0, 0, SOUTH, colour, width);
+        if (faces.contains(WEST) || faces.contains(UP)) line(buffer, transform, 0, 1, 0, SOUTH, colour, width);
+        if (faces.contains(EAST) || faces.contains(UP)) line(buffer, transform, 1, 1, 0, SOUTH, colour, width);
     }
 
-    private static void line(VertexConsumer buffer, PoseStack.Pose transform, float x, float y, float z, Direction direction, int colour) {
+    private static void line(VertexConsumer buffer, PoseStack.Pose transform, float x, float y, float z, Direction direction, int colour, float width) {
         buffer
             .addVertex(transform, x, y, z)
             .setColor(colour)
-            .setNormal(transform, direction.getStepX(), direction.getStepY(), direction.getStepZ());
+            .setNormal(transform, direction.getStepX(), direction.getStepY(), direction.getStepZ())
+            .setLineWidth(width);
         buffer
             .addVertex(transform, x + direction.getStepX(), y + direction.getStepY(), z + direction.getStepZ())
             .setColor(colour)
-            .setNormal(transform, direction.getStepX(), direction.getStepY(), direction.getStepZ());
+            .setNormal(transform, direction.getStepX(), direction.getStepY(), direction.getStepZ())
+            .setLineWidth(width);
     }
 }

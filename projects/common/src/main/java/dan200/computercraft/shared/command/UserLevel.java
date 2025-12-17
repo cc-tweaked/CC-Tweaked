@@ -6,6 +6,9 @@ package dan200.computercraft.shared.command;
 
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
+import net.minecraft.server.permissions.Permissions;
 
 import java.util.function.Predicate;
 
@@ -28,10 +31,10 @@ public enum UserLevel implements Predicate<CommandSourceStack> {
      */
     ANYONE;
 
-    public int toLevel() {
+    public Permission toPermission() {
         return switch (this) {
-            case OP, OWNER_OP -> 2;
-            case ANYONE -> 0;
+            case OP, OWNER_OP -> Permissions.COMMANDS_GAMEMASTER;
+            case ANYONE -> new Permission.HasCommandLevel(PermissionLevel.ALL);
         };
     }
 
@@ -39,13 +42,13 @@ public enum UserLevel implements Predicate<CommandSourceStack> {
     public boolean test(CommandSourceStack source) {
         if (this == ANYONE) return true;
         if (this == OWNER_OP && isOwner(source)) return true;
-        return source.hasPermission(toLevel());
+        return source.permissions().hasPermission(toPermission());
     }
 
     public boolean test(ServerPlayer source) {
         if (this == ANYONE) return true;
         if (this == OWNER_OP && isOwner(source)) return true;
-        return source.hasPermissions(toLevel());
+        return source.permissions().hasPermission(toPermission());
     }
 
     public static boolean isOwner(CommandSourceStack source) {
@@ -58,7 +61,7 @@ public enum UserLevel implements Predicate<CommandSourceStack> {
 
         var player = source.getPlayer();
         return server.isDedicatedServer()
-            ? source.getEntity() == null && source.hasPermission(4) && source.getTextName().equals("Server")
+            ? source.getEntity() == null && source.permissions().hasPermission(Permissions.COMMANDS_ADMIN) && source.getTextName().equals("Server")
             : player != null && server.isSingleplayerOwner(player.nameAndId());
     }
 

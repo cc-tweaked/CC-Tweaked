@@ -38,6 +38,6 @@ public final class TurtleUpgradeModelManager {
      */
     @Contract("_, null -> null; _, !null -> !null")
     public static @Nullable TurtleUpgradeModel get(ModelManager modelManager, Holder.@Nullable Reference<ITurtleUpgrade> upgrade) {
-        return upgrade == null ? null : loader.get(modelManager, upgrade.key().location());
+        return upgrade == null ? null : loader.get(modelManager, upgrade.key().identifier());
     }
 }

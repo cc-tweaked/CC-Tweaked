@@ -42,8 +42,8 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -88,7 +88,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @SuppressWarnings("unchecked")
     private static <T> Registry<T> getRegistry(ResourceKey<Registry<T>> id) {
-        var registry = (Registry<T>) BuiltInRegistries.REGISTRY.getValue(id.location());
+        var registry = (Registry<T>) BuiltInRegistries.REGISTRY.getValue(id.identifier());
         if (registry == null) throw new IllegalArgumentException("Unknown registry " + id);
         return registry;
     }
@@ -256,7 +256,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
         @Override
         public <U extends T> RegistryEntry<U> register(String name, Supplier<U> create) {
-            var entry = new RegistryEntryImpl<>(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name), create);
+            var entry = new RegistryEntryImpl<>(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name), create);
             entries.add(entry);
             return entry;
         }
@@ -268,11 +268,11 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     private static final class RegistryEntryImpl<T> implements RegistryEntry<T> {
-        private final ResourceLocation id;
+        private final Identifier id;
         private final Supplier<T> supplier;
         private @Nullable T instance;
 
-        RegistryEntryImpl(ResourceLocation id, Supplier<T> supplier) {
+        RegistryEntryImpl(Identifier id, Supplier<T> supplier) {
             this.id = id;
             this.supplier = supplier;
         }
@@ -282,7 +282,7 @@ public class PlatformHelperImpl implements PlatformHelper {
         }
 
         @Override
-        public ResourceLocation id() {
+        public Identifier id() {
             return id;
         }
 

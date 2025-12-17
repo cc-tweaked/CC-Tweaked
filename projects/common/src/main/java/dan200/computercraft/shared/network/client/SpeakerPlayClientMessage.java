@@ -14,7 +14,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.UUID;
 
@@ -33,20 +33,20 @@ import java.util.UUID;
 public record SpeakerPlayClientMessage(
     UUID source,
     SpeakerPosition.Message pos,
-    ResourceLocation sound,
+    Identifier sound,
     float volume,
     float pitch
 ) implements NetworkMessage<ClientNetworkContext> {
     public static final StreamCodec<RegistryFriendlyByteBuf, SpeakerPlayClientMessage> STREAM_CODEC = StreamCodec.composite(
         UUIDUtil.STREAM_CODEC, SpeakerPlayClientMessage::source,
         SpeakerPosition.Message.STREAM_CODEC, SpeakerPlayClientMessage::pos,
-        ResourceLocation.STREAM_CODEC, SpeakerPlayClientMessage::sound,
+        Identifier.STREAM_CODEC, SpeakerPlayClientMessage::sound,
         ByteBufCodecs.FLOAT, SpeakerPlayClientMessage::volume,
         ByteBufCodecs.FLOAT, SpeakerPlayClientMessage::pitch,
         SpeakerPlayClientMessage::new
     );
 
-    public SpeakerPlayClientMessage(UUID source, SpeakerPosition pos, ResourceLocation sound, float volume, float pitch) {
+    public SpeakerPlayClientMessage(UUID source, SpeakerPosition pos, Identifier sound, float volume, float pitch) {
         this(source, pos.asMessage(), sound, volume, pitch);
     }
 

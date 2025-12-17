@@ -8,7 +8,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.impl.TurtleUpgrades;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -20,8 +20,8 @@ import org.jspecify.annotations.Nullable;
  * @see TurtleMenu
  */
 public class UpgradeSlot extends Slot {
-    public static final ResourceLocation LEFT_UPGRADE = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/turtle_upgrade_left");
-    public static final ResourceLocation RIGHT_UPGRADE = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/turtle_upgrade_right");
+    public static final Identifier LEFT_UPGRADE = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/turtle_upgrade_left");
+    public static final Identifier RIGHT_UPGRADE = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "gui/turtle_upgrade_right");
 
     private final HolderLookup.Provider registries;
     private final TurtleSide side;
@@ -44,7 +44,7 @@ public class UpgradeSlot extends Slot {
 
     @Nullable
     @Override
-    public ResourceLocation getNoItemIcon() {
+    public Identifier getNoItemIcon() {
         return side == TurtleSide.LEFT ? LEFT_UPGRADE : RIGHT_UPGRADE;
     }
 }

@@ -11,7 +11,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
@@ -21,11 +21,11 @@ import java.util.function.Supplier;
  * dynamically.
  */
 public class DynamicImageButton extends Button {
-    private final Boolean2ObjectFunction<ResourceLocation> texture;
-    private final Supplier<HintedMessage> message;
+    private final Boolean2ObjectFunction<Identifier> texture;
+    private final Supplier<HintedMessage> messageSupplier;
 
     public DynamicImageButton(
-        int x, int y, int width, int height, Boolean2ObjectFunction<ResourceLocation> texture, OnPress onPress,
+        int x, int y, int width, int height, Boolean2ObjectFunction<Identifier> texture, OnPress onPress,
         HintedMessage message
     ) {
         this(x, y, width, height, texture, onPress, () -> message);
@@ -33,17 +33,17 @@ public class DynamicImageButton extends Button {
 
     public DynamicImageButton(
         int x, int y, int width, int height,
-        Boolean2ObjectFunction<ResourceLocation> texture,
+        Boolean2ObjectFunction<Identifier> texture,
         OnPress onPress, Supplier<HintedMessage> message
     ) {
         super(x, y, width, height, Component.empty(), onPress, DEFAULT_NARRATION);
         this.texture = texture;
-        this.message = message;
+        this.messageSupplier = message;
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        var message = this.message.get();
+    public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        var message = messageSupplier.get();
         setMessage(message.message());
         setTooltip(message.tooltip());
 

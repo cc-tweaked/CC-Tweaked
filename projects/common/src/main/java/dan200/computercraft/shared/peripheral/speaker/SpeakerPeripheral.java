@@ -24,7 +24,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -74,7 +74,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
 
     private final Object lock = new Object();
     private boolean shouldStop;
-    private @Nullable PendingSound<ResourceLocation> pendingSound = null;
+    private @Nullable PendingSound<Identifier> pendingSound = null;
     private @Nullable DfpwmState dfpwmState;
 
     public void update() {
@@ -102,7 +102,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         // dfpwmState will only ever transition from having a buffer to not having a buffer on the main thread (so this
         // method), so we don't need to bother locking that.
         boolean shouldStop;
-        PendingSound<ResourceLocation> sound;
+        PendingSound<Identifier> sound;
         DfpwmState dfpwmState;
         synchronized (lock) {
             sound = pendingSound;
@@ -254,7 +254,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         var volume = (float) clampVolume(checkFinite(1, volumeA.orElse(1.0)));
         var pitch = (float) checkFinite(2, pitchA.orElse(1.0));
 
-        var identifier = ResourceLocation.tryParse(name);
+        var identifier = Identifier.tryParse(name);
         if (identifier == null) throw new LuaException("Malformed sound name '" + name + "' ");
 
         // Prevent playing music discs.

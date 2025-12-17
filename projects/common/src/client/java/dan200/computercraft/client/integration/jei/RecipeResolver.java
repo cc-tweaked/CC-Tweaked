@@ -13,7 +13,7 @@ import mezz.jei.api.recipe.advanced.ISimpleRecipeManagerPlugin;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
@@ -31,7 +31,7 @@ class RecipeResolver implements ISimpleRecipeManagerPlugin<RecipeHolder<Crafting
 
     RecipeResolver(HolderLookup.Provider registries) {
         resolver = new UpgradeRecipeGenerator<>(x -> new RecipeHolder<>(
-            ResourceKey.create(Registries.RECIPE, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "upgrade_" + nextId++)),
+            ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "upgrade_" + nextId++)),
             new CraftingWrapper(x)
         ), registries);
     }

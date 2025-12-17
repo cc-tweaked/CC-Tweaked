@@ -11,7 +11,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.LevelRenderState;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.CommonColors;
@@ -37,15 +37,15 @@ public final class BlockOutlineRenderer {
     public static void render(PoseStack transform, MultiBufferSource bufferSource, Renderer renderer) {
         var highContrast = Minecraft.getInstance().options.highContrastBlockOutline().get();
         if (highContrast) {
-            renderer.render(transform, bufferSource.getBuffer(RenderType.secondaryBlockOutline()), 0xff000000);
+            renderer.render(transform, bufferSource.getBuffer(RenderTypes.secondaryBlockOutline()), 0xff000000, 7f);
         }
 
         var colour = highContrast ? CommonColors.HIGH_CONTRAST_DIAMOND : ARGB.color(0x66, CommonColors.BLACK);
-        renderer.render(transform, bufferSource.getBuffer(RenderType.lines()), colour);
+        renderer.render(transform, bufferSource.getBuffer(RenderTypes.lines()), colour, Minecraft.getInstance().getWindow().getAppropriateLineWidth());
     }
 
     @FunctionalInterface
     public interface Renderer {
-        void render(PoseStack transform, VertexConsumer buffer, int colour);
+        void render(PoseStack transform, VertexConsumer buffer, int colour, float width);
     }
 }

@@ -4,6 +4,7 @@
 
 package dan200.computercraft.mixin.client;
 
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.FabricCommonHooks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
@@ -33,6 +34,8 @@ class MultiPlayerGameModeMixin {
     )
     @SuppressWarnings("unused")
     private void onBlockBreak(BlockPos pos, CallbackInfoReturnable<Boolean> cir, Level level, BlockState state, Block block) {
-        if (!FabricCommonHooks.onBlockDestroy(level, minecraft.player, pos, state, null)) cir.setReturnValue(true);
+        if (!FabricCommonHooks.onBlockDestroy(level, Nullability.assertNonNull(minecraft.player), pos, state, null)) {
+            cir.setReturnValue(true);
+        }
     }
 }

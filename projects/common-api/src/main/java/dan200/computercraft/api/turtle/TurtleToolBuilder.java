@@ -11,8 +11,8 @@ import dan200.computercraft.impl.upgrades.TurtleToolSpec;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
@@ -42,11 +42,11 @@ public final class TurtleToolBuilder {
 
     private TurtleToolBuilder(ResourceKey<ITurtleUpgrade> id, Item item) {
         this.id = id;
-        adjective = Component.translatable(UpgradeBase.getDefaultAdjective(id.location()));
+        adjective = Component.translatable(UpgradeBase.getDefaultAdjective(id.identifier()));
         this.item = item;
     }
 
-    public static TurtleToolBuilder tool(ResourceLocation id, Item item) {
+    public static TurtleToolBuilder tool(Identifier id, Item item) {
         return new TurtleToolBuilder(ITurtleUpgrade.createKey(id), item);
     }
 

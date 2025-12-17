@@ -105,7 +105,7 @@ public final class WiredModemLocalPeripheral {
 
     public void read(ValueInput tag, String suffix) {
         id = tag.getIntOr(NBT_PERIPHERAL_ID + suffix, -1);
-        type = tag.getStringOr(NBT_PERIPHERAL_TYPE + suffix, null);
+        type = tag.getString(NBT_PERIPHERAL_TYPE + suffix).orElse(null);
     }
 
     @Nullable

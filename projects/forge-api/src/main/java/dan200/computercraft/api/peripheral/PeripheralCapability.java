@@ -6,7 +6,7 @@ package dan200.computercraft.api.peripheral;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 
 /**
@@ -14,7 +14,7 @@ import net.neoforged.neoforge.capabilities.BlockCapability;
  * for a block. It should <em>NOT</em> be used to query peripherals.
  */
 public final class PeripheralCapability {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "peripheral");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "peripheral");
 
     private static final BlockCapability<IPeripheral, Direction> capability = BlockCapability.create(ID, IPeripheral.class, Direction.class);
 

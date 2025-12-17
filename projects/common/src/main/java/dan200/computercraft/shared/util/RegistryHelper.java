@@ -6,8 +6,8 @@ package dan200.computercraft.shared.util;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -27,7 +27,7 @@ public final class RegistryHelper {
      */
     @SuppressWarnings("unchecked")
     public static <T> Registry<T> getRegistry(ResourceKey<Registry<T>> id) {
-        var registry = (Registry<T>) BuiltInRegistries.REGISTRY.getValue(id.location());
+        var registry = (Registry<T>) BuiltInRegistries.REGISTRY.getValue(id.identifier());
         if (registry == null) throw new IllegalArgumentException("Unknown registry " + id);
         return registry;
     }
@@ -41,9 +41,9 @@ public final class RegistryHelper {
      * @return The ID of this object
      * @see Registry#getResourceKey(Object)
      */
-    public static <T> ResourceLocation getKeyOrThrow(Registry<T> registry, T object) {
+    public static <T> Identifier getKeyOrThrow(Registry<T> registry, T object) {
         var key = registry.getResourceKey(object);
         if (key.isEmpty()) throw new IllegalArgumentException(object + " was not registered in " + registry.key());
-        return key.get().location();
+        return key.get().identifier();
     }
 }

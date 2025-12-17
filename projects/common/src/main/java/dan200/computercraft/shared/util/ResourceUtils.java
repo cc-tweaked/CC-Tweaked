@@ -9,11 +9,11 @@ import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.Util;
 import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.Util;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +45,11 @@ public class ResourceUtils {
      * @param <T>             The type of the entry to load
      * @return The loaded resources.
      */
-    public static <T> CompletableFuture<Map<ResourceLocation, T>> load(
+    public static <T> CompletableFuture<Map<Identifier, T>> load(
         ResourceManager resourceManager, Executor executor, String kind, FileToIdConverter lister, DynamicOps<JsonElement> ops, Codec<T> codec
     ) {
         return CompletableFuture.supplyAsync(() -> lister.listMatchingResources(resourceManager), executor).thenCompose(resources -> {
-            List<CompletableFuture<@Nullable Pair<ResourceLocation, T>>> futures = new ArrayList<>(resources.size());
+            List<CompletableFuture<@Nullable Pair<Identifier, T>>> futures = new ArrayList<>(resources.size());
             resources.forEach((path, resource) -> futures.add(CompletableFuture.supplyAsync(() -> {
                 var id = lister.fileToId(path);
                 try (var reader = resource.openAsReader()) {

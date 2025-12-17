@@ -14,8 +14,8 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorWatcher;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerLevel;
@@ -114,7 +114,7 @@ public final class CommonHooks {
         return InteractionResult.PASS;
     }
 
-    public static final ResourceKey<LootTable> TREASURE_DISK_LOOT = ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "treasure_disk"));
+    public static final ResourceKey<LootTable> TREASURE_DISK_LOOT = ResourceKey.create(Registries.LOOT_TABLE, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "treasure_disk"));
 
     private static final Set<ResourceKey<LootTable>> TREASURE_DISK_LOOT_TABLES = Set.of(
         BuiltInLootTables.SIMPLE_DUNGEON,
@@ -139,8 +139,8 @@ public final class CommonHooks {
             .setRolls(ConstantValue.exactly(1));
     }
 
-    public static void onDatapackReload(BiConsumer<ResourceLocation, PreparableReloadListener> addReload) {
-        addReload.accept(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "mounts"), ResourceMount.RELOAD_LISTENER);
+    public static void onDatapackReload(BiConsumer<Identifier, PreparableReloadListener> addReload) {
+        addReload.accept(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "mounts"), ResourceMount.RELOAD_LISTENER);
     }
 
     public static boolean onEntitySpawn(Entity entity) {

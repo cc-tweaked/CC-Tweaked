@@ -21,8 +21,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestInstance;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import org.jspecify.annotations.Nullable;
 
 import java.util.IdentityHashMap;
@@ -36,13 +36,13 @@ public class TestMod implements ModInitializer, ClientModInitializer {
     public void onInitialize() {
         TestHooks.init();
 
-        var phase = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "test_mod");
+        var phase = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "test_mod");
         ServerLifecycleEvents.SERVER_STARTED.addPhaseOrdering(Event.DEFAULT_PHASE, phase);
         ServerLifecycleEvents.SERVER_STARTED.register(phase, TestHooks::onServerStarted);
         CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, environment) -> CCTestCommand.register(dispatcher, buildContext));
         PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, blockEntity) -> !TestHooks.onBeforeDestroyBlock(level, pos, state));
 
-        Registry.register(BuiltInRegistries.TEST_ENVIRONMENT_DEFINITION_TYPE, ResourceLocation.fromNamespaceAndPath(TestHooks.MOD_ID, "client"), ClientTestEnvironment.CODEC);
+        Registry.register(BuiltInRegistries.TEST_ENVIRONMENT_DEFINITION_TYPE, Identifier.fromNamespaceAndPath(TestHooks.MOD_ID, "client"), ClientTestEnvironment.CODEC);
 
         var tests = TestMod.tests = TestHooks.loadTests();
         for (var test : tests) Registry.register(BuiltInRegistries.TEST_FUNCTION, test.getId(), test.getFunction());

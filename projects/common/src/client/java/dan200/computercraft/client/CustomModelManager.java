@@ -13,7 +13,7 @@ import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.util.Map;
@@ -25,7 +25,7 @@ import java.util.function.BiFunction;
 /**
  * A manager for loading custom models. This is responsible for {@linkplain #load(ResourceManager, Executor) loading
  * models from resource packs}, {@linkplain #register(ClientRegistry.RegisterExtraModels, Map) registering them as
- * extra models}, and then {@linkplain #get(ModelManager, ResourceLocation) looking them up}.
+ * extra models}, and then {@linkplain #get(ModelManager, Identifier) looking them up}.
  *
  * @param <U> The type of unbaked model.
  * @param <T> The type of baked model.
@@ -39,7 +39,7 @@ public class CustomModelManager<U extends ResolvableModel, T> {
     private final ModelKey<T> missingModelKey;
     private final U missingModel;
 
-    private final Map<ResourceLocation, ModelKey<T>> modelKeys = new ConcurrentHashMap<>();
+    private final Map<Identifier, ModelKey<T>> modelKeys = new ConcurrentHashMap<>();
 
     public CustomModelManager(String kind, FileToIdConverter lister, Codec<U> codec, BiFunction<U, ModelBaker, T> bake, U missingModel) {
         this.kind = kind;
@@ -51,7 +51,7 @@ public class CustomModelManager<U extends ResolvableModel, T> {
         this.missingModel = missingModel;
     }
 
-    private ModelKey<T> getModelKey(ResourceLocation id) {
+    private ModelKey<T> getModelKey(Identifier id) {
         return modelKeys.computeIfAbsent(id, o -> ClientPlatformHelper.get().createModelKey(() -> kind + " " + o));
     }
 
@@ -62,7 +62,7 @@ public class CustomModelManager<U extends ResolvableModel, T> {
      * @param executor  The executor to schedule work on.
      * @return The map of unbaked models.
      */
-    public CompletableFuture<Map<ResourceLocation, U>> load(ResourceManager resources, Executor executor) {
+    public CompletableFuture<Map<Identifier, U>> load(ResourceManager resources, Executor executor) {
         return ResourceUtils.load(resources, executor, kind, lister, JsonOps.INSTANCE, codec);
     }
 
@@ -72,7 +72,7 @@ public class CustomModelManager<U extends ResolvableModel, T> {
      * @param register The callback to register models with.
      * @param models   The models to register.
      */
-    public void register(ClientRegistry.RegisterExtraModels register, Map<ResourceLocation, U> models) {
+    public void register(ClientRegistry.RegisterExtraModels register, Map<Identifier, U> models) {
         models.forEach((id, model) -> register.register(getModelKey(id), model, bake));
         register.register(missingModelKey, missingModel, bake);
     }
@@ -84,7 +84,7 @@ public class CustomModelManager<U extends ResolvableModel, T> {
      * @param id           The model id.
      * @return The loaded model.
      */
-    public T get(ModelManager modelManager, ResourceLocation id) {
+    public T get(ModelManager modelManager, Identifier id) {
         var model = getModelKey(id).get(modelManager);
         if (model != null) return model;
 

@@ -5,6 +5,7 @@
 package dan200.computercraft.api.detail;
 
 import dan200.computercraft.impl.ComputerCraftAPIService;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
@@ -15,8 +16,8 @@ public class VanillaDetailRegistries {
     /**
      * Provides details for {@link ItemStack}s.
      * <p>
-     * This instance's {@link DetailRegistry#getBasicDetails(Object)} is thread safe (assuming the stack is immutable)
-     * and may be called from the computer thread.
+     * This instance's {@link DetailRegistry#getBasicDetails(HolderLookup.Provider, Object)} is thread safe (assuming
+     * the stack is immutable) and may be called from the computer thread.
      * <p>
      * This does not have special handling for {@linkplain ItemStack#isEmpty() empty item stacks}, and so the returned
      * details will be an empty stack of air. Callers should generally check for empty stacks before calling this.
@@ -26,8 +27,8 @@ public class VanillaDetailRegistries {
     /**
      * Provides details for {@link BlockReference}, a reference to a {@link Block} in the world.
      * <p>
-     * This instance's {@link DetailRegistry#getBasicDetails(Object)} is thread safe and may be called from the computer
-     * thread.
+     * This instance's {@link DetailRegistry#getBasicDetails(HolderLookup.Provider, Object)} is thread safe and may be
+     * called from the computer thread.
      */
     public static final DetailRegistry<BlockReference> BLOCK_IN_WORLD = ComputerCraftAPIService.get().getBlockInWorldDetailRegistry();
 }

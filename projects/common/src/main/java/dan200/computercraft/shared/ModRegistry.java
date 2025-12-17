@@ -109,8 +109,8 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
@@ -149,7 +149,7 @@ public final class ModRegistry {
 
         private static <T extends Block> RegistryEntry<T> register(String name, Function<BlockBehaviour.Properties, T> build, BlockBehaviour.Properties properties) {
             return REGISTRY.register(name, () -> {
-                properties.setId(ResourceKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name)));
+                properties.setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name)));
                 return build.apply(properties);
             });
         }
@@ -285,7 +285,7 @@ public final class ModRegistry {
         }
 
         private static <T extends Item> RegistryEntry<T> register(String name, Function<Item.Properties, T> build, Supplier<Item.Properties> properties) {
-            return REGISTRY.register(name, () -> build.apply(properties.get().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name)))));
+            return REGISTRY.register(name, () -> build.apply(properties.get().setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name)))));
         }
 
         private static <T extends Item> RegistryEntry<T> register(String name, Function<Item.Properties, T> build, Item.Properties properties) {
@@ -396,8 +396,8 @@ public final class ModRegistry {
         /**
          * The overlay on a turtle.
          */
-        public static final RegistryEntry<DataComponentType<ResourceLocation>> OVERLAY = register("overlay", b -> b
-            .persistent(ResourceLocation.CODEC).networkSynchronized(ResourceLocation.STREAM_CODEC).cacheEncoding()
+        public static final RegistryEntry<DataComponentType<Identifier>> OVERLAY = register("overlay", b -> b
+            .persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC).cacheEncoding()
         );
 
         /**
@@ -773,7 +773,7 @@ public final class ModRegistry {
     }
 
     private static boolean isOurUpgrade(Holder.Reference<? extends UpgradeBase> upgrade) {
-        var namespace = upgrade.key().location().getNamespace();
+        var namespace = upgrade.key().identifier().getNamespace();
         return namespace.equals("minecraft") || namespace.equals(ComputerCraftAPI.MOD_ID);
     }
 }

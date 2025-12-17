@@ -90,7 +90,7 @@ public final class UpgradeManager<T extends UpgradeBase> {
     }
 
     public String getOwner(Holder.Reference<T> upgrade) {
-        var ns = upgrade.key().location().getNamespace();
+        var ns = upgrade.key().identifier().getNamespace();
         return ns.equals("minecraft") ? ComputerCraftAPI.MOD_ID : ns;
 
         // TODO: Would be nice if we could use the registration info here.

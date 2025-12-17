@@ -5,6 +5,8 @@
 package dan200.computercraft.api.component;
 
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
+import net.minecraft.server.permissions.PermissionSet;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -13,12 +15,12 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.NonExtendable
 public interface AdminComputer {
     /**
-     * The permission level that this computer can operate at.
+     * The permissions that this computer has.
      *
-     * @return The permission level for this computer.
-     * @see CommandSourceStack#hasPermission(int)
+     * @return The permissions for this computer.
+     * @see CommandSourceStack#permissions()
      */
-    default int permissionLevel() {
-        return 2;
+    default PermissionSet permissions() {
+        return LevelBasedPermissionSet.GAMEMASTER;
     }
 }

@@ -7,8 +7,8 @@ package dan200.computercraft.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 
@@ -44,7 +44,7 @@ public class SpriteRenderer {
         var v0 = sprite.getV((float) spriteY / spriteHeight);
         var v1 = sprite.getV((float) (spriteY + height) / spriteHeight);
 
-        submit.submitCustomGeometry(transform, RenderType.text(sprite.atlasLocation()), (t, vertices) -> {
+        submit.submitCustomGeometry(transform, RenderTypes.text(sprite.atlasLocation()), (t, vertices) -> {
             vertices.addVertex(t, x0, y1, z).setColor(colour).setUv(u0, v1).setLight(light);
             vertices.addVertex(t, x1, y1, z).setColor(colour).setUv(u1, v1).setLight(light);
             vertices.addVertex(t, x1, y0, z).setColor(colour).setUv(u1, v0).setLight(light);

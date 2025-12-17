@@ -3,7 +3,7 @@ package com.example.examplemod.peripheral;
 import com.example.examplemod.ExampleMod;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.GenericPeripheral;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 
 /**
@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 public class FurnacePeripheral implements GenericPeripheral {
     @Override
     public String id() {
-        return ResourceLocation.fromNamespaceAndPath(ExampleMod.MOD_ID, "furnace").toString();
+        return Identifier.fromNamespaceAndPath(ExampleMod.MOD_ID, "furnace").toString();
     }
 
     @LuaFunction(mainThread = true)

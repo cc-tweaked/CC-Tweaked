@@ -33,7 +33,7 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Container;
@@ -242,7 +242,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
         return brain.getColour();
     }
 
-    public @Nullable ResourceLocation getOverlay() {
+    public @Nullable Identifier getOverlay() {
         return brain.getOverlay();
     }
 
@@ -320,7 +320,7 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     @Override
     public void loadClient(ValueInput nbt) {
         super.loadClient(nbt);
-        label = nbt.getStringOr(NBT_LABEL, null);
+        label = nbt.getString(NBT_LABEL).orElse(null);
         brain.readDescription(nbt);
     }
 

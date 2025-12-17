@@ -21,7 +21,7 @@ import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
@@ -53,7 +53,7 @@ public class FabricDataProviders implements DataGeneratorEntrypoint {
         }
 
         @Override
-        public <T> void addFromCodec(String name, PackOutput.Target target, String directory, Codec<T> codec, Consumer<BiConsumer<ResourceLocation, T>> output) {
+        public <T> void addFromCodec(String name, PackOutput.Target target, String directory, Codec<T> codec, Consumer<BiConsumer<Identifier, T>> output) {
             addWithRegistries((out, registries) -> new FabricCodecDataProvider<T>(out, registries, target, directory, codec) {
                 @Override
                 public String getName() {
@@ -61,7 +61,7 @@ public class FabricDataProviders implements DataGeneratorEntrypoint {
                 }
 
                 @Override
-                protected void configure(BiConsumer<ResourceLocation, T> provider, HolderLookup.Provider registries) {
+                protected void configure(BiConsumer<Identifier, T> provider, HolderLookup.Provider registries) {
                     output.accept(provider);
                 }
             });

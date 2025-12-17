@@ -13,7 +13,7 @@ import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.resources.sounds.TickableSoundInstance;
 import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.client.sounds.SoundBufferLibrary;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import org.jspecify.annotations.Nullable;
@@ -36,7 +36,7 @@ public class SpeakerSound extends AbstractSoundInstance implements TickableSound
 
     private boolean stopped = false;
 
-    SpeakerSound(ResourceLocation sound, @Nullable DfpwmStream stream, SpeakerPosition position, float volume, float pitch) {
+    SpeakerSound(Identifier sound, @Nullable DfpwmStream stream, SpeakerPosition position, float volume, float pitch) {
         super(sound, SoundSource.RECORDS, SoundInstance.createUnseededRandom());
         setPosition(position);
         this.stream = stream;
@@ -76,7 +76,7 @@ public class SpeakerSound extends AbstractSoundInstance implements TickableSound
     }
 
     @FabricOverride
-    public CompletableFuture<AudioStream> getAudioStream(SoundBufferLibrary soundBuffers, ResourceLocation sound, boolean looping) {
+    public CompletableFuture<AudioStream> getAudioStream(SoundBufferLibrary soundBuffers, Identifier sound, boolean looping) {
         return stream != null ? CompletableFuture.completedFuture(stream) : soundBuffers.getStream(sound, looping);
     }
 
