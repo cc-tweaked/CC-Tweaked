@@ -19,6 +19,7 @@ import org.teavm.jso.websocket.WebSocket;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 /**
  * Replaces {@link Websocket} with a version which uses Javascript's built-in {@link WebSocket} client.
@@ -83,7 +84,7 @@ public class TWebsocket extends Resource<TWebsocket> implements WebsocketClient 
     private void success(Options options) {
         if (isClosed()) return;
 
-        var handle = new WebsocketHandle(environment, address, this, options);
+        var handle = new WebsocketHandle(environment, address, this, Map.of(), options);
         environment.queueEvent(SUCCESS_EVENT, address, handle);
         createOwnerReference(handle);
 

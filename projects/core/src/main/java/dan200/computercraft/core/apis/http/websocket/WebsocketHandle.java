@@ -5,6 +5,7 @@
 package dan200.computercraft.core.apis.http.websocket;
 
 import dan200.computercraft.api.lua.*;
+import dan200.computercraft.core.apis.HTTPAPI;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.options.Options;
 import org.jspecify.annotations.Nullable;
@@ -15,6 +16,7 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -35,12 +37,14 @@ public class WebsocketHandle {
     private final IAPIEnvironment environment;
     private final String address;
     private final WebsocketClient websocket;
+    private final Map<String, String> responseHeaders;
     private final Options options;
 
-    public WebsocketHandle(IAPIEnvironment environment, String address, WebsocketClient websocket, Options options) {
+    public WebsocketHandle(IAPIEnvironment environment, String address, WebsocketClient websocket, Map<String, String> responseHeaders, Options options) {
         this.environment = environment;
         this.address = address;
         this.websocket = websocket;
+        this.responseHeaders = responseHeaders;
         this.options = options;
     }
 
@@ -103,6 +107,30 @@ public class WebsocketHandle {
     @LuaFunction
     public final void close() {
         websocket.close();
+    }
+
+    /**
+     * Get a table containing the headers from the handshake response, in a format similar to that required by
+     * {@link HTTPAPI#request}. If multiple headers are sent with the same name, they will be combined with a comma.
+     *
+     * @return The response's headers.
+     * @cc.usage Make a websocket connection to [example.tweaked.cc](https://example.tweaked.cc), and print the
+     * returned headers.
+     * <pre>{@code
+     * local ws = http.websocket("wss://example.tweaked.cc/echo")
+     * print(textutils.serialize(ws.getResponseHeaders()))
+     * -- => {
+     * --  Connection = "Upgrade",
+     * --  Upgrade = "websocket",
+     * --  ...
+     * -- }
+     * ws.close()
+     * }</pre>
+     * @since 1.107.0
+     */
+    @LuaFunction
+    public final Map<String, String> getResponseHeaders() {
+        return responseHeaders;
     }
 
     private void checkOpen() throws LuaException {

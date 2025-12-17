@@ -18,10 +18,12 @@ import static dan200.computercraft.core.apis.http.websocket.WebsocketClient.MESS
 class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
     private final Websocket websocket;
     private final Options options;
+    private final CustomWebSocketHandshaker handshaker;
     private boolean handshakeComplete = false;
 
-    WebsocketHandler(Websocket websocket, Options options) {
+    WebsocketHandler(Websocket websocket, CustomWebSocketHandshaker handshaker, Options options) {
         this.websocket = websocket;
+        this.handshaker = handshaker;
         this.options = options;
     }
 
@@ -34,7 +36,9 @@ class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
         if (evt == WebSocketClientProtocolHandler.ClientHandshakeStateEvent.HANDSHAKE_COMPLETE) {
-            websocket.success(options);
+            var headers = handshaker.getResponseHeaders();
+            if (headers == null) throw new NullPointerException("Headers cannot be null once handshake is complete");
+            websocket.success(headers, options);
             handshakeComplete = true;
         } else if (evt == WebSocketClientProtocolHandler.ClientHandshakeStateEvent.HANDSHAKE_TIMEOUT) {
             websocket.failure("Timed out");
