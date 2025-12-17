@@ -157,7 +157,8 @@ dependencies {
     clientImplementation(clientClasses(project(":forge-api")))
 
     jarJar(libs.cobalt)
-    jarJar(libs.jzlib)
+    jarJar(libs.netty.socks)
+    jarJar(libs.netty.proxy)
 
     testFixturesApi(libs.bundles.test)
     testFixturesApi(libs.bundles.kotlin)
@@ -194,12 +195,7 @@ tasks.jar {
     // Include all classes from other projects except core.
     val coreSources = project(":core").sourceSets["main"]
     for (source in cct.sourceDirectories.get()) {
-        if (source.classes && source.sourceSet != coreSources) from(source.sourceSet.output)
-    }
-
-    // Include core separately, along with the relocated netty classes.
-    from(zipTree(project(":core").tasks.named("shadowJar", AbstractArchiveTask::class).map { it.archiveFile })) {
-        exclude("META-INF/**")
+        if (source.classes) from(source.sourceSet.output)
     }
 }
 
