@@ -8,7 +8,7 @@ import io.netty.bootstrap.ServerBootstrap
 import io.netty.buffer.ByteBufUtil
 import io.netty.buffer.Unpooled
 import io.netty.channel.*
-import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.nio.NioIoHandler
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.http.*
@@ -28,7 +28,7 @@ object HttpServer {
     const val WS_URL: String = "ws://127.0.0.1:$PORT/ws"
 
     fun runServer(run: (stop: () -> Unit) -> Unit) {
-        val workerGroup: EventLoopGroup = NioEventLoopGroup(2)
+        val workerGroup: EventLoopGroup = MultiThreadIoEventLoopGroup(2, NioIoHandler.newFactory())
         try {
             val ch = ServerBootstrap()
                 .group(workerGroup)
@@ -41,7 +41,7 @@ object HttpServer {
                             p.addLast(HttpContentCompressor())
                             p.addLast(HttpObjectAggregator(8192))
                             p.addLast(HttpServerHandler())
-                            p.addLast(WebSocketServerCompressionHandler())
+                            p.addLast(WebSocketServerCompressionHandler(0))
                             p.addLast(WebSocketServerProtocolHandler("/ws", null, true))
                             p.addLast(WebSocketFrameHandler())
                         }
@@ -53,7 +53,7 @@ object HttpServer {
                 ch.close().sync()
             }
         } finally {
-            workerGroup.shutdownGracefully()
+            workerGroup.shutdownGracefully().get()
         }
     }
 }
