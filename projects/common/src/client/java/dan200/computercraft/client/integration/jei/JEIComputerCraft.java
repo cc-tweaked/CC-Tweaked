@@ -20,6 +20,7 @@ import mezz.jei.api.registration.IAdvancedRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -106,7 +107,8 @@ public class JEIComputerCraft implements IModPlugin {
      */
     private static final ISubtypeInterpreter<ItemStack> diskSubtype = (stack, ctx) -> Integer.toString(DyedItemColor.getOrDefault(stack, -1));
 
-    private static RegistryAccess getRegistryAccess() {
-        return Minecraft.getInstance().level.registryAccess();
+    private static HolderLookup.Provider getRegistryAccess() {
+        var connection = Minecraft.getInstance().getConnection();
+        return connection == null ? RegistryAccess.EMPTY : connection.registryAccess();
     }
 }
