@@ -71,9 +71,8 @@ class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        ctx.close();
-
         fail(NetworkUtils.toFriendlyError(cause));
+        ctx.close();
     }
 
     private void fail(String message) {

@@ -17,6 +17,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.TooLongFrameException;
+import io.netty.handler.codec.http.websocketx.CorruptedWebSocketFrameException;
+import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus;
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
 import io.netty.handler.proxy.HttpProxyHandler;
 import io.netty.handler.proxy.Socks4ProxyHandler;
@@ -245,6 +247,10 @@ public final class NetworkUtils {
             return "Timed out";
         } else if (cause instanceof SSLHandshakeException || (cause instanceof DecoderException && cause.getCause() instanceof SSLHandshakeException)) {
             return "Could not create a secure connection";
+        } else if (cause instanceof CorruptedWebSocketFrameException e) {
+            return e.closeStatus() == WebSocketCloseStatus.MESSAGE_TOO_BIG
+                ? "Received a too-large message"
+                : "Corrupted websocket message";
         } else {
             return "Could not connect";
         }

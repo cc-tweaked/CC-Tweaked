@@ -57,8 +57,11 @@ public class WebsocketHandle {
      * @cc.treturn [1] string The received message.
      * @cc.treturn boolean If this was a binary message.
      * @cc.treturn [2] nil If the websocket was closed while waiting, or if we timed out.
+     * @cc.treturn [2] string The reason we failed to receive a message. Either the reason the websocket was closed
+     * (as returned by [`websocket_closed`], or the string {@code "Timed out"}.
      * @cc.changed 1.80pr1.13 Added return value indicating whether the message was binary.
      * @cc.changed 1.87.0 Added timeout argument.
+     * @cc.changed 1.117.0 Added return value indicating why receiving the message failed.
      */
     @LuaFunction
     public final MethodResult receive(Optional<Double> timeout) throws LuaException {
@@ -155,11 +158,11 @@ public class WebsocketHandle {
             } else if (event.length >= 2 && Objects.equals(event[0], CLOSE_EVENT) && Objects.equals(event[1], address) && websocket.isClosed()) {
                 // If the socket is closed abort.
                 environment.cancelTimer(timeoutId);
-                return MethodResult.of();
+                return MethodResult.of(null, event.length > 2 ? event[2] : "Connection closed");
             } else if (event.length >= 2 && timeoutId != -1 && Objects.equals(event[0], TIMER_EVENT)
                 && event[1] instanceof Number id && id.intValue() == timeoutId) {
                 // If we received a matching timer event then abort.
-                return MethodResult.of();
+                return MethodResult.of(null, "Timed out");
             }
 
             return pull;
