@@ -17,43 +17,52 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler.HandshakeComplete
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler
+import java.net.InetSocketAddress
 import java.nio.charset.StandardCharsets
 
-/**
- * Runs a small HTTP server to run alongside [TestHttpApi]
- */
-object HttpServer {
-    const val PORT: Int = 8378
-    const val URL: String = "http://127.0.0.1:$PORT"
-    const val WS_URL: String = "ws://127.0.0.1:$PORT/ws"
+class HttpServer(val port: Int, private val workerGroup: EventLoopGroup, private val activeConnections: Set<Channel>) {
+    /** Stop the server from running */
+    fun stop() {
+        workerGroup.shutdownGracefully()
+    }
 
-    fun runServer(run: (stop: () -> Unit) -> Unit) {
-        val workerGroup: EventLoopGroup = NioEventLoopGroup(2)
-        try {
-            val ch = ServerBootstrap()
-                .group(workerGroup)
-                .channel(NioServerSocketChannel::class.java)
-                .childHandler(
-                    object : ChannelInitializer<SocketChannel>() {
-                        override fun initChannel(ch: SocketChannel) {
-                            val p: ChannelPipeline = ch.pipeline()
-                            p.addLast(HttpServerCodec())
-                            p.addLast(HttpContentCompressor())
-                            p.addLast(HttpObjectAggregator(8192))
-                            p.addLast(HttpServerHandler())
-                            p.addLast(WebSocketServerCompressionHandler())
-                            p.addLast(WebSocketServerProtocolHandler("/ws", null, true))
-                            p.addLast(WebSocketFrameHandler())
-                        }
-                    },
-                ).bind(PORT).sync().channel()
+    /** Broadcast this message to every connected websocket */
+    fun broadcast(message: WebSocketFrame) {
+        for (chan in activeConnections) chan.writeAndFlush(message)
+    }
+
+    companion object {
+        /** Runs a small HTTP server to run alongside [TestHttpApi] */
+        fun runServer(run: (server: HttpServer) -> Unit) {
+            val workerGroup: EventLoopGroup = NioEventLoopGroup(2)
+            val activeConnections = mutableSetOf<Channel>()
             try {
-                run { workerGroup.shutdownGracefully() }
+                val ch = ServerBootstrap()
+                    .group(workerGroup)
+                    .channel(NioServerSocketChannel::class.java)
+                    .childHandler(
+                        object : ChannelInitializer<SocketChannel>() {
+                            override fun initChannel(ch: SocketChannel) {
+                                val p: ChannelPipeline = ch.pipeline()
+                                p.addLast(HttpServerCodec())
+                                p.addLast(HttpContentCompressor())
+                                p.addLast(HttpObjectAggregator(8192))
+                                p.addLast(HttpServerHandler())
+                                p.addLast(WebSocketServerCompressionHandler())
+                                p.addLast(WebSocketServerProtocolHandler("/ws", null, true))
+                                p.addLast(WebSocketFrameHandler(activeConnections))
+                            }
+                        },
+                    ).bind(0).sync().channel()
+                val port = (ch.localAddress() as InetSocketAddress).port
+                try {
+                    run(HttpServer(port, workerGroup, activeConnections))
+                } finally {
+                    ch.close().sync()
+                }
             } finally {
-                ch.close().sync()
+                workerGroup.shutdownGracefully().get()
             }
-        } finally {
-            workerGroup.shutdownGracefully()
         }
     }
 }
@@ -70,7 +79,7 @@ private class HttpServerHandler : SimpleChannelInboundHandler<FullHttpRequest>()
         ctx.flush()
     }
 
-    public override fun channelRead0(ctx: ChannelHandlerContext, request: FullHttpRequest) {
+    override fun channelRead0(ctx: ChannelHandlerContext, request: FullHttpRequest) {
         when (request.uri()) {
             "/", "/index.html" -> handleIndex(ctx, request)
             "/ws" -> handleWebsocket(ctx, request)
@@ -113,7 +122,7 @@ private class HttpServerHandler : SimpleChannelInboundHandler<FullHttpRequest>()
 /**
  * A basic WS server which just sends back the original message.
  */
-private class WebSocketFrameHandler : SimpleChannelInboundHandler<WebSocketFrame>() {
+private class WebSocketFrameHandler(private val activeConnections: MutableSet<Channel>) : SimpleChannelInboundHandler<WebSocketFrame>() {
     override fun channelRead0(ctx: ChannelHandlerContext, frame: WebSocketFrame) {
         if (frame is TextWebSocketFrame) {
             // Send the uppercase string back.
@@ -126,10 +135,16 @@ private class WebSocketFrameHandler : SimpleChannelInboundHandler<WebSocketFrame
 
     override fun userEventTriggered(ctx: ChannelHandlerContext, evt: Any) {
         if (evt is HandshakeComplete) {
-            // Channel upgrade to websocket, remove WebSocketIndexPageHandler.
+            // Channel upgrade to websocket, remove HttpServerHandler.
             ctx.pipeline().remove(HttpServerHandler::class.java)
+            activeConnections.add(ctx.channel())
         } else {
             super.userEventTriggered(ctx, evt)
         }
+    }
+
+    override fun channelInactive(ctx: ChannelHandlerContext) {
+        super.channelInactive(ctx)
+        activeConnections.remove(ctx.channel())
     }
 }

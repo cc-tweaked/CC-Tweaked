@@ -54,7 +54,7 @@ public class Callbacks {
      * @param resource The path to the resource to load.
      * @return The loaded resource.
      */
-    @JSByRef
+    @JSByRef(optional = true)
     @JSBody(params = "name", script = "return $javaCallbacks.getResource(name);")
     public static native byte[] getResource(String resource);
 

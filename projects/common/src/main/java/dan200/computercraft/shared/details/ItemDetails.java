@@ -6,6 +6,7 @@ package dan200.computercraft.shared.details;
 
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.util.NBTUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
@@ -13,18 +14,19 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryOps;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.StreamSupport;
 
 /**
  * Data providers for items.
@@ -73,8 +75,13 @@ public class ItemDetails {
         var enchants = getAllEnchants(stack);
         if (!enchants.isEmpty()) data.put("enchantments", enchants);
 
+        var effects = getAllEffects(stack);
+        if (!effects.isEmpty()) data.put("potionEffects", effects);
+
         var unbreakable = stack.get(DataComponents.UNBREAKABLE);
         if (unbreakable != null && unbreakable.showInTooltip()) data.put("unbreakable", true);
+
+        DetailHelpers.fillMapColour(data, EmptyBlockGetter.INSTANCE, BlockPos.ZERO, Block.byItem(stack.getItem()).defaultBlockState());
     }
 
     /**
@@ -133,5 +140,52 @@ public class ItemDetails {
             enchant.put("displayName", Enchantment.getFullname(enchantment, level).getString());
             enchants.add(enchant);
         }
+    }
+
+    /**
+     * Retrieve all potions from given stack.
+     *
+     * @param stack Stack to analyse.
+     * @return A filled list that contain all visible potions.
+     */
+    private static List<Map<String, Object>> getAllEffects(ItemStack stack) {
+        var effects = stack.get(DataComponents.POTION_CONTENTS);
+        if (effects == null) return List.of();
+
+        return StreamSupport.stream(effects.getAllEffects().spliterator(), false).map(p -> {
+            Map<String, Object> potion = new HashMap<>(4);
+            potion.put("name", p.getEffect().getRegisteredName());
+
+            var displayName = Component.translatable(p.getDescriptionId());
+            if (p.getAmplifier() > 0) {
+                displayName = Component.translatable(
+                    "potion.withAmplifier", displayName, Component.translatable("potion.potency." + p.getAmplifier())
+                );
+            }
+            potion.put("displayName", displayName.getString());
+
+            // Expose the roman numerals (e.g. Instant Health II), rather than the raw amplifier value.
+            if (p.getAmplifier() > 0) potion.put("potency", p.getAmplifier() + 1);
+
+            if (p.isInfiniteDuration()) {
+                potion.put("duration", Double.POSITIVE_INFINITY);
+            } else if (p.getDuration() > 1) {
+                potion.put("duration", p.getDuration() / 20.0 * getPotionDurationMultiplier(stack));
+            }
+            return potion;
+        }).toList();
+    }
+
+    /**
+     * Get the potion duration multiplier for an item, to handle items which have a shorter duration than a normal
+     * potion.
+     *
+     * @param stack The current stack.
+     * @return The duration multiplier.
+     */
+    private static double getPotionDurationMultiplier(ItemStack stack) {
+        if (stack.getItem() instanceof LingeringPotionItem) return 0.25;
+        if (stack.getItem() instanceof TippedArrowItem) return 0.125;
+        return 1.0;
     }
 }

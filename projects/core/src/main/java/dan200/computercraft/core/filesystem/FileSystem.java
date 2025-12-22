@@ -352,7 +352,7 @@ public class FileSystem {
         return sanitizePath(path, false);
     }
 
-    private static final Pattern threeDotsPattern = Pattern.compile("^\\.{3,}$");
+    private static final Pattern manyDotsPattern = Pattern.compile("^[. ]+$");
 
     // IMPORTANT: Both arrays are sorted by ASCII value.
     private static final char[] specialChars = new char[]{ '"', '*', ':', '<', '>', '?', '|' };
@@ -376,27 +376,19 @@ public class FileSystem {
         for (var fullPart : Splitter.on('/').split(path)) {
             var part = fullPart.strip();
 
-            if (part.isEmpty() || part.equals(".") || threeDotsPattern.matcher(part).matches()) {
-                // . is redundant
-                // ... and more are treated as .
-                continue;
-            }
+            // Limit part length to 255.
+            if (part.length() > 255) part = part.substring(0, 255).strip();
 
             if (part.equals("..")) {
                 // .. can cancel out the last folder entered
-                if (!outputParts.isEmpty()) {
-                    var top = outputParts.peekLast();
-                    if (!top.equals("..")) {
-                        outputParts.removeLast();
-                    } else {
-                        outputParts.addLast("..");
-                    }
-                } else {
+                if (outputParts.isEmpty() || outputParts.peekLast().equals("..")) {
                     outputParts.addLast("..");
+                } else {
+                    outputParts.removeLast();
                 }
-            } else if (part.length() >= 255) {
-                // If part length > 255 and it is the last part
-                outputParts.addLast(part.substring(0, 255).strip());
+            } else if (part.isEmpty() || (part.startsWith(".") && manyDotsPattern.matcher(part).matches())) {
+                // Skip empty paths, ".", or any other sequence of "[. ]+" (as this is also treated as "." on Windows).
+                continue;
             } else {
                 // Anything else we add to the stack
                 outputParts.addLast(part);

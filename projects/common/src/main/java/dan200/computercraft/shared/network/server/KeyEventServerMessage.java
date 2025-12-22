@@ -39,7 +39,7 @@ public final class KeyEventServerMessage extends ComputerServerMessage {
 
     @Override
     protected void handle(ServerNetworkContext context, ComputerMenu container) {
-        var input = container.getInput();
+        var input = container.getInput().getComputerInput();
         switch (action) {
             case UP -> input.keyUp(key);
             case DOWN -> input.keyDown(key, false);

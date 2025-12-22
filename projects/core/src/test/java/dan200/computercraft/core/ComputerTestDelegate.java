@@ -432,17 +432,11 @@ public class ComputerTestDelegate {
                 }
 
                 switch (status) {
-                    case "ok":
-                        break;
-                    case "pending":
-                        runResult = new TestAbortedException("Test is pending");
-                        break;
-                    case "fail":
-                        runResult = new AssertionFailedError(wholeMessage.toString());
-                        break;
-                    case "error":
-                        runResult = new IllegalStateException(wholeMessage.toString());
-                        break;
+                    case "ok" -> {
+                    }
+                    case "pending" -> runResult = new TestAbortedException("Test is pending");
+                    case "fail" -> runResult = new AssertionFailedError(wholeMessage.toString());
+                    case "error" -> runResult = new IllegalStateException(wholeMessage.toString());
                 }
 
                 runFinished = true;

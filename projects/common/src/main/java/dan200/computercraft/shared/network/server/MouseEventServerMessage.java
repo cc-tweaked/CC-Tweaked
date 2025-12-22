@@ -45,7 +45,7 @@ public final class MouseEventServerMessage extends ComputerServerMessage {
 
     @Override
     protected void handle(ServerNetworkContext context, ComputerMenu container) {
-        var input = container.getInput();
+        var input = container.getInput().getComputerInput();
         switch (action) {
             case CLICK -> input.mouseClick(arg, x, y);
             case DRAG -> input.mouseDrag(arg, x, y);

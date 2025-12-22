@@ -313,8 +313,6 @@ public class Main {
         glfwSetCursorPosCallback(window, (w, x, y) -> {
             var charX = (int) (((x / SCALE) - MARGIN) / PIXEL_WIDTH);
             var charY = (int) (((y / SCALE) - MARGIN) / PIXEL_HEIGHT);
-            charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
-            charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
             inputState.onMouseMove(charX, charY);
         });
         glfwSetScrollCallback(window, (w, xOffset, yOffset) -> inputState.onMouseScroll(yOffset));

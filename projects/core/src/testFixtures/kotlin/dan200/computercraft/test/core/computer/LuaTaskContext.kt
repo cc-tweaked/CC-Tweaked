@@ -10,9 +10,11 @@ import dan200.computercraft.api.lua.MethodResult
 import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.core.apis.OSAPI
 import dan200.computercraft.core.apis.PeripheralAPI
-import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.withTimeoutOrNull
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration
 
 /**
@@ -69,7 +71,8 @@ interface LuaTaskContext {
 inline fun <reified T : ILuaAPI> LuaTaskContext.getApi(): T = getApi(T::class.java)
 
 abstract class AbstractLuaTaskContext : LuaTaskContext, AutoCloseable {
-    private val pullEvents = mutableListOf<PullEvent>()
+    private val isReceiving = AtomicBoolean(false)
+    private val eventStream: Channel<Event> = Channel(Channel.UNLIMITED)
     private val apis = mutableMapOf<Class<out ILuaAPI>, ILuaAPI>()
 
     protected fun addApi(api: ILuaAPI) {
@@ -77,34 +80,40 @@ abstract class AbstractLuaTaskContext : LuaTaskContext, AutoCloseable {
     }
 
     protected val hasEventListeners
-        get() = pullEvents.isNotEmpty()
+        get() = isReceiving.get()
 
     protected fun queueEvent(eventName: String?, arguments: Array<out Any?>?) {
-        val fullEvent: Array<out Any?> = when {
-            eventName == null && arguments == null -> arrayOf()
-            eventName != null && arguments == null -> arrayOf(eventName)
-            eventName == null && arguments != null -> arguments
-            else -> arrayOf(eventName, *arguments!!)
-        }
-        for (i in pullEvents.size - 1 downTo 0) {
-            val puller = pullEvents[i]
-            if (puller.name == null || puller.name == eventName || eventName == "terminate") {
-                pullEvents.removeAt(i)
-                puller.cont.resumeWith(Result.success(fullEvent))
-            }
-        }
+        eventStream.trySend(Event(eventName, arguments)).getOrThrow()
     }
 
     override fun close() {
-        for (pullEvent in pullEvents) pullEvent.cont.cancel()
-        pullEvents.clear()
+        eventStream.close()
     }
 
     final override fun <T : ILuaAPI> getApi(api: Class<T>): T =
         api.cast(apis[api] ?: throw IllegalStateException("No API of type ${api.name}"))
 
-    final override suspend fun pullEvent(event: String?): Array<out Any?> =
-        suspendCancellableCoroutine { cont -> pullEvents.add(PullEvent(event, cont)) }
+    final override suspend fun pullEvent(event: String?): Array<out Any?> {
+        if (!isReceiving.compareAndSet(false, true)) {
+            throw IllegalStateException("Multiple listeners not currently supported")
+        }
 
-    private class PullEvent(val name: String?, val cont: CancellableContinuation<Array<out Any?>>)
+        try {
+            while (true) {
+                val received = eventStream.receive()
+                if (event == null || received.name == event) {
+                    return received.full
+                }
+            }
+        } catch (e: ClosedReceiveChannelException) {
+            throw CancellationException(e)
+        } finally {
+            isReceiving.set(false)
+        }
+    }
+
+    private class Event(val name: String?, val args: Array<out Any?>?) {
+        val full: Array<out Any?>
+            get() = if (args == null) arrayOf(name) else arrayOf(name, *args)
+    }
 }

@@ -49,7 +49,7 @@ public class MonitorRenderState implements ClientMonitor.RenderState {
      */
     public boolean createBuffer(MonitorRenderer renderer) {
         switch (renderer) {
-            case TBO: {
+            case TBO -> {
                 if (tboBuffer != 0) return false;
 
                 deleteBuffers();
@@ -67,8 +67,7 @@ public class MonitorRenderState implements ClientMonitor.RenderState {
                 addMonitor();
                 return true;
             }
-
-            case VBO:
+            case VBO -> {
                 if (backgroundBuffer != null) return false;
 
                 deleteBuffers();
@@ -76,9 +75,10 @@ public class MonitorRenderState implements ClientMonitor.RenderState {
                 foregroundBuffer = new DirectVertexBuffer();
                 addMonitor();
                 return true;
-
-            default:
+            }
+            default -> {
                 return false;
+            }
         }
     }
 

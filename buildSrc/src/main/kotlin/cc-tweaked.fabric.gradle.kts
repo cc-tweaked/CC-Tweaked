@@ -4,7 +4,10 @@
 
 /** Default configuration for Fabric projects. */
 
-import cc.tweaked.gradle.*
+import cc.tweaked.gradle.CCTweakedExtension
+import cc.tweaked.gradle.CCTweakedPlugin
+import cc.tweaked.gradle.DependencyCheck
+import cc.tweaked.gradle.MinecraftConfigurations
 
 plugins {
     `java-library`
@@ -44,11 +47,12 @@ dependencies {
         loom.layered {
             officialMojangMappings()
             parchment(
-                project.dependencies.create(
-                    group = "org.parchmentmc.data",
-                    name = "parchment-${libs.findVersion("parchmentMc").get()}",
-                    version = libs.findVersion("parchment").get().toString(),
-                    ext = "zip",
+                dependencyFactory.create(
+                    "org.parchmentmc.data",
+                    "parchment-${libs.findVersion("parchmentMc").get()}",
+                    libs.findVersion("parchment").get().toString(),
+                    null,
+                    "zip",
                 ),
             )
         },
@@ -59,20 +63,4 @@ dependencies {
 
     // Depend on error prone annotations to silence a lot of compile warnings.
     compileOnlyApi(libs.findLibrary("errorProne.annotations").get())
-}
-
-tasks.named("checkDependencyConsistency", DependencyCheck::class.java) {
-    val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
-    // Minecraft depends on lwjgl, but Fabric forces it to a more recent version
-    for (lwjgl in listOf(
-        "lwjgl",
-        "lwjgl-glfw",
-        "lwjgl-jemalloc",
-        "lwjgl-openal",
-        "lwjgl-opengl",
-        "lwjgl-stb",
-        "lwjgl-tinyfd",
-    )) {
-        override("org.lwjgl", lwjgl, "3.3.2")
-    }
 }

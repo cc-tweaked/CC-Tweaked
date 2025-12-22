@@ -89,6 +89,7 @@ public class FileSystemTest {
             new String[]{ "a/./b", "a/b" },
             new String[]{ "a/../b", "b" },
             new String[]{ "a/.../b", "a/b" },
+            new String[]{ "a/. ./b", "a/b" },
             new String[]{ " a ", "a" },
             new String[]{ "a b c", "a b c" },
         };

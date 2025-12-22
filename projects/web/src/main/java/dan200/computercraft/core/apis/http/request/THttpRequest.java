@@ -5,7 +5,6 @@
 package dan200.computercraft.core.apis.http.request;
 
 import cc.tweaked.web.Main;
-import cc.tweaked.web.js.JavascriptConv;
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
@@ -21,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.teavm.jso.ajax.XMLHttpRequest;
 import org.teavm.jso.typedarrays.ArrayBuffer;
+import org.teavm.jso.typedarrays.Int8Array;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -102,7 +102,7 @@ public class THttpRequest extends Resource<THttpRequest> {
                 request.setRequestHeader(header.getKey(), header.getValue());
             }
             request.setRequestHeader("X-CC-Redirect", followRedirects ? "true" : "false");
-            request.send(postBuffer == null ? null : JavascriptConv.toArray(postBuffer));
+            request.send(postBuffer == null ? null : Int8Array.fromJavaBuffer(postBuffer));
             checkClosed();
         } catch (Exception e) {
             failure("Could not connect");
@@ -118,7 +118,7 @@ public class THttpRequest extends Resource<THttpRequest> {
         }
 
         var buffer = (ArrayBuffer) request.getResponse();
-        SeekableByteChannel contents = new ArrayByteChannel(JavascriptConv.asByteArray(buffer));
+        SeekableByteChannel contents = new ArrayByteChannel(new Int8Array(buffer).copyToJavaArray());
         var reader = new ReadHandle(contents, binary);
 
         Map<String, String> responseHeaders = new HashMap<>();
