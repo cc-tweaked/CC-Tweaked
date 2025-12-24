@@ -447,7 +447,7 @@ class Turtle_Test {
     }
 
     /**
-     * Checks turtles can use IDetailProviders by getting details for a printed page.
+     * Checks turtles can use [VanillaDetailRegistries.ITEM_STACK] by getting details for a printed page.
      */
     @GameTest
     fun Item_detail_provider(helper: GameTestHelper) = helper.sequence {

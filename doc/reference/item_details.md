@@ -93,7 +93,7 @@ item has a certain tag:
 ```lua
 --- Check if the item in the turtle's inventory is a log.
 local function is_log(slot)
-    local ok, block = turtle.getItemDetails(slot, true)
+    local ok, block = turtle.getItemDetail(slot, true)
     return ok and block.tags["minecraft:logs"]
 end
 ```
