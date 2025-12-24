@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -96,7 +98,7 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
                         NetworkUtils.initChannel(ch, uri, socketAddress, sslContext, proxy, timeout);
 
                         var subprotocol = headers.get(HttpHeaderNames.SEC_WEBSOCKET_PROTOCOL);
-                        var handshaker = new NoOriginWebSocketHandshaker(
+                        var handshaker = new CustomWebSocketHandshaker(
                             uri, WebSocketVersion.V13, subprotocol, true, headers,
                             options.websocketMessage() <= 0 ? MAX_MESSAGE_SIZE : options.websocketMessage()
                         );
@@ -107,7 +109,7 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
                             new HttpObjectAggregator(8192),
                             WebsocketCompressionHandler.INSTANCE,
                             new WebSocketClientProtocolHandler(handshaker, false, timeout),
-                            new WebsocketHandler(Websocket.this, options)
+                            new WebsocketHandler(Websocket.this, handshaker, options)
                         );
                     }
                 })
@@ -127,10 +129,16 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
         }
     }
 
-    void success(Options options) {
+    void success(HttpHeaders responseHeaders, Options options) {
         if (isClosed()) return;
 
-        var handle = new WebsocketHandle(environment, address, this, options);
+        Map<String, String> headers = new HashMap<>();
+        for (var header : responseHeaders) {
+            headers.compute(header.getKey(), (k, existing) -> existing == null ? header.getValue() : existing + "," + header.getValue());
+        }
+
+
+        var handle = new WebsocketHandle(environment, address, this, headers, options);
         environment().queueEvent(SUCCESS_EVENT, address, handle);
         createOwnerReference(handle);
 

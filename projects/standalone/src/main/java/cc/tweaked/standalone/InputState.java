@@ -8,8 +8,8 @@ import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.core.apis.transfer.TransferredFile;
 import dan200.computercraft.core.apis.transfer.TransferredFiles;
 import dan200.computercraft.core.computer.Computer;
-import dan200.computercraft.core.computer.ComputerEvents;
-import dan200.computercraft.core.util.StringUtil;
+import dan200.computercraft.core.input.EventComputerInput;
+import dan200.computercraft.core.input.UserComputerInput;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWDropCallback;
 import org.lwjgl.glfw.GLFWKeyCallbackI;
@@ -21,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 
 /**
@@ -35,23 +34,19 @@ public class InputState {
     private static final float KEY_SUPPRESS_DELAY = 0.2f;
 
     private final Computer computer;
-    private final BitSet keysDown = new BitSet(256);
+    private final UserComputerInput input;
 
     private float terminateTimer = -1;
     private float rebootTimer = -1;
     private float shutdownTimer = -1;
 
-    private int lastMouseButton = -1;
-    private int lastMouseX = -1;
-    private int lastMouseY = -1;
-
     public InputState(Computer computer) {
         this.computer = computer;
+        this.input = new UserComputerInput(new EventComputerInput(computer), computer.getEnvironment().getTerminal());
     }
 
     public void onCharEvent(int codepoint) {
-        var terminalChar = StringUtil.unicodeToTerminal(codepoint);
-        if (StringUtil.isTypableChar(terminalChar)) ComputerEvents.charTyped(computer, (byte) terminalChar);
+        input.codepointTyped(codepoint);
     }
 
     public void onKeyEvent(long window, int key, int action, int modifiers) {
@@ -66,10 +61,7 @@ public class InputState {
 
         if (key == GLFW.GLFW_KEY_V && modifiers == GLFW.GLFW_MOD_CONTROL) {
             var string = GLFW.glfwGetClipboardString(window);
-            if (string != null) {
-                var clipboard = StringUtil.getClipboardString(string);
-                if (clipboard.remaining() > 0) ComputerEvents.paste(computer, clipboard);
-            }
+            if (string != null) input.paste(string);
             return;
         }
 
@@ -88,19 +80,12 @@ public class InputState {
         }
 
         if (key >= 0 && terminateTimer < KEY_SUPPRESS_DELAY && rebootTimer < KEY_SUPPRESS_DELAY && shutdownTimer < KEY_SUPPRESS_DELAY) {
-            // Queue the "key" event and add to the down set
-            var repeat = keysDown.get(key);
-            keysDown.set(key);
-            ComputerEvents.keyDown(computer, key, repeat);
+            input.keyDown(key);
         }
     }
 
     private void keyReleased(int key) {
-        // Queue the "key_up" event and remove from the down set
-        if (key >= 0 && keysDown.get(key)) {
-            keysDown.set(key, false);
-            ComputerEvents.keyUp(computer, key);
-        }
+        input.keyUp(key);
 
         switch (key) {
             case GLFW.GLFW_KEY_T -> terminateTimer = -1;
@@ -113,33 +98,17 @@ public class InputState {
 
     public void onMouseClick(int button, int action) {
         switch (action) {
-            case GLFW.GLFW_PRESS -> {
-                ComputerEvents.mouseClick(computer, button + 1, lastMouseX + 1, lastMouseY + 1);
-                lastMouseButton = button;
-            }
-            case GLFW.GLFW_RELEASE -> {
-                if (button == lastMouseButton) {
-                    ComputerEvents.mouseUp(computer, button + 1, lastMouseX + 1, lastMouseY + 1);
-                    lastMouseButton = -1;
-                }
-            }
+            case GLFW.GLFW_PRESS -> input.mouseClick(button + 1);
+            case GLFW.GLFW_RELEASE -> input.mouseUp(button + 1);
         }
     }
 
     public void onMouseMove(int mouseX, int mouseY) {
-        if (mouseX == lastMouseX && mouseY == lastMouseY) return;
-
-        lastMouseX = mouseX;
-        lastMouseY = mouseY;
-        if (lastMouseButton != -1) {
-            ComputerEvents.mouseDrag(computer, lastMouseButton + 1, mouseX + 1, mouseY + 1);
-        }
+        input.mouseMove(mouseX + 1, mouseY + 1);
     }
 
     public void onMouseScroll(double yOffset) {
-        if (yOffset != 0) {
-            ComputerEvents.mouseScroll(computer, yOffset < 0 ? 1 : -1, lastMouseX + 1, lastMouseY + 1);
-        }
+        if (yOffset != 0) input.mouseScroll(yOffset < 0 ? 1 : -1);
     }
 
     public void onFileDrop(int count, long names) {

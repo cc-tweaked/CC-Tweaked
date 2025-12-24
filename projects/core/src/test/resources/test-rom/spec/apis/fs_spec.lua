@@ -156,6 +156,11 @@ describe("The fs library", function()
             expect(fs.combine("a", "../../c")):eq("../c")
         end)
 
+        it("handles weird Windows paths", function()
+            expect(fs.combine("a", "...")):eq("a")
+            expect(fs.combine("a", ". .")):eq("a")
+        end)
+
         it("combines empty paths", function()
             expect(fs.combine("a")):eq("a")
             expect(fs.combine("a", "")):eq("a")

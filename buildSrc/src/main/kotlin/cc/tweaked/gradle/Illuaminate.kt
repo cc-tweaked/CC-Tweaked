@@ -77,13 +77,8 @@ class IlluaminatePlugin : Plugin<Project> {
             else -> error("Unsupported architecture '$osArch' for illuaminate")
         }
 
-        return project.dependencies.create(
-            mapOf(
-                "group" to "cc.squiddev",
-                "name" to "illuaminate",
-                "version" to version,
-                "ext" to "$os-$arch$suffix",
-            ),
+        return project.dependencyFactory.create(
+            "cc.squiddev", "illuaminate", version, null, "$os-$arch$suffix",
         )
     }
 }

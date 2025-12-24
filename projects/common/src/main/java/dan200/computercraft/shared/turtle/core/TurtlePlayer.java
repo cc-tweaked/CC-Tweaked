@@ -146,6 +146,7 @@ public final class TurtlePlayer {
 
         // Load up the fake inventory
         inventory.setSelectedSlot(0);
+        inventory.clearContent();
         for (var i = 0; i < slots; i++) {
             inventory.setItem(i, turtleInventory.getItem((currentSlot + i) % slots));
         }
@@ -171,7 +172,8 @@ public final class TurtlePlayer {
             TurtleUtil.storeItemOrDrop(turtle, inventory.getItem(i));
         }
 
-        inventory.setChanged();
+        inventory.clearContent();
+        turtleInventory.setChanged();
     }
 
     public boolean isBlockProtected(ServerLevel level, BlockPos pos) {

@@ -113,7 +113,7 @@ public class CableBlockEntity extends BlockEntity {
 
     void queueRefreshPeripheral() {
         refreshPeripheral = true;
-        TickScheduler.schedule(tickToken);
+        getLevel().scheduleTick(getBlockPos(), getBlockState().getBlock(), 0);
     }
 
     InteractionResult use(Player player) {
@@ -181,7 +181,7 @@ public class CableBlockEntity extends BlockEntity {
 
     void scheduleConnectionsChanged() {
         refreshConnections = true;
-        TickScheduler.schedule(tickToken);
+        getLevel().scheduleTick(getBlockPos(), getBlockState().getBlock(), 0);
     }
 
     void connectionsChanged() {

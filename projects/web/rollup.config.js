@@ -88,9 +88,9 @@ const ccTweaked = minify => {
             }
         },
 
+        /** @type {import("rollup").ResolveIdHook} */
         async resolveId(source) {
-            if (source === "cct/classes") return path.resolve("build/teaVM/classes.js");
-            if (source === "cct/resources") return path.resolve("build/teaVM/resources.js");
+            if (source.startsWith("cct/")) return path.resolve("build/teaVM/" + source.substring(4));
             return null;
         },
 
@@ -124,7 +124,7 @@ export default args => ({
         resolve({ browser: true }),
 
         url({
-            include: ["**/*.dfpwm", "**/*.worker.js", "**/*.png"],
+            include: ["**/*.dfpwm", "**/*.worker.js", "**/*.png", "**/*.wasm"],
             fileName: "[name]-[hash][extname]",
             publicPath: "/",
             limit: 0,

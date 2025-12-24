@@ -4,16 +4,23 @@
 
 package dan200.computercraft.shared.lectern;
 
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.container.BasicContainer;
 import dan200.computercraft.shared.container.SingleContainerData;
 import dan200.computercraft.shared.media.PrintoutMenu;
 import dan200.computercraft.shared.media.items.PrintoutData;
 import dan200.computercraft.shared.media.items.PrintoutItem;
+import dan200.computercraft.shared.network.container.ComputerContainerData;
+import dan200.computercraft.shared.platform.ComponentAccess;
+import dan200.computercraft.shared.platform.PlatformHelper;
+import dan200.computercraft.shared.pocket.core.PocketBrain;
 import dan200.computercraft.shared.pocket.core.PocketHolder;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -33,6 +40,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,8 +63,19 @@ public final class CustomLecternBlockEntity extends BlockEntity {
     private ItemStack item = ItemStack.EMPTY;
     private int page, pageCount;
 
+    private final PocketHolder.LecternHolder pocketHolder = new PocketHolder.LecternHolder(this);
+    private @Nullable PocketBrain activePocketBrain;
+    private final ComponentAccess<IPeripheral> peripherals = PlatformHelper.get().createPeripheralAccess(this, d -> markRefreshPeripheral());
+    private boolean refreshPeripheral;
+
     public CustomLecternBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModRegistry.BlockEntities.LECTERN.get(), pos, blockState);
+    }
+
+    @Override
+    public void clearRemoved() {
+        refreshPeripheral = true;
+        super.clearRemoved();
     }
 
     public ItemStack getItem() {
@@ -88,11 +107,27 @@ public final class CustomLecternBlockEntity extends BlockEntity {
         } else {
             pageCount = page = 0;
         }
+
+        activePocketBrain = null;
+    }
+
+    void markRefreshPeripheral() {
+        refreshPeripheral = true;
     }
 
     void tick() {
         if (item.getItem() instanceof PocketComputerItem pocket) {
-            pocket.tick(item, new PocketHolder.LecternHolder(this), false);
+            // Get our pocket computer, and tick it.
+            var brain = pocket.getOrCreateBrain(pocketHolder, item);
+            brain.computer().keepAlive();
+            pocket.tick(item, pocketHolder, brain);
+
+            // Update the peripheral if the peripheral or brain has changed.
+            if (refreshPeripheral || brain != activePocketBrain) {
+                refreshPeripheral = false;
+                activePocketBrain = brain;
+                brain.computer().setPeripheral(ComputerSide.BOTTOM, peripherals.get(Direction.DOWN));
+            }
         }
     }
 
@@ -154,7 +189,13 @@ public final class CustomLecternBlockEntity extends BlockEntity {
                 new PrintoutContainerData()
             ), getItem().getDisplayName()));
         } else if (item.getItem() instanceof PocketComputerItem pocket) {
-            pocket.open(player, item, new PocketHolder.LecternHolder(this), true);
+            var computer = pocket.getOrCreateBrain(pocketHolder, item).computer();
+            computer.turnOn();
+            PlatformHelper.get().openMenu(
+                player, item.getHoverName(),
+                (id, inv, entity) -> new PocketComputerLecternMenu(id, inv, pocketHolder, computer),
+                new PocketComputerLecternMenu.Data(new ComputerContainerData(computer, item), getBlockPos())
+            );
         }
     }
 

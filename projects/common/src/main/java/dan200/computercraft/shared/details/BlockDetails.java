@@ -27,6 +27,7 @@ public class BlockDetails {
 
     public static void fill(Map<? super String, Object> data, BlockReference block) {
         data.put("tags", DetailHelpers.getTags(block.state().getTags()));
+        DetailHelpers.fillMapColour(data, block.level(), block.pos(), block.state());
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

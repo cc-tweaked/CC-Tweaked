@@ -8,11 +8,12 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dan200.computercraft.client.gui.ClientComputerActions;
+import dan200.computercraft.client.gui.ClientComputerInput;
 import dan200.computercraft.client.gui.KeyConverter;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
+import dan200.computercraft.core.input.UserComputerInput;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.util.StringUtil;
-import dan200.computercraft.shared.computer.core.InputHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -32,8 +33,6 @@ import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.BitSet;
-
 import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
@@ -42,7 +41,7 @@ import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FON
  * A widget which renders a computer terminal and handles input events (keyboard, mouse, clipboard) and computer
  * shortcuts (terminate/shutdown/reboot).
  *
- * @see dan200.computercraft.client.gui.ClientInputHandler The input handler typically used with this class.
+ * @see ClientComputerInput The input handler typically used with this class.
  */
 public class TerminalWidget extends AbstractWidget {
     private static final Component DESCRIPTION = Component.translatable("gui.computercraft.terminal");
@@ -51,7 +50,8 @@ public class TerminalWidget extends AbstractWidget {
     private static final float KEY_SUPPRESS_DELAY = 0.2f;
 
     private final Terminal terminal;
-    private final InputHandler computer;
+    private final UserComputerInput computerInput;
+    private final ClientComputerActions computerActions;
 
     // The positions of the actual terminal
     private final int innerX;
@@ -63,17 +63,12 @@ public class TerminalWidget extends AbstractWidget {
     private float rebootTimer = -1;
     private float shutdownTimer = -1;
 
-    private int lastMouseButton = -1;
-    private int lastMouseX = -1;
-    private int lastMouseY = -1;
-
-    private final BitSet keysDown = new BitSet(256);
-
-    public TerminalWidget(Terminal terminal, InputHandler computer, int x, int y) {
+    public TerminalWidget(Terminal terminal, UserComputerInput computerInput, ClientComputerActions computerActions, int x, int y) {
         super(x, y, terminal.getWidth() * FONT_WIDTH + MARGIN * 2, terminal.getHeight() * FONT_HEIGHT + MARGIN * 2, DESCRIPTION);
 
         this.terminal = terminal;
-        this.computer = computer;
+        this.computerInput = computerInput;
+        this.computerActions = computerActions;
 
         innerX = x + MARGIN;
         innerY = y + MARGIN;
@@ -83,8 +78,7 @@ public class TerminalWidget extends AbstractWidget {
 
     @Override
     public boolean charTyped(CharacterEvent event) {
-        var terminalChar = StringUtil.unicodeToTerminal(event.codepoint());
-        if (StringUtil.isTypableChar(terminalChar)) computer.charTyped((byte) terminalChar);
+        computerInput.codepointTyped(event.codepoint());
         return true;
     }
 
@@ -111,27 +105,19 @@ public class TerminalWidget extends AbstractWidget {
         }
 
         if (event.key() >= 0 && terminateTimer < KEY_SUPPRESS_DELAY && rebootTimer < KEY_SUPPRESS_DELAY && shutdownTimer < KEY_SUPPRESS_DELAY) {
-            // Queue the "key" event and add to the down set
-            var repeat = keysDown.get(event.key());
-            keysDown.set(event.key());
-            computer.keyDown(event.key(), repeat);
+            computerInput.keyDown(event.key());
         }
 
         return true;
     }
 
     private void paste() {
-        var clipboard = StringUtil.getClipboardString(Minecraft.getInstance().keyboardHandler.getClipboard());
-        if (clipboard.remaining() > 0) computer.paste(clipboard);
+        computerInput.paste(Minecraft.getInstance().keyboardHandler.getClipboard());
     }
 
     @Override
     public boolean keyReleased(KeyEvent event) {
-        // Queue the "key_up" event and remove from the down set
-        if (event.key() >= 0 && keysDown.get(event.key())) {
-            keysDown.set(event.key(), false);
-            computer.keyUp(event.key());
-        }
+        computerInput.keyUp(event.key());
 
         switch (KeyConverter.physicalToActual(event.key(), event.scancode())) {
             case GLFW.GLFW_KEY_T -> terminateTimer = -1;
@@ -147,18 +133,10 @@ public class TerminalWidget extends AbstractWidget {
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         if (!inTermRegion(event.x(), event.y())) return false;
-        if (!hasMouseSupport() || event.button() < 0 || event.button() > 2) return false;
 
         var charX = (int) ((event.x() - innerX) / FONT_WIDTH);
         var charY = (int) ((event.y() - innerY) / FONT_HEIGHT);
-        charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
-        charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
-
-        computer.mouseClick(event.button() + 1, charX + 1, charY + 1);
-
-        lastMouseButton = event.button();
-        lastMouseX = charX;
-        lastMouseY = charY;
+        computerInput.mouseClick(event.button() + 1, charX + 1, charY + 1);
 
         return true;
     }
@@ -166,20 +144,10 @@ public class TerminalWidget extends AbstractWidget {
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
         if (!inTermRegion(event.x(), event.y())) return false;
-        if (!hasMouseSupport() || event.button() < 0 || event.button() > 2) return false;
 
         var charX = (int) ((event.x() - innerX) / FONT_WIDTH);
         var charY = (int) ((event.y() - innerY) / FONT_HEIGHT);
-        charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
-        charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
-
-        if (lastMouseButton == event.button()) {
-            computer.mouseUp(lastMouseButton + 1, charX + 1, charY + 1);
-            lastMouseButton = -1;
-        }
-
-        lastMouseX = charX;
-        lastMouseY = charY;
+        computerInput.mouseUp(event.button() + 1, charX + 1, charY + 1);
 
         return true;
     }
@@ -187,36 +155,21 @@ public class TerminalWidget extends AbstractWidget {
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double v2, double v3) {
         if (!inTermRegion(event.x(), event.y())) return false;
-        if (!hasMouseSupport() || event.button() < 0 || event.button() > 2) return false;
 
         var charX = (int) ((event.x() - innerX) / FONT_WIDTH);
         var charY = (int) ((event.y() - innerY) / FONT_HEIGHT);
-        charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
-        charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
-
-        if (event.button() == lastMouseButton && (charX != lastMouseX || charY != lastMouseY)) {
-            computer.mouseDrag(event.button() + 1, charX + 1, charY + 1);
-            lastMouseX = charX;
-            lastMouseY = charY;
-        }
-
+        computerInput.mouseDrag(event.button() + 1, charX + 1, charY + 1);
         return true;
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
         if (!inTermRegion(mouseX, mouseY)) return false;
-        if (!hasMouseSupport() || deltaY == 0) return false;
+        if (deltaY == 0) return false;
 
         var charX = (int) ((mouseX - innerX) / FONT_WIDTH);
         var charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
-        charX = Math.min(Math.max(charX, 0), terminal.getWidth() - 1);
-        charY = Math.min(Math.max(charY, 0), terminal.getHeight() - 1);
-
-        computer.mouseScroll(deltaY < 0 ? 1 : -1, charX + 1, charY + 1);
-
-        lastMouseX = charX;
-        lastMouseY = charY;
+        computerInput.mouseScroll(deltaY < 0 ? 1 : -1, charX + 1, charY + 1);
 
         return true;
     }
@@ -225,21 +178,17 @@ public class TerminalWidget extends AbstractWidget {
         return active && visible && mouseX >= innerX && mouseY >= innerY && mouseX < innerX + innerWidth && mouseY < innerY + innerHeight;
     }
 
-    private boolean hasMouseSupport() {
-        return terminal.isColour();
-    }
-
     public void update() {
         if (terminateTimer >= 0 && terminateTimer < TERMINATE_TIME && (terminateTimer += 0.05f) > TERMINATE_TIME) {
-            computer.terminate();
+            computerActions.terminate();
         }
 
         if (shutdownTimer >= 0 && shutdownTimer < TERMINATE_TIME && (shutdownTimer += 0.05f) > TERMINATE_TIME) {
-            computer.shutdown();
+            computerActions.shutdown();
         }
 
         if (rebootTimer >= 0 && rebootTimer < TERMINATE_TIME && (rebootTimer += 0.05f) > TERMINATE_TIME) {
-            computer.reboot();
+            computerActions.reboot();
         }
     }
 
@@ -248,18 +197,7 @@ public class TerminalWidget extends AbstractWidget {
         super.setFocused(focused);
 
         if (!focused) {
-            // When blurring, we should make all keys go up
-            for (var key = 0; key < keysDown.size(); key++) {
-                if (keysDown.get(key)) computer.keyUp(key);
-            }
-            keysDown.clear();
-
-            // When blurring, we should make the last mouse button go up
-            if (lastMouseButton >= 0) {
-                computer.mouseUp(lastMouseButton + 1, lastMouseX + 1, lastMouseY + 1);
-                lastMouseButton = -1;
-            }
-
+            computerInput.releaseInputs();
             shutdownTimer = terminateTimer = rebootTimer = -1;
         }
     }

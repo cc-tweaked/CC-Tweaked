@@ -5,9 +5,8 @@
 package dan200.computercraft.client.gui;
 
 import dan200.computercraft.client.network.ClientNetworking;
-import dan200.computercraft.shared.computer.core.InputHandler;
+import dan200.computercraft.core.input.ComputerInput;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
-import dan200.computercraft.shared.network.server.ComputerActionServerMessage;
 import dan200.computercraft.shared.network.server.KeyEventServerMessage;
 import dan200.computercraft.shared.network.server.MouseEventServerMessage;
 import dan200.computercraft.shared.network.server.PasteEventComputerMessage;
@@ -16,35 +15,15 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import java.nio.ByteBuffer;
 
 /**
- * An {@link InputHandler} for use on the client.
+ * An {@link ComputerInput} for use on the client.
  * <p>
- * This queues events on the remote player's open {@link ComputerMenu}.
+ * This queues events on the player's open {@link ComputerMenu}.
  */
-public final class ClientInputHandler implements InputHandler {
+public final class ClientComputerInput implements ComputerInput {
     private final AbstractContainerMenu menu;
 
-    public ClientInputHandler(AbstractContainerMenu menu) {
+    public ClientComputerInput(AbstractContainerMenu menu) {
         this.menu = menu;
-    }
-
-    @Override
-    public void terminate() {
-        ClientNetworking.sendToServer(new ComputerActionServerMessage(menu, ComputerActionServerMessage.Action.TERMINATE));
-    }
-
-    @Override
-    public void turnOn() {
-        ClientNetworking.sendToServer(new ComputerActionServerMessage(menu, ComputerActionServerMessage.Action.TURN_ON));
-    }
-
-    @Override
-    public void shutdown() {
-        ClientNetworking.sendToServer(new ComputerActionServerMessage(menu, ComputerActionServerMessage.Action.SHUTDOWN));
-    }
-
-    @Override
-    public void reboot() {
-        ClientNetworking.sendToServer(new ComputerActionServerMessage(menu, ComputerActionServerMessage.Action.REBOOT));
     }
 
     @Override

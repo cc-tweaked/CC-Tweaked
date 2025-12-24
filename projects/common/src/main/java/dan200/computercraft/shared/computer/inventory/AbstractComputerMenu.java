@@ -34,7 +34,7 @@ public abstract class AbstractComputerMenu extends AbstractContainerMenu impleme
     private final ContainerData data;
 
     private final @Nullable ServerComputer computer;
-    private final @Nullable ServerInputState<AbstractComputerMenu> input;
+    private final @Nullable ServerInputState input;
 
     private final @Nullable NetworkedTerminal terminal;
 
@@ -51,7 +51,7 @@ public abstract class AbstractComputerMenu extends AbstractContainerMenu impleme
         addDataSlots(data);
 
         this.computer = computer;
-        input = computer == null ? null : new ServerInputState<>(this);
+        input = computer == null ? null : new ServerInputState(this, computer);
         terminal = containerData == null ? null : containerData.terminal().create();
         displayStack = containerData == null ? ItemStack.EMPTY : containerData.displayStack();
         uploadMaxSize = containerData == null ? Config.uploadMaxSize : containerData.uploadMaxSize();

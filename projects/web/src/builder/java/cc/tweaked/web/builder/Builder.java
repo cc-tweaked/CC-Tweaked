@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -70,14 +71,24 @@ public class Builder {
         }
 
         // Then finally start the compiler!
+        run(output, remapper, TeaVMTargetType.JAVASCRIPT, TeaVMOptimizationLevel.ADVANCED, minify);
+        run(output, remapper, TeaVMTargetType.WEBASSEMBLY_GC, TeaVMOptimizationLevel.SIMPLE, minify);
+
+        try (var runtime = Builder.class.getClassLoader().getResourceAsStream("org/teavm/backend/wasm/wasm-gc-module-runtime.js")) {
+            if (runtime == null) throw new IllegalStateException("Cannot find WASM runtime");
+            Files.copy(runtime, output.resolve("wasm-gc-runtime.js"), StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    private static void run(Path output, ClassLoader classes, TeaVMTargetType target, TeaVMOptimizationLevel optimise, boolean minify) throws Exception {
         var tool = new TeaVMTool();
-        tool.setTargetType(TeaVMTargetType.JAVASCRIPT);
+        tool.setTargetType(target);
         tool.setJsModuleType(JSModuleType.ES2015);
         tool.setTargetDirectory(output.toFile());
-        tool.setClassLoader(remapper);
+        tool.setClassLoader(classes);
         tool.setMainClass("cc.tweaked.web.Main");
 
-        tool.setOptimizationLevel(TeaVMOptimizationLevel.ADVANCED);
+        tool.setOptimizationLevel(optimise);
         tool.setObfuscated(minify);
 
         tool.generate();

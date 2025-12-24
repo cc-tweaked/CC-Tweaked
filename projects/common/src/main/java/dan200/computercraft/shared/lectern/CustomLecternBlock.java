@@ -4,8 +4,10 @@
 
 package dan200.computercraft.shared.lectern;
 
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.PrintoutItem;
+import dan200.computercraft.shared.pocket.core.PocketHolder;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import net.minecraft.core.BlockPos;
@@ -21,12 +23,14 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
@@ -103,6 +107,14 @@ public class CustomLecternBlock extends LecternBlock {
     }
 
     @Override
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof CustomLecternBlockEntity lectern &&
+            lectern.getItem().getItem() instanceof PocketComputerItem) {
+            lectern.markRefreshPeripheral();
+        }
+    }
+
+    @Override
     public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         // If we've no lectern, remove it.
         if (level.getBlockEntity(pos) instanceof CustomLecternBlockEntity lectern && lectern.getItem().isEmpty()) {
@@ -122,6 +134,12 @@ public class CustomLecternBlock extends LecternBlock {
         var entity = new ItemEntity(level, pos.getX() + 0.5 + dx, pos.getY() + 1, pos.getZ() + 0.5 + dz, stack);
         entity.setDefaultPickUpDelay();
         level.addFreshEntity(entity);
+
+        // If we're a pocket computer, update the holder and clear the peripheral.
+        if (stack.getItem() instanceof PocketComputerItem pocket) {
+            var brain = pocket.getBrain(new PocketHolder.ItemEntityHolder(entity), stack);
+            if (brain != null) brain.computer().setPeripheral(ComputerSide.BOTTOM, null);
+        }
     }
 
     @Override
@@ -130,6 +148,7 @@ public class CustomLecternBlock extends LecternBlock {
     }
 
     @Override
+    @Deprecated
     protected int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos, Direction direction) {
         return level.getBlockEntity(pos) instanceof CustomLecternBlockEntity lectern ? lectern.getRedstoneSignal() : 0;
     }

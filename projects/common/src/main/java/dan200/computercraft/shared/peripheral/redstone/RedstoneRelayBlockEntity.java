@@ -22,6 +22,7 @@ public final class RedstoneRelayBlockEntity extends BlockEntity {
 
     private final RedstoneState redstoneState = new RedstoneState(() -> TickScheduler.schedule(tickToken));
     private final RedstoneRelayPeripheral peripheral = new RedstoneRelayPeripheral(redstoneState);
+    private boolean updateAll = false;
 
     public RedstoneRelayBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModRegistry.BlockEntities.REDSTONE_RELAY.get(), pos, blockState);
@@ -30,16 +31,17 @@ public final class RedstoneRelayBlockEntity extends BlockEntity {
     @Override
     public void clearRemoved() {
         super.clearRemoved();
+        updateAll = true;
         TickScheduler.schedule(tickToken);
     }
 
     void update() {
         var changes = redstoneState.updateOutput();
-        if (changes != 0) {
-            for (var direction : DirectionUtil.FACINGS) {
-                if ((changes & (1 << mapSide(direction).ordinal())) != 0) updateRedstoneTo(direction);
-            }
+        for (var direction : DirectionUtil.FACINGS) {
+            if (updateAll || (changes & (1 << mapSide(direction).ordinal())) != 0) updateRedstoneTo(direction);
         }
+
+        updateAll = false;
 
         if (redstoneState.pollInputChanged()) peripheral.queueRedstoneEvent();
     }
@@ -61,7 +63,7 @@ public final class RedstoneRelayBlockEntity extends BlockEntity {
 
         // If the input has changed, and we're not currently in update(), then schedule a new tick so we can queue a
         // redstone event.
-        if (changed && !ticking) TickScheduler.schedule(tickToken);
+        if (changed && !ticking) getLevel().scheduleTick(getBlockPos(), getBlockState().getBlock(), 0);
     }
 
     private ComputerSide mapSide(Direction globalSide) {

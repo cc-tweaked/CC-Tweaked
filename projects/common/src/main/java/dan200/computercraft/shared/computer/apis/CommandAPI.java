@@ -255,9 +255,8 @@ public class CommandAPI implements ILuaAPI {
     /**
      * Get some basic information about a block.
      * <p>
-     * The returned table contains the current name, metadata and block state (as
-     * with [`turtle.inspect`]). If there is a block entity for that block, its NBT
-     * will also be returned.
+     * The returned table contains the the same information as listed in [`block_details`]. If there is a block entity
+     * for that block, its NBT will also be returned.
      *
      * @param x         The x position of the block to query.
      * @param y         The y position of the block to query.

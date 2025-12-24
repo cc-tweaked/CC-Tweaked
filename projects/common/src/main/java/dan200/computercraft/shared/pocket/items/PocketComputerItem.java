@@ -51,23 +51,14 @@ public class PocketComputerItem extends Item {
     /**
      * Tick a pocket computer.
      *
-     * @param stack   The current pocket computer stack.
-     * @param holder  The entity holding the pocket item.
-     * @param passive If set, the pocket computer will not be created if it doesn't exist, and will not be kept alive.
+     * @param stack  The current pocket computer stack.
+     * @param holder The entity holding the pocket item.
+     * @param brain  The pocket brain.
      */
-    public void tick(ItemStack stack, PocketHolder holder, boolean passive) {
-        PocketBrain brain;
-        if (passive) {
-            var computer = getServerComputer(holder.level().getServer(), stack);
-            if (computer == null) return;
-            brain = computer.getBrain();
-        } else {
-            brain = getOrCreateBrain(holder.level(), holder, stack);
-            brain.computer().keepAlive();
-        }
-
+    public void tick(ItemStack stack, PocketHolder holder, PocketBrain brain) {
         brain.tick();
 
+        // Sync pocket state back to the item
         if (updateItem(stack, brain)) holder.setChanged();
     }
 
@@ -102,9 +93,17 @@ public class PocketComputerItem extends Item {
     public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, @Nullable EquipmentSlot slot) {
         if (entity instanceof ServerPlayer player) {
             var invSlot = InventoryUtil.findItemInInventory(player.getInventory(), stack);
-            if (invSlot != -1) tick(stack, new PocketHolder.PlayerHolder(player, invSlot), false);
+            if (invSlot < 0) return;
+
+            // If we're in the inventory, create a computer and keep it alive.
+            var holder = new PocketHolder.PlayerHolder(player, invSlot);
+            var brain = getOrCreateBrain(holder, stack);
+            brain.computer().keepAlive();
+            tick(stack, holder, brain);
         } else if (slot != null && entity instanceof LivingEntity living) {
-            tick(stack, new PocketHolder.LivingEntityHolder(living, slot), true);
+            var holder = new PocketHolder.LivingEntityHolder(living, slot);
+            var brain = getBrain(holder, stack);
+            if (brain != null) tick(stack, holder, brain);
         }
     }
 
@@ -115,7 +114,9 @@ public class PocketComputerItem extends Item {
 
         // If we're an item entity, tick an already existing computer (as to update the position), but do not keep the
         // computer alive.
-        tick(stack, new PocketHolder.ItemEntityHolder(entity), true);
+        var holder = new PocketHolder.ItemEntityHolder(entity);
+        var brain = getBrain(holder, stack);
+        if (brain != null) tick(stack, holder, brain);
 
         return false;
     }
@@ -125,32 +126,17 @@ public class PocketComputerItem extends Item {
         var stack = player.getItemInHand(hand);
         if (!world.isClientSide()) {
             var holder = new PocketHolder.PlayerHolder((ServerPlayer) player, InventoryUtil.getHandSlot(player, hand));
-            var brain = getOrCreateBrain((ServerLevel) world, holder, stack);
+            var brain = getOrCreateBrain(holder, stack);
             var computer = brain.computer();
             computer.turnOn();
 
             var stop = brain.onRightClick((ServerLevel) world);
-            if (!stop) openImpl(player, stack, holder, hand == InteractionHand.OFF_HAND, computer);
+            if (!stop) openMenu(player, stack, holder, hand == InteractionHand.OFF_HAND, computer);
         }
         return InteractionResult.SUCCESS;
     }
 
-    /**
-     * Open a container for this pocket computer.
-     *
-     * @param player       The player to show the menu for.
-     * @param stack        The pocket computer stack.
-     * @param holder       The holder of the pocket computer.
-     * @param isTypingOnly Open the off-hand pocket screen (only supporting typing, with no visible terminal).
-     */
-    public void open(Player player, ItemStack stack, PocketHolder holder, boolean isTypingOnly) {
-        var brain = getOrCreateBrain(holder.level(), holder, stack);
-        var computer = brain.computer();
-        computer.turnOn();
-        openImpl(player, stack, holder, isTypingOnly, computer);
-    }
-
-    private static void openImpl(Player player, ItemStack stack, PocketHolder holder, boolean isTypingOnly, ServerComputer computer) {
+    private static void openMenu(Player player, ItemStack stack, PocketHolder holder, boolean isTypingOnly, ServerComputer computer) {
         PlatformHelper.get().openMenu(player, stack.getHoverName(), (id, inventory, entity) -> new ComputerMenuWithoutInventory(
             isTypingOnly ? ModRegistry.Menus.POCKET_COMPUTER_NO_TERM.get() : ModRegistry.Menus.COMPUTER.get(), id, inventory,
             p -> holder.isValid(computer),
@@ -169,8 +155,16 @@ public class PocketComputerItem extends Item {
         return PocketUpgrades.instance().getOwner(getUpgradeWithData(stack, PocketSide.BACK), getUpgradeWithData(stack, PocketSide.BOTTOM));
     }
 
-    private PocketBrain getOrCreateBrain(ServerLevel level, PocketHolder holder, ItemStack stack) {
-        var registry = ServerContext.get(level.getServer()).registry();
+    /**
+     * Get (or create) the pocket brain and turn it on, ready for the player to interact with.
+     *
+     * @param stack  The pocket computer stack.
+     * @param holder The holder of the pocket computer.
+     * @return The pocket brain.
+     */
+    public PocketBrain getOrCreateBrain(PocketHolder holder, ItemStack stack) {
+        var server = holder.level().getServer();
+        var registry = ServerContext.get(server).registry();
         {
             var computer = getServerComputer(registry, stack);
             if (computer != null) {
@@ -180,14 +174,14 @@ public class PocketComputerItem extends Item {
             }
         }
 
-        var computerID = NonNegativeId.getOrCreate(level.getServer(), stack, ModRegistry.DataComponents.COMPUTER_ID.get(), NonNegativeId.Computer::new, IDAssigner.COMPUTER);
+        var computerID = NonNegativeId.getOrCreate(server, stack, ModRegistry.DataComponents.COMPUTER_ID.get(), NonNegativeId.Computer::new, IDAssigner.COMPUTER);
         var brain = new PocketBrain(holder, ServerComputer.properties(computerID, getFamily())
             .label(getLabel(stack))
             .storageCapacity(StorageCapacity.getOrDefault(stack.get(ModRegistry.DataComponents.STORAGE_CAPACITY.get()), -1))
             .terminalSize(stack.getOrDefault(
-                    ModRegistry.DataComponents.TERMINAL_SIZE.get(),
-                    new TerminalSize(ConfigSpec.pocketTermWidth.get(), ConfigSpec.pocketTermHeight.get())
-                ))
+                ModRegistry.DataComponents.TERMINAL_SIZE.get(),
+                new TerminalSize(ConfigSpec.pocketTermWidth.get(), ConfigSpec.pocketTermHeight.get())
+            ))
         );
         brain.setUpgrades(getUpgradeWithData(stack, PocketSide.BACK), getUpgradeWithData(stack, PocketSide.BOTTOM));
         var computer = brain.computer();
@@ -203,18 +197,25 @@ public class PocketComputerItem extends Item {
         return brain;
     }
 
+    public @Nullable PocketBrain getBrain(PocketHolder holder, ItemStack stack) {
+        var computer = getServerComputer(holder.level().getServer(), stack);
+        if (computer == null) return null;
+
+        var brain = computer.getBrain();
+        brain.updateHolder(holder);
+        return brain;
+    }
+
     public static boolean isServerComputer(ServerComputer computer, ItemStack stack) {
         return stack.getItem() instanceof PocketComputerItem
             && getServerComputer(computer.getLevel().getServer(), stack) == computer;
     }
 
-    @Nullable
-    public static PocketServerComputer getServerComputer(ServerComputerRegistry registry, ItemStack stack) {
+    private static @Nullable PocketServerComputer getServerComputer(ServerComputerRegistry registry, ItemStack stack) {
         return (PocketServerComputer) ServerComputerReference.get(stack, registry);
     }
 
-    @Nullable
-    public static PocketServerComputer getServerComputer(MinecraftServer server, ItemStack stack) {
+    private static @Nullable PocketServerComputer getServerComputer(MinecraftServer server, ItemStack stack) {
         return getServerComputer(ServerContext.get(server).registry(), stack);
     }
 

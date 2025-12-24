@@ -11,7 +11,6 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.metrics.MetricsObserver;
-import dan200.computercraft.shared.peripheral.generic.methods.AbstractInventoryMethods;
 import dan200.computercraft.shared.turtle.core.*;
 import org.jspecify.annotations.Nullable;
 
@@ -691,11 +690,11 @@ public class TurtleAPI implements ILuaAPI {
     /**
      * Get the upgrade currently equipped on the left of the turtle.
      * <p>
-     * This returns information about the currently equipped item, in the same form as
-     * {@link #getItemDetail(ILuaContext, Optional, Optional)}.
+     * This returns [information about the currently equipped item][`item_details`].
      *
      * @return Information about the currently equipped item, or {@code nil} if no upgrade is equipped.
      * @cc.since 1.116.0
+     * @cc.see item_details
      * @see #equipLeft()
      */
     @LuaFunction(mainThread = true)
@@ -707,11 +706,11 @@ public class TurtleAPI implements ILuaAPI {
     /**
      * Get the upgrade currently equipped on the right of the turtle.
      * <p>
-     * This returns information about the currently equipped item, in the same form as
-     * {@link #getItemDetail(ILuaContext, Optional, Optional)}.
+     * This returns [information about the currently equipped item][`item_details`].
      *
      * @return Information about the currently equipped item, or {@code nil} if no upgrade is equipped.
      * @cc.since 1.116.0
+     * @cc.see item_details
      * @see #equipRight()
      */
     @LuaFunction(mainThread = true)
@@ -721,13 +720,14 @@ public class TurtleAPI implements ILuaAPI {
     }
 
     /**
-     * Get information about the block in front of the turtle.
+     * Get [information about the block][`block_details`] in front of the turtle.
      *
      * @return The turtle command result.
      * @cc.treturn boolean Whether there is a block in front of the turtle.
      * @cc.treturn table|string Information about the block in front, or a message explaining that there is no block.
      * @cc.since 1.64
      * @cc.changed 1.76 Added block state to return value.
+     * @cc.see block_details
      * @cc.usage <pre>{@code
      * local has_block, data = turtle.inspect()
      * if has_block then
@@ -747,12 +747,13 @@ public class TurtleAPI implements ILuaAPI {
     }
 
     /**
-     * Get information about the block above the turtle.
+     * Get [information about the block][`block_details`] above the turtle.
      *
      * @return The turtle command result.
      * @cc.treturn boolean Whether there is a block above the turtle.
-     * @cc.treturn table|string Information about the above below, or a message explaining that there is no block.
+     * @cc.treturn table|string Information about the block above, or a message explaining that there is no block.
      * @cc.since 1.64
+     * @cc.see block_details
      */
     @LuaFunction
     public final MethodResult inspectUp() {
@@ -760,12 +761,13 @@ public class TurtleAPI implements ILuaAPI {
     }
 
     /**
-     * Get information about the block below the turtle.
+     * Get [information about the block][`block_details`] below the turtle.
      *
      * @return The turtle command result.
      * @cc.treturn boolean Whether there is a block below the turtle.
      * @cc.treturn table|string Information about the block below, or a message explaining that there is no block.
      * @cc.since 1.64
+     * @cc.see block_details
      */
     @LuaFunction
     public final MethodResult inspectDown() {
@@ -773,7 +775,7 @@ public class TurtleAPI implements ILuaAPI {
     }
 
     /**
-     * Get detailed information about the items in the given slot.
+     * Get [information about the items][`item_details`] in the given slot.
      *
      * @param context  The Lua context
      * @param slot     The slot to get information about. Defaults to the {@link #select selected slot}.
@@ -793,7 +795,7 @@ public class TurtleAPI implements ILuaAPI {
      * --  count = 13,
      * -- }
      * }</pre>
-     * @see AbstractInventoryMethods#getItemDetail Describes the information returned by a detailed query.
+     * @cc.see item_details
      */
     @LuaFunction
     public final MethodResult getItemDetail(ILuaContext context, Optional<Integer> slot, Optional<Boolean> detailed) throws LuaException {

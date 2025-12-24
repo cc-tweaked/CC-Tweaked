@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.teavm.jso.JSObject;
 import org.teavm.jso.core.JSString;
 import org.teavm.jso.typedarrays.ArrayBuffer;
+import org.teavm.jso.typedarrays.Int8Array;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -161,7 +162,7 @@ class EmulatedComputer implements ComputerEnvironment, ComputerHandle {
     public void transferFiles(FileContents[] files) {
         computer.queueEvent(TransferredFiles.EVENT, new Object[]{ new TransferredFiles(
             Arrays.stream(files)
-                .map(x -> new TransferredFile(x.getName(), new ArrayByteChannel(bytesOfBuffer(x.getContents()))))
+                .map(x -> new TransferredFile(x.getName(), new ArrayByteChannel(new Int8Array(x.getContents()).copyToJavaArray())))
                 .toList()
         ) });
     }
@@ -186,18 +187,13 @@ class EmulatedComputer implements ComputerEnvironment, ComputerHandle {
     @Override
     public void addFile(String path, JSObject contents) {
         byte[] bytes;
-        if (JavascriptConv.isArrayBuffer(contents)) {
-            bytes = bytesOfBuffer((ArrayBuffer) contents);
+        if (contents instanceof ArrayBuffer buffer) {
+            bytes = new Int8Array(buffer).copyToJavaArray();
         } else {
             var string = (JSString) contents;
             bytes = string.stringValue().getBytes(StandardCharsets.UTF_8);
         }
 
         mount.addFile(path, bytes);
-    }
-
-    private byte[] bytesOfBuffer(ArrayBuffer buffer) {
-        var oldBytes = JavascriptConv.asByteArray(buffer);
-        return Arrays.copyOf(oldBytes, oldBytes.length);
     }
 }

@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * <li>Passes main thread tasks to the {@link MainThreadScheduler.Executor}.</li>
  * </ul>
  */
-public class Computer implements ComputerEvents.Receiver {
+public class Computer {
     private static final int START_DELAY = 50;
 
     // Various properties of the computer
@@ -114,7 +114,6 @@ public class Computer implements ComputerEvents.Receiver {
         executor.queueStop(false, true);
     }
 
-    @Override
     public void queueEvent(String event, @Nullable Object @Nullable [] args) {
         executor.queueEvent(event, args);
     }

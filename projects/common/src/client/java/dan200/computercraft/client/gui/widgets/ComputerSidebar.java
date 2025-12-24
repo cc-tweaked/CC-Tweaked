@@ -4,9 +4,9 @@
 
 package dan200.computercraft.client.gui.widgets;
 
+import dan200.computercraft.client.gui.ClientComputerActions;
 import dan200.computercraft.client.gui.GuiSprites;
 import dan200.computercraft.client.gui.widgets.DynamicImageButton.HintedMessage;
-import dan200.computercraft.shared.computer.core.InputHandler;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
 
@@ -29,7 +29,7 @@ public final class ComputerSidebar {
     private ComputerSidebar() {
     }
 
-    public static void addButtons(BooleanSupplier isOn, InputHandler input, Consumer<AbstractWidget> add, int x, int y) {
+    public static void addButtons(BooleanSupplier isOn, ClientComputerActions actions, Consumer<AbstractWidget> add, int x, int y) {
         x += CORNERS_BORDER + 1;
         y += CORNERS_BORDER + ICON_MARGIN;
 
@@ -41,7 +41,7 @@ public final class ComputerSidebar {
         add.accept(new DynamicImageButton(
             x, y, ICON_WIDTH, ICON_HEIGHT,
             h -> isOn.getAsBoolean() ? GuiSprites.TURNED_ON.get(h) : GuiSprites.TURNED_OFF.get(h),
-            b -> toggleComputer(isOn, input),
+            b -> toggleComputer(isOn, actions),
             () -> isOn.getAsBoolean() ? turnOff : turnOn
         ));
 
@@ -50,7 +50,7 @@ public final class ComputerSidebar {
         add.accept(new DynamicImageButton(
             x, y, ICON_WIDTH, ICON_HEIGHT,
             GuiSprites.TERMINATE::get,
-            b -> input.terminate(),
+            b -> actions.terminate(),
             new HintedMessage(
                 Component.translatable("gui.computercraft.tooltip.terminate"),
                 Component.translatable("gui.computercraft.tooltip.terminate.key")
@@ -58,11 +58,11 @@ public final class ComputerSidebar {
         ));
     }
 
-    private static void toggleComputer(BooleanSupplier isOn, InputHandler input) {
+    private static void toggleComputer(BooleanSupplier isOn, ClientComputerActions actions) {
         if (isOn.getAsBoolean()) {
-            input.shutdown();
+            actions.shutdown();
         } else {
-            input.turnOn();
+            actions.turnOn();
         }
     }
 }

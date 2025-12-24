@@ -5,7 +5,7 @@
 package dan200.computercraft.client.gui;
 
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
-import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.input.UserComputerInput;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.ScrollWheelHandler;
@@ -29,7 +29,8 @@ import static dan200.computercraft.core.util.Nullability.assertNonNull;
  */
 public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen implements MenuAccess<T> {
     private final T menu;
-    private final Terminal terminalData;
+    protected final UserComputerInput computerInput;
+    protected final ClientComputerActions computerActions;
     private @Nullable TerminalWidget terminal;
 
     private final ScrollWheelHandler scrollHandler = new ScrollWheelHandler();
@@ -37,7 +38,8 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
     public NoTermComputerScreen(T menu, Inventory player, Component title) {
         super(title);
         this.menu = menu;
-        terminalData = menu.getTerminal();
+        computerInput = new UserComputerInput(new ClientComputerInput(menu), menu.getTerminal());
+        computerActions = new ClientComputerActions(menu);
     }
 
     @Override
@@ -55,7 +57,7 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
 
         super.init();
 
-        terminal = addWidget(new TerminalWidget(terminalData, new ClientInputHandler(menu), 0, 0));
+        terminal = addWidget(new TerminalWidget(menu.getTerminal(), computerInput, computerActions, 0, 0));
         terminal.visible = false;
         terminal.active = false;
         setFocused(terminal);
