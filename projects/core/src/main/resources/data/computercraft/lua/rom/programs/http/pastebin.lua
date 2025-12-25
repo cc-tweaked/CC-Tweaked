@@ -100,7 +100,7 @@ if sCommand == "put" then
         "api_option=paste&" ..
         "api_dev_key=" .. key .. "&" ..
         "api_paste_format=lua&" ..
-        "api_paste_private=1&"
+        "api_paste_private=1&" ..
         "api_paste_name=" .. textutils.urlEncode(sName) .. "&" ..
         "api_paste_code=" .. textutils.urlEncode(sText)
     )
