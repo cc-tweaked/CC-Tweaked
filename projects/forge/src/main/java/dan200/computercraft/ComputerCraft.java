@@ -20,7 +20,6 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.details.FluidData;
 import dan200.computercraft.shared.integration.CreateIntegration;
-import dan200.computercraft.shared.integration.MoreRedIntegration;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
@@ -76,8 +75,6 @@ public final class ComputerCraft {
         var container = ModLoadingContext.get().getActiveContainer();
         container.registerConfig(ModConfig.Type.SERVER, ((ForgeConfigFile) ConfigSpec.serverSpec).spec());
         container.registerConfig(ModConfig.Type.CLIENT, ((ForgeConfigFile) ConfigSpec.clientSpec).spec());
-
-        if (ModList.get().isLoaded(MoreRedIntegration.MOD_ID)) MoreRedIntegration.setup(eventBus);
     }
 
     private static void withEventBus(IEventBus eventBus, Runnable task) {

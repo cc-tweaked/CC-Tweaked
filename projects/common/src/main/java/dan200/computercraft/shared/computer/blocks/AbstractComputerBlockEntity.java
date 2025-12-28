@@ -301,27 +301,6 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
     }
 
     /**
-     * Called when a neighbour block entity changes.
-     * <p>
-     * This is only required for MoreRed, which does not fire block updates when bundled redstone changes, see
-     * <a href="https://github.com/cc-tweaked/CC-Tweaked/issues/2316">#2316</a>
-     *
-     * @param neighbour The position of the neighbour block.
-     */
-    public void neighborBlockEntityChanged(BlockPos neighbour) {
-        var computer = getServerComputer();
-        if (computer == null) return;
-
-        for (var dir : DirectionUtil.FACINGS) {
-            var offset = getBlockPos().relative(dir);
-            if (offset.equals(neighbour)) {
-                updateRedstoneInput(computer, dir, offset);
-                return;
-            }
-        }
-    }
-
-    /**
      * Called when a neighbour block's shape changes.
      * <p>
      * Unlike {@link #neighborChanged()}, we don't update redstone, only peripherals.

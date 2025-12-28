@@ -40,7 +40,6 @@ iris-fabric = "1.9.1+1.21.7-fabric"
 iris-forge = "1.9.1+1.21.7-neoforge"
 jei = "27.0.0.1"
 modmenu = "16.0.0-rc.1"
-moreRed = "6.0.0.3"
 rei = "18.0.800"
 sodium-fabric = "mc1.21.11-0.8.0-fabric"
 sodium-forge = "mc1.21.11-0.8.0-neoforge"
@@ -113,7 +112,6 @@ jei-forge = { module = "mezz.jei:jei-1.21.11-neoforge", version.ref = "jei" }
 mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
 mixinExtra = { module = "io.github.llamalad7:mixinextras-common", version.ref = "mixinExtra" }
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
-moreRed = { module = "net.commoble.morered:morered-1.21.1", version.ref = "moreRed" }
 rei-api = { module = "me.shedaniel:RoughlyEnoughItems-api", version.ref = "rei" }
 rei-builtin = { module = "me.shedaniel:RoughlyEnoughItems-default-plugin", version.ref = "rei" }
 rei-fabric = { module = "me.shedaniel:RoughlyEnoughItems-fabric", version.ref = "rei" }
@@ -177,7 +175,7 @@ kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 
 # Minecraft
 externalMods-common = ["iris-forge", "jei-api", "nightConfig-core", "nightConfig-toml"]
-externalMods-forge-compile = ["moreRed", "iris-forge", "jei-api"]
+externalMods-forge-compile = ["iris-forge", "jei-api"]
 externalMods-forge-runtime = ["jei-forge"]
 externalMods-fabric-compile = ["fabricPermissions", "iris-fabric", "jei-api", "rei-api", "rei-builtin"]
 externalMods-fabric-runtime = []

@@ -50,7 +50,6 @@ repositories {
             includeGroup("cc.tweaked")
             // Things we mirror
             includeGroup("com.simibubi.create")
-            includeGroup("net.commoble.morered")
             includeGroup("dev.architectury")
             includeGroup("maven.modrinth")
             includeGroup("me.shedaniel.cloth")
