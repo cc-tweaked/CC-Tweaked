@@ -25,12 +25,17 @@ import java.util.ServiceLoader;
 @ExtendWith(WithMinecraft.Setup.class)
 public @interface WithMinecraft {
     class Setup implements Extension, BeforeAllCallback {
+        private static boolean setup = false;
+
         @Override
         public void beforeAll(ExtensionContext context) {
             bootstrap();
         }
 
-        public static void bootstrap() {
+        public static synchronized void bootstrap() {
+            if (setup) return;
+            setup = true;
+
             ServiceLoader.load(SetupHook.class, SetupHook.class.getClassLoader()).forEach(SetupHook::run);
             SharedConstants.tryDetectVersion();
             Bootstrap.bootStrap();

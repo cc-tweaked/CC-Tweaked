@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.peripheral.generic.methods;
 
+import com.google.common.annotations.VisibleForTesting;
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -18,6 +19,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -38,10 +40,15 @@ import static dan200.computercraft.core.util.ArgumentHelpers.assertBetween;
  * {@link StorageWrapper} box.
  */
 public final class InventoryMethods extends AbstractInventoryMethods<InventoryMethods.StorageWrapper> {
-    private final MinecraftServer server;
+    private final HolderLookup.Provider registries;
 
-    public InventoryMethods(MinecraftServer server) {
-        this.server = server;
+    public InventoryMethods(MinecraftServer registries) {
+        this.registries = registries.registryAccess();
+    }
+
+    @VisibleForTesting
+    InventoryMethods(HolderLookup.Provider registries) {
+        this.registries = registries;
     }
 
     /**
@@ -95,7 +102,7 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
         for (var i = 0; i < size; i++) {
             var stack = toStack(slots.get(i));
             if (!stack.isEmpty()) {
-                result.put(i + 1, VanillaDetailRegistries.ITEM_STACK.getBasicDetails(server.registryAccess(), stack));
+                result.put(i + 1, VanillaDetailRegistries.ITEM_STACK.getBasicDetails(registries, stack));
             }
         }
 
@@ -109,7 +116,7 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
         assertBetween(slot, 1, inventory.storage().getSlotCount(), "Slot out of range (%s)");
 
         var stack = toStack(inventory.storage().getSlot(slot - 1));
-        return stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(server.registryAccess(), stack);
+        return stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(registries, stack);
     }
 
     @Override

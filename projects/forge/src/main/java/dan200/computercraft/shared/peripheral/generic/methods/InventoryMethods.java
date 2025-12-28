@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.peripheral.generic.methods;
 
+import com.google.common.annotations.VisibleForTesting;
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -13,6 +14,7 @@ import dan200.computercraft.shared.platform.ForgeContainerTransfer;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
@@ -35,10 +37,15 @@ import static dan200.computercraft.core.util.ArgumentHelpers.assertBetween;
  * Inventory methods for Forge's {@link ResourceHandler}.
  */
 public final class InventoryMethods extends AbstractInventoryMethods<InventoryMethods.StorageWrapper> {
-    private final MinecraftServer server;
+    private final HolderLookup.Provider registries;
 
-    public InventoryMethods(MinecraftServer server) {
-        this.server = server;
+    public InventoryMethods(MinecraftServer registries) {
+        this.registries = registries.registryAccess();
+    }
+
+    @VisibleForTesting
+    InventoryMethods(HolderLookup.Provider registries) {
+        this.registries = registries;
     }
 
     public record StorageWrapper(ResourceHandler<ItemResource> storage) {
@@ -59,7 +66,7 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
         for (var i = 0; i < size; i++) {
             var stack = storage.getResource(i).toStack(storage.getAmountAsInt(i));
             if (!stack.isEmpty()) {
-                result.put(i + 1, VanillaDetailRegistries.ITEM_STACK.getBasicDetails(server.registryAccess(), stack));
+                result.put(i + 1, VanillaDetailRegistries.ITEM_STACK.getBasicDetails(registries, stack));
             }
         }
 
@@ -74,7 +81,7 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
         assertBetween(slot, 1, storage.size(), "Slot out of range (%s)");
 
         var stack = storage.getResource(slot - 1).toStack(storage.getAmountAsInt(slot - 1));
-        return stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(server.registryAccess(), stack);
+        return stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(registries, stack);
     }
 
     @Override
