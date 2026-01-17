@@ -12,6 +12,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.platform.RegistryWrappers;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.FluidStack;
@@ -63,7 +64,7 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
 
         return fluid == null
             ? moveFluid(from, actualLimit, to)
-            : moveFluid(from, new FluidStack(fluid, actualLimit), to);
+            : moveFluid(from, fluid, actualLimit, to);
     }
 
     @Override
@@ -88,7 +89,7 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
 
         return fluid == null
             ? moveFluid(from, actualLimit, to)
-            : moveFluid(from, new FluidStack(fluid, actualLimit), to);
+            : moveFluid(from, fluid, actualLimit, to);
     }
 
     @Nullable
@@ -108,7 +109,7 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
     }
 
     /**
-     * Move fluid from one handler to another.
+     * Move any fluid from one handler to another.
      *
      * @param from  The handler to move from.
      * @param limit The maximum amount of fluid to move.
@@ -120,29 +121,26 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
     }
 
     /**
-     * Move fluid from one handler to another.
+     * Move a specific fluid from one handler to another.
      *
      * @param from  The handler to move from.
-     * @param fluid The fluid and limit to move.
+     * @param fluid The fluid to move.
+     * @param limit The maximum amount of fluid to move.
      * @param to    The handler to move to.
      * @return The amount of fluid moved.
      */
-    private static int moveFluid(IFluidHandler from, FluidStack fluid, IFluidHandler to) {
-        FluidStack actualFluid = null;
+    private static int moveFluid(IFluidHandler from, Fluid fluid, int limit, IFluidHandler to) {
+        // Rather than constructing the FluidStack directly, we try to find a matching fluid (but with possibly
+        // different NBT components) in the tank.
+        for (int i = 0, len = from.getTanks(); i < len; i++) {
+            var currentFluid = from.getFluidInTank(i);
+            if (currentFluid.getFluid() != fluid) continue;
 
-        for (int i = 0; i < from.getTanks(); i++) {
-            FluidStack fs = from.getFluidInTank(i);
-            if (FluidStack.isSameFluid(fs, fluid)) {
-                actualFluid = fs;
-                break;
-            }
+            var extracted = from.drain(currentFluid, IFluidHandler.FluidAction.SIMULATE);
+            if (!extracted.isEmpty()) return moveFluid(from, extracted, limit, to);
         }
 
-        if (actualFluid == null) {
-            return 0;
-        }
-
-        return moveFluid(from, from.drain(actualFluid, IFluidHandler.FluidAction.SIMULATE), fluid.getAmount(), to);
+        return 0;
     }
 
     /**
@@ -155,7 +153,7 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
      * @return The amount of fluid moved.
      */
     private static int moveFluid(IFluidHandler from, FluidStack extracted, int limit, IFluidHandler to) {
-        if (extracted.getAmount() <= 0) return 0;
+        if (extracted.isEmpty()) return 0;
 
         // Limit the amount to extract.
         extracted = extracted.copy();
