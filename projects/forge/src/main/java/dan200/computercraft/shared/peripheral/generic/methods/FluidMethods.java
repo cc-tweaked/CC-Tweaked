@@ -4,7 +4,6 @@
 
 package dan200.computercraft.shared.peripheral.generic.methods;
 
-import com.simibubi.create.foundation.fluid.CombinedTankWrapper;
 import dan200.computercraft.api.detail.ForgeDetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -129,25 +128,21 @@ public final class FluidMethods extends AbstractFluidMethods<IFluidHandler> {
      * @return The amount of fluid moved.
      */
     private static int moveFluid(IFluidHandler from, FluidStack fluid, IFluidHandler to) {
-        if (from instanceof CombinedTankWrapper ctw) {
-            FluidStack actualFluid = null;
+        FluidStack actualFluid = null;
 
-            for (int i = 0; i < ctw.getTanks(); i++) {
-                FluidStack fs = ctw.getFluidInTank(i);
-                if (FluidStack.isSameFluid(fs, fluid)) {
-                    actualFluid = fs;
-                    break;
-                }
+        for (int i = 0; i < from.getTanks(); i++) {
+            FluidStack fs = from.getFluidInTank(i);
+            if (FluidStack.isSameFluid(fs, fluid)) {
+                actualFluid = fs;
+                break;
             }
-
-            if (actualFluid == null) {
-                return 0;
-            }
-
-            return moveFluid(from, from.drain(actualFluid, IFluidHandler.FluidAction.SIMULATE), fluid.getAmount(), to);
         }
 
-        return moveFluid(from, from.drain(fluid, IFluidHandler.FluidAction.SIMULATE), fluid.getAmount(), to);
+        if (actualFluid == null) {
+            return 0;
+        }
+
+        return moveFluid(from, from.drain(actualFluid, IFluidHandler.FluidAction.SIMULATE), fluid.getAmount(), to);
     }
 
     /**
