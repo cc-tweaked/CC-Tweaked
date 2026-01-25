@@ -24,7 +24,7 @@ import java.util.Optional;
  *     Alternatively, one may specify the desired arguments as normal parameters and the argument parsing code will
  *     be generated automatically.
  * <p>
- *     Each parameter must be one of the given types supported by {@link IArguments} (for instance, {@link int} or
+ *     Each parameter must be one of the given types supported by {@link IArguments} (for instance, {@code int} or
  *     {@link Map}). Optional values are supported by accepting a parameter of type {@link Optional}.
  *   </li>
  * </ul>
