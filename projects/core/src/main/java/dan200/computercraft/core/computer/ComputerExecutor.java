@@ -545,11 +545,6 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
             terminal.setCursorPos(0, terminal.getCursorY() + 1);
             terminal.write(extra);
         }
-
-        // And display our generic "CC may be installed incorrectly" message.
-        terminal.setCursorPos(0, terminal.getCursorY() + 1);
-        if (terminal.isColour()) terminal.setTextColour(15 - Colour.WHITE.ordinal());
-        terminal.write("ComputerCraft may be installed incorrectly");
     }
 
     private void resumeMachine(@Nullable String event, @Nullable Object @Nullable [] args) throws InterruptedException {
