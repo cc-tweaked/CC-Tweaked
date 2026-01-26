@@ -19,7 +19,12 @@ val mcVersion: String by extra
 
 legacyForge {
     val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
-    version = "$mcVersion-${libs.findVersion("forge").get()}"
+    enable {
+        forgeVersion = "$mcVersion-${libs.findVersion("forge").get()}"
+        // This causes parameters to not be renamed, which causes issues with ErrorProne.
+        // See https://github.com/google/error-prone/issues/5398.
+        isDisableRecompilation = false
+    }
 
     parchment {
         minecraftVersion = libs.findVersion("parchmentMc").get().toString()
