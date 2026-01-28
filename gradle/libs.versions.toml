@@ -23,7 +23,7 @@ netty = "4.1.82.Final"
 slf4j = "2.0.1"
 
 # Core dependencies (independent of Minecraft)
-asm = "9.9"
+asm = "9.9.1"
 autoService = "1.1.1"
 checkerFramework = "3.51.1"
 cobalt = { strictly = "0.9.7" }
@@ -57,7 +57,7 @@ junitPlatform = "6.0.1"
 jmh = "1.37"
 
 # Build tools
-cctJavadoc = "1.8.5"
+cctJavadoc = "1.9.0"
 checkstyle = "12.1.1"
 errorProne-core = "2.45.0"
 errorProne-plugin = "4.3.0"
