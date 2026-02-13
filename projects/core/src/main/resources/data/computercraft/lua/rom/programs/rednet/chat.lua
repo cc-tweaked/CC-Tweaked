@@ -7,8 +7,8 @@ local tArgs = { ... }
 local function printUsage()
     local programName = arg[0] or fs.getName(shell.getRunningProgram())
     print("Usages:")
-    print(programName .. " host <hostname>")
-    print(programName .. " join <hostname> <nickname>")
+    print(programName .. " host <hostname> [password]")
+    print(programName .. " join <hostname> <nickname> [password]")
 end
 
 local sOpenedModem = nil
@@ -46,8 +46,9 @@ end
 local sCommand = tArgs[1]
 if sCommand == "host" then
     -- "chat host"
-    -- Get hostname
+    -- Get hostname and optional password
     local sHostname = tArgs[2]
+    local sPassword = tArgs[3]  -- nil if not provided
     if sHostname == nil then
         printUsage()
         return
@@ -173,7 +174,19 @@ if sCommand == "host" then
                         -- Login from new client
                         local nUserID = tMessage.nUserID
                         local sUsername = tMessage.sUsername
-                        if nUserID and sUsername then
+                        local sClientPassword = tMessage.sPassword
+
+                        -- Check password if host requires one
+                        if sPassword ~= nil and sClientPassword ~= sPassword then
+                            -- Reject login
+                            rednet.send(nSenderID, {
+                                sType = "login_response",
+                                nUserID = nUserID,
+                                bSuccess = false,
+                                sReason = "Invalid password",
+                            }, "chat")
+                        elseif nUserID and sUsername then
+                            -- Accept login
                             tUsers[nUserID] = {
                                 nID = nSenderID,
                                 nUserID = nUserID,
@@ -183,6 +196,13 @@ if sCommand == "host" then
                             printUsers()
                             send("* " .. sUsername .. " has joined the chat")
                             ping(nUserID)
+
+                            -- Send acceptance
+                            rednet.send(nSenderID, {
+                                sType = "login_response",
+                                nUserID = nUserID,
+                                bSuccess = true,
+                            }, "chat")
                         end
 
                     else
@@ -245,9 +265,10 @@ if sCommand == "host" then
 
 elseif sCommand == "join" then
     -- "chat join"
-    -- Get hostname and username
+    -- Get hostname, username, and optional password
     local sHostname = tArgs[2]
     local sUsername = tArgs[3]
+    local sPassword = tArgs[4]  -- nil if not provided
     if sHostname == nil or sUsername == nil then
         printUsage()
         return
@@ -272,7 +293,28 @@ elseif sCommand == "join" then
         sType = "login",
         nUserID = nUserID,
         sUsername = sUsername,
+        sPassword = sPassword,  -- send password (may be nil)
     }, "chat")
+
+    -- Wait for login response
+    local timeout = os.startTimer(5)  -- wait up to 5 seconds for response
+    while true do
+        local senderID, tMessage = rednet.receive("chat", 0.1)
+        if senderID == nHostID and type(tMessage) == "table" and tMessage.nUserID == nUserID and tMessage.sType == "login_response" then
+            if tMessage.bSuccess then
+                break
+            else
+                print("Login failed: " .. (tMessage.sReason or "Unknown reason"))
+                closeModem()
+                return
+            end
+        end
+        if os.startTimer() - timeout >= 0 then
+            print("Login timeout: no response from host.")
+            closeModem()
+            return
+        end
+    end
 
     -- Setup ping pong
     local bPingPonged = true
