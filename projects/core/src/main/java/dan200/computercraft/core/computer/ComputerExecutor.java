@@ -161,6 +161,7 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
         addApi(new FSAPI(environment));
         addApi(new PeripheralAPI(environment, context.peripheralMethods()));
         addApi(new OSAPI(environment));
+        addApi(new CryptoAPI());
         if (CoreConfig.httpEnabled) addApi(new HTTPAPI(environment));
     }
 
