@@ -61,6 +61,11 @@ public abstract class SpeakerPeripheral implements IPeripheral {
      */
     public static final int SAMPLE_RATE = 48000;
 
+    /**
+     * The maximum length of a {@link ResourceLocation} played by {@link #playSound(ILuaContext, String, Optional, Optional)}.
+     */
+    private static final int MAX_SOUND_LENGTH = 512;
+
     private final UUID source = UUID.randomUUID();
     private final AttachedComputerSet computers = new AttachedComputerSet();
 
@@ -255,7 +260,8 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         var pitch = (float) checkFinite(2, pitchA.orElse(1.0));
 
         var identifier = Identifier.tryParse(name);
-        if (identifier == null) throw new LuaException("Malformed sound name '" + name + "' ");
+        if (identifier == null) throw new LuaException("bad argument #1 (malformed sound name)");
+        if (name.length() > MAX_SOUND_LENGTH) throw new LuaException("bad argument #1 (sound name is too long)");
 
         // Prevent playing music discs.
         var soundEvent = BuiltInRegistries.SOUND_EVENT.getValue(identifier);

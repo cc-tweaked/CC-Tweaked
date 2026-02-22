@@ -233,11 +233,11 @@ public class TurtlePlaceCommand implements TurtleCommand {
     }
 
     private static void setSignText(Level world, SignBlockEntity sign, String message) {
-        var lines = Splitter.on('\n').splitToList(message);
+        var lines = Splitter.on('\n').splitToStream(message).limit(4).toList();
         var firstLine = lines.size() <= 2 ? 1 : 0;
 
         var signText = new SignText();
-        for (int i = 0, len = Math.min(lines.size(), 4); i < len; i++) {
+        for (int i = 0, len = lines.size(); i < len; i++) {
             var line = lines.get(i);
             signText = signText.setMessage(i + firstLine, line.length() > 15
                 ? Component.literal(line.substring(0, 15))

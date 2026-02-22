@@ -165,8 +165,8 @@ public class TurtleAPI implements ILuaAPI {
      * Attempt to break the block in front of the turtle.
      * <p>
      * This requires a turtle tool capable of breaking the block. Diamond pickaxes
-     * (mining turtles) can break any vanilla block, but other tools (such as axes)
-     * are more limited.
+     * (mining turtles) can break any vanilla block breakable in survival mode,
+     * but other tools (such as axes) are more limited.
      *
      * @param side The specific tool to use. Should be "left" or "right".
      * @return The turtle command result.
