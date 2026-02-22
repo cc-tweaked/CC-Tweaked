@@ -1,3 +1,11 @@
+# New features in CC: Tweaked 1.117.1
+
+Several bug fixes:
+* Several documentation fixes (MarianoAlipi, Pokebrouserkat).
+* Fix `pushFluid`/`pullFluid` not working when fluids have NBT (UQuark).
+* Limit length of sound in `speaker.playSound`.
+* Remove confusing "ComputerCraft may be installed incorrectly" message.
+
 # New features in CC: Tweaked 1.117.0
 
 * Support mouse input for pocket computers on a lectern.

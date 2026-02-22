@@ -45,7 +45,7 @@ public class TurtleModemModeller implements TurtleUpgradeModeller<TurtleModem> {
         private static final ModemModels NORMAL = create("normal");
         private static final ModemModels ADVANCED = create("advanced");
 
-        public static ModemModels create(String type) {
+        private static ModemModels create(String type) {
             return new ModemModels(
                 ModelLocation.ofResource(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_off_left")),
                 ModelLocation.ofResource(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_modem_" + type + "_off_right")),
@@ -54,7 +54,7 @@ public class TurtleModemModeller implements TurtleUpgradeModeller<TurtleModem> {
             );
         }
 
-        public Stream<ResourceLocation> getDependencies() {
+        private Stream<ResourceLocation> getDependencies() {
             return Stream.of(leftOffModel, rightOffModel, leftOnModel, rightOnModel).flatMap(ModelLocation::getDependencies);
         }
     }

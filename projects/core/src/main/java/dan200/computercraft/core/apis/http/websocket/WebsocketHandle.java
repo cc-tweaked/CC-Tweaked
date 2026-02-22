@@ -129,7 +129,7 @@ public class WebsocketHandle {
      * -- }
      * ws.close()
      * }</pre>
-     * @since 1.107.0
+     * @since 1.117.0
      */
     @LuaFunction
     public final Map<String, String> getResponseHeaders() {
