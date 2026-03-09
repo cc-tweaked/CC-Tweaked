@@ -25,7 +25,7 @@ You will need:
  - Four Ender Modems. Normal Wireless Modems may be be used, but the range of the GPS constellation will be severely
    limited.
 
-Additionally, you will need another computer and a wireless modem, in order to test GPS works!
+Additionally, you will need another computer and a wireless modem, in order to test that GPS works!
 
 ## Picking an area
 First, choose a place to build your GPS constellation. This should be a 10x10x10 cube, though you can make this smaller
