@@ -39,7 +39,7 @@ describe("The shell", function()
 
             expect(args):same {
                 [0] = "/test-rom/data/dump-args",
-                "test-files/out.lua",
+                "/test-files/out.lua",
                 "arg1",
                 "arg2",
             }
@@ -56,9 +56,25 @@ describe("The shell", function()
                 [0] = "/test-rom/data/dump-args",
                 "iArg1 iArg1-2",
                 "iArg2",
-                "test-files/out.lua",
+                "/test-files/out.lua",
                 "arg1",
                 "arg2",
+            }
+        end)
+
+        it("handles path resolving of arguments correctly", function()
+            make_hashbang_file("/test-rom/data/dump-resolved-args")
+            shell.setDir("test-files")
+            shell.execute("out.lua", "/a/b/path1", "c/d/path2")
+
+            local args = _G.__arg
+            _G.__arg = nil
+
+            expect(args):same {
+                [0] = "/test-rom/data/dump-resolved-args",
+                "test-files/out.lua",
+                "a/b/path1",
+                "test-files/c/d/path2",
             }
         end)
 
@@ -73,8 +89,8 @@ describe("The shell", function()
 
             expect(args):same {
                 [0] = "/test-rom/data/dump-args",
-                "test-files/out.lua",
-                "test-files/out2.lua",
+                "/test-files/out.lua",
+                "/test-files/out2.lua",
                 "arg1",
                 "arg2",
             }
