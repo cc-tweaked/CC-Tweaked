@@ -62,16 +62,15 @@ describe("The shell", function()
             }
         end)
 
-        it("handles path resolving of arguments correctly", function()
-            make_hashbang_file("/test-rom/data/dump-resolved-args")
+        it("handles shell resolving of path arguments correctly", function()
+            make_hashbang_file("/test-rom/data/resolve-args")
             shell.setDir("test-files")
             shell.execute("out.lua", "/a/b/path1", "c/d/path2")
 
-            local args = _G.__arg
-            _G.__arg = nil
+            local resolved = _G.__resolved
+            _G.__resolved = nil
 
-            expect(args):same {
-                [0] = "/test-rom/data/dump-resolved-args",
+            expect(resolved):same {
                 "test-files/out.lua",
                 "a/b/path1",
                 "test-files/c/d/path2",
