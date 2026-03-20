@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DfpwmStreamTest {
     @Test
@@ -28,5 +28,95 @@ public class DfpwmStreamTest {
         }
 
         assertEquals(0, buffer.remaining(), "Must have read all bytes");
+    }
+
+    @Test
+    public void testNormalSequentialPush() {
+        var stream = new DfpwmStream();
+        stream.push(makeEncodedAudio(128, 0L));
+        stream.push(makeEncodedAudio(128, 1024L));
+        stream.push(makeEncodedAudio(128, 2048L));
+        assertFalse(stream.isEmpty());
+
+        var totalRead = 0;
+        ByteBuffer result;
+        while ((result = stream.read(1024)) != null) {
+            totalRead += result.remaining();
+        }
+        assertEquals(3072, totalRead);
+    }
+
+    @Test
+    public void testHardResetWhenClientBehind() {
+        var stream = new DfpwmStream();
+        stream.push(makeEncodedAudio(128, 0L));
+        // Don't read — simulating client stall
+        stream.push(makeEncodedAudio(128, 50000L));
+
+        var totalRead = 0;
+        ByteBuffer result;
+        while ((result = stream.read(1024)) != null) {
+            totalRead += result.remaining();
+        }
+        assertEquals(1024, totalRead);
+    }
+
+    @Test
+    public void testDropStalePacket() {
+        var stream = new DfpwmStream();
+        stream.push(makeEncodedAudio(128, 0L));
+        stream.read(1024);
+
+        stream.push(makeEncodedAudio(128, 50000L));
+        stream.read(1024);
+
+        // Stale packet — way behind current position
+        stream.push(makeEncodedAudio(128, 0L));
+        assertTrue(stream.isEmpty());
+    }
+
+    @Test
+    public void testSmallDriftSelfCorrects() {
+        var stream = new DfpwmStream();
+        stream.push(makeEncodedAudio(128, 0L));
+        stream.push(makeEncodedAudio(128, 1100L)); // slight drift
+
+        var totalRead = 0;
+        ByteBuffer result;
+        while ((result = stream.read(1024)) != null) {
+            totalRead += result.remaining();
+        }
+        assertEquals(2048, totalRead);
+    }
+
+    @Test
+    public void testReadStallTriggersReset() {
+        var stream = new DfpwmStream();
+        for (var i = 0; i < 30; i++) {
+            stream.push(makeEncodedAudio(128, (long) i * 1024));
+        }
+        // 30 packets * 1024 samples = 30720 buffered. Offset 60000 gives drift of 29280 > 24000 threshold.
+        stream.push(makeEncodedAudio(128, 60000L));
+
+        var totalRead = 0;
+        ByteBuffer result;
+        while ((result = stream.read(1024)) != null) {
+            totalRead += result.remaining();
+        }
+        assertEquals(1024, totalRead);
+    }
+
+    @Test
+    public void testStreamRestartWithHighOffset() {
+        var stream = new DfpwmStream();
+        stream.push(makeEncodedAudio(128, 960000L));
+        assertFalse(stream.isEmpty());
+        stream.push(makeEncodedAudio(128, 961024L));
+        assertFalse(stream.isEmpty());
+    }
+
+    private EncodedAudio makeEncodedAudio(int dfpwmBytes, long sampleOffset) {
+        var audio = ByteBuffer.allocate(dfpwmBytes);
+        return new EncodedAudio(0, 0, false, audio, sampleOffset);
     }
 }

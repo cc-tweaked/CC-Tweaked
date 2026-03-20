@@ -12,6 +12,8 @@ import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.client.sounds.SoundEngine;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.BufferUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
 import java.nio.ByteBuffer;
@@ -31,6 +33,9 @@ class DfpwmStream implements AudioStream {
     private static final int LPF_STRENGTH = 140;
 
     private static final AudioFormat MONO_8 = new AudioFormat(SpeakerPeripheral.SAMPLE_RATE, 8, 1, true, false);
+
+    private static final Logger LOG = LoggerFactory.getLogger(DfpwmStream.class);
+    private static final long DRIFT_THRESHOLD = (long) (0.5 * SpeakerPeripheral.SAMPLE_RATE); // 24000 samples = 500ms
 
     private final Queue<ByteBuffer> buffers = new ArrayDeque<>(2);
 
@@ -53,10 +58,15 @@ class DfpwmStream implements AudioStream {
 
     private int lowPassCharge;
 
+    private long consumedSamples = 0;
+    private long bufferedSamples = 0;
+    private long streamBaseOffset = 0;
+    private boolean initialized = false;
+
     DfpwmStream() {
     }
 
-    void push(EncodedAudio audio) {
+    private ByteBuffer decodeDfpwm(EncodedAudio audio) {
         var charge = audio.charge();
         var strength = audio.strength();
         var previousBit = audio.previousBit();
@@ -102,8 +112,45 @@ class DfpwmStream implements AudioStream {
         }
 
         output.flip();
+        return output;
+    }
+
+    void push(EncodedAudio audio) {
+        var decoded = decodeDfpwm(audio);
+        var sampleCount = decoded.remaining();
+
         synchronized (this) {
-            buffers.add(output);
+            if (!initialized) {
+                streamBaseOffset = audio.sampleOffset();
+                consumedSamples = 0;
+                bufferedSamples = 0;
+                initialized = true;
+                buffers.add(decoded);
+                bufferedSamples += sampleCount;
+                return;
+            }
+
+            var expectedServerOffset = streamBaseOffset + consumedSamples + bufferedSamples;
+            var drift = audio.sampleOffset() - expectedServerOffset;
+
+            if (drift > DRIFT_THRESHOLD) {
+                // Client is behind — hard reset
+                LOG.debug("Speaker audio hard reset: drift={} samples ({}s)", drift,
+                    String.format("%.2f", (double) drift / SpeakerPeripheral.SAMPLE_RATE));
+                buffers.clear();
+                streamBaseOffset = audio.sampleOffset();
+                consumedSamples = 0;
+                bufferedSamples = 0;
+                buffers.add(decoded);
+                bufferedSamples += sampleCount;
+            } else if (drift < -DRIFT_THRESHOLD) {
+                // Packet is stale — drop it
+                LOG.debug("Speaker audio dropping stale packet: drift={} samples", drift);
+            } else {
+                // Normal — enqueue
+                buffers.add(decoded);
+                bufferedSamples += sampleCount;
+            }
         }
     }
 
@@ -131,13 +178,23 @@ class DfpwmStream implements AudioStream {
 
         result.flip();
 
+        // Track consumed samples for drift detection (MONO_8: 1 byte = 1 sample)
+        var bytesRead = result.remaining();
+        consumedSamples += bytesRead;
+        bufferedSamples -= bytesRead;
+
         // This is naughty, but ensures we're not enqueuing empty buffers when the stream is exhausted.
-        return result.remaining() == 0 ? null : result;
+        return bytesRead == 0 ? null : result;
     }
 
     @Override
     public void close() {
-        buffers.clear();
+        synchronized (this) {
+            buffers.clear();
+            consumedSamples = 0;
+            bufferedSamples = 0;
+            initialized = false;
+        }
     }
 
     public boolean isEmpty() {
