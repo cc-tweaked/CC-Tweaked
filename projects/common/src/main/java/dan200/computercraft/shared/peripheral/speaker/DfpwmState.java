@@ -102,7 +102,7 @@ class DfpwmState {
 
     boolean isPlaying() {
         return unplayed || pendingAudio != null
-            || (PauseAwareTimer.getTime() - lastSendNanos < STREAM_TIMEOUT);
+            || PauseAwareTimer.getTime() - lastSendNanos < STREAM_TIMEOUT;
     }
 
     float getVolume() {
