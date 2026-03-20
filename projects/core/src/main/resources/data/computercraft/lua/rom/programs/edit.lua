@@ -32,6 +32,10 @@ local scrollX, scrollY = 0, 0
 
 local tLines, tLineLexStates = {}, {}
 local bRunning = true
+local bCtrlHeld = false  -- Track if Ctrl is currently held
+local nCtrlPressTime = 0  -- Track when Ctrl was pressed
+local bCtrlUsedForCombo = false  -- Track if Ctrl was used with other keys
+local bJustClosedMenu = false  -- Track if we just closed menu with Ctrl
 
 -- Colours
 local isColour = term.isColour()
@@ -549,7 +553,23 @@ end
 while bRunning do
     local event = table.pack(os.pullEvent())
     if event[1] == "key" then
-        if current_menu then
+        local key = event[2]
+        if (key == keys.leftCtrl or key == keys.rightCtrl) and not event[3] then
+            -- Handle Ctrl press before anything else (even when menu is open)
+            if current_menu then
+                -- Close menu immediately, block reopening
+                current_menu = nil
+                redrawMenu()
+                bCtrlHeld = true
+                bCtrlUsedForCombo = true
+                bJustClosedMenu = true
+            else
+                bCtrlHeld = true
+                nCtrlPressTime = os.epoch("utc")
+                bCtrlUsedForCombo = false
+                bJustClosedMenu = false
+            end
+        elseif current_menu then
             handleMenuEvent(event)
         else
             local key = event[2]
@@ -622,44 +642,135 @@ while bRunning do
                 setCursor(newX, newY)
 
             elseif key == keys.home then
-                -- Move cursor to the beginning
-                if x > 1 then
-                    setCursor(1, y)
+                -- Mark Ctrl as used for combo if held
+                if bCtrlHeld then
+                    bCtrlUsedForCombo = true
+                end
+                
+                if bCtrlHeld then
+                    -- Move to beginning of file
+                    setCursor(1, 1)
+                else
+                    -- Move cursor to the beginning of line
+                    if x > 1 then
+                        setCursor(1, y)
+                    end
                 end
 
             elseif key == keys["end"] then
-                -- Move cursor to the end
-                local nLimit = #tLines[y] + 1
-                if x < nLimit then
-                    setCursor(nLimit, y)
+                -- Mark Ctrl as used for combo if held
+                if bCtrlHeld then
+                    bCtrlUsedForCombo = true
+                end
+                
+                if bCtrlHeld then
+                    -- Move to end of file
+                    local lastLine = #tLines
+                    setCursor(#tLines[lastLine] + 1, lastLine)
+                else
+                    -- Move cursor to the end of line
+                    local nLimit = #tLines[y] + 1
+                    if x < nLimit then
+                        setCursor(nLimit, y)
+                    end
                 end
 
             elseif key == keys.left then
-                if x > 1 then
+                -- Mark Ctrl as used for combo if held
+                if bCtrlHeld then
+                    bCtrlUsedForCombo = true
+                end
+                
+                if bCtrlHeld then
+                    -- Move word left
+                    if x > 1 then
+                        local sLine = tLines[y]
+                        local nWordStart = x - 1
+                        -- Skip backwards over non-word characters
+                        while nWordStart > 1 and not string.sub(sLine, nWordStart - 1, nWordStart - 1):match("%w") do
+                            nWordStart = nWordStart - 1
+                        end
+                        -- Skip backwards over word characters
+                        while nWordStart > 1 and string.sub(sLine, nWordStart - 1, nWordStart - 1):match("%w") do
+                            nWordStart = nWordStart - 1
+                        end
+                        setCursor(nWordStart, y)
+                    elseif y > 1 then
+                        -- Jump to end of previous line
+                        setCursor(#tLines[y - 1] + 1, y - 1)
+                    end
+                else
                     -- Move cursor left
-                    setCursor(x - 1, y)
-                elseif x == 1 and y > 1 then
-                    setCursor(#tLines[y - 1] + 1, y - 1)
+                    if x > 1 then
+                        setCursor(x - 1, y)
+                    elseif x == 1 and y > 1 then
+                        setCursor(#tLines[y - 1] + 1, y - 1)
+                    end
                 end
 
             elseif key == keys.right then
-                local nLimit = #tLines[y] + 1
-                if x < nLimit then
-                    -- Move cursor right
-                    setCursor(x + 1, y)
-                elseif nCompletion and x == #tLines[y] + 1 then
-                    -- Accept autocomplete
-                    acceptCompletion()
-                elseif x == nLimit and y < #tLines then
-                    -- Go to next line
-                    setCursor(1, y + 1)
+                -- Mark Ctrl as used for combo if held
+                if bCtrlHeld then
+                    bCtrlUsedForCombo = true
+                end
+                
+                if bCtrlHeld then
+                    -- Move word right
+                    if x <= #tLines[y] then
+                        local sLine = tLines[y]
+                        local nWordEnd = x
+                        -- Skip forward over non-word characters
+                        while nWordEnd <= #sLine and not string.sub(sLine, nWordEnd, nWordEnd):match("%w") do
+                            nWordEnd = nWordEnd + 1
+                        end
+                        -- Skip forward over word characters
+                        while nWordEnd <= #sLine and string.sub(sLine, nWordEnd, nWordEnd):match("%w") do
+                            nWordEnd = nWordEnd + 1
+                        end
+                        setCursor(nWordEnd, y)
+                    elseif y < #tLines then
+                        -- Jump to start of next line
+                        setCursor(1, y + 1)
+                    end
+                else
+                    local nLimit = #tLines[y] + 1
+                    if x < nLimit then
+                        -- Move cursor right
+                        setCursor(x + 1, y)
+                    elseif nCompletion and x == #tLines[y] + 1 then
+                        -- Accept autocomplete
+                        acceptCompletion()
+                    elseif x == nLimit and y < #tLines then
+                        -- Go to next line
+                        setCursor(1, y + 1)
+                    end
                 end
 
             elseif key == keys.delete and not bReadOnly then
+                -- Mark Ctrl as used for combo if held
+                if bCtrlHeld then
+                    bCtrlUsedForCombo = true
+                end
+                
                 local nLimit = #tLines[y] + 1
                 if x < nLimit then
                     local sLine = tLines[y]
-                    tLines[y] = string.sub(sLine, 1, x - 1) .. string.sub(sLine, x + 1)
+                    if bCtrlHeld then
+                        -- Delete word to the right
+                        local nWordEnd = x
+                        -- Skip forward over non-word characters
+                        while nWordEnd <= #sLine and not string.sub(sLine, nWordEnd, nWordEnd):match("%w") do
+                            nWordEnd = nWordEnd + 1
+                        end
+                        -- Skip forward over word characters
+                        while nWordEnd <= #sLine and string.sub(sLine, nWordEnd, nWordEnd):match("%w") do
+                            nWordEnd = nWordEnd + 1
+                        end
+                        tLines[y] = string.sub(sLine, 1, x - 1) .. string.sub(sLine, nWordEnd)
+                    else
+                        -- Delete single character
+                        tLines[y] = string.sub(sLine, 1, x - 1) .. string.sub(sLine, x + 1)
+                    end
                     recomplete()
                     redrawLines(y)
                 elseif y < #tLines then
@@ -671,13 +782,32 @@ while bRunning do
                 end
 
             elseif key == keys.backspace and not bReadOnly then
+                -- Mark Ctrl as used for combo if held
+                if bCtrlHeld then
+                    bCtrlUsedForCombo = true
+                end
+                
                 if x > 1 then
-                    -- Remove character
                     local sLine = tLines[y]
-                    if x > 4 and string.sub(sLine, x - 4, x - 1) == "    " and not string.sub(sLine, 1, x - 1):find("%S") then
+                    if bCtrlHeld then
+                        -- Delete word
+                        local nWordStart = x - 1
+                        -- Skip backwards over non-word characters
+                        while nWordStart > 0 and not string.sub(sLine, nWordStart, nWordStart):match("%w") do
+                            nWordStart = nWordStart - 1
+                        end
+                        -- Skip backwards over word characters
+                        while nWordStart > 0 and string.sub(sLine, nWordStart, nWordStart):match("%w") do
+                            nWordStart = nWordStart - 1
+                        end
+                        tLines[y] = string.sub(sLine, 1, nWordStart) .. string.sub(sLine, x)
+                        setCursor(nWordStart + 1, y)
+                    elseif x > 4 and string.sub(sLine, x - 4, x - 1) == "    " and not string.sub(sLine, 1, x - 1):find("%S") then
+                        -- Remove indentation (existing behavior)
                         tLines[y] = string.sub(sLine, 1, x - 5) .. string.sub(sLine, x)
                         setCursor(x - 4, y)
                     else
+                        -- Remove single character  
                         tLines[y] = string.sub(sLine, 1, x - 2) .. string.sub(sLine, x)
                         setCursor(x - 1, y)
                     end
@@ -705,10 +835,31 @@ while bRunning do
                 redrawText()
 
             elseif key == keys.leftCtrl or key == keys.rightCtrl then
+                -- Already handled above before current_menu check - do nothing here
+
+            else
+                -- Any other key pressed while Ctrl is held counts as a combination
+                if bCtrlHeld then
+                    bCtrlUsedForCombo = true
+                end
+            end
+        end
+
+    elseif event[1] == "key_up" then
+        local key = event[2]
+        if key == keys.leftCtrl or key == keys.rightCtrl then
+            -- Track Ctrl key release
+            bCtrlHeld = false
+            -- Only open menu if: quick tap AND no combo used AND no menu open AND didn't just close menu
+            local holdTime = os.epoch("utc") - nCtrlPressTime
+            if holdTime < 1000 and not bCtrlUsedForCombo and not current_menu and not bJustClosedMenu then
                 current_menu = menu.create(menu_items)
                 redrawMenu()
             end
+            -- Reset the flag after processing
+            bJustClosedMenu = false
         end
+
     elseif event[1] == "char" then
         if current_menu then
             handleMenuEvent(event)

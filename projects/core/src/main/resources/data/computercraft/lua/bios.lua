@@ -166,6 +166,7 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
 
     local tCompletions
     local nCompletion
+    local bCtrlHeld = false  -- Track if Ctrl is currently held
     local function recomplete()
         if _fnComplete and nPos == #sLine then
             tCompletions = _fnComplete(sLine)
@@ -281,20 +282,52 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
                 break
 
             elseif param == keys.left then
-                -- Left
+                -- Left or Ctrl+Left
                 if nPos > 0 then
                     clear()
-                    nPos = nPos - 1
+                    if bCtrlHeld then
+                        -- Move word left
+                        local nWordStart = nPos
+                        -- Skip backwards over non-word characters
+                        while nWordStart > 1 and not string.sub(sLine, nWordStart - 1, nWordStart - 1):match("%w") do
+                            nWordStart = nWordStart - 1
+                        end
+                        -- Skip backwards over word characters
+                        while nWordStart > 1 and string.sub(sLine, nWordStart - 1, nWordStart - 1):match("%w") do
+                            nWordStart = nWordStart - 1
+                        end
+                        nPos = nWordStart - 1
+                        if nPos < 0 then nPos = 0 end
+                    else
+                        -- Move single character left
+                        nPos = nPos - 1
+                    end
                     recomplete()
                     redraw()
                 end
 
             elseif param == keys.right then
-                -- Right
+                -- Right or Ctrl+Right
                 if nPos < #sLine then
                     -- Move right
                     clear()
-                    nPos = nPos + 1
+                    if bCtrlHeld then
+                        -- Move word right
+                        local nWordEnd = nPos + 1
+                        -- Skip forward over non-word characters
+                        while nWordEnd <= #sLine and not string.sub(sLine, nWordEnd, nWordEnd):match("%w") do
+                            nWordEnd = nWordEnd + 1
+                        end
+                        -- Skip forward over word characters
+                        while nWordEnd <= #sLine and string.sub(sLine, nWordEnd, nWordEnd):match("%w") do
+                            nWordEnd = nWordEnd + 1
+                        end
+                        nPos = nWordEnd - 1
+                        if nPos > #sLine then nPos = #sLine end
+                    else
+                        -- Move single character right
+                        nPos = nPos + 1
+                    end
                     recomplete()
                     redraw()
                 else
@@ -353,12 +386,34 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
                 end
 
             elseif param == keys.backspace then
-                -- Backspace
+                -- Backspace or Ctrl+Backspace
                 if nPos > 0 then
                     clear()
-                    sLine = string.sub(sLine, 1, nPos - 1) .. string.sub(sLine, nPos + 1)
-                    nPos = nPos - 1
-                    if nScroll > 0 then nScroll = nScroll - 1 end
+                    if bCtrlHeld then
+                        -- Delete word
+                        local nWordStart = nPos
+                        -- Skip backwards over non-word characters
+                        while nWordStart > 1 and not string.sub(sLine, nWordStart - 1, nWordStart - 1):match("%w") do
+                            nWordStart = nWordStart - 1
+                        end
+                        -- Skip backwards over word characters
+                        while nWordStart > 1 and string.sub(sLine, nWordStart - 1, nWordStart - 1):match("%w") do
+                            nWordStart = nWordStart - 1
+                        end
+                        sLine = string.sub(sLine, 1, nWordStart - 1) .. string.sub(sLine, nPos + 1)
+                        local nDeleted = nPos - nWordStart + 1
+                        nPos = nWordStart - 1
+                        if nScroll >= nDeleted then
+                            nScroll = nScroll - nDeleted
+                        else
+                            nScroll = 0
+                        end
+                    else
+                        -- Delete single character
+                        sLine = string.sub(sLine, 1, nPos - 1) .. string.sub(sLine, nPos + 1)
+                        nPos = nPos - 1
+                        if nScroll > 0 then nScroll = nScroll - 1 end
+                    end
                     recomplete()
                     redraw()
                 end
@@ -373,10 +428,25 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
                 end
 
             elseif param == keys.delete then
-                -- Delete
+                -- Delete or Ctrl+Delete
                 if nPos < #sLine then
                     clear()
-                    sLine = string.sub(sLine, 1, nPos) .. string.sub(sLine, nPos + 2)
+                    if bCtrlHeld then
+                        -- Delete word to the right
+                        local nWordEnd = nPos + 1
+                        -- Skip forward over non-word characters
+                        while nWordEnd <= #sLine and not string.sub(sLine, nWordEnd, nWordEnd):match("%w") do
+                            nWordEnd = nWordEnd + 1
+                        end
+                        -- Skip forward over word characters
+                        while nWordEnd <= #sLine and string.sub(sLine, nWordEnd, nWordEnd):match("%w") do
+                            nWordEnd = nWordEnd + 1
+                        end
+                        sLine = string.sub(sLine, 1, nPos) .. string.sub(sLine, nWordEnd)
+                    else
+                        -- Delete single character
+                        sLine = string.sub(sLine, 1, nPos) .. string.sub(sLine, nPos + 2)
+                    end
                     recomplete()
                     redraw()
                 end
@@ -394,6 +464,16 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
                 -- Tab (accept autocomplete)
                 acceptCompletion()
 
+            elseif param == keys.leftCtrl or param == keys.rightCtrl then
+                -- Track Ctrl key press
+                bCtrlHeld = true
+
+            end
+
+        elseif sEvent == "key_up" then
+            if param == keys.leftCtrl or param == keys.rightCtrl then
+                -- Track Ctrl key release
+                bCtrlHeld = false
             end
 
         elseif sEvent == "mouse_click" or sEvent == "mouse_drag" and param == 1 then
