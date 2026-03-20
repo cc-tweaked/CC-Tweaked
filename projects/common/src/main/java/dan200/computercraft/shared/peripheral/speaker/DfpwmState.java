@@ -84,7 +84,7 @@ class DfpwmState {
 
         buffer.flip();
 
-        pendingAudio = new EncodedAudio(initialCharge, initialStrength, initialPreviousBit, buffer);
+        pendingAudio = new EncodedAudio(initialCharge, initialStrength, initialPreviousBit, buffer, 0L);
         pendingVolume = (float) clampVolume(volume.orElse((double) pendingVolume));
         return true;
     }

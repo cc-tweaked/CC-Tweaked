@@ -8,6 +8,9 @@ import dan200.computercraft.test.core.ArbitraryByteBuffer;
 import io.netty.buffer.Unpooled;
 import net.jqwik.api.*;
 import net.minecraft.network.FriendlyByteBuf;
+import org.junit.jupiter.api.Test;
+
+import java.nio.ByteBuffer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -30,13 +33,24 @@ class EncodedAudioTest {
         assertThat("Messages are equal", converted, equalTo(converted));
     }
 
+    @Test
+    public void testSampleOffsetRoundTrip() {
+        var audio = new EncodedAudio(10, 20, true, ByteBuffer.wrap(new byte[]{1, 2, 3, 4}), 48000L);
+        var buf = new FriendlyByteBuf(Unpooled.buffer());
+        audio.write(buf);
+        var decoded = EncodedAudio.read(buf);
+        assertEquals(48000L, decoded.sampleOffset());
+        assertEquals(10, decoded.charge());
+    }
+
     @Provide
     Arbitrary<EncodedAudio> audio() {
         return Combinators.combine(
             Arbitraries.integers(),
             Arbitraries.integers(),
             Arbitraries.of(true, false),
-            ArbitraryByteBuffer.bytes().ofMaxSize(1000)
+            ArbitraryByteBuffer.bytes().ofMaxSize(1000),
+            Arbitraries.longs().between(0, 1_000_000_000L)
         ).as(EncodedAudio::new);
     }
 }
