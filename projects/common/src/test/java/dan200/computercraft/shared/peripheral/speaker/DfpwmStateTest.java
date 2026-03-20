@@ -6,13 +6,14 @@ package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.ObjectLuaTable;
+import dan200.computercraft.shared.util.PauseAwareTimer;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DfpwmStateTest {
     @Test
@@ -31,5 +32,45 @@ class DfpwmStateTest {
             new byte[]{ 87, 74, 42, -91, -92, -108, 84, -87, -86, 86, -83, 90, -83, -43, 90, -85, -42, 106, -43, -86, 106, -107, 42, -107, 74, -87, 74, -91, 74, -91, -86, -86, 106, 85, 107, -83, 106, -83, -83, 86, -75, -86, 42, 85, -107, 82, 41, -91, 82, 74, 41, -107, -86, -44, -86, 86, -75, 106, -83, -75, -86, -75, 90, -83, -86, -86, -86, 82, -91, 74, -107, -86, 82, -87, 82, 85, 85, 85, -83, 86, -75, -86, -43, 90, -83, 90, 85, 85, -107, 42, -91, 82, -86, 82, 74, 41, 85, -87, -86, -86, 106, -75, 90, -83, 86, -85, 106, -43, 106, 85, 85, 85, 85, -107, 42, 85, -86, 42, -107, -86, -86, -86, -86, 106, -75, -86, 86, -85 },
             contents
         );
+    }
+
+    @Test
+    public void testSampleOffsetAdvances() throws LuaException {
+        var state = new DfpwmState();
+        // Create a table with 1024 PCM samples (all zeros for simplicity)
+        Map<Object, Object> inputTbl = new HashMap<>();
+        for (var i = 1; i <= 1024; i++) inputTbl.put((double) i, 0);
+
+        assertTrue(state.pushBuffer(new ObjectLuaTable(inputTbl), 1024, Optional.empty()));
+
+        // Pull first chunk — offset should be 0
+        var audio = state.pullPending(PauseAwareTimer.getTime());
+        assertEquals(0L, audio.sampleOffset());
+
+        // Push another buffer
+        assertTrue(state.pushBuffer(new ObjectLuaTable(inputTbl), 1024, Optional.empty()));
+        var audio2 = state.pullPending(PauseAwareTimer.getTime());
+        // 1024 samples encode to 128 DFPWM bytes, which represent 1024 samples
+        assertEquals(1024L, audio2.sampleOffset());
+    }
+
+    @Test
+    public void testShouldSendPendingWhenBufferAvailable() throws LuaException {
+        var state = new DfpwmState();
+        assertFalse(state.shouldSendPending());
+        Map<Object, Object> inputTbl = new HashMap<>();
+        for (var i = 1; i <= 1024; i++) inputTbl.put((double) i, 0);
+        state.pushBuffer(new ObjectLuaTable(inputTbl), 1024, Optional.empty());
+        assertTrue(state.shouldSendPending());
+    }
+
+    @Test
+    public void testIsPlayingAfterPull() throws LuaException {
+        var state = new DfpwmState();
+        Map<Object, Object> inputTbl = new HashMap<>();
+        for (var i = 1; i <= 1024; i++) inputTbl.put((double) i, 0);
+        state.pushBuffer(new ObjectLuaTable(inputTbl), 1024, Optional.empty());
+        state.pullPending(PauseAwareTimer.getTime());
+        assertTrue(state.isPlaying());
     }
 }

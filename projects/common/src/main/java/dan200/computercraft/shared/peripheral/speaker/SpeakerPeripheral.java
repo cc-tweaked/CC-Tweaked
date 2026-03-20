@@ -138,7 +138,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
                 (ServerLevel) level, pos, sound.volume * 16
             );
             syncedPosition(position);
-        } else if (dfpwmState != null && dfpwmState.shouldSendPending(now)) {
+        } else if (dfpwmState != null && dfpwmState.shouldSendPending()) {
             // If clients need to receive another batch of audio, send it and then notify computers our internal buffer is
             // free again.
             ServerNetworking.sendToAllTracking(

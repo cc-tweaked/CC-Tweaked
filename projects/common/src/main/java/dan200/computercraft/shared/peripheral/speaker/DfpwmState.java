@@ -13,7 +13,6 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral.SAMPLE_RATE;
 import static dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral.clampVolume;
 
 /**
@@ -22,11 +21,7 @@ import static dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral.c
 class DfpwmState {
     private static final long SECOND = TimeUnit.SECONDS.toNanos(1);
 
-    /**
-     * The minimum size of the client's audio buffer. Once we have less than this on the client, we should send another
-     * batch of audio.
-     */
-    private static final long CLIENT_BUFFER = (long) (SECOND * 0.5);
+    private static final long STREAM_TIMEOUT = 2L * SECOND;
 
     private static final int PREC = 10;
 
@@ -35,7 +30,8 @@ class DfpwmState {
     private boolean previousBit = false;
 
     private boolean unplayed = true;
-    private long clientEndTime = PauseAwareTimer.getTime();
+    private long sampleOffset = 0;
+    private long lastSendNanos;
     private float pendingVolume = 1.0f;
     private @Nullable EncodedAudio pendingAudio;
 
@@ -89,22 +85,24 @@ class DfpwmState {
         return true;
     }
 
-    boolean shouldSendPending(long now) {
-        return pendingAudio != null && now >= clientEndTime - CLIENT_BUFFER;
+    boolean shouldSendPending() {
+        return pendingAudio != null;
     }
 
     EncodedAudio pullPending(long now) {
         var audio = pendingAudio;
         if (audio == null) throw new IllegalStateException("Should not pull pending audio yet");
         pendingAudio = null;
-        // Compute when we should consider sending the next packet.
-        clientEndTime = Math.max(now, clientEndTime) + (audio.audio().remaining() * SECOND * 8 / SAMPLE_RATE);
         unplayed = false;
+        audio = audio.withSampleOffset(sampleOffset);
+        sampleOffset += audio.audio().remaining() * 8L;
+        lastSendNanos = now;
         return audio;
     }
 
     boolean isPlaying() {
-        return unplayed || clientEndTime >= PauseAwareTimer.getTime();
+        return unplayed || pendingAudio != null
+            || (PauseAwareTimer.getTime() - lastSendNanos < STREAM_TIMEOUT);
     }
 
     float getVolume() {
