@@ -32,10 +32,17 @@ local scrollX, scrollY = 0, 0
 
 local tLines, tLineLexStates = {}, {}
 local bRunning = true
-local bCtrlHeld = false  -- Track if Ctrl is currently held
-local nCtrlPressTime = 0  -- Track when Ctrl was pressed
+local bLeftCtrlHeld = false   -- Track left Ctrl key state
+local bRightCtrlHeld = false  -- Track right Ctrl key state
+local bAltHeld = false        -- Track Alt key to detect AltGr
+local nCtrlPressTime = 0      -- Track when Ctrl was pressed
 local bCtrlUsedForCombo = false  -- Track if Ctrl was used with other keys
-local bJustClosedMenu = false  -- Track if we just closed menu with Ctrl
+local bJustClosedMenu = false    -- Track if we just closed menu with Ctrl
+
+-- Helper function to check if Ctrl is held for text navigation (not AltGr)
+local function isCtrlHeldForNavigation()
+    return (bLeftCtrlHeld or bRightCtrlHeld) and not bAltHeld
+end
 
 -- Colours
 local isColour = term.isColour()
@@ -560,15 +567,26 @@ while bRunning do
                 -- Close menu immediately, block reopening
                 current_menu = nil
                 redrawMenu()
-                bCtrlHeld = true
+                if key == keys.leftCtrl then
+                    bLeftCtrlHeld = true
+                else
+                    bRightCtrlHeld = true
+                end
                 bCtrlUsedForCombo = true
                 bJustClosedMenu = true
             else
-                bCtrlHeld = true
+                if key == keys.leftCtrl then
+                    bLeftCtrlHeld = true
+                else
+                    bRightCtrlHeld = true
+                end
                 nCtrlPressTime = os.epoch("utc")
                 bCtrlUsedForCombo = false
                 bJustClosedMenu = false
             end
+        elseif (key == keys.leftAlt or key == keys.rightAlt) and not event[3] then
+            -- Track Alt key for AltGr detection
+            bAltHeld = true
         elseif current_menu then
             handleMenuEvent(event)
         else
@@ -643,11 +661,11 @@ while bRunning do
 
             elseif key == keys.home then
                 -- Mark Ctrl as used for combo if held
-                if bCtrlHeld then
+                if isCtrlHeldForNavigation() then
                     bCtrlUsedForCombo = true
                 end
                 
-                if bCtrlHeld then
+                if isCtrlHeldForNavigation() then
                     -- Move to beginning of file
                     setCursor(1, 1)
                 else
@@ -659,11 +677,11 @@ while bRunning do
 
             elseif key == keys["end"] then
                 -- Mark Ctrl as used for combo if held
-                if bCtrlHeld then
+                if isCtrlHeldForNavigation() then
                     bCtrlUsedForCombo = true
                 end
                 
-                if bCtrlHeld then
+                if isCtrlHeldForNavigation() then
                     -- Move to end of file
                     local lastLine = #tLines
                     setCursor(#tLines[lastLine] + 1, lastLine)
@@ -677,11 +695,11 @@ while bRunning do
 
             elseif key == keys.left then
                 -- Mark Ctrl as used for combo if held
-                if bCtrlHeld then
+                if isCtrlHeldForNavigation() then
                     bCtrlUsedForCombo = true
                 end
                 
-                if bCtrlHeld then
+                if isCtrlHeldForNavigation() then
                     -- Move word left
                     if x > 1 then
                         local sLine = tLines[y]
@@ -710,11 +728,11 @@ while bRunning do
 
             elseif key == keys.right then
                 -- Mark Ctrl as used for combo if held
-                if bCtrlHeld then
+                if isCtrlHeldForNavigation() then
                     bCtrlUsedForCombo = true
                 end
                 
-                if bCtrlHeld then
+                if isCtrlHeldForNavigation() then
                     -- Move word right
                     if x <= #tLines[y] then
                         local sLine = tLines[y]
@@ -748,14 +766,14 @@ while bRunning do
 
             elseif key == keys.delete and not bReadOnly then
                 -- Mark Ctrl as used for combo if held
-                if bCtrlHeld then
+                if isCtrlHeldForNavigation() then
                     bCtrlUsedForCombo = true
                 end
                 
                 local nLimit = #tLines[y] + 1
                 if x < nLimit then
                     local sLine = tLines[y]
-                    if bCtrlHeld then
+                    if isCtrlHeldForNavigation() then
                         -- Delete word to the right
                         local nWordEnd = x
                         -- Skip forward over non-word characters
@@ -783,13 +801,13 @@ while bRunning do
 
             elseif key == keys.backspace and not bReadOnly then
                 -- Mark Ctrl as used for combo if held
-                if bCtrlHeld then
+                if isCtrlHeldForNavigation() then
                     bCtrlUsedForCombo = true
                 end
                 
                 if x > 1 then
                     local sLine = tLines[y]
-                    if bCtrlHeld then
+                    if isCtrlHeldForNavigation() then
                         -- Delete word
                         local nWordStart = x - 1
                         -- Skip backwards over non-word characters
@@ -839,7 +857,7 @@ while bRunning do
 
             else
                 -- Any other key pressed while Ctrl is held counts as a combination
-                if bCtrlHeld then
+                if isCtrlHeldForNavigation() then
                     bCtrlUsedForCombo = true
                 end
             end
@@ -847,17 +865,31 @@ while bRunning do
 
     elseif event[1] == "key_up" then
         local key = event[2]
-        if key == keys.leftCtrl or key == keys.rightCtrl then
-            -- Track Ctrl key release
-            bCtrlHeld = false
+        if key == keys.leftCtrl then
+            -- Track left Ctrl key release
+            bLeftCtrlHeld = false
             -- Only open menu if: quick tap AND no combo used AND no menu open AND didn't just close menu
             local holdTime = os.epoch("utc") - nCtrlPressTime
-            if holdTime < 1000 and not bCtrlUsedForCombo and not current_menu and not bJustClosedMenu then
+            if holdTime < 1000 and not bCtrlUsedForCombo and not current_menu and not bJustClosedMenu and not bRightCtrlHeld then
                 current_menu = menu.create(menu_items)
                 redrawMenu()
             end
             -- Reset the flag after processing
             bJustClosedMenu = false
+        elseif key == keys.rightCtrl then
+            -- Track right Ctrl key release
+            bRightCtrlHeld = false
+            -- Only open menu if: quick tap AND no combo used AND no menu open AND didn't just close menu
+            local holdTime = os.epoch("utc") - nCtrlPressTime
+            if holdTime < 1000 and not bCtrlUsedForCombo and not current_menu and not bJustClosedMenu and not bLeftCtrlHeld then
+                current_menu = menu.create(menu_items)
+                redrawMenu()
+            end
+            -- Reset the flag after processing
+            bJustClosedMenu = false
+        elseif key == keys.leftAlt or key == keys.rightAlt then
+            -- Track Alt key release
+            bAltHeld = false
         end
 
     elseif event[1] == "char" then
@@ -937,3 +969,4 @@ end
 term.clear()
 term.setCursorBlink(false)
 term.setCursorPos(1, 1)
+

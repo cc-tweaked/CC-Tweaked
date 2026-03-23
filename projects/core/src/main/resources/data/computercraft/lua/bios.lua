@@ -166,7 +166,15 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
 
     local tCompletions
     local nCompletion
-    local bCtrlHeld = false  -- Track if Ctrl is currently held
+    local bLeftCtrlHeld = false   -- Track left Ctrl key state
+    local bRightCtrlHeld = false  -- Track right Ctrl key state
+    local bAltHeld = false        -- Track Alt key to detect AltGr
+    
+    -- Helper function to check if Ctrl is held for text navigation (not AltGr)
+    local function isCtrlHeldForNavigation()
+        return (bLeftCtrlHeld or bRightCtrlHeld) and not bAltHeld
+    end
+    
     local function recomplete()
         if _fnComplete and nPos == #sLine then
             tCompletions = _fnComplete(sLine)
@@ -285,7 +293,7 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
                 -- Left or Ctrl+Left
                 if nPos > 0 then
                     clear()
-                    if bCtrlHeld then
+                    if isCtrlHeldForNavigation() then
                         -- Move word left
                         local nWordStart = nPos
                         -- Skip backwards over non-word characters
@@ -311,7 +319,7 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
                 if nPos < #sLine then
                     -- Move right
                     clear()
-                    if bCtrlHeld then
+                    if isCtrlHeldForNavigation() then
                         -- Move word right
                         local nWordEnd = nPos + 1
                         -- Skip forward over non-word characters
@@ -389,7 +397,7 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
                 -- Backspace or Ctrl+Backspace
                 if nPos > 0 then
                     clear()
-                    if bCtrlHeld then
+                    if isCtrlHeldForNavigation() then
                         -- Delete word
                         local nWordStart = nPos
                         -- Skip backwards over non-word characters
@@ -431,7 +439,7 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
                 -- Delete or Ctrl+Delete
                 if nPos < #sLine then
                     clear()
-                    if bCtrlHeld then
+                    if isCtrlHeldForNavigation() then
                         -- Delete word to the right
                         local nWordEnd = nPos + 1
                         -- Skip forward over non-word characters
@@ -464,16 +472,30 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
                 -- Tab (accept autocomplete)
                 acceptCompletion()
 
-            elseif param == keys.leftCtrl or param == keys.rightCtrl then
-                -- Track Ctrl key press
-                bCtrlHeld = true
+            elseif param == keys.leftCtrl then
+                -- Track left Ctrl key press
+                bLeftCtrlHeld = true
+                
+            elseif param == keys.rightCtrl then
+                -- Track right Ctrl key press  
+                bRightCtrlHeld = true
+                
+            elseif param == keys.leftAlt or param == keys.rightAlt then
+                -- Track Alt key press (for AltGr detection)
+                bAltHeld = true
 
             end
 
         elseif sEvent == "key_up" then
-            if param == keys.leftCtrl or param == keys.rightCtrl then
-                -- Track Ctrl key release
-                bCtrlHeld = false
+            if param == keys.leftCtrl then
+                -- Track left Ctrl key release
+                bLeftCtrlHeld = false
+            elseif param == keys.rightCtrl then
+                -- Track right Ctrl key release
+                bRightCtrlHeld = false
+            elseif param == keys.leftAlt or param == keys.rightAlt then
+                -- Track Alt key release
+                bAltHeld = false
             end
 
         elseif sEvent == "mouse_click" or sEvent == "mouse_drag" and param == 1 then
