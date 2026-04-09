@@ -25,7 +25,7 @@ if sCommand == "locate" then
 elseif sCommand == "host" then
     -- "gps host"
     -- Act as a GPS host
-    if pocket then
+    if pocket or turtle then
         print("GPS Hosts must be stationary")
         return
     end
