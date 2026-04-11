@@ -31,7 +31,7 @@ commonsCli = "1.10.0"
 jetbrainsAnnotations = "26.0.2-1"
 jspecify = "1.0.0"
 jzlib = "1.1.3"
-kotlin = "2.3.20"
+kotlin = "2.3.0"
 kotlin-coroutines = "1.10.2"
 nightConfig = "3.8.3"
 

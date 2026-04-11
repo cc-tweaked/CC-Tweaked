@@ -7,7 +7,7 @@ package dan200.computercraft.core.input;
 import dan200.computercraft.core.computer.Computer;
 import org.jspecify.annotations.Nullable;
 
-import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A {@link ComputerInput} that queues events on the computer.
@@ -34,15 +34,15 @@ public final class EventComputerInput implements ComputerInput {
     }
 
     @Override
-    public void charTyped(byte chr) {
-        receiver.queueEvent("char", new Object[]{ new byte[]{ chr } });
+    public void charTyped(int codepoint) {
+        var text = new String(Character.toChars(codepoint));
+        receiver.queueEvent("char", new Object[]{ text.getBytes(StandardCharsets.UTF_8) });
     }
 
     @Override
-    public void paste(ByteBuffer contents) {
-        receiver.queueEvent("paste", new Object[]{ contents });
+    public void paste(String contents) {
+        receiver.queueEvent("paste", new Object[]{ contents.getBytes(StandardCharsets.UTF_8) });
     }
-
     @Override
     public void mouseClick(int button, int x, int y) {
         receiver.queueEvent("mouse_click", new Object[]{ button, x, y });

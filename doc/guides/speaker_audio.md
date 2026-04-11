@@ -51,7 +51,7 @@ speaker.playAudio(buffer)
 ```
 
 ## Streaming audio
-You might notice that the above snippet only generates a short bit of audio - a little over 2.7 seconds. While we could
+You might notice that the above snippet only generates a short bit of audio - 2.7s seconds to be precise. While we could
 try increasing the number of loop iterations, we'll get an error when we try to play it through the speaker: the sound
 buffer is too large for it to handle.
 

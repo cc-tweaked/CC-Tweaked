@@ -19,34 +19,25 @@ import java.nio.ByteBuffer;
 /**
  * Paste a string on a {@link ServerComputer}.
  *
- * @see ComputerInput#paste(ByteBuffer)
+ * @see ComputerInput#paste(String)"
  */
 public class PasteEventComputerMessage extends ComputerServerMessage {
-    private final ByteBuffer text;
+    private final String text;
 
-    public PasteEventComputerMessage(AbstractContainerMenu menu, ByteBuffer text) {
+    public PasteEventComputerMessage(AbstractContainerMenu menu, String text) {
         super(menu);
         this.text = text;
     }
 
     public PasteEventComputerMessage(FriendlyByteBuf buf) {
         super(buf);
-
-        var length = buf.readVarInt();
-        if (length > StringUtil.MAX_PASTE_LENGTH) {
-            throw new DecoderException("ByteArray with size " + length + " is bigger than allowed " + StringUtil.MAX_PASTE_LENGTH);
-        }
-
-        var text = new byte[length];
-        buf.readBytes(text);
-        this.text = ByteBuffer.wrap(text);
+        this.text = buf.readUtf(StringUtil.MAX_PASTE_LENGTH);
     }
 
     @Override
     public void write(FriendlyByteBuf buf) {
         super.write(buf);
-        buf.writeVarInt(text.remaining());
-        buf.writeBytes(text.duplicate());
+        buf.writeUtf(text, StringUtil.MAX_PASTE_LENGTH);
     }
 
     @Override

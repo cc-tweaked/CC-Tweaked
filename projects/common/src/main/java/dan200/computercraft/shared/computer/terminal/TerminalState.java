@@ -24,10 +24,13 @@ public class TerminalState {
     final boolean cursorBlink;
     final int cursorBgColour;
     final int cursorFgColour;
-    final byte[] contents;
+    final int[] text;
+    final byte[] colours;
+    final byte[] palette;
 
     TerminalState(
-        boolean colour, int width, int height, int cursorX, int cursorY, boolean cursorBlink, int cursorFgColour, int cursorBgColour, byte[] contents
+        boolean colour, int width, int height, int cursorX, int cursorY, boolean cursorBlink, int cursorFgColour, int cursorBgColour,
+        int[] text, byte[] colours, byte[] palette
     ) {
         this.colour = colour;
         this.width = width;
@@ -37,7 +40,9 @@ public class TerminalState {
         this.cursorBlink = cursorBlink;
         this.cursorFgColour = cursorFgColour;
         this.cursorBgColour = cursorBgColour;
-        this.contents = contents;
+        this.text = text;
+        this.colours = colours;
+        this.palette = palette;
     }
 
     @Contract("null -> null; !null -> !null")
@@ -57,7 +62,12 @@ public class TerminalState {
         this.cursorBgColour = (cursorColour >> 4) & 0xF;
         this.cursorFgColour = cursorColour & 0xF;
 
-        contents = buf.readByteArray();
+        var textLength = buf.readVarInt();
+        text = new int[textLength];
+        for (var i = 0; i < textLength; i++) text[i] = buf.readVarInt();
+
+        colours = buf.readByteArray();
+        palette = buf.readByteArray();
     }
 
     public void write(FriendlyByteBuf buf) {
@@ -69,11 +79,15 @@ public class TerminalState {
         buf.writeBoolean(cursorBlink);
         buf.writeByte(cursorBgColour << 4 | cursorFgColour);
 
-        buf.writeByteArray(contents);
+        buf.writeVarInt(text.length);
+        for (var codepoint : text) buf.writeVarInt(codepoint);
+
+        buf.writeByteArray(colours);
+        buf.writeByteArray(palette);
     }
 
     public int size() {
-        return contents.length;
+        return text.length * Integer.BYTES + colours.length + palette.length;
     }
 
     public void apply(NetworkedTerminal terminal) {

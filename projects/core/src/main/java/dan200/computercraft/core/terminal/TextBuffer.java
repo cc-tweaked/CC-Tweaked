@@ -7,15 +7,15 @@ package dan200.computercraft.core.terminal;
 import java.nio.ByteBuffer;
 
 public class TextBuffer {
-    private final char[] text;
+    private final int[] text;
 
     public TextBuffer(char c, int length) {
-        text = new char[length];
+        text = new int[length];
         fill(c);
     }
 
     public TextBuffer(String text) {
-        this.text = text.toCharArray();
+        this.text = text.codePoints().toArray();
     }
 
     public int length() {
@@ -27,12 +27,16 @@ public class TextBuffer {
     }
 
     public void write(String text, int start) {
+        var codepoints = text.codePoints().toArray();
+
         var pos = start;
         start = Math.max(start, 0);
-        var end = Math.min(start + text.length(), pos + text.length());
+
+        var end = Math.min(start + codepoints.length, pos + codepoints.length);
         end = Math.min(end, this.text.length);
+
         for (var i = start; i < end; i++) {
-            this.text[i] = text.charAt(i - pos);
+            this.text[i] = codepoints[i - pos];
         }
     }
 
@@ -45,14 +49,14 @@ public class TextBuffer {
         var end = Math.min(start + length, pos + length);
         end = Math.min(end, this.text.length);
         for (var i = start; i < end; i++) {
-            this.text[i] = (char) (text.get(bufferPos + i - pos) & 0xFF);
+            this.text[i] = text.get(bufferPos + i - pos) & 0xFF;
         }
     }
 
     public void write(TextBuffer text) {
         var end = Math.min(text.length(), this.text.length);
         for (var i = 0; i < end; i++) {
-            this.text[i] = text.charAt(i);
+            this.text[i] = text.codePointAt(i);
         }
     }
 
@@ -69,7 +73,8 @@ public class TextBuffer {
     }
 
     public char charAt(int i) {
-        return text[i];
+        var codepoint = text[i];
+        return codepoint >= 0 && codepoint <= Character.MAX_VALUE ? (char) codepoint : '?';
     }
 
     public void setChar(int i, char c) {
@@ -77,9 +82,19 @@ public class TextBuffer {
             text[i] = c;
         }
     }
+    public void setCodePoint(int i, int codepoint) {
+        if (i >= 0 && i < text.length) {
+            text[i] = codepoint;
+        }
+    }
+
+
+    public int codePointAt(int i) {
+        return text[i];
+    }
 
     @Override
     public String toString() {
-        return new String(text);
+        return new String(text, 0, text.length);
     }
 }

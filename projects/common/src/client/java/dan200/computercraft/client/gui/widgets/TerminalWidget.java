@@ -12,6 +12,7 @@ import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.input.UserComputerInput;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.util.Colour;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -204,6 +205,36 @@ public class TerminalWidget extends AbstractWidget {
         );
 
         bufferSource.endBatch();
+
+        renderUnicodeOverlay(graphics);
+    }
+
+    private void renderUnicodeOverlay(GuiGraphics graphics) {
+        var font = Minecraft.getInstance().font;
+        var palette = terminal.getPalette();
+
+        for (var y = 0; y < terminal.getHeight(); y++) {
+            var textLine = terminal.getLine(y);
+            var textColourLine = terminal.getTextColourLine(y);
+
+            for (var x = 0; x < textLine.length(); x++) {
+                var codepoint = textLine.codePointAt(x);
+                if (codepoint >= 0 && codepoint <= 255) continue;
+
+                var text = new String(Character.toChars(codepoint));
+                var colour = palette.getRenderColours(
+                    FixedWidthFontRenderer.getColour(textColourLine.charAt(x), Colour.BLACK)
+                );
+
+                var drawX = innerX + x * FONT_WIDTH;
+                var drawY = innerY + y * FONT_HEIGHT;
+
+                var glyphWidth = font.width(text);
+                var xOffset = Math.max(0, (FONT_WIDTH - glyphWidth) / 2);
+
+                graphics.drawString(font, text, drawX + xOffset, drawY, colour, false);
+            }
+        }
     }
 
     @Override

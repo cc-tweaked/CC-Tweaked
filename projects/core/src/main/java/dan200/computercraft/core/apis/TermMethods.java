@@ -10,6 +10,7 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
+import java.nio.charset.StandardCharsets;
 
 import java.nio.ByteBuffer;
 
@@ -36,12 +37,17 @@ public abstract class TermMethods {
      * @throws LuaException (hidden) If the terminal cannot be found.
      */
     @LuaFunction
-    public final void write(Coerced<String> textA) throws LuaException {
-        var text = textA.value();
+    public final void write(Coerced<ByteBuffer> textA) throws LuaException {
+        var bytes = textA.value().duplicate();
+        var text = StandardCharsets.UTF_8.decode(bytes).toString();
+
         var terminal = getTerminal();
         synchronized (terminal) {
             terminal.write(text);
-            terminal.setCursorPos(terminal.getCursorX() + text.length(), terminal.getCursorY());
+            terminal.setCursorPos(
+                terminal.getCursorX() + text.codePointCount(0, text.length()),
+                terminal.getCursorY()
+            );
         }
     }
 
@@ -238,7 +244,6 @@ public abstract class TermMethods {
      * characters represent a single hexadecimal digit, which is converted to one of CC's colours. For instance,
      * {@code "a"} corresponds to purple.
      *
-     * @param text             The text to write.
      * @param textColour       The corresponding text colours.
      * @param backgroundColour The corresponding background colours.
      * @throws LuaException If the three inputs are not the same length.
@@ -251,15 +256,19 @@ public abstract class TermMethods {
      * }</pre>
      */
     @LuaFunction
-    public final void blit(ByteBuffer text, ByteBuffer textColour, ByteBuffer backgroundColour) throws LuaException {
-        if (textColour.remaining() != text.remaining() || backgroundColour.remaining() != text.remaining()) {
+    public final void blit(ByteBuffer textA, ByteBuffer textColour, ByteBuffer backgroundColour) throws LuaException {
+        var textBytes = textA.duplicate();
+        var decodedText = StandardCharsets.UTF_8.decode(textBytes).toString();
+        var length = decodedText.codePointCount(0, decodedText.length());
+
+        if (textColour.remaining() != length || backgroundColour.remaining() != length) {
             throw new LuaException("Arguments must be the same length");
         }
 
         var terminal = getTerminal();
         synchronized (terminal) {
-            terminal.blit(text, textColour, backgroundColour);
-            terminal.setCursorPos(terminal.getCursorX() + text.remaining(), terminal.getCursorY());
+            terminal.blit(decodedText, textColour, backgroundColour);
+            terminal.setCursorPos(terminal.getCursorX() + length, terminal.getCursorY());
         }
     }
 

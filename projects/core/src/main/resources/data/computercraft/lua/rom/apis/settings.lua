@@ -8,20 +8,12 @@ When a computer starts, it reads the current value of settings from the
 `/.settings` file. These values then may be [read][`settings.get`] or
 [modified][`settings.set`].
 
-
-Any modifications to a settings, either from loading a file ([`settings.load`])
-or directly setting it ([`settings.set`], [`settings.unset`]) will queue a
-[`setting_changed`] event. This may be listened to by programs to reload
-settings while running.
-
 > [!WARNING]
 > Calling [`settings.set`] does _not_ update the settings file by default. You
 > _must_ call [`settings.save`] to persist values.
 
 @module settings
-@see setting_changed
 @since 1.78
-@changed 1.87.0 [`setting_changed`] event is now queued when settings are changed.
 @usage Define an basic setting `123` and read its value.
 
     settings.define("my.setting", {

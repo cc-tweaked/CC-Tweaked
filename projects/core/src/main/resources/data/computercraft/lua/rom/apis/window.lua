@@ -57,7 +57,40 @@ local tHex = {
 local type = type
 local string_rep = string.rep
 local string_sub = string.sub
+local utf8_len = utf8.len
+local utf8_offset = utf8.offset
 
+local function text_len(text)
+    local len = utf8_len(text)
+    if not len then
+        error("Invalid UTF-8 text", 3)
+    end
+    return len
+end
+
+local function text_sub(text, i, j)
+    local len = utf8_len(text)
+    if not len then
+        error("Invalid UTF-8 text", 3)
+    end
+
+    i = i or 1
+    j = j or len
+
+    if i < 1 then i = 1 end
+    if j > len then j = len end
+    if i > j or i > len then return "" end
+
+    local start_byte = utf8_offset(text, i)
+    if not start_byte then return "" end
+
+    local end_byte = utf8_offset(text, j + 1)
+    if end_byte then
+        return string_sub(text, start_byte, end_byte - 1)
+    else
+        return string_sub(text, start_byte)
+    end
+end
 --- A custom version of [`colors.toBlit`], specialised for the window API.
 local function parse_color(color)
     if type(color) ~= "number" then
@@ -188,8 +221,9 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     end
 
     local function internalBlit(sText, sTextColor, sBackgroundColor)
+        local nTextLen = text_len(sText)
         local nStart = nCursorX
-        local nEnd = nStart + #sText - 1
+        local nEnd = nStart + nTextLen - 1
         if nCursorY >= 1 and nCursorY <= nHeight then
             if nStart <= nWidth and nEnd >= 1 then
                 -- Modify line
@@ -203,12 +237,12 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                     if nStart < 1 then
                         local nClipStart = 1 - nStart + 1
                         local nClipEnd = nWidth - nStart + 1
-                        sClippedText = string_sub(sText, nClipStart, nClipEnd)
+                        sClippedText = text_sub(sText, nClipStart, nClipEnd)
                         sClippedTextColor = string_sub(sTextColor, nClipStart, nClipEnd)
                         sClippedBackgroundColor = string_sub(sBackgroundColor, nClipStart, nClipEnd)
                     elseif nEnd > nWidth then
                         local nClipEnd = nWidth - nStart + 1
-                        sClippedText = string_sub(sText, 1, nClipEnd)
+                        sClippedText = text_sub(sText, 1, nClipEnd)
                         sClippedTextColor = string_sub(sTextColor, 1, nClipEnd)
                         sClippedBackgroundColor = string_sub(sBackgroundColor, 1, nClipEnd)
                     else
@@ -223,7 +257,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                     local sNewText, sNewTextColor, sNewBackgroundColor
                     if nStart > 1 then
                         local nOldEnd = nStart - 1
-                        sNewText = string_sub(sOldText, 1, nOldEnd) .. sClippedText
+                        sNewText = text_sub(sOldText, 1, nOldEnd) .. sClippedText
                         sNewTextColor = string_sub(sOldTextColor, 1, nOldEnd) .. sClippedTextColor
                         sNewBackgroundColor = string_sub(sOldBackgroundColor, 1, nOldEnd) .. sClippedBackgroundColor
                     else
@@ -233,7 +267,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                     end
                     if nEnd < nWidth then
                         local nOldStart = nEnd + 1
-                        sNewText = sNewText .. string_sub(sOldText, nOldStart, nWidth)
+                        sNewText = sNewText .. text_sub(sOldText, nOldStart, nWidth)
                         sNewTextColor = sNewTextColor .. string_sub(sOldTextColor, nOldStart, nWidth)
                         sNewBackgroundColor = sNewBackgroundColor .. string_sub(sOldBackgroundColor, nOldStart, nWidth)
                     end
@@ -267,16 +301,24 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
 
     function window.write(sText)
         sText = tostring(sText)
-        internalBlit(sText, string_rep(tHex[nTextColor], #sText), string_rep(tHex[nBackgroundColor], #sText))
+        local nTextLen = text_len(sText)
+        internalBlit(
+            sText,
+            string_rep(tHex[nTextColor], nTextLen),
+            string_rep(tHex[nBackgroundColor], nTextLen)
+        )
     end
 
     function window.blit(sText, sTextColor, sBackgroundColor)
         if type(sText) ~= "string" then expect(1, sText, "string") end
         if type(sTextColor) ~= "string" then expect(2, sTextColor, "string") end
         if type(sBackgroundColor) ~= "string" then expect(3, sBackgroundColor, "string") end
-        if #sTextColor ~= #sText or #sBackgroundColor ~= #sText then
+
+        local nTextLen = text_len(sText)
+        if #sTextColor ~= nTextLen or #sBackgroundColor ~= nTextLen then
             error("Arguments must be the same length", 2)
         end
+
         sTextColor = sTextColor:lower()
         sBackgroundColor = sBackgroundColor:lower()
         internalBlit(sText, sTextColor, sBackgroundColor)
@@ -567,13 +609,13 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                         tNewLines[y] = tOldLine
                     elseif new_width < nWidth then
                         tNewLines[y] = {
-                            string_sub(tOldLine[1], 1, new_width),
+                            text_sub(tOldLine[1], 1, new_width),
                             string_sub(tOldLine[2], 1, new_width),
                             string_sub(tOldLine[3], 1, new_width),
                         }
                     else
                         tNewLines[y] = {
-                            tOldLine[1] .. string_sub(sEmptyText, nWidth + 1, new_width),
+                            tOldLine[1] .. text_sub(sEmptyText, nWidth + 1, new_width),
                             tOldLine[2] .. string_sub(sEmptyTextColor, nWidth + 1, new_width),
                             tOldLine[3] .. string_sub(sEmptyBackgroundColor, nWidth + 1, new_width),
                         }

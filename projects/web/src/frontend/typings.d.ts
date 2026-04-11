@@ -2,8 +2,6 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-declare module "*.css" {}
-
 declare module "*.lua" {
     const contents: string;
     export default contents;

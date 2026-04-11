@@ -10,7 +10,7 @@ SPDX-License-Identifier: MPL-2.0
 
 # Incompatibilities between versions
 
-CC: Tweaked tries to remain as compatible between versions as possible, meaning most programs written for older versions
+CC: Tweaked tries to remain as compatible between versions as possible, meaning most programs written for older version
 of the mod should run fine on later versions.
 
 > [External peripherals][!WARNING]
