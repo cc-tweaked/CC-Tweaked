@@ -58,17 +58,13 @@ local utf8_offset = utf8.offset
 local string_sub = string.sub
 
 local function text_len(text)
-    local len = utf8_len(text)
-    if not len then
-        error("Invalid UTF-8 text", 3)
-    end
-    return len
+    return utf8_len(text) or #text
 end
 
 local function text_sub(text, i, j)
     local len = utf8_len(text)
     if not len then
-        error("Invalid UTF-8 text", 3)
+        return string_sub(text, i, j)
     end
 
     i = i or 1
@@ -676,7 +672,7 @@ while bRunning do
                     -- Move cursor left
                     setCursor(x - 1, y)
                 elseif x == 1 and y > 1 then
-                    setCursor(#tLines[y - 1] + 1, y - 1)
+                    setCursor(text_len(tLines[y - 1]) + 1, y - 1)
                 end
 
             elseif key == keys.right then
@@ -684,7 +680,7 @@ while bRunning do
                 if x < nLimit then
                     -- Move cursor right
                     setCursor(x + 1, y)
-                elseif nCompletion and x == #tLines[y] + 1 then
+                elseif nCompletion and x == text_len(tLines[y]) + 1 then
                     -- Accept autocomplete
                     acceptCompletion()
                 elseif x == nLimit and y < #tLines then

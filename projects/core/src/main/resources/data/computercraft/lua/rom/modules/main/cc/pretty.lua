@@ -37,6 +37,12 @@ local expect, field = expect.expect, expect.field
 local type, getmetatable, setmetatable, colours, str_write, tostring = type, getmetatable, setmetatable, colours, write, tostring
 local debug_info, debug_local = debug.getinfo, debug.getlocal
 
+local utf8_len = utf8.len
+
+local function text_len(text)
+    return utf8_len(text) or #text
+end
+
 --- [`table.insert`] alternative, but with the length stored inline.
 local function append(out, value)
     local n = out.n + 1
@@ -212,7 +218,7 @@ local function get_remaining(doc, width)
     if kind == "nil" or kind == "line" then
         return width
     elseif kind == "text" then
-        return width - #doc.text
+        return width - text_len(doc.text)
     elseif kind == "concat" then
         for i = 1, doc.n do
             width = get_remaining(doc[i], width)
@@ -220,7 +226,7 @@ local function get_remaining(doc, width)
         end
         return width
     elseif kind == "group" or kind == "nest" then
-        return get_remaining(kind[1])
+        return get_remaining(doc[1], width)
     else
         error("Unknown doc " .. kind)
     end
@@ -256,7 +262,7 @@ local function write(doc, ribbon_frac)
 
             str_write(doc.text)
 
-            return col + #doc.text
+            return col + text_len(doc.text)
         elseif kind == "line" then
             local _, y = term.getCursorPos()
             if y < height then
@@ -325,7 +331,7 @@ local function render(doc, width, ribbon_frac)
             return col
         elseif kind == "text" then
             append(out, doc.text)
-            return col + #doc.text
+            return col + text_len(doc.text)
         elseif kind == "line" then
             append(out, "\n" .. (" "):rep(indent))
             return indent

@@ -11,6 +11,38 @@
 local expect = require("cc.expect")
 local expect, range = expect.expect, expect.range
 
+local utf8_len = utf8.len
+local utf8_offset = utf8.offset
+local string_sub = string.sub
+
+local function text_len(text)
+    return utf8_len(text) or #text
+end
+
+local function text_sub(text, i, j)
+    local len = utf8_len(text)
+    if not len then
+        return string_sub(text, i, j)
+    end
+
+    i = i or 1
+    j = j or len
+
+    if i < 1 then i = 1 end
+    if j > len then j = len end
+    if i > j or i > len then return "" end
+
+    local start_byte = utf8_offset(text, i)
+    if not start_byte then return "" end
+
+    local end_byte = utf8_offset(text, j + 1)
+    if end_byte then
+        return string_sub(text, start_byte, end_byte - 1)
+    else
+        return string_sub(text, start_byte)
+    end
+end
+
 --[[- Wraps a block of text, so that each line fits within the given width.
 
 This may be useful if you want to wrap text before displaying it to a
@@ -56,21 +88,21 @@ local function wrap(text, width)
         else
             local word = match(text, "^[^ \t\n]+", pos)
             pos = pos + #word
-            if #word > width then
+            if text_len(word) > width then
                 -- Print a multiline word
-                while #word > 0 do
-                    local space_remaining = width - #current_line - 1
+                while text_len(word) > 0 do
+                    local space_remaining = width - text_len(current_line) - 1
                     if space_remaining <= 0 then
                         push_line()
                         space_remaining = width
                     end
 
-                    current_line = current_line .. sub(word, 1, space_remaining)
-                    word = sub(word, space_remaining + 1)
+                    current_line = current_line .. text_sub(word, 1, space_remaining)
+                    word = text_sub(word, space_remaining + 1)
                 end
             else
                 -- Print a word normally
-                if width - #current_line < #word then push_line() end
+                if width - text_len(current_line) < text_len(word) then push_line() end
                 current_line = current_line .. word
             end
         end
@@ -80,7 +112,7 @@ local function wrap(text, width)
 
     -- Trim whitespace longer than width.
     for k, line in pairs(lines) do
-        line = line:sub(1, width)
+        line = text_sub(line, 1, width)
         lines[k] = line
     end
 
@@ -102,9 +134,10 @@ local function ensure_width(line, width)
     expect(2, width, "number", "nil")
     width = width or term.getSize()
 
-    line = line:sub(1, width)
-    if #line < width then
-        line = line .. (" "):rep(width - #line)
+    line = text_sub(line, 1, width)
+    local line_len = text_len(line)
+    if line_len < width then
+        line = line .. (" "):rep(width - line_len)
     end
 
     return line

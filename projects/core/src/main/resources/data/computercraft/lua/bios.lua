@@ -14,17 +14,13 @@ local utf8_offset = utf8.offset
 local string_sub = string.sub
 
 local function text_len(text)
-    local len = utf8_len(text)
-    if not len then
-        error("Invalid UTF-8 text", 3)
-    end
-    return len
+    return utf8_len(text) or #text
 end
 
 local function text_sub(text, i, j)
     local len = utf8_len(text)
     if not len then
-        error("Invalid UTF-8 text", 3)
+        return string_sub(text, i, j)
     end
 
     i = i or 1
@@ -44,7 +40,6 @@ local function text_sub(text, i, j)
         return string_sub(text, start_byte)
     end
 end
-
 
 do
     local h = fs.open("rom/modules/main/cc/expect.lua", "r")
