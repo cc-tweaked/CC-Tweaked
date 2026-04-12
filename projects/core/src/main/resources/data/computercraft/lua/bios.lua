@@ -131,19 +131,21 @@ function write(sText)
         local text = string.match(sText, "^[^ \t\n]+")
         if text then
             sText = string.sub(sText, #text + 1)
-            if #text > w then
+
+            local textLength = text_len(text)
+            if textLength > w then
                 -- Print a multiline word
-                while #text > 0 do
+                while text_len(text) > 0 do
                     if x > w then
                         newLine()
                     end
                     term.write(text)
-                    text = string.sub(text, w - x + 2)
+                    text = text_sub(text, w - x + 2)
                     x, y = term.getCursorPos()
                 end
             else
                 -- Print a word normally
-                if x + #text - 1 > w then
+                if x + textLength - 1 > w then
                     newLine()
                 end
                 term.write(text)
@@ -154,6 +156,7 @@ function write(sText)
 
     return nLinesPrinted
 end
+
 
 function print(...)
     local nLinesPrinted = 0

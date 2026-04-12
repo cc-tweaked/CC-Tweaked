@@ -88,7 +88,8 @@ public class MonitorTextureBufferShader extends ShaderInstance {
         for (var y = 0; y < height; y++) {
             TextBuffer text = terminal.getLine(y), textColour = terminal.getTextColourLine(y), background = terminal.getBackgroundColourLine(y);
             for (var x = 0; x < width; x++) {
-                buffer.put(pos, (byte) (text.charAt(x) & 0xFF));
+                var codepoint = text.codePointAt(x);
+                buffer.put(pos, codepoint >= 0 && codepoint <= 255 ? (byte) codepoint : (byte) 0);
                 buffer.put(pos + 1, (byte) getColour(textColour.charAt(x), Colour.WHITE));
                 buffer.put(pos + 2, (byte) getColour(background.charAt(x), Colour.BLACK));
                 pos += 3;

@@ -22,6 +22,7 @@ import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.util.DirectionUtil;
+import dan200.computercraft.core.util.Colour;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -39,6 +40,9 @@ import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FON
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+
 public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBlockEntity> {
     /**
      * {@link MonitorBlockEntity#RENDER_MARGIN}, but a tiny bit of additional padding to ensure that there is no space between
@@ -53,6 +57,41 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
     private static long lastFrame = -1;
 
     public MonitorBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+    }
+
+    private static void renderUnicodeOverlay(PoseStack transform, MultiBufferSource bufferSource, Terminal terminal) {
+        var font = Minecraft.getInstance().font;
+        var palette = terminal.getPalette();
+
+        transform.pushPose();
+        transform.translate(0.0f, 0.0f, 0.001f);
+
+        var matrix = transform.last().pose();
+
+        for (var y = 0; y < terminal.getHeight(); y++) {
+            var textLine = terminal.getLine(y);
+            var textColourLine = terminal.getTextColourLine(y);
+
+            for (var x = 0; x < textLine.length(); x++) {
+                var codepoint = textLine.codePointAt(x);
+                if (codepoint >= 0 && codepoint <= 255) continue;
+
+                var text = new String(Character.toChars(codepoint));
+                var colour = palette.getRenderColours(
+                    FixedWidthFontRenderer.getColour(textColourLine.charAt(x), Colour.BLACK)
+                );
+
+                var drawX = x * FONT_WIDTH + Math.max(0.0f, (FONT_WIDTH - font.width(text)) / 2.0f);
+                var drawY = y * FONT_HEIGHT;
+
+                font.drawInBatch(
+                    text, drawX, drawY, colour, false, matrix, bufferSource,
+                    Font.DisplayMode.NORMAL, 0, RenderTypes.FULL_BRIGHT_LIGHTMAP
+                );
+            }
+        }
+
+        transform.popPose();
     }
 
     @Override
@@ -117,6 +156,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
             var matrix = transform.last().pose();
 
             renderTerminal(matrix, originTerminal, renderState, terminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale));
+            renderUnicodeOverlay(transform, bufferSource, terminal);
 
             transform.popPose();
         } else {

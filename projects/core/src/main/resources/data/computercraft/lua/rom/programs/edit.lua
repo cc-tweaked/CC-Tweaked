@@ -52,6 +52,43 @@ end
 
 -- Menus
 local menu  = require "cc.internal.menu"
+
+local utf8_len = utf8.len
+local utf8_offset = utf8.offset
+local string_sub = string.sub
+
+local function text_len(text)
+    local len = utf8_len(text)
+    if not len then
+        error("Invalid UTF-8 text", 3)
+    end
+    return len
+end
+
+local function text_sub(text, i, j)
+    local len = utf8_len(text)
+    if not len then
+        error("Invalid UTF-8 text", 3)
+    end
+
+    i = i or 1
+    j = j or len
+
+    if i < 1 then i = 1 end
+    if j > len then j = len end
+    if i > j or i > len then return "" end
+
+    local start_byte = utf8_offset(text, i)
+    if not start_byte then return "" end
+
+    local end_byte = utf8_offset(text, j + 1)
+    if end_byte then
+        return string_sub(text, start_byte, end_byte - 1)
+    else
+        return string_sub(text, start_byte)
+    end
+end
+
 local current_menu
 local menu_items = {}
 if not bReadOnly then
@@ -194,7 +231,7 @@ end
 
 local function recomplete()
     local sLine = tLines[y]
-    if not bReadOnly and x == #sLine + 1 then
+    if not bReadOnly and x == text_len(sLine) + 1 then
         tCompletions = complete(sLine)
         if tCompletions and #tCompletions > 0 then
             nCompletion = 1
@@ -281,7 +318,7 @@ local function redrawLines(line, endLine)
         -- only ever contain whitespace.
         term.write(contents:sub(pos))
 
-        if line == y and x == #contents + 1 then
+        if line == y and x == text_len(contents) + 1 then
             writeCompletion()
             colour = term.getTextColour()
         end
@@ -527,7 +564,7 @@ local function acceptCompletion()
         -- Append the completion
         local sCompletion = tCompletions[nCompletion]
         tLines[y] = tLines[y] .. sCompletion
-        setCursor(x + #sCompletion, y)
+        setCursor(x + text_len(sCompletion), y)
     end
 end
 
@@ -565,7 +602,7 @@ while bRunning do
                 elseif y > 1 then
                     -- Move cursor up
                     setCursor(
-                        math.min(x, #tLines[y - 1] + 1),
+                        math.min(x, text_len(tLines[y - 1]) + 1),
                         y - 1
                     )
                 end
@@ -582,19 +619,19 @@ while bRunning do
                 elseif y < #tLines then
                     -- Move cursor down
                     setCursor(
-                        math.min(x, #tLines[y + 1] + 1),
+                        math.min(x, text_len(tLines[y + 1]) + 1),
                         y + 1
                     )
                 end
 
             elseif key == keys.tab and not bReadOnly then
-                if nCompletion and x == #tLines[y] + 1 then
+                if nCompletion and x == text_len(tLines[y]) + 1 then
                     -- Accept autocomplete
                     acceptCompletion()
                 else
                     -- Indent line
                     local sLine = tLines[y]
-                    tLines[y] = string.sub(sLine, 1, x - 1) .. "    " .. string.sub(sLine, x)
+                    tLines[y] = text_sub(sLine, 1, x - 1) .. "    " .. text_sub(sLine, x)
                     setCursor(x + 4, y)
                 end
 
@@ -607,7 +644,7 @@ while bRunning do
                     newY = 1
                 end
                 setCursor(
-                    math.min(x, #tLines[newY] + 1),
+                    math.min(x, text_len(tLines[newY]) + 1),
                     newY
                 )
             elseif key == keys.pageDown then
@@ -618,7 +655,7 @@ while bRunning do
                 else
                     newY = #tLines
                 end
-                local newX = math.min(x, #tLines[newY] + 1)
+                local newX = math.min(x, text_len(tLines[newY]) + 1)
                 setCursor(newX, newY)
 
             elseif key == keys.home then
@@ -629,7 +666,7 @@ while bRunning do
 
             elseif key == keys["end"] then
                 -- Move cursor to the end
-                local nLimit = #tLines[y] + 1
+                local nLimit = text_len(tLines[y]) + 1
                 if x < nLimit then
                     setCursor(nLimit, y)
                 end
@@ -643,7 +680,7 @@ while bRunning do
                 end
 
             elseif key == keys.right then
-                local nLimit = #tLines[y] + 1
+                local nLimit = text_len(tLines[y]) + 1
                 if x < nLimit then
                     -- Move cursor right
                     setCursor(x + 1, y)
@@ -656,10 +693,10 @@ while bRunning do
                 end
 
             elseif key == keys.delete and not bReadOnly then
-                local nLimit = #tLines[y] + 1
+                local nLimit = text_len(tLines[y]) + 1
                 if x < nLimit then
                     local sLine = tLines[y]
-                    tLines[y] = string.sub(sLine, 1, x - 1) .. string.sub(sLine, x + 1)
+                    tLines[y] = text_sub(sLine, 1, x - 1) .. text_sub(sLine, x + 1)
                     recomplete()
                     redrawLines(y)
                 elseif y < #tLines then
@@ -674,16 +711,16 @@ while bRunning do
                 if x > 1 then
                     -- Remove character
                     local sLine = tLines[y]
-                    if x > 4 and string.sub(sLine, x - 4, x - 1) == "    " and not string.sub(sLine, 1, x - 1):find("%S") then
-                        tLines[y] = string.sub(sLine, 1, x - 5) .. string.sub(sLine, x)
+                    if x > 4 and text_sub(sLine, x - 4, x - 1) == "    " and not text_sub(sLine, 1, x - 1):find("%S") then
+                        tLines[y] = text_sub(sLine, 1, x - 5) .. text_sub(sLine, x)
                         setCursor(x - 4, y)
                     else
-                        tLines[y] = string.sub(sLine, 1, x - 2) .. string.sub(sLine, x)
+                        tLines[y] = text_sub(sLine, 1, x - 2) .. text_sub(sLine, x)
                         setCursor(x - 1, y)
                     end
                 elseif y > 1 then
                     -- Remove newline
-                    local sPrevLen = #tLines[y - 1]
+                    local sPrevLen = text_len(tLines[y - 1])
                     tLines[y - 1] = tLines[y - 1] .. tLines[y]
                     table.remove(tLines, y)
                     table.remove(tLineLexStates, y)
@@ -698,8 +735,8 @@ while bRunning do
                 if not spaces then
                     spaces = 0
                 end
-                tLines[y] = string.sub(sLine, 1, x - 1)
-                table.insert(tLines, y + 1, string.rep(' ', spaces) .. string.sub(sLine, x))
+                tLines[y] = text_sub(sLine, 1, x - 1)
+                table.insert(tLines, y + 1, string.rep(' ', spaces) .. text_sub(sLine, x))
                 table.insert(tLineLexStates, y + 1, false)
                 setCursor(spaces + 1, y + 1)
                 redrawText()
@@ -715,7 +752,7 @@ while bRunning do
         elseif not bReadOnly then
             -- Input text
             local sLine = tLines[y]
-            tLines[y] = string.sub(sLine, 1, x - 1) .. event[2] .. string.sub(sLine, x)
+            tLines[y] = text_sub(sLine, 1, x - 1) .. event[2] .. text_sub(sLine, x)
             setCursor(x + 1, y)
         end
 
@@ -729,8 +766,8 @@ while bRunning do
         -- Input text
         local text = event[2]
         local sLine = tLines[y]
-        tLines[y] = string.sub(sLine, 1, x - 1) .. text .. string.sub(sLine, x)
-        setCursor(x + #text, y)
+        tLines[y] = text_sub(sLine, 1, x - 1) .. text .. text_sub(sLine, x)
+        setCursor(x + text_len(text), y)
 
     elseif event[1] == "mouse_click" then
         local button, cx, cy = event[2], event[3], event[4]
@@ -741,7 +778,7 @@ while bRunning do
                 -- Left click
                 if cy < h then
                     local newY = math.min(math.max(scrollY + cy, 1), #tLines)
-                    local newX = math.min(math.max(scrollX + cx, 1), #tLines[newY] + 1)
+                    local newX = math.min(math.max(scrollX + cx, 1), text_len(tLines[newY]) + 1)
                     setCursor(newX, newY)
                 else
                     current_menu = menu.create(menu_items)
