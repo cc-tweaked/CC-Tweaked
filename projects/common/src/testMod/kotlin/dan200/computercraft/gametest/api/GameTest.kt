@@ -54,13 +54,13 @@ annotation class GameTestGenerator
  * A test environment for client game tests ([TestTags.Client]), which ensures
  * the test runs in a unique batch.
  */
-class ClientTestEnvironment(val time: Int = Times.NOON) : TestEnvironmentDefinition {
+class ClientTestEnvironment(val time: Int = Times.NOON) : TestEnvironmentDefinition<Unit> {
     override fun setup(level: ServerLevel) {
-        level.dayTime = time.toLong()
+        level.clockManager().setTotalTicks(level.defaultClock, time.toLong())
     }
 
-    override fun teardown(level: ServerLevel) {
-        level.dayTime = Times.NOON.toLong()
+    override fun teardown(level: ServerLevel, saveData: Unit) {
+        level.clockManager().setTotalTicks(level.defaultClock, Times.NOON.toLong())
     }
 
     override fun codec(): MapCodec<ClientTestEnvironment> = CODEC

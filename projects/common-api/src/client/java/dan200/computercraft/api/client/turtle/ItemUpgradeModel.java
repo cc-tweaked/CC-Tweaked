@@ -13,12 +13,12 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.item.TrackingItemStackRenderState;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.cuboid.ItemTransform;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -30,7 +30,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Consumer;
 
 /**
- * A sic {@link TurtleUpgradeModel} that renders the upgrade's {@linkplain ITurtleUpgrade#getUpgradeItem(DataComponentPatch)
+ * A {@link TurtleUpgradeModel} that renders the upgrade's {@linkplain ITurtleUpgrade#getUpgradeItem(DataComponentPatch)
  * upgrade item}.
  * <p>
  * This uses appropriate transformations for "flat" items, namely those extending the {@literal minecraft:item/generated}
@@ -63,13 +63,13 @@ public final class ItemUpgradeModel implements TurtleUpgradeModel {
         renderer.appendModelIdentityElement(this);
 
         var childState = new TrackingItemStackRenderState();
-        resolver.updateForTopItem(childState, upgrade.getUpgradeItem(), ItemDisplayContext.NONE, null, null, seed);
+        resolver.updateForTopItem(childState, upgrade.getUpgradeItem().create(), ItemDisplayContext.NONE, null, null, seed);
         if (!childState.isEmpty()) {
             renderer.appendModelIdentityElement(childState.getModelIdentity());
             renderer.appendModelIdentityElement(transform);
 
             var layer = renderer.newLayer();
-            layer.setTransform(transform);
+            layer.setItemTransform(transform);
             layer.setupSpecialModel(getRenderer(side), childState);
         }
     }
@@ -109,7 +109,7 @@ public final class ItemUpgradeModel implements TurtleUpgradeModel {
     private record TransformedRenderer(Transformation transform) implements SpecialModelRenderer<ItemStackRenderState> {
         @Override
         public void submit(
-            @Nullable ItemStackRenderState state, ItemDisplayContext context, PoseStack poseStack, SubmitNodeCollector sink,
+            @Nullable ItemStackRenderState state, PoseStack poseStack, SubmitNodeCollector sink,
             int light, int overlay, boolean foil, int outlineColour
         ) {
             if (state == null) return;

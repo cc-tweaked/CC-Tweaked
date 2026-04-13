@@ -86,7 +86,7 @@ public final class TickScheduler {
     public static void onChunkUnload(LevelChunk chunk) {
         // If our chunk is fully unloaded, all block entities are about to be removed - we need to dequeue any delayed
         // tokens from the queue.
-        var delayedTokens = delayed.remove(new ChunkReference(chunk.getLevel().dimension(), chunk.getPos().toLong()));
+        var delayedTokens = delayed.remove(new ChunkReference(chunk.getLevel().dimension(), chunk.getPos().pack()));
         if (delayedTokens == null) return;
 
         for (var token : delayedTokens) Token.STATE.set(token, State.IDLE);
@@ -108,7 +108,7 @@ public final class TickScheduler {
 
         if (!level.isLoaded(pos)) {
             // The chunk is not properly loaded, as it to our delayed set.
-            delayed.computeIfAbsent(new ChunkReference(level.dimension(), ChunkPos.asLong(pos)), x -> new ArrayList<>()).add(token);
+            delayed.computeIfAbsent(new ChunkReference(level.dimension(), ChunkPos.pack(pos)), x -> new ArrayList<>()).add(token);
             return State.UNLOADED;
         } else {
             // This should be impossible: either the block entity is at the above position, or it has been removed.
@@ -171,7 +171,7 @@ public final class TickScheduler {
     private record ChunkReference(ResourceKey<Level> level, long position) {
         @Override
         public String toString() {
-            return "ChunkReference(" + level + " at " + new ChunkPos(position) + ")";
+            return "ChunkReference(" + level + " at " + ChunkPos.unpack(position) + ")";
         }
     }
 }

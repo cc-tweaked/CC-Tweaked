@@ -13,14 +13,10 @@ import dan200.computercraft.impl.UpgradeManager;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlock;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.cauldron.CauldronInteraction;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.LayeredCauldronBlock;
 import org.jspecify.annotations.Nullable;
 
 public class TurtleItem extends BlockItem {
@@ -54,14 +50,4 @@ public class TurtleItem extends BlockItem {
     public static @Nullable Identifier getOverlay(ItemStack stack) {
         return stack.get(ModRegistry.DataComponents.OVERLAY.get());
     }
-
-    public static final CauldronInteraction CAULDRON_INTERACTION = (blockState, level, pos, player, hand, stack) -> {
-        if (!stack.has(DataComponents.DYED_COLOR)) return InteractionResult.TRY_WITH_EMPTY_HAND;
-        if (!level.isClientSide()) {
-            stack.remove(DataComponents.DYED_COLOR);
-            LayeredCauldronBlock.lowerFillLevel(blockState, level, pos);
-        }
-
-        return InteractionResult.SUCCESS;
-    };
 }

@@ -16,12 +16,12 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.item.SelectItemModel;
-import net.minecraft.client.resources.model.MissingBlockModel;
 import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.cuboid.ItemTransform;
+import net.minecraft.client.resources.model.cuboid.MissingCuboidModel;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
@@ -72,7 +72,7 @@ public final class SelectUpgradeModel<T> implements TurtleUpgradeModel {
         Cases<T> cases,
         Optional<TurtleUpgradeModel.Unbaked> fallback
     ) implements TurtleUpgradeModel.Unbaked {
-        private static final TurtleUpgradeModel.Unbaked MISSING = BasicUpgradeModel.unbaked(MissingBlockModel.LOCATION, MissingBlockModel.LOCATION);
+        private static final TurtleUpgradeModel.Unbaked MISSING = BasicUpgradeModel.unbaked(MissingCuboidModel.LOCATION, MissingCuboidModel.LOCATION);
 
         @Override
         public MapCodec<? extends TurtleUpgradeModel.Unbaked> type() {

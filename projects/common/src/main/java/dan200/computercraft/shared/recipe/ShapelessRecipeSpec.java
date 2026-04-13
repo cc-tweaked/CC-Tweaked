@@ -10,7 +10,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 
@@ -26,7 +26,7 @@ import java.util.List;
  * @param ingredients The ingredients of the recipe.
  * @param result      The result of the recipe.
  */
-public record ShapelessRecipeSpec(RecipeProperties properties, List<Ingredient> ingredients, ItemStack result) {
+public record ShapelessRecipeSpec(RecipeProperties properties, List<Ingredient> ingredients, ItemStackTemplate result) {
     /**
      * A list of {@link Ingredient}s, usable in a {@linkplain ShapelessRecipe shapeless recipe}.
      */
@@ -35,13 +35,13 @@ public record ShapelessRecipeSpec(RecipeProperties properties, List<Ingredient> 
     public static final MapCodec<ShapelessRecipeSpec> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         RecipeProperties.CODEC.forGetter(ShapelessRecipeSpec::properties),
         INGREDIENT_CODEC.fieldOf("ingredients").forGetter(ShapelessRecipeSpec::ingredients),
-        ItemStack.STRICT_CODEC.fieldOf("result").forGetter(ShapelessRecipeSpec::result)
+        ItemStackTemplate.CODEC.fieldOf("result").forGetter(ShapelessRecipeSpec::result)
     ).apply(instance, ShapelessRecipeSpec::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ShapelessRecipeSpec> STREAM_CODEC = StreamCodec.composite(
         RecipeProperties.STREAM_CODEC, ShapelessRecipeSpec::properties,
         Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()), ShapelessRecipeSpec::ingredients,
-        ItemStack.STREAM_CODEC, ShapelessRecipeSpec::result,
+        ItemStackTemplate.STREAM_CODEC, ShapelessRecipeSpec::result,
         ShapelessRecipeSpec::new
     );
 
@@ -51,6 +51,6 @@ public record ShapelessRecipeSpec(RecipeProperties properties, List<Ingredient> 
      * @return The newly constructed recipe.
      */
     public ShapelessRecipe create() {
-        return new ShapelessRecipe(properties().group(), properties().category(), result(), ingredients());
+        return new ShapelessRecipe(properties().common(), properties().book(), result(), ingredients());
     }
 }

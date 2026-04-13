@@ -8,7 +8,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.recipe.function.RecipeFunction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
@@ -42,8 +41,8 @@ public final class TransformShapedRecipe extends CustomShapedRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInput inventory, HolderLookup.Provider registryAccess) {
-        var result = super.assemble(inventory, registryAccess);
+    public ItemStack assemble(CraftingInput inventory) {
+        var result = super.assemble(inventory);
         for (var function : functions) result = function.apply(inventory, result);
         return result;
     }

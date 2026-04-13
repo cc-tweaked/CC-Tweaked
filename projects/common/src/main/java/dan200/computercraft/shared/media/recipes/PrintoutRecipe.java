@@ -9,9 +9,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.PrintoutData;
 import dan200.computercraft.shared.media.items.PrintoutItem;
-import dan200.computercraft.shared.recipe.AbstractCraftingRecipe;
 import dan200.computercraft.shared.recipe.ShapelessRecipeSpec;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -37,7 +36,7 @@ import java.util.List;
  * @see PrintoutItem
  * @see PrintoutData
  */
-public final class PrintoutRecipe extends AbstractCraftingRecipe {
+public final class PrintoutRecipe extends NormalCraftingRecipe {
     public static final MapCodec<PrintoutRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         ShapelessRecipeSpec.CODEC.forGetter(PrintoutRecipe::toSpec),
         Ingredient.CODEC.fieldOf("printout").forGetter(x -> x.printout),
@@ -56,7 +55,6 @@ public final class PrintoutRecipe extends AbstractCraftingRecipe {
     private @Nullable PlacementInfo ingredientInfo;
 
     private final List<Ingredient> placementIngredients;
-    private @Nullable PlacementInfo placementInfo;
 
     private final Ingredient printout;
     private final int minPrintouts;
@@ -71,7 +69,7 @@ public final class PrintoutRecipe extends AbstractCraftingRecipe {
     public PrintoutRecipe(
         ShapelessRecipeSpec spec, Ingredient printout, int minPrintouts
     ) {
-        super(spec.properties());
+        super(spec.properties().common(), spec.properties().book());
 
         this.spec = spec;
         this.ingredients = spec.ingredients();
@@ -90,9 +88,8 @@ public final class PrintoutRecipe extends AbstractCraftingRecipe {
     }
 
     @Override
-    public PlacementInfo placementInfo() {
-        if (placementInfo == null) placementInfo = PlacementInfo.create(placementIngredients);
-        return placementInfo;
+    protected PlacementInfo createPlacementInfo() {
+        return PlacementInfo.create(placementIngredients);
     }
 
     @Override
@@ -146,7 +143,7 @@ public final class PrintoutRecipe extends AbstractCraftingRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInput inv, HolderLookup.Provider registries) {
+    public ItemStack assemble(CraftingInput inv) {
         List<PrintoutData> data = new ArrayList<>();
         for (var j = 0; j < inv.size(); ++j) {
             var stack = inv.getItem(j);
@@ -157,9 +154,10 @@ public final class PrintoutRecipe extends AbstractCraftingRecipe {
 
         var lines = data.stream().flatMap(x -> x.lines().stream()).toList();
 
-        var result = spec.result().copy();
-        result.set(ModRegistry.DataComponents.PRINTOUT.get(), new PrintoutData(data.getFirst().title(), lines));
-        return result;
+        return spec.result().apply(DataComponentPatch.builder()
+            .set(ModRegistry.DataComponents.PRINTOUT.get(), new PrintoutData(data.getFirst().title(), lines))
+            .build()
+        );
     }
 
     private ShapelessRecipeSpec toSpec() {

@@ -166,7 +166,7 @@ public final class PrinterBlockEntity extends AbstractContainerBlockEntity imple
     }
 
     static boolean isInk(ItemStack stack) {
-        return ColourUtils.getStackColour(stack) != null;
+        return ColourUtils.isDye(stack);
     }
 
     static boolean isPaper(ItemStack stack) {
@@ -179,7 +179,7 @@ public final class PrinterBlockEntity extends AbstractContainerBlockEntity imple
 
     private boolean inputPage() {
         var inkStack = inventory.get(0);
-        var dye = ColourUtils.getStackColour(inkStack);
+        var dye = ColourUtils.getDyeColour(inkStack);
         if (dye == null) return false;
 
         for (var i = 1; i < 7; i++) {

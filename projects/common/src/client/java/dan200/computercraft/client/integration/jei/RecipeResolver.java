@@ -80,8 +80,18 @@ class RecipeResolver implements ISimpleRecipeManagerPlugin<RecipeHolder<Crafting
         }
 
         @Override
-        public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+        public ItemStack assemble(CraftingInput input) {
             return ItemStack.EMPTY;
+        }
+
+        @Override
+        public boolean showNotification() {
+            return false;
+        }
+
+        @Override
+        public String group() {
+            return "";
         }
 
         @Override

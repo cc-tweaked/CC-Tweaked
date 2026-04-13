@@ -17,7 +17,7 @@ import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.network.server.UploadFileMessage;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
@@ -67,8 +67,8 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
     private final int uploadMaxSize;
     private final ItemStack displayStack;
 
-    public AbstractComputerScreen(T container, Inventory player, Component title, int sidebarYOffset) {
-        super(container, player, title);
+    public AbstractComputerScreen(T container, Inventory player, Component title, int sidebarYOffset, int width, int height) {
+        super(container, player, title, width, height);
         terminalData = container.getTerminal();
         family = container.getFamily();
         displayStack = container.getDisplayStack();
@@ -137,12 +137,6 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.render(graphics, mouseX, mouseY, partialTicks);
-        renderTooltip(graphics, mouseX, mouseY);
-    }
-
-    @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         var changed = super.mouseClicked(event, doubleClick);
         // Clicking the terminate/shutdown button steals focus, which means then pressing "enter" will click the button
@@ -164,7 +158,7 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         // Skip rendering labels.
     }
 

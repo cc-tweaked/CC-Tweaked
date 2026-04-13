@@ -31,7 +31,7 @@ class SoundEngineMixin {
         self = (SoundEngine) (Object) this;
     }
 
-    @Inject(at = @At("TAIL"), method = "method_19755")
+    @Inject(at = @At("TAIL"), method = "lambda$play$4")
     @SuppressWarnings("unused")
     private static void onStream(AudioStream stream, Channel channel, CallbackInfo ci) {
         SpeakerManager.onPlayStreaming(assertNonNull(self), channel, stream);

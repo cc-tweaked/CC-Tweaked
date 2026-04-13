@@ -154,12 +154,12 @@ public final class WorldUtil {
         var zPos = pos.getZ() + 0.5 + zDir * 0.7;
 
         var item = new ItemEntity(level, xPos, yPos, zPos, stack.copy());
-        var baseSpeed = level.random.nextDouble() * 0.1 + 0.2;
+        var baseSpeed = level.getRandom().nextDouble() * 0.1 + 0.2;
         item.setDeltaMovement(
-            level.random.triangle(xDir * baseSpeed, DROP_SPEED),
+            level.getRandom().triangle(xDir * baseSpeed, DROP_SPEED),
             // Vanilla ignores the yDir and does a constant 0.2, but that gives the item a higher arc than we want.
-            level.random.triangle(yDir * baseSpeed, DROP_SPEED),
-            level.random.triangle(zDir * baseSpeed, DROP_SPEED)
+            level.getRandom().triangle(yDir * baseSpeed, DROP_SPEED),
+            level.getRandom().triangle(zDir * baseSpeed, DROP_SPEED)
         );
         item.setDefaultPickUpDelay();
         level.addFreshEntity(item);

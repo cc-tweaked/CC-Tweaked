@@ -37,10 +37,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -224,7 +221,7 @@ public interface PlatformHelper {
      * @param stack The original item.
      * @return The "remainder" item. May be {@link ItemStack#EMPTY}.
      */
-    ItemStack getCraftingRemainingItem(ItemStack stack);
+    @Nullable ItemStackTemplate getCraftingRemainingItem(ItemStack stack);
 
     /**
      * Check whether we should notify neighbours in a particular direction.

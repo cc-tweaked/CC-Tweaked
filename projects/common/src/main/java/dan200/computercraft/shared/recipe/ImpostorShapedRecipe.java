@@ -5,7 +5,6 @@
 package dan200.computercraft.shared.recipe;
 
 import dan200.computercraft.shared.ModRegistry;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
@@ -29,7 +28,7 @@ public final class ImpostorShapedRecipe extends CustomShapedRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInput inventory, HolderLookup.Provider registryAccess) {
+    public ItemStack assemble(CraftingInput inventory) {
         return ItemStack.EMPTY;
     }
 

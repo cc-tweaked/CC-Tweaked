@@ -8,7 +8,7 @@ import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.item.crafting.display.SlotDisplayContext;
@@ -27,9 +27,9 @@ public class JsonDump {
         public String output;
         public int count;
 
-        public Recipe(ItemStack output) {
-            this.output = RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, output.getItem()).toString();
-            count = output.getCount();
+        public Recipe(ItemStackTemplate output) {
+            this.output = output.item().unwrapKey().orElseThrow().identifier().toString();
+            count = output.count();
         }
 
         public void setInput(int pos, SlotDisplay ingredient, Set<Item> trackedItems) {

@@ -15,6 +15,7 @@ import dan200.computercraft.shared.network.NetworkMessages;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.ItemFrameRenderer;
 import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.ModelDebugName;
 import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.context.ContextKey;
@@ -131,7 +132,7 @@ public final class ForgeClientRegistry {
         U model, BiConsumer<U, ResolvableModel.Resolver> resolve, BiFunction<U, ModelBaker, T> bake
     ) implements UnbakedStandaloneModel<T> {
         @Override
-        public T bake(ModelBaker baker) {
+        public T bake(ModelBaker baker, ModelDebugName name) {
             return bake().apply(model(), baker);
         }
 

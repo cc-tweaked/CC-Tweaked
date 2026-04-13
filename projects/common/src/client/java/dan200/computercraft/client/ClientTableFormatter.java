@@ -8,10 +8,11 @@ import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.command.text.TableFormatter;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.multiplayer.chat.GuiMessageSource;
+import net.minecraft.client.multiplayer.chat.GuiMessageTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.apache.commons.lang3.StringUtils;
@@ -66,7 +67,7 @@ public class ClientTableFormatter implements TableFormatter {
         // int maxWidth = MathHelper.floor( chat.getChatWidth() / chat.getScale() );
         // List<ITextProperties> list = RenderComponentsUtil.wrapComponents( component, maxWidth, mc.fontRenderer );
         // if( !list.isEmpty() ) chat.printChatMessageWithOptionalDeletion( list.get( 0 ), id );
-        chat.addMessage(component, null, createTag(label));
+        chat.addMessage(component, null, GuiMessageSource.SYSTEM_SERVER, createTag(label));
     }
 
     @Override

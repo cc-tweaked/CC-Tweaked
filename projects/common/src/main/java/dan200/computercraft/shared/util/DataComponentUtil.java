@@ -4,12 +4,11 @@
 
 package dan200.computercraft.shared.util;
 
-import net.minecraft.core.component.DataComponentHolder;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.*;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.Contract;
@@ -43,6 +42,10 @@ public class DataComponentUtil {
         return set(new ItemStack(item), type, value);
     }
 
+    public static <T> ItemStackTemplate createTemplate(Item item, DataComponentType<T> type, T value) {
+        return new ItemStackTemplate(item, DataComponentPatch.builder().set(type, value).build());
+    }
+
     /**
      * Create a stack dyed with a particular colour, but with the colour hidden from the tooltip.
      *
@@ -69,7 +72,7 @@ public class DataComponentUtil {
      * @return Whether the component is present in this patch, and matches the supplied predicate.
      */
     public static <T> boolean isPresent(DataComponentPatch patch, DataComponentType<T> component, Predicate<T> check) {
-        var value = patch.get(component);
-        return value != null && value.isPresent() && check.test(value.get());
+        var value = patch.get(DataComponentMap.EMPTY, component);
+        return value != null && check.test(value);
     }
 }

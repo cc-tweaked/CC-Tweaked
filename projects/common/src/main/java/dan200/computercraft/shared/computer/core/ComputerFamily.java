@@ -48,10 +48,10 @@ public enum ComputerFamily {
 
     private static boolean checkCommandUsable(Player player) {
         if (!(player.level() instanceof ServerLevel level) || !level.isCommandBlockEnabled()) {
-            player.displayClientMessage(Component.translatable("advMode.notEnabled"), true);
+            player.sendOverlayMessage(Component.translatable("advMode.notEnabled"));
             return false;
         } else if (!canUseCommandBlock(player)) {
-            player.displayClientMessage(Component.translatable("advMode.notAllowed"), true);
+            player.sendOverlayMessage(Component.translatable("advMode.notAllowed"));
             return false;
         }
 

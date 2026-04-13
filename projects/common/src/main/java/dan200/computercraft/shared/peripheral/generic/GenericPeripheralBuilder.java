@@ -10,7 +10,6 @@ import dan200.computercraft.core.methods.NamedMethod;
 import dan200.computercraft.core.methods.PeripheralMethod;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +39,8 @@ final class GenericPeripheralBuilder {
 
         String type;
         if (name == null) {
-            var typeId = BlockEntityType.getKey(blockEntity.getType());
-            if (typeId == null) {
+            var typeId = blockEntity.typeHolder().unwrapKey();
+            if (typeId.isEmpty()) {
                 LOG.error(
                     "Block entity {} for {} was not registered. Skipping creating a generic peripheral for it.",
                     blockEntity, blockEntity.getBlockState().getBlock()
@@ -49,7 +48,7 @@ final class GenericPeripheralBuilder {
                 return null;
             }
 
-            type = typeId.toString();
+            type = typeId.get().identifier().toString();
         } else {
             type = name;
         }

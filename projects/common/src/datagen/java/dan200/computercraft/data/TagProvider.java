@@ -98,6 +98,8 @@ class TagProvider {
             ModRegistry.Items.MONITOR_ADVANCED.get()
         );
 
+        tags.tag(ItemTags.CAULDRON_CAN_REMOVE_DYE).addTag(ComputerCraftTags.Items.TURTLE);
+
         // Allow printed books to be placed in bookshelves.
         tags.tag(ItemTags.BOOKSHELF_BOOKS).add(ModRegistry.Items.PRINTED_BOOK.get());
 

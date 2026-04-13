@@ -26,12 +26,13 @@ import net.minecraft.client.renderer.blockentity.LecternRenderer;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.MaterialSet;
+import net.minecraft.client.resources.model.sprite.SpriteGetter;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -50,13 +51,13 @@ import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FON
 public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternBlockEntity, CustomLecternRenderer.State> {
     private static final int POCKET_TERMINAL_RENDER_DISTANCE = 32;
 
-    private final MaterialSet materials;
+    private final SpriteGetter sprites;
     private final LecternPrintoutModel printoutModel;
     private final LecternBookModel bookModel;
     private final LecternPocketModel pocketModel;
 
     public CustomLecternRenderer(BlockEntityRendererProvider.Context context) {
-        materials = context.materials();
+        sprites = context.sprites();
         bookModel = new LecternBookModel(context.bakeLayer(LecternBookModel.LAYER));
         printoutModel = new LecternPrintoutModel(context.bakeLayer(LecternPrintoutModel.LAYER));
         pocketModel = new LecternPocketModel(context.bakeLayer(LecternPocketModel.LAYER));
@@ -83,6 +84,7 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
     @Override
     public void extractRenderState(CustomLecternBlockEntity lectern, State state, float f, Vec3 camera, ModelFeatureRenderer.@Nullable CrumblingOverlay overlay) {
         BlockEntityRenderer.super.extractRenderState(lectern, state, f, camera, overlay);
+        state.blockState = lectern.getBlockState();
 
         var item = lectern.getItem();
         if (item.getItem() instanceof PrintoutItem) {
@@ -109,19 +111,19 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
         if (state.type == Type.PRINTOUT) {
             if (state.isBook) {
                 collector.submitModel(
-                    bookModel, Unit.INSTANCE, poseStack, LecternPrintoutModel.MATERIAL.renderType(RenderTypes::entitySolid),
+                    bookModel, Unit.INSTANCE, poseStack, LecternPrintoutModel.SPRITE.renderType(RenderTypes::entitySolid),
                     state.lightCoords, OverlayTexture.NO_OVERLAY, -1,
-                    materials.get(LecternPrintoutModel.MATERIAL), 0, null
+                    sprites.get(LecternPrintoutModel.SPRITE), 0, null
                 );
             } else {
                 collector.submitModel(
-                    printoutModel, state.printoutState, poseStack, LecternPrintoutModel.MATERIAL.renderType(RenderTypes::entitySolid),
+                    printoutModel, state.printoutState, poseStack, LecternPrintoutModel.SPRITE.renderType(RenderTypes::entitySolid),
                     state.lightCoords, OverlayTexture.NO_OVERLAY, -1,
-                    materials.get(LecternPrintoutModel.MATERIAL), 0, null
+                    sprites.get(LecternPrintoutModel.SPRITE), 0, null
                 );
             }
         } else if (state.type == Type.POCKET_COMPUTER) {
-            pocketModel.submit(poseStack, collector, materials, state.lightCoords, state.pocketFamily, state.pocketColour, state.pocketLight);
+            pocketModel.submit(poseStack, collector, sprites, state.lightCoords, state.pocketFamily, state.pocketColour, state.pocketLight);
 
             applyPocketComputerTerminalTransform(poseStack);
 
@@ -187,6 +189,7 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
     }
 
     public static final class State extends BlockEntityRenderState {
+        private BlockState blockState = Blocks.AIR.defaultBlockState();
         private Type type = Type.PRINTOUT;
         private boolean isBook;
         private final LecternPrintoutModel.State printoutState = new LecternPrintoutModel.State();

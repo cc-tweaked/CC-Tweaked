@@ -397,11 +397,11 @@ class Turtle_Test {
     }
 
     private fun GameTestHelper.assertUpgradeItem(expected: ItemStack, upgrade: UpgradeData<ITurtleUpgrade>) {
-        if (!ItemStack.matches(expected, upgrade.upgradeItem)) {
-            fail("Invalid upgrade item\n Expected => ${expected.componentsPatch}\n    Actual => ${upgrade.upgradeItem.componentsPatch}")
+        if (!expected.matches(upgrade.upgradeItem)) {
+            fail("Invalid upgrade item\n Expected => ${expected.componentsPatch}\n    Actual => ${upgrade.upgradeItem.components}")
         }
 
-        if (!ItemStack.matches(ItemStack(expected.item), upgrade.upgrade().craftingItem)) {
+        if (!ItemStack(expected.item).matches(upgrade.upgrade().craftingItem)) {
             fail("Original upgrade item has changed (is now ${upgrade.upgrade().craftingItem})")
         }
     }

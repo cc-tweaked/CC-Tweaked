@@ -252,12 +252,12 @@ public class ServerComputer implements ComputerEnvironment {
 
     @Override
     public final double getTimeOfDay() {
-        return (level.getDayTime() + 6000) % 24000 / 1000.0;
+        return (level.getDefaultClockTime() + 6000) % 24000 / 1000.0;
     }
 
     @Override
     public final int getDay() {
-        return (int) ((level.getDayTime() + 6000) / 24000) + 1;
+        return (int) ((level.getDefaultClockTime() + 6000) / 24000) + 1;
     }
 
     @Override

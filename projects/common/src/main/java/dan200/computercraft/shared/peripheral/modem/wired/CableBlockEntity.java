@@ -131,12 +131,12 @@ public class CableBlockEntity extends BlockEntity {
 
         if (!Objects.equals(newName, oldName)) {
             if (oldName != null) {
-                player.displayClientMessage(Component.translatable("chat.computercraft.wired_modem.peripheral_disconnected",
-                    ChatHelpers.copy(oldName)), false);
+                player.sendSystemMessage(Component.translatable("chat.computercraft.wired_modem.peripheral_disconnected",
+                    ChatHelpers.copy(oldName)));
             }
             if (newName != null) {
-                player.displayClientMessage(Component.translatable("chat.computercraft.wired_modem.peripheral_connected",
-                    ChatHelpers.copy(newName)), false);
+                player.sendSystemMessage(Component.translatable("chat.computercraft.wired_modem.peripheral_connected",
+                    ChatHelpers.copy(newName)));
             }
         }
 

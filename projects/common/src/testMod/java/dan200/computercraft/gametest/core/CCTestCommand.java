@@ -79,7 +79,7 @@ class CCTestCommand {
                     .flatMap(TestInstanceBlockEntity::test).orElse(null);
                 if (test == null) return error(context.getSource(), "No nearby structure block");
 
-                var stack = item.createItemStack(1, false);
+                var stack = item.createItemStack(1);
                 stack.set(ModRegistry.DataComponents.COMPUTER_ID.get(), new NonNegativeId.Computer(1));
                 stack.set(DataComponents.CUSTOM_NAME, Component.literal(test.identifier().getPath()));
                 if (!player.getInventory().add(stack)) {
@@ -116,7 +116,7 @@ class CCTestCommand {
     }
 
     private static Path getSourceComputerPath() {
-        return TestHooks.getSourceDir().resolve("computer");
+        return TestHooks.getSourceDir().resolve("data/cctest/computer");
     }
 
     private static int error(CommandSourceStack source, String message) {

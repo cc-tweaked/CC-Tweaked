@@ -71,9 +71,9 @@ public final class DataProviders {
 
         generator.addFromCodec("Block atlases", PackOutput.Target.RESOURCE_PACK, "atlases", SpriteSources.FILE_CODEC, out -> {
             out.accept(AtlasIds.BLOCKS, makeSprites(Stream.of(
-                LecternPrintoutModel.MATERIAL.texture(),
-                LecternPocketModel.MATERIAL_NORMAL.texture(), LecternPocketModel.MATERIAL_ADVANCED.texture(),
-                LecternPocketModel.MATERIAL_COLOUR.texture(), LecternPocketModel.MATERIAL_FRAME.texture(), LecternPocketModel.MATERIAL_LIGHT.texture()
+                LecternPrintoutModel.SPRITE.texture(),
+                LecternPocketModel.SPRITE_NORMAL.texture(), LecternPocketModel.SPRITE_ADVANCED.texture(),
+                LecternPocketModel.SPRITE_COLOUR.texture(), LecternPocketModel.SPRITE_FRAME.texture(), LecternPocketModel.SPRITE_LIGHT.texture()
             )));
 
             out.accept(AtlasIds.GUI, makeSprites(

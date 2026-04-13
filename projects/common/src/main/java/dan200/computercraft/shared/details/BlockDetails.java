@@ -8,8 +8,8 @@ import dan200.computercraft.api.detail.BlockReference;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.state.properties.Property;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class BlockDetails {
     public static void fillBasic(Map<? super String, Object> data, BlockReference block) {
@@ -17,16 +17,14 @@ public class BlockDetails {
 
         data.put("name", DetailHelpers.getId(BuiltInRegistries.BLOCK, state.getBlock()));
 
-        Map<Object, Object> stateTable = new HashMap<>();
-        for (Map.Entry<Property<?>, ? extends Comparable<?>> entry : state.getValues().entrySet()) {
-            var property = entry.getKey();
-            stateTable.put(property.getName(), getPropertyValue(property, entry.getValue()));
-        }
-        data.put("state", stateTable);
+        data.put("state", state.getValues().collect(Collectors.toMap(
+            x -> x.property().getName(),
+            x -> getPropertyValue(x.property(), x.value())
+        )));
     }
 
     public static void fill(Map<? super String, Object> data, BlockReference block) {
-        data.put("tags", DetailHelpers.getTags(block.state().getTags()));
+        data.put("tags", DetailHelpers.getTags(block.state()));
         DetailHelpers.fillMapColour(data, block.level(), block.pos(), block.state());
     }
 

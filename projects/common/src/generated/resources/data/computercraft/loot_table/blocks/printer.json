@@ -7,7 +7,13 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "functions": [{"function": "minecraft:copy_name", "source": "block_entity"}],
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "include": ["minecraft:custom_name"],
+              "source": "block_entity"
+            }
+          ],
           "name": "computercraft:printer"
         }
       ],

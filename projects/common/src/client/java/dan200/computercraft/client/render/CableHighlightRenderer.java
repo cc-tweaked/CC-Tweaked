@@ -26,9 +26,11 @@ public final class CableHighlightRenderer {
      */
     public static BlockOutlineRenderer.@Nullable Renderer drawHighlight(Camera camera, BlockHitResult hit) {
         var pos = hit.getBlockPos();
-        var level = camera.entity().level();
 
-        var state = level.getBlockState(pos);
+        var player = camera.entity();
+        if (player == null) return null;
+
+        var state = player.level().getBlockState(pos);
 
         // We only care about instances with both cable and modem.
         if (state.getBlock() != ModRegistry.Blocks.CABLE.get() || state.getValue(CableBlock.MODEM).getFacing() == null || !state.getValue(CableBlock.CABLE)) {

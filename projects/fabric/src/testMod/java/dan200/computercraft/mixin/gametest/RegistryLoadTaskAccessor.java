@@ -5,15 +5,11 @@
 package dan200.computercraft.mixin.gametest;
 
 import net.minecraft.core.WritableRegistry;
-import net.minecraft.resources.RegistryDataLoader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(targets = "net/minecraft/resources/RegistryDataLoader$Loader")
-public interface RegistryDataLoaderLoaderAccessor<T> {
-    @Accessor("data")
-    RegistryDataLoader.RegistryData<T> getData();
-
+@Mixin(targets = "net/minecraft/resources/RegistryLoadTask")
+public interface RegistryLoadTaskAccessor<T> {
     @Accessor("registry")
     WritableRegistry<T> getRegistry();
 }

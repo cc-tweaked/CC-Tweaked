@@ -4,7 +4,6 @@
 
 import cc.tweaked.gradle.*
 import net.fabricmc.loom.configuration.ide.RunConfigSettings
-import java.util.*
 
 plugins {
     id("cc-tweaked.fabric")
@@ -20,26 +19,15 @@ cct {
     allProjects.forEach { externalSources(it) }
 }
 
+sourceSets {
+    main { java.exclude("dan200/computercraft/shared/integration/rei") }
+    client { java.exclude("dan200/computercraft/client/integration/rei") }
+}
+
 fun addRemappedConfiguration(name: String) {
-    // There was a regression in Loom 1.1 which means that targetConfigurationName doesn't do anything, and remap
-    // configurations just get added to the main source set (https://github.com/FabricMC/fabric-loom/issues/843).
-    // To get around that, we create our own source set and register a remap configuration with that. This does
-    // introduce a bit of noise, but it's not the end of the world.
-    val ourSourceSet = sourceSets.register(name) {
-        // Try to make this source set as much of a non-entity as possible.
-        listOf(allSource, java, resources, kotlin).forEach { it.setSrcDirs(emptyList<File>()) }
-    }
-    val capitalName = name.replaceFirstChar { it.titlecase(Locale.ROOT) }
-    loom.addRemapConfiguration("mod$capitalName") {
-        onCompileClasspath = false
-        onRuntimeClasspath = true
-        sourceSet = ourSourceSet
-        targetConfigurationName = name
-    }
     configurations.create(name) {
         isCanBeConsumed = false
         isCanBeResolved = true
-        extendsFrom(configurations["${name}RuntimeClasspath"])
     }
 }
 
@@ -73,20 +61,21 @@ configurations {
 }
 
 dependencies {
-    modCompileOnly(libs.bundles.externalMods.fabric.compile) {
+    compileOnly(libs.bundles.externalMods.fabric.compile) {
         exclude("net.fabricmc", "fabric-loader")
         exclude("net.fabricmc.fabric-api")
     }
-    modCompileOnly(libs.create.fabric) { isTransitive = false }
+    // FIXME: A lie, but Fabric Create uses the wrong mappings
+    compileOnly(libs.create.forge) { isTransitive = false }
 
-    modClientRuntimeOnly(libs.bundles.externalMods.fabric.runtime) {
+    clientRuntimeOnly(libs.bundles.externalMods.fabric.runtime) {
         exclude("net.fabricmc", "fabric-loader")
         exclude("net.fabricmc.fabric-api")
     }
 
-    "modTestWithSodium"(libs.sodium.fabric)
-    "modTestWithIris"(libs.iris.fabric)
-    "modTestWithIris"(libs.sodium.fabric)
+    "testWithSodium"(libs.sodium.fabric)
+    "testWithIris"(libs.iris.fabric)
+    "testWithIris"(libs.sodium.fabric)
 
     "includeRuntimeOnly"(libs.cobalt)
     "includeRuntimeOnly"(libs.netty.socks)
@@ -172,7 +161,7 @@ loom {
         fun RunConfigSettings.configureForGameTest() {
             source(sourceSets.testMod.get())
 
-            val testSources = project(":common").file("src/testMod/resources/data/cctest").absolutePath
+            val testSources = project(":common").file("src/testMod/resources").absolutePath
             property("cctest.sources", testSources)
 
             // Load cctest last, so it can override resources. This bypasses Fabric's shuffling of mods
@@ -285,7 +274,7 @@ tasks.register("checkClient") {
 }
 
 modPublishing {
-    output = tasks.remapJar
+    output = tasks.jar
 }
 
 modrinth {

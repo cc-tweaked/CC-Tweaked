@@ -10,7 +10,7 @@ import cc.tweaked.gradle.MinecraftConfigurations
 
 plugins {
     id("cc-tweaked.java-convention")
-    id("cc.tweaked.vanilla-extract")
+    id("net.fabricmc.fabric-loom")
 }
 
 plugins.apply(CCTweakedPlugin::class.java)
@@ -19,22 +19,19 @@ val mcVersion: String by extra
 
 val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-minecraft {
-    version(mcVersion)
-
-    mappings {
-        parchment(libs.findVersion("parchmentMc").get().toString(), libs.findVersion("parchment").get().toString())
-    }
-
-    unpick(libs.findLibrary("yarn").get())
+loom {
+    splitEnvironmentSourceSets()
+    splitModDependencies = true
 }
 
 dependencies {
+    minecraft("com.mojang:minecraft:$mcVersion")
+
     // Depend on error prone annotations to silence a lot of compile warnings.
     compileOnly(libs.findLibrary("errorProne.annotations").get())
 }
 
-MinecraftConfigurations.setupBasic(project)
+MinecraftConfigurations.setup(project)
 
 extensions.configure(CCTweakedExtension::class.java) {
     linters(minecraft = true, loader = null)

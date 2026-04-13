@@ -9,7 +9,7 @@ import dan200.computercraft.core.input.UserComputerInput;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.ScrollWheelHandler;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.input.KeyEvent;
@@ -102,20 +102,20 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.render(graphics, mouseX, mouseY, partialTicks);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 
         var font = minecraft.font;
         var lines = font.split(Component.translatable("gui.computercraft.pocket_computer_overlay"), (int) (width * 0.8));
         var y = 10;
         for (var line : lines) {
-            graphics.drawString(font, line, (width / 2) - (font.width(line) / 2), y, 0xFFFFFFFF, true);
+            graphics.text(font, line, (width / 2) - (font.width(line) / 2), y, 0xFFFFFFFF, true);
             y += 9;
         }
     }
 
     @Override
-    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         // Skip rendering the background.
     }
 }

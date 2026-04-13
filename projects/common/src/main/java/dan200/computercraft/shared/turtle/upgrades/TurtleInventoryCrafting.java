@@ -84,7 +84,7 @@ public final class TurtleInventoryCrafting {
 
             if (!recipe.matches(input, level)) break;
 
-            var result = recipe.assemble(input, level.registryAccess());
+            var result = recipe.assemble(input);
             if (result.isEmpty()) break;
             results.add(result);
 

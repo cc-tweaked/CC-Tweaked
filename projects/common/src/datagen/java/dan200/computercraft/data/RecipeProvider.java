@@ -27,13 +27,13 @@ import dan200.computercraft.shared.recipe.function.CopyComponents;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.util.ColourUtils;
-import dan200.computercraft.shared.util.DataComponentUtil;
 import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.criterion.InventoryChangeTrigger;
 import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -46,10 +46,9 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ResolvableProfile;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
@@ -80,10 +79,10 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         turtleUpgrades();
         turtleOverlays();
 
-        special(new ColourableRecipe(CraftingBookCategory.MISC));
-        special(new ClearColourRecipe(CraftingBookCategory.MISC));
-        special(new TurtleUpgradeRecipe(CraftingBookCategory.MISC));
-        special(new PocketComputerUpgradeRecipe(CraftingBookCategory.MISC));
+        special(new ColourableRecipe());
+        special(new ClearColourRecipe());
+        special(new TurtleUpgradeRecipe(registries.lookupOrThrow(ITurtleUpgrade.REGISTRY)));
+        special(new PocketComputerUpgradeRecipe(registries.lookupOrThrow(IPocketUpgrade.REGISTRY)));
     }
 
     /**
@@ -112,12 +111,15 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
 
             registries.lookupOrThrow(ITurtleUpgrade.REGISTRY).listElements().forEach(upgradeHolder -> {
                 var upgrade = upgradeHolder.value();
-                customShaped(RecipeCategory.REDSTONE, DataComponentUtil.createStack(turtleItem, ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get(), UpgradeData.ofDefault(upgradeHolder)))
+                customShaped(RecipeCategory.REDSTONE, new ItemStackTemplate(turtleItem, DataComponentPatch.builder()
+                    .set(ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get(), UpgradeData.ofDefault(upgradeHolder))
+                    .build()
+                ))
                     .group(name.toString())
                     .pattern("#T")
                     .define('T', turtleItem)
-                    .define('#', upgrade.getCraftingItem().getItem())
-                    .unlockedBy("has_items", has(turtleItem, upgrade.getCraftingItem().getItem()))
+                    .define('#', upgrade.getCraftingItem().item().value())
+                    .unlockedBy("has_items", has(turtleItem, upgrade.getCraftingItem().item().value()))
                     .build(ImpostorShapedRecipe::new)
                     .save(
                         output,
@@ -140,13 +142,16 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
 
             registries.lookupOrThrow(IPocketUpgrade.REGISTRY).listElements().forEach(upgradeHolder -> {
                 var upgrade = upgradeHolder.value();
-                customShaped(RecipeCategory.REDSTONE, DataComponentUtil.createStack(pocket, ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), UpgradeData.ofDefault(upgradeHolder)))
+                customShaped(RecipeCategory.REDSTONE, new ItemStackTemplate(pocket, DataComponentPatch.builder()
+                    .set(ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), UpgradeData.ofDefault(upgradeHolder))
+                    .build()
+                ))
                     .group(name.toString())
                     .pattern("#")
                     .pattern("P")
                     .define('P', pocket)
-                    .define('#', upgrade.getCraftingItem().getItem())
-                    .unlockedBy("has_items", has(pocket, upgrade.getCraftingItem().getItem()))
+                    .define('#', upgrade.getCraftingItem().item().value())
+                    .unlockedBy("has_items", has(pocket, upgrade.getCraftingItem().item().value()))
                     .build(ImpostorShapedRecipe::new)
                     .save(
                         output,
@@ -181,7 +186,10 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         for (var turtleItem : turtleItems()) {
             var name = RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, turtleItem);
 
-            var builder = customShapeless(RecipeCategory.REDSTONE, DataComponentUtil.createStack(turtleItem, ModRegistry.DataComponents.OVERLAY.get(), overlay))
+            var builder = customShapeless(RecipeCategory.REDSTONE, new ItemStackTemplate(turtleItem, DataComponentPatch.builder()
+                .set(ModRegistry.DataComponents.OVERLAY.get(), overlay)
+                .build()
+            ))
                 .group(name.withSuffix("_overlay").toString())
                 .unlockedBy("has_turtle", has(turtleItem));
             build.accept(builder);
@@ -446,24 +454,27 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         return ItemPredicate.Builder.item().of(items, item).build();
     }
 
-    private static ItemStack playerHead(String name, String uuid) {
-        return DataComponentUtil.createStack(Items.PLAYER_HEAD, DataComponents.PROFILE, ResolvableProfile.createResolved(new GameProfile(UUID.fromString(uuid), name)));
+    private static ItemStackTemplate playerHead(String name, String uuid) {
+        return new ItemStackTemplate(Items.PLAYER_HEAD, DataComponentPatch.builder()
+            .set(DataComponents.PROFILE, ResolvableProfile.createResolved(new GameProfile(UUID.fromString(uuid), name)))
+            .build()
+        );
     }
 
-    private ShapedSpecBuilder customShaped(RecipeCategory category, ItemStack result) {
+    private ShapedSpecBuilder customShaped(RecipeCategory category, ItemStackTemplate result) {
         return new ShapedSpecBuilder(items, category, result);
     }
 
     private ShapedSpecBuilder customShaped(RecipeCategory category, ItemLike result) {
-        return new ShapedSpecBuilder(items, category, new ItemStack(result));
+        return new ShapedSpecBuilder(items, category, new ItemStackTemplate(result.asItem()));
     }
 
-    private ShapelessSpecBuilder customShapeless(RecipeCategory category, ItemStack result) {
+    private ShapelessSpecBuilder customShapeless(RecipeCategory category, ItemStackTemplate result) {
         return new ShapelessSpecBuilder(items, category, result);
     }
 
     private ShapelessSpecBuilder customShapeless(RecipeCategory category, ItemLike result) {
-        return new ShapelessSpecBuilder(items, category, new ItemStack(result));
+        return new ShapelessSpecBuilder(items, category, new ItemStackTemplate(result.asItem()));
     }
 
     private void special(Recipe<?> recipe) {

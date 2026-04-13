@@ -5,7 +5,6 @@
 package dan200.computercraft.shared.integration;
 
 import com.google.auto.service.AutoService;
-import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.command.UserLevel;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.loader.api.FabricLoader;
@@ -24,8 +23,9 @@ public final class FabricPermissionRegistry extends PermissionRegistry {
     @Override
     public Predicate<CommandSourceStack> registerCommand(String command, UserLevel fallback) {
         checkNotFrozen();
-        var name = ComputerCraftAPI.MOD_ID + ".command." + command;
-        return source -> Permissions.getPermissionValue(source, name).orElseGet(() -> fallback.test(source));
+        // var name = ComputerCraftAPI.MOD_ID + ".command." + command;
+        // Permissions.getPermissionValue(source, name).orElseGet(() -> ...)
+        return fallback;
     }
 
     @AutoService(PermissionRegistry.Provider.class)

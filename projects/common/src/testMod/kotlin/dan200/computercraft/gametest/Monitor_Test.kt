@@ -5,6 +5,7 @@
 package dan200.computercraft.gametest
 
 import dan200.computercraft.gametest.api.*
+import dan200.computercraft.gametest.core.TestHooks
 import dan200.computercraft.gametest.core.TestInstance
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlock
@@ -13,7 +14,8 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState
 import net.minecraft.commands.arguments.blocks.BlockInput
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Holder
-import net.minecraft.gametest.framework.*
+import net.minecraft.gametest.framework.GameTestHelper
+import net.minecraft.gametest.framework.TestData
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
@@ -118,8 +120,8 @@ class Monitor_Test {
                 TestInstance(
                     "$testName.$label",
                     TestData(
-                        Holder.direct(TestEnvironmentDefinition.TimeOfDay(time)),
-                        Identifier.parse(testName),
+                        Holder.direct(ClientTestEnvironment(time)),
+                        Identifier.fromNamespaceAndPath(TestHooks.MOD_ID, testName),
                         Timeouts.DEFAULT,
                         0,
                         true,
@@ -157,7 +159,5 @@ class Monitor_Test {
         }
 
         thenScreenshot()
-
-        thenExecute { helper.level.dayTime = Times.NOON.toLong() }
     }
 }

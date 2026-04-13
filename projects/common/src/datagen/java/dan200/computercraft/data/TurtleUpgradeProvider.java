@@ -18,7 +18,7 @@ import dan200.computercraft.shared.turtle.upgrades.TurtleSpeaker;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 
 import java.util.function.BiConsumer;
@@ -47,10 +47,10 @@ class TurtleUpgradeProvider {
     }
 
     public static void register(BootstrapContext<ITurtleUpgrade> upgrades) {
-        upgrades.register(SPEAKER, new TurtleSpeaker(new ItemStack(ModRegistry.Items.SPEAKER.get())));
-        upgrades.register(CRAFTING_TABLE, new TurtleCraftingTable(new ItemStack(Items.CRAFTING_TABLE)));
-        upgrades.register(WIRELESS_MODEM_NORMAL, new TurtleModem(new ItemStack(ModRegistry.Items.WIRELESS_MODEM_NORMAL.get()), false));
-        upgrades.register(WIRELESS_MODEM_ADVANCED, new TurtleModem(new ItemStack(ModRegistry.Items.WIRELESS_MODEM_ADVANCED.get()), true));
+        upgrades.register(SPEAKER, new TurtleSpeaker(new ItemStackTemplate(ModRegistry.Items.SPEAKER.get())));
+        upgrades.register(CRAFTING_TABLE, new TurtleCraftingTable(new ItemStackTemplate(Items.CRAFTING_TABLE)));
+        upgrades.register(WIRELESS_MODEM_NORMAL, new TurtleModem(new ItemStackTemplate(ModRegistry.Items.WIRELESS_MODEM_NORMAL.get()), false));
+        upgrades.register(WIRELESS_MODEM_ADVANCED, new TurtleModem(new ItemStackTemplate(ModRegistry.Items.WIRELESS_MODEM_ADVANCED.get()), true));
 
         tool(DIAMOND_AXE, Items.DIAMOND_AXE).damageMultiplier(6.0f).register(upgrades);
         tool(DIAMOND_PICKAXE, Items.DIAMOND_PICKAXE).register(upgrades);

@@ -101,7 +101,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 contextWrapper = this.contextWrapper = new GuardedLuaContext(context, this);
             }
 
-            try (var ignored = environment.time(Metrics.PERIPHERAL_OPS)) {
+            try (var _ = environment.time(Metrics.PERIPHERAL_OPS)) {
                 return method.apply(peripheral, contextWrapper, this, arguments);
             }
         }

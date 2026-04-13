@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 /**
  * Common functionality between {@link ITurtleUpgrade} and {@link IPocketUpgrade}.
@@ -47,9 +48,9 @@ public interface UpgradeBase {
      * that you cache the stack too, in order to prevent constructing it every time the method
      * is called.
      *
-     * @return The item stack to craft with, or {@link ItemStack#EMPTY} if it cannot be crafted.
+     * @return The item stack to craft with.
      */
-    ItemStack getCraftingItem();
+    ItemStackTemplate getCraftingItem();
 
     /**
      * Returns the item stack representing a currently equipped turtle upgrade.
@@ -58,16 +59,16 @@ public interface UpgradeBase {
      * {@link IPocketAccess#getUpgradeData()}}, by default this data is discarded when an upgrade is unequipped,
      * and the original item stack is returned.
      * <p>
-     * By overriding this method, you can create a new {@link ItemStack} which contains enough data to
-     * {@linkplain #getUpgradeData(ItemStack) re-create the upgrade data} if the item is re-equipped.
+     * By overriding this method, you can create a new {@link ItemStackTemplate} which contains enough data to
+     * {@linkplain #getUpgradeData(ItemStackTemplate) re-create the upgrade data} if the item is re-equipped.
      * <p>
-     * When overriding this, you should override {@link #getUpgradeData(ItemStack)} and {@link #isItemSuitable(ItemStack)}
-     * at the same time,
+     * When overriding this, you should override {@link #getUpgradeData(ItemStackTemplate)} and
+     * {@link #isItemSuitable(ItemStack)} at the same time,
      *
      * @param upgradeData The current upgrade data. This should <strong>NOT</strong> be mutated.
      * @return The item stack returned when unequipping.
      */
-    default ItemStack getUpgradeItem(DataComponentPatch upgradeData) {
+    default ItemStackTemplate getUpgradeItem(DataComponentPatch upgradeData) {
         return getCraftingItem();
     }
 
@@ -83,7 +84,7 @@ public interface UpgradeBase {
      *              {@link #getCraftingItem()}.
      * @return The upgrade data that should be set on the turtle or pocket computer.
      */
-    default DataComponentPatch getUpgradeData(ItemStack stack) {
+    default DataComponentPatch getUpgradeData(ItemStackTemplate stack) {
         return DataComponentPatch.EMPTY;
     }
 
@@ -102,7 +103,7 @@ public interface UpgradeBase {
      * @return If this stack may be used to equip this upgrade.
      */
     default boolean isItemSuitable(ItemStack stack) {
-        return ItemStack.isSameItemSameComponents(getCraftingItem(), stack);
+        return stack.is(getCraftingItem().item()) && stack.getComponentsPatch().equals(getCraftingItem().components());
     }
 
     /**

@@ -1,4 +1,4 @@
-accessWidener v1 named
+accessWidener v1 official
 
 # SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
 #
@@ -10,6 +10,7 @@ accessWidener v1 named
 accessible method net/minecraft/client/renderer/blockentity/BlockEntityRenderers register (Lnet/minecraft/world/level/block/entity/BlockEntityType;Lnet/minecraft/client/renderer/blockentity/BlockEntityRendererProvider;)V
 accessible class net/minecraft/world/item/CreativeModeTab$Output
 accessible field net/minecraft/world/item/CreativeModeTabs OP_BLOCKS Lnet/minecraft/resources/ResourceKey;
+accessible method net/minecraft/core/cauldron/CauldronInteraction$Dispatcher put (Lnet/minecraft/world/item/Item;Lnet/minecraft/core/cauldron/CauldronInteraction;)V
 
 # Containers
 accessible class net/minecraft/world/inventory/MenuType$MenuSupplier
@@ -18,7 +19,6 @@ accessible class net/minecraft/client/gui/screens/MenuScreens$ScreenConstructor
 
 # Data generators
 accessible class net/minecraft/data/loot/LootTableProvider$SubProviderEntry
-accessible class net/minecraft/data/tags/TagsProvider$TagAppender
 accessible field net/minecraft/client/data/models/BlockModelGenerators blockStateOutput Ljava/util/function/Consumer;
 accessible field net/minecraft/client/data/models/BlockModelGenerators itemModelOutput Lnet/minecraft/client/data/models/ItemModelOutput;
 accessible field net/minecraft/client/data/models/BlockModelGenerators modelOutput Ljava/util/function/BiConsumer;
@@ -26,18 +26,17 @@ accessible method net/minecraft/client/data/models/BlockModelGenerators conditio
 accessible method net/minecraft/client/data/models/BlockModelGenerators createHorizontallyRotatedBlock (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/client/data/models/model/TexturedModel$Provider;)V
 accessible method net/minecraft/client/data/models/BlockModelGenerators createParticleOnlyBlock (Lnet/minecraft/world/level/block/Block;)V
 accessible method net/minecraft/client/data/models/BlockModelGenerators createSimpleBlock (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/client/data/models/MultiVariant;)Lnet/minecraft/client/data/models/blockstates/MultiVariantGenerator;
-accessible method net/minecraft/client/data/models/BlockModelGenerators or ([Lnet/minecraft/client/data/models/blockstates/ConditionBuilder;)Lnet/minecraft/client/renderer/block/model/multipart/Condition;
+accessible method net/minecraft/client/data/models/BlockModelGenerators or ([Lnet/minecraft/client/data/models/blockstates/ConditionBuilder;)Lnet/minecraft/client/renderer/block/dispatch/multipart/Condition;
 accessible method net/minecraft/client/data/models/BlockModelGenerators plainVariant (Lnet/minecraft/resources/Identifier;)Lnet/minecraft/client/data/models/MultiVariant;
 accessible method net/minecraft/client/data/models/BlockModelGenerators registerSimpleItemModel (Lnet/minecraft/world/item/Item;Lnet/minecraft/resources/Identifier;)V
 accessible method net/minecraft/client/data/models/BlockModelGenerators registerSimpleItemModel (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/resources/Identifier;)V
 accessible field net/minecraft/client/data/models/ItemModelGenerators itemModelOutput Lnet/minecraft/client/data/models/ItemModelOutput;
 accessible field net/minecraft/client/data/models/ItemModelGenerators modelOutput Ljava/util/function/BiConsumer;
-accessible method net/minecraft/client/data/models/ItemModelGenerators generateFlatItem (Lnet/minecraft/world/item/Item;Ljava/lang/String;Lnet/minecraft/client/data/models/model/ModelTemplate;)V
 accessible method net/minecraft/client/data/models/ItemModelGenerators generateFlatItem (Lnet/minecraft/world/item/Item;Lnet/minecraft/client/data/models/model/ModelTemplate;)V
 accessible method net/minecraft/client/data/models/model/TextureSlot create (Ljava/lang/String;)Lnet/minecraft/client/data/models/model/TextureSlot;
 accessible method net/minecraft/data/recipes/RecipeProvider inventoryTrigger ([Lnet/minecraft/advancements/criterion/ItemPredicate;)Lnet/minecraft/advancements/Criterion;
 
 # GUI elements
-accessible class net/minecraft/client/gui/GuiGraphics$ScissorStack
-accessible field net/minecraft/client/gui/GuiGraphics guiRenderState Lnet/minecraft/client/gui/render/state/GuiRenderState;
-accessible field net/minecraft/client/gui/GuiGraphics scissorStack Lnet/minecraft/client/gui/GuiGraphics$ScissorStack;
+accessible class net/minecraft/client/gui/GuiGraphicsExtractor$ScissorStack
+accessible field net/minecraft/client/gui/GuiGraphicsExtractor guiRenderState Lnet/minecraft/client/renderer/state/gui/GuiRenderState;
+accessible field net/minecraft/client/gui/GuiGraphicsExtractor scissorStack Lnet/minecraft/client/gui/GuiGraphicsExtractor$ScissorStack;

@@ -8,7 +8,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
 
@@ -22,17 +22,17 @@ import net.minecraft.world.item.crafting.ShapedRecipePattern;
  * @param pattern    The shaped template of the recipe.
  * @param result     The result of the recipe.
  */
-public record ShapedRecipeSpec(RecipeProperties properties, ShapedRecipePattern pattern, ItemStack result) {
+public record ShapedRecipeSpec(RecipeProperties properties, ShapedRecipePattern pattern, ItemStackTemplate result) {
     public static final MapCodec<ShapedRecipeSpec> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         RecipeProperties.CODEC.forGetter(ShapedRecipeSpec::properties),
         ShapedRecipePattern.MAP_CODEC.forGetter(ShapedRecipeSpec::pattern),
-        ItemStack.STRICT_CODEC.fieldOf("result").forGetter(ShapedRecipeSpec::result)
+        ItemStackTemplate.CODEC.fieldOf("result").forGetter(ShapedRecipeSpec::result)
     ).apply(instance, ShapedRecipeSpec::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ShapedRecipeSpec> STREAM_CODEC = StreamCodec.composite(
         RecipeProperties.STREAM_CODEC, ShapedRecipeSpec::properties,
         ShapedRecipePattern.STREAM_CODEC, ShapedRecipeSpec::pattern,
-        ItemStack.STREAM_CODEC, ShapedRecipeSpec::result,
+        ItemStackTemplate.STREAM_CODEC, ShapedRecipeSpec::result,
         ShapedRecipeSpec::new
     );
 }

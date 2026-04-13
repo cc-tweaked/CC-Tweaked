@@ -21,7 +21,6 @@
   ],
   "result": {
     "components": {"computercraft:overlay": "computercraft:rainbow_flag"},
-    "count": 1,
     "id": "computercraft:turtle_advanced"
   }
 }

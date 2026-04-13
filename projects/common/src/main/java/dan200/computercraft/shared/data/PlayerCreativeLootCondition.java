@@ -4,13 +4,12 @@
 
 package dan200.computercraft.shared.data;
 
-import dan200.computercraft.shared.ModRegistry;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
 import java.util.Set;
 
@@ -20,6 +19,7 @@ import java.util.Set;
 public final class PlayerCreativeLootCondition implements LootItemCondition {
     public static final PlayerCreativeLootCondition INSTANCE = new PlayerCreativeLootCondition();
     public static final Builder BUILDER = () -> INSTANCE;
+    public static final MapCodec<PlayerCreativeLootCondition> CODEC = MapCodec.unit(INSTANCE);
 
     private PlayerCreativeLootCondition() {
     }
@@ -36,7 +36,7 @@ public final class PlayerCreativeLootCondition implements LootItemCondition {
     }
 
     @Override
-    public LootItemConditionType getType() {
-        return ModRegistry.LootItemConditionTypes.PLAYER_CREATIVE.get();
+    public MapCodec<PlayerCreativeLootCondition> codec() {
+        return CODEC;
     }
 }

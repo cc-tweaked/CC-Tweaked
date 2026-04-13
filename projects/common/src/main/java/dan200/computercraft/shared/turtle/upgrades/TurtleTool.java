@@ -37,6 +37,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
@@ -59,7 +60,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     final @Nullable TagKey<Block> breakable;
 
     public TurtleTool(TurtleToolSpec spec) {
-        super(TurtleUpgradeType.TOOL, spec.adjective(), new ItemStack(spec.item()));
+        super(TurtleUpgradeType.TOOL, spec.adjective(), new ItemStackTemplate(spec.item(), 1, DataComponentPatch.EMPTY));
         this.spec = spec;
         this.breakable = spec.breakable().orElse(null);
     }
@@ -79,20 +80,20 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     }
 
     @Override
-    public DataComponentPatch getUpgradeData(ItemStack stack) {
-        return stack.getComponentsPatch();
+    public DataComponentPatch getUpgradeData(ItemStackTemplate stack) {
+        return stack.components();
     }
 
     @Override
-    public ItemStack getUpgradeItem(DataComponentPatch upgradeData) {
+    public ItemStackTemplate getUpgradeItem(DataComponentPatch upgradeData) {
         // Copy upgrade data back to the item.
-        var item = super.getUpgradeItem(upgradeData).copy();
-        item.applyComponents(upgradeData);
-        return item;
+        var item = super.getUpgradeItem(upgradeData);
+        return new ItemStackTemplate(item.item(), 1, upgradeData);
     }
 
     private ItemStack getToolStack(ITurtleAccess turtle, TurtleSide side) {
-        return getUpgradeItem(turtle.getUpgradeData(side));
+        var upgradeData = turtle.getUpgradeData(side);
+        return super.getUpgradeItem(upgradeData).apply(upgradeData);
     }
 
     private void setToolStack(ITurtleAccess turtle, TurtleSide side, ItemStack oldStack, ItemStack stack) {
@@ -110,7 +111,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         }
 
         // If the tool has changed, no clue what's going on.
-        if (stack.getItem() != spec.item()) return;
+        if (!stack.is(spec.item())) return;
 
         turtle.setUpgradeData(side, stack.getComponentsPatch());
     }
@@ -218,7 +219,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         var bonusDamage = EnchantmentHelper.modifyDamage(player.level(), tool, entity, source, baseDamage) - baseDamage;
 
         // If this is a projectile, attempt to deflect it instead.
-        if (entity.getType().is(EntityTypeTags.REDIRECTABLE_PROJECTILE) && entity instanceof Projectile projectile &&
+        if (entity.is(EntityTypeTags.REDIRECTABLE_PROJECTILE) && entity instanceof Projectile projectile &&
             projectile.deflect(ProjectileDeflection.AIM_DEFLECT, player, EntityReference.of(player), true)
         ) {
             return true;

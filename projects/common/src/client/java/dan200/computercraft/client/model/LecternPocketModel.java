@@ -17,14 +17,14 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.Material;
-import net.minecraft.client.resources.model.MaterialSet;
+import net.minecraft.client.resources.model.sprite.SpriteGetter;
+import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.component.DyedItemColor;
 
@@ -36,11 +36,11 @@ import net.minecraft.world.item.component.DyedItemColor;
 public class LecternPocketModel extends Model<Unit> {
     public static final ModelLayerLocation LAYER = new ModelLayerLocation(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "lectern_pocket"), "main");
 
-    public static final Material MATERIAL_NORMAL = Sheets.BLOCK_ENTITIES_MAPPER.apply(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_computer_normal"));
-    public static final Material MATERIAL_ADVANCED = Sheets.BLOCK_ENTITIES_MAPPER.apply(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_computer_advanced"));
-    public static final Material MATERIAL_COLOUR = Sheets.BLOCK_ENTITIES_MAPPER.apply(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_computer_colour"));
-    public static final Material MATERIAL_FRAME = Sheets.BLOCK_ENTITIES_MAPPER.apply(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_computer_frame"));
-    public static final Material MATERIAL_LIGHT = Sheets.BLOCK_ENTITIES_MAPPER.apply(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_computer_light"));
+    public static final SpriteId SPRITE_NORMAL = Sheets.BLOCK_ENTITIES_MAPPER.apply(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_computer_normal"));
+    public static final SpriteId SPRITE_ADVANCED = Sheets.BLOCK_ENTITIES_MAPPER.apply(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_computer_advanced"));
+    public static final SpriteId SPRITE_COLOUR = Sheets.BLOCK_ENTITIES_MAPPER.apply(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_computer_colour"));
+    public static final SpriteId SPRITE_FRAME = Sheets.BLOCK_ENTITIES_MAPPER.apply(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_computer_frame"));
+    public static final SpriteId SPRITE_LIGHT = Sheets.BLOCK_ENTITIES_MAPPER.apply(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_computer_light"));
 
     // The size of the terminal within the model.
     public static final float TERM_WIDTH = 12.0f / 32.0f;
@@ -70,35 +70,35 @@ public class LecternPocketModel extends Model<Unit> {
      *
      * @param poseStack   The current pose stack.
      * @param collector   The collector to draw to.
-     * @param materials   The current materials
+     * @param sprites     The current sprites
      * @param packedLight The current light level.
      * @param family      The computer family.
      * @param frameColour The pocket computer's {@linkplain DyedItemColor colour}.
      * @param lightColour The pocket computer's {@linkplain PocketComputerData#getLightState() light colour}.
      */
     public void submit(
-        PoseStack poseStack, SubmitNodeCollector collector, MaterialSet materials, int packedLight, ComputerFamily family, int frameColour, int lightColour
+        PoseStack poseStack, SubmitNodeCollector collector, SpriteGetter sprites, int packedLight, ComputerFamily family, int frameColour, int lightColour
     ) {
         if (frameColour != -1) {
             collector.submitModel(
-                this, Unit.INSTANCE, poseStack, MATERIAL_FRAME.renderType(RenderTypes::entityCutout),
-                packedLight, OverlayTexture.NO_OVERLAY, -1, materials.get(MATERIAL_FRAME), 0, null
+                this, Unit.INSTANCE, poseStack, SPRITE_FRAME.renderType(RenderTypes::entityCutout),
+                packedLight, OverlayTexture.NO_OVERLAY, -1, sprites.get(SPRITE_FRAME), 0, null
             );
             collector.submitModel(
-                this, Unit.INSTANCE, poseStack, MATERIAL_COLOUR.renderType(RenderTypes::entityCutout),
-                packedLight, OverlayTexture.NO_OVERLAY, frameColour, materials.get(MATERIAL_COLOUR), 0, null
+                this, Unit.INSTANCE, poseStack, SPRITE_COLOUR.renderType(RenderTypes::entityCutout),
+                packedLight, OverlayTexture.NO_OVERLAY, frameColour, sprites.get(SPRITE_COLOUR), 0, null
             );
         } else {
-            var material = family == ComputerFamily.ADVANCED ? MATERIAL_ADVANCED : MATERIAL_NORMAL;
+            var material = family == ComputerFamily.ADVANCED ? SPRITE_ADVANCED : SPRITE_NORMAL;
             collector.submitModel(
                 this, Unit.INSTANCE, poseStack, material.renderType(RenderTypes::entityCutout),
-                packedLight, OverlayTexture.NO_OVERLAY, -1, materials.get(material), 0, null
+                packedLight, OverlayTexture.NO_OVERLAY, -1, sprites.get(material), 0, null
             );
         }
 
         collector.submitModel(
-            this, Unit.INSTANCE, poseStack, MATERIAL_LIGHT.renderType(RenderTypes::entityCutout),
-            LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, lightColour, materials.get(MATERIAL_LIGHT), 0, null
+            this, Unit.INSTANCE, poseStack, SPRITE_LIGHT.renderType(RenderTypes::entityCutout),
+            LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, lightColour, sprites.get(SPRITE_LIGHT), 0, null
         );
     }
 }

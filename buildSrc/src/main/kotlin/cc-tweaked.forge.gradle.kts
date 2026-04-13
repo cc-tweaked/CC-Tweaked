@@ -20,11 +20,6 @@ val mcVersion: String by extra
 neoForge {
     val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
     version = libs.findVersion("neoForge").get().toString()
-
-    parchment {
-        minecraftVersion = libs.findVersion("parchmentMc").get().toString()
-        mappingsVersion = libs.findVersion("parchment").get().toString()
-    }
 }
 
 MinecraftConfigurations.setup(project)

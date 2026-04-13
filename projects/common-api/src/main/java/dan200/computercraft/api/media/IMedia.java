@@ -54,7 +54,7 @@ public interface IMedia {
      */
     @Nullable
     default Holder<JukeboxSong> getAudio(HolderLookup.Provider registries, ItemStack stack) {
-        return JukeboxSong.fromStack(registries, stack).orElse(null);
+        return JukeboxSong.fromStack(stack).orElse(null);
     }
 
     /**

@@ -32,9 +32,10 @@ import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.*;
-import net.minecraft.client.renderer.block.model.VariantMutator;
+import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.renderer.item.EmptyModel;
 import net.minecraft.client.renderer.item.properties.conditional.HasComponent;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -186,7 +187,7 @@ public class BlockModelProvider {
                 );
                 case ON, BLINKING -> COMPUTER_ON.createWithSuffix(
                     block, "_" + state.getSerializedName(),
-                    TextureMapping.orientableCube(block).put(CURSOR, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/computer" + state.getTexture())),
+                    TextureMapping.orientableCube(block).put(CURSOR, new Material(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/computer" + state.getTexture()))),
                     generators.modelOutput
                 );
             }))
@@ -244,7 +245,7 @@ public class BlockModelProvider {
         generators.blockStateOutput.accept(MultiVariantGenerator.dispatch(fullBlock)
             .with(createModelDispatch(WiredModemFullBlock.MODEM_ON, WiredModemFullBlock.PERIPHERAL_ON, (on, peripheral) -> {
                 var suffix = (on ? "_on" : "_off") + (peripheral ? "_peripheral" : "");
-                var faceTexture = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/wired_modem_face" + (peripheral ? "_peripheral" : "") + (on ? "_on" : ""));
+                var faceTexture = new Material(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/wired_modem_face" + (peripheral ? "_peripheral" : "") + (on ? "_on" : "")));
 
                 // TODO: Do this somewhere more elegant!
                 modemModel(generators, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/wired_modem" + suffix), faceTexture);
@@ -260,12 +261,12 @@ public class BlockModelProvider {
         generators.registerSimpleItemModel(ModRegistry.Items.WIRED_MODEM.get(), Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/wired_modem_off"));
     }
 
-    private static Identifier modemModel(BlockModelGenerators generators, Identifier name, Identifier texture) {
+    private static Identifier modemModel(BlockModelGenerators generators, Identifier name, Material texture) {
         return MODEM.create(
             name,
             new TextureMapping()
                 .put(TextureSlot.FRONT, texture)
-                .put(TextureSlot.BACK, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/modem_back")),
+                .put(TextureSlot.BACK, new Material(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/modem_back"))),
             generators.modelOutput
         );
     }
@@ -404,12 +405,12 @@ public class BlockModelProvider {
     private static void registerTurtleUpgrade(BlockModelGenerators generators, String name, String texture) {
         TURTLE_UPGRADE_LEFT.create(
             Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name + "_left"),
-            TextureMapping.defaultTexture(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, texture)),
+            TextureMapping.defaultTexture(new Material(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, texture))),
             generators.modelOutput
         );
         TURTLE_UPGRADE_RIGHT.create(
             Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name + "_right"),
-            TextureMapping.defaultTexture(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, texture)),
+            TextureMapping.defaultTexture(new Material(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, texture))),
             generators.modelOutput
         );
     }

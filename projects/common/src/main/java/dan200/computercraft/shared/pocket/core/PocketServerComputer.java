@@ -52,7 +52,7 @@ public final class PocketServerComputer extends ServerComputer {
         super.tickServer();
 
         // Get the new set of players tracking the current position.
-        var newTracking = getLevel().getChunkSource().chunkMap.getPlayers(new ChunkPos(getPosition()), false);
+        var newTracking = getLevel().getChunkSource().chunkMap.getPlayers(ChunkPos.containing(getPosition()), false);
         var trackingChanged = tracking.size() != newTracking.size() || !tracking.containsAll(newTracking);
 
         // And now find any new players, add them to the tracking list, and broadcast state where appropriate.

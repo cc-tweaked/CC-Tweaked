@@ -11,7 +11,7 @@ import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import dan200.computercraft.shared.turtle.inventory.TurtleMenu;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -35,10 +35,7 @@ public class TurtleScreen extends AbstractComputerScreen<TurtleMenu> {
     private static final int FULL_TEX_SIZE = 512;
 
     public TurtleScreen(TurtleMenu container, Inventory player, Component title) {
-        super(container, player, title, BORDER);
-
-        imageWidth = TEX_WIDTH + AbstractComputerMenu.SIDEBAR_WIDTH;
-        imageHeight = TEX_HEIGHT;
+        super(container, player, title, BORDER, TEX_WIDTH + AbstractComputerMenu.SIDEBAR_WIDTH, TEX_HEIGHT);
     }
 
     @Override
@@ -50,7 +47,8 @@ public class TurtleScreen extends AbstractComputerScreen<TurtleMenu> {
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTicks);
         var advanced = family == ComputerFamily.ADVANCED;
         graphics.blit(
             RenderPipelines.GUI_TEXTURED, advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL,

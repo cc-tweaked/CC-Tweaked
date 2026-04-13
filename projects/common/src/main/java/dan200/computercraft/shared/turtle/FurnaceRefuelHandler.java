@@ -28,7 +28,7 @@ public final class FurnaceRefuelHandler implements TurtleRefuelHandler {
         var fuelToGive = fuelPerItem * stack.getCount();
         // Store the replacement item in the inventory
         var replacementStack = PlatformHelper.get().getCraftingRemainingItem(stack);
-        if (!replacementStack.isEmpty()) TurtleUtil.storeItemOrDrop(turtle, replacementStack);
+        if (replacementStack != null) TurtleUtil.storeItemOrDrop(turtle, replacementStack.create());
 
         turtle.getInventory().setChanged();
 

@@ -18,6 +18,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
@@ -61,20 +62,18 @@ public class UpgradeRecipeGenerator<T> {
         forEachRegistry(registries, ITurtleUpgrade.REGISTRY, holder -> {
             var upgrade = holder.value();
             var stack = upgrade.getCraftingItem();
-            if (stack.isEmpty()) return;
 
             var info = new UpgradeInfo(stack, upgrade, holder, null);
-            upgradeItemLookup.computeIfAbsent(stack.getItem(), k -> new ArrayList<>(1)).add(info);
+            upgradeItemLookup.computeIfAbsent(stack.item().value(), k -> new ArrayList<>(1)).add(info);
             turtleUpgrades.add(info);
         });
 
         forEachRegistry(registries, IPocketUpgrade.REGISTRY, holder -> {
             var upgrade = holder.value();
             var stack = upgrade.getCraftingItem();
-            if (stack.isEmpty()) return;
 
             var info = new UpgradeInfo(stack, upgrade, null, holder);
-            upgradeItemLookup.computeIfAbsent(stack.getItem(), k -> new ArrayList<>(1)).add(info);
+            upgradeItemLookup.computeIfAbsent(stack.item().value(), k -> new ArrayList<>(1)).add(info);
             pocketUpgrades.add(info);
         });
     }
@@ -94,9 +93,7 @@ public class UpgradeRecipeGenerator<T> {
 
         for (var upgrade : upgrades) {
             var craftingStack = upgrade.stack;
-            if (!craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && upgrade.upgrade.isItemSuitable(stack)) {
-                return true;
-            }
+            if (craftingStack.is(stack.getItem()) && upgrade.upgrade.isItemSuitable(stack)) return true;
         }
 
         return false;
@@ -118,7 +115,7 @@ public class UpgradeRecipeGenerator<T> {
             if (left != null && right != null) return List.of();
 
             List<T> recipes = new ArrayList<>();
-            var ingredient = new SlotDisplay.ItemStackSlotDisplay(stack);
+            var ingredient = new SlotDisplay.ItemStackSlotDisplay(ItemStackTemplate.fromNonEmptyStack(stack));
             for (var upgrade : turtleUpgrades) {
                 if (upgrade.turtle == null) throw new NullPointerException();
 
@@ -140,7 +137,7 @@ public class UpgradeRecipeGenerator<T> {
             if (back != null && bottom != null) return List.of();
 
             List<T> recipes = new ArrayList<>();
-            var ingredient = new SlotDisplay.ItemStackSlotDisplay(stack);
+            var ingredient = new SlotDisplay.ItemStackSlotDisplay(ItemStackTemplate.fromNonEmptyStack(stack));
             for (var upgrade : pocketUpgrades) {
                 if (upgrade.pocket == null) throw new NullPointerException();
 
@@ -163,9 +160,7 @@ public class UpgradeRecipeGenerator<T> {
             var multiple = false;
             for (var upgrade : upgrades) {
                 var craftingStack = upgrade.stack;
-                if (craftingStack.isEmpty() || craftingStack.getItem() != stack.getItem() || !upgrade.upgrade.isItemSuitable(stack)) {
-                    continue;
-                }
+                if (!craftingStack.is(stack.getItem()) || !upgrade.upgrade.isItemSuitable(stack)) continue;
 
                 if (recipes == null) {
                     recipes = upgrade.getRecipes();
@@ -201,7 +196,7 @@ public class UpgradeRecipeGenerator<T> {
                 recipes.add(turtle(
                     new SlotDisplay.ItemStackSlotDisplay(turtleWith(stack, null, right)),
                     new SlotDisplay.ItemStackSlotDisplay(left.getUpgradeItem()),
-                    stack
+                    ItemStackTemplate.fromNonEmptyStack(stack)
                 ));
             }
 
@@ -209,7 +204,7 @@ public class UpgradeRecipeGenerator<T> {
                 recipes.add(turtle(
                     new SlotDisplay.ItemStackSlotDisplay(right.getUpgradeItem()),
                     new SlotDisplay.ItemStackSlotDisplay(turtleWith(stack, left, null)),
-                    stack
+                    ItemStackTemplate.fromNonEmptyStack(stack)
                 ));
             }
 
@@ -223,7 +218,7 @@ public class UpgradeRecipeGenerator<T> {
                 recipes.add(pocket(
                     new SlotDisplay.ItemStackSlotDisplay(back.getUpgradeItem()),
                     new SlotDisplay.ItemStackSlotDisplay(pocketWith(stack, null, bottom)),
-                    stack
+                    ItemStackTemplate.fromNonEmptyStack(stack)
                 ));
             }
 
@@ -231,7 +226,7 @@ public class UpgradeRecipeGenerator<T> {
                 recipes.add(pocket(
                     new SlotDisplay.ItemStackSlotDisplay(pocketWith(stack, back, null)),
                     new SlotDisplay.ItemStackSlotDisplay(bottom.getUpgradeItem()),
-                    stack
+                    ItemStackTemplate.fromNonEmptyStack(stack)
                 ));
             }
 
@@ -241,41 +236,41 @@ public class UpgradeRecipeGenerator<T> {
         }
     }
 
-    private static ItemStack turtleWith(ItemStack stack, @Nullable UpgradeData<ITurtleUpgrade> left, @Nullable UpgradeData<ITurtleUpgrade> right) {
+    private static ItemStackTemplate turtleWith(ItemStack stack, @Nullable UpgradeData<ITurtleUpgrade> left, @Nullable UpgradeData<ITurtleUpgrade> right) {
         var newStack = stack.copyWithCount(1);
         newStack.set(ModRegistry.DataComponents.LEFT_TURTLE_UPGRADE.get(), left);
         newStack.set(ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get(), right);
-        return newStack;
+        return ItemStackTemplate.fromNonEmptyStack(newStack);
     }
 
-    private static ItemStack pocketWith(ItemStack stack, @Nullable UpgradeData<IPocketUpgrade> back, @Nullable UpgradeData<IPocketUpgrade> bottom) {
+    private static ItemStackTemplate pocketWith(ItemStack stack, @Nullable UpgradeData<IPocketUpgrade> back, @Nullable UpgradeData<IPocketUpgrade> bottom) {
         var newStack = stack.copyWithCount(1);
         newStack.set(ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), back);
         newStack.set(ModRegistry.DataComponents.BOTTOM_POCKET_UPGRADE.get(), bottom);
-        return newStack;
+        return ItemStackTemplate.fromNonEmptyStack(newStack);
     }
 
-    private T pocket(SlotDisplay top, SlotDisplay bottom, ItemStack result) {
+    private T pocket(SlotDisplay top, SlotDisplay bottom, ItemStackTemplate result) {
         return wrap.apply(new ShapedCraftingRecipeDisplay(
             1, 2, List.of(top, bottom), new SlotDisplay.ItemStackSlotDisplay(result), CRAFTING_STATION
         ));
     }
 
-    private T turtle(SlotDisplay left, SlotDisplay right, ItemStack result) {
+    private T turtle(SlotDisplay left, SlotDisplay right, ItemStackTemplate result) {
         return wrap.apply(new ShapedCraftingRecipeDisplay(
             2, 1, List.of(left, right), new SlotDisplay.ItemStackSlotDisplay(result), CRAFTING_STATION
         ));
     }
 
     private class UpgradeInfo {
-        final ItemStack stack;
+        final ItemStackTemplate stack;
         final SlotDisplay ingredient;
         final Holder.@Nullable Reference<ITurtleUpgrade> turtle;
         final Holder.@Nullable Reference<IPocketUpgrade> pocket;
         final UpgradeBase upgrade;
         private @Nullable ArrayList<T> recipes;
 
-        UpgradeInfo(ItemStack stack, UpgradeBase upgrade, Holder.@Nullable Reference<ITurtleUpgrade> turtle, Holder.@Nullable Reference<IPocketUpgrade> pocket) {
+        UpgradeInfo(ItemStackTemplate stack, UpgradeBase upgrade, Holder.@Nullable Reference<ITurtleUpgrade> turtle, Holder.@Nullable Reference<IPocketUpgrade> pocket) {
             this.stack = stack;
             ingredient = new SlotDisplay.ItemStackSlotDisplay(stack);
             this.turtle = turtle;
@@ -295,7 +290,7 @@ public class UpgradeRecipeGenerator<T> {
                     recipes.add(turtle(
                         ingredient, // Right upgrade, recipe on left
                         new SlotDisplay.ItemSlotDisplay(turtleItem),
-                        DataComponentUtil.createStack(turtleItem, ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get(), UpgradeData.ofDefault(turtle))
+                        DataComponentUtil.createTemplate(turtleItem, ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get(), UpgradeData.ofDefault(turtle))
                     ));
                 }
             }
@@ -306,7 +301,7 @@ public class UpgradeRecipeGenerator<T> {
                     recipes.add(pocket(
                         ingredient,
                         new SlotDisplay.ItemSlotDisplay(pocketItem),
-                        DataComponentUtil.createStack(pocketItem, ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), UpgradeData.ofDefault(pocket))
+                        DataComponentUtil.createTemplate(pocketItem, ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), UpgradeData.ofDefault(pocket))
                     ));
                 }
             }

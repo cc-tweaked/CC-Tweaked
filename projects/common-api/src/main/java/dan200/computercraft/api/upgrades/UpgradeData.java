@@ -8,9 +8,10 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -62,14 +63,11 @@ public record UpgradeData<T extends UpgradeBase>(
 
     /**
      * Get the {@linkplain UpgradeBase#getUpgradeItem(DataComponentPatch) upgrade item} for this upgrade.
-     * <p>
-     * This returns a defensive copy of the item, to prevent accidental mutation of the upgrade data or original
-     * {@linkplain UpgradeBase#getCraftingItem() upgrade stack}.
      *
      * @return This upgrade's item.
      */
-    public ItemStack getUpgradeItem() {
-        return upgrade().getUpgradeItem(data).copy();
+    public ItemStackTemplate getUpgradeItem() {
+        return upgrade().getUpgradeItem(data());
     }
 
     /**
@@ -81,7 +79,6 @@ public record UpgradeData<T extends UpgradeBase>(
      */
     @Override
     public <U> @Nullable U get(DataComponentType<? extends U> component) {
-        var result = data().get(component);
-        return result == null ? null : result.orElse(null);
+        return data().get(DataComponentMap.EMPTY, component);
     }
 }

@@ -5,6 +5,7 @@
 package dan200.computercraft.gametest
 
 import dan200.computercraft.gametest.api.*
+import dan200.computercraft.gametest.core.TestHooks
 import dan200.computercraft.gametest.core.TestInstance
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.media.items.PrintoutData
@@ -40,7 +41,7 @@ class Printout_Test {
                     "$testName.$label",
                     TestData(
                         Holder.direct(ClientTestEnvironment(time)),
-                        Identifier.parse(testName),
+                        Identifier.fromNamespaceAndPath(TestHooks.MOD_ID, testName),
                         Timeouts.DEFAULT,
                         0,
                         true,

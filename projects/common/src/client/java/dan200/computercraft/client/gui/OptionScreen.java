@@ -5,7 +5,7 @@
 package dan200.computercraft.client.gui;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -85,7 +85,7 @@ public final class OptionScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         // Render the actual texture.
         graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, x, y, 0, 0, innerWidth, PADDING, 256, 256);
         graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND,
@@ -97,11 +97,11 @@ public final class OptionScreen extends Screen {
 
         var textY = this.y + PADDING;
         for (var line : messageLines) {
-            graphics.drawString(font, line, x, textY, ARGB.opaque(0x404040), false);
+            graphics.text(font, line, x, textY, ARGB.opaque(0x404040), false);
             textY += FONT_HEIGHT;
         }
 
-        super.render(graphics, mouseX, mouseY, partialTicks);
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
     }
 
     @Override

@@ -8,10 +8,10 @@ import com.mojang.serialization.Codec;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricCodecDataProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricDynamicRegistryProvider;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -40,7 +40,7 @@ public class FabricDataProviders implements DataGeneratorEntrypoint {
         FabricDataGenerator.Pack generator, CompletableFuture<HolderLookup.Provider> registries
     ) implements DataProviders.GeneratorSink {
         private <T extends DataProvider> T addWithFabricOutput(FabricDataGenerator.Pack.Factory<T> factory) {
-            return generator.addProvider((FabricDataOutput p) -> new PrettyDataProvider<>(factory.create(p))).provider();
+            return generator.addProvider((FabricPackOutput p) -> new PrettyDataProvider<>(factory.create(p))).provider();
         }
 
         private <T extends DataProvider> T addWithRegistries(FabricDataGenerator.Pack.RegistryDependentFactory<T> factory) {
@@ -69,7 +69,7 @@ public class FabricDataProviders implements DataGeneratorEntrypoint {
 
         @Override
         public TagsProvider<Block> blockTags(Consumer<TagProvider.TagConsumer<Block>> tags) {
-            return addWithRegistries((out, registries) -> new FabricTagProvider.BlockTagProvider(out, registries) {
+            return addWithRegistries((out, registries) -> new FabricTagsProvider.BlockTagsProvider(out, registries) {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
                     tags.accept(this::valueLookupBuilder);
@@ -79,7 +79,7 @@ public class FabricDataProviders implements DataGeneratorEntrypoint {
 
         @Override
         public TagsProvider<Item> itemTags(Consumer<TagProvider.TagConsumer<Item>> tags) {
-            return addWithRegistries((out, registries) -> new FabricTagProvider.ItemTagProvider(out, registries) {
+            return addWithRegistries((out, registries) -> new FabricTagsProvider.ItemTagsProvider(out, registries) {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
                     tags.accept(this::valueLookupBuilder);

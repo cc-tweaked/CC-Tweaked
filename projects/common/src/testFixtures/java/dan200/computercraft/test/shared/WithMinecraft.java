@@ -5,6 +5,9 @@
 package dan200.computercraft.test.shared;
 
 import net.minecraft.SharedConstants;
+import net.minecraft.core.component.DataComponentInitializers;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.server.Bootstrap;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,9 +39,16 @@ public @interface WithMinecraft {
             if (setup) return;
             setup = true;
 
-            ServiceLoader.load(SetupHook.class, SetupHook.class.getClassLoader()).forEach(SetupHook::run);
+            var hooks = ServiceLoader.load(SetupHook.class, SetupHook.class.getClassLoader())
+                .stream().map(ServiceLoader.Provider::get).toList();
+
+            for (var hook : hooks) hook.beforeBootstrap();
             SharedConstants.tryDetectVersion();
             Bootstrap.bootStrap();
+            for (var hook : hooks) hook.afterBootstrap();
+            BuiltInRegistries.DATA_COMPONENT_INITIALIZERS
+                .build(VanillaRegistries.createLookup())
+                .forEach(DataComponentInitializers.PendingComponents::apply);
         }
     }
 
@@ -46,6 +56,7 @@ public @interface WithMinecraft {
      * Additional hooks to run as part of bootstrap.
      */
     interface SetupHook {
-        void run();
+        void beforeBootstrap();
+        void afterBootstrap();
     }
 }

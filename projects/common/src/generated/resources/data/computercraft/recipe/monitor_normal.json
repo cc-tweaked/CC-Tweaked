@@ -3,5 +3,5 @@
   "category": "redstone",
   "key": {"#": "minecraft:stone", "G": "#c:glass_panes"},
   "pattern": ["###", "#G#", "###"],
-  "result": {"count": 1, "id": "computercraft:monitor_normal"}
+  "result": {"id": "computercraft:monitor_normal"}
 }

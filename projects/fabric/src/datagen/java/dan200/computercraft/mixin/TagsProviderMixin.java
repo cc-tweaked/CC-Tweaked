@@ -20,7 +20,7 @@ import java.util.function.Predicate;
  */
 @Mixin(TagsProvider.class)
 class TagsProviderMixin {
-    @Inject(at = @At("HEAD"), method = "method_49658", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "lambda$run$6", cancellable = true)
     @SuppressWarnings("unused")
     private static void onVerifyPresent(Predicate<?> predicate1, Predicate<?> predicate2, TagEntry tag, CallbackInfoReturnable<Boolean> cir) {
         var element = ((TagEntryAccessor) tag).computercraft$elementOrTag();

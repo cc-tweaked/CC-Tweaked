@@ -18,7 +18,8 @@ import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 
 import java.util.LinkedHashMap;
@@ -35,11 +36,11 @@ import java.util.function.Function;
 public abstract class AbstractRecipeBuilder<S extends AbstractRecipeBuilder<S, O>, O> {
     protected final HolderGetter<Item> items;
     private final RecipeCategory category;
-    protected final ItemStack result;
+    protected final ItemStackTemplate result;
     private String group = "";
     private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
 
-    protected AbstractRecipeBuilder(HolderGetter<Item> items, RecipeCategory category, ItemStack result) {
+    protected AbstractRecipeBuilder(HolderGetter<Item> items, RecipeCategory category, ItemStackTemplate result) {
         this.items = items;
         this.category = category;
         this.result = result;
@@ -83,8 +84,11 @@ public abstract class AbstractRecipeBuilder<S extends AbstractRecipeBuilder<S, O
      * @return The "built" recipe.
      */
     public final FinishedRecipe build(Function<O, Recipe<?>> factory) {
-        var properties = new RecipeProperties(group, RecipeBuilder.determineBookCategory(category), true);
-        return new FinishedRecipe(factory.apply(build(properties)), result.getItem(), category, criteria);
+        var properties = new RecipeProperties(
+            new CraftingRecipe.CraftingBookInfo(RecipeBuilder.determineCraftingBookCategory(category), group),
+            new Recipe.CommonInfo(true)
+        );
+        return new FinishedRecipe(factory.apply(build(properties)), result, category, criteria);
     }
 
     /**
@@ -104,11 +108,11 @@ public abstract class AbstractRecipeBuilder<S extends AbstractRecipeBuilder<S, O
 
     public static final class FinishedRecipe {
         private final Recipe<?> recipe;
-        private final Item result;
+        private final ItemStackTemplate result;
         private final RecipeCategory category;
         private final Map<String, Criterion<?>> criteria;
 
-        private FinishedRecipe(Recipe<?> recipe, Item result, RecipeCategory category, Map<String, Criterion<?>> criteria) {
+        private FinishedRecipe(Recipe<?> recipe, ItemStackTemplate result, RecipeCategory category, Map<String, Criterion<?>> criteria) {
             this.recipe = recipe;
             this.result = result;
             this.category = category;
@@ -129,7 +133,7 @@ public abstract class AbstractRecipeBuilder<S extends AbstractRecipeBuilder<S, O
         }
 
         public void save(RecipeOutput output) {
-            save(output, RecipeBuilder.getDefaultRecipeId(result));
+            save(output, RecipeBuilder.getDefaultRecipeId(result).identifier());
         }
     }
 

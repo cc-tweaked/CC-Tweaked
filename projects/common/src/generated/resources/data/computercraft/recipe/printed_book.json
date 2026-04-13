@@ -4,5 +4,5 @@
   "ingredients": ["#c:leathers", "#c:strings"],
   "min_printouts": 1,
   "printout": ["computercraft:printed_page", "computercraft:printed_pages", "minecraft:paper"],
-  "result": {"count": 1, "id": "computercraft:printed_book"}
+  "result": {"id": "computercraft:printed_book"}
 }

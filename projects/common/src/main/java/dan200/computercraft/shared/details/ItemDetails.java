@@ -60,7 +60,7 @@ public class ItemDetails {
             data.put("durability", stack.getItem().getBarWidth(stack) / 13.0);
         }
 
-        data.put("tags", DetailHelpers.getTags(stack.getTags()));
+        data.put("tags", DetailHelpers.getTags(stack));
         data.put("itemGroups", getItemGroups(stack));
 
         var lore = stack.get(DataComponents.LORE);

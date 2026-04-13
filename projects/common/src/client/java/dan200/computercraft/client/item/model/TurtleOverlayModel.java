@@ -12,23 +12,25 @@ import dan200.computercraft.client.turtle.TurtleOverlayManager;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.resources.model.cuboid.ItemTransforms;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Matrix4fc;
 import org.jspecify.annotations.Nullable;
 
 /**
  * An {@link ItemModel} that renders the {@linkplain TurtleOverlay turtle overlay}.
  *
- * @param transforms The item transformations from the base model.
+ * @param transforms     The item transformations from the base model.
+ * @param transformation The transformation this model was baked with.
  * @see TurtleOverlay#model()
  */
-public record TurtleOverlayModel(ItemTransforms transforms) implements ItemModel {
+public record TurtleOverlayModel(Matrix4fc transformation, ItemTransforms transforms) implements ItemModel {
     public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle/overlay");
     public static final MapCodec<Unbaked> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         Identifier.CODEC.fieldOf("transforms").forGetter(Unbaked::base)
@@ -44,7 +46,8 @@ public record TurtleOverlayModel(ItemTransforms transforms) implements ItemModel
 
         var layer = state.newLayer();
         TurtleOverlayManager.get(Minecraft.getInstance().getModelManager(), overlay).model().setupItemLayer(layer);
-        layer.setTransform(transforms().getTransform(context));
+        layer.setLocalTransform(transformation());
+        layer.setItemTransform(transforms().getTransform(context));
     }
 
     public record Unbaked(Identifier base) implements ItemModel.Unbaked {
@@ -54,8 +57,8 @@ public record TurtleOverlayModel(ItemTransforms transforms) implements ItemModel
         }
 
         @Override
-        public ItemModel bake(BakingContext bakingContext) {
-            return new TurtleOverlayModel(bakingContext.blockModelBaker().getModel(base).getTopTransforms());
+        public ItemModel bake(BakingContext bakingContext, Matrix4fc transformation) {
+            return new TurtleOverlayModel(transformation, bakingContext.blockModelBaker().getModel(base).getTopTransforms());
         }
 
         @Override

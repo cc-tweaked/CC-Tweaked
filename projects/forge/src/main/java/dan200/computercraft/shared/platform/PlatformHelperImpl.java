@@ -46,6 +46,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -190,7 +191,7 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public ItemStack getCraftingRemainingItem(ItemStack stack) {
+    public @Nullable ItemStackTemplate getCraftingRemainingItem(ItemStack stack) {
         return stack.getCraftingRemainder();
     }
 
@@ -216,14 +217,9 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public boolean interactWithEntity(ServerPlayer player, Entity entity, Vec3 hitPos) {
-        // Our behaviour is slightly different here - we call onInteractEntityAt before the interact methods, while
-        // Forge does the call afterwards (on the server, not on the client).
         var interactAt = CommonHooks.onInteractEntityAt(player, entity, hitPos, InteractionHand.MAIN_HAND);
-        if (interactAt == null) {
-            interactAt = entity.interactAt(player, hitPos.subtract(entity.position()), InteractionHand.MAIN_HAND);
-        }
-
-        return interactAt.consumesAction() || player.interactOn(entity, InteractionHand.MAIN_HAND).consumesAction();
+        if (interactAt == null) interactAt = player.interactOn(entity, InteractionHand.MAIN_HAND, hitPos);
+        return interactAt.consumesAction();
     }
 
     @Override

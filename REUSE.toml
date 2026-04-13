@@ -16,7 +16,7 @@ path = [
     "projects/common/src/main/resources/assets/computercraft/sounds.json",
     "projects/common/src/main/resources/assets/computercraft/sounds/empty.ogg",
     "projects/common/src/testMod/resources/data/cctest/computercraft/turtle_upgrade/**",
-    "projects/common/src/testMod/resources/data/cctest/structures/**",
+    "projects/common/src/testMod/resources/data/cctest/structure/**",
     "projects/*/src/generated/**",
     "projects/web/src/htmlTransform/export/index.json",
     "projects/web/src/htmlTransform/export/items/minecraft/**",

@@ -11,12 +11,12 @@ import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.LightCoordsUtil;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -146,7 +146,7 @@ public final class FixedWidthFontRenderer {
             var rowY = y + FONT_HEIGHT * i;
             drawString(
                 matrix, buffer, x, rowY, terminal.getLine(i), terminal.getTextColourLine(i),
-                palette, LightTexture.FULL_BRIGHT
+                palette, LightCoordsUtil.FULL_BRIGHT
             );
         }
     }
@@ -161,12 +161,12 @@ public final class FixedWidthFontRenderer {
         // Top and bottom margins
         drawBackground(
             matrix, buffer, x, y - topMarginSize, terminal.getBackgroundColourLine(0), palette,
-            leftMarginSize, rightMarginSize, topMarginSize, LightTexture.FULL_BRIGHT
+            leftMarginSize, rightMarginSize, topMarginSize, LightCoordsUtil.FULL_BRIGHT
         );
 
         drawBackground(
             matrix, buffer, x, y + height * FONT_HEIGHT, terminal.getBackgroundColourLine(height - 1), palette,
-            leftMarginSize, rightMarginSize, bottomMarginSize, LightTexture.FULL_BRIGHT
+            leftMarginSize, rightMarginSize, bottomMarginSize, LightCoordsUtil.FULL_BRIGHT
         );
 
         // The main text
@@ -174,7 +174,7 @@ public final class FixedWidthFontRenderer {
             var rowY = y + FONT_HEIGHT * i;
             drawBackground(
                 matrix, buffer, x, rowY, terminal.getBackgroundColourLine(i), palette,
-                leftMarginSize, rightMarginSize, FONT_HEIGHT, LightTexture.FULL_BRIGHT
+                leftMarginSize, rightMarginSize, FONT_HEIGHT, LightCoordsUtil.FULL_BRIGHT
             );
         }
     }
@@ -190,7 +190,7 @@ public final class FixedWidthFontRenderer {
     public static void drawCursor(Matrix4f matrix, VertexConsumer buffer, float x, float y, Terminal terminal) {
         if (isCursorVisible(terminal) && FrameInfo.getGlobalCursorBlink()) {
             var colour = terminal.getPalette().getRenderColours(15 - terminal.getTextColour());
-            drawChar(matrix, buffer, x + terminal.getCursorX() * FONT_WIDTH, y + terminal.getCursorY() * FONT_HEIGHT, '_', colour, LightTexture.FULL_BRIGHT);
+            drawChar(matrix, buffer, x + terminal.getCursorX() * FONT_WIDTH, y + terminal.getCursorY() * FONT_HEIGHT, '_', colour, LightCoordsUtil.FULL_BRIGHT);
         }
     }
 
@@ -214,7 +214,7 @@ public final class FixedWidthFontRenderer {
 
     public static void drawEmptyTerminal(PoseStack transform, SubmitNodeCollector collector, float x, float y, float width, float height) {
         collector.submitCustomGeometry(transform, FixedWidthFontRenderer.TERMINAL_TEXT, (pose, buffer) ->
-            drawQuad(pose.pose(), buffer, x, y, 0, width, height, BLACK, LightTexture.FULL_BRIGHT));
+            drawQuad(pose.pose(), buffer, x, y, 0, width, height, BLACK, LightCoordsUtil.FULL_BRIGHT));
     }
 
     private static void quad(Matrix4f matrix, VertexConsumer buffer, float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2, int light) {

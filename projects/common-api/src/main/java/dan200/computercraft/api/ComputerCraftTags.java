@@ -6,7 +6,6 @@ package dan200.computercraft.api;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -54,8 +53,7 @@ public class ComputerCraftTags {
         /**
          * Items which can be dyed.
          * <p>
-         * This is similar to {@link ItemTags#DYEABLE}, but allows cleaning the item with a sponge, rather than in a
-         * cauldron.
+         * These items can be dyed with a recipe, and cleaned with a sponge.
          */
         public static final TagKey<Item> DYEABLE = make("dyeable");
 

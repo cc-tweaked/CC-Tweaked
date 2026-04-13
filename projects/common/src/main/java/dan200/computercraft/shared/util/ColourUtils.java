@@ -5,6 +5,8 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.shared.platform.PlatformHelper;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
@@ -23,14 +25,11 @@ public final class ColourUtils {
         return DYES.get(color.getId());
     }
 
-    public static @Nullable DyeColor getStackColour(ItemStack stack) {
-        if (stack.isEmpty()) return null;
+    public static boolean isDye(ItemStack stack) {
+        return stack.is(ItemTags.DYES);
+    }
 
-        for (var i = 0; i < DYES.size(); i++) {
-            var dye = DYES.get(i);
-            if (stack.is(dye)) return DyeColor.byId(i);
-        }
-
-        return null;
+    public static @Nullable DyeColor getDyeColour(ItemStack stack) {
+        return isDye(stack) ? stack.get(DataComponents.DYE) : null;
     }
 }

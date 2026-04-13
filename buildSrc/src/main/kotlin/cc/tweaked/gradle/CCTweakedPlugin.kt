@@ -52,7 +52,7 @@ class CCTweakedPlugin : Plugin<Project> {
         /**
          * The Java version we target. Should be the same as what Minecraft uses.
          */
-        val JAVA_TARGET = JavaLanguageVersion.of(21)
+        val JAVA_TARGET = JavaLanguageVersion.of(25)
 
         val JAVA_VERSION = JavaVersion.toVersion(JAVA_TARGET.asInt())
         val KOTLIN_TARGET = JvmTarget.fromTarget(JAVA_TARGET.toString())

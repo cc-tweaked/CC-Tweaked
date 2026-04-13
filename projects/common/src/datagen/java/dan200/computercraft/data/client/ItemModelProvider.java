@@ -13,9 +13,10 @@ import dan200.computercraft.shared.computer.core.ComputerState;
 import net.minecraft.client.color.item.Dye;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.*;
-import net.minecraft.client.renderer.item.BlockModelWrapper;
+import net.minecraft.client.renderer.item.CuboidItemModelWrapper;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.properties.conditional.HasComponent;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
@@ -81,9 +82,9 @@ public final class ItemModelProvider {
         );
 
         return ItemModelUtils.select(PocketComputerStateProperty.create(),
-            ItemModelUtils.when(ComputerState.OFF, new BlockModelWrapper.Unbaked(id, tints)),
-            ItemModelUtils.when(ComputerState.ON, new BlockModelWrapper.Unbaked(id.withSuffix("_on"), tints)),
-            ItemModelUtils.when(ComputerState.BLINKING, new BlockModelWrapper.Unbaked(id.withSuffix("_blinking"), tints))
+            ItemModelUtils.when(ComputerState.OFF, new CuboidItemModelWrapper.Unbaked(id, Optional.empty(), tints)),
+            ItemModelUtils.when(ComputerState.ON, new CuboidItemModelWrapper.Unbaked(id.withSuffix("_on"), Optional.empty(), tints)),
+            ItemModelUtils.when(ComputerState.BLINKING, new CuboidItemModelWrapper.Unbaked(id.withSuffix("_blinking"), Optional.empty(), tints))
         );
     }
 
@@ -94,7 +95,7 @@ public final class ItemModelProvider {
             Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "item/disk_colour")
         );
 
-        generators.itemModelOutput.accept(item, new BlockModelWrapper.Unbaked(model, List.of(
+        generators.itemModelOutput.accept(item, new CuboidItemModelWrapper.Unbaked(model, Optional.empty(), List.of(
             ItemModelUtils.constantTint(-1),
             new Dye(colour)
         )));
@@ -106,13 +107,13 @@ public final class ItemModelProvider {
      * @param generators The current item generator helper.
      * @param model      The model we're writing to.
      * @param textures   The textures which make up this model.
-     * @see net.minecraft.client.renderer.block.model.ItemModelGenerator The parser for this file format.
+     * @see net.minecraft.client.resources.model.cuboid.ItemModelGenerator The parser for this file format.
      */
     private static void createFlatItem(ItemModelGenerators generators, Identifier model, Identifier... textures) {
         if (textures.length > 5) throw new IndexOutOfBoundsException("Too many layers");
         if (textures.length == 0) throw new IndexOutOfBoundsException("Must have at least one texture");
         if (textures.length == 1) {
-            ModelTemplates.FLAT_ITEM.create(model, TextureMapping.layer0(textures[0]), generators.modelOutput);
+            ModelTemplates.FLAT_ITEM.create(model, TextureMapping.layer0(new Material(textures[0])), generators.modelOutput);
             return;
         }
 
@@ -120,7 +121,7 @@ public final class ItemModelProvider {
         var mapping = new TextureMapping();
         for (var i = 0; i < textures.length; i++) {
             var slot = slots[i] = TextureSlot.create("layer" + i);
-            mapping.put(slot, textures[i]);
+            mapping.put(slot, new Material(textures[i]));
         }
 
         new ModelTemplate(Optional.of(Identifier.withDefaultNamespace("item/generated")), Optional.empty(), slots)

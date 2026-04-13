@@ -14,7 +14,7 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
@@ -42,7 +42,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade {
         }
     }
 
-    public TurtleSpeaker(ItemStack item) {
+    public TurtleSpeaker(ItemStackTemplate item) {
         super(TurtleUpgradeType.PERIPHERAL, UpgradeSpeakerPeripheral.ADJECTIVE, item);
     }
 

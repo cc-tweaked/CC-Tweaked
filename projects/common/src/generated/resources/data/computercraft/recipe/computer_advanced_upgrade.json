@@ -4,5 +4,5 @@
   "function": [{"type": "computercraft:copy_components", "from": "computercraft:computer_normal"}],
   "key": {"#": "#c:ingots/gold", "C": "computercraft:computer_normal"},
   "pattern": ["###", "#C#", "# #"],
-  "result": {"count": 1, "id": "computercraft:computer_advanced"}
+  "result": {"id": "computercraft:computer_advanced"}
 }

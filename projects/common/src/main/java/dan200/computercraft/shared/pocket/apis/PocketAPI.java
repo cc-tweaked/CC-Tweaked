@@ -100,7 +100,7 @@ public class PocketAPI implements ILuaAPI {
         if (newUpgrade == null) return new Object[]{ false, "Cannot find a valid upgrade" };
 
         // Remove the current upgrade
-        if (previousUpgrade != null) storeItem(player, previousUpgrade.getUpgradeItem());
+        if (previousUpgrade != null) storeItem(player, previousUpgrade.getUpgradeItem().create());
 
         // Set the new upgrade
         pocket.setUpgrade(side, newUpgrade);
@@ -142,7 +142,7 @@ public class PocketAPI implements ILuaAPI {
 
         pocket.setUpgrade(side, null);
 
-        storeItem(player, previousUpgrade.getUpgradeItem());
+        storeItem(player, previousUpgrade.getUpgradeItem().create());
 
         return new Object[]{ true };
     }

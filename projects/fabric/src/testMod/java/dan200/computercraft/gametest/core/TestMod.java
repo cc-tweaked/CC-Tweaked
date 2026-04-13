@@ -7,7 +7,7 @@ package dan200.computercraft.gametest.core;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.export.Exporter;
 import dan200.computercraft.gametest.api.ClientTestEnvironment;
-import dan200.computercraft.mixin.gametest.RegistryDataLoaderLoaderAccessor;
+import dan200.computercraft.mixin.gametest.RegistryLoadTaskAccessor;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -18,14 +18,14 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.core.Registry;
+import net.minecraft.core.WritableRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestInstance;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.RegistryLoadTask;
 import org.jspecify.annotations.Nullable;
 
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -55,11 +55,13 @@ public class TestMod implements ModInitializer, ClientModInitializer {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> Exporter.register(dispatcher));
     }
 
-    public static void registerDynamicEntries(List<RegistryDataLoaderLoaderAccessor<?>> registriesList) {
-        var registries = new IdentityHashMap<ResourceKey<? extends Registry<?>>, Registry<?>>(registriesList.size());
-        for (var entry : registriesList) registries.put(entry.getRegistry().key(), entry.getRegistry());
-
-        @SuppressWarnings("unchecked") var testInstances = (Registry<GameTestInstance>) registries.get(Registries.TEST_INSTANCE);
+    public static void registerDynamicEntries(List<RegistryLoadTask<?>> registries) {
+        @SuppressWarnings("unchecked")
+        var testInstances = (WritableRegistry<GameTestInstance>) registries.stream()
+            .map(x -> ((RegistryLoadTaskAccessor<?>) x).getRegistry())
+            .filter(x -> x.key() == Registries.TEST_INSTANCE)
+            .findFirst()
+            .orElse(null);
         if (testInstances == null) return;
         for (var test : Objects.requireNonNull(tests)) {
             if (!testInstances.containsKey(test.getId())) {

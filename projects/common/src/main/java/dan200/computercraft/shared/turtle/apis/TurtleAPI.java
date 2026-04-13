@@ -700,7 +700,7 @@ public class TurtleAPI implements ILuaAPI {
     @LuaFunction(mainThread = true)
     public final @Nullable Map<?, ?> getEquippedLeft() {
         var upgrade = turtle.getUpgradeWithData(TurtleSide.LEFT);
-        return upgrade == null ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(turtle.getLevel().registryAccess(), upgrade.getUpgradeItem());
+        return upgrade == null ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(turtle.getLevel().registryAccess(), upgrade.getUpgradeItem().create());
     }
 
     /**
@@ -716,7 +716,7 @@ public class TurtleAPI implements ILuaAPI {
     @LuaFunction(mainThread = true)
     public final @Nullable Map<?, ?> getEquippedRight() {
         var upgrade = turtle.getUpgradeWithData(TurtleSide.RIGHT);
-        return upgrade == null ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(turtle.getLevel().registryAccess(), upgrade.getUpgradeItem());
+        return upgrade == null ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(turtle.getLevel().registryAccess(), upgrade.getUpgradeItem().create());
     }
 
     /**

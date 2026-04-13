@@ -22,6 +22,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.Function;
@@ -121,16 +122,21 @@ public final class UpgradeManager<T extends UpgradeBase> {
 
     @Nullable
     public UpgradeData<T> get(HolderLookup.Provider registries, ItemStack stack) {
+        return stack.isEmpty() ? null : get(registries.lookupOrThrow(registry), stack);
+    }
+
+    @Nullable
+    public UpgradeData<T> get(HolderLookup<T> registries, ItemStack stack) {
         if (stack.isEmpty()) return null;
 
-        return registries.lookupOrThrow(registry).listElements()
+        return registries.listElements()
             .filter(holder -> {
                 var upgrade = holder.value();
                 var craftingStack = upgrade.getCraftingItem();
-                return !craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && upgrade.isItemSuitable(stack);
+                return craftingStack.is(stack.getItem()) && upgrade.isItemSuitable(stack);
             })
             .findAny()
-            .map(x -> UpgradeData.of(x, x.value().getUpgradeData(stack)))
+            .map(x -> UpgradeData.of(x, x.value().getUpgradeData(ItemStackTemplate.fromNonEmptyStack(stack))))
             .orElse(null);
     }
 

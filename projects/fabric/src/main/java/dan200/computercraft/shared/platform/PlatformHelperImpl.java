@@ -21,16 +21,16 @@ import dan200.computercraft.shared.ComputerCraft;
 import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.util.InventoryUtil;
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiCache;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
@@ -106,7 +106,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> createMenuType(StreamCodec<RegistryFriendlyByteBuf, T> codec, ContainerData.Factory<C, T> factory) {
-        return new ExtendedScreenHandlerType<>(factory::create, codec);
+        return new ExtendedMenuType<>(factory::create, codec);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public ContainerTransfer.Slotted wrapContainer(Container container) {
-        return FabricContainerTransfer.of(InventoryStorage.of(container, null));
+        return FabricContainerTransfer.of(ContainerStorage.of(container, null));
     }
 
     @Override
@@ -141,7 +141,7 @@ public class PlatformHelperImpl implements PlatformHelper {
         if (storage != null) return FabricContainerTransfer.of(storage);
 
         var entity = InventoryUtil.getEntityContainer(level, pos, side);
-        return entity == null ? null : FabricContainerTransfer.of(InventoryStorage.of(entity, side));
+        return entity == null ? null : FabricContainerTransfer.of(ContainerStorage.of(entity, side));
     }
 
     @Override
@@ -189,12 +189,12 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public CreativeModeTab.Builder newCreativeModeTab() {
-        return FabricItemGroup.builder();
+        return FabricCreativeModeTab.builder();
     }
 
     @Override
-    public ItemStack getCraftingRemainingItem(ItemStack stack) {
-        return stack.getRecipeRemainder();
+    public @Nullable ItemStackTemplate getCraftingRemainingItem(ItemStack stack) {
+        return stack.getCraftingRemainder();
     }
 
     @Override
@@ -222,8 +222,7 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public boolean interactWithEntity(ServerPlayer player, Entity entity, Vec3 hitPos) {
         return UseEntityCallback.EVENT.invoker().interact(player, entity.level(), InteractionHand.MAIN_HAND, entity, new EntityHitResult(entity, hitPos)).consumesAction()
-            || entity.interactAt(player, hitPos.subtract(entity.position()), InteractionHand.MAIN_HAND).consumesAction()
-            || player.interactOn(entity, InteractionHand.MAIN_HAND).consumesAction();
+            || player.interactOn(entity, InteractionHand.MAIN_HAND, hitPos).consumesAction();
     }
 
     @Override
@@ -295,7 +294,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     private record WrappedMenuProvider<T extends ContainerData>(
         Component title, MenuConstructor menu, T data
-    ) implements ExtendedScreenHandlerFactory<T> {
+    ) implements ExtendedMenuProvider<T> {
         @Nullable
         @Override
         public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
@@ -352,7 +351,7 @@ public class PlatformHelperImpl implements PlatformHelper {
             if (result != null) return result;
 
             var cache = caches[direction.ordinal()];
-            return Peripherals.getGenericPeripheral(cache.getWorld(), cache.getPos(), direction.getOpposite(), cache.getBlockEntity());
+            return Peripherals.getGenericPeripheral(cache.getLevel(), cache.getPos(), direction.getOpposite(), cache.getBlockEntity());
         }
     }
 }

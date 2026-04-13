@@ -4,10 +4,17 @@
 
 package dan200.computercraft.shared.util;
 
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.ExtraCodecs;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -45,5 +52,46 @@ public final class RegistryHelper {
         var key = registry.getResourceKey(object);
         if (key.isEmpty()) throw new IllegalArgumentException(object + " was not registered in " + registry.key());
         return key.get().identifier();
+    }
+
+    /**
+     * Create a {@link MapCodec} that extracts a {@link HolderLookup.RegistryLookup} from the deserialisation context.
+     * <p>
+     * This is similar to {@link RegistryOps#retrieveGetter(ResourceKey)}, but returning a more general type.
+     *
+     * @param registryKey The registry to retrieve.
+     * @param <T>         The type of object the registry contains.
+     * @return A codec that retrieves the given registry, or errors if not available.
+     * @see #retrieveRegistryStreamCodec(ResourceKey)
+     */
+    public static <T> MapCodec<HolderLookup.RegistryLookup<T>> retrieveRegistryCodec(ResourceKey<? extends Registry<? extends T>> registryKey) {
+        return ExtraCodecs.retrieveContext(ops -> {
+            if (!(ops instanceof RegistryOps<?> registryOps)) return DataResult.error(() -> "Not a registryKey ops");
+
+            var holderGetter = registryOps.getter(registryKey);
+            if (holderGetter.isEmpty()) return DataResult.error(() -> "Unknown registry key" + registryKey);
+
+            if (!(holderGetter.get() instanceof HolderLookup.RegistryLookup<T> registryLookup)) {
+                return DataResult.error(() -> "Registry " + registryKey + " is not a RegistryLookup");
+            }
+
+            return DataResult.success(registryLookup, registryLookup.registryLifecycle());
+        });
+    }
+
+    /**
+     * Create a {@link StreamCodec} that extracts a {@link Registry} from the deserialisation context.
+     *
+     * @param registryKey The registry to retrieve.
+     * @param <T>         The type of object the registry contains.
+     * @return A codec that retrieves the given registry, or errors if not available.
+     * @see #retrieveRegistryCodec(ResourceKey)
+     */
+    public static <T> StreamCodec<RegistryFriendlyByteBuf, Registry<T>> retrieveRegistryStreamCodec(ResourceKey<? extends Registry<? extends T>> registryKey) {
+        return StreamCodec.of(
+            (_, _) -> {
+            },
+            x -> x.registryAccess().lookupOrThrow(registryKey)
+        );
     }
 }

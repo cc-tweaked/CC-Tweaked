@@ -6,7 +6,7 @@ package dan200.computercraft.client.gui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastManager;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -90,18 +90,18 @@ public class ItemToast implements Toast {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Font font, long time) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, Font font, long fullyVisibleForMs) {
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, width(), height());
 
         var textX = MARGIN;
         if (!stack.isEmpty()) {
             textX += MARGIN + IMAGE_SIZE;
-            graphics.renderFakeItem(stack, MARGIN, MARGIN + height() / 2 - IMAGE_SIZE);
+            graphics.item(stack, MARGIN, MARGIN + height() / 2 - IMAGE_SIZE);
         }
 
-        graphics.drawString(font, title, textX, MARGIN, 0xff500050, false);
+        graphics.text(font, title, textX, MARGIN, 0xff500050, false);
         for (var i = 0; i < message.size(); ++i) {
-            graphics.drawString(font, message.get(i), textX, LINE_SPACING + (i + 1) * LINE_SPACING, 0xff000000, false);
+            graphics.text(font, message.get(i), textX, LINE_SPACING + (i + 1) * LINE_SPACING, 0xff000000, false);
         }
     }
 }

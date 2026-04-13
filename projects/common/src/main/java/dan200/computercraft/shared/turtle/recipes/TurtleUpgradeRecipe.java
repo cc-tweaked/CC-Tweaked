@@ -12,24 +12,25 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 public final class TurtleUpgradeRecipe extends CustomRecipe {
-    public TurtleUpgradeRecipe(CraftingBookCategory category) {
-        super(category);
+    private final HolderLookup<ITurtleUpgrade> upgradeRegistry;
+
+    public TurtleUpgradeRecipe(HolderLookup<ITurtleUpgrade> upgradeRegistry) {
+        this.upgradeRegistry = upgradeRegistry;
     }
 
     @Override
     public boolean matches(CraftingInput inventory, Level world) {
-        return !assemble(inventory, world.registryAccess()).isEmpty();
+        return !assemble(inventory).isEmpty();
     }
 
     @Override
-    public ItemStack assemble(CraftingInput inventory, HolderLookup.Provider registryAccess) {
+    public ItemStack assemble(CraftingInput inventory) {
         // Scan the grid for a row containing a turtle and 1 or 2 items
         var leftItem = ItemStack.EMPTY;
         var turtle = ItemStack.EMPTY;
@@ -105,7 +106,7 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
         var items = new ItemStack[]{ rightItem, leftItem };
         for (var i = 0; i < 2; i++) {
             if (!items[i].isEmpty()) {
-                var itemUpgrade = TurtleUpgrades.instance().get(registryAccess, items[i]);
+                var itemUpgrade = TurtleUpgrades.instance().get(upgradeRegistry, items[i]);
                 if (itemUpgrade == null || upgrades[i] != null) return ItemStack.EMPTY;
                 upgrades[i] = itemUpgrade;
             }

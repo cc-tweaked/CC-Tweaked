@@ -4,5 +4,5 @@
   "function": [{"type": "computercraft:copy_components", "from": "computercraft:computer_normal"}],
   "key": {"#": "#c:ingots/iron", "C": "computercraft:computer_normal", "I": "#c:chests/wooden"},
   "pattern": ["###", "#C#", "#I#"],
-  "result": {"count": 1, "id": "computercraft:turtle_normal"}
+  "result": {"id": "computercraft:turtle_normal"}
 }

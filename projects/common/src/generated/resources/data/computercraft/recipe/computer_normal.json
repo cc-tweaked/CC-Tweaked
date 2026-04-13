@@ -3,5 +3,5 @@
   "category": "redstone",
   "key": {"#": "minecraft:stone", "G": "#c:glass_panes", "R": "#c:dusts/redstone"},
   "pattern": ["###", "#R#", "#G#"],
-  "result": {"count": 1, "id": "computercraft:computer_normal"}
+  "result": {"id": "computercraft:computer_normal"}
 }

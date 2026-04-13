@@ -151,7 +151,7 @@ public class WiredModemFullBlockEntity extends BlockEntity {
             base.append(ChatHelpers.copy(names.get(i)));
         }
 
-        player.displayClientMessage(Component.translatable(kind, base), false);
+        player.sendSystemMessage(Component.translatable(kind, base));
     }
 
     @Override

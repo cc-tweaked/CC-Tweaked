@@ -56,7 +56,9 @@ object TestHooks {
     fun init() {
         ServerContext.luaMachine = ManagedComputers
         ComputerCraftAPI.registerAPIFactory(::TestAPI)
-        StructureUtils.testStructuresDir = sourceDir.resolve("structures")
+
+        StructureUtils.testStructuresSourceDir = sourceDir
+        StructureUtils.testStructuresTargetDir = sourceDir
 
         // Set up our test reporter if configured.
         val outputPath = System.getProperty("cctest.gametest-report")
@@ -81,9 +83,9 @@ object TestHooks {
 
     @JvmStatic
     fun onServerStarted(server: MinecraftServer) {
-        val rules = server.worldData.gameRules
+        val rules = server.gameRules
         rules.set(GameRules.ADVANCE_TIME, false, server)
-        server.overworld().dayTime = Times.NOON.toLong()
+        server.overworld().clockManager().setTotalTicks(server.overworld().defaultClock, Times.NOON.toLong())
 
         LOG.info("Cleaning up after last run")
 
@@ -131,7 +133,8 @@ object TestHooks {
         Turtle_Test::class.java,
     )
 
-    private val defaultEnvironment: Holder<TestEnvironmentDefinition> = Holder.direct(TestEnvironmentDefinition.AllOf())
+    private val defaultEnvironment: Holder<TestEnvironmentDefinition<*>> =
+        Holder.direct(TestEnvironmentDefinition.AllOf())
 
     /**
      * Gather a list of all game tests.
@@ -154,7 +157,7 @@ object TestHooks {
         method.getAnnotation(GameTest::class.java)?.let { testInfo ->
             if (!TestTags.isEnabled(testInfo.tag)) return
 
-            val environment: Holder<TestEnvironmentDefinition> = when (testInfo.tag) {
+            val environment: Holder<TestEnvironmentDefinition<*>> = when (testInfo.tag) {
                 TestTags.COMMON -> defaultEnvironment
                 else -> Holder.direct(ClientTestEnvironment())
             }
@@ -164,7 +167,7 @@ object TestHooks {
                     testName,
                     TestData(
                         environment,
-                        Identifier.parse(testInfo.template.ifEmpty { testName }),
+                        Identifier.fromNamespaceAndPath(MOD_ID, testInfo.template.ifEmpty { testName }),
                         testInfo.timeoutTicks,
                         testInfo.setupTicks,
                         testInfo.required,
@@ -251,7 +254,7 @@ private object ComputerThreadReflection {
 
 class TestInstance(
     val name: String,
-    val data: TestData<Holder<TestEnvironmentDefinition>>,
+    val data: TestData<Holder<TestEnvironmentDefinition<*>>>,
     val function: Consumer<GameTestHelper>,
 ) {
     val id: Identifier = Identifier.fromNamespaceAndPath(TestHooks.MOD_ID, name)

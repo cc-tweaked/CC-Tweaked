@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MPL-2.0
 
 import cc.tweaked.gradle.*
+import net.fabricmc.loom.configuration.accesswidener.AccessWidenerJarProcessor
 
 plugins {
     id("cc-tweaked.vanilla")
@@ -11,10 +12,18 @@ plugins {
     id("cc-tweaked.publishing")
 }
 
-minecraft {
-    accessWideners(
-        "src/main/resources/computercraft.accesswidener",
-        "src/main/resources/computercraft-common.accesswidener",
+loom {
+    accessWidenerPath = project.file("src/main/resources/computercraft.accesswidener")
+    // Loom doesn't support multiple access wideners. We inject an additional processor which applies our
+    // Fabric/Forge-provided AWs.
+    addMinecraftJarProcessor(
+        AccessWidenerJarProcessor::class.java,
+        "cct:extra-aw",
+        false,
+        project.objects.fileProperty().also {
+            it.set(project.file("src/main/resources/computercraft-common.accesswidener"))
+            it.finalizeValue()
+        },
     )
 }
 

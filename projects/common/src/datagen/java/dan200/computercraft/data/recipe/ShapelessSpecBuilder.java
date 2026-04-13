@@ -12,7 +12,7 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 
@@ -22,7 +22,7 @@ import net.minecraft.world.level.ItemLike;
 public final class ShapelessSpecBuilder extends AbstractRecipeBuilder<ShapelessSpecBuilder, ShapelessRecipeSpec> {
     private final NonNullList<Ingredient> ingredients = NonNullList.create();
 
-    public ShapelessSpecBuilder(HolderGetter<Item> items, RecipeCategory category, ItemStack result) {
+    public ShapelessSpecBuilder(HolderGetter<Item> items, RecipeCategory category, ItemStackTemplate result) {
         super(items, category, result);
     }
 

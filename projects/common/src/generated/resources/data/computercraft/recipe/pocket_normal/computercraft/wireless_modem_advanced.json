@@ -6,7 +6,6 @@
   "pattern": ["#", "P"],
   "result": {
     "components": {"computercraft:back_pocket_upgrade": {"id": "computercraft:wireless_modem_advanced"}},
-    "count": 1,
     "id": "computercraft:pocket_computer_normal"
   }
 }

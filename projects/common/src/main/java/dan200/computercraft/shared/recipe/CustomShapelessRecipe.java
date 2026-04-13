@@ -4,7 +4,6 @@
 
 package dan200.computercraft.shared.recipe;
 
-import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
@@ -12,7 +11,6 @@ import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Function;
@@ -20,19 +18,17 @@ import java.util.function.Function;
 /**
  * A custom version of {@link ShapelessRecipe}, which can be converted to and from a {@link ShapelessRecipeSpec}.
  */
-public abstract class CustomShapelessRecipe extends AbstractCraftingRecipe {
+public abstract class CustomShapelessRecipe extends NormalCraftingRecipe {
     private final ShapelessRecipeSpec spec;
-    private @Nullable PlacementInfo placementInfo;
 
     protected CustomShapelessRecipe(ShapelessRecipeSpec recipe) {
-        super(recipe.properties());
+        super(recipe.properties().common(), recipe.properties().book());
         this.spec = recipe;
     }
 
     @Override
-    public PlacementInfo placementInfo() {
-        if (placementInfo == null) placementInfo = PlacementInfo.create(spec.ingredients());
-        return placementInfo;
+    protected PlacementInfo createPlacementInfo() {
+        return PlacementInfo.create(spec.ingredients());
     }
 
     @Override
@@ -57,8 +53,8 @@ public abstract class CustomShapelessRecipe extends AbstractCraftingRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
-        return spec.result().copy();
+    public ItemStack assemble(CraftingInput input) {
+        return spec.result().create();
     }
 
     protected final ShapelessRecipeSpec toSpec() {
@@ -69,7 +65,7 @@ public abstract class CustomShapelessRecipe extends AbstractCraftingRecipe {
     public abstract RecipeSerializer<? extends CustomShapelessRecipe> getSerializer();
 
     public static <T extends CustomShapelessRecipe> RecipeSerializer<T> serialiser(Function<ShapelessRecipeSpec, T> factory) {
-        return new BasicRecipeSerialiser<>(
+        return new RecipeSerializer<>(
             ShapelessRecipeSpec.CODEC.xmap(factory, CustomShapelessRecipe::toSpec),
             ShapelessRecipeSpec.STREAM_CODEC.map(factory, CustomShapelessRecipe::toSpec)
         );

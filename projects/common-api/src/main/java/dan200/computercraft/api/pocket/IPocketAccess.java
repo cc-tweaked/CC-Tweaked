@@ -7,7 +7,7 @@ package dan200.computercraft.api.pocket;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
@@ -63,7 +63,7 @@ public interface IPocketAccess extends PocketComputer {
      * @return The upgrade's NBT.
      * @see #setUpgradeData(DataComponentPatch)
      * @see UpgradeBase#getUpgradeItem(DataComponentPatch)
-     * @see UpgradeBase#getUpgradeData(ItemStack)
+     * @see UpgradeBase#getUpgradeData(ItemStackTemplate)
      * @see #getUpgrade()
      */
     DataComponentPatch getUpgradeData();

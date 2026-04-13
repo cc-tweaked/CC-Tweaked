@@ -8,6 +8,6 @@
     },
     "mixins": [
         "RegistryDataLoaderMixin",
-        "RegistryDataLoaderLoaderAccessor"
+        "RegistryLoadTaskAccessor"
     ]
 }

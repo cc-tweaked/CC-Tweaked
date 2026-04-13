@@ -5,8 +5,8 @@
 package dan200.computercraft.client.turtle;
 
 import dan200.computercraft.client.CustomModelManager;
-import net.minecraft.client.resources.model.MissingBlockModel;
 import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.model.cuboid.MissingCuboidModel;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Contract;
@@ -19,7 +19,7 @@ public class TurtleOverlayManager {
     private static final CustomModelManager<TurtleOverlay.Unbaked, TurtleOverlay> loader = new CustomModelManager<>(
         "turtle overlay", FileToIdConverter.json(TurtleOverlay.SOURCE), TurtleOverlay.CODEC,
         TurtleOverlay.Unbaked::bake,
-        new TurtleOverlay.Unbaked(MissingBlockModel.LOCATION, false)
+        new TurtleOverlay.Unbaked(MissingCuboidModel.LOCATION, false)
     );
 
 

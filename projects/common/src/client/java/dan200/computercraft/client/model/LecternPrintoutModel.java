@@ -16,7 +16,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.List;
 public final class LecternPrintoutModel extends Model<LecternPrintoutModel.State> {
     public static final ModelLayerLocation LAYER = new ModelLayerLocation(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "lectern_printout"), "main");
 
-    public static final Material MATERIAL = Sheets.BLOCK_ENTITIES_MAPPER.apply(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "printout"));
+    public static final SpriteId SPRITE = Sheets.BLOCK_ENTITIES_MAPPER.apply(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "printout"));
 
     static final int TEXTURE_WIDTH = 32;
     static final int TEXTURE_HEIGHT = 32;

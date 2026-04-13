@@ -8,6 +8,7 @@ import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.TypedInstance;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.level.BlockGetter;
@@ -23,6 +24,10 @@ public final class DetailHelpers {
     }
 
     public static <T> Map<String, Boolean> getTags(Holder.Reference<T> object) {
+        return getTags(object.tags());
+    }
+
+    public static <T> Map<String, Boolean> getTags(TypedInstance<T> object) {
         return getTags(object.tags());
     }
 

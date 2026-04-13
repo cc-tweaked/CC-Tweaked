@@ -6,7 +6,6 @@
   "pattern": ["#T"],
   "result": {
     "components": {"computercraft:right_turtle_upgrade": {"id": "computercraft:wireless_modem_normal"}},
-    "count": 1,
     "id": "computercraft:turtle_advanced"
   }
 }

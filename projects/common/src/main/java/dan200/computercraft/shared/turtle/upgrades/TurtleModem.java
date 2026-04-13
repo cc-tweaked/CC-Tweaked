@@ -15,17 +15,17 @@ import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 public class TurtleModem extends AbstractTurtleUpgrade {
     public static final MapCodec<TurtleModem> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-        BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(x -> x.getCraftingItem().getItem()),
+        Item.CODEC.fieldOf("item").forGetter(x -> x.getCraftingItem().item()),
         Codec.BOOL.fieldOf("advanced").forGetter(TurtleModem::advanced)
-    ).apply(instance, (item, advanced) -> new TurtleModem(new ItemStack(item), advanced)));
+    ).apply(instance, (item, advanced) -> new TurtleModem(new ItemStackTemplate(item, 1, DataComponentPatch.EMPTY), advanced)));
 
     private static class Peripheral extends WirelessModemPeripheral {
         private final ITurtleAccess turtle;
@@ -58,7 +58,7 @@ public class TurtleModem extends AbstractTurtleUpgrade {
 
     private final boolean advanced;
 
-    public TurtleModem(ItemStack stack, boolean advanced) {
+    public TurtleModem(ItemStackTemplate stack, boolean advanced) {
         super(TurtleUpgradeType.PERIPHERAL, advanced ? WirelessModemPeripheral.ADVANCED_ADJECTIVE : WirelessModemPeripheral.NORMAL_ADJECTIVE, stack);
         this.advanced = advanced;
     }

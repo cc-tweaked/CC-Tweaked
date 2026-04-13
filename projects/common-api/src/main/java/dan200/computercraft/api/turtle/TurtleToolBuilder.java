@@ -130,7 +130,7 @@ public final class TurtleToolBuilder {
     public ITurtleUpgrade build() {
         return ComputerCraftAPIService.get().createTurtleTool(new TurtleToolSpec(
             adjective,
-            item,
+            item.builtInRegistryHolder(),
             damageMultiplier,
             allowEnchantments,
             consumeDurability,

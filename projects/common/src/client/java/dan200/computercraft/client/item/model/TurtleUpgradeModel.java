@@ -12,23 +12,25 @@ import dan200.computercraft.client.turtle.TurtleUpgradeModelManager;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.resources.model.cuboid.ItemTransforms;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Matrix4fc;
 import org.jspecify.annotations.Nullable;
 
 /**
  * An {@link ItemModel} that renders a turtle upgrade, using its {@link dan200.computercraft.api.client.turtle.TurtleUpgradeModel}.
  *
  * @param side The side the upgrade resides on.
+ * @param transformation The transformation this model was baked with.
  * @param base The base model. Only used to provide item transforms.
  */
-public record TurtleUpgradeModel(TurtleSide side, ItemTransforms base) implements ItemModel {
+public record TurtleUpgradeModel(TurtleSide side, Matrix4fc transformation, ItemTransforms base) implements ItemModel {
     public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle/upgrade");
     public static final MapCodec<Unbaked> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         TurtleSide.CODEC.fieldOf("side").forGetter(Unbaked::side),
@@ -40,6 +42,7 @@ public record TurtleUpgradeModel(TurtleSide side, ItemTransforms base) implement
         var upgrade = TurtleItem.getUpgradeWithData(stack, side);
         if (upgrade == null) return;
 
+        // TODO: How do we apply "transformation" here?
         TurtleUpgradeModelManager.get(Minecraft.getInstance().getModelManager(), upgrade.holder())
             .renderForItem(upgrade, side, state, resolver, base.getTransform(context), seed);
     }
@@ -51,8 +54,8 @@ public record TurtleUpgradeModel(TurtleSide side, ItemTransforms base) implement
         }
 
         @Override
-        public ItemModel bake(BakingContext bakingContext) {
-            return new TurtleUpgradeModel(side, bakingContext.blockModelBaker().getModel(base).getTopTransforms());
+        public ItemModel bake(BakingContext bakingContext, Matrix4fc transformation) {
+            return new TurtleUpgradeModel(side, transformation, bakingContext.blockModelBaker().getModel(base).getTopTransforms());
         }
 
         @Override

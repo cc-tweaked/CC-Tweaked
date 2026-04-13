@@ -15,6 +15,7 @@ import dan200.computercraft.test.shared.ItemStackMatcher.isStack
 import net.minecraft.commands.arguments.blocks.BlockInput
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
+import net.minecraft.core.Holder
 import net.minecraft.core.NonNullList
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.gametest.framework.GameTestAssertException
@@ -23,12 +24,15 @@ import net.minecraft.gametest.framework.GameTestInfo
 import net.minecraft.gametest.framework.GameTestSequence
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.Container
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.clock.WorldClock
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.ItemStackTemplate
 import net.minecraft.world.item.context.UseOnContext
 import net.minecraft.world.item.crafting.CraftingInput
 import net.minecraft.world.item.crafting.RecipeType
@@ -382,7 +386,7 @@ fun GameTestHelper.craftItem(vararg items: ItemStack): ItemStack {
 
     val recipe = level.server.recipeManager.getRecipeFor(RecipeType.CRAFTING, input, level).getOrNull()
         ?: throw assertionException("No recipe matches $items")
-    return recipe.value.assemble(input, level.registryAccess())
+    return recipe.value.assemble(input)
 }
 
 /**
@@ -397,3 +401,11 @@ inline fun tryMultipleTimes(count: Int, action: () -> Unit) {
         }
     }
 }
+
+/** Check an [ItemStack] matches an [ItemStackTemplate]. */
+fun ItemStack.matches(instance: ItemStackTemplate) =
+    `is`(instance.item) && componentsPatch == instance.components
+
+/** Get the default clock for a level */
+val ServerLevel.defaultClock: Holder<WorldClock>
+    get() = level.dimensionTypeRegistration().value().defaultClock.orElseThrow()

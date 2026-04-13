@@ -3,5 +3,5 @@
   "category": "redstone",
   "key": {"#": "minecraft:stone", "D": "#c:dyes", "R": "#c:dusts/redstone"},
   "pattern": ["###", "#R#", "#D#"],
-  "result": {"count": 1, "id": "computercraft:printer"}
+  "result": {"id": "computercraft:printer"}
 }

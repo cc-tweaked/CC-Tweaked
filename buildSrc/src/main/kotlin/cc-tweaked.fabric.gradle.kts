@@ -11,22 +11,13 @@ import cc.tweaked.gradle.MinecraftConfigurations
 
 plugins {
     `java-library`
-    id("net.fabricmc.fabric-loom-remap")
+    id("net.fabricmc.fabric-loom")
     id("cc-tweaked.java-convention")
 }
 
 plugins.apply(CCTweakedPlugin::class.java)
 
 val mcVersion: String by extra
-
-repositories {
-    maven("https://maven.parchmentmc.org/") {
-        name = "Parchment"
-        content {
-            includeGroup("org.parchmentmc.data")
-        }
-    }
-}
 
 loom {
     splitEnvironmentSourceSets()
@@ -43,24 +34,10 @@ dependencies {
     val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
     minecraft("com.mojang:minecraft:$mcVersion")
-    mappings(
-        loom.layered {
-            officialMojangMappings()
-            parchment(
-                dependencyFactory.create(
-                    "org.parchmentmc.data",
-                    "parchment-${libs.findVersion("parchmentMc").get()}",
-                    libs.findVersion("parchment").get().toString(),
-                    null,
-                    "zip",
-                ),
-            )
-        },
-    )
 
-    modImplementation(libs.findLibrary("fabric-loader").get())
-    modImplementation(libs.findLibrary("fabric-api").get())
+    implementation(libs.findLibrary("fabric-loader").get())
+    implementation(libs.findLibrary("fabric-api").get())
 
     // Depend on error prone annotations to silence a lot of compile warnings.
-    compileOnlyApi(libs.findLibrary("errorProne.annotations").get())
+    compileOnly(libs.findLibrary("errorProne.annotations").get())
 }

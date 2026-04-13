@@ -3,5 +3,5 @@
   "category": "redstone",
   "key": {"#": "minecraft:stone", "E": "#c:ender_pearls"},
   "pattern": ["###", "#E#", "###"],
-  "result": {"count": 1, "id": "computercraft:wireless_modem_normal"}
+  "result": {"id": "computercraft:wireless_modem_normal"}
 }

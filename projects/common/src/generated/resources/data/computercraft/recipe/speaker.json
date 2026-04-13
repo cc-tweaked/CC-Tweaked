@@ -3,5 +3,5 @@
   "category": "redstone",
   "key": {"#": "minecraft:stone", "N": "minecraft:note_block", "R": "#c:dusts/redstone"},
   "pattern": ["###", "#N#", "#R#"],
-  "result": {"count": 1, "id": "computercraft:speaker"}
+  "result": {"id": "computercraft:speaker"}
 }

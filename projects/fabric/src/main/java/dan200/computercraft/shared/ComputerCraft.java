@@ -24,6 +24,7 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.platform.FabricConfigFile;
 import dan200.computercraft.shared.recipe.function.RecipeFunction;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -33,8 +34,7 @@ import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
-import net.fabricmc.fabric.api.item.v1.ComponentTooltipAppenderRegistry;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.item.v1.ItemComponentTooltipProviderRegistry;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.lookup.v1.item.ItemApiLookup;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
@@ -67,20 +67,23 @@ public class ComputerCraft {
     public static final String CLIENT_OPEN_FOLDER = "computercraft-open-folder";
 
     public static void init() {
-        for (var type : NetworkMessages.getServerbound()) registerPayloadType(PayloadTypeRegistry.playC2S(), type);
-        for (var type : NetworkMessages.getClientbound()) registerPayloadType(PayloadTypeRegistry.playS2C(), type);
+        for (var type : NetworkMessages.getServerbound()) {
+            registerPayloadType(PayloadTypeRegistry.serverboundPlay(), type);
+        }
+        for (var type : NetworkMessages.getClientbound()) {
+            registerPayloadType(PayloadTypeRegistry.clientboundPlay(), type);
+        }
 
         for (var type : NetworkMessages.getServerbound()) {
             ServerPlayNetworking.registerGlobalReceiver(type.type(), (packet, player) -> packet.handle(player::player));
         }
 
-        FabricRegistryBuilder.createSimple(RecipeFunction.REGISTRY).attribute(RegistryAttribute.SYNCED).buildAndRegister();
+        FabricRegistryBuilder.create(RecipeFunction.REGISTRY).attribute(RegistryAttribute.SYNCED).buildAndRegister();
 
         DynamicRegistries.registerSynced(ITurtleUpgrade.REGISTRY, TurtleUpgrades.instance().upgradeCodec());
         DynamicRegistries.registerSynced(IPocketUpgrade.REGISTRY, PocketUpgrades.instance().upgradeCodec());
 
         ModRegistry.register();
-        ModRegistry.registerMainThread();
 
         ModRegistry.registerPeripherals(new BlockComponentImpl<>(PeripheralLookup.get()));
         ModRegistry.registerWiredElements(new BlockComponentImpl<>(WiredElementLookup.get()));
@@ -91,7 +94,7 @@ public class ComputerCraft {
 
         // Register tooltips
         for (var tooltip : ModRegistry.DataComponents.TOOLTIP_COMPONENTS) {
-            ComponentTooltipAppenderRegistry.addAfter(DataComponents.LORE, tooltip.get());
+            ItemComponentTooltipProviderRegistry.addAfter(DataComponents.LORE, tooltip.get());
         }
 
         // Register hooks
@@ -111,8 +114,8 @@ public class ComputerCraft {
         ServerTickEvents.START_SERVER_TICK.register(CommonHooks::onServerTickStart);
         ServerTickEvents.START_SERVER_TICK.register(s -> CommonHooks.onServerTickEnd());
         ServerChunkEvents.CHUNK_UNLOAD.register((l, c) -> CommonHooks.onServerChunkUnload(c));
-        ServerChunkEvents.CHUNK_LEVEL_TYPE_CHANGE.register((level, chunk, oldStatus, newStatus) ->
-            CommonHooks.onChunkTicketLevelChanged(level, chunk.getPos().toLong(), ChunkLevel.byStatus(oldStatus), ChunkLevel.byStatus(newStatus)));
+        ServerChunkEvents.FULL_CHUNK_STATUS_CHANGE.register((level, chunk, oldStatus, newStatus) ->
+            CommonHooks.onChunkTicketLevelChanged(level, chunk.getPos().pack(), ChunkLevel.byStatus(oldStatus), ChunkLevel.byStatus(newStatus)));
 
         PlayerBlockBreakEvents.BEFORE.register(FabricCommonHooks::onBlockDestroy);
         UseBlockCallback.EVENT.register(CommonHooks::onUseBlock);
@@ -126,12 +129,12 @@ public class ComputerCraft {
             if (pool != null) tableBuilder.withPool(pool);
         });
 
-        ItemGroupEvents.MODIFY_ENTRIES_ALL.register((tab, entries) -> CommonHooks.onBuildCreativeTab(
+        CreativeModeTabEvents.MODIFY_OUTPUT_ALL.register((tab, entries) -> CommonHooks.onBuildCreativeTab(
             BuiltInRegistries.CREATIVE_MODE_TAB.getResourceKey(tab).orElseThrow(),
             entries.getContext(), entries
         ));
 
-        CommonHooks.onDatapackReload(ResourceLoader.get(PackType.SERVER_DATA)::registerReloader);
+        CommonHooks.onDatapackReload(ResourceLoader.get(PackType.SERVER_DATA)::registerReloadListener);
 
         FabricDetailRegistries.FLUID_VARIANT.addProvider(FluidDetails::fill);
 

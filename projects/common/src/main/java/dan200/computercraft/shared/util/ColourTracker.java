@@ -6,10 +6,10 @@ package dan200.computercraft.shared.util;
 
 import dan200.computercraft.core.util.Colour;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.crafting.ArmorDyeRecipe;
+import net.minecraft.world.item.crafting.DyeRecipe;
 
 /**
- * A reimplementation of the colour system in {@link ArmorDyeRecipe}, but
+ * A reimplementation of the colour system in {@link DyeRecipe}, but
  * bundled together as an object.
  */
 public class ColourTracker {
@@ -19,7 +19,7 @@ public class ColourTracker {
     private int totalB;
     private int count;
 
-    public void addColour(int r, int g, int b) {
+    private void addColour(int r, int g, int b) {
         total += Math.max(r, Math.max(g, b));
         totalR += r;
         totalG += g;
@@ -27,7 +27,7 @@ public class ColourTracker {
         count++;
     }
 
-    public void addColour(float r, float g, float b) {
+    private void addColour(float r, float g, float b) {
         addColour((int) (r * 255), (int) (g * 255), (int) (b * 255));
     }
 

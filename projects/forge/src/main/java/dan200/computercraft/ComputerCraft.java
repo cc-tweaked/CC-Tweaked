@@ -104,8 +104,6 @@ public final class ComputerCraft {
 
     @SubscribeEvent
     public static void init(FMLCommonSetupEvent event) {
-        event.enqueueWork(ModRegistry::registerMainThread);
-
         ComputerCraftAPI.registerGenericSource(InventoryMethods::new);
         ComputerCraftAPI.registerGenericSource(FluidMethods::new);
         ComputerCraftAPI.registerGenericSource(new EnergyMethods());

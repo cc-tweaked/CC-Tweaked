@@ -20,15 +20,15 @@ import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
 import dan200.computercraft.shared.util.Holiday;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.cuboid.ItemTransform;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
@@ -132,7 +132,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         transform.mulPose(Axis.YP.rotationDegrees(180.0f - state.yaw));
         transform.translate(-0.5f, -0.5f, -0.5f);
 
-        state.model.submit(transform, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, state.colour == -1 ? null : new int[]{ ARGB.opaque(state.colour) }, state.breakProgress);
+        state.model.submit(transform, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, state.colour == -1 ? -1 : ARGB.opaque(state.colour), state.breakProgress);
 
         if (state.overlay != null) {
             state.overlay.submit(transform, collector, state.lightCoords, OverlayTexture.NO_OVERLAY);

@@ -12,24 +12,25 @@ import dan200.computercraft.shared.pocket.core.PocketSide;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 public final class PocketComputerUpgradeRecipe extends CustomRecipe {
-    public PocketComputerUpgradeRecipe(CraftingBookCategory category) {
-        super(category);
+    private final HolderLookup<IPocketUpgrade> upgradeRegistry;
+
+    public PocketComputerUpgradeRecipe(HolderLookup<IPocketUpgrade> upgradeRegistry) {
+        this.upgradeRegistry = upgradeRegistry;
     }
 
     @Override
     public boolean matches(CraftingInput inventory, Level world) {
-        return !assemble(inventory, world.registryAccess()).isEmpty();
+        return !assemble(inventory).isEmpty();
     }
 
     @Override
-    public ItemStack assemble(CraftingInput inventory, HolderLookup.Provider registryAccess) {
+    public ItemStack assemble(CraftingInput inventory) {
         // Scan the grid for a pocket computer
         var computer = ItemStack.EMPTY;
         var computerX = -1;
@@ -57,10 +58,10 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
                 if (item.isEmpty() || (x == computerX && y == computerY)) continue;
 
                 if (x == computerX && y == computerY - 1) {
-                    above = PocketUpgrades.instance().get(registryAccess, item);
+                    above = PocketUpgrades.instance().get(upgradeRegistry, item);
                     if (above == null) return ItemStack.EMPTY;
                 } else if (x == computerX && y == computerY + 1) {
-                    below = PocketUpgrades.instance().get(registryAccess, item);
+                    below = PocketUpgrades.instance().get(upgradeRegistry, item);
                     if (below == null) return ItemStack.EMPTY;
                 } else {
                     return ItemStack.EMPTY;

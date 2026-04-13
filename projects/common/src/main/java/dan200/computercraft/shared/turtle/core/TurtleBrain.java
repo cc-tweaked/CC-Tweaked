@@ -679,14 +679,14 @@ public class TurtleBrain implements TurtleAccessInternal {
                 if (currentHoliday == Holiday.VALENTINES) {
                     var position = getVisualPosition(1.0f);
                     if (position != null) {
-                        var x = position.x + world.random.nextGaussian() * 0.1;
-                        var y = position.y + 0.5 + world.random.nextGaussian() * 0.1;
-                        var z = position.z + world.random.nextGaussian() * 0.1;
+                        var x = position.x + world.getRandom().nextGaussian() * 0.1;
+                        var y = position.y + 0.5 + world.getRandom().nextGaussian() * 0.1;
+                        var z = position.z + world.getRandom().nextGaussian() * 0.1;
                         world.addParticle(
                             ParticleTypes.HEART, x, y, z,
-                            world.random.nextGaussian() * 0.02,
-                            world.random.nextGaussian() * 0.02,
-                            world.random.nextGaussian() * 0.02
+                            world.getRandom().nextGaussian() * 0.02,
+                            world.getRandom().nextGaussian() * 0.02,
+                            world.getRandom().nextGaussian() * 0.02
                         );
                     }
                 }

@@ -9,19 +9,13 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
 import dan200.computercraft.shared.util.DataComponentUtil;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 public final class ColourableRecipe extends CustomRecipe {
-    public ColourableRecipe(CraftingBookCategory category) {
-        super(category);
-    }
-
     @Override
     public boolean matches(CraftingInput inv, Level world) {
         var hasColourable = false;
@@ -33,7 +27,7 @@ public final class ColourableRecipe extends CustomRecipe {
             if (stack.is(ComputerCraftTags.Items.DYEABLE)) {
                 if (hasColourable) return false;
                 hasColourable = true;
-            } else if (ColourUtils.getStackColour(stack) != null) {
+            } else if (ColourUtils.isDye(stack)) {
                 hasDye = true;
             } else {
                 return false;
@@ -44,7 +38,7 @@ public final class ColourableRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInput inv, HolderLookup.Provider registryAccess) {
+    public ItemStack assemble(CraftingInput inv) {
         var colourable = ItemStack.EMPTY;
 
         var tracker = new ColourTracker();
@@ -57,7 +51,7 @@ public final class ColourableRecipe extends CustomRecipe {
             if (stack.is(ComputerCraftTags.Items.DYEABLE)) {
                 colourable = stack;
             } else {
-                var dye = ColourUtils.getStackColour(stack);
+                var dye = ColourUtils.getDyeColour(stack);
                 if (dye != null) tracker.addColour(dye);
             }
         }

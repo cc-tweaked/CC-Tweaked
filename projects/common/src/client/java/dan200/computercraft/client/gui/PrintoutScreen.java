@@ -10,16 +10,16 @@ import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.PrintoutMenu;
 import dan200.computercraft.shared.media.items.PrintoutData;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
-import net.minecraft.client.gui.render.state.GuiElementRenderState;
-import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
+import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerListener;
@@ -42,8 +42,7 @@ public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> 
     private int page = 0;
 
     public PrintoutScreen(PrintoutMenu container, Inventory player, Component title) {
-        super(container, player, title);
-        imageHeight = Y_SIZE;
+        super(container, player, title, DEFAULT_IMAGE_WIDTH, Y_SIZE);
     }
 
     private void setPrintout(ItemStack stack) {
@@ -121,9 +120,10 @@ public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> 
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTicks);
         // Push the printout slightly forward, to avoid clipping into the background.
-        graphics.guiRenderState.submitPicturesInPictureState(new PrintoutRenderState(
+        graphics.guiRenderState.addPicturesInPictureState(new PrintoutRenderState(
             leftPos - COVER_SIZE - 32, leftPos + X_SIZE + COVER_SIZE + 32,
             topPos - COVER_SIZE, topPos + Y_SIZE + COVER_SIZE,
             printout, page, new Matrix3x2f(graphics.pose()), graphics.scissorStack.peek()
@@ -131,7 +131,7 @@ public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> 
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         // Skip rendering labels.
     }
 
@@ -187,10 +187,10 @@ public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> 
             pose.scale(1.0f, 1.0f, -1.0f);
 
             var buffer = bufferSource.getBuffer(PrintoutRenderer.BACKGROUND);
-            drawBorder(pose.last().pose(), buffer, 0, 0, 0, state.page(), state.printout().pages(), state.printout().book(), LightTexture.FULL_BRIGHT);
+            drawBorder(pose.last().pose(), buffer, 0, 0, 0, state.page(), state.printout().pages(), state.printout().book(), LightCoordsUtil.FULL_BRIGHT);
 
             drawText(
-                pose, bufferSource, X_TEXT_MARGIN, Y_TEXT_MARGIN, PrintoutData.LINES_PER_PAGE * state.page(), LightTexture.FULL_BRIGHT,
+                pose, bufferSource, X_TEXT_MARGIN, Y_TEXT_MARGIN, PrintoutData.LINES_PER_PAGE * state.page(), LightCoordsUtil.FULL_BRIGHT,
                 state.printout().text(), state.printout().colour()
             );
             pose.popPose();

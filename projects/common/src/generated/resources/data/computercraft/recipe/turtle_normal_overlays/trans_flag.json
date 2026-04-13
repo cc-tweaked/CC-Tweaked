@@ -18,7 +18,6 @@
   ],
   "result": {
     "components": {"computercraft:overlay": "computercraft:trans_flag"},
-    "count": 1,
     "id": "computercraft:turtle_normal"
   }
 }

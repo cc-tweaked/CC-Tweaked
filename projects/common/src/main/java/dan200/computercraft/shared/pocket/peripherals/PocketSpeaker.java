@@ -10,11 +10,11 @@ import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.jspecify.annotations.Nullable;
 
 public class PocketSpeaker extends AbstractPocketUpgrade {
-    public PocketSpeaker(ItemStack item) {
+    public PocketSpeaker(ItemStackTemplate item) {
         super(UpgradeSpeakerPeripheral.ADJECTIVE, item);
     }
 

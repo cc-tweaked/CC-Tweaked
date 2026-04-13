@@ -84,7 +84,7 @@ neoForge {
         fun RunModel.configureForGameTest() {
             systemProperty(
                 "cctest.sources",
-                project.project(":common").file("src/testMod/resources/data/cctest").absolutePath,
+                project.project(":common").file("src/testMod/resources").absolutePath,
             )
 
             programArgument("--mixin.config=computercraft-gametest.mixins.json")

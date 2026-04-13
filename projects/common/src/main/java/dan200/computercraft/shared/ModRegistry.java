@@ -96,6 +96,7 @@ import dan200.computercraft.shared.turtle.upgrades.TurtleSpeaker;
 import dan200.computercraft.shared.turtle.upgrades.TurtleTool;
 import dan200.computercraft.shared.util.DataComponentUtil;
 import dan200.computercraft.shared.util.NonNegativeId;
+import dan200.computercraft.shared.util.RegistryHelper;
 import dan200.computercraft.shared.util.StorageCapacity;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
@@ -103,7 +104,7 @@ import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -127,7 +128,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -136,8 +137,7 @@ import java.util.Set;
 import java.util.function.*;
 
 /**
- * Registers ComputerCraft's registry entries and additional objects, such as {@link CauldronInteraction}s and
- * {@link DetailProvider}s.
+ * Registers ComputerCraft's registry entries and additional objects, such as {@link DetailProvider}s.
  * <p>
  * The functions in this class should be called from a loader-specific class.
  */
@@ -541,27 +541,35 @@ public final class ModRegistry {
     }
 
     public static class LootItemConditionTypes {
-        static final RegistrationHelper<LootItemConditionType> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registries.LOOT_CONDITION_TYPE);
+        static final RegistrationHelper<MapCodec<? extends LootItemCondition>> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registries.LOOT_CONDITION_TYPE);
 
-        public static final RegistryEntry<LootItemConditionType> BLOCK_NAMED = REGISTRY.register("block_named",
-            () -> new LootItemConditionType(MapCodec.unit(BlockNamedEntityLootCondition.INSTANCE)));
+        public static final RegistryEntry<MapCodec<BlockNamedEntityLootCondition>> BLOCK_NAMED = REGISTRY.register("block_named",
+            () -> BlockNamedEntityLootCondition.CODEC);
 
-        public static final RegistryEntry<LootItemConditionType> PLAYER_CREATIVE = REGISTRY.register("player_creative",
-            () -> new LootItemConditionType(MapCodec.unit(PlayerCreativeLootCondition.INSTANCE)));
+        public static final RegistryEntry<MapCodec<PlayerCreativeLootCondition>> PLAYER_CREATIVE = REGISTRY.register("player_creative",
+            () -> PlayerCreativeLootCondition.CODEC);
 
-        public static final RegistryEntry<LootItemConditionType> HAS_ID = REGISTRY.register("has_id",
-            () -> new LootItemConditionType(MapCodec.unit(HasComputerIdLootCondition.INSTANCE)));
+        public static final RegistryEntry<MapCodec<? extends LootItemCondition>> HAS_ID = REGISTRY.register("has_id",
+            () -> HasComputerIdLootCondition.CODEC);
     }
 
     public static class RecipeSerializers {
         static final RegistrationHelper<RecipeSerializer<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registries.RECIPE_SERIALIZER);
 
-        private static <T extends CustomRecipe> RegistryEntry<CustomRecipe.Serializer<T>> simple(String name, CustomRecipe.Serializer.Factory<T> factory) {
-            return REGISTRY.register(name, () -> new CustomRecipe.Serializer<>(factory));
+        private static <T extends CustomRecipe> RegistryEntry<RecipeSerializer<T>> simple(String name, Supplier<T> factory) {
+            return REGISTRY.register(name, () -> new RecipeSerializer<>(MapCodec.unit(factory), StreamCodec.unit(factory.get())));
+        }
+
+        private static <U, T extends CustomRecipe> RegistryEntry<RecipeSerializer<T>> withRegistry(
+            String name, Function<HolderLookup<U>, T> factory, ResourceKey<? extends Registry<? extends U>> registry
+        ) {
+            var codec = RegistryHelper.retrieveRegistryCodec(registry).xmap(factory, _ -> null);
+            var streamCodec = RegistryHelper.retrieveRegistryStreamCodec(registry).map(factory, _ -> null);
+            return REGISTRY.register(name, () -> new RecipeSerializer<>(codec, streamCodec));
         }
 
         private static <T extends Recipe<?>> RegistryEntry<RecipeSerializer<T>> register(String name, MapCodec<T> codec, StreamCodec<RegistryFriendlyByteBuf, T> streamCodec) {
-            return REGISTRY.register(name, () -> new BasicRecipeSerialiser<>(codec, streamCodec));
+            return REGISTRY.register(name, () -> new RecipeSerializer<>(codec, streamCodec));
         }
 
         public static final RegistryEntry<RecipeSerializer<ImpostorShapedRecipe>> IMPOSTOR_SHAPED = REGISTRY.register("impostor_shaped", () -> CustomShapedRecipe.serialiser(ImpostorShapedRecipe::new));
@@ -570,10 +578,10 @@ public final class ModRegistry {
         public static final RegistryEntry<RecipeSerializer<TransformShapedRecipe>> TRANSFORM_SHAPED = register("transform_shaped", TransformShapedRecipe.CODEC, TransformShapedRecipe.STREAM_CODEC);
         public static final RegistryEntry<RecipeSerializer<TransformShapelessRecipe>> TRANSFORM_SHAPELESS = register("transform_shapeless", TransformShapelessRecipe.CODEC, TransformShapelessRecipe.STREAM_CODEC);
 
-        public static final RegistryEntry<CustomRecipe.Serializer<ColourableRecipe>> DYEABLE_ITEM = simple("colour", ColourableRecipe::new);
-        public static final RegistryEntry<CustomRecipe.Serializer<ClearColourRecipe>> DYEABLE_ITEM_CLEAR = simple("clear_colour", ClearColourRecipe::new);
-        public static final RegistryEntry<CustomRecipe.Serializer<TurtleUpgradeRecipe>> TURTLE_UPGRADE = simple("turtle_upgrade", TurtleUpgradeRecipe::new);
-        public static final RegistryEntry<CustomRecipe.Serializer<PocketComputerUpgradeRecipe>> POCKET_COMPUTER_UPGRADE = simple("pocket_computer_upgrade", PocketComputerUpgradeRecipe::new);
+        public static final RegistryEntry<RecipeSerializer<ColourableRecipe>> DYEABLE_ITEM = simple("colour", ColourableRecipe::new);
+        public static final RegistryEntry<RecipeSerializer<ClearColourRecipe>> DYEABLE_ITEM_CLEAR = simple("clear_colour", ClearColourRecipe::new);
+        public static final RegistryEntry<RecipeSerializer<TurtleUpgradeRecipe>> TURTLE_UPGRADE = withRegistry("turtle_upgrade", TurtleUpgradeRecipe::new, ITurtleUpgrade.REGISTRY);
+        public static final RegistryEntry<RecipeSerializer<PocketComputerUpgradeRecipe>> POCKET_COMPUTER_UPGRADE = withRegistry("pocket_computer_upgrade", PocketComputerUpgradeRecipe::new, IPocketUpgrade.REGISTRY);
         public static final RegistryEntry<RecipeSerializer<PrintoutRecipe>> PRINTOUT = register("printout", PrintoutRecipe.CODEC, PrintoutRecipe.STREAM_CODEC);
         public static final RegistryEntry<RecipeSerializer<DiskRecipe>> DISK = register("disk", DiskRecipe.CODEC, DiskRecipe.STREAM_CODEC);
     }
@@ -681,14 +689,6 @@ public final class ModRegistry {
 
         VanillaDetailRegistries.ITEM_STACK.addProvider(ItemDetails::fill);
         VanillaDetailRegistries.BLOCK_IN_WORLD.addProvider(BlockDetails::fill);
-    }
-
-    /**
-     * Register any objects which must be done on the main thread.
-     */
-    public static void registerMainThread() {
-        CauldronInteraction.WATER.map().put(Items.TURTLE_NORMAL.get(), TurtleItem.CAULDRON_INTERACTION);
-        CauldronInteraction.WATER.map().put(Items.TURTLE_ADVANCED.get(), TurtleItem.CAULDRON_INTERACTION);
     }
 
     /**

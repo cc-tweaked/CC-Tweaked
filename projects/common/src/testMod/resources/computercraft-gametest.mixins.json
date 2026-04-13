@@ -15,7 +15,7 @@
         "GameTestServerMixin",
         "NbtUtilsMixin",
         "StructureTemplateAccessor",
-        "StructureTemplateManagerMixin"
+        "DirectoryTemplateSourceMixin"
     ],
     "client": [
         "client.MinecraftMixin",

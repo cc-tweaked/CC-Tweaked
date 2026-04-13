@@ -4,7 +4,7 @@ import com.example.examplemod.data.TurtleUpgradeProvider;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModel;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricCodecDataProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricDynamicRegistryProvider;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
@@ -29,8 +29,8 @@ public class FabricExampleModDataGenerator implements DataGeneratorEntrypoint {
     // @start region=turtle_upgrades
     private static void addTurtleUpgrades(FabricDataGenerator.Pack pack, CompletableFuture<HolderLookup.Provider> registries) {
         var fullRegistryPatch = TurtleUpgradeProvider.makeUpgradeRegistry(registries);
-        pack.addProvider((FabricDataOutput output) -> new AutomaticDynamicRegistryProvider(output, fullRegistryPatch));
-        pack.addProvider((FabricDataOutput output) -> new FabricCodecDataProvider<>(output, registries, PackOutput.Target.RESOURCE_PACK, TurtleUpgradeModel.SOURCE, TurtleUpgradeModel.CODEC) {
+        pack.addProvider((FabricPackOutput output) -> new AutomaticDynamicRegistryProvider(output, fullRegistryPatch));
+        pack.addProvider((FabricPackOutput output) -> new FabricCodecDataProvider<>(output, registries, PackOutput.Target.RESOURCE_PACK, TurtleUpgradeModel.SOURCE, TurtleUpgradeModel.CODEC) {
             @Override
             public String getName() {
                 return "Turtle upgrade models";
@@ -47,7 +47,7 @@ public class FabricExampleModDataGenerator implements DataGeneratorEntrypoint {
      * A subclass of {@link FabricDynamicRegistryProvider} that writes all new entries.
      */
     private static class AutomaticDynamicRegistryProvider extends FabricDynamicRegistryProvider {
-        AutomaticDynamicRegistryProvider(FabricDataOutput output, CompletableFuture<RegistrySetBuilder.PatchedRegistries> registries) {
+        AutomaticDynamicRegistryProvider(FabricPackOutput output, CompletableFuture<RegistrySetBuilder.PatchedRegistries> registries) {
             super(output, registries.thenApply(RegistrySetBuilder.PatchedRegistries::patches));
         }
 

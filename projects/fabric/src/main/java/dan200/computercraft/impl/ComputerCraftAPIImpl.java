@@ -23,8 +23,8 @@ public final class ComputerCraftAPIImpl extends AbstractComputerCraftAPI impleme
         // This We create the registries here (rather than in the mod initialiser) to guarantee that they're available
         // when people come to register upgrade types.
         // This is a little nasty (side effects in static constructors and all that!), but seems to be the easiest way.
-        FabricRegistryBuilder.createSimple(turtleUpgradeRegistryId).buildAndRegister();
-        FabricRegistryBuilder.createSimple(pocketUpgradeRegistryId).buildAndRegister();
+        FabricRegistryBuilder.create(turtleUpgradeRegistryId).buildAndRegister();
+        FabricRegistryBuilder.create(pocketUpgradeRegistryId).buildAndRegister();
     }
 
     private @Nullable String version;

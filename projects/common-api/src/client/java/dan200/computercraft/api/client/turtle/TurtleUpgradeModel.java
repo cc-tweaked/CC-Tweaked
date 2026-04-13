@@ -12,15 +12,16 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.client.ComputerCraftAPIClientService;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvableModel;
+import net.minecraft.client.resources.model.cuboid.ItemTransform;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Matrix4fc;
 
 /**
  * The model for a {@link ITurtleUpgrade}.
@@ -86,7 +87,7 @@ public interface TurtleUpgradeModel {
          *
          * @param baker The current model baker
          * @return The baked upgrade model.
-         * @see ItemModel.Unbaked#bake(ItemModel.BakingContext)
+         * @see ItemModel.Unbaked#bake(ItemModel.BakingContext, Matrix4fc)
          */
         TurtleUpgradeModel bake(ModelBaker baker);
     }

@@ -10,7 +10,7 @@ import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import net.irisshaders.iris.api.v0.IrisApi;
 import net.irisshaders.iris.api.v0.IrisTextVertexSink;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.util.LightCoordsUtil;
 
 import java.nio.ByteBuffer;
 import java.util.Optional;
@@ -48,7 +48,7 @@ public class IrisShaderMod implements ShaderMod.Provider {
 
             @Override
             public void quad(float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2) {
-                sink.quad(x1, y1, x2, y2, z, colour, u1, v1, u2, v2, LightTexture.FULL_BRIGHT);
+                sink.quad(x1, y1, x2, y2, z, colour, u1, v1, u2, v2, LightCoordsUtil.FULL_BRIGHT);
             }
 
             @Override

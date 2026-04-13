@@ -9,21 +9,16 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import dan200.computercraft.shared.turtle.blocks.TurtleBlockEntity;
-import net.minecraft.SharedConstants;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.debug.DebugEntryLookingAtBlock;
-import net.minecraft.client.gui.components.debug.DebugScreenDisplayer;
+import net.minecraft.client.gui.components.debug.DebugEntryLookingAt;
 import net.minecraft.client.gui.components.debug.DebugScreenEntry;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +26,8 @@ import java.util.function.BiConsumer;
 
 /**
  * A {@link DebugScreenEntry} that provides information about the currently looked at block entity.
- *
- * @see DebugEntryLookingAtBlock
  */
-public final class LookingAtBlockEntityDebugEntry implements DebugScreenEntry {
+public final class LookingAtBlockEntityDebugEntry extends DebugEntryLookingAt {
     public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "looking_at_block_entity");
 
     private final Map<BlockEntityType<?>, BiConsumer<List<String>, BlockEntity>> blockEntityEmitters = new HashMap<>();
@@ -43,22 +36,24 @@ public final class LookingAtBlockEntityDebugEntry implements DebugScreenEntry {
     }
 
     @Override
-    public void display(DebugScreenDisplayer displayer, @Nullable Level level, @Nullable LevelChunk clientChunk, @Nullable LevelChunk serverChunk) {
-        var entity = Minecraft.getInstance().getCameraEntity();
-        var trueLevel = SharedConstants.DEBUG_SHOW_SERVER_DEBUG_VALUES ? level : Minecraft.getInstance().level;
-        if (entity == null || trueLevel == null) return;
+    public HitResult getHitResult(Entity camera) {
+        return camera.pick(20.0, 0.0F, false);
+    }
 
-        var hitResult = entity.pick(20.0, 0.0F, false);
-        if (hitResult.getType() != HitResult.Type.BLOCK) return;
-
-        var blockEntity = trueLevel.getBlockEntity(((BlockHitResult) hitResult).getBlockPos());
+    @Override
+    public void extractInfo(List<String> result, Level level, BlockPos pos) {
+        var blockEntity = level.getBlockEntity(pos);
         if (blockEntity == null) return;
+
         var emitter = blockEntityEmitters.get(blockEntity.getType());
         if (emitter == null) return;
 
-        List<String> lines = new ArrayList<>();
-        emitter.accept(lines, blockEntity);
-        displayer.addToGroup(ID, lines);
+        emitter.accept(result, blockEntity);
+    }
+
+    @Override
+    public Identifier group() {
+        return ID;
     }
 
     @SuppressWarnings("unchecked")

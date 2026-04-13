@@ -7,8 +7,9 @@ package dan200.computercraft.api.upgrades;
 import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 
@@ -80,9 +81,9 @@ public sealed interface UpgradeType<T extends UpgradeBase> permits UpgradeTypeIm
      * @return A new upgrade type.
      * @see #simple(UpgradeBase)  For upgrades whose crafting stack should not vary.
      */
-    static <T extends UpgradeBase> UpgradeType<T> simpleWithCustomItem(Function<ItemStack, T> factory) {
-        return create(BuiltInRegistries.ITEM.byNameCodec()
-            .xmap(x -> factory.apply(new ItemStack(x)), x -> x.getCraftingItem().getItem())
+    static <T extends UpgradeBase> UpgradeType<T> simpleWithCustomItem(Function<ItemStackTemplate, T> factory) {
+        return create(Item.CODEC
+            .xmap(x -> factory.apply(new ItemStackTemplate(x, 1, DataComponentPatch.EMPTY)), x -> x.getCraftingItem().item())
             .fieldOf("item"));
     }
 }

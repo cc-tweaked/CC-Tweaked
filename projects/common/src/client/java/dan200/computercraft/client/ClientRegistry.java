@@ -28,7 +28,6 @@ import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.gui.components.debug.DebugScreenEntry;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
-import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
@@ -40,10 +39,11 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.properties.conditional.ConditionalItemModelProperty;
 import net.minecraft.client.renderer.item.properties.select.SelectItemModelProperty;
-import net.minecraft.client.resources.model.MissingBlockModel;
+import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ResolvableModel;
+import net.minecraft.client.resources.model.cuboid.MissingCuboidModel;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -81,7 +81,7 @@ public final class ClientRegistry {
         var model = getModel(modelId).get(manager);
         if (model != null) return model;
 
-        return Objects.requireNonNull(getModel(MissingBlockModel.LOCATION).get(manager));
+        return Objects.requireNonNull(getModel(MissingCuboidModel.LOCATION).get(manager));
     }
 
     /**
@@ -121,7 +121,7 @@ public final class ClientRegistry {
         TurtleBlockEntityRenderer.NORMAL_TURTLE_MODEL,
         TurtleBlockEntityRenderer.ADVANCED_TURTLE_MODEL,
         TurtleBlockEntityRenderer.COLOUR_TURTLE_MODEL,
-        MissingBlockModel.LOCATION,
+        MissingCuboidModel.LOCATION,
     };
 
     /**

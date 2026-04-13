@@ -4,13 +4,12 @@
 
 package dan200.computercraft.shared.data;
 
-import dan200.computercraft.shared.ModRegistry;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
 import java.util.Set;
 
@@ -19,6 +18,7 @@ import java.util.Set;
  */
 public final class BlockNamedEntityLootCondition implements LootItemCondition {
     public static final BlockNamedEntityLootCondition INSTANCE = new BlockNamedEntityLootCondition();
+    public static final MapCodec<BlockNamedEntityLootCondition> CODEC = MapCodec.unit(BlockNamedEntityLootCondition.INSTANCE);
     public static final Builder BUILDER = () -> INSTANCE;
 
     private BlockNamedEntityLootCondition() {
@@ -36,7 +36,7 @@ public final class BlockNamedEntityLootCondition implements LootItemCondition {
     }
 
     @Override
-    public LootItemConditionType getType() {
-        return ModRegistry.LootItemConditionTypes.BLOCK_NAMED.get();
+    public MapCodec<BlockNamedEntityLootCondition> codec() {
+        return CODEC;
     }
 }

@@ -7,6 +7,6 @@
         "defaultRequire": 1
     },
     "client": [
-        "BlockRenderDispatcherMixin"
+        "LevelRendererMixin"
     ]
 }

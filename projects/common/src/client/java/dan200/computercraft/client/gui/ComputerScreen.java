@@ -8,7 +8,7 @@ import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
 import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -24,10 +24,11 @@ import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
  */
 public final class ComputerScreen<T extends AbstractComputerMenu> extends AbstractComputerScreen<T> {
     public ComputerScreen(T container, Inventory player, Component title) {
-        super(container, player, title, BORDER);
-
-        imageWidth = TerminalWidget.getWidth(terminalData.getWidth()) + BORDER * 2 + AbstractComputerMenu.SIDEBAR_WIDTH;
-        imageHeight = TerminalWidget.getHeight(terminalData.getHeight()) + BORDER * 2;
+        super(
+            container, player, title, BORDER,
+            TerminalWidget.getWidth(container.getTerminal().getWidth()) + BORDER * 2 + AbstractComputerMenu.SIDEBAR_WIDTH,
+            TerminalWidget.getHeight(container.getTerminal().getHeight()) + BORDER * 2
+        );
     }
 
     @Override
@@ -39,7 +40,8 @@ public final class ComputerScreen<T extends AbstractComputerMenu> extends Abstra
     }
 
     @Override
-    public void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTicks);
         // Draw a border around the terminal
         var terminal = getTerminal();
         var computerTextures = GuiSprites.getComputerTextures(family);

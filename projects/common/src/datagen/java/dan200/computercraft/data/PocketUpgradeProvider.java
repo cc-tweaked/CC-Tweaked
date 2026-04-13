@@ -11,15 +11,15 @@ import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 import static dan200.computercraft.shared.ModRegistry.Items;
 
 class PocketUpgradeProvider {
     public static void addUpgrades(BootstrapContext<IPocketUpgrade> upgrades) {
-        upgrades.register(id("speaker"), new PocketSpeaker(new ItemStack(Items.SPEAKER.get())));
-        upgrades.register(id("wireless_modem_normal"), new PocketModem(new ItemStack(Items.WIRELESS_MODEM_NORMAL.get()), false));
-        upgrades.register(id("wireless_modem_advanced"), new PocketModem(new ItemStack(Items.WIRELESS_MODEM_ADVANCED.get()), true));
+        upgrades.register(id("speaker"), new PocketSpeaker(new ItemStackTemplate(Items.SPEAKER.get())));
+        upgrades.register(id("wireless_modem_normal"), new PocketModem(new ItemStackTemplate(Items.WIRELESS_MODEM_NORMAL.get()), false));
+        upgrades.register(id("wireless_modem_advanced"), new PocketModem(new ItemStackTemplate(Items.WIRELESS_MODEM_ADVANCED.get()), true));
     }
 
     private static ResourceKey<IPocketUpgrade> id(String id) {

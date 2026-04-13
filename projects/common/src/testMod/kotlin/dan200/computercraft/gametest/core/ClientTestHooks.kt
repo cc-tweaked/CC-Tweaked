@@ -91,9 +91,16 @@ object ClientTestHooks {
             rules.set(GameRules.ADVANCE_TIME, false, null)
             rules.set(GameRules.ADVANCE_WEATHER, false, null)
 
+            // TODO: Switch to an alternative version that allows setting game rules
             minecraft.createWorldOpenFlows().createFreshLevel(
                 LEVEL_NAME,
-                LevelSettings("Test Level", GameType.CREATIVE, false, Difficulty.EASY, true, rules, WorldDataConfiguration.DEFAULT),
+                LevelSettings(
+                    "Test Level",
+                    GameType.CREATIVE,
+                    LevelSettings.DifficultySettings(Difficulty.EASY, false, false),
+                    true,
+                    WorldDataConfiguration.DEFAULT,
+                ),
                 WorldOptions(WorldOptions.randomSeed(), false, false),
                 {
                     it.lookupOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT).value()

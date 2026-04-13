@@ -15,19 +15,19 @@ import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.input.UserComputerInput;
 import dan200.computercraft.core.terminal.Terminal;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.TextureSetup;
-import net.minecraft.client.gui.render.state.GuiElementRenderState;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.LightCoordsUtil;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
@@ -203,7 +203,7 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         if (!visible) return;
 
         var scissor = graphics.scissorStack.peek();
@@ -213,7 +213,7 @@ public class TerminalWidget extends AbstractWidget {
             RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST)
         );
 
-        graphics.guiRenderState.submitGuiElement(new TerminalBackgroundRenderState(
+        graphics.guiRenderState.addGuiElement(new TerminalBackgroundRenderState(
             innerX, innerY, terminal, terminalPose, terminalTextures,
             maybeIntersect(scissor, new ScreenRectangle(
                 innerX, innerY, terminal.getWidth() * FONT_WIDTH, terminal.getHeight() * FONT_HEIGHT).transformMaxBounds(graphics.pose())
@@ -221,7 +221,7 @@ public class TerminalWidget extends AbstractWidget {
             scissor
         ));
 
-        graphics.guiRenderState.submitGuiElement(new TerminalTextRenderState(
+        graphics.guiRenderState.addGuiElement(new TerminalTextRenderState(
             innerX, innerY, terminal, terminalPose, terminalTextures,
             maybeIntersect(scissor, new ScreenRectangle(getX(), getY(), getWidth(), getHeight()).transformMaxBounds(graphics.pose())),
             scissor
@@ -275,7 +275,7 @@ public class TerminalWidget extends AbstractWidget {
 
             // The GUI renderer requires that the buffer is non-empty. Add a zero-size vertex so we always have something.
             for (var i = 0; i < 4; i++) {
-                buffer.addVertex(0, 0, 0).setColor(0x00ffffff).setUv(0, 0).setLight(LightTexture.FULL_BRIGHT);
+                buffer.addVertex(0, 0, 0).setColor(0x00ffffff).setUv(0, 0).setLight(LightCoordsUtil.FULL_BRIGHT);
             }
         }
 

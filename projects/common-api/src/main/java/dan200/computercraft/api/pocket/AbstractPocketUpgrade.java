@@ -5,7 +5,7 @@
 package dan200.computercraft.api.pocket;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 
 /**
@@ -15,14 +15,14 @@ import net.minecraft.world.item.ItemStack;
  */
 public abstract class AbstractPocketUpgrade implements IPocketUpgrade {
     private final Component adjective;
-    private final ItemStack stack;
+    private final ItemStackTemplate stack;
 
-    protected AbstractPocketUpgrade(Component adjective, ItemStack stack) {
+    protected AbstractPocketUpgrade(Component adjective, ItemStackTemplate stack) {
         this.adjective = adjective;
         this.stack = stack;
     }
 
-    protected AbstractPocketUpgrade(String adjective, ItemStack stack) {
+    protected AbstractPocketUpgrade(String adjective, ItemStackTemplate stack) {
         this(Component.translatable(adjective), stack);
     }
 
@@ -32,7 +32,7 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade {
     }
 
     @Override
-    public final ItemStack getCraftingItem() {
+    public final ItemStackTemplate getCraftingItem() {
         return stack;
     }
 }

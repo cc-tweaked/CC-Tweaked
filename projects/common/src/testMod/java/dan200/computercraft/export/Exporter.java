@@ -52,7 +52,7 @@ public class Exporter {
     private static void run(String path) {
         var output = new File(path).getAbsoluteFile().toPath();
         if (!Files.isDirectory(output)) {
-            Minecraft.getInstance().gui.getChat().addMessage(Component.literal("Output path does not exist"));
+            Minecraft.getInstance().gui.getChat().addClientSystemMessage(Component.literal("Output path does not exist"));
             return;
         }
 
@@ -63,7 +63,7 @@ public class Exporter {
             throw new UncheckedIOException(e);
         }
 
-        Minecraft.getInstance().gui.getChat().addMessage(Component.literal("Export finished!"));
+        Minecraft.getInstance().gui.getChat().addClientSystemMessage(Component.literal("Export finished!"));
     }
 
     private static void export(Path root) throws IOException {
@@ -85,7 +85,7 @@ public class Exporter {
             var displayInfo = displayInfos.getFirst();
 
             var result = ((SlotDisplay.ItemStackSlotDisplay) displayInfo.result()).stack();
-            if (!result.getComponentsPatch().isEmpty()) {
+            if (!result.components().isEmpty()) {
                 TestHooks.LOG.warn("Skipping recipe {} as it has NBT", recipe.id());
                 continue;
             }

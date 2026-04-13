@@ -4,13 +4,12 @@
 
 package dan200.computercraft.shared.data;
 
-import dan200.computercraft.shared.ModRegistry;
+import com.mojang.serialization.MapCodec;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlockEntity;
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
 import java.util.Set;
 
@@ -19,6 +18,7 @@ import java.util.Set;
  */
 public final class HasComputerIdLootCondition implements LootItemCondition {
     public static final HasComputerIdLootCondition INSTANCE = new HasComputerIdLootCondition();
+    public static final MapCodec<HasComputerIdLootCondition> CODEC = MapCodec.unit(HasComputerIdLootCondition.INSTANCE);
     public static final Builder BUILDER = () -> INSTANCE;
 
     private HasComputerIdLootCondition() {
@@ -36,7 +36,7 @@ public final class HasComputerIdLootCondition implements LootItemCondition {
     }
 
     @Override
-    public LootItemConditionType getType() {
-        return ModRegistry.LootItemConditionTypes.HAS_ID.get();
+    public MapCodec<HasComputerIdLootCondition> codec() {
+        return CODEC;
     }
 }

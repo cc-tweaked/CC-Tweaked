@@ -6,7 +6,6 @@
   "pattern": ["#T"],
   "result": {
     "components": {"computercraft:right_turtle_upgrade": {"id": "minecraft:diamond_sword"}},
-    "count": 1,
     "id": "computercraft:turtle_normal"
   }
 }

@@ -11,17 +11,17 @@ import dan200.computercraft.api.client.StandaloneModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
-import net.minecraft.client.renderer.block.model.ItemTransform;
-import net.minecraft.client.renderer.item.BlockModelWrapper;
+import net.minecraft.client.renderer.item.CuboidItemModelWrapper;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.cuboid.ItemTransform;
 import net.minecraft.resources.Identifier;
 
 /**
  * A {@link TurtleUpgradeModel} that renders a basic model.
  * <p>
- * This is the {@link TurtleUpgradeModel} equivalent of {@link BlockModelWrapper}.
+ * This is the {@link TurtleUpgradeModel} equivalent of {@link CuboidItemModelWrapper}.
  */
 public final class BasicUpgradeModel implements TurtleUpgradeModel {
     public static final Identifier ID = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "sided");
@@ -63,7 +63,7 @@ public final class BasicUpgradeModel implements TurtleUpgradeModel {
         renderer.appendModelIdentityElement(transform);
 
         var layer = renderer.newLayer();
-        layer.setTransform(transform);
+        layer.setItemTransform(transform);
         getModel(side).setupItemLayer(layer);
     }
 

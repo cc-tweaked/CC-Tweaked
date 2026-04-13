@@ -5,7 +5,7 @@
 package dan200.computercraft.shared.peripheral.generic.methods;
 
 import dan200.computercraft.test.shared.peripheral.generic.methods.InventoryMethodsContract;
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.Container;
 
@@ -17,6 +17,6 @@ public class InventoryMethodsTest implements InventoryMethodsContract<InventoryM
 
     @Override
     public InventoryMethods.StorageWrapper wrap(Container container) {
-        return new InventoryMethods.StorageWrapper(InventoryStorage.of(container, null));
+        return new InventoryMethods.StorageWrapper(ContainerStorage.of(container, null));
     }
 }

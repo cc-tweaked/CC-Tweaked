@@ -6,13 +6,13 @@ package dan200.computercraft.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.client.render.ExtendedItemFrameRenderState;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.ItemFrameRenderState;
 
 /**
  * An interface implemented on {@link ItemFrameRenderState} to provide a {@link ExtendedItemFrameRenderState}.
  *
- * @see ClientHooks#onRenderItemFrame(PoseStack, MultiBufferSource, ItemFrameRenderState, ExtendedItemFrameRenderState, int)
+ * @see ClientHooks#onRenderItemFrame(PoseStack, SubmitNodeCollector, ItemFrameRenderState, ExtendedItemFrameRenderState)
  */
 public interface ExtendedItemFrameRenderStateHolder {
     /**

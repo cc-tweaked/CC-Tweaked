@@ -6,15 +6,15 @@ package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 
 /**
- * A {@link GuiGraphics}-equivalent renders to a {@link VertexConsumer}. This is suitable for rendering outside of a
- * GUI, such as part of an entity renderer.
+ * A {@link GuiGraphicsExtractor}-equivalent that renders to a {@link VertexConsumer}. This is suitable for rendering
+ * outside of a GUI, such as part of an entity renderer.
  * <p>
  * This batches all render calls together, though requires that all {@link TextureAtlasSprite}s are on the same sprite
  * sheet.

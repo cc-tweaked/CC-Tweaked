@@ -6,7 +6,7 @@ package dan200.computercraft.client.gui.widgets;
 
 import it.unimi.dsi.fastutil.booleans.Boolean2ObjectFunction;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -42,7 +42,7 @@ public class DynamicImageButton extends Button {
     }
 
     @Override
-    public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         var message = messageSupplier.get();
         setMessage(message.message());
         setTooltip(message.tooltip());

@@ -27,12 +27,12 @@ public final class MonitorHighlightRenderer {
 
     public static BlockOutlineRenderer.@Nullable Renderer drawHighlight(Camera camera, BlockHitResult hit) {
         // Preserve normal behaviour when crouching.
-        if (camera.entity().isCrouching()) return null;
+        var player = camera.entity();
+        if (player == null || player.isCrouching()) return null;
 
-        var world = camera.entity().level();
         var pos = hit.getBlockPos();
 
-        if (!(world.getBlockEntity(pos) instanceof MonitorBlockEntity monitor)) return null;
+        if (!(player.level().getBlockEntity(pos) instanceof MonitorBlockEntity monitor)) return null;
 
         // Determine which sides are part of the external faces of the monitor, and so which need to be rendered.
         var faces = EnumSet.allOf(Direction.class);

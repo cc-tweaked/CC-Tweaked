@@ -7,14 +7,11 @@
 # Minecraft
 # MC version is specified in gradle.properties, as we need that in settings.gradle.
 # Remember to update corresponding versions in fabric.mod.json/neoforge.mods.toml
-fabric-api = "0.140.0+1.21.11"
+fabric-api = "0.145.2+26.1.1"
 fabric-loader = "0.18.4"
-neoForge = "21.11.8-beta"
+neoForge = "26.1.2.0-beta"
 neoMergeTool = "2.0.0"
 mixin = "0.8.5"
-parchment = "2025.10.12"
-parchmentMc = "1.21.10"
-yarn = "1.21.11+build.1"
 
 # Core dependencies (these versions are tied to the version Minecraft uses)
 fastutil = "8.5.18"
@@ -38,7 +35,7 @@ nightConfig = "3.8.3"
 fabricPermissions = "0.3.3"
 iris-fabric = "1.9.1+1.21.7-fabric"
 iris-forge = "1.9.1+1.21.7-neoforge"
-jei = "27.0.0.1"
+jei = "29.3.0.22"
 modmenu = "16.0.0-rc.1"
 rei = "18.0.800"
 sodium-fabric = "mc1.21.11-0.8.0-fabric"
@@ -59,7 +56,7 @@ cctJavadoc = "1.9.0"
 checkstyle = "12.1.1"
 errorProne-core = "2.45.0"
 errorProne-plugin = "4.3.0"
-fabric-loom = "1.15.2"
+fabric-loom = "1.15.4"
 githubRelease = "2.5.2"
 gradleVersions = "0.53.0"
 ideaExt = "1.3"
@@ -106,9 +103,9 @@ fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-l
 fabricPermissions = { module = "me.lucko:fabric-permissions-api", version.ref = "fabricPermissions" }
 iris-fabric = { module = "maven.modrinth:iris", version.ref = "iris-fabric" }
 iris-forge = { module = "maven.modrinth:iris", version.ref = "iris-forge" }
-jei-api = { module = "mezz.jei:jei-1.21.11-common-api", version.ref = "jei" }
-jei-fabric = { module = "mezz.jei:jei-1.21.11-fabric", version.ref = "jei" }
-jei-forge = { module = "mezz.jei:jei-1.21.11-neoforge", version.ref = "jei" }
+jei-api = { module = "mezz.jei:jei-26.1.1-common-api", version.ref = "jei" }
+jei-fabric = { module = "mezz.jei:jei-26.1.1-fabric", version.ref = "jei" }
+jei-forge = { module = "mezz.jei:jei-26.1.1-neoforge", version.ref = "jei" }
 mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
 mixinExtra = { module = "io.github.llamalad7:mixinextras-common", version.ref = "mixinExtra" }
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
@@ -161,7 +158,6 @@ teavm-metaprogramming-impl = { module = "org.teavm:teavm-metaprogramming-impl", 
 teavm-platform = { module = "org.teavm:teavm-platform", version.ref = "teavm" }
 teavm-tooling = { module = "org.teavm:teavm-tooling", version.ref = "teavm" }
 vanillaExtract = { module = "cc.tweaked.vanilla-extract:plugin", version.ref = "vanillaExtract" }
-yarn = { module = "net.fabricmc:yarn", version.ref = "yarn" }
 
 [plugins]
 githubRelease = { id = "com.github.breadmoirai.github-release", version.ref = "githubRelease" }
@@ -176,7 +172,7 @@ kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 # Minecraft
 externalMods-common = ["iris-forge", "jei-api", "nightConfig-core", "nightConfig-toml"]
 externalMods-forge-compile = ["iris-forge", "jei-api"]
-externalMods-forge-runtime = ["jei-forge"]
+externalMods-forge-runtime = []
 externalMods-fabric-compile = ["fabricPermissions", "iris-fabric", "jei-api", "rei-api", "rei-builtin"]
 externalMods-fabric-runtime = []
 

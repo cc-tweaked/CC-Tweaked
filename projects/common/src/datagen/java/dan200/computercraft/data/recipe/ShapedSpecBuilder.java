@@ -11,7 +11,7 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import net.minecraft.world.level.ItemLike;
@@ -28,7 +28,7 @@ public final class ShapedSpecBuilder extends AbstractRecipeBuilder<ShapedSpecBui
     private final List<String> rows = new ArrayList<>();
     private final Map<Character, Ingredient> key = new LinkedHashMap<>();
 
-    public ShapedSpecBuilder(HolderGetter<Item> items, RecipeCategory category, ItemStack result) {
+    public ShapedSpecBuilder(HolderGetter<Item> items, RecipeCategory category, ItemStackTemplate result) {
         super(items, category, result);
     }
 
