@@ -943,21 +943,14 @@ unserialiseJSON = unserialise_json
 -- @since 1.31
 function urlEncode(str)
     expect(1, str, "string")
-    local gsub, byte, format, band, arshift = string.gsub, string.byte, string.format, bit32.band, bit32.arshift
+    local gsub, byte, format = string.gsub, string.byte, string.format
 
     str = gsub(str, "\n", "\r\n")
     str = gsub(str, "[^A-Za-z0-9%-%_%.]", function(c)
         if c == " " then return "+" end
-
-        local n = byte(c)
-        if n < 128 then
-            -- ASCII
-            return format("%%%02X", n)
-        else
-            -- Non-ASCII (encode as UTF-8)
-            return format("%%%02X%%%02X", 192 + band(arshift(n, 6), 31), 128 + band(n, 63))
-        end
+        return format("%%%02X", byte(c))
     end)
+
     return str
 end
 
