@@ -41,7 +41,7 @@ public class KeyEventServerMessage extends ComputerServerMessage {
             case UP -> input.keyUp(key);
             case DOWN -> input.keyDown(key, false);
             case REPEAT -> input.keyDown(key, true);
-            case CHAR -> input.charTyped((byte) key);
+            case CHAR -> input.charTyped(key);
         }
     }
 

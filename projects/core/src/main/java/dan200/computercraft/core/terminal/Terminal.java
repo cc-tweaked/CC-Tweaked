@@ -176,13 +176,26 @@ public class Terminal {
         }
     }
 
-    public synchronized void write(String text) {
+    public synchronized void blit(String text, ByteBuffer textColour, ByteBuffer backgroundColour) {
         var x = cursorX;
         var y = cursorY;
         if (y >= 0 && y < height) {
             this.text[y].write(text, x);
-            textColour[y].fill(BASE_16.charAt(cursorColour), x, x + text.length());
-            backgroundColour[y].fill(BASE_16.charAt(cursorBackgroundColour), x, x + text.length());
+            this.textColour[y].write(textColour, x);
+            this.backgroundColour[y].write(backgroundColour, x);
+            setChanged();
+        }
+    }
+
+    public synchronized void write(String text) {
+        var x = cursorX;
+        var y = cursorY;
+        if (y >= 0 && y < height) {
+            var length = text.codePointCount(0, text.length());
+
+            this.text[y].write(text, x);
+            textColour[y].fill(BASE_16.charAt(cursorColour), x, x + length);
+            backgroundColour[y].fill(BASE_16.charAt(cursorBackgroundColour), x, x + length);
             setChanged();
         }
     }

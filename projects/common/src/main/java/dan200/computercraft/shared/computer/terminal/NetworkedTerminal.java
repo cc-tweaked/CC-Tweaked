@@ -19,26 +19,45 @@ public class NetworkedTerminal extends Terminal {
     }
 
     synchronized TerminalState write() {
-        var contents = new byte[width * height * 2 + Palette.PALETTE_SIZE * 3];
-        var idx = 0;
+        var textContents = new int[width * height];
+        var colours = new byte[width * height];
+        var paletteBytes = new byte[Palette.PALETTE_SIZE * 3];
+
+        var textIdx = 0;
+        var colourIdx = 0;
+        var paletteIdx = 0;
 
         for (var y = 0; y < height; y++) {
-            var text = this.text[y];
-            var textColour = this.textColour[y];
-            var backColour = backgroundColour[y];
+            var textLine = this.text[y];
+            var textColourLine = this.textColour[y];
+            var backColourLine = backgroundColour[y];
 
-            for (var x = 0; x < width; x++) contents[idx++] = (byte) (text.charAt(x) & 0xFF);
             for (var x = 0; x < width; x++) {
-                contents[idx++] = (byte) (getColour(backColour.charAt(x), Colour.BLACK) << 4 | getColour(textColour.charAt(x), Colour.WHITE));
+                textContents[textIdx++] = textLine.codePointAt(x);
+            }
+
+            for (var x = 0; x < width; x++) {
+                colours[colourIdx++] = (byte) (
+                    getColour(backColourLine.charAt(x), Colour.BLACK) << 4 |
+                        getColour(textColourLine.charAt(x), Colour.WHITE)
+                );
             }
         }
 
         for (var i = 0; i < Palette.PALETTE_SIZE; i++) {
-            for (var channel : palette.getColour(i)) contents[idx++] = (byte) ((int) (channel * 0xFF) & 0xFF);
+            for (var channel : palette.getColour(i)) {
+                paletteBytes[paletteIdx++] = (byte) ((int) (channel * 0xFF) & 0xFF);
+            }
         }
 
-        assert idx == contents.length;
-        return new TerminalState(colour, width, height, cursorX, cursorY, cursorBlink, cursorColour, cursorBackgroundColour, contents);
+        assert textIdx == textContents.length;
+        assert colourIdx == colours.length;
+        assert paletteIdx == paletteBytes.length;
+
+        return new TerminalState(
+            colour, width, height, cursorX, cursorY, cursorBlink, cursorColour, cursorBackgroundColour,
+            textContents, colours, paletteBytes
+        );
     }
 
     synchronized void read(TerminalState state) {
@@ -50,29 +69,41 @@ public class NetworkedTerminal extends Terminal {
         cursorBackgroundColour = state.cursorBgColour;
         this.cursorColour = state.cursorFgColour;
 
-        var contents = state.contents;
-        var idx = 0;
-        for (var y = 0; y < height; y++) {
-            var text = this.text[y];
-            var textColour = this.textColour[y];
-            var backColour = backgroundColour[y];
+        var textContents = state.text;
+        var colours = state.colours;
+        var paletteBytes = state.palette;
 
-            for (var x = 0; x < width; x++) text.setChar(x, (char) (contents[idx++] & 0xFF));
+        var textIdx = 0;
+        var colourIdx = 0;
+        var paletteIdx = 0;
+
+        for (var y = 0; y < height; y++) {
+            var textLine = this.text[y];
+            var textColourLine = this.textColour[y];
+            var backColourLine = backgroundColour[y];
+
             for (var x = 0; x < width; x++) {
-                var colour = contents[idx++];
-                backColour.setChar(x, BASE_16.charAt((colour >> 4) & 0xF));
-                textColour.setChar(x, BASE_16.charAt(colour & 0xF));
+                textLine.setCodePoint(x, textContents[textIdx++]);
+            }
+
+            for (var x = 0; x < width; x++) {
+                var packedColour = colours[colourIdx++];
+                backColourLine.setChar(x, BASE_16.charAt((packedColour >> 4) & 0xF));
+                textColourLine.setChar(x, BASE_16.charAt(packedColour & 0xF));
             }
         }
 
         for (var i = 0; i < Palette.PALETTE_SIZE; i++) {
-            var r = (contents[idx++] & 0xFF) / 255.0;
-            var g = (contents[idx++] & 0xFF) / 255.0;
-            var b = (contents[idx++] & 0xFF) / 255.0;
+            var r = (paletteBytes[paletteIdx++] & 0xFF) / 255.0;
+            var g = (paletteBytes[paletteIdx++] & 0xFF) / 255.0;
+            var b = (paletteBytes[paletteIdx++] & 0xFF) / 255.0;
             palette.setColour(i, r, g, b);
         }
 
-        assert idx == contents.length;
+        assert textIdx == textContents.length;
+        assert colourIdx == colours.length;
+        assert paletteIdx == paletteBytes.length;
+
         setChanged();
     }
 
@@ -125,8 +156,8 @@ public class NetworkedTerminal extends Terminal {
                     palette.setColour(i, colours[0], colours[1], colours[2]);
                 }
             }
-
         }
+
         setChanged();
     }
 }

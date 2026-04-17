@@ -66,34 +66,27 @@ public final class UserComputerInput implements ComputerInput {
     }
 
     @Override
-    public void charTyped(byte chr) {
-        delegate.charTyped(chr);
+    public void charTyped(int codepoint) {
+        delegate.charTyped(codepoint);
     }
 
     public void codepointTyped(int codepoint) {
-        var terminalChar = StringUtil.unicodeToTerminal(codepoint);
-        if (StringUtil.isTypableChar(terminalChar)) charTyped((byte) terminalChar);
-    }
-
-    private static boolean isValidClipboard(ByteBuffer buffer) {
-        for (int i = buffer.position(), max = buffer.limit(); i < max; i++) {
-            if (!StringUtil.isTypableChar(buffer.get(i))) return false;
-        }
-        return true;
+        if (codepoint == 0 || codepoint == '\r' || codepoint == '\n') return;
+        charTyped(codepoint);
     }
 
     @Override
-    public void paste(ByteBuffer contents) {
-        if (contents.remaining() > 0 && isValidClipboard(contents)) delegate.paste(contents);
-    }
-
-    /**
-     * Paste a string.
-     *
-     * @param contents The string to paste.
-     */
     public void paste(String contents) {
-        paste(StringUtil.getClipboardString(contents));
+        if (contents == null || contents.isEmpty()) return;
+
+        var line = contents
+            .replace("\r\n", "\n")
+            .replace('\r', '\n');
+
+        var newline = line.indexOf('\n');
+        if (newline >= 0) line = line.substring(0, newline);
+
+        if (!line.isEmpty()) delegate.paste(line);
     }
 
     @Override

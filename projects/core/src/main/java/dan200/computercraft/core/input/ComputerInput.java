@@ -36,7 +36,7 @@ public interface ComputerInput {
      * @param chr The character to type.
      * @see StringUtil#isTypableChar(byte)
      */
-    void charTyped(byte chr);
+    void charTyped(int codepoint);
 
     /**
      * Paste a string.
@@ -44,7 +44,7 @@ public interface ComputerInput {
      * @param contents The string to paste.
      * @see StringUtil#getClipboardString(String)
      */
-    void paste(ByteBuffer contents);
+    void paste(String contents);
 
     /**
      * Queue a {@code mouse_click} event.

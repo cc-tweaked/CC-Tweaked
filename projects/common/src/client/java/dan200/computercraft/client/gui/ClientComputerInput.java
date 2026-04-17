@@ -37,12 +37,12 @@ public final class ClientComputerInput implements ComputerInput {
     }
 
     @Override
-    public void charTyped(byte chr) {
-        ClientNetworking.sendToServer(new KeyEventServerMessage(menu, KeyEventServerMessage.Action.CHAR, chr));
+    public void charTyped(int codepoint) {
+        ClientNetworking.sendToServer(new KeyEventServerMessage(menu, KeyEventServerMessage.Action.CHAR, codepoint));
     }
 
     @Override
-    public void paste(ByteBuffer contents) {
+    public void paste(String contents) {
         ClientNetworking.sendToServer(new PasteEventComputerMessage(menu, contents));
     }
 
