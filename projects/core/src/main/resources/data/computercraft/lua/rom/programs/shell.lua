@@ -141,8 +141,11 @@ local function executeProgram(remainingRecursion, path, args)
             return false
         end
 
-        -- Add the path and any arguments to the interpreter's arguments
-        table.insert(hashbangArgs, path)
+            -- Add the program path to the interpreter's arguments
+                -- Always add a leading slash to prevent any shell.resolve calls within the interpreter
+                --   from prepending the current directory since program path is already absolute
+                table.insert(hashbangArgs, "/" .. path)
+                -- Add any arguments passed to program to end of the interpreter's arguments
         for _, v in ipairs(args) do
             table.insert(hashbangArgs, v)
         end
