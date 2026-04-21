@@ -23,8 +23,9 @@ configurations {
 }
 
 repositories {
-    maven("https://maven.neoforged.net/") {
-        content {
+    exclusiveContent {
+        forRepositories(maven("https://maven.neoforged.net/releases"))
+        filter {
             includeModule("org.spongepowered", "mixin")
         }
     }
