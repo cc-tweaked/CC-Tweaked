@@ -14,13 +14,6 @@ repositories {
     mavenCentral()
     gradlePluginPortal()
 
-    maven("https://maven.neoforged.net") {
-        name = "NeoForge"
-        content {
-            includeGroup("net.neoforged")
-        }
-    }
-
     maven("https://maven.fabricmc.net/") {
         name = "Fabric"
         content {
