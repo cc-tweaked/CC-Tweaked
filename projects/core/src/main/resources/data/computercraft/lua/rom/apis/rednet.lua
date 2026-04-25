@@ -235,7 +235,7 @@ function broadcast(message, protocol)
     send(CHANNEL_BROADCAST, message, protocol)
 end
 
---[[- Wait for a rednet message to be received, or until `nTimeout` seconds have
+--[[- Wait for a rednet message to be received, or until `timeout` seconds have
 elapsed.
 
 @tparam[opt] string protocol_filter The protocol the received message must be
@@ -362,6 +362,8 @@ match is found).
 
 @tparam string protocol The protocol to search for.
 @tparam[opt] string hostname The hostname to search for.
+@tparam[opt=2] number timeout The number of seconds to wait for a lookup
+response.
 
 @treturn[1] number... A list of computer IDs hosting the given protocol.
 @treturn[2] number|nil The computer ID with the provided hostname and protocol,
@@ -385,9 +387,10 @@ or [`nil`] if none exists.
     end
 
 ]]
-function lookup(protocol, hostname)
+function lookup(protocol, hostname, timeout)
     expect(1, protocol, "string")
     expect(2, hostname, "string", "nil")
+    expect(2, timeout, "number", "nil")
 
     -- Build list of host IDs
     local results = nil
@@ -419,7 +422,7 @@ function lookup(protocol, hostname)
     }, "dns")
 
     -- Start a timer
-    local timer = os.startTimer(2)
+    local timer = os.startTimer(timeout or 2)
 
     -- Wait for events
     while true do
