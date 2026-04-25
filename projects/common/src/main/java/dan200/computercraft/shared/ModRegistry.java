@@ -41,6 +41,7 @@ import dan200.computercraft.shared.data.ConstantLootConditionSerializer;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.details.BlockDetails;
+import dan200.computercraft.shared.details.EntityDetails;
 import dan200.computercraft.shared.details.ItemDetails;
 import dan200.computercraft.shared.integration.PermissionRegistry;
 import dan200.computercraft.shared.lectern.CustomLecternBlock;
@@ -489,6 +490,7 @@ public final class ModRegistry {
 
         VanillaDetailRegistries.ITEM_STACK.addProvider(ItemDetails::fill);
         VanillaDetailRegistries.BLOCK_IN_WORLD.addProvider(BlockDetails::fill);
+        VanillaDetailRegistries.ENTITY.addProvider(EntityDetails::fill);
     }
 
     /**

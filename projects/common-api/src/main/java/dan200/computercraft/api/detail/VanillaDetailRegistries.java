@@ -5,6 +5,7 @@
 package dan200.computercraft.api.detail;
 
 import dan200.computercraft.impl.ComputerCraftAPIService;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
@@ -30,4 +31,12 @@ public class VanillaDetailRegistries {
      * thread.
      */
     public static final DetailRegistry<BlockReference> BLOCK_IN_WORLD = ComputerCraftAPIService.get().getBlockInWorldDetailRegistry();
+
+    /**
+     * Provides details for {@link Entity}s.
+     * <p>
+     * This instance's {@link DetailRegistry#getBasicDetails(Object)} is thread safe and may be called from the computer
+     * thread.
+     */
+    public static final DetailRegistry<Entity> ENTITY = ComputerCraftAPIService.get().getEntityDetailRegistry();
 }

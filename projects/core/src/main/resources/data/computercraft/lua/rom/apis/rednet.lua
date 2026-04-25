@@ -369,6 +369,7 @@ response.
 @treturn[2] number|nil The computer ID with the provided hostname and protocol,
 or [`nil`] if none exists.
 @since 1.6
+@changed 1.118.0 Added `timeout` parameter.
 @usage Find all computers which are hosting the `"chat"` protocol.
 
     local computers = {rednet.lookup("chat")}

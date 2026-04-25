@@ -25,6 +25,7 @@ import dan200.computercraft.impl.network.wired.WiredNodeImpl;
 import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.details.BlockDetails;
+import dan200.computercraft.shared.details.EntityDetails;
 import dan200.computercraft.shared.details.ItemDetails;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import net.minecraft.core.BlockPos;
@@ -33,6 +34,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
@@ -45,6 +47,7 @@ import java.util.stream.Stream;
 public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIService {
     private final DetailRegistry<ItemStack> itemStackDetails = new DetailRegistryImpl<>(ItemDetails::fillBasic);
     private final DetailRegistry<BlockReference> blockDetails = new DetailRegistryImpl<>(BlockDetails::fillBasic);
+    private final DetailRegistry<Entity> entityDetails = new DetailRegistryImpl<>(EntityDetails::fillBasic);
 
     protected static final ResourceKey<Registry<TurtleUpgradeSerialiser<?>>> turtleUpgradeRegistryId = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "turtle_upgrade_serialiser"));
     protected static final ResourceKey<Registry<PocketUpgradeSerialiser<?>>> pocketUpgradeRegistryId = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraftAPI.MOD_ID, "pocket_upgrade_serialiser"));
@@ -130,6 +133,11 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     @Override
     public final DetailRegistry<BlockReference> getBlockInWorldDetailRegistry() {
         return blockDetails;
+    }
+
+    @Override
+    public DetailRegistry<Entity> getEntityDetailRegistry() {
+        return entityDetails;
     }
 
     @Override
