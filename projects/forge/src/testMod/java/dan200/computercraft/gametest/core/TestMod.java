@@ -16,7 +16,7 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
@@ -29,7 +29,7 @@ public class TestMod {
         var bus = NeoForge.EVENT_BUS;
         bus.addListener(EventPriority.LOW, (ServerStartedEvent e) -> TestHooks.onServerStarted(e.getServer()));
         bus.addListener((RegisterCommandsEvent e) -> CCTestCommand.register(e.getDispatcher(), e.getBuildContext()));
-        bus.addListener((BlockEvent.BreakEvent e) -> {
+        bus.addListener((BreakBlockEvent e) -> {
             if (TestHooks.onBeforeDestroyBlock(e.getLevel(), e.getPos(), e.getState())) e.setCanceled(true);
         });
 

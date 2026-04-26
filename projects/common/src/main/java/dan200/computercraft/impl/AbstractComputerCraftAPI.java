@@ -29,6 +29,7 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.details.BlockDetails;
+import dan200.computercraft.shared.details.EntityDetails;
 import dan200.computercraft.shared.details.ItemDetails;
 import dan200.computercraft.shared.turtle.upgrades.TurtleTool;
 import net.minecraft.core.BlockPos;
@@ -37,6 +38,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
@@ -49,6 +51,7 @@ import java.util.function.Function;
 public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIService {
     private final DetailRegistry<ItemStack> itemStackDetails = new DetailRegistryImpl<>(ItemDetails::fillBasic);
     private final DetailRegistry<BlockReference> blockDetails = new DetailRegistryImpl<>((m, r, b) -> BlockDetails.fillBasic(m, b));
+    private final DetailRegistry<Entity> entityDetails = new DetailRegistryImpl<>((m, r, b) -> EntityDetails.fillBasic(m, b));
 
     protected static final ResourceKey<Registry<UpgradeType<? extends ITurtleUpgrade>>> turtleUpgradeRegistryId = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "turtle_upgrade_type"));
     protected static final ResourceKey<Registry<UpgradeType<? extends IPocketUpgrade>>> pocketUpgradeRegistryId = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_upgrade_type"));
@@ -149,6 +152,11 @@ public abstract class AbstractComputerCraftAPI implements ComputerCraftAPIServic
     @Override
     public final DetailRegistry<BlockReference> getBlockInWorldDetailRegistry() {
         return blockDetails;
+    }
+
+    @Override
+    public DetailRegistry<Entity> getEntityDetailRegistry() {
+        return entityDetails;
     }
 
     @Override

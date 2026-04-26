@@ -42,6 +42,7 @@ import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.details.BlockDetails;
+import dan200.computercraft.shared.details.EntityDetails;
 import dan200.computercraft.shared.details.ItemDetails;
 import dan200.computercraft.shared.integration.PermissionRegistry;
 import dan200.computercraft.shared.lectern.CustomLecternBlock;
@@ -302,9 +303,9 @@ public final class ModRegistry {
         public static final RegistryEntry<GameMasterBlockItem> COMPUTER_COMMAND = ofBlock(Blocks.COMPUTER_COMMAND, GameMasterBlockItem::new, properties());
 
         public static final RegistryEntry<PocketComputerItem> POCKET_COMPUTER_NORMAL = register("pocket_computer_normal",
-            p -> new PocketComputerItem(p, ComputerFamily.NORMAL), dyeableProperties());
+            p -> new PocketComputerItem(p, ComputerFamily.NORMAL), dyeableProperties().stacksTo(1));
         public static final RegistryEntry<PocketComputerItem> POCKET_COMPUTER_ADVANCED = register("pocket_computer_advanced",
-            p -> new PocketComputerItem(p, ComputerFamily.ADVANCED), dyeableProperties());
+            p -> new PocketComputerItem(p, ComputerFamily.ADVANCED), dyeableProperties().stacksTo(1));
 
         public static final RegistryEntry<TurtleItem> TURTLE_NORMAL = ofBlock(Blocks.TURTLE_NORMAL, TurtleItem::new, dyeableProperties());
         public static final RegistryEntry<TurtleItem> TURTLE_ADVANCED = ofBlock(Blocks.TURTLE_ADVANCED, TurtleItem::new, dyeableProperties());
@@ -689,6 +690,7 @@ public final class ModRegistry {
 
         VanillaDetailRegistries.ITEM_STACK.addProvider(ItemDetails::fill);
         VanillaDetailRegistries.BLOCK_IN_WORLD.addProvider(BlockDetails::fill);
+        VanillaDetailRegistries.ENTITY.addProvider(EntityDetails::fill);
     }
 
     /**

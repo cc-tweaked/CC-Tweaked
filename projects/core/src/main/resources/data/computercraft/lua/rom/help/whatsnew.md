@@ -1,9 +1,11 @@
-New features in CC: Tweaked 1.117.1
+New features in CC: Tweaked 1.118.0
+
+* Add timeout argument to `rednet.lookup`.
+* Add `commands.getEntity`.
 
 Several bug fixes:
-* Several documentation fixes (MarianoAlipi, Pokebrouserkat).
-* Fix `pushFluid`/`pullFluid` not working when fluids have NBT (UQuark).
-* Limit length of sound in `speaker.playSound`.
-* Remove confusing "ComputerCraft may be installed incorrectly" message.
+* Documentation fixes (ItsNotVingtdeux).
+* Fix handling of shebangs outside the root directory (graypinkfurball).
+* Fix `edit` not clearing menu after terminal resize (Wojbie).
 
 Type "help changelog" to see the full version history.

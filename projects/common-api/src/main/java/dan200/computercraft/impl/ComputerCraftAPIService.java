@@ -27,6 +27,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus;
@@ -82,6 +83,8 @@ public interface ComputerCraftAPIService {
     DetailRegistry<ItemStack> getItemStackDetailRegistry();
 
     DetailRegistry<BlockReference> getBlockInWorldDetailRegistry();
+
+    DetailRegistry<Entity> getEntityDetailRegistry();
 
     @Nullable
     PrintoutContents getPrintoutContents(ItemStack stack);

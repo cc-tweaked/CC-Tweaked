@@ -4,6 +4,8 @@
 
 package dan200.computercraft.shared.computer.apis;
 
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dan200.computercraft.api.component.AdminComputer;
@@ -14,6 +16,7 @@ import dan200.computercraft.core.Logging;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.selector.EntitySelectorParser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -273,6 +276,39 @@ public class CommandAPI implements ILuaAPI {
         var position = new BlockPos(x, y, z);
         if (!level.isInWorldBounds(position)) throw new LuaException("Co-ordinates out of range");
         return getBlockInfo(level, position);
+    }
+
+    /**
+     * Get all entities matching the given selector.
+     *
+     * @param selector An <a href="https://minecraft.wiki/w/Target_selectors">entity selector</a>, such as
+     *                 <code>@p</code> or <code>@a</code>.
+     * @return A list of information about all matching entities.
+     * @throws LuaException If the entity selector canont be parsed.
+     * @cc.since 1.118.0
+     * @cc.usage Print the name of all entities within 10 blocks of the command computer.
+     * <pre>{@code
+     * for _, entity in ipairs(commands.getEntities("@e[distance=..10]")) do
+     *   print(entity.displayName)
+     * end
+     * }</pre>
+     * @cc.see entity_details
+     */
+    @LuaFunction(mainThread = true)
+    public final List<Map<?, ?>> getEntities(String selector) throws LuaException {
+        try {
+            var reader = new StringReader(selector);
+            var entitySelector = new EntitySelectorParser(reader, true).parse();
+            if (reader.canRead()) throw new LuaException("Invalid entity selector");
+
+            var source = getSource();
+            var registries = source.getLevel().registryAccess();
+            return entitySelector.findEntities(source).stream()
+                .<Map<?, ?>>map(x -> VanillaDetailRegistries.ENTITY.getDetails(registries, x))
+                .toList();
+        } catch (CommandSyntaxException e) {
+            throw new LuaException("Invalid entity selector: " + e.getRawMessage().getString());
+        }
     }
 
     private ServerLevel getLevel(Optional<String> id) throws LuaException {
