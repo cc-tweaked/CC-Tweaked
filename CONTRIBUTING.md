@@ -55,6 +55,9 @@ Once you're ready to start programming, have a read of the [the architecture doc
 not a comprehensive document, it gives a good hint of where you should start looking to make your changes. As always, if
 you're not sure, [do ask the community][community]!
 
+Generative AI contributions are *not* welcome. PRs containing, or suspected of containing, code output by a generative
+AI model will be immediately rejected.
+
 ### Testing
 When making larger changes, it may be useful to write a test to make sure your code works as expected.
 
