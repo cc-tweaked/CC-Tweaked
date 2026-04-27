@@ -558,7 +558,12 @@ public final class ModRegistry {
         static final RegistrationHelper<RecipeSerializer<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registries.RECIPE_SERIALIZER);
 
         private static <T extends CustomRecipe> RegistryEntry<RecipeSerializer<T>> simple(String name, Supplier<T> factory) {
-            return REGISTRY.register(name, () -> new RecipeSerializer<>(MapCodec.unit(factory), StreamCodec.unit(factory.get())));
+            var streamCodec = StreamCodec.<RegistryFriendlyByteBuf, T>of(
+                (_, _) -> {
+                },
+                _ -> factory.get()
+            );
+            return REGISTRY.register(name, () -> new RecipeSerializer<>(MapCodec.unit(factory), streamCodec));
         }
 
         private static <U, T extends CustomRecipe> RegistryEntry<RecipeSerializer<T>> withRegistry(
