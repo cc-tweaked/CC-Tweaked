@@ -39,7 +39,7 @@ public final class ImpostorShapedRecipe extends CustomShapedRecipe {
     }
 
     @Override
-    public RecipeSerializer<ImpostorShapedRecipe> getSerializer() {
+    protected RecipeSerializer<ImpostorShapedRecipe> getSerializer0() {
         return SERIALIZER;
     }
 }

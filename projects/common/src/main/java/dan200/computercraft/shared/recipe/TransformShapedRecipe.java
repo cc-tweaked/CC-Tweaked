@@ -49,7 +49,7 @@ public final class TransformShapedRecipe extends CustomShapedRecipe {
     }
 
     @Override
-    public RecipeSerializer<TransformShapedRecipe> getSerializer() {
+    protected RecipeSerializer<TransformShapedRecipe> getSerializer0() {
         return SERIALIZER;
     }
 }

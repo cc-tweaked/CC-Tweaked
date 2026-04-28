@@ -15,13 +15,19 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 
 import java.util.List;
+import java.util.Optional;
 
 class RecipeResolver implements ISimpleRecipeManagerPlugin<RecipeHolder<CraftingRecipe>> {
+    private static final SlotDisplay CRAFTING_STATION = new SlotDisplay.ItemSlotDisplay(Items.CRAFTING_TABLE);
+
     /**
      * We need to generate unique ids for each recipe, as JEI will attempt to deduplicate them otherwise.
      */
@@ -30,10 +36,21 @@ class RecipeResolver implements ISimpleRecipeManagerPlugin<RecipeHolder<Crafting
     private final UpgradeRecipeGenerator<RecipeHolder<CraftingRecipe>> resolver;
 
     RecipeResolver(HolderLookup.Provider registries) {
-        resolver = new UpgradeRecipeGenerator<>(x -> new RecipeHolder<>(
-            ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "upgrade_" + nextId++)),
-            new CraftingWrapper(x)
-        ), registries);
+        resolver = new UpgradeRecipeGenerator<>((width, height, inputs, result) -> {
+            var id = ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "upgrade_" + nextId++));
+            var pattern = new ShapedRecipePattern(
+                width, height,
+                inputs.stream().map(x -> Optional.of(Ingredient.of(x.item().value()))).toList(),
+                Optional.empty()
+            );
+            var display = new ShapedCraftingRecipeDisplay(
+                width, height,
+                inputs.stream().<SlotDisplay>map(SlotDisplay.ItemStackSlotDisplay::new).toList(),
+                new SlotDisplay.ItemStackSlotDisplay(result),
+                CRAFTING_STATION
+            );
+            return new RecipeHolder<>(id, new CraftingWrapper(pattern, result, display));
+        }, registries);
     }
 
     @Override
@@ -63,45 +80,20 @@ class RecipeResolver implements ISimpleRecipeManagerPlugin<RecipeHolder<Crafting
         return List.of();
     }
 
-    private record CraftingWrapper(RecipeDisplay recipes) implements CraftingRecipe {
-        @Override
-        public RecipeSerializer<? extends CraftingRecipe> getSerializer() {
-            throw new IllegalStateException("Should not serialise CraftingWrapper");
-        }
+    private static final class CraftingWrapper extends ShapedRecipe {
+        private static final CommonInfo COMMON_INFO = new CommonInfo(false);
+        private static final CraftingBookInfo BOOK_INFO = new CraftingBookInfo(CraftingBookCategory.MISC, "");
 
-        @Override
-        public CraftingBookCategory category() {
-            return CraftingBookCategory.MISC;
-        }
+        private final ShapedCraftingRecipeDisplay display;
 
-        @Override
-        public boolean matches(CraftingInput input, Level level) {
-            return false;
-        }
-
-        @Override
-        public ItemStack assemble(CraftingInput input) {
-            return ItemStack.EMPTY;
-        }
-
-        @Override
-        public boolean showNotification() {
-            return false;
-        }
-
-        @Override
-        public String group() {
-            return "";
-        }
-
-        @Override
-        public PlacementInfo placementInfo() {
-            return PlacementInfo.NOT_PLACEABLE;
+        CraftingWrapper(ShapedRecipePattern pattern, ItemStackTemplate result, ShapedCraftingRecipeDisplay display) {
+            super(COMMON_INFO, BOOK_INFO, pattern, result);
+            this.display = display;
         }
 
         @Override
         public List<RecipeDisplay> display() {
-            return List.of(recipes);
+            return List.of(display);
         }
     }
 }
