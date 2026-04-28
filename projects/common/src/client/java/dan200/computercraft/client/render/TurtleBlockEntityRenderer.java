@@ -127,12 +127,17 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
             );
         }
 
-        // Then apply rotation and flip if needed.
-        transform.translate(0.5f, 0.5f, 0.5f);
-        transform.mulPose(Axis.YP.rotationDegrees(180.0f - state.yaw));
-        transform.translate(-0.5f, -0.5f, -0.5f);
+        // Then apply rotation
+        transform.rotateAround(Axis.YP.rotationDegrees(180.0f - state.yaw), 0.5f, 0.5f, 0.5f);
 
-        state.model.submit(transform, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, state.colour == -1 ? -1 : ARGB.opaque(state.colour), state.breakProgress);
+        // And render our models.
+        state.model.submit(
+            transform, collector, state.lightCoords, OverlayTexture.NO_OVERLAY,
+            state.colour == -1 ? -1 : ARGB.opaque(state.colour),
+            // Similarly, translate the break progress so the breaking decal is applied in turtle-space, rather than
+            // world space.
+            state.breakProgress == null ? null : translateBreakProgress(state.breakProgress, state.yaw)
+        );
 
         if (state.overlay != null) {
             state.overlay.submit(transform, collector, state.lightCoords, OverlayTexture.NO_OVERLAY);
@@ -145,6 +150,12 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         submitUpgrade(transform, collector, state.lightCoords, state.rightAngle, state.rightUpgrade);
 
         transform.popPose();
+    }
+
+    private static ModelFeatureRenderer.CrumblingOverlay translateBreakProgress(ModelFeatureRenderer.CrumblingOverlay breakProgress, float yaw) {
+        var pose = breakProgress.cameraPose().copy();
+        pose.rotateAround(Axis.YP.rotationDegrees(180.0f - yaw), 0.5f, 0.5f, 0.5f);
+        return new ModelFeatureRenderer.CrumblingOverlay(breakProgress.progress(), pose);
     }
 
     private void submitUpgrade(PoseStack transform, SubmitNodeCollector collector, int lightmapCoord, float angle, ItemStackRenderState state) {
