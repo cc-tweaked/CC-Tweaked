@@ -268,7 +268,7 @@ public class UpgradeRecipeGenerator<T> {
         final Holder.@Nullable Reference<ITurtleUpgrade> turtle;
         final Holder.@Nullable Reference<IPocketUpgrade> pocket;
         final UpgradeBase upgrade;
-        private @Nullable ArrayList<T> recipes;
+        private @Nullable List<T> recipes;
 
         UpgradeInfo(ItemStackTemplate stack, UpgradeBase upgrade, Holder.@Nullable Reference<ITurtleUpgrade> turtle, Holder.@Nullable Reference<IPocketUpgrade> pocket) {
             this.stack = stack;
@@ -280,9 +280,11 @@ public class UpgradeRecipeGenerator<T> {
 
         List<T> getRecipes() {
             var recipes = this.recipes;
-            if (recipes != null) return recipes;
+            return recipes != null ? recipes : (this.recipes = computeRecipes());
+        }
 
-            recipes = this.recipes = new ArrayList<>(4);
+        private List<T> computeRecipes() {
+            List<T> recipes = new ArrayList<>(4);
 
             if (turtle != null) {
                 for (var turtleSupplier : TURTLES) {
@@ -306,8 +308,7 @@ public class UpgradeRecipeGenerator<T> {
                 }
             }
 
-            recipes.trimToSize();
-            return recipes;
+            return List.copyOf(recipes);
         }
     }
 }

@@ -35,7 +35,7 @@ nightConfig = "3.8.3"
 fabricPermissions = "0.3.3"
 iris-fabric = "1.9.1+1.21.7-fabric"
 iris-forge = "1.9.1+1.21.7-neoforge"
-jei = "29.3.0.22"
+jei = "29.5.0.26"
 modmenu = "16.0.0-rc.1"
 rei = "18.0.800"
 sodium-fabric = "mc1.21.11-0.8.0-fabric"
@@ -104,9 +104,9 @@ fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-l
 fabricPermissions = { module = "me.lucko:fabric-permissions-api", version.ref = "fabricPermissions" }
 iris-fabric = { module = "maven.modrinth:iris", version.ref = "iris-fabric" }
 iris-forge = { module = "maven.modrinth:iris", version.ref = "iris-forge" }
-jei-api = { module = "mezz.jei:jei-26.1.1-common-api", version.ref = "jei" }
-jei-fabric = { module = "mezz.jei:jei-26.1.1-fabric", version.ref = "jei" }
-jei-forge = { module = "mezz.jei:jei-26.1.1-neoforge", version.ref = "jei" }
+jei-api = { module = "mezz.jei:jei-26.1.2-common-api", version.ref = "jei" }
+jei-fabric = { module = "mezz.jei:jei-26.1.2-fabric", version.ref = "jei" }
+jei-forge = { module = "mezz.jei:jei-26.1.2-neoforge", version.ref = "jei" }
 mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
 mixinExtra = { module = "io.github.llamalad7:mixinextras-common", version.ref = "mixinExtra" }
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
@@ -173,9 +173,9 @@ kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 # Minecraft
 externalMods-common = ["iris-forge", "jei-api", "nightConfig-core", "nightConfig-toml"]
 externalMods-forge-compile = ["iris-forge", "jei-api"]
-externalMods-forge-runtime = []
+externalMods-forge-runtime = ["jei-forge"]
 externalMods-fabric-compile = ["fabricPermissions", "iris-fabric", "jei-api", "rei-api", "rei-builtin"]
-externalMods-fabric-runtime = []
+externalMods-fabric-runtime = ["jei-fabric"]
 
 # Testing
 test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]
