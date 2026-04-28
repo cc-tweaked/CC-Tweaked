@@ -80,7 +80,10 @@ import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
-import dan200.computercraft.shared.recipe.*;
+import dan200.computercraft.shared.recipe.ImpostorShapedRecipe;
+import dan200.computercraft.shared.recipe.ImpostorShapelessRecipe;
+import dan200.computercraft.shared.recipe.TransformShapedRecipe;
+import dan200.computercraft.shared.recipe.TransformShapelessRecipe;
 import dan200.computercraft.shared.recipe.function.CopyComponents;
 import dan200.computercraft.shared.recipe.function.RecipeFunction;
 import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
@@ -97,7 +100,6 @@ import dan200.computercraft.shared.turtle.upgrades.TurtleSpeaker;
 import dan200.computercraft.shared.turtle.upgrades.TurtleTool;
 import dan200.computercraft.shared.util.DataComponentUtil;
 import dan200.computercraft.shared.util.NonNegativeId;
-import dan200.computercraft.shared.util.RegistryHelper;
 import dan200.computercraft.shared.util.StorageCapacity;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
@@ -105,7 +107,6 @@ import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -119,8 +120,6 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.component.TooltipProvider;
-import net.minecraft.world.item.crafting.CustomRecipe;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
@@ -544,47 +543,26 @@ public final class ModRegistry {
     public static class LootItemConditionTypes {
         static final RegistrationHelper<MapCodec<? extends LootItemCondition>> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registries.LOOT_CONDITION_TYPE);
 
-        public static final RegistryEntry<MapCodec<BlockNamedEntityLootCondition>> BLOCK_NAMED = REGISTRY.register("block_named",
-            () -> BlockNamedEntityLootCondition.CODEC);
-
-        public static final RegistryEntry<MapCodec<PlayerCreativeLootCondition>> PLAYER_CREATIVE = REGISTRY.register("player_creative",
-            () -> PlayerCreativeLootCondition.CODEC);
-
-        public static final RegistryEntry<MapCodec<? extends LootItemCondition>> HAS_ID = REGISTRY.register("has_id",
-            () -> HasComputerIdLootCondition.CODEC);
+        public static final RegistryEntry<MapCodec<BlockNamedEntityLootCondition>> BLOCK_NAMED = REGISTRY.register("block_named", () -> BlockNamedEntityLootCondition.CODEC);
+        public static final RegistryEntry<MapCodec<PlayerCreativeLootCondition>> PLAYER_CREATIVE = REGISTRY.register("player_creative", () -> PlayerCreativeLootCondition.CODEC);
+        public static final RegistryEntry<MapCodec<? extends LootItemCondition>> HAS_ID = REGISTRY.register("has_id", () -> HasComputerIdLootCondition.CODEC);
     }
 
     public static class RecipeSerializers {
         static final RegistrationHelper<RecipeSerializer<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registries.RECIPE_SERIALIZER);
 
-        private static <T extends CustomRecipe> RegistryEntry<RecipeSerializer<T>> simple(String name, Supplier<T> factory) {
-            return REGISTRY.register(name, () -> new RecipeSerializer<>(MapCodec.unit(factory), StreamCodec.unit(factory.get())));
-        }
+        public static final RegistryEntry<RecipeSerializer<ImpostorShapedRecipe>> IMPOSTOR_SHAPED = REGISTRY.register("impostor_shaped", () -> ImpostorShapedRecipe.SERIALIZER);
+        public static final RegistryEntry<RecipeSerializer<ImpostorShapelessRecipe>> IMPOSTOR_SHAPELESS = REGISTRY.register("impostor_shapeless", () -> ImpostorShapelessRecipe.SERIALIZER);
 
-        private static <U, T extends CustomRecipe> RegistryEntry<RecipeSerializer<T>> withRegistry(
-            String name, Function<HolderLookup<U>, T> factory, ResourceKey<? extends Registry<? extends U>> registry
-        ) {
-            var codec = RegistryHelper.retrieveRegistryCodec(registry).xmap(factory, _ -> null);
-            var streamCodec = RegistryHelper.retrieveRegistryStreamCodec(registry).map(factory, _ -> null);
-            return REGISTRY.register(name, () -> new RecipeSerializer<>(codec, streamCodec));
-        }
+        public static final RegistryEntry<RecipeSerializer<TransformShapedRecipe>> TRANSFORM_SHAPED = REGISTRY.register("transform_shaped", () -> TransformShapedRecipe.SERIALIZER);
+        public static final RegistryEntry<RecipeSerializer<TransformShapelessRecipe>> TRANSFORM_SHAPELESS = REGISTRY.register("transform_shapeless", () -> TransformShapelessRecipe.SERIALIZER);
 
-        private static <T extends Recipe<?>> RegistryEntry<RecipeSerializer<T>> register(String name, MapCodec<T> codec, StreamCodec<RegistryFriendlyByteBuf, T> streamCodec) {
-            return REGISTRY.register(name, () -> new RecipeSerializer<>(codec, streamCodec));
-        }
-
-        public static final RegistryEntry<RecipeSerializer<ImpostorShapedRecipe>> IMPOSTOR_SHAPED = REGISTRY.register("impostor_shaped", () -> CustomShapedRecipe.serialiser(ImpostorShapedRecipe::new));
-        public static final RegistryEntry<RecipeSerializer<ImpostorShapelessRecipe>> IMPOSTOR_SHAPELESS = REGISTRY.register("impostor_shapeless", () -> CustomShapelessRecipe.serialiser(ImpostorShapelessRecipe::new));
-
-        public static final RegistryEntry<RecipeSerializer<TransformShapedRecipe>> TRANSFORM_SHAPED = register("transform_shaped", TransformShapedRecipe.CODEC, TransformShapedRecipe.STREAM_CODEC);
-        public static final RegistryEntry<RecipeSerializer<TransformShapelessRecipe>> TRANSFORM_SHAPELESS = register("transform_shapeless", TransformShapelessRecipe.CODEC, TransformShapelessRecipe.STREAM_CODEC);
-
-        public static final RegistryEntry<RecipeSerializer<ColourableRecipe>> DYEABLE_ITEM = simple("colour", ColourableRecipe::new);
-        public static final RegistryEntry<RecipeSerializer<ClearColourRecipe>> DYEABLE_ITEM_CLEAR = simple("clear_colour", ClearColourRecipe::new);
-        public static final RegistryEntry<RecipeSerializer<TurtleUpgradeRecipe>> TURTLE_UPGRADE = withRegistry("turtle_upgrade", TurtleUpgradeRecipe::new, ITurtleUpgrade.REGISTRY);
-        public static final RegistryEntry<RecipeSerializer<PocketComputerUpgradeRecipe>> POCKET_COMPUTER_UPGRADE = withRegistry("pocket_computer_upgrade", PocketComputerUpgradeRecipe::new, IPocketUpgrade.REGISTRY);
-        public static final RegistryEntry<RecipeSerializer<PrintoutRecipe>> PRINTOUT = register("printout", PrintoutRecipe.CODEC, PrintoutRecipe.STREAM_CODEC);
-        public static final RegistryEntry<RecipeSerializer<DiskRecipe>> DISK = register("disk", DiskRecipe.CODEC, DiskRecipe.STREAM_CODEC);
+        public static final RegistryEntry<RecipeSerializer<ColourableRecipe>> DYEABLE_ITEM = REGISTRY.register("colour", () -> ColourableRecipe.SERIALIZER);
+        public static final RegistryEntry<RecipeSerializer<ClearColourRecipe>> DYEABLE_ITEM_CLEAR = REGISTRY.register("clear_colour", () -> ClearColourRecipe.SERIALIZER);
+        public static final RegistryEntry<RecipeSerializer<TurtleUpgradeRecipe>> TURTLE_UPGRADE = REGISTRY.register("turtle_upgrade", () -> TurtleUpgradeRecipe.SERIALIZER);
+        public static final RegistryEntry<RecipeSerializer<PocketComputerUpgradeRecipe>> POCKET_COMPUTER_UPGRADE = REGISTRY.register("pocket_computer_upgrade", () -> PocketComputerUpgradeRecipe.SERIALIZER);
+        public static final RegistryEntry<RecipeSerializer<PrintoutRecipe>> PRINTOUT = REGISTRY.register("printout", () -> PrintoutRecipe.SERIALIZER);
+        public static final RegistryEntry<RecipeSerializer<DiskRecipe>> DISK = REGISTRY.register("disk", () -> DiskRecipe.SERIALIZER);
     }
 
     public static class RecipeFunctions {

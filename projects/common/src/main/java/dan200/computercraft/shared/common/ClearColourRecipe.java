@@ -4,10 +4,12 @@
 
 package dan200.computercraft.shared.common;
 
+import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.ComputerCraftTags;
-import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -19,6 +21,14 @@ import net.minecraft.world.level.Level;
  * Craft a wet sponge with a {@linkplain ComputerCraftTags.Items#DYEABLE dyable item} to remove its dye.
  */
 public final class ClearColourRecipe extends CustomRecipe {
+    public static final ClearColourRecipe INSTANCE = new ClearColourRecipe();
+    public static final MapCodec<ClearColourRecipe> CODEC = MapCodec.unit(INSTANCE);
+    public static final StreamCodec<RegistryFriendlyByteBuf, ClearColourRecipe> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+    public static final RecipeSerializer<ClearColourRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+
+    private ClearColourRecipe() {
+    }
+
     @Override
     public boolean matches(CraftingInput inv, Level world) {
         var hasColourable = false;
@@ -69,6 +79,6 @@ public final class ClearColourRecipe extends CustomRecipe {
 
     @Override
     public RecipeSerializer<ClearColourRecipe> getSerializer() {
-        return ModRegistry.RecipeSerializers.DYEABLE_ITEM_CLEAR.get();
+        return SERIALIZER;
     }
 }

@@ -50,6 +50,8 @@ public final class PrintoutRecipe extends NormalCraftingRecipe {
         PrintoutRecipe::new
     );
 
+    public static final RecipeSerializer<PrintoutRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+
     private final ShapelessRecipeSpec spec;
     private final List<Ingredient> ingredients;
     private @Nullable PlacementInfo ingredientInfo;
@@ -166,6 +168,6 @@ public final class PrintoutRecipe extends NormalCraftingRecipe {
 
     @Override
     public RecipeSerializer<PrintoutRecipe> getSerializer() {
-        return ModRegistry.RecipeSerializers.PRINTOUT.get();
+        return SERIALIZER;
     }
 }

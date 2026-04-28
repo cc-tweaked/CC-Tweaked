@@ -4,13 +4,17 @@
 
 package dan200.computercraft.shared.pocket.recipes;
 
+import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.pocket.core.PocketSide;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
+import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
@@ -18,6 +22,12 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 public final class PocketComputerUpgradeRecipe extends CustomRecipe {
+    public static final MapCodec<PocketComputerUpgradeRecipe> CODEC = RegistryHelper.retrieveRegistryCodec(IPocketUpgrade.REGISTRY)
+        .xmap(PocketComputerUpgradeRecipe::new, _ -> null);
+    public static final StreamCodec<RegistryFriendlyByteBuf, PocketComputerUpgradeRecipe> STREAM_CODEC = RegistryHelper.retrieveRegistryStreamCodec(IPocketUpgrade.REGISTRY)
+        .map(PocketComputerUpgradeRecipe::new, _ -> null);
+    public static final RecipeSerializer<PocketComputerUpgradeRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+
     private final HolderLookup<IPocketUpgrade> upgradeRegistry;
 
     public PocketComputerUpgradeRecipe(HolderLookup<IPocketUpgrade> upgradeRegistry) {
@@ -86,6 +96,6 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
 
     @Override
     public RecipeSerializer<? extends PocketComputerUpgradeRecipe> getSerializer() {
-        return ModRegistry.RecipeSerializers.POCKET_COMPUTER_UPGRADE.get();
+        return SERIALIZER;
     }
 }

@@ -14,7 +14,6 @@ import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * A custom version of {@link ShapedRecipe}, which can be converted to and from a {@link ShapedRecipeSpec}.
@@ -60,11 +59,4 @@ public abstract class CustomShapedRecipe extends NormalCraftingRecipe {
 
     @Override
     public abstract RecipeSerializer<? extends CustomShapedRecipe> getSerializer();
-
-    public static <T extends CustomShapedRecipe> RecipeSerializer<T> serialiser(Function<ShapedRecipeSpec, T> factory) {
-        return new RecipeSerializer<>(
-            ShapedRecipeSpec.CODEC.xmap(factory, CustomShapedRecipe::toSpec),
-            ShapedRecipeSpec.STREAM_CODEC.map(factory, CustomShapedRecipe::toSpec)
-        );
-    }
 }

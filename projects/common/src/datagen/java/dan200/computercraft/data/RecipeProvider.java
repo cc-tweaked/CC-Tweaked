@@ -79,8 +79,8 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         turtleUpgrades();
         turtleOverlays();
 
-        special(new ColourableRecipe());
-        special(new ClearColourRecipe());
+        special(ColourableRecipe.INSTANCE);
+        special(ClearColourRecipe.INSTANCE);
         special(new TurtleUpgradeRecipe(registries.lookupOrThrow(ITurtleUpgrade.REGISTRY)));
         special(new PocketComputerUpgradeRecipe(registries.lookupOrThrow(IPocketUpgrade.REGISTRY)));
     }

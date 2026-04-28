@@ -47,6 +47,8 @@ public class DiskRecipe extends NormalCraftingRecipe {
         DiskRecipe::new
     );
 
+    public static final RecipeSerializer<DiskRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+
     private final List<Ingredient> ingredients;
 
     public DiskRecipe(RecipeProperties properties, List<Ingredient> ingredients) {
@@ -111,6 +113,6 @@ public class DiskRecipe extends NormalCraftingRecipe {
 
     @Override
     public RecipeSerializer<DiskRecipe> getSerializer() {
-        return ModRegistry.RecipeSerializers.DISK.get();
+        return SERIALIZER;
     }
 }

@@ -4,7 +4,9 @@
 
 package dan200.computercraft.shared.recipe;
 
-import dan200.computercraft.shared.ModRegistry;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
@@ -18,6 +20,10 @@ import net.minecraft.world.level.Level;
  * This is used to represent examples for our {@link CustomRecipe}s.
  */
 public final class ImpostorShapedRecipe extends CustomShapedRecipe {
+    public static final MapCodec<ImpostorShapedRecipe> CODEC = ShapedRecipeSpec.CODEC.xmap(ImpostorShapedRecipe::new, CustomShapedRecipe::toSpec);
+    public static final StreamCodec<RegistryFriendlyByteBuf, ImpostorShapedRecipe> STREAM_CODEC = ShapedRecipeSpec.STREAM_CODEC.map(ImpostorShapedRecipe::new, CustomShapedRecipe::toSpec);
+    public static final RecipeSerializer<ImpostorShapedRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+
     public ImpostorShapedRecipe(ShapedRecipeSpec recipe) {
         super(recipe);
     }
@@ -34,6 +40,6 @@ public final class ImpostorShapedRecipe extends CustomShapedRecipe {
 
     @Override
     public RecipeSerializer<ImpostorShapedRecipe> getSerializer() {
-        return ModRegistry.RecipeSerializers.IMPOSTOR_SHAPED.get();
+        return SERIALIZER;
     }
 }

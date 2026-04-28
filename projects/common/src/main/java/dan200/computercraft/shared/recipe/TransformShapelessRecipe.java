@@ -6,7 +6,6 @@ package dan200.computercraft.shared.recipe;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.recipe.function.RecipeFunction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -32,6 +31,8 @@ public class TransformShapelessRecipe extends CustomShapelessRecipe {
         TransformShapelessRecipe::new
     );
 
+    public static final RecipeSerializer<TransformShapelessRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+
     private final List<RecipeFunction> functions;
 
     public TransformShapelessRecipe(ShapelessRecipeSpec spec, List<RecipeFunction> functions) {
@@ -48,6 +49,6 @@ public class TransformShapelessRecipe extends CustomShapelessRecipe {
 
     @Override
     public RecipeSerializer<TransformShapelessRecipe> getSerializer() {
-        return ModRegistry.RecipeSerializers.TRANSFORM_SHAPELESS.get();
+        return SERIALIZER;
     }
 }

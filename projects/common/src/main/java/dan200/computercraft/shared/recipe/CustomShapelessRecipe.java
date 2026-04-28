@@ -13,7 +13,6 @@ import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * A custom version of {@link ShapelessRecipe}, which can be converted to and from a {@link ShapelessRecipeSpec}.
@@ -63,11 +62,4 @@ public abstract class CustomShapelessRecipe extends NormalCraftingRecipe {
 
     @Override
     public abstract RecipeSerializer<? extends CustomShapelessRecipe> getSerializer();
-
-    public static <T extends CustomShapelessRecipe> RecipeSerializer<T> serialiser(Function<ShapelessRecipeSpec, T> factory) {
-        return new RecipeSerializer<>(
-            ShapelessRecipeSpec.CODEC.xmap(factory, CustomShapelessRecipe::toSpec),
-            ShapelessRecipeSpec.STREAM_CODEC.map(factory, CustomShapelessRecipe::toSpec)
-        );
-    }
 }

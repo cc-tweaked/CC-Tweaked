@@ -4,13 +4,17 @@
 
 package dan200.computercraft.shared.turtle.recipes;
 
+import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
+import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
@@ -18,6 +22,12 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
 public final class TurtleUpgradeRecipe extends CustomRecipe {
+    public static final MapCodec<TurtleUpgradeRecipe> CODEC = RegistryHelper.retrieveRegistryCodec(ITurtleUpgrade.REGISTRY)
+        .xmap(TurtleUpgradeRecipe::new, _ -> null);
+    public static final StreamCodec<RegistryFriendlyByteBuf, TurtleUpgradeRecipe> STREAM_CODEC = RegistryHelper.retrieveRegistryStreamCodec(ITurtleUpgrade.REGISTRY)
+        .map(TurtleUpgradeRecipe::new, _ -> null);
+    public static final RecipeSerializer<TurtleUpgradeRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+
     private final HolderLookup<ITurtleUpgrade> upgradeRegistry;
 
     public TurtleUpgradeRecipe(HolderLookup<ITurtleUpgrade> upgradeRegistry) {
@@ -120,6 +130,6 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
 
     @Override
     public RecipeSerializer<? extends TurtleUpgradeRecipe> getSerializer() {
-        return ModRegistry.RecipeSerializers.TURTLE_UPGRADE.get();
+        return SERIALIZER;
     }
 }

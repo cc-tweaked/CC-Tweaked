@@ -4,7 +4,9 @@
 
 package dan200.computercraft.shared.recipe;
 
-import dan200.computercraft.shared.ModRegistry;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
@@ -18,6 +20,10 @@ import net.minecraft.world.level.Level;
  * This is used to represent examples for our {@link CustomRecipe}s.
  */
 public final class ImpostorShapelessRecipe extends CustomShapelessRecipe {
+    public static final MapCodec<ImpostorShapelessRecipe> CODEC = ShapelessRecipeSpec.CODEC.xmap(ImpostorShapelessRecipe::new, CustomShapelessRecipe::toSpec);
+    public static final StreamCodec<RegistryFriendlyByteBuf, ImpostorShapelessRecipe> STREAM_CODEC = ShapelessRecipeSpec.STREAM_CODEC.map(ImpostorShapelessRecipe::new, CustomShapelessRecipe::toSpec);
+    public static final RecipeSerializer<ImpostorShapelessRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+
     public ImpostorShapelessRecipe(ShapelessRecipeSpec recipe) {
         super(recipe);
     }
@@ -34,6 +40,6 @@ public final class ImpostorShapelessRecipe extends CustomShapelessRecipe {
 
     @Override
     public RecipeSerializer<ImpostorShapelessRecipe> getSerializer() {
-        return ModRegistry.RecipeSerializers.IMPOSTOR_SHAPELESS.get();
+        return SERIALIZER;
     }
 }

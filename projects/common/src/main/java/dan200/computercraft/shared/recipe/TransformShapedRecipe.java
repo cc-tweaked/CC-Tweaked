@@ -6,7 +6,6 @@ package dan200.computercraft.shared.recipe;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.recipe.function.RecipeFunction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -33,6 +32,8 @@ public final class TransformShapedRecipe extends CustomShapedRecipe {
         TransformShapedRecipe::new
     );
 
+    public static final RecipeSerializer<TransformShapedRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+
     private final List<RecipeFunction> functions;
 
     public TransformShapedRecipe(ShapedRecipeSpec recipe, List<RecipeFunction> functions) {
@@ -49,6 +50,6 @@ public final class TransformShapedRecipe extends CustomShapedRecipe {
 
     @Override
     public RecipeSerializer<TransformShapedRecipe> getSerializer() {
-        return ModRegistry.RecipeSerializers.TRANSFORM_SHAPED.get();
+        return SERIALIZER;
     }
 }
