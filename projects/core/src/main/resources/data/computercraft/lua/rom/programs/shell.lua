@@ -351,7 +351,7 @@ function shell.resolve(path)
 end
 
 local function pathWithExtension(_sPath, _sExt)
-    local nLen = #sPath
+    local nLen = #_sPath
     local sEndChar = string.sub(_sPath, nLen, nLen)
     -- Remove any trailing slashes so we can add an extension to the path safely
     if sEndChar == "/" or sEndChar == "\\" then
