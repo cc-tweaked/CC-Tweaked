@@ -1,11 +1,8 @@
-New features in CC: Tweaked 1.118.0
-
-* Add timeout argument to `rednet.lookup`.
-* Add `commands.getEntity`.
+New features in CC: Tweaked 1.118.1
 
 Several bug fixes:
-* Documentation fixes (ItsNotVingtdeux).
-* Fix handling of shebangs outside the root directory (graypinkfurball).
-* Fix `edit` not clearing menu after terminal resize (Wojbie).
+* Fix crash in recipe serialisers.
+* Fix breaking progress overlay not matching turtle's rotation.
+* Fix several recipes not displaying correctly with JEI.
 
 Type "help changelog" to see the full version history.

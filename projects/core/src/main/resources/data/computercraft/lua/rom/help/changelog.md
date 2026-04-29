@@ -1,3 +1,10 @@
+# New features in CC: Tweaked 1.118.1
+
+Several bug fixes:
+* Fix crash in recipe serialisers.
+* Fix breaking progress overlay not matching turtle's rotation.
+* Fix several recipes not displaying correctly with JEI.
+
 # New features in CC: Tweaked 1.118.0
 
 * Add timeout argument to `rednet.lookup`.
