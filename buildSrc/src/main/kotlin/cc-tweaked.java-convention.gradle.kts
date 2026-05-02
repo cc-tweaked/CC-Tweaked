@@ -57,7 +57,6 @@ repositories {
             includeGroup("me.shedaniel.cloth")
             includeGroup("me.shedaniel")
             includeGroup("mezz.jei")
-            includeGroup("org.teavm")
             includeModule("com.terraformersmc", "modmenu")
             includeModule("me.lucko", "fabric-permissions-api")
         }
