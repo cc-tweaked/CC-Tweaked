@@ -68,7 +68,9 @@ object ManagedComputers : ILuaMachine.Factory {
         val label = os.computerLabel
         return when {
             id != 1 -> CobaltLuaMachine(environment, bios)
+
             label != null && label[0] != null -> KotlinMachine(environment, label[0] as String)
+
             else -> {
                 LOGGER.error("Kotlin Lua machine must have a label")
                 CobaltLuaMachine(environment, bios)

@@ -75,6 +75,7 @@ internal class SideProvider {
 
     private fun getSideImpl(sym: Symbol): Optional<Side> = when (sym.getKind()) {
         ElementKind.MODULE -> Optional.empty()
+
         ElementKind.PACKAGE -> {
             val pkg = sym.toString()
             when {
