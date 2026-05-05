@@ -7,7 +7,6 @@ package dan200.computercraft.core.apis.http.request;
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.apis.HTTPAPI;
-import dan200.computercraft.core.apis.handles.AbstractHandle;
 import dan200.computercraft.core.apis.handles.ReadHandle;
 import dan200.computercraft.core.methods.ObjectSource;
 
@@ -27,7 +26,7 @@ public class HttpResponseHandle implements ObjectSource {
     private final String responseStatus;
     private final Map<String, String> responseHeaders;
 
-    public HttpResponseHandle(AbstractHandle reader, int responseCode, String responseStatus, Map<String, String> responseHeaders) {
+    public HttpResponseHandle(Object reader, int responseCode, String responseStatus, Map<String, String> responseHeaders) {
         this.reader = reader;
         this.responseCode = responseCode;
         this.responseStatus = responseStatus;
