@@ -17,7 +17,6 @@ import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.details.FluidDetails;
-import dan200.computercraft.shared.integration.CreateIntegration;
 import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.platform.FabricConfigFile;
@@ -125,8 +124,6 @@ public class ComputerCraft {
         ComputerCraftAPI.registerGenericSource(new InventoryMethods());
 
         Peripherals.addGenericLookup(InventoryMethods::extractContainer);
-
-        if (FabricLoader.getInstance().isModLoaded(CreateIntegration.ID)) CreateIntegration.setup();
     }
 
     private static <B extends FriendlyByteBuf, T extends CustomPacketPayload> void registerPayloadType(PayloadTypeRegistry<B> registry, CustomPacketPayload.TypeAndCodec<B, T> type) {
