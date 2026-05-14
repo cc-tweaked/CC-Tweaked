@@ -91,6 +91,12 @@ compatibility for these newer versions.
 | Remove `*` from `file:read` modes                                                     | ✔          |                           |
 | Metamethods respected in `table.*`, `ipairs`                                          | ✔          |                           |
 
+## Lua 5.5
+| Feature                            | Supported? | Notes |
+|------------------------------------|------------|-------|
+| `table.create`                     | ✔          |       |
+| `utf8.offset` returns end position | ✔          |       |
+
 ## Lua 5.0
 | Feature                          | Supported? | Notes                                            |
 |----------------------------------|------------|--------------------------------------------------|
