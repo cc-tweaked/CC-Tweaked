@@ -43,7 +43,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.EntityHitResult;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -143,7 +143,7 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     }
 
     @Override
-    public boolean interactWithEntity(ServerPlayer player, Entity entity, Vec3 hitPos) {
+    public boolean interactWithEntity(ServerPlayer player, EntityHitResult hit) {
         throw new UnsupportedOperationException("Cannot interact with the world inside tests");
     }
 

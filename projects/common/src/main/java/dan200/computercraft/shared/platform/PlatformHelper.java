@@ -43,6 +43,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
@@ -277,19 +278,17 @@ public interface PlatformHelper {
     /**
      * Interact with an entity, for instance feeding cows.
      * <p>
-     * Implementations should follow Minecraft behaviour - we try {@link Entity#interactAt(Player, Vec3, InteractionHand)}
-     * and then {@link Player#interactOn(Entity, InteractionHand)}. Loader-specific hooks should also be called.
+     * Implementations should call {@link Player#interactOn(Entity, InteractionHand, Vec3)} and any loader-specific
+     * hooks.
      *
      * @param player The player which is interacting with the entity.
-     * @param entity The entity we're interacting with.
-     * @param hitPos The position our ray trace hit the entity. This is a position in-world, unlike
-     *               {@link Entity#interactAt(Player, Vec3, InteractionHand)} which is relative to the entity.
+     * @param hit    The entity and position we're interacting with. Note the hit's position is world-relative,
+     *               unlike {@link Entity#interact(Player, InteractionHand, Vec3)} which is relative to the entity.
      * @return Whether any interaction occurred.
-     * @see Entity#interactAt(Player, Vec3, InteractionHand)
-     * @see Player#interactOn(Entity, InteractionHand)
+     * @see Player#interactOn(Entity, InteractionHand, Vec3)
      * @see ServerGamePacketListenerImpl#handleInteract
      */
-    boolean interactWithEntity(ServerPlayer player, Entity entity, Vec3 hitPos);
+    boolean interactWithEntity(ServerPlayer player, EntityHitResult hit);
 
     /**
      * The result of attempting to use an item on a block.

@@ -52,7 +52,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.EntityHitResult;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
@@ -216,7 +216,9 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public boolean interactWithEntity(ServerPlayer player, Entity entity, Vec3 hitPos) {
+    public boolean interactWithEntity(ServerPlayer player, EntityHitResult hit) {
+        var entity = hit.getEntity();
+        var hitPos = hit.getLocation().subtract(entity.position());
         var interactAt = CommonHooks.onInteractEntityAt(player, entity, hitPos, InteractionHand.MAIN_HAND);
         if (interactAt == null) interactAt = player.interactOn(entity, InteractionHand.MAIN_HAND, hitPos);
         return interactAt.consumesAction();

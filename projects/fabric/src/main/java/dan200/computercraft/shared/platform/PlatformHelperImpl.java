@@ -64,7 +64,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -220,9 +219,10 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public boolean interactWithEntity(ServerPlayer player, Entity entity, Vec3 hitPos) {
-        return UseEntityCallback.EVENT.invoker().interact(player, entity.level(), InteractionHand.MAIN_HAND, entity, new EntityHitResult(entity, hitPos)).consumesAction()
-            || player.interactOn(entity, InteractionHand.MAIN_HAND, hitPos).consumesAction();
+    public boolean interactWithEntity(ServerPlayer player, EntityHitResult hit) {
+        var entity = hit.getEntity();
+        return UseEntityCallback.EVENT.invoker().interact(player, entity.level(), InteractionHand.MAIN_HAND, entity, hit).consumesAction()
+            || player.interactOn(entity, InteractionHand.MAIN_HAND, hit.getLocation().subtract(entity.position())).consumesAction();
     }
 
     @Override

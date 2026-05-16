@@ -65,8 +65,6 @@ dependencies {
         exclude("net.fabricmc", "fabric-loader")
         exclude("net.fabricmc.fabric-api")
     }
-    // FIXME: A lie, but Fabric Create uses the wrong mappings
-    compileOnly(libs.create.forge) { isTransitive = false }
 
     clientRuntimeOnly(libs.bundles.externalMods.fabric.runtime) {
         exclude("net.fabricmc", "fabric-loader")

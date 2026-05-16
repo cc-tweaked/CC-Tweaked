@@ -22,6 +22,11 @@ describe("The http library", function()
             -- to ensure the general control flow works.
             expect({ http.checkURL("http://localhost") }):same({ false, "Domain not permitted" })
             expect({ http.checkURL("http://127.0.0.1") }):same({ false, "Domain not permitted" })
+            expect({ http.checkURL("http://[::1]") }):same({ false, "Domain not permitted" })
+        end)
+
+        expect("rejects scoped addresses", function()
+            expect({ http.checkURL("http://[::1%1]") }):same({ false, "Scoped address not permitted" })
         end)
     end)
 

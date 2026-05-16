@@ -22,6 +22,19 @@ import static dan200.computercraft.api.lua.LuaValues.*;
  */
 public interface LuaTable<K, V> extends Map<K, V> {
     /**
+     * Return the value to which a specific integer key is mapped, or {@code null} if there is no mapping for the key.
+     * <p>
+     * This should be used when accessing integer keys, as numeric keys within the table are typically normalised to
+     * doubles.
+     *
+     * @param index The key to look up.
+     * @return The corresponding value, or {@code null} if not present.
+     */
+    default @Nullable Object get(int index) {
+        return get((double) index);
+    }
+
+    /**
      * Compute the length of the array part of this table.
      *
      * @return This table's length.
@@ -42,7 +55,7 @@ public interface LuaTable<K, V> extends Map<K, V> {
      * @since 1.116
      */
     default double getDouble(int index) throws LuaException {
-        Object value = get((double) index);
+        var value = get(index);
         if (!(value instanceof Number number)) throw badTableItem(index, "number", getType(value));
         return number.doubleValue();
     }
@@ -70,7 +83,7 @@ public interface LuaTable<K, V> extends Map<K, V> {
      * @throws LuaException If the value is not an integer.
      */
     default long getLong(int index) throws LuaException {
-        Object value = get((double) index);
+        var value = get(index);
         if (!(value instanceof Number number)) throw badTableItem(index, "number", getType(value));
         checkFiniteIndex(index, number.doubleValue());
         return number.longValue();
@@ -145,7 +158,7 @@ public interface LuaTable<K, V> extends Map<K, V> {
      * @since 1.116
      */
     default boolean getBoolean(int index) throws LuaException {
-        Object value = get((double) index);
+        var value = get(index);
         if (!(value instanceof Boolean bool)) throw badTableItem(index, "boolean", getType(value));
         return bool;
     }
@@ -173,7 +186,7 @@ public interface LuaTable<K, V> extends Map<K, V> {
      * @since 1.116
      */
     default String getString(int index) throws LuaException {
-        Object value = get((double) index);
+        var value = get(index);
         if (!(value instanceof String string)) throw badTableItem(index, "string", getType(value));
         return string;
     }
@@ -204,7 +217,7 @@ public interface LuaTable<K, V> extends Map<K, V> {
      * @since 1.116
      */
     default Map<?, ?> getTable(int index) throws LuaException {
-        Object value = get((double) index);
+        var value = get(index);
         if (!(value instanceof Map<?, ?> table)) throw badTableItem(index, "table", getType(value));
         return table;
     }
@@ -236,7 +249,7 @@ public interface LuaTable<K, V> extends Map<K, V> {
      * @since 1.116
      */
     default Optional<Double> optDouble(int index) throws LuaException {
-        Object value = get((double) index);
+        var value = get(index);
         if (value == null) return Optional.empty();
         if (!(value instanceof Number number)) throw badTableItem(index, "number", getType(value));
         return Optional.of(number.doubleValue());
@@ -267,7 +280,7 @@ public interface LuaTable<K, V> extends Map<K, V> {
      * @since 1.116
      */
     default Optional<Long> optLong(int index) throws LuaException {
-        Object value = get((double) index);
+        var value = get(index);
         if (value == null) return Optional.empty();
         if (!(value instanceof Number number)) throw badTableItem(index, "number", getType(value));
         checkFiniteIndex(index, number.doubleValue());
@@ -351,7 +364,7 @@ public interface LuaTable<K, V> extends Map<K, V> {
      * @since 1.116
      */
     default Optional<Boolean> optBoolean(int index) throws LuaException {
-        Object value = get((double) index);
+        var value = get(index);
         if (value == null) return Optional.empty();
         if (!(value instanceof Boolean bool)) throw badTableItem(index, "boolean", getType(value));
         return Optional.of(bool);
@@ -381,7 +394,7 @@ public interface LuaTable<K, V> extends Map<K, V> {
      * @since 1.116
      */
     default Optional<String> optString(int index) throws LuaException {
-        Object value = get((double) index);
+        var value = get(index);
         if (value == null) return Optional.empty();
         if (!(value instanceof String string)) throw badTableItem(index, "string", getType(value));
         return Optional.of(string);
@@ -414,7 +427,7 @@ public interface LuaTable<K, V> extends Map<K, V> {
      * @since 1.116
      */
     default Optional<Map<?, ?>> optTable(int index) throws LuaException {
-        Object value = get((double) index);
+        var value = get(index);
         if (value == null) return Optional.empty();
         if (!(value instanceof Map<?, ?> table)) throw badTableItem(index, "table", getType(value));
         return Optional.of(table);

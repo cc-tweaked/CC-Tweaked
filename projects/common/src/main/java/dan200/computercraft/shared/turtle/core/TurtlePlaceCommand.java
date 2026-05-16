@@ -102,11 +102,8 @@ public class TurtlePlaceCommand implements TurtleCommand {
         if (!(hit instanceof EntityHitResult entityHit)) return false;
 
         // Start claiming entity drops
-        var hitEntity = entityHit.getEntity();
-        var hitPos = entityHit.getLocation();
-
-        DropConsumer.set(hitEntity);
-        var placed = PlatformHelper.get().interactWithEntity(turtlePlayer.player(), hitEntity, hitPos);
+        DropConsumer.set(entityHit.getEntity());
+        var placed = PlatformHelper.get().interactWithEntity(turtlePlayer.player(), entityHit);
         TurtleUtil.stopConsumingPlayer(turtle, turtlePlayer);
         return placed;
     }
