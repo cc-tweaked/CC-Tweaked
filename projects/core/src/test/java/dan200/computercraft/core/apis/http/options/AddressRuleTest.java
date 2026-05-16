@@ -36,6 +36,8 @@ public class AddressRuleTest {
         "224.0.0.1", "ff02::1",
         // CGNAT
         "100.64.0.0", "100.127.255.255",
+        // NAT64
+        "64:ff9b::c0a8:0101",
         // Cloud metadata providers
         "100.100.100.200", // Alibaba
         "192.0.0.192", // Oracle
