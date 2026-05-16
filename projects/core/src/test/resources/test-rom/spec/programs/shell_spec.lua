@@ -152,6 +152,18 @@ describe("The shell", function()
             shell.resolveProgram("ls")
             expect.error(shell.resolveProgram, nil):eq("bad argument #1 (string expected, got nil)")
         end)
+
+        it("finds files on the shell path", function()
+            expect(shell.resolveProgram("edit")):eq("rom/programs/edit.lua")
+            expect(shell.resolveProgram("edit.lua")):eq("rom/programs/edit.lua")
+        end)
+
+        it("finds programs even with a trailing slash", function()
+            -- This feels silly: "edit/" is a directory, not the name of a file. However,
+            -- fs.combine (and CC's other path normalisation code) strips trailing slashes,
+            -- so this should still resolve the program.
+            expect(shell.resolveProgram("/rom/programs/edit/")):eq("rom/programs/edit.lua")
+        end)
     end)
 
     describe("shell.complete", function()

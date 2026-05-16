@@ -72,6 +72,10 @@ interface AddressPredicate {
                 ));
             }
 
+            return parse(address, prefixSize);
+        }
+
+        public static HostRange parse(InetAddress address, int prefixSize) {
             // Mask the bytes of the IP address.
             byte[] minBytes = address.getAddress(), maxBytes = address.getAddress();
             var size = prefixSize;
@@ -126,6 +130,7 @@ interface AddressPredicate {
                 || socketAddress.isMulticastAddress()  // 224.0.0.0/4, ff00::/8
                 || isUniqueLocalAddress(socketAddress) // fd00::/8
                 || isCarrierGradeNatAddress(socketAddress) // 100.64.0.0/10
+                || NAT64_RANGE.matches(socketAddress) // 64:ff9b::/96
                 || additionalAddresses.contains(socketAddress);
         }
 
@@ -154,6 +159,12 @@ interface AddressPredicate {
             var bytes = address.getAddress();
             return bytes[0] == 100 && ((bytes[1] & 0xFF) >= 64 && (bytes[1] & 0xFF) <= 127);
         }
-    }
 
+        /**
+         * The NAT64 address range (64:ff9b::/96).
+         *
+         * @see <a href="https://en.wikipedia.org/wiki/NAT64">NAT64 on Wikipedia</a>
+         */
+        private static final HostRange NAT64_RANGE = HostRange.parse(InetAddresses.forString("64:ff9b::"), 96);
+    }
 }
