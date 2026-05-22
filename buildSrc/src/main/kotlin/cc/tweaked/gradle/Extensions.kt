@@ -124,7 +124,7 @@ class CloseScope : AutoCloseable {
 }
 
 /** Proxy method to avoid overload ambiguity. */
-fun <T> Property<T>.setProvider(provider: Provider<out T>) = set(provider)
+fun <T: Any> Property<T >.setProvider(provider: Provider<out T>) = set(provider)
 
 /** Short-cut method to get the absolute path of a [FileSystemLocation] provider. */
 fun Provider<out FileSystemLocation>.getAbsolutePath(): String = get().asFile.absolutePath

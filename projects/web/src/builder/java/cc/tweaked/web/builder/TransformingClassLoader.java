@@ -8,6 +8,7 @@ import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
 
@@ -38,7 +39,7 @@ public class TransformingClassLoader extends ClassLoader {
     private final Map<String, Path> remappedResources = new HashMap<>();
     private final List<BiFunction<String, ClassVisitor, ClassVisitor>> transformers = new ArrayList<>();
 
-    private final Remapper remapper = new Remapper() {
+    private final Remapper remapper = new Remapper(Opcodes.ASM9) {
         @Override
         public String map(String internalName) {
             return remappedClasses.getOrDefault(internalName, internalName);

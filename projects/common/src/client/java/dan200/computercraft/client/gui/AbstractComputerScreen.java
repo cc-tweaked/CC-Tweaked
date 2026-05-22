@@ -8,10 +8,10 @@ import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.DynamicImageButton;
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
 import dan200.computercraft.client.network.ClientNetworking;
+import dan200.computercraft.core.input.UserComputerInput;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.InputHandler;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.computer.upload.UploadResult;
@@ -58,7 +58,8 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
     protected @Nullable TerminalWidget terminal;
     protected Terminal terminalData;
     protected final ComputerFamily family;
-    protected final InputHandler input;
+    protected final UserComputerInput computerInput;
+    protected final ClientComputerActions computerActions;
 
     protected final int sidebarYOffset;
 
@@ -72,7 +73,8 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
         family = container.getFamily();
         displayStack = container.getDisplayStack();
         uploadMaxSize = container.getUploadMaxSize();
-        input = new ClientInputHandler(menu);
+        computerInput = new UserComputerInput(new ClientComputerInput(menu), menu.getTerminal());
+        computerActions = new ClientComputerActions(menu);
         this.sidebarYOffset = sidebarYOffset;
     }
 
@@ -88,7 +90,7 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
         super.init();
 
         terminal = addRenderableWidget(createTerminal());
-        ComputerSidebar.addButtons(menu::isOn, input, this::addRenderableWidget, leftPos, topPos + sidebarYOffset);
+        ComputerSidebar.addButtons(menu::isOn, computerActions, this::addRenderableWidget, leftPos, topPos + sidebarYOffset);
         setFocused(terminal);
     }
 

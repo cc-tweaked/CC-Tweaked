@@ -76,6 +76,7 @@ class Window extends Component<WindowProps, WindowState> {
         const elements = document.querySelectorAll("pre[data-lua-kind]");
         for (let i = 0; i < elements.length; i++) {
             const element = elements[i] as HTMLElement;
+            if (element.hasAttribute("data-no-run")) continue
 
             let example = element.innerText;
 

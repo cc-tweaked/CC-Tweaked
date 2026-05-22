@@ -27,7 +27,7 @@ import java.util.function.BiFunction;
  * <h3>Registering the upgrade serialiser</h3>
  * First, let's create a new class that implements {@link ITurtleUpgrade}. It is recommended to subclass
  * {@link AbstractTurtleUpgrade}, as that provides a default implementation of most methods.
- * <p>
+ *
  * {@snippet class=com.example.examplemod.ExampleTurtleUpgrade region=body}
  * <p>
  * Now we must construct a new upgrade serialiser. In most cases, you can use one of the helper methods

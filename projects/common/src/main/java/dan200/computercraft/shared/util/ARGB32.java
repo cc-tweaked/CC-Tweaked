@@ -26,6 +26,16 @@ public final class ARGB32 {
     }
 
     /**
+     * Set the alpha channel to be fully transparent, removing the alpha channel component.
+     *
+     * @param colour The colour to make transparent.
+     * @return The colour without the alpha channel.
+     */
+    public static int transparent(int colour) {
+        return colour & 0xFFFFFF;
+    }
+
+    /**
      * Convert an ARGB32 colour to a {@linkplain FastColor.ABGR32 ABGR32} one.
      *
      * @param colour The colour to convert.

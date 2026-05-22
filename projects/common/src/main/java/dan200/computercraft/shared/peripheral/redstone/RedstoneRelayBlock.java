@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MPL-2.0
 package dan200.computercraft.shared.peripheral.redstone;
 
+import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,6 +12,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -68,6 +70,13 @@ public final class RedstoneRelayBlock extends HorizontalDirectionalBlock impleme
     @Override
     public int getBundledRedstoneOutput(Level level, BlockPos pos, Direction side) {
         return level.getBlockEntity(pos) instanceof RedstoneRelayBlockEntity relay ? relay.getBundledRedstoneOutput(side) : 0;
+    }
+
+    @ForgeOverride
+    public void onNeighborChange(BlockState state, LevelReader world, BlockPos pos, BlockPos neighbour) {
+        // This is only required for MoreRed, which does not fire block updates when bundled redstone changes, see
+        // <a href="https://github.com/cc-tweaked/CC-Tweaked/issues/2316">#2316</a>.
+        if (world.getBlockEntity(pos) instanceof RedstoneRelayBlockEntity relay) relay.neighborChanged(neighbour);
     }
 
     @Override

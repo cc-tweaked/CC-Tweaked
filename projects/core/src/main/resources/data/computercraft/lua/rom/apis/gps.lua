@@ -5,29 +5,14 @@
 --[[- Use [modems][`modem`] to locate the position of the current turtle or
 computers.
 
-It broadcasts a PING message over [`rednet`] and wait for responses. In order for
-this system to work, there must be at least 4 computers used as gps hosts which
-will respond and allow trilateration. Three of these hosts should be in a plane,
-and the fourth should be either above or below the other three. The three in a
-plane should not be in a line with each other. You can set up hosts using the
-gps program.
-
-> [!NOTE]
-> When entering in the coordinates for the host you need to put in the `x`, `y`,
-> and `z` coordinates of the block that the modem is connected to, not the modem.
-> All modem distances are measured from the block that the modem is placed on.
-
-Also note that you may choose which axes x, y, or z refers to - so long as your
-systems have the same definition as any GPS servers that're in range, it works
-just the same. For example, you might build a GPS cluster according to [this
-tutorial][1], using z to account for height, or you might use y to account for
-height in the way that Minecraft's debug screen displays.
-
-[1]: https://ccf.squiddev.cc/forums2/index.php?/topic/3088-how-to-guide-gps-global-position-system/
+This works by communicating with other computers (called GPS hosts) that already
+know their position, finding the distance to those computers (with
+[`modem_message`]), and using that to derive its position from theirs (with a
+process known as [trilateration](https://en.wikipedia.org/wiki/Trilateration).
 
 @module gps
 @since 1.31
-@see gps_setup For more detailed instructions on setting up GPS
+@see gps_setup
 ]]
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect

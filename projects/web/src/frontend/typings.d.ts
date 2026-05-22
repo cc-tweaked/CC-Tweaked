@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
+declare module "*.css" {}
+
 declare module "*.lua" {
     const contents: string;
     export default contents;
@@ -28,16 +30,21 @@ declare module "*.license" {
 }
 
 declare module "*.dfpwm" {
-    const contents: string;
-    export default contents;
+    const url: string;
+    export default url;
 }
 
-declare module "cct/resources" {
+declare module "*.wasm" {
+    const url: string;
+    export default url;
+}
+
+declare module "cct/resources.js" {
     export const version: string;
     export const resources: Record<string, string>;
 }
 
-declare module "cct/classes" {
+declare module "cct/classes.js" {
     export const main: () => void;
 
     export type Side = "up" | "down" | "left" | "right" | "front" | "back";
@@ -169,10 +176,18 @@ declare module "cct/classes" {
     }
 }
 
+declare module "cct/wasm-gc-runtime.js" {
+    export const load: (url: string, options?: any) => Promise<{
+        exports: { main: (args: string[]) => void },
+        instance: WebAssembly.Instance,
+        module: WebAssembly.Module,
+    }>
+}
+
 declare namespace JSX {
     export type Element = import("preact").JSX.Element;
     export type IntrinsicElements = import("preact").JSX.IntrinsicElements;
     export type ElementClass = import("preact").JSX.ElementClass;
 }
 
-declare var $javaCallbacks: import("cct/classes").Callbacks; // eslint-disable-line no-var
+declare var $javaCallbacks: import("cct/classes.js").Callbacks; // eslint-disable-line no-var

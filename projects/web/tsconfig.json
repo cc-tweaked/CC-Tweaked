@@ -1,14 +1,14 @@
 {
     "compilerOptions": {
         "module": "esNext",
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "target": "es6",
         "lib": [
-            "es2015",
+            "es2017",
             "dom"
         ],
         "newLine": "LF",
-        "baseUrl": ".",
+        "types": ["node"],
         // Additional compile options
         "noEmitOnError": true,
         "preserveWatchOutput": true,

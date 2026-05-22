@@ -124,6 +124,9 @@ legacyForge {
 }
 
 configurations {
+    // Force a more recent version of ASM, so we're compatible with Java 25.
+    configureEach { resolutionStrategy.force(libs.asm) }
+
     additionalRuntimeClasspath { extendsFrom(jarJar.get()) }
 
     val testAdditionalRuntimeClasspath by registering {
@@ -142,7 +145,6 @@ configurations {
     val localImplementation by registering {
         isCanBeResolved = false
         isCanBeConsumed = false
-        isVisible = false
     }
     compileClasspath { extendsFrom(localImplementation.get()) }
     runtimeClasspath { extendsFrom(localImplementation.get()) }

@@ -4,10 +4,10 @@
 
 package dan200.computercraft.shared.network.server;
 
+import dan200.computercraft.core.input.ComputerInput;
 import dan200.computercraft.core.util.StringUtil;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
-import dan200.computercraft.shared.computer.menu.ServerInputHandler;
 import dan200.computercraft.shared.network.MessageType;
 import dan200.computercraft.shared.network.NetworkMessages;
 import io.netty.handler.codec.DecoderException;
@@ -19,7 +19,7 @@ import java.nio.ByteBuffer;
 /**
  * Paste a string on a {@link ServerComputer}.
  *
- * @see ServerInputHandler#paste(ByteBuffer)
+ * @see ComputerInput#paste(ByteBuffer)
  */
 public class PasteEventComputerMessage extends ComputerServerMessage {
     private final ByteBuffer text;
@@ -51,7 +51,7 @@ public class PasteEventComputerMessage extends ComputerServerMessage {
 
     @Override
     protected void handle(ServerNetworkContext context, ComputerMenu container) {
-        container.getInput().paste(text);
+        container.getInput().getComputerInput().paste(text);
     }
 
     @Override

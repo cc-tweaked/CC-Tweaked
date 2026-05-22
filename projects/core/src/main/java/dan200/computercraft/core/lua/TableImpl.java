@@ -6,9 +6,11 @@ package dan200.computercraft.core.lua;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaValues;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.jspecify.annotations.Nullable;
 import org.squiddev.cobalt.*;
 
+import java.nio.ByteBuffer;
 import java.util.*;
 
 import static dan200.computercraft.api.lua.LuaValues.badTableItem;
@@ -37,6 +39,7 @@ class TableImpl implements dan200.computercraft.api.lua.LuaTable<Object, Object>
 
     @Override
     public long getLong(int index) throws LuaException {
+        checkValid();
         var value = table.rawget(index);
         if (!(value instanceof LuaNumber)) throw LuaValues.badTableItem(index, "number", value.typeName());
         if (value instanceof LuaInteger) return value.toInteger();
@@ -58,9 +61,24 @@ class TableImpl implements dan200.computercraft.api.lua.LuaTable<Object, Object>
 
     private LuaValue getImpl(Object o) {
         checkValid();
-        if (o instanceof String s) return table.rawget(s);
-        if (o instanceof Integer i) return table.rawget(i);
-        return Constants.NIL;
+        var value = convertValue(o);
+        return value == null ? Constants.NIL : table.rawget(value);
+    }
+
+    @VisibleForTesting
+    static @Nullable LuaValue convertValue(@Nullable Object object) {
+        if (object == null) return Constants.NIL;
+        if (object instanceof Boolean bool) return ValueFactory.valueOf(bool);
+        if (object instanceof Double num) return ValueFactory.valueOf(num);
+        if (object instanceof String str) return ValueFactory.valueOf(str);
+        if (object instanceof byte[] b) return ValueFactory.valueOf(Arrays.copyOf(b, b.length));
+        if (object instanceof ByteBuffer b) {
+            var bytes = new byte[b.remaining()];
+            b.get(bytes);
+            return ValueFactory.valueOf(bytes);
+        }
+
+        return null;
     }
 
     @Override
@@ -72,6 +90,12 @@ class TableImpl implements dan200.computercraft.api.lua.LuaTable<Object, Object>
     @Override
     public Object get(Object o) {
         return CobaltLuaMachine.toObject(getImpl(o), null);
+    }
+
+    @Override
+    public @Nullable Object get(int index) {
+        checkValid();
+        return CobaltLuaMachine.toObject(table.rawget(index), null);
     }
 
     private Map<Object, Object> getBackingMap() {

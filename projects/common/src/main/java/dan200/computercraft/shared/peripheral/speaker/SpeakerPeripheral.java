@@ -45,7 +45,7 @@ import static dan200.computercraft.api.lua.LuaValues.checkFinite;
  * <p>
  * The speaker can play three kinds of sound, in increasing orders of complexity:
  * - {@link #playNote} allows you to play noteblock note.
- * - {@link #playSound} plays any built-in Minecraft sound, such as block sounds or mob noises.
+ * - {@link #playSound} plays any Minecraft sound, such as block sounds or mob noises.
  * - {@link #playAudio} can play arbitrary audio.
  * <p>
  * ## Recipe
@@ -61,6 +61,11 @@ public abstract class SpeakerPeripheral implements IPeripheral {
      * Number of samples/s in a dfpwm1a audio track.
      */
     public static final int SAMPLE_RATE = 48000;
+
+    /**
+     * The maximum length of a {@link ResourceLocation} played by {@link #playSound(ILuaContext, String, Optional, Optional)}.
+     */
+    private static final int MAX_SOUND_LENGTH = 512;
 
     private final UUID source = UUID.randomUUID();
     private final AttachedComputerSet computers = new AttachedComputerSet();
@@ -229,7 +234,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
     /**
      * Plays a Minecraft sound through the speaker.
      * <p>
-     * This takes the [name of a Minecraft sound](https://minecraft.wiki/w/Sounds.json), such as
+     * This takes the name of a [vanilla Minecraft](https://minecraft.wiki/w/Sounds.json) or modded sound, such as
      * {@code "minecraft:block.note_block.harp"}, as well as an optional volume and pitch.
      * <p>
      * Only one sound can be played at once. This function will return {@literal false} if another sound was started
@@ -253,8 +258,10 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         var volume = (float) clampVolume(checkFinite(1, volumeA.orElse(1.0)));
         var pitch = (float) checkFinite(2, pitchA.orElse(1.0));
 
+        if (name.length() > MAX_SOUND_LENGTH) throw new LuaException("bad argument #1 (sound name is too long)");
+
         var identifier = ResourceLocation.tryParse(name);
-        if (identifier == null) throw new LuaException("Malformed sound name '" + name + "' ");
+        if (identifier == null) throw new LuaException("bad argument #1 (malformed sound name)");
 
         // Prevent playing music discs.
         var soundEvent = PlatformHelper.get().tryGetRegistryObject(Registries.SOUND_EVENT, identifier);

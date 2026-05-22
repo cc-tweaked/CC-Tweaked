@@ -14,17 +14,11 @@ repositories {
     mavenCentral()
     gradlePluginPortal()
 
-    maven("https://maven.neoforged.net") {
-        name = "NeoForge"
-        content {
-            includeGroup("net.neoforged")
-        }
-    }
-
     maven("https://maven.fabricmc.net/") {
         name = "Fabric"
         content {
             includeGroup("net.fabricmc")
+            includeGroup("net.fabricmc.unpick")
         }
     }
 
@@ -69,6 +63,6 @@ gradlePlugin {
 
 versionCatalogUpdate {
     sortByKey = false
-    keep { keepUnusedLibraries = true }
+    keep { keepUnusedVersions = true }
     catalogFile = file("../gradle/libs.versions.toml")
 }

@@ -5,7 +5,6 @@
 package dan200.computercraft.shared.peripheral.generic.methods;
 
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.GenericPeripheral;
@@ -46,9 +45,8 @@ public abstract class AbstractInventoryMethods<T> implements GenericPeripheral {
     /**
      * List all items in this inventory. This returns a table, with an entry for each slot.
      * <p>
-     * Each item in the inventory is represented by a table containing some basic information, much like
-     * {@link dan200.computercraft.shared.turtle.apis.TurtleAPI#getItemDetail(ILuaContext, Optional, Optional)}
-     * includes. More information can be fetched with {@link #getItemDetail}. The table contains the item `name`, the
+     * Each item in the inventory is represented by a table containing [some basic information][`item_details`]. More
+     * information can be fetched with {@link #getItemDetail}. The table contains the item `name`, the
      * `count` and an a (potentially nil) hash of the item's `nbt.` This NBT data doesn't contain anything useful, but
      * allows you to distinguish identical items.
      * <p>
@@ -66,25 +64,13 @@ public abstract class AbstractInventoryMethods<T> implements GenericPeripheral {
      *   print(("%d x %s in slot %d"):format(item.count, item.name, slot))
      * end
      * }</pre>
+     * @cc.see item_details
      */
     @LuaFunction(mainThread = true)
     public abstract Map<Integer, Map<String, ?>> list(T inventory);
 
     /**
-     * Get detailed information about an item.
-     * <p>
-     * The returned information contains the same information as each item in
-     * {@link #list}, as well as additional details like the display name
-     * (`displayName`), and item and item durability (`damage`, `maxDamage`, `durability`).
-     * <p>
-     * Some items include more information (such as enchantments) - it is
-     * recommended to print it out using [`textutils.serialize`] or in the Lua
-     * REPL, to explore what is available.
-     * <p>
-     * > [Missing fields][!INFO]
-     * > CC: Tweaked exposes an {@code itemGroups} field, listing the creative tabs an
-     * > item is available under. This information is not available on Minecraft 1.19.3
-     * > to 1.20.3, and so this field will be empty on those versions.
+     * Get [detailed information][`item_details`] about an item.
      *
      * @param inventory The current inventory.
      * @param slot      The slot to get information about.
@@ -104,6 +90,7 @@ public abstract class AbstractInventoryMethods<T> implements GenericPeripheral {
      *   print(("Damage: %d/%d"):format(item.damage, item.maxDamage))
      * end
      * }</pre>
+     * @cc.see item_details
      */
     @Nullable
     @LuaFunction(mainThread = true)

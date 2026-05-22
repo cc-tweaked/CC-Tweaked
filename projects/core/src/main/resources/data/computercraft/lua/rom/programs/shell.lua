@@ -141,8 +141,11 @@ local function executeProgram(remainingRecursion, path, args)
             return false
         end
 
-        -- Add the path and any arguments to the interpreter's arguments
-        table.insert(hashbangArgs, path)
+        -- Add the program path to the interpreter's arguments
+        -- Always add a leading slash to prevent any shell.resolve calls within the interpreter
+        --   from prepending the current directory since program path is already absolute
+        table.insert(hashbangArgs, "/" .. path)
+        -- Add any arguments passed to program to end of the interpreter's arguments
         for _, v in ipairs(args) do
             table.insert(hashbangArgs, v)
         end
@@ -347,16 +350,6 @@ function shell.resolve(path)
     end
 end
 
-local function pathWithExtension(_sPath, _sExt)
-    local nLen = #sPath
-    local sEndChar = string.sub(_sPath, nLen, nLen)
-    -- Remove any trailing slashes so we can add an extension to the path safely
-    if sEndChar == "/" or sEndChar == "\\" then
-        _sPath = string.sub(_sPath, 1, nLen - 1)
-    end
-    return _sPath .. "." .. _sExt
-end
-
 --- Resolve a program, using the [program path][`path`] and list of [aliases][`aliases`].
 --
 -- @tparam string command The name of the program
@@ -381,7 +374,7 @@ function shell.resolveProgram(command)
         if fs.exists(sPath) and not fs.isDir(sPath) then
             return sPath
         else
-            local sPathLua = pathWithExtension(sPath, "lua")
+            local sPathLua = sPath .. ".lua"
             if fs.exists(sPathLua) and not fs.isDir(sPathLua) then
                 return sPathLua
             end
@@ -395,7 +388,7 @@ function shell.resolveProgram(command)
         if fs.exists(sPath) and not fs.isDir(sPath) then
             return sPath
         else
-            local sPathLua = pathWithExtension(sPath, "lua")
+            local sPathLua = sPath .. ".lua"
             if fs.exists(sPathLua) and not fs.isDir(sPathLua) then
                 return sPathLua
             end
@@ -684,6 +677,7 @@ if multishell then
     -- This function is only available if the [`multishell`] API is.
     --
     -- @tparam string ... The command line to run.
+    -- @treturn number The ID of the new tab that was opened.
     -- @see shell.run
     -- @see multishell.launch
     -- @since 1.6

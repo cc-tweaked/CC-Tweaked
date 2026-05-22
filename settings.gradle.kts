@@ -8,18 +8,12 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
 
-        maven("https://maven.neoforged.net") {
-            name = "NeoForge"
-            content {
-                includeGroup("net.neoforged")
-            }
-        }
-
         maven("https://maven.fabricmc.net/") {
             name = "Fabric"
             content {
                 includeGroup("fabric-loom")
                 includeGroup("net.fabricmc")
+                includeGroup("net.fabricmc.unpick")
             }
         }
 

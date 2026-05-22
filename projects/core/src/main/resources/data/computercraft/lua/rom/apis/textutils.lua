@@ -616,7 +616,8 @@ do
     end
 
     local function parse_ident(str, pos)
-        local _, last, val = find(str, '^([%a][%w_]*)', pos)
+        local _, last, val = find(str, '^([%w_+.-]+)', pos)
+        if not last then error_at(pos, "Expected object key") end
         return val, last + 1
     end
 

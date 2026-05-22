@@ -28,7 +28,7 @@ Translations are managed through [CrowdIn], an online interface for managing lan
 In order to develop CC: Tweaked, you'll need to download the source code and then run it.
 
  - Make sure you've got the following software installed:
-   - Java Development Kit 17 (JDK). This can be downloaded from [Adoptium].
+   - Java Development Kit 25 (JDK). This can be downloaded from [Adoptium].
    - [Git](https://git-scm.com/).
    - [NodeJS 20 or later][node].
 
@@ -54,6 +54,9 @@ GitHub first. It's often helpful to discuss features before spending time develo
 Once you're ready to start programming, have a read of the [the architecture document][architecture] first. While it's
 not a comprehensive document, it gives a good hint of where you should start looking to make your changes. As always, if
 you're not sure, [do ask the community][community]!
+
+Generative AI contributions are *not* welcome. PRs containing, or suspected of containing, code output by a generative
+AI model will be immediately rejected.
 
 ### Testing
 When making larger changes, it may be useful to write a test to make sure your code works as expected.
@@ -101,7 +104,7 @@ about how you can build on that until you've covered everything!
 
 [new-issue]: https://github.com/cc-tweaked/CC-Tweaked/issues/new/choose "Create a new issue"
 [community]: README.md#community "Get in touch with the community."
-[Adoptium]: https://adoptium.net/temurin/releases?version=17 "Download OpenJDK 17"
+[Adoptium]: https://adoptium.net/temurin/releases?version=25 "Download OpenJDK 25"
 [illuaminate]: https://github.com/SquidDev/illuaminate/ "Illuaminate on GitHub"
 [docs]: https://tweaked.cc/ "CC: Tweaked documentation"
 [ldoc]: http://stevedonovan.github.io/ldoc/ "ldoc, a Lua documentation generator."

@@ -4,13 +4,11 @@
 
 import cc.tweaked.gradle.JUnitExt
 import net.fabricmc.loom.api.LoomGradleExtensionAPI
-import net.fabricmc.loom.util.gradle.SourceSetHelper
 import org.jetbrains.gradle.ext.*
 import org.jetbrains.gradle.ext.Application
 
 plugins {
     publishing
-    alias(libs.plugins.taskTree)
     alias(libs.plugins.githubRelease)
     alias(libs.plugins.gradleVersions)
     alias(libs.plugins.versionCatalogUpdate)
@@ -70,7 +68,7 @@ idea.project.settings.runConfigurations {
         val fabricProject = evaluationDependsOn(":fabric")
         val classPathGroup = fabricProject.extensions.getByType<LoomGradleExtensionAPI>().mods
             .joinToString(File.pathSeparator + File.pathSeparator) { modSettings ->
-                SourceSetHelper.getClasspath(modSettings, project).joinToString(File.pathSeparator) { it.absolutePath }
+                modSettings.modFiles.joinToString(File.pathSeparator) { it.absolutePath }
             }
 
         vmParameters = "-ea -Dfabric.classPathGroups=$classPathGroup"
@@ -115,8 +113,12 @@ idea.project.settings.compiler.javac {
         .toMap()
 }
 
+repositories() {
+    mavenCentral()
+}
+
 versionCatalogUpdate {
     sortByKey = false
     pin { versions.addAll("fastutil", "guava", "netty", "slf4j") }
-    keep { keepUnusedLibraries = true }
+    keep { keepUnusedVersions = true }
 }

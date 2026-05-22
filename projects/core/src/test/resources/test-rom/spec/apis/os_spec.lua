@@ -143,6 +143,24 @@ describe("The os library", function()
             local t2 = os.time { year = 2000, month = 10, day = 1, hour = 23, min = 10, sec = 19 }
             expect(t1 - t2):eq(60 * 2 - 2)
         end)
+
+        it("uses correct date table default for hour", function()
+            local t1 = os.time { year = 1970, month = 1, day = 1, hour = nil, min = 0, sec = 0 }
+            local t2 = os.time { year = 1970, month = 1, day = 1, hour = 12, min = 0, sec = 0 }
+            expect(t1):eq(t2)
+        end)
+
+        it("uses correct date table default for min", function()
+            local t1 = os.time { year = 1970, month = 1, day = 1, hour = 0, min = nil, sec = 0 }
+            local t2 = os.time { year = 1970, month = 1, day = 1, hour = 0, min = 0, sec = 0 }
+            expect(t1):eq(t2)
+        end)
+
+        it("uses correct date table default for sec", function()
+            local t1 = os.time { year = 1970, month = 1, day = 1, hour = 0, min = 0, sec = nil }
+            local t2 = os.time { year = 1970, month = 1, day = 1, hour = 0, min = 0, sec = 0 }
+            expect(t1):eq(t2)
+        end)
     end)
 
     describe("os.day", function()

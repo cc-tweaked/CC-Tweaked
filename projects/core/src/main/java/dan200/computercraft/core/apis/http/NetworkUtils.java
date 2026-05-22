@@ -17,6 +17,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.TooLongFrameException;
+import io.netty.handler.codec.http.websocketx.CorruptedWebSocketFrameException;
+import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus;
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
 import io.netty.handler.proxy.HttpProxyHandler;
 import io.netty.handler.proxy.Socks4ProxyHandler;
@@ -33,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
+import java.net.Inet6Address;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -121,6 +124,10 @@ public final class NetworkUtils {
         if (port < 0) port = ssl ? 443 : 80;
         var socketAddress = new InetSocketAddress(host, port);
         if (socketAddress.isUnresolved()) throw new HTTPRequestException("Unknown host");
+        if (socketAddress.getAddress() instanceof Inet6Address inet6 && (inet6.getScopedInterface() != null || inet6.getScopeId() != 0)) {
+            throw new HTTPRequestException("Scoped address not permitted");
+        }
+
         return socketAddress;
     }
 
@@ -245,6 +252,10 @@ public final class NetworkUtils {
             return "Timed out";
         } else if (cause instanceof SSLHandshakeException || (cause instanceof DecoderException && cause.getCause() instanceof SSLHandshakeException)) {
             return "Could not create a secure connection";
+        } else if (cause instanceof CorruptedWebSocketFrameException e) {
+            return e.closeStatus() == WebSocketCloseStatus.MESSAGE_TOO_BIG
+                ? "Received a too-large message"
+                : "Corrupted websocket message";
         } else {
             return "Could not connect";
         }
