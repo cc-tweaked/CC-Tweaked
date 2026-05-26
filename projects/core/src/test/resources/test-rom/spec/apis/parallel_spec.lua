@@ -126,7 +126,7 @@ describe("The parallel library", function()
         it("cannot spawn outside of parallel", function()
             local spawn
             parallel.waitForAll(function(s) spawn = s end)
-            expect.error(spawn, function() end):eq("Cannot spawn new tasks outside of waitForAll")
+            expect.error(spawn, function() end):eq("Cannot spawn new functions outside of waitForAll")
         end)
 
         it("accepts an arbitrary number of functions", function()

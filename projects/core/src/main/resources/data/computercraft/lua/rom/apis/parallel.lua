@@ -112,7 +112,7 @@ error is propagated upwards.
 
 > [!WARNING]
 >
-> While any number of coroutines can be run in parallel, running too many things
+> While any number of functions can be run in parallel, running too many things
 > in parallel can sometimes cause issues:
 >
 >  - Computers only buffer 256 events at a time. Trying to run several hundred
@@ -186,6 +186,7 @@ function waitForAll(...)
 
     local function spawn(fn, ...)
         expect(1, fn, "function")
+        if not can_spawn then error("Cannot spawn new functions outside of waitForAll", 2) end
 
         threads[count + 1] = {
             co = coroutine.create(function(...) return exception.try_barrier(barrier_ctx, fn, ...) end),
@@ -195,17 +196,14 @@ function waitForAll(...)
         count = count + 1
     end
 
-    local function safe_spawn(fn, ...)
-        if not can_spawn then error("Cannot spawn new coroutines outside of waitForAll", 2) end
-        return spawn(fn, ...)
-    end
-
     local functions = table.pack(...)
+    can_spawn = true
     for i = 1, functions.n, 1 do
         local fn = functions[i]
         expect(i, fn, "function")
-        spawn(fn, safe_spawn)
+        spawn(fn, spawn)
     end
+    can_spawn = false
 
     local event = { n = 0 }
     while true do
