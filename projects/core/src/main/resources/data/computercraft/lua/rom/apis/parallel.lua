@@ -90,7 +90,7 @@ function waitForAny(...)
             if thread.filter == nil or thread.filter == event[1] or event[1] == "terminate" then
                 local ok, param = coroutine.resume(thread.co, table.unpack(event, 1, event.n))
                 if not ok then
-                    error(exception.wrap_error(param, thread.co))
+                    error(exception.wrap_error(param, thread.co), 0)
                 end
 
                 -- Abort if this coroutine has finished
@@ -229,7 +229,7 @@ function waitForAll(...)
                 can_spawn = false
 
                 if not ok then
-                    error(exception.wrap_error(param, thread.co))
+                    error(exception.wrap_error(param, thread.co), 0)
                 end
 
                 if coroutine.status(thread.co) == "dead" then
