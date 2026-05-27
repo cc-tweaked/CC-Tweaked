@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.turtle.items;
 
+import dan200.computercraft.annotations.FabricOverride;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
@@ -43,7 +44,6 @@ public class TurtleItem extends BlockItem {
         }
     }
 
-    @Nullable
     @ForgeOverride
     public String getCreatorModId(ItemStack stack) {
         // Determine our "creator mod" from the upgrades. We attempt to find the first non-vanilla/non-CC
@@ -62,6 +62,11 @@ public class TurtleItem extends BlockItem {
         }
 
         return ComputerCraftAPI.MOD_ID;
+    }
+
+    @FabricOverride
+    public String getCreatorNamespace(ItemStack stack) {
+        return getCreatorModId(stack);
     }
 
     public static @Nullable ITurtleUpgrade getUpgrade(ItemStack stack, TurtleSide side) {
