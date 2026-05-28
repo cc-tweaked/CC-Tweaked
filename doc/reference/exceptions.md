@@ -27,7 +27,7 @@ As an example, let's consider the simplest coroutine manager, that just spawns a
 it. When we error inside the coroutine, notice that shell does not display a rich error, as the stack trace information
 is lost!
 
-```lua {data-snippet=run_basic}
+```lua {data-snippet=run_basic data-no-run=1}
 local function run(fn, ...)
   local co = coroutine.create(fn)
   local ok, result = coroutine.resume(co, ...)
@@ -54,7 +54,7 @@ end)
 We can fix this by updating our coroutine manager to throw an exception when an error occurs. The shell now prints a
 rich error on exit.
 
-```lua {data-snippet=run_exn}
+```lua {data-snippet=run_exn data-no-run=1}
 -- NEW: Define our exception metatable.
 local exception_mt = {
   __name = "exception",
@@ -132,7 +132,7 @@ function. This function:
 
 Support for this in our coroutine manager looks as follows:
 
-```lua {data-snippet=run_barrier}
+```lua {data-snippet=run_barrier data-no-run=1}
 -- NEW: Define our magic try_barrier function:
 local try_barrier = debug.getregistry().cc_try_barrier
 if not try_barrier then
