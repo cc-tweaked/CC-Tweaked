@@ -52,7 +52,7 @@ shell.setCompletionFunction("example.lua", completion.build(
 ```
 
 After running this startup file, typing `example` in the shell should provide auto-complete for the program. Now, we can
-add another startup file at `startpu/hello.lua`, which (again) runs `hello`:
+add another startup file at `startup/hello.lua`, which (again) runs `hello`:
 
 ```lua {data-snippet=hello_startup data-mount=empty:startup.lua,example_startup:startup/example.lua,example:example.lua,hello_startup:startup/hello.lua}
 shell.run("hello")
