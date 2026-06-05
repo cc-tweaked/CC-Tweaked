@@ -36,7 +36,7 @@ public final class AddressRule {
     }
 
     public static AddressRule parse(String filter, OptionalInt port, PartialOptions partial) {
-        var cidr = filter.indexOf('/');
+        var cidr = filter.lastIndexOf('/');
         if (cidr >= 0) {
             var addressStr = filter.substring(0, cidr);
             var prefixSizeStr = filter.substring(cidr + 1);

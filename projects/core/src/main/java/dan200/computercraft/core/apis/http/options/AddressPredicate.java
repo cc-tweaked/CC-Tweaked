@@ -131,6 +131,7 @@ interface AddressPredicate {
                 || isUniqueLocalAddress(socketAddress) // fd00::/8
                 || isCarrierGradeNatAddress(socketAddress) // 100.64.0.0/10
                 || NAT64_RANGE.matches(socketAddress) // 64:ff9b::/96
+                || LOCAL_USE_IPV4_IPV6.matches(socketAddress) // 64:ff9b:1::/48
                 || additionalAddresses.contains(socketAddress);
         }
 
@@ -142,7 +143,7 @@ interface AddressPredicate {
          * @see <a href="https://en.wikipedia.org/wiki/Unique_local_address">Unique local address on Wikipedia</a>
          */
         private boolean isUniqueLocalAddress(InetAddress address) {
-            // ULA is actually defined as fc00::/7 (so both fc00::/8 and fd00::/8). However, only the latter is actually
+            // ULA uses the whole fc00::/7 range (so both fc00::/8 and fd00::/8). However, only the latter is actually
             // defined right now, so let's be conservative.
             return address instanceof Inet6Address && (address.getAddress()[0] & 0xff) == 0xfd;
         }
@@ -164,7 +165,15 @@ interface AddressPredicate {
          * The NAT64 address range (64:ff9b::/96).
          *
          * @see <a href="https://en.wikipedia.org/wiki/NAT64">NAT64 on Wikipedia</a>
+         * @see <a href="https://datatracker.ietf.org/doc/html/rfc6052">RFC 6052</a>
          */
         private static final HostRange NAT64_RANGE = HostRange.parse(InetAddresses.forString("64:ff9b::"), 96);
+
+        /**
+         * The Local-Use IPv4/IPv6 Translation Prefix (64:ff9b:1::/48).
+         *
+         * @see <a href="https://datatracker.ietf.org/doc/html/rfc8215">RFC 8215</a>
+         */
+        private static final HostRange LOCAL_USE_IPV4_IPV6 = HostRange.parse(InetAddresses.forString("64:ff9b:1::"), 48);
     }
 }
