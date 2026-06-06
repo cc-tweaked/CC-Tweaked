@@ -22,9 +22,10 @@ wave. However, this signal is continuous, and so can't be used directly by a com
 the amplitude of the wave many times a second and then *quantise* that amplitude, rounding it to the nearest
 representable value.
 
-This representation of sound - a long, uniformally sampled list of amplitudes is referred to as [Pulse-code
+This representation of sound - a long, uniformly sampled list of amplitudes is referred to as [Pulse-code
 Modulation][PCM] (PCM). PCM can be thought of as the "standard" audio format, as it's incredibly easy to work with. For
-instance, to mix two pieces of audio together, you can just add samples from the two tracks together and take the average.
+instance, to mix two pieces of audio together, you can just add samples from the two tracks together and take the
+average.
 
 CC: Tweaked's speakers also work with PCM audio. It plays back 48,000 samples a second, where each sample is an integer
 between -128 and 127. This is more commonly referred to as 48kHz and an 8-bit resolution.
@@ -105,7 +106,7 @@ sound quality. However, due to CC: Tweaked's limited processing power, it's not 
 computer. Instead, we need something much simpler.
 
 DFPWM (Dynamic Filter Pulse Width Modulation) is the de facto standard audio format of the ComputerCraft (and
-OpenComputers) world. Originally popularised by the addon mod [Computronics], CC:T now has built-in support for it with
+OpenComputers) world. Originally popularised by the add-on mod [Computronics], CC:T now has built-in support for it with
 the [`cc.audio.dfpwm`] module. This allows you to read DFPWM files from disk, decode them to PCM, and then play them
 using the speaker.
 
@@ -128,7 +129,7 @@ end
 Once again, we see the [`speaker.playAudio`]/[`speaker_audio_empty`] loop. However, the rest of the program is a little
 different.
 
-First, we require the dfpwm module and call [`cc.audio.dfpwm.make_decoder`] to construct a new decoder. This decoder
+First, we require the DFPWM module and call [`cc.audio.dfpwm.make_decoder`] to construct a new decoder. This decoder
 accepts blocks of DFPWM data and converts it to a list of 8-bit amplitudes, which we can then play with our speaker.
 
 As mentioned above, [`speaker.playAudio`] accepts at most 128×1024 samples in one go. DFPWM uses a single bit for each
