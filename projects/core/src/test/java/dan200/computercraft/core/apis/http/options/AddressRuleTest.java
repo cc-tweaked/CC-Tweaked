@@ -31,7 +31,13 @@ public class AddressRuleTest {
     @ValueSource(strings = {
         "0.0.0.0", "[::]",
         "localhost", "127.0.0.1.nip.io", "127.0.0.1", "[::1]",
-        "172.17.0.1", "192.168.1.114", "[0:0:0:0:0:ffff:c0a8:172]", "10.0.0.1",
+        "172.17.0.1",
+        "192.168.1.114",
+        "10.0.0.1",
+        // IPv4-mapped address. This is converted to IPv4 by getByName.
+        "0:0:0:0:0:ffff:c0a8:172",
+        // 6to4 address
+        "2002:7f00:0001::", // 127.0.0.1
         // Multicast
         "224.0.0.1", "ff02::1",
         // CGNAT
@@ -52,7 +58,11 @@ public class AddressRuleTest {
     @ParameterizedTest
     @ValueSource(strings = {
         // Ensure either side of the CGNAT range is allowed.
-        "100.63.255.255", "100.128.0.0"
+        "100.63.255.255", "100.128.0.0",
+        // IPv4-mapped address. This is converted to IPv4 by getByName.
+        "0:0:0:0:0:ffff:104.20.23.154",
+        // 6to4 address
+        "2002:6814:179a::", // 104.20.23.154
     })
     public void allowsNonLocalDomains(String domain) {
         assertEquals(apply(CoreConfig.httpRules, domain, 80).action(), Action.ALLOW);

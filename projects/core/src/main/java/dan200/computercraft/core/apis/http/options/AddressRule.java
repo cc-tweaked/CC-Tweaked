@@ -37,7 +37,7 @@ public final class AddressRule {
 
     public static AddressRule parse(String filter, OptionalInt port, PartialOptions partial) {
         var cidr = filter.lastIndexOf('/');
-        if (cidr >= 0) {
+        if (filter.indexOf('/') >= 0) {
             var addressStr = filter.substring(0, cidr);
             var prefixSizeStr = filter.substring(cidr + 1);
             var range = HostRange.parse(addressStr, prefixSizeStr);
@@ -74,7 +74,7 @@ public final class AddressRule {
         var ipv4Address = address instanceof Inet6Address inet6 && InetAddresses.is6to4Address(inet6)
             ? InetAddresses.get6to4IPv4Address(inet6) : null;
 
-        for (AddressRule rule : rules) {
+        for (var rule : rules) {
             if (!rule.matches(domain, port, address, ipv4Address)) continue;
             options = options.merge(rule.partial);
         }
