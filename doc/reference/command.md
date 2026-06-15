@@ -122,7 +122,7 @@ usage. The `dump` subcommand accepts a list of other fields to display, instead 
 
 
 ### `/computercraft queue` {#queue}
-The queue subcommand allows non-operator players to queue a `computer_command` event on *command* computers.
+The queue subcommand allows non-operator players to queue a [`computer_command`] event on *command* computers.
 
 This has a similar purpose to vanilla's [`/trigger`] command. Command computers may choose to listen to this event, and
 then perform some action.

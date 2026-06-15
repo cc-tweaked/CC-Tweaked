@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.pocket.items;
 
+import dan200.computercraft.annotations.FabricOverride;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
@@ -149,10 +150,18 @@ public class PocketComputerItem extends Item {
         return UpgradeManager.getName(getDescriptionId(), getUpgrade(stack, PocketSide.BACK), getUpgrade(stack, PocketSide.BOTTOM));
     }
 
-    @Nullable
+    private static String getCreatorModId(ItemStack stack) {
+        return PocketUpgrades.instance().getOwner(getUpgradeWithData(stack, PocketSide.BACK), getUpgradeWithData(stack, PocketSide.BOTTOM));
+    }
+
     @ForgeOverride
     public String getCreatorModId(HolderLookup.Provider registries, ItemStack stack) {
-        return PocketUpgrades.instance().getOwner(getUpgradeWithData(stack, PocketSide.BACK), getUpgradeWithData(stack, PocketSide.BOTTOM));
+        return getCreatorModId(stack);
+    }
+
+    @FabricOverride
+    public String getCreatorNamespace(ItemStack stack) {
+        return getCreatorModId(stack);
     }
 
     /**

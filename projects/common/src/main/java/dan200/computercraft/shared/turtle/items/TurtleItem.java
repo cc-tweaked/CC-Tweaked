@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.turtle.items;
 
+import dan200.computercraft.annotations.FabricOverride;
 import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
@@ -29,10 +30,18 @@ public class TurtleItem extends BlockItem {
         return UpgradeManager.getName(getDescriptionId(), getUpgrade(stack, TurtleSide.LEFT), getUpgrade(stack, TurtleSide.RIGHT));
     }
 
-    @Nullable
+    private static String getCreatorModId(ItemStack stack) {
+        return TurtleUpgrades.instance().getOwner(getUpgradeWithData(stack, TurtleSide.LEFT), getUpgradeWithData(stack, TurtleSide.RIGHT));
+    }
+
     @ForgeOverride
     public String getCreatorModId(HolderLookup.Provider registries, ItemStack stack) {
-        return TurtleUpgrades.instance().getOwner(getUpgradeWithData(stack, TurtleSide.LEFT), getUpgradeWithData(stack, TurtleSide.RIGHT));
+        return getCreatorModId(stack);
+    }
+
+    @FabricOverride
+    public String getCreatorNamespace(ItemStack stack) {
+        return getCreatorModId(stack);
     }
 
     public static @Nullable ITurtleUpgrade getUpgrade(ItemStack stack, TurtleSide side) {

@@ -45,10 +45,12 @@ neoForge {
 
     runs {
         configureEach {
-            ideName = "Forge - ${name.capitalise()}"
+            ideName = "${name.capitalise()} (Forge)"
             systemProperty("forge.logging.markers", "REGISTRIES")
             systemProperty("forge.logging.console.level", "debug")
             loadedMods.add(computercraft)
+
+            ideFolderName = "Forge"
         }
 
         register("client") {

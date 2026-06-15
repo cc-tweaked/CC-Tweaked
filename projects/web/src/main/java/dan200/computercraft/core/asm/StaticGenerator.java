@@ -15,7 +15,7 @@ import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
-import org.teavm.metaprogramming.ReflectClass;
+import org.teavm.extension.introspect.IntrospectClass;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -58,13 +58,13 @@ public final class StaticGenerator<T> {
     private final String methodDesc;
     private final String classPrefix;
 
-    private final Function<byte[], ReflectClass<?>> createClass;
+    private final Function<byte[], IntrospectClass<?>> createClass;
 
-    private final LoadingCache<Method, Optional<ReflectClass<T>>> methodCache = CacheBuilder
+    private final LoadingCache<Method, Optional<IntrospectClass<T>>> methodCache = CacheBuilder
         .newBuilder()
         .build(CacheLoader.from(catching(this::build, Optional.empty())));
 
-    public StaticGenerator(Class<T> base, List<Class<?>> context, Function<byte[], ReflectClass<?>> createClass) {
+    public StaticGenerator(Class<T> base, List<Class<?>> context, Function<byte[], IntrospectClass<?>> createClass) {
         this.base = base;
         this.context = context;
         this.createClass = createClass;
@@ -79,11 +79,11 @@ public final class StaticGenerator<T> {
         classPrefix = StaticGenerator.class.getPackageName() + "." + base.getSimpleName() + "$";
     }
 
-    public Optional<ReflectClass<T>> getMethod(Method method) {
+    public Optional<IntrospectClass<T>> getMethod(Method method) {
         return methodCache.getUnchecked(method);
     }
 
-    private Optional<ReflectClass<T>> build(Method method) {
+    private Optional<IntrospectClass<T>> build(Method method) {
         var name = method.getDeclaringClass().getName() + "." + method.getName();
         var modifiers = method.getModifiers();
 

@@ -56,7 +56,7 @@ cctJavadoc = "1.9.0"
 checkstyle = "13.4.1"
 errorProne-core = "2.49.0"
 errorProne-plugin = "4.3.0"
-fabric-loom = "1.16.1"
+fabric-loom = "1.17.11"
 githubRelease = "2.5.2"
 gradleVersions = "0.54.0"
 ideaExt = "1.3"
@@ -67,7 +67,7 @@ modDevGradle = "2.0.141"
 nullAway = "0.13.4"
 shadow = "9.4.1"
 spotless = "8.4.0"
-teavm = "0.14.0"
+teavm = "0.15.0"
 vanillaExtract = "0.3.1"
 versionCatalogUpdate = "1.1.0"
 
@@ -154,8 +154,7 @@ teavm-core = { module = "org.teavm:teavm-core", version.ref = "teavm" }
 teavm-jso = { module = "org.teavm:teavm-jso", version.ref = "teavm" }
 teavm-jso-apis = { module = "org.teavm:teavm-jso-apis", version.ref = "teavm" }
 teavm-jso-impl = { module = "org.teavm:teavm-jso-impl", version.ref = "teavm" }
-teavm-metaprogramming-api = { module = "org.teavm:teavm-metaprogramming-api", version.ref = "teavm" }
-teavm-metaprogramming-impl = { module = "org.teavm:teavm-metaprogramming-impl", version.ref = "teavm" }
+teavm-extension-apis = { module = "org.teavm:teavm-extension-apis", version.ref = "teavm" }
 teavm-platform = { module = "org.teavm:teavm-platform", version.ref = "teavm" }
 teavm-tooling = { module = "org.teavm:teavm-tooling", version.ref = "teavm" }
 vanillaExtract = { module = "cc.tweaked.vanilla-extract:plugin", version.ref = "vanillaExtract" }
@@ -182,5 +181,5 @@ test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]
 testRuntime = ["junit-jupiter-engine", "junit-platform-launcher", "jqwik-engine"]
 
 # Build tools
-teavm-api = ["teavm-jso", "teavm-jso-apis", "teavm-platform", "teavm-classlib", "teavm-metaprogramming-api"]
-teavm-tooling = ["teavm-tooling", "teavm-metaprogramming-impl", "teavm-jso-impl"]
+teavm-api = ["teavm-jso", "teavm-jso-apis", "teavm-platform", "teavm-classlib", "teavm-extension-apis"]
+teavm-tooling = ["teavm-tooling", "teavm-jso-impl"]
