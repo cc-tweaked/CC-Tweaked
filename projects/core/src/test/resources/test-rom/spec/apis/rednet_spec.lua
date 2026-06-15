@@ -131,27 +131,55 @@ describe("The rednet library", function()
 
         it("opens and closes channels", function()
             local id = math.random(256)
-            local computer = computer_with_rednet(id, function(rednet)
+            local computer
+            computer = computer_with_rednet(id, function(rednet)
                 expect(rednet.isOpen()):eq(false)
 
                 rednet.open("back")
+                rednet.open("top")
+                rednet.open("bottom")
                 rednet.open("front")
 
                 expect(rednet.isOpen()):eq(true)
                 expect(rednet.isOpen("back")):eq(true)
+                expect(rednet.isOpen("top")):eq(true)
+                expect(rednet.isOpen("bottom")):eq(true)
                 expect(rednet.isOpen("front")):eq(true)
 
                 rednet.close("back")
                 expect(rednet.isOpen("back")):eq(false)
+                expect(rednet.isOpen("top")):eq(true)
+                expect(rednet.isOpen("bottom")):eq(true)
+                expect(rednet.isOpen("front")):eq(true)
+                expect(rednet.isOpen()):eq(true)
+
+                -- Disconnected modems are not open
+                computer.peripherals.top = nil
+                expect(rednet.isOpen("back")):eq(false)
+                expect(rednet.isOpen("top")):eq(false)
+                expect(rednet.isOpen("bottom")):eq(true)
+                expect(rednet.isOpen("front")):eq(true)
+                expect(rednet.isOpen()):eq(true)
+
+                -- Reconnected modems are not open
+                computer.peripherals.bottom = nil
+                fake_computer.add_modem(computer, "bottom")
+                expect(rednet.isOpen("back")):eq(false)
+                expect(rednet.isOpen("top")):eq(false)
+                expect(rednet.isOpen("bottom")):eq(false)
                 expect(rednet.isOpen("front")):eq(true)
                 expect(rednet.isOpen()):eq(true)
 
                 rednet.close()
 
                 expect(rednet.isOpen("back")):eq(false)
+                expect(rednet.isOpen("top")):eq(false)
+                expect(rednet.isOpen("bottom")):eq(false)
                 expect(rednet.isOpen("front")):eq(false)
                 expect(rednet.isOpen()):eq(false)
             end)
+            fake_computer.add_modem(computer, "top")
+            fake_computer.add_modem(computer, "bottom")
             fake_computer.add_modem(computer, "front")
 
             fake_computer.run_all { computer }
