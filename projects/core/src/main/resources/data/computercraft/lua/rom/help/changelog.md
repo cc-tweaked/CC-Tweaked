@@ -1,3 +1,10 @@
+# New features in CC: Tweaked 1.120.0
+
+* Support spawning new parallel functions in `parallel.watiForAll`.
+
+One bug fix:
+* Make HTTP IP filtering stricter.
+
 # New features in CC: Tweaked 1.119.0
 
 * Add `commands.getDimension()`.
