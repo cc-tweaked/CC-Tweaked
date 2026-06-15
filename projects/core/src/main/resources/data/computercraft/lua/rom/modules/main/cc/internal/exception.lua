@@ -144,6 +144,20 @@ local function can_wrap_errors(thread)
     return false
 end
 
+--[[- Wrap an error into an exception, when it is safe to do so.
+
+@param err The error to wrap.
+@tparam coroutine thread The coroutine the error occurred on.
+@return The constructed exception, or the original error.
+]]
+local function wrap_error(err, thread)
+    if type(err) == "string" and can_wrap_errors() then
+        return make_exception(err, thread)
+    else
+        return err
+    end
+end
+
 --[[- Attempt to call the provided function `func` with the provided arguments.
 
 @tparam function func The function to call.
@@ -244,6 +258,7 @@ end
 
 return {
     make_exception = make_exception,
+    wrap_error = wrap_error,
 
     try_barrier = try_barrier,
     can_wrap_errors = can_wrap_errors,
