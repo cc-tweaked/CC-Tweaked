@@ -140,80 +140,80 @@ loom {
 
     runs {
         configureEach {
-            ideConfigGenerated(true)
+            generateRunConfig = true
             ideConfigFolder = "Fabric"
         }
 
         named("client") {
-            configName = "Client"
+            displayName = "Client"
         }
 
         named("server") {
-            configName = "Server"
-            runDir("run/server")
+            displayName = "Server"
+            runDirectory = layout.projectDirectory.dir("run/server")
         }
 
         fun RunConfigSettings.configureForData(sourceSet: SourceSet) {
             client()
-            runDir("run/run${name.capitalise()}")
-            property("fabric-api.datagen")
-            property(
+            runDirectory = layout.buildDirectory.dir("run${name.capitalise()}")
+            systemProperties.put("fabric-api.datagen", "true")
+            systemProperties.put(
                 "fabric-api.datagen.output-dir",
                 layout.buildDirectory.dir(sourceSet.getTaskName("generateResources", null)).getAbsolutePath(),
             )
-            property("fabric-api.datagen.strict-validation")
+            systemProperties.put("fabric-api.datagen.strict-validation", "true")
         }
 
         register("data") {
-            configName = "Datagen"
+            displayName = "Datagen"
             configureForData(sourceSets.main.get())
-            source(sourceSets.datagen.get())
+            sourceSet = sourceSets.datagen.name
         }
 
         fun RunConfigSettings.configureForGameTest() {
-            source(sourceSets.testMod.get())
+            sourceSet = sourceSets.testMod.name
 
             val testSources = project(":common").file("src/testMod/resources/data/cctest").absolutePath
-            property("cctest.sources", testSources)
+            systemProperties.put("cctest.sources", testSources)
 
             // Load cctest last, so it can override resources. This bypasses Fabric's shuffling of mods
-            property("fabric.debug.loadLate", "cctest")
+            systemProperties.put("fabric.debug.loadLate", "cctest")
 
-            vmArg("-ea")
+            jvmArguments.add("-ea")
         }
 
         val testClient by registering {
-            configName = "Test Client"
+            displayName = "Test Client"
             client()
             configureForGameTest()
 
-            runDir("run/testClient")
-            property("cctest.tags", "client,common")
+            runDirectory = layout.projectDirectory.dir("run/testClient")
+            systemProperties.put("cctest.tags", "client,common")
         }
 
         register("gametest") {
-            configName = "Game Test"
+            displayName = "Game Test"
             server()
             configureForGameTest()
 
-            property("fabric-api.gametest")
-            property(
+            systemProperties.put("fabric-api.gametest", "true")
+            systemProperties.put(
                 "fabric-api.gametest.report-file",
                 layout.buildDirectory.dir("test-results/runGametest.xml").getAbsolutePath(),
             )
-            runDir("run/gametest")
+            runDirectory = layout.projectDirectory.dir("run/gametest")
         }
 
         register("exampleClient") {
             client()
-            configName = "Example Mod Client"
-            source(sourceSets.examples.get())
+            displayName = "Example Mod Client"
+            sourceSet = sourceSets.examples.name
         }
 
         register("exampleData") {
-            configName = "Example Mod Datagen"
+            displayName = "Example Mod Datagen"
             configureForData(sourceSets.examples.get())
-            source(sourceSets.examples.get())
+            sourceSet = sourceSets.examples.name
         }
     }
 }
