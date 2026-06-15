@@ -8,7 +8,7 @@
 # MC version is specified in gradle.properties, as we need that in settings.gradle.
 # Remember to update corresponding versions in fabric.mod.json/neoforge.mods.toml
 fabric-api = "0.146.1+26.1.2"
-fabric-loader = "0.18.4"
+fabric-loader = "0.19.3"
 neoForge = "26.1.2.29-beta"
 neoMergeTool = "2.0.0"
 mixin = "0.8.5"
@@ -37,7 +37,7 @@ iris-fabric = "1.9.1+1.21.7-fabric"
 iris-forge = "1.9.1+1.21.7-neoforge"
 jei = "29.5.0.26"
 modmenu = "16.0.0-rc.1"
-rei = "18.0.800"
+rei = "26.1.818"
 sodium-fabric = "mc1.21.11-0.8.0-fabric"
 sodium-forge = "mc1.21.11-0.8.0-neoforge"
 mixinExtra = "0.3.5"

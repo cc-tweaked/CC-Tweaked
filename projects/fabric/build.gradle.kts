@@ -19,11 +19,6 @@ cct {
     allProjects.forEach { externalSources(it) }
 }
 
-sourceSets {
-    main { java.exclude("dan200/computercraft/shared/integration/rei") }
-    client { java.exclude("dan200/computercraft/client/integration/rei") }
-}
-
 fun addRemappedConfiguration(name: String) {
     configurations.create(name) {
         isCanBeConsumed = false
@@ -58,6 +53,19 @@ configurations {
     }
     compileClasspath { extendsFrom(localImplementation.get()) }
     runtimeClasspath { extendsFrom(localImplementation.get()) }
+
+    configureEach {
+        resolutionStrategy.dependencySubstitution {
+            all {
+                val requested = requested
+                // Architectury only publishes a "dev" jar. For might want to fix that in our maven, but for now fixup
+                // Gradle resolution.
+                if (requested is ModuleComponentSelector && requested.group == "dev.architectury" && requested.module == "architectury") {
+                    artifactSelection { selectArtifact("jar", null, "dev") }
+                }
+            }
+        }
+    }
 }
 
 dependencies {
@@ -127,7 +135,7 @@ loom {
             generateRunConfig = true
             ideConfigFolder = "Fabric"
 
-            property("fabric-tag-conventions-v2.missingTagTranslationWarning", "VERBOSE")
+            systemProperties.put("fabric-tag-conventions-v2.missingTagTranslationWarning", "VERBOSE")
         }
 
         named("client") {

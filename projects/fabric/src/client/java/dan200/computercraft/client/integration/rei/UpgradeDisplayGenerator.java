@@ -12,7 +12,7 @@ import me.shedaniel.rei.api.common.entry.type.VanillaEntryTypes;
 import me.shedaniel.rei.api.common.util.EntryIngredients;
 import me.shedaniel.rei.plugin.common.displays.crafting.CraftingDisplay;
 import me.shedaniel.rei.plugin.common.displays.crafting.DefaultCustomShapedDisplay;
-import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
+import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,13 +33,13 @@ class UpgradeDisplayGenerator implements DynamicDisplayGenerator<CraftingDisplay
         return entry.getType() == VanillaEntryTypes.ITEM ? Optional.of(resolver.findRecipesWithInput(entry.castValue())) : Optional.empty();
     }
 
-    private static CraftingDisplay makeDisplay(ShapedCraftingRecipeDisplay recipe) {
+    private static CraftingDisplay makeDisplay(int width, int height, List<ItemStackTemplate> ingredients, ItemStackTemplate result) {
         return new DefaultCustomShapedDisplay(
-            EntryIngredients.ofSlotDisplays(recipe.ingredients()),
-            List.of(EntryIngredients.ofSlotDisplay(recipe.result())),
+            ingredients.stream().map(EntryIngredients::of).toList(),
+            List.of(EntryIngredients.of(result)),
             Optional.empty(),
-            recipe.width(),
-            recipe.height()
+            width,
+            height
         );
     }
 }

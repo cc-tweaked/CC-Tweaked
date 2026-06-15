@@ -305,7 +305,7 @@ public interface PlatformHelper {
         /**
          * This result was not handled, and should be handled by the caller.
          *
-         * @param block Whether the block may be used ({@link BlockState#use(Level, Player, InteractionHand, BlockHitResult)}).
+         * @param block Whether the block may be used ({@link BlockState#useItemOn(ItemStack, Level, Player, InteractionHand, BlockHitResult)}).
          * @param item  Whether the item may be used on the block ({@link ItemStack#useOn(UseOnContext)}).
          * @see ServerPlayerGameMode#useItemOn(ServerPlayer, Level, ItemStack, InteractionHand, BlockHitResult)
          */
