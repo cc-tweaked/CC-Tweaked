@@ -53,7 +53,7 @@ public class FabricExampleModDataGenerator implements DataGeneratorEntrypoint {
 
         @Override
         protected void configure(HolderLookup.Provider registries, Entries entries) {
-            for (var r : DynamicRegistries.getDynamicRegistries()) entries.addAll(registries.lookupOrThrow(r.key()));
+            for (var r : DynamicRegistries.getWorldRegistries()) entries.addAll(registries.lookupOrThrow(r.key()));
         }
 
         @Override

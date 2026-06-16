@@ -240,7 +240,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         var knockBack = EnchantmentHelper.modifyKnockback(player.level(), tool, entity, source, (float) player.getAttributeValue(Attributes.ATTACK_KNOCKBACK));
         if (knockBack > 0) {
             if (entity instanceof LivingEntity target) {
-                target.knockback(knockBack * 0.5, -direction.getStepX(), -direction.getStepZ());
+                target.knockback(knockBack * 0.5, -direction.getStepX(), -direction.getStepZ(), source, damage);
             } else {
                 entity.push(direction.getStepX() * knockBack * 0.5, 0.1, direction.getStepZ() * knockBack * 0.5);
             }

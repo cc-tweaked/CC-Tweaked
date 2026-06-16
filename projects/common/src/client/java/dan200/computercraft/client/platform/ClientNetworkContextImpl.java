@@ -107,7 +107,7 @@ public final class ClientNetworkContextImpl implements ClientNetworkContext {
     public void handleUploadResult(int containerId, UploadResult result, @Nullable Component errorMessage) {
         var minecraft = Minecraft.getInstance();
 
-        var screen = OptionScreen.unwrap(minecraft.screen);
+        var screen = OptionScreen.unwrap(minecraft.gui.screen());
         if (screen instanceof AbstractComputerScreen<?> && ((AbstractComputerScreen<?>) screen).getMenu().containerId == containerId) {
             ((AbstractComputerScreen<?>) screen).uploadResult(result, errorMessage);
         }

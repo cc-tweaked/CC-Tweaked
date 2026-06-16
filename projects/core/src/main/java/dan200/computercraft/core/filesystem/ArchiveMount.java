@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 /**
  * An abstract mount based on some archive of files, such as a Zip or Minecraft's resources.
@@ -33,7 +33,7 @@ public abstract class ArchiveMount<T extends ArchiveMount.FileEntry<T>> extends 
      */
     private static final Cache<FileEntry<?>, byte[]> CONTENTS_CACHE = CacheBuilder.newBuilder()
         .concurrencyLevel(4)
-        .expireAfterAccess(60, TimeUnit.SECONDS)
+        .expireAfterAccess(Duration.ofSeconds(60))
         .maximumWeight(MAX_CACHE_SIZE)
         .weakKeys()
         .<FileEntry<?>, byte[]>weigher((k, v) -> v.length)

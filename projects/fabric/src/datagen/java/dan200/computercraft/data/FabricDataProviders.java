@@ -72,7 +72,7 @@ public class FabricDataProviders implements DataGeneratorEntrypoint {
             return addWithRegistries((out, registries) -> new FabricTagsProvider.BlockTagsProvider(out, registries) {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
-                    tags.accept(this::valueLookupBuilder);
+                    tags.accept(this::builder);
                 }
             });
         }
@@ -82,7 +82,7 @@ public class FabricDataProviders implements DataGeneratorEntrypoint {
             return addWithRegistries((out, registries) -> new FabricTagsProvider.ItemTagsProvider(out, registries) {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
-                    tags.accept(this::valueLookupBuilder);
+                    tags.accept(this::builder);
                 }
             });
         }
@@ -97,7 +97,7 @@ public class FabricDataProviders implements DataGeneratorEntrypoint {
 
                 @Override
                 protected void configure(HolderLookup.Provider registries, Entries entries) {
-                    for (var reg : DynamicRegistries.getDynamicRegistries()) {
+                    for (var reg : DynamicRegistries.getBootstrappingRegistries()) {
                         registries.lookupOrThrow(reg.key()).listElements().forEach(x -> register(entries, x));
                     }
                 }

@@ -7,7 +7,6 @@ package dan200.computercraft.gametest
 import dan200.computercraft.api.lua.Coerced
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.gametest.api.*
-import dan200.computercraft.gametest.api.GameTest
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.media.items.PrintoutData
 import dan200.computercraft.shared.peripheral.printer.PrinterBlock
@@ -36,7 +35,7 @@ class Printer_Test {
         // Adding items should provide power
         thenExecute {
             val printer = helper.getBlockEntity(printerPos, PrinterBlockEntity::class.java)
-            printer.setItem(0, ItemStack(Items.BLACK_DYE))
+            printer.setItem(0, ItemStack(Items.DYE.black))
             printer.setItem(1, ItemStack(Items.PAPER))
             printer.setChanged()
         }
@@ -100,7 +99,7 @@ class Printer_Test {
             assertFalse(peripheral.newPage(), "newPage fails with no items")
 
             // Try to print with just ink
-            printer.setItem(0, ItemStack(Items.BLUE_DYE))
+            printer.setItem(0, ItemStack(Items.DYE.blue))
             printer.setChanged()
             assertFalse(peripheral.newPage(), "newPage fails with no paper")
 
@@ -114,7 +113,7 @@ class Printer_Test {
             printer.clearContent()
 
             // Try to print with both items
-            printer.setItem(0, ItemStack(Items.BLUE_DYE))
+            printer.setItem(0, ItemStack(Items.DYE.blue))
             printer.setItem(1, ItemStack(Items.PAPER))
             printer.setChanged()
             assertTrue(peripheral.newPage(), "newPage succeeds")
@@ -187,7 +186,7 @@ class Printer_Test {
             helper.assertExactlyItems(
                 DataComponentUtil.createStack(ModRegistry.Items.PRINTER.get(), DataComponents.CUSTOM_NAME, Component.literal("My Printer")),
                 ItemStack(Items.PAPER),
-                ItemStack(Items.BLACK_DYE),
+                ItemStack(Items.DYE.black),
                 message = "Breaking a printer should drop the contents",
             )
         }
@@ -200,7 +199,7 @@ class Printer_Test {
     fun Can_insert_items(helper: GameTestHelper) = helper.sequence {
         thenWaitUntil {
             helper.assertContainerExactly(BlockPos(1, 1, 2), listOf(ItemStack.EMPTY, ItemStack(Items.PAPER)))
-            helper.assertContainerExactly(BlockPos(3, 1, 2), listOf(ItemStack(Items.BLACK_DYE)))
+            helper.assertContainerExactly(BlockPos(3, 1, 2), listOf(ItemStack(Items.DYE.black)))
         }
     }
 

@@ -64,7 +64,12 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
 
     @Override
     public <T> RegistrationHelper<T> createRegistrationHelper(ResourceKey<Registry<T>> registry) {
-        throw new UnsupportedOperationException("Cannot query registry inside tests");
+        throw new UnsupportedOperationException("Cannot create RegistrationHelper inside tests");
+    }
+
+    @Override
+    public PermissionRegistry createPermissionRegistry() {
+        throw new UnsupportedOperationException("Cannot create PermissionRegistry inside tests");
     }
 
     @Override

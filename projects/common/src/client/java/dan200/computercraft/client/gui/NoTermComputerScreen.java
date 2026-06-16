@@ -52,7 +52,7 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
         // First ensure we're still grabbing the mouse, so the user can look around. Then reset bits of state that
         // grabbing unsets.
         minecraft.mouseHandler.grabMouse();
-        minecraft.screen = this;
+        minecraft.gui.screen = this;
         KeyMapping.releaseAll();
 
         super.init();

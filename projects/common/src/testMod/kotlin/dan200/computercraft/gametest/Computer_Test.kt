@@ -155,7 +155,7 @@ class Computer_Test {
         }
         // Press a key on the client
         thenOnClient {
-            val screen = minecraft.screen as AbstractComputerScreen<*>
+            val screen = minecraft.gui.screen() as AbstractComputerScreen<*>
             screen.keyPressed(KeyEvent(GLFW.GLFW_KEY_A, 0, 0))
             screen.keyReleased(KeyEvent(GLFW.GLFW_KEY_A, 0, 0))
         }

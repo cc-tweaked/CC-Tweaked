@@ -61,7 +61,7 @@ public class ClientTableFormatter implements TableFormatter {
     @Override
     public void writeLine(String label, Component component) {
         var mc = Minecraft.getInstance();
-        var chat = mc.gui.getChat();
+        var chat = mc.gui.hud.getChat();
 
         // TODO: Trim the text if it goes over the allowed length
         // int maxWidth = MathHelper.floor( chat.getChatWidth() / chat.getScale() );
@@ -72,7 +72,7 @@ public class ClientTableFormatter implements TableFormatter {
 
     @Override
     public void display(TableBuilder table) {
-        var chat = Minecraft.getInstance().gui.getChat();
+        var chat = Minecraft.getInstance().gui.hud.getChat();
 
         var tag = createTag(table.getId());
         if (chat.allMessages.removeIf(guiMessage -> guiMessage.tag() != null && Objects.equals(guiMessage.tag().logTag(), tag.logTag()))) {

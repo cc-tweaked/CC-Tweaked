@@ -202,7 +202,7 @@ public final class DirectFixedWidthFontRenderer {
         // Emit a single quad to our buffer. This uses Unsafe (well, LWJGL's MemoryUtil) to directly blit bytes to the
         // underlying buffer. This allows us to have a single bounds check up-front, rather than one for every write.
         // This provides significant performance gains, at the cost of well, using Unsafe.
-        // Each vertex is 28 bytes, giving 112 bytes in total. Vertices are of the form (xyz:FFF)(abgr:BBBB)(uv1:FF)(uv2:SS),
+        // Each vertex is 28 bytes, giving 112 bytes in total. Vertices are of the form (xyz:FFF)(uv1:FF)(uv2:SS)(abgr:BBBB),
         // which matches the POSITION_COLOR_TEX_LIGHTMAP vertex format.
         var position = buffer.position();
         var addr = MemoryUtil.memAddress(buffer);
@@ -221,38 +221,38 @@ public final class DirectFixedWidthFontRenderer {
         memPutFloat(addr + 0, x1);
         memPutFloat(addr + 4, y1);
         memPutFloat(addr + 8, z);
-        memPutInt(addr + 12, nativeColour);
-        memPutFloat(addr + 16, u1);
-        memPutFloat(addr + 20, v1);
-        memPutShort(addr + 24, (short) 0xF0);
-        memPutShort(addr + 26, (short) 0xF0);
+        memPutFloat(addr + 12, u1);
+        memPutFloat(addr + 16, v1);
+        memPutShort(addr + 20, (short) 0xF0);
+        memPutShort(addr + 22, (short) 0xF0);
+        memPutInt(addr + 24, nativeColour);
 
         memPutFloat(addr + 28, x1);
         memPutFloat(addr + 32, y2);
         memPutFloat(addr + 36, z);
-        memPutInt(addr + 40, nativeColour);
-        memPutFloat(addr + 44, u1);
-        memPutFloat(addr + 48, v2);
-        memPutShort(addr + 52, (short) 0xF0);
-        memPutShort(addr + 54, (short) 0xF0);
+        memPutFloat(addr + 40, u1);
+        memPutFloat(addr + 44, v2);
+        memPutShort(addr + 48, (short) 0xF0);
+        memPutShort(addr + 50, (short) 0xF0);
+        memPutInt(addr + 52, nativeColour);
 
         memPutFloat(addr + 56, x2);
         memPutFloat(addr + 60, y2);
         memPutFloat(addr + 64, z);
-        memPutInt(addr + 68, nativeColour);
-        memPutFloat(addr + 72, u2);
-        memPutFloat(addr + 76, v2);
-        memPutShort(addr + 80, (short) 0xF0);
-        memPutShort(addr + 82, (short) 0xF0);
+        memPutFloat(addr + 68, u2);
+        memPutFloat(addr + 72, v2);
+        memPutShort(addr + 76, (short) 0xF0);
+        memPutShort(addr + 78, (short) 0xF0);
+        memPutInt(addr + 80, nativeColour);
 
         memPutFloat(addr + 84, x2);
         memPutFloat(addr + 88, y1);
         memPutFloat(addr + 92, z);
-        memPutInt(addr + 96, nativeColour);
-        memPutFloat(addr + 100, u2);
-        memPutFloat(addr + 104, v1);
-        memPutShort(addr + 108, (short) 0xF0);
-        memPutShort(addr + 110, (short) 0xF0);
+        memPutFloat(addr + 96, u2);
+        memPutFloat(addr + 100, v1);
+        memPutShort(addr + 104, (short) 0xF0);
+        memPutShort(addr + 106, (short) 0xF0);
+        memPutInt(addr + 108, nativeColour);
 
         // Finally increment the position.
         buffer.position(position + 112);

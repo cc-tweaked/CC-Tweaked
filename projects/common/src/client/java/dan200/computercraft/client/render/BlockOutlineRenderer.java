@@ -10,7 +10,7 @@ import dan200.computercraft.client.ClientHooks;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.util.ARGB;
@@ -32,20 +32,32 @@ public final class BlockOutlineRenderer {
      * @param transform    The current transformations.
      * @param bufferSource The buffer source.
      * @param renderer     The function to render a highlight.
-     * @see LevelRenderer#renderBlockOutline(MultiBufferSource.BufferSource, PoseStack, boolean, LevelRenderState)
+     * @param camera       The current camera.
+     * @param hit          The hit result of the block we're rendering.
+     * @see LevelRenderer#submitBlockOutline(PoseStack, SubmitNodeCollector, LevelRenderState)
      */
-    public static void render(PoseStack transform, MultiBufferSource bufferSource, Renderer renderer) {
+    public static void render(PoseStack transform, SubmitNodeCollector bufferSource, Renderer renderer, Camera camera, BlockHitResult hit) {
+        var cameraPos = camera.position();
+        var xOffset = hit.getBlockPos().getX() - cameraPos.x();
+        var yOffset = hit.getBlockPos().getY() - cameraPos.y();
+        var zOffset = hit.getBlockPos().getZ() - cameraPos.z();
+
+        transform.pushPose();
+        transform.translate(xOffset, yOffset, zOffset);
+
         var highContrast = Minecraft.getInstance().options.highContrastBlockOutline().get();
         if (highContrast) {
-            renderer.render(transform, bufferSource.getBuffer(RenderTypes.secondaryBlockOutline()), 0xff000000, 7f);
+            bufferSource.submitCustomGeometry(transform, RenderTypes.secondaryBlockOutline(), (p, b) -> renderer.render(p, b, 0xff000000, 7f));
         }
 
         var colour = highContrast ? CommonColors.HIGH_CONTRAST_DIAMOND : ARGB.color(0x66, CommonColors.BLACK);
-        renderer.render(transform, bufferSource.getBuffer(RenderTypes.lines()), colour, Minecraft.getInstance().getWindow().getAppropriateLineWidth());
+        bufferSource.submitCustomGeometry(transform, RenderTypes.lines(), (p, b) -> renderer.render(p, b, colour, Minecraft.getInstance().getWindow().getAppropriateLineWidth()));
+
+        transform.popPose();
     }
 
     @FunctionalInterface
     public interface Renderer {
-        void render(PoseStack transform, VertexConsumer buffer, int colour, float width);
+        void render(PoseStack.Pose transform, VertexConsumer buffer, int colour, float width);
     }
 }

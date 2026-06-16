@@ -122,7 +122,6 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
         if (state.label != null) {
             collector.submitNameTag(
                 transform, new Vec3(0.5, 1.2, 0.5), 0, Component.literal(state.label), false, state.lightCoords,
-                camera.pos.distanceToSqr(Vec3.atCenterOf(state.blockPos)), // TODO: Should we read camera from the render state instead?
                 camera
             );
         }

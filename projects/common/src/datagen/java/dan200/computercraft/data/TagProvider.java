@@ -4,18 +4,26 @@
 
 package dan200.computercraft.data;
 
+import dan200.computercraft.api.ComputerCraftBlockIds;
+import dan200.computercraft.api.ComputerCraftBlockItemIds;
+import dan200.computercraft.api.ComputerCraftItemIds;
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.integration.ExternalModTags;
-import net.minecraft.data.tags.TagAppender;
+import dan200.computercraft.shared.platform.RegistryEntry;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.tags.BlockItemTagAppender;
 import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.references.BlockIds;
+import net.minecraft.references.BlockItemIds;
+import net.minecraft.references.ItemIds;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BlockItemTagId;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 
 /**
  * Generators for block and item tags.
@@ -25,102 +33,105 @@ import net.minecraft.world.level.block.Blocks;
  */
 class TagProvider {
     public static void blockTags(TagConsumer<Block> tags) {
-        itemAndBlockTags((b, i) -> tags.tag(b));
-        tags.tag(ComputerCraftTags.Blocks.WIRED_MODEM).add(ModRegistry.Blocks.CABLE.get(), ModRegistry.Blocks.WIRED_MODEM_FULL.get());
+        itemAndBlockTags(i -> tags.tag(i.block()));
+        tags.tag(ComputerCraftTags.Blocks.WIRED_MODEM).add(ComputerCraftBlockIds.CABLE, ComputerCraftBlockIds.WIRED_MODEM_FULL);
 
         tags.tag(ComputerCraftTags.Blocks.PERIPHERAL_HUB_IGNORE).addTag(ComputerCraftTags.Blocks.WIRED_MODEM);
 
         tags.tag(ComputerCraftTags.Blocks.TURTLE_ALWAYS_BREAKABLE).addTag(BlockTags.LEAVES).add(
-            Blocks.BAMBOO, Blocks.BAMBOO_SAPLING // Bamboo isn't instabreak for some odd reason.
+            BlockItemIds.BAMBOO.block(), BlockIds.BAMBOO_SAPLING // Bamboo isn't instabreak for some odd reason.
         );
 
         tags.tag(ComputerCraftTags.Blocks.TURTLE_SHOVEL_BREAKABLE).addTag(BlockTags.MINEABLE_WITH_SHOVEL).add(
-            Blocks.MELON,
-            Blocks.PUMPKIN,
-            Blocks.CARVED_PUMPKIN,
-            Blocks.JACK_O_LANTERN
+            BlockItemIds.MELON,
+            BlockItemIds.PUMPKIN,
+            BlockItemIds.CARVED_PUMPKIN,
+            BlockItemIds.JACK_O_LANTERN
         );
 
         tags.tag(ComputerCraftTags.Blocks.TURTLE_HOE_BREAKABLE).addTag(BlockTags.CROPS).addTag(BlockTags.MINEABLE_WITH_HOE).add(
-            Blocks.CACTUS,
-            Blocks.MELON,
-            Blocks.PUMPKIN,
-            Blocks.CARVED_PUMPKIN,
-            Blocks.JACK_O_LANTERN
+            BlockItemIds.CACTUS,
+            BlockItemIds.MELON,
+            BlockItemIds.PUMPKIN,
+            BlockItemIds.CARVED_PUMPKIN,
+            BlockItemIds.JACK_O_LANTERN
         );
 
-        tags.tag(ComputerCraftTags.Blocks.TURTLE_SWORD_BREAKABLE).addTag(BlockTags.WOOL).add(Blocks.COBWEB);
+        tags.tag(ComputerCraftTags.Blocks.TURTLE_SWORD_BREAKABLE)
+            .addTag(BlockTags.WOOL)
+            .addTag(BlockTags.SWORD_INSTANTLY_MINES)
+            .add(BlockItemIds.COBWEB);
 
         tags.tag(ComputerCraftTags.Blocks.TURTLE_CAN_USE);
 
         // Make all blocks aside from command computer mineable.
         tags.tag(BlockTags.MINEABLE_WITH_PICKAXE).add(
-            ModRegistry.Blocks.COMPUTER_NORMAL.get(),
-            ModRegistry.Blocks.COMPUTER_ADVANCED.get(),
-            ModRegistry.Blocks.TURTLE_NORMAL.get(),
-            ModRegistry.Blocks.TURTLE_ADVANCED.get(),
-            ModRegistry.Blocks.SPEAKER.get(),
-            ModRegistry.Blocks.DISK_DRIVE.get(),
-            ModRegistry.Blocks.PRINTER.get(),
-            ModRegistry.Blocks.MONITOR_NORMAL.get(),
-            ModRegistry.Blocks.MONITOR_ADVANCED.get(),
-            ModRegistry.Blocks.WIRELESS_MODEM_NORMAL.get(),
-            ModRegistry.Blocks.WIRELESS_MODEM_ADVANCED.get(),
-            ModRegistry.Blocks.WIRED_MODEM_FULL.get(),
-            ModRegistry.Blocks.CABLE.get(),
-            ModRegistry.Blocks.REDSTONE_RELAY.get()
+            ComputerCraftBlockIds.COMPUTER_NORMAL,
+            ComputerCraftBlockIds.COMPUTER_ADVANCED,
+            ComputerCraftBlockIds.TURTLE_NORMAL,
+            ComputerCraftBlockIds.TURTLE_ADVANCED,
+            ComputerCraftBlockIds.SPEAKER,
+            ComputerCraftBlockIds.DISK_DRIVE,
+            ComputerCraftBlockIds.PRINTER,
+            ComputerCraftBlockIds.MONITOR_NORMAL,
+            ComputerCraftBlockIds.MONITOR_ADVANCED,
+            ComputerCraftBlockIds.WIRELESS_MODEM_NORMAL,
+            ComputerCraftBlockIds.WIRELESS_MODEM_ADVANCED,
+            ComputerCraftBlockIds.WIRED_MODEM_FULL,
+            ComputerCraftBlockIds.CABLE,
+            ComputerCraftBlockIds.REDSTONE_RELAY
         );
 
-        tags.tag(BlockTags.MINEABLE_WITH_AXE).add(ModRegistry.Blocks.LECTERN.get());
+        tags.tag(BlockTags.MINEABLE_WITH_AXE).add(ComputerCraftBlockIds.LECTERN);
 
-        tags.tag(BlockTags.WITHER_IMMUNE).add(ModRegistry.Blocks.COMPUTER_COMMAND.get());
+        tags.tag(BlockTags.WITHER_IMMUNE).add(ComputerCraftBlockIds.COMPUTER_COMMAND);
 
         tags.tag(ExternalModTags.Blocks.CREATE_BRITTLE).add(
-            ModRegistry.Blocks.CABLE.get(),
-            ModRegistry.Blocks.WIRELESS_MODEM_NORMAL.get(),
-            ModRegistry.Blocks.WIRELESS_MODEM_ADVANCED.get()
+            ComputerCraftBlockIds.CABLE,
+            ComputerCraftBlockIds.WIRELESS_MODEM_NORMAL,
+            ComputerCraftBlockIds.WIRELESS_MODEM_ADVANCED
         );
     }
 
     public static void itemTags(TagConsumer<Item> tags) {
-        itemAndBlockTags((b, i) -> tags.tag(i).map(Block::asItem));
-        tags.tag(ComputerCraftTags.Items.WIRED_MODEM).add(ModRegistry.Items.WIRED_MODEM.get(), ModRegistry.Items.WIRED_MODEM_FULL.get());
-        tags.tag(ComputerCraftTags.Items.DISKS).add(ModRegistry.Items.DISK.get(), ModRegistry.Items.TREASURE_DISK.get());
-        tags.tag(ComputerCraftTags.Items.POCKET_COMPUTERS).add(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get(), ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get());
+        itemAndBlockTags(i -> tags.tag(i.item()));
+        tags.tag(ComputerCraftTags.Items.WIRED_MODEM).add(ComputerCraftItemIds.WIRED_MODEM, item(ModRegistry.Items.WIRED_MODEM_FULL));
+        tags.tag(ComputerCraftTags.Items.DISKS).add(ComputerCraftItemIds.DISK, item(ModRegistry.Items.TREASURE_DISK));
+        tags.tag(ComputerCraftTags.Items.POCKET_COMPUTERS).add(ComputerCraftItemIds.POCKET_COMPUTER_NORMAL, item(ModRegistry.Items.POCKET_COMPUTER_ADVANCED));
 
         tags.tag(ComputerCraftTags.Items.DYEABLE)
             .addTag(ComputerCraftTags.Items.TURTLE)
-            .add(ModRegistry.Items.DISK.get(), ModRegistry.Items.POCKET_COMPUTER_NORMAL.get(), ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get());
+            .add(ComputerCraftItemIds.DISK, ComputerCraftItemIds.POCKET_COMPUTER_NORMAL, item(ModRegistry.Items.POCKET_COMPUTER_ADVANCED));
 
         tags.tag(ItemTags.PIGLIN_LOVED).add(
-            ModRegistry.Items.COMPUTER_ADVANCED.get(), ModRegistry.Items.TURTLE_ADVANCED.get(),
-            ModRegistry.Items.WIRELESS_MODEM_ADVANCED.get(), ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get(),
-            ModRegistry.Items.MONITOR_ADVANCED.get()
+            ComputerCraftItemIds.COMPUTER_ADVANCED, ComputerCraftItemIds.TURTLE_ADVANCED,
+            ComputerCraftItemIds.WIRELESS_MODEM_ADVANCED, ComputerCraftItemIds.POCKET_COMPUTER_ADVANCED,
+            ComputerCraftItemIds.MONITOR_ADVANCED
         );
 
         tags.tag(ItemTags.CAULDRON_CAN_REMOVE_DYE).addTag(ComputerCraftTags.Items.TURTLE);
 
         // Allow printed books to be placed in bookshelves.
-        tags.tag(ItemTags.BOOKSHELF_BOOKS).add(ModRegistry.Items.PRINTED_BOOK.get());
+        tags.tag(ItemTags.BOOKSHELF_BOOKS).add(item(ModRegistry.Items.PRINTED_BOOK));
 
         tags.tag(ComputerCraftTags.Items.TURTLE_CAN_PLACE)
-            .add(Items.GLASS_BOTTLE)
+            .add(ItemIds.GLASS_BOTTLE)
             .addTag(ItemTags.BOATS);
     }
 
     private static void itemAndBlockTags(BlockItemTagConsumer tags) {
-        tags.tag(ComputerCraftTags.Blocks.COMPUTER, ComputerCraftTags.Items.COMPUTER).add(
-            ModRegistry.Blocks.COMPUTER_NORMAL.get(),
-            ModRegistry.Blocks.COMPUTER_ADVANCED.get(),
-            ModRegistry.Blocks.COMPUTER_COMMAND.get()
+        tags.tag(ComputerCraftTags.BlockItems.COMPUTER).add(
+            ComputerCraftBlockItemIds.COMPUTER_NORMAL,
+            ComputerCraftBlockItemIds.COMPUTER_ADVANCED,
+            ComputerCraftBlockItemIds.COMPUTER_COMMAND
         );
-        tags.tag(ComputerCraftTags.Blocks.TURTLE, ComputerCraftTags.Items.TURTLE).add(
-            ModRegistry.Blocks.TURTLE_NORMAL.get(),
-            ModRegistry.Blocks.TURTLE_ADVANCED.get()
+        tags.tag(ComputerCraftTags.BlockItems.TURTLE).add(
+            ComputerCraftBlockItemIds.TURTLE_NORMAL,
+            ComputerCraftBlockItemIds.TURTLE_ADVANCED
         );
-        tags.tag(ComputerCraftTags.Blocks.MONITOR, ComputerCraftTags.Items.MONITOR).add(
-            ModRegistry.Blocks.MONITOR_NORMAL.get(),
-            ModRegistry.Blocks.MONITOR_ADVANCED.get()
+        tags.tag(ComputerCraftTags.BlockItems.MONITOR).add(
+            ComputerCraftBlockItemIds.MONITOR_NORMAL,
+            ComputerCraftBlockItemIds.MONITOR_ADVANCED
         );
     }
 
@@ -130,10 +141,14 @@ class TagProvider {
      * @param <T> The type of object we're providing tags for.
      */
     public interface TagConsumer<T> {
-        TagAppender<T, T> tag(TagKey<T> tag);
+        BlockItemTagAppender<T> tag(TagKey<T> tag);
     }
 
     private interface BlockItemTagConsumer {
-        TagAppender<Block, ?> tag(TagKey<Block> blockTag, TagKey<Item> itemTag);
+        BlockItemTagAppender<?> tag(BlockItemTagId tag);
+    }
+
+    private static ResourceKey<Item> item(RegistryEntry<? extends Item> entry) {
+        return ResourceKey.create(Registries.ITEM, entry.id());
     }
 }

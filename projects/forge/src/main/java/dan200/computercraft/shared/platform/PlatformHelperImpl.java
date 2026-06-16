@@ -16,9 +16,11 @@ import dan200.computercraft.api.network.wired.WiredElementCapability;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralCapability;
 import dan200.computercraft.impl.Peripherals;
+import dan200.computercraft.shared.command.UserLevel;
 import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.util.InventoryUtil;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.BlockPos;
@@ -59,19 +61,27 @@ import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.ItemAbilities;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.server.permission.PermissionAPI;
+import net.neoforged.neoforge.server.permission.events.PermissionGatherEvent;
+import net.neoforged.neoforge.server.permission.nodes.PermissionNode;
+import net.neoforged.neoforge.server.permission.nodes.PermissionType;
+import net.neoforged.neoforge.server.permission.nodes.PermissionTypes;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 @AutoService(PlatformHelper.class)
@@ -89,6 +99,11 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public <T> RegistrationHelper<T> createRegistrationHelper(ResourceKey<Registry<T>> registry) {
         return new RegistrationHelperImpl<>(DeferredRegister.create(registry, ComputerCraftAPI.MOD_ID));
+    }
+
+    @Override
+    public PermissionRegistry createPermissionRegistry() {
+        return new PermissionRegistryImpl();
     }
 
     @Override
@@ -256,6 +271,15 @@ public class PlatformHelperImpl implements PlatformHelper {
         }
 
         @Override
+        public <U extends R> RegistryEntry<U> register(ResourceKey<R> id, Supplier<U> create) {
+            if (!id.identifier().getNamespace().equals(ComputerCraftAPI.MOD_ID)) {
+                throw new IllegalArgumentException("Can only register items for ComputerCraft");
+            }
+
+            return register(id.identifier().getPath(), create);
+        }
+
+        @Override
         public void register() {
             registry().register(ComputerCraft.getEventBus());
         }
@@ -319,6 +343,39 @@ public class PlatformHelperImpl implements PlatformHelper {
 
             var cache = caches[direction.ordinal()];
             return Peripherals.getGenericPeripheral(cache.level(), cache.pos(), cache.context(), cache.level().getBlockEntity(cache.pos()));
+        }
+    }
+
+    /**
+     * An implementation of {@link PermissionRegistry} using Forge's {@link PermissionAPI}.
+     */
+    private static final class PermissionRegistryImpl extends PermissionRegistry {
+        private final List<PermissionNode<?>> nodes = new ArrayList<>();
+
+        private <T> PermissionNode<T> registerNode(String nodeName, PermissionType<T> type, PermissionNode.PermissionResolver<T> defaultResolver) {
+            checkNotFrozen();
+            var node = new PermissionNode<>(ComputerCraftAPI.MOD_ID, nodeName, type, defaultResolver);
+            nodes.add(node);
+            return node;
+        }
+
+        @Override
+        public Predicate<CommandSourceStack> registerCommand(String command, UserLevel fallback) {
+            var node = registerNode(
+                "command." + command, PermissionTypes.BOOLEAN,
+                (player, uuid, context) -> player != null && fallback.test(player)
+            );
+
+            return source -> {
+                var player = source.getPlayer();
+                return player == null ? fallback.test(source) : PermissionAPI.getPermission(player, node);
+            };
+        }
+
+        @Override
+        public void register() {
+            super.register();
+            NeoForge.EVENT_BUS.addListener((PermissionGatherEvent.Nodes event) -> event.addNodes(nodes));
         }
     }
 }

@@ -18,6 +18,7 @@ import dan200.computercraft.api.peripheral.PeripheralLookup;
 import dan200.computercraft.impl.Peripherals;
 import dan200.computercraft.mixin.ArgumentTypeInfosAccessor;
 import dan200.computercraft.shared.ComputerCraft;
+import dan200.computercraft.shared.command.UserLevel;
 import dan200.computercraft.shared.config.ConfigFile;
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.util.InventoryUtil;
@@ -29,10 +30,12 @@ import net.fabricmc.fabric.api.lookup.v1.block.BlockApiCache;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
+import net.fabricmc.fabric.api.permission.v1.PermissionNode;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 import net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -71,6 +74,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 @AutoService(PlatformHelper.class)
@@ -95,6 +99,11 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public <T> RegistrationHelper<T> createRegistrationHelper(ResourceKey<Registry<T>> registry) {
         return new RegistrationHelperImpl<>(getRegistry(registry));
+    }
+
+    @Override
+    public PermissionRegistry createPermissionRegistry() {
+        return new PermissionRegistryImpl();
     }
 
     @Override
@@ -255,7 +264,16 @@ public class PlatformHelperImpl implements PlatformHelper {
 
         @Override
         public <U extends T> RegistryEntry<U> register(String name, Supplier<U> create) {
-            var entry = new RegistryEntryImpl<>(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name), create);
+            return register(ResourceKey.create(registry.key(), Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name)), create);
+        }
+
+        @Override
+        public <U extends T> RegistryEntry<U> register(ResourceKey<T> id, Supplier<U> create) {
+            if (!id.identifier().getNamespace().equals(ComputerCraftAPI.MOD_ID)) {
+                throw new IllegalArgumentException("Can only register items for ComputerCraft");
+            }
+
+            var entry = new RegistryEntryImpl<>(id.identifier(), create);
             entries.add(entry);
             return entry;
         }
@@ -291,6 +309,19 @@ public class PlatformHelperImpl implements PlatformHelper {
             return instance;
         }
     }
+
+    private static final class PermissionRegistryImpl extends PermissionRegistry {
+        @Override
+        public Predicate<CommandSourceStack> registerCommand(String command, UserLevel fallback) {
+            checkNotFrozen();
+            var node = PermissionNode.of(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "command." + command));
+            return source -> {
+                var result = source.checkPermission(node);
+                return result == null ? fallback.test(source) : result;
+            };
+        }
+    }
+
 
     private record WrappedMenuProvider<T extends ContainerData>(
         Component title, MenuConstructor menu, T data

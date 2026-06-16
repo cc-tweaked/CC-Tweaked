@@ -2,16 +2,19 @@
     "required": true,
     "package": "dan200.computercraft.mixin.client",
     "minVersion": "0.8",
-    "compatibilityLevel": "JAVA_21",
+    "compatibilityLevel": "JAVA_25",
     "injectors": {
         "defaultRequire": 1
     },
     "client": [
+        "FeatureRenderDispatcherMixin",
         "ItemFrameRendererMixin",
-        "ItemFrameRenderStateMixin",
         "ItemInHandRendererMixin",
         "MinecraftMixin",
         "MultiPlayerGameModeMixin",
-        "SoundEngineMixin"
+        "OrderedSubmitNodeCollectorMixin",
+        "SoundEngineMixin",
+        "SubmitNodeCollectionMixin",
+        "SubmitNodeCollectorMixin"
     ]
 }

@@ -18,9 +18,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemInHandRenderer.class)
 class ItemInHandRendererMixin {
-    @Inject(method = "renderArmWithItem", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "submitArmWithItem", at = @At("HEAD"), cancellable = true)
     @SuppressWarnings("unused")
-    private void onRenderItem(
+    private void onSubmitArmWithItem(
         AbstractClientPlayer player, float partialTicks, float pitch, InteractionHand hand, float swingProgress, ItemStack stack,
         float equippedProgress, PoseStack transform, SubmitNodeCollector collector, int combinedLight, CallbackInfo ci
     ) {

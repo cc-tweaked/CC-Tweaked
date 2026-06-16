@@ -33,9 +33,11 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.renderer.feature.FeatureRenderer;
+import net.minecraft.client.renderer.feature.FeatureRendererType;
+import net.minecraft.client.renderer.feature.submit.SubmitNode;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.properties.conditional.ConditionalItemModelProperty;
 import net.minecraft.client.renderer.item.properties.select.SelectItemModelProperty;
@@ -56,7 +58,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -208,7 +209,7 @@ public final class ClientRegistry {
     }
 
     public interface RegisterPictureInPictureRenderer {
-        <T extends PictureInPictureRenderState> void register(Class<T> state, Function<MultiBufferSource.BufferSource, PictureInPictureRenderer<T>> factory);
+        <T extends PictureInPictureRenderState> void register(Class<T> state, Supplier<PictureInPictureRenderer<T>> factory);
     }
 
     public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderer register) {
@@ -217,5 +218,13 @@ public final class ClientRegistry {
 
     public static void registerDebugScreenEntries(BiConsumer<Identifier, DebugScreenEntry> register) {
         register.accept(LookingAtBlockEntityDebugEntry.ID, LookingAtBlockEntityDebugEntry.create());
+    }
+
+    public interface RegisterFeatureRenderer {
+        <T extends SubmitNode> void register(FeatureRendererType<T> type, Supplier<FeatureRenderer<T>> renderer);
+    }
+
+    public static void registerFeatureRenderers(RegisterFeatureRenderer register) {
+        register.register(MonitorBlockEntityRenderer.MonitorFeatureRenderer.TYPE, MonitorBlockEntityRenderer.MonitorFeatureRenderer::new);
     }
 }

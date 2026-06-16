@@ -6,6 +6,7 @@ package dan200.computercraft.api;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.BlockItemTagId;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -21,11 +22,11 @@ import net.minecraft.world.phys.BlockHitResult;
  * Tags provided by ComputerCraft.
  */
 public class ComputerCraftTags {
-    public static class Items {
-        public static final TagKey<Item> COMPUTER = make("computer");
-        public static final TagKey<Item> TURTLE = make("turtle");
-        public static final TagKey<Item> WIRED_MODEM = make("wired_modem");
-        public static final TagKey<Item> MONITOR = make("monitor");
+    public static final class Items {
+        public static final TagKey<Item> COMPUTER = BlockItems.COMPUTER.item();
+        public static final TagKey<Item> TURTLE = BlockItems.TURTLE.item();
+        public static final TagKey<Item> WIRED_MODEM = BlockItems.WIRED_MODEM.item();
+        public static final TagKey<Item> MONITOR = BlockItems.MONITOR.item();
 
         /**
          * Floppy disks. Both the read/write version, and treasure disks.
@@ -60,13 +61,16 @@ public class ComputerCraftTags {
         private static TagKey<Item> make(String name) {
             return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name));
         }
+
+        private Items() {
+        }
     }
 
-    public static class Blocks {
-        public static final TagKey<Block> COMPUTER = make("computer");
-        public static final TagKey<Block> TURTLE = make("turtle");
-        public static final TagKey<Block> WIRED_MODEM = make("wired_modem");
-        public static final TagKey<Block> MONITOR = make("monitor");
+    public static final class Blocks {
+        public static final TagKey<Block> COMPUTER = BlockItems.COMPUTER.block();
+        public static final TagKey<Block> TURTLE = BlockItems.TURTLE.block();
+        public static final TagKey<Block> WIRED_MODEM = BlockItems.WIRED_MODEM.block();
+        public static final TagKey<Block> MONITOR = BlockItems.MONITOR.block();
 
         /**
          * Blocks which should be ignored by a {@code peripheral_hub} peripheral.
@@ -102,8 +106,26 @@ public class ComputerCraftTags {
          */
         public static final TagKey<Block> TURTLE_CAN_USE = make("turtle_can_use");
 
+        private Blocks() {
+        }
+
         private static TagKey<Block> make(String name) {
             return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name));
+        }
+    }
+
+    public static final class BlockItems {
+        public static final BlockItemTagId COMPUTER = make("computer");
+        public static final BlockItemTagId TURTLE = make("turtle");
+        public static final BlockItemTagId WIRED_MODEM = make("wired_modem");
+        public static final BlockItemTagId MONITOR = make("monitor");
+
+        private BlockItems() {
+        }
+
+        private static BlockItemTagId make(String name) {
+            var id = Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name);
+            return BlockItemTagId.create(id, id);
         }
     }
 }

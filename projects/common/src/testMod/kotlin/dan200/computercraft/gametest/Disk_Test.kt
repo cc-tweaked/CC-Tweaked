@@ -30,7 +30,7 @@ class Disk_Test {
 
         assertThat(
             "Disk with dye",
-            helper.craftItem(ItemStack(Items.REDSTONE), ItemStack(Items.PAPER), ItemStack(Items.GREEN_DYE)),
+            helper.craftItem(ItemStack(Items.REDSTONE), ItemStack(Items.PAPER), ItemStack(Items.DYE.green)),
             isStack(DataComponentUtil.createDyedStack(ModRegistry.Items.DISK.get(), Colour.GREEN.hex)),
         )
     }

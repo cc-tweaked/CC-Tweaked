@@ -6,6 +6,7 @@ package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.client.render.PrintoutRenderer;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.PrintoutMenu;
@@ -15,7 +16,7 @@ import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import net.minecraft.network.chat.Component;
@@ -176,23 +177,20 @@ public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> 
      * multiple z-levels.
      */
     public static final class PrintoutPictureRenderer extends PictureInPictureRenderer<PrintoutRenderState> {
-        public PrintoutPictureRenderer(MultiBufferSource.BufferSource bufferSource) {
-            super(bufferSource);
-        }
-
         @Override
-        protected void renderToTexture(PrintoutRenderState state, PoseStack pose) {
+        protected void renderToTexture(PrintoutRenderState state, PoseStack pose, SubmitNodeCollector collector) {
             pose.pushPose();
             pose.translate(-0.5f * X_SIZE, -(Y_SIZE + COVER_SIZE), 0);
             pose.scale(1.0f, 1.0f, -1.0f);
 
-            var buffer = bufferSource.getBuffer(PrintoutRenderer.BACKGROUND);
-            drawBorder(pose.last().pose(), buffer, 0, 0, 0, state.page(), state.printout().pages(), state.printout().book(), LightCoordsUtil.FULL_BRIGHT);
-
-            drawText(
-                pose, bufferSource, X_TEXT_MARGIN, Y_TEXT_MARGIN, PrintoutData.LINES_PER_PAGE * state.page(), LightCoordsUtil.FULL_BRIGHT,
-                state.printout().text(), state.printout().colour()
+            collector.submitCustomGeometry(pose, PrintoutRenderer.BACKGROUND, (p, buffer) -> drawBorder(
+                p.pose(), buffer, 0, 0, 0, state.page(), state.printout().pages(), state.printout().book(), LightCoordsUtil.FULL_BRIGHT)
             );
+            collector.submitCustomGeometry(pose, FixedWidthFontRenderer.TERMINAL_TEXT, (p, buffer) -> drawText(
+                p.pose(), buffer, X_TEXT_MARGIN, Y_TEXT_MARGIN, PrintoutData.LINES_PER_PAGE * state.page(), LightCoordsUtil.FULL_BRIGHT,
+                state.printout().text(), state.printout().colour()
+            ));
+
             pose.popPose();
         }
 

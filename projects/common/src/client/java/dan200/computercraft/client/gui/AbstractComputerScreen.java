@@ -101,7 +101,7 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
 
         if (uploadNagDeadline != Long.MAX_VALUE && Util.getNanos() >= uploadNagDeadline) {
             new ItemToast(minecraft, displayStack, NO_RESPONSE_TITLE, NO_RESPONSE_MSG, ItemToast.TRANSFER_NO_RESPONSE_TOKEN)
-                .showOrReplace(minecraft.getToastManager());
+                .showOrReplace(minecraft.gui.toastManager());
             uploadNagDeadline = Long.MAX_VALUE;
         }
     }
@@ -230,7 +230,7 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
 
     private void alert(Component title, Component message) {
         OptionScreen.show(minecraft, this, title, message,
-            List.of(OptionScreen.newButton(OK, b -> minecraft.setScreen(this)))
+            List.of(OptionScreen.newButton(OK, b -> minecraft.gui.setScreen(this)))
         );
     }
 }

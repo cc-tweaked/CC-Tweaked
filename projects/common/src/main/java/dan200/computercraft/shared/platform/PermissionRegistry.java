@@ -2,28 +2,25 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package dan200.computercraft.shared.integration;
+package dan200.computercraft.shared.platform;
 
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.command.UserLevel;
-import dan200.computercraft.shared.platform.RegistrationHelper;
 import net.minecraft.commands.CommandSourceStack;
 
-import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.function.Predicate;
 
 /**
  * A registry of nodes in a permission system.
  * <p>
- * This acts as an abstraction layer over permission systems such Forge's built-in permissions API, or Fabric's
- * unofficial <a href="https://github.com/lucko/fabric-permissions-api">fabric-permissions-api-v0</a>.
+ * This acts as an abstraction layer over permission systems such Forge or Fabric's built-in permissions API.
  * <p>
- * This behaves similarly to {@link RegistrationHelper} (aka Forge's deferred registry), in that you {@linkplain #create()
- * create a registry}, {@linkplain #registerCommand(String, UserLevel) add nodes to it} and then finally {@linkplain
- * #register()} all created nodes.
+ * This behaves similarly to {@link RegistrationHelper} (aka Forge's deferred registry), in that you
+ * {@linkplain PlatformHelper#createPermissionRegistry()} create a registry},
+ * {@linkplain #registerCommand(String, UserLevel) add nodes to it} and then finally {@linkplain #register()} all
+ * created nodes.
  *
  * @see dan200.computercraft.shared.ModRegistry.Permissions
  */
@@ -55,25 +52,5 @@ public abstract class PermissionRegistry {
     @OverridingMethodsMustInvokeSuper
     public void register() {
         frozen = true;
-    }
-
-    public interface Provider {
-        Optional<PermissionRegistry> get();
-    }
-
-    public static PermissionRegistry create() {
-        return ServiceLoader.load(Provider.class)
-            .stream()
-            .flatMap(x -> x.get().get().stream())
-            .findFirst()
-            .orElseGet(DefaultPermissionRegistry::new);
-    }
-
-    private static final class DefaultPermissionRegistry extends PermissionRegistry {
-        @Override
-        public Predicate<CommandSourceStack> registerCommand(String command, UserLevel fallback) {
-            checkNotFrozen();
-            return fallback;
-        }
     }
 }

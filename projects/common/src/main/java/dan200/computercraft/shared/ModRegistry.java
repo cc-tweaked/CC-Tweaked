@@ -8,6 +8,8 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.ComputerCraftBlockIds;
+import dan200.computercraft.api.ComputerCraftItemIds;
 import dan200.computercraft.api.component.ComputerComponents;
 import dan200.computercraft.api.detail.DetailProvider;
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
@@ -44,7 +46,6 @@ import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.details.BlockDetails;
 import dan200.computercraft.shared.details.EntityDetails;
 import dan200.computercraft.shared.details.ItemDetails;
-import dan200.computercraft.shared.integration.PermissionRegistry;
 import dan200.computercraft.shared.lectern.CustomLecternBlock;
 import dan200.computercraft.shared.lectern.CustomLecternBlockEntity;
 import dan200.computercraft.shared.lectern.PocketComputerLecternMenu;
@@ -71,6 +72,7 @@ import dan200.computercraft.shared.peripheral.redstone.RedstoneRelayBlock;
 import dan200.computercraft.shared.peripheral.redstone.RedstoneRelayBlockEntity;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerBlock;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerBlockEntity;
+import dan200.computercraft.shared.platform.PermissionRegistry;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.RegistrationHelper;
 import dan200.computercraft.shared.platform.RegistryEntry;
@@ -126,6 +128,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.GameMasterBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
@@ -148,11 +151,8 @@ public final class ModRegistry {
     public static final class Blocks {
         static final RegistrationHelper<Block> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registries.BLOCK);
 
-        private static <T extends Block> RegistryEntry<T> register(String name, Function<BlockBehaviour.Properties, T> build, BlockBehaviour.Properties properties) {
-            return REGISTRY.register(name, () -> {
-                properties.setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name)));
-                return build.apply(properties);
-            });
+        private static <T extends Block> RegistryEntry<T> register(ResourceKey<Block> name, Function<BlockBehaviour.Properties, T> build, BlockBehaviour.Properties properties) {
+            return REGISTRY.register(name, () -> build.apply(properties.setId(name)));
         }
 
         private static BlockBehaviour.Properties properties() {
@@ -173,42 +173,42 @@ public final class ModRegistry {
             return BlockBehaviour.Properties.of().strength(1.5f);
         }
 
-        public static final RegistryEntry<ComputerBlock<ComputerBlockEntity>> COMPUTER_NORMAL = register("computer_normal",
+        public static final RegistryEntry<ComputerBlock<ComputerBlockEntity>> COMPUTER_NORMAL = register(ComputerCraftBlockIds.COMPUTER_NORMAL,
             p -> new ComputerBlock<>(p, BlockEntities.COMPUTER_NORMAL), redstoneConductor().mapColor(MapColor.STONE));
-        public static final RegistryEntry<ComputerBlock<ComputerBlockEntity>> COMPUTER_ADVANCED = register("computer_advanced",
+        public static final RegistryEntry<ComputerBlock<ComputerBlockEntity>> COMPUTER_ADVANCED = register(ComputerCraftBlockIds.COMPUTER_ADVANCED,
             p -> new ComputerBlock<>(p, BlockEntities.COMPUTER_ADVANCED), redstoneConductor().mapColor(MapColor.GOLD));
-        public static final RegistryEntry<ComputerBlock<ComputerBlockEntity>> COMPUTER_COMMAND = register("computer_command",
+        public static final RegistryEntry<ComputerBlock<ComputerBlockEntity>> COMPUTER_COMMAND = register(ComputerCraftBlockIds.COMPUTER_COMMAND,
             p -> new CommandComputerBlock<>(p, BlockEntities.COMPUTER_COMMAND), redstoneConductor().strength(-1, 6000000.0F));
 
-        public static final RegistryEntry<TurtleBlock> TURTLE_NORMAL = register("turtle_normal",
+        public static final RegistryEntry<TurtleBlock> TURTLE_NORMAL = register(ComputerCraftBlockIds.TURTLE_NORMAL,
             p -> new TurtleBlock(p, BlockEntities.TURTLE_NORMAL), turtleProperties().mapColor(MapColor.STONE));
-        public static final RegistryEntry<TurtleBlock> TURTLE_ADVANCED = register("turtle_advanced",
+        public static final RegistryEntry<TurtleBlock> TURTLE_ADVANCED = register(ComputerCraftBlockIds.TURTLE_ADVANCED,
             p -> new TurtleBlock(p, BlockEntities.TURTLE_ADVANCED), turtleProperties().mapColor(MapColor.GOLD).explosionResistance(TurtleBlock.IMMUNE_EXPLOSION_RESISTANCE));
 
-        public static final RegistryEntry<SpeakerBlock> SPEAKER = register("speaker", SpeakerBlock::new, properties().mapColor(MapColor.STONE));
-        public static final RegistryEntry<DiskDriveBlock> DISK_DRIVE = register("disk_drive", DiskDriveBlock::new, properties().mapColor(MapColor.STONE));
-        public static final RegistryEntry<PrinterBlock> PRINTER = register("printer", PrinterBlock::new, properties().mapColor(MapColor.STONE));
+        public static final RegistryEntry<SpeakerBlock> SPEAKER = register(ComputerCraftBlockIds.SPEAKER, SpeakerBlock::new, properties().mapColor(MapColor.STONE));
+        public static final RegistryEntry<DiskDriveBlock> DISK_DRIVE = register(ComputerCraftBlockIds.DISK_DRIVE, DiskDriveBlock::new, properties().mapColor(MapColor.STONE));
+        public static final RegistryEntry<PrinterBlock> PRINTER = register(ComputerCraftBlockIds.PRINTER, PrinterBlock::new, properties().mapColor(MapColor.STONE));
 
-        public static final RegistryEntry<MonitorBlock> MONITOR_NORMAL = register("monitor_normal",
+        public static final RegistryEntry<MonitorBlock> MONITOR_NORMAL = register(ComputerCraftBlockIds.MONITOR_NORMAL,
             p -> new MonitorBlock(p, BlockEntities.MONITOR_NORMAL), properties().mapColor(MapColor.STONE));
-        public static final RegistryEntry<MonitorBlock> MONITOR_ADVANCED = register("monitor_advanced",
+        public static final RegistryEntry<MonitorBlock> MONITOR_ADVANCED = register(ComputerCraftBlockIds.MONITOR_ADVANCED,
             p -> new MonitorBlock(p, BlockEntities.MONITOR_ADVANCED), properties().mapColor(MapColor.GOLD));
 
-        public static final RegistryEntry<WirelessModemBlock> WIRELESS_MODEM_NORMAL = register("wireless_modem_normal",
+        public static final RegistryEntry<WirelessModemBlock> WIRELESS_MODEM_NORMAL = register(ComputerCraftBlockIds.WIRELESS_MODEM_NORMAL,
             p -> new WirelessModemBlock(p, BlockEntities.WIRELESS_MODEM_NORMAL), properties().mapColor(MapColor.STONE));
-        public static final RegistryEntry<WirelessModemBlock> WIRELESS_MODEM_ADVANCED = register("wireless_modem_advanced",
+        public static final RegistryEntry<WirelessModemBlock> WIRELESS_MODEM_ADVANCED = register(ComputerCraftBlockIds.WIRELESS_MODEM_ADVANCED,
             p -> new WirelessModemBlock(p, BlockEntities.WIRELESS_MODEM_ADVANCED), properties().mapColor(MapColor.GOLD));
 
-        public static final RegistryEntry<WiredModemFullBlock> WIRED_MODEM_FULL = register("wired_modem_full",
+        public static final RegistryEntry<WiredModemFullBlock> WIRED_MODEM_FULL = register(ComputerCraftBlockIds.WIRED_MODEM_FULL,
             WiredModemFullBlock::new, modemProperties().mapColor(MapColor.STONE));
-        public static final RegistryEntry<CableBlock> CABLE = register("cable", CableBlock::new, modemProperties().mapColor(MapColor.STONE));
+        public static final RegistryEntry<CableBlock> CABLE = register(ComputerCraftBlockIds.CABLE, CableBlock::new, modemProperties().mapColor(MapColor.STONE));
 
-        public static final RegistryEntry<CustomLecternBlock> LECTERN = register("lectern", CustomLecternBlock::new,
+        public static final RegistryEntry<CustomLecternBlock> LECTERN = register(ComputerCraftBlockIds.LECTERN, CustomLecternBlock::new,
             BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.LECTERN)
                 .overrideDescription(net.minecraft.world.level.block.Blocks.LECTERN.getDescriptionId())
         );
 
-        public static final RegistryEntry<RedstoneRelayBlock> REDSTONE_RELAY = register("redstone_relay", RedstoneRelayBlock::new,
+        public static final RegistryEntry<RedstoneRelayBlock> REDSTONE_RELAY = register(ComputerCraftBlockIds.REDSTONE_RELAY, RedstoneRelayBlock::new,
             redstoneConductor().mapColor(MapColor.STONE));
     }
 
@@ -285,44 +285,44 @@ public final class ModRegistry {
             );
         }
 
-        private static <T extends Item> RegistryEntry<T> register(String name, Function<Item.Properties, T> build, Supplier<Item.Properties> properties) {
-            return REGISTRY.register(name, () -> build.apply(properties.get().setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name)))));
+        private static <T extends Item> RegistryEntry<T> register(ResourceKey<Item> name, Function<Item.Properties, T> build, Supplier<Item.Properties> properties) {
+            return REGISTRY.register(name, () -> build.apply(properties.get().setId(name)));
         }
 
-        private static <T extends Item> RegistryEntry<T> register(String name, Function<Item.Properties, T> build, Item.Properties properties) {
+        private static <T extends Item> RegistryEntry<T> register(ResourceKey<Item> name, Function<Item.Properties, T> build, Item.Properties properties) {
             return register(name, build, () -> properties);
         }
 
         private static <B extends Block, I extends Item> RegistryEntry<I> ofBlock(RegistryEntry<B> parent, BiFunction<B, Item.Properties, I> supplier, Item.Properties properties) {
-            return register(parent.id().getPath(), p -> supplier.apply(parent.get(), p), properties.useBlockDescriptionPrefix());
+            return register(ResourceKey.create(Registries.ITEM, parent.id()), p -> supplier.apply(parent.get(), p), properties.useBlockDescriptionPrefix());
         }
 
         public static final RegistryEntry<BlockItem> COMPUTER_NORMAL = ofBlock(Blocks.COMPUTER_NORMAL, BlockItem::new, properties());
         public static final RegistryEntry<BlockItem> COMPUTER_ADVANCED = ofBlock(Blocks.COMPUTER_ADVANCED, BlockItem::new, properties());
         public static final RegistryEntry<GameMasterBlockItem> COMPUTER_COMMAND = ofBlock(Blocks.COMPUTER_COMMAND, GameMasterBlockItem::new, properties());
 
-        public static final RegistryEntry<PocketComputerItem> POCKET_COMPUTER_NORMAL = register("pocket_computer_normal",
+        public static final RegistryEntry<PocketComputerItem> POCKET_COMPUTER_NORMAL = register(ComputerCraftItemIds.POCKET_COMPUTER_NORMAL,
             p -> new PocketComputerItem(p, ComputerFamily.NORMAL), dyeableProperties().stacksTo(1));
-        public static final RegistryEntry<PocketComputerItem> POCKET_COMPUTER_ADVANCED = register("pocket_computer_advanced",
+        public static final RegistryEntry<PocketComputerItem> POCKET_COMPUTER_ADVANCED = register(ComputerCraftItemIds.POCKET_COMPUTER_ADVANCED,
             p -> new PocketComputerItem(p, ComputerFamily.ADVANCED), dyeableProperties().stacksTo(1));
 
         public static final RegistryEntry<TurtleItem> TURTLE_NORMAL = ofBlock(Blocks.TURTLE_NORMAL, TurtleItem::new, dyeableProperties());
         public static final RegistryEntry<TurtleItem> TURTLE_ADVANCED = ofBlock(Blocks.TURTLE_ADVANCED, TurtleItem::new, dyeableProperties());
 
         public static final RegistryEntry<DiskItem> DISK =
-            register("disk", DiskItem::new, dyeableProperties().stacksTo(1));
+            register(ComputerCraftItemIds.DISK, DiskItem::new, dyeableProperties().stacksTo(1));
         public static final RegistryEntry<DiskItem> TREASURE_DISK =
-            register("treasure_disk", DiskItem::new, dyeableProperties().stacksTo(1));
+            register(ComputerCraftItemIds.TREASURE_DISK, DiskItem::new, dyeableProperties().stacksTo(1));
 
         private static Item.Properties printoutProperties() {
             return properties().stacksTo(1).component(DataComponents.PRINTOUT.get(), PrintoutData.EMPTY);
         }
 
-        public static final RegistryEntry<PrintoutItem> PRINTED_PAGE = register("printed_page",
+        public static final RegistryEntry<PrintoutItem> PRINTED_PAGE = register(ComputerCraftItemIds.PRINTED_PAGE,
             PrintoutItem::new, Items::printoutProperties);
-        public static final RegistryEntry<PrintoutItem> PRINTED_PAGES = register("printed_pages",
+        public static final RegistryEntry<PrintoutItem> PRINTED_PAGES = register(ComputerCraftItemIds.PRINTED_PAGES,
             PrintoutItem::new, Items::printoutProperties);
-        public static final RegistryEntry<PrintoutItem> PRINTED_BOOK = register("printed_book",
+        public static final RegistryEntry<PrintoutItem> PRINTED_BOOK = register(ComputerCraftItemIds.PRINTED_BOOK,
             PrintoutItem::new, Items::printoutProperties);
 
         public static final RegistryEntry<BlockItem> SPEAKER = ofBlock(Blocks.SPEAKER, BlockItem::new, properties());
@@ -335,9 +335,9 @@ public final class ModRegistry {
         public static final RegistryEntry<BlockItem> WIRED_MODEM_FULL = ofBlock(Blocks.WIRED_MODEM_FULL, BlockItem::new, properties());
         public static final RegistryEntry<BlockItem> REDSTONE_RELAY = ofBlock(Blocks.REDSTONE_RELAY, BlockItem::new, properties());
 
-        public static final RegistryEntry<CableBlockItem.Cable> CABLE = register("cable",
+        public static final RegistryEntry<CableBlockItem.Cable> CABLE = register(ComputerCraftItemIds.CABLE,
             p -> new CableBlockItem.Cable(Blocks.CABLE.get(), p), properties().useBlockDescriptionPrefix());
-        public static final RegistryEntry<CableBlockItem.WiredModem> WIRED_MODEM = register("wired_modem",
+        public static final RegistryEntry<CableBlockItem.WiredModem> WIRED_MODEM = register(ComputerCraftItemIds.WIRED_MODEM,
             p -> new CableBlockItem.WiredModem(Blocks.CABLE.get(), p), properties().useBlockDescriptionPrefix());
     }
 
@@ -576,7 +576,7 @@ public final class ModRegistry {
     }
 
     public static class Permissions {
-        static final PermissionRegistry REGISTRY = PermissionRegistry.create();
+        static final PermissionRegistry REGISTRY = PlatformHelper.get().createPermissionRegistry();
 
         public static final Predicate<CommandSourceStack> PERMISSION_DUMP = REGISTRY.registerCommand("dump", UserLevel.OWNER_OP);
         public static final Predicate<CommandSourceStack> PERMISSION_SHUTDOWN = REGISTRY.registerCommand("shutdown", UserLevel.OWNER_OP);
@@ -692,7 +692,7 @@ public final class ModRegistry {
         peripherals.registerForBlockEntity(ModRegistry.BlockEntities.CABLE.get(), CableBlockEntity::getPeripheral);
         peripherals.registerForBlockEntity(ModRegistry.BlockEntities.REDSTONE_RELAY.get(), (b, d) -> b.peripheral());
 
-        peripherals.registerForBlockEntity(BlockEntityType.COMMAND_BLOCK, (b, d) -> Config.enableCommandBlock ? new CommandBlockPeripheral(b) : null);
+        peripherals.registerForBlockEntity(BlockEntityTypes.COMMAND_BLOCK, (b, d) -> Config.enableCommandBlock ? new CommandBlockPeripheral(b) : null);
     }
 
     public static void registerWiredElements(BlockComponent<WiredElement, Direction> wiredElements) {

@@ -19,9 +19,9 @@ import net.minecraft.gametest.framework.StructureUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.entity.TestInstanceBlockEntity;
 import net.minecraft.world.level.storage.LevelResource;
 
@@ -46,20 +46,20 @@ class CCTestCommand {
                 var pos = StructureUtils.findNearestTest(player.blockPosition(), 15, player.level()).orElse(null);
                 if (pos == null) return error(context.getSource(), "No nearby test");
 
-                var test = player.level().getBlockEntity(pos, BlockEntityType.TEST_INSTANCE_BLOCK)
+                var test = player.level().getBlockEntity(pos, BlockEntityTypes.TEST_INSTANCE_BLOCK)
                     .flatMap(TestInstanceBlockEntity::test).orElse(null);
                 if (test == null) return error(context.getSource(), "No nearby structure block");
 
                 // Kill the existing armor stand
                 var level = player.level();
-                level.getEntities(EntityType.ARMOR_STAND, x -> x.isAlive() && x.getName().getString().equals(test.identifier().getPath()))
+                level.getEntities(EntityTypes.ARMOR_STAND, x -> x.isAlive() && x.getName().getString().equals(test.identifier().getPath()))
                     .forEach(e -> e.kill(level));
 
                 // And create a new one
                 var nbt = new CompoundTag();
                 nbt.putBoolean("Marker", true);
                 nbt.putBoolean("Invisible", true);
-                var armorStand = new ArmorStand(EntityType.ARMOR_STAND, level);
+                var armorStand = new ArmorStand(EntityTypes.ARMOR_STAND, level);
                 armorStand.setInvisible(true);
                 ((ArmorStandAccessor) armorStand).computercraft$setMarker(true);
                 armorStand.copyPosition(player);
@@ -75,7 +75,7 @@ class CCTestCommand {
                 var pos = StructureUtils.findNearestTest(player.blockPosition(), 15, player.level()).orElse(null);
                 if (pos == null) return error(context.getSource(), "No nearby test");
 
-                var test = player.level().getBlockEntity(pos, BlockEntityType.TEST_INSTANCE_BLOCK)
+                var test = player.level().getBlockEntity(pos, BlockEntityTypes.TEST_INSTANCE_BLOCK)
                     .flatMap(TestInstanceBlockEntity::test).orElse(null);
                 if (test == null) return error(context.getSource(), "No nearby structure block");
 

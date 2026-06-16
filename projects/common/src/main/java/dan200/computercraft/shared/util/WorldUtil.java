@@ -10,7 +10,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -174,7 +174,7 @@ public final class WorldUtil {
         private final Block block;
 
         ContextlessClipContext(Level level, Vec3 from, Vec3 to, Block block, Fluid fluid) {
-            super(from, to, block, fluid, new ItemEntity(EntityType.ITEM, level));
+            super(from, to, block, fluid, new ItemEntity(EntityTypes.ITEM, level));
             this.block = block;
         }
 

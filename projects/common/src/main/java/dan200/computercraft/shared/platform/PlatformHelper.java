@@ -90,6 +90,13 @@ public interface PlatformHelper {
     <T> RegistrationHelper<T> createRegistrationHelper(ResourceKey<Registry<T>> registry);
 
     /**
+     * Create a new {@linkplain PermissionRegistry registry for permissions}.
+     *
+     * @return The newly created permission registry.
+     */
+    PermissionRegistry createPermissionRegistry();
+
+    /**
      * Register a new argument type.
      *
      * @param klass The argument type we're registering.

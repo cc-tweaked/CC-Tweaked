@@ -33,6 +33,17 @@ public interface RegistrationHelper<T> {
     <U extends T> RegistryEntry<U> register(String name, Supplier<U> create);
 
     /**
+     * Register an entry in this helper. This does <em>NOT</em> immediately register the object in the underlying
+     * {@link Registry}.
+     *
+     * @param id     The id of this entry.
+     * @param create A factory method to create the entry.
+     * @param <U>    The type of this item in the registry.
+     * @return The {@link RegistryEntry} for the registered entry.
+     */
+    <U extends T> RegistryEntry<U> register(ResourceKey<T> id, Supplier<U> create);
+
+    /**
      * Register this helper.
      */
     void register();

@@ -52,7 +52,7 @@ public final class OptionScreen extends Screen {
     }
 
     public static void show(Minecraft minecraft, Screen originalScreen, Component title, Component message, List<AbstractWidget> buttons) {
-        minecraft.setScreen(new OptionScreen(title, message, buttons, unwrap(originalScreen)));
+        minecraft.gui.setScreen(new OptionScreen(title, message, buttons, unwrap(originalScreen)));
     }
 
     @Contract("!null -> !null")
@@ -106,7 +106,7 @@ public final class OptionScreen extends Screen {
 
     @Override
     public void onClose() {
-        minecraft.setScreen(originalScreen);
+        minecraft.gui.setScreen(originalScreen);
     }
 
     public static AbstractWidget newButton(Component component, Button.OnPress clicked) {

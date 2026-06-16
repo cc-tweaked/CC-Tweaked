@@ -8,7 +8,7 @@ import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 
 /**
  * The main entry point for our example mod.
@@ -25,7 +25,7 @@ public class FabricExampleMod implements ModInitializer {
         ExampleMod.registerComputerCraft();
 
         // @start region=peripherals
-        PeripheralLookup.get().registerForBlockEntity((f, s) -> new BrewingStandPeripheral(f), BlockEntityType.BREWING_STAND);
+        PeripheralLookup.get().registerForBlockEntity((f, s) -> new BrewingStandPeripheral(f), BlockEntityTypes.BREWING_STAND);
         // @end region=peripherals
     }
 }

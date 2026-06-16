@@ -25,9 +25,8 @@ sub-commands. Each sub-command creates a `computercraft.command.NAME` permission
 execute it.
 
 [LuckPerms]: https://github.com/LuckPerms/LuckPerms/ "A permissions plugin for Minecraft servers."
-[fabric-permission-api]: https://github.com/lucko/fabric-permissions-api "A simple permissions API for Fabric"
 
-[^permission]: This supports any mod which uses Forge's permission API or [fabric-permission-api].
+[^permission]: This supports any mod which uses NeoForge's or Fabric's permission API.
 
 ## Computer selectors {#computer-selectors}
 Some commands (such as [`tp`] or [`turn-on`]) target a specific computer, or a list of computers. To specify which

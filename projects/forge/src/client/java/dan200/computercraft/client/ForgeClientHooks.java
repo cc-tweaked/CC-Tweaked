@@ -49,8 +49,8 @@ public final class ForgeClientHooks {
         var renderer = ClientHooks.drawHighlight(event.getCamera(), event.getHitResult());
         if (renderer == null) return;
 
-        event.addCustomRenderer((state, buffers, transform, translucentPass, renderState) -> {
-            BlockOutlineRenderer.render(transform, buffers, renderer);
+        event.addCustomRenderer((state, buffers, transform, renderState) -> {
+            BlockOutlineRenderer.render(transform, buffers, renderer, event.getCamera(), event.getHitResult());
             return true;
         });
     }

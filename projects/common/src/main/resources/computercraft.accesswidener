@@ -7,12 +7,12 @@ accessWidener v1 official
 # Shared vanilla and Fabric access wideners. This should not include things already exposed by Fabric's transitive
 # wideners.
 
-accessible class net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier
-accessible method net/minecraft/world/level/block/entity/BlockEntityType <init> (Lnet/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier;Ljava/util/Set;)V
-
 # ClientTableFormatter
 accessible field net/minecraft/client/gui/components/ChatComponent allMessages Ljava/util/List;
 accessible method net/minecraft/client/gui/components/ChatComponent addMessage (Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/multiplayer/chat/GuiMessageSource;Lnet/minecraft/client/multiplayer/chat/GuiMessageTag;)V
+
+# NoTermComputerScreen
+accessible field net/minecraft/client/gui/Gui screen Lnet/minecraft/client/gui/screens/Screen;
 
 # ItemPocketRenderer/ItemPrintoutRenderer
 accessible method net/minecraft/client/renderer/ItemInHandRenderer calculateMapTilt (F)F

@@ -17,7 +17,7 @@ import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.gametest.framework.GameTestSequence
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.inventory.MenuType
 import java.util.concurrent.CompletableFuture
@@ -68,14 +68,14 @@ fun GameTestSequence.thenScreenshot(name: String? = null, showGui: Boolean = fal
 
     // Now disable the GUI, take a screenshot and reenable it. Sleep a little afterwards to ensure the render thread
     // has caught up.
-    thenOnClient { minecraft.options.hideGui = !showGui }
+    thenOnClient { if (minecraft.gui.hud.isHidden == showGui) minecraft.gui.hud.toggle() }
     thenIdle(2)
 
     // Take a screenshot and wait for it to have finished.
     val hasScreenshot = AtomicBoolean()
     thenOnClient { screenshot("$fullName.png") { hasScreenshot.set(true) } }
     thenWaitUntil { if (!hasScreenshot.get()) abort("Screenshot does not exist") }
-    thenOnClient { minecraft.options.hideGui = false }
+    thenOnClient { if (minecraft.gui.hud.isHidden) minecraft.gui.hud.toggle() }
 
     return this
 }
@@ -91,7 +91,7 @@ fun ServerPlayer.setupForTest() {
  * Position the player at an armor stand.
  */
 fun GameTestHelper.positionAtArmorStand() {
-    val stand = getEntity(EntityType.ARMOR_STAND)
+    val stand = getEntity(EntityTypes.ARMOR_STAND)
     val player = level.randomPlayer ?: abort("Player does not exist")
 
     player.setupForTest()
@@ -116,7 +116,7 @@ class ClientTestHelper {
     val minecraft: Minecraft = Minecraft.getInstance()
 
     fun screenshot(name: String, callback: () -> Unit = {}) {
-        Screenshot.grab(minecraft.gameDirectory, name, minecraft.mainRenderTarget, 1) { callback() }
+        Screenshot.grab(minecraft.gameDirectory, name, minecraft.gameRenderer.mainRenderTarget(), 1) { callback() }
     }
 
     /**
@@ -125,7 +125,7 @@ class ClientTestHelper {
     fun <T : AbstractContainerMenu> getOpenMenu(type: MenuType<T>): T {
         fun getName(type: MenuType<*>) = RegistryHelper.getKeyOrThrow(BuiltInRegistries.MENU, type)
 
-        val screen = minecraft.screen
+        val screen = minecraft.gui.screen()
         @Suppress("UNCHECKED_CAST")
         when {
             screen == null -> throw GameTestAssertException(Component.literal("Expected a ${getName(type)} menu, but no screen is open"), 0)

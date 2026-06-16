@@ -13,6 +13,7 @@ import dan200.computercraft.client.platform.ClientNetworkContextImpl;
 import dan200.computercraft.client.platform.FabricModelKey;
 import dan200.computercraft.client.platform.ModelKey;
 import dan200.computercraft.client.render.BlockOutlineRenderer;
+import dan200.computercraft.client.render.ExtendedItemFrameRenderState;
 import dan200.computercraft.shared.ComputerCraft;
 import dan200.computercraft.shared.config.ConfigSpec;
 import dan200.computercraft.shared.network.NetworkMessages;
@@ -25,6 +26,7 @@ import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedExtraModel;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.PictureInPictureRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
@@ -32,7 +34,6 @@ import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.item.ItemModels;
 import net.minecraft.client.renderer.item.properties.conditional.ConditionalItemModelProperties;
 import net.minecraft.client.renderer.item.properties.select.SelectItemModelProperties;
@@ -46,9 +47,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ComputerCraftClient {
+    public static final RenderStateDataKey<ExtendedItemFrameRenderState> ITEM_FRAME_STATE = RenderStateDataKey.create(() -> "Extended item frame");
+
     public static void init() {
         var clientNetwork = new ClientNetworkContextImpl();
         for (var type : NetworkMessages.getClientbound()) {
@@ -78,8 +81,8 @@ public class ComputerCraftClient {
 
         ClientRegistry.registerPictureInPictureRenderers(new ClientRegistry.RegisterPictureInPictureRenderer() {
             @Override
-            public <T extends PictureInPictureRenderState> void register(Class<T> ty, Function<MultiBufferSource.BufferSource, PictureInPictureRenderer<T>> f) {
-                PictureInPictureRendererRegistry.register(c -> f.apply(c.bufferSource()));
+            public <T extends PictureInPictureRenderState> void register(Class<T> ty, Supplier<PictureInPictureRenderer<T>> f) {
+                PictureInPictureRendererRegistry.register(c -> f.get());
             }
         });
 
@@ -92,11 +95,11 @@ public class ComputerCraftClient {
                 return true;
             }
 
-            var camera = context.gameRenderer().getMainCamera();
+            var camera = context.gameRenderer().mainCamera();
             var renderer = ClientHooks.drawHighlight(camera, blockHit);
             if (renderer == null) return true;
 
-            BlockOutlineRenderer.render(context.poseStack(), context.bufferSource(), renderer);
+            BlockOutlineRenderer.render(context.poseStack(), context.submitNodeCollector(), renderer, camera, blockHit);
             return false;
         });
 

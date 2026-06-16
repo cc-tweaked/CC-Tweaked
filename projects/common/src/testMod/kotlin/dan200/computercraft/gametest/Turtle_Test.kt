@@ -41,6 +41,7 @@ import net.minecraft.core.registries.Registries
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.item.PrimedTnt
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
@@ -129,7 +130,7 @@ class Turtle_Test {
         thenOnComputer {
             turtle.placeDown(ObjectArguments()).await().assertArrayEquals(true, message = "Placed boat")
         }
-        thenExecute { helper.assertEntityPresent(EntityType.OAK_BOAT) }
+        thenExecute { helper.assertEntityPresent(EntityTypes.OAK_BOAT) }
     }
 
     /**
@@ -485,7 +486,7 @@ class Turtle_Test {
             tnt.fuse = 1
             helper.level.addFreshEntity(tnt)
         }
-        thenWaitUntil { helper.assertEntityNotPresent(EntityType.TNT) }
+        thenWaitUntil { helper.assertEntityNotPresent(EntityTypes.TNT) }
         thenExecute {
             helper.assertBlockPresent(ModRegistry.Blocks.TURTLE_ADVANCED.get(), BlockPos(2, 1, 2))
             helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 1, 1))
@@ -497,8 +498,8 @@ class Turtle_Test {
      */
     @GameTest
     fun Resists_entity_explosions(helper: GameTestHelper) = helper.sequence {
-        thenExecute { helper.getEntity(EntityType.CREEPER).ignite() }
-        thenWaitUntil { helper.assertEntityNotPresent(EntityType.CREEPER) }
+        thenExecute { helper.getEntity(EntityTypes.CREEPER).ignite() }
+        thenWaitUntil { helper.assertEntityNotPresent(EntityTypes.CREEPER) }
         thenExecute {
             helper.assertBlockPresent(ModRegistry.Blocks.TURTLE_ADVANCED.get(), BlockPos(2, 1, 2))
             helper.assertBlockPresent(ModRegistry.Blocks.TURTLE_NORMAL.get(), BlockPos(2, 1, 1))
@@ -529,7 +530,7 @@ class Turtle_Test {
     @GameTest
     fun Drop_into_entity(helper: GameTestHelper) = helper.sequence {
         // When running /test runthis, the previous items pop from the chest. Remove them first!
-        thenExecute { for (it in helper.getEntities(EntityType.ITEM)) it.discard() }
+        thenExecute { for (it in helper.getEntities(EntityTypes.ITEM)) it.discard() }
 
         thenOnComputer {
             turtle.drop(Optional.of(32)).await()
@@ -537,8 +538,8 @@ class Turtle_Test {
         }
         thenExecute {
             helper.assertContainerExactly(BlockPos(2, 1, 2), listOf(ItemStack(Blocks.DIRT, 32)))
-            helper.assertContainerExactly(helper.getEntity(EntityType.CHEST_MINECART), listOf(ItemStack(Blocks.DIRT, 48)))
-            helper.assertEntityNotPresent(EntityType.ITEM)
+            helper.assertContainerExactly(helper.getEntity(EntityTypes.CHEST_MINECART), listOf(ItemStack(Blocks.DIRT, 48)))
+            helper.assertEntityNotPresent(EntityTypes.ITEM)
         }
     }
 
@@ -621,7 +622,7 @@ class Turtle_Test {
             assertEquals("turtle_test.move_preserves_state", turtle.label)
             assertEquals(79, turtle.access.fuelLevel)
 
-            helper.assertEntityNotPresent(EntityType.ITEM)
+            helper.assertEntityNotPresent(EntityTypes.ITEM)
         }
     }
 
@@ -677,9 +678,9 @@ class Turtle_Test {
 
             // As has the villager
             val pos = BlockPos(2, 3, 2)
-            helper.assertEntityPresent(EntityType.VILLAGER, pos)
+            helper.assertEntityPresent(EntityTypes.VILLAGER, pos)
 
-            val villager = helper.getEntity(EntityType.VILLAGER)
+            val villager = helper.getEntity(EntityTypes.VILLAGER)
             val expectedY = helper.absolutePos(pos).y - 0.125
             if (villager.y < expectedY) helper.abort("Expected villager at y>=$expectedY, but at ${villager.y}", pos)
         }
@@ -695,9 +696,9 @@ class Turtle_Test {
             turtle.attack(Optional.empty()).await().assertArrayEquals(true, message = "Attacked entity")
         }
         thenExecute {
-            helper.assertEntityNotPresent(EntityType.SHEEP)
+            helper.assertEntityNotPresent(EntityTypes.SHEEP)
             val count = helper.getBlockEntity(turtlePos, TurtleBlockEntity::class.java)
-                .countItem(Items.WHITE_WOOL)
+                .countItem(Items.WOOL.white)
             if (count == 0) helper.abort("Expected turtle to have white wool", turtlePos)
         }
     }

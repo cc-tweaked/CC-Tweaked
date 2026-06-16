@@ -22,6 +22,7 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.LevelAccessor
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.world.level.block.entity.BlockEntityTypes
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager
@@ -91,7 +92,7 @@ object TestHooks {
 
         val level = server.overworld()
         StructureUtils.findTestBlocks(getTestOrigin(server), 200, level).toList().forEach { pos ->
-            val test = level.getBlockEntity(pos, BlockEntityType.TEST_INSTANCE_BLOCK).getOrNull() ?: return@forEach
+            val test = level.getBlockEntity(pos, BlockEntityTypes.TEST_INSTANCE_BLOCK).getOrNull() ?: return@forEach
             StructureUtils.clearSpaceForStructure(test.structureBoundingBox, level)
         }
 

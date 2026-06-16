@@ -25,6 +25,7 @@ public class LevelRendererMixin {
     @ModifyExpressionValue(
         method = "submitBlockDestroyAnimation", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;")
     )
+    @SuppressWarnings("unused")
     private Object submitBlockDestroyAnimation(Object breaking) {
         return getBlockDamageState((BlockBreakingRenderState) breaking);
     }

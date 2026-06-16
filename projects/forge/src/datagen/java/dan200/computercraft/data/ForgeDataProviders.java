@@ -14,8 +14,11 @@ import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.tags.BlockItemTagAppender;
 import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.references.BlockItemId;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -63,7 +66,12 @@ public class ForgeDataProviders {
             return add(out -> new BlockTagsProvider(out, registries, ComputerCraftAPI.MOD_ID) {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
-                    tags.accept(this::tag);
+                    tags.accept(tag -> new BlockItemTagAppender<>(tag(tag)) {
+                        @Override
+                        protected ResourceKey<Block> convertElement(BlockItemId blockItemId) {
+                            return blockItemId.block();
+                        }
+                    });
                 }
             });
         }
@@ -73,7 +81,12 @@ public class ForgeDataProviders {
             return add(out -> new ItemTagsProvider(out, registries, ComputerCraftAPI.MOD_ID) {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
-                    tags.accept(this::tag);
+                    tags.accept(tag -> new BlockItemTagAppender<Item>(tag(tag)) {
+                        @Override
+                        protected ResourceKey<Item> convertElement(BlockItemId blockItemId) {
+                            return blockItemId.item();
+                        }
+                    });
                 }
             });
         }

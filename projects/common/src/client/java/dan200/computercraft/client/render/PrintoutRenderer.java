@@ -4,13 +4,11 @@
 
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.media.items.PrintoutData;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
@@ -73,11 +71,10 @@ public final class PrintoutRenderer {
     private PrintoutRenderer() {
     }
 
-    public static void drawText(PoseStack transform, MultiBufferSource bufferSource, int x, int y, int start, int light, TextBuffer[] text, TextBuffer[] colours) {
-        var buffer = bufferSource.getBuffer(FixedWidthFontRenderer.TERMINAL_TEXT);
+    public static void drawText(Matrix4f matrix, VertexConsumer buffer, int x, int y, int start, int light, TextBuffer[] text, TextBuffer[] colours) {
         for (var line = 0; line < LINES_PER_PAGE && line < text.length; line++) {
             FixedWidthFontRenderer.drawString(
-                transform.last().pose(), buffer,
+                matrix, buffer,
                 x, y + line * FONT_HEIGHT, text[start + line], colours[start + line],
                 Palette.DEFAULT, light
             );

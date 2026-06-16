@@ -52,7 +52,7 @@ public class Exporter {
     private static void run(String path) {
         var output = new File(path).getAbsoluteFile().toPath();
         if (!Files.isDirectory(output)) {
-            Minecraft.getInstance().gui.getChat().addClientSystemMessage(Component.literal("Output path does not exist"));
+            Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(Component.literal("Output path does not exist"));
             return;
         }
 
@@ -63,7 +63,7 @@ public class Exporter {
             throw new UncheckedIOException(e);
         }
 
-        Minecraft.getInstance().gui.getChat().addClientSystemMessage(Component.literal("Export finished!"));
+        Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(Component.literal("Export finished!"));
     }
 
     private static void export(Path root) throws IOException {

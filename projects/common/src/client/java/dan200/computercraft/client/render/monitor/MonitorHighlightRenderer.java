@@ -31,7 +31,6 @@ public final class MonitorHighlightRenderer {
         if (player == null || player.isCrouching()) return null;
 
         var pos = hit.getBlockPos();
-
         if (!(player.level().getBlockEntity(pos) instanceof MonitorBlockEntity monitor)) return null;
 
         // Determine which sides are part of the external faces of the monitor, and so which need to be rendered.
@@ -43,17 +42,7 @@ public final class MonitorHighlightRenderer {
         if (monitor.getYIndex() != 0) faces.remove(monitor.getDown().getOpposite());
         if (monitor.getYIndex() != monitor.getHeight() - 1) faces.remove(monitor.getDown());
 
-        var cameraPos = camera.position();
-        var xOffset = pos.getX() - cameraPos.x();
-        var yOffset = pos.getY() - cameraPos.y();
-        var zOffset = pos.getZ() - cameraPos.z();
-
-        return (transform, buffer, colour, width) -> {
-            transform.pushPose();
-            transform.translate(xOffset, yOffset, zOffset);
-            draw(buffer, transform.last(), faces, colour, width);
-            transform.popPose();
-        };
+        return (transform, buffer, colour, width) -> draw(buffer, transform, faces, colour, width);
     }
 
     private static void draw(VertexConsumer buffer, PoseStack.Pose transform, EnumSet<Direction> faces, int colour, float width) {

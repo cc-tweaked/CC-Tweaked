@@ -4,7 +4,7 @@ import com.example.examplemod.peripheral.BrewingStandPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralCapability;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -34,7 +34,7 @@ public class ForgeExampleMod {
 
         // @start region=peripherals
         modBus.addListener((RegisterCapabilitiesEvent event) -> {
-            event.registerBlockEntity(PeripheralCapability.get(), BlockEntityType.BREWING_STAND, (b, d) -> new BrewingStandPeripheral(b));
+            event.registerBlockEntity(PeripheralCapability.get(), BlockEntityTypes.BREWING_STAND, (b, d) -> new BrewingStandPeripheral(b));
         });
         // @end region=peripherals
     }

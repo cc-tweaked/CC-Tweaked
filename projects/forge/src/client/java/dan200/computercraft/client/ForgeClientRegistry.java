@@ -14,6 +14,9 @@ import dan200.computercraft.client.render.ExtendedItemFrameRenderState;
 import dan200.computercraft.shared.network.NetworkMessages;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.ItemFrameRenderer;
+import net.minecraft.client.renderer.feature.FeatureRenderer;
+import net.minecraft.client.renderer.feature.FeatureRendererType;
+import net.minecraft.client.renderer.feature.submit.SubmitNode;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelDebugName;
 import net.minecraft.client.resources.model.ResolvableModel;
@@ -32,6 +35,7 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 
 /**
@@ -121,6 +125,16 @@ public final class ForgeClientRegistry {
     @SubscribeEvent
     public static void registerDebugScreenEntries(RegisterDebugEntriesEvent event) {
         ClientRegistry.registerDebugScreenEntries(event::register);
+    }
+
+    @SubscribeEvent
+    public static void registerFeatureRenderers(RegisterFeatureRenderersEvent event) {
+        ClientRegistry.registerFeatureRenderers(new ClientRegistry.RegisterFeatureRenderer() {
+            @Override
+            public <T extends SubmitNode> void register(FeatureRendererType<T> type, Supplier<FeatureRenderer<T>> renderer) {
+                event.register(type, renderer.get());
+            }
+        });
     }
 
     @SubscribeEvent

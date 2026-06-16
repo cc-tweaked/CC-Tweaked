@@ -11,6 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.Services;
 import net.minecraft.server.WorldStem;
 import net.minecraft.server.level.progress.LevelLoadListener;
+import net.minecraft.server.notifications.NotificationManager;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -27,9 +28,9 @@ abstract class GameTestServerMixin extends MinecraftServer {
     GameTestServerMixin(
         Thread serverThread, LevelStorageSource.LevelStorageAccess storageSource, PackRepository packRepository,
         WorldStem worldStem, Optional<GameRules> gameRules, Proxy proxy, DataFixer fixerUpper, Services services,
-        LevelLoadListener progressListenerFactory, boolean propagatesCrashes
+        LevelLoadListener progressListenerFactory, boolean propagatesCrashes, NotificationManager notificationManager
     ) {
-        super(serverThread, storageSource, packRepository, worldStem, gameRules, proxy, fixerUpper, services, progressListenerFactory, propagatesCrashes);
+        super(serverThread, storageSource, packRepository, worldStem, gameRules, proxy, fixerUpper, services, progressListenerFactory, propagatesCrashes, notificationManager);
     }
 
     /**

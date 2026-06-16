@@ -30,6 +30,7 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.clock.WorldClock
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.ItemStackTemplate
@@ -294,7 +295,7 @@ fun GameTestHelper.assertNoPeripheral(pos: BlockPos, direction: Direction = Dire
 }
 
 fun GameTestHelper.assertExactlyItems(vararg expected: ItemStack, message: String? = null) {
-    val actual = getEntities(EntityType.ITEM).map { it.item }
+    val actual = getEntities(EntityTypes.ITEM).map { it.item }
     val matcher = Matchers.containsInAnyOrder(expected.map { isStack(it) })
     if (!matcher.matches(actual)) {
         val description = StringDescription()
@@ -307,7 +308,7 @@ fun GameTestHelper.assertExactlyItems(vararg expected: ItemStack, message: Strin
  * Similar to [GameTestHelper.assertItemEntityCountIs], but searching anywhere in the structure bounds.
  */
 fun GameTestHelper.assertItemEntityCountIs(expected: Item, count: Int) {
-    val actualCount = getEntities(EntityType.ITEM).sumOf { if (it.item.`is`(expected)) it.item.count else 0 }
+    val actualCount = getEntities(EntityTypes.ITEM).sumOf { if (it.item.`is`(expected)) it.item.count else 0 }
     if (actualCount != count) {
         abort("Expected $count ${ItemStack(expected).itemName.string} items to exist (found $actualCount)")
     }
