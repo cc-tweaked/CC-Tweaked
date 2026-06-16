@@ -12,7 +12,7 @@ body:
     options:
       - "1.20.1"
       - "1.21.1"
-      - "26.1"
+      - "26.2"
   validations:
     required: true
 - type: input

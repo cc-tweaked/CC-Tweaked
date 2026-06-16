@@ -1,6 +1,6 @@
 # New features in CC: Tweaked 1.120.0
 
-* Support spawning new parallel functions in `parallel.watiForAll`.
+* Support spawning new parallel functions in `parallel.waitForAll`.
 
 One bug fix:
 * Make HTTP IP filtering stricter.
