@@ -49,10 +49,7 @@ jobs:
         pre-commit run --show-diff-on-failure --color=always
 
     - name: 🧪 Run tests
-      run: ./gradlew test validateMixinNames checkChangelog
-
-    - name: 📥 Download assets for game tests
-      run: ./gradlew downloadAssets || ./gradlew downloadAssets
+      run: ./gradlew check -x runGametest
 
     - name: 🧪 Run integration tests
       run: ./gradlew runGametest
