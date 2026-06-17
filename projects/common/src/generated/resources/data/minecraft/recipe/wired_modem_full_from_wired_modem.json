@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "category": "misc",
   "ingredients": ["computercraft:wired_modem"],
   "result": {"id": "computercraft:wired_modem_full"}
 }
