@@ -13,7 +13,6 @@ SPDX-License-Identifier = "CC0-1.0"
 path = [
     # Generated/data files are CC0.
     "gradle/gradle-daemon-jvm.properties",
-    "gradle/verification-keyring.keys",
     "gradle/verification-metadata.xml",
     "projects/common/src/main/resources/assets/computercraft/sounds.json",
     "projects/common/src/main/resources/assets/computercraft/sounds/empty.ogg",
