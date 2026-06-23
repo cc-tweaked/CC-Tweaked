@@ -11,7 +11,6 @@ import dan200.computercraft.client.render.monitor.MonitorRenderState;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
-import net.fabricmc.fabric.api.client.rendering.v1.FabricOrderedSubmitNodeCollector;
 import net.fabricmc.fabric.api.client.rendering.v1.SubmitRenderPhases;
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
 import net.minecraft.client.resources.model.ModelDebugName;
@@ -26,8 +25,7 @@ public class ClientPlatformHelperImpl implements ClientPlatformHelper {
     @Override
     public void submitMonitor(OrderedSubmitNodeCollector collector, PoseStack poseStack, ClientMonitor monitor, Terminal terminal, float xMargin, float yMargin) {
         var renderState = monitor.getRenderState(MonitorRenderState::new);
-        // FIXME: The interface injection doesn't seem to be correctly applied here.
-        ((FabricOrderedSubmitNodeCollector) collector).submitCustom(
+        collector.submitCustom(
             SubmitRenderPhases.SOLID, new MonitorBlockEntityRenderer.MonitorSubmit(poseStack.last().copy(), monitor, terminal, renderState, xMargin, yMargin)
         );
     }
