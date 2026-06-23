@@ -24,6 +24,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.model.loading.v1.PreparableModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.UnbakedExtraModel;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.rendering.v1.FeatureRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.PictureInPictureRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
@@ -85,6 +86,8 @@ public class ComputerCraftClient {
                 PictureInPictureRendererRegistry.register(c -> f.get());
             }
         });
+
+        ClientRegistry.registerFeatureRenderers(FeatureRendererRegistry::register);
 
         ClientTickEvents.START_CLIENT_TICK.register(client -> ClientHooks.onTick());
         // This isn't 100% consistent with Forge, but not worth a mixin.

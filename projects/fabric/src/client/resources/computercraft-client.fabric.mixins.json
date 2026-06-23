@@ -7,14 +7,10 @@
         "defaultRequire": 1
     },
     "client": [
-        "FeatureRenderDispatcherMixin",
         "ItemFrameRendererMixin",
         "ItemInHandRendererMixin",
         "MinecraftMixin",
         "MultiPlayerGameModeMixin",
-        "OrderedSubmitNodeCollectorMixin",
-        "SoundEngineMixin",
-        "SubmitNodeCollectionMixin",
-        "SubmitNodeCollectorMixin"
+        "SoundEngineMixin"
     ]
 }
