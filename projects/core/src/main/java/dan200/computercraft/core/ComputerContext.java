@@ -12,7 +12,7 @@ import dan200.computercraft.core.computer.computerthread.ComputerScheduler;
 import dan200.computercraft.core.computer.computerthread.ComputerThread;
 import dan200.computercraft.core.computer.mainthread.MainThreadScheduler;
 import dan200.computercraft.core.computer.mainthread.NoWorkMainThreadScheduler;
-import dan200.computercraft.core.lua.CobaltLuaMachine;
+import dan200.computercraft.core.luajit.LuaJITMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.lua.MachineEnvironment;
 import dan200.computercraft.core.methods.LuaMethod;
@@ -239,7 +239,7 @@ public final class ComputerContext {
                 environment,
                 computerScheduler == null ? new ComputerThread(1) : computerScheduler,
                 mainThreadScheduler == null ? new NoWorkMainThreadScheduler() : mainThreadScheduler,
-                luaFactory == null ? CobaltLuaMachine::new : luaFactory,
+                luaFactory == null ? LuaJITMachine::new : luaFactory,
                 LuaMethodSupplier.create(genericMethods == null ? List.of() : genericMethods),
                 PeripheralMethodSupplier.create(genericMethods == null ? List.of() : genericMethods)
             );

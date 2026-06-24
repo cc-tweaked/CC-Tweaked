@@ -26,6 +26,7 @@ dependencies {
     implementation(libs.netty.socks)
     implementation(libs.netty.proxy)
     implementation(libs.slf4j)
+    implementation(libs.jna)
 
     testFixturesImplementation(libs.slf4j)
     testFixturesApi(platform(libs.kotlin.platform))

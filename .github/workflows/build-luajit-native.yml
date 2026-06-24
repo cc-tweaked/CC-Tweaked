@@ -1,0 +1,54 @@
+name: Build LuaJIT native libraries
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-luajit:
+    name: Build LuaJIT for ${{ matrix.target.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - name: linux-x86-64
+            cc: gcc
+            ar: ar
+            sys: Linux
+            lib: libluajit.so
+            makeflags: "BUILDMODE=static CC=gcc CFLAGS=-O2"
+            link: "gcc -shared -o libluajit.so src/libluajit.a -lm -ldl -lpthread"
+
+          - name: windows-x86-64
+            cc: x86_64-w64-mingw32-gcc
+            ar: x86_64-w64-mingw32-ar
+            sys: Windows
+            lib: luajit.dll
+            makeflags: "BUILDMODE=static CC=x86_64-w64-mingw32-gcc AR=x86_64-w64-mingw32-ar CROSS=x86_64-w64-mingw32- HOST_CC=gcc TARGET_SYS=Windows CFLAGS=-O2"
+            link: "x86_64-w64-mingw32-gcc -shared -o luajit.dll src/libluajit.a -Wl,--out-implib=libluajit.dll.a"
+
+    steps:
+    - name: 📥 Install MinGW (for Windows cross-compile)
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq gcc-mingw-w64
+
+    - name: 📥 Clone LuaJIT
+      uses: actions/checkout@v4
+      with:
+        repository: LuaJIT/LuaJIT
+        ref: v2.1
+        path: luajit-src
+
+    - name: ⚒️ Build
+      working-directory: luajit-src
+      run: |
+        make -j$(nproc) ${{ matrix.target.makeflags }} \
+            XCFLAGS="-DLUAJIT_ENABLE_LUA52COMPAT"
+        ${{ matrix.target.link }}
+        strip ${{ matrix.target.lib }}
+
+    - name: 📤 Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: luajit-${{ matrix.target.name }}
+        path: luajit-src/${{ matrix.target.lib }}

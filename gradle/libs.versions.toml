@@ -56,6 +56,8 @@ junit = "5.11.4"
 junitPlatform = "1.11.4"
 jmh = "1.37"
 
+jna = "5.14.0"
+
 # Build tools
 cctJavadoc = "1.8.3"
 checkstyle = "10.14.1"
@@ -87,6 +89,7 @@ fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
 forgeSpi = { module = "net.minecraftforge:forgespi", version.ref = "forgeSpi" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 jetbrainsAnnotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsAnnotations" }
+jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
 jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "jsr305" }
 jzlib = { module = "com.jcraft:jzlib", version.ref = "jzlib" }
 kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }

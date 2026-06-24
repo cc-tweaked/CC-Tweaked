@@ -1,9 +1,7 @@
 name: Build documentation
 
 on:
-  push:
-    branches:
-    - mc-*
+  workflow_dispatch:
 
 jobs:
   make_doc:
