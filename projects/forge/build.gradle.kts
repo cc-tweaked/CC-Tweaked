@@ -8,7 +8,6 @@ import net.neoforged.moddevgradle.dsl.RunModel
 plugins {
     id("cc-tweaked.forge")
     id("cc-tweaked.mod")
-    id("cc-tweaked.mod-publishing")
 }
 
 val modVersion: String by extra
@@ -243,9 +242,3 @@ tasks.register("checkClient") {
     dependsOn(runGametestClient)
 }
 
-modPublishing {
-    output = tasks.reobfJar
-}
-
-// TODO: Remove once https://github.com/modrinth/minotaur/pull/72 is merged.
-modrinth { loaders = listOf("forge") }

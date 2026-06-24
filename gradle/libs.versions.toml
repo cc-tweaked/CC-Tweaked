@@ -62,12 +62,10 @@ checkstyle = "10.14.1"
 errorProne-core = "2.27.0"
 errorProne-plugin = "3.1.0"
 fabric-loom = "1.9.2"
-githubRelease = "2.5.2"
 gradleVersions = "0.50.0"
 ideaExt = "1.1.7"
 illuaminate = "0.1.0-74-gf1551d5"
 lwjgl = "3.3.3"
-minotaur = "2.8.7"
 modDevGradle = "2.0.74"
 nullAway = "0.10.25"
 shadow = "8.3.1"
@@ -153,7 +151,6 @@ errorProne-testHelpers = { module = "com.google.errorprone:error_prone_test_help
 fabric-loom = { module = "net.fabricmc:fabric-loom", version.ref = "fabric-loom" }
 ideaExt = { module = "gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext", version.ref = "ideaExt" }
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-minotaur = { module = "com.modrinth.minotaur:Minotaur", version.ref = "minotaur" }
 nullAway = { module = "com.uber.nullaway:nullaway", version.ref = "nullAway" }
 modDevGradle = { module = "net.neoforged:moddev-gradle", version.ref = "modDevGradle" }
 spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
@@ -170,7 +167,6 @@ vanillaExtract = { module = "cc.tweaked.vanilla-extract:plugin", version.ref = "
 yarn = { module = "net.fabricmc:yarn", version.ref = "yarn" }
 
 [plugins]
-githubRelease = { id = "com.github.breadmoirai.github-release", version.ref = "githubRelease" }
 gradleVersions = { id = "com.github.ben-manes.versions", version.ref = "gradleVersions" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

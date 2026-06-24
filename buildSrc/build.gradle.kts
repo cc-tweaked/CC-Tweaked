@@ -43,7 +43,6 @@ dependencies {
 
     implementation(libs.fabric.loom)
     implementation(libs.ideaExt)
-    implementation(libs.minotaur)
     implementation(libs.modDevGradle)
     implementation(libs.vanillaExtract)
 }

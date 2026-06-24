@@ -8,7 +8,6 @@ plugins {
     id("cc-tweaked.vanilla")
     id("cc-tweaked.illuaminate")
     id("cc-tweaked.mod")
-    id("cc-tweaked.publishing")
 }
 
 minecraft {

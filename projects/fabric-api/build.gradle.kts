@@ -4,7 +4,6 @@
 
 plugins {
     id("cc-tweaked.fabric")
-    id("cc-tweaked.publishing")
 }
 
 cct.inlineProject(":common-api")

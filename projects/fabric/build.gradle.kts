@@ -9,7 +9,6 @@ import java.util.*
 plugins {
     id("cc-tweaked.fabric")
     id("cc-tweaked.mod")
-    id("cc-tweaked.mod-publishing")
 }
 
 val modVersion: String by extra
@@ -294,10 +293,3 @@ tasks.register("checkClient") {
     dependsOn(runGametestClient, runGametestClientWithSodium, runGametestClientWithIris)
 }
 
-modPublishing {
-    output = tasks.remapJar
-}
-
-modrinth {
-    required.project("fabric-api")
-}

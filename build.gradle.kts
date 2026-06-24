@@ -9,9 +9,7 @@ import org.jetbrains.gradle.ext.*
 import org.jetbrains.gradle.ext.Application
 
 plugins {
-    publishing
     alias(libs.plugins.taskTree)
-    alias(libs.plugins.githubRelease)
     alias(libs.plugins.gradleVersions)
     alias(libs.plugins.versionCatalogUpdate)
     id("org.jetbrains.gradle.plugin.idea-ext")
@@ -21,25 +19,6 @@ plugins {
 val isUnstable = project.properties["isUnstable"] == "true"
 val modVersion: String by extra
 val mcVersion: String by extra
-
-githubRelease {
-    token(findProperty("githubApiKey") as String? ?: "")
-    owner = "cc-tweaked"
-    repo = "CC-Tweaked"
-    targetCommitish = cct.gitBranch
-
-    tagName = "v$mcVersion-$modVersion"
-    releaseName = "[$mcVersion] $modVersion"
-    body = provider {
-        "## " + project(":core").file("src/main/resources/data/computercraft/lua/rom/help/whatsnew.md")
-            .readLines()
-            .takeWhile { it != "Type \"help changelog\" to see the full version history." }
-            .joinToString("\n").trim()
-    }
-    prerelease = isUnstable
-}
-
-tasks.publish { dependsOn(tasks.githubRelease) }
 
 idea.project.settings.runConfigurations {
     register<JUnitExt>("Core Tests") {
