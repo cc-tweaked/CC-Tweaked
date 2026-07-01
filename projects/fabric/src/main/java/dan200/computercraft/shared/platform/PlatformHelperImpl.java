@@ -63,6 +63,7 @@ import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.ColorCollection;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -169,8 +170,8 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public List<TagKey<Item>> getDyeTags() {
-        return List.of(
+    public ColorCollection<TagKey<Item>> getDyeTags() {
+        return new ColorCollection<>(
             ConventionalItemTags.WHITE_DYES,
             ConventionalItemTags.ORANGE_DYES,
             ConventionalItemTags.MAGENTA_DYES,

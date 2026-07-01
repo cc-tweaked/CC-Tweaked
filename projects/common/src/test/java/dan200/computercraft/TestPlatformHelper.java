@@ -40,6 +40,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.ColorCollection;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -47,7 +48,6 @@ import net.minecraft.world.phys.EntityHitResult;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
-import java.util.List;
 import java.util.function.Consumer;
 
 @AutoService({ PlatformHelper.class, ComputerCraftAPIService.class })
@@ -78,7 +78,7 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     }
 
     @Override
-    public List<TagKey<Item>> getDyeTags() {
+    public ColorCollection<TagKey<Item>> getDyeTags() {
         throw new UnsupportedOperationException("Cannot query tags inside tests");
     }
 

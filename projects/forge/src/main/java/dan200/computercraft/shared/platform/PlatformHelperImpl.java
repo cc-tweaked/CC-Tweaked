@@ -45,12 +45,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.ColorCollection;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -174,25 +172,8 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public List<TagKey<Item>> getDyeTags() {
-        return List.of(
-            Tags.Items.DYES_WHITE,
-            Tags.Items.DYES_ORANGE,
-            Tags.Items.DYES_MAGENTA,
-            Tags.Items.DYES_LIGHT_BLUE,
-            Tags.Items.DYES_YELLOW,
-            Tags.Items.DYES_LIME,
-            Tags.Items.DYES_PINK,
-            Tags.Items.DYES_GRAY,
-            Tags.Items.DYES_LIGHT_GRAY,
-            Tags.Items.DYES_CYAN,
-            Tags.Items.DYES_PURPLE,
-            Tags.Items.DYES_BLUE,
-            Tags.Items.DYES_BROWN,
-            Tags.Items.DYES_GREEN,
-            Tags.Items.DYES_RED,
-            Tags.Items.DYES_BLACK
-        );
+    public ColorCollection<TagKey<Item>> getDyeTags() {
+        return ColorCollection.VALUES.map(DyeColor::getTag);
     }
 
     @Override

@@ -11,18 +11,17 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.ColorCollection;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-
 public final class ColourUtils {
-    public static final List<TagKey<Item>> DYES = PlatformHelper.get().getDyeTags();
+    private static final ColorCollection<TagKey<Item>> DYES = PlatformHelper.get().getDyeTags();
 
     private ColourUtils() {
     }
 
     public static TagKey<Item> getDyeTag(DyeColor color) {
-        return DYES.get(color.getId());
+        return DYES.pick(color);
     }
 
     public static boolean isDye(ItemStack stack) {

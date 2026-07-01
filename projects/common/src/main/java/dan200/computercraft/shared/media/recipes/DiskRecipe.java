@@ -31,7 +31,7 @@ import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -63,19 +63,16 @@ public class DiskRecipe extends NormalCraftingRecipe {
 
     @Override
     public List<RecipeDisplay> display() {
-        var dyes = ColourUtils.DYES;
-        List<RecipeDisplay> out = new ArrayList<>(dyes.size());
-        for (var i = 0; i < dyes.size(); i++) {
-            out.add(new ShapelessCraftingRecipeDisplay(
-                Stream.concat(ingredients.stream(), Stream.of(Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(dyes.get(i)))))
+        return Arrays.stream(DyeColor.values()).<RecipeDisplay>map(colour ->
+            new ShapelessCraftingRecipeDisplay(
+                Stream.concat(ingredients.stream(), Stream.of(Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(ColourUtils.getDyeTag(colour)))))
                     .map(Ingredient::display).toList(),
                 new SlotDisplay.ItemStackSlotDisplay(new ItemStackTemplate(ModRegistry.Items.DISK.get(), DataComponentPatch.builder()
-                    .set(DataComponents.DYED_COLOR, new DyedItemColor(DyeColor.byId(i).getTextureDiffuseColor()))
+                    .set(DataComponents.DYED_COLOR, new DyedItemColor(colour.getTextureDiffuseColor()))
                     .build())),
                 new SlotDisplay.ItemSlotDisplay(Items.CRAFTING_TABLE)
-            ));
-        }
-        return out;
+            )
+        ).toList();
     }
 
     @Override
