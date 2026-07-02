@@ -27,7 +27,9 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.UseOnContext
 import net.minecraft.world.item.crafting.CraftingInput
+import net.minecraft.world.item.crafting.CraftingRecipe
 import net.minecraft.world.item.crafting.RecipeType
+import net.minecraft.world.item.crafting.ShapedRecipe
 import net.minecraft.world.level.GameType
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.entity.BarrelBlockEntity
@@ -205,7 +207,7 @@ fun GameTestHelper.assertContainerExactly(pos: BlockPos, items: List<ItemStack>)
     assertContainerExactlyImpl(pos, getContainerAt(pos), items)
 
 /**
- * Assert an container contains exactly these items and no more.
+ * Assert a container contains exactly these items and no more.
  *
  * @param entity The entity containing these items.
  * @param items The list of items this container must contain. This should be equal to the expected contents of the
@@ -214,7 +216,7 @@ fun GameTestHelper.assertContainerExactly(pos: BlockPos, items: List<ItemStack>)
 fun <T> GameTestHelper.assertContainerExactly(entity: T, items: List<ItemStack>) where T : Entity, T : Container =
     assertContainerExactlyImpl(entity.blockPosition(), entity, items)
 
-private fun ItemStack.toStringFull(): String = if (isEmpty) "<empty>" else "$count x $item$componentsPatch"
+fun ItemStack.toStringFull(): String = if (isEmpty) "<empty>" else "$count x $item$componentsPatch"
 
 private fun formatItems(items: List<ItemStack>) = items.joinToString(", ") { it.toStringFull() }
 
@@ -341,6 +343,44 @@ fun GameTestHelper.placeItemAt(stack: ItemStack, pos: BlockPos, direction: Direc
     val absolutePos = absolutePos(pos.relative(direction))
     val hit = BlockHitResult(Vec3.atCenterOf(absolutePos), direction, absolutePos, false)
     stack.useOn(UseOnContext(player, InteractionHand.MAIN_HAND, hit))
+}
+
+/**
+ * Assert a recipe is craftable.
+ */
+fun GameTestHelper.assertCraftable(recipe: CraftingRecipe) {
+    val (width, height) = if (recipe is ShapedRecipe) {
+        (recipe.width to recipe.height)
+    } else {
+        (3 to 3)
+    }
+
+    assertCraftable(
+        recipe.ingredients.map {
+            if (it.isEmpty) ItemStack.EMPTY else it.items[0]
+        },
+        recipe.getResultItem(level.registryAccess()),
+        width = width,
+        height = height,
+    )
+}
+
+/**
+ * Assert a series of items craft the given recipe.
+ */
+fun GameTestHelper.assertCraftable(items: List<ItemStack>, result: ItemStack, width: Int = 3, height: Int = 3) {
+    val container = NonNullList.withSize(width * height, ItemStack.EMPTY)
+    for ((i, item) in items.withIndex()) container[i] = item
+    val input = CraftingInput.of(width, height, container)
+
+    val recipe = level.server.recipeManager.getRecipeFor(RecipeType.CRAFTING, input, level)
+    if (recipe.isEmpty) fail("Expected recipe to match ${formatItems(items)}")
+
+    val actualResult = recipe.get().value.assemble(input, level.registryAccess())
+
+    if (!ItemStack.isSameItemSameComponents(actualResult, result) || actualResult.count != result.count) {
+        fail("Expected $items to craft ${result.toStringFull()}, got ${actualResult.toStringFull()}")
+    }
 }
 
 /**

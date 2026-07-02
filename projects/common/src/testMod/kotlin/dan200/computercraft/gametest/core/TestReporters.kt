@@ -4,13 +4,22 @@
 
 package dan200.computercraft.gametest.core
 
+import com.google.common.base.Stopwatch
 import net.minecraft.gametest.framework.GameTestInfo
 import net.minecraft.gametest.framework.JUnitLikeTestReporter
 import net.minecraft.gametest.framework.TestReporter
-import java.io.File
-import java.io.IOException
-import java.nio.file.Files
+import org.w3c.dom.Document
+import org.w3c.dom.Element
+import java.io.*
+import java.nio.file.Files.createDirectories
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.util.concurrent.TimeUnit
+import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerException
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
 
 /**
  * A test reporter which delegates to a list of other reporters.
@@ -33,15 +42,73 @@ class MultiTestReporter(private val reporters: List<TestReporter>) : TestReporte
 
 /**
  * Reports tests to a JUnit XML file. This is equivalent to [JUnitLikeTestReporter], except it ensures the destination
- * directory exists.
+ * directory exists and includes the stack trace in the error.
  */
-class JunitTestReporter(destination: File) : JUnitLikeTestReporter(destination) {
-    override fun save(file: File) {
-        try {
-            Files.createDirectories(file.toPath().parent)
-        } catch (e: IOException) {
-            throw TransformerException("Failed to create parent directory", e)
+open class JunitTestReporter(private val destination: File) : TestReporter {
+    private val document: Document
+    private val testSuite: Element
+    private val stopwatch: Stopwatch = Stopwatch.createStarted()
+
+    init {
+        document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
+
+        testSuite = document.createElement("testsuite")
+        testSuite.setAttribute("timestamp", DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
+
+        val container = document.createElement("testsuite")
+        container.appendChild(testSuite)
+        document.appendChild(container)
+    }
+
+    private fun createTestCase(testInfo: GameTestInfo, name: String?): Element {
+        val testCase = document.createElement("testcase")
+        testCase.setAttribute("name", name)
+        testCase.setAttribute("classname", testInfo.structureName)
+        testCase.setAttribute("time", (testInfo.runTime.toDouble() / 1000.0).toString())
+        testSuite.appendChild(testCase)
+        return testCase
+    }
+
+    override fun onTestFailed(testInfo: GameTestInfo) {
+        val error = testInfo.error!!
+        val result: Element
+        if (testInfo.isRequired) {
+            result = document.createElement("failure")
+            result.setAttribute("message", error.message)
+            result.setAttribute("type", error.javaClass.name)
+
+            val writer = StringWriter()
+            error.printStackTrace(PrintWriter(writer))
+            result.textContent = writer.toString()
+        } else {
+            result = document.createElement("skipped")
+            result.setAttribute("message", error.message)
         }
-        super.save(file)
+
+        createTestCase(testInfo, testInfo.testName).appendChild(result)
+    }
+
+    override fun onTestSuccess(testInfo: GameTestInfo) {
+        createTestCase(testInfo, testInfo.testName)
+    }
+
+    override fun finish() {
+        stopwatch.stop()
+        testSuite.setAttribute(
+            "time",
+            (stopwatch.elapsed(TimeUnit.MILLISECONDS).toDouble() / 1000.0).toString(),
+        )
+
+        try {
+            try {
+                createDirectories(destination.toPath().parent)
+            } catch (e: IOException) {
+                throw UncheckedIOException("Failed to create parent directory", e)
+            }
+
+            TransformerFactory.newInstance().newTransformer().transform(DOMSource(document), StreamResult(destination))
+        } catch (transformerException: TransformerException) {
+            throw Error("Couldn't save test report", transformerException)
+        }
     }
 }

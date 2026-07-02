@@ -34,6 +34,7 @@ as documentation for breaking changes and "gotchas" one should look out for betw
    - [`math.random`] now uses Lua 5.4's random number generator.
 
  - File handles, HTTP requests and websockets now always use the original bytes rather than encoding/decoding to UTF-8.
+   Files containing non-ASCII characters will be read back differently if using text mode.
 
 ## Minecraft 1.13 {#mc-1.13}
  - The "key code" for [`key`] and [`key_up`] events has changed, due to Minecraft updating to LWJGL 3. Make sure you're
