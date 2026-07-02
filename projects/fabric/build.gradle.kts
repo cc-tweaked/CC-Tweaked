@@ -198,7 +198,7 @@ loom {
 
             systemProperties.put("fabric-api.gametest", "true")
             systemProperties.put(
-                "fabric-api.gametest.report-file",
+                "cctest.gametest-report",
                 layout.buildDirectory.dir("test-results/runGametest.xml").getAbsolutePath(),
             )
             runDirectory = layout.projectDirectory.dir("run/gametest")

@@ -28,7 +28,6 @@ import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -378,11 +377,11 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
             compound.remove(NBT_UPGRADE_INFO);
         } else {
             compound.putString(NBT_UPGRADE, upgrade.upgrade().getUpgradeID().toString());
-            compound.put(NBT_UPGRADE_INFO, upgrade.data().copy());
+            if (upgrade.data().isEmpty()) {
+                compound.remove(NBT_UPGRADE_INFO);
+            } else {
+                compound.put(NBT_UPGRADE_INFO, upgrade.data().copy());
+            }
         }
-    }
-
-    public static CompoundTag getUpgradeInfo(ItemStack stack) {
-        return stack.getOrCreateTagElement(NBT_UPGRADE_INFO);
     }
 }

@@ -27,7 +27,9 @@ import net.minecraft.world.inventory.TransientCraftingContainer
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.UseOnContext
+import net.minecraft.world.item.crafting.CraftingRecipe
 import net.minecraft.world.item.crafting.RecipeType
+import net.minecraft.world.item.crafting.ShapedRecipe
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.entity.BarrelBlockEntity
 import net.minecraft.world.level.block.entity.BlockEntity
@@ -344,6 +346,50 @@ fun GameTestHelper.placeItemAt(stack: ItemStack, pos: BlockPos, direction: Direc
     val absolutePos = absolutePos(pos.relative(direction))
     val hit = BlockHitResult(Vec3.atCenterOf(absolutePos), direction, absolutePos, false)
     stack.useOn(UseOnContext(player, InteractionHand.MAIN_HAND, hit))
+}
+
+/**
+ * Assert a recipe is craftable.
+ */
+fun GameTestHelper.assertCraftable(recipe: CraftingRecipe, matchNbt: Boolean = true) {
+    val (width, height) = if (recipe is ShapedRecipe) {
+        (recipe.width to recipe.height)
+    } else {
+        (3 to 3)
+    }
+
+    assertCraftable(
+        recipe.ingredients.map {
+            if (it.isEmpty) ItemStack.EMPTY else it.items[0]
+        },
+        recipe.getResultItem(level.registryAccess()),
+        width = width,
+        height = height,
+        matchNbt = matchNbt,
+    )
+}
+
+/**
+ * Assert a series of items craft the given recipe.
+ */
+fun GameTestHelper.assertCraftable(items: List<ItemStack>, result: ItemStack, width: Int = 3, height: Int = 3, matchNbt: Boolean = true) {
+    val container = TransientCraftingContainer(DummyMenu, width, height)
+    for ((i, item) in items.withIndex()) container.setItem(i, item)
+
+    val recipe = level.server.recipeManager.getRecipeFor(RecipeType.CRAFTING, container, level)
+    if (recipe.isEmpty) fail("Expected recipe to match $items")
+
+    val actualResult = recipe.get().assemble(container, level.registryAccess())
+
+    if (matchNbt) {
+        if (!ItemStack.isSameItemSameTags(actualResult, result) || actualResult.count != result.count) {
+            fail("Expected $items to craft ${result}${result.tag}, got ${actualResult}${actualResult.tag}")
+        }
+    } else {
+        if (!ItemStack.isSameItem(actualResult, result) || actualResult.count != result.count) {
+            fail("Expected $items to craft $result, got $actualResult")
+        }
+    }
 }
 
 /**
