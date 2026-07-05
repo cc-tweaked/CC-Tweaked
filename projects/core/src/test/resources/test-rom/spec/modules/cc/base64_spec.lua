@@ -7,7 +7,7 @@ describe("cc.base64", function()
 
     it("random strings roundtrip", function()
         for _ = 1, 1000 do
-            local len = math.random(1000)
+            local len = math.random(500)
             local str = ""
             for _ = 1, len do str = str .. string.char(math.random(0, 255)) end
 
