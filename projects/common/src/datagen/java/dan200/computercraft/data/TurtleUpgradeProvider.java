@@ -38,12 +38,12 @@ class TurtleUpgradeProvider {
     private static final ResourceKey<ITurtleUpgrade> DIAMOND_SWORD = vanilla("diamond_sword");
 
     private static ResourceKey<ITurtleUpgrade> id(String id) {
-        return ITurtleUpgrade.createKey(Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, id));
+        return ResourceKey.create(ITurtleUpgrade.REGISTRY, Identifier.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, id));
     }
 
     private static ResourceKey<ITurtleUpgrade> vanilla(String id) {
         // Naughty, please don't do this. Mostly here for some semblance of backwards compatibility.
-        return ITurtleUpgrade.createKey(Identifier.fromNamespaceAndPath("minecraft", id));
+        return ResourceKey.create(ITurtleUpgrade.REGISTRY, Identifier.fromNamespaceAndPath("minecraft", id));
     }
 
     public static void register(BootstrapContext<ITurtleUpgrade> upgrades) {

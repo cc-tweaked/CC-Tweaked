@@ -96,6 +96,7 @@ public interface ITurtleUpgrade extends UpgradeBase {
      * @param id The id of the turtle upgrade.
      * @return The upgrade registry key.
      */
+    @Deprecated(forRemoval = true)
     static ResourceKey<ITurtleUpgrade> createKey(Identifier id) {
         return ResourceKey.create(REGISTRY, id);
     }

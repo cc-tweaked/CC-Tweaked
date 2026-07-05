@@ -10,6 +10,7 @@ import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.registries.RegistryPatchGenerator;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
@@ -27,7 +28,7 @@ public class TurtleUpgradeProvider {
 
     // Register our turtle upgrades.
     public static void addUpgrades(BootstrapContext<ITurtleUpgrade> upgrades) {
-        upgrades.register(ITurtleUpgrade.createKey(EXAMPLE_TURTLE_UPGRADE), new ExampleTurtleUpgrade(new ItemStackTemplate(Items.COMPASS)));
+        upgrades.register(ResourceKey.create(ITurtleUpgrade.REGISTRY, EXAMPLE_TURTLE_UPGRADE), new ExampleTurtleUpgrade(new ItemStackTemplate(Items.COMPASS)));
     }
 
     // Set up the dynamic registries to contain our turtle upgrades.

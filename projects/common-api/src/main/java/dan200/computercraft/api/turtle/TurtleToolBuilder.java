@@ -47,7 +47,7 @@ public final class TurtleToolBuilder {
     }
 
     public static TurtleToolBuilder tool(Identifier id, Item item) {
-        return new TurtleToolBuilder(ITurtleUpgrade.createKey(id), item);
+        return new TurtleToolBuilder(ResourceKey.create(ITurtleUpgrade.REGISTRY, id), item);
     }
 
     public static TurtleToolBuilder tool(ResourceKey<ITurtleUpgrade> id, Item item) {
