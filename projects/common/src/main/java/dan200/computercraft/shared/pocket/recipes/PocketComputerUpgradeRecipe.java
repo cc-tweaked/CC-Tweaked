@@ -82,15 +82,15 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
         // Abort if we have no upgrades
         if (above == null && below == null) return ItemStack.EMPTY;
         // Or if we've already got an upgrade in that slot.
-        if ((above != null && PocketComputerItem.getUpgrade(computer, PocketSide.BACK) != null)
-            || (below != null && PocketComputerItem.getUpgrade(computer, PocketSide.BOTTOM) != null)) {
+        if ((above != null && PocketComputerItem.getUpgrade(computer, PocketSide.TOP) != null)
+            || (below != null && PocketComputerItem.getUpgrade(computer, PocketSide.BACK) != null)) {
             return ItemStack.EMPTY;
         }
 
         // Construct the new stack
         var result = computer.copyWithCount(1);
-        if (above != null) result.set(ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), above);
-        if (below != null) result.set(ModRegistry.DataComponents.BOTTOM_POCKET_UPGRADE.get(), below);
+        if (above != null) result.set(ModRegistry.DataComponents.TOP_POCKET_UPGRADE.get(), above);
+        if (below != null) result.set(ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), below);
         return result;
     }
 

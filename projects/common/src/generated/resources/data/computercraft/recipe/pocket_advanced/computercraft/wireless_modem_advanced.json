@@ -5,7 +5,7 @@
   "key": {"#": "computercraft:wireless_modem_advanced", "P": "computercraft:pocket_computer_advanced"},
   "pattern": ["#", "P"],
   "result": {
-    "components": {"computercraft:back_pocket_upgrade": {"id": "computercraft:wireless_modem_advanced"}},
+    "components": {"computercraft:top_pocket_upgrade": {"id": "computercraft:wireless_modem_advanced"}},
     "id": "computercraft:pocket_computer_advanced"
   }
 }

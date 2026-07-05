@@ -153,6 +153,16 @@ if turtle then
     ))
 end
 
+if pocket then
+    shell.setCompletionFunction("rom/programs/pocket/equip.lua", completion.build(
+        nil,
+        { completion.choice, { "top", "back" } }
+    ))
+    shell.setCompletionFunction("rom/programs/pocket/unequip.lua", completion.build(
+        { completion.choice, { "top", "back" } }
+    ))
+end
+
 -- Run autorun files
 if fs.exists("/rom/autorun") and fs.isDir("/rom/autorun") then
     local tFiles = fs.list("/rom/autorun")

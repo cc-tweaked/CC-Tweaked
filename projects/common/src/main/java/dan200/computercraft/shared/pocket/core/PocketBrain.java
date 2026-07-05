@@ -48,8 +48,8 @@ public final class PocketBrain implements PocketComputerInternal {
         this.holder = holder;
         this.position = holder.pos();
 
+        upgrades.put(PocketSide.TOP, new UpgradeAccess(ModRegistry.DataComponents.TOP_POCKET_UPGRADE.get(), ComputerSide.TOP));
         upgrades.put(PocketSide.BACK, new UpgradeAccess(ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), ComputerSide.BACK));
-        upgrades.put(PocketSide.BOTTOM, new UpgradeAccess(ModRegistry.DataComponents.BOTTOM_POCKET_UPGRADE.get(), ComputerSide.BOTTOM));
     }
 
     /**
@@ -188,9 +188,9 @@ public final class PocketBrain implements PocketComputerInternal {
         getUpgradeAccess(side).setUpgrade(upgrade);
     }
 
-    public void setUpgrades(@Nullable UpgradeData<IPocketUpgrade> back, @Nullable UpgradeData<IPocketUpgrade> bottom) {
+    public void setUpgrades(@Nullable UpgradeData<IPocketUpgrade> top, @Nullable UpgradeData<IPocketUpgrade> back) {
+        getUpgradeAccess(PocketSide.TOP).setUpgradeDirect(top);
         getUpgradeAccess(PocketSide.BACK).setUpgradeDirect(back);
-        getUpgradeAccess(PocketSide.BOTTOM).setUpgradeDirect(bottom);
     }
 
     private final class UpgradeAccess implements IPocketAccess {

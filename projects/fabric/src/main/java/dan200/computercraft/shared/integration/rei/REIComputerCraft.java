@@ -33,10 +33,10 @@ public class REIComputerCraft implements REICommonPlugin {
         registry.register((context, stack) -> {
             long hash = 1;
 
+            var top = PocketComputerItem.getUpgradeWithData(stack, PocketSide.TOP);
             var back = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BACK);
-            var bottom = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BOTTOM);
+            if (top != null) hash = hash * 31 + top.holder().key().identifier().hashCode();
             if (back != null) hash = hash * 31 + back.holder().key().identifier().hashCode();
-            if (bottom != null) hash = hash * 31 + bottom.holder().key().identifier().hashCode();
 
             return hash;
         }, ModRegistry.Items.POCKET_COMPUTER_NORMAL.get(), ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get());

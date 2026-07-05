@@ -12,6 +12,6 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
  * @see PocketBrain
  */
 public enum PocketSide {
+    TOP,
     BACK,
-    BOTTOM,
 }

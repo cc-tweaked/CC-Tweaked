@@ -402,11 +402,11 @@ public final class ModRegistry {
         );
 
         /**
-         * The back upgrade of a pocket computer.
+         * The top upgrade of a pocket computer.
          *
          * @see PocketComputerItem
          */
-        public static final RegistryEntry<DataComponentType<UpgradeData<IPocketUpgrade>>> BACK_POCKET_UPGRADE = register("back_pocket_upgrade", b -> b
+        public static final RegistryEntry<DataComponentType<UpgradeData<IPocketUpgrade>>> TOP_POCKET_UPGRADE = register("top_pocket_upgrade", b -> b
             .persistent(PocketUpgrades.instance().upgradeDataCodec()).networkSynchronized(PocketUpgrades.instance().upgradeDataStreamCodec())
         );
 
@@ -415,7 +415,7 @@ public final class ModRegistry {
          *
          * @see PocketComputerItem
          */
-        public static final RegistryEntry<DataComponentType<UpgradeData<IPocketUpgrade>>> BOTTOM_POCKET_UPGRADE = register("bottom_pocket_upgrade", b -> b
+        public static final RegistryEntry<DataComponentType<UpgradeData<IPocketUpgrade>>> BACK_POCKET_UPGRADE = register("back_pocket_upgrade", b -> b
             .persistent(PocketUpgrades.instance().upgradeDataCodec()).networkSynchronized(PocketUpgrades.instance().upgradeDataStreamCodec())
         );
 

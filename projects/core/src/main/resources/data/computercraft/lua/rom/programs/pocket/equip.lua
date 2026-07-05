@@ -23,11 +23,11 @@ local function equip(fn)
 end
 
 local side = ... or "back"
-if side == "back" then
+if side == "top" then
+    equip(pocket.equipTop)
+elseif side == "back" then
     equip(pocket.equipBack)
-elseif side == "bottom" then
-    equip(pocket.equipBottom)
 else
-    printError("Unknown side. Expected 'back' or 'bottom'.")
+    printError("Unknown side. Expected 'top' or 'back'.")
     return
 end

@@ -125,22 +125,22 @@ public class UpgradeRecipeGenerator<T> {
 
             return Collections.unmodifiableList(recipes);
         } else if (stack.getItem() instanceof PocketComputerItem) {
-            // Suggest possible upgrades which can be applied to this turtle
+            // Suggest possible upgrades which can be applied to this pocket computer
+            var top = PocketComputerItem.getUpgradeWithData(stack, PocketSide.TOP);
             var back = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BACK);
-            var bottom = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BOTTOM);
-            if (back != null && bottom != null) return List.of();
+            if (top != null && back != null) return List.of();
 
             List<T> recipes = new ArrayList<>();
             var ingredient = ItemStackTemplate.fromNonEmptyStack(stack);
             for (var upgrade : pocketUpgrades) {
                 if (upgrade.pocket == null) throw new NullPointerException();
 
-                if (back == null) {
-                    recipes.add(pocket(upgrade.stack, ingredient, pocketWith(stack, UpgradeData.ofDefault(upgrade.pocket), bottom)));
+                if (top == null) {
+                    recipes.add(pocket(upgrade.stack, ingredient, pocketWith(stack, UpgradeData.ofDefault(upgrade.pocket), back)));
                 }
 
-                if (bottom == null) {
-                    recipes.add(pocket(ingredient, upgrade.stack, pocketWith(stack, back, UpgradeData.ofDefault(upgrade.pocket))));
+                if (back == null) {
+                    recipes.add(pocket(ingredient, upgrade.stack, pocketWith(stack, top, UpgradeData.ofDefault(upgrade.pocket))));
                 }
             }
 
@@ -206,20 +206,21 @@ public class UpgradeRecipeGenerator<T> {
         } else if (stack.getItem() instanceof PocketComputerItem) {
             List<T> recipes = new ArrayList<>(0);
 
+            var top = PocketComputerItem.getUpgradeWithData(stack, PocketSide.TOP);
             var back = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BACK);
-            var bottom = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BOTTOM);
-            if (back != null) {
+
+            if (top != null) {
                 recipes.add(pocket(
-                    back.getUpgradeItem(),
-                    pocketWith(stack, null, bottom),
+                    top.getUpgradeItem(),
+                    pocketWith(stack, back, null),
                     ItemStackTemplate.fromNonEmptyStack(stack)
                 ));
             }
 
-            if (bottom != null) {
+            if (back != null) {
                 recipes.add(pocket(
-                    pocketWith(stack, back, null),
-                    bottom.getUpgradeItem(),
+                    pocketWith(stack, null, top),
+                    back.getUpgradeItem(),
                     ItemStackTemplate.fromNonEmptyStack(stack)
                 ));
             }
@@ -237,10 +238,10 @@ public class UpgradeRecipeGenerator<T> {
         return ItemStackTemplate.fromNonEmptyStack(newStack);
     }
 
-    private static ItemStackTemplate pocketWith(ItemStack stack, @Nullable UpgradeData<IPocketUpgrade> back, @Nullable UpgradeData<IPocketUpgrade> bottom) {
+    private static ItemStackTemplate pocketWith(ItemStack stack, @Nullable UpgradeData<IPocketUpgrade> top, @Nullable UpgradeData<IPocketUpgrade> back) {
         var newStack = stack.copyWithCount(1);
+        newStack.set(ModRegistry.DataComponents.TOP_POCKET_UPGRADE.get(), top);
         newStack.set(ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), back);
-        newStack.set(ModRegistry.DataComponents.BOTTOM_POCKET_UPGRADE.get(), bottom);
         return ItemStackTemplate.fromNonEmptyStack(newStack);
     }
 
@@ -291,7 +292,7 @@ public class UpgradeRecipeGenerator<T> {
                     recipes.add(pocket(
                         stack,
                         new ItemStackTemplate(pocketItem),
-                        DataComponentUtil.createTemplate(pocketItem, ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), UpgradeData.ofDefault(pocket))
+                        DataComponentUtil.createTemplate(pocketItem, ModRegistry.DataComponents.TOP_POCKET_UPGRADE.get(), UpgradeData.ofDefault(pocket))
                     ));
                 }
             }

@@ -93,11 +93,11 @@ public class JEIComputerCraft implements IModPlugin {
         var name = new StringBuilder("pocket:");
 
         // Add the upgrade to the identifier
+        var top = PocketComputerItem.getUpgradeWithData(stack, PocketSide.TOP);
         var back = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BACK);
-        var bottom = PocketComputerItem.getUpgradeWithData(stack, PocketSide.BOTTOM);
+        if (top != null) name.append(top.holder().key().identifier());
+        if (top != null && back != null) name.append('|');
         if (back != null) name.append(back.holder().key().identifier());
-        if (back != null && bottom != null) name.append('|');
-        if (bottom != null) name.append(bottom.holder().key().identifier());
 
         return name.toString();
     };

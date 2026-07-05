@@ -147,11 +147,11 @@ public class PocketComputerItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        return UpgradeManager.getName(getDescriptionId(), getUpgrade(stack, PocketSide.BACK), getUpgrade(stack, PocketSide.BOTTOM));
+        return UpgradeManager.getName(getDescriptionId(), getUpgrade(stack, PocketSide.BACK), getUpgrade(stack, PocketSide.TOP));
     }
 
     private static String getCreatorModId(ItemStack stack) {
-        return PocketUpgrades.instance().getOwner(getUpgradeWithData(stack, PocketSide.BACK), getUpgradeWithData(stack, PocketSide.BOTTOM));
+        return PocketUpgrades.instance().getOwner(getUpgradeWithData(stack, PocketSide.BACK), getUpgradeWithData(stack, PocketSide.TOP));
     }
 
     @ForgeOverride
@@ -192,7 +192,7 @@ public class PocketComputerItem extends Item {
                 new TerminalSize(ConfigSpec.pocketTermWidth.get(), ConfigSpec.pocketTermHeight.get())
             ))
         );
-        brain.setUpgrades(getUpgradeWithData(stack, PocketSide.BACK), getUpgradeWithData(stack, PocketSide.BOTTOM));
+        brain.setUpgrades(getUpgradeWithData(stack, PocketSide.TOP), getUpgradeWithData(stack, PocketSide.BACK));
         var computer = brain.computer();
 
         stack.set(ModRegistry.DataComponents.COMPUTER.get(), new ServerComputerReference(registry.getSessionID(), computer.register()));
@@ -239,7 +239,7 @@ public class PocketComputerItem extends Item {
         var computer = getServerComputer(server, stack);
         if (computer == null) return;
 
-        computer.getBrain().setUpgrades(getUpgradeWithData(stack, PocketSide.BACK), getUpgradeWithData(stack, PocketSide.BOTTOM));
+        computer.getBrain().setUpgrades(getUpgradeWithData(stack, PocketSide.TOP), getUpgradeWithData(stack, PocketSide.BACK));
     }
 
     public ComputerFamily getFamily() {
@@ -263,8 +263,8 @@ public class PocketComputerItem extends Item {
 
     public static @Nullable UpgradeData<IPocketUpgrade> getUpgradeWithData(ItemStack stack, PocketSide side) {
         return stack.get(switch (side) {
+            case TOP -> ModRegistry.DataComponents.TOP_POCKET_UPGRADE.get();
             case BACK -> ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get();
-            case BOTTOM -> ModRegistry.DataComponents.BOTTOM_POCKET_UPGRADE.get();
         });
     }
 }

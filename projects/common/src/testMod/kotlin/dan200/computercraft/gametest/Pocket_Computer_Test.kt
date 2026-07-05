@@ -147,10 +147,10 @@ class Pocket_Computer_Test {
      */
     @GameTest(template = Structures.DEFAULT)
     fun Can_upgrades_be_crafted(helper: GameTestHelper) = helper.immediate {
-        fun pocket(back: UpgradeData<IPocketUpgrade>? = null, bottom: UpgradeData<IPocketUpgrade>? = null): ItemStack {
+        fun pocket(top: UpgradeData<IPocketUpgrade>? = null, back: UpgradeData<IPocketUpgrade>? = null): ItemStack {
             val item = ItemStack(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get())
+            item.set(ModRegistry.DataComponents.TOP_POCKET_UPGRADE.get(), top)
             item.set(ModRegistry.DataComponents.BACK_POCKET_UPGRADE.get(), back)
-            item.set(ModRegistry.DataComponents.BOTTOM_POCKET_UPGRADE.get(), bottom)
             return item
         }
 
@@ -167,7 +167,7 @@ class Pocket_Computer_Test {
                 ItemStack.EMPTY, ItemStack(ModRegistry.Items.SPEAKER.get()), ItemStack.EMPTY,
                 ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
             ),
-            isStack(pocket(bottom = speaker)),
+            isStack(pocket(back = speaker)),
         )
         assertThat(
             "Craft with item above",
@@ -176,7 +176,7 @@ class Pocket_Computer_Test {
                 ItemStack.EMPTY, pocket(), ItemStack.EMPTY,
                 ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
             ),
-            isStack(pocket(back = speaker)),
+            isStack(pocket(top = speaker)),
         )
         assertThat(
             "Craft with two items",
@@ -185,22 +185,22 @@ class Pocket_Computer_Test {
                 ItemStack.EMPTY, pocket(), ItemStack.EMPTY,
                 ItemStack.EMPTY, ItemStack(ModRegistry.Items.WIRELESS_MODEM_NORMAL.get()), ItemStack.EMPTY,
             ),
-            isStack(pocket(back = speaker, bottom = modem)),
+            isStack(pocket(top = speaker, back = modem)),
         )
         assertThat(
             "Maintains upgrades",
             helper.craftItem(
-                ItemStack.EMPTY, pocket(back = speaker), ItemStack.EMPTY,
+                ItemStack.EMPTY, pocket(top = speaker), ItemStack.EMPTY,
                 ItemStack.EMPTY, ItemStack(ModRegistry.Items.WIRELESS_MODEM_NORMAL.get()), ItemStack.EMPTY,
                 ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
             ),
-            isStack(pocket(back = speaker, bottom = modem)),
+            isStack(pocket(top = speaker, back = modem)),
         )
 
         // Cannot craft when already have item
         helper.assertNotCraftable(
             ItemStack.EMPTY, ItemStack(ModRegistry.Items.SPEAKER.get()), ItemStack.EMPTY,
-            ItemStack.EMPTY, pocket(back = modem), ItemStack.EMPTY,
+            ItemStack.EMPTY, pocket(top = modem), ItemStack.EMPTY,
             ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
         )
 

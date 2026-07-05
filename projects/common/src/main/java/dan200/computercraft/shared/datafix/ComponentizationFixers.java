@@ -211,7 +211,7 @@ public class ComponentizationFixers {
      * @param types  The component type definition.
      * @param schema The current schema.
      * @see UpgradeManager#upgradeDataCodec()
-     * @see ModRegistry.DataComponents#BOTTOM_POCKET_UPGRADE
+     * @see ModRegistry.DataComponents#TOP_POCKET_UPGRADE
      * @see ModRegistry.DataComponents#BACK_POCKET_UPGRADE
      * @see ModRegistry.DataComponents#LEFT_TURTLE_UPGRADE
      * @see ModRegistry.DataComponents#RIGHT_TURTLE_UPGRADE
@@ -224,8 +224,8 @@ public class ComponentizationFixers {
             types.put("computercraft:pocket_upgrade", upgradeData);
         } else {
             // Add extra upgrades on later versions. Really this should be done by overriding
+            types.put("computercraft:top_pocket_upgrade", upgradeData);
             types.put("computercraft:back_pocket_upgrade", upgradeData);
-            types.put("computercraft:bottom_pocket_upgrade", upgradeData);
         }
 
         types.put("computercraft:left_turtle_upgrade", upgradeData);

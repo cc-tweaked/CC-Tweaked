@@ -23,11 +23,11 @@ local function unequip(fn)
 end
 
 local side = ... or "back"
-if side == "back" then
+if side == "top" then
+    unequip(pocket.unequipTop)
+elseif side == "back" then
     unequip(pocket.unequipBack)
-elseif side == "bottom" then
-    unequip(pocket.unequipBottom)
 else
-    printError("Unknown side. Expected 'back' or 'bottom'.")
+    printError("Unknown side. Expected 'top' or 'back'.")
     return
 end
