@@ -1,6 +1,6 @@
 # New features in CC: Tweaked 1.120.0
 
-* Support spawning new parallel functions in `parallel.watiForAll`.
+* Support spawning new parallel functions in `parallel.waitForAll`.
 
 One bug fix:
 * Make HTTP IP filtering stricter.
@@ -331,12 +331,14 @@ Several bug fixes:
 * Allow placing seeds into composter barrels with `turtle.place()`.
 
 # New features in CC: Tweaked 1.109.0
-
+Breaking changes:
 * Update to Lua 5.2
   * `getfenv`/`setfenv` now only work on Lua functions.
   * Add support for `goto`.
   * Remove support for dumping and loading binary chunks.
 * File handles, HTTP requests and websocket messages now use raw bytes rather than converting to UTF-8.
+
+New features:
 * Add `allow_repetitions` option to `textutils.serialiseJSON`.
 * Track memory allocated by computers.
 * Update the version returned by `os.version()` to `CraftOS 1.9`.
