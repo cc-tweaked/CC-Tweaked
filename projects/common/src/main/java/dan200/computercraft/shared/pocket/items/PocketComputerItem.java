@@ -304,15 +304,23 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
         var tag = stack.getTag();
         if (tag == null) return;
 
-        // Normally we treat the computer instance as the source of truth, and copy the computer's state back to the
-        // item. However, if we've just crafted the computer with an upgrade, we should sync the other way, and update
-        // the computer.
         var server = level.getServer();
         if (server == null) return;
 
         var computer = getServerComputer(server, stack);
         if (computer == null) return;
 
+        // If the family of the computer has changed then destroy the old computer immediately.
+        if (computer.getFamily() != family) {
+            computer.close();
+            tag.remove(NBT_INSTANCE);
+            tag.remove(NBT_SESSION);
+            return;
+        }
+
+        // Normally we treat the computer instance as the source of truth, and copy the computer's state back to the
+        // item. However, if we've just crafted the computer with an upgrade, we should sync the other way, and update
+        // the computer.
         var brain = computer.getBrain();
         brain.setUpgrade(getUpgradeWithData(stack));
         brain.setColour(getColour(stack));
