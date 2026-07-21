@@ -18,6 +18,7 @@ import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.network.wired.WiredNode;
 import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.redstone.BundledRedstoneProvider;
+import dan200.computercraft.api.turtle.TurtleOrientationProvider;
 import dan200.computercraft.api.turtle.TurtleRefuelHandler;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import net.minecraft.core.BlockPos;
@@ -67,6 +68,8 @@ public interface ComputerCraftAPIService {
     WiredNode createWiredNodeForElement(WiredElement element);
 
     void registerRefuelHandler(TurtleRefuelHandler handler);
+
+    void registerOrientationProvider(TurtleOrientationProvider provider);
 
     ResourceKey<Registry<TurtleUpgradeSerialiser<?>>> turtleUpgradeRegistryId();
 
