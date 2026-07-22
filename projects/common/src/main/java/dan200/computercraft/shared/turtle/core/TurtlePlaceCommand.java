@@ -36,9 +36,9 @@ import org.jspecify.annotations.Nullable;
 
 public class TurtlePlaceCommand implements TurtleCommand {
     private final InteractDirection direction;
-    private final Object[] extraArguments;
+    private final @Nullable Object[] extraArguments;
 
-    public TurtlePlaceCommand(InteractDirection direction, Object[] arguments) {
+    public TurtlePlaceCommand(InteractDirection direction, @Nullable Object[] arguments) {
         this.direction = direction;
         extraArguments = arguments;
     }
@@ -173,7 +173,7 @@ public class TurtlePlaceCommand implements TurtleCommand {
         var placed = doDeployOnBlock(stack, turtlePlayer, hit, adjacent).consumesAction();
 
         // Set text on signs
-        if (placed && item instanceof SignItem && extraArguments != null && extraArguments.length >= 1 && extraArguments[0] instanceof String message) {
+        if (placed && item instanceof SignItem && extraArguments.length >= 1 && extraArguments[0] instanceof String message) {
             var world = turtle.getLevel();
             var tile = world.getBlockEntity(position);
             if (tile == null || tile == existingTile) {

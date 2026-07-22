@@ -29,7 +29,7 @@ public abstract class TermMethods {
     /**
      * Write {@code text} at the current cursor position, moving the cursor to the end of the text.
      * <p>
-     * Unlike functions like {@code write} and {@code print}, this does not wrap the text - it simply copies the
+     * Unlike functions like [`_G.write`] and [`print`], this does not wrap the text - it simply copies the
      * text to the current terminal line.
      *
      * @param textA The text to write.
@@ -74,7 +74,7 @@ public abstract class TermMethods {
     }
 
     /**
-     * Set the position of the cursor. {@link #write(Coerced) terminal writes} will begin from this position.
+     * Set the position of the cursor. {@link #write(Coerced) Terminal writes} will begin from this position.
      *
      * @param x The new x position of the cursor.
      * @param y The new y position of the cursor.

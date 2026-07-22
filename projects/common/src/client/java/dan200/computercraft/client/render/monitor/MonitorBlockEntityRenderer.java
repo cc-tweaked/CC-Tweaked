@@ -8,10 +8,10 @@ import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.integration.ShaderMod;
 import dan200.computercraft.client.platform.ClientPlatformHelper;
+import dan200.computercraft.client.render.BoundedBlockEntityRenderer;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
@@ -22,7 +22,6 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.FeatureFrameContext;
@@ -45,7 +44,7 @@ import java.util.List;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 
-public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBlockEntity, MonitorBlockEntityRenderer.State> {
+public class MonitorBlockEntityRenderer implements BoundedBlockEntityRenderer<MonitorBlockEntity, MonitorBlockEntityRenderer.State> {
     /**
      * {@link MonitorBlockEntity#RENDER_MARGIN}, but a tiny bit of additional padding to ensure that there is no space between
      * the monitor frame and contents.
@@ -64,7 +63,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
 
     @Override
     public void extractRenderState(MonitorBlockEntity monitor, State state, float f, Vec3 camera, ModelFeatureRenderer.@Nullable CrumblingOverlay crumblingOverlay) {
-        BlockEntityRenderer.super.extractRenderState(monitor, state, f, camera, crumblingOverlay);
+        BoundedBlockEntityRenderer.super.extractRenderState(monitor, state, f, camera, crumblingOverlay);
 
         state.direction = monitor.getDirection();
         state.front = monitor.getFront();
@@ -186,14 +185,14 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
         return Config.monitorDistance;
     }
 
-    @ForgeOverride
+    @Override
     public AABB getRenderBoundingBox(MonitorBlockEntity monitor) {
         return monitor.getRenderBoundingBox();
     }
 
     @Override
     public boolean shouldRender(MonitorBlockEntity monitor, Vec3 camera) {
-        return BlockEntityRenderer.super.shouldRender(monitor, camera) && monitor.getXIndex() == 0 && monitor.getYIndex() == 0;
+        return BoundedBlockEntityRenderer.super.shouldRender(monitor, camera) && monitor.getXIndex() == 0 && monitor.getYIndex() == 0;
     }
 
     private static ByteBuffer getBuffer(int capacity) {

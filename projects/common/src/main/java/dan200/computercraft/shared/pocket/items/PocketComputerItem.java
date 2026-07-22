@@ -230,15 +230,22 @@ public class PocketComputerItem extends Item {
 
     @Override
     public void onCraftedPostProcess(ItemStack stack, Level level) {
-        // Normally we treat the computer instance as the source of truth, and copy the computer's state back to the
-        // item. However, if we've just crafted the computer with an upgrade, we should sync the other way, and update
-        // the computer.
         var server = level.getServer();
         if (server == null) return;
 
         var computer = getServerComputer(server, stack);
         if (computer == null) return;
 
+        // If the family of the computer has changed then destroy the old computer immediately.
+        if (computer.getFamily() != family) {
+            computer.close();
+            stack.remove(ModRegistry.DataComponents.COMPUTER.get());
+            return;
+        }
+
+        // Normally we treat the computer instance as the source of truth, and copy the computer's state back to the
+        // item. However, if we've just crafted the computer with an upgrade, we should sync the other way, and update
+        // the computer.
         computer.getBrain().setUpgrades(getUpgradeWithData(stack, PocketSide.TOP), getUpgradeWithData(stack, PocketSide.BACK));
     }
 

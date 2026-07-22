@@ -20,7 +20,6 @@ import dan200.computercraft.shared.media.items.PrintoutData;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.LecternRenderer;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
@@ -35,6 +34,7 @@ import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2f;
 import org.jspecify.annotations.Nullable;
@@ -48,7 +48,7 @@ import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FON
  * <p>
  * This largely follows {@link LecternRenderer}, but with support for multiple types of item.
  */
-public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternBlockEntity, CustomLecternRenderer.State> {
+public class CustomLecternRenderer implements BoundedBlockEntityRenderer<CustomLecternBlockEntity, CustomLecternRenderer.State> {
     private static final int POCKET_TERMINAL_RENDER_DISTANCE = 32;
 
     private final SpriteGetter sprites;
@@ -68,6 +68,12 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
         return new State();
     }
 
+    @Override
+    public AABB getRenderBoundingBox(CustomLecternBlockEntity lectern) {
+        var pos = lectern.getBlockPos();
+        return new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1.0, pos.getY() + 1.5, pos.getZ() + 1.0);
+    }
+
     /**
      * Update our {@link PoseStack} for rendering the lectern's contents.
      *
@@ -83,7 +89,7 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
 
     @Override
     public void extractRenderState(CustomLecternBlockEntity lectern, State state, float f, Vec3 camera, ModelFeatureRenderer.@Nullable CrumblingOverlay overlay) {
-        BlockEntityRenderer.super.extractRenderState(lectern, state, f, camera, overlay);
+        BoundedBlockEntityRenderer.super.extractRenderState(lectern, state, f, camera, overlay);
         state.blockState = lectern.getBlockState();
 
         var item = lectern.getItem();
