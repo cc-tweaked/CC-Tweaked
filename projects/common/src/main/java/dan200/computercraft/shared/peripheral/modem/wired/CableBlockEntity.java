@@ -17,6 +17,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -124,6 +126,16 @@ public class CableBlockEntity extends BlockEntity {
         if (getLevel().isClientSide) return InteractionResult.SUCCESS;
 
         var oldName = peripheral.getConnectedName();
+
+        if (isWaxed()){
+            getLevel().playSound(null, getBlockPos(), SoundEvents.WAXED_SIGN_INTERACT_FAIL, SoundSource.BLOCKS);
+            if (oldName != null) {
+                player.displayClientMessage(Component.translatable("chat.computercraft.wired_modem.connected_peripheral",
+                    ChatHelpers.copy(oldName)), false);
+            }
+            return InteractionResult.SUCCESS;
+        }
+
         if (isPeripheralOn()) {
             detachPeripheral();
         } else {
@@ -241,6 +253,10 @@ public class CableBlockEntity extends BlockEntity {
 
     private boolean isPeripheralOn() {
         return getBlockState().getValue(CableBlock.MODEM).isPeripheralOn();
+    }
+
+    private boolean isWaxed() {
+        return getBlockState().getValue(CableBlock.WAXED);
     }
 
     public void onModemChanged(Runnable callback) {

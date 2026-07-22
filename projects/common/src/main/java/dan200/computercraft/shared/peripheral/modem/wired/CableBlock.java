@@ -14,16 +14,21 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.HoneycombItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -52,6 +57,7 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     public static final BooleanProperty WEST = BooleanProperty.create("west");
     public static final BooleanProperty UP = BooleanProperty.create("up");
     public static final BooleanProperty DOWN = BooleanProperty.create("down");
+    public static final BooleanProperty WAXED = BooleanProperty.create("waxed");
 
     static final EnumMap<Direction, BooleanProperty> CONNECTIONS = Util.make(new EnumMap<>(Direction.class), m -> {
         m.put(Direction.DOWN, DOWN);
@@ -72,12 +78,13 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
             .setValue(EAST, false).setValue(WEST, false)
             .setValue(UP, false).setValue(DOWN, false)
             .setValue(WATERLOGGED, false)
+            .setValue(WAXED, false)
         );
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(MODEM, CABLE, NORTH, SOUTH, EAST, WEST, UP, DOWN, WATERLOGGED);
+        builder.add(MODEM, CABLE, NORTH, SOUTH, EAST, WEST, UP, DOWN, WATERLOGGED, WAXED);
     }
 
     public static boolean canConnectIn(BlockState state, Direction direction) {
@@ -121,7 +128,7 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
         ItemStack item;
         BlockState newState;
         if (WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))) {
-            newState = state.setValue(MODEM, CableModemVariant.None);
+            newState = state.setValue(MODEM, CableModemVariant.None).setValue(WAXED, false);
             item = new ItemStack(ModRegistry.Items.WIRED_MODEM.get());
         } else {
             newState = state.setValue(CABLE, false);
@@ -251,6 +258,24 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     @Deprecated
     public final InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (player.isCrouching() || !player.mayBuild()) return InteractionResult.PASS;
+
+        var itemInHand = player.getItemInHand(hand);
+        var isWaxed = state.getValue(WAXED);
+        if (itemInHand.getItem() instanceof HoneycombItem && !isWaxed) {
+            world.levelEvent(player, LevelEvent.PARTICLES_AND_SOUND_WAX_ON, pos, 0);
+            world.setBlockAndUpdate(pos, state.setValue(WAXED, true));
+            if (!player.isCreative()) itemInHand.shrink(1);
+            return InteractionResult.SUCCESS;
+        } else if (itemInHand.getItem() instanceof AxeItem && isWaxed) {
+            world.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
+            world.levelEvent(player, LevelEvent.PARTICLES_WAX_OFF, pos, 0);
+            world.setBlockAndUpdate(pos, state.setValue(WAXED, false));
+            if (!player.isCreative()){
+                itemInHand.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(hand));
+            }
+            return InteractionResult.SUCCESS;
+        }
+
         return world.getBlockEntity(pos) instanceof CableBlockEntity modem ? modem.use(player) : InteractionResult.PASS;
     }
 
