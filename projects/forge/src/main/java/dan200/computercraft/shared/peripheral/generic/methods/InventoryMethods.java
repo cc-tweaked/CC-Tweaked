@@ -18,7 +18,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -90,9 +89,7 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
         var storage = wrapper.storage();
         assertBetween(slot, 1, storage.size(), "Slot out of range (%s)");
 
-        // FIXME: The capacity will be 0 if the resource is empty (or not valid). If empty, we try with dirt.
-        var item = storage.getResource(slot - 1);
-        return storage.getCapacityAsLong(slot - 1, item.isEmpty() ? ItemResource.of(Items.DIRT) : item);
+        return storage.getCapacityAsLong(slot - 1, storage.getResource(slot - 1));
     }
 
     @Override
