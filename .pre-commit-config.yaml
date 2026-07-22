@@ -33,7 +33,7 @@ repos:
 
 - repo: local
   hooks:
-  - id: license
+  - id: spotless
     name: Spotless
     files: ".*\\.(java|kt|kts)$"
     language: system
