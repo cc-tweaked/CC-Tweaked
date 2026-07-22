@@ -11,9 +11,9 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.integration.ShaderMod;
+import dan200.computercraft.client.render.BoundedBlockEntityRenderer;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
@@ -27,7 +27,6 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.phys.AABB;
 import org.joml.Matrix4f;
@@ -44,7 +43,7 @@ import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FON
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
-public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBlockEntity> {
+public class MonitorBlockEntityRenderer implements BoundedBlockEntityRenderer<MonitorBlockEntity> {
     /**
      * {@link MonitorBlockEntity#RENDER_MARGIN}, but a tiny bit of additional padding to ensure that there is no space between
      * the monitor frame and contents.
@@ -263,7 +262,7 @@ public class MonitorBlockEntityRenderer implements BlockEntityRenderer<MonitorBl
         return Config.monitorDistance;
     }
 
-    @ForgeOverride
+    @Override
     public AABB getRenderBoundingBox(MonitorBlockEntity monitor) {
         return monitor.getRenderBoundingBox();
     }
