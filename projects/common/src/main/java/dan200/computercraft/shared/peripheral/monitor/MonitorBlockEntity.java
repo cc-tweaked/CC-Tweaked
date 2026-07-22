@@ -523,7 +523,7 @@ public class MonitorBlockEntity extends BlockEntity {
         bbHeight = height;
 
         var startPos = toWorldPos(0, 0);
-        var endPos = toWorldPos(width, height);
+        var endPos = toWorldPos(width - 1, height - 1);
         return boundingBox = new AABB(
             Math.min(startPos.getX(), endPos.getX()),
             Math.min(startPos.getY(), endPos.getY()),

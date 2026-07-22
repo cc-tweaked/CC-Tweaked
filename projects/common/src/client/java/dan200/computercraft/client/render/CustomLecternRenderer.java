@@ -20,13 +20,13 @@ import dan200.computercraft.shared.pocket.items.PocketComputerItem;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.LecternRenderer;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2f;
 
@@ -39,7 +39,7 @@ import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FON
  * <p>
  * This largely follows {@link LecternRenderer}, but with support for multiple types of item.
  */
-public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternBlockEntity> {
+public class CustomLecternRenderer implements BoundedBlockEntityRenderer<CustomLecternBlockEntity> {
     private static final int POCKET_TERMINAL_RENDER_DISTANCE = 32;
 
     private final BlockEntityRenderDispatcher berDispatcher;
@@ -51,6 +51,12 @@ public class CustomLecternRenderer implements BlockEntityRenderer<CustomLecternB
 
         printoutModel = new LecternPrintoutModel();
         pocketModel = new LecternPocketModel();
+    }
+
+    @Override
+    public AABB getRenderBoundingBox(CustomLecternBlockEntity lectern) {
+        var pos = lectern.getBlockPos();
+        return new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1.0, pos.getY() + 1.5, pos.getZ() + 1.0);
     }
 
     /**

@@ -747,9 +747,9 @@ else
         local complete
         if settings.get("shell.autocomplete") then complete = shell.complete end
 
-        local ok, result
         local co = coroutine.create(read)
-        assert(coroutine.resume(co, nil, tCommandHistory, complete))
+        local ok, result = coroutine.resume(co, nil, tCommandHistory, complete)
+        if not ok then error(result, 0) end
 
         while coroutine.status(co) ~= "dead" do
             local event = table.pack(os.pullEvent())
