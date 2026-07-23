@@ -126,7 +126,7 @@ public class WiredModemFullBlockEntity extends BlockEntity {
         // On server, we interacted if a peripheral was found
         var oldPeriphNames = getConnectedPeripheralNames();
 
-        if (isWaxed()){
+        if (isWaxed()) {
             getLevel().playSound(null, getBlockPos(), SoundEvents.WAXED_SIGN_INTERACT_FAIL, SoundSource.BLOCKS);
             sendPeripheralChanges(player, "chat.computercraft.wired_modem.connected_peripheral", oldPeriphNames);
             return InteractionResult.SUCCESS;

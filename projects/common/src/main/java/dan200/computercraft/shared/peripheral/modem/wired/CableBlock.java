@@ -260,7 +260,7 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
         if (world.getBlockEntity(pos) instanceof CableBlockEntity modem) {
             if (player.isCrouching() || !player.mayBuild()) return InteractionResult.PASS;
 
-            if (modem.hasModem()){
+            if (modem.hasModem()) {
                 var itemInHand = player.getItemInHand(hand);
                 var isWaxed = state.getValue(WAXED);
                 if (itemInHand.getItem() instanceof HoneycombItem && !isWaxed) {
@@ -272,8 +272,8 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
                     world.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
                     world.levelEvent(player, LevelEvent.PARTICLES_WAX_OFF, pos, 0);
                     world.setBlockAndUpdate(pos, state.setValue(WAXED, false));
-                    if (!player.isCreative()){
-                        itemInHand.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(hand));
+                    if (!player.isCreative()) {
+                        itemInHand.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
                     }
                     return InteractionResult.SUCCESS;
                 }

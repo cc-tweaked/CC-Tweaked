@@ -62,8 +62,8 @@ public class WiredModemFullBlock extends Block implements EntityBlock {
             world.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
             world.levelEvent(player, LevelEvent.PARTICLES_WAX_OFF, pos, 0);
             world.setBlockAndUpdate(pos, state.setValue(WAXED, false));
-            if (!player.isCreative()){
-                itemInHand.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(hand));
+            if (!player.isCreative()) {
+                itemInHand.hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
             }
             return InteractionResult.SUCCESS;
         }

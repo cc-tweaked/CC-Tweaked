@@ -127,7 +127,7 @@ public class CableBlockEntity extends BlockEntity {
 
         var oldName = peripheral.getConnectedName();
 
-        if (isWaxed()){
+        if (isWaxed()) {
             getLevel().playSound(null, getBlockPos(), SoundEvents.WAXED_SIGN_INTERACT_FAIL, SoundSource.BLOCKS);
             if (oldName != null) {
                 player.displayClientMessage(Component.translatable("chat.computercraft.wired_modem.connected_peripheral",
