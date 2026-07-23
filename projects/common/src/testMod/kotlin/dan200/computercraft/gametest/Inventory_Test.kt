@@ -85,4 +85,19 @@ class Inventory_Test {
                 .assertArrayEquals(32, message = "Moved 32 items into a double chest")
         }
     }
+
+    /**
+     * Ensure slots 1-3 in brewing stands have a limit of 1.
+     *
+     * @see <https://github.com/cc-tweaked/CC-Tweaked/issues/2480>
+     */
+    @GameTest(required = false)
+    fun Brewing_stand_item_limit(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer {
+            getApi<PeripheralAPI>().call(context, ObjectArguments("left", "getItemLimit", 1)).await()
+                .assertArrayEquals(1, message = "Slot #1 has limit of 1")
+            getApi<PeripheralAPI>().call(context, ObjectArguments("left", "getItemLimit", 2)).await()
+                .assertArrayEquals(1, message = "Slot #2 has limit of 1")
+        }
+    }
 }
