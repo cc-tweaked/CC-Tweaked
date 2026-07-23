@@ -257,26 +257,32 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     @Override
     @Deprecated
     public final InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if (player.isCrouching() || !player.mayBuild()) return InteractionResult.PASS;
+        if (world.getBlockEntity(pos) instanceof CableBlockEntity modem) {
+            if (player.isCrouching() || !player.mayBuild()) return InteractionResult.PASS;
 
-        var itemInHand = player.getItemInHand(hand);
-        var isWaxed = state.getValue(WAXED);
-        if (itemInHand.getItem() instanceof HoneycombItem && !isWaxed) {
-            world.levelEvent(player, LevelEvent.PARTICLES_AND_SOUND_WAX_ON, pos, 0);
-            world.setBlockAndUpdate(pos, state.setValue(WAXED, true));
-            if (!player.isCreative()) itemInHand.shrink(1);
-            return InteractionResult.SUCCESS;
-        } else if (itemInHand.getItem() instanceof AxeItem && isWaxed) {
-            world.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
-            world.levelEvent(player, LevelEvent.PARTICLES_WAX_OFF, pos, 0);
-            world.setBlockAndUpdate(pos, state.setValue(WAXED, false));
-            if (!player.isCreative()){
-                itemInHand.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(hand));
+            if (modem.hasModem()){
+                var itemInHand = player.getItemInHand(hand);
+                var isWaxed = state.getValue(WAXED);
+                if (itemInHand.getItem() instanceof HoneycombItem && !isWaxed) {
+                    world.levelEvent(player, LevelEvent.PARTICLES_AND_SOUND_WAX_ON, pos, 0);
+                    world.setBlockAndUpdate(pos, state.setValue(WAXED, true));
+                    if (!player.isCreative()) itemInHand.shrink(1);
+                    return InteractionResult.SUCCESS;
+                } else if (itemInHand.getItem() instanceof AxeItem && isWaxed) {
+                    world.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    world.levelEvent(player, LevelEvent.PARTICLES_WAX_OFF, pos, 0);
+                    world.setBlockAndUpdate(pos, state.setValue(WAXED, false));
+                    if (!player.isCreative()){
+                        itemInHand.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(hand));
+                    }
+                    return InteractionResult.SUCCESS;
+                }
             }
-            return InteractionResult.SUCCESS;
+
+            return modem.use(player);
         }
 
-        return world.getBlockEntity(pos) instanceof CableBlockEntity modem ? modem.use(player) : InteractionResult.PASS;
+        return InteractionResult.PASS;
     }
 
     @Override
