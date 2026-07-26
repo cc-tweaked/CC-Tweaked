@@ -91,8 +91,8 @@ function pullEventRaw(filter) end
 
 --- Pauses execution for the specified number of seconds, alias of [`_G.sleep`].
 --
--- @tparam number time The number of seconds to sleep for, rounded up to the
--- nearest multiple of 0.05.
+-- @tparam[opt=0] number time The number of seconds to sleep for, rounded up to
+-- the nearest multiple of 0.05.
 function sleep(time) end
 
 --- Get the current CraftOS version (for example, `CraftOS 1.9`).

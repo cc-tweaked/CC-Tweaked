@@ -28,7 +28,7 @@ thread, not the whole program.
 > need to receive events while sleeping, consider using [timers][`os.startTimer`],
 > or the [parallel API][`parallel`].
 
-@tparam number time The number of seconds to sleep for, rounded up to the
+@tparam[opt=0] number time The number of seconds to sleep for, rounded up to the
 nearest multiple of 0.05.
 
 @see os.startTimer
@@ -38,7 +38,7 @@ nearest multiple of 0.05.
     sleep(3)
     print("Done!")
 
-@changed 1.63 The `time` parameter is now optional, defaulting to 0 if not set.
+@changed 1.63 The `time` parameter is now optional.
 ]]
 function sleep(time) end
 
