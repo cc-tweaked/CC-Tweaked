@@ -37,6 +37,8 @@ nearest multiple of 0.05.
     print("Sleeping for three seconds")
     sleep(3)
     print("Done!")
+
+@changed 1.63 The `time` parameter is now optional, defaulting to 0 if not set.
 ]]
 function sleep(time) end
 

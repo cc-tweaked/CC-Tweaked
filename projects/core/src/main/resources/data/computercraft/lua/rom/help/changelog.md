@@ -1434,6 +1434,7 @@ And several bug fixes:
 * Turtle label nameplates now only show when the Turtle is moused-over
 * The HTTP API is now enabled by default, and can be configured with a whitelist of permitted domains
 * `http.get()` and `http.post()` now accept parameters to control the request headers
+* `sleep()`, when invoked without a parameter, defaults to 0.
 * New fs function: `fs.getDir( path )`
 * Fixed some bugs
 
