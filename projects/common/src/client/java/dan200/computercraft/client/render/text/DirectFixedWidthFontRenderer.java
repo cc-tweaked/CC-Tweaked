@@ -55,14 +55,14 @@ public final class DirectFixedWidthFontRenderer {
         var yStart = 1 + row * (FONT_HEIGHT + 2);
 
         quad(
-            emitter, x, y, x + FONT_WIDTH, y + FONT_HEIGHT, 0, colour,
+            emitter, x, y, x + FONT_WIDTH, y + FONT_HEIGHT, colour,
             xStart / WIDTH, yStart / WIDTH, (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH
         );
     }
 
     private static void drawQuad(QuadEmitter emitter, float x, float y, float width, float height, Palette palette, char colourIndex) {
         var colour = palette.getRenderColours(getColour(colourIndex, Colour.BLACK));
-        quad(emitter, x, y, x + width, y + height, 0f, colour, BACKGROUND_START, BACKGROUND_START, BACKGROUND_END, BACKGROUND_END);
+        quad(emitter, x, y, x + width, y + height, colour, BACKGROUND_START, BACKGROUND_START, BACKGROUND_END, BACKGROUND_END);
     }
 
     private static void drawBackground(
@@ -161,16 +161,37 @@ public final class DirectFixedWidthFontRenderer {
         return (terminal.getHeight() + 2) * (terminal.getWidth() + 2) * 2;
     }
 
-    private static void quad(QuadEmitter buffer, float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2) {
-        buffer.quad(x1, y1, x2, y2, z, colour, u1, v1, u2, v2);
+    private static void quad(QuadEmitter buffer, float x1, float y1, float x2, float y2, int colour, float u1, float v1, float u2, float v2) {
+        // Pack colour so it is equivalent to rgba:BBBB. This matches the logic in BufferBuilder.
+        var colourAbgr = FastColor.ABGR32.fromArgb32(colour);
+        var nativeColour = IS_LITTLE_ENDIAN ? colourAbgr : Integer.reverseBytes(colourAbgr);
+
+        buffer.quad(x1, y1, x2, y2, 0, nativeColour, u1, v1, u2, v2);
     }
 
+    /**
+     * An abstraction for emitting quads to a buffer.
+     */
     public interface QuadEmitter {
         VertexFormat format();
 
         ByteBuffer buffer();
 
-        void quad(float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2);
+        /**
+         * Emit a quad to this buffer.
+         *
+         * @param x1           The first X coordinate of the quad.
+         * @param y1           The first Y coordinate of the quad.
+         * @param x2           The second X coordinate of the quad.
+         * @param y2           The second Y coordinate of the quad.
+         * @param z            The z coordinate of the quad.
+         * @param nativeColour The colour of the quad, in ABGR or RGBA, according to endianness.
+         * @param u1           The first U coordinate of the quad.
+         * @param v1           The first V coordinate of the quad.
+         * @param u2           The second U coordinate of the quad.
+         * @param v2           The second V coordinate of the quad.
+         */
+        void quad(float x1, float y1, float x2, float y2, float z, int nativeColour, float u1, float v1, float u2, float v2);
     }
 
     public record ByteBufferEmitter(ByteBuffer buffer) implements QuadEmitter {
@@ -180,12 +201,12 @@ public final class DirectFixedWidthFontRenderer {
         }
 
         @Override
-        public void quad(float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2) {
-            DirectFixedWidthFontRenderer.quad(buffer, x1, y1, x2, y2, z, colour, u1, v1, u2, v2);
+        public void quad(float x1, float y1, float x2, float y2, float z, int nativeColour, float u1, float v1, float u2, float v2) {
+            DirectFixedWidthFontRenderer.quad(buffer, x1, y1, x2, y2, z, nativeColour, u1, v1, u2, v2);
         }
     }
 
-    static void quad(ByteBuffer buffer, float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2) {
+    static void quad(ByteBuffer buffer, float x1, float y1, float x2, float y2, float z, int nativeColour, float u1, float v1, float u2, float v2) {
         // Emit a single quad to our buffer. This uses Unsafe (well, LWJGL's MemoryUtil) to directly blit bytes to the
         // underlying buffer. This allows us to have a single bounds check up-front, rather than one for every write.
         // This provides significant performance gains, at the cost of well, using Unsafe.
@@ -199,10 +220,6 @@ public final class DirectFixedWidthFontRenderer {
         if (position < 0 || 112 > buffer.limit() - position) throw new IndexOutOfBoundsException();
         // Require the pointer to be aligned to a 32-bit boundary.
         if ((addr & 3) != 0) throw new IllegalStateException("Memory is not aligned");
-
-        // Pack colour so it is equivalent to rgba:BBBB. This matches the logic in BufferBuilder.
-        var colourAbgr = FastColor.ABGR32.fromArgb32(colour);
-        var nativeColour = IS_LITTLE_ENDIAN ? colourAbgr : Integer.reverseBytes(colourAbgr);
 
         memPutFloat(addr + 0, x1);
         memPutFloat(addr + 4, y1);
