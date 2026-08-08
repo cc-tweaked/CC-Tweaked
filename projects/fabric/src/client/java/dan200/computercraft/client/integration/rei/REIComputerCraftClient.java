@@ -11,10 +11,7 @@ import dev.architectury.event.EventResult;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.display.DisplayRegistry;
 import me.shedaniel.rei.api.client.registry.entry.CollapsibleEntryRegistry;
-import me.shedaniel.rei.api.client.registry.entry.EntryRegistry;
-import me.shedaniel.rei.api.common.display.basic.BasicDisplay;
 import me.shedaniel.rei.api.common.entry.type.VanillaEntryTypes;
-import me.shedaniel.rei.api.common.util.EntryStacks;
 import me.shedaniel.rei.plugin.common.BuiltinPlugin;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -25,13 +22,6 @@ import net.minecraft.world.item.ItemStack;
  * This is Fabric-only for now - getting the common jar working outside of architectury is awkward.
  */
 public class REIComputerCraftClient implements REIClientPlugin {
-    @Override
-    public void registerEntries(EntryRegistry registry) {
-        for (var stack : RecipeModHelpers.getExtraStacks(BasicDisplay.registryAccess())) {
-            registry.addEntry(EntryStacks.of(stack));
-        }
-    }
-
     @Override
     public void registerCollapsibleEntries(CollapsibleEntryRegistry registry) {
         addCollapsableGroup(registry, ModRegistry.Items.TURTLE_NORMAL);

@@ -1,3 +1,10 @@
+# New features in CC: Tweaked 1.120.2
+
+Several bug fixes:
+* Fix shell crashing if `read()` doesn't yield.
+* Fix pocket/printout lecterns not rendering when at the very bottom of the screen.
+* Several documentation fixes. (tomodachi94)
+
 # New features in CC: Tweaked 1.120.1
 
 Breaking changes:
@@ -1470,6 +1477,7 @@ And several bug fixes:
 * Turtle label nameplates now only show when the Turtle is moused-over
 * The HTTP API is now enabled by default, and can be configured with a whitelist of permitted domains
 * `http.get()` and `http.post()` now accept parameters to control the request headers
+* `sleep()`, when invoked without a parameter, defaults to 0.
 * New fs function: `fs.getDir( path )`
 * Fixed some bugs
 

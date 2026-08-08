@@ -53,8 +53,7 @@ public class TurtlePlaceCommand implements TurtleCommand {
         var direction = this.direction.toWorldDir(turtle);
 
         // Create a fake player, and orient it appropriately
-        var playerPosition = turtle.getPosition().relative(direction);
-        var turtlePlayer = TurtlePlayer.getWithPosition(turtle, playerPosition, direction);
+        var turtlePlayer = TurtlePlayer.get(turtle);
 
         // Do the deploying
         turtlePlayer.loadInventory(turtle);
@@ -76,15 +75,14 @@ public class TurtlePlaceCommand implements TurtleCommand {
         ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, Direction direction,
         @Nullable Object[] extraArguments, @Nullable ErrorMessage outErrorMessage
     ) {
-        // Deploy on an entity
-        if (deployOnEntity(turtle, turtlePlayer)) return true;
-
         var position = turtle.getPosition();
         var newPosition = position.relative(direction);
 
         // Try to deploy against a block. Tries the following options:
-        //     Deploy on the block immediately in front
-        return deployOnBlock(stack, turtle, turtlePlayer, newPosition, direction.getOpposite(), extraArguments, true, outErrorMessage)
+        //     Deploy on the entity in the target direction
+        return deployOnEntity(turtle, turtlePlayer, direction)
+            //  Deploy on the block immediately in front
+            || deployOnBlock(stack, turtle, turtlePlayer, newPosition, direction.getOpposite(), extraArguments, true, outErrorMessage)
             // Deploy on the block one block away
             || deployOnBlock(stack, turtle, turtlePlayer, newPosition.relative(direction), direction.getOpposite(), extraArguments, false, outErrorMessage)
             // Deploy down on the block in front
@@ -93,7 +91,9 @@ public class TurtlePlaceCommand implements TurtleCommand {
             || deployOnBlock(stack, turtle, turtlePlayer, position, direction, extraArguments, false, outErrorMessage);
     }
 
-    private static boolean deployOnEntity(ITurtleAccess turtle, TurtlePlayer turtlePlayer) {
+    private static boolean deployOnEntity(ITurtleAccess turtle, TurtlePlayer turtlePlayer, Direction facing) {
+        turtlePlayer.setPosition(turtle, turtle.getPosition(), facing);
+
         // See if there is an entity present
         var world = turtle.getLevel();
         var turtlePos = turtlePlayer.player().position();
@@ -152,32 +152,31 @@ public class TurtlePlaceCommand implements TurtleCommand {
     }
 
     private static boolean deployOnBlock(
-        ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, BlockPos position, Direction side,
+        ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, BlockPos blockPos, Direction side,
         @Nullable Object[] extraArguments, boolean adjacent, @Nullable ErrorMessage outErrorMessage
     ) {
-        // Re-orient the fake player
-        var playerDir = side.getOpposite();
-        var playerPosition = position.relative(side);
-        turtlePlayer.setPosition(turtle, playerPosition, playerDir);
+        // Re-orient the fake player. We're placing at "blockPos" against the "side" face, so we move the player back
+        // one block and facing towards the block.
+        turtlePlayer.setPosition(turtle, blockPos.relative(side), side.getOpposite());
 
         // Check if there's something suitable to place onto
-        var hit = getHitResult(position, side);
+        var hit = getHitResult(blockPos, side);
         var context = new UseOnContext(turtlePlayer.player(), InteractionHand.MAIN_HAND, hit);
-        if (!canDeployOnBlock(new BlockPlaceContext(context), turtle, turtlePlayer, position, side, adjacent, outErrorMessage)) {
+        if (!canDeployOnBlock(new BlockPlaceContext(context), turtle, turtlePlayer, blockPos, side, adjacent, outErrorMessage)) {
             return false;
         }
 
         var item = stack.getItem();
-        var existingTile = turtle.getLevel().getBlockEntity(position);
+        var existingTile = turtle.getLevel().getBlockEntity(blockPos);
 
         var placed = doDeployOnBlock(stack, turtlePlayer, hit, adjacent).consumesAction();
 
         // Set text on signs
         if (placed && item instanceof SignItem && extraArguments.length >= 1 && extraArguments[0] instanceof String message) {
             var world = turtle.getLevel();
-            var tile = world.getBlockEntity(position);
+            var tile = world.getBlockEntity(blockPos);
             if (tile == null || tile == existingTile) {
-                tile = world.getBlockEntity(position.relative(side));
+                tile = world.getBlockEntity(blockPos.relative(side));
             }
 
             if (tile instanceof SignBlockEntity sign) setSignText(world, sign, message);
@@ -220,7 +219,10 @@ public class TurtlePlaceCommand implements TurtleCommand {
             }
         }
 
-        // We special case some items which we allow to place "normally". Yes, this is very ugly.
+        // We special case some items that we try to place as blocks, such as boats or water buckets.
+        // We do this inside doDeployOnBlock as we still need to try the various position combinations (e.g.
+        // turtle.place() on a boat should place it downwards onto water).
+        // Yes, this is very ugly.
         var item = stack.getItem();
         if (item instanceof BucketItem || item instanceof PlaceOnWaterBlockItem || stack.is(ComputerCraftTags.Items.TURTLE_CAN_PLACE)) {
             return turtlePlayer.player().gameMode.useItem(turtlePlayer.player(), turtlePlayer.player().level(), stack, InteractionHand.MAIN_HAND);

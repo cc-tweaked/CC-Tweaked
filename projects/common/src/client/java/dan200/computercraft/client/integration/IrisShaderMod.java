@@ -42,18 +42,18 @@ public class IrisShaderMod implements ShaderMod.Provider {
             }
 
             @Override
+            public VertexFormat format() {
+                return sink.getUnderlyingVertexFormat();
+            }
+
+            @Override
             public ByteBuffer byteBuffer() {
                 return sink.getUnderlyingByteBuffer();
             }
 
             @Override
-            public void quad(float x1, float y1, float x2, float y2, float z, int colour, float u1, float v1, float u2, float v2) {
-                sink.quad(x1, y1, x2, y2, z, colour, u1, v1, u2, v2, LightCoordsUtil.FULL_BRIGHT);
-            }
-
-            @Override
-            public VertexFormat format() {
-                return sink.getUnderlyingVertexFormat();
+            public void quad(float x1, float y1, float x2, float y2, float z, int nativeColour, float u1, float v1, float u2, float v2) {
+                sink.quad(x1, y1, x2, y2, z, nativeColour, u1, v1, u2, v2, LightCoordsUtil.FULL_BRIGHT);
             }
         }
     }

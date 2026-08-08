@@ -743,21 +743,24 @@ public final class ModRegistry {
 
     private static void addTurtle(CreativeModeTab.Output out, TurtleItem turtle, HolderLookup.Provider registries) {
         out.accept(new ItemStack(turtle));
-        registries.lookupOrThrow(ITurtleUpgrade.REGISTRY).listElements()
-            .filter(ModRegistry::isOurUpgrade)
-            .map(x -> DataComponentUtil.createStack(turtle, DataComponents.RIGHT_TURTLE_UPGRADE.get(), UpgradeData.ofDefault(x)))
-            .forEach(out::accept);
+        registries.lookupOrThrow(ITurtleUpgrade.REGISTRY).listElements().forEach(x -> out.accept(
+            DataComponentUtil.createStack(turtle, DataComponents.RIGHT_TURTLE_UPGRADE.get(), UpgradeData.ofDefault(x)),
+            getUpgradeTabVisibility(x)
+        ));
     }
 
     private static void addPocket(CreativeModeTab.Output out, PocketComputerItem pocket, HolderLookup.Provider registries) {
         out.accept(new ItemStack(pocket));
-        registries.lookupOrThrow(IPocketUpgrade.REGISTRY).listElements()
-            .filter(ModRegistry::isOurUpgrade)
-            .map(x -> DataComponentUtil.createStack(pocket, DataComponents.BACK_POCKET_UPGRADE.get(), UpgradeData.ofDefault(x))).forEach(out::accept);
+        registries.lookupOrThrow(IPocketUpgrade.REGISTRY).listElements().forEach(x -> out.accept(
+            DataComponentUtil.createStack(pocket, DataComponents.BACK_POCKET_UPGRADE.get(), UpgradeData.ofDefault(x)),
+            getUpgradeTabVisibility(x)
+        ));
     }
 
-    private static boolean isOurUpgrade(Holder.Reference<? extends UpgradeBase> upgrade) {
+    private static CreativeModeTab.TabVisibility getUpgradeTabVisibility(Holder.Reference<? extends UpgradeBase> upgrade) {
         var namespace = upgrade.key().identifier().getNamespace();
-        return namespace.equals("minecraft") || namespace.equals(ComputerCraftAPI.MOD_ID);
+        return namespace.equals("minecraft") || namespace.equals(ComputerCraftAPI.MOD_ID)
+            ? CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+            : CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY;
     }
 }
