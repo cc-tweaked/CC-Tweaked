@@ -53,12 +53,6 @@ public class JEIComputerCraft implements IModPlugin {
     public void onRuntimeAvailable(IJeiRuntime runtime) {
         var registry = runtime.getRecipeManager();
 
-        // Register all turtles/pocket computers (not just vanilla upgrades) as upgrades on JEI.
-        var upgradeItems = RecipeModHelpers.getExtraStacks(getRegistryAccess());
-        if (!upgradeItems.isEmpty()) {
-            runtime.getIngredientManager().addIngredientsAtRuntime(VanillaTypes.ITEM_STACK, upgradeItems);
-        }
-
         // Hide all upgrade recipes
         var category = registry.createRecipeLookup(RecipeTypes.CRAFTING);
         category.get().forEach(wrapper -> {

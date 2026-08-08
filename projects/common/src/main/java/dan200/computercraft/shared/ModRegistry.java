@@ -21,6 +21,7 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.impl.PocketUpgrades;
+import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.command.UserLevel;
 import dan200.computercraft.shared.command.arguments.ComputerArgumentType;
 import dan200.computercraft.shared.command.arguments.RepeatArgumentType;
@@ -338,7 +339,7 @@ public final class ModRegistry {
          * @see TurtleItem
          */
         public static final RegistryEntry<DataComponentType<UpgradeData<ITurtleUpgrade>>> LEFT_TURTLE_UPGRADE = register("left_turtle_upgrade", b -> b
-            .persistent(dan200.computercraft.impl.TurtleUpgrades.instance().upgradeDataCodec()).networkSynchronized(dan200.computercraft.impl.TurtleUpgrades.instance().upgradeDataStreamCodec())
+            .persistent(TurtleUpgrades.instance().upgradeDataCodec()).networkSynchronized(TurtleUpgrades.instance().upgradeDataStreamCodec())
         );
 
         /**
@@ -347,7 +348,7 @@ public final class ModRegistry {
          * @see TurtleItem
          */
         public static final RegistryEntry<DataComponentType<UpgradeData<ITurtleUpgrade>>> RIGHT_TURTLE_UPGRADE = register("right_turtle_upgrade", b -> b
-            .persistent(dan200.computercraft.impl.TurtleUpgrades.instance().upgradeDataCodec()).networkSynchronized(dan200.computercraft.impl.TurtleUpgrades.instance().upgradeDataStreamCodec())
+            .persistent(TurtleUpgrades.instance().upgradeDataCodec()).networkSynchronized(TurtleUpgrades.instance().upgradeDataStreamCodec())
         );
 
         /**
@@ -711,21 +712,24 @@ public final class ModRegistry {
 
     private static void addTurtle(CreativeModeTab.Output out, TurtleItem turtle, HolderLookup.Provider registries) {
         out.accept(new ItemStack(turtle));
-        registries.lookupOrThrow(ITurtleUpgrade.REGISTRY).listElements()
-            .filter(ModRegistry::isOurUpgrade)
-            .map(x -> DataComponentUtil.createStack(turtle, DataComponents.RIGHT_TURTLE_UPGRADE.get(), UpgradeData.ofDefault(x)))
-            .forEach(out::accept);
+        registries.lookupOrThrow(ITurtleUpgrade.REGISTRY).listElements().forEach(x -> out.accept(
+            DataComponentUtil.createStack(turtle, DataComponents.RIGHT_TURTLE_UPGRADE.get(), UpgradeData.ofDefault(x)),
+            getUpgradeTabVisibility(x)
+        ));
     }
 
     private static void addPocket(CreativeModeTab.Output out, PocketComputerItem pocket, HolderLookup.Provider registries) {
         out.accept(new ItemStack(pocket));
-        registries.lookupOrThrow(IPocketUpgrade.REGISTRY).listElements()
-            .filter(ModRegistry::isOurUpgrade)
-            .map(x -> DataComponentUtil.createStack(pocket, DataComponents.POCKET_UPGRADE.get(), UpgradeData.ofDefault(x))).forEach(out::accept);
+        registries.lookupOrThrow(IPocketUpgrade.REGISTRY).listElements().forEach(x -> out.accept(
+            DataComponentUtil.createStack(pocket, DataComponents.POCKET_UPGRADE.get(), UpgradeData.ofDefault(x)),
+            getUpgradeTabVisibility(x)
+        ));
     }
 
-    private static boolean isOurUpgrade(Holder.Reference<? extends UpgradeBase> upgrade) {
+    private static CreativeModeTab.TabVisibility getUpgradeTabVisibility(Holder.Reference<? extends UpgradeBase> upgrade) {
         var namespace = upgrade.key().location().getNamespace();
-        return namespace.equals("minecraft") || namespace.equals(ComputerCraftAPI.MOD_ID);
+        return namespace.equals("minecraft") || namespace.equals(ComputerCraftAPI.MOD_ID)
+            ? CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+            : CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY;
     }
 }
