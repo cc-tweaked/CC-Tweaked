@@ -215,9 +215,7 @@ public class PlatformHelperImpl implements PlatformHelper {
     public boolean interactWithEntity(ServerPlayer player, EntityHitResult hit) {
         var entity = hit.getEntity();
         var hitPos = hit.getLocation().subtract(entity.position());
-        var interactAt = CommonHooks.onInteractEntityAt(player, entity, hitPos, InteractionHand.MAIN_HAND);
-        if (interactAt == null) interactAt = player.interactOn(entity, InteractionHand.MAIN_HAND, hitPos);
-        return interactAt.consumesAction();
+        return player.interactOn(entity, InteractionHand.MAIN_HAND, hitPos).consumesAction();
     }
 
     @Override

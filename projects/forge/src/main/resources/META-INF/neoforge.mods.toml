@@ -6,9 +6,11 @@ modLoader="javafml"
 loaderVersion="[1,)"
 
 issueTrackerURL="https://github.com/cc-tweaked/CC-Tweaked/issues"
-logoFile="pack.png"
+iconFile="pack.png"
+bannerFile="banner.png"
 
-license="ComputerCraft Public License (https://raw.githubusercontent.com/dan200/ComputerCraft/master/LICENSE)"
+license="ComputerCraft Public License"
+licenseURL="https://raw.githubusercontent.com/dan200/ComputerCraft/master/LICENSE"
 
 [[mods]]
 modId="computercraft"

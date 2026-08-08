@@ -46,7 +46,7 @@ public interface InventoryMethodsContract<T> {
 
         assertEquals(64, create().getItemLimit(wrap(container), 1), "Dirt stacks to 64");
         assertEquals(1, create().getItemLimit(wrap(container), 2), "Buckets stack to 1");
-        assertEquals(64, create().getItemLimit(wrap(container), 3), "Empty slots stack to 64 by default");
+        assertEquals(99, create().getItemLimit(wrap(container), 3), "Empty slots stack to 99 by default");
 
         var err = assertThrows(LuaException.class, () -> create().getItemLimit(wrap(container), 0));
         assertEquals("Slot out of range (between 1 and 3)", err.getMessage());
