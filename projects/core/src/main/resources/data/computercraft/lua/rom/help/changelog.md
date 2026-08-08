@@ -1,3 +1,10 @@
+# New features in CC: Tweaked 1.120.2
+
+Several bug fixes:
+* Fix shell crashing if `read()` doesn't yield.
+* Fix pocket/printout lecterns not rendering when at the very bottom of the screen.
+* Several documentation fixes. (tomodachi94)
+
 # New features in CC: Tweaked 1.120.0
 
 * Support spawning new parallel functions in `parallel.waitForAll`.
