@@ -628,12 +628,12 @@ settings.define("shell.autocomplete", {
 settings.define("edit.autocomplete", {
     default = true,
     description = "Autocomplete API and function names in the editor.",
-        type = "boolean",
+    type = "boolean",
 })
 settings.define("lua.autocomplete", {
     default = true,
     description = "Autocomplete API and function names in the Lua REPL.",
-        type = "boolean",
+    type = "boolean",
 })
 
 settings.define("edit.default_extension", {
