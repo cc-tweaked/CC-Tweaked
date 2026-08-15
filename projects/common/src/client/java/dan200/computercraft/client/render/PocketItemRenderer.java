@@ -10,6 +10,7 @@ import dan200.computercraft.client.gui.GuiSprites;
 import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.util.Colour;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
@@ -47,8 +48,14 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
 
         int termWidth, termHeight;
         if (terminal == null) {
-            termWidth = Config.DEFAULT_POCKET_TERM_WIDTH;
-            termHeight = Config.DEFAULT_POCKET_TERM_HEIGHT;
+            var terminalSize = stack.get(ModRegistry.DataComponents.TERMINAL_SIZE.get());
+            if (terminalSize != null) {
+                termWidth = terminalSize.width();
+                termHeight = terminalSize.height();
+            } else {
+                termWidth = Config.DEFAULT_POCKET_TERM_WIDTH;
+                termHeight = Config.DEFAULT_POCKET_TERM_HEIGHT;
+            }
         } else {
             termWidth = terminal.getWidth();
             termHeight = terminal.getHeight();
