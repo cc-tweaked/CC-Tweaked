@@ -213,8 +213,10 @@ public class TurtlePlaceCommand implements TurtleCommand {
                 if (useResult.consumesAction()) return useResult;
             }
 
-            var useOnResult = stack.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
-            if (useOnResult != InteractionResult.PASS) return useOnResult;
+            if (canUse.item()) {
+                var useOnResult = stack.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+                if (useOnResult != InteractionResult.PASS) return useOnResult;
+            }
         }
 
         // We special case some items that we try to place as blocks, such as boats or water buckets.
