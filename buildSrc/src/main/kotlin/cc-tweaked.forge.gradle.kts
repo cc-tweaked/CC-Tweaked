@@ -15,8 +15,6 @@ plugins {
 
 plugins.apply(CCTweakedPlugin::class.java)
 
-val mcVersion: String by extra
-
 neoForge {
     val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
     version = libs.findVersion("neoForge").get().toString()

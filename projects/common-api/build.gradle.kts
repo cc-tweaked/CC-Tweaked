@@ -8,7 +8,8 @@ plugins {
     id("cc-tweaked.vanilla")
 }
 
-val mcVersion: String by extra
+val mcVersion = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
+    .findVersion("minecraft").get().toString()
 
 java {
     withJavadocJar()

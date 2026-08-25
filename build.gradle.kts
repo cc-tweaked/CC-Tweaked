@@ -18,7 +18,8 @@ plugins {
 
 val isUnstable = project.properties["isUnstable"] == "true"
 val modVersion: String by extra
-val mcVersion: String by extra
+val mcVersion = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
+    .findVersion("minecraft").get().toString()
 
 githubRelease {
     token(findProperty("githubApiKey") as String? ?: "")

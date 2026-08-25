@@ -17,8 +17,6 @@ plugins {
 
 plugins.apply(CCTweakedPlugin::class.java)
 
-val mcVersion: String by extra
-
 loom {
     splitEnvironmentSourceSets()
     splitModDependencies = true
@@ -33,7 +31,7 @@ extensions.configure(CCTweakedExtension::class.java) {
 dependencies {
     val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-    minecraft("com.mojang:minecraft:$mcVersion")
+    minecraft("com.mojang:minecraft:${libs.findVersion("minecraft").get().toString()}")
 
     implementation(libs.findLibrary("fabric-loader").get())
     implementation(libs.findLibrary("fabric-api").get())

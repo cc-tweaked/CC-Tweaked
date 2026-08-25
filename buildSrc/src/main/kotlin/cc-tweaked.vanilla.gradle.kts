@@ -15,17 +15,15 @@ plugins {
 
 plugins.apply(CCTweakedPlugin::class.java)
 
-val mcVersion: String by extra
-
-val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
-
 loom {
     splitEnvironmentSourceSets()
     splitModDependencies = true
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:$mcVersion")
+    val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
+
+    minecraft("com.mojang:minecraft:${libs.findVersion("minecraft").get().toString()}")
 
     // Depend on error prone annotations to silence a lot of compile warnings.
     compileOnly(libs.findLibrary("errorProne.annotations").get())
