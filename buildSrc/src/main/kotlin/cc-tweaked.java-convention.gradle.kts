@@ -22,12 +22,12 @@ plugins {
 }
 
 val modVersion: String by extra
-val mcVersion: String by extra
+
+val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 group = "cc.tweaked"
 version = modVersion
-
-base.archivesName.convention("cc-tweaked-$mcVersion-${project.name}")
+base.archivesName.set("cc-tweaked-${libs.findVersion("minecraft").get()}-${project.name}")
 
 java {
     toolchain { languageVersion = CCTweakedPlugin.JDK_VERSION }
@@ -64,7 +64,6 @@ repositories {
 }
 
 dependencies {
-    val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
     checkstyle(libs.findLibrary("checkstyle").get())
 
     constraints {
