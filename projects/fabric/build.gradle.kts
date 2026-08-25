@@ -142,7 +142,7 @@ loom {
             generateRunConfig = true
             ideConfigFolder = "Fabric"
 
-            property("fabric-tag-conventions-v2.missingTagTranslationWarning", "VERBOSE")
+            systemProperties.put("fabric-tag-conventions-v2.missingTagTranslationWarning", "VERBOSE")
         }
 
         named("client") {
