@@ -15,12 +15,10 @@ plugins {
 
 plugins.apply(CCTweakedPlugin::class.java)
 
-val mcVersion: String by extra
-
 val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 minecraft {
-    version(mcVersion)
+    version(libs.findVersion("minecraft").get().toString())
 
     mappings {
         parchment(libs.findVersion("parchmentMc").get().toString(), libs.findVersion("parchment").get().toString())

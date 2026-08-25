@@ -219,8 +219,10 @@ public class TurtlePlaceCommand implements TurtleCommand {
                     }
                 }
 
-                var useOnResult = stack.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
-                if (useOnResult != InteractionResult.PASS) return useOnResult;
+                if (canUse.item()) {
+                    var useOnResult = stack.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+                    if (useOnResult != InteractionResult.PASS) return useOnResult;
+                }
             }
         }
 

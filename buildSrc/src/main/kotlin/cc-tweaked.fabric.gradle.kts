@@ -17,8 +17,6 @@ plugins {
 
 plugins.apply(CCTweakedPlugin::class.java)
 
-val mcVersion: String by extra
-
 repositories {
     maven("https://maven.parchmentmc.org/") {
         name = "Parchment"
@@ -42,7 +40,7 @@ extensions.configure(CCTweakedExtension::class.java) {
 dependencies {
     val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-    minecraft("com.mojang:minecraft:$mcVersion")
+    minecraft("com.mojang:minecraft:${libs.findVersion("minecraft").get()}")
     mappings(
         loom.layered {
             officialMojangMappings()

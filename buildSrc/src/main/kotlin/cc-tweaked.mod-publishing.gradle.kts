@@ -21,7 +21,8 @@ val modPublishing = project.extensions.create("modPublishing", ModPublishingExte
 
 val isUnstable = project.properties["isUnstable"] == "true"
 val modVersion: String by extra
-val mcVersion: String by extra
+val mcVersion = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
+    .findVersion("minecraft").get().toString()
 
 modrinth {
     token = findProperty("modrinthApiKey") as String? ?: ""
