@@ -38,11 +38,13 @@ public class OSAPI implements ILuaAPI {
     private int nextAlarmToken = 0;
 
     private record Alarm(double time, int day) implements Comparable<Alarm> {
+        double totalTime() {
+            return day() * 24 + time();
+        }
+
         @Override
         public int compareTo(Alarm o) {
-            var t = day * 24.0 + time;
-            var ot = day * 24.0 + time;
-            return Double.compare(t, ot);
+            return Double.compare(totalTime(), o.totalTime());
         }
     }
 
@@ -83,7 +85,7 @@ public class OSAPI implements ILuaAPI {
                 while (it.hasNext()) {
                     var entry = it.next();
                     var alarm = entry.getValue();
-                    var t = alarm.day * 24.0 + alarm.time;
+                    var t = alarm.totalTime();
                     if (now >= t) {
                         apiEnvironment.queueEvent("alarm", entry.getIntKey());
                         it.remove();
@@ -397,7 +399,7 @@ public class OSAPI implements ILuaAPI {
      *
      * @param formatA The format of the string to return. This defaults to {@code %c}, which expands to a string similar to "Sat Dec 24 16:58:00 2011".
      * @param timeA   The timestamp to convert to a string. This defaults to the current time.
-     * @return The resulting formated string, or table.
+     * @return The resulting formatted string, or table.
      * @throws LuaException If an invalid format is passed.
      * @cc.since 1.83.0
      * @cc.usage Print the current date in a user-friendly string.

@@ -181,7 +181,7 @@ public final class ServerContext {
      * Get the directory used for all ComputerCraft related information. This includes the computer/peripheral id store,
      * and all computer data.
      *
-     * @return The storge directory for ComputerCraft.
+     * @return The storage directory for ComputerCraft.
      */
     public Path storageDir() {
         return storageDir;

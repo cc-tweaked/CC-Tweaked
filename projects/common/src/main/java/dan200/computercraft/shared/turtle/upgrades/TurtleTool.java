@@ -52,18 +52,18 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     private static final String TAG_ITEM_TAG = "Tag";
 
     final ItemStack item;
-    final float damageMulitiplier;
+    final float damageMultiplier;
     final boolean allowEnchantments;
     final TurtleToolDurability consumeDurability;
     final @Nullable TagKey<Block> breakable;
 
     public TurtleTool(
-        ResourceLocation id, String adjective, Item craftItem, ItemStack toolItem, float damageMulitiplier,
+        ResourceLocation id, String adjective, Item craftItem, ItemStack toolItem, float damageMultiplier,
         boolean allowEnchantments, TurtleToolDurability consumeDurability, @Nullable TagKey<Block> breakable
     ) {
         super(id, TurtleUpgradeType.TOOL, adjective, new ItemStack(craftItem));
         item = toolItem;
-        this.damageMulitiplier = damageMulitiplier;
+        this.damageMultiplier = damageMultiplier;
         this.allowEnchantments = allowEnchantments;
         this.consumeDurability = consumeDurability;
         this.breakable = breakable;
@@ -238,7 +238,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
      * @see Player#attack(Entity)
      */
     private boolean attack(ServerPlayer player, Direction direction, Entity entity) {
-        var baseDamage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE) * damageMulitiplier;
+        var baseDamage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE) * damageMultiplier;
         var bonusDamage = EnchantmentHelper.getDamageBonus(
             player.getItemInHand(InteractionHand.MAIN_HAND), entity instanceof LivingEntity target ? target.getMobType() : MobType.UNDEFINED
         );

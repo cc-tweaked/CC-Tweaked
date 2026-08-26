@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
- * Sprite sheet for all GUI texutres in the mod.
+ * Sprite sheet for all GUI textures in the mod.
  */
 public final class GuiSprites extends TextureAtlasHolder {
     public static final ResourceLocation SPRITE_SHEET = new ResourceLocation(ComputerCraftAPI.MOD_ID, "gui");

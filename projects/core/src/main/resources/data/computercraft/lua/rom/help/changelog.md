@@ -87,7 +87,7 @@ Several bug fixes:
 * Ignore shader compilation errors when running with Pojav.
 * Fix several issues with character input.
 * Fix pocket computer dyes being lost when equipping/unequipping upgrades.
-* Fix superflous warnings from allocation tracking.
+* Fix superfluous warnings from allocation tracking.
 * Fix `__lt`/`__le` not working on heterogeneous types.
 * Many documentation fixes (Lemmmy, matematikaadit, McJack123).
 * Fix `0` being treated as a valid colour in `window` and `colour.toBlit`.
@@ -419,7 +419,7 @@ Several bug fixes:
 * Support custom proxies for HTTP requests (Lemmmy).
 * The `speaker` program now errors when playing HTML files.
 * `edit` now shows an error message when editing read-only files.
-* Update Ukranian translation (SirEdvin).
+* Update Ukrainian translation (SirEdvin).
 
 Several bug fixes:
 * Allow GPS hosts to only be 1 block apart.

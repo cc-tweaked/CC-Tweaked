@@ -174,7 +174,7 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     /**
      * Create a new {@link MessageType}.
      *
-     * @param id      The descriminator for this message type.
+     * @param id      The discriminator for this message type.
      * @param channel The channel name for this message type.
      * @param klass   The type of this message.
      * @param reader  The function which reads the packet from a buffer. Should be the inverse to {@link NetworkMessage#write(FriendlyByteBuf)}.

@@ -20,7 +20,7 @@ describe("The gps library", function()
     describe("on fake computers", function()
         local fake_computer = require "support.fake_computer"
 
-        local function gps_reciever(x, y, z, fn)
+        local function gps_receiver(x, y, z, fn)
             local computer = fake_computer.make_computer(1, fn)
             computer.position = vector.new(x, y, z)
             fake_computer.add_api(computer, "rom/apis/gps.lua")
@@ -52,7 +52,7 @@ describe("The gps library", function()
         end
 
         it("locates a computer", function()
-            local computer, modem = gps_reciever(12, 23, 52, function(env)
+            local computer, modem = gps_receiver(12, 23, 52, function(env)
                 local x, y, z = env.gps.locate()
                 expect({ x, y, z }):same { 12, 23, 52 }
             end)
@@ -69,7 +69,7 @@ describe("The gps library", function()
         end)
 
         it("fails to locate a computer with insufficient hosts", function()
-            local computer, modem = gps_reciever(12, 23, 52, function(env)
+            local computer, modem = gps_receiver(12, 23, 52, function(env)
                 local x, y, z = env.gps.locate()
                 expect({ x, y, z }):same { nil, nil, nil }
             end)
@@ -85,7 +85,7 @@ describe("The gps library", function()
         end)
 
         it("doesn't fail on duplicate hosts", function()
-            local computer, modem = gps_reciever(12, 23, 52, function(env)
+            local computer, modem = gps_receiver(12, 23, 52, function(env)
                 local x, y, z = env.gps.locate()
                 expect({ x, y, z }):same { 12, 23, 52 }
             end)

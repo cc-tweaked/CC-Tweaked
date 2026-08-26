@@ -15,7 +15,7 @@ public final class AtomicHelpers {
      *
      * @param atomic The atomic to increment.
      * @param limit  The maximum value of {@code value}.
-     * @return Whether the value was sucessfully incremented.
+     * @return Whether the value was successfully incremented.
      */
     public static boolean incrementToLimit(AtomicInteger atomic, int limit) {
         int value;

@@ -144,7 +144,7 @@ abstract class CCTweakedExtension(private val project: Project) {
                     // Only the main source set should run the side checker
                     check("SideChecker", if (minecraft && name == "main") CheckSeverity.DEFAULT else CheckSeverity.OFF)
 
-                    // The MissingLoaderOverride check superseeds the MissingOverride one, so disable that.
+                    // The MissingLoaderOverride check superseds the MissingOverride one, so disable that.
                     if (loader != null) {
                         check("MissingOverride", CheckSeverity.OFF)
                         option("ModLoader", loader)

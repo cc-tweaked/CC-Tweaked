@@ -336,7 +336,7 @@ fun GameTestHelper.setContainerItem(pos: BlockPos, slot: Int, item: ItemStack) {
 }
 
 /**
- * An alternative version ot [GameTestHelper.placeAt], which sets the player's held item first.
+ * An alternative version to [GameTestHelper.placeAt], which sets the player's held item first.
  *
  * This is required for compatibility with Forge, which uses the in-hand stack, rather than the stack requested.
  */
