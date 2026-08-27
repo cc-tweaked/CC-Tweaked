@@ -96,9 +96,7 @@ SPDX-License-Identifier: MPL-2.0
             <!-- Seems to complain about @hidden!? -->
             <property name="allowUnknownTags" value="true" />
         </module>
-        <module name="JavadocStyle">
-            <property name="checkHtml" value="false" />
-        </module>
+        <module name="SummaryJavadoc" />
         <module name="NonEmptyAtclauseDescription" />
         <module name="SingleLineJavadoc" />
         <module name="SummaryJavadocCheck"/>

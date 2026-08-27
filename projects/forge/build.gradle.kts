@@ -11,7 +11,7 @@ plugins {
     id("cc-tweaked.mod-publishing")
 }
 
-val modVersion: String by extra
+val modVersion = extra["modVersion"] as String
 
 val allProjects = listOf(":core-api", ":core", ":forge-api").map { evaluationDependsOn(it) }
 cct {
@@ -20,26 +20,26 @@ cct {
 }
 
 legacyForge {
-    val computercraft by mods.registering {
+    val computercraft = mods.register("computercraft") {
         cct.sourceDirectories.get().forEach {
             if (it.classes) sourceSet(it.sourceSet)
         }
     }
 
-    val computercraftDatagen by mods.registering {
+    val computercraftDatagen = mods.register("computercraftDatagen") {
         cct.sourceDirectories.get().forEach {
             if (it.classes) sourceSet(it.sourceSet)
         }
         sourceSet(sourceSets.datagen.get())
     }
 
-    val testMod by mods.registering {
+    val testMod = mods.register("testMod") {
         sourceSet(sourceSets.testMod.get())
         sourceSet(sourceSets.testFixtures.get())
         sourceSet(project(":core").sourceSets["testFixtures"])
     }
 
-    val exampleMod by mods.registering {
+    val exampleMod = mods.register("exampleMod") {
         sourceSet(sourceSets.examples.get())
     }
 
@@ -131,7 +131,7 @@ configurations {
 
     additionalRuntimeClasspath { extendsFrom(jarJar.get()) }
 
-    val testAdditionalRuntimeClasspath by registering {
+    val testAdditionalRuntimeClasspath = register("testAdditionalRuntimeClasspath") {
         isCanBeResolved = true
         isCanBeConsumed = false
         // Prevent ending up with multiple versions of libraries on the classpath.
@@ -144,7 +144,7 @@ configurations {
 
     // Declare a configuration for projects which are on the compile and runtime classpath, but not treated as
     // dependencies. This is used for our local projects.
-    val localImplementation by registering {
+    val localImplementation = register("localImplementation") {
         isCanBeResolved = false
         isCanBeConsumed = false
     }
@@ -234,7 +234,7 @@ val runGametest = tasks.named<JavaExec>("runGametest") {
 cct.jacoco(runGametest)
 tasks.check { dependsOn(runGametest) }
 
-val runGametestClient by tasks.registering(ClientJavaExec::class) {
+val runGametestClient = tasks.register<ClientJavaExec>("runGametestClient") {
     description = "Runs client-side gametests with no mods"
     copyFromForge("runTestClient")
     tags("client")

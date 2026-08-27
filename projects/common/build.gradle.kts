@@ -63,15 +63,13 @@ illuaminate {
     version = libs.versions.illuaminate
 }
 
-val luaJavadoc by tasks.registering(Javadoc::class) {
+val luaJavadoc = tasks.register<Javadoc>("luaJavadoc") {
     description = "Generates documentation for Java-side Lua functions."
     group = JavaBasePlugin.DOCUMENTATION_GROUP
 
-    val sourceSets = listOf(sourceSets.main.get(), project(":core").sourceSets.main.get())
-    for (sourceSet in sourceSets) {
-        source(sourceSet.java)
-        classpath += sourceSet.compileClasspath
-    }
+    source(sourceSets.main.get().java.sourceDirectories)
+    source(project.layout.projectDirectory.dir("../core/src/main/java"))
+    classpath = sourceSets.main.get().compileClasspath + sourceSets.main.get().runtimeClasspath
 
     destinationDir = layout.buildDirectory.dir("docs/luaJavadoc").get().asFile
 
@@ -84,7 +82,7 @@ val luaJavadoc by tasks.registering(Javadoc::class) {
     javadocTool = javaToolchains.javadocToolFor { languageVersion = CCTweakedPlugin.JDK_VERSION }
 }
 
-val lintLua by tasks.registering(IlluaminateExec::class) {
+val lintLua = tasks.register<IlluaminateExec>("lintLua") {
     group = JavaBasePlugin.VERIFICATION_GROUP
     description = "Lint Lua (and Lua docs) with illuaminate"
 
@@ -118,11 +116,11 @@ fun MergeTrees.configureForDatagen(source: SourceSet, outputFolder: String) {
     }
 }
 
-val runData by tasks.registering(MergeTrees::class) {
+val runData = tasks.register<MergeTrees>("runData") {
     configureForDatagen(sourceSets.main.get(), "src/generated/resources")
 }
 
-val runExampleData by tasks.registering(MergeTrees::class) {
+val runExampleData = tasks.register<MergeTrees>("runExampleData") {
     configureForDatagen(sourceSets.examples.get(), "src/examples/generatedResources")
 }
 

@@ -29,12 +29,19 @@ MinecraftConfigurations.createDerivedConfiguration(project, MinecraftConfigurati
 sourceSets.main { resources.srcDir("src/generated/resources") }
 sourceSets.named("examples") { resources.srcDir("src/examples/generatedResources") }
 
+configurations.consumable("samplesElement") {
+    attributes { attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.SAMPLES)) }
+    outgoing.artifacts(sourceSets.named("examples").map { it.allSource.sourceDirectories.files }) {
+        type = ArtifactTypeDefinition.DIRECTORY_TYPE
+    }
+}
+
 // Make sure our examples compile.
 tasks.check { dependsOn(tasks.named("compileExamplesJava")) }
 
 // Similar to java-test-fixtures, but tries to avoid putting the obfuscated jar on the classpath.
 
-val testFixtures by sourceSets.creating {
+val testFixtures = sourceSets.create("testFixtures") {
     compileClasspath += main.compileClasspath + client.compileClasspath
 }
 
@@ -48,10 +55,10 @@ dependencies {
     add(testFixtures.apiConfigurationName, libs.findBundle("test").get())
     // Consumers of this project already have the common and client classes on the classpath, so it's fine for these
     // to be compile-only.
-    add(testFixtures.compileOnlyApiConfigurationName, commonClasses(project))
-    add(testFixtures.compileOnlyApiConfigurationName, clientClasses(project))
+    add(testFixtures.compileOnlyApiConfigurationName, commonClasses(project()))
+    add(testFixtures.compileOnlyApiConfigurationName, clientClasses(project()))
 
-    testImplementation(testFixtures(project))
+    testImplementation(testFixtures(project()))
 }
 
 kotlin.compilerOptions.jvmTarget = CCTweakedPlugin.KOTLIN_TARGET

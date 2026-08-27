@@ -336,7 +336,7 @@ public record ComputerSelector(
         private final Message tooltip;
 
 
-        Option(String name, Parser parser, SuggestionProvider suggest) {
+        private Option(String name, Parser parser, SuggestionProvider suggest) {
             this.name = name;
             this.parser = parser;
             this.suggest = suggest;

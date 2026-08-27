@@ -19,8 +19,8 @@ abstract class ModPublishingExtension {
 
 val modPublishing = project.extensions.create("modPublishing", ModPublishingExtension::class.java)
 
-val isUnstable = project.properties["isUnstable"] == "true"
-val modVersion: String by extra
+val isUnstable = extra["isUnstable"] == "true"
+val modVersion = extra["modVersion"] as String
 val mcVersion = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
     .findVersion("minecraft").get().toString()
 

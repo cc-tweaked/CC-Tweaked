@@ -10,7 +10,7 @@ plugins {
     id("cc-tweaked.illuaminate")
 }
 
-val modVersion: String by extra
+val modVersion = extra["modVersion"] as String
 
 node {
     projectRoot = rootProject.projectDir
@@ -37,7 +37,7 @@ dependencies {
     "builderImplementation"(libs.asm.commons)
 }
 
-val compileTeaVM by tasks.registering(JavaExec::class) {
+val compileTeaVM = tasks.register<JavaExec>("compileTeaVM") {
     group = LifecycleBasePlugin.BUILD_GROUP
     description = "Generate our classes and resources files"
 
@@ -66,7 +66,7 @@ val compileTeaVM by tasks.registering(JavaExec::class) {
     javaLauncher = project.javaToolchains.launcherFor { languageVersion = java.toolchain.languageVersion }
 }
 
-val rollup by tasks.registering(cc.tweaked.gradle.NpxExecToDir::class) {
+val rollup = tasks.register<cc.tweaked.gradle.NpxExecToDir>("rollup") {
     group = LifecycleBasePlugin.BUILD_GROUP
     description = "Bundles JS into rollup"
 
@@ -86,7 +86,7 @@ val rollup by tasks.registering(cc.tweaked.gradle.NpxExecToDir::class) {
     args = listOf("rollup", "--config", "rollup.config.js") + if (minify) emptyList() else listOf("--configDebug")
 }
 
-val illuaminateDocs by tasks.registering(cc.tweaked.gradle.IlluaminateExecToDir::class) {
+val illuaminateDocs = tasks.register<cc.tweaked.gradle.IlluaminateExecToDir>("illuaminateDocs") {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
     description = "Generates docs using Illuaminate"
 
@@ -106,7 +106,7 @@ val illuaminateDocs by tasks.registering(cc.tweaked.gradle.IlluaminateExecToDir:
     workingDir = rootProject.projectDir
 }
 
-val htmlTransform by tasks.registering(cc.tweaked.gradle.NpxExecToDir::class) {
+val htmlTransform = tasks.register<cc.tweaked.gradle.NpxExecToDir>("htmlTransform") {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
     description = "Post-processes documentation to statically render some dynamic content."
 
@@ -130,7 +130,7 @@ val htmlTransform by tasks.registering(cc.tweaked.gradle.NpxExecToDir::class) {
     )
 }
 
-val docWebsite by tasks.registering(Copy::class) {
+val docWebsite = tasks.register<Copy>("docWebsite") {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
     description = "Assemble docs and assets together into the documentation website."
     duplicatesStrategy = DuplicatesStrategy.FAIL

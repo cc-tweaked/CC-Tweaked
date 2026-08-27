@@ -16,7 +16,7 @@ plugins {
     id("cc-tweaked")
 }
 
-val modVersion: String by extra
+val modVersion = extra["modVersion"] as String
 
 dependencies {
     api(project(":core-api"))
@@ -53,7 +53,7 @@ tasks.test {
     systemProperty("cct.test-files", layout.buildDirectory.dir("tmp/testFiles").getAbsolutePath())
 }
 
-val checkChangelog by tasks.registering(cc.tweaked.gradle.CheckChangelog::class) {
+val checkChangelog = tasks.register<cc.tweaked.gradle.CheckChangelog>("checkChangelog") {
     version = modVersion
     whatsNew = file("src/main/resources/data/computercraft/lua/rom/help/whatsnew.md")
     changelog = file("src/main/resources/data/computercraft/lua/rom/help/changelog.md")

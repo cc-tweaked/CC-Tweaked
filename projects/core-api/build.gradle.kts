@@ -8,20 +8,11 @@ plugins {
     id("cc-tweaked")
 }
 
-// Due to the slightly circular nature of our API, add the main API jars to the javadoc classpath.
-val docApi by configurations.registering {
-    isTransitive = false
-}
-
 dependencies {
     compileOnlyApi(libs.bundles.annotations)
-
-    "docApi"(project(":common-api"))
 }
 
-tasks.javadoc {
-    // Depend on the common API when publishing javadoc
-    classpath += docApi.get()
-}
+// Don't build Javadoc here. We build combined docs in the common-api project.
+tasks.javadoc { isEnabled = false }
 
 cct.linters(minecraft = false, loader = null)

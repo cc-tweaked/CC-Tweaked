@@ -21,7 +21,7 @@ plugins {
     id("net.fabricmc.fabric-loom-companion")
 }
 
-val modVersion: String by extra
+val modVersion = extra["modVersion"] as String
 
 val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 

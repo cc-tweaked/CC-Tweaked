@@ -12,7 +12,7 @@ plugins {
     id("cc-tweaked.mod-publishing")
 }
 
-val modVersion: String by extra
+val modVersion = extra["modVersion"] as String
 
 val allProjects = listOf(":core-api", ":core", ":fabric-api").map { evaluationDependsOn(it) }
 cct {
@@ -49,11 +49,11 @@ addRemappedConfiguration("testWithIris")
 configurations {
     // Declare some configurations which are both included (jar-in-jar-ed) and a normal dependency (so they appear in
     // our POM).
-    val includeRuntimeOnly by registering {
+    val includeRuntimeOnly = register("includeRuntimeOnly") {
         isCanBeConsumed = false
         isCanBeResolved = false
     }
-    val includeImplementation by registering {
+    val includeImplementation = register("includeImplementation") {
         isCanBeConsumed = false
         isCanBeResolved = false
     }
@@ -64,7 +64,7 @@ configurations {
 
     // Declare a configuration for projects which are on the compile and runtime classpath, but not treated as
     // dependencies. This is used for our local projects.
-    val localImplementation by registering {
+    val localImplementation = register("localImplementation") {
         isCanBeResolved = false
         isCanBeConsumed = false
     }
@@ -182,7 +182,7 @@ loom {
             jvmArguments.add("-ea")
         }
 
-        val testClient by registering {
+        val testClient = register("testClient") {
             displayName = "Test Client"
             client()
             configureForGameTest()
@@ -236,7 +236,7 @@ tasks.sourcesJar {
     for (source in cct.sourceDirectories.get()) from(source.sourceSet.allSource)
 }
 
-val validateMixinNames by tasks.registering(net.fabricmc.loom.task.ValidateMixinNameTask::class) {
+val validateMixinNames = tasks.register<net.fabricmc.loom.task.ValidateMixinNameTask>("validateMixinNames") {
     source(sourceSets.main.get().output)
     source(sourceSets.client.get().output)
     source(sourceSets.testMod.get().output)
@@ -251,7 +251,7 @@ val runGametest = tasks.named<JavaExec>("runGametest") {
 cct.jacoco(runGametest)
 tasks.check { dependsOn(runGametest) }
 
-val runGametestClient by tasks.registering(ClientJavaExec::class) {
+val runGametestClient = tasks.register<ClientJavaExec>("runGametestClient") {
     description = "Runs client-side gametests with no mods"
     copyFrom("runTestClient")
 
@@ -259,7 +259,7 @@ val runGametestClient by tasks.registering(ClientJavaExec::class) {
 }
 cct.jacoco(runGametestClient)
 
-val runGametestClientWithSodium by tasks.registering(ClientJavaExec::class) {
+val runGametestClientWithSodium = tasks.register<ClientJavaExec>("runGametestClientWithSodium") {
     description = "Runs client-side gametests with Sodium"
     copyFrom("runTestClient")
 
@@ -268,7 +268,7 @@ val runGametestClientWithSodium by tasks.registering(ClientJavaExec::class) {
 }
 cct.jacoco(runGametestClientWithSodium)
 
-val runGametestClientWithIris by tasks.registering(ClientJavaExec::class) {
+val runGametestClientWithIris = tasks.register<ClientJavaExec>("runGametestClientWithIris") {
     description = "Runs client-side gametests with Iris"
     copyFrom("runTestClient")
 
