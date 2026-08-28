@@ -103,10 +103,7 @@ public class HTTPAPI implements ILuaAPI {
         if (requestMethod == null) {
             httpMethod = postBody == null ? HttpMethod.GET : HttpMethod.POST;
         } else {
-            httpMethod = HttpMethod.valueOf(requestMethod.toUpperCase(Locale.ROOT));
-            if (httpMethod == null || requestMethod.equalsIgnoreCase("CONNECT")) {
-                throw new LuaException("Unsupported HTTP method");
-            }
+            httpMethod = getMethod(requestMethod.toUpperCase(Locale.ROOT));
         }
 
         try {
@@ -174,9 +171,27 @@ public class HTTPAPI implements ILuaAPI {
         }
     }
 
+    private static HttpMethod getMethod(String method) throws LuaException {
+        // Reject CONNECT outright, as that requires the ability to read indefinitely.
+        if (method.equals("CONNECT")) throw new LuaException("Unsupported HTTP method");
+
+        // The HTTP specification allows the method to be any token[^1], which is all non-control/separator
+        // characters[^2]. However, we limit ourselves to a more reasonable subset. The allowed characters match
+        // what NGINX does[^3].
+        // [^1] https://www.rfc-editor.org/info/rfc2616/#section-5.1.1
+        // [^2] https://www.rfc-editor.org/info/rfc2616/#section-2.2
+        // [^3]: https://github.com/nginx/nginx/blob/5f54125dde0d144476155d8964f6ec3d449f578d/src/http/ngx_http_parse.c#L283-L285
+        if (method.isEmpty() || method.length() > 32 ||
+            !method.chars().allMatch(c -> (c >= 'A' && c <= 'Z') || c == '_' || c == '-')) {
+            throw new LuaException("Invalid HTTP method");
+        }
+
+        return HttpMethod.valueOf(method);
+    }
+
     private HttpHeaders getHeaders(Map<?, ?> headerTable) throws LuaException {
         HttpHeaders headers = new DefaultHttpHeaders();
-        for (Map.Entry<?, ?> entry : headerTable.entrySet()) {
+        for (var entry : headerTable.entrySet()) {
             var value = entry.getValue();
             if (entry.getKey() instanceof String && value instanceof String) {
                 try {
