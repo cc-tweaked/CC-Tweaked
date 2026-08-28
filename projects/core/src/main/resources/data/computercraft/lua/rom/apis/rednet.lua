@@ -163,6 +163,8 @@ transmitted.
 @tparam[opt] string protocol The "protocol" to send this message under. When
 using [`rednet.receive`] one can filter to only receive messages sent under a
 particular protocol.
+@tparam[opt] table modems The list of modems to send this message through.
+When `nil`, send message through every opened modem.
 @treturn boolean If this message was successfully sent (i.e. if rednet is
 currently [open][`rednet.open`]). Note, this does not guarantee the message was
 actually _received_.
@@ -173,9 +175,10 @@ actually _received_.
 
     rednet.send(2, "Hello from rednet!")
 ]]
-function send(recipient, message, protocol)
+function send(recipient, message, protocol, modems)
     expect(1, recipient, "number")
     expect(3, protocol, "string", "nil")
+    expect(4, modems, "table", "nil")
     -- Generate a (probably) unique message ID
     -- We could do other things to guarantee uniqueness, but we really don't need to
     -- Store it to ensure we don't get our own messages back
@@ -204,7 +207,11 @@ function send(recipient, message, protocol)
             recipient = id_as_channel(recipient)
         end
 
-        for _, modem in ipairs(peripheral.getNames()) do
+        local targetModems = modems
+        if not targetModems then
+            targetModems = peripheral.getNames()
+        end
+        for _, modem in ipairs(targetModems) do
             if isOpen(modem) then
                 peripheral.call(modem, "transmit", recipient, reply_channel, message_wrapper)
                 peripheral.call(modem, "transmit", CHANNEL_REPEAT, reply_channel, message_wrapper)
@@ -224,15 +231,18 @@ functions, as they will be converted to [`nil`].
 @tparam[opt] string protocol The "protocol" to send this message under. When
 using [`rednet.receive`] one can filter to only receive messages sent under a
 particular protocol.
+@tparam[opt] table modems The list of modems to send this message through.
+When `nil`, send message through every opened modem.
 @see rednet.receive
 @changed 1.6 Added protocol parameter.
 @usage Broadcast the words "Hello, world!" to every computer using rednet.
 
     rednet.broadcast("Hello, world!")
 ]]
-function broadcast(message, protocol)
+function broadcast(message, protocol, modems)
     expect(2, protocol, "string", "nil")
-    send(CHANNEL_BROADCAST, message, protocol)
+    expect(3, modems, "table", "nil")
+    send(CHANNEL_BROADCAST, message, protocol, modems)
 end
 
 --[[- Wait for a rednet message to be received, or until `timeout` seconds have
