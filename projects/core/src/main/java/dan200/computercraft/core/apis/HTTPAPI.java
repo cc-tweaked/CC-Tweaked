@@ -73,7 +73,7 @@ public class HTTPAPI implements ILuaAPI {
         String address, requestMethod;
         ByteBuffer postBody;
         Map<?, ?> headerTable;
-        boolean binary, redirect;
+        boolean binary, redirect, stream;
         Optional<Double> timeoutArg;
 
         if (args.get(0) instanceof Map) {
@@ -85,6 +85,7 @@ public class HTTPAPI implements ILuaAPI {
             requestMethod = options.optString("method").orElse(null);
             redirect = options.optBoolean("redirect").orElse(true);
             timeoutArg = options.optFiniteDouble("timeout");
+            stream = options.optBoolean("stream").orElse(false);
         } else {
             // Get URL and post information
             address = args.getString(0);
@@ -94,6 +95,7 @@ public class HTTPAPI implements ILuaAPI {
             requestMethod = null;
             redirect = true;
             timeoutArg = Optional.empty();
+            stream = false;
         }
 
         var headers = getHeaders(headerTable);
@@ -108,7 +110,7 @@ public class HTTPAPI implements ILuaAPI {
 
         try {
             var uri = HttpRequest.checkUri(address);
-            var request = new HttpRequest(requests, apiEnvironment, address, postBody, headers, binary, redirect, timeout);
+            var request = new HttpRequest(requests, apiEnvironment, address, postBody, headers, binary, redirect, timeout, stream);
 
             // Make the request
             if (!request.queue(r -> r.request(uri, httpMethod))) {

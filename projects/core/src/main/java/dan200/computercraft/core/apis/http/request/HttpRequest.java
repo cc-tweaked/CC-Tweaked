@@ -39,6 +39,7 @@ public class HttpRequest extends Resource<HttpRequest> {
     private static final Logger LOG = LoggerFactory.getLogger(HttpRequest.class);
     private static final String SUCCESS_EVENT = "http_success";
     private static final String FAILURE_EVENT = "http_failure";
+    static final String CONTENT_EVENT = "http_content";
 
     private static final int MAX_REDIRECTS = 16;
 
@@ -48,17 +49,18 @@ public class HttpRequest extends Resource<HttpRequest> {
 
     private final IAPIEnvironment environment;
 
-    private final String address;
+    final String address;
     private final ByteBuf postBuffer;
     private final HttpHeaders headers;
     private final boolean binary;
     private final int timeout;
+    private final boolean stream;
 
     final AtomicInteger redirects;
 
     public HttpRequest(
         ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment, String address, @Nullable ByteBuffer postBody,
-        HttpHeaders headers, boolean binary, boolean followRedirects, int timeout
+        HttpHeaders headers, boolean binary, boolean followRedirects, int timeout, boolean stream
     ) {
         super(limiter);
         this.environment = environment;
@@ -70,6 +72,7 @@ public class HttpRequest extends Resource<HttpRequest> {
         this.binary = binary;
         redirects = new AtomicInteger(followRedirects ? MAX_REDIRECTS : 0);
         this.timeout = timeout;
+        this.stream = stream;
 
         if (postBody != null) {
             if (!headers.contains(HttpHeaderNames.CONTENT_TYPE)) {
@@ -139,7 +142,7 @@ public class HttpRequest extends Resource<HttpRequest> {
             environment.observe(Metrics.HTTP_REQUESTS);
             environment.observe(Metrics.HTTP_UPLOAD, requestBody);
 
-            var handler = currentRequest = new HttpRequestHandler(this, uri, method, options);
+            var handler = currentRequest = new HttpRequestHandler(this, uri, method, stream, options);
             connectFuture = new Bootstrap()
                 .group(NetworkUtils.LOOP_GROUP)
                 .channelFactory(NioSocketChannel::new)
@@ -184,6 +187,22 @@ public class HttpRequest extends Resource<HttpRequest> {
 
     void success(HttpResponseHandle object) {
         if (tryClose()) environment.queueEvent(SUCCESS_EVENT, address, object);
+    }
+
+    void partialFailure(String message, HttpResponseHandle object) {
+        if (!checkClosed()) environment.queueEvent(FAILURE_EVENT, address, message, object);
+    }
+
+    void partialSuccess(HttpResponseHandle object) {
+        if (!checkClosed()) environment.queueEvent(SUCCESS_EVENT, address, object);
+    }
+
+    void partialContent() {
+        if (!checkClosed()) environment.queueEvent(CONTENT_EVENT, address);
+    }
+
+    void partialClosed() {
+        if (tryClose()) environment.queueEvent(CONTENT_EVENT, address); // wakeup readers for them to return
     }
 
     @Override
