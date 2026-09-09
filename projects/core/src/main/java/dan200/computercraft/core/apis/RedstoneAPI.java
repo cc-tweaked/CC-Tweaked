@@ -18,7 +18,7 @@ import java.util.List;
  * - Binary input/output ({@link #setOutput}/{@link #getInput}): These simply check if a redstone wire has any input or
  * output. A signal strength of 1 and 15 are treated the same.
  * - Analogue input/output ({@link #setAnalogOutput}/{@link #getAnalogInput}): These work with the actual signal
- * strength of the redstone wired, from 0 to 15.
+ * strength of the redstone wires, from 0 to 15.
  * - Bundled cables ({@link #setBundledOutput}/{@link #getBundledInput}): These interact with "bundled" cables, such
  * as those from Project:Red. These allow you to send 16 separate on/off signals. Each channel corresponds to a
  * colour, with the first being [`colors.white`] and the last [`colors.black`].

@@ -15,8 +15,7 @@ When a computer turns on, it searches for files to run as part of the startup pr
 For information about creating a basic startup file, see [`guide!startup`].
 
  1. `/rom/autorun`: Computers first look in the `/rom/autorun` folder, and run every file in that folder. This folder is
-    empty by default, but may be extended by datapacks or other mods. See the [example
-    datapack](https://github.com/cc-tweaked/datapack-example) for an example.
+    empty by default, but may be extended by datapacks or other mods. See [`data_pack`] for more information.
 
  2. If the `shell.allow_disk_startup` [setting][`settings`] is `true`, then connected disk drives are searched for a
     `startup` file, `startup.lua` file, or `startup/` directory. The first disk containing these files will be used for
