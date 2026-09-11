@@ -5,7 +5,6 @@
 plugins {
     id("cc-tweaked.java-convention")
     id("cc-tweaked.publishing")
-    id("cc-tweaked")
 }
 
 dependencies {
@@ -15,4 +14,4 @@ dependencies {
 // Don't build Javadoc here. We build combined docs in the common-api project.
 tasks.javadoc { isEnabled = false }
 
-cct.linters(minecraft = false, loader = null)
+cct.linters(minecraft = false)

@@ -10,8 +10,6 @@ plugins {
     id("cc-tweaked.illuaminate")
 }
 
-val modVersion = extra["modVersion"] as String
-
 node {
     projectRoot = rootProject.projectDir
 }
@@ -44,6 +42,7 @@ val compileTeaVM = tasks.register<JavaExec>("compileTeaVM") {
     val output = layout.buildDirectory.dir("teaVM")
     val minify = !project.hasProperty("noMinify")
 
+    val modVersion = project.version as String
     inputs.property("version", modVersion)
     inputs.property("minify", minify)
     inputs.files(sourceSets.main.get().runtimeClasspath).withPropertyName("inputClasspath")
@@ -150,3 +149,5 @@ val docWebsite = tasks.register<Copy>("docWebsite") {
 }
 
 tasks.assemble { dependsOn(docWebsite) }
+
+cct.linters(minecraft = false)

@@ -335,6 +335,7 @@ public class OSAPI implements ILuaAPI {
      * @cc.changed 1.82.0 Arguments are now case insensitive.
      */
     @LuaFunction
+    @SuppressWarnings("InvalidParam") // Local vs Locale confusion
     public final int day(Optional<String> locale) throws LuaException {
         return switch (locale.orElse("ingame").toLowerCase(Locale.ROOT)) {
             case "utc" -> getDayForCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC")));
@@ -374,6 +375,7 @@ public class OSAPI implements ILuaAPI {
      * }</pre>
      */
     @LuaFunction
+    @SuppressWarnings("InvalidParam") // Local vs Locale confusion
     public final long epoch(Optional<String> locale) throws LuaException {
         return switch (locale.orElse("ingame").toLowerCase(Locale.ROOT)) {
             case "utc" -> getEpochForCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC"))); // Get utc epoch

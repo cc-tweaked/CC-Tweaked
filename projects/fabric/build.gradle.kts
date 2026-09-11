@@ -3,21 +3,17 @@
 // SPDX-License-Identifier: MPL-2.0
 
 import cc.tweaked.gradle.*
+import cc.tweaked.vanillaextract.configurations.Capabilities.clientClasses
+import cc.tweaked.vanillaextract.configurations.Capabilities.commonClasses
 import net.fabricmc.loom.configuration.ide.RunConfigSettings
+import net.ltgt.gradle.errorprone.CheckSeverity
+import net.ltgt.gradle.errorprone.errorprone
 import java.util.*
 
 plugins {
     id("cc-tweaked.fabric")
     id("cc-tweaked.mod")
-    id("cc-tweaked.mod-publishing")
-}
-
-val modVersion = extra["modVersion"] as String
-
-val allProjects = listOf(":core-api", ":core", ":fabric-api").map { evaluationDependsOn(it) }
-cct {
-    inlineProject(":common")
-    allProjects.forEach { externalSources(it) }
+    id("cc-tweaked.published-mod")
 }
 
 fun addRemappedConfiguration(name: String) {
@@ -99,30 +95,43 @@ dependencies {
     "includeImplementation"(libs.nightConfig.toml)
 
     // Pull in our other projects. See comments in MinecraftConfigurations on this nastiness.
-    "localImplementation"(project(":core"))
+    "localImplementation"(commonClasses(project(":common")))
+    clientImplementation(clientClasses(project(":common")))
     "localImplementation"(commonClasses(project(":fabric-api")))
     clientImplementation(clientClasses(project(":fabric-api")))
 
     annotationProcessorEverywhere(libs.autoService)
 
-    testModImplementation(testFixtures(project(":core")))
-    testModImplementation(testFixtures(project(":fabric")))
+    datagenImplementation(project(":common")) { capabilities { requireFeature("datagen") } }
+    examplesImplementation(project(":common")) { capabilities { requireFeature("examples") } }
 
-    testImplementation(libs.bundles.test)
+    testModImplementation(project(":common")) { capabilities { requireFeature("test-mod") } }
+    testModImplementation(testFixtures(project(":common")))
+
+    testImplementation(testFixtures(project(":common")))
     testRuntimeOnly(libs.bundles.testRuntime)
     testRuntimeOnly(libs.fabric.junit)
 
-    testFixturesImplementation(testFixtures(project(":core")))
+    embeddedProject(project(":core"))
+    embeddedProject(project(":core-api"))
+    minecraftEmbeddedProject(project(":common"))
+    minecraftEmbeddedProject(project(":common-api"))
+    minecraftEmbeddedProject(project(":fabric-api"))
 }
 
 loom {
-    accessWidenerPath = project(":common").file("src/main/resources/computercraft.accesswidener")
+    accessWidenerPath = file("../common/src/main/resources/computercraft.accesswidener")
 
     mods {
         register("computercraft") {
             // Configure sources when running via the IDE. Note these don't add build dependencies (hence why it's safe
             // to use common), only change how the launch.cfg file is generated.
-            cct.sourceDirectories.get().forEach { sourceSet(it.sourceSet) }
+            sourceSet("main", ":core-api")
+            sourceSet("main", ":core")
+            for (proj in listOf(":common-api", ":common", ":fabric-api", ":fabric")) {
+                sourceSet("main", proj)
+                sourceSet("client", proj)
+            }
 
             // Running via Gradle
             dependency(dependencies.project(":core").apply { isTransitive = false })
@@ -130,7 +139,13 @@ loom {
 
         register("cctest") {
             sourceSet(sourceSets.testMod.get())
-            sourceSet(project(":common").sourceSets.testMod.get())
+            sourceSet("testMod", ":common")
+
+            // Loom's sourceSet doesn't add jars to the list, so also include the :common test mod jar.
+            val dep = dependencies.project(":common")
+            dep.capabilities { requireFeature("test-mod") }
+            dep.isTransitive = false
+            modFiles.from(configurations.detachedConfiguration(dep))
         }
 
         register("examplemod") {
@@ -173,7 +188,7 @@ loom {
         fun RunConfigSettings.configureForGameTest() {
             sourceSet = sourceSets.testMod.name
 
-            val testSources = project(":common").file("src/testMod/resources/data/cctest").absolutePath
+            val testSources = file("../common/src/testMod/resources/data/cctest").absolutePath
             systemProperties.put("cctest.sources", testSources)
 
             // Load cctest last, so it can override resources. This bypasses Fabric's shuffling of mods
@@ -219,21 +234,13 @@ loom {
 }
 
 tasks.processResources {
+    val modVersion = project.version as String
+
     inputs.property("modVersion", modVersion)
 
     var props = mapOf("version" to modVersion)
 
     filesMatching("fabric.mod.json") { expand(props) }
-}
-
-tasks.jar {
-    for (source in cct.sourceDirectories.get()) {
-        if (source.classes && source.external) from(source.sourceSet.output)
-    }
-}
-
-tasks.sourcesJar {
-    for (source in cct.sourceDirectories.get()) from(source.sourceSet.allSource)
 }
 
 val validateMixinNames = tasks.register<net.fabricmc.loom.task.ValidateMixinNameTask>("validateMixinNames") {
@@ -244,6 +251,12 @@ val validateMixinNames = tasks.register<net.fabricmc.loom.task.ValidateMixinName
 tasks.check { dependsOn(validateMixinNames) }
 
 tasks.test { dependsOn(tasks.generateDLIConfig) }
+
+tasks.verifyClassesMatch {
+    options.errorprone {
+        option("ModLoader", "fabric")
+    }
+}
 
 val runGametest = tasks.named<JavaExec>("runGametest") {
     usesService(MinecraftRunnerService.get(gradle))

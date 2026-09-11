@@ -14,12 +14,15 @@ public class TestForbiddenImport {
     @Test
     public void testForbiddenImport() {
         compilationHelper
-            .addSourceLines("Import.java", """
+            .addSourceLines(
+                "Import.java",
+                """
                 // BUG: Diagnostic matches: X
                 import org.jspecify.annotations.NonNull;
-                class X {
-                }
-                """)
+
+                class X {}
+                """
+            )
             .expectErrorMessage("X", Predicates.containsPattern("Cannot import this symbol"))
             .doTest();
     }
@@ -27,12 +30,15 @@ public class TestForbiddenImport {
     @Test
     public void testForbiddenImportSuggestion() {
         compilationHelper
-            .addSourceLines("Import.java", """
+            .addSourceLines(
+                "Import.java",
+                """
                 // BUG: Diagnostic matches: X
                 import javax.annotation.concurrent.GuardedBy;
-                class X {
-                }
-                """)
+
+                class X {}
+                """
+            )
             .expectErrorMessage("X", Predicates.containsPattern("Did you mean 'import com.google.errorprone.annotations.concurrent.GuardedBy;'"))
             .doTest();
     }

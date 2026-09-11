@@ -36,7 +36,9 @@ SPDX-License-Identifier: MPL-2.0
         <module name="MissingOverride" />
 
         <!-- Blocks -->
-        <module name="EmptyBlock" />
+        <module name="EmptyBlock">
+            <property name="option" value="text" />
+        </module>
         <module name="EmptyCatchBlock">
             <property name="exceptionVariableName" value="ignored" />
         </module>

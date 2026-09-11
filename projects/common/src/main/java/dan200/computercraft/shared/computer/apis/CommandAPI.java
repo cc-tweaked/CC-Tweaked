@@ -35,6 +35,7 @@ import java.util.*;
  * @cc.module commands
  * @cc.since 1.7
  */
+@SuppressWarnings("MissingSummary")
 public class CommandAPI implements ILuaAPI {
     private static final Logger LOG = LoggerFactory.getLogger(CommandAPI.class);
 

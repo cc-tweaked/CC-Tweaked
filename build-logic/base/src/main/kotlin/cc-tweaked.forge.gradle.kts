@@ -5,15 +5,12 @@
 /** Default configuration for Forge projects. */
 
 import cc.tweaked.gradle.CCTweakedExtension
-import cc.tweaked.gradle.CCTweakedPlugin
 import cc.tweaked.gradle.MinecraftConfigurations
 
 plugins {
     id("cc-tweaked.java-convention")
     id("net.neoforged.moddev.legacyforge")
 }
-
-plugins.apply(CCTweakedPlugin::class.java)
 
 legacyForge {
     val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
@@ -33,5 +30,5 @@ legacyForge {
 MinecraftConfigurations.setup(project)
 
 extensions.configure(CCTweakedExtension::class.java) {
-    linters(minecraft = true, loader = "forge")
+    linters(minecraft = true)
 }

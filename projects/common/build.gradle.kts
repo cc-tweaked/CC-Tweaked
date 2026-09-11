@@ -2,9 +2,15 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-import cc.tweaked.gradle.*
+import cc.tweaked.gradle.CCTweakedJavaVersions
+import cc.tweaked.gradle.IlluaminateExec
+import cc.tweaked.gradle.MergeTrees
+import cc.tweaked.gradle.annotationProcessorEverywhere
+import cc.tweaked.vanillaextract.configurations.Capabilities.clientClasses
+import cc.tweaked.vanillaextract.configurations.Capabilities.commonClasses
 
 plugins {
+    `java-test-fixtures`
     id("cc-tweaked.vanilla")
     id("cc-tweaked.illuaminate")
     id("cc-tweaked.mod")
@@ -20,6 +26,10 @@ minecraft {
 
 configurations {
     register("cctJavadoc")
+}
+
+sourceSets.testFixtures {
+    compileClasspath += sourceSets.main.get().compileClasspath + sourceSets.client.get().compileClasspath
 }
 
 repositories {
@@ -42,7 +52,10 @@ dependencies {
     annotationProcessorEverywhere(libs.autoService)
     testFixturesAnnotationProcessor(libs.autoService)
 
+    testFixturesApi(testFixtures(project(":core")))
+
     testImplementation(testFixtures(project(":core")))
+    testImplementation(testFixtures(project()))
     testImplementation(libs.bundles.test)
     testRuntimeOnly(libs.bundles.testRuntime)
 
@@ -53,8 +66,6 @@ dependencies {
     testModImplementation(testFixtures(project(":core")))
     testModImplementation(testFixtures(project(":common")))
     testModImplementation(libs.bundles.kotlin)
-
-    testFixturesImplementation(testFixtures(project(":core")))
 
     "cctJavadoc"(libs.cctJavadoc)
 }
@@ -79,7 +90,7 @@ val luaJavadoc = tasks.register<Javadoc>("luaJavadoc") {
     options.addStringOption("project-root", rootProject.file(".").absolutePath)
     options.noTimestamp(false)
 
-    javadocTool = javaToolchains.javadocToolFor { languageVersion = CCTweakedPlugin.JDK_VERSION }
+    javadocTool = javaToolchains.javadocToolFor { languageVersion = CCTweakedJavaVersions.JDK_VERSION }
 }
 
 val lintLua = tasks.register<IlluaminateExec>("lintLua") {

@@ -51,3 +51,5 @@ tasks.named("run", JavaExec::class.java) {
     workingDir = rootProject.projectDir
     args = listOf("-r", project(":core").layout.projectDirectory.dir("src/main/resources").asFile.absolutePath)
 }
+
+cct.linters(minecraft = false)

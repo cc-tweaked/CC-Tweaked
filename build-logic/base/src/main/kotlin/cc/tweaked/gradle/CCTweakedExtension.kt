@@ -10,21 +10,15 @@ import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
-import org.gradle.api.provider.SetProperty
-import org.gradle.api.tasks.SourceSet
-import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
-import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.language.base.plugins.LifecycleBasePlugin
-import org.gradle.language.jvm.tasks.ProcessResources
 import org.gradle.process.JavaForkOptions
 import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
-import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 import java.io.IOException
 import java.net.URI
@@ -54,105 +48,34 @@ abstract class CCTweakedExtension(private val project: Project) {
                 .sortedWith(String.CASE_INSENSITIVE_ORDER)
         }
 
-    /**
-     * References to other sources
-     */
-    val sourceDirectories: SetProperty<SourceSetReference> = project.objects.setProperty(SourceSetReference::class.java)
-
-    /** All source sets referenced by this project. */
-    val sourceSets = sourceDirectories.map { x -> x.map { it.sourceSet } }
-
-    init {
-        sourceDirectories.finalizeValueOnRead()
-        project.afterEvaluate { sourceDirectories.disallowChanges() }
+    private val embeddedProjects = project.configurations.dependencyScope("embeddedProject")
+    private val embeddedProjectsResolved = project.configurations.resolvable("embeddedProjectResolved") {
+        extendsFrom(embeddedProjects)
+        isTransitive = false
+        ExternalProjectArtifacts.configure(this)
     }
 
-    /**
-     * Mark this project as consuming another project. Its [sourceDirectories] are added, allowing easier configuration
-     * of run configurations and other tasks which consume sources/classes.
-     */
-    fun externalSources(project: Project) {
-        val otherCct = project.extensions.getByType(CCTweakedExtension::class.java)
-        for (sourceSet in otherCct.sourceDirectories.get()) {
-            sourceDirectories.add(SourceSetReference(sourceSet.sourceSet, classes = sourceSet.classes, external = true))
-        }
-    }
+    val embeddedProjectClasses: Provider<FileCollection> = embeddedProjectsResolved.map(ExternalProjectArtifacts::classes)
+    val embeddedProjectClassesAndResources: Provider<FileCollection> =
+        embeddedProjectsResolved.map(ExternalProjectArtifacts::classesAndResources)
+    val embeddedProjectSources: Provider<FileCollection> = embeddedProjectsResolved.map(ExternalProjectArtifacts::sources)
 
     /**
-     * Add a dependency on another project such that its sources and compiles are processed with this one.
-     *
-     * This is used when importing a common library into a loader-specific one, as we want to compile sources using
-     * the loader-specific sources.
+     * Enable our custom linters on this project.
      */
-    fun inlineProject(path: String) {
-        val otherProject = project.evaluationDependsOn(path)
-        val otherJava = otherProject.extensions.getByType(JavaPluginExtension::class.java)
-        val main = otherJava.sourceSets.getByName("main")
-        val client = otherJava.sourceSets.getByName("client")
-
-        // Pull in sources from the other project.
-        extendSourceSet(otherProject, main)
-        extendSourceSet(otherProject, client)
-        for (sourceSet in listOf(MinecraftConfigurations.DATAGEN, MinecraftConfigurations.EXAMPLES, MinecraftConfigurations.TEST_MOD, "testFixtures")) {
-            otherJava.sourceSets.findByName(sourceSet)?.let { extendSourceSet(otherProject, it) }
-        }
-
-        // The extra source-processing tasks should include these files too.
-        project.tasks.named(main.javadocTaskName, Javadoc::class.java) { source(main.allJava, client.allJava) }
-        project.tasks.named(main.sourcesJarTaskName, Jar::class.java) { from(main.allSource, client.allSource) }
-        sourceDirectories.addAll(SourceSetReference.inline(main), SourceSetReference.inline(client))
-    }
-
-    /**
-     * Extend a source set with files from another project.
-     *
-     * This actually extends the original compile tasks, as extending the source sets does not play well with IDEs.
-     */
-    private fun extendSourceSet(otherProject: Project, sourceSet: SourceSet) {
-        project.tasks.named(sourceSet.compileJavaTaskName, JavaCompile::class.java) {
-            dependsOn(otherProject.tasks.named(sourceSet.compileJavaTaskName)) // Avoid duplicate compile errors
-            source(sourceSet.allJava)
-        }
-
-        project.tasks.named(sourceSet.processResourcesTaskName, ProcessResources::class.java) {
-            from(sourceSet.resources)
-        }
-
-        // Also try to depend on Kotlin if it exists
-        val kotlin = otherProject.extensions.findByType(KotlinProjectExtension::class.java)
-        if (kotlin != null) {
-            val compileKotlin = sourceSet.getCompileTaskName("kotlin")
-            project.tasks.named(compileKotlin, KotlinCompile::class.java) {
-                dependsOn(otherProject.tasks.named(compileKotlin))
-                source(kotlin.sourceSets.getByName(sourceSet.name).kotlin)
-            }
-        }
-
-        // If we're doing an IDE sync, add a fake dependency to ensure it's on the classpath.
-        if (isIdeSync) project.dependencies.add(sourceSet.apiConfigurationName, sourceSet.output)
-    }
-
-    fun linters(@Suppress("UNUSED_PARAMETER") vararg unused: UseNamedArgs, minecraft: Boolean, loader: String?) {
+    fun linters(@Suppress("UNUSED_PARAMETER") vararg unused: UseNamedArgs, minecraft: Boolean) {
         val java = project.extensions.getByType(JavaPluginExtension::class.java)
-        val sourceSets = java.sourceSets
 
-        project.dependencies.run { add("errorprone", project(mapOf("path" to ":lints"))) }
-        sourceSets.all {
-            val name = name
-            project.tasks.named(compileJavaTaskName, JavaCompile::class.java) {
-                options.errorprone {
-                    // Only the main source set should run the side checker
-                    check("SideChecker", if (minecraft && name == "main") CheckSeverity.DEFAULT else CheckSeverity.OFF)
+        project.dependencies.run { add("errorprone", project(":lints")) }
 
-                    // The MissingLoaderOverride check superseds the MissingOverride one, so disable that.
-                    if (loader != null) {
-                        check("MissingOverride", CheckSeverity.OFF)
-                        option("ModLoader", loader)
-                    } else {
-                        check("LoaderOverride", CheckSeverity.OFF)
-                        check("MissingLoaderOverride", CheckSeverity.OFF)
-                    }
-                }
+        project.tasks.withType(JavaCompile::class.java).configureEach {
+            options.errorprone {
+                // Only the main source set should run the side checker
+                check("SideChecker", if (minecraft && name == "compileJava") CheckSeverity.DEFAULT else CheckSeverity.OFF)
+
+                // If we have a custom loader, then we disable MissingOverride and enable the other two override checks.
+                check("LoaderOverride", CheckSeverity.OFF)
+                check("MissingLoaderOverride", CheckSeverity.OFF)
             }
         }
     }
@@ -179,12 +102,6 @@ abstract class CCTweakedExtension(private val project: Project) {
             description = "Generates code coverage report for the ${task.name} task."
 
             executionData(task.get())
-
-            // Don't want to use sourceSets(...) here as we don't use all class directories.
-            for (ref in this@CCTweakedExtension.sourceDirectories.get()) {
-                sourceDirectories.from(ref.sourceSet.allSource.sourceDirectories)
-                if (ref.classes) classDirectories.from(ref.sourceSet.output)
-            }
         }
     }
 
@@ -223,7 +140,7 @@ abstract class CCTweakedExtension(private val project: Project) {
         ).resolve().single()
     }
 
-    private fun <T: Any> gitProvider(default: T, command: List<String>, process: (String) -> T): Provider<T> {
+    private fun <T : Any> gitProvider(default: T, command: List<String>, process: (String) -> T): Provider<T> {
         val baseResult = project.providers.exec {
             commandLine = listOf("git", "-C", project.rootDir.absolutePath) + command
         }
@@ -247,8 +164,5 @@ abstract class CCTweakedExtension(private val project: Project) {
         private val IGNORED_USERS = setOf(
             "GitHub", "Daniel Ratcliffe", "NotSquidDev", "Weblate",
         )
-
-        private val isIdeSync: Boolean
-            get() = java.lang.Boolean.parseBoolean(System.getProperty("idea.sync.active", "false"))
     }
 }

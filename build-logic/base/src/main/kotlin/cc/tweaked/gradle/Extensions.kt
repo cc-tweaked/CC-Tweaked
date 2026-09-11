@@ -10,7 +10,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.JavaExec
 import org.gradle.process.BaseExecSpec
-import org.gradle.process.JavaExecSpec
 import org.gradle.process.ProcessForkOptions
 
 /**
@@ -124,37 +123,10 @@ class CloseScope : AutoCloseable {
 }
 
 /** Proxy method to avoid overload ambiguity. */
-fun <T: Any> Property<T >.setProvider(provider: Provider<out T>) = set(provider)
+fun <T : Any> Property<T>.setProvider(provider: Provider<out T>) = set(provider)
 
 /** Short-cut method to get the absolute path of a [FileSystemLocation] provider. */
 fun Provider<out FileSystemLocation>.getAbsolutePath(): String = get().asFile.absolutePath
-
-/**
- * Get the version immediately after the provided version.
- *
- * For example, given "1.2.3", this will return "1.2.4".
- */
-fun getNextVersion(version: String): String {
-    // Split a version like x.y.z-SNAPSHOT into x.y.z and -SNAPSHOT
-    val dashIndex = version.indexOf('-')
-    val mainVersion = if (dashIndex < 0) version else version.substring(0, dashIndex)
-
-    // Find the last component in x.y.z and increment it.
-    val lastIndex = mainVersion.lastIndexOf('.')
-    if (lastIndex < 0) throw IllegalArgumentException("Cannot parse version format \"$version\"")
-    val lastVersion = try {
-        mainVersion.substring(lastIndex + 1).toInt()
-    } catch (e: NumberFormatException) {
-        throw IllegalArgumentException("Cannot parse version format \"$version\"", e)
-    }
-
-    // Then append all components together.
-    val out = StringBuilder()
-    out.append(version, 0, lastIndex + 1)
-    out.append(lastVersion + 1)
-    if (dashIndex >= 0) out.append(version, dashIndex, version.length)
-    return out.toString()
-}
 
 /**
  * Capitalise the first letter of the string.
