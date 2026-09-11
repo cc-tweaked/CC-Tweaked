@@ -192,7 +192,7 @@ local vector = {
     tostring = function(self)
         if getmetatable(self) ~= vmetatable then expect(1, self, "vector") end
 
-        return vectorStringFormat:format(self.x,self.y,self.z)
+        return vectorStringFormat:format(self.x, self.y, self.z)
     end,
 
     --- Check for equality between two vectors.
