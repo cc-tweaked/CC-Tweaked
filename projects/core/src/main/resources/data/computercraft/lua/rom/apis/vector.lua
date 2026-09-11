@@ -16,6 +16,8 @@
 local getmetatable = getmetatable
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
+local vectorStringFormat = "%s,%s,%s"
+
 local vmetatable
 
 --- A 3-dimensional vector, with `x`, `y`, and `z` values.
@@ -89,10 +91,12 @@ local vector = {
         if getmetatable(self) ~= vmetatable then expect(1, self, "vector") end
         expect(2, factor, "number")
 
+        local factorReciprocal = 1 / factor
+
         return vector.new(
-            self.x / factor,
-            self.y / factor,
-            self.z / factor
+            self.x * factorReciprocal,
+            self.y * factorReciprocal,
+            self.z * factorReciprocal
         )
     end,
 
@@ -170,10 +174,12 @@ local vector = {
         expect(2, tolerance, "number", "nil")
 
         tolerance = tolerance or 1.0
+
+        local toleranceReciprocal = 1 / tolerance
         return vector.new(
-            math.floor((self.x + tolerance * 0.5) / tolerance) * tolerance,
-            math.floor((self.y + tolerance * 0.5) / tolerance) * tolerance,
-            math.floor((self.z + tolerance * 0.5) / tolerance) * tolerance
+            math.floor((self.x + tolerance * 0.5) * toleranceReciprocal) * tolerance,
+            math.floor((self.y + tolerance * 0.5) * toleranceReciprocal) * tolerance,
+            math.floor((self.z + tolerance * 0.5) * toleranceReciprocal) * tolerance
         )
     end,
 
@@ -186,7 +192,7 @@ local vector = {
     tostring = function(self)
         if getmetatable(self) ~= vmetatable then expect(1, self, "vector") end
 
-        return self.x .. "," .. self.y .. "," .. self.z
+        return vectorStringFormat:format(self.x,self.y,self.z)
     end,
 
     --- Check for equality between two vectors.
