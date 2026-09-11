@@ -170,6 +170,7 @@ yarn = { module = "net.fabricmc:yarn", version.ref = "yarn" }
 [plugins]
 githubRelease = { id = "com.github.breadmoirai.github-release", version.ref = "githubRelease" }
 gradleVersions = { id = "io.github.ben-manes.versions", version.ref = "gradleVersions" }
+ideaExt = { id = "org.jetbrains.gradle.plugin.idea-ext", version.ref = "ideaExt" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 versionCatalogUpdate = { id = "nl.littlerobots.version-catalog-update", version.ref = "versionCatalogUpdate" }

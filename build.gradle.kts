@@ -11,8 +11,8 @@ plugins {
     publishing
     alias(libs.plugins.githubRelease)
     alias(libs.plugins.gradleVersions)
+    alias(libs.plugins.ideaExt)
     alias(libs.plugins.versionCatalogUpdate)
-    id("org.jetbrains.gradle.plugin.idea-ext")
     id("cc-tweaked")
 }
 

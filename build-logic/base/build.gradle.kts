@@ -5,29 +5,6 @@
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
-    alias(libs.plugins.gradleVersions)
-    alias(libs.plugins.versionCatalogUpdate)
-}
-
-// Duplicated in settings.gradle.kts
-repositories {
-    mavenCentral()
-    gradlePluginPortal()
-
-    maven("https://maven.fabricmc.net/") {
-        name = "Fabric"
-        content {
-            includeGroup("net.fabricmc")
-            includeGroup("net.fabricmc.unpick")
-        }
-    }
-
-    maven("https://maven.squiddev.cc") {
-        name = "SquidDev"
-        content {
-            includeGroup("cc.tweaked.vanilla-extract")
-        }
-    }
 }
 
 dependencies {
@@ -59,10 +36,4 @@ gradlePlugin {
             implementationClass = "cc.tweaked.gradle.NodePlugin"
         }
     }
-}
-
-versionCatalogUpdate {
-    sortByKey = false
-    keep { keepUnusedVersions = true }
-    catalogFile = file("../gradle/libs.versions.toml")
 }

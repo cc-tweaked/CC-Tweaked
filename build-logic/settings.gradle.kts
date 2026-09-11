@@ -2,8 +2,16 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-pluginManagement {
-    // Duplicated in build-logic/settings.gradle.kts
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
+    }
+
+    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
+
+    // Duplicated in root settings.gradle.kts
     repositories {
         mavenCentral()
         gradlePluginPortal()
@@ -26,30 +34,6 @@ pluginManagement {
     }
 }
 
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version ("1.0.0")
-}
+rootProject.name = "build-logic"
 
-enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
-
-rootProject.name = "cc-tweaked"
-
-includeBuild("build-logic")
-
-include(":core-api")
-include(":core")
-
-include(":common-api")
-include(":common")
-include(":fabric-api")
-include(":fabric")
-include(":forge-api")
-include(":forge")
-
-include(":lints")
-include(":standalone")
-include(":web")
-
-for (project in rootProject.children) {
-    project.projectDir = file("projects/${project.name}")
-}
+include("base")

@@ -3,23 +3,19 @@
 # SPDX-License-Identifier: CC0-1.0
 
 # Build directories
-/classes
-/logs
 /build
-/projects/*/logs
-/projects/fabric/fabricloader.log
+/build-logic/*/build
+/build-logic/build
 /projects/*/build
+
+/projects/*/src/generated/resources/.cache
 /projects/*/src/test/generated_tests/
-/buildSrc/build
-/out
-/buildSrc/out
-/jars
-/doc/out/
+/projects/*/logs
+
 /node_modules
 .jqwik-database
 
 # Runtime directories
-/run
 /projects/*/run
 
 *.ipr
@@ -35,5 +31,3 @@
 /.settings
 /.vscode
 *.launch
-
-/projects/*/src/generated/resources/.cache
