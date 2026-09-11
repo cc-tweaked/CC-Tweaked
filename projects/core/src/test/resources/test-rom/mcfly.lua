@@ -236,7 +236,7 @@ expect_mt.ne = expect_mt.not_equals
 --- Assert that this expectation has something of the provided type
 --
 -- @tparam string exp_type The type to require this expectation to have
--- @throws If it does not have that thpe
+-- @throws If it does not have that type
 function expect_mt:type(exp_type)
     local actual_type = type(self.value)
     if exp_type ~= actual_type then

@@ -518,7 +518,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     }
 
     public Vec3 getRenderOffset(float f) {
-        switch (animation) {
+        return switch (animation) {
             case MOVE_FORWARD, MOVE_BACK, MOVE_UP, MOVE_DOWN -> {
                 // Get direction
                 var dir = switch (animation) {
@@ -530,16 +530,14 @@ public class TurtleBrain implements TurtleAccessInternal {
                 };
 
                 var distance = -1.0 + getAnimationFraction(f);
-                return new Vec3(
+                yield new Vec3(
                     distance * dir.getStepX(),
                     distance * dir.getStepY(),
                     distance * dir.getStepZ()
                 );
             }
-            default -> {
-                return Vec3.ZERO;
-            }
-        }
+            default -> Vec3.ZERO;
+        };
     }
 
     public float getToolRenderAngle(TurtleSide side, float f) {
@@ -755,7 +753,7 @@ public class TurtleBrain implements TurtleAccessInternal {
 
         private @Nullable UpgradeData<ITurtleUpgrade> cachedUpgradeData;
 
-        public void setUpgrade(@Nullable UpgradeData<ITurtleUpgrade> upgrade) {
+        private void setUpgrade(@Nullable UpgradeData<ITurtleUpgrade> upgrade) {
             if (upgrade == null) {
                 this.upgrade = null;
                 data = DataComponentPatch.EMPTY;
@@ -767,7 +765,7 @@ public class TurtleBrain implements TurtleAccessInternal {
             }
         }
 
-        public @Nullable UpgradeData<ITurtleUpgrade> getUpgrade() {
+        private @Nullable UpgradeData<ITurtleUpgrade> getUpgrade() {
             if (upgrade == null) return null;
 
             var cached = cachedUpgradeData;

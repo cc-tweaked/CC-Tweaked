@@ -22,10 +22,29 @@ import net.minecraft.world.phys.BlockHitResult;
  * Tags provided by ComputerCraft.
  */
 public class ComputerCraftTags {
+    /**
+     * Item tags provided by ComputerCraft.
+     */
     public static class Items {
+        /**
+         * All computers. This includes normal, advanced, and command computers. It does not include turtles or pocket
+         * computers.
+         */
         public static final TagKey<Item> COMPUTER = make("computer");
+
+        /**
+         * All turtles. This includes normal and advanced turtles.
+         */
         public static final TagKey<Item> TURTLE = make("turtle");
+
+        /**
+         * All modems. This includes the multi-part and full-block modem.
+         */
         public static final TagKey<Item> WIRED_MODEM = make("wired_modem");
+
+        /**
+         * All monitors. This includes normal and advanced monitors.
+         */
         public static final TagKey<Item> MONITOR = make("monitor");
 
         /**
@@ -64,10 +83,29 @@ public class ComputerCraftTags {
         }
     }
 
+    /**
+     * Block tags provided by ComputerCraft.
+     */
     public static class Blocks {
+        /**
+         * All computers. This includes normal, advanced, and command computers. It does not include turtles or pocket
+         * computers.
+         */
         public static final TagKey<Block> COMPUTER = make("computer");
+
+        /**
+         * All turtles. This includes normal and advanced turtles.
+         */
         public static final TagKey<Block> TURTLE = make("turtle");
+
+        /**
+         * All modems. This includes the multi-part and full-block modem.
+         */
         public static final TagKey<Block> WIRED_MODEM = make("wired_modem");
+
+        /**
+         * All monitors. This includes normal and advanced monitors.
+         */
         public static final TagKey<Block> MONITOR = make("monitor");
 
         /**

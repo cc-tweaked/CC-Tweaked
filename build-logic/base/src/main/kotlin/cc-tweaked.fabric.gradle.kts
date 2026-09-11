@@ -5,7 +5,6 @@
 /** Default configuration for Fabric projects. */
 
 import cc.tweaked.gradle.CCTweakedExtension
-import cc.tweaked.gradle.CCTweakedPlugin
 import cc.tweaked.gradle.DependencyCheck
 import cc.tweaked.gradle.MinecraftConfigurations
 
@@ -14,8 +13,6 @@ plugins {
     id("net.fabricmc.fabric-loom-remap")
     id("cc-tweaked.java-convention")
 }
-
-plugins.apply(CCTweakedPlugin::class.java)
 
 repositories {
     maven("https://maven.parchmentmc.org/") {
@@ -33,9 +30,8 @@ loom {
 
 MinecraftConfigurations.setup(project)
 
-extensions.configure(CCTweakedExtension::class.java) {
-    linters(minecraft = true, loader = "fabric")
-}
+val cct = extensions.getByType(CCTweakedExtension::class.java)
+cct.linters(minecraft = true)
 
 dependencies {
     val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
@@ -61,4 +57,26 @@ dependencies {
 
     // Depend on error prone annotations to silence a lot of compile warnings.
     compileOnlyApi(libs.findLibrary("errorProne.annotations").get())
+}
+
+/**
+ * Given our list of source/class directories, build a list of files in the "client" source set.
+ */
+fun getClientFiles(files: FileCollection): List<String> {
+    val out = mutableListOf<String>()
+    files
+        // This is a massive hack. *Ideally* we'd like to filter our embedded projects list to those with a client
+        // capability, but I cannot find a sensible way to do that.
+        // Instead, we look for directories which are probably "build/classes/XXX/client" or "src/client/XXX"
+        .filter { dir -> dir.name == "client" || dir.parentFile.name == "client" }
+        .asFileTree.visit { if (!isDirectory) out.add(path) }
+    return out
+}
+
+tasks.remapJar {
+    additionalClientOnlyEntries.addAll(cct.embeddedProjectClassesAndResources.map(::getClientFiles))
+}
+
+tasks.remapSourcesJar {
+    additionalClientOnlyEntries.addAll(cct.embeddedProjectSources.map(::getClientFiles))
 }

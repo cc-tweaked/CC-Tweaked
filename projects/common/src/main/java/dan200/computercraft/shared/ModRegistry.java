@@ -484,7 +484,7 @@ public final class ModRegistry {
         static {
             register("tracking_field", TrackingFieldArgumentType.class, TrackingFieldArgumentType.metric());
             register("computer", ComputerArgumentType.class, ComputerArgumentType.get());
-            registerUnsafe("repeat", RepeatArgumentType.class, new RepeatArgumentType.Info());
+            registerUnsafe("repeat", RepeatArgumentType.class, new RepeatArgumentType.TypeInfo());
         }
     }
 

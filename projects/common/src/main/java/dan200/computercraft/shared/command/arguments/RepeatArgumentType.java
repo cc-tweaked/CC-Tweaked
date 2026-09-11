@@ -111,7 +111,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>> {
         return child.getExamples();
     }
 
-    public static class Info implements ArgumentTypeInfo<RepeatArgumentType<?, ?>, Template> {
+    public static class TypeInfo implements ArgumentTypeInfo<RepeatArgumentType<?, ?>, Template> {
         @Override
         public void serializeToNetwork(RepeatArgumentType.Template arg, FriendlyByteBuf buf) {
             buf.writeBoolean(arg.flatten);
@@ -141,7 +141,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>> {
     }
 
     public record Template(
-        Info info, ArgumentTypeInfo.Template<?> child, boolean flatten, SimpleCommandExceptionType some
+        TypeInfo info, ArgumentTypeInfo.Template<?> child, boolean flatten, SimpleCommandExceptionType some
     ) implements ArgumentTypeInfo.Template<RepeatArgumentType<?, ?>> {
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })

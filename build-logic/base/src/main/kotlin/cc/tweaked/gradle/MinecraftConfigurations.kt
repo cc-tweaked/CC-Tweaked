@@ -4,11 +4,9 @@
 
 package cc.tweaked.gradle
 
-import cc.tweaked.vanillaextract.configurations.Capabilities
 import cc.tweaked.vanillaextract.configurations.MinecraftSetup
 import org.gradle.api.Project
-import org.gradle.api.artifacts.ModuleDependency
-import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSet
@@ -90,8 +88,24 @@ class MinecraftConfigurations private constructor(private val project: Project) 
     private fun setupBasic() {
         val client = sourceSets["client"]
 
-        project.extensions.configure(CCTweakedExtension::class.java) {
-            sourceDirectories.add(SourceSetReference.internal(client))
+        project.configurations.named("mainSourceElements") {
+            outgoing.artifacts(client.allSource.sourceDirectories.elements) {
+                type = ArtifactTypeDefinition.DIRECTORY_TYPE
+            }
+        }
+
+        project.configurations.named(main.runtimeElementsConfigurationName) {
+            outgoing.variants.named("classes") {
+                for (classDir in client.output.classesDirs.files) {
+                    artifact(classDir) { type = ArtifactTypeDefinition.JVM_CLASS_DIRECTORY }
+                }
+            }
+
+            outgoing.variants.named("resources") {
+                artifact(project.tasks.named(client.processResourcesTaskName)) {
+                    type = ArtifactTypeDefinition.JVM_RESOURCES_DIRECTORY
+                }
+            }
         }
 
         // Register a task to check there are no conflicts with the core project.
@@ -108,8 +122,13 @@ class MinecraftConfigurations private constructor(private val project: Project) 
      * Create a new configuration that pulls in the main and client classes from the mod.
      */
     private fun createDerivedConfiguration(name: String) {
-        val client = sourceSets["client"]
         val sourceSet = sourceSets.create(name)
+        java.registerFeature(name) {
+            usingSourceSet(sourceSet)
+            disablePublication()
+        }
+
+        val client = sourceSets["client"]
         sourceSet.compileClasspath += main.compileClasspath + client.compileClasspath
         sourceSet.runtimeClasspath += main.runtimeClasspath + client.runtimeClasspath
         consistentWithMain(sourceSet)
@@ -135,9 +154,3 @@ class MinecraftConfigurations private constructor(private val project: Project) 
         }
     }
 }
-
-fun DependencyHandler.clientClasses(notation: Any): ModuleDependency =
-    Capabilities.clientClasses(create(notation) as ModuleDependency)
-
-fun DependencyHandler.commonClasses(notation: Any): ModuleDependency =
-    Capabilities.commonClasses(create(notation) as ModuleDependency)

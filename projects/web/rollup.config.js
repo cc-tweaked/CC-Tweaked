@@ -54,7 +54,7 @@ const compileCss = (filename, input, minify) => {
  *  - Minifying JS using swc, which is faster than using terser.
  *  - Importing CSS files.
  *  - Importing plain text files from our "mount/" directory.
- *  - Resoving our TeaVM compiled classes and resources files.
+ *  - Resolving our TeaVM compiled classes and resources files.
  *
  * @param {boolean} minify Whether to minify our sources.
  * @returns {@type import("rollup").Plugin} Our plugin.

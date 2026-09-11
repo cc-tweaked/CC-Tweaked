@@ -48,9 +48,9 @@ public class MonitorRenderState implements ClientMonitor.RenderState {
      * or this mode does not require one.
      */
     public boolean createBuffer(MonitorRenderer renderer) {
-        switch (renderer) {
+        return switch (renderer) {
             case TBO -> {
-                if (tboBuffer != 0) return false;
+                if (tboBuffer != 0) yield false;
 
                 deleteBuffers();
 
@@ -65,21 +65,19 @@ public class MonitorRenderState implements ClientMonitor.RenderState {
                 DirectBuffers.setEmptyBufferData(GL31.GL_UNIFORM_BUFFER, tboUniform, GL15.GL_STATIC_DRAW);
 
                 addMonitor();
-                return true;
+                yield true;
             }
             case VBO -> {
-                if (backgroundBuffer != null) return false;
+                if (backgroundBuffer != null) yield false;
 
                 deleteBuffers();
                 backgroundBuffer = new DirectVertexBuffer();
                 foregroundBuffer = new DirectVertexBuffer();
                 addMonitor();
-                return true;
+                yield true;
             }
-            default -> {
-                return false;
-            }
-        }
+            default -> false;
+        };
     }
 
     private void addMonitor() {

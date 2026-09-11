@@ -306,14 +306,11 @@ public class TurtleBlockEntity extends AbstractComputerBlockEntity implements Ba
     private boolean hasPeripheralUpgradeOnSide(ComputerSide side) {
         ITurtleUpgrade upgrade;
         switch (side) {
-            case RIGHT:
-                upgrade = getUpgrade(TurtleSide.RIGHT);
-                break;
-            case LEFT:
-                upgrade = getUpgrade(TurtleSide.LEFT);
-                break;
-            default:
+            case RIGHT -> upgrade = getUpgrade(TurtleSide.RIGHT);
+            case LEFT -> upgrade = getUpgrade(TurtleSide.LEFT);
+            default -> {
                 return false;
+            }
         }
         return upgrade != null && upgrade.getUpgradeType().isPeripheral();
     }

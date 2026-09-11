@@ -15,11 +15,21 @@ java {
     withJavadocJar()
 }
 
-dependencies {
-    api(project(":core-api"))
+val snippetSourcesDependencies = configurations.dependencyScope("snippetSourcesDependencies")
+val snippetSources = configurations.resolvable("snippetSources") {
+    extendsFrom(snippetSourcesDependencies)
+    attributes { attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType.SAMPLES)) }
 }
 
-val javadocOverview by tasks.registering(Copy::class) {
+dependencies {
+    api(project(":core-api"))
+
+    "snippetSourcesDependencies"(project(":common"))
+    "snippetSourcesDependencies"(project(":fabric"))
+    "snippetSourcesDependencies"(project(":forge"))
+}
+
+val javadocOverview = tasks.register<Copy>("javadocOverview") {
     from("src/overview.html")
     into(layout.buildDirectory.dir(name))
 
@@ -64,9 +74,7 @@ tasks.javadoc {
             """.trimIndent(),
         )
 
-        val snippetSources = listOf(":common", ":fabric", ":forge").flatMap {
-            project(it).sourceSets["examples"].allSource.sourceDirectories
-        }
+        val snippetSources = snippetSources.get().files.toList()
         inputs.files(snippetSources)
         addPathOption("-snippet-path").value = snippetSources
     }

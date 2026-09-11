@@ -32,16 +32,16 @@ public abstract class TermMethods {
      * Unlike functions like [`_G.write`] and [`print`], this does not wrap the text - it simply copies the
      * text to the current terminal line.
      *
-     * @param textA The text to write.
+     * @param text The text to write.
      * @throws LuaException (hidden) If the terminal cannot be found.
      */
     @LuaFunction
-    public final void write(Coerced<String> textA) throws LuaException {
-        var text = textA.value();
+    public final void write(Coerced<String> text) throws LuaException {
+        var textStr = text.value();
         var terminal = getTerminal();
         synchronized (terminal) {
-            terminal.write(text);
-            terminal.setCursorPos(terminal.getCursorX() + text.length(), terminal.getCursorY());
+            terminal.write(textStr);
+            terminal.setCursorPos(terminal.getCursorX() + textStr.length(), terminal.getCursorY());
         }
     }
 

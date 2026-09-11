@@ -39,8 +39,7 @@ internal object LoaderOverrides {
         All methods which override a method or implement an interface should use @Override. When overriding
         loader-specific methods, you should use @ForgeOverride or @FabricOverride instead.
     """,
-    severity = BugPattern.SeverityLevel.WARNING,
-    tags = [BugPattern.StandardTags.STYLE],
+    severity = BugPattern.SeverityLevel.ERROR,
 )
 class MissingLoaderOverride(flags: ErrorProneFlags? = null) : BugChecker(), BugChecker.MethodTreeMatcher {
     private val annotation = if (flags == null) null else LoaderOverrides.getAnnotation(flags)
@@ -73,9 +72,8 @@ class MissingLoaderOverride(flags: ErrorProneFlags? = null) : BugChecker(), BugC
 }
 
 @BugPattern(
-    summary = "@ForgeOverride does not match a super method.",
+    summary = "@ForgeOverride/@FabricOverride does not match a super method.",
     severity = BugPattern.SeverityLevel.ERROR,
-    tags = [BugPattern.StandardTags.LIKELY_ERROR],
 )
 class LoaderOverride(flags: ErrorProneFlags? = null) : BugChecker(), BugChecker.MethodTreeMatcher {
     private val annotation = if (flags == null) null else LoaderOverrides.getAnnotation(flags)

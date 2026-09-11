@@ -27,7 +27,7 @@ abstract class MergeTrees : DefaultTask() {
      */
     interface Source {
         /**
-         * The folder contianing all input files.
+         * The folder containing all input files.
          */
         @get:InputFiles
         @get:PathSensitive(PathSensitivity.RELATIVE)

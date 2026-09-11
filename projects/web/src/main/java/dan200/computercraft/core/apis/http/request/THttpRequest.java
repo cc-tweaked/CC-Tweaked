@@ -5,6 +5,7 @@
 package dan200.computercraft.core.apis.http.request;
 
 import cc.tweaked.web.Main;
+import com.google.common.base.Splitter;
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
@@ -122,7 +123,7 @@ public class THttpRequest extends Resource<THttpRequest> {
         var reader = new ReadHandle(contents, binary);
 
         Map<String, String> responseHeaders = new HashMap<>();
-        for (var header : request.getAllResponseHeaders().split("\r\n")) {
+        for (var header : Splitter.on("\r\n").split(request.getAllResponseHeaders())) {
             var index = header.indexOf(':');
             if (index < 0) continue;
 

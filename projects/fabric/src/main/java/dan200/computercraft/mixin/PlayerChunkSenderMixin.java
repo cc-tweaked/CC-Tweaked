@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerChunkSender.class)
 class PlayerChunkSenderMixin {
     @Inject(method = "sendChunk", at = @At("TAIL"))
-    @SuppressWarnings("UnusedMethod")
+    @SuppressWarnings("unused")
     private static void onPlayerLoadedChunk(ServerGamePacketListenerImpl connection, ServerLevel server, LevelChunk chunk, CallbackInfo ci) {
         CommonHooks.onChunkWatch(chunk, connection.player);
     }
