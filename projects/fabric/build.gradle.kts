@@ -6,7 +6,6 @@ import cc.tweaked.gradle.*
 import cc.tweaked.vanillaextract.configurations.Capabilities.clientClasses
 import cc.tweaked.vanillaextract.configurations.Capabilities.commonClasses
 import net.fabricmc.loom.configuration.ide.RunConfigSettings
-import net.ltgt.gradle.errorprone.CheckSeverity
 import net.ltgt.gradle.errorprone.errorprone
 import java.util.*
 
@@ -169,22 +168,27 @@ loom {
             runDirectory = layout.projectDirectory.dir("run/server")
         }
 
-        fun RunConfigSettings.configureForData(sourceSet: SourceSet) {
-            client()
-            runDirectory = layout.buildDirectory.dir("run${name.capitalise()}")
-            systemProperties.put("fabric-api.datagen", "true")
-            systemProperties.put(
-                "fabric-api.datagen.output-dir",
-                layout.buildDirectory.dir(sourceSet.getTaskName("generateResources", null)).getAbsolutePath(),
-            )
-            systemProperties.put("fabric-api.datagen.strict-validation", "true")
+        fun registerForData(name: String, display: String, source: SourceSet, modSource: NamedDomainObjectProvider<SourceSet>) {
+            val outputName = source.getTaskName("generate", "resources")
+            val output = layout.buildDirectory.dir(outputName)
+            register(name) {
+                displayName = display
+
+                client()
+                runDirectory = layout.buildDirectory.dir("run${name.capitalise()}")
+                systemProperties.put("fabric-api.datagen", "true")
+                systemProperties.put("fabric-api.datagen.output-dir", output.getAbsolutePath())
+                systemProperties.put("fabric-api.datagen.strict-validation", "true")
+
+                sourceSet = modSource.name
+            }
+
+            configurations.consumable("${outputName}Elements") {
+                outgoing.artifact(output) { builtBy(tasks.named("run${name.capitalise()}")) }
+            }
         }
 
-        register("data") {
-            displayName = "Datagen"
-            configureForData(sourceSets.main.get())
-            sourceSet = sourceSets.datagen.name
-        }
+        registerForData("data", "Datagen", sourceSets.main.get(), sourceSets.datagen)
 
         fun RunConfigSettings.configureForGameTest() {
             sourceSet = sourceSets.testMod.name
@@ -226,11 +230,7 @@ loom {
             sourceSet = sourceSets.examples.name
         }
 
-        register("exampleData") {
-            displayName = "Example Mod Datagen"
-            configureForData(sourceSets.examples.get())
-            sourceSet = sourceSets.examples.name
-        }
+        registerForData("exampleData", "Example Mod Datagen", sourceSets.examples.get(), sourceSets.examples)
     }
 }
 

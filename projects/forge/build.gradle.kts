@@ -77,21 +77,28 @@ neoForge {
             programArgument("--nogui")
         }
 
-        fun RunModel.configureForData(mod: String, sourceSet: SourceSet) {
-            data()
-            gameDirectory = file("run/run${name.capitalise()}")
-            programArguments.addAll(
-                "--mod", mod, "--all",
-                "--output",
-                layout.buildDirectory.dir(sourceSet.getTaskName("generateResources", null))
-                    .getAbsolutePath(),
-                "--existing", file("../common/src/${sourceSet.name}/resources/").absolutePath,
-                "--existing", file("src/${sourceSet.name}/resources/").absolutePath,
-            )
+        fun registerForData(name: String, mod: String, sourceSet: SourceSet, configure: Action<RunModel>) {
+            val outputName = sourceSet.getTaskName("generate", "resources")
+            val output = layout.buildDirectory.dir(outputName)
+            register(name) {
+                data()
+                gameDirectory = file("run/run${name.capitalise()}")
+                programArguments.addAll(
+                    "--mod", mod, "--all",
+                    "--output", output.getAbsolutePath(),
+                    "--existing", file("../common/src/${sourceSet.name}/resources/").absolutePath,
+                    "--existing", file("src/${sourceSet.name}/resources/").absolutePath,
+                )
+
+                configure(this)
+            }
+
+            configurations.consumable("${outputName}Elements") {
+                outgoing.artifact(output) { builtBy(tasks.named("run${name.capitalise()}")) }
+            }
         }
 
-        register("data") {
-            configureForData("computercraft", sourceSets.main.get())
+        registerForData("data", "computercraft", sourceSets.main.get()) {
             loadedMods = listOf(computercraftDatagen.get())
         }
 
@@ -132,9 +139,8 @@ neoForge {
             loadedMods.add(exampleMod.get())
         }
 
-        register("exampleData") {
-            configureForData("examplemod", sourceSets.examples.get())
-            loadedMods.add(exampleMod.get())
+        registerForData("exampleData", "examplemod", sourceSets.examples.get()) {
+            loadedMods.add(exampleMod)
         }
     }
 }
@@ -233,9 +239,8 @@ tasks.processResources {
 
 tasks.jar {
     // Include core separately, along with the relocated netty classes.
-    val dep = dependencies.project(mapOf("path" to ":core", "configuration" to "shadowRuntimeElements"))
-    val conf = configurations.detachedConfiguration(dep)
-    from(zipTree(conf.elements.map { it.single() })) {
+    val shadowJar = configurations.detachedConfiguration(dependencies.project(":core", "shadowRuntimeElements"))
+    from(zipTree(shadowJar.elements.map { it.single() })) {
         exclude("META-INF/**")
     }
 }
