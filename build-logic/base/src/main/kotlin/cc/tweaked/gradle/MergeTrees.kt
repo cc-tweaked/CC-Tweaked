@@ -8,7 +8,9 @@ import cc.tweaked.vanillaextract.core.util.MoreFiles
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.file.*
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.tasks.*
@@ -27,15 +29,11 @@ abstract class MergeTrees : DefaultTask() {
      */
     interface Source {
         /**
-         * The folder containing all input files.
+         * The folder(s) containing all input files.
          */
         @get:InputFiles
         @get:PathSensitive(PathSensitivity.RELATIVE)
-        val input: ConfigurableFileTree
-
-        fun input(configure: Action<ConfigurableFileTree>) {
-            configure.execute(input)
-        }
+        val input: ConfigurableFileCollection
 
         /**
          * The folder to write files unique to this folder to.
@@ -79,29 +77,27 @@ abstract class MergeTrees : DefaultTask() {
 
         val files = mutableMapOf<String, SharedFile>()
         for (source in sources) {
-            source.input.visit(
-                object : FileVisitor {
-                    override fun visitDir(dirDetails: FileVisitDetails) = Unit
-                    override fun visitFile(fileDetails: FileVisitDetails) {
-                        val path = fileDetails.file.toRelativeString(source.input.dir)
-                        val hash = MoreFiles.computeSha1(fileDetails.file.toPath())
+            source.input.asFileTree.visit {
+                if (isDirectory) return@visit
 
-                        val existing = files[path]
-                        if (existing == null) {
-                            files[path] = SharedFile(hash, 1)
-                        } else if (existing.hash == hash) {
-                            existing.found++
-                        }
-                    }
-                },
-            )
+                val path = path
+                val hash = MoreFiles.computeSha1(file.toPath())
+
+                val existing = files[path]
+                if (existing == null) {
+                    files[path] = SharedFile(hash, 1)
+                } else if (existing.hash == hash) {
+                    existing.found++
+                }
+            }
         }
 
-        val sharedFiles = files.entries.asSequence().filter { (_, v) -> v.found == sources.size }.map { (k, _) -> k }.toList()
+        val sharedFiles =
+            files.entries.asSequence().filter { (_, v) -> v.found == sources.size }.map { (k, _) -> k }.toList()
 
         // Copy shared files to the common directory
         fsOperations.sync {
-            from(sources[0].input)
+            from(sources[0].input.asFileTree)
             into(output)
             include(sharedFiles)
         }
@@ -109,7 +105,7 @@ abstract class MergeTrees : DefaultTask() {
         // And all other files to their per-source directory
         for (source in sources) {
             fsOperations.sync {
-                from(source.input)
+                from(source.input.asFileTree)
                 into(source.output)
                 exclude(sharedFiles)
             }

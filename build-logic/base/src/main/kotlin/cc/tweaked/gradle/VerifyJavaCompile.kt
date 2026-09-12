@@ -12,6 +12,8 @@ import org.gradle.api.problems.*
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.work.InputChanges
 import java.io.File
@@ -27,6 +29,7 @@ abstract class VerifyJavaCompile : JavaCompile() {
      * The directories containing the classes to compare against.
      */
     @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val referenceDirectories: ConfigurableFileCollection
 
     /**

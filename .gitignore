@@ -8,15 +8,17 @@
 /build-logic/build
 /projects/*/build
 
+# Temporary directory for jars in CI
+/jars
+
+# Generated files
 /projects/*/src/generated/resources/.cache
 /projects/*/src/test/generated_tests/
-/projects/*/logs
-
-/node_modules
 .jqwik-database
 
-# Runtime directories
+# Runtime files
 /projects/*/run
+/projects/*/logs
 
 *.ipr
 *.iws
@@ -31,3 +33,4 @@
 /.settings
 /.vscode
 *.launch
+/node_modules

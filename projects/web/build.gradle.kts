@@ -10,8 +10,10 @@ plugins {
     id("cc-tweaked.illuaminate")
 }
 
+val rootProjectDir = rootProject.isolated.projectDirectory
+
 node {
-    projectRoot = rootProject.projectDir
+    projectRoot = rootProjectDir
 }
 
 illuaminate {
@@ -90,11 +92,12 @@ val illuaminateDocs = tasks.register<cc.tweaked.gradle.IlluaminateExecToDir>("il
     description = "Generates docs using Illuaminate"
 
     // Config files
-    inputs.file(rootProject.file("illuaminate.sexp")).withPropertyName("illuaminate config")
+    inputs.file(rootProjectDir.file("illuaminate.sexp")).withPropertyName("illuaminate config")
     // Sources
-    inputs.files(rootProject.fileTree("doc")).withPropertyName("docs")
-    inputs.files(project(":core").fileTree("src/main/resources/data/computercraft/lua")).withPropertyName("lua rom")
-    inputs.dir(project(":common").tasks.named<Javadoc>("luaJavadoc").map { it.destinationDir!! }).withPropertyName("luaJavadoc")
+    inputs.dir(rootProjectDir.dir("doc")).withPropertyName("docs")
+    inputs.files(fileTree("../core/src/main/resources/data/computercraft/lua")).withPropertyName("lua rom")
+    inputs.files(configurations.detachedConfiguration(dependencies.project(":common", "luaJavadocElements")))
+        .withPropertyName("luaJavadoc")
     // Assets
     inputs.files(rollup)
 
@@ -143,7 +146,9 @@ val docWebsite = tasks.register<Copy>("docWebsite") {
     // And item/block images from the data export
     from(file("src/htmlTransform/export/items")) { into("images/items") }
     // Add the common-api (and core-api) javadoc
-    from(project(":common-api").tasks.named("javadoc")) { into("javadoc") }
+    val javadoc = configurations.detachedConfiguration(dependencies.project(":common-api", "javadocElements"))
+    javadoc.attributes.attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.DIRECTORY_TYPE)
+    from(javadoc) { into("javadoc") }
 
     into(layout.buildDirectory.dir("site"))
 }

@@ -80,7 +80,7 @@ tasks.javadoc {
     }
 
     // Include the core-api in our javadoc export. This is wrong, but it means we can export a single javadoc dump.
-    source(project(":core-api").sourceSets.main.map { it.allJava })
+    source("../core/src/main/java")
 
     options {
         this as StandardJavadocDocletOptions
@@ -92,5 +92,11 @@ tasks.javadoc {
             <link href=" https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css " rel="stylesheet">
             """.trimIndent(),
         )
+    }
+}
+
+configurations.named("javadocElements") {
+    outgoing.variants.register("directory") {
+        artifact(tasks.javadoc) { type = ArtifactTypeDefinition.DIRECTORY_TYPE }
     }
 }
