@@ -22,10 +22,29 @@ import net.minecraft.world.phys.BlockHitResult;
  * Tags provided by ComputerCraft.
  */
 public class ComputerCraftTags {
+    /**
+     * Item tags provided by ComputerCraft.
+     */
     public static final class Items {
+        /**
+         * All computers. This includes normal, advanced, and command computers. It does not include turtles or pocket
+         * computers.
+         */
         public static final TagKey<Item> COMPUTER = BlockItems.COMPUTER.item();
+
+        /**
+         * All turtles. This includes normal and advanced turtles.
+         */
         public static final TagKey<Item> TURTLE = BlockItems.TURTLE.item();
+
+        /**
+         * All modems. This includes the multi-part and full-block modem.
+         */
         public static final TagKey<Item> WIRED_MODEM = BlockItems.WIRED_MODEM.item();
+
+        /**
+         * All monitors. This includes normal and advanced monitors.
+         */
         public static final TagKey<Item> MONITOR = BlockItems.MONITOR.item();
 
         /**
@@ -66,10 +85,29 @@ public class ComputerCraftTags {
         }
     }
 
+    /**
+     * Block tags provided by ComputerCraft.
+     */
     public static final class Blocks {
+        /**
+         * All computers. This includes normal, advanced, and command computers. It does not include turtles or pocket
+         * computers.
+         */
         public static final TagKey<Block> COMPUTER = BlockItems.COMPUTER.block();
+
+        /**
+         * All turtles. This includes normal and advanced turtles.
+         */
         public static final TagKey<Block> TURTLE = BlockItems.TURTLE.block();
+
+        /**
+         * All modems. This includes the multi-part and full-block modem.
+         */
         public static final TagKey<Block> WIRED_MODEM = BlockItems.WIRED_MODEM.block();
+
+        /**
+         * All monitors. This includes normal and advanced monitors.
+         */
         public static final TagKey<Block> MONITOR = BlockItems.MONITOR.block();
 
         /**
@@ -115,9 +153,25 @@ public class ComputerCraftTags {
     }
 
     public static final class BlockItems {
+        /**
+         * All computers. This includes normal, advanced, and command computers. It does not include turtles or pocket
+         * computers.
+         */
         public static final BlockItemTagId COMPUTER = make("computer");
+
+        /**
+         * All turtles. This includes normal and advanced turtles.
+         */
         public static final BlockItemTagId TURTLE = make("turtle");
+
+        /**
+         * All modems. This includes the multi-part and full-block modem.
+         */
         public static final BlockItemTagId WIRED_MODEM = make("wired_modem");
+
+        /**
+         * All monitors. This includes normal and advanced monitors.
+         */
         public static final BlockItemTagId MONITOR = make("monitor");
 
         private BlockItems() {

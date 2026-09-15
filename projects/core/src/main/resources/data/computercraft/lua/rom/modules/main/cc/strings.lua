@@ -116,7 +116,7 @@ For instance, splitting the string `"a b c"` with the deliminator `" "`, would
 return a table with three strings: `"a"`, `"b"`, and `"c"`.
 
 By default, the deliminator is given as a [Lua pattern][pattern]. Passing `true`
-to the `plain` argument will cause the deliminator to be treated as a litteral
+to the `plain` argument will cause the deliminator to be treated as a literal
 string.
 
 [pattern]: https://www.lua.org/manual/5.3/manual.html#6.4.1

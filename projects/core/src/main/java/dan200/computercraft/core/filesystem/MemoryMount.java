@@ -145,7 +145,7 @@ public final class MemoryMount extends AbstractInMemoryMount<MemoryMount.FileEnt
         if (destParent == null) throw new FileOperationException(dest, "Parent directory does not exist");
         if (destParent.exists()) throw new FileOperationException(dest, FILE_EXISTS);
 
-        destParent.put(sourceParent.parent().remove(sourceParent.name()));
+        destParent.put(Nullability.assertNonNull(sourceParent.parent().remove(sourceParent.name())));
     }
 
     @Override

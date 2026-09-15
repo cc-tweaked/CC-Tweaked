@@ -43,7 +43,7 @@ final class InvariantChecker {
         for (var neighbour : node.neighbours) {
             if (!neighbour.neighbours.contains(node)) {
                 okay = false;
-                LOG.error("{}: Neighbour {}'s neighbour set does not contain origianl node.", node, neighbour);
+                LOG.error("{}: Neighbour {}'s neighbour set does not contain original node.", node, neighbour);
             }
         }
 

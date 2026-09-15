@@ -18,20 +18,17 @@ public class TurtleTurnCommand implements TurtleCommand {
 
     @Override
     public TurtleCommandResult execute(ITurtleAccess turtle) {
-        switch (direction) {
+        return switch (direction) {
             case LEFT -> {
                 turtle.setDirection(turtle.getDirection().getCounterClockWise());
                 turtle.playAnimation(TurtleAnimation.TURN_LEFT);
-                return TurtleCommandResult.success();
+                yield TurtleCommandResult.success();
             }
             case RIGHT -> {
                 turtle.setDirection(turtle.getDirection().getClockWise());
                 turtle.playAnimation(TurtleAnimation.TURN_RIGHT);
-                return TurtleCommandResult.success();
+                yield TurtleCommandResult.success();
             }
-            default -> {
-                return TurtleCommandResult.failure("Unknown direction");
-            }
-        }
+        };
     }
 }

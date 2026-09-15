@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: 2026 The CC: Tweaked Developers
+#
+# SPDX-License-Identifier: MPL-2.0
+
+[files]
+extend-exclude = [
+  "*.dfpwm",
+  "LICENSES/*",
+  "projects/common/src/main/resources/assets/computercraft/lang/*.json",
+   "projects/core/src/test/resources/test-rom/data/json-parsing/*.json",
+]

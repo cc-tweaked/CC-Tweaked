@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Manages the state of redstone inputs and ouputs on a computer (or other redstone emitting block).
+ * Manages the state of redstone inputs and outputs on a computer (or other redstone emitting block).
  * <p>
  * As computers execute on a separate thread to the main Minecraft world, computers cannot immediately read or write
  * redstone values. Instead, we maintain a copy of the block's redstone inputs and outputs, and sync that with the

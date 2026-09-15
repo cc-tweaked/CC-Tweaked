@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
- * Sprite sheet for all GUI texutres in the mod.
+ * Sprite sheet for all GUI textures in the mod.
  */
 public final class GuiSprites {
     public static final ButtonTextures TURNED_OFF = button("turned_off");
