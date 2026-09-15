@@ -120,6 +120,7 @@ public final class LanguageProvider implements DataProvider {
         add("upgrade.computercraft.wireless_modem_advanced.adjective", "Ender");
         add("upgrade.computercraft.speaker.adjective", "Noisy");
 
+        add("chat.computercraft.wired_modem.connected_peripheral", "Peripheral \"%s\" is connected to modem");
         add("chat.computercraft.wired_modem.peripheral_connected", "Peripheral \"%s\" connected to network");
         add("chat.computercraft.wired_modem.peripheral_disconnected", "Peripheral \"%s\" disconnected from network");
 
