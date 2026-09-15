@@ -23,7 +23,7 @@ import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
-import net.minecraft.world.level.block.RedStoneWireBlock
+import net.minecraft.world.level.block.RedstoneWireBlock
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.array
 import org.hamcrest.Matchers.equalTo
@@ -142,7 +142,7 @@ class Disk_Drive_Test {
             drive.setChanged()
         }
         thenIdle(2)
-        thenExecute { helper.assertBlockHas(dustPos, RedStoneWireBlock.POWER, 15) }
+        thenExecute { helper.assertBlockHas(dustPos, RedstoneWireBlock.POWER, 15) }
 
         // And removing them should reset power.
         thenExecute {
@@ -151,7 +151,7 @@ class Disk_Drive_Test {
             drive.setChanged()
         }
         thenIdle(2)
-        thenExecute { helper.assertBlockHas(dustPos, RedStoneWireBlock.POWER, 0) }
+        thenExecute { helper.assertBlockHas(dustPos, RedstoneWireBlock.POWER, 0) }
     }
 
     /**

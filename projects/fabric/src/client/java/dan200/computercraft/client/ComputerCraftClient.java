@@ -4,6 +4,7 @@
 
 package dan200.computercraft.client;
 
+import com.mojang.blaze3d.Blaze3D;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -41,7 +42,6 @@ import net.minecraft.client.renderer.item.properties.select.SelectItemModelPrope
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvableModel;
-import net.minecraft.util.Util;
 import net.minecraft.world.phys.BlockHitResult;
 
 import java.nio.file.Files;
@@ -115,7 +115,7 @@ public class ComputerCraftClient {
                 .then(RequiredArgumentBuilder.<FabricClientCommandSource, String>argument("path", StringArgumentType.string())
                     .executes(c -> {
                         var file = Path.of(c.getArgument("path", String.class));
-                        if (Files.isDirectory(file)) Util.getPlatform().openFile(file.toFile());
+                        if (Files.isDirectory(file)) Blaze3D.openPath(file);
                         return 0;
                     })
                 )));

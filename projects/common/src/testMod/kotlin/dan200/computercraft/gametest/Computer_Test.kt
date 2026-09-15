@@ -4,6 +4,7 @@
 
 package dan200.computercraft.gametest
 
+import com.mojang.blaze3d.platform.InputConstants
 import dan200.computercraft.api.lua.Coerced
 import dan200.computercraft.client.gui.AbstractComputerScreen
 import dan200.computercraft.core.apis.RedstoneAPI
@@ -26,7 +27,6 @@ import net.minecraft.world.level.block.RedstoneLampBlock
 import net.minecraft.world.phys.Vec3
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.lwjgl.glfw.GLFW
 import kotlin.time.Duration.Companion.milliseconds
 
 class Computer_Test {
@@ -156,20 +156,20 @@ class Computer_Test {
         // Press a key on the client
         thenOnClient {
             val screen = minecraft.gui.screen() as AbstractComputerScreen<*>
-            screen.keyPressed(KeyEvent(GLFW.GLFW_KEY_A, 0, 0))
-            screen.keyReleased(KeyEvent(GLFW.GLFW_KEY_A, 0, 0))
+            screen.keyPressed(KeyEvent(InputConstants.KEYCODE_A, 0, 0))
+            screen.keyReleased(KeyEvent(InputConstants.KEYCODE_A, 0, 0))
         }
         // And assert it is handled and sent back to the client
         thenIdle(2)
         thenOnClient {
             val term = getOpenMenu(ModRegistry.Menus.COMPUTER.get()).terminal
             assertEquals(
-                "[key, ${GLFW.GLFW_KEY_A}, false]",
+                "[key, 65, false]",
                 term.getLine(1).toString().trim(),
                 "Terminal contents is synced",
             )
             assertEquals(
-                "[key_up, ${GLFW.GLFW_KEY_A}]",
+                "[key_up, 65]",
                 term.getLine(2).toString().trim(),
                 "Terminal contents is synced",
             )

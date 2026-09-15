@@ -30,7 +30,7 @@ public final class PrintoutItemRenderer extends ItemMapLikeRenderer {
 
     @Override
     protected void renderItem(PoseStack transform, SubmitNodeCollector collector, ItemStack stack, int light) {
-        transform.mulPose(Axis.XP.rotationDegrees(180f));
+        transform.rotateDegrees(Axis.XP, 180f);
         transform.scale(0.42f, 0.42f, -0.42f);
         transform.translate(-0.5f, -0.48f, 0.0f);
 
@@ -40,7 +40,7 @@ public final class PrintoutItemRenderer extends ItemMapLikeRenderer {
     public static void onRenderInFrame(PoseStack transform, SubmitNodeCollector collector, ItemFrameRenderState frame, PrintoutData data, boolean isBook) {
         // Move a little bit forward to ensure we're not clipping with the frame
         transform.translate(0.0f, 0.0f, -0.001f);
-        transform.mulPose(Axis.ZP.rotationDegrees(180f));
+        transform.rotateDegrees(Axis.ZP, 180f);
         transform.scale(0.95f, 0.95f, -0.95f);
         transform.translate(-0.5f, -0.5f, 0.0f);
 

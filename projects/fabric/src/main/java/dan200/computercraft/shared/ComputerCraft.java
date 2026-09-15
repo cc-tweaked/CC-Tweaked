@@ -124,7 +124,7 @@ public class ComputerCraft {
         );
 
         LootTableEvents.MODIFY.register((id, tableBuilder, source, registries) -> {
-            var pool = CommonHooks.getExtraLootPool(id);
+            var pool = CommonHooks.getExtraLootPool(registries, id);
             if (pool != null) tableBuilder.withPool(pool);
         });
 

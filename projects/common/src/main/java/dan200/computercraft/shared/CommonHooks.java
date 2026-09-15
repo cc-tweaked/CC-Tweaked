@@ -13,6 +13,7 @@ import dan200.computercraft.shared.lectern.CustomLecternBlock;
 import dan200.computercraft.shared.peripheral.monitor.MonitorWatcher;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.TickScheduler;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -36,7 +37,7 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.NestedLootTable;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
@@ -129,14 +130,14 @@ public final class CommonHooks {
         BuiltInLootTables.VILLAGE_CARTOGRAPHER
     );
 
-    public static LootPool.@Nullable Builder getExtraLootPool(ResourceKey<LootTable> lootTable) {
+    public static LootPool.@Nullable Builder getExtraLootPool(HolderGetter.Provider registries, ResourceKey<LootTable> lootTable) {
         if (!TREASURE_DISK_LOOT_TABLES.contains(lootTable)) {
             return null;
         }
 
         return LootPool.lootPool()
-            .add(NestedLootTable.lootTableReference(TREASURE_DISK_LOOT))
-            .setRolls(ConstantValue.exactly(1));
+            .add(NestedLootTable.lootTableReference(registries.getOrThrow(TREASURE_DISK_LOOT)))
+            .setRolls(ContextIntProviders.exactly(1));
     }
 
     public static void onDatapackReload(BiConsumer<Identifier, PreparableReloadListener> addReload) {

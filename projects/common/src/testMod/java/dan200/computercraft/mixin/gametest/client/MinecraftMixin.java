@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.util.Util;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -42,7 +43,8 @@ class MinecraftMixin implements MinecraftExtensions {
     private void updateStable(boolean render, CallbackInfo ci) {
         isStable.set(
             level != null && player != null &&
-                levelRenderer.isSectionCompiledAndVisible(player.blockPosition()) && levelRenderer.visibleSections().size() > 10 &&
+                levelRenderer.isSectionCompiledAndVisible(player.blockPosition(), Util.toMillis(0.75)) &&
+                levelRenderer.visibleSections().size() > 10 &&
                 levelRenderer.hasRenderedAllSections()
         );
     }

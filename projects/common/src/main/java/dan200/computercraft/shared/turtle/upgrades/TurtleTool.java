@@ -220,7 +220,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
 
         // If this is a projectile, attempt to deflect it instead.
         if (entity.is(EntityTypeTags.REDIRECTABLE_PROJECTILE) && entity instanceof Projectile projectile &&
-            projectile.deflect(ProjectileDeflection.AIM_DEFLECT, player, EntityReference.of(player), true)
+            projectile.deflect(ProjectileDeflection.AIM_DEFLECT, player, EntityReference.of(player), true, 1.0f)
         ) {
             return true;
         }
@@ -246,9 +246,9 @@ public class TurtleTool extends AbstractTurtleUpgrade {
             }
         }
 
-        if (entity instanceof ServerPlayer otherPlayer && entity.hurtMarked) {
+        if (entity instanceof ServerPlayer otherPlayer && entity.syncVelocity) {
             otherPlayer.connection.send(new ClientboundSetEntityMotionPacket(entity));
-            entity.hurtMarked = false;
+            entity.syncVelocity = false;
             entity.setDeltaMovement(entityVelocity);
         }
 

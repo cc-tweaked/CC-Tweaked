@@ -7,8 +7,8 @@
         "defaultRequire": 1
     },
     "client": [
+        "FirstPersonHandsAndItemsRendererMixin",
         "ItemFrameRendererMixin",
-        "ItemInHandRendererMixin",
         "MinecraftMixin",
         "MultiPlayerGameModeMixin",
         "SoundEngineMixin"

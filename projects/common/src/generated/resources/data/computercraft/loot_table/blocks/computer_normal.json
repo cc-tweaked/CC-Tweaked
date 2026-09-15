@@ -2,24 +2,22 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "conditions": [
-        {
-          "condition": "minecraft:any_of",
-          "terms": [
-            {"condition": "computercraft:block_named"},
-            {"condition": "computercraft:has_id"},
-            {"condition": "minecraft:inverted", "term": {"condition": "computercraft:player_creative"}}
-          ]
-        }
-      ],
+      "condition": {
+        "type": "minecraft:any_of",
+        "terms": [
+          {"type": "computercraft:block_named"},
+          {"type": "computercraft:has_id"},
+          {"type": "minecraft:inverted", "term": {"type": "computercraft:player_creative"}}
+        ]
+      },
       "entries": [
         {
           "type": "minecraft:item",
-          "functions": [{"function": "minecraft:copy_components", "source": "block_entity"}],
+          "modifier": {"type": "minecraft:copy_components", "source": "block_entity"},
           "name": "computercraft:computer_normal"
         }
       ],
-      "rolls": 1.0
+      "rolls": 1
     }
   ],
   "random_sequence": "computercraft:blocks/computer_normal"

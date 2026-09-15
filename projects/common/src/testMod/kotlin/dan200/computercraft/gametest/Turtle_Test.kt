@@ -52,6 +52,7 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.ComposterBlock
 import net.minecraft.world.level.block.FenceBlock
 import net.minecraft.world.level.block.entity.SignBlockEntity
+import net.minecraft.world.level.block.entity.SignTextSlot
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.array
@@ -113,9 +114,10 @@ class Turtle_Test {
         }
         thenExecute {
             val sign = helper.getBlockEntity(BlockPos(2, 1, 1), SignBlockEntity::class.java)
+            val signText = sign.getText(SignTextSlot.FRONT).getMessages(false)
             val lines = listOf("", "Test", "message", "")
             for ((i, line) in lines.withIndex()) {
-                assertEquals(line, sign.frontText.getMessage(i, false).string, "Line $i")
+                assertEquals(line, signText[i].string, "Line $i")
             }
         }
     }

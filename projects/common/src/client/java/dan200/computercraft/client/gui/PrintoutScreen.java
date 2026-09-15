@@ -4,6 +4,7 @@
 
 package dan200.computercraft.client.gui;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.client.render.PrintoutRenderer;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
@@ -27,7 +28,6 @@ import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix3x2f;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Objects;
 
@@ -89,12 +89,12 @@ public final class PrintoutScreen extends AbstractContainerScreen<PrintoutMenu> 
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        if (event.key() == GLFW.GLFW_KEY_RIGHT) {
+        if (event.key() == InputConstants.KEY_RIGHT) {
             nextPage();
             return true;
         }
 
-        if (event.key() == GLFW.GLFW_KEY_LEFT) {
+        if (event.key() == InputConstants.KEY_LEFT) {
             previousPage();
             return true;
         }

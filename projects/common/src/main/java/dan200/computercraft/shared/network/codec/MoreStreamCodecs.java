@@ -6,12 +6,10 @@ package dan200.computercraft.shared.network.codec;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.VarInt;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.phys.Vec3;
 
 import java.nio.ByteBuffer;
 import java.util.OptionalInt;
@@ -35,31 +33,6 @@ public class MoreStreamCodecs {
             }
         };
     }
-
-    public static <B extends FriendlyByteBuf, C> StreamCodec<B, NonNullList<C>> nonNullList(StreamCodec<B, C> codec, C empty) {
-        return new StreamCodec<>() {
-            @Override
-            public NonNullList<C> decode(B buffer) {
-                var count = buffer.readVarInt();
-                var result = NonNullList.withSize(count, empty);
-                for (var i = 0; i < result.size(); i++) result.set(i, codec.decode(buffer));
-                return result;
-            }
-
-            @Override
-            public void encode(B buffer, NonNullList<C> list) {
-                buffer.writeVarInt(list.size());
-                for (var entry : list) codec.encode(buffer, entry);
-            }
-        };
-    }
-
-    public static final StreamCodec<ByteBuf, Vec3> VEC3 = StreamCodec.composite(
-        ByteBufCodecs.DOUBLE, Vec3::x,
-        ByteBufCodecs.DOUBLE, Vec3::y,
-        ByteBufCodecs.DOUBLE, Vec3::z,
-        Vec3::new
-    );
 
     /**
      * A codec for {@link OptionalInt}. This uses the same wire format as {@link ByteBufCodecs#optional(StreamCodec)}

@@ -19,6 +19,7 @@ import net.minecraft.gametest.framework.StructureUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.level.block.entity.BlockEntityTypes;
@@ -83,7 +84,7 @@ class CCTestCommand {
                 stack.set(ModRegistry.DataComponents.COMPUTER_ID.get(), new NonNegativeId.Computer(1));
                 stack.set(DataComponents.CUSTOM_NAME, Component.literal(test.identifier().getPath()));
                 if (!player.getInventory().add(stack)) {
-                    var itemEntity = player.drop(stack, false);
+                    var itemEntity = player.drop(stack, false, Prediction.SERVER_ONLY);
                     if (itemEntity != null) {
                         itemEntity.setNoPickUpDelay();
                         itemEntity.setThrower(player);

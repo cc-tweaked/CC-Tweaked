@@ -148,11 +148,11 @@ object ClientTestHooks {
                     GameTestBatchFactory.divideIntoBatches(
                         server.registryAccess().lookupOrThrow(Registries.TEST_INSTANCE).listElements().toList(),
                         GameTestBatchFactory.DIRECT,
-                        server.overworld(),
+                        server,
                     ),
-                    server.overworld(),
+                    server,
                 )
-                    .newStructureSpawner(StructureGridSpawner(TestHooks.getTestOrigin(server), 8, false))
+                    .newStructureSpawner(StructureGridSpawner({ TestHooks.getTestOrigin(server) }, 8, false))
                     .build()
 
                 val testTracker = MultipleTestTracker(tests.testInfos)

@@ -7,10 +7,12 @@ package dan200.computercraft.mixin.gametest.client;
 import net.minecraft.client.gui.screens.worldselection.WorldOpenFlows;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(WorldOpenFlows.class)
-public class WorldOpenFlowsMixin {
+class WorldOpenFlowsMixin {
     /**
      * Never prompt for backup/experimental options when running tests.
      *
@@ -18,12 +20,12 @@ public class WorldOpenFlowsMixin {
      * @param customised Whether this rule uses legacy customised worldgen options.
      * @param load       The action run to load the world.
      * @param cancel     The action run to abort loading the world.
-     * @author SquidDev
-     * @reason Makes it easier to run tests. We can switch to an @Inject if this becomes a problem.
+     * @param ci         Cancel callback.
      */
-    @Overwrite
+    @Inject(at = @At("HEAD"), method = "askForBackup", cancellable = true)
     @SuppressWarnings("unused")
-    private void askForBackup(LevelStorageSource.LevelStorageAccess access, boolean customised, Runnable load, Runnable cancel) {
+    private void askForBackup(LevelStorageSource.LevelStorageAccess access, boolean customised, Runnable load, Runnable cancel, CallbackInfo ci) {
         load.run();
+        ci.cancel();
     }
 }

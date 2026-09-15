@@ -11,8 +11,10 @@ import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.impl.ComputerCraftAPIService;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.RegistrySetBuilder.PatchedRegistries;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.data.registries.RegistryPatchGenerator;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Items;
@@ -68,13 +70,15 @@ import java.util.function.Function;
  * {@snippet file=assets/examplemod/computercraft/turtle_upgrade/example_turtle_upgrade.json}
  *
  * Rather than manually creating these file, it is recommended to use data-generators to generate this file. First, we
- * register our new upgrades into a {@linkplain PatchedRegistries patched registry}. Models must similarly be
- * registered.
+ * register our new upgrades into a {@link RegistrySetBuilder}, and then build our {@link PatchedRegistries} from that.
+ * We can then use {@link RegistryPatchGenerator} to write these to disk.
+ * <p>
+ * Vanilla does not have built-in support for writing data generators for arbitrary codecs, so we just register our
+ * turtle models via a function, and handle that in the loader-specific code.
  *
  * {@snippet class=com.example.examplemod.data.TurtleUpgradeProvider region=body}
  *
- * Next, we must write these upgrades to disk. Vanilla does not have complete support for this yet, so this must be done
- * with mod-loader-specific APIs.
+ * Here is how one would use these methods from the various mod loaders:
  *
  * <h4>Fabric</h4>
  * {@snippet class=com.example.examplemod.FabricExampleModDataGenerator region=turtle_upgrades}

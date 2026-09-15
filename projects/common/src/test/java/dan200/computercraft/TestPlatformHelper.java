@@ -24,7 +24,6 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -120,11 +119,6 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     @Override
     public RecipeIngredients getRecipeIngredients() {
         throw new UnsupportedOperationException("Cannot query recipes inside tests");
-    }
-
-    @Override
-    public int getBurnTime(MinecraftServer server, ItemStack stack) {
-        throw new UnsupportedOperationException("Cannot get burn time inside tests");
     }
 
     @Override

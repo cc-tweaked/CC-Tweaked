@@ -703,7 +703,7 @@ public class TurtleBrain implements TurtleAccessInternal {
     }
 
     private static boolean canPush(Entity entity) {
-        return !entity.isSpectator() && entity.getPistonPushReaction() != PushReaction.IGNORE;
+        return !entity.isSpectator() && entity.getPistonPushReaction() != PushReaction.IGNORE_ENTITY;
     }
 
     private float getAnimationFraction(float f) {

@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Util;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -152,7 +153,7 @@ public class CableBlock extends Block implements SimpleWaterloggedBlock, EntityB
 
         // Perform a ray-trace for the player.
         var from = player.getEyePosition();
-        var to = from.add(player.calculateViewVector(player.getXRot(), player.getYRot()).scale(player.blockInteractionRange()));
+        var to = from.add(Entity.calculateViewVector(player.getXRot(), player.getYRot()).scale(player.blockInteractionRange()));
         var hit = level.clip(new ClipContext(from, to, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
 
         // We've a modem and cable, so try to work out which one we're interacting with

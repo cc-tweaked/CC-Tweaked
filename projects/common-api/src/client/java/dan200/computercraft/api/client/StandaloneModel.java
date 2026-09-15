@@ -25,6 +25,7 @@ import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.geometry.ItemQuads;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ItemOwner;
@@ -43,7 +44,7 @@ import java.util.function.Supplier;
  * and block models. This is primarily intended for use with {@link TurtleUpgradeModel}s.
  */
 public final class StandaloneModel {
-    private final List<BakedQuad> quads;
+    private final ItemQuads quads;
     private final boolean useBlockLight;
     private final Material.Baked particleIcon;
     private final RenderType renderType;
@@ -58,7 +59,7 @@ public final class StandaloneModel {
      * @param renderType     The render type for this model.
      */
     public StandaloneModel(List<BakedQuad> quads, boolean usesBlockLight, Material.Baked particleIcon, RenderType renderType) {
-        this.quads = quads;
+        this.quads = ItemQuads.split(quads);
         this.useBlockLight = usesBlockLight;
         this.particleIcon = particleIcon;
         this.renderType = renderType;
@@ -147,7 +148,7 @@ public final class StandaloneModel {
         layer.setExtents(extents);
         layer.setUsesBlockLight(useBlockLight);
         layer.setParticleMaterial(particleIcon);
-        layer.prepareQuadList().addAll(quads);
+        layer.setQuads(quads);
     }
 
     /**
@@ -188,7 +189,7 @@ public final class StandaloneModel {
         var instance = new QuadInstance();
         instance.setLightCoords(light);
         instance.setOverlayCoords(overlay);
-        for (var quad : quads) {
+        for (var quad : quads.all()) {
             instance.setColor(quad.materialInfo().isTinted() ? tintColour : -1);
             buffer.putBakedQuad(pose, quad, instance);
         }

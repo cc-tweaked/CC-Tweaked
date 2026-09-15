@@ -2,7 +2,7 @@
   "parent": "minecraft:recipes/root",
   "criteria": {
     "has_the_recipe": {
-      "conditions": {"recipe": "minecraft:wired_modem_from_wired_modem_full"},
+      "conditions": {"recipes": "minecraft:wired_modem_from_wired_modem_full"},
       "trigger": "minecraft:recipe_unlocked"
     },
     "has_wired_modem_full": {

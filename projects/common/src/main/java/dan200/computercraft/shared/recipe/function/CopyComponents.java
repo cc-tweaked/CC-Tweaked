@@ -94,24 +94,17 @@ public final class CopyComponents implements RecipeFunction {
         return result;
     }
 
+    private boolean includeComponent(DataComponentType<?> type) {
+        // Only apply components in the include set (if present) and not in the exclude set (if present).
+        return (includeSet == null || includeSet.contains(type)) && (excludeSet == null || !excludeSet.contains(type));
+    }
+
     private void applyPatch(DataComponentPatch patch, ItemStack result) {
         if (includeSet == null && excludeSet == null) {
             result.applyComponents(patch);
-            return;
+        } else {
+            result.applyComponents(patch.forget(type -> !includeComponent(type)));
         }
-
-        // Only apply components in the include set (if present) and not in the exclude set (if present).
-        for (var component : patch.entrySet()) {
-            var type = component.getKey();
-            if ((includeSet == null || includeSet.contains(type)) && (excludeSet == null || !excludeSet.contains(type))) {
-                unsafeSetComponent(result, type, component.getValue().orElse(null));
-            }
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> void unsafeSetComponent(ItemStack stack, DataComponentType<?> type, @Nullable T value) {
-        stack.set((DataComponentType<T>) type, value);
     }
 
     /**

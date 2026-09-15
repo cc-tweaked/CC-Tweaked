@@ -4,6 +4,7 @@
 
 package dan200.computercraft.client.gui;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dan200.computercraft.client.gui.widgets.TerminalWidget;
 import dan200.computercraft.core.input.UserComputerInput;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
@@ -16,7 +17,6 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Objects;
 
@@ -94,7 +94,7 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
     @Override
     public final boolean keyPressed(KeyEvent event) {
         // Forward the tab key to the terminal, rather than moving between controls.
-        if (event.key() == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminal) {
+        if (event.key() == InputConstants.KEY_TAB && getFocused() != null && getFocused() == terminal) {
             return getFocused().keyPressed(event);
         }
 

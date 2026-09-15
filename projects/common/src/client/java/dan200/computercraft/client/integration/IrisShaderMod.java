@@ -5,7 +5,7 @@
 package dan200.computercraft.client.integration;
 
 import com.google.auto.service.AutoService;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import net.irisshaders.iris.api.v0.IrisApi;
@@ -43,7 +43,8 @@ public class IrisShaderMod implements ShaderMod.Provider {
 
             @Override
             public VertexFormat format() {
-                return sink.getUnderlyingVertexFormat();
+                // TODO(26.3): return sink.getUnderlyingVertexFormat();
+                throw new UnsupportedOperationException();
             }
 
             @Override

@@ -163,7 +163,7 @@ public class TurtleBlockEntityRenderer implements BlockEntityRenderer<TurtleBloc
 
         // Swing the tool
         transform.translate(0.0f, 0.5f, 0.5f);
-        transform.mulPose(Axis.XN.rotationDegrees(angle));
+        transform.rotateDegrees(Axis.XN, angle);
         transform.translate(0.0f, -0.5f, -0.5f);
 
         // Then reposition for rendering the item

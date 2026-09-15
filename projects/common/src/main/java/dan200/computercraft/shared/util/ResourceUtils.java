@@ -30,8 +30,7 @@ public class ResourceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ResourceUtils.class);
 
     /**
-     * A version of {@link SimpleJsonResourceReloadListener#scanDirectory(ResourceManager, FileToIdConverter, DynamicOps, Codec, Map)},
-     * that runs in parallel over multiple executors.
+     * A version of {@link SimpleJsonResourceReloadListener} that loads entries in parallel.
      * <p>
      * This shares some similarity with how {@link net.minecraft.client.resources.model.ModelManager#loadBlockModels(ResourceManager, Executor)}
      * loads resources.

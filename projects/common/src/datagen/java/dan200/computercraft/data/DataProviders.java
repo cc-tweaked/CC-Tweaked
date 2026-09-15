@@ -22,13 +22,14 @@ import net.minecraft.client.renderer.texture.atlas.SpriteSources;
 import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.registries.RegistriesDatapackGenerator;
 import net.minecraft.data.registries.RegistryPatchGenerator;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Util;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
@@ -51,23 +52,28 @@ public final class DataProviders {
     }
 
     public static void add(GeneratorSink generator) {
-        var fullRegistryPatch = RegistryPatchGenerator.createLookup(
-            generator.registries(),
-            Util.make(new RegistrySetBuilder(), builder -> {
-                builder.add(ITurtleUpgrade.REGISTRY, TurtleUpgradeProvider::register);
-                builder.add(IPocketUpgrade.REGISTRY, PocketUpgradeProvider::addUpgrades);
-            }));
-        var fullRegistries = fullRegistryPatch.thenApply(RegistrySetBuilder.PatchedRegistries::full);
+        var worldRegistryPatch = RegistryPatchGenerator.createWorldLookup(
+            generator.worldRegistries(),
+            new RegistrySetBuilder()
+                .add(ITurtleUpgrade.REGISTRY, TurtleUpgradeProvider::register)
+                .add(IPocketUpgrade.REGISTRY, PocketUpgradeProvider::addUpgrades)
+        );
 
-        generator.registries(fullRegistryPatch);
-        generator.add(out -> new RecipeProvider.Runner(out, fullRegistries));
+        var reloadableRegistries = RegistryPatchGenerator.createReloadableLookup(
+            worldRegistryPatch.thenApply(RegistrySetBuilder.PatchedRegistries::full),
+            generator.reloadableRegistries(),
+            new RegistrySetBuilder()
+                .add(RecipeProvider.create())
+                .add(Registries.LOOT_TABLE, new net.minecraft.data.loot.LootTableProvider(Set.of(), LootTableProvider.getTables()))
+        );
+
+        generator.add(o -> RegistriesDatapackGenerator.forWorldLayer(o, worldRegistryPatch.thenApply(RegistrySetBuilder.PatchedRegistries::patches)));
+        generator.add(o -> RegistriesDatapackGenerator.forReloadableLayer(o, reloadableRegistries.thenApply(RegistrySetBuilder.PatchedRegistries::patches)));
 
         generator.blockTags(TagProvider::blockTags);
         generator.itemTags(TagProvider::itemTags);
 
-        generator.add(out -> new net.minecraft.data.loot.LootTableProvider(out, Set.of(), LootTableProvider.getTables(), fullRegistries));
-
-        generator.add(out -> new LanguageProvider(out, fullRegistries));
+        generator.add(out -> new LanguageProvider(out, reloadableRegistries.thenApply(RegistrySetBuilder.PatchedRegistries::full)));
 
         generator.addFromCodec("Block atlases", PackOutput.Target.RESOURCE_PACK, "atlases", SpriteSources.FILE_CODEC, out -> {
             out.accept(AtlasIds.BLOCKS, makeSprites(Stream.of(
@@ -101,7 +107,9 @@ public final class DataProviders {
     }
 
     public interface GeneratorSink {
-        CompletableFuture<HolderLookup.Provider> registries();
+        CompletableFuture<HolderLookup.Provider> worldRegistries();
+
+        CompletableFuture<HolderLookup.Provider> reloadableRegistries();
 
         <T extends DataProvider> T add(DataProvider.Factory<T> factory);
 
@@ -110,13 +118,6 @@ public final class DataProviders {
         TagsProvider<Block> blockTags(Consumer<TagProvider.TagConsumer<Block>> tags);
 
         TagsProvider<Item> itemTags(Consumer<TagProvider.TagConsumer<Item>> tags);
-
-        /**
-         * Build new dynamic registries and save them to a pack.
-         *
-         * @param registries The patched registries to write.
-         */
-        void registries(CompletableFuture<RegistrySetBuilder.PatchedRegistries> registries);
 
         /**
          * Generate block and item models.

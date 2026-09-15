@@ -28,18 +28,19 @@ import dan200.computercraft.shared.turtle.items.TurtleItem;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.util.ColourUtils;
 import dan200.computercraft.shared.util.RegistryHelper;
+import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.predicates.ItemPredicate;
 import net.minecraft.advancements.triggers.Criterion;
 import net.minecraft.advancements.triggers.InventoryChangeTrigger;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.MultiRegistryBootstrap;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
@@ -54,8 +55,8 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static dan200.computercraft.api.ComputerCraftTags.Items.COMPUTER;
@@ -65,10 +66,10 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
     private final RecipeIngredients ingredients;
     private final HolderGetter<Item> items;
 
-    RecipeProvider(HolderLookup.Provider registries, RecipeOutput recipeOutput) {
-        super(registries, recipeOutput);
-        this.items = registries.lookupOrThrow(Registries.ITEM);
+    private RecipeProvider(BootstrapContext<Recipe<?>> recipeOutput, BootstrapContext<Advancement> advancementOutput) {
+        super(recipeOutput, advancementOutput);
         ingredients = PlatformHelper.get().getRecipeIngredients();
+        this.items = recipeOutput.lookup(Registries.ITEM);
     }
 
     @Override
@@ -81,8 +82,13 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
 
         special(ColourableRecipe.INSTANCE);
         special(ClearColourRecipe.INSTANCE);
-        special(new TurtleUpgradeRecipe(registries.lookupOrThrow(ITurtleUpgrade.REGISTRY)));
-        special(new PocketComputerUpgradeRecipe(registries.lookupOrThrow(IPocketUpgrade.REGISTRY)));
+        addIllegal();
+    }
+
+    @SuppressWarnings("NullAway")
+    private void addIllegal() {
+        special(new TurtleUpgradeRecipe(null));
+        special(new PocketComputerUpgradeRecipe(null));
     }
 
     /**
@@ -109,7 +115,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         for (var turtleItem : turtleItems()) {
             var name = RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, turtleItem);
 
-            registries.lookupOrThrow(ITurtleUpgrade.REGISTRY).listElements().forEach(upgradeHolder -> {
+            output.listContextElements(ITurtleUpgrade.REGISTRY).forEach(upgradeHolder -> {
                 var upgrade = upgradeHolder.value();
                 customShaped(RecipeCategory.REDSTONE, new ItemStackTemplate(turtleItem, DataComponentPatch.builder()
                     .set(ModRegistry.DataComponents.RIGHT_TURTLE_UPGRADE.get(), UpgradeData.ofDefault(upgradeHolder))
@@ -140,7 +146,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         for (var pocket : pocketComputerItems()) {
             var name = RegistryHelper.getKeyOrThrow(BuiltInRegistries.ITEM, pocket).withPath(x -> x.replace("pocket_computer_", "pocket_"));
 
-            registries.lookupOrThrow(IPocketUpgrade.REGISTRY).listElements().forEach(upgradeHolder -> {
+            output.listContextElements(IPocketUpgrade.REGISTRY).forEach(upgradeHolder -> {
                 var upgrade = upgradeHolder.value();
                 customShaped(RecipeCategory.REDSTONE, new ItemStackTemplate(pocket, DataComponentPatch.builder()
                     .set(ModRegistry.DataComponents.TOP_POCKET_UPGRADE.get(), UpgradeData.ofDefault(upgradeHolder))
@@ -486,19 +492,17 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         return ResourceKey.create(Registries.RECIPE, key);
     }
 
-    static class Runner extends net.minecraft.data.recipes.RecipeProvider.Runner {
-        protected Runner(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-            super(output, registries);
-        }
+    static MultiRegistryBootstrap create() {
+        return new MultiRegistryBootstrap() {
+            @Override
+            public Set<ResourceKey<? extends Registry<?>>> requestedRegistries() {
+                return Set.of(Registries.RECIPE, Registries.ADVANCEMENT);
+            }
 
-        @Override
-        protected RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
-            return new RecipeProvider(registries, output);
-        }
-
-        @Override
-        public String getName() {
-            return "Recipes";
-        }
+            @Override
+            public void run(final MultiRegistryBootstrap.BootstrapGetter registries) {
+                new RecipeProvider(registries.get(Registries.RECIPE), registries.get(Registries.ADVANCEMENT)).buildRecipes();
+            }
+        };
     }
 }

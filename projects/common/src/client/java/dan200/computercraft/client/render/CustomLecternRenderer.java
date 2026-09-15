@@ -24,7 +24,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.LecternRenderer;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.sprite.SpriteGetter;
@@ -82,8 +81,8 @@ public class CustomLecternRenderer implements BoundedBlockEntityRenderer<CustomL
      */
     public static void applyLecternTransform(PoseStack poseStack, BlockState state) {
         poseStack.translate(0.5f, 1.0625f, 0.5f);
-        poseStack.mulPose(Axis.YP.rotationDegrees(-state.getValue(LecternBlock.FACING).getClockWise().toYRot()));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(67.5f));
+        poseStack.rotateDegrees(Axis.YP, -state.getValue(LecternBlock.FACING).getClockWise().toYRot());
+        poseStack.rotateDegrees(Axis.ZP, 67.5f);
         poseStack.translate(0, -0.125f, 0);
     }
 
@@ -117,15 +116,15 @@ public class CustomLecternRenderer implements BoundedBlockEntityRenderer<CustomL
         if (state.type == Type.PRINTOUT) {
             if (state.isBook) {
                 collector.submitModel(
-                    bookModel, Unit.INSTANCE, poseStack, LecternPrintoutModel.SPRITE.renderType(RenderTypes::entitySolid),
+                    bookModel, Unit.INSTANCE, poseStack,
                     state.lightCoords, OverlayTexture.NO_OVERLAY, -1,
-                    sprites.get(LecternPrintoutModel.SPRITE), 0, null
+                    LecternPrintoutModel.SPRITE, sprites, 0
                 );
             } else {
                 collector.submitModel(
-                    printoutModel, state.printoutState, poseStack, LecternPrintoutModel.SPRITE.renderType(RenderTypes::entitySolid),
+                    printoutModel, state.printoutState, poseStack,
                     state.lightCoords, OverlayTexture.NO_OVERLAY, -1,
-                    sprites.get(LecternPrintoutModel.SPRITE), 0, null
+                    LecternPrintoutModel.SPRITE, sprites, 0
                 );
             }
         } else if (state.type == Type.POCKET_COMPUTER) {
@@ -151,9 +150,9 @@ public class CustomLecternRenderer implements BoundedBlockEntityRenderer<CustomL
      * @param poseStack The pose stack to update.
      */
     public static void applyPocketComputerTerminalTransform(PoseStack poseStack) {
-        poseStack.mulPose(Axis.YP.rotationDegrees(90f));
+        poseStack.rotateDegrees(Axis.YP, 90f);
         poseStack.translate(-0.5 * LecternPocketModel.TERM_WIDTH, 0.5 * LecternPocketModel.TERM_HEIGHT + 1f / 32.0f, 1 / 16.0f);
-        poseStack.mulPose(Axis.XP.rotationDegrees(180));
+        poseStack.rotateDegrees(Axis.XP, 180);
     }
 
     /**

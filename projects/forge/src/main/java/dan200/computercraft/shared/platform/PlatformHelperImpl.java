@@ -32,9 +32,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
@@ -58,7 +58,6 @@ import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.CommonHooks;
-import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
@@ -177,11 +176,6 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public int getBurnTime(MinecraftServer server, ItemStack stack) {
-        return stack.getBurnTime(null, server.fuelValues());
-    }
-
-    @Override
     public CreativeModeTab.Builder newCreativeModeTab() {
         return CreativeModeTab.builder();
     }
@@ -203,7 +197,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public boolean hasToolUsage(ItemStack stack) {
-        return stack.canPerformAction(ItemAbilities.SHOVEL_FLATTEN) || stack.canPerformAction(ItemAbilities.HOE_TILL);
+        return stack.is(ItemTags.SHOVELS) || stack.is(ItemTags.HOES);
     }
 
     @Override

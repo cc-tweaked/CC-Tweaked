@@ -47,7 +47,7 @@ public @interface WithMinecraft {
             Bootstrap.bootStrap();
             for (var hook : hooks) hook.afterBootstrap();
             BuiltInRegistries.DATA_COMPONENT_INITIALIZERS
-                .build(VanillaRegistries.createLookup())
+                .build(VanillaRegistries.createReloadableLookup(VanillaRegistries.createWorldLookup()))
                 .forEach(DataComponentInitializers.PendingComponents::apply);
         }
     }
@@ -57,6 +57,7 @@ public @interface WithMinecraft {
      */
     interface SetupHook {
         void beforeBootstrap();
+
         void afterBootstrap();
     }
 }

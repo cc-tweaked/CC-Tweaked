@@ -23,8 +23,10 @@ import dan200.computercraft.shared.util.PauseAwareTimer;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.FirstPersonHandsAndItemsRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.ItemFrameRenderState;
+import net.minecraft.client.renderer.state.level.PlayerRenderState;
 import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.client.sounds.SoundEngine;
 import net.minecraft.core.BlockPos;
@@ -74,15 +76,15 @@ public final class ClientHooks {
     }
 
     public static boolean onRenderHeldItem(
-        PoseStack transform, SubmitNodeCollector collector, int lightTexture, InteractionHand hand,
-        float pitch, float equipProgress, float swingProgress, ItemStack stack
+        FirstPersonHandsAndItemsRenderer renderer, PlayerRenderState player, PoseStack transform, SubmitNodeCollector collector,
+        int lightTexture, InteractionHand hand, float pitch, float equipProgress, float swingProgress, ItemStack stack
     ) {
         if (stack.getItem() instanceof PocketComputerItem) {
-            PocketItemRenderer.INSTANCE.renderItemFirstPerson(transform, collector, lightTexture, hand, pitch, equipProgress, swingProgress, stack);
+            PocketItemRenderer.INSTANCE.renderItemFirstPerson(renderer, player, transform, collector, lightTexture, hand, pitch, equipProgress, swingProgress, stack);
             return true;
         }
         if (stack.getItem() instanceof PrintoutItem) {
-            PrintoutItemRenderer.INSTANCE.renderItemFirstPerson(transform, collector, lightTexture, hand, pitch, equipProgress, swingProgress, stack);
+            PrintoutItemRenderer.INSTANCE.renderItemFirstPerson(renderer, player, transform, collector, lightTexture, hand, pitch, equipProgress, swingProgress, stack);
             return true;
         }
 
@@ -91,7 +93,7 @@ public final class ClientHooks {
 
     public static boolean onRenderItemFrame(PoseStack transform, SubmitNodeCollector render, ItemFrameRenderState frame, ExtendedItemFrameRenderState state) {
         if (state.printoutData != null) {
-            transform.mulPose(Axis.ZP.rotationDegrees(frame.rotation * 360.0f / 8.0f));
+            transform.rotateDegrees(Axis.ZP, frame.rotation * 360.0f / 8.0f);
             PrintoutItemRenderer.onRenderInFrame(transform, render, frame, state.printoutData, state.isBook);
             return true;
         }

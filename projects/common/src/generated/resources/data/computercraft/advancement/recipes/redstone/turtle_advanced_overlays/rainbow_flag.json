@@ -3,7 +3,7 @@
   "criteria": {
     "has_dye": {"conditions": {"items": [{"items": "#c:dyes"}]}, "trigger": "minecraft:inventory_changed"},
     "has_the_recipe": {
-      "conditions": {"recipe": "computercraft:turtle_advanced_overlays/rainbow_flag"},
+      "conditions": {"recipes": "computercraft:turtle_advanced_overlays/rainbow_flag"},
       "trigger": "minecraft:recipe_unlocked"
     },
     "has_turtle": {

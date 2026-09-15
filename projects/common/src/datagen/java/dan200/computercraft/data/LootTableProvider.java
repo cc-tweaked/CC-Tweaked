@@ -11,10 +11,12 @@ import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.peripheral.modem.wired.CableBlock;
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
+import net.minecraft.advancements.predicates.BlockPredicate;
 import net.minecraft.advancements.predicates.StatePropertiesPredicate;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.loot.LootTableProvider.SubProviderEntry;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.data.loot.LootTableSubProvider;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -26,23 +28,22 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.AnyOfCondition;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.predicates.MatchBlock;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 class LootTableProvider {
     public static List<SubProviderEntry> getTables() {
         return List.of(
-            new SubProviderEntry(r -> LootTableProvider::registerBlocks, LootContextParamSets.BLOCK),
-            new SubProviderEntry(r -> LootTableProvider::registerGeneric, LootContextParamSets.ALL_PARAMS)
+            new SubProviderEntry(c -> () -> LootTableProvider.registerBlocks(c), LootContextParamSets.BLOCK),
+            new SubProviderEntry(c -> () -> LootTableProvider.registerGeneric(c), LootContextParamSets.ALL_PARAMS)
         );
     }
 
-    private static void registerBlocks(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add) {
+    private static void registerBlocks(LootTableSubProvider.Context add) {
         namedBlockDrop(add, ModRegistry.Blocks.DISK_DRIVE);
         selfDrop(add, ModRegistry.Blocks.MONITOR_NORMAL);
         selfDrop(add, ModRegistry.Blocks.MONITOR_ADVANCED);
@@ -64,33 +65,33 @@ class LootTableProvider {
         add.accept(ModRegistry.Blocks.CABLE.get().getLootTable().orElseThrow(), LootTable
             .lootTable()
             .withPool(LootPool.lootPool()
-                .setRolls(ConstantValue.exactly(1))
+                .setRolls(ContextIntProviders.exactly(1))
                 .add(LootItem.lootTableItem(ModRegistry.Items.CABLE.get()))
                 .when(ExplosionCondition.survivesExplosion())
-                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModRegistry.Blocks.CABLE.get())
+                .when(MatchBlock.blockMatches(BlockPredicate.Builder.block().of(BuiltInRegistries.BLOCK, ModRegistry.Blocks.CABLE.get())
                     .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CableBlock.CABLE, true))
-                )
+                ))
             )
             .withPool(LootPool.lootPool()
-                .setRolls(ConstantValue.exactly(1))
+                .setRolls(ContextIntProviders.exactly(1))
                 .add(LootItem.lootTableItem(ModRegistry.Items.WIRED_MODEM.get()))
                 .when(ExplosionCondition.survivesExplosion())
-                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModRegistry.Blocks.CABLE.get())
-                    .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CableBlock.MODEM, CableModemVariant.None))
+                .when(MatchBlock.blockMatches(BlockPredicate.Builder.block().of(BuiltInRegistries.BLOCK, ModRegistry.Blocks.CABLE.get())
+                        .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CableBlock.MODEM, CableModemVariant.None)))
                     .invert()
                 )
             ));
     }
 
-    private static void registerGeneric(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add) {
+    private static void registerGeneric(LootTableSubProvider.Context add) {
         add.accept(CommonHooks.TREASURE_DISK_LOOT, LootTable.lootTable());
     }
 
-    private static void selfDrop(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add, Supplier<? extends Block> wrapper) {
+    private static void selfDrop(LootTableSubProvider.Context add, Supplier<? extends Block> wrapper) {
         blockDrop(add, wrapper, LootItem.lootTableItem(wrapper.get()), ExplosionCondition.survivesExplosion());
     }
 
-    private static void namedBlockDrop(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add, Supplier<? extends Block> wrapper) {
+    private static void namedBlockDrop(LootTableSubProvider.Context add, Supplier<? extends Block> wrapper) {
         blockDrop(
             add, wrapper,
             LootItem.lootTableItem(wrapper.get()).apply(
@@ -101,7 +102,7 @@ class LootTableProvider {
         );
     }
 
-    private static void computerDrop(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add, Supplier<? extends Block> block) {
+    private static void computerDrop(LootTableSubProvider.Context add, Supplier<? extends Block> block) {
         blockDrop(
             add, block,
             LootItem.lootTableItem(block.get()).apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)),
@@ -114,7 +115,7 @@ class LootTableProvider {
     }
 
     private static void blockDrop(
-        BiConsumer<ResourceKey<LootTable>, LootTable.Builder> add, Supplier<? extends Block> wrapper,
+        LootTableSubProvider.Context add, Supplier<? extends Block> wrapper,
         LootPoolEntryContainer.Builder<?> drop,
         LootItemCondition.Builder condition
     ) {
@@ -122,7 +123,7 @@ class LootTableProvider {
         add.accept(block.getLootTable().orElseThrow(), LootTable
             .lootTable()
             .withPool(LootPool.lootPool()
-                .setRolls(ConstantValue.exactly(1))
+                .setRolls(ContextIntProviders.exactly(1))
                 .add(drop)
                 .when(condition)
             )

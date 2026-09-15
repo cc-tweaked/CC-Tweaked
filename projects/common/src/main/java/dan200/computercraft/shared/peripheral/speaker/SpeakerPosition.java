@@ -40,7 +40,7 @@ public record SpeakerPosition(@Nullable Level level, Vec3 position, @Nullable En
     ) {
         public static final StreamCodec<FriendlyByteBuf, Message> STREAM_CODEC = StreamCodec.composite(
             Identifier.STREAM_CODEC, Message::level,
-            MoreStreamCodecs.VEC3, Message::position,
+            Vec3.STREAM_CODEC, Message::position,
             MoreStreamCodecs.OPTIONAL_INT, Message::entity,
             Message::new
         );

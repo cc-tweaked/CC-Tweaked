@@ -12,6 +12,8 @@ import dan200.computercraft.shared.util.BlockEntityHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Util;
 import net.minecraft.world.InteractionResult;
@@ -94,7 +96,7 @@ public abstract class AbstractComputerBlock<T extends AbstractComputerBlockEntit
     }
 
     @Override
-    public void playerDestroy(Level world, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity tile, ItemStack tool) {
+    public void playerDestroy(ServerLevel world, ServerPlayer player, BlockPos pos, BlockState state, @Nullable BlockEntity tile, ItemStack tool) {
         // Use the same trick as DoublePlantBlock, to skip dropping items. See playerWillDestroy.
         super.playerDestroy(world, player, pos, Blocks.AIR.defaultBlockState(), tile, tool);
     }

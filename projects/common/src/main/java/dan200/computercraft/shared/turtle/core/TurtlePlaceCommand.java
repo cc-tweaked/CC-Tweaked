@@ -21,13 +21,16 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.PlaceOnWaterBlockItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
+import net.minecraft.world.level.block.entity.SignTextSlot;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -166,20 +169,19 @@ public class TurtlePlaceCommand implements TurtleCommand {
             return false;
         }
 
-        var item = stack.getItem();
         var existingTile = turtle.getLevel().getBlockEntity(blockPos);
 
         var placed = doDeployOnBlock(stack, turtlePlayer, hit, adjacent).consumesAction();
 
         // Set text on signs
-        if (placed && item instanceof SignItem && extraArguments.length >= 1 && extraArguments[0] instanceof String message) {
+        if (placed && extraArguments.length >= 1 && extraArguments[0] instanceof String message) {
             var world = turtle.getLevel();
             var tile = world.getBlockEntity(blockPos);
             if (tile == null || tile == existingTile) {
                 tile = world.getBlockEntity(blockPos.relative(side));
             }
 
-            if (tile instanceof SignBlockEntity sign) setSignText(world, sign, message);
+            if (tile instanceof SignBlockEntity sign) setSignText(sign, message);
         }
 
         return placed;
@@ -233,20 +235,19 @@ public class TurtlePlaceCommand implements TurtleCommand {
         return InteractionResult.PASS;
     }
 
-    private static void setSignText(Level world, SignBlockEntity sign, String message) {
+    private static void setSignText(SignBlockEntity sign, String message) {
         var lines = Splitter.on('\n').splitToStream(message).limit(4).toList();
         var firstLine = lines.size() <= 2 ? 1 : 0;
 
-        var signText = new SignText();
+        var signText = SignText.EMPTY.asMutable();
         for (int i = 0, len = lines.size(); i < len; i++) {
             var line = lines.get(i);
-            signText = signText.setMessage(i + firstLine, line.length() > 15
+            signText = signText.setLine(i + firstLine, line.length() > 15
                 ? Component.literal(line.substring(0, 15))
                 : Component.literal(line)
             );
         }
-        sign.setText(signText, true);
-        world.sendBlockUpdated(sign.getBlockPos(), sign.getBlockState(), sign.getBlockState(), Block.UPDATE_ALL);
+        sign.setText(signText.asImmutable(), SignTextSlot.FRONT);
     }
 
     private static final class ErrorMessage {

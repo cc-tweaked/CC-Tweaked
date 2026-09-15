@@ -4,10 +4,11 @@
 
 package dan200.computercraft.client.render.monitor;
 
-import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import com.mojang.renderpearl.api.buffers.GpuBuffer;
+import com.mojang.renderpearl.api.commands.RenderPass;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.integration.ShaderMod;
 import dan200.computercraft.client.platform.ClientPlatformHelper;
@@ -21,6 +22,7 @@ import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorBlockEntity;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.StagedVertexBuffer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
@@ -30,6 +32,7 @@ import net.minecraft.client.renderer.feature.FeatureRendererType;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.feature.submit.SubmitNode;
 import net.minecraft.client.renderer.fog.FogRenderer;
+import net.minecraft.client.renderer.oit.OitStage;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Direction;
@@ -86,8 +89,8 @@ public class MonitorBlockEntityRenderer implements BoundedBlockEntityRenderer<Mo
         transform.pushPose();
         transform.translate(0.5, 0.5, 0.5);
 
-        transform.mulPose(Axis.YN.rotationDegrees(yaw));
-        transform.mulPose(Axis.XP.rotationDegrees(pitch));
+        transform.rotateDegrees(Axis.YN, yaw);
+        transform.rotateDegrees(Axis.XP, pitch);
         transform.translate(
             -0.5 + MonitorBlockEntity.RENDER_BORDER + MonitorBlockEntity.RENDER_MARGIN,
             state.height - 0.5 - (MonitorBlockEntity.RENDER_BORDER + MonitorBlockEntity.RENDER_MARGIN) + 0,
@@ -231,13 +234,18 @@ public class MonitorBlockEntityRenderer implements BoundedBlockEntityRenderer<Mo
 
         @Override
         public void prepareGroup(FeatureFrameContext context, List<MonitorSubmit> submits, boolean strictlyOrdered) {
+            if (submits.isEmpty()) return;
+
+            // Prepare one of the render types in order to load the texture.
+            FixedWidthFontRenderer.TERMINAL_TEXT.prepare();
+
             for (var submit : submits) {
                 prepareTerminal(submit.monitor(), submit.state(), submit.terminal(), submit.xMargin(), submit.yMargin());
             }
         }
 
         @Override
-        public void executeGroup(FeatureFrameContext context, int groupIndex, List<MonitorSubmit> submits, boolean strictlyOrdered) {
+        public void executeGroup(FeatureFrameContext context, @Nullable OitStage stage, RenderPass renderPass, int groupIndex, List<MonitorSubmit> submits, boolean strictlyOrdered) {
             if (submits.isEmpty()) return;
 
             // Our VBO renders coordinates in monitor-space rather than world space. A full sized monitor (8x6) will
@@ -262,11 +270,11 @@ public class MonitorBlockEntityRenderer implements BoundedBlockEntityRenderer<Mo
                     throw new IllegalStateException("MonitorRenderState has not been initialised");
                 }
                 drawWithShader(
-                    renderState.vertexBuffer, autoStorageBuffer, FixedWidthFontRenderer.TERMINAL_TEXT,
+                    renderPass, renderState.vertexBuffer, stage, autoStorageBuffer, FixedWidthFontRenderer.TERMINAL_TEXT,
                     0, renderState.vertexCountAfterBackground
                 );
                 drawWithShader(
-                    renderState.vertexBuffer, autoStorageBuffer, FixedWidthFontRenderer.TERMINAL_TEXT_OFFSET,
+                    renderPass, renderState.vertexBuffer, stage, autoStorageBuffer, FixedWidthFontRenderer.TERMINAL_TEXT_OFFSET,
                     renderState.vertexCountAfterBackground,
                     (
                         FixedWidthFontRenderer.isCursorVisible(submit.terminal()) && FrameInfo.getGlobalCursorBlink()
@@ -281,13 +289,25 @@ public class MonitorBlockEntityRenderer implements BoundedBlockEntityRenderer<Mo
             RenderSystem.setShaderFog(oldFog);
         }
 
-        private static void drawWithShader(GpuBuffer buffer, RenderSystem.AutoStorageIndexBuffer autoStorageBuffer, RenderType renderType, int vertexOffset, int vertexCount) {
+        private static void drawWithShader(
+            RenderPass renderPass, GpuBuffer buffer, @Nullable OitStage stage,
+            RenderSystem.AutoStorageIndexBuffer autoStorageBuffer, RenderType renderType, int vertexOffset, int vertexCount
+        ) {
             if (vertexCount == 0) return;
 
-            var indexCount = FixedWidthFontRenderer.TERMINAL_TEXT.primitiveTopology().indexCount(vertexCount);
-            renderType.prepare().drawFromBuffer(
-                buffer, autoStorageBuffer.getBuffer(indexCount), autoStorageBuffer.type(), vertexOffset, 0, indexCount
-            );
+            // The idiomatic way of doing this would be to prepare the render type in prepareGroup. However, we need to
+            // update the model-view matrix every monitor, so have to re-prepare here.
+            var prepared = renderType.prepare();
+
+            var topology = FixedWidthFontRenderer.TERMINAL_TEXT.primitiveTopology();
+            var indexCount = topology.indexCount(vertexCount);
+            var info = new StagedVertexBuffer.ExecuteInfo(buffer, null, autoStorageBuffer.type(), vertexOffset, 0, indexCount, topology);
+
+            if (stage != null) {
+                prepared.drawFromBufferOit(info, stage, renderPass);
+            } else {
+                prepared.drawFromBuffer(info, renderPass);
+            }
         }
     }
 }

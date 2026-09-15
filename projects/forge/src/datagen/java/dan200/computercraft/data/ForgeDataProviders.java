@@ -10,7 +10,6 @@ import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -24,12 +23,10 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
-import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 import net.neoforged.neoforge.common.data.ItemTagsProvider;
 import net.neoforged.neoforge.common.data.JsonCodecProvider;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -39,12 +36,13 @@ public class ForgeDataProviders {
     @SubscribeEvent
     public static void gather(GatherDataEvent.Client event) {
         var generator = event.getGenerator();
-        DataProviders.add(new GeneratorSinkImpl(generator.getVanillaPack(true), event.getLookupProvider()));
+        DataProviders.add(new GeneratorSinkImpl(generator.getVanillaPack(true), event.getWorldLookupProvider(), event.getReloadableLookupProvider()));
     }
 
     private record GeneratorSinkImpl(
         DataGenerator.PackGenerator generator,
-        CompletableFuture<HolderLookup.Provider> registries
+        CompletableFuture<HolderLookup.Provider> worldRegistries,
+        CompletableFuture<HolderLookup.Provider> reloadableRegistries
     ) implements DataProviders.GeneratorSink {
         @Override
         public <T extends DataProvider> T add(DataProvider.Factory<T> factory) {
@@ -53,7 +51,7 @@ public class ForgeDataProviders {
 
         @Override
         public <T> void addFromCodec(String name, PackOutput.Target target, String directory, Codec<T> codec, Consumer<BiConsumer<Identifier, T>> output) {
-            add(out -> new JsonCodecProvider<T>(out, target, directory, codec, registries, ComputerCraftAPI.MOD_ID) {
+            add(out -> new JsonCodecProvider<T>(out, target, directory, codec, worldRegistries(), ComputerCraftAPI.MOD_ID) {
                 @Override
                 protected void gather() {
                     output.accept(this::unconditional);
@@ -63,7 +61,7 @@ public class ForgeDataProviders {
 
         @Override
         public TagsProvider<Block> blockTags(Consumer<TagProvider.TagConsumer<Block>> tags) {
-            return add(out -> new BlockTagsProvider(out, registries, ComputerCraftAPI.MOD_ID) {
+            return add(out -> new BlockTagsProvider(out, worldRegistries(), ComputerCraftAPI.MOD_ID) {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
                     tags.accept(tag -> new BlockItemTagAppender<>(tag(tag)) {
@@ -78,10 +76,10 @@ public class ForgeDataProviders {
 
         @Override
         public TagsProvider<Item> itemTags(Consumer<TagProvider.TagConsumer<Item>> tags) {
-            return add(out -> new ItemTagsProvider(out, registries, ComputerCraftAPI.MOD_ID) {
+            return add(out -> new ItemTagsProvider(out, worldRegistries(), ComputerCraftAPI.MOD_ID) {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
-                    tags.accept(tag -> new BlockItemTagAppender<Item>(tag(tag)) {
+                    tags.accept(tag -> new BlockItemTagAppender<>(tag(tag)) {
                         @Override
                         protected ResourceKey<Item> convertElement(BlockItemId blockItemId) {
                             return blockItemId.item();
@@ -89,11 +87,6 @@ public class ForgeDataProviders {
                     });
                 }
             });
-        }
-
-        @Override
-        public void registries(CompletableFuture<RegistrySetBuilder.PatchedRegistries> registries) {
-            add(out -> new DatapackBuiltinEntriesProvider(out, registries, Set.of(ComputerCraftAPI.MOD_ID, "minecraft")));
         }
 
         @Override

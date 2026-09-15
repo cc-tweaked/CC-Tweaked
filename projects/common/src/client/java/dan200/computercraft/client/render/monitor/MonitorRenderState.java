@@ -5,7 +5,7 @@
 package dan200.computercraft.client.render.monitor;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
-import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.renderpearl.api.buffers.GpuBuffer;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import net.minecraft.core.BlockPos;
 import org.jspecify.annotations.Nullable;

@@ -6,18 +6,16 @@ package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemInHandRenderer;
+import net.minecraft.client.renderer.FirstPersonHandsAndItemsRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.level.FirstPersonHandsAndItemsRenderState;
+import net.minecraft.client.renderer.state.level.PlayerRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-
-import java.util.Objects;
 
 /**
  * A base class for items which have map-like rendering when held in the hand.
@@ -32,21 +30,24 @@ public abstract class ItemMapLikeRenderer {
      * @param collector The buffer to render to
      * @param stack     The stack to render
      * @param light     The packed lightmap coordinates.
-     * @see ItemInHandRenderer#renderItem(LivingEntity, ItemStack, ItemDisplayContext, PoseStack, SubmitNodeCollector, int)
+     * @see FirstPersonHandsAndItemsRenderer#renderItem(LivingEntity, ItemStack, ItemDisplayContext, PoseStack, SubmitNodeCollector, int)
      */
     protected abstract void renderItem(PoseStack transform, SubmitNodeCollector collector, ItemStack stack, int light);
 
-    public void renderItemFirstPerson(PoseStack transform, SubmitNodeCollector collector, int lightTexture, InteractionHand hand, float pitch, float equipProgress, float swingProgress, ItemStack stack) {
-        var minecraft = Minecraft.getInstance();
-        var player = Objects.requireNonNull(minecraft.player);
+    public void renderItemFirstPerson(
+        FirstPersonHandsAndItemsRenderer renderer, PlayerRenderState player, PoseStack transform, SubmitNodeCollector collector,
+        int lightTexture, InteractionHand hand, float pitch, float equipProgress, float swingProgress, ItemStack stack
+    ) {
+        var avatar = player.avatarRenderState;
+        if (avatar == null) return;
 
         transform.pushPose();
-        if (hand == InteractionHand.MAIN_HAND && player.getOffhandItem().isEmpty()) {
-            renderItemFirstPersonCenter(minecraft, player, transform, collector, lightTexture, pitch, equipProgress, swingProgress, stack);
+        if (hand == InteractionHand.MAIN_HAND && player.firstPersonHandsAndItems.offHandItem.isEmpty()) {
+            renderItemFirstPersonCenter(renderer, player, transform, collector, lightTexture, pitch, equipProgress, swingProgress, stack);
         } else {
             renderItemFirstPersonSide(
-                minecraft, player, transform, collector, lightTexture,
-                hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite(),
+                renderer, player, transform, collector, lightTexture,
+                hand == InteractionHand.MAIN_HAND ? avatar.mainArm : avatar.mainArm.getOpposite(),
                 equipProgress, swingProgress, stack
             );
         }
@@ -56,8 +57,8 @@ public abstract class ItemMapLikeRenderer {
     /**
      * Renders the item to one side of the player.
      *
-     * @param minecraft     The current Minecraft client.
-     * @param player        The player holding this item.
+     * @param renderer      The {@link FirstPersonHandsAndItemsRenderer} instance.
+     * @param player        The render state of the player holding this item.
      * @param transform     The matrix transformation stack
      * @param collector     The buffer to render to
      * @param combinedLight The current light level
@@ -65,20 +66,20 @@ public abstract class ItemMapLikeRenderer {
      * @param equipProgress The equip progress of this item
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
-     * @see ItemInHandRenderer#renderOneHandedMap(PoseStack, SubmitNodeCollector, int, float, HumanoidArm, float, ItemStack)
+     * @see FirstPersonHandsAndItemsRenderer#renderOneHandedMap(PoseStack, SubmitNodeCollector, int, float, HumanoidArm, float, ItemStack, PlayerRenderState, FirstPersonHandsAndItemsRenderState)
      */
     private void renderItemFirstPersonSide(
-        Minecraft minecraft, Player player, PoseStack transform, SubmitNodeCollector collector, int combinedLight,
+        FirstPersonHandsAndItemsRenderer renderer, PlayerRenderState player, PoseStack transform, SubmitNodeCollector collector, int combinedLight,
         HumanoidArm side, float equipProgress, float swingProgress, ItemStack stack
     ) {
         var offset = side == HumanoidArm.RIGHT ? 1f : -1f;
         transform.translate(offset * 0.125f, -0.125f, 0f);
 
         // If the player is not invisible then render a single arm
-        if (!player.isInvisible()) {
+        if (player.avatarRenderState != null && !player.avatarRenderState.isInvisible) {
             transform.pushPose();
-            transform.mulPose(Axis.ZP.rotationDegrees(offset * 10f));
-            minecraft.getEntityRenderDispatcher().getItemInHandRenderer().renderPlayerArm(transform, collector, combinedLight, equipProgress, swingProgress, side);
+            transform.rotateDegrees(Axis.ZP, offset * 10f);
+            renderer.renderPlayerArm(transform, collector, combinedLight, equipProgress, swingProgress, side, player);
             transform.popPose();
         }
 
@@ -92,8 +93,8 @@ public abstract class ItemMapLikeRenderer {
         var f4 = 0.4f * Mth.sin(f1 * ((float) Math.PI * 2f));
         var f5 = -0.3f * Mth.sin(swingProgress * (float) Math.PI);
         transform.translate(offset * f3, f4 - 0.3f * f2, f5);
-        transform.mulPose(Axis.XP.rotationDegrees(f2 * -45f));
-        transform.mulPose(Axis.YP.rotationDegrees(offset * f2 * -30f));
+        transform.rotateDegrees(Axis.XP, f2 * -45f);
+        transform.rotateDegrees(Axis.YP, offset * f2 * -30f);
 
         renderItem(transform, collector, stack, combinedLight);
 
@@ -103,7 +104,7 @@ public abstract class ItemMapLikeRenderer {
     /**
      * Render an item in the middle of the screen.
      *
-     * @param minecraft     The current Minecraft client.
+     * @param renderer      The {@link FirstPersonHandsAndItemsRenderer} instance.
      * @param player        The player holding this item.
      * @param transform     The matrix transformation stack
      * @param collector     The buffer to render to
@@ -112,14 +113,12 @@ public abstract class ItemMapLikeRenderer {
      * @param equipProgress The equip progress of this item
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
-     * @see ItemInHandRenderer#renderTwoHandedMap(PoseStack, SubmitNodeCollector, int, float, float, float)
+     * @see FirstPersonHandsAndItemsRenderer#renderTwoHandedMap(PoseStack, SubmitNodeCollector, int, float, float, float, PlayerRenderState, FirstPersonHandsAndItemsRenderState)
      */
     private void renderItemFirstPersonCenter(
-        Minecraft minecraft, Player player, PoseStack transform, SubmitNodeCollector collector, int combinedLight,
+        FirstPersonHandsAndItemsRenderer renderer, PlayerRenderState player, PoseStack transform, SubmitNodeCollector collector, int combinedLight,
         float pitch, float equipProgress, float swingProgress, ItemStack stack
     ) {
-        var renderer = minecraft.getEntityRenderDispatcher().getItemInHandRenderer();
-
         // Setup the appropriate transformations. This is just copied from the
         // corresponding method in ItemRenderer.
         var swingRt = Mth.sqrt(swingProgress);
@@ -129,17 +128,17 @@ public abstract class ItemMapLikeRenderer {
 
         var pitchAngle = renderer.calculateMapTilt(pitch);
         transform.translate(0, 0.04F + equipProgress * -1.2f + pitchAngle * -0.5f, -0.72f);
-        transform.mulPose(Axis.XP.rotationDegrees(pitchAngle * -85.0f));
-        if (!player.isInvisible()) {
+        transform.rotateDegrees(Axis.XP, pitchAngle * -85.0f);
+        if (player.avatarRenderState != null && !player.avatarRenderState.isInvisible) {
             transform.pushPose();
-            transform.mulPose(Axis.YP.rotationDegrees(90.0F));
-            renderer.renderMapHand(transform, collector, combinedLight, HumanoidArm.RIGHT);
-            renderer.renderMapHand(transform, collector, combinedLight, HumanoidArm.LEFT);
+            transform.rotateDegrees(Axis.YP, 90.0F);
+            renderer.renderMapHand(transform, collector, combinedLight, HumanoidArm.RIGHT, player);
+            renderer.renderMapHand(transform, collector, combinedLight, HumanoidArm.LEFT, player);
             transform.popPose();
         }
 
         var rX = Mth.sin(swingRt * (float) Math.PI);
-        transform.mulPose(Axis.XP.rotationDegrees(rX * 20.0F));
+        transform.rotateDegrees(Axis.XP, rX * 20.0F);
         transform.scale(2.0F, 2.0F, 2.0F);
 
         renderItem(transform, collector, stack, combinedLight);

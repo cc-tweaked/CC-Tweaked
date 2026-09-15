@@ -26,7 +26,7 @@ public final class BlockNamedEntityLootCondition implements LootItemCondition {
 
     @Override
     public boolean test(LootContext lootContext) {
-        var tile = lootContext.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+        var tile = lootContext.getOptional(LootContextParams.BLOCK_ENTITY);
         return tile instanceof Nameable nameable && nameable.hasCustomName();
     }
 

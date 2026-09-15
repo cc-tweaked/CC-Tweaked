@@ -102,7 +102,7 @@ public class TurtleMoveCommand implements TurtleCommand {
 
         // Check there is space for all the pushable entities to be pushed
         return level.getEntities((Entity) null, bounds, e -> e.isAlive()
-            && !e.isSpectator() && e.blocksBuilding && e.getPistonPushReaction() == PushReaction.IGNORE
+            && !e.isSpectator() && e.blocksBuilding && e.getPistonPushReaction() == PushReaction.IGNORE_ENTITY
         ).isEmpty();
     }
 }

@@ -7,7 +7,7 @@ package dan200.computercraft.shared.details;
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.test.core.CustomMatchers;
 import dan200.computercraft.test.shared.WithMinecraft;
-import net.minecraft.data.registries.VanillaRegistries;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
@@ -33,7 +33,7 @@ class ItemDetailsTest {
      */
     @Test
     public void testPotionDurations() {
-        var registries = VanillaRegistries.createLookup();
+        var registries = RegistryAccess.EMPTY;
         assertThat(
             VanillaDetailRegistries.ITEM_STACK.getDetails(registries, PotionContents.createItemStack(Items.POTION, Potions.LONG_NIGHT_VISION)),
             containsEntryWith("potionEffects", contains(allOf(containsEntry("name", "minecraft:night_vision"), containsEntry("duration", 480.0))))

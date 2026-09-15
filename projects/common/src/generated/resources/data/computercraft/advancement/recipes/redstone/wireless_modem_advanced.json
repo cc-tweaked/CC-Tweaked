@@ -6,7 +6,7 @@
       "trigger": "minecraft:inventory_changed"
     },
     "has_the_recipe": {
-      "conditions": {"recipe": "computercraft:wireless_modem_advanced"},
+      "conditions": {"recipes": "computercraft:wireless_modem_advanced"},
       "trigger": "minecraft:recipe_unlocked"
     },
     "has_wireless": {

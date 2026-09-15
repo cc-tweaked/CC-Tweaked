@@ -4,7 +4,6 @@
 
 package dan200.computercraft.shared.peripheral.speaker;
 
-import com.mojang.serialization.MapCodec;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.util.BlockEntityHelpers;
 import net.minecraft.core.BlockPos;
@@ -22,7 +21,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import org.jspecify.annotations.Nullable;
 
 public class SpeakerBlock extends HorizontalDirectionalBlock implements EntityBlock {
-    private static final MapCodec<SpeakerBlock> CODEC = simpleCodec(SpeakerBlock::new);
     private static final BlockEntityTicker<SpeakerBlockEntity> serverTicker = (level, pos, state, drive) -> drive.serverTick();
 
     public SpeakerBlock(Properties settings) {
@@ -34,11 +32,6 @@ public class SpeakerBlock extends HorizontalDirectionalBlock implements EntityBl
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> properties) {
         properties.add(FACING);
-    }
-
-    @Override
-    protected MapCodec<? extends SpeakerBlock> codec() {
-        return CODEC;
     }
 
     @Nullable

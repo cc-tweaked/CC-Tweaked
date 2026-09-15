@@ -35,7 +35,7 @@ public class JsonDump {
         public void setInput(int pos, SlotDisplay ingredient, Set<Item> trackedItems) {
             if (ingredient instanceof SlotDisplay.Empty) return;
 
-            var items = ingredient.resolveForStacks(new ContextMap.Builder().create(SlotDisplayContext.CONTEXT));
+            var items = ingredient.resolveForStacks(ContextMap.builder().buildAndValidate(SlotDisplayContext.CONTEXT));
 
             // First try to simplify some tags to something easier.
             for (var stack : items) {

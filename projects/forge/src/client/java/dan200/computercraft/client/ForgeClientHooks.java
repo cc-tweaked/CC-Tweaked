@@ -7,6 +7,7 @@ package dan200.computercraft.client;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.client.render.BlockOutlineRenderer;
 import dan200.computercraft.client.sound.SpeakerSound;
+import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -57,8 +58,12 @@ public final class ForgeClientHooks {
 
     @SubscribeEvent
     public static void onRenderInHand(RenderHandEvent event) {
+        // TODO(26.3): Add these to the event in upstream NeoForge.
+        var minecraft = Minecraft.getInstance();
+        var heldRenderer = minecraft.gameRenderer.firstPersonHandsAndItemsRenderer;
+        var playerState = minecraft.gameRenderer.gameRenderState().levelRenderState.playerRenderState;
         if (ClientHooks.onRenderHeldItem(
-            event.getPoseStack(), event.getSubmitNodeCollector(), event.getPackedLight(),
+            heldRenderer, playerState, event.getPoseStack(), event.getSubmitNodeCollector(), event.getPackedLight(),
             event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack()
         )) {
             event.setCanceled(true);

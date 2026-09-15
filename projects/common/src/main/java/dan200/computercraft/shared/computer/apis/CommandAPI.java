@@ -345,8 +345,8 @@ public class CommandAPI implements ILuaAPI {
         return new CommandSourceStack(receiver,
             Vec3.atCenterOf(computer.getPosition()), Vec2.ZERO,
             computer.getLevel(), admin.permissions(),
-            name, Component.literal(name),
-            computer.getLevel().getServer(), null
+            Component.literal(name),
+            computer.getLevel().getServer()
         );
     }
 

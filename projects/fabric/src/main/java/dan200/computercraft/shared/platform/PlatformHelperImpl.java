@@ -47,7 +47,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
@@ -61,7 +60,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.ColorCollection;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -171,29 +173,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public ColorCollection<TagKey<Item>> getDyeTags() {
-        return new ColorCollection<>(
-            ConventionalItemTags.WHITE_DYES,
-            ConventionalItemTags.ORANGE_DYES,
-            ConventionalItemTags.MAGENTA_DYES,
-            ConventionalItemTags.LIGHT_BLUE_DYES,
-            ConventionalItemTags.YELLOW_DYES,
-            ConventionalItemTags.LIME_DYES,
-            ConventionalItemTags.PINK_DYES,
-            ConventionalItemTags.GRAY_DYES,
-            ConventionalItemTags.LIGHT_GRAY_DYES,
-            ConventionalItemTags.CYAN_DYES,
-            ConventionalItemTags.PURPLE_DYES,
-            ConventionalItemTags.BLUE_DYES,
-            ConventionalItemTags.BROWN_DYES,
-            ConventionalItemTags.GREEN_DYES,
-            ConventionalItemTags.RED_DYES,
-            ConventionalItemTags.BLACK_DYES
-        );
-    }
-
-    @Override
-    public int getBurnTime(MinecraftServer server, ItemStack stack) {
-        return server.fuelValues().burnDuration(stack);
+        return ConventionalItemTags.COLOR_DYES;
     }
 
     @Override
@@ -218,9 +198,7 @@ public class PlatformHelperImpl implements PlatformHelper {
 
     @Override
     public boolean hasToolUsage(ItemStack stack) {
-        var item = stack.getItem();
-        return item instanceof ShovelItem || stack.is(ItemTags.SHOVELS) ||
-            item instanceof HoeItem || stack.is(ItemTags.HOES);
+        return stack.is(ItemTags.SHOVELS) || stack.is(ItemTags.HOES);
     }
 
     @Override

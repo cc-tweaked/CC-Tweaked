@@ -5,7 +5,7 @@
       "conditions": {"items": [{"items": "computercraft:disk_drive"}]},
       "trigger": "minecraft:inventory_changed"
     },
-    "has_the_recipe": {"conditions": {"recipe": "computercraft:disk"}, "trigger": "minecraft:recipe_unlocked"}
+    "has_the_recipe": {"conditions": {"recipes": "computercraft:disk"}, "trigger": "minecraft:recipe_unlocked"}
   },
   "requirements": [["has_the_recipe", "has_drive"]],
   "rewards": {"recipes": ["computercraft:disk"]}

@@ -10,14 +10,10 @@ import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricCodecDataProvider;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricDynamicRegistryProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
-import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
@@ -32,12 +28,14 @@ import java.util.function.Consumer;
 public class FabricDataProviders implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator generator) {
-        var pack = new GeneratorSinkImpl(generator.createPack(), generator.getRegistries());
+        var pack = new GeneratorSinkImpl(generator.createPack(), generator.getWorldRegistries(), generator.getRegistries());
         DataProviders.add(pack);
     }
 
     private record GeneratorSinkImpl(
-        FabricDataGenerator.Pack generator, CompletableFuture<HolderLookup.Provider> registries
+        FabricDataGenerator.Pack generator,
+        CompletableFuture<HolderLookup.Provider> worldRegistries,
+        CompletableFuture<HolderLookup.Provider> reloadableRegistries
     ) implements DataProviders.GeneratorSink {
         private <T extends DataProvider> T addWithFabricOutput(FabricDataGenerator.Pack.Factory<T> factory) {
             return generator.addProvider((FabricPackOutput p) -> new PrettyDataProvider<>(factory.create(p))).provider();
@@ -83,27 +81,6 @@ public class FabricDataProviders implements DataGeneratorEntrypoint {
                 @Override
                 protected void addTags(HolderLookup.Provider registries) {
                     tags.accept(this::builder);
-                }
-            });
-        }
-
-        @Override
-        public void registries(CompletableFuture<RegistrySetBuilder.PatchedRegistries> registries) {
-            addWithFabricOutput(out -> new FabricDynamicRegistryProvider(out, registries.thenApply(RegistrySetBuilder.PatchedRegistries::patches)) {
-                @Override
-                public String getName() {
-                    return "Registries";
-                }
-
-                @Override
-                protected void configure(HolderLookup.Provider registries, Entries entries) {
-                    for (var reg : DynamicRegistries.getBootstrappingRegistries()) {
-                        registries.lookupOrThrow(reg.key()).listElements().forEach(x -> register(entries, x));
-                    }
-                }
-
-                private static <T> void register(Entries entries, Holder.Reference<T> reference) {
-                    entries.add(reference.key(), reference.value());
                 }
             });
         }

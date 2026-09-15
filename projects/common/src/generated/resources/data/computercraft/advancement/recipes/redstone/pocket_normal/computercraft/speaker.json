@@ -8,7 +8,7 @@
       "trigger": "minecraft:inventory_changed"
     },
     "has_the_recipe": {
-      "conditions": {"recipe": "computercraft:pocket_normal/computercraft/speaker"},
+      "conditions": {"recipes": "computercraft:pocket_normal/computercraft/speaker"},
       "trigger": "minecraft:recipe_unlocked"
     }
   },

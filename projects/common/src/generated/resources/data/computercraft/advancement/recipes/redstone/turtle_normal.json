@@ -6,7 +6,7 @@
       "trigger": "minecraft:inventory_changed"
     },
     "has_the_recipe": {
-      "conditions": {"recipe": "computercraft:turtle_normal"},
+      "conditions": {"recipes": "computercraft:turtle_normal"},
       "trigger": "minecraft:recipe_unlocked"
     }
   },

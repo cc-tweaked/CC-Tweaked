@@ -4,13 +4,14 @@
 
 package dan200.computercraft.client.gui.widgets;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.textures.FilterMode;
 import dan200.computercraft.client.gui.ClientComputerActions;
 import dan200.computercraft.client.gui.ClientComputerInput;
-import dan200.computercraft.client.gui.KeyConverter;
+import dan200.computercraft.client.gui.SDLInput;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.input.UserComputerInput;
 import dan200.computercraft.core.terminal.Terminal;
@@ -31,7 +32,7 @@ import net.minecraft.util.LightCoordsUtil;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
+import org.lwjgl.sdl.SDLKeycode;
 
 import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
@@ -77,6 +78,11 @@ public class TerminalWidget extends AbstractWidget {
     }
 
     @Override
+    public boolean capturesInput() {
+        return isActive() && isFocused();
+    }
+
+    @Override
     public boolean charTyped(CharacterEvent event) {
         computerInput.codepointTyped(event.codepoint());
         return true;
@@ -84,28 +90,29 @@ public class TerminalWidget extends AbstractWidget {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        if (event.key() == GLFW.GLFW_KEY_ESCAPE) return false;
+        if (event.key() == InputConstants.KEY_ESCAPE) return false;
         if (event.isPaste()) {
             paste();
             return true;
         }
 
-        if ((event.modifiers() & GLFW.GLFW_MOD_CONTROL) != 0) {
-            switch (KeyConverter.physicalToActual(event.key(), event.scancode())) {
-                case GLFW.GLFW_KEY_T -> {
+        if ((event.modifiers() & InputConstants.MOD_CONTROL) != 0) {
+            switch (event.shortcutKey()) {
+                case SDLKeycode.SDLK_T -> {
                     if (terminateTimer < 0) terminateTimer = 0;
                 }
-                case GLFW.GLFW_KEY_S -> {
+                case SDLKeycode.SDLK_S -> {
                     if (shutdownTimer < 0) shutdownTimer = 0;
                 }
-                case GLFW.GLFW_KEY_R -> {
+                case SDLKeycode.SDLK_R -> {
                     if (rebootTimer < 0) rebootTimer = 0;
                 }
             }
         }
 
         if (event.key() >= 0 && terminateTimer < KEY_SUPPRESS_DELAY && rebootTimer < KEY_SUPPRESS_DELAY && shutdownTimer < KEY_SUPPRESS_DELAY) {
-            computerInput.keyDown(event.key());
+            var key = SDLInput.getKey(event);
+            if (key >= 0) computerInput.keyDown(key);
         }
 
         return true;
@@ -117,14 +124,14 @@ public class TerminalWidget extends AbstractWidget {
 
     @Override
     public boolean keyReleased(KeyEvent event) {
-        computerInput.keyUp(event.key());
+        var key = SDLInput.getKey(event);
+        if (key >= 0) computerInput.keyUp(key);
 
-        switch (KeyConverter.physicalToActual(event.key(), event.scancode())) {
-            case GLFW.GLFW_KEY_T -> terminateTimer = -1;
-            case GLFW.GLFW_KEY_R -> rebootTimer = -1;
-            case GLFW.GLFW_KEY_S -> shutdownTimer = -1;
-            case GLFW.GLFW_KEY_LEFT_CONTROL, GLFW.GLFW_KEY_RIGHT_CONTROL ->
-                terminateTimer = rebootTimer = shutdownTimer = -1;
+        switch (event.shortcutKey()) {
+            case SDLKeycode.SDLK_T -> terminateTimer = -1;
+            case SDLKeycode.SDLK_R -> rebootTimer = -1;
+            case SDLKeycode.SDLK_S -> shutdownTimer = -1;
+            case SDLKeycode.SDLK_LCTRL, SDLKeycode.SDLK_RCTRL -> terminateTimer = rebootTimer = shutdownTimer = -1;
         }
 
         return true;
@@ -136,7 +143,8 @@ public class TerminalWidget extends AbstractWidget {
 
         var charX = (int) ((event.x() - innerX) / FONT_WIDTH);
         var charY = (int) ((event.y() - innerY) / FONT_HEIGHT);
-        computerInput.mouseClick(event.button() + 1, charX + 1, charY + 1);
+        var button = SDLInput.getButton(event);
+        if (button >= 0) computerInput.mouseClick(button, charX + 1, charY + 1);
 
         return true;
     }
@@ -147,7 +155,8 @@ public class TerminalWidget extends AbstractWidget {
 
         var charX = (int) ((event.x() - innerX) / FONT_WIDTH);
         var charY = (int) ((event.y() - innerY) / FONT_HEIGHT);
-        computerInput.mouseUp(event.button() + 1, charX + 1, charY + 1);
+        var button = SDLInput.getButton(event);
+        if (button >= 0) computerInput.mouseUp(button, charX + 1, charY + 1);
 
         return true;
     }
@@ -158,7 +167,8 @@ public class TerminalWidget extends AbstractWidget {
 
         var charX = (int) ((event.x() - innerX) / FONT_WIDTH);
         var charY = (int) ((event.y() - innerY) / FONT_HEIGHT);
-        computerInput.mouseDrag(event.button() + 1, charX + 1, charY + 1);
+        var button = SDLInput.getButton(event);
+        if (button >= 0) computerInput.mouseDrag(button, charX + 1, charY + 1);
         return true;
     }
 
@@ -200,6 +210,8 @@ public class TerminalWidget extends AbstractWidget {
             computerInput.releaseInputs();
             shutdownTimer = terminateTimer = rebootTimer = -1;
         }
+
+        if (focused) Minecraft.getInstance().onTextInputFocusChange(this, true);
     }
 
     @Override

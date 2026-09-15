@@ -51,9 +51,6 @@ object TestHooks {
     val sourceDir: Path = Paths.get(System.getProperty("cctest.sources")).normalize().toAbsolutePath()
 
     @JvmStatic
-    var structureManager: StructureTemplateManager? = null
-
-    @JvmStatic
     fun init() {
         ServerContext.luaMachine = ManagedComputers
         ComputerCraftAPI.registerAPIFactory(::TestAPI)
@@ -95,8 +92,6 @@ object TestHooks {
             val test = level.getBlockEntity(pos, BlockEntityTypes.TEST_INSTANCE_BLOCK).getOrNull() ?: return@forEach
             StructureUtils.clearSpaceForStructure(test.structureBoundingBox, level)
         }
-
-        structureManager = server.structureManager
 
         ManagedComputers.reset()
 

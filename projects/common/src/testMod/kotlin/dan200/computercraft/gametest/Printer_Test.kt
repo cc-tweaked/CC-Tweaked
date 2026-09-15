@@ -19,7 +19,7 @@ import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
-import net.minecraft.world.level.block.RedStoneWireBlock
+import net.minecraft.world.level.block.RedstoneWireBlock
 import org.junit.jupiter.api.Assertions.*
 import java.util.*
 
@@ -40,7 +40,7 @@ class Printer_Test {
             printer.setChanged()
         }
         thenIdle(2)
-        thenExecute { helper.assertBlockHas(dustPos, RedStoneWireBlock.POWER, 1) }
+        thenExecute { helper.assertBlockHas(dustPos, RedstoneWireBlock.POWER, 1) }
 
         // And removing them should reset power.
         thenExecute {
@@ -49,7 +49,7 @@ class Printer_Test {
             printer.setChanged()
         }
         thenIdle(2)
-        thenExecute { helper.assertBlockHas(dustPos, RedStoneWireBlock.POWER, 0) }
+        thenExecute { helper.assertBlockHas(dustPos, RedstoneWireBlock.POWER, 0) }
     }
 
     /**

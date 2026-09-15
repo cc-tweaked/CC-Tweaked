@@ -81,24 +81,24 @@ public class LecternPocketModel extends Model<Unit> {
     ) {
         if (frameColour != -1) {
             collector.submitModel(
-                this, Unit.INSTANCE, poseStack, SPRITE_FRAME.renderType(RenderTypes::entityCutout),
-                packedLight, OverlayTexture.NO_OVERLAY, -1, sprites.get(SPRITE_FRAME), 0, null
+                this, Unit.INSTANCE, poseStack,
+                packedLight, OverlayTexture.NO_OVERLAY, -1, SPRITE_FRAME, sprites, 0
             );
             collector.submitModel(
-                this, Unit.INSTANCE, poseStack, SPRITE_COLOUR.renderType(RenderTypes::entityCutout),
-                packedLight, OverlayTexture.NO_OVERLAY, frameColour, sprites.get(SPRITE_COLOUR), 0, null
+                this, Unit.INSTANCE, poseStack,
+                packedLight, OverlayTexture.NO_OVERLAY, frameColour, SPRITE_COLOUR, sprites, 0
             );
         } else {
             var material = family == ComputerFamily.ADVANCED ? SPRITE_ADVANCED : SPRITE_NORMAL;
             collector.submitModel(
-                this, Unit.INSTANCE, poseStack, material.renderType(RenderTypes::entityCutout),
-                packedLight, OverlayTexture.NO_OVERLAY, -1, sprites.get(material), 0, null
+                this, Unit.INSTANCE, poseStack,
+                packedLight, OverlayTexture.NO_OVERLAY, -1, material, sprites, 0
             );
         }
 
         collector.submitModel(
-            this, Unit.INSTANCE, poseStack, SPRITE_LIGHT.renderType(RenderTypes::entityCutout),
-            LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, lightColour, sprites.get(SPRITE_LIGHT), 0, null
+            this, Unit.INSTANCE, poseStack,
+            LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, lightColour, SPRITE_LIGHT, sprites, 0
         );
     }
 }

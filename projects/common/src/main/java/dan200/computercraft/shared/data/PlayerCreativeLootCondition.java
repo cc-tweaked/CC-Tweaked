@@ -26,7 +26,7 @@ public final class PlayerCreativeLootCondition implements LootItemCondition {
 
     @Override
     public boolean test(LootContext lootContext) {
-        var entity = lootContext.getOptionalParameter(LootContextParams.THIS_ENTITY);
+        var entity = lootContext.getOptional(LootContextParams.THIS_ENTITY);
         return entity instanceof Player player && player.isCreative();
     }
 

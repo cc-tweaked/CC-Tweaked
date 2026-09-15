@@ -6,15 +6,13 @@ package dan200.computercraft.data.recipe;
 
 import com.mojang.serialization.DataResult;
 import dan200.computercraft.shared.recipe.RecipeProperties;
-import net.minecraft.advancements.AdvancementRequirements;
-import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.triggers.Criterion;
-import net.minecraft.advancements.triggers.RecipeUnlockedTrigger;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.RecipeUnlockAdvancementBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
@@ -22,8 +20,6 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -38,7 +34,7 @@ public abstract class AbstractRecipeBuilder<S extends AbstractRecipeBuilder<S, O
     private final RecipeCategory category;
     protected final ItemStackTemplate result;
     private String group = "";
-    private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
+    private final RecipeUnlockAdvancementBuilder criteria = new RecipeUnlockAdvancementBuilder();
 
     protected AbstractRecipeBuilder(HolderGetter<Item> items, RecipeCategory category, ItemStackTemplate result) {
         this.items = items;
@@ -65,7 +61,7 @@ public abstract class AbstractRecipeBuilder<S extends AbstractRecipeBuilder<S, O
      * @return This object, for chaining.
      */
     public final S unlockedBy(String name, Criterion<?> criterion) {
-        criteria.put(name, criterion);
+        criteria.unlockedBy(name, criterion);
         return self();
     }
 
@@ -110,26 +106,18 @@ public abstract class AbstractRecipeBuilder<S extends AbstractRecipeBuilder<S, O
         private final Recipe<?> recipe;
         private final ItemStackTemplate result;
         private final RecipeCategory category;
-        private final Map<String, Criterion<?>> criteria;
+        private final RecipeUnlockAdvancementBuilder advancement;
 
-        private FinishedRecipe(Recipe<?> recipe, ItemStackTemplate result, RecipeCategory category, Map<String, Criterion<?>> criteria) {
+        private FinishedRecipe(Recipe<?> recipe, ItemStackTemplate result, RecipeCategory category, RecipeUnlockAdvancementBuilder advancement) {
             this.recipe = recipe;
             this.result = result;
             this.category = category;
-            this.criteria = criteria;
+            this.advancement = advancement;
         }
 
         public void save(RecipeOutput output, Identifier id) {
-            if (criteria.isEmpty()) throw new IllegalStateException("No way of obtaining recipe " + id);
-
             var key = recipeKey(id);
-            var advancement = output.advancement()
-                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(key))
-                .rewards(AdvancementRewards.Builder.recipe(key))
-                .requirements(AdvancementRequirements.Strategy.OR);
-            for (var entry : criteria.entrySet()) advancement.addCriterion(entry.getKey(), entry.getValue());
-
-            output.accept(key, recipe, advancement.build(id.withPrefix("recipes/" + category.getFolderName() + "/")));
+            output.accept(key, recipe, advancement.build(output, key, category));
         }
 
         public void save(RecipeOutput output) {

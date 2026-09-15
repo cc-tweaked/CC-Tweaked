@@ -36,8 +36,9 @@ public final class PocketComputerLecternScreen extends NoTermComputerScreen<Pock
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         var position = getMousePosition();
-        if (position != null) {
-            computerInput.mouseClick(event.button() + 1, position.x() + 1, position.y() + 1);
+        var button = SDLInput.getButton(event);
+        if (position != null && button >= 0) {
+            computerInput.mouseClick(button, position.x() + 1, position.y() + 1);
             return true;
         }
 
@@ -47,8 +48,9 @@ public final class PocketComputerLecternScreen extends NoTermComputerScreen<Pock
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         var position = getMousePosition();
-        if (position != null) {
-            computerInput.mouseDrag(event.button() + 1, position.x() + 1, position.y() + 1);
+        var button = SDLInput.getButton(event);
+        if (position != null && button >= 0) {
+            computerInput.mouseDrag(button, position.x() + 1, position.y() + 1);
             return true;
         }
 
@@ -58,8 +60,9 @@ public final class PocketComputerLecternScreen extends NoTermComputerScreen<Pock
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
         var position = getMousePosition();
-        if (position != null) {
-            computerInput.mouseUp(event.button() + 1, position.x() + 1, position.y() + 1);
+        var button = SDLInput.getButton(event);
+        if (position != null && button >= 0) {
+            computerInput.mouseUp(button, position.x() + 1, position.y() + 1);
             return true;
         }
 

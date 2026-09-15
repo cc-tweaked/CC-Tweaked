@@ -26,7 +26,7 @@ public final class HasComputerIdLootCondition implements LootItemCondition {
 
     @Override
     public boolean test(LootContext lootContext) {
-        var tile = lootContext.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+        var tile = lootContext.getOptional(LootContextParams.BLOCK_ENTITY);
         return tile instanceof AbstractComputerBlockEntity computer && computer.getComputerID() >= 0;
     }
 

@@ -70,8 +70,8 @@ public final class PocketItemRenderer extends ItemMapLikeRenderer {
         // Setup various transformations. Note that these are partially adapted from the corresponding method
         // in ItemRenderer
         transform.pushPose();
-        transform.mulPose(Axis.YP.rotationDegrees(180f));
-        transform.mulPose(Axis.ZP.rotationDegrees(180f));
+        transform.rotateDegrees(Axis.YP, 180f);
+        transform.rotateDegrees(Axis.ZP, 180f);
         transform.scale(0.5f, 0.5f, 0.5f);
 
         var scale = 0.75f / Math.max(width + BORDER * 2, height + BORDER * 2 + LIGHT_HEIGHT);

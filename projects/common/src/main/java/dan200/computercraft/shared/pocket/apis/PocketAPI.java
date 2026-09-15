@@ -11,6 +11,7 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.shared.pocket.core.PocketComputerInternal;
 import dan200.computercraft.shared.pocket.core.PocketSide;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -149,7 +150,7 @@ public class PocketAPI implements ILuaAPI {
 
     private static void storeItem(Player player, ItemStack stack) {
         if (!stack.isEmpty() && !player.getInventory().add(stack)) {
-            var drop = player.drop(stack, false);
+            var drop = player.drop(stack, false, Prediction.SERVER_ONLY);
             if (drop != null) drop.setNoPickUpDelay();
         }
     }

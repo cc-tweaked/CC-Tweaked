@@ -100,7 +100,7 @@ public class ForgeCommonHooks {
 
     @SubscribeEvent
     public static void lootLoad(LootTableLoadEvent event) {
-        var pool = CommonHooks.getExtraLootPool(ResourceKey.create(Registries.LOOT_TABLE, event.getName()));
+        var pool = CommonHooks.getExtraLootPool(event.getRegistries(), ResourceKey.create(Registries.LOOT_TABLE, event.getName()));
         if (pool != null) event.getTable().addPool(pool.build());
     }
 

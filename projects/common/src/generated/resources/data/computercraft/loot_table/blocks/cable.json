@@ -2,31 +2,29 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "conditions": [
-        {"condition": "minecraft:survives_explosion"},
-        {
-          "block": "computercraft:cable",
-          "condition": "minecraft:block_state_property",
-          "properties": {"cable": "true"}
-        }
-      ],
+      "condition": {
+        "type": "minecraft:all_of",
+        "terms": [
+          {"type": "minecraft:survives_explosion"},
+          {"type": "minecraft:match_block", "blocks": "computercraft:cable", "state": {"cable": "true"}}
+        ]
+      },
       "entries": [{"type": "minecraft:item", "name": "computercraft:cable"}],
-      "rolls": 1.0
+      "rolls": 1
     },
     {
-      "conditions": [
-        {"condition": "minecraft:survives_explosion"},
-        {
-          "condition": "minecraft:inverted",
-          "term": {
-            "block": "computercraft:cable",
-            "condition": "minecraft:block_state_property",
-            "properties": {"modem": "none"}
+      "condition": {
+        "type": "minecraft:all_of",
+        "terms": [
+          {"type": "minecraft:survives_explosion"},
+          {
+            "type": "minecraft:inverted",
+            "term": {"type": "minecraft:match_block", "blocks": "computercraft:cable", "state": {"modem": "none"}}
           }
-        }
-      ],
+        ]
+      },
       "entries": [{"type": "minecraft:item", "name": "computercraft:wired_modem"}],
-      "rolls": 1.0
+      "rolls": 1
     }
   ],
   "random_sequence": "computercraft:blocks/cable"
