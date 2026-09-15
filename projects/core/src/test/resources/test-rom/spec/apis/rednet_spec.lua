@@ -38,8 +38,10 @@ describe("The rednet library", function()
         it("validates arguments", function()
             rednet.send(1)
             rednet.send(1, nil, "")
+            rednet.send(1, nil, "", nil)
             expect.error(rednet.send, nil):eq("bad argument #1 (number expected, got nil)")
             expect.error(rednet.send, 1, nil, false):eq("bad argument #3 (string expected, got boolean)")
+            expect.error(rednet.send, 1, nil, "", false):eq("bad argument #4 (table expected, got boolean)")
         end)
 
         it("queues an event on the current computer", function()
@@ -55,7 +57,9 @@ describe("The rednet library", function()
         it("validates arguments", function()
             rednet.broadcast(nil)
             rednet.broadcast(nil, "")
+            rednet.broadcast(nil, "", nil)
             expect.error(rednet.broadcast, nil, false):eq("bad argument #2 (string expected, got boolean)")
+            expect.error(rednet.broadcast, nil, "", false):eq("bad argument #3 (table expected, got boolean)")
         end)
     end)
 
@@ -131,27 +135,55 @@ describe("The rednet library", function()
 
         it("opens and closes channels", function()
             local id = math.random(256)
-            local computer = computer_with_rednet(id, function(rednet)
+            local computer
+            computer = computer_with_rednet(id, function(rednet)
                 expect(rednet.isOpen()):eq(false)
 
                 rednet.open("back")
+                rednet.open("top")
+                rednet.open("bottom")
                 rednet.open("front")
 
                 expect(rednet.isOpen()):eq(true)
                 expect(rednet.isOpen("back")):eq(true)
+                expect(rednet.isOpen("top")):eq(true)
+                expect(rednet.isOpen("bottom")):eq(true)
                 expect(rednet.isOpen("front")):eq(true)
 
                 rednet.close("back")
                 expect(rednet.isOpen("back")):eq(false)
+                expect(rednet.isOpen("top")):eq(true)
+                expect(rednet.isOpen("bottom")):eq(true)
+                expect(rednet.isOpen("front")):eq(true)
+                expect(rednet.isOpen()):eq(true)
+
+                -- Disconnected modems are not open
+                computer.peripherals.top = nil
+                expect(rednet.isOpen("back")):eq(false)
+                expect(rednet.isOpen("top")):eq(false)
+                expect(rednet.isOpen("bottom")):eq(true)
+                expect(rednet.isOpen("front")):eq(true)
+                expect(rednet.isOpen()):eq(true)
+
+                -- Reconnected modems are not open
+                computer.peripherals.bottom = nil
+                fake_computer.add_modem(computer, "bottom")
+                expect(rednet.isOpen("back")):eq(false)
+                expect(rednet.isOpen("top")):eq(false)
+                expect(rednet.isOpen("bottom")):eq(false)
                 expect(rednet.isOpen("front")):eq(true)
                 expect(rednet.isOpen()):eq(true)
 
                 rednet.close()
 
                 expect(rednet.isOpen("back")):eq(false)
+                expect(rednet.isOpen("top")):eq(false)
+                expect(rednet.isOpen("bottom")):eq(false)
                 expect(rednet.isOpen("front")):eq(false)
                 expect(rednet.isOpen()):eq(false)
             end)
+            fake_computer.add_modem(computer, "top")
+            fake_computer.add_modem(computer, "bottom")
             fake_computer.add_modem(computer, "front")
 
             fake_computer.run_all { computer }
@@ -169,6 +201,38 @@ describe("The rednet library", function()
             fake_computer.add_modem_edge(modem_1, modem_2)
 
             fake_computer.run_all { computer_1, computer_2 }
+        end)
+
+        it("supports airgapping", function()
+            local computer_1, modem_1_back = computer_with_rednet(1, function(rednet)
+                rednet.open("top")
+                rednet.broadcast("Hello", nil, { "back" })
+                rednet.broadcast("World", nil, { "top" })
+                rednet.broadcast("it works!", nil, { "back", "top" })
+            end, { open = true })
+            local modem_1_top = fake_computer.add_modem(computer_1, "top")
+
+            local computer_2, modem_2 = computer_with_rednet(2, function(rednet)
+                local id, message = rednet.receive()
+                expect(id):eq(1)
+                expect(message):eq("Hello")
+                id, message = rednet.receive()
+                expect(id):eq(1)
+                expect(message):eq("it works!")
+            end, { open = true })
+            fake_computer.add_modem_edge(modem_1_back, modem_2)
+
+            local computer_3, modem_3 = computer_with_rednet(2, function(rednet)
+                local id, message = rednet.receive()
+                expect(id):eq(1)
+                expect(message):eq("World")
+                id, message = rednet.receive()
+                expect(id):eq(1)
+                expect(message):eq("it works!")
+            end, { open = true })
+            fake_computer.add_modem_edge(modem_1_top, modem_3)
+
+            fake_computer.run_all { computer_1, computer_2, computer_3 }
         end)
 
         describe("timeouts", function()
