@@ -154,6 +154,7 @@ loom {
     runs {
         configureEach {
             generateRunConfig = true
+            preferGradleTask = false
             ideConfigFolder = "Fabric"
 
             systemProperties.put("fabric-tag-conventions-v2.missingTagTranslationWarning", "VERBOSE")

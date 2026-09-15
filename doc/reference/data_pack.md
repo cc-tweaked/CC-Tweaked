@@ -19,7 +19,7 @@ programs to the ROM, or providing new turtle tools. This page serves as a refere
 >
 >  - [Minecraft 1.20.1](/mc-1.20.x/reference/data_pack.html)
 >  - [Minecraft 1.21.1](/mc-1.21.x/reference/data_pack.html)
->  - [Minecraft 26.2](/mc-26.2/reference/data_pack.html)
+>  - [Minecraft 26.3](/mc-26.3/reference/data_pack.html)
 
 In addition to this documentation, we also provide an [online data pack builder][data pack builder] and an
 [example/template data pack][data pack example].
