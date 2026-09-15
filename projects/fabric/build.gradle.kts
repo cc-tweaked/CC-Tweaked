@@ -155,6 +155,7 @@ loom {
     runs {
         configureEach {
             generateRunConfig = true
+            preferGradleTask = false
             ideConfigFolder = "Fabric"
         }
 
