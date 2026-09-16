@@ -80,7 +80,7 @@ tasks.javadoc {
     }
 
     // Include the core-api in our javadoc export. This is wrong, but it means we can export a single javadoc dump.
-    source("../core/src/main/java")
+    source("../core-api/src/main/java")
 
     options {
         this as StandardJavadocDocletOptions
