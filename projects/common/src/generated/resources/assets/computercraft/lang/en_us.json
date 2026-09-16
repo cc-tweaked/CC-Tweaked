@@ -29,6 +29,7 @@
   "block.computercraft.wired_modem_full": "Wired Modem",
   "block.computercraft.wireless_modem_advanced": "Ender Modem",
   "block.computercraft.wireless_modem_normal": "Wireless Modem",
+  "chat.computercraft.wired_modem.connected_peripheral": "Peripheral \"%s\" is connected to modem",
   "chat.computercraft.wired_modem.peripheral_connected": "Peripheral \"%s\" connected to network",
   "chat.computercraft.wired_modem.peripheral_disconnected": "Peripheral \"%s\" disconnected from network",
   "commands.computercraft.desc": "The /computercraft command provides various debugging and administrator tools for controlling and interacting with computers.",
