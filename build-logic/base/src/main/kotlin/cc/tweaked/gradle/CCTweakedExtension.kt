@@ -19,9 +19,7 @@ import org.gradle.process.JavaForkOptions
 import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
-import java.io.File
 import java.io.IOException
-import java.net.URI
 import java.util.regex.Pattern
 
 abstract class CCTweakedExtension(private val project: Project) {
@@ -55,10 +53,12 @@ abstract class CCTweakedExtension(private val project: Project) {
         ExternalProjectArtifacts.configure(this)
     }
 
-    val embeddedProjectClasses: Provider<FileCollection> = embeddedProjectsResolved.map(ExternalProjectArtifacts::classes)
+    val embeddedProjectClasses: Provider<FileCollection> =
+        embeddedProjectsResolved.map(ExternalProjectArtifacts::classes)
     val embeddedProjectClassesAndResources: Provider<FileCollection> =
         embeddedProjectsResolved.map(ExternalProjectArtifacts::classesAndResources)
-    val embeddedProjectSources: Provider<FileCollection> = embeddedProjectsResolved.map(ExternalProjectArtifacts::sources)
+    val embeddedProjectSources: Provider<FileCollection> =
+        embeddedProjectsResolved.map(ExternalProjectArtifacts::sources)
 
     /**
      * Enable our custom linters on this project.
@@ -103,41 +103,6 @@ abstract class CCTweakedExtension(private val project: Project) {
 
             executionData(task.get())
         }
-    }
-
-    /**
-     * Download a file by creating a dummy Ivy repository.
-     *
-     * This should only be used for one-off downloads. Using a more conventional Ivy or Maven repository is preferred
-     * where possible.
-     */
-    fun downloadFile(label: String, url: String): File {
-        val uri = URI(url)
-        val path = File(uri.path)
-
-        project.repositories.ivy {
-            name = label
-            setUrl(URI(uri.scheme, uri.userInfo, uri.host, uri.port, path.parent, null, null))
-            patternLayout {
-                artifact("[artifact].[ext]")
-            }
-            metadataSources {
-                artifact()
-            }
-            content {
-                includeModule("cc.tweaked.internal", path.nameWithoutExtension)
-            }
-        }
-
-        return project.configurations.detachedConfiguration(
-            project.dependencies.create(
-                mapOf(
-                    "group" to "cc.tweaked.internal",
-                    "name" to path.nameWithoutExtension,
-                    "ext" to path.extension,
-                ),
-            ),
-        ).resolve().single()
     }
 
     private fun <T : Any> gitProvider(default: T, command: List<String>, process: (String) -> T): Provider<T> {

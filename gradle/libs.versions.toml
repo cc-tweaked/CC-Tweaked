@@ -36,6 +36,7 @@ kotlin-coroutines = "1.11.0"
 nightConfig = "3.9.0"
 
 # Minecraft mods
+complementary = "r5.9.3"
 emi = "1.0.8+1.20.1"
 fabricPermissions = "0.3.20230723"
 iris = "1.6.4+1.20"
@@ -102,6 +103,7 @@ nightConfig-toml = { module = "com.electronwill.night-config:toml", version.ref 
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 # Minecraft mods
+complementary = {  module = "maven.modrinth:complementary-reimagined", version.ref = "complementary" }
 create-fabric = { module = "com.simibubi.create:create-fabric-1.20.1", version.ref = "create-fabric" }
 create-forge = { module = "com.simibubi.create:create-1.20.1", version.ref = "create-forge" }
 emi = { module = "dev.emi:emi-xplat-mojmap", version.ref = "emi" }

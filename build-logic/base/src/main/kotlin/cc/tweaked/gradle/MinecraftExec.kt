@@ -6,18 +6,22 @@ package cc.tweaked.gradle
 
 import net.neoforged.moddevgradle.internal.RunGameTask
 import org.gradle.api.GradleException
+import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.invocation.Gradle
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.JavaExec
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import java.io.File
 import java.nio.file.Files
 import java.util.concurrent.TimeUnit
-import java.util.function.Supplier
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -34,19 +38,28 @@ abstract class ClientJavaExec : JavaExec() {
     }
 
     @get:Input
-    val renderdoc get() = project.hasProperty("renderdoc")
+    val renderdoc: Provider<Boolean> = project.provider { project.hasProperty("renderdoc") }
 
     /**
-     * When [false], tests will not be run automatically, allowing the user to debug rendering.
+     * When `false`, tests will not be run automatically, allowing the user to debug rendering.
      */
     @get:Input
-    val clientDebug get() = renderdoc || project.hasProperty("clientDebug")
+    val clientDebug: Provider<Boolean> = project.provider { renderdoc.get() || project.hasProperty("clientDebug") }
 
     /**
-     * When [false], tests will not run under a framebuffer.
+     * When `false`, tests will not run under a framebuffer.
      */
     @get:Input
-    val useFramebuffer get() = !clientDebug && !project.hasProperty("clientNoFramebuffer")
+    val useFramebuffer: Provider<Boolean> =
+        project.provider { !clientDebug.get() && !project.hasProperty("clientNoFramebuffer") }
+
+    /** Additional files to write to the destination directory. */
+    @get:Input
+    abstract val fileContents: MapProperty<String, String>
+
+    /** Additional files to copy to the destination directory. */
+    @get:Input
+    abstract val fileSources: MapProperty<String, File>
 
     /**
      * The path test results are written to.
@@ -55,8 +68,8 @@ abstract class ClientJavaExec : JavaExec() {
     val testResults = project.layout.buildDirectory.file("test-results/$name.xml")
 
     private fun setTestProperties() {
-        if (!clientDebug) systemProperty("cctest.client", "")
-        if (renderdoc) environment("LD_PRELOAD", "/usr/lib/librenderdoc.so")
+        if (!clientDebug.get()) systemProperty("cctest.client", "")
+        if (renderdoc.get()) environment("LD_PRELOAD", "/usr/lib/librenderdoc.so")
         systemProperty("cctest.gametest-report", testResults.get().asFile.absoluteFile)
         workingDir(project.layout.buildDirectory.dir("gametest/$name"))
     }
@@ -102,27 +115,19 @@ abstract class ClientJavaExec : JavaExec() {
         systemProperty("cctest.tags", tags.joinToString(","))
     }
 
-    /**
-     * Write a file with the given contents before starting Minecraft. This may be useful for writing config files.
-     */
-    fun withFileContents(path: Any, contents: Supplier<String>) {
-        val file = project.file(path).toPath()
-        doFirst {
-            Files.createDirectories(file.parent)
-            Files.writeString(file, contents.get())
-        }
-    }
+    /** Configure Iris to use the given shader pack. */
+    fun withShaderPack(shaders: FileCollection) = withShaderPack(shaders.elements.map { it.single().asFile })
 
-    /**
-     * Copy a file to the provided path before starting Minecraft. This copy only occurs if the file does not already
-     * exist.
-     */
-    fun withFileFrom(path: Any, source: Supplier<File>) {
-        val file = project.file(path).toPath()
-        doFirst {
-            Files.createDirectories(file.parent)
-            if (!Files.exists(file)) Files.copy(source.get().toPath(), file)
-        }
+    /** Configure Iris to use the given shader pack. */
+    fun withShaderPack(shaders: Provider<File>) {
+        fileSources.put("shaderpacks/shaders.zip", shaders)
+        fileContents.put(
+            "config/iris.properties",
+            """
+            enableShaders=true
+            shaderPack=shaders.zip
+            """.trimIndent(),
+        )
     }
 
     @TaskAction
@@ -130,7 +135,23 @@ abstract class ClientJavaExec : JavaExec() {
         Files.createDirectories(workingDir.toPath())
         fsOperations.delete { delete(workingDir.resolve("screenshots")) }
 
-        if (useFramebuffer) {
+        for ((dest, contents) in fileContents.get()) {
+            val destFile = workingDir.resolve(dest).toPath()
+            Files.createDirectories(destFile.parent)
+            Files.writeString(destFile, contents)
+        }
+
+        for ((dest, source) in fileSources.get()) {
+            val destFile = workingDir.resolve(dest)
+            Files.createDirectories(destFile.parentFile.toPath())
+            fsOperations.copy {
+                from(source);
+                into(destFile.parent)
+                rename { destFile.name }
+            }
+        }
+
+        if (useFramebuffer.get()) {
             clientRunner.get().wrapClient(this) { super.exec() }
         } else {
             super.exec()

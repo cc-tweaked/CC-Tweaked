@@ -32,10 +32,12 @@ fun DependencyHandler.annotationProcessorEverywhere(dep: Any) {
 fun JavaExec.copyToFull(spec: JavaExec) {
     copyTo(spec)
 
-    // Additional Java options
-    spec.jvmArgs = jvmArgs // Fabric overrides getJvmArgs so copyTo doesn't do the right thing.
+    // Copy arguments. We have to evaluate argument providers immediately to avoid holding a reference to the other
+    // task.
     spec.args = args
-    spec.argumentProviders.addAll(argumentProviders)
+    for (argProvider in argumentProviders) spec.args(argProvider.asArguments())
+
+    // Additional Java options
     spec.mainClass.set(mainClass)
     spec.classpath = classpath
     spec.javaLauncher.set(javaLauncher)
