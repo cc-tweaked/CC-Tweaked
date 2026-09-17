@@ -4,14 +4,13 @@
 
 package dan200.computercraft.client.integration;
 
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 
 import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.function.IntFunction;
-
-import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.TERMINAL_TEXT;
 
 /**
  * Find the currently loaded shader mod (if present) and provides utilities for interacting with it.
@@ -33,12 +32,13 @@ public class ShaderMod {
     /**
      * Get an appropriate quad emitter for use with a vertex buffer and {@link DirectFixedWidthFontRenderer} .
      *
+     * @param format     The vertex format to write.
      * @param quadCount  The number of quads.
      * @param makeBuffer A function to allocate a temporary buffer.
      * @return The quad emitter.
      */
-    public DirectFixedWidthFontRenderer.QuadEmitter getQuadEmitter(int quadCount, IntFunction<ByteBuffer> makeBuffer) {
-        return new DirectFixedWidthFontRenderer.ByteBufferEmitter(makeBuffer.apply(TERMINAL_TEXT.format().getVertexSize() * quadCount * 4));
+    public DirectFixedWidthFontRenderer.QuadEmitter getQuadEmitter(VertexFormat format, int quadCount, IntFunction<ByteBuffer> makeBuffer) {
+        return new DirectFixedWidthFontRenderer.ByteBufferEmitter(format, makeBuffer.apply(format.getVertexSize() * quadCount * 4));
     }
 
     public interface Provider {

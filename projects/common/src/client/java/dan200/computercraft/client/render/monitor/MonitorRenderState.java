@@ -6,8 +6,8 @@ package dan200.computercraft.client.render.monitor;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import com.mojang.renderpearl.api.buffers.GpuBuffer;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
-import net.minecraft.core.BlockPos;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
@@ -24,12 +24,8 @@ public final class MonitorRenderState implements ClientMonitor.RenderState {
     @GuardedBy("allMonitors")
     private static final Set<MonitorRenderState> allMonitors = new HashSet<>();
 
-    long lastRenderFrame = -1;
-    @Nullable
-    BlockPos lastRenderPos = null;
-
-    @Nullable
-    GpuBuffer vertexBuffer;
+    @Nullable VertexFormat vertexFormat;
+    @Nullable GpuBuffer vertexBuffer;
 
     int vertexCountAfterBackground;
     int vertexCountAfterForeground;

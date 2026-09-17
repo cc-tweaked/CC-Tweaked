@@ -58,12 +58,9 @@ public final class ForgeClientHooks {
 
     @SubscribeEvent
     public static void onRenderInHand(RenderHandEvent event) {
-        // TODO(26.3): Add these to the event in upstream NeoForge.
-        var minecraft = Minecraft.getInstance();
-        var heldRenderer = minecraft.gameRenderer.firstPersonHandsAndItemsRenderer;
-        var playerState = minecraft.gameRenderer.gameRenderState().levelRenderState.playerRenderState;
+        var heldRenderer = Minecraft.getInstance().gameRenderer.firstPersonHandsAndItemsRenderer;
         if (ClientHooks.onRenderHeldItem(
-            heldRenderer, playerState, event.getPoseStack(), event.getSubmitNodeCollector(), event.getPackedLight(),
+            heldRenderer, event.getPlayerState(), event.getPoseStack(), event.getSubmitNodeCollector(), event.getPackedLight(),
             event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack()
         )) {
             event.setCanceled(true);

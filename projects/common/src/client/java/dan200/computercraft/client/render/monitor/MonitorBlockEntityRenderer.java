@@ -101,7 +101,7 @@ public class MonitorBlockEntityRenderer implements BoundedBlockEntityRenderer<Mo
 
         // Draw the contents
         var terminal = state.terminal.getTerminal();
-        if (terminal != null) {
+        if (terminal != null && !ShaderMod.get().isRenderingShadowPass()) {
             // Draw a terminal
             int width = terminal.getWidth(), height = terminal.getHeight();
             int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
@@ -126,14 +126,15 @@ public class MonitorBlockEntityRenderer implements BoundedBlockEntityRenderer<Mo
     private static void prepareTerminal(
         ClientMonitor monitor, MonitorRenderState renderState, Terminal terminal, float xMargin, float yMargin
     ) {
+        var vertexFormat = FixedWidthFontRenderer.TERMINAL_TEXT.format();
         var redraw = monitor.pollTerminalChanged();
-        if (renderState.vertexBuffer == null) redraw = true;
+        if (renderState.vertexBuffer == null || renderState.vertexFormat != vertexFormat) redraw = true;
 
         if (redraw) {
             // Cursor, Foreground, Background+Margin
             var maxQuadCount = 1 + (terminal.getWidth() * terminal.getHeight()) + ((terminal.getWidth() + 2) * (terminal.getHeight() + 2));
             var maxVertexCount = 4 * maxQuadCount;
-            var sink = ShaderMod.get().getQuadEmitter(maxQuadCount, MonitorBlockEntityRenderer::getBuffer);
+            var sink = ShaderMod.get().getQuadEmitter(vertexFormat, maxQuadCount, MonitorBlockEntityRenderer::getBuffer);
 
             DirectFixedWidthFontRenderer.drawTerminalBackground(sink, 0, 0, terminal, yMargin, yMargin, xMargin, xMargin);
             var vertexCountAfterBackground = sink.vertexCount();
@@ -156,10 +157,10 @@ public class MonitorBlockEntityRenderer implements BoundedBlockEntityRenderer<Mo
                 var resultBuffer = sink.byteBuffer().flip();
 
                 // Ensure our buffer contains the correct number of vertices.
-                if (resultBuffer.remaining() != sink.format().getVertexSize() * vertexCountAfterCursor) {
+                if (resultBuffer.remaining() != vertexFormat.getVertexSize() * vertexCountAfterCursor) {
                     throw new IllegalStateException(String.format(
                         "Mismatched vertex count. Buffer is %d bytes long, but was expected to be %d (vertex size) * %d (vertex count) = %d bytes.",
-                        resultBuffer.limit(), sink.format().getVertexSize(), vertexCountAfterCursor, sink.format().getVertexSize() * vertexCountAfterCursor
+                        resultBuffer.limit(), vertexFormat.getVertexSize(), vertexCountAfterCursor, vertexFormat.getVertexSize() * vertexCountAfterCursor
                     ));
                 }
 
@@ -177,6 +178,7 @@ public class MonitorBlockEntityRenderer implements BoundedBlockEntityRenderer<Mo
                 }
             }
 
+            renderState.vertexFormat = vertexFormat;
             renderState.vertexCountAfterBackground = vertexCountAfterBackground;
             renderState.vertexCountAfterForeground = vertexCountAfterForeground;
             renderState.vertexCountAfterCursor = vertexCountAfterCursor;

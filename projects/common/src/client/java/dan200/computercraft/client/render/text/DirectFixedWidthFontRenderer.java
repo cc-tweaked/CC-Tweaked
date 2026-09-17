@@ -27,7 +27,7 @@ import static org.lwjgl.system.MemoryUtil.*;
  * There are some limitations here:
  * <ul>
  *   <li>No transformation matrix (not needed for VBOs).</li>
- *   <li>Only works with {@link DefaultVertexFormat#POSITION_COLOR_TEX_LIGHTMAP}.</li>
+ *   <li>Only works with {@link DefaultVertexFormat#POSITION_TEX_LIGHTMAP_COLOR}.</li>
  *   <li>The buffer <strong>MUST</strong> be allocated with {@link MemoryUtil}, and not through any other means.</li>
  * </ul>
  * <p>
@@ -38,6 +38,11 @@ import static org.lwjgl.system.MemoryUtil.*;
  * {@link FixedWidthFontRenderer}.
  */
 public final class DirectFixedWidthFontRenderer {
+    /**
+     * The vertex format {@link DirectFixedWidthFontRenderer} works with.
+     */
+    public static final VertexFormat VERTEX_FORMAT = DefaultVertexFormat.POSITION_TEX_LIGHTMAP_COLOR;
+
     private static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
 
     private DirectFixedWidthFontRenderer() {
@@ -173,8 +178,6 @@ public final class DirectFixedWidthFontRenderer {
 
         public abstract ByteBuffer byteBuffer();
 
-        public abstract VertexFormat format();
-
         /**
          * Emit a quad to this buffer.
          *
@@ -199,18 +202,14 @@ public final class DirectFixedWidthFontRenderer {
     public static final class ByteBufferEmitter extends QuadEmitter {
         private final ByteBuffer buffer;
 
-        public ByteBufferEmitter(ByteBuffer buffer) {
+        public ByteBufferEmitter(VertexFormat format, ByteBuffer buffer) {
+            if (format != VERTEX_FORMAT) throw new IllegalArgumentException("Unexpected vertex format");
             this.buffer = buffer;
         }
 
         @Override
         public ByteBuffer byteBuffer() {
             return buffer;
-        }
-
-        @Override
-        public VertexFormat format() {
-            return TERMINAL_TEXT.format();
         }
 
         @Override
@@ -224,16 +223,15 @@ public final class DirectFixedWidthFontRenderer {
         // underlying buffer. This allows us to have a single bounds check up-front, rather than one for every write.
         // This provides significant performance gains, at the cost of well, using Unsafe.
         // Each vertex is 28 bytes, giving 112 bytes in total. Vertices are of the form (xyz:FFF)(uv1:FF)(uv2:SS)(abgr:BBBB),
-        // which matches the POSITION_COLOR_TEX_LIGHTMAP vertex format.
+        // which matches the POSITION_TEX_LIGHTMAP_COLOR vertex format.
         var position = buffer.position();
         var addr = MemoryUtil.memAddress(buffer);
 
         // We're doing terrible unsafe hacks below, so let's be really sure that what we're doing is reasonable.
+        if (position < 0 || 112 > buffer.limit() - position) throw new IndexOutOfBoundsException();
         // Require the pointer to be aligned to a 32-bit boundary.
         if ((addr & 3) != 0) throw new IllegalStateException("Memory is not aligned");
-        if (TERMINAL_TEXT.format().getVertexSize() != 28) {
-            throw new IllegalStateException("Incorrect vertex size");
-        }
+        if (VERTEX_FORMAT.getVertexSize() != 28) throw new IllegalStateException("Incorrect vertex size");
 
         memPutFloat(addr + 0, x1);
         memPutFloat(addr + 4, y1);

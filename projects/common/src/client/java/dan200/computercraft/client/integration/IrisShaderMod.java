@@ -30,21 +30,22 @@ public class IrisShaderMod implements ShaderMod.Provider {
         }
 
         @Override
-        public DirectFixedWidthFontRenderer.QuadEmitter getQuadEmitter(int quadCount, IntFunction<ByteBuffer> makeBuffer) {
-            return new IrisQuadEmitter(quadCount, makeBuffer);
+        public DirectFixedWidthFontRenderer.QuadEmitter getQuadEmitter(VertexFormat format, int quadCount, IntFunction<ByteBuffer> makeBuffer) {
+            // If we're using the vanilla vertex format, fall back to our default emitter.
+            if (format == DirectFixedWidthFontRenderer.VERTEX_FORMAT) {
+                return super.getQuadEmitter(format, quadCount, makeBuffer);
+            }
+
+            var sink = IrisApi.getInstance().createTextVertexSink(quadCount, makeBuffer);
+            // TODO(26.3): Verify the vertex format matches what we expect once Iris has updated.
+            return new IrisQuadEmitter(sink);
         }
 
         private static final class IrisQuadEmitter extends DirectFixedWidthFontRenderer.QuadEmitter {
             private final IrisTextVertexSink sink;
 
-            private IrisQuadEmitter(int vertexCount, IntFunction<ByteBuffer> builder) {
-                sink = IrisApi.getInstance().createTextVertexSink(vertexCount, builder);
-            }
-
-            @Override
-            public VertexFormat format() {
-                // TODO(26.3): return sink.getUnderlyingVertexFormat();
-                throw new UnsupportedOperationException();
+            private IrisQuadEmitter(IrisTextVertexSink sink) {
+                this.sink = sink;
             }
 
             @Override

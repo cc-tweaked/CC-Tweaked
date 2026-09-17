@@ -9,7 +9,7 @@
 minecraft = "26.3"
 fabric-api = "0.160.5+26.3"
 fabric-loader = "0.19.4"
-neoForge = "26.3.0.0-beta"
+neoForge = "26.3.0.3-beta"
 neoMergeTool = "2.0.0"
 mixin = "0.8.5"
 
@@ -34,12 +34,11 @@ nightConfig = "3.9.0"
 # Minecraft mods
 iris-fabric = "1.11.6+26.3-fabric"
 iris-forge = "1.9.1+1.21.7-neoforge"
-jei = "29.5.0.26"
-modmenu = "16.0.0-rc.1"
+jei = "31.0.0.5"
+modmenu = "21.0.0-beta.1"
 rei = "26.1.818"
-sodium-fabric = "mc1.21.11-0.8.0-fabric"
-sodium-forge = "mc1.21.11-0.8.0-neoforge"
-mixinExtra = "0.3.5"
+sodium = "0.9.2+mc26.3"
+mixinExtra = "0.5.4"
 create-forge = "6.0.0-6"
 create-fabric = "6.0.7.0+mc1.20.1-build.1716"
 
@@ -101,17 +100,17 @@ fabric-junit = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fab
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
 iris-fabric = { module = "maven.modrinth:iris", version.ref = "iris-fabric" }
 iris-forge = { module = "maven.modrinth:iris", version.ref = "iris-forge" }
-jei-api = { module = "mezz.jei:jei-26.1.2-common-api", version.ref = "jei" }
-jei-fabric = { module = "mezz.jei:jei-26.1.2-fabric", version.ref = "jei" }
-jei-forge = { module = "mezz.jei:jei-26.1.2-neoforge", version.ref = "jei" }
+jei-api = { module = "mezz.jei:jei-26.3-common-api", version.ref = "jei" }
+jei-fabric = { module = "mezz.jei:jei-26.3-fabric", version.ref = "jei" }
+jei-forge = { module = "mezz.jei:jei-26.3-neoforge", version.ref = "jei" }
 mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
 mixinExtra = { module = "io.github.llamalad7:mixinextras-common", version.ref = "mixinExtra" }
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
 rei-api = { module = "me.shedaniel:RoughlyEnoughItems-api", version.ref = "rei" }
 rei-builtin = { module = "me.shedaniel:RoughlyEnoughItems-default-plugin", version.ref = "rei" }
 rei-fabric = { module = "me.shedaniel:RoughlyEnoughItems-fabric", version.ref = "rei" }
-sodium-fabric = { module = "maven.modrinth:sodium", version.ref = "sodium.fabric" }
-sodium-forge = { module = "maven.modrinth:sodium", version.ref = "sodium.forge" }
+sodium-fabric = { module = "net.caffeinemc:sodium-fabric", version.ref = "sodium" }
+sodium-forge = { module = "net.caffeinemc:sodium-neoforge", version.ref = "sodium" }
 
 # Testing
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
@@ -168,11 +167,11 @@ annotations = ["checkerFramework", "jetbrainsAnnotations", "jspecify"]
 kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
 
 # Minecraft
-externalMods-common = ["iris-forge", "jei-api", "nightConfig-core", "nightConfig-toml"]
+externalMods-common = ["iris-fabric", "jei-api", "nightConfig-core", "nightConfig-toml"]
 externalMods-forge-compile = ["iris-forge", "jei-api"]
-externalMods-forge-runtime = []
+externalMods-forge-runtime = ["jei-forge"]
 externalMods-fabric-compile = ["iris-fabric", "jei-api", "rei-api", "rei-builtin"]
-externalMods-fabric-runtime = []
+externalMods-fabric-runtime = ["modmenu", "jei-fabric"]
 
 # Testing
 test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]

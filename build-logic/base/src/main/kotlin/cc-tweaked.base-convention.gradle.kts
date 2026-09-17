@@ -50,6 +50,7 @@ repositories {
             includeGroup("me.shedaniel.cloth")
             includeGroup("me.shedaniel")
             includeGroup("mezz.jei")
+            includeGroup("net.caffeinemc")
             includeModule("com.terraformersmc", "modmenu")
         }
     }
