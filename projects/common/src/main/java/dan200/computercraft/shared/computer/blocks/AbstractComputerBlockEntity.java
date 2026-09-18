@@ -24,6 +24,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.LockCode;
 import net.minecraft.world.Nameable;
@@ -416,6 +417,10 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
             on = copy.on;
             startOn = copy.startOn;
             lockCode = copy.lockCode;
+
+            var computer = getServerComputer();
+            if (computer != null) computer.setPosition((ServerLevel) getLevel(), getBlockPos());
+
             BlockEntityHelpers.updateBlock(this);
         }
         copy.instanceID = null;
