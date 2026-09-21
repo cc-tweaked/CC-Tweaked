@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Predicate;
 
 @SuppressWarnings("UnstableApiUsage")
 public class FabricContainerTransfer implements ContainerTransfer {
@@ -31,30 +32,48 @@ public class FabricContainerTransfer implements ContainerTransfer {
         return new SlottedImpl(storage);
     }
 
+    /**
+     * Move an item from a slot into another storage.
+     *
+     * @param from      The slot to move from.
+     * @param to        The storage to move to.
+     * @param maxAmount The max amount to move.
+     * @return The number of items which were transferred, or one of {@link #NO_ITEMS} or {@link #NO_SPACE}. This will
+     * <em>NEVER</em> return 0.
+     * @see StorageUtil#move(Storage, Storage, Predicate, long, TransactionContext)
+     * @see #moveTo(ContainerTransfer, int)
+     */
+    public static int move(StorageView<ItemVariant> from, Storage<ItemVariant> to, long maxAmount) {
+        var resource = from.getResource();
+        if (resource.isBlank()) return NO_ITEMS;
+
+        try (var transaction = Transaction.openOuter()) {
+            // Check how much can be extracted and inserted.
+            var maxExtracted = StorageUtil.simulateExtract(from, resource, maxAmount, transaction);
+            if (maxExtracted == 0) return NO_ITEMS;
+
+            var accepted = to.insert(resource, maxExtracted, transaction);
+            if (accepted == 0) return NO_SPACE;
+
+            // Extract or rollback.
+            if (from.extract(resource, accepted, transaction) == accepted) {
+                transaction.commit();
+                return accepted > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) accepted;
+            }
+
+            return NO_SPACE;
+        }
+    }
+
     @Override
     public int moveTo(ContainerTransfer destination, int maxAmount) {
         var hasItem = false;
-
         var destStorage = ((FabricContainerTransfer) destination).storage;
         for (var slot : storage.nonEmptyViews()) {
-            var resource = slot.getResource();
+            var result = move(slot, destStorage, maxAmount);
+            if (result >= 0) return result;
 
-            try (var transaction = Transaction.openOuter()) {
-                // Check how much can be extracted and inserted.
-                var maxExtracted = StorageUtil.simulateExtract(slot, resource, maxAmount, transaction);
-                if (maxExtracted == 0) continue;
-
-                hasItem = true;
-
-                var accepted = destStorage.insert(resource, maxExtracted, transaction);
-                if (accepted == 0) continue;
-
-                // Extract or rollback.
-                if (slot.extract(resource, accepted, transaction) == accepted) {
-                    transaction.commit();
-                    return (int) accepted;
-                }
-            }
+            if (result == NO_SPACE) hasItem = true;
         }
 
         return hasItem ? NO_SPACE : NO_ITEMS;

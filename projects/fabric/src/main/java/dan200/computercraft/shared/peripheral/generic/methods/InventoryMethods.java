@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.peripheral.generic.methods;
 
+import com.google.common.collect.Iterables;
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -13,9 +14,10 @@ import dan200.computercraft.shared.platform.FabricContainerTransfer;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedSlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedStorage;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -41,9 +43,16 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
     /**
      * Wrapper over a {@link SlottedStorage}.
      *
-     * @param storage The underlying storage
      */
-    public record StorageWrapper(SlottedStorage<ItemVariant> storage) {
+    public static final class StorageWrapper {
+        private final Storage<ItemVariant> storage;
+        private final @Nullable SlottedStorage<ItemVariant> slottedStorage;
+
+        public StorageWrapper(Storage<ItemVariant> storage) {
+            this.storage = storage;
+            this.slottedStorage = storage instanceof SlottedStorage<ItemVariant> slotted ? slotted : null;
+        }
+
         @Override
         public boolean equals(Object obj) {
             if (this == obj) return true;
@@ -72,22 +81,33 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
         public int hashCode() {
             return storage instanceof CombinedSlottedStorage<?, ?> cs ? cs.parts.hashCode() : storage.hashCode();
         }
+
+        private int size() {
+            return slottedStorage != null ? slottedStorage.getSlotCount() : Iterables.size(storage);
+        }
+
+        private StorageView<ItemVariant> getSlot(int slot) {
+            if (slottedStorage != null) return slottedStorage.getSlot(slot);
+
+            var singleSlot = Iterables.get(storage, slot);
+            if (singleSlot == null) throw new IndexOutOfBoundsException();
+            return singleSlot;
+        }
     }
 
     @Override
     @LuaFunction(mainThread = true)
     public int size(StorageWrapper inventory) {
-        return inventory.storage().getSlots().size();
+        return inventory.size();
     }
 
     @Override
     @LuaFunction(mainThread = true)
     public Map<Integer, Map<String, ?>> list(StorageWrapper inventory) {
         Map<Integer, Map<String, ?>> result = new HashMap<>();
-        var slots = inventory.storage().getSlots();
-        var size = slots.size();
-        for (var i = 0; i < size; i++) {
-            var stack = toStack(slots.get(i));
+        var i = 0;
+        for (var slots = inventory.storage.iterator(); slots.hasNext(); i++) {
+            var stack = toStack(slots.next());
             if (!stack.isEmpty()) result.put(i + 1, VanillaDetailRegistries.ITEM_STACK.getBasicDetails(stack));
         }
 
@@ -98,17 +118,17 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
     @Nullable
     @LuaFunction(mainThread = true)
     public Map<String, ?> getItemDetail(StorageWrapper inventory, int slot) throws LuaException {
-        assertBetween(slot, 1, inventory.storage().getSlotCount(), "Slot out of range (%s)");
+        assertBetween(slot, 1, inventory.size(), "Slot out of range (%s)");
 
-        var stack = toStack(inventory.storage().getSlot(slot - 1));
+        var stack = toStack(inventory.getSlot(slot - 1));
         return stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(stack);
     }
 
     @Override
     @LuaFunction(mainThread = true)
     public long getItemLimit(StorageWrapper inventory, int slot) throws LuaException {
-        assertBetween(slot, 1, inventory.storage().getSlotCount(), "Slot out of range (%s)");
-        return inventory.storage().getSlot(slot - 1).getCapacity();
+        assertBetween(slot, 1, inventory.size(), "Slot out of range (%s)");
+        return inventory.getSlot(slot - 1).getCapacity();
     }
 
     @Override
@@ -124,15 +144,7 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
         var to = extractHandler(location);
         if (to == null) throw new LuaException("Target '" + toName + "' is not an inventory");
 
-        var fromStorage = from.storage();
-
-        // Validate slots
-        int actualLimit = limit.orElse(Integer.MAX_VALUE);
-        assertBetween(fromSlot, 1, fromStorage.getSlotCount(), "From slot out of range (%s)");
-        if (toSlot.isPresent()) assertBetween(toSlot.get(), 1, to.getSlots().size(), "To slot out of range (%s)");
-
-        if (actualLimit <= 0) return 0;
-        return moveItem(fromStorage, fromSlot - 1, to, toSlot.orElse(0) - 1, actualLimit);
+        return moveImpl(from, fromSlot, to, toSlot, limit);
     }
 
     @Override
@@ -145,18 +157,29 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
         var location = computer.getAvailablePeripheral(fromName);
         if (location == null) throw new LuaException("Source '" + fromName + "' does not exist");
 
-        var toStorage = to.storage();
-
         var from = extractHandler(location);
         if (from == null) throw new LuaException("Source '" + fromName + "' is not an inventory");
 
-        // Validate slots
-        int actualLimit = limit.orElse(Integer.MAX_VALUE);
-        assertBetween(fromSlot, 1, from.getSlots().size(), "From slot out of range (%s)");
-        if (toSlot.isPresent()) assertBetween(toSlot.get(), 1, toStorage.getSlotCount(), "To slot out of range (%s)");
+        return moveImpl(from, fromSlot, to, toSlot, limit);
+    }
 
+    private static int moveImpl(StorageWrapper from, int fromSlot, StorageWrapper to, Optional<Integer> toSlot, Optional<Integer> limit) throws LuaException {
+        assertBetween(fromSlot, 1, from.size(), "From slot out of range (%s)");
+        var fromStorage = from.getSlot(fromSlot - 1);
+
+        Storage<ItemVariant> toStorage;
+        if (toSlot.isPresent()) {
+            if (to.slottedStorage == null) throw new LuaException("Cannot specify toSlot for this inventory");
+            assertBetween(toSlot.get(), 1, to.size(), "To slot out of range (%s)");
+            toStorage = to.slottedStorage.getSlot(toSlot.get() - 1);
+        } else {
+            toStorage = to.storage;
+        }
+
+        int actualLimit = limit.orElse(Integer.MAX_VALUE);
         if (actualLimit <= 0) return 0;
-        return moveItem(from, fromSlot - 1, toStorage, toSlot.orElse(0) - 1, actualLimit);
+
+        return Math.max(0, FabricContainerTransfer.move(fromStorage, toStorage, actualLimit));
     }
 
     public static @Nullable StorageWrapper extractContainer(Level level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
@@ -165,51 +188,29 @@ public final class InventoryMethods extends AbstractInventoryMethods<InventoryMe
     }
 
     @SuppressWarnings("NullAway") // FIXME: Doesn't cope with @Nullable type parameter.
-    private static @Nullable SlottedStorage<ItemVariant> extractContainerImpl(Level level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
+    private static @Nullable Storage<ItemVariant> extractContainerImpl(Level level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
         var internal = ItemStorage.SIDED.find(level, pos, state, blockEntity, null);
-        if (internal instanceof SlottedStorage<ItemVariant> storage) return storage;
+        if (internal != null) return internal;
 
-        if (direction != null) {
-            var external = ItemStorage.SIDED.find(level, pos, state, blockEntity, direction);
-            if (external instanceof SlottedStorage<ItemVariant> storage) return storage;
-        }
-
-        return null;
+        return direction != null ? ItemStorage.SIDED.find(level, pos, state, blockEntity, direction) : null;
     }
 
     @Nullable
-    private static SlottedStorage<ItemVariant> extractHandler(IPeripheral peripheral) {
+    private static StorageWrapper extractHandler(IPeripheral peripheral) {
         var object = peripheral.getTarget();
         var direction = peripheral instanceof dan200.computercraft.shared.peripheral.generic.GenericPeripheral sided ? sided.side() : null;
 
         if (object instanceof BlockEntity blockEntity) {
             if (blockEntity.isRemoved()) return null;
 
-            var found = extractContainerImpl(blockEntity.getLevel(), blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
+            var found = extractContainer(blockEntity.getLevel(), blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
             if (found != null) return found;
         }
 
         return null;
     }
 
-    /**
-     * Move an item from one handler to another.
-     *
-     * @param from     The handler to move from.
-     * @param fromSlot The slot to move from.
-     * @param to       The handler to move to.
-     * @param toSlot   The slot to move to. Use any number < 0 to represent any slot.
-     * @param limit    The max number to move. {@link Integer#MAX_VALUE} for no limit.
-     * @return The number of items moved.
-     */
-    private static int moveItem(SlottedStorage<ItemVariant> from, int fromSlot, SlottedStorage<ItemVariant> to, int toSlot, final int limit) {
-        var fromWrapper = FabricContainerTransfer.of(from).singleSlot(fromSlot);
-        var toWrapper = FabricContainerTransfer.of(to);
-
-        return Math.max(0, fromWrapper.moveTo(toSlot >= 0 ? toWrapper.singleSlot(toSlot) : toWrapper, limit));
-    }
-
-    private static ItemStack toStack(SingleSlotStorage<ItemVariant> variant) {
+    private static ItemStack toStack(StorageView<ItemVariant> variant) {
         if (variant.isResourceBlank() || variant.getAmount() <= 0) return ItemStack.EMPTY;
         return toStack(variant.getResource(), variant.getAmount());
     }
