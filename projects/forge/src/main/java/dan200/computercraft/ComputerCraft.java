@@ -42,8 +42,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
@@ -72,10 +72,9 @@ import java.util.function.BiFunction;
 public final class ComputerCraft {
     private static @Nullable IEventBus eventBus;
 
-    public ComputerCraft(IEventBus eventBus) {
+    public ComputerCraft(IEventBus eventBus, ModContainer container) {
         withEventBus(eventBus, ModRegistry::register);
 
-        var container = ModLoadingContext.get().getActiveContainer();
         container.registerConfig(ModConfig.Type.SERVER, ((ForgeConfigFile) ConfigSpec.serverSpec).spec());
         container.registerConfig(ModConfig.Type.CLIENT, ((ForgeConfigFile) ConfigSpec.clientSpec).spec());
 

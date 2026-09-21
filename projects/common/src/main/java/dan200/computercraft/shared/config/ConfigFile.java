@@ -146,10 +146,7 @@ public abstract class ConfigFile {
         }
 
         protected String getTranslation(String name) {
-            var key = new StringBuilder(TRANSLATION_PREFIX);
-            for (var group : groupStack) key.append(group).append('.');
-            key.append(name);
-            return key.toString();
+            return TRANSLATION_PREFIX + getPath(name);
         }
 
         /**

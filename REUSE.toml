@@ -60,6 +60,7 @@ path = [
     "doc/logo-darkmode.png",
     "projects/common/src/main/resources/assets/computercraft/models/**",
     "projects/common/src/main/resources/assets/computercraft/textures/**",
+    "projects/common/src/main/resources/banner.png",
     "projects/common/src/main/resources/pack.mcmeta",
     "projects/common/src/main/resources/pack.png",
     "projects/core/src/main/resources/assets/computercraft/textures/gui/term_font.png",

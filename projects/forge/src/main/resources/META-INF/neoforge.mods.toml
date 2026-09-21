@@ -6,7 +6,8 @@ modLoader="javafml"
 loaderVersion="[1,)"
 
 issueTrackerURL="https://github.com/cc-tweaked/CC-Tweaked/issues"
-logoFile="pack.png"
+logoBlur=false
+logoFile="banner.png"
 
 license="ComputerCraft Public License (https://raw.githubusercontent.com/dan200/ComputerCraft/master/LICENSE)"
 
