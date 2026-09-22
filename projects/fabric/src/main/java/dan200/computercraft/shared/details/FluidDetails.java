@@ -21,6 +21,7 @@ public class FluidDetails {
     public static void fillBasic(Map<? super String, Object> data, StorageView<FluidVariant> fluid) {
         data.put("name", DetailHelpers.getId(BuiltInRegistries.FLUID, fluid.getResource().getFluid()));
         data.put("amount", fluid.getAmount());
+        data.put("capacity", fluid.getCapacity());
     }
 
     public static void fill(Map<? super String, Object> data, StorageView<FluidVariant> fluid) {
