@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package dan200.computercraft.core.asm;
+package cc.tweaked.web.methods;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -10,6 +10,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.primitives.Primitives;
 import com.google.common.reflect.TypeToken;
 import dan200.computercraft.api.lua.*;
+import dan200.computercraft.core.asm.Reflect;
 import dan200.computercraft.core.methods.LuaMethod;
 import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;

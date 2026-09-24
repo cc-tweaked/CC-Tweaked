@@ -2,10 +2,12 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package dan200.computercraft.core.computer.computerthread;
+package cc.tweaked.web;
 
 import cc.tweaked.web.js.Callbacks;
 import dan200.computercraft.core.computer.TimeoutState;
+import dan200.computercraft.core.computer.computerthread.ComputerScheduler;
+import dan200.computercraft.core.computer.computerthread.ManagedTimeoutState;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,17 +22,19 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * Timeouts are instead handled via polling, see {@link cc.tweaked.web.builder.PatchCobalt}.
  *
- * @see ComputerThread
+ * @see dan200.computercraft.core.computer.computerthread.ComputerThread
  */
-public class TComputerThread implements ComputerScheduler {
-    private static final Logger LOG = LoggerFactory.getLogger(TComputerThread.class);
+final class JsComputerScheduler implements ComputerScheduler {
+    private static final Logger LOG = LoggerFactory.getLogger(JsComputerScheduler.class);
     private static final long SCALED_PERIOD = 50 * 1_000_000L;
 
     private static final ArrayDeque<ExecutorImpl> executors = new ArrayDeque<>();
-    private static final TimerHandler callback = TComputerThread::workOnce;
+    private static final TimerHandler callback = JsComputerScheduler::workOnce;
     private static boolean enqueued;
 
-    public TComputerThread(int threads) {
+    public static final ComputerScheduler INSTANCE = new JsComputerScheduler();
+
+    private JsComputerScheduler() {
     }
 
     @Override
