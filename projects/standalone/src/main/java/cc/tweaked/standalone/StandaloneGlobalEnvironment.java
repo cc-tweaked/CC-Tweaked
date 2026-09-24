@@ -38,14 +38,13 @@ public class StandaloneGlobalEnvironment implements GlobalEnvironment {
     }
 
     @Override
-    public Mount createResourceMount(String domain, String subPath) {
-        return new FileMount(resourceRoot.resolve("data").resolve(domain).resolve(subPath));
+    public Mount getRomMount() {
+        return new FileMount(resourceRoot.resolve("data/computercraft/lua/rom"));
     }
 
-    @Nullable
     @Override
-    public InputStream createResourceFile(String domain, String subPath) {
-        var path = resourceRoot.resolve("data").resolve(domain).resolve(subPath).toAbsolutePath();
+    public @Nullable InputStream getLuaBios() {
+        var path = resourceRoot.resolve("data/computercraft/lua/bios.lua");
         try {
             return Files.newInputStream(path);
         } catch (IOException e) {

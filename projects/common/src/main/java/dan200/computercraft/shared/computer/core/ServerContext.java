@@ -209,13 +209,13 @@ public final class ServerContext {
 
     private record Environment(MinecraftServer server) implements GlobalEnvironment {
         @Override
-        public @Nullable Mount createResourceMount(String domain, String subPath) {
-            return ComputerCraftAPI.createResourceMount(server, domain, subPath);
+        public @Nullable Mount getRomMount() {
+            return ComputerCraftAPI.createResourceMount(server, "computercraft", "lua/rom");
         }
 
         @Override
-        public @Nullable InputStream createResourceFile(String domain, String subPath) {
-            return AbstractComputerCraftAPI.getResourceFile(server, domain, subPath);
+        public @Nullable InputStream getLuaBios() {
+            return AbstractComputerCraftAPI.getResourceFile(server, "computercraft", "lua/bios.lua");
         }
 
         @Override

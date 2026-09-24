@@ -310,7 +310,7 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
 
     @Nullable
     private Mount getRomMount() {
-        return computer.getGlobalEnvironment().createResourceMount("computercraft", "lua/rom");
+        return computer.getGlobalEnvironment().getRomMount();
     }
 
     @Nullable
@@ -353,7 +353,7 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
         // Load the bios resource
         InputStream biosStream = null;
         try {
-            biosStream = computer.getGlobalEnvironment().createResourceFile("computercraft", "lua/bios.lua");
+            biosStream = computer.getGlobalEnvironment().getLuaBios();
         } catch (Exception e) {
             LOG.error("Failed to load BIOS", e);
         }
