@@ -6,15 +6,17 @@ package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.CoreConfig;
-import dan200.computercraft.core.apis.http.*;
+import dan200.computercraft.core.apis.http.HTTPRequestException;
+import dan200.computercraft.core.apis.http.HttpHandler;
+import dan200.computercraft.core.apis.http.Resource;
 import dan200.computercraft.core.apis.http.request.HttpRequest;
-import dan200.computercraft.core.apis.http.websocket.Websocket;
 import dan200.computercraft.core.apis.http.websocket.WebsocketClient;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Locale;
 import java.util.Map;
@@ -33,13 +35,11 @@ public class HTTPAPI implements ILuaAPI {
     private static final double MAX_TIMEOUT = 60;
 
     private final IAPIEnvironment apiEnvironment;
+    private final HttpHandler handler;
 
-    private final ResourceGroup<CheckUrl> checkUrls = new ResourceGroup<>(() -> ResourceGroup.DEFAULT_LIMIT);
-    private final ResourceGroup<HttpRequest> requests = new ResourceQueue<>(() -> CoreConfig.httpMaxRequests);
-    private final ResourceGroup<Websocket> websockets = new ResourceGroup<>(() -> CoreConfig.httpMaxWebsockets);
-
-    public HTTPAPI(IAPIEnvironment environment) {
+    public HTTPAPI(IAPIEnvironment environment, HttpHandler handler) {
         apiEnvironment = environment;
+        this.handler = handler;
     }
 
     @Override
@@ -49,16 +49,12 @@ public class HTTPAPI implements ILuaAPI {
 
     @Override
     public void startup() {
-        checkUrls.startup();
-        requests.startup();
-        websockets.startup();
+        handler.startup();
     }
 
     @Override
     public void shutdown() {
-        checkUrls.shutdown();
-        requests.shutdown();
-        websockets.shutdown();
+        handler.shutdown();
     }
 
     @Override
@@ -106,26 +102,26 @@ public class HTTPAPI implements ILuaAPI {
             httpMethod = getMethod(requestMethod.toUpperCase(Locale.ROOT));
         }
 
+        URI uri;
         try {
-            var uri = HttpRequest.checkUri(address);
-            var request = new HttpRequest(requests, apiEnvironment, address, postBody, headers, binary, redirect, timeout);
-
-            // Make the request
-            if (!request.queue(r -> r.request(uri, httpMethod))) {
-                throw new LuaException("Too many ongoing HTTP requests");
-            }
-
-            return new Object[]{ true };
+            uri = HttpRequest.checkUri(address);
         } catch (HTTPRequestException e) {
             return new Object[]{ false, e.getMessage() };
         }
+
+        // Make the request
+        if (!handler.queueRequest(address, uri, httpMethod, postBody, headers, binary, redirect, timeout)) {
+            throw new LuaException("Too many ongoing HTTP requests");
+        }
+
+        return new Object[]{ true };
     }
 
     @LuaFunction
     public final Object[] checkURL(String address) throws LuaException {
         try {
             var uri = HttpRequest.checkUri(address);
-            if (!new CheckUrl(checkUrls, apiEnvironment, address, uri).queue(CheckUrl::run)) {
+            if (!handler.queueCheckUrl(address, uri)) {
                 throw new LuaException("Too many ongoing checkUrl calls");
             }
 
@@ -161,7 +157,7 @@ public class HTTPAPI implements ILuaAPI {
 
         try {
             var uri = WebsocketClient.parseUri(address);
-            if (!new Websocket(websockets, apiEnvironment, uri, address, headers, timeout).queue(Websocket::connect)) {
+            if (!handler.queueWebsocket(address, uri, headers, timeout)) {
                 throw new LuaException("Too many websockets already open");
             }
 

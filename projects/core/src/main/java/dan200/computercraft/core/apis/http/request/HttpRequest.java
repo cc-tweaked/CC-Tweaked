@@ -47,6 +47,7 @@ public class HttpRequest extends Resource<HttpRequest> {
     private @Nullable HttpRequestHandler currentRequest;
 
     private final IAPIEnvironment environment;
+    private final NetworkUtils network;
 
     private final String address;
     private final ByteBuf postBuffer;
@@ -57,11 +58,12 @@ public class HttpRequest extends Resource<HttpRequest> {
     final AtomicInteger redirects;
 
     public HttpRequest(
-        ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment, String address, @Nullable ByteBuffer postBody,
+        ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment, NetworkUtils network, String address, @Nullable ByteBuffer postBody,
         HttpHeaders headers, boolean binary, boolean followRedirects, int timeout
     ) {
         super(limiter);
         this.environment = environment;
+        this.network = network;
         this.address = address;
         postBuffer = postBody != null
             ? Unpooled.wrappedBuffer(postBody)
@@ -122,9 +124,9 @@ public class HttpRequest extends Resource<HttpRequest> {
         try {
             var ssl = uri.getScheme().equalsIgnoreCase("https");
             var socketAddress = NetworkUtils.getAddress(uri, ssl);
-            var options = NetworkUtils.getOptions(uri.getHost(), socketAddress);
+            var options = network.getOptions(uri.getHost(), socketAddress);
             var sslContext = ssl ? NetworkUtils.getSslContext() : null;
-            var proxy = NetworkUtils.getProxyHandler(options, timeout);
+            var proxy = network.getProxyHandler(options, timeout);
 
             // getAddress may have a slight delay, so let's perform another cancellation check.
             if (isClosed()) return;
@@ -146,7 +148,7 @@ public class HttpRequest extends Resource<HttpRequest> {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) {
-                        NetworkUtils.initChannel(ch, uri, socketAddress, sslContext, proxy, timeout);
+                        network.initChannel(ch, uri, socketAddress, sslContext, proxy, timeout);
 
                         var p = ch.pipeline();
                         if (timeout > 0) p.addLast(new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));

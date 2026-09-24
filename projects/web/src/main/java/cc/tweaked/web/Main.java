@@ -4,6 +4,7 @@
 
 package cc.tweaked.web;
 
+import cc.tweaked.web.http.JsHttpHandler;
 import cc.tweaked.web.js.Callbacks;
 import cc.tweaked.web.methods.StaticLuaMethodSupplier;
 import cc.tweaked.web.methods.StaticPeripheralMethodSupplier;
@@ -31,7 +32,8 @@ public class Main {
             new NoWorkMainThreadScheduler(),
             CobaltLuaMachine::new,
             StaticLuaMethodSupplier.INSTANCE,
-            StaticPeripheralMethodSupplier.INSTANCE
+            StaticPeripheralMethodSupplier.INSTANCE,
+            JsHttpHandler::new
         );
 
         List<EmulatedComputer> computers = new ArrayList<>();

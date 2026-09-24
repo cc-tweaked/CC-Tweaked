@@ -52,6 +52,7 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
     private @Nullable ChannelFuture channelFuture;
 
     private final IAPIEnvironment environment;
+    private final NetworkUtils network;
     private final URI uri;
     private final String address;
     private final HttpHeaders headers;
@@ -60,9 +61,10 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
     private final AtomicInteger inFlight = new AtomicInteger(0);
     private final GenericFutureListener<? extends io.netty.util.concurrent.Future<? super Void>> onSend = f -> inFlight.decrementAndGet();
 
-    public Websocket(ResourceGroup<Websocket> limiter, IAPIEnvironment environment, URI uri, String address, HttpHeaders headers, int timeout) {
+    public Websocket(ResourceGroup<Websocket> limiter, IAPIEnvironment environment, NetworkUtils network, String address, URI uri, HttpHeaders headers, int timeout) {
         super(limiter);
         this.environment = environment;
+        this.network = network;
         this.uri = uri;
         this.address = address;
         this.headers = headers;
@@ -82,9 +84,9 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
         try {
             var ssl = uri.getScheme().equalsIgnoreCase("wss");
             var socketAddress = NetworkUtils.getAddress(uri, ssl);
-            var options = NetworkUtils.getOptions(uri.getHost(), socketAddress);
+            var options = network.getOptions(uri.getHost(), socketAddress);
             var sslContext = ssl ? NetworkUtils.getSslContext() : null;
-            var proxy = NetworkUtils.getProxyHandler(options, timeout);
+            var proxy = network.getProxyHandler(options, timeout);
 
             // getAddress may have a slight delay, so let's perform another cancellation check.
             if (isClosed()) return;
@@ -95,7 +97,7 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) {
-                        NetworkUtils.initChannel(ch, uri, socketAddress, sslContext, proxy, timeout);
+                        network.initChannel(ch, uri, socketAddress, sslContext, proxy, timeout);
 
                         var subprotocol = headers.get(HttpHeaderNames.SEC_WEBSOCKET_PROTOCOL);
                         var handshaker = new CustomWebSocketHandshaker(

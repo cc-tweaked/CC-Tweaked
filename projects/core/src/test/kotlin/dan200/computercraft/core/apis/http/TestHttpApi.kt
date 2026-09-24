@@ -8,8 +8,8 @@ import dan200.computercraft.api.lua.Coerced
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaValues
 import dan200.computercraft.api.lua.ObjectArguments
-import dan200.computercraft.core.CoreConfig
 import dan200.computercraft.core.apis.HTTPAPI
+import dan200.computercraft.core.apis.IAPIEnvironment
 import dan200.computercraft.core.apis.handles.ReadHandle
 import dan200.computercraft.core.apis.http.HttpServer.Companion.runServer
 import dan200.computercraft.core.apis.http.options.Action
@@ -21,31 +21,18 @@ import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.util.*
 import kotlin.time.Duration.Companion.milliseconds
 
 class TestHttpApi {
-    companion object {
-        @JvmStatic
-        @BeforeAll
-        fun before() {
-            CoreConfig.httpRules = listOf(AddressRule.parse("*", OptionalInt.empty(), Action.ALLOW.toPartial()))
-        }
-
-        @JvmStatic
-        @AfterAll
-        fun after() {
-            CoreConfig.httpRules = Collections.unmodifiableList(
-                listOf(
-                    AddressRule.parse("\$private", OptionalInt.empty(), Action.DENY.toPartial()),
-                    AddressRule.parse("*", OptionalInt.empty(), Action.ALLOW.toPartial()),
-                ),
-            )
-        }
+    /** Create a [HTTPAPI] which is only permitted to access the current server. */
+    private fun createHttpApi(environment: IAPIEnvironment, port: Int): HTTPAPI {
+        val rules = listOf(
+            AddressRule.parse("127.0.0.1", OptionalInt.of(port), Action.ALLOW.toPartial()),
+        )
+        return HTTPAPI(environment, NettyHttp(NettyHttp.DEFAULT_CONFIG.withAddressRules(rules)).create(environment))
     }
 
     @Test
@@ -53,7 +40,7 @@ class TestHttpApi {
         runServer { server ->
             LuaTaskRunner.runTest {
                 val url = "http://127.0.0.1:${server.port}"
-                val httpApi = addApi(HTTPAPI(environment))
+                val httpApi = addApi(createHttpApi(environment, server.port))
                 assertThat("http.request succeeded", httpApi.request(ObjectArguments(url)), array(equalTo(true)))
 
                 val result = pullEvent("http_success")
@@ -71,7 +58,7 @@ class TestHttpApi {
         runServer { server ->
             LuaTaskRunner.runTest {
                 val url = "ws://127.0.0.1:${server.port}/ws"
-                val httpApi = addApi(HTTPAPI(environment))
+                val httpApi = addApi(createHttpApi(environment, server.port))
                 assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
 
                 val connectEvent = pullEvent()
@@ -96,7 +83,7 @@ class TestHttpApi {
         runServer { server ->
             LuaTaskRunner.runTest {
                 val url = "ws://127.0.0.1:${server.port}/ws"
-                val httpApi = addApi(HTTPAPI(environment))
+                val httpApi = addApi(createHttpApi(environment, server.port))
                 assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
 
                 val connectEvent = pullEvent()
@@ -121,7 +108,7 @@ class TestHttpApi {
         runServer { server ->
             LuaTaskRunner.runTest {
                 val url = "ws://127.0.0.1:${server.port}/ws"
-                val httpApi = addApi(HTTPAPI(environment))
+                val httpApi = addApi(createHttpApi(environment, server.port))
                 assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
 
                 val connectEvent = pullEvent()
@@ -142,7 +129,7 @@ class TestHttpApi {
         runServer { server ->
             LuaTaskRunner.runTest {
                 val url = "ws://127.0.0.1:${server.port}/ws"
-                val httpApi = addApi(HTTPAPI(environment))
+                val httpApi = addApi(createHttpApi(environment, server.port))
                 assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
 
                 val connectEvent = pullEvent()

@@ -7,10 +7,8 @@ package cc.tweaked.standalone;
 
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.core.ComputerContext;
-import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.apis.IAPIEnvironment;
-import dan200.computercraft.core.apis.http.options.Action;
-import dan200.computercraft.core.apis.http.options.AddressRule;
+import dan200.computercraft.core.apis.http.NettyHttp;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.FileSystemException;
@@ -39,7 +37,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.OptionalInt;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
@@ -167,11 +164,10 @@ public class Main {
             return;
         }
 
-        if (allowLocalDomains) {
-            CoreConfig.httpRules = List.of(AddressRule.parse("*", OptionalInt.empty(), Action.ALLOW.toPartial()));
-        }
-
-        var context = ComputerContext.builder(new StandaloneGlobalEnvironment(resourcesDirectory)).build();
+        var context = ComputerContext
+            .builder(new StandaloneGlobalEnvironment(resourcesDirectory))
+            .http(new NettyHttp(allowLocalDomains ? NettyHttp.LOCAL_NETWORK_CONFIG : NettyHttp.DEFAULT_CONFIG))
+            .build();
         try (var gl = new GLObjects()) {
             var isDirty = new AtomicBoolean(true);
             var computer = new Computer(

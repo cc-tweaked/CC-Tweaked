@@ -5,6 +5,8 @@
 package dan200.computercraft.core;
 
 import com.google.errorprone.annotations.CheckReturnValue;
+import dan200.computercraft.core.apis.http.HttpHandler;
+import dan200.computercraft.core.apis.http.NettyHttp;
 import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.asm.LuaMethodSupplier;
 import dan200.computercraft.core.asm.PeripheralMethodSupplier;
@@ -35,6 +37,7 @@ import java.util.concurrent.TimeUnit;
  * @param luaFactory          The factory to create new Lua machines.
  * @param luaMethods          The {@link MethodSupplier} used to find methods on Lua objects.
  * @param peripheralMethods   The {@link MethodSupplier} used to find methods on peripherals.
+ * @param http                The {@link HttpHandler.Factory} used to create our HTTP implementation.
  */
 public record ComputerContext(
     GlobalEnvironment globalEnvironment,
@@ -42,7 +45,8 @@ public record ComputerContext(
     MainThreadScheduler mainThreadScheduler,
     ILuaMachine.Factory luaFactory,
     MethodSupplier<LuaMethod> luaMethods,
-    MethodSupplier<PeripheralMethod> peripheralMethods
+    MethodSupplier<PeripheralMethod> peripheralMethods,
+    HttpHandler.Factory http
 ) {
     /**
      * Create a new {@link ComputerContext}.
@@ -101,6 +105,7 @@ public record ComputerContext(
         private @Nullable MainThreadScheduler mainThreadScheduler;
         private ILuaMachine.@Nullable Factory luaFactory;
         private @Nullable List<GenericMethod> genericMethods;
+        private HttpHandler.@Nullable Factory http;
 
         Builder(GlobalEnvironment environment) {
             this.environment = environment;
@@ -176,6 +181,29 @@ public record ComputerContext(
         }
 
         /**
+         * Disable HTTP for this {@link ComputerContext}.
+         *
+         * @return {@code this}, for chaining.
+         * @see ComputerContext#http()
+         */
+        public Builder disableHttp() {
+            return http(x -> null);
+        }
+
+        /**
+         * Set the {@link HttpHandler.Factory} implementation. This creates a new {@link HttpHandler} for each computer.
+         *
+         * @param http The {@link HttpHandler} factory.
+         * @return {@code this}, for chaining.
+         */
+        public Builder http(HttpHandler.Factory http) {
+            Objects.requireNonNull(http);
+            if (this.http != null) throw new IllegalStateException("HTTP provider already specified");
+            this.http = http;
+            return this;
+        }
+
+        /**
          * Create a new {@link ComputerContext}.
          *
          * @return The newly created context.
@@ -187,7 +215,8 @@ public record ComputerContext(
                 mainThreadScheduler == null ? new NoWorkMainThreadScheduler() : mainThreadScheduler,
                 luaFactory == null ? CobaltLuaMachine::new : luaFactory,
                 LuaMethodSupplier.create(genericMethods == null ? List.of() : genericMethods),
-                PeripheralMethodSupplier.create(genericMethods == null ? List.of() : genericMethods)
+                PeripheralMethodSupplier.create(genericMethods == null ? List.of() : genericMethods),
+                http == null ? new NettyHttp() : http
             );
         }
     }

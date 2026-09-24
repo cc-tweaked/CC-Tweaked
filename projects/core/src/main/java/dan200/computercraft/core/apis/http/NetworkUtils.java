@@ -4,8 +4,6 @@
 
 package dan200.computercraft.core.apis.http;
 
-import com.google.common.base.Strings;
-import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.apis.http.options.Options;
@@ -29,6 +27,7 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.handler.traffic.AbstractTrafficShapingHandler;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,15 +50,19 @@ public final class NetworkUtils {
     public static final ScheduledThreadPoolExecutor EXECUTOR = new ScheduledThreadPoolExecutor(4, ThreadUtils.lowPriorityFactory("Network"));
     public static final EventLoopGroup LOOP_GROUP = new NioEventLoopGroup(4, ThreadUtils.lowPriorityFactory("Netty"));
 
-    private static final AbstractTrafficShapingHandler SHAPING_HANDLER = new GlobalTrafficShapingHandler(
-        EXECUTOR, CoreConfig.httpUploadBandwidth, CoreConfig.httpDownloadBandwidth
-    );
+    private final AbstractTrafficShapingHandler shapingHandler;
 
     static {
         EXECUTOR.setKeepAliveTime(60, TimeUnit.SECONDS);
     }
 
-    private NetworkUtils() {
+    private final NettyHttp netty;
+
+    NetworkUtils(NettyHttp netty) {
+        this.netty = netty;
+        this.shapingHandler = new GlobalTrafficShapingHandler(
+            EXECUTOR, netty.getConfig().uploadBandwidth(), netty.getConfig().downloadBandwidth()
+        );
     }
 
     private static final Object sslLock = new Object();
@@ -87,12 +90,8 @@ public final class NetworkUtils {
         return ssl;
     }
 
-    public static void reloadConfig() {
-        SHAPING_HANDLER.configure(CoreConfig.httpUploadBandwidth, CoreConfig.httpDownloadBandwidth);
-    }
-
-    public static void reset() {
-        SHAPING_HANDLER.trafficCounter().resetCumulativeTime();
+    void reloadConfig() {
+        shapingHandler.configure(netty.getConfig().uploadBandwidth(), netty.getConfig().downloadBandwidth());
     }
 
     /**
@@ -120,7 +119,8 @@ public final class NetworkUtils {
      * @return The resolved address.
      * @throws HTTPRequestException If the host is not malformed.
      */
-    public static InetSocketAddress getAddress(String host, int port, boolean ssl) throws HTTPRequestException {
+    @VisibleForTesting
+    static InetSocketAddress getAddress(String host, int port, boolean ssl) throws HTTPRequestException {
         if (port < 0) port = ssl ? 443 : 80;
         var socketAddress = new InetSocketAddress(host, port);
         if (socketAddress.isUnresolved()) throw new HTTPRequestException("Unknown host");
@@ -139,8 +139,8 @@ public final class NetworkUtils {
      * @return The options for this host.
      * @throws HTTPRequestException If the host is not permitted
      */
-    public static Options getOptions(String host, InetSocketAddress address) throws HTTPRequestException {
-        var options = AddressRule.apply(CoreConfig.httpRules, host, address);
+    public Options getOptions(String host, InetSocketAddress address) throws HTTPRequestException {
+        var options = AddressRule.apply(netty.getConfig().addressRules(), host, address);
         if (options.action() == Action.DENY) throw new HTTPRequestException("Domain not permitted");
         return options;
     }
@@ -156,35 +156,30 @@ public final class NetworkUtils {
      * @return A consumer that takes a {@link SocketChannel} and injects the proxy handler..
      * @throws HTTPRequestException If a proxy is required but not configured correctly.
      */
-    public static @Nullable Consumer<SocketChannel> getProxyHandler(Options options, int timeout) throws HTTPRequestException {
+    public @Nullable Consumer<SocketChannel> getProxyHandler(Options options, int timeout) throws HTTPRequestException {
         if (!options.useProxy()) return null;
 
-        var type = CoreConfig.httpProxyType;
-        var host = CoreConfig.httpProxyHost;
-        var port = CoreConfig.httpProxyPort;
-        var username = CoreConfig.httpProxyUsername;
-        var password = CoreConfig.httpProxyPassword;
+        var proxy = netty.getConfig().proxy();
+        if (proxy == null) throw new HTTPRequestException("Proxy host not configured");
 
-        if (Strings.isNullOrEmpty(host)) {
-            throw new HTTPRequestException("Proxy host not configured");
-        }
-
-        var proxyAddress = new InetSocketAddress(host, port);
+        var proxyAddress = new InetSocketAddress(proxy.host(), proxy.port());
         if (proxyAddress.isUnresolved()) throw new HTTPRequestException("Unknown proxy host");
 
-        return switch (type) {
-            case HTTP -> ch -> ch.pipeline().addLast(new HttpProxyHandler(proxyAddress, username, password));
+        return switch (proxy.type()) {
+            case HTTP ->
+                ch -> ch.pipeline().addLast(new HttpProxyHandler(proxyAddress, proxy.username(), proxy.password()));
             case HTTPS -> {
                 var sslContext = getSslContext();
                 yield ch -> {
                     var p = ch.pipeline();
                     // If we're using an HTTPS proxy, we need to add an SSL handler for the proxy too.
-                    p.addLast(makeSslHandler(ch, sslContext, timeout, host, port));
-                    p.addLast(new HttpProxyHandler(proxyAddress, username, password));
+                    p.addLast(makeSslHandler(ch, sslContext, timeout, proxy.host(), proxy.port()));
+                    p.addLast(new HttpProxyHandler(proxyAddress, proxy.username(), proxy.password()));
                 };
             }
-            case SOCKS4 -> ch -> ch.pipeline().addLast(new Socks4ProxyHandler(proxyAddress, username));
-            case SOCKS5 -> ch -> ch.pipeline().addLast(new Socks5ProxyHandler(proxyAddress, username, password));
+            case SOCKS4 -> ch -> ch.pipeline().addLast(new Socks4ProxyHandler(proxyAddress, proxy.username()));
+            case SOCKS5 ->
+                ch -> ch.pipeline().addLast(new Socks5ProxyHandler(proxyAddress, proxy.username(), proxy.password()));
         };
     }
 
@@ -217,11 +212,11 @@ public final class NetworkUtils {
      * @param timeout       The timeout on this channel.
      * @see io.netty.channel.ChannelInitializer
      */
-    public static void initChannel(SocketChannel ch, URI uri, InetSocketAddress socketAddress, @Nullable SslContext sslContext, @Nullable Consumer<SocketChannel> proxy, int timeout) {
+    public void initChannel(SocketChannel ch, URI uri, InetSocketAddress socketAddress, @Nullable SslContext sslContext, @Nullable Consumer<SocketChannel> proxy, int timeout) {
         if (timeout > 0) ch.config().setConnectTimeoutMillis(timeout);
 
         var p = ch.pipeline();
-        p.addLast(SHAPING_HANDLER);
+        p.addLast(shapingHandler);
 
         if (proxy != null) proxy.accept(ch);
 
