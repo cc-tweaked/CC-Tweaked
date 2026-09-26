@@ -91,7 +91,11 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
 
         terminal = addRenderableWidget(createTerminal());
         ComputerSidebar.addButtons(menu::isOn, computerActions, this::addRenderableWidget, leftPos, topPos + sidebarYOffset);
-        setFocused(terminal);
+    }
+
+    @Override
+    protected void setInitialFocus() {
+        setFocused(getTerminal());
     }
 
     @Override

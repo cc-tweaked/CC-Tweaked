@@ -58,7 +58,11 @@ public class NoTermComputerScreen<T extends AbstractComputerMenu> extends Screen
         terminal = addWidget(new TerminalWidget(menu.getTerminal(), computerInput, computerActions, 0, 0));
         terminal.visible = false;
         terminal.active = false;
-        setFocused(terminal);
+    }
+
+    @Override
+    protected void setInitialFocus() {
+        setFocused(assertNonNull(terminal));
     }
 
     @Override
