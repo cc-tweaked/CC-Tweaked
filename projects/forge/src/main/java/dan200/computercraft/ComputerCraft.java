@@ -53,7 +53,7 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-import net.neoforged.neoforge.registries.DataPackRegistryEvent;
+import net.neoforged.neoforge.registries.NewDatapackRegistryEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
@@ -97,9 +97,9 @@ public final class ComputerCraft {
     }
 
     @SubscribeEvent
-    public static void registerDynamicRegistries(DataPackRegistryEvent.NewRegistry event) {
-        event.dataPackRegistry(ITurtleUpgrade.REGISTRY, TurtleUpgrades.instance().upgradeCodec(), TurtleUpgrades.instance().upgradeCodec());
-        event.dataPackRegistry(IPocketUpgrade.REGISTRY, PocketUpgrades.instance().upgradeCodec(), PocketUpgrades.instance().upgradeCodec());
+    public static void registerDynamicRegistries(NewDatapackRegistryEvent event) {
+        event.worldRegistry(ITurtleUpgrade.REGISTRY, TurtleUpgrades.instance().upgradeCodec(), TurtleUpgrades.instance().upgradeCodec());
+        event.worldRegistry(IPocketUpgrade.REGISTRY, PocketUpgrades.instance().upgradeCodec(), PocketUpgrades.instance().upgradeCodec());
     }
 
     @SubscribeEvent

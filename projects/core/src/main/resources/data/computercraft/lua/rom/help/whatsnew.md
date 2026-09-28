@@ -1,8 +1,6 @@
-New features in CC: Tweaked 1.120.2
+New features in CC: Tweaked 1.120.3
 
-Several bug fixes:
-* Fix shell crashing if `read()` doesn't yield.
-* Fix pocket/printout lecterns not rendering when at the very bottom of the screen.
-* Several documentation fixes. (tomodachi94)
+One bug fix:
+* Fix compatibility with latest NeoForge.
 
 Type "help changelog" to see the full version history.

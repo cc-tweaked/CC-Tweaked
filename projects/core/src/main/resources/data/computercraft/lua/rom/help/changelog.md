@@ -1,3 +1,8 @@
+# New features in CC: Tweaked 1.120.3
+
+One bug fix:
+* Fix compatibility with latest NeoForge.
+
 # New features in CC: Tweaked 1.120.2
 
 Several bug fixes:
