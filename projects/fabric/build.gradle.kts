@@ -252,9 +252,6 @@ tasks.verifyClassesMatch {
     options.errorprone {
         option("ModLoader", "fabric")
     }
-
-    // For some reason we get a different class, despite the two files being the same.
-    ignoredFiles.add("dan200/computercraft/mixin/DataFixersMixin.class")
 }
 
 val runGametest = tasks.named<JavaExec>("runGametest") {

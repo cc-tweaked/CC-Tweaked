@@ -41,15 +41,6 @@ sourceSets.testFixtures {
     compileClasspath += sourceSets.main.get().compileClasspath + sourceSets.client.get().compileClasspath
 }
 
-repositories {
-    exclusiveContent {
-        forRepositories(maven("https://maven.neoforged.net/releases"))
-        filter {
-            includeModule("org.spongepowered", "mixin")
-        }
-    }
-}
-
 dependencies {
     // Pull in our other projects. See comments in MinecraftConfigurations on this nastiness.
     api(project(":core"))

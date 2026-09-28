@@ -11,7 +11,7 @@ fabric-api = "0.160.5+26.3"
 fabric-loader = "0.19.4"
 neoForge = "26.3.0.26-beta"
 neoMergeTool = "2.0.0"
-mixin = "0.8.5"
+mixin = "0.17.4+mixin.0.8.7"
 
 # Core dependencies (these versions are tied to the version Minecraft uses)
 fastutil = "8.5.18"
@@ -103,7 +103,7 @@ iris-forge = { module = "maven.modrinth:iris", version.ref = "iris-forge" }
 jei-api = { module = "mezz.jei:jei-26.3-common-api", version.ref = "jei" }
 jei-fabric = { module = "mezz.jei:jei-26.3-fabric", version.ref = "jei" }
 jei-forge = { module = "mezz.jei:jei-26.3-neoforge", version.ref = "jei" }
-mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
+mixin = { module = "net.fabricmc:sponge-mixin", version.ref = "mixin" }
 mixinExtra = { module = "io.github.llamalad7:mixinextras-common", version.ref = "mixinExtra" }
 modmenu = { module = "com.terraformersmc:modmenu", version.ref = "modmenu" }
 rei-api = { module = "me.shedaniel:RoughlyEnoughItems-api", version.ref = "rei" }
