@@ -77,8 +77,8 @@ final class LuaDateTime {
         var month = getField(table, "month", -1);
         var day = getField(table, "day", -1);
         var hour = getField(table, "hour", 12);
-        var minute = getField(table, "min", 12);
-        var second = getField(table, "sec", 12);
+        var minute = getField(table, "min", 0);
+        var second = getField(table, "sec", 0);
         var time = LocalDateTime.of(year, month, day, hour, minute, second);
 
         var isDst = getBoolField(table, "isdst");

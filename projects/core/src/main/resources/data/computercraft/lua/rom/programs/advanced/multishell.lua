@@ -127,6 +127,17 @@ local function cullProcess(nProcess)
     return false
 end
 
+--[[- Resume and then cull a process.
+
+This helps avoid the pattern where one calls
+`resumeProcess(nCurrentProcess, ...); cullProcess(nCurrentProcess)`, and the
+current process changes while the code is running.
+]]
+local function resumeAndCullProcess(process, ...)
+    resumeProcess(process, ...)
+    return cullProcess(process)
+end
+
 local function cullProcesses()
     local culled = false
     for n = #tProcesses, 1, -1 do
@@ -341,8 +352,7 @@ while #tProcesses > 0 do
 
     elseif sEvent == "char" or sEvent == "key" or sEvent == "key_up" or sEvent == "paste" or sEvent == "terminate" or sEvent == "file_transfer" then
         -- Basic input, just passthrough to current process
-        resumeProcess(nCurrentProcess, table.unpack(tEventData, 1, tEventData.n))
-        if cullProcess(nCurrentProcess) then
+        if resumeAndCullProcess(nCurrentProcess, table.unpack(tEventData, 1, tEventData.n)) then
             setMenuVisible(#tProcesses >= 2)
             redrawMenu()
         end
@@ -375,8 +385,7 @@ while #tProcesses > 0 do
             end
         else
             -- Passthrough to current process
-            resumeProcess(nCurrentProcess, sEvent, button, x, bShowMenu and y - 1 or y)
-            if cullProcess(nCurrentProcess) then
+            if resumeAndCullProcess(nCurrentProcess, sEvent, button, x, bShowMenu and y - 1 or y) then
                 setMenuVisible(#tProcesses >= 2)
                 redrawMenu()
             end
@@ -395,8 +404,7 @@ while #tProcesses > 0 do
             end
         elseif not (bShowMenu and y == 1) then
             -- Passthrough to current process
-            resumeProcess(nCurrentProcess, sEvent, p1, x, bShowMenu and y - 1 or y)
-            if cullProcess(nCurrentProcess) then
+            if resumeAndCullProcess(nCurrentProcess, sEvent, p1, x, bShowMenu and y - 1 or y) then
                 setMenuVisible(#tProcesses >= 2)
                 redrawMenu()
             end
@@ -405,8 +413,7 @@ while #tProcesses > 0 do
     else
         -- Other event
         -- Passthrough to all processes
-        local nLimit = #tProcesses -- Storing this ensures any new things spawned don't get the event
-        for n = 1, nLimit do
+        for n = 1, #tProcesses do
             resumeProcess(n, table.unpack(tEventData, 1, tEventData.n))
         end
         if cullProcesses() then
@@ -417,8 +424,7 @@ while #tProcesses > 0 do
 
     if bWindowsResized then
         -- Pass term_resize to all processes
-        local nLimit = #tProcesses -- Storing this ensures any new things spawned don't get the event
-        for n = 1, nLimit do
+        for n = 1, #tProcesses do
             resumeProcess(n, "term_resize")
         end
         bWindowsResized = false

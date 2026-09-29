@@ -68,7 +68,7 @@ mentioning:
  - `web`: This contains the additional tooling for building [the documentation website][tweaked.cc], such as support for
    rendering recipes
 
- - `buildSrc` (in the base directory, not in `projects/`): This contains any build logic shared between modules. For
+ - `build-logic` (in the base directory, not in `projects/`): This contains any build logic shared between modules. For
    instance, `cc-tweaked.java-convention.gradle.kts` sets up the defaults for Java that we use across the whole project.
 
 > **Note**

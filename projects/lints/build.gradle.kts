@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-import cc.tweaked.gradle.CCTweakedPlugin
+import cc.tweaked.gradle.CCTweakedJavaVersions
 
 plugins {
     kotlin("jvm")
@@ -29,8 +29,6 @@ dependencies {
     testCompileOnly(project(":core-api"))
     testRuntimeOnly(libs.bundles.testRuntime)
 }
-
-kotlin.compilerOptions.jvmTarget = CCTweakedPlugin.KOTLIN_TARGET
 
 tasks.test {
     jvmArgs(

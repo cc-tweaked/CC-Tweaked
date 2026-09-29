@@ -24,6 +24,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.LockCode;
 import net.minecraft.world.Nameable;
@@ -108,7 +109,6 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
 
         computer.keepAlive();
 
-        fresh = false;
         computerID = computer.getID();
 
         // If the on state has changed, mark as dirty.
@@ -128,12 +128,15 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
         // Update the block state if needed.
         updateBlockState(computer.getState());
 
+        // Update redstone output if the computer is new or the computer's redstone output has changed.
         var changes = computer.pollRedstoneChanges();
-        if (changes != 0) {
+        if (fresh || changes != 0) {
             for (var direction : DirectionUtil.FACINGS) {
-                if ((changes & (1 << remapToLocalSide(direction).ordinal())) != 0) updateRedstoneTo(direction);
+                if (fresh || (changes & (1 << remapToLocalSide(direction).ordinal())) != 0) updateRedstoneTo(direction);
             }
         }
+
+        fresh = false;
     }
 
     protected abstract void updateBlockState(ComputerState newState);
@@ -416,6 +419,10 @@ public abstract class AbstractComputerBlockEntity extends BlockEntity implements
             on = copy.on;
             startOn = copy.startOn;
             lockCode = copy.lockCode;
+
+            var computer = getServerComputer();
+            if (computer != null) computer.setPosition((ServerLevel) getLevel(), getBlockPos());
+
             BlockEntityHelpers.updateBlock(this);
         }
         copy.instanceID = null;

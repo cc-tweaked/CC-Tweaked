@@ -2,9 +2,15 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-import cc.tweaked.gradle.*
+import cc.tweaked.gradle.CCTweakedJavaVersions
+import cc.tweaked.gradle.IlluaminateExec
+import cc.tweaked.gradle.MergeTrees
+import cc.tweaked.gradle.annotationProcessorEverywhere
+import cc.tweaked.vanillaextract.configurations.Capabilities.clientClasses
+import cc.tweaked.vanillaextract.configurations.Capabilities.commonClasses
 
 plugins {
+    `java-test-fixtures`
     id("cc-tweaked.vanilla")
     id("cc-tweaked.illuaminate")
     id("cc-tweaked.mod")
@@ -20,6 +26,10 @@ minecraft {
 
 configurations {
     register("cctJavadoc")
+}
+
+sourceSets.testFixtures {
+    compileClasspath += sourceSets.main.get().compileClasspath + sourceSets.client.get().compileClasspath
 }
 
 repositories {
@@ -42,7 +52,10 @@ dependencies {
     annotationProcessorEverywhere(libs.autoService)
     testFixturesAnnotationProcessor(libs.autoService)
 
+    testFixturesApi(testFixtures(project(":core")))
+
     testImplementation(testFixtures(project(":core")))
+    testImplementation(testFixtures(project()))
     testImplementation(libs.bundles.test)
     testRuntimeOnly(libs.bundles.testRuntime)
 
@@ -54,8 +67,6 @@ dependencies {
     testModImplementation(testFixtures(project(":common")))
     testModImplementation(libs.bundles.kotlin)
 
-    testFixturesImplementation(testFixtures(project(":core")))
-
     "cctJavadoc"(libs.cctJavadoc)
 }
 
@@ -63,40 +74,41 @@ illuaminate {
     version = libs.versions.illuaminate
 }
 
-val luaJavadoc by tasks.registering(Javadoc::class) {
+val rootProjectDir = rootProject.isolated.projectDirectory
+val luaJavadoc = tasks.register<Javadoc>("luaJavadoc") {
     description = "Generates documentation for Java-side Lua functions."
     group = JavaBasePlugin.DOCUMENTATION_GROUP
 
-    val sourceSets = listOf(sourceSets.main.get(), project(":core").sourceSets.main.get())
-    for (sourceSet in sourceSets) {
-        source(sourceSet.java)
-        classpath += sourceSet.compileClasspath
-    }
+    source(sourceSets.main.get().java.sourceDirectories)
+    source("../core/src/main/java")
+    classpath = sourceSets.main.get().compileClasspath + sourceSets.main.get().runtimeClasspath
 
     destinationDir = layout.buildDirectory.dir("docs/luaJavadoc").get().asFile
 
     val options = options as StandardJavadocDocletOptions
     options.docletpath = configurations["cctJavadoc"].files.toList()
     options.doclet = "cc.tweaked.javadoc.LuaDoclet"
-    options.addStringOption("project-root", rootProject.file(".").absolutePath)
+    options.addStringOption("project-root", rootProjectDir.asFile.absolutePath)
     options.noTimestamp(false)
 
-    javadocTool = javaToolchains.javadocToolFor { languageVersion = CCTweakedPlugin.JDK_VERSION }
+    javadocTool = javaToolchains.javadocToolFor { languageVersion = CCTweakedJavaVersions.JDK_VERSION }
 }
 
-val lintLua by tasks.registering(IlluaminateExec::class) {
+configurations.consumable("luaJavadocElements") { outgoing.artifact(luaJavadoc) }
+
+val lintLua = tasks.register<IlluaminateExec>("lintLua") {
     group = JavaBasePlugin.VERIFICATION_GROUP
     description = "Lint Lua (and Lua docs) with illuaminate"
 
     // Config files
-    inputs.file(rootProject.file("illuaminate.sexp")).withPropertyName("illuaminate.sexp")
+    inputs.file(rootProjectDir.file("illuaminate.sexp")).withPropertyName("illuaminate.sexp")
     // Sources
-    inputs.files(rootProject.fileTree("doc")).withPropertyName("docs")
-    inputs.files(project(":core").fileTree("src/main/resources/data/computercraft/lua")).withPropertyName("lua rom")
+    inputs.dir(rootProjectDir.dir("doc")).withPropertyName("docs")
+    inputs.dir("../core/src/main/resources/data/computercraft/lua").withPropertyName("lua rom")
     inputs.files(luaJavadoc)
 
     args = listOf("lint")
-    workingDir = rootProject.projectDir
+    workingDir = rootProjectDir.asFile
 
     doFirst { if (System.getenv("GITHUB_ACTIONS") != null) println("::add-matcher::.github/matchers/illuaminate.json") }
     doLast { if (System.getenv("GITHUB_ACTIONS") != null) println("::remove-matcher owner=illuaminate::") }
@@ -105,24 +117,21 @@ val lintLua by tasks.registering(IlluaminateExec::class) {
 fun MergeTrees.configureForDatagen(source: SourceSet, outputFolder: String) {
     output = layout.projectDirectory.dir(outputFolder)
 
-    for (loader in listOf("forge", "fabric")) {
-        mustRunAfter(":$loader:$name")
+    val taskName = source.getTaskName("generate", "resources")
+    for (loader in listOf(":forge", ":fabric")) {
         source {
-            input {
-                from(project(":$loader").layout.buildDirectory.dir(source.getTaskName("generateResources", null)))
-                exclude(".cache")
-            }
-
-            output = project(":$loader").layout.projectDirectory.dir(outputFolder)
+            val resources = configurations.detachedConfiguration(dependencies.project(loader, "${taskName}Elements"))
+            input.from(resources.asFileTree.matching { exclude(".cache") })
+            output = project(loader).isolated.projectDirectory.dir(outputFolder)
         }
     }
 }
 
-val runData by tasks.registering(MergeTrees::class) {
+val runData = tasks.register<MergeTrees>("runData") {
     configureForDatagen(sourceSets.main.get(), "src/generated/resources")
 }
 
-val runExampleData by tasks.registering(MergeTrees::class) {
+val runExampleData = tasks.register<MergeTrees>("runExampleData") {
     configureForDatagen(sourceSets.examples.get(), "src/examples/generatedResources")
 }
 

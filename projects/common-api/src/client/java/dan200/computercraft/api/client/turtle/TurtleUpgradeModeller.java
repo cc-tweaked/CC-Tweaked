@@ -42,7 +42,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      *
      * @param upgrade The upgrade that you're getting the model for.
      * @param turtle  Access to the turtle that the upgrade resides on. This will be null when getting item models, unless
-     *                {@link #getModel(ITurtleUpgrade, CompoundTag, TurtleSide)} is overriden.
+     *                {@link #getModel(ITurtleUpgrade, CompoundTag, TurtleSide)} is overridden.
      * @param side    Which side of the turtle (left or right) the upgrade resides on.
      * @return The model that you wish to be used to render your upgrade.
      */

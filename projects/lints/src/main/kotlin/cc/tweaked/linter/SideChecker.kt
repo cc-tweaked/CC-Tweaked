@@ -28,7 +28,6 @@ enum class Side { CLIENT, SERVER, BOTH }
         Errors on any reference to client-only classes, fields or identifiers.
     """,
     severity = BugPattern.SeverityLevel.ERROR,
-    tags = [BugPattern.StandardTags.LIKELY_ERROR],
 )
 class SideChecker : BugChecker(), BugChecker.IdentifierTreeMatcher, BugChecker.MemberSelectTreeMatcher {
     override fun matchIdentifier(tree: IdentifierTree, state: VisitorState): Description {

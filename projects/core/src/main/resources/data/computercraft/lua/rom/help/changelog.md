@@ -1,3 +1,31 @@
+# New features in CC: Tweaked 1.120.2
+
+Several bug fixes:
+* Fix shell crashing if `read()` doesn't yield.
+* Fix pocket/printout lecterns not rendering when at the very bottom of the screen.
+* Several documentation fixes. (tomodachi94)
+
+# New features in CC: Tweaked 1.120.0
+
+* Support spawning new parallel functions in `parallel.waitForAll`.
+
+One bug fix:
+* Make HTTP IP filtering stricter.
+
+# New features in CC: Tweaked 1.119.0
+
+* Add `commands.getDimension()`.
+* Add `cc.base64` module.
+* Update Cobalt to 0.9.9, bringing in several Lua 5.5 changes:
+  * Floats are now printed with enough digits to round trip correctly.
+  * Add `table.create`.
+  * `utf8.offset` now returns the final position of the codepoint.
+
+Several bug fixes:
+* Fix handling of integer indexes in `LuaTable`.
+* Correct `min` and `sec` defaults in `os.time`. (sircfenner)
+* Make HTTP IP filtering stricter.
+
 # New features in CC: Tweaked 1.118.0
 
 * Add timeout argument to `rednet.lookup`.
@@ -59,7 +87,7 @@ Several bug fixes:
 * Ignore shader compilation errors when running with Pojav.
 * Fix several issues with character input.
 * Fix pocket computer dyes being lost when equipping/unequipping upgrades.
-* Fix superflous warnings from allocation tracking.
+* Fix superfluous warnings from allocation tracking.
 * Fix `__lt`/`__le` not working on heterogeneous types.
 * Many documentation fixes (Lemmmy, matematikaadit, McJack123).
 * Fix `0` being treated as a valid colour in `window` and `colour.toBlit`.
@@ -275,16 +303,18 @@ Several bug fixes:
 Several bug fixes:
 * Fix `mouse_drag` event not firing for right and middle mouse buttons.
 * Fix crash when syntax errors involve `goto` or `::`.
-* Fix deadlock occuring when adding/removing observers.
-* Allow placing seeds into compostor barrels with `turtle.place()`.
+* Fix deadlock occurring when adding/removing observers.
+* Allow placing seeds into composter barrels with `turtle.place()`.
 
 # New features in CC: Tweaked 1.109.0
-
+Breaking changes:
 * Update to Lua 5.2
   * `getfenv`/`setfenv` now only work on Lua functions.
   * Add support for `goto`.
   * Remove support for dumping and loading binary chunks.
 * File handles, HTTP requests and websocket messages now use raw bytes rather than converting to UTF-8.
+
+New features:
 * Add `allow_repetitions` option to `textutils.serialiseJSON`.
 * Track memory allocated by computers.
 * Update the version returned by `os.version()` to `CraftOS 1.9`.
@@ -348,7 +378,7 @@ Several bug fixes:
 
 Several bug fixes:
 * Fix client config file being generated on a dedicated server.
-* Fix numbers ending in "f" or "d" being treated as avalid.
+* Fix numbers ending in "f" or "d" being treated as valid.
 * Fix `string.pack`'s "z" specifier causing out-of-bounds errors.
 * Fix several issues with `turtle.dig`'s custom actions (tilling, making paths).
 
@@ -371,7 +401,7 @@ Several bug fixes:
 
 Several bug fixes:
 * Fix turtles rendering incorrectly when upside down.
-* Fix misplaced calls to IArguments.escapes.
+* Fix misplaced calls to `IArguments.escapes`.
 * Lua REPL no longer accepts `)(` as a valid expression.
 * Fix several inconsistencies with `require`/`package.path` in the Lua REPL (Wojbie).
 * Fix turtle being able to place water buckets outside its reach distance.
@@ -389,7 +419,7 @@ Several bug fixes:
 * Support custom proxies for HTTP requests (Lemmmy).
 * The `speaker` program now errors when playing HTML files.
 * `edit` now shows an error message when editing read-only files.
-* Update Ukranian translation (SirEdvin).
+* Update Ukrainian translation (SirEdvin).
 
 Several bug fixes:
 * Allow GPS hosts to only be 1 block apart.
@@ -552,14 +582,14 @@ Several bug fixes:
 * Various documentation improvements (MCJack123, FayneAldan).
 * Allow CC's blocks to be rotated when used in structure blocks (Seniorendi).
 * Several performance improvements to computer execution.
-* Add parse_empty_array option to textutils.unserialiseJSON (@ChickChicky).
+* Add `parse_empty_array` option to `textutils.unserialiseJSON` (@ChickChicky).
 * Add an API to allow other mods to provide extra item/block details (Lemmmy).
 * All blocks with GUIs can now be "locked" (via a command or NBT editing tools) like vanilla inventories. Players can only interact with them with a specific named item.
 
 Several bug fixes:
 * Fix printouts being rendered with an offset in item frames (coolsa).
 * Reduce position latency when playing audio with a noisy pocket computer.
-* Fix total counts in /computercraft turn-on/shutdown commands.
+* Fix total counts in `/computercraft turn-on|shutdown` commands.
 * Fix "Run" command not working in the editor when run from a subdirectory (Wojbie).
 * Pocket computers correctly preserve their on state.
 
@@ -611,7 +641,7 @@ Several bug fixes:
 
 # New features in CC: Tweaked 1.99.1
 
-* Add package.searchpath to the cc.require API. (MCJack123)
+* Add `package.searchpath` to the `cc.require` API. (MCJack123)
 * Provide a more efficient way for the Java API to consume Lua tables in certain restricted cases.
 
 Several bug fixes:
@@ -713,7 +743,7 @@ And several bug fixes:
 * Fix turtles not updating peripherals when upgrades are unequipped (Ronan-H).
 * Fix computers not shutting down on fatal errors within the Lua VM.
 * Speakers now correctly stop playing when broken, and sound follows noisy turtles and pocket computers.
-* Update the `wget` to be more resiliant in the face of user-errors.
+* Update the `wget` to be more resilient in the face of user-errors.
 * Fix exiting `paint` typing "e" in the shell.
 * Fix coloured pocket computers using the wrong texture.
 * Correctly render the transparent background on pocket/normal computers.
@@ -741,8 +771,8 @@ And several bug fixes:
 
 Several bug fixes:
 * Correctly serialise sparse arrays into JSON (livegamer999)
-* Fix hasAudio/playAudio failing on record discs.
-* Fix rs.getBundledInput returning the output instead (SkyTheCodeMaster)
+* Fix `hasAudio`/`playAudio` failing on record discs.
+* Fix `rs.getBundledInput` returning the output instead (SkyTheCodeMaster)
 * Programs run via edit are now a little better behaved (Wojbie)
 * Add User-Agent to a websocket's headers.
 
@@ -819,12 +849,12 @@ And several bug fixes:
 # New features in CC: Tweaked 1.92.0
 
 * Bump Cobalt version:
-  * Add support for the __pairs metamethod.
-  * string.format now uses the __tostring metamethod.
+  * Add support for the `__pairs` metamethod.
+  * string.format now uses the `__tostring` metamethod.
 * Add date-specific MOTDs (MCJack123).
 
 And several bug fixes:
-* Correctly handle tabs within textutils.unserailizeJSON.
+* Correctly handle tabs within `textutils.unserailizeJSON`.
 * Fix sheep not dropping items when sheared by turtles.
 
 # New features in CC: Tweaked 1.91.1
@@ -836,13 +866,13 @@ And several bug fixes:
 * [Generic peripherals] Expose NBT hashes of items to inventory methods.
 * Bump Cobalt version:
   * Optimise handling of string concatenation.
-  * Add string.{pack,unpack,packsize} (MCJack123)
+  * Add `string.{pack,unpack,packsize}` (MCJack123)
 * Update to 1.16.2
 
 And several bug fixes:
 * Escape non-ASCII characters in JSON strings (neumond)
-* Make field names in fs.attributes more consistent (abby)
-* Fix textutils.formatTime correctly handle 12 AM (R93950X)
+* Make field names in `fs.attributes` more consistent (abby)
+* Fix `textutils.formatTime` correctly handle 12 AM (R93950X)
 * Fix turtles placing buckets multiple times.
 
 # New features in CC: Tweaked 1.90.3
@@ -862,7 +892,7 @@ And several bug fixes:
 
 # New features in CC: Tweaked 1.90.0
 
-* Add cc.image.nft module, for working with nft files. (JakobDev)
+* Add `cc.image.nft` module, for working with nft files. (JakobDev)
 * [experimental] Provide a generic peripheral for any tile entity without an existing one. We currently provide methods for working with inventories, fluid tanks and energy storage. This is disabled by default, and must be turned on in the config.
 * Add configuration to control the sizes of monitors and terminals.
 * Add configuration to control maximum render distance of monitors.
@@ -885,8 +915,8 @@ And several bug fixes:
 
 * Compress monitor data, reducing network traffic by a significant amount.
 * Allow limiting the bandwidth monitor updates use.
-* Several optimisations to monitor rendering (@Lignum).
-* Expose block and item tags to turtle.inspect and turtle.getItemDetail.
+* Several optimisations to monitor rendering (Lignum).
+* Expose block and item tags to turtle.inspect and `turtle.getItemDetail`.
 
 And several bug fixes:
 * Fix settings.load failing on defined settings.
@@ -904,7 +934,7 @@ And several bug fixes:
 * Add a TBO backend for monitors, with a significant performance boost.
 * The Lua REPL warns when declaring locals (lupus590, exerro)
 * Add config to allow using command computers in survival.
-* Add fs.isDriveRoot - checks if a path is the root of a drive.
+* Add `fs.isDriveRoot` - checks if a path is the root of a drive.
 * `cc.pretty` can now display a function's arguments and where it was defined. The Lua REPL will show arguments by default.
 * Move the shell's `require`/`package` implementation to a separate `cc.require` module.
 * Move treasure programs into a separate external data pack.
@@ -944,13 +974,13 @@ And several bug fixes:
 And several bug fixes:
 * Fix turtle texture being incorrectly oriented (magiczocker10).
 * Prevent copying folders into themselves.
-* Normalise file paths within shell.setDir (JakobDev)
+* Normalise file paths within `shell.setDir` (JakobDev)
 * Fix turtles treating waterlogged blocks as water.
 * Register an entity renderer for the turtle's fake player.
 
 # New features in CC: Tweaked 1.86.2
 
-* Fix peripheral.getMethods returning an empty table.
+* Fix `peripheral.getMethods` returning an empty table.
 * Update to Minecraft 1.15.2. This is currently alpha-quality and so is missing features and may be unstable.
 
 # New features in CC: Tweaked 1.86.1
@@ -990,14 +1020,14 @@ And several bug fixes:
 
 # New features in CC: Tweaked 1.85.0
 
-* Window.reposition now allows changing the redirect buffer
-* Add cc.completion and cc.shell.completion modules
-* command.exec also returns the number of affected objects, when exposed by the game.
+* `window.reposition` now allows changing the redirect buffer.
+* Add `cc.completion` and `cc.shell.completion` modules.
+* `command.exec` also returns the number of affected objects, when exposed by the game.
 
 And several bug fixes:
 * Change how turtle mining drops are handled, improving compatibility with some mods.
 * Fix several GUI desyncs after a turtle moves.
-* Fix os.day/os.time using the incorrect world time.
+* Fix `os.day`/`os.time` using the incorrect world time.
 * Prevent wired modems dropping incorrectly.
 * Fix mouse events not firing within the computer GUI.
 
@@ -1257,7 +1287,7 @@ And several bug fixes:
 # New features in CC: Tweaked 1.80pr1.4
 
 * Verify the action can be completed in `copy`, `rename` and `mkdir` commands.
-* Add `/rom/modules` so the package path.
+* Add `/rom/modules` to the package path.
 * Add `read` to normal file handles - allowing reading a given number of characters.
 * Various minor bug fixes.
 * Ensure ComputerCraft peripherals are thread-safe. This fixes multiple Lua errors and crashes with modems monitors.
@@ -1280,7 +1310,7 @@ And several bug fixes:
 * Fix `term.getTextScale()` not working across multiple monitors.
 * Fix computer state not being synced to client when turning on/off.
 * Provide an API for registering custom APIs.
-* Render turtles called "Dinnerbone" or "Grumm" upside*down.
+* Render turtles called "Dinnerbone" or "Grumm" upsidedown.
 * Fix `getCollisionBoundingBox` not using all AABBs.
 * **Experimental:** Add map-like rendering for pocket computers.
 
@@ -1411,6 +1441,7 @@ And several bug fixes:
 * Turtle label nameplates now only show when the Turtle is moused-over
 * The HTTP API is now enabled by default, and can be configured with a whitelist of permitted domains
 * `http.get()` and `http.post()` now accept parameters to control the request headers
+* `sleep()`, when invoked without a parameter, defaults to 0.
 * New fs function: `fs.getDir( path )`
 * Fixed some bugs
 

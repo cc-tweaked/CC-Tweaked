@@ -131,7 +131,7 @@ public final class TickScheduler {
      * As such, it should be unique per {@link BlockEntity} instance to avoid it being queued multiple times.
      */
     public static class Token {
-        static final AtomicReferenceFieldUpdater<Token, State> STATE = AtomicReferenceFieldUpdater.newUpdater(Token.class, State.class, "$state");
+        private static final AtomicReferenceFieldUpdater<Token, State> STATE = AtomicReferenceFieldUpdater.newUpdater(Token.class, State.class, "$state");
 
         final BlockEntity owner;
 

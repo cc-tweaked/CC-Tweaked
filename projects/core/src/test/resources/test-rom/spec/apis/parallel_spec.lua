@@ -33,10 +33,12 @@ describe("The parallel library", function()
         it("accepts an arbitrary number of functions", function()
             local count = 0
             local fns = {}
-            for i = 1, 50 do fns[i] = function()
-                count = count + 1
-                coroutine.yield()
-            end end
+            for i = 1, 50 do
+                fns[i] = function()
+                    count = count + 1
+                    coroutine.yield()
+                end
+            end
             os.queueEvent("dummy")
             parallel.waitForAny(table.unpack(fns))
             expect(count):eq(50)
@@ -79,25 +81,63 @@ describe("The parallel library", function()
             local function a()
                 entries[#entries + 1] = "first"
                 local s = coroutine.yield()
-                entries[#entries + 1] = s
+                entries[#entries + 1] = "a: " .. s
             end
             local function b()
                 entries[#entries + 1] = "second"
                 local s = coroutine.yield()
-                entries[#entries + 1] = s
+                entries[#entries + 1] = "b: " .. s
             end
             os.queueEvent("yield")
             parallel.waitForAll(a, b)
-            expect(entries):same({ "first", "second", "yield", "yield" })
+            expect(entries):same({ "first", "second", "a: yield", "b: yield" })
+        end)
+
+        it("can spawn new functions", function()
+            local entries = {}
+            local function a(name)
+                entries[#entries + 1] = name
+                local s = coroutine.yield()
+                entries[#entries + 1] = name .. ": " .. s
+            end
+            local function b(spawn)
+                entries[#entries + 1] = "b"
+                spawn(a, "a1")
+                spawn(a, "a2")
+                local s = coroutine.yield()
+                entries[#entries + 1] = "b: " .. s
+                spawn(a, "a3")
+            end
+            os.queueEvent("yield")
+            os.queueEvent("yield")
+            parallel.waitForAll(b)
+            expect(entries):same({
+                "b",
+                "a1",
+                "a2",
+                "b: yield",
+                "a1: yield",
+                "a2: yield",
+                "a3",
+                "a3: yield",
+            })
+        end)
+
+        it("cannot spawn outside of parallel", function()
+            local spawn
+            parallel.waitForAll(function(s) spawn = s end)
+            expect.error(spawn, function() end):eq("Cannot spawn new functions outside of waitForAll")
         end)
 
         it("accepts an arbitrary number of functions", function()
             local count = 0
             local fns = {}
-            for i = 1, 50 do fns[i] = function()
-                count = count + 1
-                coroutine.yield()
-            end end
+            for i = 1, 50 do
+                fns[i] = function()
+                    count = count + 1
+                    coroutine.yield()
+                end
+            end
             os.queueEvent("dummy")
             parallel.waitForAll(table.unpack(fns))
             expect(count):eq(50)

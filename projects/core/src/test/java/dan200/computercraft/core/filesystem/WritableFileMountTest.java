@@ -38,6 +38,7 @@ public class WritableFileMountTest implements WritableMountContract {
     @Override
     @Test
     @DisabledOnOs(OS.WINDOWS) // This fails on Windows, and I don't have a debugger to find out why.
+    @SuppressWarnings("JUnitMethodInvoked")
     public void Writing_uses_latest_file_size() throws IOException {
         WritableMountContract.super.Writing_uses_latest_file_size();
     }

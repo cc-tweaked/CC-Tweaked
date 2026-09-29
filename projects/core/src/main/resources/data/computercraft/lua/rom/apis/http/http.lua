@@ -14,12 +14,6 @@ local expect = dofile("rom/modules/main/cc/expect.lua").expect
 local native = http
 local nativeHTTPRequest = http.request
 
-local methods = {
-    GET = true, POST = true, HEAD = true,
-    OPTIONS = true, PUT = true, DELETE = true,
-    PATCH = true, TRACE = true,
-}
-
 local function check_key(options, key, ty, opt)
     local value = options[key]
     local valueTy = type(value)
@@ -41,8 +35,13 @@ local function check_request_options(options, body)
     check_key(options, "redirect", "boolean", true)
     check_key(options, "timeout", "number", true)
 
-    if options.method and not methods[options.method] then
-        error("Unsupported HTTP method", 3)
+    check_key(options, "method", "string", true)
+    if options.method then
+        local method = options.method:upper()
+        if method == "CONNECT" then error("Unsupported HTTP method", 3) end
+        if method == "" or #method > 32 or method:find("[^A-Z_-]") then
+            error("Invalid HTTP method", 3)
+        end
     end
 end
 
@@ -90,6 +89,7 @@ error or connection timeout.
 @changed 1.105.0 Added support for custom timeouts.
 @changed 1.109.0 The returned response now reads the body as raw bytes, rather
                  than decoding from UTF-8.
+@changed 1.121.0 Relax HTTP verb validation to allow anything matching `[A-Z_-]{1,32}`.
 
 @usage Make a request to [example.tweaked.cc](https://example.tweaked.cc),
 and print the returned page.
@@ -144,6 +144,7 @@ error or connection timeout.
 @changed 1.105.0 Added support for custom timeouts.
 @changed 1.109.0 The returned response now reads the body as raw bytes, rather
                  than decoding from UTF-8.
+@changed 1.121.0 Relax HTTP verb validation to allow anything matching `[A-Z_-]{1,32}`.
 ]]
 function post(_url, _post, _headers, _binary)
     if type(_url) == "table" then
@@ -197,6 +198,7 @@ from above are passed in as fields instead (for instance,
 @changed 1.105.0 Added support for custom timeouts.
 @changed 1.109.0 The returned response now reads the body as raw bytes, rather
                  than decoding from UTF-8.
+@changed 1.121.0 Relax HTTP verb validation to allow anything matching `[A-Z_-]{1,32}`.
 ]]
 function request(_url, _post, _headers, _binary)
     local url

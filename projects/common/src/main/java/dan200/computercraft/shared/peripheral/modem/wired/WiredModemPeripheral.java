@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.peripheral.modem.wired;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.*;
@@ -39,7 +40,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
     private final WiredModemLocalPeripheral localPeripheral;
     private final BlockEntity target;
 
-    private final Map<IComputerAccess, ConcurrentMap<String, RemotePeripheralWrapper>> peripheralWrappers = new HashMap<>(1);
+    private final @GuardedBy("peripheralWrappers") Map<IComputerAccess, ConcurrentMap<String, RemotePeripheralWrapper>> peripheralWrappers = new HashMap<>(1);
 
     public WiredModemPeripheral(
         ModemState state,

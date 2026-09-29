@@ -6,15 +6,16 @@ package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.CoreConfig;
-import dan200.computercraft.core.apis.http.*;
+import dan200.computercraft.core.apis.http.HTTPRequestException;
+import dan200.computercraft.core.apis.http.HttpHandler;
 import dan200.computercraft.core.apis.http.request.HttpRequest;
-import dan200.computercraft.core.apis.http.websocket.Websocket;
 import dan200.computercraft.core.apis.http.websocket.WebsocketClient;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Locale;
 import java.util.Map;
@@ -33,13 +34,11 @@ public class HTTPAPI implements ILuaAPI {
     private static final double MAX_TIMEOUT = 60;
 
     private final IAPIEnvironment apiEnvironment;
+    private final HttpHandler handler;
 
-    private final ResourceGroup<CheckUrl> checkUrls = new ResourceGroup<>(() -> ResourceGroup.DEFAULT_LIMIT);
-    private final ResourceGroup<HttpRequest> requests = new ResourceQueue<>(() -> CoreConfig.httpMaxRequests);
-    private final ResourceGroup<Websocket> websockets = new ResourceGroup<>(() -> CoreConfig.httpMaxWebsockets);
-
-    public HTTPAPI(IAPIEnvironment environment) {
+    public HTTPAPI(IAPIEnvironment environment, HttpHandler handler) {
         apiEnvironment = environment;
+        this.handler = handler;
     }
 
     @Override
@@ -49,23 +48,12 @@ public class HTTPAPI implements ILuaAPI {
 
     @Override
     public void startup() {
-        checkUrls.startup();
-        requests.startup();
-        websockets.startup();
+        handler.startup();
     }
 
     @Override
     public void shutdown() {
-        checkUrls.shutdown();
-        requests.shutdown();
-        websockets.shutdown();
-    }
-
-    @Override
-    public void update() {
-        // It's rather ugly to run this here, but we need to clean up
-        // resources as often as possible to reduce blocking.
-        Resource.cleanup();
+        handler.shutdown();
     }
 
     @LuaFunction
@@ -73,7 +61,7 @@ public class HTTPAPI implements ILuaAPI {
         String address, requestMethod;
         ByteBuffer postBody;
         Map<?, ?> headerTable;
-        boolean binary, redirect, stream;
+        boolean binary, redirect, streaming;
         Optional<Double> timeoutArg;
 
         if (args.get(0) instanceof Map) {
@@ -85,7 +73,7 @@ public class HTTPAPI implements ILuaAPI {
             requestMethod = options.optString("method").orElse(null);
             redirect = options.optBoolean("redirect").orElse(true);
             timeoutArg = options.optFiniteDouble("timeout");
-            stream = options.optBoolean("stream").orElse(false);
+            streaming = options.optBoolean("streaming").orElse(false);
         } else {
             // Get URL and post information
             address = args.getString(0);
@@ -95,7 +83,7 @@ public class HTTPAPI implements ILuaAPI {
             requestMethod = null;
             redirect = true;
             timeoutArg = Optional.empty();
-            stream = false;
+            streaming = false;
         }
 
         var headers = getHeaders(headerTable);
@@ -105,32 +93,29 @@ public class HTTPAPI implements ILuaAPI {
         if (requestMethod == null) {
             httpMethod = postBody == null ? HttpMethod.GET : HttpMethod.POST;
         } else {
-            httpMethod = HttpMethod.valueOf(requestMethod.toUpperCase(Locale.ROOT));
-            if (httpMethod == null || requestMethod.equalsIgnoreCase("CONNECT")) {
-                throw new LuaException("Unsupported HTTP method");
-            }
+            httpMethod = getMethod(requestMethod.toUpperCase(Locale.ROOT));
         }
 
+        URI uri;
         try {
-            var uri = HttpRequest.checkUri(address);
-            var request = new HttpRequest(requests, apiEnvironment, address, postBody, headers, binary, redirect, timeout, stream);
-
-            // Make the request
-            if (!request.queue(r -> r.request(uri, httpMethod))) {
-                throw new LuaException("Too many ongoing HTTP requests");
-            }
-
-            return new Object[]{ true };
+            uri = HttpRequest.checkUri(address);
         } catch (HTTPRequestException e) {
             return new Object[]{ false, e.getMessage() };
         }
+
+        // Make the request
+        if (!handler.queueRequest(address, uri, httpMethod, postBody, headers, binary, redirect, timeout, streaming)) {
+            throw new LuaException("Too many ongoing HTTP requests");
+        }
+
+        return new Object[]{ true };
     }
 
     @LuaFunction
     public final Object[] checkURL(String address) throws LuaException {
         try {
             var uri = HttpRequest.checkUri(address);
-            if (!new CheckUrl(checkUrls, apiEnvironment, address, uri).queue(CheckUrl::run)) {
+            if (!handler.queueCheckUrl(address, uri)) {
                 throw new LuaException("Too many ongoing checkUrl calls");
             }
 
@@ -166,7 +151,7 @@ public class HTTPAPI implements ILuaAPI {
 
         try {
             var uri = WebsocketClient.parseUri(address);
-            if (!new Websocket(websockets, apiEnvironment, uri, address, headers, timeout).queue(Websocket::connect)) {
+            if (!handler.queueWebsocket(address, uri, headers, timeout)) {
                 throw new LuaException("Too many websockets already open");
             }
 
@@ -176,9 +161,27 @@ public class HTTPAPI implements ILuaAPI {
         }
     }
 
+    private static HttpMethod getMethod(String method) throws LuaException {
+        // Reject CONNECT outright, as that requires the ability to read indefinitely.
+        if (method.equals("CONNECT")) throw new LuaException("Unsupported HTTP method");
+
+        // The HTTP specification allows the method to be any token[^1], which is all non-control/separator
+        // characters[^2]. However, we limit ourselves to a more reasonable subset. The allowed characters match
+        // what NGINX does[^3].
+        // [^1] https://www.rfc-editor.org/info/rfc2616/#section-5.1.1
+        // [^2] https://www.rfc-editor.org/info/rfc2616/#section-2.2
+        // [^3]: https://github.com/nginx/nginx/blob/5f54125dde0d144476155d8964f6ec3d449f578d/src/http/ngx_http_parse.c#L283-L285
+        if (method.isEmpty() || method.length() > 32 ||
+            !method.chars().allMatch(c -> (c >= 'A' && c <= 'Z') || c == '_' || c == '-')) {
+            throw new LuaException("Invalid HTTP method");
+        }
+
+        return HttpMethod.valueOf(method);
+    }
+
     private HttpHeaders getHeaders(Map<?, ?> headerTable) throws LuaException {
         HttpHeaders headers = new DefaultHttpHeaders();
-        for (Map.Entry<?, ?> entry : headerTable.entrySet()) {
+        for (var entry : headerTable.entrySet()) {
             var value = entry.getValue();
             if (entry.getKey() instanceof String && value instanceof String) {
                 try {

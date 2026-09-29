@@ -4,7 +4,7 @@
 
 package dan200.computercraft.core.apis.http.options;
 
-import dan200.computercraft.core.CoreConfig;
+import dan200.computercraft.core.apis.http.NettyHttp;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -31,11 +31,20 @@ public class AddressRuleTest {
     @ValueSource(strings = {
         "0.0.0.0", "[::]",
         "localhost", "127.0.0.1.nip.io", "127.0.0.1", "[::1]",
-        "172.17.0.1", "192.168.1.114", "[0:0:0:0:0:ffff:c0a8:172]", "10.0.0.1",
+        "172.17.0.1",
+        "192.168.1.114",
+        "10.0.0.1",
+        // IPv4-mapped address. This is converted to IPv4 by getByName.
+        "0:0:0:0:0:ffff:c0a8:172",
+        // 6to4 address
+        "2002:7f00:0001::", // 127.0.0.1
         // Multicast
         "224.0.0.1", "ff02::1",
         // CGNAT
         "100.64.0.0", "100.127.255.255",
+        // NAT64
+        "64:ff9b::c0a8:0101",
+        "64:ff9b:1::c0a8:0101",
         // Cloud metadata providers
         "100.100.100.200", // Alibaba
         "192.0.0.192", // Oracle
@@ -43,16 +52,20 @@ public class AddressRuleTest {
         "169.254.169.254", // AWS, Digital Ocean, GCP, etc..
     })
     public void blocksLocalDomains(String domain) {
-        assertEquals(apply(CoreConfig.httpRules, domain, 80).action(), Action.DENY);
+        assertEquals(apply(NettyHttp.DEFAULT_CONFIG.addressRules(), domain, 80).action(), Action.DENY);
     }
 
     @ParameterizedTest
     @ValueSource(strings = {
         // Ensure either side of the CGNAT range is allowed.
-        "100.63.255.255", "100.128.0.0"
+        "100.63.255.255", "100.128.0.0",
+        // IPv4-mapped address. This is converted to IPv4 by getByName.
+        "0:0:0:0:0:ffff:104.20.23.154",
+        // 6to4 address
+        "2002:6814:179a::", // 104.20.23.154
     })
     public void allowsNonLocalDomains(String domain) {
-        assertEquals(apply(CoreConfig.httpRules, domain, 80).action(), Action.ALLOW);
+        assertEquals(apply(NettyHttp.DEFAULT_CONFIG.addressRules(), domain, 80).action(), Action.ALLOW);
     }
 
     private Options apply(Iterable<AddressRule> rules, String host, int port) {

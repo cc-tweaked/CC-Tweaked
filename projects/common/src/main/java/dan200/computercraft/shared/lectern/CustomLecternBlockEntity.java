@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.lectern;
 
+import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.ModRegistry;
@@ -35,6 +36,7 @@ import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.LecternBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import org.jspecify.annotations.Nullable;
 
 import java.util.AbstractList;
@@ -179,6 +181,12 @@ public final class CustomLecternBlockEntity extends BlockEntity {
                 new PocketComputerLecternMenu.Data(new ComputerContainerData(computer, item), getBlockPos())
             );
         }
+    }
+
+    @ForgeOverride
+    public AABB getRenderBoundingBox() {
+        var pos = getBlockPos();
+        return new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1.0, pos.getY() + 1.5, pos.getZ() + 1.0);
     }
 
     /**

@@ -5,8 +5,8 @@
 [versions]
 
 # Minecraft
-# MC version is specified in gradle.properties, as we need that in settings.gradle.
 # Remember to update corresponding versions in fabric.mod.json/mods.toml
+minecraft = "1.20.1"
 fabric-api = "0.86.1+1.20.1"
 fabric-loader = "0.18.4"
 forge = "47.1.0"
@@ -23,19 +23,20 @@ netty = "4.1.82.Final"
 slf4j = "2.0.1"
 
 # Core dependencies (independent of Minecraft)
-asm = "9.9.1"
+asm = "9.10.1"
 autoService = "1.1.1"
-checkerFramework = "4.0.0"
-cobalt = { strictly = "0.9.7" }
+checkerFramework = "4.2.2"
+cobalt = { strictly = "0.9.9" }
 commonsCli = "1.11.0"
 jetbrainsAnnotations = "26.1.0"
-jspecify = "1.0.0"
+jspecify = "1.0.1"
 jzlib = "1.1.3"
-kotlin = "2.3.21"
-kotlin-coroutines = "1.10.2"
-nightConfig = "3.8.4"
+kotlin = "2.4.10"
+kotlin-coroutines = "1.11.0"
+nightConfig = "3.9.0"
 
 # Minecraft mods
+complementary = "r5.9.3"
 emi = "1.0.8+1.20.1"
 fabricPermissions = "0.3.20230723"
 iris = "1.6.4+1.20"
@@ -51,30 +52,30 @@ create-fabric = "6.0.7.0+mc1.20.1-build.1716"
 
 # Testing
 hamcrest = "3.0"
-jqwik = "1.9.3"
-junit = "6.0.3"
-junitPlatform = "6.0.3"
+jqwik = "1.10.1"
+junit = "6.1.3"
+junitPlatform = "6.1.3"
 jmh = "1.37"
 
 # Build tools
 cctJavadoc = "1.9.0"
-checkstyle = "13.4.1"
-errorProne-core = "2.49.0"
+checkstyle = "14.0.0"
+errorProne-core = "2.50.0"
 errorProne-plugin = "4.3.0"
-fabric-loom = "1.16.1"
+fabric-loom = "1.18.1"
 githubRelease = "2.5.2"
-gradleVersions = "0.54.0"
+gradleVersions = "0.61.0"
 ideaExt = "1.3"
 illuaminate = "0.1.0-83-g1131f68"
-lwjgl = "3.4.1"
-minotaur = "2.8.7"
-modDevGradle = "2.0.141"
-nullAway = "0.13.4"
-shadow = "9.4.1"
-spotless = "8.4.0"
-teavm = "0.14.0"
-vanillaExtract = "0.3.1"
-versionCatalogUpdate = "1.1.0"
+lwjgl = "3.4.3"
+minotaur = "2.9.0"
+modDevGradle = "2.0.147"
+nullAway = "0.14.0"
+shadow = "9.6.1"
+spotless = "8.10.0"
+teavm = "0.15.0"
+vanillaExtract = "0.3.2"
+versionCatalogUpdate = "1.1.1"
 
 [libraries]
 # Normal dependencies
@@ -102,6 +103,7 @@ nightConfig-toml = { module = "com.electronwill.night-config:toml", version.ref 
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 # Minecraft mods
+complementary = {  module = "maven.modrinth:complementary-reimagined", version.ref = "complementary" }
 create-fabric = { module = "com.simibubi.create:create-fabric-1.20.1", version.ref = "create-fabric" }
 create-forge = { module = "com.simibubi.create:create-1.20.1", version.ref = "create-forge" }
 emi = { module = "dev.emi:emi-xplat-mojmap", version.ref = "emi" }
@@ -161,8 +163,7 @@ teavm-core = { module = "org.teavm:teavm-core", version.ref = "teavm" }
 teavm-jso = { module = "org.teavm:teavm-jso", version.ref = "teavm" }
 teavm-jso-apis = { module = "org.teavm:teavm-jso-apis", version.ref = "teavm" }
 teavm-jso-impl = { module = "org.teavm:teavm-jso-impl", version.ref = "teavm" }
-teavm-metaprogramming-api = { module = "org.teavm:teavm-metaprogramming-api", version.ref = "teavm" }
-teavm-metaprogramming-impl = { module = "org.teavm:teavm-metaprogramming-impl", version.ref = "teavm" }
+teavm-extension-apis = { module = "org.teavm:teavm-extension-apis", version.ref = "teavm" }
 teavm-platform = { module = "org.teavm:teavm-platform", version.ref = "teavm" }
 teavm-tooling = { module = "org.teavm:teavm-tooling", version.ref = "teavm" }
 vanillaExtract = { module = "cc.tweaked.vanilla-extract:plugin", version.ref = "vanillaExtract" }
@@ -170,7 +171,8 @@ yarn = { module = "net.fabricmc:yarn", version.ref = "yarn" }
 
 [plugins]
 githubRelease = { id = "com.github.breadmoirai.github-release", version.ref = "githubRelease" }
-gradleVersions = { id = "com.github.ben-manes.versions", version.ref = "gradleVersions" }
+gradleVersions = { id = "io.github.ben-manes.versions", version.ref = "gradleVersions" }
+ideaExt = { id = "org.jetbrains.gradle.plugin.idea-ext", version.ref = "ideaExt" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 versionCatalogUpdate = { id = "nl.littlerobots.version-catalog-update", version.ref = "versionCatalogUpdate" }
@@ -191,5 +193,5 @@ test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]
 testRuntime = ["junit-jupiter-engine", "junit-platform-launcher", "jqwik-engine"]
 
 # Build tools
-teavm-api = ["teavm-jso", "teavm-jso-apis", "teavm-platform", "teavm-classlib", "teavm-metaprogramming-api"]
-teavm-tooling = ["teavm-tooling", "teavm-metaprogramming-impl", "teavm-jso-impl"]
+teavm-api = ["teavm-jso", "teavm-jso-apis", "teavm-platform", "teavm-classlib", "teavm-extension-apis"]
+teavm-tooling = ["teavm-tooling", "teavm-jso-impl"]

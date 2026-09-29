@@ -8,8 +8,8 @@ import dan200.computercraft.api.lua.Coerced
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.api.lua.LuaValues
 import dan200.computercraft.api.lua.ObjectArguments
-import dan200.computercraft.core.CoreConfig
 import dan200.computercraft.core.apis.HTTPAPI
+import dan200.computercraft.core.apis.IAPIEnvironment
 import dan200.computercraft.core.apis.handles.ReadHandle
 import dan200.computercraft.core.apis.http.HttpServer.Companion.runServer
 import dan200.computercraft.core.apis.http.options.Action
@@ -18,34 +18,24 @@ import dan200.computercraft.core.apis.http.request.HttpResponseHandle
 import dan200.computercraft.core.apis.http.websocket.WebsocketHandle
 import dan200.computercraft.test.core.computer.LuaTaskRunner
 import io.netty.buffer.Unpooled
+import io.netty.handler.codec.http.HttpHeaderNames
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.lang.ref.Reference
 import java.util.*
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class TestHttpApi {
-    companion object {
-        @JvmStatic
-        @BeforeAll
-        fun before() {
-            CoreConfig.httpRules = listOf(AddressRule.parse("*", OptionalInt.empty(), Action.ALLOW.toPartial()))
-        }
-
-        @JvmStatic
-        @AfterAll
-        fun after() {
-            CoreConfig.httpRules = Collections.unmodifiableList(
-                listOf(
-                    AddressRule.parse("\$private", OptionalInt.empty(), Action.DENY.toPartial()),
-                    AddressRule.parse("*", OptionalInt.empty(), Action.ALLOW.toPartial()),
-                ),
-            )
-        }
+    /** Create a [HTTPAPI] which is only permitted to access the current server. */
+    private fun createHttpApi(environment: IAPIEnvironment, port: Int): HTTPAPI {
+        val rules = listOf(
+            AddressRule.parse("127.0.0.1", OptionalInt.of(port), Action.ALLOW.toPartial()),
+        )
+        return HTTPAPI(environment, NettyHttp(NettyHttp.DEFAULT_CONFIG.withAddressRules(rules)).create(environment))
     }
 
     @Test
@@ -53,7 +43,7 @@ class TestHttpApi {
         runServer { server ->
             LuaTaskRunner.runTest {
                 val url = "http://127.0.0.1:${server.port}"
-                val httpApi = addApi(HTTPAPI(environment))
+                val httpApi = addApi(createHttpApi(environment, server.port))
                 assertThat("http.request succeeded", httpApi.request(ObjectArguments(url)), array(equalTo(true)))
 
                 val result = pullEvent("http_success")
@@ -71,7 +61,7 @@ class TestHttpApi {
         runServer { server ->
             LuaTaskRunner.runTest {
                 val url = "ws://127.0.0.1:${server.port}/ws"
-                val httpApi = addApi(HTTPAPI(environment))
+                val httpApi = addApi(createHttpApi(environment, server.port))
                 assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
 
                 val connectEvent = pullEvent()
@@ -85,8 +75,12 @@ class TestHttpApi {
 
                 websocket.close()
 
-                val closeEvent = pullEventOrTimeout(500.milliseconds, "websocket_closed")
-                assertThat("No event was queued", closeEvent, equalTo(null))
+                val closeEvent = pullEvent()
+                assertThat("Received a close event", closeEvent, array(equalTo("websocket_closed"), equalTo(url), nullValue(), equalTo(1000)))
+
+                assertFalse(server.lastRequest.headers.contains(HttpHeaderNames.ORIGIN), "HTTP Headers should not contain Origin")
+
+                Reference.reachabilityFence(websocket)
             }
         }
     }
@@ -96,7 +90,7 @@ class TestHttpApi {
         runServer { server ->
             LuaTaskRunner.runTest {
                 val url = "ws://127.0.0.1:${server.port}/ws"
-                val httpApi = addApi(HTTPAPI(environment))
+                val httpApi = addApi(createHttpApi(environment, server.port))
                 assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
 
                 val connectEvent = pullEvent()
@@ -121,11 +115,13 @@ class TestHttpApi {
         runServer { server ->
             LuaTaskRunner.runTest {
                 val url = "ws://127.0.0.1:${server.port}/ws"
-                val httpApi = addApi(HTTPAPI(environment))
+                val httpApi = addApi(createHttpApi(environment, server.port))
                 assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
 
                 val connectEvent = pullEvent()
                 assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(url), isA(WebsocketHandle::class.java)))
+
+                val websocket = connectEvent[2] as WebsocketHandle
 
                 val out = ByteArray(AddressRule.WEBSOCKET_MESSAGE + 1)
                 Random(0xDEADBEEF).nextBytes(out)
@@ -133,6 +129,8 @@ class TestHttpApi {
 
                 val closeEvent = pullEvent()
                 assertThat(closeEvent, array(equalTo("websocket_closed"), equalTo(url), equalTo("Received a too-large message"), nullValue()))
+
+                Reference.reachabilityFence(websocket)
             }
         }
     }
@@ -142,7 +140,7 @@ class TestHttpApi {
         runServer { server ->
             LuaTaskRunner.runTest {
                 val url = "ws://127.0.0.1:${server.port}/ws"
-                val httpApi = addApi(HTTPAPI(environment))
+                val httpApi = addApi(createHttpApi(environment, server.port))
                 assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
 
                 val connectEvent = pullEvent()
@@ -162,6 +160,30 @@ class TestHttpApi {
                 assertThrows<LuaException>("Throws an exception when sending") {
                     websocket.send(Coerced(LuaValues.encode("hello")), Optional.of(false))
                 }
+
+                Reference.reachabilityFence(websocket)
+            }
+        }
+    }
+
+    @Test
+    fun `Closes websocket if the server doesn't respond`() {
+        runServer(closeWebsocket = false) { server ->
+            LuaTaskRunner.runTest(timeout = 10.seconds) {
+                val url = "ws://127.0.0.1:${server.port}/ws"
+                val httpApi = addApi(createHttpApi(environment, server.port))
+                assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
+
+                val connectEvent = pullEvent()
+                assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(url), isA(WebsocketHandle::class.java)))
+                val websocket = connectEvent[2] as WebsocketHandle
+
+                websocket.close()
+
+                val closeEvent = pullEvent()
+                assertThat("Received a close event", closeEvent, array(equalTo("websocket_closed"), equalTo(url), nullValue(), equalTo(1006)))
+
+                Reference.reachabilityFence(websocket)
             }
         }
     }

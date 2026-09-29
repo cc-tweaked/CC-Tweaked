@@ -62,7 +62,7 @@ describe("cc.expect", function()
     end)
 
     describe("range", function()
-        it("works fith full args", function()
+        it("works with full args", function()
             expect(e.range(1, 1, 1)):eq(1)
             expect(e.range(2, 1, 3)):eq(2)
 

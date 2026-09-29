@@ -50,7 +50,7 @@ public class ExampleAPI implements ILuaAPI {
     }
 
     /**
-     * A Lua-facing function function that returns the direction the turtle is facing.
+     * A Lua-facing function that returns the direction the turtle is facing.
      *
      * @return The turtle's direction.
      */

@@ -11,14 +11,14 @@ plugins {
     publishing
     alias(libs.plugins.githubRelease)
     alias(libs.plugins.gradleVersions)
+    alias(libs.plugins.ideaExt)
     alias(libs.plugins.versionCatalogUpdate)
-    id("org.jetbrains.gradle.plugin.idea-ext")
-    id("cc-tweaked")
+    id("cc-tweaked.base-convention")
 }
 
-val isUnstable = project.properties["isUnstable"] == "true"
-val modVersion: String by extra
-val mcVersion: String by extra
+val isUnstable = extra["isUnstable"] == "true"
+val mcVersion = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
+    .findVersion("minecraft").get().toString()
 
 githubRelease {
     token(findProperty("githubApiKey") as String? ?: "")
@@ -26,6 +26,7 @@ githubRelease {
     repo = "CC-Tweaked"
     targetCommitish = cct.gitBranch
 
+    val modVersion = project.version as String
     tagName = "v$mcVersion-$modVersion"
     releaseName = "[$mcVersion] $modVersion"
     body = provider {
@@ -113,7 +114,7 @@ idea.project.settings.compiler.javac {
         .toMap()
 }
 
-repositories() {
+repositories {
     mavenCentral()
 }
 

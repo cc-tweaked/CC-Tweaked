@@ -144,7 +144,7 @@ If this item can be damaged (e.g. a pickaxe), then its damage and durability wil
  - `maxDamage: number`: The maximum amount of damage this item has taken.
  - `durability?: number`: If this item is damaged (i.e. the durability bar is visible), the percentage left on the
    durability bar, between 0 and 1 (inclusive).
- - `unbreakable?: boolean`: `true`, if the item is nubreakable
+ - `unbreakable?: boolean`: `true`, if the item is unbreakable
 
 ### Example
 An unused diamond pickaxe:
@@ -197,7 +197,7 @@ A diamond pickaxe with Efficiency V:
 ```
 
 ## Potion effects
-The effects this potion (or potion-embued item, such as a tipped arrow) has:
+The effects this potion (or potion-imbued item, such as a tipped arrow) has:
 
  - `potionEffects: { table... }`: The effects this item has. Each potion effect is a table containing several
    properties:

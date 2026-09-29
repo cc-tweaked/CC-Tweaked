@@ -76,12 +76,13 @@ class Window extends Component<WindowProps, WindowState> {
         const elements = document.querySelectorAll("pre[data-lua-kind]");
         for (let i = 0; i < elements.length; i++) {
             const element = elements[i] as HTMLElement;
-            if (element.hasAttribute("data-no-run")) continue
 
             let example = element.innerText;
 
             const snippet = element.getAttribute("data-snippet");
             if (snippet) this.snippets[snippet] = example;
+
+            if (element.hasAttribute("data-no-run")) continue
 
             // We attempt to pretty-print the result of a function _except_ when the function
             // is print. This is pretty ugly, but prevents the confusing trailing "1".

@@ -291,7 +291,7 @@ public final class ComputerThread implements ComputerScheduler {
      *
      * @param executor The computer to execute work on.
      */
-    void queue(ExecutorImpl executor) {
+    private void queue(ExecutorImpl executor) {
         computerLock.lock();
         try {
             if (state.get() != RUNNING) throw new IllegalStateException("ComputerThread is no longer running");

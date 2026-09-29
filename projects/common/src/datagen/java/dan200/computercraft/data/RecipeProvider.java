@@ -17,6 +17,7 @@ import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.RecipeIngredients;
 import dan200.computercraft.shared.platform.RegistryWrappers;
 import dan200.computercraft.shared.pocket.items.PocketComputerItem;
+import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.items.TurtleItem;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
@@ -182,6 +183,7 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         for (var turtleItem : turtleItems()) {
             var base = turtleItem.create(-1, null, -1, null, null, 0, null);
             var name = RegistryWrappers.ITEMS.getKey(turtleItem);
+            var overlayName = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/" + overlay).toString();
 
             var builder = ShapelessRecipeBuilder.shapeless(RecipeCategory.REDSTONE, base.getItem())
                 .group(name.withSuffix("_overlay").toString())
@@ -192,7 +194,8 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                 .save(
                     RecipeWrapper
                         .wrap(ModRegistry.RecipeSerializers.TURTLE_OVERLAY.get(), add)
-                        .withExtraData(x -> x.addProperty("overlay", new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/" + overlay).toString())),
+                        .withExtraData(x -> x.addProperty("overlay", overlayName))
+                        .withResultTag(x -> x.putString(TurtleBrain.NBT_OVERLAY, overlayName)),
                     name.withSuffix("_overlays/" + overlay)
                 );
         }

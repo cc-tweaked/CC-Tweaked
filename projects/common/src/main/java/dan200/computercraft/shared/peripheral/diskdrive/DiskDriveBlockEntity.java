@@ -10,6 +10,7 @@ import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.common.AbstractContainerBlockEntity;
 import dan200.computercraft.shared.network.client.PlayRecordClientMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
@@ -271,7 +272,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
 
     void detach(IComputerAccess computer) {
         synchronized (this) {
-            unmountDisk(computer, computers.remove(computer));
+            unmountDisk(computer, Nullability.assertNonNull(computers.remove(computer)));
         }
     }
 

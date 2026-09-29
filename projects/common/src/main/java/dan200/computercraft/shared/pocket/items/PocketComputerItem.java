@@ -28,7 +28,6 @@ import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -305,15 +304,23 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
         var tag = stack.getTag();
         if (tag == null) return;
 
-        // Normally we treat the computer instance as the source of truth, and copy the computer's state back to the
-        // item. However, if we've just crafted the computer with an upgrade, we should sync the other way, and update
-        // the computer.
         var server = level.getServer();
         if (server == null) return;
 
         var computer = getServerComputer(server, stack);
         if (computer == null) return;
 
+        // If the family of the computer has changed then destroy the old computer immediately.
+        if (computer.getFamily() != family) {
+            computer.close();
+            tag.remove(NBT_INSTANCE);
+            tag.remove(NBT_SESSION);
+            return;
+        }
+
+        // Normally we treat the computer instance as the source of truth, and copy the computer's state back to the
+        // item. However, if we've just crafted the computer with an upgrade, we should sync the other way, and update
+        // the computer.
         var brain = computer.getBrain();
         brain.setUpgrade(getUpgradeWithData(stack));
         brain.setColour(getColour(stack));
@@ -378,11 +385,11 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
             compound.remove(NBT_UPGRADE_INFO);
         } else {
             compound.putString(NBT_UPGRADE, upgrade.upgrade().getUpgradeID().toString());
-            compound.put(NBT_UPGRADE_INFO, upgrade.data().copy());
+            if (upgrade.data().isEmpty()) {
+                compound.remove(NBT_UPGRADE_INFO);
+            } else {
+                compound.put(NBT_UPGRADE_INFO, upgrade.data().copy());
+            }
         }
-    }
-
-    public static CompoundTag getUpgradeInfo(ItemStack stack) {
-        return stack.getOrCreateTagElement(NBT_UPGRADE_INFO);
     }
 }

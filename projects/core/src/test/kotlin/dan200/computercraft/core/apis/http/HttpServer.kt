@@ -12,15 +12,26 @@ import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.http.*
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame
-import io.netty.handler.codec.http.websocketx.WebSocketFrame
-import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler
+import io.netty.handler.codec.http.websocketx.*
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler.HandshakeComplete
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler
 import java.net.InetSocketAddress
 import java.nio.charset.StandardCharsets
 
-class HttpServer(val port: Int, private val workerGroup: EventLoopGroup, private val activeConnections: Set<Channel>) {
+class HttpRequest(val headers: HttpHeaders)
+
+private class HttpState(var lastRequest: HttpRequest? = null)
+
+class HttpServer private constructor(
+    val port: Int,
+    private val workerGroup: EventLoopGroup,
+    private val activeConnections: Set<Channel>,
+    private val state: HttpState,
+) {
+    /** The last HTTP request made to this server */
+    val lastRequest: HttpRequest
+        get() = state.lastRequest ?: throw NullPointerException("No request has occurred yet")
+
     /** Stop the server from running */
     fun stop() {
         workerGroup.shutdownGracefully()
@@ -33,10 +44,17 @@ class HttpServer(val port: Int, private val workerGroup: EventLoopGroup, private
 
     companion object {
         /** Runs a small HTTP server to run alongside [TestHttpApi] */
-        fun runServer(run: (server: HttpServer) -> Unit) {
+        fun runServer(closeWebsocket: Boolean = true, run: (server: HttpServer) -> Unit) {
             val workerGroup: EventLoopGroup = NioEventLoopGroup(2)
-            val activeConnections = mutableSetOf<Channel>()
             try {
+                val activeConnections = mutableSetOf<Channel>()
+                val state = HttpState()
+
+                val websocketConfig = WebSocketServerProtocolConfig.newBuilder()
+                    .websocketPath("/ws")
+                    .handleCloseFrames(closeWebsocket)
+                    .allowExtensions(true)
+                    .build()
                 val ch = ServerBootstrap()
                     .group(workerGroup)
                     .channel(NioServerSocketChannel::class.java)
@@ -47,16 +65,16 @@ class HttpServer(val port: Int, private val workerGroup: EventLoopGroup, private
                                 p.addLast(HttpServerCodec())
                                 p.addLast(HttpContentCompressor())
                                 p.addLast(HttpObjectAggregator(8192))
-                                p.addLast(HttpServerHandler())
+                                p.addLast(HttpServerHandler(state))
                                 p.addLast(WebSocketServerCompressionHandler())
-                                p.addLast(WebSocketServerProtocolHandler("/ws", null, true))
+                                p.addLast(WebSocketServerProtocolHandler(websocketConfig))
                                 p.addLast(WebSocketFrameHandler(activeConnections))
                             }
                         },
                     ).bind(0).sync().channel()
                 val port = (ch.localAddress() as InetSocketAddress).port
                 try {
-                    run(HttpServer(port, workerGroup, activeConnections))
+                    run(HttpServer(port, workerGroup, activeConnections, state))
                 } finally {
                     ch.close().sync()
                 }
@@ -70,7 +88,7 @@ class HttpServer(val port: Int, private val workerGroup: EventLoopGroup, private
 /**
  * A HTTP handler which hosts `/` (a simple static page) and `/ws` (see [WebSocketFrameHandler])
  */
-private class HttpServerHandler : SimpleChannelInboundHandler<FullHttpRequest>() {
+private class HttpServerHandler(private val state: HttpState) : SimpleChannelInboundHandler<FullHttpRequest>() {
     companion object {
         private val CONTENT = "Hello, world!".toByteArray(StandardCharsets.UTF_8)
     }
@@ -80,6 +98,7 @@ private class HttpServerHandler : SimpleChannelInboundHandler<FullHttpRequest>()
     }
 
     override fun channelRead0(ctx: ChannelHandlerContext, request: FullHttpRequest) {
+        state.lastRequest = HttpRequest(request.headers())
         when (request.uri()) {
             "/", "/index.html" -> handleIndex(ctx, request)
             "/ws" -> handleWebsocket(ctx, request)
@@ -124,12 +143,16 @@ private class HttpServerHandler : SimpleChannelInboundHandler<FullHttpRequest>()
  */
 private class WebSocketFrameHandler(private val activeConnections: MutableSet<Channel>) : SimpleChannelInboundHandler<WebSocketFrame>() {
     override fun channelRead0(ctx: ChannelHandlerContext, frame: WebSocketFrame) {
-        if (frame is TextWebSocketFrame) {
-            // Send the uppercase string back.
-            val request = frame.text()
-            ctx.channel().writeAndFlush(TextWebSocketFrame(request.uppercase()))
-        } else {
-            throw UnsupportedOperationException("unsupported frame type: ${frame.javaClass.name}")
+        when (frame) {
+            is TextWebSocketFrame -> {
+                // Send the uppercase string back.
+                val request = frame.text()
+                ctx.channel().writeAndFlush(TextWebSocketFrame(request.uppercase()))
+            }
+
+            is CloseWebSocketFrame -> {}
+
+            else -> throw UnsupportedOperationException("unsupported frame type: ${frame.javaClass.name}")
         }
     }
 

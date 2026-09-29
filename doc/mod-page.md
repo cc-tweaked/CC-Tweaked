@@ -43,7 +43,7 @@ management systems.
 While ComputerCraft is lovely for both experienced programmers and for people who have never coded before, it can be a
 little daunting getting started. Thankfully, there's several fantastic tutorials out there:
 
- - [Direwolf20's ComputerCraft tutorials](https://www.youtube.com/watch?v=wrUHUhfCY5A "ComputerCraft Tutorial Episode 1 - HELP! and Hello World")
+ - [direwolf20's ComputerCraft tutorials](https://www.youtube.com/watch?v=wrUHUhfCY5A "ComputerCraft Tutorial Episode 1 - HELP! and Hello World")
  - [Sethbling's ComputerCraft series](https://www.youtube.com/watch?v=DSsx4VSe-Uk "Programming Tutorial with Minecraft Turtles -- Ep. 1: Intro to Turtles and If-Then-Else_End")
  - [Lyqyd's Computer Basics 1](https://ccf.squiddev.cc/forums2/index.php?/topic/15033-computer-basics-i/ "Computer Basics I")
 

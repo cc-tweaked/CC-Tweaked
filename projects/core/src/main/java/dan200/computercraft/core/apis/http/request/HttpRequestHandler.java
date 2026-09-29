@@ -47,7 +47,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
     private final URI uri;
     private final HttpMethod method;
-    private final boolean stream;
+    private final boolean streaming;
     private final Options options;
 
     private @Nullable Charset responseCharset;
@@ -59,12 +59,12 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     private @Nullable ByteBuf unpooledResponseBody;
     private @Nullable Runnable responseBodyTrigger;
 
-    HttpRequestHandler(HttpRequest request, URI uri, HttpMethod method, boolean stream, Options options) {
+    HttpRequestHandler(HttpRequest request, URI uri, HttpMethod method, boolean streaming, Options options) {
         this.request = request;
 
         this.uri = uri;
         this.method = method;
-        this.stream = stream;
+        this.streaming = streaming;
         this.options = options;
     }
 
@@ -133,7 +133,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
             responseStatus = response.status();
             responseHeaders.add(response.headers());
 
-            if (stream) {
+            if (streaming) {
                 sendResponseStreamed();
             }
         }
@@ -146,7 +146,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
                     if (responseBody == null) {
                         responseBody = ctx.alloc().compositeBuffer(DEFAULT_MAX_COMPOSITE_BUFFER_COMPONENTS);
                     }
-                    if (!stream && options.maxDownload() != 0 && responseBody.readableBytes() + partial.readableBytes() > options.maxDownload()) {
+                    if (!streaming && options.maxDownload() != 0 && responseBody.readableBytes() + partial.readableBytes() > options.maxDownload()) {
                         // If we've read more than we're allowed to handle, abort as soon as possible.
                         closed = true;
                         ctx.close();
@@ -156,7 +156,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
                     }
                     var wasEmpty = !responseBody.isReadable();
                     responseBody.addComponent(true, partial.retain());
-                    if (stream) {
+                    if (streaming) {
                         if (wasEmpty) {
                             request.partialContent();
                         }
@@ -172,7 +172,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
                 ctx.close();
 
                 // TODO: we should have some way to provide trailing headers for streamed connection
-                if (!stream) {
+                if (!streaming) {
                     responseHeaders.add(last.trailingHeaders());
 
                     // Set the content length, if not already given.
@@ -361,7 +361,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         synchronized (responseBodyLock) {
             responseBodyTrigger = null;
             if (responseBody != null) {
-                if (stream && responseBody.readableBytes() > 0) {
+                if (streaming && responseBody.readableBytes() > 0) {
                     unpooledResponseBody = Unpooled.copiedBuffer(responseBody);
                 }
                 responseBody.release();

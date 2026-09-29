@@ -34,6 +34,7 @@ as documentation for breaking changes and "gotchas" one should look out for betw
    - [`math.random`] now uses Lua 5.4's random number generator.
 
  - File handles, HTTP requests and websockets now always use the original bytes rather than encoding/decoding to UTF-8.
+   Files containing non-ASCII characters will be read back differently if using text mode.
 
 ## Minecraft 1.13 {#mc-1.13}
  - The "key code" for [`key`] and [`key_up`] events has changed, due to Minecraft updating to LWJGL 3. Make sure you're
@@ -62,7 +63,7 @@ as documentation for breaking changes and "gotchas" one should look out for betw
    - Due to how data packs are read by CC: Tweaked, you may need to use the `/reload` command to see changes to your
      pack show up on the computer.
 
-   See [the example datapack][datapack-example] for how to get started.
+   See [`data_pack`] for more information.
 
  - Turtles can now be waterlogged and move "through" water sources rather than breaking them.
 
@@ -78,4 +79,3 @@ as documentation for breaking changes and "gotchas" one should look out for betw
 
 [flattening]: https://minecraft.wiki/w/Java_Edition_1.13/Flattening
 [legal_data_pack]: https://minecraft.wiki/w/Tutorials/Creating_a_data_pack#Legal_characters
-[datapack-example]: https://github.com/cc-tweaked/datapack-example "An example datapack for CC: Tweaked"

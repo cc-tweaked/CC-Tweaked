@@ -35,6 +35,7 @@ import java.util.*;
  * @cc.module commands
  * @cc.since 1.7
  */
+@SuppressWarnings("MissingSummary")
 public class CommandAPI implements ILuaAPI {
     private static final Logger LOG = LoggerFactory.getLogger(CommandAPI.class);
 
@@ -158,6 +159,18 @@ public class CommandAPI implements ILuaAPI {
     }
 
     /**
+     * Get the name of the dimension the current command computer is in, such as {@code minecraft:overworld}.
+     *
+     * @return The dimension the computer is in.
+     * @see #getBlockPosition()
+     * @since 1.119.0
+     */
+    @LuaFunction
+    public final String getDimension() {
+        return computer.getLevel().dimension().location().toString();
+    }
+
+    /**
      * Get the position of the current command computer.
      *
      * @return The block's position.
@@ -165,10 +178,10 @@ public class CommandAPI implements ILuaAPI {
      * @cc.treturn number This computer's y position.
      * @cc.treturn number This computer's z position.
      * @cc.see gps.locate To get the position of a non-command computer.
+     * @see #getDimension()
      */
     @LuaFunction
     public final Object[] getBlockPosition() {
-        // This is probably safe to do on the Lua thread. Probably.
         var pos = computer.getPosition();
         return new Object[]{ pos.getX(), pos.getY(), pos.getZ() };
     }
@@ -250,7 +263,7 @@ public class CommandAPI implements ILuaAPI {
     /**
      * Get some basic information about a block.
      * <p>
-     * The returned table contains the the same information as listed in [`block_details`]. If there is a block entity
+     * The returned table contains the same information as listed in [`block_details`]. If there is a block entity
      * for that block, its NBT will also be returned.
      *
      * @param x         The x position of the block to query.

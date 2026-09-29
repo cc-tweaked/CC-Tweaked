@@ -3,31 +3,38 @@
 // SPDX-License-Identifier: MPL-2.0
 
 pluginManagement {
-    // Duplicated in buildSrc/build.gradle.kts
+    // Duplicated in build-logic/settings.gradle.kts
     repositories {
         mavenCentral()
         gradlePluginPortal()
 
-        maven("https://maven.fabricmc.net/") {
-            name = "Fabric"
-            content {
+        exclusiveContent {
+            forRepositories(maven("https://maven.fabricmc.net/"))
+            filter {
                 includeGroup("fabric-loom")
                 includeGroup("net.fabricmc")
                 includeGroup("net.fabricmc.unpick")
             }
         }
 
-        maven("https://maven.squiddev.cc") {
-            name = "SquidDev"
-            content {
+        exclusiveContent {
+            forRepositories(maven("https://maven.squiddev.cc"))
+            filter {
                 includeGroup("cc.tweaked.vanilla-extract")
             }
         }
     }
 }
 
-val mcVersion: String by settings
-rootProject.name = "cc-tweaked-$mcVersion"
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version ("1.0.0")
+}
+
+enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
+
+rootProject.name = "cc-tweaked"
+
+includeBuild("build-logic")
 
 include(":core-api")
 include(":core")

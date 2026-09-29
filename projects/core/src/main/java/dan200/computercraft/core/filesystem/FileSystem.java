@@ -388,7 +388,6 @@ public class FileSystem {
                 }
             } else if (part.isEmpty() || (part.startsWith(".") && manyDotsPattern.matcher(part).matches())) {
                 // Skip empty paths, ".", or any other sequence of "[. ]+" (as this is also treated as "." on Windows).
-                continue;
             } else {
                 // Anything else we add to the stack
                 outputParts.addLast(part);

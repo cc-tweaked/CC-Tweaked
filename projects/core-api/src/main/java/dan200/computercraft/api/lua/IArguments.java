@@ -73,7 +73,7 @@ public interface IArguments {
      * @throws LuaException If an error occurred while fetching an argument.
      * @see #get(int) To get a single argument.
      */
-    default Object[] getAll() throws LuaException {
+    default @Nullable Object[] getAll() throws LuaException {
         var result = new Object[count()];
         for (var i = 0; i < result.length; i++) result[i] = get(i);
         return result;

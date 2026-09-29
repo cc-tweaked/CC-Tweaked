@@ -57,7 +57,7 @@ class TurtleToolSerialiserTest {
         StructuralEquality.at("id", ITurtleUpgrade::getUpgradeID),
         StructuralEquality.at("craftingItem", ITurtleUpgrade::getCraftingItem, MinecraftEqualities.itemStack),
         StructuralEquality.at("tool", x -> x.item, MinecraftEqualities.itemStack),
-        StructuralEquality.at("damageMulitiplier", x -> x.damageMulitiplier),
+        StructuralEquality.at("damageMultiplier", x -> x.damageMultiplier),
         StructuralEquality.at("allowEnchantments", x -> x.allowEnchantments),
         StructuralEquality.at("consumeDurability", x -> x.consumeDurability),
         StructuralEquality.at("breakable", x -> x.breakable)

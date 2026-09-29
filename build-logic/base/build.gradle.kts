@@ -1,0 +1,34 @@
+// SPDX-FileCopyrightText: 2022 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
+plugins {
+    `java-gradle-plugin`
+    `kotlin-dsl`
+}
+
+dependencies {
+    implementation(libs.errorProne.plugin)
+    implementation(libs.kotlin.plugin)
+    implementation(libs.spotless)
+
+    implementation(libs.fabric.loom)
+    implementation(libs.ideaExt)
+    implementation(libs.minotaur)
+    implementation(libs.modDevGradle)
+    implementation(libs.vanillaExtract)
+}
+
+gradlePlugin {
+    plugins {
+        register("cc-tweaked.illuaminate") {
+            id = "cc-tweaked.illuaminate"
+            implementationClass = "cc.tweaked.gradle.IlluaminatePlugin"
+        }
+
+        register("cc-tweaked.node") {
+            id = "cc-tweaked.node"
+            implementationClass = "cc.tweaked.gradle.NodePlugin"
+        }
+    }
+}

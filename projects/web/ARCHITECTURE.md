@@ -16,8 +16,8 @@ The code for this is split into three separate components:
  - `src/main`: This holds the emulator itself: this is a basic Java project which depends on CC:T's core, and exposes an
    interface for Javascript code.
 
-   Some of our code (or dependencies) cannot be compiled to Javascript, for instance most of our HTTP implementation. In
-   theses cases we provide a replacement class. These classes start with `T` (for instance `THttpRequest`), which are
+   Some of our code (or dependencies) cannot be compiled to Javascript, for instance `Unsafe`-using parts of Netty. In
+   theses cases, we provide a replacement class. These classes start with `T` (for instance `TASsciiString`), which are
    specially handled in the next step.
 
  - `src/builder`: This module consumes the above code and compiles everything to Javascript using TeaVM. There's a

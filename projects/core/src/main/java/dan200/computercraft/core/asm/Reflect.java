@@ -12,16 +12,16 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.*;
 import java.util.Optional;
 
-final class Reflect {
+public final class Reflect {
     private static final Logger LOG = LoggerFactory.getLogger(Reflect.class);
-    static final java.lang.reflect.Type OPTIONAL_IN = Optional.class.getTypeParameters()[0];
-    static final java.lang.reflect.Type COERCED_IN = Coerced.class.getTypeParameters()[0];
+    public static final java.lang.reflect.Type OPTIONAL_IN = Optional.class.getTypeParameters()[0];
+    public static final java.lang.reflect.Type COERCED_IN = Coerced.class.getTypeParameters()[0];
 
     private Reflect() {
     }
 
     @Nullable
-    static Class<?> getRawType(Member method, Type root, boolean allowParameter) {
+    public static Class<?> getRawType(Member method, Type root, boolean allowParameter) {
         var underlying = root;
         while (true) {
             if (underlying instanceof Class<?> klass) return klass;

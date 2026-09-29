@@ -119,7 +119,7 @@ handleMetatable = {
         - `a`: Returns the entire rest of the file.
         - ~~`n`: Returns a number~~ (not implemented in CC).
 
-        These formats can be preceded by a `*` to make it compatible with Lua 5.1.
+        These formats can be preceded by a `*` to make it compatibility with Lua 5.1.
 
         If no format is provided, `l` is assumed.
 
@@ -201,7 +201,7 @@ handleMetatable = {
 
         --[[- Sets the buffering mode for an output file.
 
-        This has no effect under ComputerCraft, and exists with compatility
+        This has no effect under ComputerCraft, and exists for compatibility
         with base Lua.
         @tparam string mode The buffering mode.
         @tparam[opt] number size The size of the buffer.

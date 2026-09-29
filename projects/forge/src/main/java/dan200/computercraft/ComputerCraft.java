@@ -99,12 +99,12 @@ public final class ComputerCraft {
     private static void syncConfig(ModConfig config) {
         if (!config.getModId().equals(ComputerCraftAPI.MOD_ID)) return;
 
-        var path = config.getConfigData() instanceof FileConfig fileConfig ? fileConfig.getNioPath() : null;
-
         if (config.getType() == ModConfig.Type.SERVER && ((ForgeConfigFile) ConfigSpec.serverSpec).spec().isLoaded()) {
-            ConfigSpec.syncServer(path);
+            if (config.getConfigData() instanceof FileConfig fileConfig) {
+                ConfigSpec.syncServer(fileConfig.getNioPath());
+            }
         } else if (config.getType() == ModConfig.Type.CLIENT) {
-            ConfigSpec.syncClient(path);
+            ConfigSpec.syncClient();
         }
     }
 

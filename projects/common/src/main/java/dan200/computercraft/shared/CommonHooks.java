@@ -5,7 +5,6 @@
 package dan200.computercraft.shared;
 
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ResourceMount;
@@ -70,7 +69,6 @@ public final class CommonHooks {
 
     private static void resetState() {
         ServerContext.close();
-        NetworkUtils.reset();
     }
 
     public static void onServerChunkUnload(LevelChunk chunk) {

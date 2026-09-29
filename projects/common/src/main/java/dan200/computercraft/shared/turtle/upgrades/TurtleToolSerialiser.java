@@ -64,7 +64,7 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
         buffer.writeUtf(upgrade.getUnlocalisedAdjective());
         buffer.writeId(RegistryWrappers.ITEMS, upgrade.getCraftingItem().getItem());
         buffer.writeItem(upgrade.item);
-        buffer.writeFloat(upgrade.damageMulitiplier);
+        buffer.writeFloat(upgrade.damageMultiplier);
         buffer.writeBoolean(upgrade.allowEnchantments);
         buffer.writeEnum(upgrade.consumeDurability);
         buffer.writeNullable(upgrade.breakable, (b, x) -> b.writeResourceLocation(x.location()));

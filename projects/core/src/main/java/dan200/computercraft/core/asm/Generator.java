@@ -55,7 +55,7 @@ final class Generator<T> {
         }
     }
 
-    static void addArgType(Map<Class<?>, ArgMethods> types, Class<?> type, String name) throws ReflectiveOperationException {
+    private static void addArgType(Map<Class<?>, ArgMethods> types, Class<?> type, String name) throws ReflectiveOperationException {
         types.put(type, ArgMethods.of(type, name));
     }
 

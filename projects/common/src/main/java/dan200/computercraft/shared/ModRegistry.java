@@ -18,6 +18,7 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
+import dan200.computercraft.impl.UpgradeManager;
 import dan200.computercraft.shared.command.UserLevel;
 import dan200.computercraft.shared.command.arguments.ComputerArgumentType;
 import dan200.computercraft.shared.command.arguments.RepeatArgumentType;
@@ -573,13 +574,29 @@ public final class ModRegistry {
 
     private static void addTurtle(CreativeModeTab.Output out, TurtleItem turtle) {
         out.accept(turtle.create(-1, null, -1, null, null, 0, null));
-        TurtleUpgrades.getVanillaUpgrades()
-            .map(x -> turtle.create(-1, null, -1, null, UpgradeData.ofDefault(x), 0, null))
-            .forEach(out::accept);
+
+        for (var upgrade : TurtleUpgrades.instance().getUpgradeWrappers().values()) {
+            out.accept(
+                turtle.create(-1, null, -1, null, UpgradeData.ofDefault(upgrade.upgrade()), 0, null),
+                getUpgradeTabVisibility(upgrade)
+            );
+        }
     }
 
     private static void addPocket(CreativeModeTab.Output out, PocketComputerItem pocket) {
         out.accept(pocket.create(-1, null, -1, null));
-        PocketUpgrades.getVanillaUpgrades().map(x -> pocket.create(-1, null, -1, UpgradeData.ofDefault(x))).forEach(out::accept);
+
+        for (var upgrade : PocketUpgrades.instance().getUpgradeWrappers().values()) {
+            out.accept(
+                pocket.create(-1, null, -1, UpgradeData.ofDefault(upgrade.upgrade())),
+                getUpgradeTabVisibility(upgrade)
+            );
+        }
+    }
+
+    private static CreativeModeTab.TabVisibility getUpgradeTabVisibility(UpgradeManager.UpgradeWrapper<?, ?> upgrade) {
+        return upgrade.modId().equals(ComputerCraftAPI.MOD_ID)
+            ? CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+            : CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY;
     }
 }
