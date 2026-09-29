@@ -88,7 +88,7 @@ final class Websocket extends Resource<Websocket> implements WebsocketClient {
 
         var handle = new WebsocketHandle(environment, address, this, Map.of(), options);
         environment.queueEvent(SUCCESS_EVENT, address, handle);
-        createOwnerReference(handle);
+        registerCleanable(handle);
 
         checkClosed();
     }

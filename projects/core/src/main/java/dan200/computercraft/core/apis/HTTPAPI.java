@@ -8,7 +8,6 @@ import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.HttpHandler;
-import dan200.computercraft.core.apis.http.Resource;
 import dan200.computercraft.core.apis.http.request.HttpRequest;
 import dan200.computercraft.core.apis.http.websocket.WebsocketClient;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
@@ -55,13 +54,6 @@ public class HTTPAPI implements ILuaAPI {
     @Override
     public void shutdown() {
         handler.shutdown();
-    }
-
-    @Override
-    public void update() {
-        // It's rather ugly to run this here, but we need to clean up
-        // resources as often as possible to reduce blocking.
-        Resource.cleanup();
     }
 
     @LuaFunction

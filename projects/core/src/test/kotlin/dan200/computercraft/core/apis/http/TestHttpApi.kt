@@ -23,6 +23,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.lang.ref.Reference
 import java.util.*
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -74,6 +75,8 @@ class TestHttpApi {
 
                 val closeEvent = pullEventOrTimeout(500.milliseconds, "websocket_closed")
                 assertThat("No event was queued", closeEvent, equalTo(null))
+
+                Reference.reachabilityFence(websocket)
             }
         }
     }
@@ -114,12 +117,16 @@ class TestHttpApi {
                 val connectEvent = pullEvent()
                 assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(url), isA(WebsocketHandle::class.java)))
 
+                val websocket = connectEvent[2] as WebsocketHandle
+
                 val out = ByteArray(AddressRule.WEBSOCKET_MESSAGE + 1)
                 Random(0xDEADBEEF).nextBytes(out)
                 server.broadcast(BinaryWebSocketFrame(Unpooled.wrappedBuffer(out)))
 
                 val closeEvent = pullEvent()
                 assertThat(closeEvent, array(equalTo("websocket_closed"), equalTo(url), equalTo("Received a too-large message"), nullValue()))
+
+                Reference.reachabilityFence(websocket)
             }
         }
     }
@@ -149,6 +156,8 @@ class TestHttpApi {
                 assertThrows<LuaException>("Throws an exception when sending") {
                     websocket.send(Coerced(LuaValues.encode("hello")), Optional.of(false))
                 }
+
+                Reference.reachabilityFence(websocket)
             }
         }
     }
