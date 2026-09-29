@@ -4,7 +4,7 @@
 
 package dan200.computercraft.core.apis.http;
 
-import dan200.computercraft.core.util.GlobalCleaner;
+import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import dan200.computercraft.core.util.IoUtil;
 import io.netty.channel.ChannelFuture;
 import org.jspecify.annotations.Nullable;
@@ -64,19 +64,11 @@ public abstract class Resource<T extends Resource<T>> implements Closeable {
      * Note, this may be called multiple times, and so should be thread-safe and
      * avoid any major side effects.
      */
+    @OverridingMethodsMustInvokeSuper
     protected void dispose() {
         @SuppressWarnings("unchecked")
         var thisT = (T) this;
         limiter.release(thisT);
-    }
-
-    /**
-     * Register an object which, when garbage collected, will delete this object.
-     *
-     * @param object The object to reference to
-     */
-    protected final void registerCleanable(Object object) {
-        GlobalCleaner.register(object, this::dispose);
     }
 
     @Override

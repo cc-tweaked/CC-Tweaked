@@ -255,7 +255,7 @@ tasks.verifyClassesMatch {
         option("ModLoader", "forge")
     }
 
-    // We have an extra adapater between SimpleJsonResourceReloadListener.prepare and SimplePreparableReloadListener.prepare.
+    // We have an extra adapter between SimpleJsonResourceReloadListener.prepare and SimplePreparableReloadListener.prepare.
     // Not quite sure why, but doesn't cause issues.
     ignoredFiles.add("dan200/computercraft/impl/UpgradeManager.class")
     // Forge widens the inner classes of RenderType, so we end up with different InnerClasses attributes. Doesn't cause

@@ -12,6 +12,7 @@ import dan200.computercraft.core.apis.http.*;
 import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.util.AtomicHelpers;
+import dan200.computercraft.core.util.GlobalCleaner;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -30,12 +31,14 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Provides functionality to verify and connect to a remote websocket.
  */
-public class Websocket extends Resource<Websocket> implements WebsocketClient {
+public final class Websocket extends Resource<Websocket> implements WebsocketClient {
     private static final Logger LOG = LoggerFactory.getLogger(Websocket.class);
 
     /**
@@ -44,8 +47,14 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
      */
     public static final int MAX_MESSAGE_SIZE = 1 << 30;
 
+    /**
+     * The timeout after sending a {@link CloseWebSocketFrame} after which the channel should be force-closed.
+     */
+    private static final long CLOSE_TIMEOUT = 5;
+
     private @Nullable Future<?> executorFuture;
     private @Nullable ChannelFuture channelFuture;
+    private @Nullable ScheduledFuture<?> closeFuture;
 
     private final IAPIEnvironment environment;
     private final NetworkUtils network;
@@ -56,6 +65,7 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
 
     private final AtomicInteger inFlight = new AtomicInteger(0);
     private final GenericFutureListener<? extends io.netty.util.concurrent.Future<? super Void>> onSend = f -> inFlight.decrementAndGet();
+    private boolean isClosing = false;
 
     public Websocket(ResourceGroup<Websocket> limiter, IAPIEnvironment environment, NetworkUtils network, String address, URI uri, HttpHeaders headers, int timeout) {
         super(limiter);
@@ -102,15 +112,15 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
                     );
                 })
                 .addListener(c -> {
-                    if (!c.isSuccess()) failure(NetworkUtils.toFriendlyError(c.cause()));
+                    if (!c.isSuccess()) handshakeFailure(NetworkUtils.toFriendlyError(c.cause()));
                 });
 
             // Do an additional check for cancellation
             checkClosed();
         } catch (HTTPRequestException e) {
-            failure(NetworkUtils.toFriendlyError(e));
+            handshakeFailure(NetworkUtils.toFriendlyError(e));
         } catch (Exception e) {
-            failure(NetworkUtils.toFriendlyError(e));
+            handshakeFailure(NetworkUtils.toFriendlyError(e));
             LOG.error(Logging.HTTP_ERROR, "Error in websocket", e);
         }
     }
@@ -125,17 +135,17 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
 
 
         var handle = new WebsocketHandle(environment, address, this, headers, options);
+        GlobalCleaner.register(handle, () -> close(1001, ""));
         environment().queueEvent(SUCCESS_EVENT, address, handle);
-        registerCleanable(handle);
 
         checkClosed();
     }
 
-    void failure(String message) {
+    void handshakeFailure(String message) {
         if (tryClose()) environment.queueEvent(FAILURE_EVENT, address, message);
     }
 
-    void close(int status, String reason) {
+    void serverClose(int status, String reason) {
         if (tryClose()) {
             environment.queueEvent(CLOSE_EVENT, address,
                 Strings.isNullOrEmpty(reason) ? null : reason,
@@ -149,6 +159,7 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
 
         executorFuture = closeFuture(executorFuture);
         channelFuture = closeChannel(channelFuture);
+        closeFuture = closeFuture(closeFuture);
     }
 
     IAPIEnvironment environment() {
@@ -177,7 +188,7 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
 
     private void sendMessage(WebSocketFrame frame, long size) throws LuaException {
         var channel = channel();
-        if (channel == null) return;
+        if (channel == null || isClosing) throw new LuaException(CLOSED_ERROR);
 
         // Grow the number of in-flight requests, aborting if we've hit the limit. This is then decremented when the
         // promise finishes.
@@ -187,5 +198,23 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
 
         environment.observe(Metrics.WEBSOCKET_OUTGOING, size);
         channel.writeAndFlush(frame).addListener(onSend);
+    }
+
+    @Override
+    public void close(int status, String reason) {
+        // Close is idempotent, so should not fail if the socket is already closed.
+        var channel = channel();
+        if (channel == null || isClosing) return;
+
+        isClosing = true;
+
+        var packet = new CloseWebSocketFrame(status, reason);
+        environment.observe(Metrics.WEBSOCKET_OUTGOING, packet.content().readableBytes());
+        channel.writeAndFlush(packet);
+
+        // Schedule a callback to force-close the websocket if the server does not respond. This reimplements
+        // WebSocketProtocolHandler.applyCloseSentTimeout — unfortunately our CustomWebSocketHandshaker means we cannot
+        // specify a custom forceCloseTimeoutMillis.
+        closeFuture = channel.eventLoop().schedule(() -> serverClose(1006, ""), CLOSE_TIMEOUT, TimeUnit.SECONDS);
     }
 }

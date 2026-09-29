@@ -6,6 +6,7 @@ package cc.tweaked.web.http;
 
 import cc.tweaked.web.js.Console;
 import com.google.common.base.Strings;
+import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.Resource;
 import dan200.computercraft.core.apis.http.ResourceGroup;
@@ -13,6 +14,7 @@ import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.core.apis.http.websocket.WebsocketClient;
 import dan200.computercraft.core.apis.http.websocket.WebsocketHandle;
+import dan200.computercraft.core.util.GlobalCleaner;
 import org.jspecify.annotations.Nullable;
 import org.teavm.jso.typedarrays.ArrayBuffer;
 import org.teavm.jso.typedarrays.Int8Array;
@@ -32,6 +34,7 @@ final class Websocket extends Resource<Websocket> implements WebsocketClient {
     private final String address;
 
     private @Nullable WebSocket websocket;
+    private boolean isClosing = false;
 
     Websocket(ResourceGroup<Websocket> limiter, IAPIEnvironment environment, String address, URI uri) {
         super(limiter);
@@ -48,7 +51,7 @@ final class Websocket extends Resource<Websocket> implements WebsocketClient {
         client.onOpen(e -> success(Action.ALLOW.toPartial().toOptions()));
         client.onError(e -> {
             Console.error(e);
-            failure("Could not connect");
+            handshakeFailure("Could not connect");
         });
         client.onMessage(e -> {
             if (isClosed()) return;
@@ -59,19 +62,27 @@ final class Websocket extends Resource<Websocket> implements WebsocketClient {
                 environment.queueEvent("websocket_message", address, e.getDataAsString(), false);
             }
         });
-        client.onClose(e -> close(e.getCode(), e.getReason()));
+        client.onClose(e -> serverClosed(e.getCode(), e.getReason()));
     }
 
     @Override
-    public void sendText(String message) {
-        if (websocket == null) return;
+    public void sendText(String message) throws LuaException {
+        if (websocket == null || isClosing) throw new LuaException(CLOSED_ERROR);
         websocket.send(message);
     }
 
     @Override
-    public void sendBinary(ByteBuffer message) {
-        if (websocket == null) return;
+    public void sendBinary(ByteBuffer message) throws LuaException {
+        if (websocket == null || isClosing) throw new LuaException(CLOSED_ERROR);
         websocket.send(Int8Array.fromJavaBuffer(message));
+    }
+
+    @Override
+    public void close(int status, String reason) {
+        if (websocket == null || isClosing) return;
+
+        websocket.close(status, reason);
+        isClosing = true;
     }
 
     @Override
@@ -88,16 +99,16 @@ final class Websocket extends Resource<Websocket> implements WebsocketClient {
 
         var handle = new WebsocketHandle(environment, address, this, Map.of(), options);
         environment.queueEvent(SUCCESS_EVENT, address, handle);
-        registerCleanable(handle);
+        GlobalCleaner.register(handle, () -> close(1001, ""));
 
         checkClosed();
     }
 
-    void failure(String message) {
+    private void handshakeFailure(String message) {
         if (tryClose()) environment.queueEvent(FAILURE_EVENT, address, message);
     }
 
-    void close(int status, String reason) {
+    private void serverClosed(int status, String reason) {
         if (!tryClose()) return;
 
         environment.queueEvent(CLOSE_EVENT, address, Strings.isNullOrEmpty(reason) ? null : reason, status < 0 ? null : status);
