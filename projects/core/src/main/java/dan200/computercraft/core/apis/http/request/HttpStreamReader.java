@@ -34,7 +34,9 @@ public class HttpStreamReader {
     }
 
     protected void checkOpen() throws LuaException {
-        if (isClosed) throw new LuaException("attempt to use a closed connection");
+        if (isClosed) {
+            throw new LuaException("attempt to use a closed connection");
+        }
     }
 
     @LuaFunction
@@ -84,7 +86,7 @@ public class HttpStreamReader {
         throw new LuaException("cannot seek on a streamed connection");
     }
 
-    private static abstract class HttpContentPoller implements ILuaCallback {
+    private abstract static class HttpContentPoller implements ILuaCallback {
         final MethodResult pull = MethodResult.pullEvent(HttpRequest.CONTENT_EVENT, this);
         private final String url;
         final boolean blocking;
@@ -146,7 +148,7 @@ public class HttpStreamReader {
         }
     }
 
-    private static abstract class HttpContentPartsPoller extends HttpContentPoller {
+    private abstract static class HttpContentPartsPoller extends HttpContentPoller {
         final List<ByteBuffer> parts = new ArrayList<>(4);
         int totalRead = 0;
 
@@ -185,8 +187,11 @@ public class HttpStreamReader {
                 var read = handler.readBody(buffer);
                 if (read < 0) {
                     buffer.flip();
-                    if (buffer.hasRemaining()) parts.add(buffer);
-                    else if (parts.isEmpty()) return MethodResult.of();
+                    if (buffer.hasRemaining()) {
+                        parts.add(buffer);
+                    } else if (parts.isEmpty()) {
+                        return MethodResult.of();
+                    }
                     break;
                 }
 
