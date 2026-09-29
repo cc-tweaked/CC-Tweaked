@@ -11,13 +11,9 @@ import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.Resource;
 import dan200.computercraft.core.apis.http.ResourceGroup;
 import dan200.computercraft.core.metrics.Metrics;
-import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import org.jspecify.annotations.Nullable;
@@ -122,17 +118,13 @@ public class HttpRequest extends Resource<HttpRequest> {
         if (isClosed()) return;
 
         try {
-            var ssl = uri.getScheme().equalsIgnoreCase("https");
-            var socketAddress = NetworkUtils.getAddress(uri, ssl);
-            var options = network.getOptions(uri.getHost(), socketAddress);
-            var sslContext = ssl ? NetworkUtils.getSslContext() : null;
-            var proxy = network.getProxyHandler(options, timeout);
+            var conn = network.getConnectionInfo(uri, uri.getScheme().equalsIgnoreCase("https"), timeout);
 
-            // getAddress may have a slight delay, so let's perform another cancellation check.
+            // getConnectionInfo performs several blocking calls, so perform another cancellation check.
             if (isClosed()) return;
 
             var requestBody = getHeaderSize(headers) + postBuffer.capacity();
-            if (options.maxUpload() != 0 && requestBody > options.maxUpload()) {
+            if (conn.options().maxUpload() != 0 && requestBody > conn.options().maxUpload()) {
                 failure("Request body is too large");
                 return;
             }
@@ -141,27 +133,18 @@ public class HttpRequest extends Resource<HttpRequest> {
             environment.observe(Metrics.HTTP_REQUESTS);
             environment.observe(Metrics.HTTP_UPLOAD, requestBody);
 
-            var handler = currentRequest = new HttpRequestHandler(this, uri, method, options);
-            connectFuture = new Bootstrap()
-                .group(NetworkUtils.LOOP_GROUP)
-                .channelFactory(NioSocketChannel::new)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) {
-                        network.initChannel(ch, uri, socketAddress, sslContext, proxy, timeout);
+            var handler = currentRequest = new HttpRequestHandler(this, uri, method, conn.options());
+            connectFuture = network
+                .connect(conn, ch -> {
+                    var p = ch.pipeline();
+                    if (timeout > 0) p.addLast(new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
 
-                        var p = ch.pipeline();
-                        if (timeout > 0) p.addLast(new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
-
-                        p.addLast(
-                            new HttpClientCodec(),
-                            new HttpContentDecompressor(),
-                            handler
-                        );
-                    }
+                    p.addLast(
+                        new HttpClientCodec(),
+                        new HttpContentDecompressor(),
+                        handler
+                    );
                 })
-                .remoteAddress(socketAddress)
-                .connect()
                 .addListener(c -> {
                     if (!c.isSuccess()) failure(NetworkUtils.toFriendlyError(c.cause()));
                 });

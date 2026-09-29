@@ -8,11 +8,15 @@ import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.core.util.ThreadUtils;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ConnectTimeoutException;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.TooLongFrameException;
 import io.netty.handler.codec.http.websocketx.CorruptedWebSocketFrameException;
@@ -61,7 +65,7 @@ public final class NetworkUtils {
     NetworkUtils(NettyHttp netty) {
         this.netty = netty;
         this.shapingHandler = new GlobalTrafficShapingHandler(
-            EXECUTOR, netty.getConfig().uploadBandwidth(), netty.getConfig().downloadBandwidth()
+            LOOP_GROUP, netty.getConfig().uploadBandwidth(), netty.getConfig().downloadBandwidth()
         );
     }
 
@@ -84,7 +88,7 @@ public final class NetworkUtils {
         }
     }
 
-    public static SslContext getSslContext() throws HTTPRequestException {
+    private static SslContext getSslContext() throws HTTPRequestException {
         var ssl = makeSslContext();
         if (ssl == null) throw new HTTPRequestException("Could not create a secure connection");
         return ssl;
@@ -92,6 +96,24 @@ public final class NetworkUtils {
 
     void reloadConfig() {
         shapingHandler.configure(netty.getConfig().uploadBandwidth(), netty.getConfig().downloadBandwidth());
+    }
+
+    public record ConnectionInfo(
+        URI uri,
+        InetSocketAddress address,
+        int timeout,
+        Options options,
+        @Nullable SslContext sslContext,
+        @Nullable Consumer<SocketChannel> proxy
+    ) {
+    }
+
+    public ConnectionInfo getConnectionInfo(URI uri, boolean ssl, int timeout) throws HTTPRequestException {
+        var address = getAddress(uri.getHost(), uri.getPort(), ssl);
+        var options = getOptions(uri.getHost(), address);
+        var sslContext = ssl ? getSslContext() : null;
+        var proxy = getProxyHandler(options, timeout);
+        return new ConnectionInfo(uri, address, timeout, options, sslContext, proxy);
     }
 
     /**
@@ -156,7 +178,7 @@ public final class NetworkUtils {
      * @return A consumer that takes a {@link SocketChannel} and injects the proxy handler..
      * @throws HTTPRequestException If a proxy is required but not configured correctly.
      */
-    public @Nullable Consumer<SocketChannel> getProxyHandler(Options options, int timeout) throws HTTPRequestException {
+    private @Nullable Consumer<SocketChannel> getProxyHandler(Options options, int timeout) throws HTTPRequestException {
         if (!options.useProxy()) return null;
 
         var proxy = netty.getConfig().proxy();
@@ -184,6 +206,28 @@ public final class NetworkUtils {
     }
 
     /**
+     * Connect to a socket using the supplied {@link ConnectionInfo} from {@link #getConnectionInfo(URI, boolean, int)}.
+     *
+     * @param conn      The connection info.
+     * @param configure A function to configure the channel.
+     * @return The {@link ChannelFuture} from {@link Bootstrap#connect()}.
+     */
+    public ChannelFuture connect(ConnectionInfo conn, Consumer<SocketChannel> configure) {
+        return new Bootstrap()
+            .group(NetworkUtils.LOOP_GROUP)
+            .channelFactory(NioSocketChannel::new)
+            .handler(new ChannelInitializer<SocketChannel>() {
+                @Override
+                protected void initChannel(SocketChannel ch) {
+                    setupChannel(ch, conn);
+                    configure.accept(ch);
+                }
+            })
+            .remoteAddress(conn.address())
+            .connect();
+    }
+
+    /**
      * Make an SSL handler for the remote host.
      *
      * @param ch         The channel the handler will be added to.
@@ -204,24 +248,20 @@ public final class NetworkUtils {
      * Set up some basic properties of the channel. This adds a timeout, the traffic shaping handler, and the SSL
      * handler.
      *
-     * @param ch            The channel to initialise.
-     * @param uri           The URI to connect to.
-     * @param socketAddress The address of the socket to connect to.
-     * @param sslContext    The SSL context, if present.
-     * @param proxy         The proxy handler, if present.
-     * @param timeout       The timeout on this channel.
+     * @param ch   The channel to initialise.
+     * @param conn Properties about the connection.
      * @see io.netty.channel.ChannelInitializer
      */
-    public void initChannel(SocketChannel ch, URI uri, InetSocketAddress socketAddress, @Nullable SslContext sslContext, @Nullable Consumer<SocketChannel> proxy, int timeout) {
-        if (timeout > 0) ch.config().setConnectTimeoutMillis(timeout);
+    private void setupChannel(SocketChannel ch, ConnectionInfo conn) {
+        if (conn.timeout() > 0) ch.config().setConnectTimeoutMillis(conn.timeout());
 
         var p = ch.pipeline();
         p.addLast(shapingHandler);
 
-        if (proxy != null) proxy.accept(ch);
+        if (conn.proxy() != null) conn.proxy().accept(ch);
 
         if (sslContext != null) {
-            p.addLast(makeSslHandler(ch, sslContext, timeout, uri.getHost(), socketAddress.getPort()));
+            p.addLast(makeSslHandler(ch, sslContext, conn.timeout(), conn.uri().getHost(), conn.address().getPort()));
         }
     }
 

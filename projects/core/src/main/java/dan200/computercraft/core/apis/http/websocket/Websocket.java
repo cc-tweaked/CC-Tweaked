@@ -12,13 +12,9 @@ import dan200.computercraft.core.apis.http.*;
 import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.util.AtomicHelpers;
-import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -82,41 +78,29 @@ public class Websocket extends Resource<Websocket> implements WebsocketClient {
         if (isClosed()) return;
 
         try {
-            var ssl = uri.getScheme().equalsIgnoreCase("wss");
-            var socketAddress = NetworkUtils.getAddress(uri, ssl);
-            var options = network.getOptions(uri.getHost(), socketAddress);
-            var sslContext = ssl ? NetworkUtils.getSslContext() : null;
-            var proxy = network.getProxyHandler(options, timeout);
+            var conn = network.getConnectionInfo(uri, uri.getScheme().equalsIgnoreCase("wss"), timeout);
+            var options = conn.options();
 
-            // getAddress may have a slight delay, so let's perform another cancellation check.
+            // getConnectionInfo performs several blocking calls, so perform another cancellation check.
             if (isClosed()) return;
 
-            channelFuture = new Bootstrap()
-                .group(NetworkUtils.LOOP_GROUP)
-                .channel(NioSocketChannel.class)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) {
-                        network.initChannel(ch, uri, socketAddress, sslContext, proxy, timeout);
+            channelFuture = network
+                .connect(conn, ch -> {
+                    var subprotocol = headers.get(HttpHeaderNames.SEC_WEBSOCKET_PROTOCOL);
+                    var handshaker = new CustomWebSocketHandshaker(
+                        uri, WebSocketVersion.V13, subprotocol, true, headers,
+                        options.websocketMessage() <= 0 ? MAX_MESSAGE_SIZE : options.websocketMessage()
+                    );
 
-                        var subprotocol = headers.get(HttpHeaderNames.SEC_WEBSOCKET_PROTOCOL);
-                        var handshaker = new CustomWebSocketHandshaker(
-                            uri, WebSocketVersion.V13, subprotocol, true, headers,
-                            options.websocketMessage() <= 0 ? MAX_MESSAGE_SIZE : options.websocketMessage()
-                        );
-
-                        var p = ch.pipeline();
-                        p.addLast(
-                            new HttpClientCodec(),
-                            new HttpObjectAggregator(8192),
-                            WebsocketCompressionHandler.INSTANCE,
-                            new WebSocketClientProtocolHandler(handshaker, false, timeout),
-                            new WebsocketHandler(Websocket.this, handshaker, options)
-                        );
-                    }
+                    var p = ch.pipeline();
+                    p.addLast(
+                        new HttpClientCodec(),
+                        new HttpObjectAggregator(8192),
+                        WebsocketCompressionHandler.INSTANCE,
+                        new WebSocketClientProtocolHandler(handshaker, false, timeout),
+                        new WebsocketHandler(Websocket.this, handshaker, options)
+                    );
                 })
-                .remoteAddress(socketAddress)
-                .connect()
                 .addListener(c -> {
                     if (!c.isSuccess()) failure(NetworkUtils.toFriendlyError(c.cause()));
                 });
