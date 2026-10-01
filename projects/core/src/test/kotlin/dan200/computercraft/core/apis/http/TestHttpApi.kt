@@ -12,6 +12,8 @@ import dan200.computercraft.core.apis.HTTPAPI
 import dan200.computercraft.core.apis.IAPIEnvironment
 import dan200.computercraft.core.apis.handles.ReadHandle
 import dan200.computercraft.core.apis.http.HttpServer.Companion.runServer
+import dan200.computercraft.core.apis.http.TestHttpApi.Companion.INSTANT_DURATION
+import dan200.computercraft.core.apis.http.TestHttpApi.Companion.LIMITED_DURATION
 import dan200.computercraft.core.apis.http.options.Action
 import dan200.computercraft.core.apis.http.options.AddressRule
 import dan200.computercraft.core.apis.http.request.HttpResponseHandle
@@ -26,17 +28,36 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.lang.ref.Reference
+import java.nio.ByteBuffer
+import java.time.Duration
 import java.util.*
+import java.util.concurrent.TimeUnit
+import java.util.random.RandomGenerator
+import java.util.random.RandomGeneratorFactory
 import kotlin.time.Duration.Companion.seconds
 
 class TestHttpApi {
     /** Create a [HTTPAPI] which is only permitted to access the current server. */
-    private fun createHttpApi(environment: IAPIEnvironment, port: Int): HTTPAPI {
+    private fun createHttpApi(environment: IAPIEnvironment, port: Int, config: NettyHttp.Config = NettyHttp.DEFAULT_CONFIG): HTTPAPI {
         val rules = listOf(
             AddressRule.parse("127.0.0.1", OptionalInt.of(port), Action.ALLOW.toPartial()),
         )
-        return HTTPAPI(environment, NettyHttp(NettyHttp.DEFAULT_CONFIG.withAddressRules(rules)).create(environment))
+        return HTTPAPI(environment, NettyHttp(config.withAddressRules(rules)).create(environment))
     }
+
+    /** Create a custom [NettyHttp.Config]. */
+    private fun createHttpConfig(
+        uploadBandwidth: Int = NettyHttp.DEFAULT_CONFIG.uploadBandwidth,
+        downloadBandwidth: Int = NettyHttp.DEFAULT_CONFIG.downloadBandwidth,
+    ) = NettyHttp.Config(
+        NettyHttp.DEFAULT_CONFIG.enabled,
+        NettyHttp.DEFAULT_CONFIG.addressRules,
+        NettyHttp.DEFAULT_CONFIG.maxRequests,
+        NettyHttp.DEFAULT_CONFIG.maxWebsockets,
+        downloadBandwidth,
+        uploadBandwidth,
+        NettyHttp.DEFAULT_CONFIG.proxy,
+    )
 
     @Test
     fun `Connects to a HTTP server`() {
@@ -56,18 +77,23 @@ class TestHttpApi {
         }
     }
 
+    suspend fun LuaTaskRunner.websocket(server: HttpServer, httpApi: HTTPAPI): Pair<String, WebsocketHandle> {
+        val url = "ws://127.0.0.1:${server.port}/ws"
+        assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
+
+        val connectEvent = pullEvent()
+        assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(url), isA(WebsocketHandle::class.java)))
+
+        return Pair(url, connectEvent[2] as WebsocketHandle)
+    }
+
     @Test
     fun `Connects to websocket`() {
         runServer { server ->
             LuaTaskRunner.runTest {
-                val url = "ws://127.0.0.1:${server.port}/ws"
                 val httpApi = addApi(createHttpApi(environment, server.port))
-                assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
+                val (url, websocket) = websocket(server, httpApi)
 
-                val connectEvent = pullEvent()
-                assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(url), isA(WebsocketHandle::class.java)))
-
-                val websocket = connectEvent[2] as WebsocketHandle
                 websocket.send(Coerced(LuaValues.encode("Hello")), Optional.of(false))
 
                 val message = websocket.receive(Optional.empty()).await()
@@ -89,14 +115,9 @@ class TestHttpApi {
     fun `Errors if too many websocket messages are sent`() {
         runServer { server ->
             LuaTaskRunner.runTest {
-                val url = "ws://127.0.0.1:${server.port}/ws"
                 val httpApi = addApi(createHttpApi(environment, server.port))
-                assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
+                val (_, websocket) = websocket(server, httpApi)
 
-                val connectEvent = pullEvent()
-                assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(url), isA(WebsocketHandle::class.java)))
-
-                val websocket = connectEvent[2] as WebsocketHandle
                 val error = assertThrows<LuaException> {
                     for (i in 0 until 10_000) {
                         websocket.send(Coerced(LuaValues.encode("Hello")), Optional.of(false))
@@ -114,14 +135,8 @@ class TestHttpApi {
     fun `Closes if a websocket message is too large`() {
         runServer { server ->
             LuaTaskRunner.runTest {
-                val url = "ws://127.0.0.1:${server.port}/ws"
                 val httpApi = addApi(createHttpApi(environment, server.port))
-                assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
-
-                val connectEvent = pullEvent()
-                assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(url), isA(WebsocketHandle::class.java)))
-
-                val websocket = connectEvent[2] as WebsocketHandle
+                val (url, websocket) = websocket(server, httpApi)
 
                 val out = ByteArray(AddressRule.WEBSOCKET_MESSAGE + 1)
                 Random(0xDEADBEEF).nextBytes(out)
@@ -139,14 +154,8 @@ class TestHttpApi {
     fun `Queues an event when the socket is externally closed`() {
         runServer { server ->
             LuaTaskRunner.runTest {
-                val url = "ws://127.0.0.1:${server.port}/ws"
                 val httpApi = addApi(createHttpApi(environment, server.port))
-                assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
-
-                val connectEvent = pullEvent()
-                assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(url), isA(WebsocketHandle::class.java)))
-
-                val websocket = connectEvent[2] as WebsocketHandle
+                val (url, websocket) = websocket(server, httpApi)
 
                 server.stop()
 
@@ -170,13 +179,8 @@ class TestHttpApi {
     fun `Closes websocket if the server doesn't respond`() {
         runServer(closeWebsocket = false) { server ->
             LuaTaskRunner.runTest(timeout = 10.seconds) {
-                val url = "ws://127.0.0.1:${server.port}/ws"
                 val httpApi = addApi(createHttpApi(environment, server.port))
-                assertThat("http.websocket succeeded", httpApi.websocket(ObjectArguments(url)), array(equalTo(true)))
-
-                val connectEvent = pullEvent()
-                assertThat(connectEvent, array(equalTo("websocket_success"), equalTo(url), isA(WebsocketHandle::class.java)))
-                val websocket = connectEvent[2] as WebsocketHandle
+                val (url, websocket) = websocket(server, httpApi)
 
                 websocket.close()
 
@@ -186,5 +190,107 @@ class TestHttpApi {
                 Reference.reachabilityFence(websocket)
             }
         }
+    }
+
+    private data class DelayStats(val send: Duration, val receive: Duration)
+
+    /**
+     * Send a sequence of random messages on a websocket, and time how long each message takes to send and receive.
+     *
+     * As bandwidth limits are somewhat non-deterministic (dependent on IO and thread scheduling), this function sends
+     * multiple messages (as many as it can for 2 seconds), and takes the average delay over all of them.
+     */
+    private fun measureWebsocketDelay(config: NettyHttp.Config): DelayStats {
+        var count = 0
+        var send = Duration.ZERO
+        var receive = Duration.ZERO
+
+        val random = RandomGeneratorFactory.of<RandomGenerator>("L32X64MixRandom").create(-8780085030276499495L)
+
+        /** Create a random message. This creates a new message every time to ensure messages do not compress. */
+        fun randomMessage(): ByteBuffer {
+            val message = ByteArray(BANDWIDTH_MESSAGE_SIZE)
+            random.nextBytes(message)
+            return ByteBuffer.wrap(message).asReadOnlyBuffer()
+        }
+
+        runServer { server ->
+            LuaTaskRunner.runTest(timeout = 10.seconds) {
+                val httpApi = addApi(createHttpApi(environment, server.port, config))
+                val (_, websocket) = websocket(server, httpApi)
+
+                // Send/receive one message before timing. Read bandwidth limits get applied retroactively (we disable
+                // auto-read after hitting the limit), so we need to ensure that happens first.
+                websocket.send(Coerced(randomMessage()), Optional.of(true))
+                websocket.receive(Optional.empty()).await()
+
+                val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(2)
+                do {
+                    val sent = System.nanoTime()
+                    websocket.send(Coerced(randomMessage()), Optional.of(true))
+                    websocket.receive(Optional.empty()).await()
+                    val clientReceived = System.nanoTime()
+                    val serverReceived = server.lastRequest.lastMessageTime
+
+                    count += 1
+                    send += Duration.ofNanos(serverReceived - sent)
+                    receive += Duration.ofNanos(clientReceived - serverReceived)
+                } while (sent < deadline)
+
+                websocket.close()
+            }
+        }
+
+        assertThat("Ran multiple tests", count, greaterThan(1))
+
+        return DelayStats(send = send.dividedBy(count.toLong()), receive = receive.dividedBy(count.toLong()))
+    }
+
+    @Test
+    fun `Messages are sent and received with no delay`() {
+        val delay = measureWebsocketDelay(createHttpConfig())
+        // When sending a message which does not hit the bandwidth cap, then we shouldn't see any delay on the message.
+        assertThat("Send delay", delay.send, lessThan(INSTANT_DURATION))
+        assertThat("Receive delay", delay.receive, lessThan(INSTANT_DURATION))
+    }
+
+    @Test
+    fun `Limits upload bandwidth`() {
+        val delay = measureWebsocketDelay(createHttpConfig(uploadBandwidth = BANDWIDTH_MESSAGE_SIZE * BANDWIDTH_SCALE))
+        // When sending a message which does hit the bandwidth cap, then we should expect a delay in sending the message,
+        // but not in receiving the reply.
+        assertThat("Send delay", delay.send, greaterThan(LIMITED_DURATION))
+        assertThat("Receive delay", delay.receive, lessThan(INSTANT_DURATION))
+    }
+
+    @Test
+    fun `Limits download bandwidth`() {
+        val delay =
+            measureWebsocketDelay(createHttpConfig(downloadBandwidth = BANDWIDTH_MESSAGE_SIZE * BANDWIDTH_SCALE))
+        // When sending a message which does hit the bandwidth cap, then we should expect a delay in sending the message,
+        // but not in receiving the reply.
+        assertThat("Send delay", delay.send, lessThan(INSTANT_DURATION))
+        assertThat("Receive delay", delay.receive, greaterThan(LIMITED_DURATION))
+    }
+
+    companion object {
+        /**
+         * The length of a random websocket message used by our bandwidth tests
+         *
+         * @see measureWebsocketDelay
+         */
+        private const val BANDWIDTH_MESSAGE_SIZE: Int = 1024
+
+        /**
+         * A scaler on our bandwidth. Increasing this allows us to send more messages within [measureWebsocketDelay],
+         * increasing the number of samples, but reducing the granularity of [INSTANT_DURATION] and [LIMITED_DURATION].
+         */
+        private const val BANDWIDTH_SCALE: Int = 2
+
+        /** The duration when we've not hit the bandwidth limit and the message is sent "instantly". */
+        private val INSTANT_DURATION: Duration = Duration.ofMillis(50)
+
+        /** The duration when we've hit the bandwidth limit. */
+        private val LIMITED_DURATION: Duration = Duration.ofMillis(800).dividedBy(BANDWIDTH_SCALE.toLong())
     }
 }

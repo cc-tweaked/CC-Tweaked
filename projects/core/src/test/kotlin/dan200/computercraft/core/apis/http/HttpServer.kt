@@ -15,10 +15,15 @@ import io.netty.handler.codec.http.*
 import io.netty.handler.codec.http.websocketx.*
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler.HandshakeComplete
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler
+import io.netty.util.AttributeKey
 import java.net.InetSocketAddress
 import java.nio.charset.StandardCharsets
 
-class HttpRequest(val headers: HttpHeaders)
+class HttpRequest(val headers: HttpHeaders, var lastMessageTime: Long) {
+    companion object {
+        internal val KEY: AttributeKey<HttpRequest> = AttributeKey.newInstance("cct.request")
+    }
+}
 
 private class HttpState(var lastRequest: HttpRequest? = null)
 
@@ -98,7 +103,10 @@ private class HttpServerHandler(private val state: HttpState) : SimpleChannelInb
     }
 
     override fun channelRead0(ctx: ChannelHandlerContext, request: FullHttpRequest) {
-        state.lastRequest = HttpRequest(request.headers())
+        val requestInfo = HttpRequest(request.headers(), System.nanoTime())
+        state.lastRequest = requestInfo
+        ctx.channel().attr(HttpRequest.KEY).set(requestInfo)
+
         when (request.uri()) {
             "/", "/index.html" -> handleIndex(ctx, request)
             "/ws" -> handleWebsocket(ctx, request)
@@ -143,11 +151,17 @@ private class HttpServerHandler(private val state: HttpState) : SimpleChannelInb
  */
 private class WebSocketFrameHandler(private val activeConnections: MutableSet<Channel>) : SimpleChannelInboundHandler<WebSocketFrame>() {
     override fun channelRead0(ctx: ChannelHandlerContext, frame: WebSocketFrame) {
+        ctx.channel().attr(HttpRequest.KEY).get().lastMessageTime = System.nanoTime()
+
         when (frame) {
             is TextWebSocketFrame -> {
                 // Send the uppercase string back.
                 val request = frame.text()
                 ctx.channel().writeAndFlush(TextWebSocketFrame(request.uppercase()))
+            }
+
+            is BinaryWebSocketFrame -> {
+                ctx.channel().writeAndFlush(BinaryWebSocketFrame(frame.content().retainedDuplicate()))
             }
 
             is CloseWebSocketFrame -> {}

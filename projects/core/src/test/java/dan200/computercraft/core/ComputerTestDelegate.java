@@ -24,6 +24,8 @@ import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.opentest4j.AssertionFailedError;
 import org.opentest4j.TestAbortedException;
 import org.slf4j.Logger;
@@ -62,6 +64,7 @@ import java.util.stream.Stream;
  * <p>
  * Once all tests are done, we invoke {@code cct_test.finish} in order to mark everything as complete.
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class ComputerTestDelegate {
     private static final Path REPORT_PATH = TestFiles.get("luacov.report.out");
 
@@ -361,7 +364,7 @@ public class ComputerTestDelegate {
                         currentTest = name;
 
                         // Tell the computer to run it
-                        LOG.info("Starting '{}'", formatName(name));
+                        LOG.debug("Starting '{}'", formatName(name));
                         computer.queueEvent("cct_test_run", new Object[]{ name });
 
                         var remaining = TIMEOUT;
@@ -373,7 +376,7 @@ public class ComputerTestDelegate {
                             remaining -= TICK_TIME;
                         }
 
-                        LOG.info("Finished '{}'", formatName(name));
+                        LOG.debug("Finished '{}'", formatName(name));
 
                         if (remaining <= 0) {
                             throw new IllegalStateException("Timed out waiting for test");
@@ -423,7 +426,7 @@ public class ComputerTestDelegate {
                 throw new RuntimeException(e);
             }
             try {
-                LOG.info("'{}' finished with {}", formatName(name), status);
+                LOG.debug("'{}' finished with {}", formatName(name), status);
 
                 // Skip if a test mismatch
                 if (!name.equals(currentTest)) {
