@@ -530,29 +530,7 @@ local function before_each(body)
     before_each_fns[n], before_each_fns.n = body, n
 end
 
-local native_loadfile = loadfile
 local line_counts = {}
-if cct_test then
-    local expect = require "cc.expect".expect
-    _G.native_loadfile = native_loadfile
-    _G.loadfile = function(filename, mode, env)
-        -- Support the previous `loadfile(filename, env)` form instead.
-        if type(mode) == "table" and env == nil then
-            mode, env = nil, mode
-        end
-
-        expect(1, filename, "string")
-        expect(2, mode, "string", "nil")
-        expect(3, env, "table", "nil")
-
-        local file = fs.open(filename, "r")
-        if not file then return nil, "File not found" end
-
-        local func, err = load(file.readAll(), "@/" .. fs.combine(filename, ""), mode, env)
-        file.close()
-        return func, err
-    end
-end
 
 local arg = ...
 if arg == "--help" or arg == "-h" then
@@ -722,9 +700,6 @@ if test_status.pending > 0 then
 end
 
 term.setTextColour(colours.white) io.write(info .. "\n")
-
--- Restore hook stubs
-_G.loadfile = native_loadfile
 
 if cct_test then cct_test.finish(line_counts) end
 if howlci then howlci.log("debug", info) sleep(3) end
