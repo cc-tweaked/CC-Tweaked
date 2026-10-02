@@ -8,7 +8,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.shared.platform.ContainerTransfer;
+import dan200.computercraft.shared.platform.ItemContainer;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -35,8 +35,6 @@ public class TurtleDropCommand implements TurtleCommand {
         // Get world direction from direction
         var direction = this.direction.toWorldDir(turtle);
 
-        var source = TurtleUtil.getSelectedSlot(turtle);
-
         // Get inventory for thing in front
         var world = turtle.getLevel();
         var oldPosition = turtle.getPosition();
@@ -47,11 +45,11 @@ public class TurtleDropCommand implements TurtleCommand {
 
         int transferred;
         if (inventory != null) {
-            transferred = source.moveTo(inventory, quantity);
+            transferred = TurtleUtil.getInventory(turtle).moveTo(turtle.getSelectedSlot(), inventory, quantity);
         } else {
             var stack = turtle.getInventory().removeItem(turtle.getSelectedSlot(), quantity);
             if (stack.isEmpty()) {
-                transferred = ContainerTransfer.NO_ITEMS;
+                transferred = ItemContainer.NO_ITEMS;
             } else {
                 // Drop the item into the world
                 turtle.getInventory().setChanged();
@@ -63,8 +61,8 @@ public class TurtleDropCommand implements TurtleCommand {
         }
 
         return switch (transferred) {
-            case ContainerTransfer.NO_SPACE -> TurtleCommandResult.failure("No space for items");
-            case ContainerTransfer.NO_ITEMS -> TurtleCommandResult.failure("No items to drop");
+            case ItemContainer.NO_SPACE -> TurtleCommandResult.failure("No space for items");
+            case ItemContainer.NO_ITEMS -> TurtleCommandResult.failure("No items to drop");
             default -> {
                 turtle.playAnimation(TurtleAnimation.WAIT);
                 yield TurtleCommandResult.success();

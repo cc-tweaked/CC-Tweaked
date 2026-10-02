@@ -194,29 +194,34 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public ContainerTransfer.Slotted wrapContainer(Container container) {
-        return new ForgeContainerTransfer(new InvWrapper(container));
+    public ItemContainer wrapContainer(Container container) {
+        return new ForgeItemContainer(new InvWrapper(container));
+    }
+
+    @Override
+    public ItemContainer wrapContainerRotated(Container container, int offset) {
+        return ForgeItemContainer.rotated(new InvWrapper(container), offset);
     }
 
     @Nullable
     @Override
-    public ContainerTransfer getContainer(ServerLevel level, BlockPos pos, Direction side) {
+    public ItemContainer getContainer(ServerLevel level, BlockPos pos, Direction side) {
         var block = level.getBlockState(pos);
         if (block.getBlock() instanceof WorldlyContainerHolder holder) {
             var container = holder.getContainer(block, level, pos);
-            return new ForgeContainerTransfer(new SidedInvWrapper(container, side));
+            return new ForgeItemContainer(new SidedInvWrapper(container, side));
         }
 
         var blockEntity = level.getBlockEntity(pos);
         if (blockEntity != null) {
             var inventory = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, side);
             if (inventory.isPresent()) {
-                return new ForgeContainerTransfer(inventory.orElseThrow(NullPointerException::new));
+                return new ForgeItemContainer(inventory.orElseThrow(NullPointerException::new));
             }
         }
 
         var entity = InventoryUtil.getEntityContainer(level, pos, side);
-        return entity == null ? null : new ForgeContainerTransfer(new InvWrapper(entity));
+        return entity == null ? null : new ForgeItemContainer(new InvWrapper(entity));
     }
 
     @Nullable

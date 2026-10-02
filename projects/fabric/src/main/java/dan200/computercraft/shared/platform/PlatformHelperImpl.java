@@ -204,18 +204,23 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public ContainerTransfer.Slotted wrapContainer(Container container) {
-        return FabricContainerTransfer.of(InventoryStorage.of(container, null));
+    public ItemContainer wrapContainer(Container container) {
+        return new FabricItemContainer(InventoryStorage.of(container, null));
+    }
+
+    @Override
+    public ItemContainer wrapContainerRotated(Container container, int offset) {
+        return FabricItemContainer.rotated(InventoryStorage.of(container, null), offset);
     }
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
-    public @Nullable ContainerTransfer getContainer(ServerLevel level, BlockPos pos, Direction side) {
+    public @Nullable ItemContainer getContainer(ServerLevel level, BlockPos pos, Direction side) {
         var storage = ItemStorage.SIDED.find(level, pos, side);
-        if (storage != null) return FabricContainerTransfer.of(storage);
+        if (storage != null) return new FabricItemContainer(storage);
 
         var entity = InventoryUtil.getEntityContainer(level, pos, side);
-        return entity == null ? null : FabricContainerTransfer.of(InventoryStorage.of(entity, side));
+        return entity == null ? null : new FabricItemContainer(InventoryStorage.of(entity, side));
     }
 
     @Override
