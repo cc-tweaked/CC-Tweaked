@@ -43,7 +43,7 @@ public class HttpStreamReader {
     public final void close() throws LuaException {
         checkOpen();
         isClosed = true;
-        handler.close();
+        request.partialClosed();
     }
 
     @LuaFunction
@@ -86,8 +86,8 @@ public class HttpStreamReader {
         throw new LuaException("cannot seek on a streamed connection");
     }
 
-    private abstract static class HttpContentPoller implements ILuaCallback {
-        final MethodResult pull = MethodResult.pullEvent(HttpRequest.CONTENT_EVENT, this);
+    private abstract class HttpContentPoller implements ILuaCallback {
+        private final MethodResult pull = MethodResult.pullEvent(HttpRequest.CONTENT_EVENT, this);
         private final String url;
         final boolean blocking;
 
@@ -101,7 +101,12 @@ public class HttpStreamReader {
             if (args.length < 2 || !Objects.equals(args[0], HttpRequest.CONTENT_EVENT) || !Objects.equals(args[1], url)) {
                 return pull;
             }
-            return this.pollBody();
+            return pollBody();
+        }
+
+        MethodResult puller() {
+            handler.markWaitingBody();
+            return pull;
         }
 
         abstract MethodResult pollBody() throws LuaException;
@@ -117,9 +122,10 @@ public class HttpStreamReader {
             checkOpen();
 
             single.clear();
-            var read = handler.readBody(single);
-            if (read == 0) return pull;
-            if (read < 0) return MethodResult.of();
+            var read = handler.peekBody(single, 0);
+            if (read == 0) return puller();
+            if (read < 0) return MethodResult.of(false);
+            handler.discardBody(1);
             return MethodResult.of(single.get(0) & 0xff);
         }
     }
@@ -136,19 +142,22 @@ public class HttpStreamReader {
         MethodResult pollBody() throws LuaException {
             checkOpen();
 
-            if (!buffer.hasRemaining()) return MethodResult.of(buffer.flip());
-            var read = handler.readBody(buffer);
-            if (read < 0) {
-                buffer.flip();
-                return MethodResult.of(buffer.hasRemaining() ? buffer : null);
+            if (buffer.hasRemaining()) {
+                var read = handler.peekBody(buffer, buffer.position());
+                if (read < 0) {
+                    if (buffer.position() == 0) {
+                        return MethodResult.of(false);
+                    }
+                } else if (blocking && buffer.hasRemaining()) {
+                    return puller();
+                }
             }
-            if (read == 0) return blocking ? pull : MethodResult.of(buffer.flip());
-            if (blocking && buffer.hasRemaining()) return pull;
+            handler.discardBody(buffer.position());
             return MethodResult.of(buffer.flip());
         }
     }
 
-    private abstract static class HttpContentPartsPoller extends HttpContentPoller {
+    private abstract class HttpContentPartsPoller extends HttpContentPoller {
         final List<ByteBuffer> parts = new ArrayList<>(4);
         int totalRead = 0;
 
@@ -184,20 +193,20 @@ public class HttpStreamReader {
 
             while (totalRead < count) {
                 if (buffer == null) buffer = ByteBuffer.allocate(Math.min(BUFFER_SIZE, count - totalRead));
-                var read = handler.readBody(buffer);
+                var read = handler.peekBody(buffer, totalRead);
                 if (read < 0) {
                     buffer.flip();
                     if (buffer.hasRemaining()) {
                         parts.add(buffer);
                     } else if (parts.isEmpty()) {
-                        return MethodResult.of();
+                        return MethodResult.of(false);
                     }
                     break;
                 }
 
                 totalRead += read;
                 if (read == 0) {
-                    if (blocking) return pull;
+                    if (blocking) return puller();
                     parts.add(buffer.flip());
                     break;
                 }
@@ -207,6 +216,7 @@ public class HttpStreamReader {
                     buffer = null;
                 }
             }
+            handler.discardBody(totalRead);
             return MethodResult.of(joinParts());
         }
     }
@@ -223,7 +233,7 @@ public class HttpStreamReader {
             checkOpen();
 
             while (true) {
-                var read = handler.readBody(buffer);
+                var read = handler.peekBody(buffer, totalRead);
                 if (read < 0) {
                     buffer.flip();
                     if (buffer.hasRemaining()) parts.add(buffer);
@@ -232,7 +242,7 @@ public class HttpStreamReader {
 
                 totalRead += read;
                 if (read == 0) {
-                    if (blocking) return pull;
+                    if (blocking) return puller();
                     parts.add(buffer.flip());
                     break;
                 }
@@ -242,6 +252,7 @@ public class HttpStreamReader {
                     buffer = ByteBuffer.allocate(BUFFER_SIZE);
                 }
             }
+            handler.discardBody(totalRead);
             return MethodResult.of(joinParts());
         }
     }
@@ -263,7 +274,7 @@ public class HttpStreamReader {
             checkOpen();
 
             while (true) {
-                var read = handler.readBodyUntil(buffer, SEP);
+                var read = handler.peekBodyUntil(buffer, totalRead, SEP);
                 if (read < 0) {
                     buffer.flip();
                     if (buffer.hasRemaining()) parts.add(buffer);
@@ -272,7 +283,7 @@ public class HttpStreamReader {
 
                 totalRead += read;
                 if (read == 0) {
-                    return pull;
+                    return puller();
                 }
 
                 if (!buffer.hasRemaining()) {
@@ -297,6 +308,7 @@ public class HttpStreamReader {
                     buffer = ByteBuffer.allocate(BUFFER_SIZE);
                 }
             }
+            handler.discardBody(totalRead);
             return MethodResult.of(joinParts());
         }
     }

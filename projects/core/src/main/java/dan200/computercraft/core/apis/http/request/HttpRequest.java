@@ -11,6 +11,7 @@ import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.Resource;
 import dan200.computercraft.core.apis.http.ResourceGroup;
 import dan200.computercraft.core.metrics.Metrics;
+import dan200.computercraft.core.util.GlobalCleaner;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -175,10 +176,12 @@ public class HttpRequest extends Resource<HttpRequest> {
     }
 
     void partialFailure(String message, HttpResponseHandle object) {
+        GlobalCleaner.register(object, this::partialClosed);
         if (!checkClosed()) environment.queueEvent(FAILURE_EVENT, address, message, object);
     }
 
     void partialSuccess(HttpResponseHandle object) {
+        GlobalCleaner.register(object, this::partialClosed);
         if (!checkClosed()) environment.queueEvent(SUCCESS_EVENT, address, object);
     }
 

@@ -4,6 +4,7 @@
 
 package dan200.computercraft.core.apis.http.request;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.core.apis.handles.ReadHandle;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
@@ -55,9 +56,15 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     private @Nullable HttpResponseStatus responseStatus;
 
     private final Object responseBodyLock = new Object();
+    @GuardedBy("responseBodyLock")
     private @Nullable CompositeByteBuf responseBody;
+    @GuardedBy("responseBodyLock")
     private @Nullable ByteBuf unpooledResponseBody;
+    @GuardedBy("responseBodyLock")
     private @Nullable Runnable responseBodyTrigger;
+    @GuardedBy("responseBodyLock")
+    private boolean responseBodyDone = false;
+    private volatile boolean waitingBody = false;
 
     HttpRequestHandler(HttpRequest request, URI uri, HttpMethod method, boolean streaming, Options options) {
         this.request = request;
@@ -154,10 +161,10 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
                         request.failure("Response is too large");
                         return;
                     }
-                    var wasEmpty = !responseBody.isReadable();
                     responseBody.addComponent(true, partial.retain());
                     if (streaming) {
-                        if (wasEmpty) {
+                        if (waitingBody) {
+                            waitingBody = false;
                             request.partialContent();
                         }
                         if (responseBody.readableBytes() >= MAX_STREAM_BUFFER_CACHE) {
@@ -170,17 +177,22 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
             if (message instanceof LastHttpContent last) {
                 ctx.close();
+                synchronized (responseBodyLock) {
+                    responseBodyDone = true;
 
-                // TODO: we should have some way to provide trailing headers for streamed connection
-                if (!streaming) {
-                    responseHeaders.add(last.trailingHeaders());
+                    // TODO: we should have some way to provide trailing headers for streamed connection
+                    if (!streaming) {
+                        responseHeaders.add(last.trailingHeaders());
 
-                    // Set the content length, if not already given.
-                    if (!responseHeaders.contains(HttpHeaderNames.CONTENT_LENGTH)) {
-                        responseHeaders.set(HttpHeaderNames.CONTENT_LENGTH, responseBody == null ? 0 : responseBody.readableBytes());
+                        // Set the content length, if not already given.
+                        if (!responseHeaders.contains(HttpHeaderNames.CONTENT_LENGTH)) {
+                            responseHeaders.set(HttpHeaderNames.CONTENT_LENGTH, responseBody == null ? 0 : responseBody.readableBytes());
+                        }
+
+                        sendResponse();
+                    } else {
+                        request.partialClosed();
                     }
-
-                    sendResponse();
                 }
             }
         }
@@ -192,16 +204,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         request.failure(NetworkUtils.toFriendlyError(cause));
     }
 
-    private void sendResponse() {
-        Objects.requireNonNull(responseStatus, "Status has not been set");
-        Objects.requireNonNull(responseCharset, "Charset has not been set");
-
-        // Read the ByteBuf into a channel.
-        var body = responseBody;
-        var bytes = body == null ? EMPTY_BYTES : NetworkUtils.toBytes(body);
-
-        // Decode the headers
-        var status = responseStatus;
+    private Map<String, String> decodeHeaders() {
         Map<String, String> headers = new HashMap<>();
         for (var header : responseHeaders) {
             var existing = headers.get(header.getKey());
@@ -209,7 +212,29 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         }
 
         // Fire off a stats event
-        request.environment().observe(Metrics.HTTP_DOWNLOAD, getHeaderSize(responseHeaders) + bytes.length);
+        request.environment().observe(Metrics.HTTP_DOWNLOAD, getHeaderSize(responseHeaders));
+        return headers;
+    }
+
+    private void sendResponse() {
+        Objects.requireNonNull(responseStatus, "Status has not been set");
+        Objects.requireNonNull(responseCharset, "Charset has not been set");
+
+        // Decode the headers
+        var status = responseStatus;
+        var headers = decodeHeaders();
+
+        // Read the ByteBuf into a channel.
+        byte[] bytes = EMPTY_BYTES;
+        synchronized (responseBodyLock) {
+            if (responseBody != null) {
+                bytes = NetworkUtils.toBytes(responseBody);
+                responseBody.release();
+                responseBody = null;
+            }
+        }
+        // Fire off a stats event
+        request.environment().observe(Metrics.HTTP_DOWNLOAD, bytes.length);
 
         // Prepare to queue an event
         var contents = new ArrayByteChannel(bytes);
@@ -229,17 +254,11 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
         // Decode the headers
         var status = responseStatus;
-        Map<String, String> headers = new HashMap<>();
-        for (var header : responseHeaders) {
-            var existing = headers.get(header.getKey());
-            headers.put(header.getKey(), existing == null ? header.getValue() : existing + "," + header.getValue());
-        }
-
-        // Fire off a stats event
-        request.environment().observe(Metrics.HTTP_DOWNLOAD, getHeaderSize(responseHeaders));
+        var headers = decodeHeaders();
 
         // Prepare to queue an event
-        var stream = new HttpResponseHandle(new HttpStreamReader(request, this), status.code(), status.reasonPhrase(), headers);
+        var reader = new HttpStreamReader(request, this);
+        var stream = new HttpResponseHandle(reader, status.code(), status.reasonPhrase(), headers);
 
         if (status.code() >= 200 && status.code() < 400) {
             request.partialSuccess(stream);
@@ -248,59 +267,68 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         }
     }
 
+    void markWaitingBody() {
+        waitingBody = true;
+    }
+
     /**
-     * Read response body into the designate buffer.
+     * Peek response body into the designate buffer.
+     * Resource body is not consumed in this action.
      * This method does not block, and will only read currently cached data into the buffer and returns the amount of available bytes.
      *
      * @param buffer the designate buffer
-     * @return The amount of bytes read, or {@code -1} if stream is ended.
+     * @param skip amount of bytes to skip in the peek
+     * @return The amount of bytes read, or {@code -1} if stream is ended or internal buffer is full.
      */
-    int readBody(ByteBuffer buffer) {
+    int peekBody(ByteBuffer buffer, int skip) {
+        if (skip >= MAX_STREAM_BUFFER_CACHE) return -1;
         synchronized (responseBodyLock) {
             ByteBuf source = responseBody != null ? responseBody : unpooledResponseBody;
-            if (source == null) return -1;
+            if (source == null) return responseBodyDone ? -1 : 0;
+
+            int readerIndex = source.readerIndex() + skip;
+            int readable = source.writerIndex() - readerIndex;
+            if (readable == 0 && responseBodyDone) return -1;
+
             int maxRead = buffer.remaining();
             int oldLimit = -1;
-            if (maxRead > source.readableBytes()) {
-                maxRead = source.readableBytes();
+            if (maxRead > readable) {
+                maxRead = readable;
                 oldLimit = buffer.limit();
                 buffer.limit(buffer.position() + maxRead);
             }
-            source.readBytes(buffer);
+            source.getBytes(readerIndex, buffer);
             if (oldLimit != -1) {
                 buffer.limit(oldLimit);
-            }
-            if (source == responseBody) {
-                responseBody.discardReadComponents();
-                if (responseBodyTrigger != null && responseBody.readableBytes() < MAX_STREAM_BUFFER_CACHE) {
-                    responseBodyTrigger.run();
-                    responseBodyTrigger = null;
-                }
-            } else if (source == unpooledResponseBody) {
-                if (unpooledResponseBody.readableBytes() == 0) {
-                    unpooledResponseBody = null;
-                }
             }
             return maxRead;
         }
     }
 
     /**
-     * Read response body into the designate buffer until the specific separator.
+     * Peek response body into the designate buffer until the specific separator.
+     * Resource body is not consumed in this action.
      * This method does not block, and will only read currently cached data into the buffer and returns the amount of available bytes.
      * Separator will be read into the buffer, and if exists, it will always and only appears at the buffer's last position.
      *
      * @param buffer the designate buffer
+     * @param skip amount of bytes to skip in the peek
      * @param separator the target separator
-     * @return The amount of bytes read, or {@code -1} if stream is ended.
+     * @return The amount of bytes read, or {@code -1} if stream is ended or internal buffer is full.
      */
-    int readBodyUntil(ByteBuffer buffer, byte separator) {
+    int peekBodyUntil(ByteBuffer buffer, int skip, byte separator) {
+        if (skip >= MAX_STREAM_BUFFER_CACHE) return -1;
         synchronized (responseBodyLock) {
             ByteBuf source = responseBody != null ? responseBody : unpooledResponseBody;
-            if (source == null) return -1;
+            if (source == null) return responseBodyDone ? -1 : 0;
+
+            int readerIndex = source.readerIndex() + skip;
+            int readable = source.writerIndex() - readerIndex;
+            if (readable == 0 && responseBodyDone) return -1;
+
             int maxRead = buffer.remaining();
-            if (maxRead > source.readableBytes()) maxRead = source.readableBytes();
-            int sepIndex = source.bytesBefore(maxRead, separator);
+            if (maxRead > readable) maxRead = readable;
+            int sepIndex = source.bytesBefore(readerIndex, maxRead, separator);
             if (sepIndex != -1) {
                 maxRead = sepIndex + 1;
             }
@@ -310,11 +338,21 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
                 buffer.limit(buffer.position() + maxRead);
             }
 
-            source.readBytes(buffer);
+            source.getBytes(readerIndex, buffer);
 
             if (oldLimit != -1) {
                 buffer.limit(oldLimit);
             }
+            return maxRead;
+        }
+    }
+
+    void discardBody(int bytes) {
+        if (bytes == 0) return;
+        synchronized (responseBodyLock) {
+            ByteBuf source = responseBody != null ? responseBody : unpooledResponseBody;
+            if (source == null) throw new IllegalStateException("responseBody == null");
+            source.readerIndex(source.readerIndex() + bytes);
             if (source == responseBody) {
                 responseBody.discardReadComponents();
                 if (responseBodyTrigger != null && responseBody.readableBytes() < MAX_STREAM_BUFFER_CACHE) {
@@ -326,8 +364,8 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
                     unpooledResponseBody = null;
                 }
             }
-            return maxRead;
         }
+        request.environment().observe(Metrics.HTTP_DOWNLOAD, bytes);
     }
 
     /**
