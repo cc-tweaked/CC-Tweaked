@@ -28,9 +28,11 @@
 .kotlin
 *.DS_Store
 
-/.classpath
-/.project
-/.settings
+.classpath
+.project
+.settings
 /.vscode
 *.launch
+bin/
+
 /node_modules

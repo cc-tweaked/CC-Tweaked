@@ -53,10 +53,11 @@ public interface HttpHandler {
      *                        more details.
      * @param followRedirects Whether to follow redirects.
      * @param timeout         The timeout for this request.
+     * @param streaming       Whether the request should be streaming instead of read all response body at a time.
      * @return Whether the task could be queued. Should return false if there are too many in-flight requests.
      */
     boolean queueRequest(
-        String address, URI uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers, boolean binary, boolean followRedirects, int timeout
+        String address, URI uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers, boolean binary, boolean followRedirects, int timeout, boolean streaming
     );
 
     /**

@@ -34,6 +34,7 @@ local function check_request_options(options, body)
     check_key(options, "method", "string", true)
     check_key(options, "redirect", "boolean", true)
     check_key(options, "timeout", "number", true)
+    check_key(options, "streaming", "boolean", true)
 
     check_key(options, "method", "string", true)
     if options.method then

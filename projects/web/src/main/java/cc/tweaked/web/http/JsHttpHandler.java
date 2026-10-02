@@ -44,8 +44,8 @@ public final class JsHttpHandler implements HttpHandler {
     }
 
     @Override
-    public boolean queueRequest(String address, URI uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers, boolean binary, boolean followRedirects, int timeout) {
-        return new HttpRequest(requests, environment, address, postBody, headers, binary, followRedirects).queue(r -> r.request(uri, method));
+    public boolean queueRequest(String address, URI uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers, boolean binary, boolean followRedirects, int timeout, boolean streaming) {
+        return new HttpRequest(requests, environment, address, postBody, headers, binary, followRedirects, streaming).queue(r -> r.request(uri, method));
     }
 
     @Override
