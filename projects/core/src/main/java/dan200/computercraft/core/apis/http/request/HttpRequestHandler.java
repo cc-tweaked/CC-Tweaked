@@ -164,6 +164,13 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
                     responseBody.addComponent(true, partial.retain());
                     if (streaming) {
                         if (responseBody.readableBytes() >= MAX_STREAM_BUFFER_CACHE) {
+                            if (responseBody.readableBytes() >= MAX_STREAM_BUFFER_CACHE * 2) {
+                                close();
+                                ctx.close();
+                                request.failure("Response buffer unexpectedly grew too large");
+                                request.partialClosed();
+                                return;
+                            }
                             // If AbstractTrafficShapingHandler is limiting read at the same time,
                             // autoRead will set to false before this http handler is invoked,
                             // so we can simply check if auto read is current active and
