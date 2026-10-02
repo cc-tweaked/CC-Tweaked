@@ -163,14 +163,28 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
                     }
                     responseBody.addComponent(true, partial.retain());
                     if (streaming) {
+                        if (responseBody.readableBytes() >= MAX_STREAM_BUFFER_CACHE) {
+                            // If AbstractTrafficShapingHandler is limiting read at the same time,
+                            // autoRead will set to false before this http handler is invoked,
+                            // so we can simply check if auto read is current active and
+                            // let AbstractTrafficShapingHandler itself to resume the reading.
+                            // If the traffic shaper resumed the reading while our responseBody still excess max buffer size,
+                            // we will then setAutoRead to false.
+                            //
+                            // It is MOSTLY IMPOSSIBLE that AbstractTrafficShapingHandler limited read again in the next packet.
+                            // However, that case still EXISTS, e.g. download speed is limited to a incredible small amount which
+                            // lower than netty internal buffer size (1KB?), then it may cause unstoppable buffer grow.
+                            // If that case should be handled properly, we should make our own implementation of AbstractTrafficShapingHandler
+                            // which take care of our buffer size as well.
+                            if (ctx.channel().config().isAutoRead()) {
+                                ctx.channel().config().setAutoRead(false);
+                                responseBodyTrigger = () -> ctx.channel().config().setAutoRead(true);
+                            }
+                        }
                         if (waitingBody) {
                             waitingBody = false;
                             request.partialContent();
                         }
-                        if (responseBody.readableBytes() >= MAX_STREAM_BUFFER_CACHE) {
-                            ctx.channel().config().setAutoRead(false);
-                        }
-                        responseBodyTrigger = () -> ctx.channel().config().setAutoRead(true);
                     }
                 }
             }
