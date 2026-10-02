@@ -24,8 +24,15 @@ import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.platform.ForgeConfigFile;
 import dan200.computercraft.shared.platform.NetworkHandler;
+import dan200.computercraft.shared.turtle.upgrades.TurtleStorage;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.PathPackResources;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
@@ -111,5 +118,25 @@ public final class ComputerCraft {
     @SubscribeEvent
     public static void onCreativeTab(BuildCreativeModeTabContentsEvent event) {
         CommonHooks.onBuildCreativeTab(event.getTabKey(), event.getParameters(), event);
+    }
+
+    @SubscribeEvent
+    public static void onAddPacks(AddPackFindersEvent event) {
+        if (event.getPackType() == PackType.SERVER_DATA) {
+            var resourcePath = ModList.get().getModFileById(ComputerCraftAPI.MOD_ID).getFile()
+                .findResource("resourcepacks/" + TurtleStorage.DATA_PACK_NAME);
+
+            var pack = Pack.readMetaAndCreate(
+                ComputerCraftAPI.MOD_ID + "/" + TurtleStorage.DATA_PACK_NAME,
+                Component.translatable(TurtleStorage.DATA_PACK_TRANSLATION),
+                false,
+                path -> new PathPackResources(path, resourcePath, false),
+                PackType.SERVER_DATA,
+                Pack.Position.BOTTOM,
+                PackSource.FEATURE
+            );
+
+            event.addRepositorySource(add -> add.accept(pack));
+        }
     }
 }

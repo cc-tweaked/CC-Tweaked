@@ -255,6 +255,17 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     ItemContainer getContainer(ServerLevel level, BlockPos pos, Direction side);
 
     /**
+     * Get access to a {@link ItemContainer} for an {@link ItemStack}, for instance shulker boxes or bundles.
+     * <p>
+     * Updates to the container should modify the item in-place.
+     *
+     * @param stack The stack.
+     * @return The container, or {@code null} if none exists.
+     */
+    @Nullable
+    ItemContainer getContainer(ItemStack stack);
+
+    /**
      * Get the {@link RecipeIngredients} for this loader.
      *
      * @return The loader-specific recipe ingredients.

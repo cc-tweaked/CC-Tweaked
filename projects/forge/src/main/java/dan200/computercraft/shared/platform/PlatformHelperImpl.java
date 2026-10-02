@@ -224,6 +224,12 @@ public class PlatformHelperImpl implements PlatformHelper {
         return entity == null ? null : new ForgeItemContainer(new InvWrapper(entity));
     }
 
+    @Override
+    public @Nullable ItemContainer getContainer(ItemStack stack) {
+        var handler = stack.getCapability(ForgeCapabilities.ITEM_HANDLER);
+        return handler.isPresent() ? new ForgeItemContainer(handler.orElseThrow(NullPointerException::new)) : null;
+    }
+
     @Nullable
     @Override
     public CompoundTag getShareTag(ItemStack item) {

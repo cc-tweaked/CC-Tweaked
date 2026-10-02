@@ -250,6 +250,12 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
         throw new UnsupportedOperationException("Cannot interact with the world inside tests");
     }
 
+    @Nullable
+    @Override
+    public ItemContainer getContainer(ItemStack stack) {
+        throw new UnsupportedOperationException("Cannot interact with the world inside tests");
+    }
+
     @Override
     public List<ItemStack> getRecipeRemainingItems(ServerPlayer player, Recipe<CraftingContainer> recipe, CraftingContainer container) {
         throw new UnsupportedOperationException("Cannot query recipes inside tests");

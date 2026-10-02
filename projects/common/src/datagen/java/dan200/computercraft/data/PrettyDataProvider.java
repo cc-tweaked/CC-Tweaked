@@ -38,12 +38,13 @@ public record PrettyDataProvider<T extends DataProvider>(T provider) implements 
 
         @Override
         public void writeIfNeeded(Path path, byte[] bytes, HashCode hashCode) throws IOException {
-            if (path.getFileName().toString().endsWith(".json")) {
+            var name = path.getFileName().toString();
+            if (name.endsWith(".json") || name.endsWith(".mcmeta")) {
                 bytes = PrettyJsonWriter.reformat(bytes);
                 hashCode = HASH_FUNCTION.hashBytes(bytes);
             }
 
-            output.writeIfNeeded(path, bytes, hashCode);
+            output.writeIfNeeded(path.normalize(), bytes, hashCode);
         }
     }
 }

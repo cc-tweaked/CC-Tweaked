@@ -224,6 +224,15 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
+    public @Nullable ItemContainer getContainer(ItemStack stack) {
+        if (stack.is(ConventionalItemTags.SHULKER_BOXES)) {
+            return new FabricItemContainer(new ShulkerItemStorage(stack, 27));
+        }
+
+        return null;
+    }
+
+    @Override
     public RecipeIngredients getRecipeIngredients() {
         return new RecipeIngredients(
             Ingredient.of(ConventionalItemTags.REDSTONE_DUSTS),

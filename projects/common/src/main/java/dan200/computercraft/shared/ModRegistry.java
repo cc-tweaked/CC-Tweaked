@@ -300,6 +300,8 @@ public final class ModRegistry {
             REGISTRY.register("wireless_modem_normal", () -> TurtleUpgradeSerialiser.simpleWithCustomItem((id, item) -> new TurtleModem(id, item, false)));
         public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleModem>> WIRELESS_MODEM_ADVANCED =
             REGISTRY.register("wireless_modem_advanced", () -> TurtleUpgradeSerialiser.simpleWithCustomItem((id, item) -> new TurtleModem(id, item, true)));
+        public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleStorage>> STORAGE =
+            REGISTRY.register("storage", () -> TurtleUpgradeSerialiser.simpleWithCustomItem(TurtleStorage::new));
 
         public static final RegistryEntry<TurtleUpgradeSerialiser<TurtleTool>> TOOL = REGISTRY.register("tool", () -> TurtleToolSerialiser.INSTANCE);
     }
