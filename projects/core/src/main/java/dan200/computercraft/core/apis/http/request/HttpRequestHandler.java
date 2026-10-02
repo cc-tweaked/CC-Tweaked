@@ -294,7 +294,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
     /**
      * Peek response body into the designate buffer.
-     * Resource body is not consumed in this action.
+     * Response body is not consumed in this action.
      * This method does not block, and will only read currently cached data into the buffer and returns the amount of available bytes.
      *
      * @param buffer the designate buffer
@@ -328,7 +328,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
     /**
      * Peek response body into the designate buffer until the specific separator.
-     * Resource body is not consumed in this action.
+     * Response body is not consumed in this action.
      * This method does not block, and will only read currently cached data into the buffer and returns the amount of available bytes.
      * Separator will be read into the buffer, and if exists, it will always and only appears at the buffer's last position.
      *
@@ -368,6 +368,11 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         }
     }
 
+    /**
+     * Discard and release resource body if necessary.
+     *
+     * @param bytes The amount of bytes should be discarded
+     */
     void discardBody(int bytes) {
         if (bytes == 0) return;
         synchronized (responseBodyLock) {
