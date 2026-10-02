@@ -246,7 +246,7 @@ describe("The textutils library", function()
         describe("parses using NBT-style syntax", function()
             local function exp(x)
                 local res, err = textutils.unserializeJSON(x, { nbt_style = true })
-                if not res then fail(err) end
+                if res == nil then fail(err) end
                 return expect(res)
             end
 
@@ -258,18 +258,82 @@ describe("The textutils library", function()
                 return expect(err)
             end
 
-            it("basic objects", function()
-                exp("{ a: 1, b:2 }"):same { a = 1, b = 2 }
+            it("objects", function()
+                exp("{ 'a': 1, \"b\":2 }"):same { a = 1, b = 2 }
+                exp("{ a: 1, b:2, }"):same { a = 1, b = 2 }
                 exp("{0+_-.aA: 1}"):same { ["0+_-.aA"] = 1 }
                 exp("{}"):same {}
 
-                exp_err("{: 123}"):eq("Malformed JSON at position 2: Expected object key")
-                exp_err("{#: 123}"):eq("Malformed JSON at position 2: Expected object key")
+                exp_err("{: 123}"):eq("Malformed SNBT at position 2: Expected object key.")
+                exp_err("{#: 123}"):eq("Malformed SNBT at position 2: Expected object key.")
             end)
 
-            it("suffixed numbers", function()
-                exp("1b"):eq(1)
-                exp("1.1d"):eq(1.1)
+            describe("numbers", function()
+                it("with underscores", function()
+                    exp("0b10_01"):eq(9)
+                    exp("0xAB_CD"):eq(0xABCD)
+                    exp("1_2.3_4__5f"):eq(12.345)
+                    exp("1_2e3_4"):eq(12e34)
+
+                    exp_err("0b_1"):eq("Malformed SNBT at position 1: Underscores only allowed between digits.")
+                    exp_err("0b1_"):eq("Malformed SNBT at position 1: Underscores only allowed between digits.")
+                end)
+
+                it("with fractions", function()
+                    exp(".1"):eq(.1)
+                    exp("1."):eq(1.)
+                end)
+
+                it("with exponentals", function()
+                    exp("1.2e3"):eq(1.2e3)
+                    exp("87E48"):eq(87E48)
+                    exp("0.1e-1"):eq(0.1e-1)
+                end)
+
+                it("in hexadecimal", function()
+                    exp("0xbad"):eq(0xbad)
+                    exp("0xCAFE"):eq(0xCAFE)
+                    exp_err("0xz"):eq("Malformed SNBT at position 1: Malformed number.")
+                end)
+
+                it("in binary", function()
+                    exp("0b101"):eq(5)
+                    exp_err("0b2"):eq("Malformed SNBT at position 1: Malformed number.")
+                end)
+
+                it("reject leading zero", function()
+                    exp_err("0123"):eq("Malformed SNBT at position 1: Leading zero not allowed.")
+                end)
+
+                it("with suffixes", function()
+                    exp("1b"):eq(1)
+                    exp("1.1d"):eq(1.1)
+                end)
+
+                it("with signed suffixes", function()
+                    exp("-16b"):eq(-16)
+                    exp("-16sB"):eq(-16)
+                    exp("240Ub"):eq(-16)
+
+                    exp("15s"):eq(15)
+                    exp("15sS"):eq(15)
+                    exp("15Us"):eq(15)
+
+                    exp("0xffffffffuI"):eq(-1)
+
+                    exp("0xf00000000000000uL"):eq(1080863910568919040) -- As good as we can can get it really.
+
+                    exp_err("82u"):eq("Malformed SNBT at position 3: Unexpected trailing character \"u\".")
+                    exp_err("-87uI"):eq("Malformed SNBT at position 1: Integer not in range: -87.")
+                    exp_err("30bu"):eq("Malformed SNBT at position 4: Unexpected trailing character \"u\".")
+                    exp_err("253sb"):eq("Malformed SNBT at position 1: Integer not in range: 253.")
+                    exp_err("23ud"):eq("Malformed SNBT at position 3: Unexpected trailing character \"u\".")
+                end)
+            end)
+
+            it("booleans", function()
+                exp("true"):eq(true)
+                exp("false"):eq(false)
             end)
 
             describe("strings", function()
@@ -278,20 +342,44 @@ describe("The textutils library", function()
                     exp("\"\""):eq("")
                 end)
 
-                pending("unquoted strings", function()
+                it("unquoted strings", function()
+                    exp("null"):eq("null")
+                    exp("truee"):eq("truee")
                     exp("hello"):eq("hello")
-                    exp("0+_-.aA"):eq("0+_-.aA")
+                    exp("z0+_-.aA"):eq("z0+_-.aA")
+                    -- This is valid as a compound key, but not as a raw string.
+                    exp_err("0+_-.aA"):eq("Malformed SNBT at position 1: Leading zero not allowed.")
                 end)
 
                 it("quoted strings", function()
                     exp("'123'"):eq("123")
                     exp("\"123\""):eq("123")
                 end)
+
+                it("unicode escapes", function()
+                    exp("'\\s'"):eq(" ")
+                    exp("'\\''"):eq("'")
+                    exp("'\\x41'"):eq("A")
+                    exp("'\\u03b1'"):eq("\u{03b1}")
+                    exp("'\\U0001f991'"):eq("\u{0001f991}")
+                end)
+            end)
+
+            it("lists", function()
+                exp("[]"):eq(textutils.empty_json_array)
+                exp("[1, 2, 3]"):same { 1, 2, 3 }
+                exp("[1, 2, 3, ]"):same { 1, 2, 3 }
+                exp_err("[1, 2, "):eq("Malformed SNBT at position 8: Unexpected end of input.")
             end)
 
             it("typed arrays", function()
                 exp("[B; 1, 2, 3]"):same { 1, 2, 3 }
+                exp("[B; 1, 2, 3, ]"):same { 1, 2, 3 }
                 exp("[B;]"):same {}
+                exp("[I;1234i]"):same { 1234 }
+
+                exp_err("[B;1234]"):eq("Malformed SNBT at position 4: Integer not in range: 1234.")
+                exp_err("[B;1234i]"):eq("Malformed SNBT at position 4: Invalid integer type in array.")
             end)
         end)
 
