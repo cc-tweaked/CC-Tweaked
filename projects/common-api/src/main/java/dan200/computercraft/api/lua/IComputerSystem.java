@@ -6,6 +6,7 @@ package dan200.computercraft.api.lua;
 
 import dan200.computercraft.api.component.ComputerComponent;
 import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.api.redstone.RedstoneAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import org.jetbrains.annotations.ApiStatus;
@@ -55,4 +56,11 @@ public interface IComputerSystem extends IComputerAccess {
      * @return The component, if present.
      */
     <T> @Nullable T getComponent(ComputerComponent<T> component);
+
+    /**
+     * Get the redstone access interface for this computer.
+     *
+     * @return The redstone access.
+     */
+    RedstoneAccess getRedstoneAccess();
 }

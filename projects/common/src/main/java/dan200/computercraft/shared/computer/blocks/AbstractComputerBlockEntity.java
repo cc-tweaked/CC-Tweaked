@@ -8,7 +8,7 @@ import com.google.common.base.Strings;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.api.computer.ComputerSide;
 import dan200.computercraft.impl.BundledRedstone;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;

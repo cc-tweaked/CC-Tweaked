@@ -5,7 +5,7 @@
 package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.api.computer.ComputerSide;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;

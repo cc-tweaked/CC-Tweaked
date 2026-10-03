@@ -5,7 +5,7 @@
 package dan200.computercraft.shared.lectern;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.api.computer.ComputerSide;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.container.BasicContainer;
 import dan200.computercraft.shared.container.SingleContainerData;
