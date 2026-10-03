@@ -6,8 +6,8 @@ package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.core.redstone.RedstoneAccess;
+import dan200.computercraft.api.computer.ComputerSide;
+import dan200.computercraft.api.redstone.RedstoneAccess;
 
 import java.util.List;
 

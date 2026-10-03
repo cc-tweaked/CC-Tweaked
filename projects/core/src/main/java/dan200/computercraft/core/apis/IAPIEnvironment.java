@@ -4,10 +4,10 @@
 
 package dan200.computercraft.core.apis;
 
+import dan200.computercraft.api.computer.ComputerSide;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.computer.ComputerEnvironment;
-import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.metrics.Metric;
