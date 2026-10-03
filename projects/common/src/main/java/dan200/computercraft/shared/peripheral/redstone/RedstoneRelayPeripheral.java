@@ -65,6 +65,8 @@ public final class RedstoneRelayPeripheral extends RedstoneMethods implements IP
     }
 
     void queueRedstoneEvent() {
-        computers.queueEvent("redstone");
+        computers.forEach(computer -> {
+            computer.queueEvent("redstone", computer.getAttachmentName());
+        });
     }
 }
