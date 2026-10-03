@@ -9,7 +9,7 @@
 minecraft = "26.3"
 fabric-api = "0.160.5+26.3"
 fabric-loader = "0.19.4"
-neoForge = "26.3.0.26-beta"
+neoForge = "26.3.0.45-beta"
 neoMergeTool = "2.0.0"
 mixin = "0.17.4+mixin.0.8.7"
 

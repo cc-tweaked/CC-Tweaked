@@ -73,7 +73,7 @@ public final class ComputerCraft {
         withEventBus(eventBus, ModRegistry::register);
 
         var container = ModLoadingContext.get().getActiveContainer();
-        container.registerConfig(ModConfig.Type.SERVER, ((ForgeConfigFile) ConfigSpec.serverSpec).spec());
+        container.registerConfig(ModConfig.Type.SYNCED, ((ForgeConfigFile) ConfigSpec.serverSpec).spec());
         container.registerConfig(ModConfig.Type.CLIENT, ((ForgeConfigFile) ConfigSpec.clientSpec).spec());
     }
 
@@ -204,7 +204,7 @@ public final class ComputerCraft {
             path = null; // getFullPath throws if loading a non-valid file.
         }
 
-        if (config.getType() == ModConfig.Type.SERVER && ((ForgeConfigFile) ConfigSpec.serverSpec).spec().isLoaded()) {
+        if (config.getType() == ModConfig.Type.SYNCED && ((ForgeConfigFile) ConfigSpec.serverSpec).spec().isLoaded()) {
             ConfigSpec.syncServer(path);
         } else if (config.getType() == ModConfig.Type.CLIENT) {
             ConfigSpec.syncClient(path);
