@@ -5,8 +5,8 @@ package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.core.redstone.RedstoneAccess;
+import dan200.computercraft.api.computer.ComputerSide;
+import dan200.computercraft.api.redstone.RedstoneAccess;
 
 /**
  * A base class for all blocks with redstone integration.

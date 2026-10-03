@@ -4,7 +4,7 @@
 package dan200.computercraft.shared.peripheral.redstone;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.api.computer.ComputerSide;
 import dan200.computercraft.core.redstone.RedstoneState;
 import dan200.computercraft.impl.BundledRedstone;
 import dan200.computercraft.shared.ModRegistry;

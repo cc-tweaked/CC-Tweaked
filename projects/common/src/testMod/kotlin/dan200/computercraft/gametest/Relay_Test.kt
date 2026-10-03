@@ -4,7 +4,7 @@
 
 package dan200.computercraft.gametest
 
-import dan200.computercraft.core.computer.ComputerSide
+import dan200.computercraft.api.computer.ComputerSide
 import dan200.computercraft.gametest.api.assertBlockHas
 import dan200.computercraft.gametest.api.getBlockEntity
 import dan200.computercraft.gametest.api.modifyBlock

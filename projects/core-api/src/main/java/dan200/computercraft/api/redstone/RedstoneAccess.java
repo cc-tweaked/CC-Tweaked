@@ -1,16 +1,12 @@
 // SPDX-FileCopyrightText: 2024 The CC: Tweaked Developers
 //
 // SPDX-License-Identifier: MPL-2.0
-package dan200.computercraft.core.redstone;
+package dan200.computercraft.api.redstone;
 
-import dan200.computercraft.core.apis.RedstoneMethods;
-import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.api.computer.ComputerSide;
 
 /**
  * Common interface between blocks which provide and consume a redstone signal.
- *
- * @see RedstoneMethods Lua-facing methods wrapping this interface.
- * @see RedstoneState A concrete implementation of this class.
  */
 public interface RedstoneAccess {
     /**

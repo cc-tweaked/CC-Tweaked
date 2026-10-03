@@ -13,7 +13,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerEnvironment;
-import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.api.computer.ComputerSide;
 import dan200.computercraft.core.input.EventComputerInput;
 import dan200.computercraft.core.input.UserComputerInput;
 import dan200.computercraft.core.metrics.MetricsObserver;
@@ -100,6 +100,10 @@ public class ServerComputer implements ComputerEnvironment {
 
     public final BlockPos getPosition() {
         return position;
+    }
+
+    final Computer getComputer() {
+        return computer;
     }
 
     public final void setPosition(ServerLevel level, BlockPos pos) {

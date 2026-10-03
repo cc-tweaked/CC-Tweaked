@@ -4,6 +4,7 @@
 
 package dan200.computercraft.core.computer;
 
+import dan200.computercraft.api.computer.ComputerSide;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.WorkMonitor;

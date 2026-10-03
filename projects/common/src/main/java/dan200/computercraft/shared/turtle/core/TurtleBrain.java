@@ -13,7 +13,7 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
-import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.api.computer.ComputerSide;
 import dan200.computercraft.core.util.PeripheralHelpers;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
