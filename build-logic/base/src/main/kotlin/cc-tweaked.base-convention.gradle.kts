@@ -51,6 +51,7 @@ repositories {
             includeGroup("me.shedaniel")
             includeGroup("mezz.jei")
             includeGroup("net.caffeinemc")
+            includeGroup("net.mezzdev.config")
             includeModule("com.terraformersmc", "modmenu")
         }
     }
