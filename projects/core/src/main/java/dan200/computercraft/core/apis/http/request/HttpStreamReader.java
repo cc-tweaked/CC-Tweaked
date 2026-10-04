@@ -11,8 +11,6 @@ import dan200.computercraft.api.lua.MethodResult;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 

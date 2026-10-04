@@ -302,8 +302,8 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
                 int readerIndex = source.readerIndex();
                 readable = source.writerIndex() - readerIndex;
             }
+            return responseBodyDone ? -readable - 1 : readable;
         }
-        return responseBodyDone ? -readable - 1 : readable;
     }
 
     /**
