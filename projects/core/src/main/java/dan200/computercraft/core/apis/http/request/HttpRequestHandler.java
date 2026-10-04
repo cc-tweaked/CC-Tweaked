@@ -292,6 +292,20 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         waitingBody = true;
     }
 
+    int getBodyReadable() {
+        int readable;
+        synchronized (responseBodyLock) {
+            ByteBuf source = responseBody != null ? responseBody : unpooledResponseBody;
+            if (source == null) {
+                readable = 0;
+            } else {
+                int readerIndex = source.readerIndex();
+                readable = source.writerIndex() - readerIndex;
+            }
+        }
+        return responseBodyDone ? -readable - 1 : readable;
+    }
+
     /**
      * Peek response body into the designate buffer.
      * Response body is not consumed in this action.

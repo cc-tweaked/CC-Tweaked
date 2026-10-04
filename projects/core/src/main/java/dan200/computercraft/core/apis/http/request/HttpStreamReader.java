@@ -150,30 +150,8 @@ public class HttpStreamReader {
         }
     }
 
-    private abstract class HttpContentPartsPoller extends HttpContentPoller {
-        final List<ByteBuffer> parts = new ArrayList<>(4);
-        int totalRead = 0;
-
-        private HttpContentPartsPoller(String url, boolean blocking) {
-            super(url, blocking);
-        }
-
-        byte[] joinParts() {
-            var bytes = new byte[totalRead];
-            var pos = 0;
-            for (var part : parts) {
-                var length = part.remaining();
-                part.get(bytes, pos, length);
-                pos += length;
-            }
-            assert pos == totalRead;
-            return bytes;
-        }
-    }
-
-    private final class HttpContentLargePoller extends HttpContentPartsPoller {
+    private final class HttpContentLargePoller extends HttpContentPoller {
         private final int count;
-        private @Nullable ByteBuffer buffer = null;
 
         private HttpContentLargePoller(String url, boolean blocking, int count) {
             super(url, blocking);
@@ -184,39 +162,27 @@ public class HttpStreamReader {
         MethodResult pollBody() throws LuaException {
             checkOpen();
 
-            while (totalRead < count) {
-                if (buffer == null) buffer = ByteBuffer.allocate(Math.min(BUFFER_SIZE, count - totalRead));
-                var read = handler.peekBody(buffer, totalRead);
-                if (read < 0) {
-                    buffer.flip();
-                    if (buffer.hasRemaining()) {
-                        parts.add(buffer);
-                    } else if (parts.isEmpty()) {
-                        return MethodResult.of(false);
-                    }
-                    break;
-                }
-
-                totalRead += read;
-                if (read == 0) {
-                    if (blocking) return puller();
-                    parts.add(buffer.flip());
-                    break;
-                }
-
-                if (!buffer.hasRemaining()) {
-                    parts.add(buffer.flip());
-                    buffer = null;
-                }
+            var readable = handler.getBodyReadable();
+            if (readable == -1) {
+                return MethodResult.of(false);
             }
-            handler.discardBody(totalRead);
-            return MethodResult.of(joinParts());
+            if (readable >= 0) {
+                if (readable < count) {
+                    return puller();
+                }
+                readable = count;
+            } else {
+                readable = -readable - 1;
+            }
+            ByteBuffer buffer = ByteBuffer.allocate(readable);
+            var read = handler.peekBody(buffer, 0);
+            assert read == readable;
+            handler.discardBody(read);
+            return MethodResult.of(buffer.flip());
         }
     }
 
-    private final class HttpContentAllPoller extends HttpContentPartsPoller {
-        private ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
-
+    private final class HttpContentAllPoller extends HttpContentPoller {
         private HttpContentAllPoller(String url, boolean blocking) {
             super(url, blocking);
         }
@@ -225,28 +191,19 @@ public class HttpStreamReader {
         MethodResult pollBody() throws LuaException {
             checkOpen();
 
-            while (true) {
-                var read = handler.peekBody(buffer, totalRead);
-                if (read < 0) {
-                    buffer.flip();
-                    if (buffer.hasRemaining()) parts.add(buffer);
-                    break;
-                }
-
-                totalRead += read;
-                if (read == 0) {
-                    if (blocking) return puller();
-                    parts.add(buffer.flip());
-                    break;
-                }
-
-                if (!buffer.hasRemaining()) {
-                    parts.add(buffer.flip());
-                    buffer = ByteBuffer.allocate(BUFFER_SIZE);
-                }
+            var readable = handler.getBodyReadable();
+            if (readable == -1) {
+                return MethodResult.of(false);
             }
-            handler.discardBody(totalRead);
-            return MethodResult.of(joinParts());
+            if (readable >= 0) {
+                return puller();
+            }
+            readable = -readable - 1;
+            ByteBuffer buffer = ByteBuffer.allocate(readable);
+            var read = handler.peekBody(buffer, 0);
+            assert read == readable;
+            handler.discardBody(read);
+            return MethodResult.of(buffer.flip());
         }
     }
 
