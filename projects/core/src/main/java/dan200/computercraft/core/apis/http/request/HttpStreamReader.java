@@ -266,7 +266,7 @@ public class HttpStreamReader {
             checkOpen();
 
             var result = handler.readUntil(LF);
-            if (result == null) return pollBody();
+            if (result == null) return puller();
 
             // Trim CR and LF if needed.
             if (!withTrailing && result.hasRemaining() && result.get(result.limit() - 1) == LF) {

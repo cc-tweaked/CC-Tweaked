@@ -108,10 +108,11 @@ private class HttpServerHandler(private val state: HttpState) : SimpleChannelInb
         state.lastRequest = requestInfo
         ctx.channel().attr(HttpRequest.KEY).set(requestInfo)
 
-        when (request.uri()) {
+        val uri = QueryStringDecoder(request.uri())
+        when (uri.path()) {
             "/", "/index.html" -> handleIndex(ctx, request)
             "/ws" -> handleWebsocket(ctx, request)
-            "/stream" -> handleStream(ctx, request)
+            "/stream" -> handleStream(ctx, request, uri)
             else -> sendHttpResponse(ctx, request, DefaultFullHttpResponse(request.protocolVersion(), HttpResponseStatus.NOT_FOUND))
         }
     }
@@ -132,12 +133,16 @@ private class HttpServerHandler(private val state: HttpState) : SimpleChannelInb
         ctx.fireChannelRead(request.retain())
     }
 
-    private fun handleStream(ctx: ChannelHandlerContext, request: FullHttpRequest) {
-        val parameters = QueryStringDecoder(request.uri()).parameters()
+    private fun handleStream(ctx: ChannelHandlerContext, request: FullHttpRequest, uri: QueryStringDecoder) {
+        val parameters = uri.parameters()
         val delay = parameters["delay"].let { if (it.isNullOrEmpty()) 0 else it.single().toLong() }
         var limit = parameters["limit"].let { if (it.isNullOrEmpty()) -1 else it.single().toInt() }
+        val lines = parameters["lines"].let { it.isNullOrEmpty() || it.single() == "true" }
 
-        val body = DefaultHttpContent(Unpooled.wrappedBuffer("Hello, world!\n".toByteArray(StandardCharsets.UTF_8)))
+        val content = "Hello, world!" + (if (lines) "\n" else "")
+        val body = DefaultHttpContent(Unpooled.wrappedBuffer(content.toByteArray(StandardCharsets.UTF_8)))
+        val time = System.nanoTime()
+
         val channelListener = object : ChannelFutureListener, Runnable {
             override fun operationComplete(future: ChannelFuture) {
                 if (!future.isSuccess) {

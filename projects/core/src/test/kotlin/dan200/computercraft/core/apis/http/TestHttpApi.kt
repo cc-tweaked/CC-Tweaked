@@ -108,13 +108,14 @@ class TestHttpApi {
         fun `Can stream content`() {
             runServer { server ->
                 LuaTaskRunner.runTest {
-                    val (_, _, reader) = streaming(server, "/stream")
+                    val (_, response, reader) = streaming(server, "/stream")
                     assertRead(
                         reader.read(Optional.of(70), Optional.empty()),
                         "Hello, world!\n".repeat(5),
                     )
 
                     reader.close()
+                    Reference.reachabilityFence(response)
                 }
             }
         }
@@ -123,11 +124,49 @@ class TestHttpApi {
         fun `Read line`() {
             runServer { server ->
                 LuaTaskRunner.runTest {
-                    val (_, _, reader) = streaming(server, "/stream")
+                    val (_, response, reader) = streaming(server, "/stream")
                     assertRead(reader.readLine(Optional.empty()), "Hello, world!")
                     assertRead(reader.read(Optional.of(5), Optional.empty()), "Hello")
                     assertRead(reader.readLine(Optional.of(true)), ", world!\n")
                     reader.close()
+                    Reference.reachabilityFence(response)
+                }
+            }
+        }
+
+        @Test
+        fun `Read line waits for content`() {
+            runServer { server ->
+                LuaTaskRunner.runTest {
+                    val (_, response, reader) = streaming(server, "/stream?delay=300")
+
+                    // Read once to flush the buffer.
+                    assertRead(reader.readLine(Optional.empty()), "Hello, world!")
+
+                    // We have a delay between messages, so the buffer should now be empty. Ensure that this call to
+                    // readLine yields.
+                    val read = reader.readLine(Optional.empty())
+                    assertThat(read.callback, notNullValue())
+                    assertThat(read.result, array(equalTo("http_content")))
+
+                    // And then when resumed it resolves to the expected value.
+                    assertRead(read, "Hello, world!")
+
+                    reader.close()
+                    Reference.reachabilityFence(response)
+                }
+            }
+        }
+
+        @Test
+        fun `Read line returns remaining text on end`() {
+            runServer { server ->
+                LuaTaskRunner.runTest {
+                    val (_, response, reader) = streaming(server, "/stream?limit=1&lines=false")
+                    assertRead(reader.readLine(Optional.empty()), "Hello, world!")
+                    assertRead(reader.readLine(Optional.empty()), "")
+                    reader.close()
+                    Reference.reachabilityFence(response)
                 }
             }
         }
