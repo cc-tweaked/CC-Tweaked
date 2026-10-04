@@ -19,22 +19,28 @@ import dan200.computercraft.core.apis.http.websocket.WebsocketHandle
 import dan200.computercraft.test.core.computer.LuaTaskRunner
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http.HttpHeaderNames
+import io.netty.handler.codec.http.LastHttpContent
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withTimeoutOrNull
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.assertThrows
 import java.lang.ref.Reference
 import java.nio.ByteBuffer
+import java.nio.CharBuffer
 import java.nio.charset.StandardCharsets
 import java.time.Duration
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.random.RandomGenerator
 import java.util.random.RandomGeneratorFactory
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class TestHttpApi {
@@ -95,13 +101,20 @@ class TestHttpApi {
             return Triple(url, handle, reader)
         }
 
-        private suspend fun LuaTaskRunner.assertRead(result: MethodResult, expected: String) {
-            val resultValues = result.await()
-            assertThat(resultValues, array(isA(ByteBuffer::class.java)))
+        /** Assert the result of a `read()` function returns the given string. */
+        private suspend fun LuaTaskRunner.assertRead(result: MethodResult, expected: String): Unit =
+            assertRead(result.await(), expected)
 
-            val buffer = resultValues!![0] as ByteBuffer
-            val contents = StandardCharsets.UTF_8.decode(buffer).toString()
-            assertEquals(expected, contents)
+        /** Assert the result of a `read()` function returns the given string. */
+        private fun assertRead(result: Array<out Any?>?, expected: String) {
+            assertThat(result, array(anyOf(isA(ByteBuffer::class.java), isA(ByteArray::class.java))))
+
+            val contents: CharBuffer = when (val buffer = result!![0]) {
+                is ByteBuffer -> StandardCharsets.UTF_8.decode(buffer)
+                is ByteArray -> StandardCharsets.UTF_8.decode(ByteBuffer.wrap(buffer))
+                else -> throw AssertionError("Must be a ByteBuffer or byte[]")
+            }
+            assertEquals(expected, contents.toString())
         }
 
         @Test
@@ -113,6 +126,73 @@ class TestHttpApi {
                         reader.read(Optional.of(70), Optional.empty()),
                         "Hello, world!\n".repeat(5),
                     )
+
+                    reader.close()
+                    Reference.reachabilityFence(response)
+                }
+            }
+        }
+
+        /**
+         * Test if `read()`-like functions are interrupted and abort when the remote socket closes cleanly.
+         */
+        @Test
+        fun `read() aborts on clean exit`() {
+            runServer { server ->
+                LuaTaskRunner.runTest {
+                    val (_, response, reader) = streaming(server, "/stream?limit=1")
+                    assertRead(reader.readAll(), "Hello, world!\n")
+                    reader.close()
+                    Reference.reachabilityFence(response)
+                }
+            }
+        }
+
+        /**
+         * Test if `read()`-like functions are interrupted and abort when the remote socket dies.
+         *
+         * In practice, this triggers the same codepath as the above test: [io.netty.handler.codec.ByteToMessageDecoder]
+         * queues [LastHttpContent.EMPTY_LAST_CONTENT] on channel disconnect, so we always close the connection there.
+         */
+        @Test
+        fun `read() aborts on abnormal exit`() {
+            runServer { server ->
+                LuaTaskRunner.runTest { scope ->
+                    val (_, response, reader) = streaming(server, "/stream?limit=1&close=false")
+
+                    // First assert that reading never completes normally.
+                    val readAll = scope.async { reader.readAll().await() }
+                    assertNull(withTimeoutOrNull(500.milliseconds) { readAll.await() })
+
+                    // Now if we kill the channel, reading should complete.
+                    server.stop()
+                    assertRead(readAll.await(), "Hello, world!\n")
+
+                    reader.close()
+                    Reference.reachabilityFence(response)
+                }
+            }
+        }
+
+        /**
+         * Test if `read()`-like functions are interrupted and abort when the remote socket dies using chunked encoding.
+         *
+         * If the remote socket is using chunked encoding, Netty does *not* enqueue a
+         * [LastHttpContent.EMPTY_LAST_CONTENT], so we wake up the readers in `channelInactive`.
+         */
+        @Test
+        fun `read() aborts on abnormal exit (chunked)`() {
+            runServer { server ->
+                LuaTaskRunner.runTest { scope ->
+                    val (_, response, reader) = streaming(server, "/stream?limit=1&close=false&chunked=true")
+
+                    // First assert that reading never completes normally.
+                    val readAll = scope.async { reader.readAll().await() }
+                    assertNull(withTimeoutOrNull(500.milliseconds) { readAll.await() })
+
+                    // Now if we kill the channel, reading should complete.
+                    server.stop()
+                    assertRead(readAll.await(), "Hello, world!\n")
 
                     reader.close()
                     Reference.reachabilityFence(response)

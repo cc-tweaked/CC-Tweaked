@@ -38,7 +38,7 @@ class HttpServer private constructor(
     val lastRequest: HttpRequest
         get() = state.lastRequest ?: throw NullPointerException("No request has occurred yet")
 
-    /** Stop the server from running */
+    /** Stop the server from running. */
     fun stop() {
         workerGroup.shutdownGracefully()
     }
@@ -138,10 +138,11 @@ private class HttpServerHandler(private val state: HttpState) : SimpleChannelInb
         val delay = parameters["delay"].let { if (it.isNullOrEmpty()) 0 else it.single().toLong() }
         var limit = parameters["limit"].let { if (it.isNullOrEmpty()) -1 else it.single().toInt() }
         val lines = parameters["lines"].let { it.isNullOrEmpty() || it.single() == "true" }
+        val close = parameters["close"].let { it.isNullOrEmpty() || it.single() == "true" }
+        val chunked = parameters["chunked"].let { !it.isNullOrEmpty() && it.single() == "true" }
 
         val content = "Hello, world!" + (if (lines) "\n" else "")
         val body = DefaultHttpContent(Unpooled.wrappedBuffer(content.toByteArray(StandardCharsets.UTF_8)))
-        val time = System.nanoTime()
 
         val channelListener = object : ChannelFutureListener, Runnable {
             override fun operationComplete(future: ChannelFuture) {
@@ -159,7 +160,7 @@ private class HttpServerHandler(private val state: HttpState) : SimpleChannelInb
 
             override fun run() {
                 if (limit == 0) {
-                    ctx.close()
+                    if (close) ctx.close()
                     return
                 }
 
@@ -169,8 +170,9 @@ private class HttpServerHandler(private val state: HttpState) : SimpleChannelInb
             }
         }
 
-        ctx.writeAndFlush(DefaultHttpResponse(request.protocolVersion(), HttpResponseStatus.OK))
-            .addListener(channelListener)
+        val response = DefaultHttpResponse(request.protocolVersion(), HttpResponseStatus.OK)
+        if (chunked) response.headers().set(HttpHeaderNames.TRANSFER_ENCODING, HttpHeaderValues.CHUNKED)
+        ctx.writeAndFlush(response).addListener(channelListener)
     }
 
     private fun sendHttpResponse(ctx: ChannelHandlerContext, request: FullHttpRequest, response: FullHttpResponse) {
