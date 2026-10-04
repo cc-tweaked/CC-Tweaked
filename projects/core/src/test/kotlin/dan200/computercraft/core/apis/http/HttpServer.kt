@@ -18,6 +18,7 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketSe
 import io.netty.util.AttributeKey
 import java.net.InetSocketAddress
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.TimeUnit
 
 class HttpRequest(val headers: HttpHeaders, var lastMessageTime: Long) {
     companion object {
@@ -110,6 +111,7 @@ private class HttpServerHandler(private val state: HttpState) : SimpleChannelInb
         when (request.uri()) {
             "/", "/index.html" -> handleIndex(ctx, request)
             "/ws" -> handleWebsocket(ctx, request)
+            "/stream" -> handleStream(ctx, request)
             else -> sendHttpResponse(ctx, request, DefaultFullHttpResponse(request.protocolVersion(), HttpResponseStatus.NOT_FOUND))
         }
     }
@@ -128,6 +130,42 @@ private class HttpServerHandler(private val state: HttpState) : SimpleChannelInb
         }
 
         ctx.fireChannelRead(request.retain())
+    }
+
+    private fun handleStream(ctx: ChannelHandlerContext, request: FullHttpRequest) {
+        val parameters = QueryStringDecoder(request.uri()).parameters()
+        val delay = parameters["delay"].let { if (it.isNullOrEmpty()) 0 else it.single().toLong() }
+        var limit = parameters["limit"].let { if (it.isNullOrEmpty()) -1 else it.single().toInt() }
+
+        val body = DefaultHttpContent(Unpooled.wrappedBuffer("Hello, world!\n".toByteArray(StandardCharsets.UTF_8)))
+        val channelListener = object : ChannelFutureListener, Runnable {
+            override fun operationComplete(future: ChannelFuture) {
+                if (!future.isSuccess) {
+                    ctx.close()
+                    return
+                }
+
+                if (delay == 0L) {
+                    run()
+                } else {
+                    ctx.executor().schedule(this, delay, TimeUnit.MILLISECONDS)
+                }
+            }
+
+            override fun run() {
+                if (limit == 0) {
+                    ctx.close()
+                    return
+                }
+
+                if (limit > 0) limit--
+
+                ctx.writeAndFlush(body.retainedDuplicate()).addListeners(this)
+            }
+        }
+
+        ctx.writeAndFlush(DefaultHttpResponse(request.protocolVersion(), HttpResponseStatus.OK))
+            .addListener(channelListener)
     }
 
     private fun sendHttpResponse(ctx: ChannelHandlerContext, request: FullHttpRequest, response: FullHttpResponse) {

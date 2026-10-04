@@ -4,7 +4,6 @@
 
 package dan200.computercraft.core.apis.http.request;
 
-import com.google.errorprone.annotations.DoNotCall;
 import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -78,12 +77,6 @@ public class HttpStreamReader {
 
         boolean withTrailing = withTrailingArg.orElse(false);
         return new HttpContentLinePoller(request.address, withTrailing).pollBody();
-    }
-
-    @DoNotCall
-    @LuaFunction
-    public final MethodResult seek(Optional<String> whence, Optional<Long> offset) throws LuaException {
-        throw new LuaException("cannot seek on a streamed connection");
     }
 
     private abstract class HttpContentPoller implements ILuaCallback {
@@ -257,12 +250,11 @@ public class HttpStreamReader {
         }
     }
 
-    private final class HttpContentLinePoller extends HttpContentPartsPoller {
-        private static final byte SEP = '\n';
+    private final class HttpContentLinePoller extends HttpContentPoller {
+        private static final byte LF = '\n';
         private static final byte CR = '\r';
 
         private final boolean withTrailing;
-        private ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
 
         private HttpContentLinePoller(String url, boolean withTrailing) {
             super(url, true);
@@ -273,43 +265,18 @@ public class HttpStreamReader {
         MethodResult pollBody() throws LuaException {
             checkOpen();
 
-            while (true) {
-                var read = handler.peekBodyUntil(buffer, totalRead, SEP);
-                if (read < 0) {
-                    buffer.flip();
-                    if (buffer.hasRemaining()) parts.add(buffer);
-                    break;
-                }
+            var result = handler.readUntil(LF);
+            if (result == null) return pollBody();
 
-                totalRead += read;
-                if (read == 0) {
-                    return puller();
-                }
-
-                if (!buffer.hasRemaining()) {
-                    parts.add(buffer.flip());
-                    if (buffer.get(buffer.limit()) == SEP) {
-                        if (!withTrailing) {
-                            // trim LF
-                            buffer.limit(buffer.limit() - 1);
-                            totalRead--;
-                            // trim CR
-                            var buf = buffer;
-                            if (buf.remaining() < 2) {
-                                buf = parts.size() >= 2 ? parts.get(parts.size() - 2) : null;
-                            }
-                            if (buf != null && buf.get(buf.limit()) == CR) {
-                                buf.limit(buf.limit() - 1);
-                                totalRead--;
-                            }
-                        }
-                        break;
-                    }
-                    buffer = ByteBuffer.allocate(BUFFER_SIZE);
+            // Trim CR and LF if needed.
+            if (!withTrailing && result.hasRemaining() && result.get(result.limit() - 1) == LF) {
+                result.limit(result.limit() - 1);
+                if (result.hasRemaining() && result.get(result.limit() - 1) == CR) {
+                    result.limit(result.limit() - 1);
                 }
             }
-            handler.discardBody(totalRead);
-            return MethodResult.of(joinParts());
+
+            return MethodResult.of(result.asReadOnlyBuffer());
         }
     }
 }

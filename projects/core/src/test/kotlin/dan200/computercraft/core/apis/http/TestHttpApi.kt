@@ -4,10 +4,7 @@
 
 package dan200.computercraft.core.apis.http
 
-import dan200.computercraft.api.lua.Coerced
-import dan200.computercraft.api.lua.LuaException
-import dan200.computercraft.api.lua.LuaValues
-import dan200.computercraft.api.lua.ObjectArguments
+import dan200.computercraft.api.lua.*
 import dan200.computercraft.core.apis.HTTPAPI
 import dan200.computercraft.core.apis.IAPIEnvironment
 import dan200.computercraft.core.apis.handles.ReadHandle
@@ -17,6 +14,7 @@ import dan200.computercraft.core.apis.http.TestHttpApi.Companion.LIMITED_DURATIO
 import dan200.computercraft.core.apis.http.options.Action
 import dan200.computercraft.core.apis.http.options.AddressRule
 import dan200.computercraft.core.apis.http.request.HttpResponseHandle
+import dan200.computercraft.core.apis.http.request.HttpStreamReader
 import dan200.computercraft.core.apis.http.websocket.WebsocketHandle
 import dan200.computercraft.test.core.computer.LuaTaskRunner
 import io.netty.buffer.Unpooled
@@ -24,11 +22,14 @@ import io.netty.handler.codec.http.HttpHeaderNames
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.lang.ref.Reference
 import java.nio.ByteBuffer
+import java.nio.charset.StandardCharsets
 import java.time.Duration
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -73,6 +74,61 @@ class TestHttpApi {
                 val handle = result[2] as HttpResponseHandle
                 val reader = handle.extra.iterator().next() as ReadHandle
                 assertThat(reader.readAll(), array(equalTo("Hello, world!".toByteArray())))
+            }
+        }
+    }
+
+    @Nested
+    inner class `HTTP streaming` {
+        private suspend fun LuaTaskRunner.streaming(server: HttpServer, path: String): Triple<String, HttpResponseHandle, HttpStreamReader> {
+            val url = "http://127.0.0.1:${server.port}$path"
+            val httpApi = addApi(createHttpApi(environment, server.port))
+
+            val request = httpApi.request(ObjectArguments(mapOf("url" to url, "streaming" to true)))
+            assertThat("http.request succeeded", request, array(equalTo(true)))
+
+            val result = pullEvent("http_success")
+            assertThat(result, array(equalTo("http_success"), equalTo(url), isA(HttpResponseHandle::class.java)))
+
+            val handle = result[2] as HttpResponseHandle
+            val reader = handle.extra.single() as HttpStreamReader
+            return Triple(url, handle, reader)
+        }
+
+        private suspend fun LuaTaskRunner.assertRead(result: MethodResult, expected: String) {
+            val resultValues = result.await()
+            assertThat(resultValues, array(isA(ByteBuffer::class.java)))
+
+            val buffer = resultValues!![0] as ByteBuffer
+            val contents = StandardCharsets.UTF_8.decode(buffer).toString()
+            assertEquals(expected, contents)
+        }
+
+        @Test
+        fun `Can stream content`() {
+            runServer { server ->
+                LuaTaskRunner.runTest {
+                    val (_, _, reader) = streaming(server, "/stream")
+                    assertRead(
+                        reader.read(Optional.of(70), Optional.empty()),
+                        "Hello, world!\n".repeat(5),
+                    )
+
+                    reader.close()
+                }
+            }
+        }
+
+        @Test
+        fun `Read line`() {
+            runServer { server ->
+                LuaTaskRunner.runTest {
+                    val (_, _, reader) = streaming(server, "/stream")
+                    assertRead(reader.readLine(Optional.empty()), "Hello, world!")
+                    assertRead(reader.read(Optional.of(5), Optional.empty()), "Hello")
+                    assertRead(reader.readLine(Optional.of(true)), ", world!\n")
+                    reader.close()
+                }
             }
         }
     }

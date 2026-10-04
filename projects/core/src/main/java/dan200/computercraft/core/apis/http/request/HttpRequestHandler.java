@@ -298,7 +298,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
      * This method does not block, and will only read currently cached data into the buffer and returns the amount of available bytes.
      *
      * @param buffer the designate buffer
-     * @param skip amount of bytes to skip in the peek
+     * @param skip   amount of bytes to skip in the peek
      * @return The amount of bytes read, or {@code -1} if stream is ended or internal buffer is full.
      */
     int peekBody(ByteBuffer buffer, int skip) {
@@ -327,44 +327,42 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     }
 
     /**
-     * Peek response body into the designate buffer until the specific separator.
-     * Response body is not consumed in this action.
-     * This method does not block, and will only read currently cached data into the buffer and returns the amount of available bytes.
-     * Separator will be read into the buffer, and if exists, it will always and only appears at the buffer's last position.
+     * Read from the response buffer until a separator or end of file. The separator is included in the output buffer.
+     * <p>
+     * If the separator has not been reached, and bytes are still being received, this function returns {@code null},
+     * indicating that the consumer should wait for more content to be received and try again.
      *
-     * @param buffer the designate buffer
-     * @param skip amount of bytes to skip in the peek
      * @param separator the target separator
-     * @return The amount of bytes read, or {@code -1} if stream is ended or internal buffer is full.
+     * @return The bytes which were read, or {@code null}.
      */
-    int peekBodyUntil(ByteBuffer buffer, int skip, byte separator) {
-        if (skip >= MAX_STREAM_BUFFER_CACHE) return -1;
+    @Nullable ByteBuffer readUntil(byte separator) {
         synchronized (responseBodyLock) {
             ByteBuf source = responseBody != null ? responseBody : unpooledResponseBody;
-            if (source == null) return responseBodyDone ? -1 : 0;
+            if (source == null) return null; // Isn't this impossible? This should only happen if the channel is closed?
 
-            int readerIndex = source.readerIndex() + skip;
-            int readable = source.writerIndex() - readerIndex;
-            if (readable == 0 && responseBodyDone) return -1;
-
-            int maxRead = buffer.remaining();
-            if (maxRead > readable) maxRead = readable;
-            int sepIndex = source.bytesBefore(readerIndex, maxRead, separator);
+            var sepIndex = source.bytesBefore(separator);
+            int toRead;
             if (sepIndex != -1) {
-                maxRead = sepIndex + 1;
-            }
-            int oldLimit = -1;
-            if (maxRead != buffer.remaining()) {
-                oldLimit = buffer.limit();
-                buffer.limit(buffer.position() + maxRead);
+                toRead = sepIndex + 1;
+            } else if (responseBodyDone) {
+                toRead = source.readableBytes();
+            } else {
+                return null;
             }
 
-            source.getBytes(readerIndex, buffer);
+            var buffer = ByteBuffer.allocateDirect(toRead);
+            source.readBytes(buffer);
+            source.discardSomeReadBytes();
+            triggerReread();
 
-            if (oldLimit != -1) {
-                buffer.limit(oldLimit);
-            }
-            return maxRead;
+            return buffer.flip();
+        }
+    }
+
+    @GuardedBy("responseBodyLock")
+    private void triggerReread() {
+        if (responseBody != null && responseBodyTrigger != null && responseBody.readableBytes() < MAX_STREAM_BUFFER_CACHE) {
+            responseBodyTrigger.run();
         }
     }
 
