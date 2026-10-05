@@ -12,8 +12,10 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.function.IntUnaryOperator;
 
 /**
  * A model to render, combined with a transformation matrix to apply.
@@ -21,15 +23,20 @@ import java.util.Objects;
 public final class TransformedModel {
     private final BakedModel model;
     private final Transformation matrix;
+    private final @Nullable IntUnaryOperator tints;
 
-    public TransformedModel(BakedModel model, Transformation matrix) {
+    public TransformedModel(BakedModel model, Transformation matrix, @Nullable IntUnaryOperator tints) {
         this.model = Objects.requireNonNull(model);
         this.matrix = Objects.requireNonNull(matrix);
+        this.tints = tints;
+    }
+
+    public TransformedModel(BakedModel model, Transformation matrix) {
+        this(model, matrix, null);
     }
 
     public TransformedModel(BakedModel model) {
-        this.model = Objects.requireNonNull(model);
-        matrix = Transformation.identity();
+        this(model, Transformation.identity(), null);
     }
 
     public static TransformedModel of(ModelResourceLocation location) {
@@ -53,5 +60,13 @@ public final class TransformedModel {
 
     public Transformation getMatrix() {
         return matrix;
+    }
+
+    public @Nullable IntUnaryOperator getTints() {
+        return tints;
+    }
+
+    public int getTint(int index) {
+        return tints == null ? -1 : tints.applyAsInt(index);
     }
 }

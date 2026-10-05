@@ -100,7 +100,7 @@ class BlockModelProvider {
         registerRedstoneControl(generators);
 
         registerTurtleUpgrade(generators, "block/turtle_crafting_table", new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_crafty_face"));
-        registerTurtleUpgrade(generators, "block/turtle_shulker", new ResourceLocation(ResourceLocation.DEFAULT_NAMESPACE, "block/shulker_box"));
+        registerTurtleUpgrade(generators, "block/turtle_shulker", new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_shulker"));
         registerTurtleUpgrade(generators, "block/turtle_speaker", new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_face"));
         registerTurtleModem(generators, "block/turtle_modem_normal", "block/wireless_modem_normal_face");
         registerTurtleModem(generators, "block/turtle_modem_advanced", "block/wireless_modem_advanced_face");

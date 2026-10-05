@@ -101,8 +101,16 @@ public final class DataProviders {
             protected void addUpgrades(Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> addUpgrade) {
                 for (var item : BuiltInRegistries.ITEM) {
                     if (item instanceof BlockItem blockItem && blockItem.getBlock() instanceof ShulkerBoxBlock) {
+                        // Shuffle the name about, so blue_shulker_box becomes shulker/blue. This is a bit of a hack to
+                        // ensure they're all grouped together in the creative tab.
                         var name = PlatformHelper.get().getRegistryKey(Registries.ITEM, item).getPath();
-                        simpleWithCustomItem(new ResourceLocation(ComputerCraftAPI.MOD_ID, name), ModRegistry.TurtleSerialisers.STORAGE.get(), item).add(addUpgrade);
+                        if (name.endsWith("shulker_box")) {
+                            name = name.substring(0, name.length() - "shulker_box".length());
+                        }
+                        if (name.endsWith("_")) name = name.substring(0, name.length() - 1);
+
+                        var id = new ResourceLocation(ComputerCraftAPI.MOD_ID, name.isEmpty() ? "shulker" : "shulker/" + name);
+                        simpleWithCustomItem(id, ModRegistry.TurtleSerialisers.STORAGE.get(), item).add(addUpgrade);
                     }
                 }
             }

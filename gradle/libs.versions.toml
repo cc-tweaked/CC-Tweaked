@@ -73,7 +73,7 @@ modDevGradle = "2.0.147"
 nullAway = "0.14.0"
 shadow = "9.6.1"
 spotless = "8.10.0"
-teavm = "0.15.0"
+teavm = "0.16.0"
 vanillaExtract = "0.3.2"
 versionCatalogUpdate = "1.1.1"
 
