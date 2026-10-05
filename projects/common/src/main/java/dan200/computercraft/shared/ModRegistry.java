@@ -14,6 +14,7 @@ import dan200.computercraft.api.network.wired.WiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.impl.PocketUpgrades;
@@ -120,6 +121,8 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
@@ -574,10 +577,16 @@ public final class ModRegistry {
         void registerFallback(BiFunction<ItemStack, @Nullable Void, @Nullable T> provider);
     }
 
+    private static <T extends UpgradeBase> Iterable<? extends UpgradeManager.UpgradeWrapper<?, T>> getUpgrades(UpgradeManager<?, T> upgrades) {
+        var list = new ArrayList<>(upgrades.getUpgradeWrappers().values());
+        list.sort(Comparator.comparing(UpgradeManager.UpgradeWrapper::id));
+        return list;
+    }
+
     private static void addTurtle(CreativeModeTab.Output out, TurtleItem turtle) {
         out.accept(turtle.create(-1, null, -1, null, null, 0, null));
 
-        for (var upgrade : TurtleUpgrades.instance().getUpgradeWrappers().values()) {
+        for (var upgrade : getUpgrades(TurtleUpgrades.instance())) {
             out.accept(
                 turtle.create(-1, null, -1, null, UpgradeData.ofDefault(upgrade.upgrade()), 0, null),
                 getUpgradeTabVisibility(upgrade)
@@ -588,7 +597,7 @@ public final class ModRegistry {
     private static void addPocket(CreativeModeTab.Output out, PocketComputerItem pocket) {
         out.accept(pocket.create(-1, null, -1, null));
 
-        for (var upgrade : PocketUpgrades.instance().getUpgradeWrappers().values()) {
+        for (var upgrade : getUpgrades(PocketUpgrades.instance())) {
             out.accept(
                 pocket.create(-1, null, -1, UpgradeData.ofDefault(upgrade.upgrade())),
                 getUpgradeTabVisibility(upgrade)
