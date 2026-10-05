@@ -67,6 +67,11 @@ configurations {
     runtimeClasspath { extendsFrom(localImplementation.get()) }
 }
 
+val testWithIrisShaders = configurations.dependencyScope("testWithIrisShaders")
+val testWithIrisShadersResolve = configurations.resolvable("testWithIrisShadersResolve") {
+    extendsFrom(testWithIrisShaders)
+}
+
 dependencies {
     clientCompileOnly(variantOf(libs.emi) { classifier("api") })
     modCompileOnly(libs.bundles.externalMods.fabric.compile) {
@@ -82,6 +87,7 @@ dependencies {
     "modTestWithSodium"(libs.sodium.fabric)
     "modTestWithIris"(libs.iris.fabric)
     "modTestWithIris"(libs.sodium.fabric)
+    "testWithIrisShaders"(variantOf(libs.complementary) { artifactType("zip") })
 
     "includeRuntimeOnly"(libs.cobalt)
     "includeRuntimeOnly"(libs.jzlib)
@@ -294,7 +300,9 @@ val runGametestClientWithIris = tasks.register<ClientJavaExec>("runGametestClien
     tags("iris")
     classpath += configurations["testWithIris"]
 
-    withComplementaryShaders()
+    // Ideally we'd use a detached configuration here, but that seems to ignore the artifactType (so it tries to fetch
+    // a jar), hence we use a full one.
+    withShaderPack(testWithIrisShadersResolve.get())
 }
 cct.jacoco(runGametestClientWithIris)
 

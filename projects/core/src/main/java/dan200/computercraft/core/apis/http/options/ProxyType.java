@@ -4,11 +4,13 @@
 
 package dan200.computercraft.core.apis.http.options;
 
+import dan200.computercraft.core.apis.http.NettyHttp;
+
 /**
  * The type of proxy to use for HTTP requests.
  *
  * @see dan200.computercraft.core.apis.http.NetworkUtils#getProxyHandler(Options, int)
- * @see dan200.computercraft.core.CoreConfig#httpProxyType
+ * @see NettyHttp.ProxyConfig#type()
  */
 public enum ProxyType {
     HTTP,

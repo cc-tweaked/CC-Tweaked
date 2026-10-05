@@ -85,8 +85,7 @@ else
     bgColour = colours.black
 end
 
-local function tokenise(...)
-    local sLine = table.concat({ ... }, " ")
+local function tokenise(sLine)
     local tWords = {}
     local bQuoted = false
     for match in string.gmatch(sLine .. "\"", "(.-)\"") do
@@ -238,7 +237,7 @@ function shell.execute(command, ...)
             end
         end
         return result
-       else
+    else
         printError("No such program")
         return false
     end
@@ -261,7 +260,10 @@ end
 -- @changed 1.80pr1 Programs now get their own environment instead of sharing the same one.
 -- @changed 1.83.0 `arg` is now added to the environment.
 function shell.run(...)
-    local tWords = tokenise(...)
+    local args = table.pack(...)
+    for i = 1, args.n do expect(i, args[i], "string", "number") end
+
+    local tWords = tokenise(table.concat(args, " ", 1, args.n))
     local sCommand = tWords[1]
     if sCommand then
         return shell.execute(sCommand, table.unpack(tWords, 2))
@@ -382,7 +384,7 @@ function shell.resolveProgram(command)
         return nil
     end
 
-     -- Otherwise, look on the path variable
+    -- Otherwise, look on the path variable
     for sPath in string.gmatch(sPath, "[^:]+") do
         sPath = fs.combine(shell.resolve(sPath), command)
         if fs.exists(sPath) and not fs.isDir(sPath) then
@@ -419,7 +421,7 @@ function shell.programs(include_hidden)
             for n = 1, #tList do
                 local sFile = tList[n]
                 if not fs.isDir(fs.combine(sPath, sFile)) and
-                   (include_hidden or string.sub(sFile, 1, 1) ~= ".") then
+                    (include_hidden or string.sub(sFile, 1, 1) ~= ".") then
                     if #sFile > 4 and sFile:sub(-4) == ".lua" then
                         sFile = sFile:sub(1, -5)
                     end

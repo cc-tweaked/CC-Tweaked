@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package dan200.computercraft.core.asm;
+package cc.tweaked.web.methods;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -31,11 +31,11 @@ import java.util.function.Consumer;
 /**
  * Compile-time generation of {@link LuaMethod} methods.
  *
- * @see TLuaMethodSupplier
+ * @see StaticLuaMethodSupplier
  * @see StaticGenerator
  */
 @CompileTime
-public class MethodReflection {
+class MethodReflection {
     @Meta
     public static native boolean getMethods(Class<?> type, Consumer<NamedMethod<LuaMethod>> make);
 

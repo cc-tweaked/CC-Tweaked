@@ -8,7 +8,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.shared.platform.ContainerTransfer;
+import dan200.computercraft.shared.platform.ItemContainer;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.util.InventoryUtil;
@@ -51,8 +51,8 @@ public class TurtleSuckCommand implements TurtleCommand {
             // Take from inventory of thing in front
             var transferred = inventory.moveTo(TurtleUtil.getOffsetInventory(turtle), quantity);
             return switch (transferred) {
-                case ContainerTransfer.NO_SPACE -> TurtleCommandResult.failure("No space for items");
-                case ContainerTransfer.NO_ITEMS -> TurtleCommandResult.failure("No items to take");
+                case ItemContainer.NO_SPACE -> TurtleCommandResult.failure("No space for items");
+                case ItemContainer.NO_ITEMS -> TurtleCommandResult.failure("No items to take");
                 default -> {
                     turtle.playAnimation(TurtleAnimation.WAIT);
                     yield TurtleCommandResult.success();

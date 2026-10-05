@@ -4,6 +4,7 @@
 
 package dan200.computercraft.core.asm;
 
+import com.google.common.reflect.TypeToken;
 import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.GenericPeripheral;
@@ -54,6 +55,7 @@ public final class GenericMethod {
     public static Stream<GenericMethod> getMethods(GenericSource source) {
         Class<?> klass = source.getClass();
         var type = source instanceof GenericPeripheral generic ? generic.getType() : null;
+        var typeToken = TypeToken.of(klass);
 
         return Arrays.stream(klass.getMethods())
             .map(method -> {
@@ -66,7 +68,8 @@ public final class GenericMethod {
                     return null;
                 }
 
-                var target = Reflect.getRawType(method, types[0], false);
+                var targetType = typeToken.resolveType(types[0]).getType();
+                var target = Reflect.getRawType(method, targetType, false);
                 if (target == null) return null;
 
                 return new GenericMethod(source, method, annotation, target, type);

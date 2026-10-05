@@ -68,6 +68,59 @@ describe("The gps library", function()
             fake_computer.run_all(computers, { computer })
         end)
 
+        pending("locates computers at random positions", function()
+            -- Sample a float value in [-range, range]
+            local function sample(range) return (math.random() - 0.5) * (range * 2) end
+
+            local accuracy = 0.01
+
+            -- The range in the X and Z axis
+            local xz_range = 10000
+
+            -- We set up a computer which waits for a reset signal, then updates the
+            -- position local. This is a little ugly, but significantly faster doing
+            -- it outside the loop.
+            local position
+            local computer, modem = gps_receiver(0, 0, 0, function(env)
+                while true do
+                    os.pullEvent("reset")
+                    position = table.pack(env.gps.locate())
+                end
+            end)
+
+            local d = 16
+            local computers = gps_hosts(computer, modem, {
+                { 0, 0, 0 },
+                { 0, d, d },
+                { d, d, 0 },
+                { d, 0, d },
+            })
+
+            -- Now place our computer at random positions, and check it is found correctly.
+            for i = 1, 10000 do
+                position = nil
+                local x, y, z = sample(xz_range), sample(512), sample(xz_range)
+                computer.position = vector.new(x, y, z)
+                computer.queue_event("reset")
+
+                fake_computer.run_all(computers, false)
+                fake_computer.advance_all(computers, 2)
+                fake_computer.run_all(computers, false)
+
+
+                if
+                    position.n ~= 3 or
+                    math.abs(position[1] - x) > accuracy or
+                    math.abs(position[2] - y) > accuracy or
+                    math.abs(position[3] - z) > accuracy
+                then
+                    expect(position):same { x, y, z }
+                end
+
+                if i % 1000 == 0 then os.queueEvent("yield") os.pullEvent("yield") end
+            end
+        end)
+
         it("fails to locate a computer with insufficient hosts", function()
             local computer, modem = gps_receiver(12, 23, 52, function(env)
                 local x, y, z = env.gps.locate()

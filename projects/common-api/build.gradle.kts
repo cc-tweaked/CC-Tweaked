@@ -80,19 +80,7 @@ tasks.javadoc {
     }
 
     // Include the core-api in our javadoc export. This is wrong, but it means we can export a single javadoc dump.
-    source("../core/src/main/java")
-
-    options {
-        this as StandardJavadocDocletOptions
-        addBooleanOption("-allow-script-in-comments", true)
-        bottom(
-            """
-            <script src="https://cdn.jsdelivr.net/npm/prismjs@v1.29.0/components/prism-core.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/prismjs@v1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-            <link href=" https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css " rel="stylesheet">
-            """.trimIndent(),
-        )
-    }
+    source("../core-api/src/main/java")
 }
 
 configurations.named("javadocElements") {

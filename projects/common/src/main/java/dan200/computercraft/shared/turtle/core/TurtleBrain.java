@@ -33,7 +33,6 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
@@ -263,11 +262,7 @@ public class TurtleBrain implements TurtleAccessInternal {
                     var newTile = world.getBlockEntity(pos);
                     if (newTile instanceof TurtleBlockEntity newTurtle) {
                         // Copy the old turtle state into the new turtle
-                        newTurtle.setLevel(world);
                         newTurtle.transferStateFrom(oldOwner);
-
-                        var computer = newTurtle.createServerComputer();
-                        computer.setPosition((ServerLevel) world, pos);
 
                         // Remove the old turtle
                         oldWorld.removeBlock(oldPos, false);

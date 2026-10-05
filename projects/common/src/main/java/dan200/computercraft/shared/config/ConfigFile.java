@@ -229,10 +229,9 @@ public abstract class ConfigFile {
         /**
          * The function called then a config file is changed.
          *
-         * @param path The path to the config file. This will be {@code null} when the config file does not exist on
-         *             disk, such as when synced from a server to the client.
+         * @param path The path to the config file.
          * @see Builder#build(ConfigListener)
          */
-        void onConfigChanged(@Nullable Path path);
+        void onConfigChanged(Path path);
     }
 }

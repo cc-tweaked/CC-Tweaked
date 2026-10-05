@@ -31,7 +31,7 @@ import static dan200.computercraft.core.apis.http.websocket.WebsocketClient.MESS
  * @cc.module http.Websocket
  * @see dan200.computercraft.core.apis.HTTPAPI#websocket On how to open a websocket.
  */
-public class WebsocketHandle {
+public final class WebsocketHandle {
     private static final ThreadLocal<CharsetDecoder> DECODER = ThreadLocal.withInitial(() -> StandardCharsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPLACE));
 
     private final IAPIEnvironment environment;
@@ -64,8 +64,9 @@ public class WebsocketHandle {
      * @cc.changed 1.117.0 Added return value indicating why receiving the message failed.
      */
     @LuaFunction
-    public final MethodResult receive(Optional<Double> timeout) throws LuaException {
-        checkOpen();
+    public MethodResult receive(Optional<Double> timeout) throws LuaException {
+        if (websocket.isClosed()) throw new LuaException(WebsocketClient.CLOSED_ERROR);
+
         var timeoutId = timeout.isPresent()
             ? environment.startTimer(Math.round(checkFinite(0, timeout.get()) / 0.05))
             : -1;
@@ -83,8 +84,8 @@ public class WebsocketHandle {
      * @cc.changed 1.81.0 Added argument for binary mode.
      */
     @LuaFunction
-    public final void send(Coerced<ByteBuffer> message, Optional<Boolean> binary) throws LuaException {
-        checkOpen();
+    public void send(Coerced<ByteBuffer> message, Optional<Boolean> binary) throws LuaException {
+        if (websocket.isClosed()) throw new LuaException(WebsocketClient.CLOSED_ERROR);
 
         var text = message.value();
         if (options.websocketMessage() != 0 && text.remaining() > options.websocketMessage()) {
@@ -108,8 +109,8 @@ public class WebsocketHandle {
      * along it.
      */
     @LuaFunction
-    public final void close() {
-        websocket.close();
+    public void close() {
+        websocket.close(1000, "");
     }
 
     /**
@@ -132,12 +133,8 @@ public class WebsocketHandle {
      * @since 1.117.0
      */
     @LuaFunction
-    public final Map<String, String> getResponseHeaders() {
+    public Map<String, String> getResponseHeaders() {
         return responseHeaders;
-    }
-
-    private void checkOpen() throws LuaException {
-        if (websocket.isClosed()) throw new LuaException("attempt to use a closed file");
     }
 
     private final class ReceiveCallback implements ILuaCallback {

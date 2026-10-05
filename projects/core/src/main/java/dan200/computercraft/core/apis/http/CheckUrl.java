@@ -11,7 +11,7 @@ import java.net.URI;
 import java.util.concurrent.Future;
 
 /**
- * Checks a URL using {@link NetworkUtils#getAddress(String, int, boolean)}.
+ * Checks a URL using {@link NetworkUtils#getAddress(URI, boolean)}.
  * <p>
  * This requires a DNS lookup, and so needs to occur off-thread.
  */
@@ -21,12 +21,14 @@ public class CheckUrl extends Resource<CheckUrl> {
     private @Nullable Future<?> future;
 
     private final IAPIEnvironment environment;
+    private final NetworkUtils network;
     private final String address;
     private final URI uri;
 
-    public CheckUrl(ResourceGroup<CheckUrl> limiter, IAPIEnvironment environment, String address, URI uri) {
+    public CheckUrl(ResourceGroup<CheckUrl> limiter, IAPIEnvironment environment, NetworkUtils network, String address, URI uri) {
         super(limiter);
         this.environment = environment;
+        this.network = network;
         this.address = address;
         this.uri = uri;
     }
@@ -43,7 +45,7 @@ public class CheckUrl extends Resource<CheckUrl> {
         try {
             var ssl = uri.getScheme().equalsIgnoreCase("https");
             var netAddress = NetworkUtils.getAddress(uri, ssl);
-            NetworkUtils.getOptions(uri.getHost(), netAddress);
+            network.getOptions(uri.getHost(), netAddress);
 
             if (tryClose()) environment.queueEvent(EVENT, address, true);
         } catch (HTTPRequestException e) {

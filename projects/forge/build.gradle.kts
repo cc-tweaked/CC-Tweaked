@@ -177,6 +177,11 @@ configurations {
     runtimeClasspath { extendsFrom(localImplementation.get()) }
 }
 
+val testWithIrisShaders = configurations.dependencyScope("testWithIrisShaders")
+val testWithIrisShadersResolve = configurations.resolvable("testWithIrisShadersResolve") {
+    extendsFrom(testWithIrisShaders)
+}
+
 dependencies {
     compileOnly(libs.jetbrainsAnnotations)
     annotationProcessorEverywhere(libs.autoService)
@@ -212,6 +217,8 @@ dependencies {
 
     "testWithIris"(libs.iris.forge)
     "testWithIris"(libs.sodium.forge)
+    "testWithIrisShaders"(variantOf(libs.complementary) { artifactType("zip") })
+
     testImplementation(testFixtures(project(":common")))
     testRuntimeOnly(libs.bundles.testRuntime)
 
@@ -286,7 +293,9 @@ val runGametestClientWithIris = tasks.register<ClientJavaExec>("runGametestClien
     tags("iris")
     classpath += configurations["testWithIris"]
 
-    withComplementaryShaders()
+    // Ideally we'd use a detached configuration here, but that seems to ignore the artifactType (so it tries to fetch
+    // a jar), hence we use a full one.
+    withShaderPack(testWithIrisShadersResolve.get())
 }
 cct.jacoco(runGametestClientWithIris)
 

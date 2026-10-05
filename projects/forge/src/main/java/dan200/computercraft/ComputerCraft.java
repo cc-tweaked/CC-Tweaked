@@ -207,17 +207,17 @@ public final class ComputerCraft {
     private static void syncConfig(ModConfig config) {
         if (!config.getModId().equals(ComputerCraftAPI.MOD_ID)) return;
 
-        Path path;
-        try {
-            path = config.getFullPath();
-        } catch (IllegalStateException ignored) {
-            path = null; // getFullPath throws if loading a non-valid file.
-        }
-
         if (config.getType() == ModConfig.Type.SERVER && ((ForgeConfigFile) ConfigSpec.serverSpec).spec().isLoaded()) {
+            Path path;
+            try {
+                path = config.getFullPath();
+            } catch (IllegalStateException ignored) {
+                return; // getFullPath throws if loading a non-valid file.
+            }
+
             ConfigSpec.syncServer(path);
         } else if (config.getType() == ModConfig.Type.CLIENT) {
-            ConfigSpec.syncClient(path);
+            ConfigSpec.syncClient();
         }
     }
 

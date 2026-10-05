@@ -4,8 +4,13 @@
 
 package cc.tweaked.web;
 
+import cc.tweaked.web.http.JsHttpHandler;
 import cc.tweaked.web.js.Callbacks;
+import cc.tweaked.web.methods.StaticLuaMethodSupplier;
+import cc.tweaked.web.methods.StaticPeripheralMethodSupplier;
 import dan200.computercraft.core.ComputerContext;
+import dan200.computercraft.core.computer.mainthread.NoWorkMainThreadScheduler;
+import dan200.computercraft.core.lua.CobaltLuaMachine;
 import org.teavm.jso.browser.Window;
 
 import java.util.ArrayList;
@@ -20,7 +25,17 @@ public class Main {
     private static long ticks;
 
     public static void main(String[] args) {
-        var context = ComputerContext.builder(EmulatorEnvironment.INSTANCE).build();
+        @SuppressWarnings("deprecation") // Intentional.
+        var context = new ComputerContext(
+            EmulatorEnvironment.INSTANCE,
+            JsComputerScheduler.INSTANCE,
+            new NoWorkMainThreadScheduler(),
+            CobaltLuaMachine::new,
+            StaticLuaMethodSupplier.INSTANCE,
+            StaticPeripheralMethodSupplier.INSTANCE,
+            JsHttpHandler::new
+        );
+
         List<EmulatedComputer> computers = new ArrayList<>();
 
         Callbacks.setup(access -> {

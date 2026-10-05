@@ -33,6 +33,7 @@ class LuaTaskRunner : AbstractLuaTaskContext() {
 
     override fun close() {
         super.close()
+        for (api in apis) api.shutdown()
         environment.shutdown()
     }
 

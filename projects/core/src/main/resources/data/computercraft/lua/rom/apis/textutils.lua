@@ -537,249 +537,66 @@ local function serializeJSONImpl(t, tracking, options)
     end
 end
 
-local unserialise_json
-do
-    local sub, find, match, concat, tonumber = string.sub, string.find, string.match, table.concat, tonumber
 
-    --- Skip any whitespace
-    local function skip(str, pos)
-        local _, last = find(str, "^[ \n\r\t]+", pos)
-        if last then return last + 1 else return pos end
+--[[- Converts a serialised JSON string back into a reassembled Lua object.
+
+This may be used with [`textutils.serializeJSON`], or when communicating
+with command blocks or web APIs.
+
+If a `null` value is encountered, it is converted into `nil`. It can be converted
+into [`textutils.json_null`] with the `parse_null` option.
+
+If an empty array is encountered, it is converted into [`textutils.empty_json_array`].
+It can be converted into a new empty table with the `parse_empty_array` option.
+
+@tparam string s The serialised string to deserialise.
+@tparam[opt] { nbt_style? = boolean, parse_null? = boolean, parse_empty_array? = boolean } options
+Options which control how this JSON object is parsed.
+
+- `nbt_style`: When true, this will accept [stringified NBT][nbt] strings,
+    as produced by many commands.
+
+    Unlike JSON, the format of SNBT strings changes between Minecraft versions.
+    This function should parse all SNBT strings returned by commands, but may
+    not accept *all* valid SNBT strings. For instance, the `bool` and `uuid`
+    functions are not currently supported.
+- `parse_null`: When true, `null` will be parsed as [`json_null`], rather than
+    `nil`.
+- `parse_empty_array`: When false, empty arrays will be parsed as a new table.
+    By default (or when this value is true), they are parsed as [`empty_json_array`].
+
+[nbt]: https://minecraft.wiki/w/NBT_format#SNBT_format
+@return[1] The deserialised object
+@treturn[2] nil If the object could not be deserialised.
+@treturn string A message describing why the JSON string is invalid.
+@since 1.87.0
+@changed 1.100.6 Added `parse_empty_array` option
+@see textutils.json_null Use to serialize a JSON `null` value.
+@see textutils.empty_json_array Use to serialize a JSON empty array.
+@usage Unserialise a basic JSON object
+
+    textutils.unserialiseJSON('{"name": "Steve", "age": null}')
+
+@usage Unserialise a basic JSON object, returning null values as [`json_null`].
+
+    textutils.unserialiseJSON('{"name": "Steve", "age": null}', { parse_null = true })
+]]
+local function unserialise_json(s, options)
+    expect(1, s, "string")
+    expect(2, options, "table", "nil")
+
+    if options then
+        field(options, "nbt_style", "boolean", "nil")
+        field(options, "parse_null", "boolean", "nil")
+        field(options, "parse_empty_array", "boolean", "nil")
+    else
+        options = {}
     end
 
-    local escapes = {
-        ["b"] = '\b', ["f"] = '\f', ["n"] = '\n', ["r"] = '\r', ["t"] = '\t',
-        ["\""] = "\"", ["/"] = "/", ["\\"] = "\\",
-    }
-
-    local mt = {}
-
-    local function error_at(pos, msg, ...)
-        if select('#', ...) > 0 then msg = msg:format(...) end
-        error(setmetatable({ pos = pos, msg = msg }, mt))
-    end
-
-    local function expected(pos, actual, exp)
-        if actual == "" then actual = "end of input" else actual = ("%q"):format(actual) end
-        error_at(pos, "Unexpected %s, expected %s.", actual, exp)
-    end
-
-    local function parse_string(str, pos, terminate)
-        local buf, n = {}, 1
-
-        -- We attempt to match all non-special characters at once using Lua patterns, as this
-        -- provides a significant speed boost. This is all characters >= " " except \ and the
-        -- terminator (' or ").
-        local char_pat = "^[ !#-[%]^-\255]+"
-        if terminate == "'" then char_pat = "^[ -&(-[%]^-\255]+" end
-
-        while true do
-            local c = sub(str, pos, pos)
-            if c == "" then error_at(pos, "Unexpected end of input, expected '\"'.") end
-            if c == terminate then break end
-
-            if c == "\\" then
-                -- Handle the various escapes
-                c = sub(str, pos + 1, pos + 1)
-                if c == "" then error_at(pos, "Unexpected end of input, expected escape sequence.") end
-
-                if c == "u" then
-                    local num_str = match(str, "^%x%x%x%x", pos + 2)
-                    if not num_str then error_at(pos, "Malformed unicode escape %q.", sub(str, pos + 2, pos + 5)) end
-                    buf[n], n, pos = utf8.char(tonumber(num_str, 16)), n + 1, pos + 6
-                else
-                    local unesc = escapes[c]
-                    if not unesc then error_at(pos + 1, "Unknown escape character %q.", c) end
-                    buf[n], n, pos = unesc, n + 1, pos + 2
-                end
-            elseif c >= " " then
-                local _, finish = find(str, char_pat, pos)
-                buf[n], n = sub(str, pos, finish), n + 1
-                pos = finish + 1
-            else
-                error_at(pos + 1, "Unescaped whitespace %q.", c)
-            end
-        end
-
-        return concat(buf, "", 1, n - 1), pos + 1
-    end
-
-    local num_types = { b = true, B = true, s = true, S = true, l = true, L = true, f = true, F = true, d = true, D = true }
-    local function parse_number(str, pos, opts)
-        local _, last, num_str = find(str, '^(-?%d+%.?%d*[eE]?[+-]?%d*)', pos)
-        local val = tonumber(num_str)
-        if not val then error_at(pos, "Malformed number %q.", num_str) end
-
-        if opts.nbt_style and num_types[sub(str, last + 1, last + 1)] then return val, last + 2 end
-
-        return val, last + 1
-    end
-
-    local function parse_ident(str, pos)
-        local _, last, val = find(str, '^([%w_+.-]+)', pos)
-        if not last then error_at(pos, "Expected object key") end
-        return val, last + 1
-    end
-
-    local arr_types = { I = true, L = true, B = true }
-    local function decode_impl(str, pos, opts)
-        local c = sub(str, pos, pos)
-        if c == '"' then return parse_string(str, pos + 1, '"')
-        elseif c == "'" and opts.nbt_style then return parse_string(str, pos + 1, "\'")
-        elseif c == "-" or c >= "0" and c <= "9" then return parse_number(str, pos, opts)
-        elseif c == "t" then
-            if sub(str, pos + 1, pos + 3) == "rue" then return true, pos + 4 end
-        elseif c == 'f' then
-            if sub(str, pos + 1, pos + 4) == "alse" then return false, pos + 5 end
-        elseif c == 'n' then
-            if sub(str, pos + 1, pos + 3) == "ull" then
-                if opts.parse_null then
-                    return json_null, pos + 4
-                else
-                    return nil, pos + 4
-                end
-            end
-        elseif c == "{" then
-            local obj = {}
-
-            pos = skip(str, pos + 1)
-            c = sub(str, pos, pos)
-
-            if c == "" then return error_at(pos, "Unexpected end of input, expected '}'.") end
-            if c == "}" then return obj, pos + 1 end
-
-            while true do
-                local key, value
-                if c == "\"" then key, pos = parse_string(str, pos + 1, "\"")
-                elseif opts.nbt_style then key, pos = parse_ident(str, pos)
-                else return expected(pos, c, "object key")
-                end
-
-                pos = skip(str, pos)
-
-                c = sub(str, pos, pos)
-                if c ~= ":" then return expected(pos, c, "':'") end
-
-                value, pos = decode_impl(str, skip(str, pos + 1), opts)
-                obj[key] = value
-
-                -- Consume the next delimiter
-                pos = skip(str, pos)
-                c = sub(str, pos, pos)
-                if c == "}" then break
-                elseif c == "," then pos = skip(str, pos + 1)
-                else return expected(pos, c, "',' or '}'")
-                end
-
-                c = sub(str, pos, pos)
-            end
-
-            return obj, pos + 1
-
-        elseif c == "[" then
-            local arr, n = {}, 1
-
-            pos = skip(str, pos + 1)
-            c = sub(str, pos, pos)
-
-            if arr_types[c] and sub(str, pos + 1, pos + 1) == ";" and opts.nbt_style then
-                pos = skip(str, pos + 2)
-                c = sub(str, pos, pos)
-            end
-
-            if c == "" then return expected(pos, c, "']'") end
-            if c == "]" then
-                if opts.parse_empty_array ~= false then
-                    return empty_json_array, pos + 1
-                else
-                    return {}, pos + 1
-                end
-            end
-
-            while true do
-                n, arr[n], pos = n + 1, decode_impl(str, pos, opts)
-
-                -- Consume the next delimiter
-                pos = skip(str, pos)
-                c = sub(str, pos, pos)
-                if c == "]" then break
-                elseif c == "," then pos = skip(str, pos + 1)
-                else return expected(pos, c, "',' or ']'")
-                end
-            end
-
-            return arr, pos + 1
-        elseif c == "" then error_at(pos, 'Unexpected end of input.')
-        end
-
-        error_at(pos, "Unexpected character %q.", c)
-    end
-
-    --[[- Converts a serialised JSON string back into a reassembled Lua object.
-
-    This may be used with [`textutils.serializeJSON`], or when communicating
-    with command blocks or web APIs.
-
-    If a `null` value is encountered, it is converted into `nil`. It can be converted
-    into [`textutils.json_null`] with the `parse_null` option.
-
-    If an empty array is encountered, it is converted into [`textutils.empty_json_array`].
-    It can be converted into a new empty table with the `parse_empty_array` option.
-
-    @tparam string s The serialised string to deserialise.
-    @tparam[opt] { nbt_style? = boolean, parse_null? = boolean, parse_empty_array? = boolean } options
-    Options which control how this JSON object is parsed.
-
-    - `nbt_style`: When true, this will accept [stringified NBT][nbt] strings,
-       as produced by many commands.
-    - `parse_null`: When true, `null` will be parsed as [`json_null`], rather than
-       `nil`.
-    - `parse_empty_array`: When false, empty arrays will be parsed as a new table.
-       By default (or when this value is true), they are parsed as [`empty_json_array`].
-
-    [nbt]: https://minecraft.wiki/w/NBT_format
-    @return[1] The deserialised object
-    @treturn[2] nil If the object could not be deserialised.
-    @treturn string A message describing why the JSON string is invalid.
-    @since 1.87.0
-    @changed 1.100.6 Added `parse_empty_array` option
-    @see textutils.json_null Use to serialize a JSON `null` value.
-    @see textutils.empty_json_array Use to serialize a JSON empty array.
-    @usage Unserialise a basic JSON object
-
-        textutils.unserialiseJSON('{"name": "Steve", "age": null}')
-
-    @usage Unserialise a basic JSON object, returning null values as [`json_null`].
-
-        textutils.unserialiseJSON('{"name": "Steve", "age": null}', { parse_null = true })
-    ]]
-    unserialise_json = function(s, options)
-        expect(1, s, "string")
-        expect(2, options, "table", "nil")
-
-        if options then
-            field(options, "nbt_style", "boolean", "nil")
-            field(options, "parse_null", "boolean", "nil")
-            field(options, "parse_empty_array", "boolean", "nil")
-        else
-            options = {}
-        end
-
-        local ok, res, pos = pcall(decode_impl, s, skip(s, 1), options)
-        if not ok then
-            if type(res) == "table" and getmetatable(res) == mt then
-                return nil, ("Malformed JSON at position %d: %s"):format(res.pos, res.msg)
-            end
-
-            error(res, 0)
-        end
-
-        pos = skip(s, pos)
-        if pos <= #s then
-            return nil, ("Malformed JSON at position %d: Unexpected trailing character %q."):format(pos, sub(s, pos, pos))
-        end
-        return res
-
+    if options.nbt_style then
+        return require("cc.internal.snbt").parse(s, options)
+    else
+        return require("cc.internal.json").parse(s, options)
     end
 end
 

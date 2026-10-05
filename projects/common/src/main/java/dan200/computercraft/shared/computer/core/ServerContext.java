@@ -9,6 +9,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.network.PacketNetwork;
 import dan200.computercraft.core.ComputerContext;
+import dan200.computercraft.core.apis.http.NettyHttp;
 import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.computer.mainthread.MainThread;
 import dan200.computercraft.core.computer.mainthread.MainThreadConfig;
@@ -63,6 +64,7 @@ public final class ServerContext {
     private final MainThread mainThread;
     private final IDAssigner idAssigner;
     private final WirelessNetwork wirelessNetwork = new WirelessNetwork();
+    private final NettyHttp http = new NettyHttp(ConfigSpec.getHttpConfig());
     private final Path storageDir;
 
     private ServerContext(MinecraftServer server) {
@@ -74,6 +76,7 @@ public final class ServerContext {
             .mainThreadScheduler(mainThread)
             .luaFactory(luaMachine)
             .genericMethods(GenericSources.getAllMethods())
+            .http(http)
             .build();
         idAssigner = new IDAssigner(storageDir.resolve("ids.json"));
     }
@@ -125,6 +128,13 @@ public final class ServerContext {
         }
 
         return instance;
+    }
+
+    public static void reloadConfig() {
+        var instance = ServerContext.instance;
+        if (instance == null) return;
+
+        instance.http.setConfig(ConfigSpec.getHttpConfig());
     }
 
     /**
@@ -209,13 +219,13 @@ public final class ServerContext {
 
     private record Environment(MinecraftServer server) implements GlobalEnvironment {
         @Override
-        public @Nullable Mount createResourceMount(String domain, String subPath) {
-            return ComputerCraftAPI.createResourceMount(server, domain, subPath);
+        public @Nullable Mount getRomMount() {
+            return ComputerCraftAPI.createResourceMount(server, "computercraft", "lua/rom");
         }
 
         @Override
-        public @Nullable InputStream createResourceFile(String domain, String subPath) {
-            return AbstractComputerCraftAPI.getResourceFile(server, domain, subPath);
+        public @Nullable InputStream getLuaBios() {
+            return AbstractComputerCraftAPI.getResourceFile(server, "computercraft", "lua/bios.lua");
         }
 
         @Override
