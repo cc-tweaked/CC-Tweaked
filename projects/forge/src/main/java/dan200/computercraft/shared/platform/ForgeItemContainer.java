@@ -4,6 +4,7 @@
 
 package dan200.computercraft.shared.platform;
 
+import com.google.common.primitives.Ints;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
@@ -84,7 +85,7 @@ public final class ForgeItemContainer implements ItemContainer {
     }
 
     public static int move(IItemHandler from, int fromSlot, IItemHandler to, int maxAmount) {
-        var stack = from.extractItem(fromSlot, saturatingToInt(maxAmount), true);
+        var stack = from.extractItem(fromSlot, maxAmount, true);
         if (stack.isEmpty()) return NO_ITEMS;
 
         // Pick the first item in the inventory to be the one we transfer, skipping those that match.
@@ -110,11 +111,7 @@ public final class ForgeItemContainer implements ItemContainer {
             if (stack.isEmpty()) break;
         }
 
-        return moved == 0 ? NO_SPACE : saturatingToInt(moved);
-    }
-
-    private static int saturatingToInt(long value) {
-        return value > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) value;
+        return moved == 0 ? NO_SPACE : Ints.saturatedCast(moved);
     }
 
     private abstract static class MappedSlotWrapper implements IItemHandler {
