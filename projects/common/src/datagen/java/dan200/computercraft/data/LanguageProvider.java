@@ -124,6 +124,7 @@ public final class LanguageProvider implements DataProvider {
 
         add(TurtleStorage.DATA_PACK_TRANSLATION, "Turtle storage upgrades");
 
+        add("chat.computercraft.wired_modem.connected_peripheral", "Peripheral \"%s\" is connected to modem");
         add("chat.computercraft.wired_modem.peripheral_connected", "Peripheral \"%s\" connected to network");
         add("chat.computercraft.wired_modem.peripheral_disconnected", "Peripheral \"%s\" disconnected from network");
 

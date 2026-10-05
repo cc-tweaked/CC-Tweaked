@@ -17,6 +17,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -28,8 +30,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
-import static dan200.computercraft.shared.peripheral.modem.wired.WiredModemFullBlock.MODEM_ON;
-import static dan200.computercraft.shared.peripheral.modem.wired.WiredModemFullBlock.PERIPHERAL_ON;
+import static dan200.computercraft.shared.peripheral.modem.wired.WiredModemFullBlock.*;
 
 public class WiredModemFullBlockEntity extends BlockEntity {
     private static final class FullElement extends WiredModemElement {
@@ -124,6 +125,13 @@ public class WiredModemFullBlockEntity extends BlockEntity {
 
         // On server, we interacted if a peripheral was found
         var oldPeriphNames = getConnectedPeripheralNames();
+
+        if (isWaxed()) {
+            getLevel().playSound(null, getBlockPos(), SoundEvents.WAXED_SIGN_INTERACT_FAIL, SoundSource.BLOCKS);
+            sendPeripheralChanges(player, "chat.computercraft.wired_modem.connected_peripheral", oldPeriphNames);
+            return InteractionResult.SUCCESS;
+        }
+
         if (isPeripheralOn()) {
             detachPeripherals();
         } else {
@@ -252,6 +260,10 @@ public class WiredModemFullBlockEntity extends BlockEntity {
 
     private boolean isPeripheralOn() {
         return getBlockState().getValue(PERIPHERAL_ON);
+    }
+
+    private boolean isWaxed() {
+        return getBlockState().getValue(WAXED);
     }
 
     public WiredElement getElement() {
