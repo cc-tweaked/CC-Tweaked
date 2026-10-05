@@ -2,21 +2,20 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package dan200.computercraft.core.asm;
+package cc.tweaked.web.methods;
 
 import dan200.computercraft.core.methods.LuaMethod;
 import dan200.computercraft.core.methods.MethodSupplier;
 import dan200.computercraft.core.methods.ObjectSource;
 
-import java.util.List;
-
 /**
- * Replaces {@link LuaMethodSupplier} with a version which uses {@link MethodReflection} to fabricate the classes.
+ * A {@link MethodSupplier} for {@link LuaMethod}s with a version which uses {@link MethodReflection} to statically
+ * generate classes.
  */
-public final class TLuaMethodSupplier implements MethodSupplier<LuaMethod> {
-    static final TLuaMethodSupplier INSTANCE = new TLuaMethodSupplier();
+public final class StaticLuaMethodSupplier implements MethodSupplier<LuaMethod> {
+    public static final StaticLuaMethodSupplier INSTANCE = new StaticLuaMethodSupplier();
 
-    private TLuaMethodSupplier() {
+    private StaticLuaMethodSupplier() {
     }
 
     @Override
@@ -35,9 +34,5 @@ public final class TLuaMethodSupplier implements MethodSupplier<LuaMethod> {
         }
 
         return hasMethods;
-    }
-
-    public static MethodSupplier<LuaMethod> create(List<GenericMethod> genericMethods) {
-        return INSTANCE;
     }
 }

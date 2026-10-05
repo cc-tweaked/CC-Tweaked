@@ -140,18 +140,23 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    public ContainerTransfer.Slotted wrapContainer(Container container) {
-        return new ForgeContainerTransfer(VanillaContainerWrapper.of(container));
+    public ItemContainer wrapContainer(Container container) {
+        return new ForgeItemContainer(VanillaContainerWrapper.of(container));
+    }
+
+    @Override
+    public ItemContainer wrapContainerRotated(Container container, int offset) {
+        return ForgeItemContainer.rotated(VanillaContainerWrapper.of(container), offset);
     }
 
     @Nullable
     @Override
-    public ContainerTransfer getContainer(ServerLevel level, BlockPos pos, Direction side) {
+    public ItemContainer getContainer(ServerLevel level, BlockPos pos, Direction side) {
         var inventory = level.getCapability(Capabilities.Item.BLOCK, pos, side);
-        if (inventory != null) return new ForgeContainerTransfer(inventory);
+        if (inventory != null) return new ForgeItemContainer(inventory);
 
         var entity = InventoryUtil.getEntityContainer(level, pos, side);
-        return entity == null ? null : new ForgeContainerTransfer(VanillaContainerWrapper.of(entity));
+        return entity == null ? null : new ForgeItemContainer(VanillaContainerWrapper.of(entity));
     }
 
     @Override

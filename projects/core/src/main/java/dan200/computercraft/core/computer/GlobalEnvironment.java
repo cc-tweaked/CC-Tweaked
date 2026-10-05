@@ -32,20 +32,14 @@ public interface GlobalEnvironment {
     /**
      * Create a mount from mod-provided resources.
      *
-     * @param domain  The domain (i.e. mod id) providing resources.
-     * @param subPath The path to these resources under the domain.
      * @return The created mount or {@code null} if it could not be created.
      */
-    @Nullable
-    Mount createResourceMount(String domain, String subPath);
+    @Nullable Mount getRomMount();
 
     /**
-     * Open a single mod-provided file.
+     * Get the program to initialise a Lua computer, typically known as {@code bios.lua}.
      *
-     * @param domain  The domain (i.e. mod id) providing resources.
-     * @param subPath The path to these files under the domain.
-     * @return The opened file or {@code null} if it could not be opened.
+     * @return The opened file, or {@code null} if it could not be opened.
      */
-    @Nullable
-    InputStream createResourceFile(String domain, String subPath);
+    @Nullable InputStream getLuaBios();
 }

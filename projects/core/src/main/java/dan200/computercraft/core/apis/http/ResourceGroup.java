@@ -4,6 +4,8 @@
 
 package dan200.computercraft.core.apis.http;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
+
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +24,7 @@ public class ResourceGroup<T extends Resource<T>> {
 
     boolean active = false;
 
-    final Set<T> resources = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    final @GuardedBy("this") Set<T> resources = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     public ResourceGroup(IntSupplier limit) {
         this.limit = limit;
@@ -37,8 +39,6 @@ public class ResourceGroup<T extends Resource<T>> {
 
         for (var resource : resources) resource.close();
         resources.clear();
-
-        Resource.cleanup();
     }
 
 
@@ -50,7 +50,6 @@ public class ResourceGroup<T extends Resource<T>> {
     }
 
     public synchronized boolean queue(Supplier<T> resource) {
-        Resource.cleanup();
         if (!active) return false;
 
         var limit = this.limit.getAsInt();

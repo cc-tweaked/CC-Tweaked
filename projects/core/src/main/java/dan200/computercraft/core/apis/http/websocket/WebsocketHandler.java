@@ -41,7 +41,7 @@ class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
             websocket.success(headers, options);
             handshakeComplete = true;
         } else if (evt == WebSocketClientProtocolHandler.ClientHandshakeStateEvent.HANDSHAKE_TIMEOUT) {
-            websocket.failure("Timed out");
+            websocket.handshakeFailure("Timed out");
         }
     }
 
@@ -65,7 +65,7 @@ class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
             websocket.environment().observe(Metrics.WEBSOCKET_INCOMING, data.length);
             websocket.environment().queueEvent(MESSAGE_EVENT, websocket.address(), data, true);
         } else if (frame instanceof CloseWebSocketFrame closeFrame) {
-            websocket.close(closeFrame.statusCode(), closeFrame.reasonText());
+            websocket.serverClose(closeFrame.statusCode(), closeFrame.reasonText());
         }
     }
 
@@ -77,9 +77,9 @@ class WebsocketHandler extends SimpleChannelInboundHandler<Object> {
 
     private void fail(String message) {
         if (handshakeComplete) {
-            websocket.close(-1, message);
+            websocket.serverClose(-1, message);
         } else {
-            websocket.failure(message);
+            websocket.handshakeFailure(message);
         }
     }
 }

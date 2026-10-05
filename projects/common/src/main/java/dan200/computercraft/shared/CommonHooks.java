@@ -5,7 +5,6 @@
 package dan200.computercraft.shared;
 
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.metrics.ComputerMBean;
@@ -85,7 +84,6 @@ public final class CommonHooks {
 
     private static void resetState() {
         ServerContext.close();
-        NetworkUtils.reset();
     }
 
     public static void onServerChunkUnload(LevelChunk chunk) {

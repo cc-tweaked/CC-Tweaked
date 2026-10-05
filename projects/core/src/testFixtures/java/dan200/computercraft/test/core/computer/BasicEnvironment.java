@@ -13,6 +13,7 @@ import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
 import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.metrics.MetricsObserver;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,13 +69,13 @@ public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment 
     }
 
     @Override
-    public Mount createResourceMount(String domain, String subPath) {
-        return createMount(ComputerContext.class, "data/" + domain + "/" + subPath, "main");
+    public Mount getRomMount() {
+        return createMount(ComputerContext.class, "data/computercraft/lua/rom", "main");
     }
 
     @Override
-    public InputStream createResourceFile(String domain, String subPath) {
-        return ComputerContext.class.getClassLoader().getResourceAsStream("data/" + domain + "/" + subPath);
+    public @Nullable InputStream getLuaBios() {
+        return ComputerContext.class.getClassLoader().getResourceAsStream("data/computercraft/lua/bios.lua");
     }
 
     public static Mount createMount(Class<?> klass, String path, String fallback) {

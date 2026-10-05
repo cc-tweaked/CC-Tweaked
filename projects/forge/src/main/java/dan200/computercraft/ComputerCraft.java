@@ -39,8 +39,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
@@ -60,7 +60,6 @@ import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import net.neoforged.neoforge.transfer.item.WorldlyContainerWrapper;
 import org.jspecify.annotations.Nullable;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -69,10 +68,9 @@ import java.util.function.BiFunction;
 public final class ComputerCraft {
     private static @Nullable IEventBus eventBus;
 
-    public ComputerCraft(IEventBus eventBus) {
+    public ComputerCraft(IEventBus eventBus, ModContainer container) {
         withEventBus(eventBus, ModRegistry::register);
 
-        var container = ModLoadingContext.get().getActiveContainer();
         container.registerConfig(ModConfig.Type.SYNCED, ((ForgeConfigFile) ConfigSpec.serverSpec).spec());
         container.registerConfig(ModConfig.Type.CLIENT, ((ForgeConfigFile) ConfigSpec.clientSpec).spec());
     }
@@ -197,17 +195,11 @@ public final class ComputerCraft {
     private static void syncConfig(ModConfig config) {
         if (!config.getModId().equals(ComputerCraftAPI.MOD_ID)) return;
 
-        Path path;
-        try {
-            path = config.getFullPath();
-        } catch (IllegalStateException ignored) {
-            path = null; // getFullPath throws if loading a non-valid file.
-        }
-
         if (config.getType() == ModConfig.Type.SYNCED && ((ForgeConfigFile) ConfigSpec.serverSpec).spec().isLoaded()) {
-            ConfigSpec.syncServer(path);
+            var path = config.getFullPath();
+            if (path != null) ConfigSpec.syncServer(path);
         } else if (config.getType() == ModConfig.Type.CLIENT) {
-            ConfigSpec.syncClient(path);
+            ConfigSpec.syncClient();
         }
     }
 

@@ -5,7 +5,7 @@
 package dan200.computercraft.shared.turtle;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.shared.platform.ContainerTransfer;
+import dan200.computercraft.shared.platform.ItemContainer;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.util.DropConsumer;
@@ -16,24 +16,24 @@ import net.minecraft.world.item.ItemStack;
 
 public class TurtleUtil {
     /**
+     * Get a view of the turtle's inventory. This should be used when transferring items from the turtle.
+     *
+     * @param turtle The turtle to transfer items into.
+     * @return The container transfer
+     */
+    public static ItemContainer getInventory(ITurtleAccess turtle) {
+        return PlatformHelper.get().wrapContainer(turtle.getInventory());
+    }
+
+    /**
      * Get a view of the turtle's inventory starting at the currently selected slot. This should be used when
      * transferring items in to the turtle.
      *
      * @param turtle The turtle to transfer items into.
      * @return The container transfer
      */
-    public static ContainerTransfer getOffsetInventory(ITurtleAccess turtle) {
-        return PlatformHelper.get().wrapContainer(turtle.getInventory()).rotate(turtle.getSelectedSlot());
-    }
-
-    /**
-     * Get a view of the turtle's currently selected slot. This should be used when transferring items from the turtle.
-     *
-     * @param turtle The turtle to transfer items from.
-     * @return The container transfer.
-     */
-    public static ContainerTransfer getSelectedSlot(ITurtleAccess turtle) {
-        return PlatformHelper.get().wrapContainer(turtle.getInventory()).singleSlot(turtle.getSelectedSlot());
+    public static ItemContainer getOffsetInventory(ITurtleAccess turtle) {
+        return PlatformHelper.get().wrapContainerRotated(turtle.getInventory(), turtle.getSelectedSlot());
     }
 
     /**

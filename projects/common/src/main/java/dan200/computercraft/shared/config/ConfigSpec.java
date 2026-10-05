@@ -8,9 +8,10 @@ import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.Logging;
-import dan200.computercraft.core.apis.http.NetworkUtils;
+import dan200.computercraft.core.apis.http.NettyHttp;
 import dan200.computercraft.core.apis.http.options.ProxyType;
 import dan200.computercraft.core.computer.mainthread.MainThreadConfig;
+import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.core.TerminalSize;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import org.apache.logging.log4j.LogManager;
@@ -53,6 +54,8 @@ public final class ConfigSpec {
     public static final ConfigFile.Value<ProxyType> httpProxyType;
     public static final ConfigFile.Value<String> httpProxyHost;
     public static final ConfigFile.Value<Integer> httpProxyPort;
+
+    private static NettyHttp.@Nullable Config httpConfig;
 
     public static final ConfigFile.Value<Boolean> commandBlockEnabled;
     public static final ConfigFile.Value<Integer> modemRange;
@@ -188,7 +191,7 @@ public final class ConfigSpec {
                     Enable the "http" API on Computers. Disabling this also disables the "pastebin" and
                     "wget" programs, that many users rely on. It's recommended to leave this on and use
                     the "rules" config option to impose more fine-grained control.""")
-                .define("enabled", CoreConfig.httpEnabled);
+                .define("enabled", NettyHttp.DEFAULT_CONFIG.enabled());
 
             httpWebsocketEnabled = builder
                 .comment("Enable use of http websockets. This requires the \"http_enable\" option to also be true.")
@@ -220,11 +223,11 @@ public final class ConfigSpec {
                     The number of http requests a computer can make at one time. Additional requests
                     will be queued, and sent when the running requests have finished. Set to 0 for
                     unlimited.""")
-                .defineInRange("max_requests", CoreConfig.httpMaxRequests, 0, Integer.MAX_VALUE);
+                .defineInRange("max_requests", NettyHttp.DEFAULT_CONFIG.maxRequests(), 0, Integer.MAX_VALUE);
 
             httpMaxWebsockets = builder
                 .comment("The number of websockets a computer can have open at one time.")
-                .defineInRange("max_websockets", CoreConfig.httpMaxWebsockets, 1, Integer.MAX_VALUE);
+                .defineInRange("max_websockets", NettyHttp.DEFAULT_CONFIG.maxWebsockets(), 1, Integer.MAX_VALUE);
 
             builder
                 .comment("Limits bandwidth used by computers.")
@@ -232,11 +235,11 @@ public final class ConfigSpec {
 
             httpDownloadBandwidth = builder
                 .comment("The number of bytes which can be downloaded in a second. This is shared across all computers. (bytes/s).")
-                .defineInRange("global_download", CoreConfig.httpDownloadBandwidth, 1, Integer.MAX_VALUE);
+                .defineInRange("global_download", NettyHttp.DEFAULT_CONFIG.downloadBandwidth(), 1, Integer.MAX_VALUE);
 
             httpUploadBandwidth = builder
                 .comment("The number of bytes which can be uploaded in a second. This is shared across all computers. (bytes/s).")
-                .defineInRange("global_upload", CoreConfig.httpUploadBandwidth, 1, Integer.MAX_VALUE);
+                .defineInRange("global_upload", NettyHttp.DEFAULT_CONFIG.uploadBandwidth(), 1, Integer.MAX_VALUE);
 
             builder.pop();
 
@@ -252,15 +255,15 @@ public final class ConfigSpec {
 
             httpProxyType = builder
                 .comment("The type of proxy to use.")
-                .defineEnum("type", CoreConfig.httpProxyType);
+                .defineEnum("type", ProxyType.HTTP);
 
             httpProxyHost = builder
                 .comment("The hostname or IP address of the proxy server.")
-                .define("host", CoreConfig.httpProxyHost);
+                .define("host", "");
 
             httpProxyPort = builder
                 .comment("The port of the proxy server.")
-                .defineInRange("port", CoreConfig.httpProxyPort, 1, 65536);
+                .defineInRange("port", 8080, 1, 65536);
 
             builder.pop();
 
@@ -372,10 +375,10 @@ public final class ConfigSpec {
             .comment("The delay in seconds after which we'll notify about unhandled imports. Set to 0 to disable.")
             .defineInRange("upload_nag_delay", Config.uploadNagDelay, 0, 60);
 
-        clientSpec = clientBuilder.build(ConfigSpec::syncClient);
+        clientSpec = clientBuilder.build(x -> syncClient());
     }
 
-    public static void syncServer(@Nullable Path path) {
+    public static void syncServer(Path path) {
         // General
         Config.uploadMaxSize = uploadMaxSize.get();
         CoreConfig.maximumFilesOpen = maximumFilesOpen.get();
@@ -394,23 +397,32 @@ public final class ConfigSpec {
         }
 
         // HTTP
-        CoreConfig.httpEnabled = httpEnabled.get();
         CoreConfig.httpWebsocketEnabled = httpWebsocketEnabled.get();
 
-        CoreConfig.httpRules = httpRules.get().stream().map(AddressRuleConfig::parseRule).toList();
-
-        CoreConfig.httpMaxRequests = httpMaxRequests.get();
-        CoreConfig.httpMaxWebsockets = httpMaxWebsockets.get();
-        CoreConfig.httpDownloadBandwidth = httpDownloadBandwidth.get();
-        CoreConfig.httpUploadBandwidth = httpUploadBandwidth.get();
-
-        CoreConfig.httpProxyType = httpProxyType.get();
-        CoreConfig.httpProxyHost = httpProxyHost.get();
-        CoreConfig.httpProxyPort = httpProxyPort.get();
-
-        if (path != null) ProxyPasswordConfig.init(path.resolveSibling(ComputerCraftAPI.MOD_ID + "-proxy.pw"));
-
-        NetworkUtils.reloadConfig();
+        var proxyHost = httpProxyHost.get();
+        NettyHttp.ProxyConfig proxyConfig;
+        if (proxyHost.isEmpty()) {
+            proxyConfig = null;
+        } else {
+            var proxyPassword = ProxyPasswordConfig.loadFromFile(path.resolveSibling(ComputerCraftAPI.MOD_ID + "-proxy.pw"));
+            proxyConfig = new NettyHttp.ProxyConfig(
+                httpProxyType.get(),
+                proxyHost,
+                httpProxyPort.get(),
+                proxyPassword == null ? "" : proxyPassword.username(),
+                proxyPassword == null ? "" : proxyPassword.password()
+            );
+        }
+        httpConfig = new NettyHttp.Config(
+            httpEnabled.get(),
+            httpRules.get().stream().map(AddressRuleConfig::parseRule).toList(),
+            httpMaxRequests.get(),
+            httpMaxWebsockets.get(),
+            httpDownloadBandwidth.get(),
+            httpUploadBandwidth.get(),
+            proxyConfig
+        );
+        ServerContext.reloadConfig();
 
         // Peripheral
         Config.enableCommandBlock = commandBlockEnabled.get();
@@ -432,8 +444,18 @@ public final class ConfigSpec {
         Config.monitorHeight = monitorHeight.get();
     }
 
-    public static void syncClient(@Nullable Path path) {
+    public static void syncClient() {
         Config.monitorDistance = monitorDistance.get();
         Config.uploadNagDelay = uploadNagDelay.get();
+    }
+
+    /**
+     * Get the config for the {@linkplain NettyHttp netty HTTP implementation}.
+     *
+     * @return The HTTP API config.
+     */
+    public static NettyHttp.Config getHttpConfig() {
+        if (httpConfig == null) throw new IllegalStateException("Config has not yet been loaded");
+        return httpConfig;
     }
 }

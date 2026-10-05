@@ -162,13 +162,18 @@ public class TestPlatformHelper extends AbstractComputerCraftAPI implements Plat
     }
 
     @Override
-    public ContainerTransfer.Slotted wrapContainer(Container container) {
+    public ItemContainer wrapContainer(Container container) {
+        throw new UnsupportedOperationException("Cannot wrap container");
+    }
+
+    @Override
+    public ItemContainer wrapContainerRotated(Container container, int offset) {
         throw new UnsupportedOperationException("Cannot wrap container");
     }
 
     @Nullable
     @Override
-    public ContainerTransfer getContainer(ServerLevel level, BlockPos pos, Direction side) {
+    public ItemContainer getContainer(ServerLevel level, BlockPos pos, Direction side) {
         throw new UnsupportedOperationException("Cannot interact with the world inside tests");
     }
 

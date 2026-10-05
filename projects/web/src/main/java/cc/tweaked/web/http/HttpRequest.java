@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-package dan200.computercraft.core.apis.http.request;
+package cc.tweaked.web.http;
 
 import cc.tweaked.web.Main;
 import com.google.common.base.Splitter;
@@ -10,9 +10,9 @@ import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.core.apis.handles.ReadHandle;
-import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.Resource;
 import dan200.computercraft.core.apis.http.ResourceGroup;
+import dan200.computercraft.core.apis.http.request.HttpResponseHandle;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
@@ -24,18 +24,16 @@ import org.teavm.jso.typedarrays.ArrayBuffer;
 import org.teavm.jso.typedarrays.Int8Array;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 /**
- * Replaces {@link HttpRequest} with a version which uses AJAX/{@link XMLHttpRequest}.
+ * Replaces {@link dan200.computercraft.core.apis.http.request.HttpRequest} with a version which uses AJAX/{@link XMLHttpRequest}.
  */
-public class THttpRequest extends Resource<THttpRequest> {
-    private static final Logger LOG = LoggerFactory.getLogger(THttpRequest.class);
+final class HttpRequest extends Resource<HttpRequest> {
+    private static final Logger LOG = LoggerFactory.getLogger(HttpRequest.class);
     private static final String SUCCESS_EVENT = "http_success";
     private static final String FAILURE_EVENT = "http_failure";
 
@@ -47,9 +45,9 @@ public class THttpRequest extends Resource<THttpRequest> {
     private final boolean binary;
     private final boolean followRedirects;
 
-    public THttpRequest(
-        ResourceGroup<THttpRequest> limiter, IAPIEnvironment environment, String address, @Nullable ByteBuffer postBody,
-        HttpHeaders headers, boolean binary, boolean followRedirects, int timeout
+    HttpRequest(
+        ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment, String address, @Nullable ByteBuffer postBody,
+        HttpHeaders headers, boolean binary, boolean followRedirects
     ) {
         super(limiter);
         this.environment = environment;
@@ -63,29 +61,6 @@ public class THttpRequest extends Resource<THttpRequest> {
             if (!headers.contains(HttpHeaderNames.CONTENT_TYPE)) {
                 headers.set(HttpHeaderNames.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=utf-8");
             }
-        }
-    }
-
-    public static URI checkUri(String address) throws HTTPRequestException {
-        URI url;
-        try {
-            url = new URI(address);
-        } catch (URISyntaxException e) {
-            throw new HTTPRequestException("URL malformed");
-        }
-
-        checkUri(url);
-        return url;
-    }
-
-    public static void checkUri(URI url) throws HTTPRequestException {
-        // Validate the URL
-        if (url.getScheme() == null) throw new HTTPRequestException("Must specify http or https");
-        if (url.getHost() == null) throw new HTTPRequestException("URL malformed");
-
-        var scheme = url.getScheme().toLowerCase(Locale.ROOT);
-        if (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https")) {
-            throw new HTTPRequestException("Invalid protocol '" + scheme + "'");
         }
     }
 

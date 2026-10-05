@@ -4,6 +4,8 @@
 
 package dan200.computercraft.core.apis.http;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
+
 import java.util.ArrayDeque;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
@@ -14,7 +16,7 @@ import java.util.function.Supplier;
  * @param <T> The type of the resource this queue manages.
  */
 public class ResourceQueue<T extends Resource<T>> extends ResourceGroup<T> {
-    private final ArrayDeque<Supplier<T>> pending = new ArrayDeque<>();
+    private final @GuardedBy("this") ArrayDeque<Supplier<T>> pending = new ArrayDeque<>();
 
     public ResourceQueue(IntSupplier limit) {
         super(limit);

@@ -46,9 +46,8 @@ public final class ForgeConfigFile extends ConfigFile {
 
         @Override
         public void push(String name) {
-            super.push(name);
-
             translation(name);
+            super.push(name);
             builder.push(name);
         }
 

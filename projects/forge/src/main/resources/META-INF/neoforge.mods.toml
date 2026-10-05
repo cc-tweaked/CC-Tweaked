@@ -7,6 +7,7 @@ loaderVersion="[1,)"
 
 issueTrackerURL="https://github.com/cc-tweaked/CC-Tweaked/issues"
 iconFile="pack.png"
+iconBlur=false
 bannerFile="banner.png"
 
 license="ComputerCraft Public License"

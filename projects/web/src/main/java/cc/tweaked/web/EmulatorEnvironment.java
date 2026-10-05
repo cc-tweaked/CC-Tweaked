@@ -37,21 +37,13 @@ final class EmulatorEnvironment implements GlobalEnvironment {
     }
 
     @Override
-    public Mount createResourceMount(String domain, String subPath) {
-        if (domain.equals("computercraft") && subPath.equals("lua/rom")) {
-            return romMount != null ? romMount : (romMount = new ResourceMount());
-        } else {
-            throw new IllegalArgumentException("Unknown domain or subpath");
-        }
+    public Mount getRomMount() {
+        return romMount != null ? romMount : (romMount = new ResourceMount());
     }
 
     @Override
-    public InputStream createResourceFile(String domain, String subPath) {
-        if (domain.equals("computercraft") && subPath.equals("lua/bios.lua")) {
-            var biosContents = bios != null ? bios : (bios = Callbacks.getResource("bios.lua"));
-            return new ByteArrayInputStream(biosContents);
-        } else {
-            throw new IllegalArgumentException("Unknown domain or subpath");
-        }
+    public InputStream getLuaBios() {
+        var biosContents = bios != null ? bios : (bios = Callbacks.getResource("bios.lua"));
+        return new ByteArrayInputStream(biosContents);
     }
 }

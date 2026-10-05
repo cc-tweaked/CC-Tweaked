@@ -4,7 +4,7 @@
 
 package dan200.computercraft.core.apis.http.options;
 
-import dan200.computercraft.core.CoreConfig;
+import dan200.computercraft.core.apis.http.NettyHttp;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -52,7 +52,7 @@ public class AddressRuleTest {
         "169.254.169.254", // AWS, Digital Ocean, GCP, etc..
     })
     public void blocksLocalDomains(String domain) {
-        assertEquals(apply(CoreConfig.httpRules, domain, 80).action(), Action.DENY);
+        assertEquals(apply(NettyHttp.DEFAULT_CONFIG.addressRules(), domain, 80).action(), Action.DENY);
     }
 
     @ParameterizedTest
@@ -65,7 +65,7 @@ public class AddressRuleTest {
         "2002:6814:179a::", // 104.20.23.154
     })
     public void allowsNonLocalDomains(String domain) {
-        assertEquals(apply(CoreConfig.httpRules, domain, 80).action(), Action.ALLOW);
+        assertEquals(apply(NettyHttp.DEFAULT_CONFIG.addressRules(), domain, 80).action(), Action.ALLOW);
     }
 
     private Options apply(Iterable<AddressRule> rules, String host, int port) {

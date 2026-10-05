@@ -4,7 +4,6 @@
 
 package dan200.computercraft.shared.config;
 
-import dan200.computercraft.core.CoreConfig;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,7 @@ record ProxyPasswordConfig(String username, String password) {
     private static final Logger LOG = LoggerFactory.getLogger(ProxyPasswordConfig.class);
 
     @Nullable
-    private static ProxyPasswordConfig loadFromFile(@Nullable Path path) {
+    static ProxyPasswordConfig loadFromFile(@Nullable Path path) {
         if (path == null || !path.toFile().exists()) return null;
 
         try (var br = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
@@ -32,17 +31,6 @@ record ProxyPasswordConfig(String username, String password) {
         } catch (IOException e) {
             LOG.error("Failed to load proxy password from {}.", path, e);
             return null;
-        }
-    }
-
-    static void init(@Nullable Path path) {
-        var config = loadFromFile(path);
-        if (config == null) {
-            CoreConfig.httpProxyUsername = "";
-            CoreConfig.httpProxyPassword = "";
-        } else {
-            CoreConfig.httpProxyUsername = config.username;
-            CoreConfig.httpProxyPassword = config.password;
         }
     }
 }

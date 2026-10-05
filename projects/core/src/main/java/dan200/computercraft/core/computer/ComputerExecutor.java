@@ -9,7 +9,6 @@ import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.core.ComputerContext;
-import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.apis.*;
 import dan200.computercraft.core.computer.computerthread.ComputerScheduler;
 import dan200.computercraft.core.computer.computerthread.ComputerThread;
@@ -161,7 +160,9 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
         addApi(new FSAPI(environment));
         addApi(new PeripheralAPI(environment, context.peripheralMethods()));
         addApi(new OSAPI(environment));
-        if (CoreConfig.httpEnabled) addApi(new HTTPAPI(environment));
+
+        var http = context.http().create(environment);
+        if (http != null) addApi(new HTTPAPI(environment, http));
     }
 
     @Override
@@ -310,7 +311,7 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
 
     @Nullable
     private Mount getRomMount() {
-        return computer.getGlobalEnvironment().createResourceMount("computercraft", "lua/rom");
+        return computer.getGlobalEnvironment().getRomMount();
     }
 
     @Nullable
@@ -353,7 +354,7 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
         // Load the bios resource
         InputStream biosStream = null;
         try {
-            biosStream = computer.getGlobalEnvironment().createResourceFile("computercraft", "lua/bios.lua");
+            biosStream = computer.getGlobalEnvironment().getLuaBios();
         } catch (Exception e) {
             LOG.error("Failed to load BIOS", e);
         }

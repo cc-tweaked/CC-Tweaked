@@ -5,15 +5,22 @@
 package dan200.computercraft.shared.peripheral.generic.methods;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralType;
+import dan200.computercraft.shared.platform.ItemContainer;
+import net.minecraft.core.HolderLookup;
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import static dan200.computercraft.core.util.ArgumentHelpers.assertBetween;
 
 /**
  * Methods for interacting with inventories.
@@ -23,6 +30,12 @@ import java.util.Optional;
  * @cc.since 1.94.0
  */
 public abstract class AbstractInventoryMethods<T> implements GenericPeripheral {
+    private final HolderLookup.Provider registries;
+
+    protected AbstractInventoryMethods(HolderLookup.Provider registries) {
+        this.registries = registries;
+    }
+
     @Override
     public final PeripheralType getType() {
         return PeripheralType.ofAdditional("inventory");
@@ -34,13 +47,31 @@ public abstract class AbstractInventoryMethods<T> implements GenericPeripheral {
     }
 
     /**
+     * Get an {@link ItemContainer} for the generic inventory type.
+     *
+     * @param inventory The inventory to get our {@link ItemContainer} from.
+     * @return The resulting {@link ItemContainer}.
+     */
+    protected abstract ItemContainer getContainer(T inventory);
+
+    /**
+     * Try to extract a {@link ItemContainer} from a peripheral.
+     *
+     * @param peripheral The peripheral to get our {@link ItemContainer} from.
+     * @return The resulting {@link ItemContainer}, or {@code null} if this peripheral is not a container.
+     */
+    protected abstract @Nullable ItemContainer getContainer(IPeripheral peripheral);
+
+    /**
      * Get the size of this inventory.
      *
      * @param inventory The current inventory.
      * @return The number of slots in this inventory.
      */
     @LuaFunction(mainThread = true)
-    public abstract int size(T inventory);
+    public final int size(T inventory) {
+        return getContainer(inventory).size();
+    }
 
     /**
      * List all items in this inventory. This returns a table, with an entry for each slot.
@@ -67,7 +98,19 @@ public abstract class AbstractInventoryMethods<T> implements GenericPeripheral {
      * @cc.see item_details
      */
     @LuaFunction(mainThread = true)
-    public abstract Map<Integer, Map<String, ?>> list(T inventory);
+    public final Map<Integer, Map<String, ?>> list(T inventory) {
+        var container = getContainer(inventory);
+        Map<Integer, Map<String, ?>> result = new HashMap<>();
+        var i = 0;
+        for (var slots = container.contents(); slots.hasNext(); i++) {
+            var stack = slots.next();
+            if (!stack.isEmpty()) {
+                result.put(i + 1, VanillaDetailRegistries.ITEM_STACK.getBasicDetails(registries, stack));
+            }
+        }
+
+        return result;
+    }
 
     /**
      * Get [detailed information][`item_details`] about an item.
@@ -94,7 +137,13 @@ public abstract class AbstractInventoryMethods<T> implements GenericPeripheral {
      */
     @Nullable
     @LuaFunction(mainThread = true)
-    public abstract Map<?, ?> getItemDetail(T inventory, int slot) throws LuaException;
+    public final Map<?, ?> getItemDetail(T inventory, int slot) throws LuaException {
+        var container = getContainer(inventory);
+        assertBetween(slot, 1, container.size(), "Slot out of range (%s)");
+
+        var stack = container.getItem(slot - 1);
+        return stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails(registries, stack);
+    }
 
     /**
      * Get the maximum number of items which can be stored in this slot.
@@ -118,13 +167,17 @@ public abstract class AbstractInventoryMethods<T> implements GenericPeripheral {
      * @cc.since 1.96.0
      */
     @LuaFunction(mainThread = true)
-    public abstract long getItemLimit(T inventory, int slot) throws LuaException;
+    public final long getItemLimit(T inventory, int slot) throws LuaException {
+        var container = getContainer(inventory);
+        assertBetween(slot, 1, container.size(), "Slot out of range (%s)");
+        return container.getCapacity(slot - 1);
+    }
 
     /**
      * Push items from one inventory to another connected one.
      * <p>
      * This allows you to push an item in an inventory to another inventory <em>on the same wired network</em>. Both
-     * inventories must attached to wired modems which are connected via a cable.
+     * inventories must be attached to wired modems which are connected via a cable.
      *
      * @param from     Inventory to move items from.
      * @param computer The current computer.
@@ -146,15 +199,24 @@ public abstract class AbstractInventoryMethods<T> implements GenericPeripheral {
      * }</pre>
      */
     @LuaFunction(mainThread = true)
-    public abstract int pushItems(
+    public final int pushItems(
         T from, IComputerAccess computer, String toName, int fromSlot, Optional<Integer> limit, Optional<Integer> toSlot
-    ) throws LuaException;
+    ) throws LuaException {
+        // Find location to transfer to
+        var location = computer.getAvailablePeripheral(toName);
+        if (location == null) throw new LuaException("Target '" + toName + "' does not exist");
+
+        var to = getContainer(location);
+        if (to == null) throw new LuaException("Target '" + toName + "' is not an inventory");
+
+        return move(getContainer(from), fromSlot, to, toSlot, limit);
+    }
 
     /**
      * Pull items from a connected inventory into this one.
      * <p>
      * This allows you to transfer items between inventories <em>on the same wired network</em>. Both this and the source
-     * inventory must attached to wired modems which are connected via a cable.
+     * inventory must be attached to wired modems which are connected via a cable.
      *
      * @param to       Inventory to move items to.
      * @param computer The current computer.
@@ -176,7 +238,31 @@ public abstract class AbstractInventoryMethods<T> implements GenericPeripheral {
      * }</pre>
      */
     @LuaFunction(mainThread = true)
-    public abstract int pullItems(
+    public final int pullItems(
         T to, IComputerAccess computer, String fromName, int fromSlot, Optional<Integer> limit, Optional<Integer> toSlot
-    ) throws LuaException;
+    ) throws LuaException {
+        // Find location to transfer to
+        var location = computer.getAvailablePeripheral(fromName);
+        if (location == null) throw new LuaException("Source '" + fromName + "' does not exist");
+
+        var from = getContainer(location);
+        if (from == null) throw new LuaException("Source '" + fromName + "' is not an inventory");
+
+        return move(from, fromSlot, getContainer(to), toSlot, limit);
+    }
+
+    public static int move(ItemContainer from, int fromSlot, ItemContainer to, Optional<Integer> toSlot, Optional<Integer> limit) throws LuaException {
+        assertBetween(fromSlot, 1, from.size(), "From slot out of range (%s)");
+
+        if (toSlot.isPresent()) {
+            assertBetween(toSlot.get(), 1, to.size(), "To slot out of range (%s)");
+            to = to.singleSlot(toSlot.get() - 1);
+            if (to == null) throw new LuaException("Cannot specify toSlot for this inventory");
+        }
+
+        int actualLimit = limit.orElse(Integer.MAX_VALUE);
+        if (actualLimit <= 0) return 0;
+
+        return Math.max(0, from.moveTo(fromSlot - 1, to, actualLimit));
+    }
 }

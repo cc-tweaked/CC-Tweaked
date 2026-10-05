@@ -169,15 +169,25 @@ public interface PlatformHelper {
     boolean hasWiredElementIn(Level level, BlockPos pos, Direction direction);
 
     /**
-     * Wrap a vanilla Minecraft {@link Container} into a {@link ContainerTransfer}.
+     * Wrap a vanilla Minecraft {@link Container} into a {@link ItemContainer}.
      *
      * @param container The container to wrap.
      * @return The container transfer.
      */
-    ContainerTransfer.Slotted wrapContainer(Container container);
+    ItemContainer wrapContainer(Container container);
 
     /**
-     * Get access to a {@link ContainerTransfer} for a given position. This should look up blocks, then fall back to
+     * Wrap a vanilla Minecraft {@link Container} into a {@link ItemContainer}, "rotating" the container so that every
+     * slot {@code i} maps to {@code (i + offset) % size} of the original container.
+     *
+     * @param container The container to wrap.
+     * @param offset    The offset into the container.
+     * @return The container transfer.
+     */
+    ItemContainer wrapContainerRotated(Container container, int offset);
+
+    /**
+     * Get access to a {@link ItemContainer} for a given position. This should look up blocks, then fall back to
      * {@link InventoryUtil#getEntityContainer(ServerLevel, BlockPos, Direction)}
      *
      * @param level The current level.
@@ -187,7 +197,7 @@ public interface PlatformHelper {
      * @return The container, or {@code null} if none exists.
      */
     @Nullable
-    ContainerTransfer getContainer(ServerLevel level, BlockPos pos, Direction side);
+    ItemContainer getContainer(ServerLevel level, BlockPos pos, Direction side);
 
     /**
      * Get the {@link RecipeIngredients} for this loader.

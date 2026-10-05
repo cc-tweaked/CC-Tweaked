@@ -5,6 +5,8 @@
 package dan200.computercraft.core;
 
 import com.google.errorprone.annotations.CheckReturnValue;
+import dan200.computercraft.core.apis.http.HttpHandler;
+import dan200.computercraft.core.apis.http.NettyHttp;
 import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.asm.LuaMethodSupplier;
 import dan200.computercraft.core.asm.PeripheralMethodSupplier;
@@ -15,7 +17,6 @@ import dan200.computercraft.core.computer.mainthread.MainThreadScheduler;
 import dan200.computercraft.core.computer.mainthread.NoWorkMainThreadScheduler;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
-import dan200.computercraft.core.lua.MachineEnvironment;
 import dan200.computercraft.core.methods.LuaMethod;
 import dan200.computercraft.core.methods.MethodSupplier;
 import dan200.computercraft.core.methods.PeripheralMethod;
@@ -28,83 +29,32 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * The global context under which computers run.
+ *
+ * @param globalEnvironment   The global environment.
+ * @param computerScheduler   The {@link ComputerScheduler} instance used to run computers. This is closed when the
+ *                            context is closed, and so should be unique per-context.
+ * @param mainThreadScheduler The {@link MainThreadScheduler} instance used to run main-thread tasks.
+ * @param luaFactory          The factory to create new Lua machines.
+ * @param luaMethods          The {@link MethodSupplier} used to find methods on Lua objects.
+ * @param peripheralMethods   The {@link MethodSupplier} used to find methods on peripherals.
+ * @param http                The {@link HttpHandler.Factory} used to create our HTTP implementation.
  */
-public final class ComputerContext {
-    private final GlobalEnvironment globalEnvironment;
-    private final ComputerScheduler computerScheduler;
-    private final MainThreadScheduler mainThreadScheduler;
-    private final ILuaMachine.Factory luaFactory;
-    private final MethodSupplier<LuaMethod> luaMethods;
-    private final MethodSupplier<PeripheralMethod> peripheralMethods;
-
-    private ComputerContext(
-        GlobalEnvironment globalEnvironment, ComputerScheduler computerScheduler,
-        MainThreadScheduler mainThreadScheduler, ILuaMachine.Factory luaFactory,
-        MethodSupplier<LuaMethod> luaMethods,
-        MethodSupplier<PeripheralMethod> peripheralMethods
-    ) {
-        this.globalEnvironment = globalEnvironment;
-        this.computerScheduler = computerScheduler;
-        this.mainThreadScheduler = mainThreadScheduler;
-        this.luaFactory = luaFactory;
-        this.luaMethods = luaMethods;
-        this.peripheralMethods = peripheralMethods;
-    }
-
+public record ComputerContext(
+    GlobalEnvironment globalEnvironment,
+    ComputerScheduler computerScheduler,
+    MainThreadScheduler mainThreadScheduler,
+    ILuaMachine.Factory luaFactory,
+    MethodSupplier<LuaMethod> luaMethods,
+    MethodSupplier<PeripheralMethod> peripheralMethods,
+    HttpHandler.Factory http
+) {
     /**
-     * The global environment.
+     * Create a new {@link ComputerContext}.
      *
-     * @return The current global environment.
+     * @deprecated Prefer using {@link Builder}.
      */
-    public GlobalEnvironment globalEnvironment() {
-        return globalEnvironment;
-    }
-
-    /**
-     * The {@link ComputerThread} instance under which computers are run. This is closed when the context is closed, and
-     * so should be unique per-context.
-     *
-     * @return The current computer thread manager.
-     */
-    public ComputerScheduler computerScheduler() {
-        return computerScheduler;
-    }
-
-    /**
-     * The {@link MainThreadScheduler} instance used to run main-thread tasks.
-     *
-     * @return The current main thread scheduler.
-     */
-    public MainThreadScheduler mainThreadScheduler() {
-        return mainThreadScheduler;
-    }
-
-    /**
-     * The factory to create new Lua machines.
-     *
-     * @return The current Lua machine factory.
-     */
-    public ILuaMachine.Factory luaFactory() {
-        return luaFactory;
-    }
-
-    /**
-     * Get the {@link MethodSupplier} used to find methods on Lua values.
-     *
-     * @return The {@link LuaMethod} method supplier.
-     * @see MachineEnvironment#luaMethods()
-     */
-    public MethodSupplier<LuaMethod> luaMethods() {
-        return luaMethods;
-    }
-
-    /**
-     * Get the {@link MethodSupplier} used to find methods on peripherals.
-     *
-     * @return The {@link PeripheralMethod} method supplier.
-     */
-    public MethodSupplier<PeripheralMethod> peripheralMethods() {
-        return peripheralMethods;
+    @Deprecated
+    public ComputerContext {
     }
 
     /**
@@ -155,6 +105,7 @@ public final class ComputerContext {
         private @Nullable MainThreadScheduler mainThreadScheduler;
         private ILuaMachine.@Nullable Factory luaFactory;
         private @Nullable List<GenericMethod> genericMethods;
+        private HttpHandler.@Nullable Factory http;
 
         Builder(GlobalEnvironment environment) {
             this.environment = environment;
@@ -230,6 +181,29 @@ public final class ComputerContext {
         }
 
         /**
+         * Disable HTTP for this {@link ComputerContext}.
+         *
+         * @return {@code this}, for chaining.
+         * @see ComputerContext#http()
+         */
+        public Builder disableHttp() {
+            return http(x -> null);
+        }
+
+        /**
+         * Set the {@link HttpHandler.Factory} implementation. This creates a new {@link HttpHandler} for each computer.
+         *
+         * @param http The {@link HttpHandler} factory.
+         * @return {@code this}, for chaining.
+         */
+        public Builder http(HttpHandler.Factory http) {
+            Objects.requireNonNull(http);
+            if (this.http != null) throw new IllegalStateException("HTTP provider already specified");
+            this.http = http;
+            return this;
+        }
+
+        /**
          * Create a new {@link ComputerContext}.
          *
          * @return The newly created context.
@@ -241,7 +215,8 @@ public final class ComputerContext {
                 mainThreadScheduler == null ? new NoWorkMainThreadScheduler() : mainThreadScheduler,
                 luaFactory == null ? CobaltLuaMachine::new : luaFactory,
                 LuaMethodSupplier.create(genericMethods == null ? List.of() : genericMethods),
-                PeripheralMethodSupplier.create(genericMethods == null ? List.of() : genericMethods)
+                PeripheralMethodSupplier.create(genericMethods == null ? List.of() : genericMethods),
+                http == null ? new NettyHttp() : http
             );
         }
     }
