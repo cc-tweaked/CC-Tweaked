@@ -94,7 +94,7 @@ public final class CustomLecternBlockEntity extends BlockEntity {
     private void itemChanged() {
         if (item.getItem() instanceof PrintoutItem) {
             pageCount = PrintoutData.getOrEmpty(item).pages();
-            page = Mth.clamp(page, 0, pageCount - 1);
+            page = Math.clamp(page, 0, pageCount - 1);
         } else {
             pageCount = page = 0;
         }

@@ -28,7 +28,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import org.jspecify.annotations.Nullable;
 
@@ -373,7 +372,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
     }
 
     static double clampVolume(double volume) {
-        return Mth.clamp(volume, 0, 3);
+        return Math.clamp(volume, 0, 3);
     }
 
     private record PendingSound<T>(T sound, float volume, float pitch) {
