@@ -18,6 +18,7 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketSe
 import io.netty.util.AttributeKey
 import java.net.InetSocketAddress
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.TimeUnit
 
 class HttpRequest(val headers: HttpHeaders, var lastMessageTime: Long) {
     companion object {
@@ -37,7 +38,7 @@ class HttpServer private constructor(
     val lastRequest: HttpRequest
         get() = state.lastRequest ?: throw NullPointerException("No request has occurred yet")
 
-    /** Stop the server from running */
+    /** Stop the server from running. */
     fun stop() {
         workerGroup.shutdownGracefully()
     }
@@ -107,9 +108,11 @@ private class HttpServerHandler(private val state: HttpState) : SimpleChannelInb
         state.lastRequest = requestInfo
         ctx.channel().attr(HttpRequest.KEY).set(requestInfo)
 
-        when (request.uri()) {
+        val uri = QueryStringDecoder(request.uri())
+        when (uri.path()) {
             "/", "/index.html" -> handleIndex(ctx, request)
             "/ws" -> handleWebsocket(ctx, request)
+            "/stream" -> handleStream(ctx, request, uri)
             else -> sendHttpResponse(ctx, request, DefaultFullHttpResponse(request.protocolVersion(), HttpResponseStatus.NOT_FOUND))
         }
     }
@@ -128,6 +131,48 @@ private class HttpServerHandler(private val state: HttpState) : SimpleChannelInb
         }
 
         ctx.fireChannelRead(request.retain())
+    }
+
+    private fun handleStream(ctx: ChannelHandlerContext, request: FullHttpRequest, uri: QueryStringDecoder) {
+        val parameters = uri.parameters()
+        val delay = parameters["delay"].let { if (it.isNullOrEmpty()) 0 else it.single().toLong() }
+        var limit = parameters["limit"].let { if (it.isNullOrEmpty()) -1 else it.single().toInt() }
+        val lines = parameters["lines"].let { it.isNullOrEmpty() || it.single() == "true" }
+        val close = parameters["close"].let { it.isNullOrEmpty() || it.single() == "true" }
+        val chunked = parameters["chunked"].let { !it.isNullOrEmpty() && it.single() == "true" }
+
+        val content = "Hello, world!" + (if (lines) "\n" else "")
+        val body = DefaultHttpContent(Unpooled.wrappedBuffer(content.toByteArray(StandardCharsets.UTF_8)))
+
+        val channelListener = object : ChannelFutureListener, Runnable {
+            override fun operationComplete(future: ChannelFuture) {
+                if (!future.isSuccess) {
+                    ctx.close()
+                    return
+                }
+
+                if (delay == 0L) {
+                    run()
+                } else {
+                    ctx.executor().schedule(this, delay, TimeUnit.MILLISECONDS)
+                }
+            }
+
+            override fun run() {
+                if (limit == 0) {
+                    if (close) ctx.close()
+                    return
+                }
+
+                if (limit > 0) limit--
+
+                ctx.writeAndFlush(body.retainedDuplicate()).addListeners(this)
+            }
+        }
+
+        val response = DefaultHttpResponse(request.protocolVersion(), HttpResponseStatus.OK)
+        if (chunked) response.headers().set(HttpHeaderNames.TRANSFER_ENCODING, HttpHeaderValues.CHUNKED)
+        ctx.writeAndFlush(response).addListener(channelListener)
     }
 
     private fun sendHttpResponse(ctx: ChannelHandlerContext, request: FullHttpRequest, response: FullHttpResponse) {

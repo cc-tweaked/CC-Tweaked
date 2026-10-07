@@ -9,12 +9,13 @@ import dan200.computercraft.api.lua.ILuaContext
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.core.apis.IAPIEnvironment
 import dan200.computercraft.test.core.apis.BasicApiEnvironment
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-class LuaTaskRunner : AbstractLuaTaskContext() {
+class LuaTaskRunner private constructor() : AbstractLuaTaskContext() {
     private val apis = mutableListOf<ILuaAPI>()
 
     val environment: IAPIEnvironment = object : BasicApiEnvironment(BasicEnvironment()) {
@@ -38,10 +39,10 @@ class LuaTaskRunner : AbstractLuaTaskContext() {
     }
 
     companion object {
-        fun runTest(timeout: Duration = 5.seconds, fn: suspend LuaTaskRunner.() -> Unit) {
+        fun runTest(timeout: Duration = 5.seconds, fn: suspend LuaTaskRunner.(scope: CoroutineScope) -> Unit) {
             runBlocking {
                 withTimeout(timeout) {
-                    LuaTaskRunner().use { fn(it) }
+                    LuaTaskRunner().use { fn(it, this) }
                 }
             }
         }

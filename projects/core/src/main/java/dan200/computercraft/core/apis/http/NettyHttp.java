@@ -156,8 +156,8 @@ public class NettyHttp implements HttpHandler.Factory {
         }
 
         @Override
-        public boolean queueRequest(String address, URI uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers, boolean binary, boolean followRedirects, int timeout) {
-            return new HttpRequest(requests, environment, network, address, postBody, headers, binary, followRedirects, timeout).queue(r -> r.request(uri, method));
+        public boolean queueRequest(String address, URI uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers, boolean binary, boolean followRedirects, int timeout, boolean streaming) {
+            return new HttpRequest(requests, environment, network, address, postBody, headers, binary, followRedirects, timeout, streaming).queue(r -> r.request(uri, method));
         }
 
         @Override
