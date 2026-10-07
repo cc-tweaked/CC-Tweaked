@@ -299,8 +299,10 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
             if (source == null) {
                 readable = 0;
             } else {
-                int readerIndex = source.readerIndex();
-                readable = source.writerIndex() - readerIndex;
+                readable = source.readableBytes();
+                if (readable >= MAX_STREAM_BUFFER_CACHE) {
+                    return -MAX_STREAM_BUFFER_CACHE - 1;
+                }
             }
             return responseBodyDone ? -readable - 1 : readable;
         }
