@@ -8,8 +8,8 @@ import com.google.common.base.Predicates;
 import com.google.errorprone.CompilationTestHelper;
 import org.junit.jupiter.api.Test;
 
-public class TestForbiddenImport {
-    private final CompilationTestHelper compilationHelper = CompilationTestHelper.newInstance(ForbiddenImport.class, getClass());
+public class TestForbiddenAPI {
+    private final CompilationTestHelper compilationHelper = CompilationTestHelper.newInstance(ForbiddenAPI.class, getClass());
 
     @Test
     public void testForbiddenImport() {
@@ -40,6 +40,24 @@ public class TestForbiddenImport {
                 """
             )
             .expectErrorMessage("X", Predicates.containsPattern("Did you mean 'import com.google.errorprone.annotations.concurrent.GuardedBy;'"))
+            .doTest();
+    }
+
+    @Test
+    public void testForbiddenNewInstance() {
+        compilationHelper
+            .addSourceLines(
+                "Import.java",
+                """
+                import java.util.concurrent.locks.ReentrantLock;
+
+                class X {
+                  // BUG: Diagnostic matches: X
+                  private final ReentrantLock lock = new ReentrantLock();
+                }
+                """
+            )
+            .expectErrorMessage("X", Predicates.containsPattern("private final ReentrantLock lock = ThreadUtils.newReentrantLock\\(\\);"))
             .doTest();
     }
 }
