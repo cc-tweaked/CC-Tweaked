@@ -22,6 +22,7 @@ import dan200.computercraft.core.methods.MethodSupplier;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.core.util.Nullability;
+import dan200.computercraft.core.util.ThreadUtils;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +88,7 @@ final class ComputerExecutor implements ComputerScheduler.Worker {
      * @see #turnOn()
      * @see #shutdown()
      */
-    private final ReentrantLock isOnLock = new ReentrantLock();
+    private final ReentrantLock isOnLock = ThreadUtils.newReentrantLock("ComputerExecutor.isOnLock");
 
     /**
      * A lock used for any changes to {@link #eventQueue} or {@link #command}. This will be used on the main thread,

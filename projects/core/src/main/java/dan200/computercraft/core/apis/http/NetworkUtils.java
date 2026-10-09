@@ -41,8 +41,6 @@ import javax.net.ssl.SSLHandshakeException;
 import java.net.Inet6Address;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -51,14 +49,9 @@ import java.util.function.Consumer;
 public final class NetworkUtils {
     private static final Logger LOG = LoggerFactory.getLogger(NetworkUtils.class);
 
-    public static final ScheduledThreadPoolExecutor EXECUTOR = new ScheduledThreadPoolExecutor(4, ThreadUtils.lowPriorityFactory("Network"));
-    public static final EventLoopGroup LOOP_GROUP = new NioEventLoopGroup(4, ThreadUtils.lowPriorityFactory("Netty"));
+    private static final EventLoopGroup LOOP_GROUP = new NioEventLoopGroup(4, ThreadUtils.lowPriorityFactory("Netty"));
 
     private final AbstractTrafficShapingHandler shapingHandler;
-
-    static {
-        EXECUTOR.setKeepAliveTime(60, TimeUnit.SECONDS);
-    }
 
     private final NettyHttp netty;
 
@@ -214,7 +207,7 @@ public final class NetworkUtils {
      */
     public ChannelFuture connect(ConnectionInfo conn, Consumer<SocketChannel> configure) {
         return new Bootstrap()
-            .group(NetworkUtils.LOOP_GROUP)
+            .group(LOOP_GROUP)
             .channelFactory(NioSocketChannel::new)
             .handler(new ChannelInitializer<SocketChannel>() {
                 @Override

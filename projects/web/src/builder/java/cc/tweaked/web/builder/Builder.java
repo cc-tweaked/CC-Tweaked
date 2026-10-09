@@ -51,7 +51,6 @@ public class Builder {
         var remapper = new TransformingClassLoader(classpath);
         // Remap several classes to our stubs. Really we should add all of these to TeaVM, but our current
         // implementations are a bit of a hack.
-        remapper.remapClass("java/nio/channels/FileChannel", "cc/tweaked/web/stub/FileChannel");
         remapper.remapClass("java/util/concurrent/locks/ReentrantLock", "cc/tweaked/web/stub/ReentrantLock");
         // Add some additional transformers.
         remapper.addTransformer(PatchCobalt::patch);

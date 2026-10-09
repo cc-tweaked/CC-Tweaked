@@ -20,6 +20,7 @@ import dan200.computercraft.shared.network.server.ServerNetworking;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.platform.FabricConfigFile;
 import dan200.computercraft.shared.platform.FabricMessageType;
+import dan200.computercraft.shared.turtle.upgrades.TurtleStorage;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -32,8 +33,10 @@ import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -106,6 +109,13 @@ public class ComputerCraft {
         Peripherals.addGenericLookup((world, pos, state, blockEntity, side, invalidate) -> InventoryMethods.extractContainer(world, pos, state, blockEntity, side));
 
         if (FabricLoader.getInstance().isModLoaded(CreateIntegration.ID)) CreateIntegration.setup();
+
+        ResourceManagerHelper.registerBuiltinResourcePack(
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, TurtleStorage.DATA_PACK_NAME),
+            FabricLoader.getInstance().getModContainer(ComputerCraftAPI.MOD_ID).orElseThrow(),
+            Component.translatable(TurtleStorage.DATA_PACK_TRANSLATION),
+            ResourcePackActivationType.NORMAL
+        );
     }
 
     private record ReloadListener(String name, PreparableReloadListener listener)

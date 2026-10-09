@@ -129,7 +129,7 @@ public class NettyHttp implements HttpHandler.Factory {
     private final class NettyHttpHandler implements HttpHandler {
         private final IAPIEnvironment environment;
         private final ResourceGroup<CheckUrl> checkUrls = new ResourceGroup<>(() -> ResourceGroup.DEFAULT_LIMIT);
-        private final ResourceGroup<HttpRequest> requests = new ResourceQueue<>(() -> config.maxRequests());
+        private final ResourceGroup<HttpRequest> requests = new ResourceGroup<>(() -> config.maxRequests(), ResourceGroup.DEFAULT_LIMIT);
         private final ResourceGroup<Websocket> websockets = new ResourceGroup<>(() -> config.maxWebsockets());
 
         private NettyHttpHandler(IAPIEnvironment environment) {
@@ -152,17 +152,17 @@ public class NettyHttp implements HttpHandler.Factory {
 
         @Override
         public boolean queueCheckUrl(String address, URI uri) {
-            return new CheckUrl(checkUrls, environment, network, address, uri).queue(CheckUrl::run);
+            return new CheckUrl(checkUrls, environment, network, address, uri).queue();
         }
 
         @Override
         public boolean queueRequest(String address, URI uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers, boolean binary, boolean followRedirects, int timeout, boolean streaming) {
-            return new HttpRequest(requests, environment, network, address, postBody, headers, binary, followRedirects, timeout, streaming).queue(r -> r.request(uri, method));
+            return new HttpRequest(requests, environment, network, address, uri, method, postBody, headers, binary, followRedirects, timeout, streaming).queue();
         }
 
         @Override
         public boolean queueWebsocket(String address, URI uri, HttpHeaders headers, int timeout) {
-            return new Websocket(websockets, environment, network, address, uri, headers, timeout).queue(Websocket::connect);
+            return new Websocket(websockets, environment, network, address, uri, headers, timeout).queue();
         }
     }
 }

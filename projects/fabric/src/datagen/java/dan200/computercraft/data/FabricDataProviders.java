@@ -5,6 +5,7 @@
 package dan200.computercraft.data;
 
 import com.mojang.serialization.Codec;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
@@ -29,23 +30,24 @@ import java.util.function.Consumer;
 public class FabricDataProviders implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator generator) {
-        var pack = new PlatformGeneratorsImpl(generator.createPack());
+        var pack = new PlatformGeneratorsImpl(generator, generator.createPack());
         DataProviders.add(pack);
         pack.addWithRegistries((out, reg) -> addName("Conventional Tags", new MoreConventionalTagsProvider(out, reg)));
     }
 
-    private record PlatformGeneratorsImpl(FabricDataGenerator.Pack generator) implements DataProviders.GeneratorSink {
+    private record PlatformGeneratorsImpl(FabricDataGenerator generator,
+                                          FabricDataGenerator.Pack pack) implements DataProviders.GeneratorSink {
         private <T extends DataProvider> T addWithFabricOutput(FabricDataGenerator.Pack.Factory<T> factory) {
-            return generator.addProvider((FabricDataOutput p) -> new PrettyDataProvider<>(factory.create(p))).provider();
+            return pack.addProvider((FabricDataOutput p) -> new PrettyDataProvider<>(factory.create(p))).provider();
         }
 
         private <T extends DataProvider> T addWithRegistries(FabricDataGenerator.Pack.RegistryDependentFactory<T> factory) {
-            return generator.addProvider((r, p) -> new PrettyDataProvider<>(factory.create(r, p))).provider();
+            return pack.addProvider((r, p) -> new PrettyDataProvider<>(factory.create(r, p))).provider();
         }
 
         @Override
         public <T extends DataProvider> T add(DataProvider.Factory<T> factory) {
-            return generator.addProvider((PackOutput p) -> new PrettyDataProvider<>(factory.create(p))).provider();
+            return pack.addProvider((PackOutput p) -> new PrettyDataProvider<>(factory.create(p))).provider();
         }
 
         @Override
@@ -98,6 +100,11 @@ public class FabricDataProviders implements DataGeneratorEntrypoint {
                     });
                 }
             });
+        }
+
+        @Override
+        public DataProviders.GeneratorSink nestedDatapack(String name) {
+            return new PlatformGeneratorsImpl(generator(), generator.createBuiltinResourcePack(new ResourceLocation(ComputerCraftAPI.MOD_ID, name)));
         }
     }
 

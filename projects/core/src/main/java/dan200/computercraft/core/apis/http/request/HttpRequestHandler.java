@@ -7,7 +7,6 @@ package dan200.computercraft.core.apis.http.request;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.core.apis.handles.ReadHandle;
-import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.core.metrics.Metrics;
@@ -19,19 +18,16 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import org.jspecify.annotations.Nullable;
 
-import java.io.Closeable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 import static dan200.computercraft.core.apis.http.request.HttpRequest.getHeaderSize;
 
-public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> implements Closeable {
+final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> {
     /**
      * Same as {@link io.netty.handler.codec.MessageAggregator}.
      */
@@ -44,14 +40,18 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     private static final byte[] EMPTY_BYTES = new byte[0];
 
     private final HttpRequest request;
-    private boolean closed = false;
+
+    /**
+     * Whether this particular request is still active. This is set to {@code false} when following a redirect, so that
+     * we no longer queue events.
+     */
+    private boolean isActive = true;
 
     private final URI uri;
     private final HttpMethod method;
     private final boolean streaming;
     private final Options options;
 
-    private @Nullable Charset responseCharset;
     private final HttpHeaders responseHeaders = new DefaultHttpHeaders();
     private @Nullable HttpResponseStatus responseStatus;
 
@@ -77,7 +77,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        if (request.checkClosed()) return;
+        if (request.isClosed()) return;
 
         var body = request.body();
         body.resetReaderIndex().retain();
@@ -85,8 +85,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         var requestUri = uri.getRawPath();
         if (uri.getRawQuery() != null) requestUri += "?" + uri.getRawQuery();
 
-        FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, requestUri, body);
-        request.setMethod(method);
+        FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, method, requestUri, body);
         request.headers().set(this.request.headers());
 
         // We force some headers to be always applied
@@ -103,13 +102,13 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (!closed) request.failure("Could not connect");
+        if (isActive) request.failure("Could not connect");
         super.channelInactive(ctx);
     }
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, HttpObject message) {
-        if (closed || request.checkClosed()) return;
+        if (!isActive || request.isClosed()) return;
 
         if (message instanceof HttpResponse response) {
 
@@ -118,25 +117,16 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
                 if (redirect != null && !uri.equals(redirect) && request.redirects.getAndDecrement() > 0) {
                     // If we have a redirect, and don't end up at the same place, then follow it.
 
-                    // We mark ourselves as disposed first though, to avoid firing events when the channel
-                    // becomes inactive or disposed.
-                    closed = true;
+                    // We mark ourselves as no longer active first, to avoid firing events when the channel becomes
+                    // inactive or is closed.
+                    isActive = false;
                     ctx.close();
 
-                    try {
-                        HttpRequest.checkUri(redirect);
-                    } catch (HTTPRequestException e) {
-                        // If we cannot visit this uri, then fail.
-                        request.failure(NetworkUtils.toFriendlyError(e));
-                        return;
-                    }
-
-                    request.request(redirect, response.status().code() == 303 ? HttpMethod.GET : method);
+                    request.redirect(redirect, response.status().code() == 303 ? HttpMethod.GET : method);
                     return;
                 }
             }
 
-            responseCharset = HttpUtil.getCharset(response, StandardCharsets.UTF_8);
             responseStatus = response.status();
             responseHeaders.add(response.headers());
 
@@ -155,7 +145,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
                     }
                     if (!streaming && options.maxDownload() != 0 && responseBody.readableBytes() + partial.readableBytes() > options.maxDownload()) {
                         // If we've read more than we're allowed to handle, abort as soon as possible.
-                        closed = true;
+                        isActive = false;
                         ctx.close();
 
                         request.failure("Response is too large");
@@ -239,7 +229,6 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
     private void sendResponse() {
         Objects.requireNonNull(responseStatus, "Status has not been set");
-        Objects.requireNonNull(responseCharset, "Charset has not been set");
 
         // Decode the headers
         var status = responseStatus;
@@ -271,7 +260,6 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
     private void sendResponseStreamed() {
         Objects.requireNonNull(responseStatus, "Status has not been set");
-        Objects.requireNonNull(responseCharset, "Charset has not been set");
 
         // Decode the headers
         var status = responseStatus;
@@ -430,12 +418,8 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         }
     }
 
-    @Override
     public void close() {
-        if (closed) {
-            return;
-        }
-        closed = true;
+        isActive = false;
         synchronized (responseBodyLock) {
             responseBodyTrigger = null;
             if (responseBody != null) {

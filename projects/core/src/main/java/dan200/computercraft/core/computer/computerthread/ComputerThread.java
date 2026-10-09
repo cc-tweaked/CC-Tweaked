@@ -100,7 +100,7 @@ public final class ComputerThread implements ComputerScheduler {
     /**
      * Lock used for modifications to the array of current threads.
      */
-    private final ReentrantLock threadLock = new ReentrantLock();
+    private final ReentrantLock threadLock = ThreadUtils.newReentrantLock("ComputerThread.threadLock");
 
     private static final int RUNNING = 0;
     private static final int STOPPING = 1;
@@ -133,7 +133,7 @@ public final class ComputerThread implements ComputerScheduler {
     private final long latency;
     private final long minPeriod;
 
-    private final ReentrantLock computerLock = new ReentrantLock();
+    private final ReentrantLock computerLock = ThreadUtils.newReentrantLock("ComputerThread.computerLock");
     private final @GuardedBy("computerLock") Condition workerWakeup = computerLock.newCondition();
     private final @GuardedBy("computerLock") Condition monitorWakeup = computerLock.newCondition();
 

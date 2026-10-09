@@ -121,6 +121,10 @@ public final class ClientRegistry {
         register.register(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_NORMAL.get(), new TurtleModemModeller(false));
         register.register(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_ADVANCED.get(), new TurtleModemModeller(true));
         register.register(ModRegistry.TurtleSerialisers.TOOL.get(), TurtleUpgradeModeller.flatItem());
+        register.register(ModRegistry.TurtleSerialisers.STORAGE.get(), TurtleUpgradeModeller.sided(
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_shulker_left"),
+            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_shulker_right")
+        ));
     }
 
     @SafeVarargs

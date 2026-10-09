@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GeneratorTest {
     private static final MethodSupplierImpl<LuaMethod> GENERATOR = (MethodSupplierImpl<LuaMethod>) LuaMethodSupplier.create(
-        Stream.of(new StaticGeneric(), new InstanceGeneric()).flatMap(GenericMethod::getMethods).toList()
+        Stream.of(new StaticGeneric(), new InstanceGeneric(), new ConcreteAbstractGeneric()).flatMap(GenericMethod::getMethods).toList()
     );
 
     @Test
@@ -85,12 +85,18 @@ public class GeneratorTest {
         assertThat(apply(methods, new GenericMethodTarget(), "goStatic", "Hello", 123), is(MethodResult.of()));
     }
 
-
     @Test
-    public void testInstanceGenericrMethod() throws LuaException {
+    public void testInstanceGenericMethod() throws LuaException {
         var methods = GENERATOR.getMethods(GenericMethodTarget.class);
         assertThat(methods, hasItem(named("goInstance")));
         assertThat(apply(methods, new GenericMethodTarget(), "goInstance", "Hello", 123), is(MethodResult.of()));
+    }
+
+    @Test
+    public void testAbstractGenericMethod() throws LuaException {
+        var methods = GENERATOR.getMethods(GenericMethodTarget.class);
+        assertThat(methods, hasItem(named("goAbstract")));
+        assertThat(apply(methods, new GenericMethodTarget(), "goAbstract"), is(MethodResult.of()));
     }
 
     @Test
@@ -218,7 +224,7 @@ public class GeneratorTest {
         }
     }
 
-    public static class InstanceGeneric implements GenericSource {
+    public static final class InstanceGeneric implements GenericSource {
         @Override
         public String id() {
             return "instance";
@@ -227,6 +233,20 @@ public class GeneratorTest {
         @LuaFunction
         public void goInstance(GenericMethodTarget target, String arg1, int arg2, ILuaContext context) {
         }
+    }
+
+    public abstract static class AbstractGeneric<T> implements GenericSource {
+        @Override
+        public String id() {
+            return "abstract";
+        }
+
+        @LuaFunction
+        public final void goAbstract(T target) {
+        }
+    }
+
+    public static final class ConcreteAbstractGeneric extends AbstractGeneric<GenericMethodTarget> {
     }
 
     public static class IllegalThrows {

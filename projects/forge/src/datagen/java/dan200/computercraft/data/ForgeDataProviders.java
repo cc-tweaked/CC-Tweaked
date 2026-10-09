@@ -36,17 +36,18 @@ public class ForgeDataProviders {
     @SubscribeEvent
     public static void gather(GatherDataEvent event) {
         var generator = event.getGenerator();
-        DataProviders.add(new GeneratorFactoryImpl(generator.getVanillaPack(true), event.getExistingFileHelper(), event.getLookupProvider()));
+        DataProviders.add(new GeneratorFactoryImpl(generator, generator.getVanillaPack(true), event.getExistingFileHelper(), event.getLookupProvider()));
     }
 
     private record GeneratorFactoryImpl(
-        DataGenerator.PackGenerator generator,
+        DataGenerator generator,
+        DataGenerator.PackGenerator pack,
         ExistingFileHelper existingFiles,
         CompletableFuture<HolderLookup.Provider> registries
     ) implements DataProviders.GeneratorSink {
         @Override
         public <T extends DataProvider> T add(DataProvider.Factory<T> factory) {
-            return generator.addProvider(p -> new PrettyDataProvider<>(factory.create(p))).provider();
+            return pack.addProvider(p -> new PrettyDataProvider<>(factory.create(p))).provider();
         }
 
         @Override
@@ -87,6 +88,15 @@ public class ForgeDataProviders {
                     });
                 }
             });
+        }
+
+        @Override
+        public DataProviders.GeneratorSink nestedDatapack(String name) {
+            return new GeneratorFactoryImpl(
+                generator(),
+                generator.getBuiltinDatapack(true, "../../../resourcepacks/" + name),
+                existingFiles(), registries()
+            );
         }
     }
 }

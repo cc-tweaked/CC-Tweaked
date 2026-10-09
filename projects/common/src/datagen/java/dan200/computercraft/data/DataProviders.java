@@ -5,20 +5,34 @@
 package dan200.computercraft.data;
 
 import com.mojang.serialization.Codec;
+import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
+import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.client.gui.GuiSprites;
 import dan200.computercraft.client.model.LecternPocketModel;
 import dan200.computercraft.client.model.LecternPrintoutModel;
+import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.inventory.UpgradeSlot;
+import dan200.computercraft.shared.turtle.upgrades.TurtleStorage;
+import net.minecraft.DetectedVersion;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.client.renderer.texture.atlas.SpriteSources;
 import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.metadata.PackMetadataGenerator;
 import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ShulkerBoxBlock;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +52,13 @@ public final class DataProviders {
     }
 
     public static void add(GeneratorSink generator) {
+        generator.add(out -> new PackMetadataGenerator(out)
+            .add(PackMetadataSection.TYPE, new PackMetadataSection(
+                Component.literal("CC: Tweaked"),
+                DetectedVersion.BUILT_IN.getPackVersion(PackType.CLIENT_RESOURCES)
+            ))
+        );
+
         var turtleUpgrades = generator.add(TurtleUpgradeProvider::new);
         var pocketUpgrades = generator.add(PocketUpgradeProvider::new);
         generator.add(out -> new RecipeProvider(out, turtleUpgrades, pocketUpgrades));
@@ -72,6 +93,20 @@ public final class DataProviders {
                 GuiSprites.COMPUTER_COLOUR.textures()
             ));
         });
+
+        var shulkerPack = generator.nestedDatapack(TurtleStorage.DATA_PACK_NAME);
+        shulkerPack.add(out -> PackMetadataGenerator.forFeaturePack(out, Component.translatable(TurtleStorage.DATA_PACK_TRANSLATION)));
+        shulkerPack.add(out -> new TurtleUpgradeDataProvider(out) {
+            @Override
+            protected void addUpgrades(Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> addUpgrade) {
+                for (var item : BuiltInRegistries.ITEM) {
+                    if (item instanceof BlockItem blockItem && blockItem.getBlock() instanceof ShulkerBoxBlock) {
+                        var name = PlatformHelper.get().getRegistryKey(Registries.ITEM, item).getPath();
+                        simpleWithCustomItem(new ResourceLocation(ComputerCraftAPI.MOD_ID, name), ModRegistry.TurtleSerialisers.STORAGE.get(), item).add(addUpgrade);
+                    }
+                }
+            }
+        });
     }
 
     @SafeVarargs
@@ -88,5 +123,7 @@ public final class DataProviders {
         TagsProvider<Block> blockTags(Consumer<TagProvider.TagConsumer<Block>> tags);
 
         TagsProvider<Item> itemTags(Consumer<TagProvider.ItemTagConsumer> tags, TagsProvider<Block> blocks);
+
+        GeneratorSink nestedDatapack(String name);
     }
 }

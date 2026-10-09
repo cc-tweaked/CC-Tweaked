@@ -5,7 +5,6 @@
 package dan200.computercraft.core.apis.http;
 
 import dan200.computercraft.core.apis.IAPIEnvironment;
-import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.util.concurrent.Future;
@@ -15,47 +14,50 @@ import java.util.concurrent.Future;
  * <p>
  * This requires a DNS lookup, and so needs to occur off-thread.
  */
-public class CheckUrl extends Resource<CheckUrl> {
+public final class CheckUrl extends Resource<CheckUrl, CheckUrl.State> {
     private static final String EVENT = "http_check";
-
-    private @Nullable Future<?> future;
 
     private final IAPIEnvironment environment;
     private final NetworkUtils network;
     private final String address;
-    private final URI uri;
 
     public CheckUrl(ResourceGroup<CheckUrl> limiter, IAPIEnvironment environment, NetworkUtils network, String address, URI uri) {
-        super(limiter);
+        super(limiter, new Init(uri));
         this.environment = environment;
         this.network = network;
         this.address = address;
-        this.uri = uri;
     }
 
-    public void run() {
-        if (isClosed()) return;
-        future = NetworkUtils.EXECUTOR.submit(this::doRun);
-        checkClosed();
+    public sealed interface State extends ResourceState {
     }
 
-    private void doRun() {
-        if (isClosed()) return;
+    private record Init(URI uri) implements State {
+        @Override
+        public void close() {
+        }
+    }
 
-        try {
-            var ssl = uri.getScheme().equalsIgnoreCase("https");
-            var netAddress = NetworkUtils.getAddress(uri, ssl);
-            network.getOptions(uri.getHost(), netAddress);
-
-            if (tryClose()) environment.queueEvent(EVENT, address, true);
-        } catch (HTTPRequestException e) {
-            if (tryClose()) environment.queueEvent(EVENT, address, false, NetworkUtils.toFriendlyError(e));
+    private record Checking(Future<?> future) implements State {
+        @Override
+        public void close() {
+            future().cancel(true);
         }
     }
 
     @Override
-    protected void dispose() {
-        super.dispose();
-        future = closeFuture(future);
+    public void start() {
+        transformStateAsync(Init.class, (q, f) -> new Checking(f), this::doRun);
+    }
+
+    private StateTransition<State> doRun(Init init) {
+        var uri = init.uri();
+        try {
+            var ssl = uri.getScheme().equalsIgnoreCase("https");
+            var netAddress = NetworkUtils.getAddress(uri, ssl);
+            network.getOptions(uri.getHost(), netAddress);
+            return StateTransition.close(() -> environment.queueEvent(EVENT, address, true));
+        } catch (HTTPRequestException e) {
+            return StateTransition.close(() -> environment.queueEvent(EVENT, address, false, e.getMessage()));
+        }
     }
 }

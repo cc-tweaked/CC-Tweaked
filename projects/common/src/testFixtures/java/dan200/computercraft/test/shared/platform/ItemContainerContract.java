@@ -4,7 +4,7 @@
 
 package dan200.computercraft.test.shared.platform;
 
-import dan200.computercraft.shared.platform.ContainerTransfer;
+import dan200.computercraft.shared.platform.ItemContainer;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
@@ -22,18 +22,22 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Test Interface defining the behaviour of a {@link ContainerTransfer} implementation.
+ * Test Interface defining the behaviour of a {@link ItemContainer} implementation.
  */
-public interface ContainerTransferContract {
-    ContainerTransfer.Slotted wrap(Container container);
+public interface ItemContainerContract {
+    ItemContainer wrap(Container container);
+
+    ItemContainer wrapSlot(Container container, int slot);
+
+    ItemContainer wrapRotated(Container container, int offset);
 
     @Test
     default void testMoveSameInventorySlot() {
         var inv = new SimpleContainer(4);
         inv.setItem(0, new ItemStack(Items.DIRT, 64));
 
-        var move = wrap(inv).singleSlot(0).moveTo(wrap(inv).singleSlot(0), 64);
-        assertEquals(ContainerTransfer.NO_SPACE, move);
+        var move = wrap(inv).moveTo(0, wrapSlot(inv, 0), 64);
+        assertEquals(ItemContainer.NO_SPACE, move);
 
         assertThat(inv.getItem(0), isStack(Items.DIRT, 64));
 
@@ -45,7 +49,7 @@ public interface ContainerTransferContract {
         var inv = new SimpleContainer(4);
         inv.setItem(0, new ItemStack(Items.DIRT, 64));
 
-        var move = wrap(inv).singleSlot(0).moveTo(wrap(inv).singleSlot(1), 64);
+        var move = wrap(inv).moveTo(0, wrapSlot(inv, 1), 64);
         assertEquals(64, move);
 
         assertThat(inv.getItem(0), isStack(ItemStack.EMPTY));
@@ -106,7 +110,7 @@ public interface ContainerTransferContract {
         source.setItem(0, new ItemStack(Items.DIRT, 64));
         source.setItem(1, new ItemStack(Items.DIRT, 64));
 
-        var move = wrap(source).moveTo(wrap(destination).rotate(offset), 17);
+        var move = wrap(source).moveTo(wrapRotated(destination, offset), 17);
         assertEquals(17, move);
 
         assertThat("Source stack in slot 0", source.getItem(0), isStack(Items.DIRT, 47));
@@ -151,7 +155,7 @@ public interface ContainerTransferContract {
         source.setItem(0, new ItemStack(Items.DIRT, 64));
 
         var move = wrap(source).moveTo(wrap(destination), 64);
-        assertEquals(ContainerTransfer.NO_SPACE, move);
+        assertEquals(ItemContainer.NO_SPACE, move);
 
         assertThat(source.getItem(0), isStack(Items.DIRT, 64));
         assertThat(destination.getItem(0), isStack(ItemStack.EMPTY));
@@ -168,7 +172,7 @@ public interface ContainerTransferContract {
         destination.setItem(0, new ItemStack(Items.DIRT));
         for (var slot = 4; slot < 9; slot++) destination.setItem(slot, new ItemStack(Items.DIRT));
 
-        var move = wrap(source).moveTo(wrap(destination).rotate(4), 64);
+        var move = wrap(source).moveTo(wrapRotated(destination, 4), 64);
         assertEquals(32, move);
 
         assertThat("Source is empty", source.getItem(0), isStack(ItemStack.EMPTY));
