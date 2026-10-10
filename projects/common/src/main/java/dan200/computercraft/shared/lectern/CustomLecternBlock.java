@@ -4,7 +4,7 @@
 
 package dan200.computercraft.shared.lectern;
 
-import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.api.computer.ComputerSide;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.PrintoutItem;
 import dan200.computercraft.shared.pocket.core.PocketHolder;

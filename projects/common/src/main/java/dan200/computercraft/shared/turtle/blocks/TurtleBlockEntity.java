@@ -11,7 +11,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
-import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.api.computer.ComputerSide;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlockEntity;
 import dan200.computercraft.shared.computer.blocks.ComputerPeripheral;

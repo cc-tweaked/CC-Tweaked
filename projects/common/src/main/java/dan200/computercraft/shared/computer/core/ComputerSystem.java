@@ -11,6 +11,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.ComputerAccess;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.computer.ApiLifecycle;
+import dan200.computercraft.api.redstone.RedstoneAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import org.jspecify.annotations.Nullable;
@@ -97,5 +98,10 @@ final class ComputerSystem extends ComputerAccess implements IComputerSystem, Ap
     @SuppressWarnings("unchecked")
     public <T> @Nullable T getComponent(ComputerComponent<T> component) {
         return (T) components.get(component);
+    }
+
+    @Override
+    public RedstoneAccess getRedstoneAccess() {
+        return computer.getComputer().getRedstone();
     }
 }

@@ -8,7 +8,7 @@ import dan200.computercraft.api.lua.Coerced
 import dan200.computercraft.client.gui.AbstractComputerScreen
 import dan200.computercraft.core.apis.RedstoneAPI
 import dan200.computercraft.core.apis.TermAPI
-import dan200.computercraft.core.computer.ComputerSide
+import dan200.computercraft.api.computer.ComputerSide
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.test.core.assertArrayEquals

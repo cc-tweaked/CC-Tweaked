@@ -9,7 +9,7 @@ import dan200.computercraft.annotations.ForgeOverride;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
-import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.api.computer.ComputerSide;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.*;

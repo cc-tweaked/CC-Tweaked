@@ -8,7 +8,7 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.RedstoneAPI;
 import dan200.computercraft.core.apis.RedstoneMethods;
-import dan200.computercraft.core.redstone.RedstoneAccess;
+import dan200.computercraft.api.redstone.RedstoneAccess;
 import org.jspecify.annotations.Nullable;
 
 /**

@@ -7,7 +7,7 @@ package dan200.computercraft.shared.pocket.core;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
-import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.api.computer.ComputerSide;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;

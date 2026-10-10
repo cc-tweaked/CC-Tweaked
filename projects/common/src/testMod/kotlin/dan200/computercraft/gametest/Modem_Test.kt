@@ -6,7 +6,7 @@ package dan200.computercraft.gametest
 
 import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.core.apis.PeripheralAPI
-import dan200.computercraft.core.computer.ComputerSide
+import dan200.computercraft.api.computer.ComputerSide
 import dan200.computercraft.gametest.api.*
 import dan200.computercraft.impl.network.wired.WiredNodeImpl
 import dan200.computercraft.shared.ModRegistry
