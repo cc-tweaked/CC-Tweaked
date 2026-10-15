@@ -13,9 +13,11 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommand;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.util.PeripheralHelpers;
 import dan200.computercraft.impl.TurtleUpgrades;
+import dan200.computercraft.impl.UpgradeManager;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.config.Config;
@@ -48,10 +50,8 @@ import static dan200.computercraft.shared.common.IColouredItem.NBT_COLOUR;
 import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
 
 public class TurtleBrain implements TurtleAccessInternal {
-    public static final String NBT_RIGHT_UPGRADE = "RightUpgrade";
-    public static final String NBT_RIGHT_UPGRADE_DATA = "RightUpgradeNbt";
-    public static final String NBT_LEFT_UPGRADE = "LeftUpgrade";
-    public static final String NBT_LEFT_UPGRADE_DATA = "LeftUpgradeNbt";
+    public static final UpgradeManager.UpgradeKey NBT_RIGHT_UPGRADE = new UpgradeManager.UpgradeKey("RightUpgrade", "RightUpgradeNbt");
+    public static final UpgradeManager.UpgradeKey NBT_LEFT_UPGRADE = new UpgradeManager.UpgradeKey("LeftUpgrade", "LeftUpgradeNbt");
     public static final String NBT_FUEL = "Fuel";
     public static final String NBT_OVERLAY = "Overlay";
 
@@ -137,16 +137,8 @@ public class TurtleBrain implements TurtleAccessInternal {
         overlay = nbt.contains(NBT_OVERLAY) ? new ResourceLocation(nbt.getString(NBT_OVERLAY)) : null;
 
         // Read upgrades
-        setUpgradeDirect(TurtleSide.LEFT, readUpgrade(nbt, NBT_LEFT_UPGRADE, NBT_LEFT_UPGRADE_DATA));
-        setUpgradeDirect(TurtleSide.RIGHT, readUpgrade(nbt, NBT_RIGHT_UPGRADE, NBT_RIGHT_UPGRADE_DATA));
-    }
-
-    private @Nullable UpgradeData<ITurtleUpgrade> readUpgrade(CompoundTag tag, String upgradeKey, String dataKey) {
-        if (!tag.contains(upgradeKey)) return null;
-        var upgrade = TurtleUpgrades.instance().get(tag.getString(upgradeKey));
-        if (upgrade == null) return null;
-
-        return UpgradeData.of(upgrade, tag.getCompound(dataKey));
+        setUpgradeDirect(TurtleSide.LEFT, TurtleUpgrades.instance().readUpgrade(nbt, NBT_LEFT_UPGRADE));
+        setUpgradeDirect(TurtleSide.RIGHT, TurtleUpgrades.instance().readUpgrade(nbt, NBT_RIGHT_UPGRADE));
     }
 
     private void writeCommon(CompoundTag nbt) {
@@ -155,18 +147,8 @@ public class TurtleBrain implements TurtleAccessInternal {
         if (overlay != null) nbt.putString(NBT_OVERLAY, overlay.toString());
 
         // Write upgrades
-        var leftUpgradeId = getUpgradeId(getUpgrade(TurtleSide.LEFT));
-        if (leftUpgradeId != null) nbt.putString(NBT_LEFT_UPGRADE, leftUpgradeId);
-        var rightUpgradeId = getUpgradeId(getUpgrade(TurtleSide.RIGHT));
-        if (rightUpgradeId != null) nbt.putString(NBT_RIGHT_UPGRADE, rightUpgradeId);
-
-        // Write upgrade NBT
-        if (upgradeNBTData.containsKey(TurtleSide.LEFT)) {
-            nbt.put(NBT_LEFT_UPGRADE_DATA, getUpgradeNBTData(TurtleSide.LEFT).copy());
-        }
-        if (upgradeNBTData.containsKey(TurtleSide.RIGHT)) {
-            nbt.put(NBT_RIGHT_UPGRADE_DATA, getUpgradeNBTData(TurtleSide.RIGHT).copy());
-        }
+        UpgradeManager.writeUpgrade(nbt, NBT_LEFT_UPGRADE, getUpgradeWithData(TurtleSide.LEFT));
+        UpgradeManager.writeUpgrade(nbt, NBT_RIGHT_UPGRADE, getUpgradeWithData(TurtleSide.RIGHT));
     }
 
     public void readFromNBT(CompoundTag nbt) {
@@ -204,10 +186,6 @@ public class TurtleBrain implements TurtleAccessInternal {
         }
 
         return nbt;
-    }
-
-    private static @Nullable String getUpgradeId(@Nullable ITurtleUpgrade upgrade) {
-        return upgrade != null ? upgrade.getUpgradeID().toString() : null;
     }
 
     public void readDescription(CompoundTag nbt) {
@@ -520,6 +498,16 @@ public class TurtleBrain implements TurtleAccessInternal {
     @Override
     public @Nullable IPeripheral getPeripheral(TurtleSide side) {
         return peripherals.get(side);
+    }
+
+    @Override
+    public @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(TurtleSide side) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public @Nullable UpgradeHandle<ITurtleUpgrade> getUpgradeHandle(TurtleSide side) {
+        throw new UnsupportedOperationException(); // TODO
     }
 
     @Override

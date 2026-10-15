@@ -7,6 +7,7 @@ package dan200.computercraft.api.pocket;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -90,8 +91,9 @@ public interface IPocketAccess {
      * @see #getUpgradeNBTData()
      * @see #setUpgrade(UpgradeData)
      */
-    @Nullable
-    UpgradeData<IPocketUpgrade> getUpgrade();
+    @Nullable UpgradeData<IPocketUpgrade> getUpgrade();
+
+    @Nullable UpgradeHandle<IPocketUpgrade> getUpgradeHandle();
 
     /**
      * Set the upgrade for this pocket computer, also updating the item stack.
@@ -113,15 +115,30 @@ public interface IPocketAccess {
      * @see UpgradeBase#getUpgradeItem(CompoundTag)
      * @see UpgradeBase#getUpgradeData(ItemStack)
      * @see #getUpgrade()
+     * @deprecated Use {@link #getUpgradeHandle()} and {@link UpgradeHandle#getData()}.
      */
-    CompoundTag getUpgradeNBTData();
+    @Deprecated
+    default CompoundTag getUpgradeNBTData() {
+        var handle = getUpgradeHandle();
+        return handle == null ? new CompoundTag() : handle.getData();
+    }
 
     /**
      * Mark the upgrade-specific NBT as dirty.
      *
      * @see #getUpgradeNBTData()
+     * @deprecated Use {@link #getUpgradeHandle()} and {@link UpgradeHandle#setChanged()}.
      */
-    void updateUpgradeNBTData();
+    @Deprecated
+    default void updateUpgradeNBTData() {
+        var handle = getUpgradeHandle();
+        if (handle == null) return;
+
+        // Legacy behaviour: overwrite the item with the version based on the upgrade data.
+        handle.setItem(handle.getUpgrade().getUpgradeItem(handle.getData()));
+
+        handle.setChanged();
+    }
 
     /**
      * Remove the current peripheral and create a new one.

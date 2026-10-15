@@ -147,7 +147,7 @@ public final class TurtleModelParts<T> {
 
     private void addUpgrade(List<BakedModel> parts, Transformation transformation, TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
         if (upgrade == null) return;
-        var model = TurtleUpgradeModellers.getModel(upgrade.upgrade(), upgrade.data(), side);
+        var model = TurtleUpgradeModellers.getModel(upgrade, side);
         parts.add(transform(model.getModel(), transformation.compose(model.getMatrix()), side));
     }
 

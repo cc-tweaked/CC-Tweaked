@@ -8,6 +8,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -145,6 +146,11 @@ public final class PocketBrain implements IPocketAccess {
     public CompoundTag getUpgradeNBTData() {
         var upgrade = this.upgrade;
         return upgrade == null ? new CompoundTag() : upgrade.data();
+    }
+
+    @Override
+    public @Nullable UpgradeHandle<IPocketUpgrade> getUpgradeHandle() {
+        throw new UnsupportedOperationException(); // TODO
     }
 
     @Override

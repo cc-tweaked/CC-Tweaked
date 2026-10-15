@@ -8,10 +8,12 @@ import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
@@ -42,7 +44,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      *
      * @param upgrade The upgrade that you're getting the model for.
      * @param turtle  Access to the turtle that the upgrade resides on. This will be null when getting item models, unless
-     *                {@link #getModel(ITurtleUpgrade, CompoundTag, TurtleSide)} is overridden.
+     *                {@link #getModel(UpgradeData, TurtleSide)} is overridden.
      * @param side    Which side of the turtle (left or right) the upgrade resides on.
      * @return The model that you wish to be used to render your upgrade.
      */
@@ -57,11 +59,25 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * @param data    Upgrade data instance for current turtle side.
      * @param side    Which side of the turtle (left or right) the upgrade resides on.
      * @return The model that you wish to be used to render your upgrade.
+     * @deprecated Prefer {@link #getModel(UpgradeData, TurtleSide)}.
      */
-    default TransformedModel getModel(T upgrade, CompoundTag data, TurtleSide side) {
+    @Deprecated
+    default TransformedModel getModel(T upgrade, @Unmodifiable CompoundTag data, TurtleSide side) {
         return getModel(upgrade, (ITurtleAccess) null, side);
     }
 
+    /**
+     * Obtain the model to be used when rendering a turtle peripheral.
+     * <p>
+     * This is used when rendering the turtle's item model, and so no {@link ITurtleAccess} is available.
+     *
+     * @param upgrade The upgrade that you're getting the model for.
+     * @param side    Which side of the turtle (left or right) the upgrade resides on.
+     * @return The model that you wish to be used to render your upgrade.
+     */
+    default TransformedModel getModel(UpgradeData<T> upgrade, TurtleSide side) {
+        return getModel(upgrade.upgrade(), upgrade.data(), side);
+    }
 
     /**
      * Get a list of models that this turtle modeller depends on.

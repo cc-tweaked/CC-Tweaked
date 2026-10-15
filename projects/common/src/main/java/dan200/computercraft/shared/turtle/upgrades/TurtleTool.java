@@ -6,6 +6,7 @@ package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.turtle.*;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
@@ -27,9 +28,9 @@ import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -39,30 +40,27 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.EntityHitResult;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.function.Function;
 
 import static net.minecraft.nbt.Tag.TAG_COMPOUND;
 import static net.minecraft.nbt.Tag.TAG_LIST;
 
-public class TurtleTool extends AbstractTurtleUpgrade {
+public class TurtleTool extends AbstractTurtleUpgrade.StackAware {
     private static final TurtleCommandResult UNBREAKABLE = TurtleCommandResult.failure("Cannot break unbreakable block");
     private static final TurtleCommandResult INEFFECTIVE = TurtleCommandResult.failure("Cannot break block with this tool");
 
     private static final String TAG_ITEM_TAG = "Tag";
 
-    final ItemStack item;
     final float damageMultiplier;
     final boolean allowEnchantments;
     final TurtleToolDurability consumeDurability;
     final @Nullable TagKey<Block> breakable;
 
     public TurtleTool(
-        ResourceLocation id, String adjective, Item craftItem, ItemStack toolItem, float damageMultiplier,
+        ResourceLocation id, String adjective, Ingredient item, float damageMultiplier,
         boolean allowEnchantments, TurtleToolDurability consumeDurability, @Nullable TagKey<Block> breakable
     ) {
-        super(id, TurtleUpgradeType.TOOL, adjective, new ItemStack(craftItem));
-        item = toolItem;
+        super(id, TurtleUpgradeType.TOOL, adjective, item);
         this.damageMultiplier = damageMultiplier;
         this.allowEnchantments = allowEnchantments;
         this.consumeDurability = consumeDurability;
@@ -87,17 +85,6 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     }
 
     @Override
-    public CompoundTag getUpgradeData(ItemStack stack) {
-        var upgradeData = super.getUpgradeData(stack);
-
-        // Store the item's current tag.
-        var itemTag = stack.getTag();
-        if (itemTag != null) upgradeData.put(TAG_ITEM_TAG, itemTag);
-
-        return upgradeData;
-    }
-
-    @Override
     public ItemStack getUpgradeItem(CompoundTag upgradeData) {
         // Copy upgrade data back to the item.
         var item = super.getUpgradeItem(upgradeData).copy();
@@ -105,51 +92,37 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         return item;
     }
 
-    private ItemStack getToolStack(ITurtleAccess turtle, TurtleSide side) {
-        return getUpgradeItem(turtle.getUpgradeNBTData(side)).copy();
-    }
-
-    private void setToolStack(ITurtleAccess turtle, TurtleSide side, ItemStack stack) {
-        var upgradeData = turtle.getUpgradeNBTData(side);
-
+    private void setToolStack(UpgradeHandle<ITurtleUpgrade> upgrade, ItemStack stack) {
+        var oldStack = upgrade.getItem();
         var useDurability = switch (consumeDurability) {
             case NEVER -> false;
-            case WHEN_ENCHANTED ->
-                upgradeData.contains(TAG_ITEM_TAG, TAG_COMPOUND) && isEnchanted(upgradeData.getCompound(TAG_ITEM_TAG));
+            case WHEN_ENCHANTED -> isEnchanted(oldStack);
             case ALWAYS -> true;
         };
         if (!useDurability) return;
 
         // If the tool has broken, remove the upgrade!
         if (stack.isEmpty()) {
-            turtle.setUpgradeWithData(side, null);
+            upgrade.clear();
             return;
         }
 
         // If the tool has changed, no clue what's going on.
-        if (stack.getItem() != item.getItem()) return;
-
-        var itemTag = stack.getTag();
+        if (!getCraftingIngredient().test(stack) || !isItemSuitable(stack)) return;
 
         // Early return if the item hasn't changed to avoid redundant syncs with the client.
-        if (Objects.equals(itemTag, upgradeData.get(TAG_ITEM_TAG))) return;
+        if (ItemStack.isSameItemSameTags(stack, oldStack)) return;
 
-        if (itemTag == null) {
-            upgradeData.remove(TAG_ITEM_TAG);
-        } else {
-            upgradeData.put(TAG_ITEM_TAG, itemTag);
-        }
-
-        turtle.updateUpgradeNBTData(side);
+        upgrade.setItem(stack);
     }
 
-    private <T> T withEquippedItem(ITurtleAccess turtle, TurtleSide side, Direction direction, Function<TurtlePlayer, T> action) {
+    private <T> T withEquippedItem(ITurtleAccess turtle, UpgradeHandle<ITurtleUpgrade> upgrade, Direction direction, Function<TurtlePlayer, T> action) {
         var turtlePlayer = TurtlePlayer.getWithPosition(turtle, turtle.getPosition(), direction);
-        turtlePlayer.loadInventory(getToolStack(turtle, side));
+        turtlePlayer.loadInventory(upgrade.getItem());
 
         var result = action.apply(turtlePlayer);
 
-        setToolStack(turtle, side, turtlePlayer.player().getItemInHand(InteractionHand.MAIN_HAND));
+        setToolStack(upgrade, turtlePlayer.player().getItemInHand(InteractionHand.MAIN_HAND));
         turtlePlayer.player().getInventory().clearContent();
 
         return result;
@@ -157,9 +130,12 @@ public class TurtleTool extends AbstractTurtleUpgrade {
 
     @Override
     public TurtleCommandResult useTool(ITurtleAccess turtle, TurtleSide side, TurtleVerb verb, Direction direction) {
+        var handle = turtle.getUpgradeHandle(side);
+        if (handle == null) return TurtleCommandResult.failure("Upgrade is not equipped");
+
         return switch (verb) {
-            case ATTACK -> attack(turtle, side, direction);
-            case DIG -> dig(turtle, side, direction);
+            case ATTACK -> attack(turtle, handle, direction);
+            case DIG -> dig(turtle, handle, direction);
         };
     }
 
@@ -177,11 +153,10 @@ public class TurtleTool extends AbstractTurtleUpgrade {
      * Attack an entity.
      *
      * @param turtle    The current turtle.
-     * @param side      The side the tool is on.
      * @param direction The direction we're attacking in.
      * @return Whether an attack occurred.
      */
-    private TurtleCommandResult attack(ITurtleAccess turtle, TurtleSide side, Direction direction) {
+    private TurtleCommandResult attack(ITurtleAccess turtle, UpgradeHandle<ITurtleUpgrade> upgrade, Direction direction) {
         // Create a fake player, and orient it appropriately
         var world = turtle.getLevel();
         var position = turtle.getPosition();
@@ -196,8 +171,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         var attacked = false;
         if (hit instanceof EntityHitResult entityHit) {
             // Load up the turtle's inventory
-            var stack = getToolStack(turtle, side);
-            turtlePlayer.loadInventory(stack);
+            turtlePlayer.loadInventory(upgrade.getItem());
 
             var hitEntity = entityHit.getEntity();
 
@@ -216,7 +190,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
             TurtleUtil.stopConsuming(turtle);
 
             // Put everything we collected into the turtles inventory.
-            setToolStack(turtle, side, player.getItemInHand(InteractionHand.MAIN_HAND));
+            setToolStack(upgrade, player.getItemInHand(InteractionHand.MAIN_HAND));
             player.getInventory().clearContent();
         }
 
@@ -292,10 +266,10 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         return true;
     }
 
-    private TurtleCommandResult dig(ITurtleAccess turtle, TurtleSide side, Direction direction) {
+    private TurtleCommandResult dig(ITurtleAccess turtle, UpgradeHandle<ITurtleUpgrade> upgrade, Direction direction) {
         var level = (ServerLevel) turtle.getLevel();
 
-        return withEquippedItem(turtle, side, direction, turtlePlayer -> {
+        return withEquippedItem(turtle, upgrade, direction, turtlePlayer -> {
             var stack = turtlePlayer.player().getItemInHand(InteractionHand.MAIN_HAND);
 
             // Right-click the block when using a shovel/hoe. Important that we do this before checking the block is

@@ -7,12 +7,14 @@ package dan200.computercraft.api.pocket;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.impl.ComputerCraftAPIService;
+import dan200.computercraft.impl.upgrades.SerialiserWithCraftingIngredient;
 import dan200.computercraft.impl.upgrades.SerialiserWithCraftingItem;
 import dan200.computercraft.impl.upgrades.SimpleSerialiser;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 
 import java.util.function.BiFunction;
@@ -70,6 +72,26 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
     static <T extends IPocketUpgrade> PocketUpgradeSerialiser<T> simpleWithCustomItem(BiFunction<ResourceLocation, ItemStack, T> factory) {
         final class Impl extends SerialiserWithCraftingItem<T> implements PocketUpgradeSerialiser<T> {
             private Impl(BiFunction<ResourceLocation, ItemStack, T> factory) {
+                super(factory);
+            }
+        }
+
+        return new Impl(factory);
+    }
+
+
+    /**
+     * Create an upgrade serialiser for a simple upgrade whose crafting item can be specified.
+     *
+     * @param factory Generate a new upgrade with a specific ID and crafting item. The returned upgrade's
+     *                {@link UpgradeBase#getCraftingIngredient()} <strong>MUST</strong> equal the provided item.
+     * @param <T>     The type of the generated upgrade.
+     * @return The serialiser for this upgrade.
+     * @see #simple(Function)  For upgrades whose crafting stack should not vary.
+     */
+    static <T extends IPocketUpgrade> PocketUpgradeSerialiser<T> simpleWithCustomIngredient(BiFunction<ResourceLocation, Ingredient, T> factory) {
+        final class Impl extends SerialiserWithCraftingIngredient<T> implements PocketUpgradeSerialiser<T> {
+            private Impl(BiFunction<ResourceLocation, Ingredient, T> factory) {
                 super(factory);
             }
         }

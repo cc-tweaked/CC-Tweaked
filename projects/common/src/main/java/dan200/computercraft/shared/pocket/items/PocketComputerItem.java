@@ -10,6 +10,7 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.impl.PocketUpgrades;
+import dan200.computercraft.impl.UpgradeManager;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -26,7 +27,6 @@ import dan200.computercraft.shared.pocket.core.PocketHolder;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.InventoryUtil;
-import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -49,8 +49,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class PocketComputerItem extends Item implements IComputerItem, IColouredItem {
-    private static final String NBT_UPGRADE = "Upgrade";
-    private static final String NBT_UPGRADE_INFO = "UpgradeInfo";
+    private static final UpgradeManager.UpgradeKey NBT_UPGRADE = new UpgradeManager.UpgradeKey("Upgrade", "UpgradeInfo");
     public static final String NBT_ON = "On";
 
     private static final String NBT_INSTANCE = "InstanceId";
@@ -67,10 +66,7 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
         var result = new ItemStack(this);
         if (id >= 0) result.getOrCreateTag().putInt(NBT_ID, id);
         if (label != null) result.setHoverName(Component.literal(label));
-        if (upgrade != null) {
-            result.getOrCreateTag().putString(NBT_UPGRADE, upgrade.upgrade().getUpgradeID().toString());
-            if (!upgrade.data().isEmpty()) result.getOrCreateTag().put(NBT_UPGRADE_INFO, upgrade.data().copy());
-        }
+        if (upgrade != null) UpgradeManager.writeUpgrade(result.getOrCreateTag(), NBT_UPGRADE, upgrade);
         if (colour != -1) result.getOrCreateTag().putInt(NBT_COLOUR, colour);
         return result;
     }
@@ -365,31 +361,16 @@ public class PocketComputerItem extends Item implements IComputerItem, IColoured
     }
 
     public static @Nullable IPocketUpgrade getUpgrade(ItemStack stack) {
-        var compound = stack.getTag();
-        if (compound == null || !compound.contains(NBT_UPGRADE)) return null;
-        return PocketUpgrades.instance().get(compound.getString(NBT_UPGRADE));
+        var upgrade = getUpgradeWithData(stack);
+        return upgrade == null ? null : upgrade.upgrade();
     }
 
     public static @Nullable UpgradeData<IPocketUpgrade> getUpgradeWithData(ItemStack stack) {
-        var compound = stack.getTag();
-        if (compound == null || !compound.contains(NBT_UPGRADE)) return null;
-        var upgrade = PocketUpgrades.instance().get(compound.getString(NBT_UPGRADE));
-        return upgrade == null ? null : UpgradeData.of(upgrade, NBTUtil.getCompoundOrEmpty(compound, NBT_UPGRADE_INFO));
+        var tag = stack.getTag();
+        return tag == null ? null : PocketUpgrades.instance().readUpgrade(tag, NBT_UPGRADE);
     }
 
     public static void setUpgrade(ItemStack stack, @Nullable UpgradeData<IPocketUpgrade> upgrade) {
-        var compound = stack.getOrCreateTag();
-
-        if (upgrade == null) {
-            compound.remove(NBT_UPGRADE);
-            compound.remove(NBT_UPGRADE_INFO);
-        } else {
-            compound.putString(NBT_UPGRADE, upgrade.upgrade().getUpgradeID().toString());
-            if (upgrade.data().isEmpty()) {
-                compound.remove(NBT_UPGRADE_INFO);
-            } else {
-                compound.put(NBT_UPGRADE_INFO, upgrade.data().copy());
-            }
-        }
+        UpgradeManager.writeUpgrade(stack.getOrCreateTag(), NBT_UPGRADE, upgrade);
     }
 }

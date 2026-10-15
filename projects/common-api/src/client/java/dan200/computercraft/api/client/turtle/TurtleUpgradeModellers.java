@@ -9,6 +9,7 @@ import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.client.ClientPlatformHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
@@ -41,8 +42,14 @@ final class TurtleUpgradeModellers {
         }
 
         @Override
+        @Deprecated
         public TransformedModel getModel(ITurtleUpgrade upgrade, CompoundTag data, TurtleSide side) {
             return getModel(upgrade.getUpgradeItem(data), side);
+        }
+
+        @Override
+        public TransformedModel getModel(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side) {
+            return getModel(upgrade.getUpgradeItem(), side);
         }
 
         private TransformedModel getModel(ItemStack stack, TurtleSide side) {

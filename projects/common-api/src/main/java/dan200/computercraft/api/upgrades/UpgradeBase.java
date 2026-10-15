@@ -14,6 +14,7 @@ import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.Objects;
 
@@ -51,8 +52,14 @@ public interface UpgradeBase {
      * is called.
      *
      * @return The item stack to craft with, or {@link ItemStack#EMPTY} if it cannot be crafted.
+     * @deprecated Prefer {@link #getCraftingIngredient()}.
      */
+    @Deprecated
     ItemStack getCraftingItem();
+
+    default Ingredient getCraftingIngredient() {
+        return Ingredient.of(getCraftingItem());
+    }
 
     /**
      * Returns the item stack representing a currently equipped turtle upgrade.
@@ -86,6 +93,7 @@ public interface UpgradeBase {
      *              {@link #getCraftingItem()}.
      * @return The upgrade data that should be set on the turtle or pocket computer.
      */
+    @Deprecated
     default CompoundTag getUpgradeData(ItemStack stack) {
         return new CompoundTag();
     }

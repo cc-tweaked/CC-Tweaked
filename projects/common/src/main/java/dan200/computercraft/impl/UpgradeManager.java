@@ -11,6 +11,8 @@ import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -36,7 +38,7 @@ import java.util.stream.Collectors;
  * @see TurtleUpgrades
  * @see PocketUpgrades
  */
-public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends UpgradeBase> extends SimpleJsonResourceReloadListener {
+public final class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends UpgradeBase> extends SimpleJsonResourceReloadListener {
     private static final Logger LOG = LoggerFactory.getLogger(UpgradeManager.class);
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
@@ -79,9 +81,9 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends 
         if (stack.isEmpty()) return null;
 
         for (var wrapper : current.values()) {
-            var craftingStack = wrapper.upgrade().getCraftingItem();
-            if (!craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && wrapper.upgrade().isItemSuitable(stack)) {
-                return UpgradeData.of(wrapper.upgrade, wrapper.upgrade.getUpgradeData(stack));
+            var upgrade = wrapper.upgrade;
+            if (upgrade.getCraftingIngredient().test(stack) && upgrade.isItemSuitable(stack)) {
+                return UpgradeData.of(wrapper.upgrade, stack, wrapper.upgrade.getUpgradeData(stack));
             }
         }
 
@@ -94,6 +96,39 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends 
 
     public Map<String, UpgradeWrapper<R, T>> getUpgradeWrappers() {
         return current;
+    }
+
+    public record UpgradeKey(String id, String item, String data) {
+        public UpgradeKey(String id, String data) {
+            this(id, id + "Item", data);
+        }
+    }
+
+    public @Nullable UpgradeData<T> readUpgrade(CompoundTag tag, UpgradeKey key) {
+        if (!tag.contains(key.id(), Tag.TAG_STRING)) return null;
+
+        var upgrade = get(tag.getString(key.id()));
+        if (upgrade == null) return null;
+
+        var data = tag.getCompound(key.data());
+        var item = tag.contains(key.item(), Tag.TAG_COMPOUND) ? ItemStack.of(tag.getCompound(key.item())) : upgrade.getUpgradeItem(data);
+        return UpgradeData.of(upgrade, item, data);
+    }
+
+    public static <T extends UpgradeBase> void writeUpgrade(CompoundTag tag, UpgradeKey key, @Nullable UpgradeData<T> upgrade) {
+        if (upgrade == null) {
+            tag.remove(key.id());
+            tag.remove(key.data());
+            tag.remove(key.item());
+        } else {
+            tag.putString(key.id(), upgrade.upgrade().getUpgradeID().toString());
+            tag.put(key.item(), upgrade.getUpgradeItem().save(new CompoundTag()));
+            if (upgrade.data().isEmpty()) {
+                tag.remove(key.data());
+            } else {
+                tag.put(key.data(), upgrade.data().copy());
+            }
+        }
     }
 
     @Override

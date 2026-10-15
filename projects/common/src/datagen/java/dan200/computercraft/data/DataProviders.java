@@ -19,8 +19,6 @@ import net.minecraft.DetectedVersion;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.client.renderer.texture.atlas.SpriteSources;
 import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.metadata.PackMetadataGenerator;
@@ -29,10 +27,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.ShulkerBoxBlock;
 
 import java.util.Arrays;
 import java.util.List;
@@ -99,20 +95,11 @@ public final class DataProviders {
         shulkerPack.add(out -> new TurtleUpgradeDataProvider(out) {
             @Override
             protected void addUpgrades(Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> addUpgrade) {
-                for (var item : BuiltInRegistries.ITEM) {
-                    if (item instanceof BlockItem blockItem && blockItem.getBlock() instanceof ShulkerBoxBlock) {
-                        // Shuffle the name about, so blue_shulker_box becomes shulker/blue. This is a bit of a hack to
-                        // ensure they're all grouped together in the creative tab.
-                        var name = PlatformHelper.get().getRegistryKey(Registries.ITEM, item).getPath();
-                        if (name.endsWith("shulker_box")) {
-                            name = name.substring(0, name.length() - "shulker_box".length());
-                        }
-                        if (name.endsWith("_")) name = name.substring(0, name.length() - 1);
-
-                        var id = new ResourceLocation(ComputerCraftAPI.MOD_ID, name.isEmpty() ? "shulker" : "shulker/" + name);
-                        simpleWithCustomItem(id, ModRegistry.TurtleSerialisers.STORAGE.get(), item).add(addUpgrade);
-                    }
-                }
+                simpleWithCustomItem(
+                    new ResourceLocation(ComputerCraftAPI.MOD_ID, "shulker"),
+                    ModRegistry.TurtleSerialisers.STORAGE.get(),
+                    PlatformHelper.get().getRecipeIngredients().shulkerBox()
+                ).add(addUpgrade);
             }
         });
     }

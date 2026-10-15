@@ -250,7 +250,8 @@ public class PlatformHelperImpl implements PlatformHelper {
             Ingredient.of(Tags.Items.HEADS),
             Ingredient.of(Tags.Items.DYES),
             Ingredient.of(Tags.Items.ENDER_PEARLS),
-            Ingredient.of(Tags.Items.CHESTS_WOODEN)
+            Ingredient.of(Tags.Items.CHESTS_WOODEN),
+            Ingredient.of(ForgeConventionalTags.SHULKER_BOX)
         );
     }
 

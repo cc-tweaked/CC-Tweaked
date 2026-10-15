@@ -22,7 +22,7 @@ class PocketUpgradeProvider extends PocketUpgradeDataProvider {
 
     @Override
     protected void addUpgrades(Consumer<Upgrade<PocketUpgradeSerialiser<?>>> addUpgrade) {
-        addUpgrade.accept(simpleWithCustomItem(id("speaker"), PocketUpgradeSerialisers.SPEAKER.get(), Items.SPEAKER.get()));
+        simpleWithCustomItem(id("speaker"), PocketUpgradeSerialisers.SPEAKER.get(), Items.SPEAKER.get()).add(addUpgrade);
         simpleWithCustomItem(id("wireless_modem_normal"), PocketUpgradeSerialisers.WIRELESS_MODEM_NORMAL.get(), Items.WIRELESS_MODEM_NORMAL.get()).add(addUpgrade);
         simpleWithCustomItem(id("wireless_modem_advanced"), PocketUpgradeSerialisers.WIRELESS_MODEM_ADVANCED.get(), Items.WIRELESS_MODEM_ADVANCED.get()).add(addUpgrade);
     }

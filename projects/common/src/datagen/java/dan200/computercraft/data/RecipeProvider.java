@@ -114,9 +114,9 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                     .group(name.toString())
                     .pattern("#T")
                     .define('T', base.getItem())
-                    .define('#', upgrade.getCraftingItem().getItem())
+                    .define('#', upgrade.getCraftingIngredient())
                     .unlockedBy("has_items",
-                        inventoryChange(base.getItem(), upgrade.getCraftingItem().getItem()))
+                        inventoryChange(itemPredicate(base.getItem()), itemPredicate(upgrade.getCraftingIngredient())))
                     .save(
                         RecipeWrapper.wrap(ModRegistry.RecipeSerializers.IMPOSTOR_SHAPED.get(), add).withResultTag(result.getTag()),
                         name.withSuffix(String.format("/%s/%s", upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()))
@@ -147,9 +147,9 @@ class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                     .pattern("#")
                     .pattern("P")
                     .define('P', base.getItem())
-                    .define('#', upgrade.getCraftingItem().getItem())
+                    .define('#', upgrade.getCraftingIngredient())
                     .unlockedBy("has_items",
-                        inventoryChange(base.getItem(), upgrade.getCraftingItem().getItem()))
+                        inventoryChange(itemPredicate(base.getItem()), itemPredicate(upgrade.getCraftingIngredient())))
                     .save(
                         RecipeWrapper.wrap(ModRegistry.RecipeSerializers.IMPOSTOR_SHAPED.get(), add).withResultTag(result.getTag()),
                         name.withSuffix(String.format("/%s/%s", upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()))

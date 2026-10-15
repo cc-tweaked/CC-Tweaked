@@ -194,7 +194,7 @@ public final class ClientRegistry {
         var upgrade = item.getUpgradeWithData(stack, side);
         if (upgrade == null) return -1;
 
-        var model = TurtleUpgradeModellers.getModel(upgrade.upgrade(), upgrade.data(), side);
+        var model = TurtleUpgradeModellers.getModel(upgrade, side);
         return model.getTint((layer - 1) / 2);
     }
 
