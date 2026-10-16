@@ -243,6 +243,7 @@ public final class Websocket extends Resource<Websocket, Websocket.State> implem
     }
 
     private void queueHandshakeFailure(String message) {
+        LOG.info("Queue failure: {}", message);
         environment.queueEvent(FAILURE_EVENT, address, message);
     }
 

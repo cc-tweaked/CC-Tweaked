@@ -160,6 +160,9 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
         }
     }
 
+    private sealed interface OpenRequestState extends State {
+    }
+
     /**
      * Connecting to the remote server. This includes reading the body. A {@link #SUCCESS_EVENT}/{@link #FAILURE_EVENT}
      * has not been queued yet.
@@ -168,7 +171,7 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
      * @param handler The request handler. We keep a reference to this to dispose of the request body.
      * @see #connect(URI, HttpMethod, NetworkUtils.ConnectionInfo, long)
      */
-    private record Connecting(ChannelFuture channel, HttpRequestHandler handler) implements State {
+    private record Connecting(ChannelFuture channel, HttpRequestHandler handler) implements OpenRequestState {
         @Override
         public void close() {
             closeChannel(channel);
@@ -176,7 +179,7 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
         }
     }
 
-    private record Streaming(Channel channel, HttpRequestHandler handler) implements State {
+    private record Streaming(Channel channel, HttpRequestHandler handler) implements OpenRequestState {
         @Override
         public void close() {
             closeChannel(channel);
@@ -251,7 +254,21 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
     }
 
     void failure(String message) {
-        close(Connecting.class, () -> environment.queueEvent(FAILURE_EVENT, address, message));
+        transformState(OpenRequestState.class, state -> {
+            state.close();
+
+            if (state instanceof Connecting) {
+                // If we're still connecting/reading content, then queue a failure event.
+                environment.queueEvent(FAILURE_EVENT, address, message);
+            } else if (state instanceof Streaming) {
+                // If we're streaming, then close the channel and wake up readers.
+                environment.queueEvent(CONTENT_EVENT, address);
+            } else {
+                LOG.error("Unexpected transition: expected state to be an open request, but is {}. Closing", state);
+            }
+
+            return null;
+        });
     }
 
     void failure(String message, HttpResponseHandle object) {

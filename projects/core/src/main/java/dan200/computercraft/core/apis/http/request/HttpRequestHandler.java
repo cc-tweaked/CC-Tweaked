@@ -158,7 +158,6 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> {
                                 close();
                                 ctx.close();
                                 request.failure("Response buffer unexpectedly grew too large");
-                                request.partialClosed();
                                 return;
                             }
                             // If AbstractTrafficShapingHandler is limiting read at the same time,
@@ -175,7 +174,11 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> {
                             // which take care of our buffer size as well.
                             if (ctx.channel().config().isAutoRead()) {
                                 ctx.channel().config().setAutoRead(false);
-                                responseBodyTrigger = () -> ctx.channel().config().setAutoRead(true);
+                                responseBodyTrigger = () -> ctx.executor().execute(() -> {
+                                    if (!TrafficShapingHandlerAccess.isHandlerActive(ctx)) {
+                                        ctx.channel().config().setAutoRead(true);
+                                    }
+                                });
                             }
                         }
                         if (waitingBody) {
@@ -421,6 +424,7 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> {
     public void close() {
         isActive = false;
         synchronized (responseBodyLock) {
+            responseBodyDone = true;
             responseBodyTrigger = null;
             if (responseBody != null) {
                 if (streaming && responseBody.readableBytes() > 0) {

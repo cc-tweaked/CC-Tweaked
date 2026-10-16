@@ -82,7 +82,7 @@ class HttpServer private constructor(
                 try {
                     run(HttpServer(port, workerGroup, activeConnections, state))
                 } finally {
-                    ch.close().sync()
+                    if (ch.isOpen) ch.close().sync()
                 }
             } finally {
                 workerGroup.shutdownGracefully().get()
