@@ -4,6 +4,7 @@
 
 package dan200.computercraft.core.apis.http;
 
+import com.google.common.base.Suppliers;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.apis.http.options.Options;
@@ -42,6 +43,7 @@ import java.net.Inet6Address;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Just a shared object for executing simple HTTP related tasks.
@@ -62,27 +64,17 @@ public final class NetworkUtils {
         );
     }
 
-    private static final Object sslLock = new Object();
-    private static @Nullable SslContext sslContext;
-    private static boolean triedSslContext = false;
-
-    private static @Nullable SslContext makeSslContext() {
-        if (triedSslContext) return sslContext;
-        synchronized (sslLock) {
-            if (triedSslContext) return sslContext;
-
-            triedSslContext = true;
-            try {
-                return sslContext = SslContextBuilder.forClient().build();
-            } catch (SSLException e) {
-                LOG.error("Cannot construct SSL context", e);
-                return sslContext = null;
-            }
+    private static final Supplier<SslContext> sslContext = Suppliers.memoize(() -> {
+        try {
+            return SslContextBuilder.forClient().build();
+        } catch (SSLException e) {
+            LOG.error("Cannot construct SSL context", e);
+            return null;
         }
-    }
+    });
 
     private static SslContext getSslContext() throws HTTPRequestException {
-        var ssl = makeSslContext();
+        var ssl = sslContext.get();
         if (ssl == null) throw new HTTPRequestException("Could not create a secure connection");
         return ssl;
     }
@@ -253,8 +245,8 @@ public final class NetworkUtils {
 
         if (conn.proxy() != null) conn.proxy().accept(ch);
 
-        if (sslContext != null) {
-            p.addLast(makeSslHandler(ch, sslContext, conn.timeout(), conn.uri().getHost(), conn.address().getPort()));
+        if (conn.sslContext() != null) {
+            p.addLast(makeSslHandler(ch, conn.sslContext(), conn.timeout(), conn.uri().getHost(), conn.address().getPort()));
         }
     }
 
