@@ -8,7 +8,6 @@ import dan200.computercraft.api.lua.*
 import dan200.computercraft.core.apis.HTTPAPI
 import dan200.computercraft.core.apis.IAPIEnvironment
 import dan200.computercraft.core.apis.handles.ReadHandle
-import dan200.computercraft.core.apis.http.HttpServer.Companion.runServer
 import dan200.computercraft.core.apis.http.TestHttpApi.Companion.INSTANT_DURATION
 import dan200.computercraft.core.apis.http.TestHttpApi.Companion.LIMITED_DURATION
 import dan200.computercraft.core.apis.http.options.Action
@@ -21,6 +20,7 @@ import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http.HttpHeaderNames
 import io.netty.handler.codec.http.LastHttpContent
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withTimeoutOrNull
 import org.hamcrest.MatcherAssert.assertThat
@@ -35,12 +35,13 @@ import java.lang.ref.Reference
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.StandardCharsets
-import java.time.Duration
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.random.RandomGenerator
 import java.util.random.RandomGeneratorFactory
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
 
 class TestHttpApi {
@@ -66,21 +67,28 @@ class TestHttpApi {
         NettyHttp.DEFAULT_CONFIG.proxy,
     )
 
+    /**
+     * Start an HTTP server, then run a test within a [LuaTaskRunner].
+     *
+     * This test runs with a longer timeout, as these tests are a little more timing-sensitive than most.
+     */
+    private fun runWithServer(closeWebsocket: Boolean = true, timeout: Duration = 10.seconds, fn: suspend LuaTaskRunner.(HttpServer, scope: CoroutineScope) -> Unit) {
+        HttpServer.runServer(closeWebsocket = closeWebsocket) { server -> LuaTaskRunner.runTest(timeout) { scope -> fn(server, scope) } }
+    }
+
     @Test
     fun `Connects to a HTTP server`() {
-        runServer { server ->
-            LuaTaskRunner.runTest {
-                val url = "http://127.0.0.1:${server.port}"
-                val httpApi = addApi(createHttpApi(environment, server.port))
-                assertThat("http.request succeeded", httpApi.request(ObjectArguments(url)), array(equalTo(true)))
+        runWithServer { server, _ ->
+            val url = "http://127.0.0.1:${server.port}"
+            val httpApi = addApi(createHttpApi(environment, server.port))
+            assertThat("http.request succeeded", httpApi.request(ObjectArguments(url)), array(equalTo(true)))
 
-                val result = pullEvent("http_success")
-                assertThat(result, array(equalTo("http_success"), equalTo(url), isA(HttpResponseHandle::class.java)))
+            val result = pullEvent("http_success")
+            assertThat(result, array(equalTo("http_success"), equalTo(url), isA(HttpResponseHandle::class.java)))
 
-                val handle = result[2] as HttpResponseHandle
-                val reader = handle.extra.iterator().next() as ReadHandle
-                assertThat(reader.readAll(), array(equalTo("Hello, world!".toByteArray())))
-            }
+            val handle = result[2] as HttpResponseHandle
+            val reader = handle.extra.iterator().next() as ReadHandle
+            assertThat(reader.readAll(), array(equalTo("Hello, world!".toByteArray())))
         }
     }
 
@@ -119,17 +127,15 @@ class TestHttpApi {
 
         @Test
         fun `Can stream content`() {
-            runServer { server ->
-                LuaTaskRunner.runTest {
-                    val (_, response, reader) = streaming(server, "/stream")
-                    assertRead(
-                        reader.read(Optional.of(70), Optional.empty()),
-                        "Hello, world!\n".repeat(5),
-                    )
+            runWithServer { server, _ ->
+                val (_, response, reader) = streaming(server, "/stream")
+                assertRead(
+                    reader.read(Optional.of(70), Optional.empty()),
+                    "Hello, world!\n".repeat(5),
+                )
 
-                    reader.close()
-                    Reference.reachabilityFence(response)
-                }
+                reader.close()
+                Reference.reachabilityFence(response)
             }
         }
 
@@ -138,13 +144,11 @@ class TestHttpApi {
          */
         @Test
         fun `read() aborts on clean exit`() {
-            runServer { server ->
-                LuaTaskRunner.runTest {
-                    val (_, response, reader) = streaming(server, "/stream?limit=1")
-                    assertRead(reader.readAll(), "Hello, world!\n")
-                    reader.close()
-                    Reference.reachabilityFence(response)
-                }
+            runWithServer { server, _ ->
+                val (_, response, reader) = streaming(server, "/stream?limit=1")
+                assertRead(reader.readAll(), "Hello, world!\n")
+                reader.close()
+                Reference.reachabilityFence(response)
             }
         }
 
@@ -156,21 +160,15 @@ class TestHttpApi {
          */
         @Test
         fun `read() aborts on abnormal exit`() {
-            runServer { server ->
-                LuaTaskRunner.runTest { scope ->
-                    val (_, response, reader) = streaming(server, "/stream?limit=1&close=false")
+            runWithServer { server, scope ->
+                val (_, response, reader) = streaming(server, "/stream?limit=1&close=false")
+                val readAll = scope.async { reader.readAll().await() }
+                assertNull(withTimeoutOrNull(500.milliseconds) { readAll.await() })
+                server.stop()
+                assertRead(readAll.await(), "Hello, world!\n")
 
-                    // First assert that reading never completes normally.
-                    val readAll = scope.async { reader.readAll().await() }
-                    assertNull(withTimeoutOrNull(500.milliseconds) { readAll.await() })
-
-                    // Now if we kill the channel, reading should complete.
-                    server.stop()
-                    assertRead(readAll.await(), "Hello, world!\n")
-
-                    reader.close()
-                    Reference.reachabilityFence(response)
-                }
+                reader.close()
+                Reference.reachabilityFence(response)
             }
         }
 
@@ -182,72 +180,53 @@ class TestHttpApi {
          */
         @Test
         fun `read() aborts on abnormal exit (chunked)`() {
-            runServer { server ->
-                LuaTaskRunner.runTest { scope ->
-                    val (_, response, reader) = streaming(server, "/stream?limit=1&close=false&chunked=true")
+            runWithServer { server, scope ->
+                val (_, response, reader) = streaming(server, "/stream?limit=1&close=false&chunked=true")
+                val readAll = scope.async { reader.readAll().await() }
+                assertNull(withTimeoutOrNull(500.milliseconds) { readAll.await() })
+                server.stop()
+                assertRead(readAll.await(), "Hello, world!\n")
 
-                    // First assert that reading never completes normally.
-                    val readAll = scope.async { reader.readAll().await() }
-                    assertNull(withTimeoutOrNull(500.milliseconds) { readAll.await() })
-
-                    // Now if we kill the channel, reading should complete.
-                    server.stop()
-                    assertRead(readAll.await(), "Hello, world!\n")
-
-                    reader.close()
-                    Reference.reachabilityFence(response)
-                }
+                reader.close()
+                Reference.reachabilityFence(response)
             }
         }
 
         @Test
         fun `Read line`() {
-            runServer { server ->
-                LuaTaskRunner.runTest {
-                    val (_, response, reader) = streaming(server, "/stream")
-                    assertRead(reader.readLine(Optional.empty()), "Hello, world!")
-                    assertRead(reader.read(Optional.of(5), Optional.empty()), "Hello")
-                    assertRead(reader.readLine(Optional.of(true)), ", world!\n")
-                    reader.close()
-                    Reference.reachabilityFence(response)
-                }
+            runWithServer { server, _ ->
+                val (_, response, reader) = streaming(server, "/stream")
+                assertRead(reader.readLine(Optional.empty()), "Hello, world!")
+                assertRead(reader.read(Optional.of(5), Optional.empty()), "Hello")
+                assertRead(reader.readLine(Optional.of(true)), ", world!\n")
+                reader.close()
+                Reference.reachabilityFence(response)
             }
         }
 
         @Test
         fun `Read line waits for content`() {
-            runServer { server ->
-                LuaTaskRunner.runTest {
-                    val (_, response, reader) = streaming(server, "/stream?delay=300")
+            runWithServer { server, _ ->
+                val (_, response, reader) = streaming(server, "/stream?delay=300")
+                assertRead(reader.readLine(Optional.empty()), "Hello, world!")
+                val read = reader.readLine(Optional.empty())
+                assertThat(read.callback, notNullValue())
+                assertThat(read.result, array(equalTo("http_content")))
+                assertRead(read, "Hello, world!")
 
-                    // Read once to flush the buffer.
-                    assertRead(reader.readLine(Optional.empty()), "Hello, world!")
-
-                    // We have a delay between messages, so the buffer should now be empty. Ensure that this call to
-                    // readLine yields.
-                    val read = reader.readLine(Optional.empty())
-                    assertThat(read.callback, notNullValue())
-                    assertThat(read.result, array(equalTo("http_content")))
-
-                    // And then when resumed it resolves to the expected value.
-                    assertRead(read, "Hello, world!")
-
-                    reader.close()
-                    Reference.reachabilityFence(response)
-                }
+                reader.close()
+                Reference.reachabilityFence(response)
             }
         }
 
         @Test
         fun `Read line returns remaining text on end`() {
-            runServer { server ->
-                LuaTaskRunner.runTest {
-                    val (_, response, reader) = streaming(server, "/stream?limit=1&lines=false")
-                    assertRead(reader.readLine(Optional.empty()), "Hello, world!")
-                    assertRead(reader.readLine(Optional.empty()), "")
-                    reader.close()
-                    Reference.reachabilityFence(response)
-                }
+            runWithServer { server, _ ->
+                val (_, response, reader) = streaming(server, "/stream?limit=1&lines=false")
+                assertRead(reader.readLine(Optional.empty()), "Hello, world!")
+                assertRead(reader.readLine(Optional.empty()), "")
+                reader.close()
+                Reference.reachabilityFence(response)
             }
         }
     }
@@ -264,106 +243,96 @@ class TestHttpApi {
 
     @Test
     fun `Connects to websocket`() {
-        runServer { server ->
-            LuaTaskRunner.runTest {
-                val httpApi = addApi(createHttpApi(environment, server.port))
-                val (url, websocket) = websocket(server, httpApi)
+        runWithServer { server, _ ->
+            val httpApi = addApi(createHttpApi(environment, server.port))
+            val (url, websocket) = websocket(server, httpApi)
 
-                websocket.send(Coerced(LuaValues.encode("Hello")), Optional.of(false))
+            websocket.send(Coerced(LuaValues.encode("Hello")), Optional.of(false))
 
-                val message = websocket.receive(Optional.empty()).await()
-                assertThat("Received a return message", message, array(equalTo("HELLO".toByteArray()), equalTo(false)))
+            val message = websocket.receive(Optional.empty()).await()
+            assertThat("Received a return message", message, array(equalTo("HELLO".toByteArray()), equalTo(false)))
 
-                websocket.close()
+            websocket.close()
 
-                val closeEvent = pullEvent()
-                assertThat("Received a close event", closeEvent, array(equalTo("websocket_closed"), equalTo(url), nullValue(), equalTo(1000)))
+            val closeEvent = pullEvent()
+            assertThat("Received a close event", closeEvent, array(equalTo("websocket_closed"), equalTo(url), nullValue(), equalTo(1000)))
 
-                assertFalse(server.lastRequest.headers.contains(HttpHeaderNames.ORIGIN), "HTTP Headers should not contain Origin")
+            assertFalse(server.lastRequest.headers.contains(HttpHeaderNames.ORIGIN), "HTTP Headers should not contain Origin")
 
-                Reference.reachabilityFence(websocket)
-            }
+            Reference.reachabilityFence(websocket)
         }
     }
 
     @Test
     fun `Errors if too many websocket messages are sent`() {
-        runServer { server ->
-            LuaTaskRunner.runTest {
-                val httpApi = addApi(createHttpApi(environment, server.port))
-                val (_, websocket) = websocket(server, httpApi)
+        runWithServer { server, _ ->
+            val httpApi = addApi(createHttpApi(environment, server.port))
+            val (_, websocket) = websocket(server, httpApi)
 
-                val error = assertThrows<LuaException> {
-                    for (i in 0 until 10_000) {
-                        websocket.send(Coerced(LuaValues.encode("Hello")), Optional.of(false))
-                    }
+            val error = assertThrows<LuaException> {
+                for (i in 0 until 10_000) {
+                    websocket.send(Coerced(LuaValues.encode("Hello")), Optional.of(false))
                 }
-
-                websocket.close()
-
-                assertThat(error.message, equalTo("Too many ongoing websocket messages"))
             }
+
+            websocket.close()
+
+            assertThat(error.message, equalTo("Too many ongoing websocket messages"))
         }
     }
 
     @Test
     fun `Closes if a websocket message is too large`() {
-        runServer { server ->
-            LuaTaskRunner.runTest {
-                val httpApi = addApi(createHttpApi(environment, server.port))
-                val (url, websocket) = websocket(server, httpApi)
+        runWithServer { server, _ ->
+            val httpApi = addApi(createHttpApi(environment, server.port))
+            val (url, websocket) = websocket(server, httpApi)
 
-                val out = ByteArray(AddressRule.WEBSOCKET_MESSAGE + 1)
-                Random(0xDEADBEEF).nextBytes(out)
-                server.broadcast(BinaryWebSocketFrame(Unpooled.wrappedBuffer(out)))
+            val out = ByteArray(AddressRule.WEBSOCKET_MESSAGE + 1)
+            Random(0xDEADBEEF).nextBytes(out)
+            server.broadcast(BinaryWebSocketFrame(Unpooled.wrappedBuffer(out)))
 
-                val closeEvent = pullEvent()
-                assertThat(closeEvent, array(equalTo("websocket_closed"), equalTo(url), equalTo("Received a too-large message"), nullValue()))
+            val closeEvent = pullEvent()
+            assertThat(closeEvent, array(equalTo("websocket_closed"), equalTo(url), equalTo("Received a too-large message"), nullValue()))
 
-                Reference.reachabilityFence(websocket)
-            }
+            Reference.reachabilityFence(websocket)
         }
     }
 
     @Test
     fun `Queues an event when the socket is externally closed`() {
-        runServer { server ->
-            LuaTaskRunner.runTest {
-                val httpApi = addApi(createHttpApi(environment, server.port))
-                val (url, websocket) = websocket(server, httpApi)
+        runWithServer { server, _ ->
+            val httpApi = addApi(createHttpApi(environment, server.port))
+            val (url, websocket) = websocket(server, httpApi)
 
-                server.stop()
+            server.stop()
 
-                val closeEvent = pullEvent("websocket_closed")
-                assertThat(
-                    "Websocket was closed",
-                    closeEvent,
-                    array(equalTo("websocket_closed"), equalTo(url), equalTo("Connection closed"), equalTo(null)),
-                )
+            val closeEvent = pullEvent("websocket_closed")
+            assertThat(
+                "Websocket was closed",
+                closeEvent,
+                array(equalTo("websocket_closed"), equalTo(url), equalTo("Connection closed"), equalTo(null)),
+            )
 
-                assertThrows<LuaException>("Throws an exception when sending") {
-                    websocket.send(Coerced(LuaValues.encode("hello")), Optional.of(false))
-                }
-
-                Reference.reachabilityFence(websocket)
+            assertThrows<LuaException>("Throws an exception when sending") {
+                websocket.send(Coerced(LuaValues.encode("hello")), Optional.of(false))
             }
+
+            Reference.reachabilityFence(websocket)
         }
     }
 
     @Test
     fun `Closes websocket if the server doesn't respond`() {
-        runServer(closeWebsocket = false) { server ->
-            LuaTaskRunner.runTest(timeout = 10.seconds) {
-                val httpApi = addApi(createHttpApi(environment, server.port))
-                val (url, websocket) = websocket(server, httpApi)
+        runWithServer(closeWebsocket = false) { server, _ ->
+            val httpApi = addApi(createHttpApi(environment, server.port))
+            val (url, websocket) = websocket(server, httpApi)
 
-                websocket.close()
+            websocket.close()
 
-                val closeEvent = pullEvent()
-                assertThat("Received a close event", closeEvent, array(equalTo("websocket_closed"), equalTo(url), nullValue(), equalTo(1006)))
+            val closeEvent = pullEvent()
+            assertThat("Received a close event", closeEvent, array(equalTo("websocket_closed"), equalTo(url), nullValue(), equalTo(1006)))
 
-                Reference.reachabilityFence(websocket)
-            }
+            Reference.reachabilityFence(websocket)
         }
     }
 
@@ -389,36 +358,34 @@ class TestHttpApi {
             return ByteBuffer.wrap(message).asReadOnlyBuffer()
         }
 
-        runServer { server ->
-            LuaTaskRunner.runTest(timeout = 10.seconds) {
-                val httpApi = addApi(createHttpApi(environment, server.port, config))
-                val (_, websocket) = websocket(server, httpApi)
+        runWithServer { server, _ ->
+            val httpApi = addApi(createHttpApi(environment, server.port, config))
+            val (_, websocket) = websocket(server, httpApi)
 
-                // Send/receive one message before timing. Read bandwidth limits get applied retroactively (we disable
-                // auto-read after hitting the limit), so we need to ensure that happens first.
+            // Send/receive one message before timing. Read bandwidth limits get applied retroactively (we disable
+            // auto-read after hitting the limit), so we need to ensure that happens first.
+            websocket.send(Coerced(randomMessage()), Optional.of(true))
+            websocket.receive(Optional.empty()).await()
+
+            val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(2)
+            do {
+                val sent = System.nanoTime()
                 websocket.send(Coerced(randomMessage()), Optional.of(true))
                 websocket.receive(Optional.empty()).await()
+                val clientReceived = System.nanoTime()
+                val serverReceived = server.lastRequest.lastMessageTime
 
-                val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(2)
-                do {
-                    val sent = System.nanoTime()
-                    websocket.send(Coerced(randomMessage()), Optional.of(true))
-                    websocket.receive(Optional.empty()).await()
-                    val clientReceived = System.nanoTime()
-                    val serverReceived = server.lastRequest.lastMessageTime
+                count += 1
+                send += (serverReceived - sent).nanoseconds
+                receive += (clientReceived - serverReceived).nanoseconds
+            } while (sent < deadline)
 
-                    count += 1
-                    send += Duration.ofNanos(serverReceived - sent)
-                    receive += Duration.ofNanos(clientReceived - serverReceived)
-                } while (sent < deadline)
-
-                websocket.close()
-            }
+            websocket.close()
         }
 
         assertThat("Ran multiple tests", count, greaterThan(1))
 
-        return DelayStats(send = send.dividedBy(count.toLong()), receive = receive.dividedBy(count.toLong()))
+        return DelayStats(send = send / count, receive = receive / count)
     }
 
     @Test
@@ -463,9 +430,9 @@ class TestHttpApi {
         private const val BANDWIDTH_SCALE: Int = 2
 
         /** The duration when we've not hit the bandwidth limit and the message is sent "instantly". */
-        private val INSTANT_DURATION: Duration = Duration.ofMillis(50)
+        private val INSTANT_DURATION: Duration = 50.milliseconds
 
         /** The duration when we've hit the bandwidth limit. */
-        private val LIMITED_DURATION: Duration = Duration.ofMillis(800).dividedBy(BANDWIDTH_SCALE.toLong())
+        private val LIMITED_DURATION: Duration = 800.milliseconds / BANDWIDTH_SCALE
     }
 }
