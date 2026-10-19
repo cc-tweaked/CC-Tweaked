@@ -31,7 +31,7 @@ public final class Environment implements IAPIEnvironment {
     private final ComputerEnvironment environment;
     private final MetricsObserver metrics;
 
-    private final IPeripheral[] peripherals = new IPeripheral[ComputerSide.COUNT];
+    private final @Nullable IPeripheral[] peripherals = new IPeripheral[ComputerSide.COUNT];
     private @Nullable IPeripheralChangeListener peripheralListener = null;
 
     private final Int2ObjectMap<Timer> timers = new Int2ObjectOpenHashMap<>();

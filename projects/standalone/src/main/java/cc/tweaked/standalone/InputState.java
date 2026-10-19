@@ -127,7 +127,8 @@ public class InputState {
                 continue;
             }
 
-            files.add(new TransferredFile(path.getFileName().toString(), new ArrayByteChannel(contents)));
+            var name = path.getFileName();
+            files.add(new TransferredFile(name == null ? "unknown" : name.toString(), new ArrayByteChannel(contents)));
         }
 
         if (!files.isEmpty()) computer.queueEvent(TransferredFiles.EVENT, new Object[]{ new TransferredFiles(files) });

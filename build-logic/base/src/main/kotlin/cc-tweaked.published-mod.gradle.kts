@@ -54,6 +54,10 @@ val verifyClassesMatch = tasks.register<VerifyJavaCompile>("verifyClassesMatch")
         check("MissingOverride", CheckSeverity.OFF)
         check("LoaderOverride", CheckSeverity.DEFAULT)
         check("MissingLoaderOverride", CheckSeverity.DEFAULT)
+
+        // TODO: Enable JSpecify in the common classes. Unfortunately there's several bugs blocking us right now.
+        option("NullAway:JSpecifyMode", false)
+        option("NullAway:JSpecifyExperimental", false)
     }
 
     source = minecraftEmbeddedProjectResolved.map {

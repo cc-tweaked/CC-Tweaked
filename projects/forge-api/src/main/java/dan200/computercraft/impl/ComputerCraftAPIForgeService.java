@@ -31,7 +31,7 @@ public interface ComputerCraftAPIForgeService extends ComputerCraftAPIService {
 
     void registerPeripheralProvider(IPeripheralProvider provider);
 
-    void registerGenericCapability(Capability<?> capability);
+    void registerGenericCapability(Capability<? extends Object> capability);
 
     LazyOptional<WiredElement> getWiredElementAt(BlockGetter world, BlockPos pos, Direction side);
 

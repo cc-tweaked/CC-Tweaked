@@ -39,7 +39,7 @@ public final class ForgeComputerCraftAPI {
      * @param capability The capability to register.
      * @see GenericSource
      */
-    public static void registerGenericCapability(Capability<?> capability) {
+    public static void registerGenericCapability(Capability<? extends Object> capability) {
         getInstance().registerGenericCapability(capability);
     }
 

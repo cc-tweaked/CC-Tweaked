@@ -381,7 +381,7 @@ public class FileSystem {
 
             if (part.equals("..")) {
                 // .. can cancel out the last folder entered
-                if (outputParts.isEmpty() || outputParts.peekLast().equals("..")) {
+                if (outputParts.isEmpty() || outputParts.getLast().equals("..")) {
                     outputParts.addLast("..");
                 } else {
                     outputParts.removeLast();

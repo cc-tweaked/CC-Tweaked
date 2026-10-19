@@ -8,6 +8,7 @@ import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.core.util.StringUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -135,7 +136,7 @@ public class OSAPI implements ILuaAPI {
      * @param args The parameters of the event.
      * @cc.tparam string name The name of the event to queue.
      * @cc.param ... The parameters of the event. These can be any primitive type (boolean, number, string) as well as
-     *               tables. Other types (like functions), as well as metatables, will not be preserved.
+     * tables. Other types (like functions), as well as metatables, will not be preserved.
      * @cc.see os.pullEvent To pull the event queued
      */
     @LuaFunction
@@ -408,7 +409,6 @@ public class OSAPI implements ILuaAPI {
      * <pre>{@code
      * os.date("%A %d %B %Y") -- See the reference above!
      * }</pre>
-     *
      * @cc.usage Convert a timestamp to a table.
      * <pre>{@code
      * os.date("!*t", 1242534247)
@@ -430,7 +430,7 @@ public class OSAPI implements ILuaAPI {
     @LuaFunction
     public final Object date(Optional<String> formatA, Optional<Long> timeA) throws LuaException {
         var format = formatA.orElse("%c");
-        long time = timeA.orElseGet(() -> Instant.now().getEpochSecond());
+        long time = Nullability.assertNonNull(timeA.orElseGet(() -> Instant.now().getEpochSecond()));
 
         var instant = Instant.ofEpochSecond(time);
         ZonedDateTime date;

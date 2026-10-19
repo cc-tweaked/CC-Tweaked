@@ -16,7 +16,7 @@ public class LuaUtil {
     private static final Set<?> EMPTY_SET = Set.of();
     private static final Map<?, ?> EMPTY_MAP = Map.of();
 
-    public static Object[] consArray(Object value, Collection<?> rest) {
+    public static Object[] consArray(Object value, Collection<? extends Object> rest) {
         if (rest.isEmpty()) return new Object[]{ value };
 
         // I'm not proud of this code.

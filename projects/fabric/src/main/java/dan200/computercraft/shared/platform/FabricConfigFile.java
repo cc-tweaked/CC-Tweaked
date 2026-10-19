@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -52,7 +53,9 @@ public final class FabricConfigFile extends ConfigFile {
             .build();
 
         try {
-            Files.createDirectories(path.getParent());
+            var parent = path.getParent();
+            if (parent != null) Files.createDirectories(parent);
+
             FileWatcher.defaultInstance().addWatch(config.getNioPath(), this::loadConfig);
         } catch (IOException e) {
             LOG.error("Failed to load config from {}.", path, e);
@@ -153,7 +156,8 @@ public final class FabricConfigFile extends ConfigFile {
             var path = getPath(name);
             spec.define(path, defaultValue, o -> o != null && o != NullObject.NULL_OBJECT && EnumGetMethod.NAME_IGNORECASE.validate(o, defaultValue.getDeclaringClass()));
 
-            var suffix = "Allowed Values: " + Arrays.stream(defaultValue.getDeclaringClass().getEnumConstants()).map(Enum::name).collect(Collectors.joining(", "));
+            var suffix = "Allowed Values: " + Arrays.stream(Objects.requireNonNull(defaultValue.getDeclaringClass().getEnumConstants()))
+                .map(Enum::name).collect(Collectors.joining(", "));
             return defineValue(name, takeComment(), suffix, defaultValue, (c, p, d) -> c.getEnumOrElse(p, d, EnumGetMethod.NAME_IGNORECASE));
         }
 

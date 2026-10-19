@@ -190,7 +190,7 @@ public final class ClientRegistry {
         return layer == 0 ? ((IColouredItem) stack.getItem()).getColour(stack) : 0xFFFFFF;
     }
 
-    public static void registerShaders(ResourceProvider resources, BiConsumer<ShaderInstance, Consumer<ShaderInstance>> load) throws IOException {
+    public static void registerShaders(ResourceProvider resources, BiConsumer<ShaderInstance, Consumer<@Nullable ShaderInstance>> load) throws IOException {
         RenderTypes.registerShaders(resources, (name, create, onLoaded) -> {
             ShaderInstance shader;
             try {

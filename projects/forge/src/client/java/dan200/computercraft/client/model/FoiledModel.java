@@ -39,7 +39,7 @@ public final class FoiledModel extends BakedModelWrapper<BakedModel> {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         return this == obj || (obj instanceof FoiledModel other && originalModel.equals(other.originalModel));
     }
 

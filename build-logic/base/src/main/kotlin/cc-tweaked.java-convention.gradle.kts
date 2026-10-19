@@ -89,6 +89,7 @@ tasks.withType(JavaCompile::class.java).configureEach {
         option("UnusedMethod:ExemptingMethodAnnotations", "dan200.computercraft.api.lua.LuaFunction")
 
         check("NullAway", CheckSeverity.ERROR)
+        check("JSpecifyUnrecognizedAnnotationLocation", CheckSeverity.ERROR)
         option(
             "NullAway:AnnotatedPackages",
             listOf("dan200.computercraft", "cc.tweaked", "net.fabricmc.fabric.api").joinToString(","),
@@ -97,6 +98,8 @@ tasks.withType(JavaCompile::class.java).configureEach {
         option("NullAway:CastToNonNullMethod", "dan200.computercraft.core.util.Nullability.assertNonNull")
         option("NullAway:CheckOptionalEmptiness")
         option("NullAway:AcknowledgeRestrictiveAnnotations")
+        option("NullAway:JSpecifyMode")
+        option("NullAway:JSpecifyExperimental")
 
         excludedPaths.set(".*/jmh_generated/.*")
     }

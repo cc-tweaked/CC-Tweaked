@@ -43,7 +43,7 @@ public final class ComputerCraftAPIImpl extends AbstractComputerCraftAPI impleme
     }
 
     @Override
-    public void registerGenericCapability(Capability<?> capability) {
+    public void registerGenericCapability(Capability<? extends Object> capability) {
         Peripherals.registerGenericCapability(capability);
     }
 

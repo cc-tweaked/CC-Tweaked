@@ -69,7 +69,7 @@ final class StructuralEqualities {
         }
     }
 
-    static final class FeatureEquality<T, U> implements StructuralEquality<T> {
+    static final class FeatureEquality<T, U extends @Nullable Object> implements StructuralEquality<T> {
         private final String desc;
         private final Function<T, U> get;
         private final StructuralEquality<? super U> inner;
@@ -100,7 +100,9 @@ final class StructuralEqualities {
         }
     }
 
-    record ListEquality<T>(StructuralEquality<T> equality) implements StructuralEquality<List<T>> {
+    record ListEquality<T extends @Nullable Object>(
+        StructuralEquality<T> equality
+    ) implements StructuralEquality<List<T>> {
         @Override
         public boolean equals(List<T> left, List<T> right) {
             if (left.size() != right.size()) return false;
@@ -111,6 +113,7 @@ final class StructuralEqualities {
         }
 
         @Override
+        @SuppressWarnings("NullAway") // FIXME: See https://github.com/uber/NullAway/issues/1727
         public void describe(Description description, List<T> object) {
             description.appendText("[");
             var separator = false;
@@ -123,7 +126,7 @@ final class StructuralEqualities {
         }
     }
 
-    static final class EqualityMatcher<T> extends TypeSafeMatcher<T> {
+    static final class EqualityMatcher<T extends @Nullable Object> extends TypeSafeMatcher<@Nullable T> {
         private final StructuralEquality<T> equality;
         private final T equalTo;
 

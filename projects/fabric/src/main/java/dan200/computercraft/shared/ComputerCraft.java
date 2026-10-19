@@ -141,6 +141,7 @@ public class ComputerCraft {
         }
     }
 
+    @SuppressWarnings("NullAway") // FIXME(26.3): Can be removed when FAPI fixes their annotation
     private record ItemComponentImpl<T>(
         ItemApiLookup<T, @Nullable Void> lookup
     ) implements ModRegistry.ItemComponent<T> {

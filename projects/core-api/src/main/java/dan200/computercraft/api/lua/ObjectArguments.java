@@ -57,7 +57,7 @@ public final class ObjectArguments implements IArguments {
     }
 
     @Override
-    public Object[] getAll() {
+    public @Nullable Object[] getAll() {
         return args.toArray();
     }
 }

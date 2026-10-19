@@ -14,7 +14,10 @@ import org.teavm.jso.core.JSString;
 /**
  * Utility methods for converting between Java and Javascript representations.
  */
-public class JavascriptConv {
+public final class JavascriptConv {
+    private JavascriptConv() {
+    }
+
     /**
      * Convert an array of Javascript values to an equivalent array of Java values.
      *
@@ -24,7 +27,7 @@ public class JavascriptConv {
     @Contract("null -> null; !null -> !null")
     public static @Nullable Object @Nullable [] toJava(@Nullable JSObject @Nullable [] value) {
         if (value == null) return null;
-        var out = new Object[value.length];
+        var out = new @Nullable Object[value.length];
         for (var i = 0; i < value.length; i++) out[i] = toJava(value[i]);
         return out;
     }
