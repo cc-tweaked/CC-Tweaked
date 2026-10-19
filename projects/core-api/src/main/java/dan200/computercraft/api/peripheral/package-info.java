@@ -79,4 +79,7 @@
  *
  * {@snippet class=com.example.examplemod.FabricExampleMod region=peripherals}
  */
+@NullMarked
 package dan200.computercraft.api.peripheral;
+
+import org.jspecify.annotations.NullMarked;

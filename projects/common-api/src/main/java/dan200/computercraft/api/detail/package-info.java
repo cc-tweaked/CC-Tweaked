@@ -45,4 +45,7 @@
  *
  * {@snippet class=com.example.examplemod.ExampleMod region=details}
  */
+@NullMarked
 package dan200.computercraft.api.detail;
+
+import org.jspecify.annotations.NullMarked;
