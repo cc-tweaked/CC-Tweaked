@@ -10,6 +10,7 @@ import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.core.apis.handles.ReadHandle;
+import dan200.computercraft.core.apis.http.HttpUri;
 import dan200.computercraft.core.apis.http.Resource;
 import dan200.computercraft.core.apis.http.ResourceGroup;
 import dan200.computercraft.core.apis.http.request.HttpResponseHandle;
@@ -23,7 +24,6 @@ import org.teavm.jso.ajax.XMLHttpRequest;
 import org.teavm.jso.typedarrays.ArrayBuffer;
 import org.teavm.jso.typedarrays.Int8Array;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 import java.util.HashMap;
@@ -47,7 +47,7 @@ final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> {
 
     HttpRequest(
         ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment,
-        String address, URI uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers,
+        String address, HttpUri uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers,
         boolean binary, boolean followRedirects
     ) {
         super(limiter, new Init(uri, method));
@@ -68,7 +68,7 @@ final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> {
     public sealed interface State extends ResourceState {
     }
 
-    private record Init(URI uri, HttpMethod method) implements State {
+    private record Init(HttpUri uri, HttpMethod method) implements State {
         @Override
         public void close() {
         }
@@ -86,12 +86,12 @@ final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> {
         transformState(Init.class, s -> doRequest(s.uri, s.method));
     }
 
-    private @Nullable State doRequest(URI uri, HttpMethod method) {
+    private @Nullable State doRequest(HttpUri uri, HttpMethod method) {
         try {
             var request = new XMLHttpRequest();
             request.setOnReadyStateChange(() -> onResponseStateChange(request));
             request.setResponseType("arraybuffer");
-            var address = uri.toASCIIString();
+            var address = uri.getUri().toASCIIString();
             request.open(method.toString(), Main.CORS_PROXY.isEmpty() ? address : Main.CORS_PROXY.replace("{}", address));
             for (var iterator = headers.iteratorAsString(); iterator.hasNext(); ) {
                 var header = iterator.next();

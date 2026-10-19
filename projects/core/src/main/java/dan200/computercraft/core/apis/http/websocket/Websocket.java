@@ -8,10 +8,7 @@ import com.google.common.base.Strings;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.IAPIEnvironment;
-import dan200.computercraft.core.apis.http.HTTPRequestException;
-import dan200.computercraft.core.apis.http.NetworkUtils;
-import dan200.computercraft.core.apis.http.Resource;
-import dan200.computercraft.core.apis.http.ResourceGroup;
+import dan200.computercraft.core.apis.http.*;
 import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.util.AtomicHelpers;
@@ -28,7 +25,6 @@ import io.netty.handler.codec.http.websocketx.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +53,7 @@ public final class Websocket extends Resource<Websocket, Websocket.State> implem
     private final NetworkUtils network;
     private final String address;
 
-    public Websocket(ResourceGroup<Websocket> limiter, IAPIEnvironment environment, NetworkUtils network, String address, URI uri, HttpHeaders headers, int timeout) {
+    public Websocket(ResourceGroup<Websocket> limiter, IAPIEnvironment environment, NetworkUtils network, String address, HttpUri uri, HttpHeaders headers, int timeout) {
         super(limiter, new Init(uri, headers, timeout));
         this.environment = environment;
         this.network = network;
@@ -106,7 +102,7 @@ public final class Websocket extends Resource<Websocket, Websocket.State> implem
      * @param headers Headers for the connection.
      * @param timeout Timeout for the connection and handshake.
      */
-    private record Init(URI uri, HttpHeaders headers, int timeout) implements State {
+    private record Init(HttpUri uri, HttpHeaders headers, int timeout) implements State {
         @Override
         public void close() {
         }
@@ -190,7 +186,7 @@ public final class Websocket extends Resource<Websocket, Websocket.State> implem
     private StateTransition<State> lookup(Init init) {
         try {
             var uri = init.uri();
-            var conn = network.getConnectionInfo(uri, uri.getScheme().equalsIgnoreCase("wss"), init.timeout());
+            var conn = network.getConnectionInfo(uri, init.timeout());
             return () -> connect(init, conn);
         } catch (HTTPRequestException e) {
             return StateTransition.close(() -> queueHandshakeFailure(NetworkUtils.toFriendlyError(e)));
@@ -207,7 +203,7 @@ public final class Websocket extends Resource<Websocket, Websocket.State> implem
                 var headers = init.headers();
                 var subprotocol = headers.get(HttpHeaderNames.SEC_WEBSOCKET_PROTOCOL);
                 var handshaker = new CustomWebSocketHandshaker(
-                    init.uri(), WebSocketVersion.V13, subprotocol, true, headers,
+                    init.uri().getUri(), WebSocketVersion.V13, subprotocol, true, headers,
                     options.websocketMessage() <= 0 ? MAX_MESSAGE_SIZE : options.websocketMessage()
                 );
 
