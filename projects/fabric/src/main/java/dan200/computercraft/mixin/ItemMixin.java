@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Item.class)
-class ItemMixin {
+abstract class ItemMixin {
     /**
      * Replace the reach distance in {@link Item#getPlayerPOVHitResult(Level, Player, ClipContext.Fluid)}.
      *

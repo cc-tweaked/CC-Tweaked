@@ -19,7 +19,8 @@ import java.util.Optional;
 @BugPattern(
     summary = "Checks for usage of forbidden APIs.",
     severity = BugPattern.SeverityLevel.ERROR,
-    tags = BugPattern.StandardTags.LIKELY_ERROR
+    tags = BugPattern.StandardTags.LIKELY_ERROR,
+    linkType = BugPattern.LinkType.NONE
 )
 @SuppressWarnings("serial")
 public final class ForbiddenAPI extends BugChecker implements BugChecker.ImportTreeMatcher, BugChecker.NewClassTreeMatcher {

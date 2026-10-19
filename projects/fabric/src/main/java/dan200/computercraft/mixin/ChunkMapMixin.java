@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ChunkMap.class)
-class ChunkMapMixin {
+abstract class ChunkMapMixin {
     @Final
     @Shadow
     ServerLevel level;
