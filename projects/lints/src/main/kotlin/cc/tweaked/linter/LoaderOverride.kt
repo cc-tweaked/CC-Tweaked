@@ -40,6 +40,7 @@ internal object LoaderOverrides {
         loader-specific methods, you should use @ForgeOverride or @FabricOverride instead.
     """,
     severity = BugPattern.SeverityLevel.ERROR,
+    linkType = BugPattern.LinkType.NONE,
 )
 class MissingLoaderOverride(flags: ErrorProneFlags? = null) : BugChecker(), BugChecker.MethodTreeMatcher {
     private val annotation = if (flags == null) null else LoaderOverrides.getAnnotation(flags)
@@ -74,6 +75,7 @@ class MissingLoaderOverride(flags: ErrorProneFlags? = null) : BugChecker(), BugC
 @BugPattern(
     summary = "@ForgeOverride/@FabricOverride does not match a super method.",
     severity = BugPattern.SeverityLevel.ERROR,
+    linkType = BugPattern.LinkType.NONE,
 )
 class LoaderOverride(flags: ErrorProneFlags? = null) : BugChecker(), BugChecker.MethodTreeMatcher {
     private val annotation = if (flags == null) null else LoaderOverrides.getAnnotation(flags)

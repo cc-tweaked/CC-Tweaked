@@ -5,4 +5,5 @@ cc.tweaked.linter.ExtraMustCallSuper
 cc.tweaked.linter.ForbiddenAPI
 cc.tweaked.linter.LoaderOverride
 cc.tweaked.linter.MissingLoaderOverride
+cc.tweaked.linter.MixinModifiers
 cc.tweaked.linter.SideChecker

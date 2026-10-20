@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Optional;
 
 @Mixin(ExplosionDamageCalculator.class)
-class ExplosionDamageCalculatorMixin {
+abstract class ExplosionDamageCalculatorMixin {
     @Inject(method = "getBlockExplosionResistance", at = @At("HEAD"), cancellable = true)
     @SuppressWarnings({ "UnusedMethod", "deprecation" })
     private void getBlockExplosionResistance(Explosion explosion, BlockGetter level, BlockPos pos, BlockState block, FluidState fluid, CallbackInfoReturnable<Optional<Float>> cir) {

@@ -61,13 +61,22 @@ public class WritableFileMount extends FileMount implements WritableMount {
         return capacity - MINIMUM_FILE_SIZE;
     }
 
+    private File getParentFile(File file) {
+        if (file.equals(rootFile)) throw new IllegalArgumentException("Cannot navigate above root file");
+
+        var parent = file.getParentFile();
+        if (parent == null) throw new IllegalStateException("File has no parent");
+
+        return parent;
+    }
+
     @Override
     public boolean isReadOnly(String path) {
         var file = resolveFile(path);
         while (true) {
             if (file.exists()) return !file.canWrite();
             if (file.equals(rootFile)) return false;
-            file = file.getParentFile();
+            file = getParentFile(file);
         }
     }
 
@@ -81,10 +90,10 @@ public class WritableFileMount extends FileMount implements WritableMount {
         }
 
         var dirsToCreate = 1;
-        var parent = file.getParentFile();
+        var parent = getParentFile(file);
         while (!parent.exists()) {
             ++dirsToCreate;
-            parent = parent.getParentFile();
+            parent = getParentFile(parent);
         }
 
         if (getRemainingSpace() < dirsToCreate * MINIMUM_FILE_SIZE) {
@@ -112,8 +121,8 @@ public class WritableFileMount extends FileMount implements WritableMount {
         // Empty directories first
         if (file.isDirectory()) {
             var children = file.list();
-            for (var aChildren : children) {
-                deleteRecursively(new File(file, aChildren));
+            if (children != null) {
+                for (var aChildren : children) deleteRecursively(new File(file, aChildren));
             }
         }
 

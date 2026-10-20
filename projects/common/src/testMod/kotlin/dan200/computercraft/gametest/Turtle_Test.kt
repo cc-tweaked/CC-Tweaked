@@ -342,7 +342,7 @@ class Turtle_Test {
 
             helper.assertUpgradeItem(
                 ItemStack(Items.WOODEN_PICKAXE),
-                UpgradeData.ofDefault(TurtleUpgrades.instance().get("cctest:wooden_pickaxe")),
+                UpgradeData.ofDefault(TurtleUpgrades.instance().get("cctest:wooden_pickaxe")!!),
             )
         }
     }

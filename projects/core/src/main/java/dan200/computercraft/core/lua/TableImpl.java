@@ -6,6 +6,7 @@ package dan200.computercraft.core.lua;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaValues;
+import dan200.computercraft.core.util.Nullability;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.jspecify.annotations.Nullable;
 import org.squiddev.cobalt.*;
@@ -59,7 +60,7 @@ class TableImpl implements dan200.computercraft.api.lua.LuaTable<Object, Object>
         }
     }
 
-    private LuaValue getImpl(Object o) {
+    private LuaValue getImpl(@Nullable Object o) {
         checkValid();
         var value = convertValue(o);
         return value == null ? Constants.NIL : table.rawget(value);
@@ -82,13 +83,13 @@ class TableImpl implements dan200.computercraft.api.lua.LuaTable<Object, Object>
     }
 
     @Override
-    public boolean containsKey(Object o) {
+    public boolean containsKey(@Nullable Object o) {
         return !getImpl(o).isNil();
     }
 
     @Nullable
     @Override
-    public Object get(Object o) {
+    public Object get(@Nullable Object o) {
         return CobaltLuaMachine.toObject(getImpl(o), null);
     }
 
@@ -102,12 +103,12 @@ class TableImpl implements dan200.computercraft.api.lua.LuaTable<Object, Object>
         checkValid();
         if (backingMap != null) return backingMap;
         return backingMap = Collections.unmodifiableMap(
-            Objects.requireNonNull((Map<?, ?>) CobaltLuaMachine.toObject(table, null))
+            (Map<? extends Object, ? extends Object>) Nullability.assertNonNull(CobaltLuaMachine.toObject(table, null))
         );
     }
 
     @Override
-    public boolean containsValue(Object o) {
+    public boolean containsValue(@Nullable Object o) {
         return getBackingMap().containsKey(o);
     }
 

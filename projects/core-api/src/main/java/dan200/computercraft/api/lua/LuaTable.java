@@ -458,7 +458,7 @@ public interface LuaTable<K, V> extends Map<K, V> {
     }
 
     @Override
-    default V remove(Object o) {
+    default V remove(@Nullable Object o) {
         throw new UnsupportedOperationException("Cannot modify LuaTable");
     }
 

@@ -9,6 +9,7 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexSorting;
+import dan200.computercraft.core.util.Nullability;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
 import org.joml.Matrix4f;
@@ -33,7 +34,7 @@ public class ImageRenderer implements AutoCloseable {
     }
 
     public void captureRender(Path output, Runnable render) throws IOException {
-        Files.createDirectories(output.getParent());
+        Files.createDirectories(Nullability.assertNonNull(output.getParent()));
 
         framebuffer.setClearColor(0, 0, 0, 0);
         framebuffer.clear(Minecraft.ON_OSX);

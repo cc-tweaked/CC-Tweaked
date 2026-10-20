@@ -21,11 +21,13 @@ import org.jspecify.annotations.Nullable;
 public final class MediaLookup {
     public static final ResourceLocation ID = new ResourceLocation(ComputerCraftAPI.MOD_ID, "media");
 
+    @SuppressWarnings("NullAway") // FIXME(26.3): Can be removed when FAPI fixes their annotation
     private static final ItemApiLookup<IMedia, @Nullable Void> lookup = ItemApiLookup.get(ID, IMedia.class, Void.class);
 
     private MediaLookup() {
     }
 
+    @SuppressWarnings("NullAway") // FIXME(26.3): Can be removed when FAPI fixes their annotation
     public static ItemApiLookup<IMedia, @Nullable Void> get() {
         return lookup;
     }

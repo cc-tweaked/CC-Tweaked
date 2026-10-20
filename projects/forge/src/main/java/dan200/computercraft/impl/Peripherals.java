@@ -59,14 +59,13 @@ public final class Peripherals {
      * @param <T>        The type of the capability we look up.
      */
     private record CapabilityLookup<T>(Capability<T> capability) implements ComponentLookup<InvalidateCallback> {
-        @Nullable
         @Override
-        public T find(ServerLevel level, BlockPos pos, BlockState state, BlockEntity blockEntity, Direction side, InvalidateCallback invalidate) {
+        public @Nullable T find(ServerLevel level, BlockPos pos, BlockState state, BlockEntity blockEntity, Direction side, InvalidateCallback invalidate) {
             return CapabilityUtil.unwrap(CapabilityUtil.getCapability(blockEntity, this.capability(), side), invalidate);
         }
     }
 
-    public static void registerGenericCapability(Capability<?> capability) {
+    public static void registerGenericCapability(Capability<? extends Object> capability) {
         Objects.requireNonNull(capability, "Capability cannot be null");
         registerGenericLookup(new CapabilityLookup<>(capability));
     }

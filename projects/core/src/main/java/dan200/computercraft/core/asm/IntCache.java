@@ -4,12 +4,14 @@
 
 package dan200.computercraft.core.asm;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.function.IntFunction;
 
 final class IntCache<T> {
     private final IntFunction<T> factory;
-    private volatile Object[] cache = new Object[16];
+    private volatile @Nullable Object[] cache = new Object[16];
 
     IntCache(IntFunction<T> factory) {
         this.factory = factory;

@@ -6,6 +6,7 @@ package dan200.computercraft.test.core;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.function.Function;
  *
  * @param <T> The type of the value to check.
  */
-public interface StructuralEquality<T> {
+public interface StructuralEquality<T extends @Nullable Object> {
     /**
      * Check if two non-null values are equal.
      *
@@ -52,7 +53,7 @@ public interface StructuralEquality<T> {
      * @param expected The expected value.
      * @return A matcher which checks if its input is equal to the given value.
      */
-    default Matcher<T> asMatcher(Class<T> klass, T expected) {
+    default Matcher<@Nullable T> asMatcher(Class<T> klass, T expected) {
         return new StructuralEqualities.EqualityMatcher<>(klass, this, expected);
     }
 
@@ -117,8 +118,7 @@ public interface StructuralEquality<T> {
      * @param <U>       The type of the field's.
      * @return The newly created {@link StructuralEquality} object.
      */
-    @SuppressWarnings("unchecked")
-    static <T, U> StructuralEquality<T> field(Class<T> klass, String fieldName, StructuralEquality<U> inner) {
+    static <T, U extends @Nullable Object> StructuralEquality<T> field(Class<T> klass, String fieldName, StructuralEquality<U> inner) {
         Field field;
         try {
             field = klass.getDeclaredField(fieldName);
@@ -127,13 +127,18 @@ public interface StructuralEquality<T> {
             throw new IllegalArgumentException("Cannot find field", e);
         }
 
-        return new StructuralEqualities.FeatureEquality<>(fieldName, x -> {
+        return new StructuralEqualities.FeatureEquality<>(fieldName, makeFieldReader(field), inner);
+    }
+
+    @SuppressWarnings({ "unchecked", "NullAway" })
+    private static <T, U extends @Nullable Object> Function<T, U> makeFieldReader(Field field) {
+        return x -> {
             try {
                 return (U) field.get(x);
             } catch (ReflectiveOperationException e) {
                 throw new IllegalStateException("Cannot read field", e);
             }
-        }, inner);
+        };
     }
 
     /**

@@ -70,11 +70,12 @@ public final class ThreadUtils {
      * @see #factory(String)
      */
     public static ThreadFactoryBuilder builder(String name) {
-        var group = new ThreadGroup(baseGroup, baseGroup.getName() + "-" + name);
+        var fullName = baseGroup.getName() + "-" + name;
+        var group = new ThreadGroup(baseGroup, fullName);
         return new ThreadFactoryBuilder()
             .setDaemon(true)
-            .setNameFormat(group.getName().replace("%", "%%") + "-%d")
-            .setUncaughtExceptionHandler((t, e) -> LOG.error("Exception in thread " + t.getName(), e))
+            .setNameFormat(fullName.replace("%", "%%") + "-%d")
+            .setUncaughtExceptionHandler((t, e) -> LOG.error("Exception in thread {}", t.getName(), e))
             .setThreadFactory(x -> new Thread(group, x));
     }
 

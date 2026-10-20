@@ -8,6 +8,7 @@ import cc.tweaked.web.js.Console;
 import com.google.common.base.Strings;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.IAPIEnvironment;
+import dan200.computercraft.core.apis.http.HttpUri;
 import dan200.computercraft.core.apis.http.Resource;
 import dan200.computercraft.core.apis.http.ResourceGroup;
 import dan200.computercraft.core.apis.http.options.Action;
@@ -19,7 +20,6 @@ import org.teavm.jso.typedarrays.ArrayBuffer;
 import org.teavm.jso.typedarrays.Int8Array;
 import org.teavm.jso.websocket.WebSocket;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
@@ -31,7 +31,7 @@ final class Websocket extends Resource<Websocket, Websocket.State> implements We
     private final IAPIEnvironment environment;
     private final String address;
 
-    Websocket(ResourceGroup<Websocket> limiter, IAPIEnvironment environment, String address, URI uri) {
+    Websocket(ResourceGroup<Websocket> limiter, IAPIEnvironment environment, String address, HttpUri uri) {
         super(limiter, new Init(uri));
         this.environment = environment;
         this.address = address;
@@ -40,7 +40,7 @@ final class Websocket extends Resource<Websocket, Websocket.State> implements We
     public sealed interface State extends ResourceState {
     }
 
-    private record Init(URI uri) implements State {
+    private record Init(HttpUri uri) implements State {
         @Override
         public void close() {
         }
@@ -75,8 +75,8 @@ final class Websocket extends Resource<Websocket, Websocket.State> implements We
         this.transformState(Init.class, s -> connect(s.uri));
     }
 
-    private State connect(URI uri) {
-        var client = new WebSocket(uri.toASCIIString());
+    private State connect(HttpUri uri) {
+        var client = new WebSocket(uri.getUri().toASCIIString());
         client.setBinaryType("arraybuffer");
         client.onOpen(e -> success(Action.ALLOW.toPartial().toOptions()));
         client.onError(e -> {

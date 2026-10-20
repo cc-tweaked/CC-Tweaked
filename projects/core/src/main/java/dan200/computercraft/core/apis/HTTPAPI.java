@@ -8,14 +8,13 @@ import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.HttpHandler;
+import dan200.computercraft.core.apis.http.HttpUri;
 import dan200.computercraft.core.apis.http.request.HttpRequest;
-import dan200.computercraft.core.apis.http.websocket.WebsocketClient;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Locale;
 import java.util.Map;
@@ -96,7 +95,7 @@ public class HTTPAPI implements ILuaAPI {
             httpMethod = getMethod(requestMethod.toUpperCase(Locale.ROOT));
         }
 
-        URI uri;
+        HttpUri uri;
         try {
             uri = HttpRequest.checkUri(address);
         } catch (HTTPRequestException e) {
@@ -113,16 +112,18 @@ public class HTTPAPI implements ILuaAPI {
 
     @LuaFunction
     public final Object[] checkURL(String address) throws LuaException {
+        HttpUri uri;
         try {
-            var uri = HttpRequest.checkUri(address);
-            if (!handler.queueCheckUrl(address, uri)) {
-                throw new LuaException("Too many ongoing checkUrl calls");
-            }
-
-            return new Object[]{ true };
+            uri = HttpRequest.checkUri(address);
         } catch (HTTPRequestException e) {
             return new Object[]{ false, e.getMessage() };
         }
+
+        if (!handler.queueCheckUrl(address, uri)) {
+            throw new LuaException("Too many ongoing checkUrl calls");
+        }
+
+        return new Object[]{ true };
     }
 
     @LuaFunction
@@ -149,16 +150,19 @@ public class HTTPAPI implements ILuaAPI {
         var headers = getHeaders(headerTable);
         var timeout = getTimeout(timeoutArg);
 
+        HttpUri uri;
         try {
-            var uri = WebsocketClient.parseUri(address);
-            if (!handler.queueWebsocket(address, uri, headers, timeout)) {
-                throw new LuaException("Too many websockets already open");
-            }
-
-            return new Object[]{ true };
+            uri = HttpUri.check(address, "ws", "wss", "ws");
         } catch (HTTPRequestException e) {
             return new Object[]{ false, e.getMessage() };
         }
+
+        if (!handler.queueWebsocket(address, uri, headers, timeout)) {
+            throw new LuaException("Too many websockets already open");
+        }
+
+        return new Object[]{ true };
+
     }
 
     private static HttpMethod getMethod(String method) throws LuaException {

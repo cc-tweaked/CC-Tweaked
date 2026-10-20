@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(GameTestSequence.class)
-class GameTestSequenceMixin {
+abstract class GameTestSequenceMixin {
     @Shadow
     @Final
     GameTestInfo parent;

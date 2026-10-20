@@ -11,7 +11,6 @@ import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
-import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.language.base.plugins.LifecycleBasePlugin
@@ -64,8 +63,6 @@ abstract class CCTweakedExtension(private val project: Project) {
      * Enable our custom linters on this project.
      */
     fun linters(@Suppress("UNUSED_PARAMETER") vararg unused: UseNamedArgs, minecraft: Boolean) {
-        val java = project.extensions.getByType(JavaPluginExtension::class.java)
-
         project.dependencies.run { add("errorprone", project(":lints")) }
 
         project.tasks.withType(JavaCompile::class.java).configureEach {

@@ -6,10 +6,7 @@ package dan200.computercraft.core.apis.http.request;
 
 import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.IAPIEnvironment;
-import dan200.computercraft.core.apis.http.HTTPRequestException;
-import dan200.computercraft.core.apis.http.NetworkUtils;
-import dan200.computercraft.core.apis.http.Resource;
-import dan200.computercraft.core.apis.http.ResourceGroup;
+import dan200.computercraft.core.apis.http.*;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.util.GlobalCleaner;
 import io.netty.buffer.ByteBuf;
@@ -23,9 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.util.Locale;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,7 +50,7 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
 
     public HttpRequest(
         ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment, NetworkUtils network,
-        String address, URI uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers,
+        String address, HttpUri uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers,
         boolean binary, boolean followRedirects, int timeout, boolean streaming
     ) {
         super(limiter, new Init(uri, method));
@@ -86,27 +81,12 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
         return environment;
     }
 
-    public static URI checkUri(String address) throws HTTPRequestException {
-        URI url;
-        try {
-            url = new URI(address);
-        } catch (URISyntaxException e) {
-            throw new HTTPRequestException("URL malformed");
-        }
-
-        checkUri(url);
-        return url;
+    public static HttpUri checkUri(String address) throws HTTPRequestException {
+        return HttpUri.check(address, "http", "https", null);
     }
 
-    public static void checkUri(URI url) throws HTTPRequestException {
-        // Validate the URL
-        if (url.getScheme() == null) throw new HTTPRequestException("Must specify http or https");
-        if (url.getHost() == null) throw new HTTPRequestException("URL malformed");
-
-        var scheme = url.getScheme().toLowerCase(Locale.ROOT);
-        if (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https")) {
-            throw new HTTPRequestException("Invalid protocol '" + scheme + "'");
-        }
+    private static HttpUri checkUri(URI url) throws HTTPRequestException {
+        return HttpUri.check(url, "http", "https");
     }
 
     /**
@@ -116,11 +96,11 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
      *   +-------------------+
      *   |   {@link Init}    |
      *   +---------+---------+
-     *             | {@link #start()}/{@link #lookup(URI, HttpMethod)}
+     *             | {@link #start()}/{@link #lookup(HttpUri, HttpMethod)}
      *   +---------v----------+
      *   |  {@link Lookup}    +------------------------------------------>+
      *   +-^-------+----------+        Queue http_failure                 |
-     *     |       | {@link #connect(URI, HttpMethod, NetworkUtils.ConnectionInfo, long)}
+     *     |       | {@link #connect(HttpUri, HttpMethod, NetworkUtils.ConnectionInfo, long)}
      *   +-+-------v----------+                                           |
      *   | {@link Connecting} +------------------------------------------>+
      *   +---------+----------+        Queue http_failure                 |
@@ -141,7 +121,7 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
      * @param uri    The URL to connect to.
      * @param method The HTTP method to connect with.
      */
-    private record Init(URI uri, HttpMethod method) implements State {
+    private record Init(HttpUri uri, HttpMethod method) implements State {
         @Override
         public void close() {
         }
@@ -151,7 +131,7 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
      * Currently looking up connection information.
      *
      * @param future The future used to look up the connection info.
-     * @see #lookup(URI, HttpMethod)
+     * @see #lookup(HttpUri, HttpMethod)
      */
     private record Lookup(Future<?> future) implements State {
         @Override
@@ -169,7 +149,7 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
      *
      * @param channel The (possibly unresolved) channel.
      * @param handler The request handler. We keep a reference to this to dispose of the request body.
-     * @see #connect(URI, HttpMethod, NetworkUtils.ConnectionInfo, long)
+     * @see #connect(HttpUri, HttpMethod, NetworkUtils.ConnectionInfo, long)
      */
     private record Connecting(ChannelFuture channel, HttpRequestHandler handler) implements OpenRequestState {
         @Override
@@ -193,8 +173,9 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
     }
 
     void redirect(URI uri, HttpMethod method) {
+        HttpUri httpUri;
         try {
-            HttpRequest.checkUri(uri);
+            httpUri = HttpRequest.checkUri(uri);
         } catch (HTTPRequestException e) {
             // If we cannot visit this uri, then fail.
             failure(NetworkUtils.toFriendlyError(e));
@@ -204,12 +185,12 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
         transformStateAsync(Connecting.class, (s, f) -> {
             s.close(); // Should be a no-op, but just in case.
             return new Lookup(f);
-        }, s -> lookup(uri, method));
+        }, s -> lookup(httpUri, method));
     }
 
-    private StateTransition<State> lookup(URI uri, HttpMethod method) {
+    private StateTransition<State> lookup(HttpUri uri, HttpMethod method) {
         try {
-            var conn = network.getConnectionInfo(uri, uri.getScheme().equalsIgnoreCase("https"), timeout);
+            var conn = network.getConnectionInfo(uri, timeout);
 
             var requestBody = getHeaderSize(headers) + postBuffer.capacity();
             if (conn.options().maxUpload() != 0 && requestBody > conn.options().maxUpload()) {
@@ -225,12 +206,12 @@ public final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> 
         }
     }
 
-    private State connect(URI uri, HttpMethod method, NetworkUtils.ConnectionInfo conn, long requestBodySize) {
+    private State connect(HttpUri uri, HttpMethod method, NetworkUtils.ConnectionInfo conn, long requestBodySize) {
         // Add request size to the tracker before opening the connection
         environment.observe(Metrics.HTTP_REQUESTS);
         environment.observe(Metrics.HTTP_UPLOAD, requestBodySize);
 
-        var handler = new HttpRequestHandler(this, uri, method, streaming, conn.options());
+        var handler = new HttpRequestHandler(this, uri.getUri(), method, streaming, conn.options());
         var connectFuture = network
             .connect(conn, ch -> {
                 var p = ch.pipeline();

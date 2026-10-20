@@ -183,7 +183,8 @@ public abstract class AbstractComputerScreen<T extends AbstractComputerMenu> ext
                     return;
                 }
 
-                var name = file.getFileName().toString();
+                var fileName = file.getFileName();
+                var name = fileName == null ? "unknown" : fileName.toString();
                 if (name.length() > UploadFileMessage.MAX_FILE_NAME) {
                     alert(UploadResult.FAILED_TITLE, Component.translatable("gui.computercraft.upload.failed.name_too_long"));
                     return;

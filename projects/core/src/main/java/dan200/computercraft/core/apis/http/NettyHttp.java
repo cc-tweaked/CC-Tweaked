@@ -15,7 +15,6 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import org.jspecify.annotations.Nullable;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.OptionalInt;
@@ -151,17 +150,17 @@ public class NettyHttp implements HttpHandler.Factory {
         }
 
         @Override
-        public boolean queueCheckUrl(String address, URI uri) {
+        public boolean queueCheckUrl(String address, HttpUri uri) {
             return new CheckUrl(checkUrls, environment, network, address, uri).queue();
         }
 
         @Override
-        public boolean queueRequest(String address, URI uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers, boolean binary, boolean followRedirects, int timeout, boolean streaming) {
+        public boolean queueRequest(String address, HttpUri uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers, boolean binary, boolean followRedirects, int timeout, boolean streaming) {
             return new HttpRequest(requests, environment, network, address, uri, method, postBody, headers, binary, followRedirects, timeout, streaming).queue();
         }
 
         @Override
-        public boolean queueWebsocket(String address, URI uri, HttpHeaders headers, int timeout) {
+        public boolean queueWebsocket(String address, HttpUri uri, HttpHeaders headers, int timeout) {
             return new Websocket(websockets, environment, network, address, uri, headers, timeout).queue();
         }
     }

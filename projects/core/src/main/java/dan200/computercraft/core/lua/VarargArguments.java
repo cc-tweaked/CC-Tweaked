@@ -231,11 +231,10 @@ final class VarargArguments implements IArguments {
     }
 
     @SuppressWarnings("ArrayRecordComponent")
-    private record ArraySlice<T>(T[] array, int offset) {
+    private record ArraySlice<T>(@Nullable T[] array, int offset) {
         // FIXME: We should be able to remove the @Nullables if we update NullAway.
 
-        @Nullable
-        T get(int index) {
+        @Nullable T get(int index) {
             return array[offset + index];
         }
 

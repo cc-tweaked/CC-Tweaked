@@ -29,17 +29,17 @@ import java.util.function.Supplier;
  */
 public final class CapabilityProvider<T> implements ICapabilityProvider {
     private final Capability<T> cap;
-    private final Supplier<T> supplier;
+    private final Supplier<@Nullable T> supplier;
     private final BooleanSupplier isRemoved;
     private @Nullable LazyOptional<T> instance;
 
-    private CapabilityProvider(Capability<T> cap, Supplier<T> supplier, BooleanSupplier isRemoved) {
+    private CapabilityProvider(Capability<T> cap, Supplier<@Nullable T> supplier, BooleanSupplier isRemoved) {
         this.cap = Objects.requireNonNull(cap, "Capability cannot be null");
         this.supplier = supplier;
         this.isRemoved = isRemoved;
     }
 
-    public static <T> CapabilityProvider<T> attach(AttachCapabilitiesEvent<?> event, ResourceLocation id, Capability<T> cap, Supplier<T> instance) {
+    public static <T> CapabilityProvider<T> attach(AttachCapabilitiesEvent<?> event, ResourceLocation id, Capability<T> cap, Supplier<@Nullable T> instance) {
         BooleanSupplier isRemoved
             = event.getObject() instanceof BlockEntity be ? be::isRemoved
             : event.getObject() instanceof Entity entity ? entity::isRemoved
