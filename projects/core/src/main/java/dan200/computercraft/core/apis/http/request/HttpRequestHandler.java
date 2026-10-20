@@ -27,7 +27,7 @@ import java.util.Objects;
 
 import static dan200.computercraft.core.apis.http.request.HttpRequest.getHeaderSize;
 
-final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> {
+final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> implements HttpBodyStream {
     /**
      * Same as {@link io.netty.handler.codec.MessageAggregator}.
      */
@@ -279,57 +279,40 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> {
         }
     }
 
-    void markWaitingBody() {
-        waitingBody = true;
-    }
-
-    int getBodyReadable() {
-        int readable;
+    @Override
+    public boolean isFinished() {
         synchronized (responseBodyLock) {
-            ByteBuf source = responseBody != null ? responseBody : unpooledResponseBody;
-            if (source == null) {
-                readable = 0;
-            } else {
-                readable = source.readableBytes();
-                if (readable >= MAX_STREAM_BUFFER_CACHE) {
-                    return -MAX_STREAM_BUFFER_CACHE - 1;
-                }
-            }
-            return responseBodyDone ? -readable - 1 : readable;
+            return responseBodyDone;
         }
     }
 
-    /**
-     * Peek response body into the designate buffer.
-     * Response body is not consumed in this action.
-     * This method does not block, and will only read currently cached data into the buffer and returns the amount of available bytes.
-     *
-     * @param buffer the designate buffer
-     * @param skip   amount of bytes to skip in the peek
-     * @return The amount of bytes read, or {@code -1} if stream is ended or internal buffer is full.
-     */
-    int peekBody(ByteBuffer buffer, int skip) {
-        if (skip >= MAX_STREAM_BUFFER_CACHE) return -1;
+    @Override
+    public int getReadable() {
         synchronized (responseBodyLock) {
-            ByteBuf source = responseBody != null ? responseBody : unpooledResponseBody;
-            if (source == null) return responseBodyDone ? -1 : 0;
+            var source = responseBody != null ? responseBody : unpooledResponseBody;
+            return source == null ? 0 : source.readableBytes();
+        }
+    }
 
-            int readerIndex = source.readerIndex() + skip;
-            int readable = source.writerIndex() - readerIndex;
-            if (readable == 0 && responseBodyDone) return -1;
+    @Override
+    public int getMaxReadable() {
+        return MAX_STREAM_BUFFER_CACHE;
+    }
 
-            int maxRead = buffer.remaining();
-            int oldLimit = -1;
-            if (maxRead > readable) {
-                maxRead = readable;
-                oldLimit = buffer.limit();
-                buffer.limit(buffer.position() + maxRead);
-            }
-            source.getBytes(readerIndex, buffer);
-            if (oldLimit != -1) {
-                buffer.limit(oldLimit);
-            }
-            return maxRead;
+    @Override
+    public void markWaiting() {
+        waitingBody = true;
+    }
+
+    @Override
+    public void read(ByteBuffer buffer) {
+        synchronized (responseBodyLock) {
+            var source = responseBody != null ? responseBody : unpooledResponseBody;
+            if (source == null) return;
+
+            source.readBytes(buffer);
+            source.discardSomeReadBytes();
+            triggerReread();
         }
     }
 
@@ -342,7 +325,8 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> {
      * @param separator the target separator
      * @return The bytes which were read, or {@code null}.
      */
-    @Nullable ByteBuffer readUntil(byte separator) {
+    @Override
+    public @Nullable ByteBuffer readUntil(byte separator) {
         synchronized (responseBodyLock) {
             ByteBuf source = responseBody != null ? responseBody : unpooledResponseBody;
             if (source == null) return null; // Isn't this impossible? This should only happen if the channel is closed?
@@ -371,32 +355,6 @@ final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> {
         if (responseBody != null && responseBodyTrigger != null && responseBody.readableBytes() < MAX_STREAM_BUFFER_CACHE) {
             responseBodyTrigger.run();
         }
-    }
-
-    /**
-     * Discard and release resource body if necessary.
-     *
-     * @param bytes The amount of bytes should be discarded
-     */
-    void discardBody(int bytes) {
-        if (bytes == 0) return;
-        synchronized (responseBodyLock) {
-            ByteBuf source = responseBody != null ? responseBody : unpooledResponseBody;
-            if (source == null) throw new IllegalStateException("responseBody == null");
-            source.readerIndex(source.readerIndex() + bytes);
-            if (source == responseBody) {
-                responseBody.discardReadComponents();
-                if (responseBodyTrigger != null && responseBody.readableBytes() < MAX_STREAM_BUFFER_CACHE) {
-                    responseBodyTrigger.run();
-                    responseBodyTrigger = null;
-                }
-            } else if (source == unpooledResponseBody) {
-                if (unpooledResponseBody.readableBytes() == 0) {
-                    unpooledResponseBody = null;
-                }
-            }
-        }
-        request.environment().observe(Metrics.HTTP_DOWNLOAD, bytes);
     }
 
     /**

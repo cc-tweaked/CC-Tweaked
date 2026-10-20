@@ -14,214 +14,157 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.Optional;
 
-public class HttpStreamReader {
-    private static final int BUFFER_SIZE = 8192;
-
+public final class HttpStreamReader {
     private final HttpRequest request;
-    private final HttpRequestHandler handler;
+    private final HttpBodyStream stream;
     private final boolean binary;
 
     private boolean isClosed = false;
-    private ByteBuffer single = ByteBuffer.allocate(1);
+    private final ByteBuffer single = ByteBuffer.allocate(1);
 
-    public HttpStreamReader(HttpRequest request, HttpRequestHandler handler) {
+    public HttpStreamReader(HttpRequest request, HttpBodyStream stream) {
         this.request = request;
-        this.handler = handler;
+        this.stream = stream;
         this.binary = request.isBinary();
     }
 
-    protected void checkOpen() throws LuaException {
+    private void checkOpen() throws LuaException {
         if (isClosed) {
             throw new LuaException("attempt to use a closed connection");
         }
     }
 
     @LuaFunction
-    public final void close() throws LuaException {
+    public void close() throws LuaException {
         checkOpen();
         isClosed = true;
         request.partialClosed();
     }
 
-    @LuaFunction
-    public final MethodResult read(Optional<Integer> countArg, Optional<Boolean> blockingArg) throws LuaException {
-        checkOpen();
-
-        if (binary && countArg.isEmpty()) {
-            return new HttpContentSingleBytePoller(request.address).pollBody();
-        }
-
-        int count = countArg.orElse(1);
-        boolean blocking = blockingArg.orElse(true);
-
-        if (count == 0) return MethodResult.of("");
-        if (count <= BUFFER_SIZE) {
-            return new HttpContentSimpleBufferPoller(request.address, blocking, ByteBuffer.allocate(count)).pollBody();
-        }
-
-        return new HttpContentLargePoller(request.address, blocking, count).pollBody();
-    }
-
-    @LuaFunction
-    public final MethodResult readAll() throws LuaException {
-        checkOpen();
-
-        return new HttpContentAllPoller(request.address, true).pollBody();
-    }
-
-    @LuaFunction
-    public final MethodResult readLine(Optional<Boolean> withTrailingArg) throws LuaException {
-        checkOpen();
-
-        boolean withTrailing = withTrailingArg.orElse(false);
-        return new HttpContentLinePoller(request.address, withTrailing).pollBody();
-    }
-
-    private abstract class HttpContentPoller implements ILuaCallback {
+    private abstract class ContentPoller implements ILuaCallback {
         private final MethodResult pull = MethodResult.pullEvent(HttpRequest.CONTENT_EVENT, this);
-        private final String url;
-        final boolean blocking;
-
-        private HttpContentPoller(String url, boolean blocking) {
-            this.url = url;
-            this.blocking = blocking;
-        }
 
         @Override
         public MethodResult resume(@Nullable Object[] args) throws LuaException {
-            if (args.length < 2 || !Objects.equals(args[0], HttpRequest.CONTENT_EVENT) || !Objects.equals(args[1], url)) {
+            if (args.length < 2 || !Objects.equals(args[0], HttpRequest.CONTENT_EVENT) || !Objects.equals(args[1], request.address)) {
                 return pull;
             }
+
+            checkOpen();
             return pollBody();
         }
 
-        MethodResult puller() {
-            handler.markWaitingBody();
+        MethodResult awaitContent() {
+            stream.markWaiting();
             return pull;
         }
 
         abstract MethodResult pollBody() throws LuaException;
     }
 
-    private final class HttpContentSingleBytePoller extends HttpContentPoller {
-        private HttpContentSingleBytePoller(String url) {
-            super(url, true);
+    @LuaFunction
+    public MethodResult read(Optional<Integer> countArg, Optional<Boolean> blockingArg) throws LuaException {
+        checkOpen();
+
+        if (binary && countArg.isEmpty()) {
+            // TODO: FIXME: This doesn't handle blocking and/or empty streams.
+            return new ContentSingleBytePoller().pollBody();
         }
 
-        @Override
-        MethodResult pollBody() throws LuaException {
-            checkOpen();
+        int count = countArg.orElse(1);
+        boolean blocking = blockingArg.orElse(true);
 
-            single.clear();
-            var read = handler.peekBody(single, 0);
-            if (read == 0) return puller();
-            if (read < 0) return MethodResult.of(false);
-            handler.discardBody(1);
-            return MethodResult.of(single.get(0) & 0xff);
+        if (count < 0) throw new LuaException("Cannot read a negative number of bytes");
+        if (count > stream.getMaxReadable()) {
+            throw new LuaException("Cannot read more than " + stream.getMaxReadable() + " bytes");
         }
+
+        if (count == 0) return MethodResult.of("");
+
+        // Fast path for non-blocking reads or if the stream has sufficient contents/is readable.
+        var finished = stream.isFinished();
+        var readable = stream.getReadable();
+        if (finished && readable == 0) return MethodResult.of();
+        if (!blocking || finished || readable >= count) {
+            return MethodResult.of(stream.read(Math.min(readable, count)).asReadOnlyBuffer());
+        }
+
+        return new ReadPoller(count).pollBody();
     }
 
-    private final class HttpContentSimpleBufferPoller extends HttpContentPoller {
-        private final ByteBuffer buffer;
-
-        private HttpContentSimpleBufferPoller(String url, boolean blocking, ByteBuffer buffer) {
-            super(url, blocking);
-            this.buffer = buffer;
-        }
-
+    private final class ContentSingleBytePoller extends ContentPoller {
         @Override
-        MethodResult pollBody() throws LuaException {
-            checkOpen();
-
-            if (buffer.hasRemaining()) {
-                var read = handler.peekBody(buffer, buffer.position());
-                if (read < 0) {
-                    if (buffer.position() == 0) {
-                        return MethodResult.of(false);
-                    }
-                } else if (blocking && buffer.hasRemaining()) {
-                    return puller();
-                }
+        MethodResult pollBody() {
+            if (stream.getReadable() > 0) {
+                single.clear();
+                stream.read(single);
+                return MethodResult.of(single.get(0) & 0xff);
             }
-            handler.discardBody(buffer.position());
-            return MethodResult.of(buffer.flip());
+
+            if (stream.isFinished()) return MethodResult.of(false);
+
+            return awaitContent();
         }
     }
 
-    private final class HttpContentLargePoller extends HttpContentPoller {
+    private final class ReadPoller extends ContentPoller {
         private final int count;
 
-        private HttpContentLargePoller(String url, boolean blocking, int count) {
-            super(url, blocking);
+        private ReadPoller(int count) {
             this.count = count;
         }
 
         @Override
-        MethodResult pollBody() throws LuaException {
-            checkOpen();
+        MethodResult pollBody() {
+            var finished = stream.isFinished();
+            var readable = stream.getReadable();
+            if (finished && readable == 0) return MethodResult.of();
+            if (finished || readable >= count) {
+                return MethodResult.of(stream.read(Math.min(readable, count)).asReadOnlyBuffer());
+            }
 
-            var readable = handler.getBodyReadable();
-            if (readable == -1) {
-                return MethodResult.of(false);
-            }
-            if (readable >= 0) {
-                if (readable < count) {
-                    return puller();
-                }
-                readable = count;
-            } else {
-                readable = -readable - 1;
-            }
-            ByteBuffer buffer = ByteBuffer.allocate(readable);
-            var read = handler.peekBody(buffer, 0);
-            assert read == readable;
-            handler.discardBody(read);
-            return MethodResult.of(buffer.flip());
+            return awaitContent();
         }
     }
 
-    private final class HttpContentAllPoller extends HttpContentPoller {
-        private HttpContentAllPoller(String url, boolean blocking) {
-            super(url, blocking);
-        }
+    @LuaFunction
+    public MethodResult readAll() throws LuaException {
+        checkOpen();
+        return new ReadAllPoller().pollBody();
+    }
 
+    private final class ReadAllPoller extends ContentPoller {
         @Override
         MethodResult pollBody() throws LuaException {
-            checkOpen();
-
-            var readable = handler.getBodyReadable();
-            if (readable == -1) {
-                return MethodResult.of(false);
-            }
-            if (readable >= 0) {
-                return puller();
-            }
-            readable = -readable - 1;
-            ByteBuffer buffer = ByteBuffer.allocate(readable);
-            var read = handler.peekBody(buffer, 0);
-            assert read == readable;
-            handler.discardBody(read);
-            return MethodResult.of(buffer.flip());
+            var readable = stream.getReadable();
+            if (readable > stream.getMaxReadable()) throw new LuaException("Body is too large to read at once");
+            if (stream.isFinished()) return MethodResult.of(stream.read(readable).asReadOnlyBuffer());
+            return awaitContent();
         }
     }
 
-    private final class HttpContentLinePoller extends HttpContentPoller {
+    @LuaFunction
+    public MethodResult readLine(Optional<Boolean> withTrailingArg) throws LuaException {
+        checkOpen();
+
+        boolean withTrailing = withTrailingArg.orElse(false);
+        return new ReadLinePoller(withTrailing).pollBody();
+    }
+
+    private final class ReadLinePoller extends ContentPoller {
         private static final byte LF = '\n';
         private static final byte CR = '\r';
 
         private final boolean withTrailing;
 
-        private HttpContentLinePoller(String url, boolean withTrailing) {
-            super(url, true);
+        private ReadLinePoller(boolean withTrailing) {
             this.withTrailing = withTrailing;
         }
 
         @Override
-        MethodResult pollBody() throws LuaException {
-            checkOpen();
-
-            var result = handler.readUntil(LF);
-            if (result == null) return puller();
+        MethodResult pollBody() {
+            var result = stream.readUntil(LF);
+            if (result == null) return awaitContent();
 
             // Trim CR and LF if needed.
             if (!withTrailing && result.hasRemaining() && result.get(result.limit() - 1) == LF) {
