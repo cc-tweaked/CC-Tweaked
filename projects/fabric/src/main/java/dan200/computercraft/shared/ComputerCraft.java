@@ -7,7 +7,7 @@ package dan200.computercraft.shared;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.detail.FabricDetailRegistries;
 import dan200.computercraft.api.media.MediaLookup;
-import dan200.computercraft.api.node.wired.WiredElementLookup;
+import dan200.computercraft.api.network.wired.WiredElementLookup;
 import dan200.computercraft.api.peripheral.PeripheralLookup;
 import dan200.computercraft.impl.Peripherals;
 import dan200.computercraft.shared.command.CommandComputerCraft;
@@ -141,6 +141,7 @@ public class ComputerCraft {
         }
     }
 
+    @SuppressWarnings("NullAway") // FIXME(26.3): Can be removed when FAPI fixes their annotation
     private record ItemComponentImpl<T>(
         ItemApiLookup<T, @Nullable Void> lookup
     ) implements ModRegistry.ItemComponent<T> {

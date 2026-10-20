@@ -5,9 +5,9 @@
 package dan200.computercraft.impl.network.wired;
 
 import dan200.computercraft.api.network.wired.WiredNode;
+import dan200.computercraft.core.util.Nullability;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Objects;
 
 /**
  * A disjoint-set/union-find of {@link WiredNodeImpl}s.
@@ -95,6 +95,6 @@ class NodeSet {
      * @return The associated network.
      */
     WiredNetworkImpl network() {
-        return Objects.requireNonNull(find().network);
+        return Nullability.assertNonNull(find().network);
     }
 }

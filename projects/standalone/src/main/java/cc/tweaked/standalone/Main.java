@@ -74,7 +74,9 @@ public class Main {
             var matcher = TermSize.PATTERN.matcher(value);
             if (!matcher.matches()) throw new ParseException("'" + value + "' is not a valid terminal size.");
 
-            return new TermSize(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)));
+            var width = Integer.parseInt(Objects.requireNonNull(matcher.group(1)));
+            var height = Integer.parseInt(Objects.requireNonNull(matcher.group(2)));
+            return new TermSize(width, height);
         }
     }
 
@@ -85,7 +87,9 @@ public class Main {
             var matcher = MountPaths.PATTERN.matcher(value);
             if (!matcher.matches()) throw new ParseException("'" + value + "' is not a mount spec.");
 
-            return new MountPaths(parsePath(matcher.group(1)), matcher.group(2));
+            var src = parsePath(Objects.requireNonNull(matcher.group(1)));
+            var dest = Objects.requireNonNull(matcher.group(2));
+            return new MountPaths(src, dest);
         }
     }
 

@@ -71,6 +71,8 @@ public final class AddressRule {
 
         var port = socketAddress.getPort();
         var address = socketAddress.getAddress();
+        if (address == null) throw new IllegalStateException("Socket address must be resolved");
+
         var ipv4Address = address instanceof Inet6Address inet6 && InetAddresses.is6to4Address(inet6)
             ? InetAddresses.get6to4IPv4Address(inet6) : null;
 

@@ -131,7 +131,7 @@ public final class UpgradeData<T extends UpgradeBase> {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (obj == this) return true;
         return obj instanceof UpgradeData<?> that && upgrade == that.upgrade && data.equals(that.data) && areStacksEqual(stack, that.stack);
     }

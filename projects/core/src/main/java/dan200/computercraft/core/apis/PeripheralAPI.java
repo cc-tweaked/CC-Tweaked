@@ -187,7 +187,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
 
     private final IAPIEnvironment environment;
     private final MethodSupplier<PeripheralMethod> peripheralMethods;
-    private final PeripheralWrapper[] peripherals = new PeripheralWrapper[6];
+    private final @Nullable PeripheralWrapper[] peripherals = new PeripheralWrapper[6];
     private boolean running;
 
     public PeripheralAPI(IAPIEnvironment environment, MethodSupplier<PeripheralMethod> peripheralMethods) {

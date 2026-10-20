@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerLevel.class)
-class ServerLevelMixin {
+abstract class ServerLevelMixin {
     @Inject(method = "addEntity", at = @At("HEAD"), cancellable = true)
     @SuppressWarnings("UnusedMethod")
     private void addEntity(Entity entity, CallbackInfoReturnable<Boolean> cb) {

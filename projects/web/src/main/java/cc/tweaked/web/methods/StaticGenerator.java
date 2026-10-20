@@ -12,6 +12,7 @@ import com.google.common.reflect.TypeToken;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.asm.Reflect;
 import dan200.computercraft.core.methods.LuaMethod;
+import dan200.computercraft.core.util.Nullability;
 import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -106,7 +107,7 @@ public final class StaticGenerator<T> {
             }
         }
 
-        var annotation = method.getAnnotation(LuaFunction.class);
+        var annotation = Nullability.assertNonNull(method.getAnnotation(LuaFunction.class));
         if (annotation.unsafe() && annotation.mainThread()) {
             System.err.printf("Lua Method %s cannot use unsafe and mainThread.\n", name);
             return Optional.empty();

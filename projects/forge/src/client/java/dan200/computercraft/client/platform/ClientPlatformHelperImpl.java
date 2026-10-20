@@ -32,7 +32,7 @@ import java.util.function.IntUnaryOperator;
 @AutoService(dan200.computercraft.impl.client.ClientPlatformHelper.class)
 public class ClientPlatformHelperImpl implements ClientPlatformHelper {
     private static final RandomSource random = RandomSource.create(0);
-    private static final Direction[] directions = Arrays.copyOf(Direction.values(), 7);
+    private static final @Nullable Direction[] directions = Arrays.copyOf(Direction.values(), 7);
 
     @Override
     public BakedModel getModel(ModelManager manager, ResourceLocation location) {

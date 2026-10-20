@@ -20,7 +20,7 @@ import java.io.UncheckedIOException;
 import java.util.Map;
 
 @Mixin(GameRenderer.class)
-class GameRendererMixin {
+abstract class GameRendererMixin {
     @Final
     @Shadow
     @SuppressWarnings("NullAway")

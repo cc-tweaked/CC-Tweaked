@@ -24,7 +24,7 @@ import java.util.Set;
  * @see StructureUtils#getStructureTemplate(String, ServerLevel)
  */
 @Mixin(StructureUtils.class)
-class StructureUtilsMixin {
+abstract class StructureUtilsMixin {
     @Inject(
         method = "getStructureTemplate",
         at = @At(

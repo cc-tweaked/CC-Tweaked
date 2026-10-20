@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class NetworkUtilsTest {
     @Test
     public void test_getAddress_with_scoped_address() {
-        var err = assertThrows(HTTPRequestException.class, () -> NetworkUtils.getAddress("[::1%1]", 80, false));
+        var err = assertThrows(HTTPRequestException.class, () -> NetworkUtils.getAddress("[::1%1]", 80));
         assertEquals("Scoped address not permitted", err.getMessage());
     }
 }

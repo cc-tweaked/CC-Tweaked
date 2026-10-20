@@ -43,10 +43,14 @@ import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.NewRegistryEvent;
 import net.minecraftforge.registries.RegistryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Mod(ComputerCraftAPI.MOD_ID)
 @Mod.EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ComputerCraft {
+    private static final Logger LOG = LoggerFactory.getLogger(ComputerCraft.class);
+
     public ComputerCraft() {
         ModRegistry.register();
 
@@ -135,8 +139,11 @@ public final class ComputerCraft {
                 Pack.Position.BOTTOM,
                 PackSource.FEATURE
             );
-
-            event.addRepositorySource(add -> add.accept(pack));
+            if (pack == null) {
+                LOG.error("Cannot find " + TurtleStorage.DATA_PACK_NAME + " datapack");
+            } else {
+                event.addRepositorySource(add -> add.accept(pack));
+            }
         }
     }
 }

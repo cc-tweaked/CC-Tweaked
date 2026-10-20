@@ -198,7 +198,7 @@ public final class ClientRegistry {
         return model.getTint((layer - 1) / 2);
     }
 
-    public static void registerShaders(ResourceProvider resources, BiConsumer<ShaderInstance, Consumer<ShaderInstance>> load) throws IOException {
+    public static void registerShaders(ResourceProvider resources, BiConsumer<ShaderInstance, Consumer<@Nullable ShaderInstance>> load) throws IOException {
         RenderTypes.registerShaders(resources, (name, create, onLoaded) -> {
             ShaderInstance shader;
             try {

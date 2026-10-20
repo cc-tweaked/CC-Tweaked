@@ -10,8 +10,10 @@
     TypeUseLocation.PARAMETER,
     TypeUseLocation.FIELD,
 })
+@NullMarked
 package dan200.computercraft.test.core;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.framework.qual.DefaultQualifier;
 import org.checkerframework.framework.qual.TypeUseLocation;
+import org.jspecify.annotations.NullMarked;

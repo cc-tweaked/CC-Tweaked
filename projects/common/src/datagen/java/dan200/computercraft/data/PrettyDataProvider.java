@@ -7,6 +7,7 @@ package dan200.computercraft.data;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.util.PrettyJsonWriter;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -38,7 +39,7 @@ public record PrettyDataProvider<T extends DataProvider>(T provider) implements 
 
         @Override
         public void writeIfNeeded(Path path, byte[] bytes, HashCode hashCode) throws IOException {
-            var name = path.getFileName().toString();
+            var name = Nullability.assertNonNull(path.getFileName()).toString();
             if (name.endsWith(".json") || name.endsWith(".mcmeta")) {
                 bytes = PrettyJsonWriter.reformat(bytes);
                 hashCode = HASH_FUNCTION.hashBytes(bytes);

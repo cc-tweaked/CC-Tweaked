@@ -17,6 +17,7 @@ import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.core.util.Colour;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.impl.PocketUpgrades;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.impl.UpgradeManager;
@@ -123,7 +124,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
@@ -480,7 +480,7 @@ public final class ModRegistry {
 
         ComputerCraftAPI.registerAPIFactory(computer -> {
             var turtle = computer.getComponent(ComputerComponents.TURTLE);
-            var metrics = Objects.requireNonNull(computer.getComponent(ServerComputer.METRICS));
+            var metrics = Nullability.assertNonNull(computer.getComponent(ServerComputer.METRICS));
             return turtle == null ? null : new TurtleAPI(metrics, (TurtleAccessInternal) turtle);
         });
 

@@ -10,7 +10,6 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import org.jspecify.annotations.Nullable;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 
 /**
@@ -37,7 +36,7 @@ public interface HttpHandler {
      * @param uri     The URI equivalent of the address.
      * @return Whether the task could be queued. Should return false if there are too many in-flight checks.
      */
-    boolean queueCheckUrl(String address, URI uri);
+    boolean queueCheckUrl(String address, HttpUri uri);
 
     /**
      * Queue a task to make a HTTP request. This should queue a {@code "http_success"} or {@code "http_failure"} event
@@ -56,7 +55,7 @@ public interface HttpHandler {
      * @return Whether the task could be queued. Should return false if there are too many in-flight requests.
      */
     boolean queueRequest(
-        String address, URI uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers, boolean binary, boolean followRedirects, int timeout
+        String address, HttpUri uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers, boolean binary, boolean followRedirects, int timeout
     );
 
     /**
@@ -69,7 +68,7 @@ public interface HttpHandler {
      * @param timeout The timeout for establishing a connection.
      * @return Whether the task could be queued. Should return false if there are too many in-flight websockets.
      */
-    boolean queueWebsocket(String address, URI uri, HttpHeaders headers, int timeout);
+    boolean queueWebsocket(String address, HttpUri uri, HttpHeaders headers, int timeout);
 
     /**
      * A factory for a {@link HttpHandler}.

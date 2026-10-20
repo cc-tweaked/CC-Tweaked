@@ -2,9 +2,7 @@
 //
 // SPDX-License-Identifier: MPL-2.0
 
-import cc.tweaked.gradle.CCTweakedExtension
-import cc.tweaked.gradle.CCTweakedJavaVersions
-import cc.tweaked.gradle.JUnitExt
+import cc.tweaked.gradle.*
 import net.ltgt.gradle.errorprone.CheckSeverity
 import net.ltgt.gradle.errorprone.errorprone
 import org.gradle.plugins.ide.idea.model.IdeaModel
@@ -75,6 +73,7 @@ tasks.withType(JavaCompile::class.java).configureEach {
 
     options.errorprone {
         check("MissingOverride", CheckSeverity.ERROR)
+        check("AddNullMarkedToPackageInfo", CheckSeverity.ERROR)
         check("InvalidBlockTag", CheckSeverity.OFF) // Broken by @cc.xyz
         check("InlineMeSuggester", CheckSeverity.OFF) // Minecraft uses @Deprecated liberally
         // Too many false positives right now. Maybe we need an indirection for it later on.
@@ -90,6 +89,7 @@ tasks.withType(JavaCompile::class.java).configureEach {
         option("UnusedMethod:ExemptingMethodAnnotations", "dan200.computercraft.api.lua.LuaFunction")
 
         check("NullAway", CheckSeverity.ERROR)
+        check("JSpecifyUnrecognizedAnnotationLocation", CheckSeverity.ERROR)
         option(
             "NullAway:AnnotatedPackages",
             listOf("dan200.computercraft", "cc.tweaked", "net.fabricmc.fabric.api").joinToString(","),
@@ -98,6 +98,8 @@ tasks.withType(JavaCompile::class.java).configureEach {
         option("NullAway:CastToNonNullMethod", "dan200.computercraft.core.util.Nullability.assertNonNull")
         option("NullAway:CheckOptionalEmptiness")
         option("NullAway:AcknowledgeRestrictiveAnnotations")
+        option("NullAway:JSpecifyMode")
+        option("NullAway:JSpecifyExperimental")
 
         excludedPaths.set(".*/jmh_generated/.*")
     }
@@ -106,6 +108,28 @@ tasks.withType(JavaCompile::class.java).configureEach {
 tasks.compileTestJava {
     options.errorprone {
         check("NullAway", CheckSeverity.OFF)
+    }
+}
+
+sourceSets.configureEach {
+    val sourceSetName = name
+
+    val dependencySources =
+        configurations.named(compileClasspathConfigurationName)
+            .map { ExternalProjectArtifacts.sources(it) }
+
+    if (path.endsWith("-api")) {
+        // Currently we configure our API modules to have explicitly defined package-info.java files.
+        val taskName = getTaskName("ensure", "PackageInfo")
+        val task = tasks.register<EnsurePackageInfo>(taskName) {
+            group = LifecycleBasePlugin.VERIFICATION_GROUP
+            description = "Ensure package-info.java files exist for $sourceSetName"
+
+            sources.from(java.sourceDirectories)
+            additionalSources.from(dependencySources)
+            additionalSources.from(cct.embeddedProjectSources)
+        }
+        tasks.named(compileJavaTaskName) { dependsOn(task) }
     }
 }
 

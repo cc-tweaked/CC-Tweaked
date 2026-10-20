@@ -313,7 +313,7 @@ public class CobaltLuaMachine implements ILuaMachine {
 
     static @Nullable Object[] toObjects(Varargs values) {
         var count = values.count();
-        var objects = new Object[count];
+        var objects = new @Nullable Object[count];
         for (var i = 0; i < count; i++) objects[i] = toObject(values.arg(i + 1), null);
         return objects;
     }

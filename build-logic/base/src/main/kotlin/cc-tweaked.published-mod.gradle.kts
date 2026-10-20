@@ -54,6 +54,13 @@ val verifyClassesMatch = tasks.register<VerifyJavaCompile>("verifyClassesMatch")
         check("MissingOverride", CheckSeverity.OFF)
         check("LoaderOverride", CheckSeverity.DEFAULT)
         check("MissingLoaderOverride", CheckSeverity.DEFAULT)
+
+        // FIXME: We disable JSpecify in the common classes due to some NullAway bugs. As the two
+        //  modes are not compatible, we have to disable NullAway entirely here. This can be removed
+        //  when we bump to 0.14.3.
+        check("NullAway", CheckSeverity.WARN)
+        option("NullAway:JSpecifyMode", false)
+        option("NullAway:JSpecifyExperimental", false)
     }
 
     source = minecraftEmbeddedProjectResolved.map {

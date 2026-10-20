@@ -5,11 +5,8 @@
 package dan200.computercraft.core.apis.http.websocket;
 
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.core.apis.http.HTTPRequestException;
 import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 
 /**
@@ -60,43 +57,4 @@ public interface WebsocketClient {
      * @throws LuaException If the message could not be sent.
      */
     void sendBinary(ByteBuffer message) throws LuaException;
-
-    /**
-     * Parse an address, ensuring it is a valid websocket URI.
-     *
-     * @param address The address to parse.
-     * @return The parsed URI.
-     * @throws HTTPRequestException If the address is not valid.
-     */
-    static URI parseUri(String address) throws HTTPRequestException {
-        URI uri = null;
-        try {
-            uri = new URI(address);
-        } catch (URISyntaxException ignored) {
-            // Fall through to the case below
-        }
-
-        if (uri == null || uri.getHost() == null) {
-            try {
-                uri = new URI("ws://" + address);
-            } catch (URISyntaxException ignored) {
-                // Fall through to the case below
-            }
-        }
-
-        if (uri == null || uri.getHost() == null) throw new HTTPRequestException("URL malformed");
-
-        var scheme = uri.getScheme();
-        if (scheme == null) {
-            try {
-                uri = new URI("ws://" + uri);
-            } catch (URISyntaxException e) {
-                throw new HTTPRequestException("URL malformed");
-            }
-        } else if (!scheme.equalsIgnoreCase("wss") && !scheme.equalsIgnoreCase("ws")) {
-            throw new HTTPRequestException("Invalid scheme '" + scheme + "'");
-        }
-
-        return uri;
-    }
 }

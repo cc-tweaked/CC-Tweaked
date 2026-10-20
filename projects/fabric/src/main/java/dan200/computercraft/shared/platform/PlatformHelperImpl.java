@@ -13,7 +13,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.media.MediaLookup;
 import dan200.computercraft.api.network.wired.WiredElement;
-import dan200.computercraft.api.node.wired.WiredElementLookup;
+import dan200.computercraft.api.network.wired.WiredElementLookup;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralLookup;
 import dan200.computercraft.impl.Peripherals;
