@@ -27,7 +27,7 @@ import java.util.function.Function;
  * These should be registered in a {@link Registry} while the game is loading, much like {@link RecipeSerializer}s.
  * <p>
  * If your turtle upgrade doesn't have any associated configurable parameters (like most upgrades), you can use
- * {@link #simple(Function)} or {@link #simpleWithCustomItem(BiFunction)} to create a basic upgrade serialiser.
+ * {@link #simple(Function)} or {@link #simpleWithCustomIngredient(BiFunction)} to create a basic upgrade serialiser.
  *
  * @param <T> The type of turtle upgrade this is responsible for serialising.
  * @see ITurtleUpgrade
@@ -48,7 +48,7 @@ public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends Upgra
      * Create an upgrade serialiser for a simple upgrade. This is similar to a {@link SimpleCraftingRecipeSerializer},
      * but for upgrades.
      * <p>
-     * If you might want to vary the item, it's suggested you use {@link #simpleWithCustomItem(BiFunction)} instead.
+     * If you might want to vary the item, it's suggested you use {@link #simpleWithCustomIngredient(BiFunction)} instead.
      *
      * @param factory Generate a new upgrade with a specific ID.
      * @param <T>     The type of the generated upgrade.

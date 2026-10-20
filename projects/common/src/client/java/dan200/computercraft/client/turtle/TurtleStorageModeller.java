@@ -9,7 +9,9 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.api.turtle.ITurtleAccess;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.client.ClientPlatformHelper;
 import dan200.computercraft.shared.turtle.upgrades.TurtleStorage;
 import net.minecraft.Util;
@@ -29,7 +31,7 @@ import java.util.function.IntUnaryOperator;
  * {@link TurtleUpgradeModeller} implementation for {@link TurtleStorage}. This provides a custom tinted model for dyed
  * shulker boxes.
  */
-public class TurtleStorageModeller implements TurtleUpgradeModeller<TurtleStorage> {
+public final class TurtleStorageModeller implements TurtleUpgradeModeller<TurtleStorage> {
     private static final ResourceLocation LEFT = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_shulker_left");
     private static final ResourceLocation RIGHT = new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_shulker_right");
 
@@ -61,8 +63,17 @@ public class TurtleStorageModeller implements TurtleUpgradeModeller<TurtleStorag
 
     @Override
     public TransformedModel getModel(TurtleStorage upgrade, @Nullable ITurtleAccess turtle, TurtleSide side) {
-        var item = upgrade.getCraftingItem().getItem();
-        if (item instanceof BlockItem blockItem && blockItem.getBlock() instanceof ShulkerBoxBlock shulkerBoxBlock) {
+        var upgradeData = turtle == null ? null : turtle.getUpgradeWithData(side);
+        return upgradeData == null ? getModel(UpgradeData.ofDefault(upgrade), side) : getImpl(upgradeData, side);
+    }
+
+    @Override
+    public TransformedModel getModel(UpgradeData<? extends TurtleStorage> upgrade, TurtleSide side) {
+        return getImpl(upgrade, side);
+    }
+
+    private static TransformedModel getImpl(UpgradeData<? extends ITurtleUpgrade> upgrade, TurtleSide side) {
+        if (upgrade.getUpgradeItem().getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof ShulkerBoxBlock shulkerBoxBlock) {
             var color = shulkerBoxBlock.getColor();
             if (color == null) {
                 return TransformedModel.of(side == TurtleSide.LEFT ? LEFT : RIGHT);
@@ -72,7 +83,7 @@ public class TurtleStorageModeller implements TurtleUpgradeModeller<TurtleStorag
                 return new TransformedModel(model, Transformation.identity(), SHULKER_COLOURS.get(color));
             }
         } else {
-            return TurtleUpgradeModeller.flatItem().getModel(upgrade, turtle, side);
+            return TurtleUpgradeModeller.flatItem().getModel(upgrade, side);
         }
     }
 

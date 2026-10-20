@@ -380,8 +380,8 @@ class Turtle_Test {
             fail("Invalid upgrade item\n Expected => ${expected.tag}\n    Actual => ${upgrade.upgradeItem.tag}")
         }
 
-        if (!ItemStack.matches(ItemStack(expected.item), upgrade.upgrade.craftingItem)) {
-            fail("Original upgrade item has changed (is now ${upgrade.upgrade.craftingItem})")
+        if (!ItemStack.matches(ItemStack(expected.item), upgrade.upgrade().craftingItem)) {
+            fail("Original upgrade item has changed (is now ${upgrade.upgrade().craftingItem})")
         }
     }
 

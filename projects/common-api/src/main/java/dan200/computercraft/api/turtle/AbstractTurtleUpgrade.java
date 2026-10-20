@@ -60,6 +60,7 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade {
     }
 
     @Override
+    @Deprecated
     public final ItemStack getCraftingItem() {
         return stack;
     }

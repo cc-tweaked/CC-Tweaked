@@ -103,7 +103,7 @@ public class TurtleTool extends AbstractTurtleUpgrade.StackAware {
 
         // If the tool has broken, remove the upgrade!
         if (stack.isEmpty()) {
-            upgrade.clear();
+            upgrade.remove();
             return;
         }
 
@@ -153,6 +153,7 @@ public class TurtleTool extends AbstractTurtleUpgrade.StackAware {
      * Attack an entity.
      *
      * @param turtle    The current turtle.
+     * @param upgrade   The currently equipped upgrade.
      * @param direction The direction we're attacking in.
      * @return Whether an attack occurred.
      */

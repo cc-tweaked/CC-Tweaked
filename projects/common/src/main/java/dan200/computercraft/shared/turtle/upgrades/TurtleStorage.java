@@ -12,7 +12,6 @@ import dan200.computercraft.api.upgrades.UpgradeHandle;
 import dan200.computercraft.shared.peripheral.generic.methods.AbstractInventoryMethods;
 import dan200.computercraft.shared.platform.ItemContainer;
 import dan200.computercraft.shared.platform.PlatformHelper;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -21,13 +20,10 @@ import org.jspecify.annotations.Nullable;
 import java.util.Map;
 import java.util.Optional;
 
-import static net.minecraft.nbt.Tag.TAG_COMPOUND;
-
 /**
  * Turtle storage upgrade.
  */
 public final class TurtleStorage extends AbstractTurtleUpgrade.StackAware {
-    private static final String TAG_ITEM_TAG = "Tag";
     public static final String ADJECTIVE = "upgrade.computercraft.storage.adjective";
 
     public static final String DATA_PACK_NAME = "turtle_storage";
@@ -35,18 +31,6 @@ public final class TurtleStorage extends AbstractTurtleUpgrade.StackAware {
 
     public TurtleStorage(ResourceLocation id, Ingredient item) {
         super(id, TurtleUpgradeType.PERIPHERAL, ADJECTIVE, item);
-    }
-
-    @Override
-    public ItemStack getUpgradeItem(CompoundTag upgradeData) {
-        var item = super.getUpgradeItem(upgradeData).copy();
-        item.setTag(upgradeData.contains(TAG_ITEM_TAG, TAG_COMPOUND) ? upgradeData.getCompound(TAG_ITEM_TAG) : null);
-        return item;
-    }
-
-    @Override
-    public boolean isItemSuitable(ItemStack stack) {
-        return true;
     }
 
     @Override

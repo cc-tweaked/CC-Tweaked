@@ -61,7 +61,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * @return The model that you wish to be used to render your upgrade.
      * @deprecated Prefer {@link #getModel(UpgradeData, TurtleSide)}.
      */
-    @Deprecated
+    @Deprecated(since = "1.121.0")
     default TransformedModel getModel(T upgrade, @Unmodifiable CompoundTag data, TurtleSide side) {
         return getModel(upgrade, (ITurtleAccess) null, side);
     }
@@ -75,7 +75,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * @param side    Which side of the turtle (left or right) the upgrade resides on.
      * @return The model that you wish to be used to render your upgrade.
      */
-    default TransformedModel getModel(UpgradeData<T> upgrade, TurtleSide side) {
+    default TransformedModel getModel(UpgradeData<? extends T> upgrade, TurtleSide side) {
         return getModel(upgrade.upgrade(), upgrade.data(), side);
     }
 

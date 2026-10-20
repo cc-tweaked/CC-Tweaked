@@ -38,7 +38,8 @@ final class TurtleUpgradeModellers {
     private static final class UpgradeItemModeller implements TurtleUpgradeModeller<ITurtleUpgrade> {
         @Override
         public TransformedModel getModel(ITurtleUpgrade upgrade, @Nullable ITurtleAccess turtle, TurtleSide side) {
-            return getModel(turtle == null ? upgrade.getCraftingItem() : upgrade.getUpgradeItem(turtle.getUpgradeNBTData(side)), side);
+            var upgradeHandle = turtle == null ? null : turtle.getUpgradeHandle(side);
+            return getModel(upgradeHandle == null ? upgrade.getCraftingItem() : upgradeHandle.getItem(), side);
         }
 
         @Override
@@ -48,7 +49,7 @@ final class TurtleUpgradeModellers {
         }
 
         @Override
-        public TransformedModel getModel(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side) {
+        public TransformedModel getModel(UpgradeData<? extends ITurtleUpgrade> upgrade, TurtleSide side) {
             return getModel(upgrade.getUpgradeItem(), side);
         }
 

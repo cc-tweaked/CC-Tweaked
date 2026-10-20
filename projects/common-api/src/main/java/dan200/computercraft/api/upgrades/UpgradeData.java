@@ -47,7 +47,7 @@ public final class UpgradeData<T extends UpgradeBase> {
      * @param data    The upgrade's data.
      * @deprecated Use {@link UpgradeData#of(UpgradeBase, ItemStack, CompoundTag)}.
      */
-    @Deprecated
+    @Deprecated(since = "1.121.0")
     public UpgradeData(T upgrade, @Unmodifiable CompoundTag data) {
         this(upgrade, data, null);
     }
@@ -56,12 +56,12 @@ public final class UpgradeData<T extends UpgradeBase> {
      * A utility method to construct a new {@link UpgradeData} instance.
      *
      * @param upgrade An upgrade.
-     * @param data    The upgrade's data.
+     * @param data    The upgrade's data. This is <strong>not</strong> copied, so should not be modified after use.
      * @param <T>     The type of upgrade.
      * @return The new {@link UpgradeData} instance.
      * @deprecated Use {@link #of(UpgradeBase, ItemStack, CompoundTag)}
      */
-    @Deprecated
+    @Deprecated(since = "1.121.0")
     public static <T extends UpgradeBase> UpgradeData<T> of(T upgrade, @Unmodifiable CompoundTag data) {
         return new UpgradeData<>(upgrade, data);
     }
@@ -71,8 +71,10 @@ public final class UpgradeData<T extends UpgradeBase> {
      *
      * @param <T>     The type of upgrade.
      * @param upgrade An upgrade.
-     * @param data    The upgrade's data.
+     * @param stack   The upgrade's stack. This is <strong>not</strong> copied, so should not be modified after use.
+     * @param data    The upgrade's data. This is <strong>not</strong> copied, so should not be modified after use.
      * @return The new {@link UpgradeData} instance.
+     * @since 1.121.0
      */
     public static <T extends UpgradeBase> UpgradeData<T> of(T upgrade, @Unmodifiable ItemStack stack, @Unmodifiable CompoundTag data) {
         return new UpgradeData<>(upgrade, data, stack);

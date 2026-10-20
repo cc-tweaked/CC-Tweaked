@@ -88,20 +88,30 @@ public interface IPocketAccess {
      * Get the currently equipped upgrade.
      *
      * @return The currently equipped upgrade.
-     * @see #getUpgradeNBTData()
      * @see #setUpgrade(UpgradeData)
+     * @see #getUpgradeHandle()
      */
     @Nullable UpgradeData<IPocketUpgrade> getUpgrade();
 
+    /**
+     * Get a handle to the equipped upgrade.
+     * <p>
+     * This function is not thread safe and must be called from the server thread.
+     *
+     * @return The currently equipped upgrade.
+     * @see #setUpgrade(UpgradeData)
+     * @since 1.121.0
+     */
     @Nullable UpgradeHandle<IPocketUpgrade> getUpgradeHandle();
 
     /**
      * Set the upgrade for this pocket computer, also updating the item stack.
      * <p>
-     * Note this method is not thread safe - it must be called from the server thread.
+     * This function is not thread safe and must be called from the server thread.
      *
      * @param upgrade The new upgrade to set it to, may be {@code null}.
      * @see #getUpgrade()
+     * @see #getUpgradeHandle()
      */
     void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade);
 
@@ -117,28 +127,17 @@ public interface IPocketAccess {
      * @see #getUpgrade()
      * @deprecated Use {@link #getUpgradeHandle()} and {@link UpgradeHandle#getData()}.
      */
-    @Deprecated
-    default CompoundTag getUpgradeNBTData() {
-        var handle = getUpgradeHandle();
-        return handle == null ? new CompoundTag() : handle.getData();
-    }
+    @Deprecated(since = "1.121.0")
+    CompoundTag getUpgradeNBTData();
 
     /**
      * Mark the upgrade-specific NBT as dirty.
      *
      * @see #getUpgradeNBTData()
-     * @deprecated Use {@link #getUpgradeHandle()} and {@link UpgradeHandle#setChanged()}.
+     * @deprecated Use {@link #getUpgradeHandle()} and {@link UpgradeHandle#setDataChanged()}.
      */
-    @Deprecated
-    default void updateUpgradeNBTData() {
-        var handle = getUpgradeHandle();
-        if (handle == null) return;
-
-        // Legacy behaviour: overwrite the item with the version based on the upgrade data.
-        handle.setItem(handle.getUpgrade().getUpgradeItem(handle.getData()));
-
-        handle.setChanged();
-    }
+    @Deprecated(since = "1.121.0")
+    void updateUpgradeNBTData();
 
     /**
      * Remove the current peripheral and create a new one.

@@ -52,6 +52,7 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade {
     }
 
     @Override
+    @Deprecated
     public final ItemStack getCraftingItem() {
         return stack;
     }

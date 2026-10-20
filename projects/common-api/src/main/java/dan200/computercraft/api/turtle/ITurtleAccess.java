@@ -233,16 +233,26 @@ public interface ITurtleAccess {
     ITurtleUpgrade getUpgrade(TurtleSide side);
 
     /**
-     * Returns the upgrade on the specified side of the turtle, along with its {@linkplain #getUpgradeNBTData(TurtleSide)
-     * update data}.
+     * Returns the upgrade on the specified side of the turtle, along with its {@linkplain UpgradeHandle#getItem() item}
+     * and {@linkplain UpgradeHandle#getData() data}.
      *
      * @param side The side to get the upgrade from.
      * @return The upgrade on the specified side of the turtle, along with its upgrade data, if there is one.
-     * @see #getUpgradeWithData(TurtleSide)
+     * @see #getUpgradeHandle(TurtleSide)
      * @see #setUpgradeWithData(TurtleSide, UpgradeData)
      */
     @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(TurtleSide side);
 
+    /**
+     * Get a handle to the equipped upgrade.
+     * <p>
+     * This function is not thread safe and must be called from the server thread.
+     *
+     * @param side The side to get the upgrade from.
+     * @return The currently equipped upgrade.
+     * @see #setUpgradeWithData(TurtleSide, UpgradeData)
+     * @since 1.121.0
+     */
     @Nullable UpgradeHandle<ITurtleUpgrade> getUpgradeHandle(TurtleSide side);
 
     /**
@@ -285,10 +295,8 @@ public interface ITurtleAccess {
      * @return The upgrade-specific data.
      * @deprecated Use {@link #getUpgradeHandle(TurtleSide)} and {@link UpgradeHandle#getData()}.
      */
-    default CompoundTag getUpgradeNBTData(TurtleSide side) {
-        var handle = getUpgradeHandle(side);
-        return handle == null ? new CompoundTag() : handle.getData();
-    }
+    @Deprecated(since = "1.121.0")
+    CompoundTag getUpgradeNBTData(TurtleSide side);
 
     /**
      * Mark the upgrade-specific data as dirty on a specific side. This is required for the data to be synced to the
@@ -296,16 +304,8 @@ public interface ITurtleAccess {
      *
      * @param side The side to mark dirty.
      * @see #updateUpgradeNBTData(TurtleSide)
-     * @deprecated Use {@link #getUpgradeHandle(TurtleSide)} and {@link UpgradeHandle#setChanged()}.
+     * @deprecated Use {@link #getUpgradeHandle(TurtleSide)} and {@link UpgradeHandle#setDataChanged()}.
      */
-    @Deprecated
-    default void updateUpgradeNBTData(TurtleSide side) {
-        var handle = getUpgradeHandle(side);
-        if (handle == null) return;
-
-        // Legacy behaviour: overwrite the item with the version based on the upgrade data.
-        handle.setItem(handle.getUpgrade().getUpgradeItem(handle.getData()));
-
-        handle.setChanged();
-    }
+    @Deprecated(since = "1.121.0")
+    void updateUpgradeNBTData(TurtleSide side);
 }

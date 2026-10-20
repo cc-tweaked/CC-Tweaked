@@ -75,7 +75,7 @@ public class TurtleModem extends AbstractTurtleUpgrade.StackAware {
         var state = modem.getModemState();
         if (state.pollChanged()) {
             handle.getData().putBoolean("active", state.isOpen());
-            handle.setChanged();
+            handle.setDataChanged();
         }
     }
 

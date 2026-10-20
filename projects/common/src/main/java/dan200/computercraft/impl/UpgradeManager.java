@@ -111,7 +111,10 @@ public final class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T ex
         if (upgrade == null) return null;
 
         var data = tag.getCompound(key.data());
+
         var item = tag.contains(key.item(), Tag.TAG_COMPOUND) ? ItemStack.of(tag.getCompound(key.item())) : upgrade.getUpgradeItem(data);
+        if (!upgrade.isItemSuitable(item)) return null;
+
         return UpgradeData.of(upgrade, item, data);
     }
 
