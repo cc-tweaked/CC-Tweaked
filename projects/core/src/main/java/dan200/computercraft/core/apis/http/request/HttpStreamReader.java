@@ -4,16 +4,35 @@
 
 package dan200.computercraft.core.apis.http.request;
 
-import dan200.computercraft.api.lua.ILuaCallback;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.api.lua.*;
+import dan200.computercraft.core.apis.HTTPAPI;
+import dan200.computercraft.core.apis.handles.ReadHandle;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * A http response for streaming requests.
+ * <p>
+ * This provides the same methods as a {@link HttpResponseHandle} (and thus a {@link ReadHandle file}), but with
+ * additional support for asynchronous reading of the body.
+ *
+ * @cc.usage Make a streaming HTTP request and then print the response line-by-line.
+ * <pre>{@code
+ * local response = assert(http.get { url = "https://example.tweaked.cc/stream", streaming = true })
+ * while true do
+ *   local line = response.readLine()
+ *   if not line then break end
+ *   print(line)
+ * end
+ * response.close()
+ * }</pre>
+ * @cc.module http.StreamingResponse
+ * @cc.since 1.121.0
+ * @see HTTPAPI#request(IArguments)
+ */
 public final class HttpStreamReader {
     private final HttpRequest request;
     private final HttpBodyStream stream;
@@ -34,6 +53,13 @@ public final class HttpStreamReader {
         }
     }
 
+    /**
+     * Close this HTTP response, terminating the connection to the server.
+     * <p>
+     * Once a response has closed it may no longer be read from.
+     *
+     * @throws LuaException If the response has already been closed.
+     */
     @LuaFunction
     public void close() throws LuaException {
         checkOpen();
@@ -62,6 +88,22 @@ public final class HttpStreamReader {
         abstract MethodResult pollBody() throws LuaException;
     }
 
+    /**
+     * Read a number of bytes from the response's body.
+     *
+     * @param countArg    The number of bytes to read. This may be 0 to determine we are at the end of the request. When
+     *                    absent, a single byte will be read.
+     * @param blockingArg When {@code false}, this function will read at most {@code count} bytes and return immediately,
+     *                    rather than waiting for more content to be available.
+     * @return The read bytes.
+     * @throws LuaException When trying to read a negative number of bytes.
+     * @throws LuaException When trying to read too many bytes.
+     * @throws LuaException If the response has been closed.
+     * @cc.treturn [1] nil If we are at the end of the response's body.
+     * @cc.treturn [2] number The value of the byte read. This is returned if the request is opened in binary mode
+     * and {@code count} is absent
+     * @cc.treturn [3] string The bytes read as a string. This is returned when the {@code count} is given.
+     */
     @LuaFunction
     public MethodResult read(Optional<Integer> countArg, Optional<Boolean> blockingArg) throws LuaException {
         checkOpen();
@@ -79,12 +121,11 @@ public final class HttpStreamReader {
             throw new LuaException("Cannot read more than " + stream.getMaxReadable() + " bytes");
         }
 
-        if (count == 0) return MethodResult.of("");
-
         // Fast path for non-blocking reads or if the stream has sufficient contents/is readable.
         var finished = stream.isFinished();
         var readable = stream.getReadable();
         if (finished && readable == 0) return MethodResult.of();
+        if (count == 0) return MethodResult.of("");
         if (!blocking || finished || readable >= count) {
             return MethodResult.of(stream.read(Math.min(readable, count)).asReadOnlyBuffer());
         }
@@ -127,6 +168,14 @@ public final class HttpStreamReader {
         }
     }
 
+    /**
+     * Read the remainder of the response's body.
+     *
+     * @return The remaining contents of the body, or {@code null} in the event of an error.
+     * @throws LuaException If the response has been closed.
+     * @throws LuaException If the body is too large to be read in one go.
+     * @cc.treturn string The remaining response body.
+     */
     @LuaFunction
     public MethodResult readAll() throws LuaException {
         checkOpen();
@@ -143,6 +192,15 @@ public final class HttpStreamReader {
         }
     }
 
+    /**
+     * Read a line from the response's body.
+     *
+     * @param withTrailingArg Whether to include the newline characters with the returned string. Defaults to {@code false}.
+     * @return The read string.
+     * @throws LuaException If the response has been closed.
+     * @throws LuaException If the line is too large to be read in one go.
+     * @cc.treturn string|nil The read line or {@code nil} if at the end of the response.
+     */
     @LuaFunction
     public MethodResult readLine(Optional<Boolean> withTrailingArg) throws LuaException {
         checkOpen();
@@ -162,19 +220,30 @@ public final class HttpStreamReader {
         }
 
         @Override
-        MethodResult pollBody() {
-            var result = stream.readUntil(LF);
-            if (result == null) return awaitContent();
+        MethodResult pollBody() throws LuaException {
+            // If at the end of the stream, then return nil.
+            var readable = stream.getReadable();
+            if (stream.isFinished() && readable == 0) return MethodResult.of();
 
-            // Trim CR and LF if needed.
-            if (!withTrailing && result.hasRemaining() && result.get(result.limit() - 1) == LF) {
-                result.limit(result.limit() - 1);
-                if (result.hasRemaining() && result.get(result.limit() - 1) == CR) {
-                    result.limit(result.limit() - 1);
-                }
+            var result = stream.readUntil(LF);
+            if (result != null) {
+                if (!withTrailing) trimLineFeed(result);
+                return MethodResult.of(result.asReadOnlyBuffer());
             }
 
-            return MethodResult.of(result.asReadOnlyBuffer());
+            // If the response is larger than the buffer size, then it's impossible for us to ever read a line.
+            if (readable > stream.getMaxReadable()) throw new LuaException("Line is too large to read at once");
+
+            return awaitContent();
+        }
+
+        private static void trimLineFeed(ByteBuffer buffer) {
+            if (buffer.hasRemaining() && buffer.get(buffer.limit() - 1) == LF) {
+                buffer.limit(buffer.limit() - 1);
+                if (buffer.hasRemaining() && buffer.get(buffer.limit() - 1) == CR) {
+                    buffer.limit(buffer.limit() - 1);
+                }
+            }
         }
     }
 }

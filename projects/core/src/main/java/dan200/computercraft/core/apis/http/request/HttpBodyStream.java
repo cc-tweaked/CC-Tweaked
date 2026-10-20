@@ -16,9 +16,9 @@ import java.nio.ByteBuffer;
  */
 public interface HttpBodyStream {
     /**
-     * Return whether the stream is finished.
+     * Return whether the producer has stopped writing to the stream, so no more content will be written to it.
      *
-     * @return Whether the stream is finished.
+     * @return Whether the stream has stopped producing content.
      */
     boolean isFinished();
 
