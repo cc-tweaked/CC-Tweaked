@@ -6,7 +6,7 @@
   "pattern": ["#T"],
   "result": {
     "item": "computercraft:turtle_normal",
-    "nbt": "{RightUpgrade:\"minecraft:diamond_hoe\",RightUpgradeNbt:{Tag:{Damage:0}}}"
+    "nbt": "{RightUpgrade:\"minecraft:diamond_hoe\",RightUpgradeItem:{Count:1b,id:\"minecraft:diamond_hoe\",tag:{Damage:0}}}"
   },
   "show_notification": true
 }

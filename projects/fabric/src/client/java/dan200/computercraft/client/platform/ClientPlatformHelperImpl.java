@@ -28,6 +28,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
 import org.jspecify.annotations.Nullable;
 
+import java.util.function.IntUnaryOperator;
+
 @AutoService(dan200.computercraft.impl.client.ClientPlatformHelper.class)
 public class ClientPlatformHelperImpl implements ClientPlatformHelper {
     private static final RandomSource random = RandomSource.create(0);
@@ -51,7 +53,7 @@ public class ClientPlatformHelperImpl implements ClientPlatformHelper {
     }
 
     @Override
-    public void renderBakedModel(PoseStack transform, MultiBufferSource buffers, BakedModel model, int lightmapCoord, int overlayLight, int @Nullable [] tints) {
+    public void renderBakedModel(PoseStack transform, MultiBufferSource buffers, BakedModel model, int lightmapCoord, int overlayLight, @Nullable IntUnaryOperator tints) {
         // Unfortunately we can't call Fabric's emitItemQuads here, as there's no way to obtain a RenderContext via the
         // API. Instead, we special case our FoiledModel, and just render everything else normally.
         var buffer = ItemRenderer.getFoilBuffer(buffers, Sheets.translucentCullBlockSheet(), true, model instanceof FoiledModel);

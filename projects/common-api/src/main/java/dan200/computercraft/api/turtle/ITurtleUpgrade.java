@@ -26,12 +26,13 @@ import java.util.function.BiFunction;
  * <h2>Example</h2>
  * <h3>Registering the upgrade serialiser</h3>
  * First, let's create a new class that implements {@link ITurtleUpgrade}. It is recommended to subclass
- * {@link AbstractTurtleUpgrade}, as that provides a default implementation of most methods.
+ * {@link AbstractTurtleUpgrade.StackAware}, as that provides a default implementation of most methods.
  *
  * {@snippet class=com.example.examplemod.ExampleTurtleUpgrade region=body}
  * <p>
  * Now we must construct a new upgrade serialiser. In most cases, you can use one of the helper methods
- * (e.g. {@link TurtleUpgradeSerialiser#simpleWithCustomItem(BiFunction)}), rather than defining your own implementation.
+ * (e.g. {@link TurtleUpgradeSerialiser#simpleWithCustomIngredient(BiFunction)}), rather than defining your own
+ * implementation.
  *
  * {@snippet class=com.example.examplemod.ExampleMod region=turtle_upgrades}
  *
@@ -59,10 +60,10 @@ import java.util.function.BiFunction;
  * Upgrades themselves are loaded from datapacks when a level is loaded. In order to register our new upgrade, we must
  * create a new JSON file at {@code data/<my_mod>/computercraft/turtle_upgrades/<my_upgrade_id>.json}.
  *
- * {@snippet file = data/examplemod/computercraft/turtle_upgrades/example_turtle_upgrade.json}
+ * {@snippet file=data/examplemod/computercraft/turtle_upgrades/example_turtle_upgrade.json}
  *
  * The {@code "type"} field points to the ID of the upgrade serialiser we've just registered, while the other fields
- * are read by the serialiser itself. As our upgrade was defined with {@link TurtleUpgradeSerialiser#simpleWithCustomItem(BiFunction)}, the
+ * are read by the serialiser itself. As our upgrade was defined with {@link TurtleUpgradeSerialiser#simpleWithCustomIngredient(BiFunction)}, the
  * {@code "item"} field will construct our upgrade with {@link Items#COMPASS}.
  * <p>
  * Rather than manually creating the file, it is recommended to data-generators to generate this file. This can be done
@@ -71,6 +72,7 @@ import java.util.function.BiFunction;
  * {@snippet class=com.example.examplemod.data.TurtleDataProvider region=body}
  *
  * @see TurtleUpgradeSerialiser Registering a turtle upgrade.
+ * @see AbstractTurtleUpgrade.StackAware
  */
 public interface ITurtleUpgrade extends UpgradeBase {
     /**

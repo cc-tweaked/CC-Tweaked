@@ -11,11 +11,11 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.PlatformHelper;
 import dan200.computercraft.impl.TurtleUpgrades;
 import dan200.computercraft.impl.UpgradeManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,10 +70,10 @@ public final class TurtleUpgradeModellers {
         return modeller.getModel(upgrade, access, side);
     }
 
-    public static TransformedModel getModel(ITurtleUpgrade upgrade, CompoundTag data, TurtleSide side) {
+    public static TransformedModel getModel(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side) {
         @SuppressWarnings("unchecked")
-        var modeller = (TurtleUpgradeModeller<ITurtleUpgrade>) modelCache.computeIfAbsent(upgrade, TurtleUpgradeModellers::getModeller);
-        return modeller.getModel(upgrade, data, side);
+        var modeller = (TurtleUpgradeModeller<ITurtleUpgrade>) modelCache.computeIfAbsent(upgrade.upgrade(), TurtleUpgradeModellers::getModeller);
+        return modeller.getModel(upgrade, side);
     }
 
     private static TurtleUpgradeModeller<?> getModeller(ITurtleUpgrade upgradeA) {

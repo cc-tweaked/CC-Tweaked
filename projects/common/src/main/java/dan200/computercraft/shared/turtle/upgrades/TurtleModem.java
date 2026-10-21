@@ -11,12 +11,12 @@ import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeriph
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-public class TurtleModem extends AbstractTurtleUpgrade {
+public class TurtleModem extends AbstractTurtleUpgrade.StackAware {
     private static class Peripheral extends WirelessModemPeripheral {
         private final ITurtleAccess turtle;
 
@@ -48,8 +48,8 @@ public class TurtleModem extends AbstractTurtleUpgrade {
 
     private final boolean advanced;
 
-    public TurtleModem(ResourceLocation id, ItemStack stack, boolean advanced) {
-        super(id, TurtleUpgradeType.PERIPHERAL, advanced ? WirelessModemPeripheral.ADVANCED_ADJECTIVE : WirelessModemPeripheral.NORMAL_ADJECTIVE, stack);
+    public TurtleModem(ResourceLocation id, Ingredient item, boolean advanced) {
+        super(id, TurtleUpgradeType.PERIPHERAL, advanced ? WirelessModemPeripheral.ADVANCED_ADJECTIVE : WirelessModemPeripheral.NORMAL_ADJECTIVE, item);
         this.advanced = advanced;
     }
 
@@ -66,15 +66,16 @@ public class TurtleModem extends AbstractTurtleUpgrade {
     @Override
     public void update(ITurtleAccess turtle, TurtleSide side) {
         // Advance the modem
-        if (!turtle.getLevel().isClientSide) {
-            var peripheral = turtle.getPeripheral(side);
-            if (peripheral instanceof Peripheral modem) {
-                var state = modem.getModemState();
-                if (state.pollChanged()) {
-                    turtle.getUpgradeNBTData(side).putBoolean("active", state.isOpen());
-                    turtle.updateUpgradeNBTData(side);
-                }
-            }
+        if (turtle.getLevel().isClientSide) return;
+
+        var peripheral = turtle.getPeripheral(side);
+        var handle = turtle.getUpgradeHandle(side);
+        if (!(peripheral instanceof Peripheral modem) || handle == null) return;
+
+        var state = modem.getModemState();
+        if (state.pollChanged()) {
+            handle.getData().putBoolean("active", state.isOpen());
+            handle.setDataChanged();
         }
     }
 

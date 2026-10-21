@@ -60,21 +60,27 @@ public class UpgradeRecipeGenerator<T> {
         initialised = true;
 
         for (var upgrade : TurtleUpgrades.instance().getUpgrades()) {
-            var stack = upgrade.getCraftingItem();
-            if (stack.isEmpty()) return;
+            var ingredient = upgrade.getCraftingIngredient();
+            if (ingredient.isEmpty()) return;
 
-            var info = new UpgradeInfo(stack, upgrade);
-            upgradeItemLookup.computeIfAbsent(stack.getItem(), k -> new ArrayList<>(1)).add(info);
+            var info = new UpgradeInfo(ingredient, upgrade);
+            addUpgradeInfo(info);
             turtleUpgrades.add(info);
         }
 
         for (var upgrade : PocketUpgrades.instance().getUpgrades()) {
-            var stack = upgrade.getCraftingItem();
+            var stack = upgrade.getCraftingIngredient();
             if (stack.isEmpty()) return;
 
             var info = new UpgradeInfo(stack, upgrade);
-            upgradeItemLookup.computeIfAbsent(stack.getItem(), k -> new ArrayList<>(1)).add(info);
+            addUpgradeInfo(info);
             pocketUpgrades.add(info);
+        }
+    }
+
+    private void addUpgradeInfo(UpgradeInfo info) {
+        for (var stack : info.ingredient.getItems()) {
+            upgradeItemLookup.computeIfAbsent(stack.getItem(), k -> new ArrayList<>(1)).add(info);
         }
     }
 
@@ -92,10 +98,7 @@ public class UpgradeRecipeGenerator<T> {
         if (upgrades == null) return false;
 
         for (var upgrade : upgrades) {
-            var craftingStack = upgrade.stack;
-            if (!craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && upgrade.upgrade.isItemSuitable(stack)) {
-                return true;
-            }
+            if (upgrade.ingredient.test(stack) && upgrade.upgrade.isItemSuitable(stack)) return true;
         }
 
         return false;
@@ -153,10 +156,7 @@ public class UpgradeRecipeGenerator<T> {
             List<T> recipes = null;
             var multiple = false;
             for (var upgrade : upgrades) {
-                var craftingStack = upgrade.stack;
-                if (craftingStack.isEmpty() || craftingStack.getItem() != stack.getItem() || !upgrade.upgrade.isItemSuitable(stack)) {
-                    continue;
-                }
+                if (!upgrade.ingredient.test(stack) || !upgrade.upgrade.isItemSuitable(stack)) continue;
 
                 if (recipes == null) {
                     recipes = upgrade.getRecipes();
@@ -243,23 +243,20 @@ public class UpgradeRecipeGenerator<T> {
     }
 
     private class UpgradeInfo {
-        final ItemStack stack;
         final Ingredient ingredient;
         final @Nullable ITurtleUpgrade turtle;
         final @Nullable IPocketUpgrade pocket;
         final UpgradeBase upgrade;
         private @Nullable ArrayList<T> recipes;
 
-        UpgradeInfo(ItemStack stack, ITurtleUpgrade turtle) {
-            this.stack = stack;
-            ingredient = Ingredient.of(stack);
+        UpgradeInfo(Ingredient ingredient, ITurtleUpgrade turtle) {
+            this.ingredient = ingredient;
             upgrade = this.turtle = turtle;
             pocket = null;
         }
 
-        UpgradeInfo(ItemStack stack, IPocketUpgrade pocket) {
-            this.stack = stack;
-            ingredient = Ingredient.of(stack);
+        UpgradeInfo(Ingredient ingredient, IPocketUpgrade pocket) {
+            this.ingredient = ingredient;
             turtle = null;
             upgrade = this.pocket = pocket;
         }

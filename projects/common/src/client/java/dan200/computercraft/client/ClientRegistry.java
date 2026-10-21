@@ -11,6 +11,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.turtle.RegisterTurtleUpgradeModeller;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
+import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.render.CustomLecternRenderer;
@@ -18,6 +19,7 @@ import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.TurtleBlockEntityRenderer;
 import dan200.computercraft.client.render.monitor.MonitorBlockEntityRenderer;
 import dan200.computercraft.client.turtle.TurtleModemModeller;
+import dan200.computercraft.client.turtle.TurtleStorageModeller;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
@@ -28,6 +30,7 @@ import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import dan200.computercraft.shared.media.items.DiskItem;
 import dan200.computercraft.shared.media.items.TreasureDiskItem;
+import dan200.computercraft.shared.turtle.items.TurtleItem;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColor;
@@ -121,10 +124,7 @@ public final class ClientRegistry {
         register.register(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_NORMAL.get(), new TurtleModemModeller(false));
         register.register(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_ADVANCED.get(), new TurtleModemModeller(true));
         register.register(ModRegistry.TurtleSerialisers.TOOL.get(), TurtleUpgradeModeller.flatItem());
-        register.register(ModRegistry.TurtleSerialisers.STORAGE.get(), TurtleUpgradeModeller.sided(
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_shulker_left"),
-            new ResourceLocation(ComputerCraftAPI.MOD_ID, "block/turtle_shulker_right")
-        ));
+        register.register(ModRegistry.TurtleSerialisers.STORAGE.get(), new TurtleStorageModeller());
     }
 
     @SafeVarargs
@@ -187,7 +187,15 @@ public final class ClientRegistry {
     }
 
     private static int getTurtleColour(ItemStack stack, int layer) {
-        return layer == 0 ? ((IColouredItem) stack.getItem()).getColour(stack) : 0xFFFFFF;
+        var item = (TurtleItem) stack.getItem();
+        if (layer == 0) return item.getColour(stack);
+
+        var side = (layer % 2) == 1 ? TurtleSide.LEFT : TurtleSide.RIGHT;
+        var upgrade = item.getUpgradeWithData(stack, side);
+        if (upgrade == null) return -1;
+
+        var model = TurtleUpgradeModellers.getModel(upgrade, side);
+        return model.getTint((layer - 1) / 2);
     }
 
     public static void registerShaders(ResourceProvider resources, BiConsumer<ShaderInstance, Consumer<@Nullable ShaderInstance>> load) throws IOException {

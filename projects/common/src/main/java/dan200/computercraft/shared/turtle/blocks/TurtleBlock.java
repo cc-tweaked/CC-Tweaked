@@ -203,7 +203,7 @@ public class TurtleBlock extends AbstractComputerBlock<TurtleBlockEntity> implem
     }
 
     private static @Nullable UpgradeData<ITurtleUpgrade> withPersistedData(@Nullable UpgradeData<ITurtleUpgrade> upgrade) {
-        return upgrade == null ? null : UpgradeData.of(upgrade.upgrade(), upgrade.upgrade().getPersistedData(upgrade.data()));
+        return upgrade == null ? null : UpgradeData.of(upgrade.upgrade(), upgrade.getUpgradeItem(), upgrade.upgrade().getPersistedData(upgrade.data()));
     }
 
     @Override

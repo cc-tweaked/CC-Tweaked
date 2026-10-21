@@ -10,12 +10,12 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 
 
-public class TurtleCraftingTable extends AbstractTurtleUpgrade {
-    public TurtleCraftingTable(ResourceLocation id, ItemStack stack) {
-        super(id, TurtleUpgradeType.PERIPHERAL, "upgrade.minecraft.crafting_table.adjective", stack);
+public class TurtleCraftingTable extends AbstractTurtleUpgrade.StackAware {
+    public TurtleCraftingTable(ResourceLocation id, Ingredient item) {
+        super(id, TurtleUpgradeType.PERIPHERAL, "upgrade.minecraft.crafting_table.adjective", item);
     }
 
     @Override

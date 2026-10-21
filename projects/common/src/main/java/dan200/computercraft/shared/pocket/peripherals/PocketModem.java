@@ -9,14 +9,14 @@ import dan200.computercraft.api.pocket.AbstractPocketUpgrade;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import org.jspecify.annotations.Nullable;
 
-public class PocketModem extends AbstractPocketUpgrade {
+public class PocketModem extends AbstractPocketUpgrade.StackAware {
     private final boolean advanced;
 
-    public PocketModem(ResourceLocation id, ItemStack stack, boolean advanced) {
-        super(id, advanced ? WirelessModemPeripheral.ADVANCED_ADJECTIVE : WirelessModemPeripheral.NORMAL_ADJECTIVE, stack);
+    public PocketModem(ResourceLocation id, Ingredient item, boolean advanced) {
+        super(id, advanced ? WirelessModemPeripheral.ADVANCED_ADJECTIVE : WirelessModemPeripheral.NORMAL_ADJECTIVE, item);
         this.advanced = advanced;
     }
 

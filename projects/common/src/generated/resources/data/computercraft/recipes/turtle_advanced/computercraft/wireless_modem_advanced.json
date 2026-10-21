@@ -6,7 +6,7 @@
   "pattern": ["#T"],
   "result": {
     "item": "computercraft:turtle_advanced",
-    "nbt": "{RightUpgrade:\"computercraft:wireless_modem_advanced\"}"
+    "nbt": "{RightUpgrade:\"computercraft:wireless_modem_advanced\",RightUpgradeItem:{Count:1b,id:\"computercraft:wireless_modem_advanced\"}}"
   },
   "show_notification": true
 }

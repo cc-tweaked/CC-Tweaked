@@ -25,7 +25,7 @@ public final class ExampleMod {
      * This only defines the upgrade type. See {@link TurtleDataProvider} for defining the actual upgrade.
      */
     // @start region=turtle_upgrades
-    public static final TurtleUpgradeSerialiser<ExampleTurtleUpgrade> EXAMPLE_TURTLE_UPGRADE = TurtleUpgradeSerialiser.simpleWithCustomItem(
+    public static final TurtleUpgradeSerialiser<ExampleTurtleUpgrade> EXAMPLE_TURTLE_UPGRADE = TurtleUpgradeSerialiser.simpleWithCustomIngredient(
         ExampleTurtleUpgrade::new
     );
     // @end region=turtle_upgrades

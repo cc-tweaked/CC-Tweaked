@@ -36,7 +36,11 @@ public class ForgeDataProviders {
     @SubscribeEvent
     public static void gather(GatherDataEvent event) {
         var generator = event.getGenerator();
-        DataProviders.add(new GeneratorFactoryImpl(generator, generator.getVanillaPack(true), event.getExistingFileHelper(), event.getLookupProvider()));
+        var pack = generator.getVanillaPack(true);
+        DataProviders.add(new GeneratorFactoryImpl(generator, pack, event.getExistingFileHelper(), event.getLookupProvider()));
+        pack.addProvider(o -> new ForgeConventionalTagsProvider(
+            o, event.getLookupProvider(), CompletableFuture.completedFuture(TagsProvider.TagLookup.empty()), event.getExistingFileHelper()
+        ));
     }
 
     private record GeneratorFactoryImpl(

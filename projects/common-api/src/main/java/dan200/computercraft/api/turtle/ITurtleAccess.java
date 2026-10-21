@@ -8,13 +8,12 @@ import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.upgrades.UpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
@@ -234,18 +233,27 @@ public interface ITurtleAccess {
     ITurtleUpgrade getUpgrade(TurtleSide side);
 
     /**
-     * Returns the upgrade on the specified side of the turtle, along with its {@linkplain #getUpgradeNBTData(TurtleSide)
-     * update data}.
+     * Returns the upgrade on the specified side of the turtle, along with its {@linkplain UpgradeHandle#getItem() item}
+     * and {@linkplain UpgradeHandle#getData() data}.
      *
      * @param side The side to get the upgrade from.
      * @return The upgrade on the specified side of the turtle, along with its upgrade data, if there is one.
-     * @see #getUpgradeWithData(TurtleSide)
+     * @see #getUpgradeHandle(TurtleSide)
      * @see #setUpgradeWithData(TurtleSide, UpgradeData)
      */
-    default @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(TurtleSide side) {
-        var upgrade = getUpgrade(side);
-        return upgrade == null ? null : UpgradeData.of(upgrade, getUpgradeNBTData(side));
-    }
+    @Nullable UpgradeData<ITurtleUpgrade> getUpgradeWithData(TurtleSide side);
+
+    /**
+     * Get a handle to the equipped upgrade.
+     * <p>
+     * This function is not thread safe and must be called from the server thread.
+     *
+     * @param side The side to get the upgrade from.
+     * @return The currently equipped upgrade.
+     * @see #setUpgradeWithData(TurtleSide, UpgradeData)
+     * @since 1.121.0
+     */
+    @Nullable UpgradeHandle<ITurtleUpgrade> getUpgradeHandle(TurtleSide side);
 
     /**
      * Set the upgrade for a given side, resetting peripherals and clearing upgrade specific data.
@@ -275,8 +283,7 @@ public interface ITurtleAccess {
      * @param side The side to get the peripheral from.
      * @return The peripheral created by the upgrade on the specified side of the turtle, {@code null} if none exists.
      */
-    @Nullable
-    IPeripheral getPeripheral(TurtleSide side);
+    @Nullable IPeripheral getPeripheral(TurtleSide side);
 
     /**
      * Get an upgrade-specific NBT compound, which can be used to store arbitrary data.
@@ -286,10 +293,9 @@ public interface ITurtleAccess {
      *
      * @param side The side to get the upgrade data for.
      * @return The upgrade-specific data.
-     * @see #updateUpgradeNBTData(TurtleSide)
-     * @see UpgradeBase#getUpgradeItem(CompoundTag)
-     * @see UpgradeBase#getUpgradeData(ItemStack)
+     * @deprecated Use {@link #getUpgradeHandle(TurtleSide)} and {@link UpgradeHandle#getData()}.
      */
+    @Deprecated(since = "1.121.0")
     CompoundTag getUpgradeNBTData(TurtleSide side);
 
     /**
@@ -298,6 +304,8 @@ public interface ITurtleAccess {
      *
      * @param side The side to mark dirty.
      * @see #updateUpgradeNBTData(TurtleSide)
+     * @deprecated Use {@link #getUpgradeHandle(TurtleSide)} and {@link UpgradeHandle#setDataChanged()}.
      */
+    @Deprecated(since = "1.121.0")
     void updateUpgradeNBTData(TurtleSide side);
 }

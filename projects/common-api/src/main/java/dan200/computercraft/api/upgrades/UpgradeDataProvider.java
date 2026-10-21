@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.impl.PlatformHelper;
+import dan200.computercraft.impl.upgrades.SerialiserWithCraftingIngredient;
 import dan200.computercraft.impl.upgrades.SerialiserWithCraftingItem;
 import dan200.computercraft.impl.upgrades.SimpleSerialiser;
 import net.minecraft.Util;
@@ -19,6 +20,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.Ingredient;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
@@ -75,6 +77,10 @@ public abstract class UpgradeDataProvider<T extends UpgradeBase, R extends Upgra
      * @return The constructed upgrade, ready to be passed off to {@link #addUpgrades(Consumer)}'s consumer.
      */
     public final Upgrade<R> simpleWithCustomItem(ResourceLocation id, R serialiser, Item item) {
+        if (serialiser instanceof SerialiserWithCraftingIngredient<?>) {
+            return simpleWithCustomItem(id, serialiser, Ingredient.of(item));
+        }
+
         if (!(serialiser instanceof SerialiserWithCraftingItem)) {
             throw new IllegalStateException(serialiser + " must be a simpleWithCustomItem() serialiser.");
         }
@@ -82,6 +88,31 @@ public abstract class UpgradeDataProvider<T extends UpgradeBase, R extends Upgra
         return new Upgrade<>(id, serialiser, s ->
             s.addProperty("item", PlatformHelper.get().getRegistryKey(Registries.ITEM, item).toString())
         );
+    }
+
+    /**
+     * Register an upgrade using a "simple" serialiser (e.g. {@link TurtleUpgradeSerialiser#simple(Function)}).
+     *
+     * @param id         The ID of the upgrade to create.
+     * @param serialiser The simple serialiser.
+     * @param item       The crafting upgrade for this item.
+     * @return The constructed upgrade, ready to be passed off to {@link #addUpgrades(Consumer)}'s consumer.
+     * @since 1.121.0
+     */
+    public final Upgrade<R> simpleWithCustomItem(ResourceLocation id, R serialiser, Ingredient item) {
+        if (!(serialiser instanceof SerialiserWithCraftingIngredient<?>)) {
+            throw new IllegalStateException(serialiser + " must be a simpleWithCustomIngredient() serialiser.");
+        }
+
+        return new Upgrade<>(id, serialiser, s -> {
+            var itemJson = item.toJson();
+            if (itemJson instanceof JsonObject obj && obj.size() == 1 && obj.has("item")) {
+                // Preserve compatibility with our previous format.
+                s.add("item", obj.get("item"));
+            } else {
+                s.add("item", itemJson);
+            }
+        });
     }
 
     /**

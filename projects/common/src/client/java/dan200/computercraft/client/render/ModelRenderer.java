@@ -17,6 +17,7 @@ import org.joml.Vector4f;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.IntUnaryOperator;
 
 /**
  * Utilities for rendering {@link BakedModel}s and {@link BakedQuad}s.
@@ -28,7 +29,7 @@ public final class ModelRenderer {
     /**
      * Render a list of {@linkplain BakedQuad quads} to a buffer.
      * <p>
-     * This is not intended to be used directly, but instead by {@link ClientPlatformHelper#renderBakedModel(PoseStack, MultiBufferSource, BakedModel, int, int, int[])}. The
+     * This is not intended to be used directly, but instead by {@link ClientPlatformHelper#renderBakedModel(PoseStack, MultiBufferSource, BakedModel, int, int, IntUnaryOperator)}. The
      * implementation here is pretty similar to {@link ItemRenderer#renderQuadList(PoseStack, VertexConsumer, List, ItemStack, int, int)},
      * but supports inverted quads (i.e. those with a negative scale).
      *
@@ -39,16 +40,12 @@ public final class ModelRenderer {
      * @param overlayLight  The current overlay light.
      * @param tints         Block colour tints to apply to the model.
      */
-    public static void renderQuads(PoseStack transform, VertexConsumer buffer, List<BakedQuad> quads, int lightmapCoord, int overlayLight, int @Nullable [] tints) {
+    public static void renderQuads(PoseStack transform, VertexConsumer buffer, List<BakedQuad> quads, int lightmapCoord, int overlayLight, @Nullable IntUnaryOperator tints) {
         var matrix = transform.last();
         var inverted = matrix.pose().determinant() < 0;
 
         for (var bakedquad : quads) {
-            var tint = -1;
-            if (tints != null && bakedquad.isTinted()) {
-                var idx = bakedquad.getTintIndex();
-                if (idx >= 0 && idx < tints.length) tint = tints[bakedquad.getTintIndex()];
-            }
+            var tint = tints != null && bakedquad.isTinted() ? tints.applyAsInt(bakedquad.getTintIndex()) : -1;
 
             var r = (float) (tint >> 16 & 255) / 255.0F;
             var g = (float) (tint >> 8 & 255) / 255.0F;
