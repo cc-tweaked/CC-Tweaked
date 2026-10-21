@@ -48,7 +48,7 @@ final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> {
     HttpRequest(
         ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment,
         String address, HttpUri uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers,
-        boolean binary, boolean followRedirects
+        boolean binary, boolean followRedirects, boolean streaming
     ) {
         super(limiter, new Init(uri, method));
         this.environment = environment;
@@ -57,6 +57,9 @@ final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> {
         this.headers = headers;
         this.binary = binary;
         this.followRedirects = followRedirects;
+        if (streaming) {
+            throw new UnsupportedOperationException("streaming is not yet implemented on js handler");
+        }
 
         if (postBody != null) {
             if (!headers.contains(HttpHeaderNames.CONTENT_TYPE)) {

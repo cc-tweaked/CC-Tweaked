@@ -4,10 +4,7 @@
 
 package dan200.computercraft.core.apis.http
 
-import dan200.computercraft.api.lua.Coerced
-import dan200.computercraft.api.lua.LuaException
-import dan200.computercraft.api.lua.LuaValues
-import dan200.computercraft.api.lua.ObjectArguments
+import dan200.computercraft.api.lua.*
 import dan200.computercraft.core.apis.HTTPAPI
 import dan200.computercraft.core.apis.IAPIEnvironment
 import dan200.computercraft.core.apis.handles.ReadHandle
@@ -16,18 +13,27 @@ import dan200.computercraft.core.apis.http.TestHttpApi.Companion.LIMITED_DURATIO
 import dan200.computercraft.core.apis.http.options.Action
 import dan200.computercraft.core.apis.http.options.AddressRule
 import dan200.computercraft.core.apis.http.request.HttpResponseHandle
+import dan200.computercraft.core.apis.http.request.HttpStreamReader
 import dan200.computercraft.core.apis.http.websocket.WebsocketHandle
 import dan200.computercraft.test.core.computer.LuaTaskRunner
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http.HttpHeaderNames
+import io.netty.handler.codec.http.LastHttpContent
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withTimeoutOrNull
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.assertThrows
 import java.lang.ref.Reference
 import java.nio.ByteBuffer
+import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.random.RandomGenerator
@@ -65,13 +71,29 @@ class TestHttpApi {
      *
      * This test runs with a longer timeout, as these tests are a little more timing-sensitive than most.
      */
-    private fun runWithServer(closeWebsocket: Boolean = true, timeout: Duration = 10.seconds, fn: suspend LuaTaskRunner.(HttpServer) -> Unit) {
-        HttpServer.runServer(closeWebsocket = closeWebsocket) { server -> LuaTaskRunner.runTest(timeout) { fn(server) } }
+    private fun runWithServer(closeWebsocket: Boolean = true, timeout: Duration = 10.seconds, fn: suspend LuaTaskRunner.(HttpServer, scope: CoroutineScope) -> Unit) {
+        HttpServer.runServer(closeWebsocket = closeWebsocket) { server -> LuaTaskRunner.runTest(timeout) { scope -> fn(server, scope) } }
+    }
+
+    /** Assert the result of a `read()` function returns the given string. */
+    private suspend fun LuaTaskRunner.assertRead(result: MethodResult, expected: String): Unit =
+        assertRead(result.await(), expected)
+
+    /** Assert the result of a `read()` function returns the given string. */
+    private fun assertRead(result: Array<out Any?>?, expected: String) {
+        assertThat(result, array(anyOf(isA(ByteBuffer::class.java), isA(ByteArray::class.java))))
+
+        val contents = when (val buffer = result!![0]) {
+            is ByteBuffer -> buffer
+            is ByteArray -> ByteBuffer.wrap(buffer)
+            else -> throw AssertionError("Must be a ByteBuffer or byte[]")
+        }
+        assertEquals(expected, StandardCharsets.UTF_8.decode(contents).toString())
     }
 
     @Test
     fun `Connects to a HTTP server`() {
-        runWithServer { server ->
+        runWithServer { server, _ ->
             val url = "http://127.0.0.1:${server.port}"
             val httpApi = addApi(createHttpApi(environment, server.port))
             assertThat("http.request succeeded", httpApi.request(ObjectArguments(url)), array(equalTo(true)))
@@ -81,7 +103,182 @@ class TestHttpApi {
 
             val handle = result[2] as HttpResponseHandle
             val reader = handle.extra.iterator().next() as ReadHandle
-            assertThat(reader.readAll(), array(equalTo("Hello, world!".toByteArray())))
+            assertRead(reader.readAll(), "Hello, world!")
+        }
+    }
+
+    @Test
+    fun `HTTP failure on 404`() {
+        runWithServer { server, _ ->
+            val url = "http://127.0.0.1:${server.port}/missing"
+            val httpApi = addApi(createHttpApi(environment, server.port))
+            assertThat("http.request succeeded", httpApi.request(ObjectArguments(url)), array(equalTo(true)))
+
+            val result = pullEvent("http_failure")
+            assertThat(result, array(equalTo("http_failure"), equalTo(url), equalTo("Not Found"), isA(HttpResponseHandle::class.java)))
+
+            val handle = result[3] as HttpResponseHandle
+            val reader = handle.extra.iterator().next() as ReadHandle
+            assertRead(reader.readAll(), "404 Not Found")
+        }
+    }
+
+    @Test
+    fun `Handles connection error`() {
+        runWithServer { server, _ ->
+            val url = "https://127.0.0.1:${server.port}/missing"
+            val httpApi = addApi(createHttpApi(environment, server.port))
+            assertThat("http.request succeeded", httpApi.request(ObjectArguments(url)), array(equalTo(true)))
+
+            val result = pullEvent("http_failure")
+            assertThat(result, array(equalTo("http_failure"), equalTo(url), equalTo("Could not connect")))
+        }
+    }
+
+    @Nested
+    inner class Streaming {
+        private suspend fun LuaTaskRunner.streaming(server: HttpServer, path: String, config: NettyHttp.Config = NettyHttp.DEFAULT_CONFIG): Triple<String, HttpResponseHandle, HttpStreamReader> {
+            val url = "http://127.0.0.1:${server.port}$path"
+            val httpApi = addApi(createHttpApi(environment, server.port, config))
+
+            val request = httpApi.request(ObjectArguments(mapOf("url" to url, "streaming" to true)))
+            assertThat("http.request succeeded", request, array(equalTo(true)))
+
+            val result = pullEvent("http_success")
+            assertThat(result, array(equalTo("http_success"), equalTo(url), isA(HttpResponseHandle::class.java)))
+
+            val handle = result[2] as HttpResponseHandle
+            val reader = handle.extra.single() as HttpStreamReader
+            return Triple(url, handle, reader)
+        }
+
+        @Test
+        fun `Can stream content`() {
+            runWithServer { server, _ ->
+                val (_, response, reader) = streaming(server, "/stream")
+                assertRead(
+                    reader.read(Optional.of(70), Optional.empty()),
+                    "Hello, world!\n".repeat(5),
+                )
+
+                reader.close()
+                Reference.reachabilityFence(response)
+            }
+        }
+
+        /**
+         * Test if `read()`-like functions are interrupted and abort when the remote socket closes cleanly.
+         */
+        @Test
+        fun `read() aborts on clean exit`() {
+            runWithServer { server, _ ->
+                val (_, response, reader) = streaming(server, "/stream?limit=1")
+                assertRead(reader.readAll(), "Hello, world!\n")
+                reader.close()
+                Reference.reachabilityFence(response)
+            }
+        }
+
+        /**
+         * Test if `read()`-like functions are interrupted and abort when the remote socket dies.
+         *
+         * In practice, this triggers the same codepath as the above test: [io.netty.handler.codec.ByteToMessageDecoder]
+         * queues [LastHttpContent.EMPTY_LAST_CONTENT] on channel disconnect, so we always close the connection there.
+         */
+        @Test
+        fun `read() aborts on abnormal exit`() {
+            runWithServer { server, scope ->
+                val (_, response, reader) = streaming(server, "/stream?limit=1&close=false")
+                val readAll = scope.async { reader.readAll().await() }
+                assertNull(withTimeoutOrNull(500.milliseconds) { readAll.await() })
+                server.stop()
+                assertRead(readAll.await(), "Hello, world!\n")
+
+                reader.close()
+                Reference.reachabilityFence(response)
+            }
+        }
+
+        /**
+         * Test if `read()`-like functions are interrupted and abort when the remote socket dies using chunked encoding.
+         *
+         * If the remote socket is using chunked encoding, Netty does *not* enqueue a
+         * [LastHttpContent.EMPTY_LAST_CONTENT], so we wake up the readers in `channelInactive`.
+         */
+        @Test
+        fun `read() aborts on abnormal exit (chunked)`() {
+            runWithServer { server, scope ->
+                val (_, response, reader) = streaming(server, "/stream?limit=1&close=false&chunked=true")
+                val readAll = scope.async { reader.readAll().await() }
+                assertNull(withTimeoutOrNull(500.milliseconds) { readAll.await() })
+                server.stop()
+                assertRead(readAll.await(), "Hello, world!\n")
+
+                reader.close()
+                Reference.reachabilityFence(response)
+            }
+        }
+
+        @Test
+        fun `Read line`() {
+            runWithServer { server, _ ->
+                val (_, response, reader) = streaming(server, "/stream")
+                assertRead(reader.readLine(Optional.empty()), "Hello, world!")
+                assertRead(reader.read(Optional.of(5), Optional.empty()), "Hello")
+                assertRead(reader.readLine(Optional.of(true)), ", world!\n")
+                reader.close()
+                Reference.reachabilityFence(response)
+            }
+        }
+
+        @Test
+        fun `Read line waits for content`() {
+            runWithServer { server, _ ->
+                val (_, response, reader) = streaming(server, "/stream?delay=300")
+                assertRead(reader.readLine(Optional.empty()), "Hello, world!")
+                val read = reader.readLine(Optional.empty())
+                assertThat(read.callback, notNullValue())
+                assertThat(read.result, array(equalTo("http_content")))
+                assertRead(read, "Hello, world!")
+
+                reader.close()
+                Reference.reachabilityFence(response)
+            }
+        }
+
+        @Test
+        fun `Read line returns remaining text on end`() {
+            runWithServer { server, _ ->
+                val (_, response, reader) = streaming(server, "/stream?limit=1&lines=false")
+                assertRead(reader.readLine(Optional.empty()), "Hello, world!")
+                assertRead(reader.readLine(Optional.empty()), "")
+                reader.close()
+                Reference.reachabilityFence(response)
+            }
+        }
+
+        @Test
+        fun `Obeys bandwidth limits`() {
+            runWithServer { server, _ ->
+                val (_, response, reader) = streaming(server, "/stream", createHttpConfig(downloadBandwidth = BANDWIDTH_MESSAGE_SIZE * BANDWIDTH_SCALE))
+
+                val start = System.nanoTime()
+                val deadline = start + TimeUnit.SECONDS.toNanos(2)
+                var read = 0
+                var now: Long
+                do {
+                    now = System.nanoTime()
+                    reader.read(Optional.of(BANDWIDTH_MESSAGE_SIZE), Optional.empty()).await()
+                    read += BANDWIDTH_MESSAGE_SIZE
+                } while (now <= deadline)
+
+                reader.close()
+                Reference.reachabilityFence(response)
+
+                val total = (now - start).nanoseconds
+                val bytesPerSecond = read / (total.inWholeNanoseconds * 1e-9)
+                assertThat("Bytes/second is less than twice bandwidth", bytesPerSecond, lessThan(BANDWIDTH_MESSAGE_SIZE * BANDWIDTH_SCALE * 2.0))
+            }
         }
     }
 
@@ -97,7 +294,7 @@ class TestHttpApi {
 
     @Test
     fun `Connects to websocket`() {
-        runWithServer { server ->
+        runWithServer { server, _ ->
             val httpApi = addApi(createHttpApi(environment, server.port))
             val (url, websocket) = websocket(server, httpApi)
 
@@ -119,7 +316,7 @@ class TestHttpApi {
 
     @Test
     fun `Errors if too many websocket messages are sent`() {
-        runWithServer { server ->
+        runWithServer { server, _ ->
             val httpApi = addApi(createHttpApi(environment, server.port))
             val (_, websocket) = websocket(server, httpApi)
 
@@ -137,7 +334,7 @@ class TestHttpApi {
 
     @Test
     fun `Closes if a websocket message is too large`() {
-        runWithServer { server ->
+        runWithServer { server, _ ->
             val httpApi = addApi(createHttpApi(environment, server.port))
             val (url, websocket) = websocket(server, httpApi)
 
@@ -154,7 +351,7 @@ class TestHttpApi {
 
     @Test
     fun `Queues an event when the socket is externally closed`() {
-        runWithServer { server ->
+        runWithServer { server, _ ->
             val httpApi = addApi(createHttpApi(environment, server.port))
             val (url, websocket) = websocket(server, httpApi)
 
@@ -177,7 +374,7 @@ class TestHttpApi {
 
     @Test
     fun `Closes websocket if the server doesn't respond`() {
-        runWithServer(closeWebsocket = false) { server ->
+        runWithServer(closeWebsocket = false) { server, _ ->
             val httpApi = addApi(createHttpApi(environment, server.port))
             val (url, websocket) = websocket(server, httpApi)
 
@@ -212,7 +409,7 @@ class TestHttpApi {
             return ByteBuffer.wrap(message).asReadOnlyBuffer()
         }
 
-        runWithServer { server ->
+        runWithServer { server, _ ->
             val httpApi = addApi(createHttpApi(environment, server.port, config))
             val (_, websocket) = websocket(server, httpApi)
 
@@ -252,7 +449,8 @@ class TestHttpApi {
 
     @Test
     fun `Limits upload bandwidth`() {
-        val delay = measureWebsocketDelay(createHttpConfig(uploadBandwidth = BANDWIDTH_MESSAGE_SIZE * BANDWIDTH_SCALE))
+        val delay =
+            measureWebsocketDelay(createHttpConfig(uploadBandwidth = BANDWIDTH_MESSAGE_SIZE * BANDWIDTH_SCALE))
         // When sending a message which does hit the bandwidth cap, then we should expect a delay in sending the message,
         // but not in receiving the reply.
         assertThat("Send delay", delay.send, greaterThan(LIMITED_DURATION))
