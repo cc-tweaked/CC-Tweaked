@@ -33,9 +33,16 @@ public final class UpgradeData<T extends UpgradeBase> {
         this.stack = stack;
 
         if (stack != null) {
-            if (stack.getCount() != 1) throw new IllegalArgumentException("Stack must be of size 1");
+            if (stack.getCount() != 1) {
+                throw new IllegalArgumentException(
+                    "Error constructing UpgradeData for " + upgrade.getUpgradeID() + ": Item " + stack + " must be of size 1."
+                );
+            }
+
             if (!upgrade.getCraftingIngredient().test(stack) || !upgrade.isItemSuitable(stack)) {
-                throw new IllegalArgumentException("Item is not suitable for this upgrade");
+                throw new IllegalArgumentException(
+                    "Error constructing UpgradeData for " + upgrade.getUpgradeID() + ": Item " + stack + " is not suitable for this upgrade."
+                );
             }
         }
     }

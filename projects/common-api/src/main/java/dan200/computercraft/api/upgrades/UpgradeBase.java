@@ -63,7 +63,7 @@ public interface UpgradeBase {
      * <p>
      * This should be constant over a session (or at least a datapack reload).
      *
-     * @return The ingredient for this upgrade, or {@link Ingredient#EMPTY} if it cannot be crafted.
+     * @return The ingredient for this upgrade.
      */
     default Ingredient getCraftingIngredient() {
         return Ingredient.of(getCraftingItem());

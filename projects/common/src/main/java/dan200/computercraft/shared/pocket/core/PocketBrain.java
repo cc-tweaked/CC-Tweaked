@@ -172,7 +172,7 @@ public final class PocketBrain implements IPocketAccess {
     public void updateUpgradeNBTData() {
         dirty = true;
 
-        // Force re-compute the item
+        // If marking the data as dirty via the old API then recompute the item from the upgrade data.
         var upgrade = this.upgrade;
         if (upgrade != null) upgrade.recomputeItem();
     }

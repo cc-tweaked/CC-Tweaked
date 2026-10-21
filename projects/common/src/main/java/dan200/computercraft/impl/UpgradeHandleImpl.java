@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 The CC: Tweaked Developers
+//
+// SPDX-License-Identifier: MPL-2.0
+
 package dan200.computercraft.impl;
 
 import dan200.computercraft.api.upgrades.UpgradeBase;
@@ -33,12 +37,20 @@ final class UpgradeHandleImpl<U extends UpgradeBase> implements UpgradeHandle<U>
     @Override
     public void setItem(ItemStack newItem) {
         holder.requireValid();
-        if (newItem.getCount() != 1) throw new IllegalArgumentException("Item must have a count of 1");
+
+        var upgrade = holder.getUpgrade();
+        if (newItem.getCount() != 1) {
+            throw new IllegalArgumentException(
+                "Error setting item for " + upgrade.getUpgradeID() + ": Item " + newItem + " must be of size 1."
+            );
+        }
 
         if (ItemStack.isSameItemSameTags(holder.getItem(), newItem)) return;
 
-        if (!holder.getUpgrade().isItemSuitable(newItem)) {
-            throw new IllegalArgumentException("Item is not valid for upgrade");
+        if (!upgrade.getCraftingIngredient().test(newItem) || !upgrade.isItemSuitable(newItem)) {
+            throw new IllegalArgumentException(
+                "Error setting item for " + upgrade.getUpgradeID() + ": Item " + newItem + " is not valid for this upgrade."
+            );
         }
 
         holder.setItem(newItem);

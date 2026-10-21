@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import org.jspecify.annotations.Nullable;
 
 
 /**
@@ -19,7 +20,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 public abstract class AbstractPocketUpgrade implements IPocketUpgrade {
     private final ResourceLocation id;
     private final String adjective;
-    private final ItemStack stack;
+    private final @Nullable ItemStack stack;
     private final Ingredient ingredient;
 
     protected AbstractPocketUpgrade(ResourceLocation id, String adjective, ItemStack stack) {
@@ -32,8 +33,7 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade {
     protected AbstractPocketUpgrade(ResourceLocation id, String adjective, Ingredient ingredient) {
         this.id = id;
         this.adjective = adjective;
-        var items = ingredient.getItems();
-        this.stack = items.length == 0 ? ItemStack.EMPTY : items[0];
+        this.stack = null; // We need to lazily resolve the ingredient, so don't set the stack.
         this.ingredient = ingredient;
     }
 
@@ -54,7 +54,10 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade {
     @Override
     @Deprecated
     public final ItemStack getCraftingItem() {
-        return stack;
+        if (stack != null) return stack;
+
+        var items = ingredient.getItems();
+        return items.length == 0 ? ItemStack.EMPTY : items[0];
     }
 
     @Override
