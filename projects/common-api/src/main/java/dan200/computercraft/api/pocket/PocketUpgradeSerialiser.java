@@ -88,6 +88,7 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
      * @param <T>     The type of the generated upgrade.
      * @return The serialiser for this upgrade.
      * @see #simple(Function)  For upgrades whose crafting stack should not vary.
+     * @since 1.121.0
      */
     static <T extends IPocketUpgrade> PocketUpgradeSerialiser<T> simpleWithCustomIngredient(BiFunction<ResourceLocation, Ingredient, T> factory) {
         final class Impl extends SerialiserWithCraftingIngredient<T> implements PocketUpgradeSerialiser<T> {

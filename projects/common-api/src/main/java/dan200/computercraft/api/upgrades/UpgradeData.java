@@ -84,7 +84,7 @@ public final class UpgradeData<T extends UpgradeBase> {
      * @since 1.121.0
      */
     public static <T extends UpgradeBase> UpgradeData<T> of(T upgrade, @Unmodifiable ItemStack stack, @Unmodifiable CompoundTag data) {
-        return new UpgradeData<>(upgrade, data, stack);
+        return new UpgradeData<>(upgrade, data, stack.copy());
     }
 
     /**
@@ -110,10 +110,20 @@ public final class UpgradeData<T extends UpgradeBase> {
         return upgrade == null ? null : upgrade.copy();
     }
 
+    /**
+     * Get the current upgrade.
+     *
+     * @return The current upgrade
+     */
     public T upgrade() {
         return upgrade;
     }
 
+    /**
+     * Get the upgrade data.
+     *
+     * @return The upgrade data.
+     */
     public @Unmodifiable CompoundTag data() {
         return data;
     }
@@ -136,7 +146,7 @@ public final class UpgradeData<T extends UpgradeBase> {
      * @return A copy of the current instance.
      */
     public UpgradeData<T> copy() {
-        return new UpgradeData<>(upgrade(), data().copy(), stack == null ? null : stack.copy());
+        return new UpgradeData<>(upgrade(), data().copy(), stack);
     }
 
     @Override

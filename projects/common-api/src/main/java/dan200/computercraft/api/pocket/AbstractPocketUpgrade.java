@@ -65,6 +65,15 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade {
         return ingredient;
     }
 
+    /**
+     * A version of {@link AbstractPocketUpgrade} which is aware of the stack the upgrade was equipped with.
+     * <p>
+     * Upgrades implementing this method should only interact with the upgrade via
+     * {@link IPocketAccess#getUpgradeHandle()} (and not {@link IPocketAccess#getUpgradeNBTData()} or
+     * {@link IPocketAccess#updateUpgradeNBTData()}).
+     *
+     * @since 1.121.0
+     */
     public abstract static class StackAware extends AbstractPocketUpgrade {
         protected StackAware(ResourceLocation id, String adjective, Ingredient ingredient) {
             super(id, adjective, ingredient);

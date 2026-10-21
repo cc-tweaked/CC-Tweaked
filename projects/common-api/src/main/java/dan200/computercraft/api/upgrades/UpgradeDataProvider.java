@@ -97,6 +97,7 @@ public abstract class UpgradeDataProvider<T extends UpgradeBase, R extends Upgra
      * @param serialiser The simple serialiser.
      * @param item       The crafting upgrade for this item.
      * @return The constructed upgrade, ready to be passed off to {@link #addUpgrades(Consumer)}'s consumer.
+     * @since 1.121.0
      */
     public final Upgrade<R> simpleWithCustomItem(ResourceLocation id, R serialiser, Ingredient item) {
         if (!(serialiser instanceof SerialiserWithCraftingIngredient<?>)) {
@@ -118,7 +119,7 @@ public abstract class UpgradeDataProvider<T extends UpgradeBase, R extends Upgra
      * Add all turtle or pocket computer upgrades.
      *
      * <h4>Example</h4>
-     * {@snippet class = com.example.examplemod.data.TurtleDataProvider region = body}
+     * {@snippet class=com.example.examplemod.data.TurtleDataProvider region=body}
      *
      * @param addUpgrade A callback used to register an upgrade.
      */

@@ -92,7 +92,10 @@ public class TurtleTool extends AbstractTurtleUpgrade.StackAware {
         return item;
     }
 
-    private void setToolStack(UpgradeHandle<ITurtleUpgrade> upgrade, ItemStack stack) {
+    private void setToolStack(ITurtleAccess turtle, UpgradeHandle<ITurtleUpgrade> upgrade, ItemStack stack) {
+        // If the turtle has been removed, then don't write back the item.
+        if (turtle.isRemoved()) return;
+
         var oldStack = upgrade.getItem();
         var useDurability = switch (consumeDurability) {
             case NEVER -> false;
@@ -122,7 +125,7 @@ public class TurtleTool extends AbstractTurtleUpgrade.StackAware {
 
         var result = action.apply(turtlePlayer);
 
-        setToolStack(upgrade, turtlePlayer.player().getItemInHand(InteractionHand.MAIN_HAND));
+        setToolStack(turtle, upgrade, turtlePlayer.player().getItemInHand(InteractionHand.MAIN_HAND));
         turtlePlayer.player().getInventory().clearContent();
 
         return result;
@@ -191,7 +194,7 @@ public class TurtleTool extends AbstractTurtleUpgrade.StackAware {
             TurtleUtil.stopConsuming(turtle);
 
             // Put everything we collected into the turtles inventory.
-            setToolStack(upgrade, player.getItemInHand(InteractionHand.MAIN_HAND));
+            setToolStack(turtle, upgrade, player.getItemInHand(InteractionHand.MAIN_HAND));
             player.getInventory().clearContent();
         }
 

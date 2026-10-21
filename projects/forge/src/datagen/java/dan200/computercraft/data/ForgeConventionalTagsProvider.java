@@ -22,7 +22,7 @@ public class ForgeConventionalTagsProvider extends ItemTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        tag(ForgeConventionalTags.SHULKER_BOX).add(
+        tag(ForgeConventionalTags.SHULKER_BOXES).add(
             Items.SHULKER_BOX,
             Items.WHITE_SHULKER_BOX,
             Items.ORANGE_SHULKER_BOX,

@@ -13,7 +13,7 @@ import net.minecraft.world.item.Item;
  * {@code ConventionalItemTags} for Forge for cases where there's no existing one.
  */
 public class ForgeConventionalTags {
-    public static final TagKey<Item> SHULKER_BOX = item("shulker_box");
+    public static final TagKey<Item> SHULKER_BOXES = item("shulker_boxes");
 
     private static TagKey<Item> item(String name) {
         return TagKey.create(Registries.ITEM, new ResourceLocation("c", name));

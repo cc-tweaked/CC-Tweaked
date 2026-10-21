@@ -64,6 +64,7 @@ public interface UpgradeBase {
      * This should be constant over a session (or at least a datapack reload).
      *
      * @return The ingredient for this upgrade.
+     * @since 1.121.0
      */
     default Ingredient getCraftingIngredient() {
         return Ingredient.of(getCraftingItem());

@@ -33,14 +33,10 @@ public abstract class AbstractUpgradeHolder<U extends UpgradeBase> {
     private final UpgradeHandle<U> handle;
 
     protected AbstractUpgradeHolder(UpgradeData<U> upgrade) {
-        this(upgrade.upgrade(), upgrade.getUpgradeItem(), upgrade.data().copy());
-    }
-
-    public AbstractUpgradeHolder(U upgrade, ItemStack item, CompoundTag data) {
-        this.upgrade = upgrade;
-        this.item = item;
-        this.data = data;
-        this.handle = new UpgradeHandleImpl<U>(this);
+        this.upgrade = upgrade.upgrade();
+        item = upgrade.getUpgradeItem();
+        data = upgrade.data().copy();
+        handle = new UpgradeHandleImpl<>(this);
     }
 
     /**

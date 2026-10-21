@@ -74,6 +74,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * @param upgrade The upgrade that you're getting the model for.
      * @param side    Which side of the turtle (left or right) the upgrade resides on.
      * @return The model that you wish to be used to render your upgrade.
+     * @since 1.121.0
      */
     default TransformedModel getModel(UpgradeData<? extends T> upgrade, TurtleSide side) {
         return getModel(upgrade.upgrade(), upgrade.data(), side);

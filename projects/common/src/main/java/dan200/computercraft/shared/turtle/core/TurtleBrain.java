@@ -516,11 +516,10 @@ public class TurtleBrain implements TurtleAccessInternal {
         // This function may be called from the client (i.e. within a turtle modeller), in which case we always allow
         // it.
         var server = getLevel().getServer();
-        if (server != null && !server.isSameThread()) {
-            throw new IllegalStateException("Must be called from the main thread");
-        }
+        if (server == null) return;
 
-        if (owner.isRemoved()) throw new IllegalStateException("Turtle has been removed");
+        if (!server.isSameThread()) throw new IllegalStateException("Must be called from the main thread");
+        if (isRemoved()) throw new IllegalStateException("Turtle has been removed");
     }
 
     @Override
@@ -762,12 +761,13 @@ public class TurtleBrain implements TurtleAccessInternal {
 
         @Override
         protected void requireValid() {
-
+            if (upgrades.get(side) != this) throw new IllegalStateException("Upgrade is no longer present");
+            requirePresent();
         }
 
         @Override
         protected void setChanged() {
-
+            BlockEntityHelpers.updateBlock(owner);
         }
 
         @Override

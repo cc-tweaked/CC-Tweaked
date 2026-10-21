@@ -73,6 +73,15 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade {
         return ingredient;
     }
 
+    /**
+     * A version of {@link AbstractTurtleUpgrade} which is aware of the stack the upgrade was equipped with.
+     * <p>
+     * Upgrades implementing this method should only interact with the upgrade via
+     * {@link ITurtleAccess#getUpgradeHandle(TurtleSide)} (and not {@link ITurtleAccess#getUpgradeNBTData(TurtleSide)}
+     * or {@link ITurtleAccess#updateUpgradeNBTData(TurtleSide)}).
+     *
+     * @since 1.121.0
+     */
     public abstract static class StackAware extends AbstractTurtleUpgrade {
         protected StackAware(ResourceLocation id, TurtleUpgradeType type, String adjective, Ingredient ingredient) {
             super(id, type, adjective, ingredient);
