@@ -78,7 +78,7 @@ public final class DiskDriveBlockEntity extends AbstractContainerBlockEntity {
     private boolean recordPlaying = false;
     // In order to avoid main-thread calls in the peripheral, we set flags to mark which operation should be performed,
     // then read them when ticking.
-    private final AtomicReference<RecordCommand> recordQueued = new AtomicReference<>(null);
+    private final AtomicReference<@Nullable RecordCommand> recordQueued = new AtomicReference<>(null);
     private final AtomicBoolean ejectQueued = new AtomicBoolean(false);
 
     /**

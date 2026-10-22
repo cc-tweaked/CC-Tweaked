@@ -374,7 +374,7 @@ public record ComputerSelector(
         CompletableFuture<Suggestions> suggest(CommandContext<?> source, SuggestionsBuilder builder);
     }
 
-    private static SuggestionProvider suggestComputers(Function<ServerComputer, String> renderer) {
+    private static SuggestionProvider suggestComputers(Function<ServerComputer, @Nullable String> renderer) {
         return (anyContext, builder) -> suggestOnServer(anyContext, context -> {
             var remaining = builder.getRemaining();
             for (var computer : ServerContext.get(context.getSource().getServer()).registry().getComputers()) {

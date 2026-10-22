@@ -8,7 +8,6 @@ import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.core.util.StringUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -430,7 +429,7 @@ public class OSAPI implements ILuaAPI {
     @LuaFunction
     public final Object date(Optional<String> formatA, Optional<Long> timeA) throws LuaException {
         var format = formatA.orElse("%c");
-        long time = Nullability.assertNonNull(timeA.orElseGet(() -> Instant.now().getEpochSecond()));
+        long time = timeA.orElseGet(() -> Instant.now().getEpochSecond());
 
         var instant = Instant.ofEpochSecond(time);
         ZonedDateTime date;

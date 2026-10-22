@@ -69,15 +69,7 @@ public final class NBTUtil {
             case Tag.TAG_BYTE, Tag.TAG_SHORT, Tag.TAG_INT, Tag.TAG_LONG -> ((NumericTag) tag).getAsLong();
             case Tag.TAG_FLOAT, Tag.TAG_DOUBLE -> ((NumericTag) tag).getAsDouble();
             case Tag.TAG_STRING -> tag.getAsString();
-            case Tag.TAG_COMPOUND -> {
-                var compound = (CompoundTag) tag;
-                Map<String, Object> map = new HashMap<>(compound.size());
-                for (var key : compound.getAllKeys()) {
-                    var value = toLua(compound.get(key));
-                    if (value != null) map.put(key, value);
-                }
-                yield map;
-            }
+            case Tag.TAG_COMPOUND -> toLua((CompoundTag) tag);
             case Tag.TAG_LIST -> ((ListTag) tag).stream().map(NBTUtil::toLua).toList();
             case Tag.TAG_BYTE_ARRAY -> {
                 var array = ((ByteArrayTag) tag).getAsByteArray();
@@ -89,6 +81,15 @@ public final class NBTUtil {
             case Tag.TAG_LONG_ARRAY -> Arrays.stream(((LongArrayTag) tag).getAsLongArray()).boxed().toList();
             default -> null;
         };
+    }
+
+    public static Map<String, Object> toLua(CompoundTag tag) {
+        Map<String, Object> map = new HashMap<>(tag.size());
+        for (var key : tag.getAllKeys()) {
+            var value = toLua(tag.get(key));
+            if (value != null) map.put(key, value);
+        }
+        return map;
     }
 
     @Nullable

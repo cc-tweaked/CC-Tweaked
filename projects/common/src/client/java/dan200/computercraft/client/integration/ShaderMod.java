@@ -7,7 +7,6 @@ package dan200.computercraft.client.integration;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import dan200.computercraft.client.render.vbo.DirectVertexBuffer;
-import dan200.computercraft.core.util.Nullability;
 
 import java.nio.ByteBuffer;
 import java.util.Optional;
@@ -49,10 +48,10 @@ public class ShaderMod {
     }
 
     private static final class Storage {
-        static final ShaderMod INSTANCE = Nullability.assertNonNull(ServiceLoader.load(Provider.class)
+        static final ShaderMod INSTANCE = ServiceLoader.load(Provider.class)
             .stream()
             .flatMap(x -> x.get().get().stream())
             .findFirst()
-            .orElseGet(ShaderMod::new));
+            .orElseGet(ShaderMod::new);
     }
 }

@@ -86,7 +86,6 @@ public abstract class Resource<R extends Resource<R, S>, S extends Resource.Reso
         return state.lock();
     }
 
-    @SuppressWarnings("NullAway") // FIXME: NullAway doesn't support generics.
     @CheckReturnValue
     private boolean setState(LockedReference.ReadWriteHandle<@Nullable S> stateHandle, @Nullable S newState) {
         var oldState = stateHandle.get();

@@ -12,6 +12,7 @@ import dan200.computercraft.shared.platform.RegistryWrappers;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -20,7 +21,7 @@ import java.util.Objects;
  *
  * @see net.minecraft.commands.synchronization.ArgumentUtils
  */
-public class ArgumentUtils {
+class ArgumentUtils {
     public static <A extends ArgumentType<?>> JsonObject serializeToJson(ArgumentTypeInfo.Template<A> template) {
         var object = new JsonObject();
         object.addProperty("type", "argument");
@@ -34,7 +35,9 @@ public class ArgumentUtils {
     }
 
     @SuppressWarnings("unchecked")
-    private static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>> void serializeToJson(JsonObject jsonObject, ArgumentTypeInfo<A, T> argumentTypeInfo, ArgumentTypeInfo.Template<A> template) {
+    private static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.@Nullable Template<A>> void serializeToJson(
+        JsonObject jsonObject, ArgumentTypeInfo<A, T> argumentTypeInfo, ArgumentTypeInfo.Template<A> template
+    ) {
         argumentTypeInfo.serializeToJson((T) template, jsonObject);
     }
 
@@ -43,7 +46,9 @@ public class ArgumentUtils {
     }
 
     @SuppressWarnings("unchecked")
-    private static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>> void serializeToNetwork(FriendlyByteBuf buffer, ArgumentTypeInfo<A, T> type, ArgumentTypeInfo.Template<A> template) {
+    private static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.@Nullable Template<A>> void serializeToNetwork(
+        FriendlyByteBuf buffer, ArgumentTypeInfo<A, T> type, ArgumentTypeInfo.Template<A> template
+    ) {
         buffer.writeId(RegistryWrappers.COMMAND_ARGUMENT_TYPES, type);
         type.serializeToNetwork((T) template, buffer);
     }
