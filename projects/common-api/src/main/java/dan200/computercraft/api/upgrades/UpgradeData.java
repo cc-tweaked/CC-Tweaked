@@ -143,7 +143,7 @@ public final class UpgradeData<T extends UpgradeBase> {
         if (obj == this) return true;
         return obj instanceof UpgradeData<?> that
             && upgrade == that.upgrade && data.equals(that.data)
-            && ((stack == null && that.stack == null) || ItemStack.isSameItemSameComponents(getStack(), that.getStack()));
+            && ((stack == null && that.stack == null) || ItemStack.matches(getStack(), that.getStack()));
     }
 
     @Override
@@ -153,6 +153,6 @@ public final class UpgradeData<T extends UpgradeBase> {
 
     @Override
     public String toString() {
-        return "UpgradeData[upgrade=" + upgrade.key().location() + ", data=" + data + ", stack=" + stack + "]";
+        return "UpgradeData[upgrade=" + upgrade.key().location() + ", data=" + data + ", stack=" + (stack == null ? "null" : stack.getItem().toString() + stack.getComponentsPatch()) + "]";
     }
 }

@@ -67,6 +67,9 @@ class Recipe_Test {
         val pocketUpgrades = registries.lookupOrThrow(IPocketUpgrade.REGISTRY)
         val generator = UpgradeRecipeGenerator({ it }, registries)
 
+        println("Got packs => " + context.level.server.packRepository.selectedIds)
+        println("Got items => " + turtleUpgrades.listElementIds().toList())
+
         fun checkUsage(message: String, size: Int, item: ItemStack) {
             val recipes = generator.findRecipesWithInput(item)
             assertEquals(size, recipes.size, message)

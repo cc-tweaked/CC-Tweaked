@@ -24,6 +24,7 @@ import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.gametest.framework.GameTestSequence
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -119,9 +120,13 @@ class Pocket_Computer_Test {
     @GameTest
     fun Data_fixers(helper: GameTestHelper) = helper.sequence {
         thenExecute {
-            val upgrade = helper.level.registryAccess().registryOrThrow(IPocketUpgrade.REGISTRY)
-                .getHolder(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "wireless_modem_normal"))
-                .orElseThrow()
+            val upgrade = UpgradeData.of(
+                helper.level.registryAccess().getOrThrow(
+                    ResourceKey.create(IPocketUpgrade.REGISTRY, ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "wireless_modem_advanced")),
+                ),
+                DataComponentUtil.createStack(ModRegistry.Items.WIRELESS_MODEM_ADVANCED.get(), DataComponents.CUSTOM_NAME, Component.literal("My favourite modem")),
+                DataComponentPatch.EMPTY,
+            )
 
             helper.assertContainerExactly(
                 BlockPos(2, 2, 2),
@@ -131,7 +136,8 @@ class Pocket_Computer_Test {
                         it.applyComponents(
                             DataComponentPatch.builder()
                                 .set(ModRegistry.DataComponents.COMPUTER_ID.get(), NonNegativeId(123))
-                                .set(ModRegistry.DataComponents.POCKET_UPGRADE.get(), UpgradeData.ofDefault(upgrade))
+                                .set(ModRegistry.DataComponents.POCKET_UPGRADE.get(), upgrade)
+                                .set(ModRegistry.DataComponents.ON.get(), false)
                                 .build(),
                         )
                     },

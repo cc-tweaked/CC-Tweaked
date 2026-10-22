@@ -33,4 +33,7 @@ accessible field net/minecraft/client/sounds/SoundEngine executor Lnet/minecraft
 # Turtle model
 accessible method net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V
 
+# Data fixers
+accessible method net/minecraft/util/datafix/fixes/ItemStackComponentizationFix fixItemStack (Lnet/minecraft/util/datafix/fixes/ItemStackComponentizationFix$ItemStackData;Lcom/mojang/serialization/Dynamic;)V
 accessible class net/minecraft/util/datafix/fixes/ItemStackComponentizationFix$ItemStackData
+accessible field net/minecraft/util/datafix/fixes/ItemStackComponentizationFix$ItemStackData tag Lcom/mojang/serialization/Dynamic;

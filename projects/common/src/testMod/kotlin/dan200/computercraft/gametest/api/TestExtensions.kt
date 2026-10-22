@@ -13,11 +13,10 @@ import dan200.computercraft.shared.util.RegistryHelper
 import dan200.computercraft.test.core.computer.LuaTaskContext
 import dan200.computercraft.test.shared.ItemStackMatcher.isStack
 import net.minecraft.commands.arguments.blocks.BlockInput
-import net.minecraft.core.BlockPos
-import net.minecraft.core.Direction
-import net.minecraft.core.NonNullList
+import net.minecraft.core.*
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.gametest.framework.*
+import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.Container
 import net.minecraft.world.InteractionHand
@@ -423,3 +422,7 @@ inline fun tryMultipleTimes(count: Int, action: () -> Unit) {
         }
     }
 }
+
+/** Find an entry in a registry provider. */
+fun <T> HolderLookup.Provider.getOrThrow(key: ResourceKey<T>): Holder.Reference<T> =
+    lookupOrThrow(key.registryKey()).getOrThrow(key)
