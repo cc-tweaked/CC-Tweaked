@@ -72,7 +72,7 @@ public class Builder {
 
         // Then finally start the compiler!
         run(output, remapper, TeaVMTargetType.JAVASCRIPT, TeaVMOptimizationLevel.ADVANCED, minify);
-        run(output, remapper, TeaVMTargetType.WEBASSEMBLY_GC, TeaVMOptimizationLevel.SIMPLE, minify);
+        run(output, remapper, TeaVMTargetType.WEBASSEMBLY_GC, TeaVMOptimizationLevel.ADVANCED, minify);
 
         try (var runtime = Objects.requireNonNull(Builder.class.getClassLoader()).getResourceAsStream("org/teavm/backend/wasm/wasm-gc-module-runtime.js")) {
             if (runtime == null) throw new IllegalStateException("Cannot find WASM runtime");
