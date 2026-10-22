@@ -382,7 +382,7 @@ fun GameTestHelper.assertCraftable(items: List<ItemStack>, result: ItemStack, wi
     val actualResult = recipe.get().assemble(container, level.registryAccess())
 
     if (matchNbt) {
-        if (!ItemStack.isSameItemSameTags(actualResult, result) || actualResult.count != result.count) {
+        if (!ItemStack.matches(actualResult, result)) {
             fail("Expected $items to craft ${result}${result.tag}, got ${actualResult}${actualResult.tag}")
         }
     } else {

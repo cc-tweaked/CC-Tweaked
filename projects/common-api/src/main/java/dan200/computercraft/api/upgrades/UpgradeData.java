@@ -12,8 +12,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Objects;
-
 /**
  * An upgrade (i.e. a {@link ITurtleUpgrade}) and its current upgrade data.
  * <p>
@@ -136,7 +134,11 @@ public final class UpgradeData<T extends UpgradeBase> {
      * @return This upgrade's item.
      */
     public ItemStack getUpgradeItem() {
-        return (stack == null ? upgrade.getUpgradeItem(data) : stack).copy();
+        return getStack().copy();
+    }
+
+    private ItemStack getStack() {
+        return stack == null ? upgrade().getUpgradeItem(data) : stack;
     }
 
     /**
@@ -152,24 +154,14 @@ public final class UpgradeData<T extends UpgradeBase> {
     @Override
     public boolean equals(@Nullable Object obj) {
         if (obj == this) return true;
-        return obj instanceof UpgradeData<?> that && upgrade == that.upgrade && data.equals(that.data) && areStacksEqual(stack, that.stack);
-    }
-
-    private static boolean areStacksEqual(@Nullable ItemStack left, @Nullable ItemStack right) {
-        if (left == null) return right == null;
-        return right != null && ItemStack.isSameItemSameTags(left, right);
+        return obj instanceof UpgradeData<?> that
+            && upgrade == that.upgrade && data.equals(that.data)
+            && ((stack == null && that.stack == null) || ItemStack.matches(getStack(), that.getStack()));
     }
 
     @Override
     public int hashCode() {
-        var result = upgrade.hashCode();
-        result = 31 * result + data.hashCode();
-        result = 31 * result + hashStack(stack);
-        return result;
-    }
-
-    private static int hashStack(@Nullable ItemStack stack) {
-        return stack == null ? 0 : stack.getItem().hashCode() * 31 + Objects.hash(stack.getTag());
+        return 31 * upgrade.hashCode() + data.hashCode();
     }
 
     @Override

@@ -26,7 +26,7 @@ import org.jspecify.annotations.Nullable;
 public abstract class AbstractUpgradeHolder<U extends UpgradeBase> {
     private final U upgrade;
     private @Unmodifiable ItemStack item;
-    private CompoundTag data;
+    private final CompoundTag data;
 
     private @Nullable UpgradeData<U> upgradeData;
 
@@ -58,7 +58,7 @@ public abstract class AbstractUpgradeHolder<U extends UpgradeBase> {
      */
     protected abstract void remove();
 
-    public final @Unmodifiable U getUpgrade() {
+    public final U getUpgrade() {
         return upgrade;
     }
 
@@ -66,7 +66,7 @@ public abstract class AbstractUpgradeHolder<U extends UpgradeBase> {
         return upgradeData != null ? upgradeData : (upgradeData = UpgradeData.of(upgrade, item, data));
     }
 
-    public final ItemStack getItem() {
+    public final @Unmodifiable ItemStack getItem() {
         return item;
     }
 

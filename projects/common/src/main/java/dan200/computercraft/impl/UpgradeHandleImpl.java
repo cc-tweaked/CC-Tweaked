@@ -45,7 +45,7 @@ final class UpgradeHandleImpl<U extends UpgradeBase> implements UpgradeHandle<U>
             );
         }
 
-        if (ItemStack.isSameItemSameTags(holder.getItem(), newItem)) return;
+        if (ItemStack.matches(holder.getItem(), newItem)) return;
 
         if (!upgrade.getCraftingIngredient().test(newItem) || !upgrade.isItemSuitable(newItem)) {
             throw new IllegalArgumentException(

@@ -114,7 +114,7 @@ public class TurtleTool extends AbstractTurtleUpgrade.StackAware {
         if (!getCraftingIngredient().test(stack) || !isItemSuitable(stack)) return;
 
         // Early return if the item hasn't changed to avoid redundant syncs with the client.
-        if (ItemStack.isSameItemSameTags(stack, oldStack)) return;
+        if (ItemStack.matches(stack, oldStack)) return;
 
         upgrade.setItem(stack);
     }
