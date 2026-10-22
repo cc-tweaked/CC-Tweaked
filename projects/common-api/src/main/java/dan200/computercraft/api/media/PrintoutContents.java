@@ -15,7 +15,6 @@ import java.util.stream.Stream;
  *
  * @since 1.115
  */
-@Nullable
 public interface PrintoutContents {
     /**
      * Get the (possibly empty) title for this printout.

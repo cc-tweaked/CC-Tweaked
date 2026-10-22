@@ -5,6 +5,7 @@
 package dan200.computercraft.client.model.turtle;
 
 import com.mojang.math.Transformation;
+import dan200.computercraft.api.turtle.TurtleSide;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.FaceBakery;
 import net.minecraft.client.resources.model.BakedModel;
@@ -33,10 +34,12 @@ public class ModelTransformer {
     protected final Matrix4f transformation;
     protected final boolean invert;
     private @Nullable TransformedQuads cache;
+    private final @Nullable TurtleSide side;
 
-    public ModelTransformer(Transformation transformation) {
+    public ModelTransformer(Transformation transformation, @Nullable TurtleSide side) {
         this.transformation = transformation.getMatrix();
         invert = transformation.getMatrix().determinant() < 0;
+        this.side = side;
     }
 
     public List<BakedQuad> transform(List<BakedQuad> quads) {
@@ -80,7 +83,14 @@ public class ModelTransformer {
         }
 
         var direction = Direction.rotate(transformation, quad.getDirection());
-        return new BakedQuad(outputData, quad.getTintIndex(), direction, quad.getSprite(), quad.isShade());
+        var tintIndex = getTintIndex(quad.getTintIndex());
+        return new BakedQuad(outputData, tintIndex, direction, quad.getSprite(), quad.isShade());
+    }
+
+    protected final int getTintIndex(int index) {
+        if (index == -1 || side == null) return index;
+        var offset = side == TurtleSide.LEFT ? 1 : 2;
+        return index * 2 + offset;
     }
 
     public static int getVertexOffset(int vertex, boolean invert) {

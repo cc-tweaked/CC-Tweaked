@@ -16,7 +16,7 @@ import java.util.Objects;
 public final class ObjectArguments implements IArguments {
     private static final IArguments EMPTY = new ObjectArguments();
 
-    private final List<Object> args;
+    private final List<@Nullable Object> args;
 
     @Deprecated
     @SuppressWarnings("unused")
@@ -24,11 +24,11 @@ public final class ObjectArguments implements IArguments {
         throw new IllegalStateException();
     }
 
-    public ObjectArguments(Object... args) {
+    public ObjectArguments(@Nullable Object... args) {
         this.args = Arrays.asList(args);
     }
 
-    public ObjectArguments(List<Object> args) {
+    public ObjectArguments(List<@Nullable Object> args) {
         this.args = Objects.requireNonNull(args);
     }
 
@@ -46,9 +46,8 @@ public final class ObjectArguments implements IArguments {
         return new ObjectArguments(args.subList(count, args.size()));
     }
 
-    @Nullable
     @Override
-    public Object get(int index) {
+    public @Nullable Object get(int index) {
         return index >= args.size() ? null : args.get(index);
     }
 
@@ -58,7 +57,7 @@ public final class ObjectArguments implements IArguments {
     }
 
     @Override
-    public Object[] getAll() {
+    public @Nullable Object[] getAll() {
         return args.toArray();
     }
 }

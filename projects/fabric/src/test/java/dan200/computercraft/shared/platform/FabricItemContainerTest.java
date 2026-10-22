@@ -10,7 +10,6 @@ import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.minecraft.world.Container;
 
 @WithMinecraft
-@SuppressWarnings("UnstableApiUsage")
 public class FabricItemContainerTest implements ItemContainerContract {
     @Override
     public ItemContainer wrap(Container container) {

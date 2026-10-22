@@ -147,8 +147,8 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                     .group(name.toString())
                     .pattern("#T")
                     .define('T', turtleItem)
-                    .define('#', upgrade.getCraftingItem().getItem())
-                    .unlockedBy("has_items", inventoryChange(turtleItem, upgrade.getCraftingItem().getItem()))
+                    .define('#', upgrade.getCraftingIngredient())
+                    .unlockedBy("has_items", inventoryChange(itemPredicate(turtleItem), itemPredicate(upgrade.getCraftingIngredient())))
                     .build(ImpostorShapedRecipe::new)
                     .save(
                         add,
@@ -180,8 +180,8 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
                     .pattern("#")
                     .pattern("P")
                     .define('P', pocket)
-                    .define('#', upgrade.getCraftingItem().getItem())
-                    .unlockedBy("has_items", inventoryChange(pocket, upgrade.getCraftingItem().getItem()))
+                    .define('#', upgrade.getCraftingIngredient())
+                    .unlockedBy("has_items", inventoryChange(itemPredicate(pocket), itemPredicate(upgrade.getCraftingIngredient())))
                     .build(ImpostorShapedRecipe::new)
                     .save(
                         add,
@@ -533,7 +533,7 @@ final class RecipeProvider extends net.minecraft.data.recipes.RecipeProvider {
         if (!(json instanceof JsonObject object)) throw new IllegalStateException("Unknown ingredient " + json);
 
         if (object.has("item")) {
-            var item = ItemStack.SIMPLE_ITEM_CODEC.parse(JsonOps.INSTANCE, object).getOrThrow();
+            var item = ItemStack.SIMPLE_ITEM_CODEC.parse(JsonOps.INSTANCE, object.get("item")).getOrThrow();
             return itemPredicate(item.getItem());
         } else if (object.has("tag")) {
             return itemPredicate(TagKey.create(Registries.ITEM, ResourceLocation.parse(GsonHelper.getAsString(object, "tag"))));

@@ -5,7 +5,12 @@
   "key": {"#": {"item": "minecraft:diamond_shovel"}, "T": {"item": "computercraft:turtle_normal"}},
   "pattern": ["#T"],
   "result": {
-    "components": {"computercraft:right_turtle_upgrade": {"id": "minecraft:diamond_shovel"}},
+    "components": {
+      "computercraft:right_turtle_upgrade": {
+        "id": "minecraft:diamond_shovel",
+        "item": {"count": 1, "id": "minecraft:diamond_shovel"}
+      }
+    },
     "count": 1,
     "id": "computercraft:turtle_normal"
   }

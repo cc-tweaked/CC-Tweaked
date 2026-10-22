@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
-class MinecraftMixin {
+abstract class MinecraftMixin {
     @Inject(method = "updateLevelInEngines", at = @At("HEAD"))
     @SuppressWarnings("unused")
     private void updateLevelInEngines(ClientLevel screen, CallbackInfo ci) {

@@ -161,7 +161,7 @@ public abstract class AbstractInventoryMethods<T> implements GenericPeripheral {
     public final long getItemLimit(T inventory, int slot) throws LuaException {
         var container = getContainer(inventory);
         assertBetween(slot, 1, container.size(), "Slot out of range (%s)");
-        return container.getCapacity(slot);
+        return container.getCapacity(slot - 1);
     }
 
     /**

@@ -10,10 +10,10 @@ import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.api.upgrades.UpgradeType;
 import dan200.computercraft.shared.util.RegistryHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Map;
@@ -46,12 +46,12 @@ public final class TurtleUpgradeModellers {
         }
     }
 
-    public static TransformedModel getModel(ITurtleUpgrade upgrade, ITurtleAccess access, TurtleSide side) {
-        return getModeller(upgrade).getModel(upgrade, access, side, access.getUpgradeData(side));
+    public static TransformedModel getModel(UpgradeData<ITurtleUpgrade> upgrade, ITurtleAccess access, TurtleSide side) {
+        return getModeller(upgrade.upgrade()).getModel(upgrade.upgrade(), access, side, upgrade.data());
     }
 
-    public static TransformedModel getModel(ITurtleUpgrade upgrade, DataComponentPatch data, TurtleSide side) {
-        return getModeller(upgrade).getModel(upgrade, null, side, data);
+    public static TransformedModel getModel(UpgradeData<ITurtleUpgrade> upgrade, TurtleSide side) {
+        return getModeller(upgrade.upgrade()).getModel(upgrade.upgrade(), upgrade, side);
     }
 
     @SuppressWarnings("unchecked")

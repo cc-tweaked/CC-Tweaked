@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 
 @Mixin(DebugScreenOverlay.class)
-class DebugScreenOverlayMixin {
+abstract class DebugScreenOverlayMixin {
     @Inject(method = "getSystemInformation", at = @At("RETURN"))
     @SuppressWarnings("UnusedMethod")
     private void appendBlockDebugInfo(CallbackInfoReturnable<List<String>> cir) {

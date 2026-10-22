@@ -59,19 +59,22 @@ public final class TurtleModelParts<T> {
     ) {
     }
 
+    public record TurtleModelPart(BakedModel model, Transformation matrix, @Nullable TurtleSide side) {
+    }
+
     private final BakedModel familyModel;
     private final BakedModel colourModel;
-    private final Function<TransformedModel, BakedModel> transformer;
+    private final Function<TurtleModelPart, BakedModel> transformer;
     private final Function<Combination, T> buildModel;
 
     /**
      * A cache of {@link TransformedModel} to the transformed {@link BakedModel}. This helps us pool the transformed
      * instances, reducing memory usage and hopefully ensuring their caches are hit more often!
      */
-    private final Map<TransformedModel, BakedModel> transformCache = CacheBuilder.newBuilder()
+    private final Map<TurtleModelPart, BakedModel> transformCache = CacheBuilder.newBuilder()
         .concurrencyLevel(1)
         .expireAfterAccess(30, TimeUnit.SECONDS)
-        .<TransformedModel, BakedModel>build()
+        .<TurtleModelPart, BakedModel>build()
         .asMap();
 
     /**
@@ -83,10 +86,10 @@ public final class TurtleModelParts<T> {
         .<Combination, T>build()
         .asMap();
 
-    public TurtleModelParts(BakedModel familyModel, BakedModel colourModel, ModelTransformer transformer, Function<List<BakedModel>, T> combineModel) {
+    public TurtleModelParts(BakedModel familyModel, BakedModel colourModel, Function<TurtleModelPart, BakedModel> transformer, Function<List<BakedModel>, T> combineModel) {
         this.familyModel = familyModel;
         this.colourModel = colourModel;
-        this.transformer = x -> transformer.transform(x.model(), x.matrix());
+        this.transformer = transformer;
         buildModel = x -> combineModel.apply(buildModel(x));
     }
 
@@ -112,7 +115,7 @@ public final class TurtleModelParts<T> {
 
         var transformation = combo.flip ? flip : identity;
         var parts = new ArrayList<BakedModel>(4);
-        parts.add(transform(combo.colour() ? colourModel : familyModel, transformation));
+        parts.add(transform(combo.colour() ? colourModel : familyModel, transformation, null));
 
         if (combo.overlay() != null) addPart(parts, modelManager, transformation, combo.overlay().model());
 
@@ -126,21 +129,17 @@ public final class TurtleModelParts<T> {
     }
 
     private void addPart(List<BakedModel> parts, ModelManager modelManager, Transformation transformation, ResourceLocation model) {
-        parts.add(transform(ClientPlatformHelper.get().getModel(modelManager, model), transformation));
+        parts.add(transform(ClientPlatformHelper.get().getModel(modelManager, model), transformation, null));
     }
 
     private void addUpgrade(List<BakedModel> parts, Transformation transformation, TurtleSide side, @Nullable UpgradeData<ITurtleUpgrade> upgrade) {
         if (upgrade == null) return;
-        var model = TurtleUpgradeModellers.getModel(upgrade.upgrade(), upgrade.data(), side);
-        parts.add(transform(model.model(), transformation.compose(model.matrix())));
+        var model = TurtleUpgradeModellers.getModel(upgrade, side);
+        parts.add(transform(model.model(), transformation.compose(model.matrix()), side));
     }
 
-    private BakedModel transform(BakedModel model, Transformation transformation) {
-        if (transformation.equals(Transformation.identity())) return model;
-        return transformCache.computeIfAbsent(new TransformedModel(model, transformation), transformer);
-    }
-
-    public interface ModelTransformer {
-        BakedModel transform(BakedModel model, Transformation transformation);
+    private BakedModel transform(BakedModel model, Transformation transformation, @Nullable TurtleSide side) {
+        if (transformation.equals(Transformation.identity()) && side == null) return model;
+        return transformCache.computeIfAbsent(new TurtleModelPart(model, transformation, side), transformer);
     }
 }

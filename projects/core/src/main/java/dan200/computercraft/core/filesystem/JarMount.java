@@ -67,6 +67,8 @@ public final class JarMount extends ArchiveMount<JarMount.FileEntry> implements 
         if (file.zipEntry == null) throw new FileOperationException(path, NO_SUCH_FILE);
 
         try (var stream = zip.getInputStream(file.zipEntry)) {
+            if (stream == null) throw new IllegalStateException("Zip entry must exist");
+
             return stream.readAllBytes();
         } catch (IOException e) {
             // Mask other IO exceptions as a non-existent file.

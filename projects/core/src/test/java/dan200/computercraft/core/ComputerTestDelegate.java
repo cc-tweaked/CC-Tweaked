@@ -19,6 +19,7 @@ import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.MachineEnvironment;
 import dan200.computercraft.core.lua.MachineException;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.util.ThreadUtils;
 import dan200.computercraft.test.core.computer.BasicEnvironment;
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import org.jspecify.annotations.Nullable;
@@ -80,7 +81,7 @@ public class ComputerTestDelegate {
 
     private static final Pattern KEYWORD = Pattern.compile(":([a-z_]+)");
 
-    private final ReentrantLock lock = new ReentrantLock();
+    private final ReentrantLock lock = ThreadUtils.newReentrantLock("ComputerTestDelegate.lock");
     private ComputerContext context;
     private Computer computer;
 
@@ -151,6 +152,7 @@ public class ComputerTestDelegate {
 
             // And shutdown
             computer.shutdown();
+            context.ensureClosed(1, TimeUnit.SECONDS);
         }
 
         if (!coverage.isEmpty()) {

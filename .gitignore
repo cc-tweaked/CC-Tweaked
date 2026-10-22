@@ -5,6 +5,7 @@
 # Build directories
 /build
 /build-logic/*/build
+/build-logic/*/out
 /build-logic/build
 /projects/*/build
 
@@ -17,8 +18,9 @@
 .jqwik-database
 
 # Runtime files
-/projects/*/run
+/projects/*/.fabric
 /projects/*/logs
+/projects/*/run
 
 *.ipr
 *.iws

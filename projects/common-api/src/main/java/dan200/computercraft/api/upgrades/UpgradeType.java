@@ -7,8 +7,10 @@ package dan200.computercraft.api.upgrades;
 import com.mojang.serialization.MapCodec;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.impl.upgrades.ItemOrIngredient;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 
@@ -84,5 +86,18 @@ public interface UpgradeType<T extends UpgradeBase> {
         return create(BuiltInRegistries.ITEM.byNameCodec()
             .xmap(x -> factory.apply(new ItemStack(x)), x -> x.getCraftingItem().getItem())
             .fieldOf("item"));
+    }
+
+    /**
+     * Create an upgrade type for a simple upgrade whose crafting item can be specified.
+     *
+     * @param factory Generate a new upgrade with a specific ID and crafting item. The returned upgrade's
+     *                {@link UpgradeBase#getCraftingIngredient()} <strong>MUST</strong> equal the provided item.
+     * @param <T>     The type of the generated upgrade.
+     * @return A new upgrade type.
+     * @see #simple(UpgradeBase)  For upgrades whose crafting stack should not vary.
+     */
+    static <T extends UpgradeBase> UpgradeType<T> simpleWithCustomIngredient(Function<Ingredient, T> factory) {
+        return create(ItemOrIngredient.CODEC.xmap(factory, UpgradeBase::getCraftingIngredient).fieldOf("item"));
     }
 }

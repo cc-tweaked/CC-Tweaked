@@ -22,6 +22,7 @@ import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.platform.FabricConfigFile;
 import dan200.computercraft.shared.recipe.function.RecipeFunction;
 import dan200.computercraft.shared.turtle.TurtleOverlay;
+import dan200.computercraft.shared.turtle.upgrades.TurtleStorage;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -39,9 +40,11 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkLevel;
@@ -131,6 +134,13 @@ public class ComputerCraft {
 
     private static <B extends FriendlyByteBuf, T extends CustomPacketPayload> void registerPayloadType(PayloadTypeRegistry<B> registry, CustomPacketPayload.TypeAndCodec<B, T> type) {
         registry.register(type.type(), type.codec());
+
+        ResourceManagerHelper.registerBuiltinResourcePack(
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, TurtleStorage.DATA_PACK_NAME),
+            FabricLoader.getInstance().getModContainer(ComputerCraftAPI.MOD_ID).orElseThrow(),
+            Component.translatable(TurtleStorage.DATA_PACK_TRANSLATION),
+            ResourcePackActivationType.NORMAL
+        );
     }
 
     private record ReloadListener(String name, PreparableReloadListener listener)
@@ -156,6 +166,7 @@ public class ComputerCraft {
         }
     }
 
+    @SuppressWarnings("NullAway") // FIXME(26.3): Can be removed when FAPI fixes their annotation
     private record ItemComponentImpl<T>(
         ItemApiLookup<T, @Nullable Void> lookup
     ) implements ModRegistry.ItemComponent<T> {

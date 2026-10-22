@@ -10,6 +10,7 @@ import com.electronwill.nightconfig.core.file.FileNotFoundAction;
 import com.electronwill.nightconfig.core.file.FileWatcher;
 import com.electronwill.nightconfig.core.io.WritingMode;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.config.ConfigFile;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jspecify.annotations.Nullable;
@@ -22,6 +23,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -57,14 +59,16 @@ public final class FabricConfigFile extends ConfigFile {
 
         closeConfig();
 
-        var path = Arrays.stream(paths).filter(Files::exists).findFirst().orElseGet(() -> paths[paths.length - 1]);
+        var path = Nullability.assertNonNull(Arrays.stream(paths).filter(Files::exists).findFirst().orElseGet(() -> paths[paths.length - 1]));
         var config = this.config = CommentedFileConfig.builder(path).sync()
             .onFileNotFound(FileNotFoundAction.READ_NOTHING)
             .writingMode(WritingMode.REPLACE)
             .build();
 
         try {
-            Files.createDirectories(path.getParent());
+            var parent = path.getParent();
+            if (parent != null) Files.createDirectories(parent);
+
             FileWatcher.defaultInstance().addWatch(config.getNioPath(), this::loadConfig);
         } catch (IOException e) {
             LOG.error("Failed to load config from {}.", path, e);
@@ -165,7 +169,8 @@ public final class FabricConfigFile extends ConfigFile {
             var path = getPath(name);
             spec.define(path, defaultValue, o -> o != null && o != NullObject.NULL_OBJECT && EnumGetMethod.NAME_IGNORECASE.validate(o, defaultValue.getDeclaringClass()));
 
-            var suffix = "Allowed Values: " + Arrays.stream(defaultValue.getDeclaringClass().getEnumConstants()).map(Enum::name).collect(Collectors.joining(", "));
+            var suffix = "Allowed Values: " + Arrays.stream(Objects.requireNonNull(defaultValue.getDeclaringClass().getEnumConstants()))
+                .map(Enum::name).collect(Collectors.joining(", "));
             return defineValue(name, takeComment(), suffix, defaultValue, (c, p, d) -> c.getEnumOrElse(p, d, EnumGetMethod.NAME_IGNORECASE));
         }
 

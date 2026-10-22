@@ -6,6 +6,7 @@ package dan200.computercraft.test.core;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -53,7 +54,7 @@ public class CustomMatchers {
      * @param <V>   The type of values in the map.
      * @return A matcher that projects out of a map.
      */
-    public static <K, V> Matcher<Map<? extends K, ? extends V>> containsEntryWith(K key, Matcher<? super V> value) {
+    public static <K, V extends @Nullable Object> Matcher<Map<? extends K, ? extends V>> containsEntryWith(K key, Matcher<? super V> value) {
         return ContramapMatcher.contramap(value, new StringDescription().appendValue(key).toString(), x -> x.get(key));
     }
 }

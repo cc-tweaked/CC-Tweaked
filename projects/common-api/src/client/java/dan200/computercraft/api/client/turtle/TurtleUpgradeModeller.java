@@ -9,6 +9,7 @@ import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.resources.ResourceLocation;
@@ -46,6 +47,21 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * @return The model that you wish to be used to render your upgrade.
      */
     TransformedModel getModel(T upgrade, @Nullable ITurtleAccess turtle, TurtleSide side, DataComponentPatch data);
+
+    /**
+     * Obtain the model to be used when rendering a turtle peripheral.
+     * <p>
+     * This is used when rendering the turtle's item model, and so no {@link ITurtleAccess} is available.
+     *
+     * @param upgrade The upgrade that you're getting the model for.
+     * @param data The full upgrade data for this upgrade.
+     * @param side    Which side of the turtle (left or right) the upgrade resides on.
+     * @return The model that you wish to be used to render your upgrade.
+     * @since 1.121.0
+     */
+    default TransformedModel getModel(T upgrade, UpgradeData<ITurtleUpgrade> data, TurtleSide side) {
+        return getModel(upgrade, null, side, data.data());
+    }
 
     /**
      * Get the models that this turtle modeller depends on.

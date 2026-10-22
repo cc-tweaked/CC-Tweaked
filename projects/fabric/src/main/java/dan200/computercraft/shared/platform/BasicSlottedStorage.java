@@ -12,7 +12,6 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-@SuppressWarnings("UnstableApiUsage")
 abstract class BasicSlottedStorage implements SlottedStorage<ItemVariant> {
     @Override
     public final long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {

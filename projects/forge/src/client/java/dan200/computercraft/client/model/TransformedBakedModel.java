@@ -4,8 +4,8 @@
 
 package dan200.computercraft.client.model;
 
-import com.mojang.math.Transformation;
 import dan200.computercraft.client.model.turtle.ModelTransformer;
+import dan200.computercraft.client.model.turtle.TurtleModelParts;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
@@ -26,9 +26,9 @@ import java.util.List;
 public class TransformedBakedModel extends BakedModelWrapper<BakedModel> {
     private final ModelTransformer transformation;
 
-    public TransformedBakedModel(BakedModel model, Transformation transformation) {
-        super(model);
-        this.transformation = new ModelTransformer(transformation);
+    public TransformedBakedModel(TurtleModelParts.TurtleModelPart part) {
+        super(part.model());
+        this.transformation = new ModelTransformer(part.matrix(), part.side());
     }
 
     @Override

@@ -5,6 +5,7 @@ package dan200.computercraft.core.redstone;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.core.util.ThreadUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
@@ -36,7 +37,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public final class RedstoneState implements RedstoneAccess {
     private final @Nullable Runnable onOutputChanged;
 
-    private final ReentrantLock outputLock = new ReentrantLock();
+    private final ReentrantLock outputLock = ThreadUtils.newReentrantLock("RedstoneState.outputLock");
     private @GuardedBy("outputLock") boolean internalOutputChanged = false;
     private final @GuardedBy("outputLock") int[] internalOutput = new int[ComputerSide.COUNT];
     private final @GuardedBy("outputLock") int[] internalBundledOutput = new int[ComputerSide.COUNT];
@@ -44,7 +45,7 @@ public final class RedstoneState implements RedstoneAccess {
     private final int[] externalOutput = new int[ComputerSide.COUNT];
     private final int[] externalBundledOutput = new int[ComputerSide.COUNT];
 
-    private final ReentrantLock inputLock = new ReentrantLock();
+    private final ReentrantLock inputLock = ThreadUtils.newReentrantLock("RedstoneState.inputLock");
     private boolean inputChanged = false;
     private final @GuardedBy("inputLock") int[] input = new int[ComputerSide.COUNT];
     private final @GuardedBy("inputLock") int[] bundledInput = new int[ComputerSide.COUNT];

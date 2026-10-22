@@ -5,7 +5,12 @@
   "key": {"#": {"item": "computercraft:wireless_modem_normal"}, "T": {"item": "computercraft:turtle_advanced"}},
   "pattern": ["#T"],
   "result": {
-    "components": {"computercraft:right_turtle_upgrade": {"id": "computercraft:wireless_modem_normal"}},
+    "components": {
+      "computercraft:right_turtle_upgrade": {
+        "id": "computercraft:wireless_modem_normal",
+        "item": {"count": 1, "id": "computercraft:wireless_modem_normal"}
+      }
+    },
     "count": 1,
     "id": "computercraft:turtle_advanced"
   }

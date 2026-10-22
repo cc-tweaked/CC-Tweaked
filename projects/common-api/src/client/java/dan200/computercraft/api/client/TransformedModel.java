@@ -12,16 +12,24 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
+
+import java.util.function.IntUnaryOperator;
 
 /**
  * A model to render, combined with a transformation matrix to apply.
  *
  * @param model  The model.
  * @param matrix The transformation matrix.
+ * @param tints  A function mapping tint indexes to a colour.
  */
-public record TransformedModel(BakedModel model, Transformation matrix) {
+public record TransformedModel(BakedModel model, Transformation matrix, @Nullable IntUnaryOperator tints) {
     public TransformedModel(BakedModel model) {
-        this(model, Transformation.identity());
+        this(model, Transformation.identity(), null);
+    }
+
+    public TransformedModel(BakedModel model, Transformation matrix) {
+        this(model, matrix, null);
     }
 
     /**
@@ -62,5 +70,17 @@ public record TransformedModel(BakedModel model, Transformation matrix) {
     public static TransformedModel of(ItemStack item, Transformation transform) {
         var model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item);
         return new TransformedModel(model, transform);
+    }
+
+    /**
+     * Get the tint for a specific tint index.
+     *
+     * @param index The tint index.
+     * @return The colour for this tint index.
+     * @see #tints()
+     * @since 1.121.0
+     */
+    public int getTint(int index) {
+        return tints == null ? -1 : tints.applyAsInt(index);
     }
 }

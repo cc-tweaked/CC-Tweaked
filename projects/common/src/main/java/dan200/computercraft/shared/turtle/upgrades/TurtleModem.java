@@ -10,22 +10,22 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.api.upgrades.UpgradeType;
+import dan200.computercraft.impl.upgrades.ItemOrIngredient;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-public class TurtleModem extends AbstractTurtleUpgrade {
+public class TurtleModem extends AbstractTurtleUpgrade.StackAware {
     public static final MapCodec<TurtleModem> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-        BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(x -> x.getCraftingItem().getItem()),
+        ItemOrIngredient.CODEC.fieldOf("item").forGetter(AbstractTurtleUpgrade::getCraftingIngredient),
         Codec.BOOL.fieldOf("advanced").forGetter(TurtleModem::advanced)
-    ).apply(instance, (item, advanced) -> new TurtleModem(new ItemStack(item), advanced)));
+    ).apply(instance, TurtleModem::new));
 
     private static class Peripheral extends WirelessModemPeripheral {
         private final ITurtleAccess turtle;
@@ -58,8 +58,8 @@ public class TurtleModem extends AbstractTurtleUpgrade {
 
     private final boolean advanced;
 
-    public TurtleModem(ItemStack stack, boolean advanced) {
-        super(TurtleUpgradeType.PERIPHERAL, advanced ? WirelessModemPeripheral.ADVANCED_ADJECTIVE : WirelessModemPeripheral.NORMAL_ADJECTIVE, stack);
+    public TurtleModem(Ingredient item, boolean advanced) {
+        super(TurtleUpgradeType.PERIPHERAL, advanced ? WirelessModemPeripheral.ADVANCED_ADJECTIVE : WirelessModemPeripheral.NORMAL_ADJECTIVE, item);
         this.advanced = advanced;
     }
 
@@ -80,14 +80,15 @@ public class TurtleModem extends AbstractTurtleUpgrade {
     @Override
     public void update(ITurtleAccess turtle, TurtleSide side) {
         // Advance the modem
-        if (!turtle.getLevel().isClientSide) {
-            var peripheral = turtle.getPeripheral(side);
-            if (peripheral instanceof Peripheral modem) {
-                var state = modem.getModemState();
-                if (state.pollChanged()) {
-                    turtle.setUpgradeData(side, DataComponentPatch.builder().set(ModRegistry.DataComponents.ON.get(), state.isOpen()).build());
-                }
-            }
+        if (turtle.getLevel().isClientSide) return;
+
+        var peripheral = turtle.getPeripheral(side);
+        var handle = turtle.getUpgradeHandle(side);
+        if (!(peripheral instanceof Peripheral modem) || handle == null) return;
+
+        var state = modem.getModemState();
+        if (state.pollChanged()) {
+            handle.setData(DataComponentPatch.builder().set(ModRegistry.DataComponents.ON.get(), state.isOpen()).build());
         }
     }
 

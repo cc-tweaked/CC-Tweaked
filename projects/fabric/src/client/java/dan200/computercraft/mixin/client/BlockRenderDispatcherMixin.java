@@ -28,7 +28,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * @see BlockRenderDispatcher#renderBreakingTexture(BlockState, BlockPos, BlockAndTintGetter, PoseStack, VertexConsumer)
  */
 @Mixin(BlockRenderDispatcher.class)
-class BlockRenderDispatcherMixin {
+abstract class BlockRenderDispatcherMixin {
     @Shadow
     @Final
     private RandomSource random;

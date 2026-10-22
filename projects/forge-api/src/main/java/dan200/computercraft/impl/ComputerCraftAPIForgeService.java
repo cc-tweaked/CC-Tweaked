@@ -10,6 +10,7 @@ import net.minecraft.core.Direction;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.ApiStatus;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A Forge-specific version of {@link ComputerCraftAPIService}.
@@ -24,7 +25,7 @@ public interface ComputerCraftAPIForgeService extends ComputerCraftAPIService {
         return (ComputerCraftAPIForgeService) ComputerCraftAPIService.get();
     }
 
-    void registerGenericCapability(BlockCapability<?, Direction> capability);
+    void registerGenericCapability(BlockCapability<? extends Object, @Nullable Direction> capability);
 
     DetailRegistry<FluidStack> getFluidStackDetailRegistry();
 }

@@ -9,9 +9,11 @@ import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.UpgradeData;
 import dan200.computercraft.impl.client.ClientPlatformHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
@@ -36,7 +38,16 @@ final class TurtleUpgradeModellers {
     private static final class UpgradeItemModeller implements TurtleUpgradeModeller<ITurtleUpgrade> {
         @Override
         public TransformedModel getModel(ITurtleUpgrade upgrade, @Nullable ITurtleAccess turtle, TurtleSide side, DataComponentPatch data) {
-            var stack = upgrade.getUpgradeItem(data);
+            var handle = turtle == null ? null : turtle.getUpgradeHandle(side);
+            return getModel(handle == null ? upgrade.getUpgradeItem(data) : handle.getItem(), side);
+        }
+
+        @Override
+        public TransformedModel getModel(ITurtleUpgrade upgrade, UpgradeData<ITurtleUpgrade> data, TurtleSide side) {
+            return getModel(data.getUpgradeItem(), side);
+        }
+
+        private TransformedModel getModel(ItemStack stack, TurtleSide side) {
             var model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(stack);
             if (stack.hasFoil()) model = ClientPlatformHelper.get().createdFoiledModel(model);
             return new TransformedModel(model, side == TurtleSide.LEFT ? leftTransform : rightTransform);

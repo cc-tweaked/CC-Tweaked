@@ -8,6 +8,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Various utility functions for operating with Lua values.
@@ -159,7 +160,7 @@ public final class LuaValues {
      * @throws LuaException If this is not a known enum value.
      */
     public static <T extends Enum<T>> T checkEnum(int index, Class<T> klass, String value) throws LuaException {
-        for (var possibility : klass.getEnumConstants()) {
+        for (var possibility : Objects.requireNonNull(klass.getEnumConstants())) {
             if (possibility.name().equalsIgnoreCase(value)) return possibility;
         }
 

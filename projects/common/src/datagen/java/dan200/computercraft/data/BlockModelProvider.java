@@ -99,8 +99,9 @@ class BlockModelProvider {
 
         registerRedstoneControl(generators);
 
-        registerTurtleUpgrade(generators, "block/turtle_crafting_table", "block/turtle_crafty_face");
-        registerTurtleUpgrade(generators, "block/turtle_speaker", "block/turtle_speaker_face");
+        registerTurtleUpgrade(generators, "block/turtle_crafting_table", ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_crafty_face"));
+        registerTurtleUpgrade(generators, "block/turtle_shulker", ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_shulker"));
+        registerTurtleUpgrade(generators, "block/turtle_speaker", ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "block/turtle_speaker_face"));
         registerTurtleModem(generators, "block/turtle_modem_normal", "block/wireless_modem_normal_face");
         registerTurtleModem(generators, "block/turtle_modem_advanced", "block/wireless_modem_advanced_face");
 
@@ -378,22 +379,23 @@ class BlockModelProvider {
         return condition;
     }
 
-    private static void registerTurtleUpgrade(BlockModelGenerators generators, String name, String texture) {
+    private static void registerTurtleUpgrade(BlockModelGenerators generators, String name, ResourceLocation texture) {
         TURTLE_UPGRADE_LEFT.create(
             ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name + "_left"),
-            TextureMapping.defaultTexture(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, texture)),
+            TextureMapping.defaultTexture(texture),
             generators.modelOutput
         );
         TURTLE_UPGRADE_RIGHT.create(
             ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, name + "_right"),
-            TextureMapping.defaultTexture(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, texture)),
+            TextureMapping.defaultTexture(texture),
             generators.modelOutput
         );
     }
 
     private static void registerTurtleModem(BlockModelGenerators generators, String name, String texture) {
-        registerTurtleUpgrade(generators, name + "_off", texture);
-        registerTurtleUpgrade(generators, name + "_on", texture + "_on");
+        var textureLocation = ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, texture);
+        registerTurtleUpgrade(generators, name + "_off", textureLocation);
+        registerTurtleUpgrade(generators, name + "_on", textureLocation.withSuffix("_on"));
     }
 
     private static VariantProperties.Rotation toXAngle(Direction direction) {

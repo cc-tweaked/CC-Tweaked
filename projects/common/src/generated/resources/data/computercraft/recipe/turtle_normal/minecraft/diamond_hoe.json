@@ -5,7 +5,12 @@
   "key": {"#": {"item": "minecraft:diamond_hoe"}, "T": {"item": "computercraft:turtle_normal"}},
   "pattern": ["#T"],
   "result": {
-    "components": {"computercraft:right_turtle_upgrade": {"id": "minecraft:diamond_hoe"}},
+    "components": {
+      "computercraft:right_turtle_upgrade": {
+        "id": "minecraft:diamond_hoe",
+        "item": {"count": 1, "id": "minecraft:diamond_hoe"}
+      }
+    },
     "count": 1,
     "id": "computercraft:turtle_normal"
   }

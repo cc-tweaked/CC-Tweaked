@@ -74,7 +74,7 @@ public interface IArguments {
      * @see #get(int) To get a single argument.
      */
     default @Nullable Object[] getAll() throws LuaException {
-        var result = new Object[count()];
+        var result = new @Nullable Object[count()];
         for (var i = 0; i < result.length; i++) result[i] = get(i);
         return result;
     }

@@ -11,6 +11,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.turtle.RegisterTurtleUpgradeModeller;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
+import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.render.CustomLecternRenderer;
@@ -18,6 +19,7 @@ import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.TurtleBlockEntityRenderer;
 import dan200.computercraft.client.render.monitor.MonitorBlockEntityRenderer;
 import dan200.computercraft.client.turtle.TurtleModemModeller;
+import dan200.computercraft.client.turtle.TurtleStorageModeller;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
@@ -26,6 +28,7 @@ import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.inventory.AbstractComputerMenu;
 import dan200.computercraft.shared.turtle.TurtleOverlay;
+import dan200.computercraft.shared.turtle.items.TurtleItem;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColor;
@@ -130,6 +133,7 @@ public final class ClientRegistry {
         ));
         register.register(ModRegistry.TurtleUpgradeTypes.WIRELESS_MODEM.get(), new TurtleModemModeller());
         register.register(ModRegistry.TurtleUpgradeTypes.TOOL.get(), TurtleUpgradeModeller.flatItem());
+        register.register(ModRegistry.TurtleUpgradeTypes.STORAGE.get(), new TurtleStorageModeller());
     }
 
     @SafeVarargs
@@ -177,20 +181,27 @@ public final class ClientRegistry {
 
     private static int getPocketColour(ItemStack stack, int layer) {
         return switch (layer) {
-            default -> -1;
             case 1 -> DyedItemColor.getOrDefault(stack, -1); // Frame colour
             case 2 -> { // Light colour
                 var computer = ClientPocketComputers.get(stack);
                 yield computer == null || computer.getLightState() == -1 ? Colour.BLACK.getARGB() : FastColor.ARGB32.opaque(computer.getLightState());
             }
+            default -> -1;
         };
     }
 
     private static int getTurtleColour(ItemStack stack, int layer) {
-        return layer == 0 ? DyedItemColor.getOrDefault(stack, -1) : -1;
+        if (layer == 0) return DyedItemColor.getOrDefault(stack, -1);
+
+        var side = (layer % 2) == 1 ? TurtleSide.LEFT : TurtleSide.RIGHT;
+        var upgrade = TurtleItem.getUpgradeWithData(stack, side);
+        if (upgrade == null) return -1;
+
+        var model = TurtleUpgradeModellers.getModel(upgrade, side);
+        return model.getTint((layer - 1) / 2);
     }
 
-    public static void registerShaders(ResourceProvider resources, BiConsumer<ShaderInstance, Consumer<ShaderInstance>> load) throws IOException {
+    public static void registerShaders(ResourceProvider resources, BiConsumer<ShaderInstance, Consumer<@Nullable ShaderInstance>> load) throws IOException {
         RenderTypes.registerShaders(resources, (name, create, onLoaded) -> {
             ShaderInstance shader;
             try {

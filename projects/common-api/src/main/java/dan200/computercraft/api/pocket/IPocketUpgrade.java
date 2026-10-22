@@ -23,6 +23,8 @@ import org.jspecify.annotations.Nullable;
  * <p>
  * You then write a JSON file in your mod's {@literal data/} folder. This is then parsed when the world is loaded, and
  * the upgrade registered internally.
+ *
+ * @see AbstractPocketUpgrade.StackAware
  */
 public interface IPocketUpgrade extends UpgradeBase {
     ResourceKey<Registry<IPocketUpgrade>> REGISTRY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "pocket_upgrade"));
@@ -69,7 +71,7 @@ public interface IPocketUpgrade extends UpgradeBase {
     }
 
     /**
-     * Called when the pocket computer is right clicked.
+     * Called when the pocket computer is right-clicked.
      *
      * @param world      The world the computer is in.
      * @param access     The access object for the pocket item stack.

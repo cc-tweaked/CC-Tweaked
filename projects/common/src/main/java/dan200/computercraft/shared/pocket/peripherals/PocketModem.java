@@ -11,22 +11,21 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.AbstractPocketUpgrade;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.upgrades.UpgradeType;
+import dan200.computercraft.impl.upgrades.ItemOrIngredient;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import org.jspecify.annotations.Nullable;
 
-public class PocketModem extends AbstractPocketUpgrade {
+public class PocketModem extends AbstractPocketUpgrade.StackAware {
     public static final MapCodec<PocketModem> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-        BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(x -> x.getCraftingItem().getItem()),
+        ItemOrIngredient.CODEC.fieldOf("item").forGetter(AbstractPocketUpgrade::getCraftingIngredient),
         Codec.BOOL.fieldOf("advanced").forGetter(x -> x.advanced)
-    ).apply(instance, (item, advanced) -> new PocketModem(new ItemStack(item), advanced)));
-
+    ).apply(instance, PocketModem::new));
     private final boolean advanced;
 
-    public PocketModem(ItemStack stack, boolean advanced) {
-        super(advanced ? WirelessModemPeripheral.ADVANCED_ADJECTIVE : WirelessModemPeripheral.NORMAL_ADJECTIVE, stack);
+    public PocketModem(Ingredient item, boolean advanced) {
+        super(advanced ? WirelessModemPeripheral.ADVANCED_ADJECTIVE : WirelessModemPeripheral.NORMAL_ADJECTIVE, item);
         this.advanced = advanced;
     }
 

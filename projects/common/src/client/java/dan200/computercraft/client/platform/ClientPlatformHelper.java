@@ -9,6 +9,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.model.BakedModel;
 import org.jspecify.annotations.Nullable;
 
+import java.util.function.IntUnaryOperator;
+
 public interface ClientPlatformHelper extends dan200.computercraft.impl.client.ClientPlatformHelper {
     static ClientPlatformHelper get() {
         return (ClientPlatformHelper) dan200.computercraft.impl.client.ClientPlatformHelper.get();
@@ -24,5 +26,5 @@ public interface ClientPlatformHelper extends dan200.computercraft.impl.client.C
      * @param overlayLight  The current overlay light.
      * @param tints         Block colour tints to apply to the model.
      */
-    void renderBakedModel(PoseStack transform, MultiBufferSource buffers, BakedModel model, int lightmapCoord, int overlayLight, int @Nullable [] tints);
+    void renderBakedModel(PoseStack transform, MultiBufferSource buffers, BakedModel model, int lightmapCoord, int overlayLight, @Nullable IntUnaryOperator tints);
 }

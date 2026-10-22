@@ -7,7 +7,9 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricDynamicRegistryProvider;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.resources.ResourceKey;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -37,7 +39,10 @@ public class FabricExampleModDataGenerator implements DataGeneratorEntrypoint {
 
         @Override
         protected void configure(HolderLookup.Provider registries, Entries entries) {
-            for (var r : DynamicRegistries.getDynamicRegistries()) entries.addAll(registries.lookupOrThrow(r.key()));
+            for (var r : DynamicRegistries.getDynamicRegistries()) {
+                var key = (ResourceKey<? extends Registry<? extends Object>>) r.key();
+                entries.addAll(registries.lookupOrThrow(key));
+            }
         }
 
         @Override

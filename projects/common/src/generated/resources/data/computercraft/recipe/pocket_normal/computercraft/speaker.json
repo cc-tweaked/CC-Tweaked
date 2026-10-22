@@ -5,7 +5,12 @@
   "key": {"#": {"item": "computercraft:speaker"}, "P": {"item": "computercraft:pocket_computer_normal"}},
   "pattern": ["#", "P"],
   "result": {
-    "components": {"computercraft:pocket_upgrade": {"id": "computercraft:speaker"}},
+    "components": {
+      "computercraft:pocket_upgrade": {
+        "id": "computercraft:speaker",
+        "item": {"count": 1, "id": "computercraft:speaker"}
+      }
+    },
     "count": 1,
     "id": "computercraft:pocket_computer_normal"
   }

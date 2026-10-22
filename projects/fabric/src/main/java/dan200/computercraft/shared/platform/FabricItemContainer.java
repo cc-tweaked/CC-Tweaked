@@ -6,6 +6,7 @@ package dan200.computercraft.shared.platform;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import com.google.common.primitives.Ints;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -19,7 +20,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.Iterator;
 import java.util.Objects;
 
-@SuppressWarnings("UnstableApiUsage")
 public final class FabricItemContainer implements ItemContainer {
     private final Storage<ItemVariant> storage;
     private final @Nullable SlottedStorage<ItemVariant> slottedStorage;
@@ -58,12 +58,12 @@ public final class FabricItemContainer implements ItemContainer {
 
     private static ItemStack toStack(StorageView<ItemVariant> variant) {
         if (variant.isResourceBlank() || variant.getAmount() <= 0) return ItemStack.EMPTY;
-        return variant.getResource().toStack(saturatingToInt(variant.getAmount()));
+        return variant.getResource().toStack(Ints.saturatedCast(variant.getAmount()));
     }
 
     @Override
     public int getCapacity(int slot) {
-        return saturatingToInt(getSlot(slot).getCapacity());
+        return Ints.saturatedCast(getSlot(slot).getCapacity());
     }
 
     @Override
@@ -90,7 +90,7 @@ public final class FabricItemContainer implements ItemContainer {
         return move(getSlot(fromSlot), ((FabricItemContainer) destination).storage, maxAmount);
     }
 
-    private static int move(StorageView<ItemVariant> from, Storage<ItemVariant> to, long maxAmount) {
+    private static int move(StorageView<ItemVariant> from, Storage<ItemVariant> to, int maxAmount) {
         var resource = from.getResource();
         if (resource.isBlank()) return NO_ITEMS;
 
@@ -105,15 +105,11 @@ public final class FabricItemContainer implements ItemContainer {
             // Extract or rollback.
             if (from.extract(resource, accepted, transaction) == accepted) {
                 transaction.commit();
-                return saturatingToInt(accepted);
+                return Ints.saturatedCast(accepted);
             }
 
             return NO_SPACE;
         }
-    }
-
-    private static int saturatingToInt(long value) {
-        return value > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) value;
     }
 
     private static final class OffsetStorage extends BasicSlottedStorage {

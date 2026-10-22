@@ -59,6 +59,6 @@ class ItemDetailsTest {
 
     @SuppressWarnings("unchecked")
     private static Matcher<Map<? extends String, ?>> containsEntryWith(String key, Matcher<?> value) {
-        return CustomMatchers.containsEntryWith(key, (Matcher<? super Object>) value);
+        return CustomMatchers.containsEntryWith(key, (Matcher<Object>) value);
     }
 }

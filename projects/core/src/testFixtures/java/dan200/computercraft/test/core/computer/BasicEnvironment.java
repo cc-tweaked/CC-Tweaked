@@ -13,6 +13,7 @@ import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
 import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.metrics.MetricsObserver;
+import dan200.computercraft.core.util.Nullability;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
@@ -75,7 +76,7 @@ public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment 
 
     @Override
     public @Nullable InputStream getLuaBios() {
-        return ComputerContext.class.getClassLoader().getResourceAsStream("data/computercraft/lua/bios.lua");
+        return Nullability.assertNonNull(ComputerContext.class.getClassLoader()).getResourceAsStream("data/computercraft/lua/bios.lua");
     }
 
     public static Mount createMount(Class<?> klass, String path, String fallback) {
@@ -104,7 +105,13 @@ public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment 
     }
 
     private static File getContainingFile(Class<?> klass) {
-        var path = klass.getProtectionDomain().getCodeSource().getLocation().getPath();
+        var source = klass.getProtectionDomain().getCodeSource();
+        if (source == null) throw new IllegalStateException("Cannot find owning Jar");
+
+        var location = source.getLocation();
+        if (location == null) throw new IllegalStateException("Cannot find owning Jar");
+
+        var path = location.getPath();
         var bangIndex = path.indexOf("!");
 
         // Plain old file, so step up from dan200.computercraft.

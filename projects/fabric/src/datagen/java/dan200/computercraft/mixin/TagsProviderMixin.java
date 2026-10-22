@@ -19,7 +19,7 @@ import java.util.function.Predicate;
  * There's cleaner ways of doing this, like Forge's {@code ExistingFileHelper}, but I'm too lazy for that.
  */
 @Mixin(TagsProvider.class)
-class TagsProviderMixin {
+abstract class TagsProviderMixin {
     @Inject(at = @At("HEAD"), method = "method_49658", cancellable = true)
     @SuppressWarnings("unused")
     private static void onVerifyPresent(Predicate<?> predicate1, Predicate<?> predicate2, TagEntry tag, CallbackInfoReturnable<Boolean> cir) {

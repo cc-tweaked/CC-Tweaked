@@ -32,10 +32,16 @@ import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.platform.ForgeConfigFile;
 import dan200.computercraft.shared.recipe.function.RecipeFunction;
 import dan200.computercraft.shared.turtle.TurtleOverlay;
+import dan200.computercraft.shared.turtle.upgrades.TurtleStorage;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -53,6 +59,7 @@ import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.ItemCapability;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import net.neoforged.neoforge.items.wrapper.SidedInvWrapper;
@@ -224,6 +231,19 @@ public final class ComputerCraft {
     @SubscribeEvent
     public static void onCreativeTab(BuildCreativeModeTabContentsEvent event) {
         CommonHooks.onBuildCreativeTab(event.getTabKey(), event.getParameters(), event);
+    }
+
+
+    @SubscribeEvent
+    public static void onAddPacks(AddPackFindersEvent event) {
+        event.addPackFinders(
+            ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "resourcepacks/" + TurtleStorage.DATA_PACK_NAME),
+            PackType.SERVER_DATA,
+            Component.translatable(TurtleStorage.DATA_PACK_TRANSLATION),
+            PackSource.FEATURE,
+            false,
+            Pack.Position.BOTTOM
+        );
     }
 
     /**

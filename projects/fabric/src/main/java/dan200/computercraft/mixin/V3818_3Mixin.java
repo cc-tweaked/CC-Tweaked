@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.At;
  * This mixin is identical between Fabric and NeoForge aside from using a different method name.
  */
 @Mixin(V3818_3.class)
-class V3818_3Mixin {
+abstract class V3818_3Mixin {
     @ModifyReturnValue(method = "method_57277", at = @At("TAIL"))
     @SuppressWarnings("UnusedMethod")
     private static TypeTemplate addExtraTypes(TypeTemplate type, Schema schema) {

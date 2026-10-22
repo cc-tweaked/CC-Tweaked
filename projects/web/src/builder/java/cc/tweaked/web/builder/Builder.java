@@ -23,6 +23,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
@@ -37,7 +38,7 @@ public class Builder {
             var input = getPath(scope, "cct.input");
             var classpath = getPath(scope, "cct.classpath");
             var output = getFile("cct.output");
-            var version = System.getProperty("cct.version");
+            var version = Objects.requireNonNull(System.getProperty("cct.version"), "cct.version must be present");
             var minify = Boolean.parseBoolean(System.getProperty("cct.minify", "true"));
 
             buildClasses(input, classpath, output, minify);
@@ -51,7 +52,6 @@ public class Builder {
         var remapper = new TransformingClassLoader(classpath);
         // Remap several classes to our stubs. Really we should add all of these to TeaVM, but our current
         // implementations are a bit of a hack.
-        remapper.remapClass("java/nio/channels/FileChannel", "cc/tweaked/web/stub/FileChannel");
         remapper.remapClass("java/util/concurrent/locks/ReentrantLock", "cc/tweaked/web/stub/ReentrantLock");
         // Add some additional transformers.
         remapper.addTransformer(PatchCobalt::patch);
@@ -74,7 +74,7 @@ public class Builder {
         run(output, remapper, TeaVMTargetType.JAVASCRIPT, TeaVMOptimizationLevel.ADVANCED, minify);
         run(output, remapper, TeaVMTargetType.WEBASSEMBLY_GC, TeaVMOptimizationLevel.SIMPLE, minify);
 
-        try (var runtime = Builder.class.getClassLoader().getResourceAsStream("org/teavm/backend/wasm/wasm-gc-module-runtime.js")) {
+        try (var runtime = Objects.requireNonNull(Builder.class.getClassLoader()).getResourceAsStream("org/teavm/backend/wasm/wasm-gc-module-runtime.js")) {
             if (runtime == null) throw new IllegalStateException("Cannot find WASM runtime");
             Files.copy(runtime, output.resolve("wasm-gc-runtime.js"), StandardCopyOption.REPLACE_EXISTING);
         }
@@ -144,7 +144,9 @@ public class Builder {
     }
 
     private static List<Path> getPath(CloseScope scope, String name) {
-        return Arrays.stream(System.getProperty(name).split(File.pathSeparator))
+        var path = System.getProperty(name);
+        if (path == null) throw new NullPointerException(name + " must be given");
+        return Arrays.stream(path.split(File.pathSeparator))
             .map(Path::of)
             .filter(Files::exists)
             .map(file -> {
@@ -158,6 +160,8 @@ public class Builder {
     }
 
     private static Path getFile(String name) {
-        return Path.of(System.getProperty(name));
+        var path = System.getProperty(name);
+        if (path == null) throw new NullPointerException(name + " must be given");
+        return Path.of(path);
     }
 }

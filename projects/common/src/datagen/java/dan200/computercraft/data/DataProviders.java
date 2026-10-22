@@ -11,8 +11,11 @@ import dan200.computercraft.client.gui.GuiSprites;
 import dan200.computercraft.client.model.LecternPocketModel;
 import dan200.computercraft.client.model.LecternPrintoutModel;
 import dan200.computercraft.data.client.ExtraModelsProvider;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.TurtleOverlay;
 import dan200.computercraft.shared.turtle.inventory.UpgradeSlot;
+import dan200.computercraft.shared.turtle.upgrades.TurtleStorage;
+import net.minecraft.DetectedVersion;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.client.renderer.texture.atlas.SpriteSources;
@@ -21,10 +24,13 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.metadata.PackMetadataGenerator;
 import net.minecraft.data.registries.RegistryPatchGenerator;
 import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
@@ -47,6 +53,14 @@ public final class DataProviders {
     }
 
     public static void add(GeneratorSink generator) {
+        generator.add(out -> new PackMetadataGenerator(out)
+            .add(PackMetadataSection.TYPE, new PackMetadataSection(
+                Component.literal("CC: Tweaked"),
+                DetectedVersion.BUILT_IN.getPackVersion(PackType.CLIENT_RESOURCES),
+                Optional.empty()
+            ))
+        );
+
         var fullRegistryPatch = RegistryPatchGenerator.createLookup(
             generator.registries(),
             Util.make(new RegistrySetBuilder(), builder -> {
@@ -93,6 +107,17 @@ public final class DataProviders {
                 return registries.lookupOrThrow(TurtleOverlay.REGISTRY).listElements().map(x -> x.value().model());
             }
         });
+
+        var storagePack = generator.nestedDatapack(TurtleStorage.DATA_PACK_NAME);
+        storagePack.add(out -> PackMetadataGenerator.forFeaturePack(out, Component.translatable(TurtleStorage.DATA_PACK_TRANSLATION)));
+
+        var storageRegistryPatch = RegistryPatchGenerator.createLookup(fullRegistries, Util.make(new RegistrySetBuilder(), builder -> {
+            builder.add(ITurtleUpgrade.REGISTRY, bs -> bs.register(
+                TurtleUpgradeProvider.id("shulker"),
+                new TurtleStorage(PlatformHelper.get().getRecipeIngredients().shulkerBox())
+            ));
+        }));
+        storagePack.registries(storageRegistryPatch);
     }
 
     @SafeVarargs
@@ -118,5 +143,7 @@ public final class DataProviders {
          * @param registries The patched registries to write.
          */
         void registries(CompletableFuture<RegistrySetBuilder.PatchedRegistries> registries);
+
+        GeneratorSink nestedDatapack(String name);
     }
 }

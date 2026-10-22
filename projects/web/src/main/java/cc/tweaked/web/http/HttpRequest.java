@@ -10,6 +10,7 @@ import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.core.apis.handles.ReadHandle;
+import dan200.computercraft.core.apis.http.HttpUri;
 import dan200.computercraft.core.apis.http.Resource;
 import dan200.computercraft.core.apis.http.ResourceGroup;
 import dan200.computercraft.core.apis.http.request.HttpResponseHandle;
@@ -23,7 +24,6 @@ import org.teavm.jso.ajax.XMLHttpRequest;
 import org.teavm.jso.typedarrays.ArrayBuffer;
 import org.teavm.jso.typedarrays.Int8Array;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 import java.util.HashMap;
@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Replaces {@link dan200.computercraft.core.apis.http.request.HttpRequest} with a version which uses AJAX/{@link XMLHttpRequest}.
  */
-final class HttpRequest extends Resource<HttpRequest> {
+final class HttpRequest extends Resource<HttpRequest, HttpRequest.State> {
     private static final Logger LOG = LoggerFactory.getLogger(HttpRequest.class);
     private static final String SUCCESS_EVENT = "http_success";
     private static final String FAILURE_EVENT = "http_failure";
@@ -46,10 +46,11 @@ final class HttpRequest extends Resource<HttpRequest> {
     private final boolean followRedirects;
 
     HttpRequest(
-        ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment, String address, @Nullable ByteBuffer postBody,
-        HttpHeaders headers, boolean binary, boolean followRedirects
+        ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment,
+        String address, HttpUri uri, HttpMethod method, @Nullable ByteBuffer postBody, HttpHeaders headers,
+        boolean binary, boolean followRedirects
     ) {
-        super(limiter);
+        super(limiter, new Init(uri, method));
         this.environment = environment;
         this.address = address;
         postBuffer = postBody;
@@ -64,14 +65,33 @@ final class HttpRequest extends Resource<HttpRequest> {
         }
     }
 
-    public void request(URI uri, HttpMethod method) {
-        if (isClosed()) return;
+    public sealed interface State extends ResourceState {
+    }
 
+    private record Init(HttpUri uri, HttpMethod method) implements State {
+        @Override
+        public void close() {
+        }
+    }
+
+    private record Fetching(XMLHttpRequest request) implements State {
+        @Override
+        public void close() {
+            request.abort();
+        }
+    }
+
+    @Override
+    protected void start() {
+        transformState(Init.class, s -> doRequest(s.uri, s.method));
+    }
+
+    private @Nullable State doRequest(HttpUri uri, HttpMethod method) {
         try {
             var request = new XMLHttpRequest();
             request.setOnReadyStateChange(() -> onResponseStateChange(request));
             request.setResponseType("arraybuffer");
-            var address = uri.toASCIIString();
+            var address = uri.getUri().toASCIIString();
             request.open(method.toString(), Main.CORS_PROXY.isEmpty() ? address : Main.CORS_PROXY.replace("{}", address));
             for (var iterator = headers.iteratorAsString(); iterator.hasNext(); ) {
                 var header = iterator.next();
@@ -79,17 +99,18 @@ final class HttpRequest extends Resource<HttpRequest> {
             }
             request.setRequestHeader("X-CC-Redirect", followRedirects ? "true" : "false");
             request.send(postBuffer == null ? null : Int8Array.fromJavaBuffer(postBuffer));
-            checkClosed();
+            return new Fetching(request);
         } catch (Exception e) {
-            failure("Could not connect");
             LOG.error(Logging.HTTP_ERROR, "Error in HTTP request", e);
+            queueFailure("Could not connect");
+            return null;
         }
     }
 
     private void onResponseStateChange(XMLHttpRequest request) {
         if (request.getReadyState() != XMLHttpRequest.DONE) return;
         if (request.getStatus() == 0) {
-            this.failure("Could not connect");
+            close(Fetching.class, () -> queueFailure("Could not connect"));
             return;
         }
 
@@ -115,13 +136,13 @@ final class HttpRequest extends Resource<HttpRequest> {
         var stream = new HttpResponseHandle(reader, request.getStatus(), request.getStatusText(), responseHeaders);
 
         if (request.getStatus() >= 200 && request.getStatus() < 400) {
-            if (tryClose()) environment.queueEvent(SUCCESS_EVENT, address, stream);
+            close(Fetching.class, () -> environment.queueEvent(SUCCESS_EVENT, address, stream));
         } else {
-            if (tryClose()) environment.queueEvent(FAILURE_EVENT, address, request.getStatusText(), stream);
+            close(Fetching.class, () -> environment.queueEvent(FAILURE_EVENT, address, request.getStatusText(), stream));
         }
     }
 
-    void failure(String message) {
-        if (tryClose()) environment.queueEvent(FAILURE_EVENT, address, message);
+    private void queueFailure(String message) {
+        environment.queueEvent(FAILURE_EVENT, address, message);
     }
 }

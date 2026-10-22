@@ -8,12 +8,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dan200.computercraft.api.turtle.TurtleToolDurability;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
 
 import java.util.Optional;
@@ -30,7 +29,7 @@ import java.util.Optional;
  */
 public record TurtleToolSpec(
     Component adjective,
-    Item item,
+    Ingredient item,
     float damageMultiplier,
     boolean allowEnchantments,
     TurtleToolDurability consumeDurability,
@@ -40,7 +39,7 @@ public record TurtleToolSpec(
 
     public static final MapCodec<TurtleToolSpec> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         ComponentSerialization.CODEC.fieldOf("adjective").forGetter(TurtleToolSpec::adjective),
-        BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(TurtleToolSpec::item),
+        ItemOrIngredient.CODEC.fieldOf("item").forGetter(TurtleToolSpec::item),
         Codec.FLOAT.optionalFieldOf("damageMultiplier", DEFAULT_DAMAGE_MULTIPLIER).forGetter(TurtleToolSpec::damageMultiplier),
         Codec.BOOL.optionalFieldOf("allowEnchantments", false).forGetter(TurtleToolSpec::allowEnchantments),
         TurtleToolDurability.CODEC.optionalFieldOf("consumeDurability", TurtleToolDurability.NEVER).forGetter(TurtleToolSpec::consumeDurability),

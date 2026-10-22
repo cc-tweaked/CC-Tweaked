@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Mixin(StructureTemplateManager.class)
-class StructureTemplateManagerMixin {
+abstract class StructureTemplateManagerMixin {
     /**
      * Ensure {@link net.minecraft.SharedConstants#IS_RUNNING_IN_IDE} is always true, meaning the test structure loader
      * is always present.

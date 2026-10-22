@@ -5,7 +5,12 @@
   "key": {"#": {"item": "minecraft:diamond_axe"}, "T": {"item": "computercraft:turtle_advanced"}},
   "pattern": ["#T"],
   "result": {
-    "components": {"computercraft:right_turtle_upgrade": {"id": "minecraft:diamond_axe"}},
+    "components": {
+      "computercraft:right_turtle_upgrade": {
+        "id": "minecraft:diamond_axe",
+        "item": {"count": 1, "id": "minecraft:diamond_axe"}
+      }
+    },
     "count": 1,
     "id": "computercraft:turtle_advanced"
   }

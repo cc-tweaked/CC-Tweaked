@@ -23,6 +23,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -50,14 +51,16 @@ public final class UpgradeManager<T extends UpgradeBase> {
         var holderCodec = RegistryFixedCodec.create(registry).xmap(x -> (Holder.Reference<T>) x, x -> x);
         Codec<UpgradeData<T>> fullCodec = RecordCodecBuilder.create(i -> i.group(
             holderCodec.fieldOf("id").forGetter(UpgradeData::holder),
+            ItemStack.CODEC.optionalFieldOf("item").forGetter(x -> Optional.of(x.getUpgradeItem())),
             DataComponentPatch.CODEC.optionalFieldOf("components", DataComponentPatch.EMPTY).forGetter(UpgradeData::data)
-        ).apply(i, UpgradeData::new));
+        ).apply(i, (u, s, c) -> s.isPresent() ? UpgradeData.of(u, s.get(), c) : UpgradeData.of(u, c)));
         dataCodec = Codec.withAlternative(fullCodec, holderCodec, UpgradeData::ofDefault);
 
         dataStreamCodec = StreamCodec.composite(
             ByteBufCodecs.holderRegistry(registry).map(x -> (Holder.Reference<T>) x, x -> x), UpgradeData::holder,
+            ItemStack.STREAM_CODEC, UpgradeData::getUpgradeItem,
             DataComponentPatch.STREAM_CODEC, UpgradeData::data,
-            UpgradeData::new
+            UpgradeData::of
         );
     }
 
@@ -102,11 +105,10 @@ public final class UpgradeManager<T extends UpgradeBase> {
         return registries.lookupOrThrow(registry).listElements()
             .filter(holder -> {
                 var upgrade = holder.value();
-                var craftingStack = upgrade.getCraftingItem();
-                return !craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && upgrade.isItemSuitable(stack);
+                return upgrade.getCraftingIngredient().test(stack) && upgrade.isItemSuitable(stack);
             })
             .findAny()
-            .map(x -> UpgradeData.of(x, x.value().getUpgradeData(stack)))
+            .map(x -> UpgradeData.of(x, stack, x.value().getUpgradeData(stack)))
             .orElse(null);
     }
 }

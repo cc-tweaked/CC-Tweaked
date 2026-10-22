@@ -11,6 +11,7 @@ import com.google.common.primitives.Primitives;
 import com.google.common.reflect.TypeToken;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.methods.LuaMethod;
+import dan200.computercraft.core.util.Nullability;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -179,7 +180,7 @@ final class Generator<T> {
         }
 
         // unsafe can only be used on the computer thread, so reject it for mainThread functions.
-        var annotation = method.getAnnotation(LuaFunction.class);
+        var annotation = Nullability.assertNonNull(method.getAnnotation(LuaFunction.class));
         if (annotation.unsafe() && annotation.mainThread()) {
             LOG.error("Lua Method {}.{} cannot use unsafe and mainThread.", method.getDeclaringClass().getName(), method.getName());
             return false;
@@ -231,7 +232,7 @@ final class Generator<T> {
     private Optional<T> build(Method method, MethodHandle handle, List<Type> parameters) {
         LOG.debug("Generating method wrapper for {}.{}.", method.getDeclaringClass().getName(), method.getName());
 
-        var annotation = method.getAnnotation(LuaFunction.class);
+        var annotation = Nullability.assertNonNull(method.getAnnotation(LuaFunction.class));
         var wrappedHandle = buildMethodHandle(method, handle, parameters, annotation.unsafe());
         if (wrappedHandle == null) return Optional.empty();
 

@@ -20,11 +20,12 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.function.IntUnaryOperator;
 
 @AutoService(dan200.computercraft.impl.client.ClientPlatformHelper.class)
 public class ClientPlatformHelperImpl implements ClientPlatformHelper {
     private static final RandomSource random = RandomSource.create(0);
-    private static final Direction[] directions = Arrays.copyOf(Direction.values(), 7);
+    private static final @Nullable Direction[] directions = Arrays.copyOf(Direction.values(), 7);
 
     @Override
     public BakedModel getModel(ModelManager manager, ResourceLocation resourceLocation) {
@@ -42,7 +43,7 @@ public class ClientPlatformHelperImpl implements ClientPlatformHelper {
     }
 
     @Override
-    public void renderBakedModel(PoseStack transform, MultiBufferSource buffers, BakedModel model, int lightmapCoord, int overlayLight, int @Nullable [] tints) {
+    public void renderBakedModel(PoseStack transform, MultiBufferSource buffers, BakedModel model, int lightmapCoord, int overlayLight, @Nullable IntUnaryOperator tints) {
         for (var renderType : model.getRenderTypes(ItemStack.EMPTY, true)) {
             var buffer = buffers.getBuffer(renderType);
             for (var face : directions) {

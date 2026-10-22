@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Mixin(Minecraft.class)
-class MinecraftMixin implements MinecraftExtensions {
+abstract class MinecraftMixin implements MinecraftExtensions {
     @Final
     @Shadow
     public LevelRenderer levelRenderer;

@@ -5,7 +5,12 @@
   "key": {"#": {"item": "computercraft:speaker"}, "T": {"item": "computercraft:turtle_advanced"}},
   "pattern": ["#T"],
   "result": {
-    "components": {"computercraft:right_turtle_upgrade": {"id": "computercraft:speaker"}},
+    "components": {
+      "computercraft:right_turtle_upgrade": {
+        "id": "computercraft:speaker",
+        "item": {"count": 1, "id": "computercraft:speaker"}
+      }
+    },
     "count": 1,
     "id": "computercraft:turtle_advanced"
   }

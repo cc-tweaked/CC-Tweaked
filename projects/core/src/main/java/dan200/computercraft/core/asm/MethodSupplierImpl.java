@@ -30,7 +30,7 @@ final class MethodSupplierImpl<T> implements MethodSupplier<T> {
     private final List<GenericMethod> genericMethods;
     private final Generator<T> generator;
     private final IntCache<T> dynamic;
-    private final Function<Object, String[]> dynamicMethods;
+    private final Function<Object, String @Nullable []> dynamicMethods;
 
     private final ClassValue<List<NamedMethod<T>>> classCache = new ClassValue<>() {
         private final Function<Class<?>, List<NamedMethod<T>>> getter = catching(MethodSupplierImpl.this::getMethodsImpl, List.of());
@@ -45,7 +45,7 @@ final class MethodSupplierImpl<T> implements MethodSupplier<T> {
         List<GenericMethod> genericMethods,
         Generator<T> generator,
         IntCache<T> dynamic,
-        Function<Object, String[]> dynamicMethods
+        Function<Object, String @Nullable []> dynamicMethods
     ) {
         this.genericMethods = genericMethods;
         this.generator = generator;

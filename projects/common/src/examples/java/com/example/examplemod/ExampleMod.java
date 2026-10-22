@@ -26,7 +26,7 @@ public final class ExampleMod {
      * This only defines the upgrade type. See {@link TurtleUpgradeProvider} for defining the actual upgrade.
      */
     // @start region=turtle_upgrades
-    public static final UpgradeType<ExampleTurtleUpgrade> EXAMPLE_TURTLE_UPGRADE = UpgradeType.simpleWithCustomItem(
+    public static final UpgradeType<ExampleTurtleUpgrade> EXAMPLE_TURTLE_UPGRADE = UpgradeType.simpleWithCustomIngredient(
         ExampleTurtleUpgrade::new
     );
     // @end region=turtle_upgrades

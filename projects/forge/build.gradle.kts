@@ -271,6 +271,8 @@ tasks.verifyClassesMatch {
     // Forge widens the inner classes of RenderType, so we end up with different InnerClasses attributes. Doesn't cause
     // issues.
     ignoredFiles.add("dan200/computercraft/client/render/RenderTypes\$Types.class")
+    // Forge adds Holder.Reference.hashCode(), so INVOKEVIRTUAL points to a different method. This is fine.
+    ignoredFiles.add("dan200/computercraft/api/upgrades/UpgradeData.class")
 }
 
 val runGametest = tasks.named<JavaExec>("runGametest") {

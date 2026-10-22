@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * Allows triggering ComputerCraft's client commands from chat components events.
  */
 @Mixin(ClientPacketListener.class)
-class ClientPacketListenerMixin {
+abstract class ClientPacketListenerMixin {
     @Inject(method = "sendUnsignedCommand", at = @At("HEAD"), cancellable = true)
     void commandUnsigned(String command, CallbackInfoReturnable<Boolean> ci) {
         if (command.startsWith(CommandComputerCraft.CLIENT_OPEN_FOLDER) && ClientCommandHandler.runCommand(command)) {

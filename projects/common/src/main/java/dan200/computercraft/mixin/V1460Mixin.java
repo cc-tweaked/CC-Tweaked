@@ -31,7 +31,7 @@ import java.util.function.Supplier;
  * @see TurtleBlockEntity
  */
 @Mixin(V1460.class)
-class V1460Mixin {
+abstract class V1460Mixin {
     @Inject(at = @At("RETURN"), method = "registerBlockEntities")
     @SuppressWarnings("UnusedMethod")
     private void registerBlockEntities(Schema schema, CallbackInfoReturnable<Map<String, Supplier<TypeTemplate>>> ci) {
@@ -53,7 +53,10 @@ class V1460Mixin {
             // Pre-1.20.5 we just use the upgrade ID.
             DSL.constType(NamespacedSchema.namespacedString()),
             // In newer versions this is represented as a component.
-            DSL.optionalFields("components", References.DATA_COMPONENTS.in(schema))
+            DSL.optionalFields(
+                "item", References.ITEM_STACK.in(schema),
+                "components", References.DATA_COMPONENTS.in(schema)
+            )
         );
     }
 

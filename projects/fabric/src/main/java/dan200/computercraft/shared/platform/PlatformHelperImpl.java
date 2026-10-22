@@ -137,13 +137,21 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    @SuppressWarnings("UnstableApiUsage")
     public @Nullable ItemContainer getContainer(ServerLevel level, BlockPos pos, Direction side) {
         var storage = ItemStorage.SIDED.find(level, pos, side);
         if (storage != null) return new FabricItemContainer(storage);
 
         var entity = InventoryUtil.getEntityContainer(level, pos, side);
         return entity == null ? null : new FabricItemContainer(InventoryStorage.of(entity, side));
+    }
+
+    @Override
+    public @Nullable ItemContainer getContainer(ItemStack stack) {
+        if (stack.is(ConventionalItemTags.SHULKER_BOXES)) {
+            return new FabricItemContainer(new ShulkerItemStorage(stack, 27));
+        }
+
+        return null;
     }
 
     @Override
@@ -158,7 +166,8 @@ public class PlatformHelperImpl implements PlatformHelper {
             Ingredient.of(ConventionalItemTags.IRON_INGOTS),
             Ingredient.of(ConventionalItemTags.DYES),
             Ingredient.of(ConventionalItemTags.ENDER_PEARLS),
-            Ingredient.of(ConventionalItemTags.WOODEN_CHESTS)
+            Ingredient.of(ConventionalItemTags.WOODEN_CHESTS),
+            Ingredient.of(ConventionalItemTags.SHULKER_BOXES)
         );
     }
 

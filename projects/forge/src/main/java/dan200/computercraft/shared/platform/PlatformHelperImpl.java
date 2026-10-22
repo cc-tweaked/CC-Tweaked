@@ -145,6 +145,12 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
+    public @Nullable ItemContainer getContainer(ItemStack stack) {
+        var handler = stack.getCapability(Capabilities.ItemHandler.ITEM);
+        return handler == null ? null : new ForgeItemContainer(handler);
+    }
+
+    @Override
     public RecipeIngredients getRecipeIngredients() {
         return new RecipeIngredients(
             Ingredient.of(Tags.Items.DUSTS_REDSTONE),
@@ -156,7 +162,8 @@ public class PlatformHelperImpl implements PlatformHelper {
             Ingredient.of(Tags.Items.INGOTS_IRON),
             Ingredient.of(Tags.Items.DYES),
             Ingredient.of(Tags.Items.ENDER_PEARLS),
-            Ingredient.of(Tags.Items.CHESTS_WOODEN)
+            Ingredient.of(Tags.Items.CHESTS_WOODEN),
+            Ingredient.of(Tags.Items.SHULKER_BOXES)
         );
     }
 

@@ -7,7 +7,9 @@ package dan200.computercraft.shared.pocket.core;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.upgrades.UpgradeData;
+import dan200.computercraft.api.upgrades.UpgradeHandle;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.impl.AbstractUpgradeHolder;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
 import dan200.computercraft.shared.network.server.ServerNetworking;
@@ -37,7 +39,7 @@ public final class PocketBrain implements IPocketAccess {
     private Vec3 position;
 
     private boolean dirty = false;
-    private @Nullable UpgradeData<IPocketUpgrade> upgrade;
+    private @Nullable UpgradeHolder upgrade;
     private int colour = -1;
     private int lightColour = -1;
 
@@ -45,7 +47,7 @@ public final class PocketBrain implements IPocketAccess {
         this.computer = new PocketServerComputer(this, holder, properties);
         this.holder = holder;
         this.position = holder.pos();
-        this.upgrade = upgrade;
+        this.upgrade = upgrade == null ? null : new UpgradeHolder(upgrade);
         this.colour = colour;
         invalidatePeripheral();
     }
@@ -94,7 +96,7 @@ public final class PocketBrain implements IPocketAccess {
         this.dirty = false;
 
         stack.set(DataComponents.DYED_COLOR, colour == -1 ? null : new DyedItemColor(colour, false));
-        PocketComputerItem.setUpgrade(stack, upgrade);
+        PocketComputerItem.setUpgrade(stack, upgrade == null ? null : upgrade.getUpgradeData());
         return true;
     }
 
@@ -138,43 +140,83 @@ public final class PocketBrain implements IPocketAccess {
         lightColour = colour;
     }
 
-    @Override
-    public DataComponentPatch getUpgradeData() {
-        var upgrade = this.upgrade;
-        return upgrade == null ? DataComponentPatch.EMPTY : upgrade.data();
-    }
-
-    @Override
-    public void setUpgradeData(DataComponentPatch data) {
-        var upgrade = this.upgrade;
-        if (upgrade == null) return;
-        this.upgrade = UpgradeData.of(upgrade.holder(), data);
-    }
-
-    @Override
-    public void invalidatePeripheral() {
-        var peripheral = upgrade == null ? null : upgrade.upgrade().createPeripheral(this);
-        computer.setPeripheral(ComputerSide.BACK, peripheral);
+    private void requirePresent() {
+        if (!computer.getLevel().getServer().isSameThread()) {
+            throw new IllegalStateException("Must be called from the main thread");
+        }
+        if (!holder.isValid(computer)) throw new IllegalStateException("Pocket computer is not active");
     }
 
     @Override
     public @Nullable UpgradeData<IPocketUpgrade> getUpgrade() {
-        return upgrade;
+        return upgrade == null ? null : upgrade.getUpgradeData();
     }
 
-    /**
-     * Set the upgrade for this pocket computer, also updating the item stack.
-     * <p>
-     * Note this method is not thread safe - it must be called from the server thread.
-     *
-     * @param upgrade The new upgrade to set it to, may be {@code null}.
-     */
+    @Override
+    public @Nullable UpgradeHandle<IPocketUpgrade> getUpgradeHandle() {
+        requirePresent();
+        return upgrade == null ? null : upgrade.getHandle();
+    }
+
+    @Override
+    @Deprecated
+    public DataComponentPatch getUpgradeData() {
+        var upgrade = this.upgrade;
+        return upgrade == null ? DataComponentPatch.EMPTY : upgrade.getData();
+    }
+
+    @Override
+    @Deprecated
+    public void setUpgradeData(DataComponentPatch data) {
+        var upgrade = this.upgrade;
+        if (upgrade == null || upgrade.getData().equals(data)) return;
+
+        dirty = true;
+
+        // If marking the data as dirty via the old API then recompute the item from the upgrade data.
+        upgrade.setData(data);
+        upgrade.recomputeItem();
+    }
+
+    @Override
+    public void invalidatePeripheral() {
+        var upgrade = this.upgrade;
+        var peripheral = upgrade == null ? null : upgrade.getUpgrade().createPeripheral(this);
+        computer.setPeripheral(ComputerSide.BACK, peripheral);
+    }
+
     @Override
     public void setUpgrade(@Nullable UpgradeData<IPocketUpgrade> upgrade) {
-        if (Objects.equals(this.upgrade, upgrade)) return;
+        requirePresent();
 
-        this.upgrade = upgrade;
+        var currentUpgrade = this.upgrade;
+        if (Objects.equals(currentUpgrade == null ? null : currentUpgrade.getUpgradeData(), upgrade)) return;
+
+        this.upgrade = upgrade == null ? null : new UpgradeHolder(upgrade);
         dirty = true;
         invalidatePeripheral();
+    }
+
+    private final class UpgradeHolder extends AbstractUpgradeHolder<IPocketUpgrade> {
+        UpgradeHolder(UpgradeData<IPocketUpgrade> upgrade) {
+            super(upgrade);
+        }
+
+        @Override
+        protected void requireValid() {
+            if (upgrade != this) throw new IllegalStateException("Upgrade is no longer present");
+            requirePresent();
+        }
+
+        @Override
+        public void setChanged() {
+            dirty = true;
+        }
+
+        @Override
+        public void remove() {
+            requireValid();
+            setUpgrade(null);
+        }
     }
 }

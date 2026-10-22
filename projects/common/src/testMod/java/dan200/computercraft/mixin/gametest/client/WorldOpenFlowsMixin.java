@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
 @Mixin(WorldOpenFlows.class)
-public class WorldOpenFlowsMixin {
+abstract class WorldOpenFlowsMixin {
     /**
      * Never prompt for backup/experimental options when running tests.
      *

@@ -4,8 +4,8 @@
 
 package dan200.computercraft.client.model;
 
-import com.mojang.math.Transformation;
 import dan200.computercraft.client.model.turtle.ModelTransformer;
+import dan200.computercraft.client.model.turtle.TurtleModelParts;
 import net.fabricmc.fabric.api.renderer.v1.model.ForwardingBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -29,9 +29,9 @@ import java.util.function.Supplier;
 public class TransformedBakedModel extends ForwardingBakedModel {
     private final FabricModelTransformer transformation;
 
-    public TransformedBakedModel(BakedModel model, Transformation transformation) {
-        wrapped = model;
-        this.transformation = new FabricModelTransformer(transformation);
+    public TransformedBakedModel(TurtleModelParts.TurtleModelPart part) {
+        wrapped = part.model();
+        this.transformation = new FabricModelTransformer(part.matrix(), part.side());
     }
 
     @Override

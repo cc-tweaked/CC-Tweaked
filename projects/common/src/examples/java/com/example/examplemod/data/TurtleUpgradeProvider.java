@@ -9,8 +9,8 @@ import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.registries.RegistryPatchGenerator;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -23,7 +23,7 @@ public class TurtleUpgradeProvider {
     public static void addUpgrades(BootstrapContext<ITurtleUpgrade> upgrades) {
         upgrades.register(
             ITurtleUpgrade.createKey(ResourceLocation.fromNamespaceAndPath(ExampleMod.MOD_ID, "example_turtle_upgrade")),
-            new ExampleTurtleUpgrade(new ItemStack(Items.COMPASS))
+            new ExampleTurtleUpgrade(Ingredient.of(Items.COMPASS))
         );
     }
 
