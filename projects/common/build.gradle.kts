@@ -65,6 +65,7 @@ dependencies {
     testModCompileOnly(libs.mixin)
     testModImplementation(testFixtures(project(":core")))
     testModImplementation(testFixtures(project(":common")))
+    testModImplementation(libs.openTestReporting)
     testModImplementation(libs.bundles.kotlin)
 
     "cctJavadoc"(libs.cctJavadoc)

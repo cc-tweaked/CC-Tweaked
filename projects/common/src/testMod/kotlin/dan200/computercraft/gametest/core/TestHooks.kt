@@ -47,7 +47,7 @@ object TestHooks {
     var structureManager: StructureTemplateManager? = null
 
     @JvmStatic
-    fun init() {
+    fun init(loader: String) {
         ServerContext.luaMachine = ManagedComputers
         ComputerCraftAPI.registerAPIFactory(::TestAPI)
         StructureUtils.testStructuresDir = sourceDir.resolve("structures").toString()
@@ -58,7 +58,7 @@ object TestHooks {
             try {
                 GlobalTestReporter.replaceWith(
                     MultiTestReporter(
-                        JunitTestReporter(File(outputPath)),
+                        OtrTestReporter("$loader gametests", File(outputPath)),
                         LogTestReporter(),
                     ),
                 )

@@ -172,6 +172,14 @@ tasks.test {
     testLogging {
         events("skipped", "failed")
     }
+
+    // Enable open test reporting
+    jvmArgumentProviders.add {
+        listOf(
+            "-Djunit.platform.reporting.open.xml.enabled=true",
+            "-Djunit.platform.reporting.output.dir=${reports.junitXml.outputLocation.getAbsolutePath()}",
+        )
+    }
 }
 
 tasks.withType(JacocoReport::class.java).configureEach {
