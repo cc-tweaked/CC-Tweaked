@@ -11,11 +11,11 @@ See https://github.com/actions/toolkit/blob/master/docs/problem-matchers.md and
 https://github.com/actions/toolkit/blob/master/docs/commands.md.
 """
 
+import dataclasses
 import os.path
 import pathlib
 import re
 import xml.etree.ElementTree as ET
-from typing import Optional, Tuple
 
 LUA_ERROR_LOCATION = re.compile(r"^\s+(/[\w./-]+):(\d+):", re.MULTILINE)
 JAVA_LUA_ERROR_LOCATION = re.compile(r"^java.lang.IllegalStateException: (/[\w./-]+):(\d+):")
@@ -42,10 +42,8 @@ PROJECT_LOCATIONS = [
     "projects/forge",
 ]
 
-TEST_REPORTS = []
 
-
-def find_file(path: str) -> Optional[str]:
+def find_file(path: str) -> str | None:
     while len(path) > 0 and path[0] == "/":
         path = path[1:]
 
@@ -58,7 +56,7 @@ def find_file(path: str) -> Optional[str]:
     return None
 
 
-def find_location(message: str) -> Optional[Tuple[str, str]]:
+def find_location(message: str) -> tuple[str, str] | None:
     location = LUA_ERROR_LOCATION.search(message)
     if location:
         file = find_file(location[1])
@@ -79,31 +77,60 @@ def find_location(message: str) -> Optional[Tuple[str, str]]:
     return None
 
 
+_OTR_CORE = "https://schemas.opentest4j.org/reporting/core/0.2.0"
+_OTR_EVENTS = "https://schemas.opentest4j.org/reporting/events/0.2.0"
+_OTR_JAVA = "https://schemas.opentest4j.org/reporting/java/0.2.0"
+
+
 def _parse_junit_file(path: pathlib.Path):
-    for testcase in ET.parse(path).findall(".//testcase"):
-        for result in testcase:
-            if result.tag == "skipped":
+    tests: dict[str, str] = {}
+    tree = ET.parse(path).getroot()
+    for event in tree:
+        if event.tag == f"{{{_OTR_CORE}}}infrastructure":
+            continue
+        elif event.tag == f"{{{_OTR_EVENTS}}}started":
+            test_id: str = event.get("id")
+            test_name: str = event.get("name")
+            if (parent_id := event.get("parentId")) is not None:
+                test_name = tests[parent_id] + " ⊳ " + test_name
+
+            tests[test_id] = test_name
+        elif event.tag == f"{{{_OTR_EVENTS}}}finished":
+            test_id: str = event.get("id")
+            test_name = tests[test_id]
+
+            result = event.find(f"./{{{_OTR_CORE}}}result")
+            if result is None:
                 continue
 
-            name = f'{testcase.attrib["classname"]}.{testcase.attrib["name"]}'
-            message = result.attrib.get("message")
-            full_message = result.text or message
+            if result.get("status") in ("SUCCESSFUL", "ABORTED"):
+                continue
+
+            reason = result.find(f"./{{{_OTR_CORE}}}reason")
+            throwable = result.find(f"./{{{_OTR_JAVA}}}throwable")
+
+            message = reason.text if reason is not None else ""
+            full_message = throwable.text if throwable is not None else ""
 
             location = find_location(full_message)
-            error = ERROR_MESSAGE.match(message)
-            if error:
-                error = error[1]
+            if (match := ERROR_MESSAGE.match(message)) is not None:
+                error = match.group(1)
             else:
                 error = message
+            error = SPACES.sub(' ', error)
 
             if location:
-                print(f'## {location[0]}:{location[1]}: {name} failed: {SPACES.sub(" ", error)}')
+                print(f"## {location[0]}:{location[1]}: {test_name} failed: {error}")
             else:
-                print(f"::error::{name} failed")
+                print(f"::error::{test_name} failed: {error}")
 
-            print("::group::Full error message")
-            print(full_message)
-            print("::endgroup::")
+            if len(full_message) > 0:
+                print("::group::Full error message")
+                print(full_message)
+                print("::endgroup::")
+        else:
+            print(f"Unknown tag: {event.tag}")
+
 
 
 def parse_junit() -> None:
@@ -114,7 +141,7 @@ def parse_junit() -> None:
     print("::add-matcher::.github/matchers/junit.json")
 
     for project in PROJECT_LOCATIONS:
-        for path in pathlib.Path(os.path.join(project, "build/test-results/test")).glob("TEST-*.xml"):
+        for path in pathlib.Path(os.path.join(project, "build/test-results")).glob("*/open-test-report.xml"):
             _parse_junit_file(path)
 
         for path in pathlib.Path(os.path.join(project, "build/test-results")).glob("run*.xml"):
@@ -130,7 +157,7 @@ def _parse_checkstyle(path: pathlib.Path):
 
             attrib = error.attrib
             print(
-                f'{attrib["severity"]} {filename}:{attrib["line"]}:{attrib.get("column", 1)}: {SPACES.sub(" ", attrib["message"])}'
+                f"{attrib['severity']} {filename}:{attrib['line']}:{attrib.get('column', 1)}: {SPACES.sub(' ', attrib['message'])}"
             )
 
 

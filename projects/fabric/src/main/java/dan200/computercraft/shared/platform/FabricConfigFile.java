@@ -10,7 +10,6 @@ import com.electronwill.nightconfig.core.file.FileNotFoundAction;
 import com.electronwill.nightconfig.core.file.FileWatcher;
 import com.electronwill.nightconfig.core.io.WritingMode;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
-import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.config.ConfigFile;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jspecify.annotations.Nullable;
@@ -59,7 +58,7 @@ public final class FabricConfigFile extends ConfigFile {
 
         closeConfig();
 
-        var path = Nullability.assertNonNull(Arrays.stream(paths).filter(Files::exists).findFirst().orElseGet(() -> paths[paths.length - 1]));
+        var path = Arrays.stream(paths).filter(Files::exists).findFirst().orElseGet(() -> paths[paths.length - 1]);
         var config = this.config = CommentedFileConfig.builder(path).sync()
             .onFileNotFound(FileNotFoundAction.READ_NOTHING)
             .writingMode(WritingMode.REPLACE)

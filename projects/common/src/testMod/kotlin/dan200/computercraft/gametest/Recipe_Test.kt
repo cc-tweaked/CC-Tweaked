@@ -118,7 +118,7 @@ class Recipe_Test {
             for (recipe in recipes) {
                 // Ensure the result matches the input.
                 val result = recipe.getResultItem(context.level.registryAccess())
-                if (!ItemStack.isSameItemSameComponents(result, item) || result.count != item.count) {
+                if (!ItemStack.matches(result, item)) {
                     context.fail("Expected to craft ${item.toStringFull()} but crafted ${result.toStringFull()}")
                 }
 

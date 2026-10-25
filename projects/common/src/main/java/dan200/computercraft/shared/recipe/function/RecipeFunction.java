@@ -39,7 +39,7 @@ public interface RecipeFunction {
     /**
      * The registry where {@link RecipeFunction}s are registered.
      */
-    ResourceKey<Registry<Type<?>>> REGISTRY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "recipe_function"));
+    ResourceKey<Registry<Type<? extends RecipeFunction>>> REGISTRY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(ComputerCraftAPI.MOD_ID, "recipe_function"));
 
     /**
      * The codec to read and write {@link RecipeFunction}s with.
@@ -66,7 +66,7 @@ public interface RecipeFunction {
      *
      * @return The type of this recipe function.
      */
-    Type<?> getType();
+    Type<? extends RecipeFunction> getType();
 
     /**
      * Apply this recipe function, modifying the result item.

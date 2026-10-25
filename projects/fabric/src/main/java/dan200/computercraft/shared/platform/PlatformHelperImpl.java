@@ -246,7 +246,6 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
-    @SuppressWarnings("NullAway") // NullAway doesn't like the null here.
     public @Nullable IMedia getMedia(ItemStack stack) {
         return MediaLookup.get().find(stack, null);
     }

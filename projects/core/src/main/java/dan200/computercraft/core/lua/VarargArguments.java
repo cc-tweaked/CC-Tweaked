@@ -27,7 +27,7 @@ final class VarargArguments implements IArguments {
     private volatile boolean closed;
     private final VarargArguments root;
 
-    private @Nullable ArraySlice<Object> cache;
+    private @Nullable ArraySlice<@Nullable Object> cache;
     private @Nullable ArraySlice<String> typeNames;
 
     private boolean escapes;
@@ -230,14 +230,12 @@ final class VarargArguments implements IArguments {
     }
 
     @SuppressWarnings("ArrayRecordComponent")
-    private record ArraySlice<T>(@Nullable T[] array, int offset) {
-        // FIXME: We should be able to remove the @Nullables if we update NullAway.
-
-        @Nullable T get(int index) {
+    private record ArraySlice<T extends @Nullable Object>(T[] array, int offset) {
+        T get(int index) {
             return array[offset + index];
         }
 
-        void set(int index, @Nullable T value) {
+        void set(int index, T value) {
             array[offset + index] = value;
         }
 

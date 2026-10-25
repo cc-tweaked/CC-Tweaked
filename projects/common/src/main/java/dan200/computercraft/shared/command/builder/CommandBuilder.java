@@ -17,7 +17,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import static dan200.computercraft.shared.command.Exceptions.ARGUMENT_EXPECTED;
 import static dan200.computercraft.shared.command.builder.HelpingArgumentBuilder.literal;
@@ -58,27 +57,19 @@ public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>> {
     }
 
     public <T> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argManyValue(String name, ArgumentType<T> type, List<T> empty) {
-        return argMany(name, type, () -> empty);
+        return argMany(name, RepeatArgumentType.some(type, ARGUMENT_EXPECTED), empty);
     }
 
     public <T> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argManyValue(String name, ArgumentType<T> type, T defaultValue) {
         return argManyValue(name, type, List.of(defaultValue));
     }
 
-    public <T> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argMany(String name, ArgumentType<T> type, Supplier<List<T>> empty) {
-        return argMany(name, RepeatArgumentType.some(type, ARGUMENT_EXPECTED), empty);
-    }
-
-    public <T> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argManyFlatten(String name, ArgumentType<List<T>> type, Supplier<List<T>> empty) {
-        return argMany(name, RepeatArgumentType.someFlat(type, ARGUMENT_EXPECTED), empty);
-    }
-
-    private <T> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argMany(String name, RepeatArgumentType<T, ?> type, Supplier<List<T>> empty) {
+    private <T> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argMany(String name, RepeatArgumentType<T> type, List<T> empty) {
         if (args.isEmpty()) throw new IllegalStateException("Cannot have empty arg chain builder");
 
         return command -> {
             // The node for no arguments
-            var tail = setupTail(ctx -> command.run(ctx, empty.get()));
+            var tail = setupTail(ctx -> command.run(ctx, empty));
 
             // The node for one or more arguments
             ArgumentBuilder<S, ?> moreArg = RequiredArgumentBuilder

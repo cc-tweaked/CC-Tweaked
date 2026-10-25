@@ -29,7 +29,7 @@ class UpgradeContainer implements Container {
 
     private final ITurtleAccess turtle;
 
-    private final List<UpgradeData<ITurtleUpgrade>> lastUpgrade = Arrays.asList(null, null);
+    private final List<@Nullable UpgradeData<ITurtleUpgrade>> lastUpgrade = Arrays.asList(null, null);
     private final NonNullList<ItemStack> lastStack = NonNullList.withSize(2, ItemStack.EMPTY);
 
     UpgradeContainer(ITurtleAccess turtle) {

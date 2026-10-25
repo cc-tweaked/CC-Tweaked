@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public final class IDAssigner {
     private static final Logger LOG = LoggerFactory.getLogger(IDAssigner.class);
@@ -83,7 +84,7 @@ public final class IDAssigner {
             }
         } else {
             try {
-                Files.createDirectories(idFile.getParent());
+                Files.createDirectories(Objects.requireNonNull(idFile.getParent()));
             } catch (IOException e) {
                 LOG.error("Cannot create owning directory, IDs will not be persisted", e);
             }

@@ -740,7 +740,7 @@ public class TurtleBrain implements TurtleAccessInternal {
         }
 
         @Override
-        public MethodResult resume(Object[] response) {
+        public MethodResult resume(@Nullable Object[] response) {
             if (response.length < 3 || !(response[1] instanceof Number id) || !(response[2] instanceof Boolean)) {
                 return pull;
             }

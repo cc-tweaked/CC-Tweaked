@@ -79,7 +79,7 @@ public abstract class AbstractUpgradeHolder<U extends UpgradeBase> {
         this.data = data;
     }
 
-    public final ItemStack getItem() {
+    public final @Unmodifiable ItemStack getItem() {
         return item;
     }
 

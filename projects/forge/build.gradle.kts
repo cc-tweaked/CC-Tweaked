@@ -214,6 +214,7 @@ dependencies {
     // Ensure our test fixture dependencies are on the classpath
     "testAdditionalRuntimeClasspath"(libs.bundles.kotlin)
     "testAdditionalRuntimeClasspath"(libs.bundles.test)
+    "testAdditionalRuntimeClasspath"(libs.openTestReporting)
 
     "testWithIris"(libs.iris.forge)
     "testWithIris"(libs.sodium.forge)

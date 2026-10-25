@@ -10,6 +10,7 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.core.methods.PeripheralMethod;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link PeripheralMethod} along with the method's target.
@@ -34,7 +35,7 @@ final class SaturatedMethod {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (obj == this) return true;
         if (!(obj instanceof SaturatedMethod other)) return false;
 

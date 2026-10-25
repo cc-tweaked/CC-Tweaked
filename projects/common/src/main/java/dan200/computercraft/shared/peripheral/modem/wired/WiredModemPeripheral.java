@@ -389,7 +389,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
         public synchronized @Nullable String mount(String desiredLocation, Mount mount) {
             if (!attached) throw new NotAttachedException();
             var mounted = computer.mount(desiredLocation, mount, name);
-            mounts.add(mounted);
+            if (mounted != null) mounts.add(mounted);
             return mounted;
         }
 
@@ -397,7 +397,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
         public synchronized @Nullable String mount(String desiredLocation, Mount mount, String driveName) {
             if (!attached) throw new NotAttachedException();
             var mounted = computer.mount(desiredLocation, mount, driveName);
-            mounts.add(mounted);
+            if (mounted != null) mounts.add(mounted);
             return mounted;
         }
 
@@ -405,7 +405,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
         public synchronized @Nullable String mountWritable(String desiredLocation, WritableMount mount) {
             if (!attached) throw new NotAttachedException();
             var mounted = computer.mountWritable(desiredLocation, mount, name);
-            mounts.add(mounted);
+            if (mounted != null) mounts.add(mounted);
             return mounted;
         }
 
@@ -413,7 +413,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements Wi
         public synchronized @Nullable String mountWritable(String desiredLocation, WritableMount mount, String driveName) {
             if (!attached) throw new NotAttachedException();
             var mounted = computer.mountWritable(desiredLocation, mount, driveName);
-            mounts.add(mounted);
+            if (mounted != null) mounts.add(mounted);
             return mounted;
         }
 

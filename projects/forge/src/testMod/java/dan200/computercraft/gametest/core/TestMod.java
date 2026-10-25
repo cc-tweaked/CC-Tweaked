@@ -22,7 +22,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 @Mod("cctest")
 public class TestMod {
     public TestMod(IEventBus modBus) {
-        TestHooks.init();
+        TestHooks.init("Forge");
 
         var bus = NeoForge.EVENT_BUS;
         bus.addListener(EventPriority.LOW, (ServerStartedEvent e) -> TestHooks.onServerStarted(e.getServer()));
